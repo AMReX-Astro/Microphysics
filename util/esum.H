@@ -9753,4 +9753,111 @@ Real esum30(T const& array)
 }
 
 
+template<int n, class T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real esum(T const& array)
+{
+    // return value
+    Real sum = 0.0_rt;
+
+    switch (n) {
+    case 1:
+        sum = array(1);
+        break;
+    case 2:
+        sum = array(1) + array(2);
+        break;
+    case 3:
+        sum = esum3(array);
+        break;
+    case 4:
+        sum = esum4(array);
+        break;
+    case 5:
+        sum = esum5(array);
+        break;
+    case 6:
+        sum = esum6(array);
+        break;
+    case 7:
+        sum = esum7(array);
+        break;
+    case 8:
+        sum = esum8(array);
+        break;
+    case 9:
+        sum = esum9(array);
+        break;
+    case 10:
+        sum = esum10(array);
+        break;
+    case 11:
+        sum = esum11(array);
+        break;
+    case 12:
+        sum = esum12(array);
+        break;
+    case 13:
+        sum = esum13(array);
+        break;
+    case 14:
+        sum = esum14(array);
+        break;
+    case 15:
+        sum = esum15(array);
+        break;
+    case 16:
+        sum = esum16(array);
+        break;
+    case 17:
+        sum = esum17(array);
+        break;
+    case 18:
+        sum = esum18(array);
+        break;
+    case 19:
+        sum = esum19(array);
+        break;
+    case 20:
+        sum = esum20(array);
+        break;
+    case 21:
+        sum = esum21(array);
+        break;
+    case 22:
+        sum = esum22(array);
+        break;
+    case 23:
+        sum = esum23(array);
+        break;
+    case 24:
+        sum = esum24(array);
+        break;
+    case 25:
+        sum = esum25(array);
+        break;
+    case 26:
+        sum = esum26(array);
+        break;
+    case 27:
+        sum = esum27(array);
+        break;
+    case 28:
+        sum = esum28(array);
+        break;
+    case 29:
+        sum = esum29(array);
+        break;
+    case 30:
+        sum = esum30(array);
+        break;
+
+    default:
+        sum = 0.0_rt;
+        break;
+    }
+    return sum;
+}
+
+
 #endif

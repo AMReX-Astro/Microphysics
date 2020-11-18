@@ -208,7 +208,10 @@ void main_main ()
 
     // Write a plotfile
     if (do_cxx == 1) {
-      WriteSingleLevelPlotfile(name + language, state, vars.names, geom, time, 0);
+      amrex::Vector<std::string> names;
+      get_varnames(vars, names);
+
+      WriteSingleLevelPlotfile(name + language, state, names, geom, time, 0);
     } else {
       WriteSingleLevelPlotfile(name + language, state, varnames, geom, time, 0);
     }

@@ -1,11 +1,11 @@
 #include <variables.H>
 #include <network.H>
 
+constexpr int n_tests = 52;
+
 plot_t init_variables() {
 
     plot_t p;
-
-    constexpr int n_tests = 52;
 
     p.irho = p.next_index(1);
     p.itemp = p.next_index(1);
@@ -68,86 +68,90 @@ plot_t init_variables() {
     p.ilanganke = p.next_index(2);
     p.iecapnuc = p.next_index(4);
 
+    return p;
+}
 
-    p.names.resize(p.n_plot_comps);
 
-    p.names[p.irho] = "density";
-    p.names[p.itemp] = "temperature";
-    p.names[p.ini56] = "X(ni56)";
+void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
 
-    p.names[p.ic12ag] = "c12ag";
-    p.names[p.ic12ag_deboer17] = "c12ag_deboer17";
-    p.names[p.itriplealf] = "triplealf";
-    p.names[p.ic12c12] = "c12c12";
-    p.names[p.ic12o16] = "c12o16";
-    p.names[p.io16o16] = "o16o16";
-    p.names[p.io16ag] = "o16ag";
+    names.resize(p.n_plot_comps);
 
-    p.names[p.ine20ag] = "ne20ag";
-    p.names[p.img24ag] = "mg24ag";
-    p.names[p.img24ap] = "mg24ap";
-    p.names[p.ial27pg] = "al27pg";
-    p.names[p.ial27pg_old] = "al27pg_old";
-    p.names[p.isi28ag] = "si28ag";
+    names[p.irho] = "density";
+    names[p.itemp] = "temperature";
+    names[p.ini56] = "X(ni56)";
 
-    p.names[p.isi28ap] = "si28ap";
-    p.names[p.ip31pg] = "p31pg";
-    p.names[p.is32ag] = "s32ag";
-    p.names[p.is32ap] = "s32ap";
-    p.names[p.icl35pg] = "cl35pg";
-    p.names[p.iar36ag] = "ar36ag";
-    p.names[p.iar36ap] = "ar36ap";
-    p.names[p.ik39pg] = "k39pg";
-    p.names[p.ica40ag] = "ca40ag";
-    p.names[p.ica40ap] = "ca40ap";
-    p.names[p.isc43pg] = "sc43pg";
-    p.names[p.iti44ag] = "ti44ag";
-    p.names[p.iti44ap] = "ti44ap";
-    p.names[p.iv47pg] = "v47pg";
-    p.names[p.icr48ag] = "cr48ag";
-    p.names[p.icr48ap] = "cr48ap";
-    p.names[p.imn51pg] = "mn51pg";
-    p.names[p.ife52ag] = "fe52ag";
-    p.names[p.ife52ap] = "fe52ap";
-    p.names[p.ico55pg] = "co55pg";
-    p.names[p.ipp] = "pp";
-    p.names[p.ipng] = "png";
-    p.names[p.idpg] = "dpg";
-    p.names[p.ihe3ng] = "he3ng";
-    p.names[p.ihe3he3] = "he3he3";
-    p.names[p.ihe3he4] = "he3he4";
-    p.names[p.ic12pg] = "c12pg";
-    p.names[p.in14pg] = "n14pg";
-    p.names[p.in15pg] = "n15pg";
-    p.names[p.in15pa] = "n15pa";
-    p.names[p.io16pg] = "o16pg";
-    p.names[p.in14ag] = "n14ag";
-    p.names[p.ife52ng] = "fe52ng";
-    p.names[p.ife53ng] = "fe53ng";
-    p.names[p.ife54ng] = "fe54ng";
-    p.names[p.ife54pg] = "fe54pg";
-    p.names[p.ife54ap] = "fe54ap";
-    p.names[p.ife55ng] = "fe55ng";
-    p.names[p.ife56pg] = "fe56pg";
+    names[p.ic12ag] = "c12ag";
+    names[p.ic12ag_deboer17] = "c12ag_deboer17";
+    names[p.itriplealf] = "triplealf";
+    names[p.ic12c12] = "c12c12";
+    names[p.ic12o16] = "c12o16";
+    names[p.io16o16] = "o16o16";
+    names[p.io16ag] = "o16ag";
+
+    names[p.ine20ag] = "ne20ag";
+    names[p.img24ag] = "mg24ag";
+    names[p.img24ap] = "mg24ap";
+    names[p.ial27pg] = "al27pg";
+    names[p.ial27pg_old] = "al27pg_old";
+    names[p.isi28ag] = "si28ag";
+
+    names[p.isi28ap] = "si28ap";
+    names[p.ip31pg] = "p31pg";
+    names[p.is32ag] = "s32ag";
+    names[p.is32ap] = "s32ap";
+    names[p.icl35pg] = "cl35pg";
+    names[p.iar36ag] = "ar36ag";
+    names[p.iar36ap] = "ar36ap";
+    names[p.ik39pg] = "k39pg";
+    names[p.ica40ag] = "ca40ag";
+    names[p.ica40ap] = "ca40ap";
+    names[p.isc43pg] = "sc43pg";
+    names[p.iti44ag] = "ti44ag";
+    names[p.iti44ap] = "ti44ap";
+    names[p.iv47pg] = "v47pg";
+    names[p.icr48ag] = "cr48ag";
+    names[p.icr48ap] = "cr48ap";
+    names[p.imn51pg] = "mn51pg";
+    names[p.ife52ag] = "fe52ag";
+    names[p.ife52ap] = "fe52ap";
+    names[p.ico55pg] = "co55pg";
+    names[p.ipp] = "pp";
+    names[p.ipng] = "png";
+    names[p.idpg] = "dpg";
+    names[p.ihe3ng] = "he3ng";
+    names[p.ihe3he3] = "he3he3";
+    names[p.ihe3he4] = "he3he4";
+    names[p.ic12pg] = "c12pg";
+    names[p.in14pg] = "n14pg";
+    names[p.in15pg] = "n15pg";
+    names[p.in15pa] = "n15pa";
+    names[p.io16pg] = "o16pg";
+    names[p.in14ag] = "n14ag";
+    names[p.ife52ng] = "fe52ng";
+    names[p.ife53ng] = "fe53ng";
+    names[p.ife54ng] = "fe54ng";
+    names[p.ife54pg] = "fe54pg";
+    names[p.ife54ap] = "fe54ap";
+    names[p.ife55ng] = "fe55ng";
+    names[p.ife56pg] = "fe56pg";
 
     for (auto i = 0; i < n_tests; ++i) {
         for (auto j = 1; j < 4; ++j) {
-            p.names[3 + i*4 + j] = p.names[3 + i*4];
+            names[3 + i*4 + j] = names[3 + i*4];
         }
-        p.names[3 + i*4] += "_fr";
-        p.names[3 + i*4 + 1] += "_dfrdt";
-        p.names[3 + i*4 + 2] += "_rr";
-        p.names[3 + i*4 + 3] += "_drrdt";
+        names[3 + i*4] += "_fr";
+        names[3 + i*4 + 1] += "_dfrdt";
+        names[3 + i*4 + 2] += "_rr";
+        names[3 + i*4 + 3] += "_drrdt";
     }
 
-    p.names[p.ilanganke] = "langanke_rn56ec";
-    p.names[p.ilanganke+1] = "langanke_sn56ec";
+    names[p.ilanganke] = "langanke_rn56ec";
+    names[p.ilanganke+1] = "langanke_sn56ec";
 
-    p.names[p.iecapnuc] = "ecapnuc_rpen";
-    p.names[p.iecapnuc+1] = "ecapnuc_rnep";
-    p.names[p.iecapnuc+2] = "ecapnuc_spenc";
-    p.names[p.iecapnuc+3] = "ecapnuc_snepc";
+    names[p.iecapnuc] = "ecapnuc_rpen";
+    names[p.iecapnuc+1] = "ecapnuc_rnep";
+    names[p.iecapnuc+2] = "ecapnuc_spenc";
+    names[p.iecapnuc+3] = "ecapnuc_snepc";
 
-  return p;
 }
 
