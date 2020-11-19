@@ -700,7 +700,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
         int a_ctr = 0;
 
-        for (int rate = 0; rate < Rates::NumRates; ++rate) {
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
             rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
 
             if (std::abs(rhs_data.prefactor) > 0.0) {
@@ -738,7 +738,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
         int a_ctr = 0;
 
-        for (int rate = 0; rate < Rates::NumRates; ++rate) {
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
             rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
 
             if (std::abs(rhs_data.prefactor) > 0.0) {
@@ -776,7 +776,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
         int a_ctr = 0;
 
-        for (int rate = 0; rate < Rates::NumRates; ++rate) {
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
             rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
 
             if (std::abs(rhs_data.prefactor) > 0.0) {
@@ -814,7 +814,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
         int a_ctr = 0;
 
-        for (int rate = 0; rate < Rates::NumRates; ++rate) {
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
             rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
 
             if (std::abs(rhs_data.prefactor) > 0.0) {
@@ -852,7 +852,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
         int a_ctr = 0;
 
-        for (int rate = 0; rate < Rates::NumRates; ++rate) {
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
             rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
 
             if (std::abs(rhs_data.prefactor) > 0.0) {
@@ -890,7 +890,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
         int a_ctr = 0;
 
-        for (int rate = 0; rate < Rates::NumRates; ++rate) {
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
             rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
 
             if (std::abs(rhs_data.prefactor) > 0.0) {
