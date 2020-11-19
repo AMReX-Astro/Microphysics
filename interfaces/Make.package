@@ -19,6 +19,7 @@ CEXE_sources += eos_data.cpp
 endif
 
 CEXE_headers += network.H
+CEXE_headers += network_utilities.H
 ifeq ($(USE_CXX_REACTIONS),TRUE)
 CEXE_sources += network_initialization.cpp
 CEXE_headers += fortran_to_cxx_actual_rhs.H

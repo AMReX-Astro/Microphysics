@@ -7,6 +7,7 @@
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
+#include <network_utilities.H>
 
 using namespace amrex;
 
@@ -64,6 +65,40 @@ namespace Rates {
     const int NumGroups = 4;
 
     extern amrex::Vector<std::string> names;
+}
+
+namespace RHS {
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr rhs_t rhs_data (int species, int rateindex)
+    {
+        using namespace Species;
+        using namespace Rates;
+
+        rhs_t data{};
+
+        data.prefactor  = 0.0_rt;
+        data.specindex1 = -1;
+        data.specindex2 = -1;
+        data.specindex3 = -1;
+
+        switch (rhs_rate<NumRates>(species, rateindex)) {
+
+        case rhs_rate<NumRates>(Ni56, irsi2ni):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Ni56, irni2si):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ni56;
+            break;
+
+        }
+
+        return data;
+    }
+
 }
 
 #endif
