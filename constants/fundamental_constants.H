@@ -3,6 +3,10 @@
 #ifndef _fundamental_constants_H_
 #define _fundamental_constants_H_
 
+#include <AMReX.H>
+#include <AMReX_REAL.H>
+#include <AMReX_Array.H>
+
 namespace C
 {
     // speed of light in vacuum

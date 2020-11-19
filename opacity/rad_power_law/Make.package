@@ -1,1 +1,3 @@
 F90EXE_sources += opacity_table_module.F90
+
+CEXE_headers += actual_opacity.H
