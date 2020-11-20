@@ -79,6 +79,7 @@ void sdc_burn_to_eos(const burn_t& state, eos_t& eos_state) {
     for (int n = 0; n < NumAux; n++) {
         eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
     }
+    //set_nse_aux_from_X(eos_state);
 #endif
 
     // we don't bother filling the other fields, since the EOS call
