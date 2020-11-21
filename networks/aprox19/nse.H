@@ -49,8 +49,9 @@ void init_nse() {
 }
 
 
+template <class state_t> 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(const burn_t& state) {
+bool in_nse(const state_t& state) {
 
   using namespace Species;
 
