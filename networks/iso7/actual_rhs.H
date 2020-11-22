@@ -707,6 +707,35 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 }
 
 
+// This version adds the neutrino losses directly
+// and is intended for use in the RHS only.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void ener_rhs(const burn_t& state, Array1D<Real, 1, neqs>& dydt)
+{
+    using namespace iso7;
+
+    Real Xdot = 0.0_rt;
+
+    // Sum the mass fraction time derivatives
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        Xdot += dydt(i) * mion(i);
+    }
+
+    // This is basically e = m c**2
+
+    dydt(net_ienuc) = Xdot * C::Legacy::enuc_conv2;
+
+    // Get the neutrino losses
+
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    dydt(net_ienuc) -= sneut;
+}
+
+
+
 // Evaluates the right hand side of the iso7 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups> const& rr,
@@ -732,27 +761,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
-
-    /*
-     This routine sets up the system of ODE's for the iso7
-     nuclear reactions.  This is an alpha chain + heavy ion network
-     with (a,p)(p,g) links up to silicon, as well as a Si <-> Ni link.
-
-     Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
-    */
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    Real enuc;
-
-    Real rho, temp, abar, zbar;
     Array1D<Real, 1, NumSpec> y;
-
-    // Get the data from the state
-
-    rho  = state.rho;
-    temp = state.T;
-    abar = state.abar;
-    zbar = state.zbar;
 
     for (int i = 1; i <= NumSpec; ++i) {
         y(i) = state.xn[i-1] * aion_inv[i-1];
@@ -769,15 +778,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Instantaneous energy generation rate -- this needs molar fractions
 
-    ener_gener_rate(ydot, enuc);
-
-    // Get the neutrino losses
-
-    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    // Append the energy equation (this is erg/g/s)
-
-    ydot(net_ienuc) = enuc - sneut;
+    ener_rhs(state, ydot);
 
     // Append the temperature equation
 
