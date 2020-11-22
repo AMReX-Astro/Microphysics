@@ -736,47 +736,19 @@ void ener_rhs(const burn_t& state, Array1D<Real, 1, neqs>& dydt)
 
 
 
-// Evaluates the right hand side of the iso7 ODEs
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups> const& rr,
-         Array1D<Real, 1, neqs>& dydt,
-         bool deriva, bool for_jacobian_tderiv)
-{
-    using namespace Species;
-    using namespace Rates;
-
-    // deriva is used in forming the analytic Jacobian to get
-    // the derivative wrt A
-
-    const int index_rate = for_jacobian_tderiv ? 2 : 1;
-
-    Array1D<Real, 1, NumSpec> species_rhs = construct_species_rhs(y, rr(index_rate));
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        dydt(n) = species_rhs(n);
-    }
-}
-
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
-    Array1D<Real, 1, NumSpec> y;
+    // Evaluate the rates
 
-    for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn[i-1] * aion_inv[i-1];
-    }
+    rate_t rr;
+    evaluate_rates(state, rr);
 
-    Array1D<rate_t, 1, Rates::NumGroups> rr;
-    evaluate_rates(state, rr(1));
+    // Call the RHS to get dydt
 
-    // Call the RHS to actually get dydt.
+    species_rhs(state, rr, ydot);
 
-    bool deriva = false;
-    bool for_jacobian_tderiv = false;
-    rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
-
-    // Instantaneous energy generation rate -- this needs molar fractions
+    // Instantaneous energy generation rate
 
     ener_rhs(state, ydot);
 
@@ -839,9 +811,9 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // Evaluate the Jacobian elements with respect to temperature by
     // calling the RHS using d(rate) / dT
 
-    deriva = true;
-    bool for_jacobian_tderiv = true;
-    rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
+    const int index_rate = 2;
+
+    species_rhs(state, rr(index_rate), yderivs);
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i,net_itemp) = yderivs(i);
