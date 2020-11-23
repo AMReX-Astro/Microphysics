@@ -106,6 +106,12 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
                                         state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / tmax;
     }
 
+#if NAUX_NET > 0
+    for (int n = 0; n < NumAux; ++n) {
+        state(i, j, k, p.iaux + n) = burn_state.y[SFX+n]/burn_state.rho;
+    }
+#endif
+
 #if defined(SDC_EVOLVE_ENERGY)
     state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / tmax;
 #elif defined (SDC_EVOLVE_ENTHALPY)

@@ -26,9 +26,10 @@ contains
     real(rt) :: dlogrho, dlogT, dmetal
     real(rt) :: temp_zone, dens_zone
     real(rt), allocatable :: xn_zone(:,:)
+    real(rt) :: xn(nspec)
 
     integer :: ii, jj, kk
-    real(rt) :: sum_spec, sum_X
+    real(rt) :: sum_X, mu_e
 
     dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
     dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
@@ -54,6 +55,26 @@ contains
            enddo
         enddo
      enddo
+
+    ! initialize the auxillary state (in particular, for NSE)
+#ifdef NSE_THERMO
+    if (naux > 0) then
+       do kk = lo(3), hi(3)   ! xn loop
+          do jj = lo(2), hi(2)   ! T loop
+             do ii = lo(1), hi(1)   ! rho loop
+
+                xn(:) = state(ii,jj,kk, p % ispec_old:p % ispec_old+nspec-1)
+
+                mu_e = 1.0_rt / sum(xn(:) * zion(:) * aion_inv(:))
+                state(ii,jj,kk, p %  iaux_old+iye-1) = 1.0_rt / mu_e
+                state(ii,jj,kk, p %  iaux_old+iabar-1) = ONE / (sum(xn(:) * aion_inv(:)))
+                state(ii,jj,kk, p %  iaux_old+ibea-1) = (sum(xn(:) * bion(:) * aion_inv(:)))
+
+             end do
+          end do
+       end do
+    end if
+#endif
 
    end subroutine init_state
 
