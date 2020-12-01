@@ -653,13 +653,13 @@ step and retrying with a smaller step?</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
-<td></td>
-<td><p>1.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_viscosity</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_viscosity</span></code></p></td>
 <td></td>
 <td><p>1.0d-4</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
+<td></td>
+<td><p>1.0d0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1304,62 +1304,6 @@ priority</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_p</span></code></p></td>
-<td><p>Opacity constant (Planck)</p></td>
-<td><p>-1.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_m</span></code></p></td>
-<td><p>Density exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_n</span></code></p></td>
-<td><p>Temperature exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_p</span></code></p></td>
-<td><p>Frequency exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_r</span></code></p></td>
-<td><p>Opacity constant (Rosseland)</p></td>
-<td><p>-1.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_m</span></code></p></td>
-<td><p>Density exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_n</span></code></p></td>
-<td><p>Temperature exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_p</span></code></p></td>
-<td><p>Frequency exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_scatter</span></code></p></td>
-<td><p>Opacity constant (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_m</span></code></p></td>
-<td><p>Density exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_n</span></code></p></td>
-<td><p>Temperature exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_p</span></code></p></td>
-<td><p>Frequency exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_floor</span></code></p></td>
-<td><p>Opacity floor</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rad_temp_floor</span></code></p></td>
-<td><p>Temperature floor</p></td>
-<td><p>1.d-10</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_const_c_v</span></code></p></td>
 <td></td>
 <td><p>-1.d0</p></td>
@@ -1371,6 +1315,62 @@ priority</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_n</span></code></p></td>
 <td></td>
 <td><p>0.d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_p</span></code></p></td>
+<td><p>Opacity constant (Planck)</p></td>
+<td><p>-1.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_m</span></code></p></td>
+<td><p>Density exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_n</span></code></p></td>
+<td><p>Temperature exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_p</span></code></p></td>
+<td><p>Frequency exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_r</span></code></p></td>
+<td><p>Opacity constant (Rosseland)</p></td>
+<td><p>-1.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_m</span></code></p></td>
+<td><p>Density exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_n</span></code></p></td>
+<td><p>Temperature exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_p</span></code></p></td>
+<td><p>Frequency exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_scatter</span></code></p></td>
+<td><p>Opacity constant (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_m</span></code></p></td>
+<td><p>Density exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_n</span></code></p></td>
+<td><p>Temperature exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_p</span></code></p></td>
+<td><p>Frequency exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_floor</span></code></p></td>
+<td><p>Opacity floor</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rad_temp_floor</span></code></p></td>
+<td><p>Temperature floor</p></td>
+<td><p>1.d-10</p></td>
 </tr>
 </tbody>
 </table>
