@@ -26,17 +26,17 @@ init_t setup_composition(const int nz) {
     comp_data.nprim = 0;
 
     comp_data.is1 = network_spec_index(primary_species_1);
-    if (comp_data.is1 > 0) {
+    if (comp_data.is1 >= 0) {
         comp_data.nprim++;
     }
 
     comp_data.is2 = network_spec_index(primary_species_2);
-    if (comp_data.is2 > 0) {
+    if (comp_data.is2 >= 0) {
         comp_data.nprim++;
     }
 
     comp_data.is3 = network_spec_index(primary_species_3);
-    if (comp_data.is3 > 0) {
+    if (comp_data.is3 >= 0) {
         comp_data.nprim++;
     }
 

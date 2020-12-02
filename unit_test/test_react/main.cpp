@@ -203,7 +203,7 @@ void main_main ()
             for (int n = 0; n < NumSpec; n++) {
                 bea += xn[n] * aprox19::bion[n] * aion_inv[n];
             }
-            state_arr(i, j, k, p.iaux_old+ibea) = bea;
+            state_arr(i, j, k, vars.iaux_old+ibea) = bea;
 #endif
         });
     }
