@@ -83,22 +83,22 @@ void get_xn(const int k, const init_t cd, Real *xn_zone) {
         xn_zone[n] = 0.0_rt;
     }
 
-    if (k <= cd.n1) {
+    if (k < cd.n1) {
         if (cd.nprim >= 2) xn_zone[cd.is2] = cd.Xp_min/2;
         if (cd.nprim >= 3) xn_zone[cd.is3] = cd.Xp_min/2;
 
         Real dX = (cd.Xp_max - cd.Xp_min) /
             amrex::max((cd.n1 - 1), 1);
-        xn_zone[cd.is1] = cd.Xp_min + (k - 1) * dX;
+        xn_zone[cd.is1] = cd.Xp_min + k * dX;
 
-    } else if (cd.nprim >= 2 && k <= cd.n1 + cd.n2) {
+    } else if (cd.nprim >= 2 && k < cd.n1 + cd.n2) {
         xn_zone[cd.is1] = cd.Xp_min/2;
         if (cd.nprim >= 3) {
             xn_zone[cd.is3] = cd.Xp_min/2;
         }
         Real dX = (cd.Xp_max - cd.Xp_min) /
             amrex::max((cd.n2 - 1), 1);
-        xn_zone[cd.is2] = cd.Xp_min + (k - (cd.n1 + 1)) * dX;
+        xn_zone[cd.is2] = cd.Xp_min + (k - cd.n1) * dX;
 
     } else {
         xn_zone[cd.is1] = cd.Xp_min/2;
@@ -106,7 +106,7 @@ void get_xn(const int k, const init_t cd, Real *xn_zone) {
 
         Real dX = (cd.Xp_max - cd.Xp_min) /
             amrex::max((cd.n3 - 1), 1);
-        xn_zone[cd.is3] = cd.Xp_min + (k - (cd.n1 + cd.n2 + 1)) * dX;
+        xn_zone[cd.is3] = cd.Xp_min + (k - (cd.n1 + cd.n2)) * dX;
 
     }
 
