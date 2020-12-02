@@ -31,7 +31,7 @@ void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
   names[p.irho] = "density";
   names[p.itemp] = "temperature";
   for (int n = 0; n < NumSpec; n++) {
-    names[p.ispec + n] = "X_" + spec_names_cxx[n];
+    names[p.ispec + n] = "Xnew_" + spec_names_cxx[n];
     names[p.ispec_old + n] = "Xold_" + spec_names_cxx[n];
     names[p.irodot + n] = "wdot_" + spec_names_cxx[n];
   }
