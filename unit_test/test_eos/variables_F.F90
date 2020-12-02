@@ -67,8 +67,6 @@ module variables
 
      integer :: n_plot_comps = 0
 
-     character(len=MAX_NAME_LEN), allocatable :: names(:)
-
    contains
      procedure :: next_index => get_next_plot_index
 
@@ -155,62 +153,6 @@ contains
     p % idpde = p % next_index(1)
     p % idpdre = p % next_index(1)
 
-    allocate(p%names(p%n_plot_comps))
-
-    p % names(p % irho) = "density"
-    p % names(p % itemp) = "temperature"
-    p % names(p % ih) = "specific_enthalpy"
-    p % names(p % ie) = "specific_energy"
-    p % names(p % ip) = "pressure"
-    p % names(p % is) = "specific_entropy"
-    do n = 0, nspec-1
-       p % names(p % ispec + n) = "X_" // adjustl(trim(spec_names(n+1)))
-    enddo
-
-    p % names(p % ierr_T_eos_rh)   = "err_T_eos_rh"
-    p % names(p % ierr_rho_eos_tp) = "err_rho_eos_tp"
-    p % names(p % ierr_T_eos_rp)   = "err_T_eos_rp"
-    p % names(p % ierr_T_eos_re)   = "err_T_eos_re"
-    p % names(p % ierr_rho_eos_ps) = "err_rho_eos_ps"
-    p % names(p % ierr_T_eos_ps)   = "err_T_eos_ps"
-    p % names(p % ierr_rho_eos_ph) = "err_rho_eos_ph"
-    p % names(p % ierr_T_eos_ph)   = "err_T_eos_ph"
-    p % names(p % ierr_rho_eos_th) = "err_rho_eos_th"
-
-    p % names(p % icv) = "c_v"
-    p % names(p % icp) = "c_p"
-    p % names(p % ine) = "n_e"
-    p % names(p % inp) = "n_p"
-    p % names(p % ieta) = "eta"
-    p % names(p % ipele) = "p_ele"
-    p % names(p % ippos) = "p_pos"
-    p % names(p % imu) = "mu"
-    p % names(p % imue) = "mu_e"
-    p % names(p % iye) = "Y_e"
-    p % names(p % idpdt) = "dp_dT"
-    p % names(p % idpdr) = "dp_drho"
-    p % names(p % idedt) = "de_dT"
-    p % names(p % idedr) = "de_drho"
-    p % names(p % idsdt) = "ds_dT"
-    p % names(p % idsdr) = "ds_drho"
-    p % names(p % idhdt) = "dh_dT"
-    p % names(p % idhdr) = "dh_drho"
-    do n = 0, nspec-1
-       p % names(p % idpdx + n) = "dp_dX_" // adjustl(trim(spec_names(n+1)))
-       p % names(p % idedx + n) = "de_dX_" // adjustl(trim(spec_names(n+1)))
-       p % names(p % idhdx + n) = "dh_dX_" // adjustl(trim(spec_names(n+1)))
-    enddo
-    p % names(p % igam1) = "Gamma_1"
-    p % names(p % ics) = "soundspeed"
-    p % names(p % iabar) = "Abar"
-    p % names(p % izbar) = "Zbar"
-    p % names(p % idpda) = "dp_dA"
-    p % names(p % idpdz) = "dp_dZ"
-    p % names(p % ideda) = "de_dA"
-    p % names(p % idedz) = "de_dZ"
-    p % names(p % idpde) = "dp_de_rho"
-    p % names(p % idpdre) = "dp_drho_e"
-
   end subroutine init_variables_F
 
   subroutine get_ncomp(ncomp_in) bind(C, name="get_ncomp")
@@ -220,65 +162,5 @@ contains
     ncomp_in = p % n_plot_comps
 
   end subroutine get_ncomp
-
-  subroutine get_name_len(nlen_in) bind(C, name="get_name_len")
-
-    integer, intent(inout) :: nlen_in
-
-    nlen_in = MAX_NAME_LEN
-
-  end subroutine get_name_len
-
-  subroutine get_var_name(cstring, idx) bind(C, name="get_var_name")
-
-    use iso_c_binding
-
-    implicit none
-    type(c_ptr), intent(inout) :: cstring
-    integer, intent(in) :: idx
-
-    ! include space for the NULL termination
-    character(MAX_NAME_LEN+1), pointer :: fstring
-    integer :: slen
-
-    allocate(fstring)
-
-    ! C++ is 0-based, so add 1 to the idx
-    fstring = p % names(idx+1)
-    slen = len_trim(fstring)
-    fstring(slen+1:slen+1) = c_null_char
-
-    cstring = c_loc(fstring)
-
-  end subroutine get_var_name
-
-  subroutine get_eos_len(nlen_in) bind(C, name="get_eos_len")
-
-    integer, intent(inout) :: nlen_in
-
-    nlen_in = len(eos_name)
-
-  end subroutine get_eos_len
-
-  subroutine get_eos_name(eos_string) bind(C, name="get_eos_name")
-
-    use iso_c_binding
-
-    implicit none
-    type(c_ptr), intent(inout) :: eos_string
-
-    ! include space for the NULL termination
-    character(len(eos_name)+1), pointer :: fstring
-    integer :: slen
-
-    allocate(fstring)
-
-    fstring = eos_name
-    slen = len_trim(fstring)
-    fstring(slen+1:slen+1) = c_null_char
-
-    eos_string = c_loc(fstring)
-
-  end subroutine get_eos_name
 
 end module variables
