@@ -35,8 +35,6 @@ void main_main ()
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size, do_cxx;
-    Vector<int> bc_lo(AMREX_SPACEDIM,0);
-    Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
     // inputs parameters
     {
@@ -57,7 +55,7 @@ void main_main ()
 
     }
 
-    Vector<int> is_periodic(AMREX_SPACEDIM,0);
+    Vector<int> is_periodic(AMREX_SPACEDIM, 0);
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
       is_periodic[idim] = 1;
     }
