@@ -210,7 +210,7 @@ void main_main ()
 
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-                do_rhs(i, j, k, s);
+                do_rhs(i, j, k, s, vars);
             });
 
         }
