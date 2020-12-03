@@ -7,7 +7,6 @@
 #include <AMReX_iMultiFab.H>
 #include <AMReX_BCRec.H>
 
-
 using namespace amrex;
 
 #include <test_react.H>
@@ -22,7 +21,9 @@ using namespace amrex;
 #include <variables.H>
 #include <unit_test.H>
 #include <react_util.H>
-
+#ifdef NSE_THERMO
+#include <nse.H>
+#endif
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -187,23 +188,14 @@ void main_main ()
 
             // initialize the auxillary state (in particular, for NSE)
 #ifdef NSE_THERMO
-            Real mu_e = 0.0_rt;
+            eos_t eos_state;
             for (int n = 0; n < NumSpec; n++) {
-                mu_e += 1.0_rt / (xn[n] * zion[n] * aion_inv[n]);
+                eos_state.xn[n] = xn[n];
             }
-            state_arr(i, j, k, vars.iaux_old+iye) = 1.0_rt / mu_e;
-
-            Real abar = 0.0_rt;
-            for (int n = 0; n < NumSpec; n++) {
-                abar += 1.0_rt / (xn[n] * abar_inv[n]);
+            set_nse_aux_from_X(eos_state);
+            for (int n = 0; n < NumAux; n++) {
+                state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
             }
-            state_arr(i, j, k, vars.iaux_old+iabar) = 1.0_rt / abar;
-
-            Real bea = 0.0_rt;
-            for (int n = 0; n < NumSpec; n++) {
-                bea += xn[n] * aprox19::bion[n] * aion_inv[n];
-            }
-            state_arr(i, j, k, vars.iaux_old+ibea) = bea;
 #endif
         });
     }
