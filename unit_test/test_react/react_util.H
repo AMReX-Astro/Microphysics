@@ -77,6 +77,7 @@ init_t setup_composition(const int nz) {
 }
 
 
+AMREX_INLINE AMREX_GPU_HOST_DEVICE
 void get_xn(const int k, const init_t cd, Real *xn_zone) {
 
     for (int n = 0; n < NumSpec; n++) {
@@ -110,10 +111,11 @@ void get_xn(const int k, const init_t cd, Real *xn_zone) {
 
     }
 
-    Real excess = 1.0_rt;
+    Real excess = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
-        excess -= xn_zone[n];
+        excess += xn_zone[n];
     }
+    excess = 1.0_rt - excess;
 
     for (int n = 0; n < NumSpec; n++) {
         if (n == cd.is1 ||
