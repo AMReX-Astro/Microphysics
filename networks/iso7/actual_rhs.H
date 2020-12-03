@@ -779,8 +779,37 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     // ni56 reactions
     {
         Array1D<Real, 1, 2> a;
-        a(1) =  rr(index_rate).rates(irsi2ni) * y(He4);
-        a(2) = -rr(index_rate).rates(irni2si) * y(Ni56);
+
+        // Loop through rates, adding the ones we care about
+        // to the array that we will sum.
+
+        int a_ctr = 0;
+
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
+            rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
+
+            if (std::abs(rhs_data.prefactor) > 0.0) {
+                ++a_ctr;
+
+                Real term = rhs_data.prefactor;
+
+                if (rhs_data.specindex1 >= 0) {
+                    term *= y(rhs_data.specindex1);
+                }
+
+                if (rhs_data.specindex2 >= 0) {
+                    term *= y(rhs_data.specindex2);
+                }
+
+                if (rhs_data.specindex3 >= 0) {
+                    term *= y(rhs_data.specindex3);
+                }
+
+                term *= rr(index_rate).rates(rate);
+
+                a(a_ctr) = term;
+            }
+        }
 
         dydt(Ni56) = a(1) + a(2);
     }
