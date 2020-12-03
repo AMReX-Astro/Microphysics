@@ -8,60 +8,11 @@ module react_zones_module
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module
   use extern_probin_module
-  use util_module
   use actual_rhs_module
 
   implicit none
 
 contains
-
-  subroutine init_state(lo, hi, &
-                        state, s_lo, s_hi, npts) bind(C, name="init_state")
-
-    integer, intent(in) :: lo(3), hi(3)
-    integer, intent(in) :: s_lo(3), s_hi(3)
-    real(rt), intent(inout) :: state(s_lo(1):s_hi(1), s_lo(2):s_hi(2), s_lo(3):s_hi(3), p % n_plot_comps)
-    integer, intent(in) :: npts
-
-    real(rt) :: dlogrho, dlogT, dmetal
-    real(rt) :: temp_zone, dens_zone
-    real(rt), allocatable :: xn_zone(:,:)
-
-    integer :: ii, jj, kk
-    real(rt) :: sum_X
-
-    if (npts > 1) then
-       dlogrho = (log10(dens_max) - log10(dens_min))/(npts - 1)
-       dlogT   = (log10(temp_max) - log10(temp_min))/(npts - 1)
-    else
-       dlogrho = ZERO
-       dlogT   = ZERO
-    endif
-
-    allocate(xn_zone(nspec, 0:npts-1))   ! this assumes that lo(3) = 0
-
-    call get_xn(npts, xn_zone)
-
-    ! normalize -- just in case
-    do kk = lo(3), hi(3)
-       sum_X = sum(xn_zone(:, kk))
-       xn_zone(:, kk) = xn_zone(:, kk)/sum_X
-    enddo
-
-    do kk = lo(3), hi(3)   ! xn loop
-       do jj = lo(2), hi(2)   ! T loop
-          do ii = lo(1), hi(1)   ! rho loop
-
-             state(ii, jj, kk, p % itemp) = 10.0_rt**(log10(temp_min) + dble(jj)*dlogT)
-             state(ii, jj, kk, p % irho)  = 10.0_rt**(log10(dens_min) + dble(ii)*dlogrho)
-             state(ii, jj, kk, p % ispec_old:p % ispec_old+nspec-1) = max(xn_zone(:, kk), 1.e-10_rt)
-
-          enddo
-       enddo
-    enddo
-
-  end subroutine init_state
-
 
   subroutine do_rhs  (lo, hi, &
                       state, s_lo, s_hi) bind(C, name="do_rhs")
