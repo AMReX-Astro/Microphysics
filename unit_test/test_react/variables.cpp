@@ -22,3 +22,27 @@ plot_t init_variables() {
   return p;
 
 }
+
+
+void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
+
+  names.resize(p.n_plot_comps);
+
+  names[p.irho] = "density";
+  names[p.itemp] = "temperature";
+  for (int n = 0; n < NumSpec; n++) {
+    names[p.ispec + n] = "Xnew_" + spec_names_cxx[n];
+    names[p.ispec_old + n] = "Xold_" + spec_names_cxx[n];
+    names[p.irodot + n] = "wdot_" + spec_names_cxx[n];
+  }
+
+#if NAUX_NET > 0
+  for (int n = 0; n < NumAux; n++) {
+      names[p.iaux + n] = "Xnew_" + aux_names_cxx[n];
+      names[p.iaux_old + n] = "Xold_" + aux_names_cxx[n];
+  }
+#endif
+
+  names[p.irho_hnuc] = "rho_Hnuc";
+}
+
