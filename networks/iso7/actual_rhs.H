@@ -402,6 +402,40 @@ void screen_iso7(const Real btemp, const Real bden,
 }
 
 
+
+// RHS version (single rate group)
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void evaluate_rates(burn_t const& state, rate_t& rr)
+{
+    Real rho, temp;
+    Array1D<Real, 1, NumSpec> y;
+
+    // Temporary arrays for storing unused derivatives.
+    // A useful cleanup would be to rewrite iso7tab, iso7rat,
+    // and screen_iso7 so that there are versions that do not
+    // evaluate the derivatives.
+    Array1D<Real, 1, Rates::NumRates> dratedt;
+    Array1D<Real, Rates::irsi2ni, Rates::irni2si> dratedy1, dratedy2;
+
+    // Get the data from the state
+    rho  = state.rho;
+    temp = state.T;
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        y(i) = state.xn[i-1] * aion_inv[i-1];
+    }
+
+    // Get the raw reaction rates
+    if (use_tables)
+        iso7tab(temp, rho, rr.rates, dratedt);
+    else
+        iso7rat(temp, rho, rr.rates, dratedt);
+
+    // Do the screening (depends on composition)
+    screen_iso7(temp, rho, y, rr.rates, dratedt, dratedy1, dratedy2);
+}
+
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
@@ -707,8 +741,6 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
      Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
     */
 
-    Array1D<rate_t, 1, Rates::NumGroups> rr;
-
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     Real enuc;
 
@@ -726,7 +758,8 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
         y(i) = state.xn[i-1] * aion_inv[i-1];
     }
 
-    get_rates(state, rr);
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
+    evaluate_rates(state, rr(1));
 
     // Call the RHS to actually get dydt.
 
