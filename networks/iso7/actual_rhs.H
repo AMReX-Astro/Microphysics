@@ -690,10 +690,13 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
         dydt(i) = 0.0_rt;
     }
 
-    // set up the system of ode's :
-    // 4he reactions
-    {
-        Array1D<Real, 1, 15> a;
+    Array1D<Real, 1, Rates::NumRates> a;
+
+    for (int spec = 1; spec <= NumSpec; ++spec) {
+
+        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
+            a(rate) = 0.0;
+        }
 
         // Loop through rates, adding the ones we care about
         // to the array that we will sum.
@@ -701,7 +704,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
         int a_ctr = 0;
 
         for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(He4, rate);
+            rhs_t rhs_data = RHS::rhs_data(spec, rate);
 
             if (std::abs(rhs_data.prefactor) > 0.0) {
                 ++a_ctr;
@@ -726,237 +729,8 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
             }
         }
 
-        dydt(He4) = esum15(a);
+        dydt(spec) = esum<Rates::NumRates>(a);
     }
-
-    // 12c reactions
-    {
-        Array1D<Real, 1, 6> a;
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(C12, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(C12) = esum6(a);
-    }
-
-    // 16o reactions
-    {
-        Array1D<Real, 1, 6> a;
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(O16, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(O16) = esum6(a);
-    }
-
-    // 20ne reactions
-    {
-        Array1D<Real, 1, 5> a;
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(Ne20, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(Ne20) = esum5(a);
-    }
-
-    // 24mg reactions
-    {
-        Array1D<Real, 1, 5> a;
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(Mg24, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(Mg24) = esum5(a);
-    }
-
-    // 28si reactions
-    {
-        Array1D<Real, 1, 6> a;
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(Si28, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(Si28) = esum6(a);
-    }
-
-    // ni56 reactions
-    {
-        Array1D<Real, 1, 2> a;
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(Ni56) = a(1) + a(2);
-    }
-
 }
 
 
