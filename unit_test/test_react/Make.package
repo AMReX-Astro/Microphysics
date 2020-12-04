@@ -11,3 +11,4 @@ f90EXE_sources += util.f90
 CEXE_headers += variables.H
 CEXE_sources += variables.cpp
 CEXE_headers += react_zones.H
+CEXE_headers += react_util.H

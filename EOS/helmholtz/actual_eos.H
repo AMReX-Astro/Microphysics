@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <AMReX_ParallelDescriptor.H>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <actual_eos_data.H>
