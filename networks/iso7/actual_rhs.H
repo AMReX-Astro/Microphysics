@@ -18,6 +18,7 @@
 #include <aprox_rates.H>
 #include <temperature_integration.H>
 #include <ArrayUtilities.H>
+#include <rhs_utilities.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -686,50 +687,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     const int index_rate = for_jacobian_tderiv ? 2 : 1;
 
-    for (int i = 1; i <= neqs; ++i) {
-        dydt(i) = 0.0_rt;
-    }
+    Array1D<Real, 1, NumSpec> species_rhs = construct_species_rhs(y, rr(index_rate));
 
-    Array1D<Real, 1, Rates::NumRates> a;
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            a(rate) = 0.0;
-        }
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(spec, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(spec) = esum<Rates::NumRates>(a);
+    for (int n = 1; n <= NumSpec; ++n) {
+        dydt(n) = species_rhs(n);
     }
 }
 
