@@ -7,7 +7,6 @@
 #include <AMReX_iMultiFab.H>
 #include <AMReX_BCRec.H>
 
-
 using namespace amrex;
 
 #include <test_react.H>
@@ -21,7 +20,10 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
-
+#include <react_util.H>
+#ifdef NSE_THERMO
+#include <nse.H>
+#endif
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -37,8 +39,6 @@ void main_main ()
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size, print_every_nrhs;
-    Vector<int> bc_lo(AMREX_SPACEDIM,0);
-    Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
     std::string prefix = "plt";
 
@@ -132,28 +132,12 @@ void main_main ()
     network_init();
 #endif
 
-    // Ncomp = number of components for each array
-    int Ncomp = -1;
     init_variables_F();
-    get_ncomp(&Ncomp);
-
-    int name_len = -1;
-    get_name_len(&name_len);
-
-    // get the variable names
-    Vector<std::string> varnames;
-
-    for (int i=0; i<Ncomp; i++) {
-      char* cstring[name_len+1];
-      get_var_name(cstring, &i);
-      std::string name(*cstring);
-      varnames.push_back(name);
-    }
 
     plot_t vars;
-    if (do_cxx == 1) {
-      vars = init_variables();
-    }
+    vars = init_variables();
+    amrex::Vector<std::string> names;
+    get_varnames(vars, names);
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -162,16 +146,58 @@ void main_main ()
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
-    MultiFab state(ba, dm, Ncomp, Nghost);
+    MultiFab state(ba, dm, vars.n_plot_comps, Nghost);
 
     // Initialize the state
+
+    Real dlogrho;
+    Real dlogT;
+
+    if (n_cell > 1) {
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
+    } else {
+        dlogrho = 0.0_rt;
+        dlogT   = 0.0_rt;
+    }
+
+    init_t comp_data = setup_composition(n_cell);
+
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.validbox();
 
-        init_state(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
-                   BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
+        auto state_arr = state.array(mfi);
 
+        amrex::ParallelFor(bx,
+        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+        {
+
+            state_arr(i, j, k, vars.itemp) =
+                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
+            state_arr(i, j, k, vars.irho) =
+                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+
+            Real xn[NumSpec];
+            get_xn(k, comp_data, xn);
+
+            for (int n = 0; n < NumSpec; n++) {
+                state_arr(i, j, k, vars.ispec_old+n) =
+                    amrex::max(xn[n], 1.e-10_rt);
+            }
+
+            // initialize the auxillary state (in particular, for NSE)
+#ifdef NSE_THERMO
+            eos_t eos_state;
+            for (int n = 0; n < NumSpec; n++) {
+                eos_state.xn[n] = xn[n];
+            }
+            set_nse_aux_from_X(eos_state);
+            for (int n = 0; n < NumAux; n++) {
+                state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
+            }
+#endif
+        });
     }
 
     // allocate a multifab for the number of RHS calls
@@ -263,7 +289,7 @@ void main_main ()
 #endif
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
 
     write_job_info(prefix + name + integrator + language);
 

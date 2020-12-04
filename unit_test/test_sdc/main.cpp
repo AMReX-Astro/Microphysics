@@ -132,27 +132,13 @@ void main_main ()
 #endif
 
     // Ncomp = number of components for each array
-    int Ncomp = -1;
     init_variables_F();
-    get_ncomp(&Ncomp);
-
-    int name_len = -1;
-    get_name_len(&name_len);
-
-    // get the variable names
-    Vector<std::string> varnames;
-
-    for (int i=0; i<Ncomp; i++) {
-      char* cstring[name_len+1];
-      get_var_name(cstring, &i);
-      std::string name(*cstring);
-      varnames.push_back(name);
-    }
 
     plot_t vars;
-    if (do_cxx == 1) {
-      vars = init_variables();
-    }
+    vars = init_variables();
+
+    amrex::Vector<std::string> names;
+    get_varnames(vars, names);
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -161,7 +147,7 @@ void main_main ()
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
-    MultiFab state(ba, dm, Ncomp, Nghost);
+    MultiFab state(ba, dm, vars.n_plot_comps, Nghost);
 
     // Initialize the state
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
@@ -256,7 +242,7 @@ void main_main ()
 #endif
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
 
     write_job_info(prefix + name + integrator + language);
 
