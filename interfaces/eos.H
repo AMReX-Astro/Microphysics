@@ -39,6 +39,13 @@ void eos_init() {
   // Set up any specific parameters or initialization steps required by the EOS we are using.
   actual_eos_init();
 
+  // Set EOSData::min{temp,dens} and small_{temp,dens} to the maximum of the two
+  EOSData::mintemp = amrex::max(EOSData::mintemp, small_temp);
+  small_temp = amrex::max(small_temp, EOSData::mintemp);
+
+  EOSData::mindens = amrex::max(EOSData::mindens, small_dens);
+  small_dens = amrex::max(small_dens, EOSData::mindens);
+
   EOSData::initialized = true;
 
 }
