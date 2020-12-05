@@ -232,8 +232,7 @@ void screen_iso7(const Real btemp, const Real bden,
                  Array1D<Real, 1, NumSpec> const& y,
                  Array1D<Real, 1, Rates::NumRates>& rate,
                  Array1D<Real, 1, Rates::NumRates>& dratedt,
-                 Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy1,
-                 Array1D<Real, Rates::irsi2ni, Rates::irni2si>& dratedy2)
+                 Array2D<Real, 1, NumSpec, 1, Rates::NumRates>& dratedY)
 {
     using namespace Species;
     using namespace Rates;
@@ -254,9 +253,10 @@ void screen_iso7(const Real btemp, const Real bden,
     plasma_state_t pstate;
 
     // initialize
-    for (int i = Rates::irsi2ni; i <= Rates::irni2si; ++i) {
-        dratedy1(i) = 0.0_rt;
-        dratedy2(i) = 0.0_rt;
+    for (int j = 1; j <= NumSpec; ++j) {
+        for (int i = 1; i <= Rates::NumRates; ++i) {
+            dratedY(j, i) = 0.0_rt;
+        }
     }
 
     // get the temperature factors
@@ -377,8 +377,8 @@ void screen_iso7(const Real btemp, const Real bden,
        denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
        rate(irsi2ni)     = yeff_ca40*denom*rate(ircaag)*y(Si28);
-       dratedy1(irsi2ni) = 3.0e0_rt * rate(irsi2ni)/y(He4);
-       dratedy2(irsi2ni) = yeff_ca40*denom*rate(ircaag);
+       dratedY(He4, irsi2ni) = 3.0e0_rt * rate(irsi2ni)/y(He4);
+       dratedY(Si28, irsi2ni) = yeff_ca40*denom*rate(ircaag);
        dratedt(irsi2ni)  = (yeff_ca40dt*rate(ircaag)
                           + yeff_ca40*dratedt(ircaag))*denom*y(Si28)*1.0e-9_rt;
 
@@ -388,10 +388,10 @@ void screen_iso7(const Real btemp, const Real bden,
           rate(irni2si) = amrex::min(1.0e10_rt,yeff_ti44*rate(irtiga)*zz);
 
           if (rate(irni2si) == 1.0e10_rt) {
-             dratedy1(irni2si) = 0.0e0_rt;
+             dratedY(He4, irni2si) = 0.0e0_rt;
              dratedt(irni2si)  = 0.0e0_rt;
           } else {
-             dratedy1(irni2si) = -3.0e0_rt * rate(irni2si)/y(He4);
+             dratedY(He4, irni2si) = -3.0e0_rt * rate(irni2si)/y(He4);
              dratedt(irni2si)  = (yeff_ti44dt*rate(irtiga)
                                 + yeff_ti44*dratedt(irtiga))*zz*1.0e-9_rt;
           }
@@ -415,7 +415,7 @@ void evaluate_rates(burn_t const& state, rate_t& rr)
     // and screen_iso7 so that there are versions that do not
     // evaluate the derivatives.
     Array1D<Real, 1, Rates::NumRates> dratedt;
-    Array1D<Real, Rates::irsi2ni, Rates::irni2si> dratedy1, dratedy2;
+    Array2D<Real, 1, NumSpec, 1, Rates::NumRates> dratedY;
 
     // Get the data from the state
     rho  = state.rho;
@@ -432,7 +432,7 @@ void evaluate_rates(burn_t const& state, rate_t& rr)
         iso7rat(temp, rho, rr.rates, dratedt);
 
     // Do the screening (depends on composition)
-    screen_iso7(temp, rho, y, rr.rates, dratedt, dratedy1, dratedy2);
+    screen_iso7(temp, rho, y, rr.rates, dratedt, dratedY);
 }
 
 
@@ -442,8 +442,7 @@ void get_rates(burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
     Array1D<Real, 1, Rates::NumRates> rate, dratedt;
-    Array1D<Real, Rates::irsi2ni, Rates::irni2si> dratedy1;
-    Array1D<Real, Rates::irsi2ni, Rates::irni2si> dratedy2;
+    Array2D<Real, 1, NumSpec, 1, Rates::NumRates> dratedY;
 
     // Get the data from the state
     rho  = state.rho;
@@ -459,7 +458,7 @@ void get_rates(burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
         iso7rat(temp, rho, rate, dratedt);
 
     // Do the screening here because the corrections depend on the composition
-    screen_iso7(temp, rho, y, rate, dratedt, dratedy1, dratedy2);
+    screen_iso7(temp, rho, y, rate, dratedt, dratedY);
 
     // Save the rate data, for the Jacobian later if we need it.
     for (int i = 1; i <= Rates::NumRates; ++i) {
@@ -467,9 +466,10 @@ void get_rates(burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
         rr(2).rates(i) = dratedt(i);
     }
 
-    for (int i = Rates::irsi2ni; i <= Rates::irni2si; ++i) {
-        rr(3).rates(i) = dratedy1(i);
-        rr(4).rates(i) = dratedy2(i);
+    for (int j = 1; j <= NumSpec; ++j) {
+        for (int i = 1; i <= Rates::NumRates; ++i) {
+            rr(j+2).rates(i) = dratedY(j, i);
+        }
     }
 }
 
@@ -497,8 +497,8 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
                -y(Ne20) * rr(1).rates(irneag),
                -y(Mg24) * rr(1).rates(irmgag),
                -7.0e0_rt * rr(1).rates(irsi2ni),
-               -7.0e0_rt * rr(3).rates(irsi2ni) * y(He4),
-                7.0e0_rt * rr(3).rates(irni2si) * y(Ni56)
+               -7.0e0_rt * rr(2+He4).rates(irsi2ni) * y(He4),
+                7.0e0_rt * rr(2+He4).rates(irni2si) * y(Ni56)
         };
 
         jac(He4,He4) = esum8(b);
@@ -543,8 +543,8 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
         // d(si28)/d(he4)
         b(1) =  y(Mg24) * rr(1).rates(irmgag);
         b(2) = -rr(1).rates(irsi2ni);
-        b(3) = -rr(3).rates(irsi2ni) * y(He4);
-        b(4) =  rr(3).rates(irni2si) * y(Ni56);
+        b(3) = -rr(2+He4).rates(irsi2ni) * y(He4);
+        b(4) =  rr(2+He4).rates(irni2si) * y(Ni56);
 
         jac(Si28,He4) = esum4(b);
     }
@@ -554,8 +554,8 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
         // d(ni56)/d(he4)
         Array1D<Real, 1, 3> b {
                 rr(1).rates(irsi2ni),
-                rr(3).rates(irsi2ni) * y(He4),
-               -rr(3).rates(irni2si) * y(Ni56)
+                rr(2+He4).rates(irsi2ni) * y(He4),
+               -rr(2+He4).rates(irni2si) * y(Ni56)
         };
 
         jac(Ni56,He4) = esum3(b);
@@ -578,7 +578,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
         // d(he4)/d(si28)
         b(1) =  rr(1).rates(irsiga);
-        b(2) = -7.0e0_rt * rr(4).rates(irsi2ni) * y(He4);
+        b(2) = -7.0e0_rt * rr(2+Si28).rates(irsi2ni) * y(He4);
 
         jac(He4,Si28) = b(1) + b(2);
 
@@ -629,7 +629,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
         // d(si28)/d(si28)
         b(1) = -rr(1).rates(irsiga);
-        b(2) = -rr(4).rates(irsi2ni) * y(He4);
+        b(2) = -rr(2+Si28).rates(irsi2ni) * y(He4);
 
         jac(Si28,Si28) = b(1) + b(2);
     }
@@ -678,7 +678,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
     jac(Si28,Ni56) = rr(1).rates(irni2si);
 
     // d(ni56)/d(si28)
-    jac(Ni56,Si28) = rr(4).rates(irsi2ni) * y(He4);
+    jac(Ni56,Si28) = rr(2+Si28).rates(irsi2ni) * y(He4);
 
     // d(ni56)/d(ni56)
     jac(Ni56,Ni56) = -rr(1).rates(irni2si);

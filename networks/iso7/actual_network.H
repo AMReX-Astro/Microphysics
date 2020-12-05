@@ -62,7 +62,7 @@ namespace Rates {
                        irni2si,
                        NumRates = irni2si};
 
-    const int NumGroups = 4;
+    const int NumGroups = 2 + NumSpec;
 
     extern amrex::Vector<std::string> names;
 }
