@@ -498,7 +498,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
                -y(Mg24) * rr(1).rates(irmgag),
                -7.0e0_rt * rr(1).rates(irsi2ni),
                -7.0e0_rt * rr(2+He4).rates(irsi2ni) * y(He4),
-                7.0e0_rt * rr(2+Si28).rates(irni2si) * y(Ni56)
+                7.0e0_rt * rr(2+He4).rates(irni2si) * y(Ni56)
         };
 
         jac(He4,He4) = esum8(b);
@@ -544,7 +544,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
         b(1) =  y(Mg24) * rr(1).rates(irmgag);
         b(2) = -rr(1).rates(irsi2ni);
         b(3) = -rr(2+He4).rates(irsi2ni) * y(He4);
-        b(4) =  rr(2+Si28).rates(irni2si) * y(Ni56);
+        b(4) =  rr(2+He4).rates(irni2si) * y(Ni56);
 
         jac(Si28,He4) = esum4(b);
     }
@@ -555,7 +555,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
         Array1D<Real, 1, 3> b {
                 rr(1).rates(irsi2ni),
                 rr(2+He4).rates(irsi2ni) * y(He4),
-               -rr(2+Si28).rates(irni2si) * y(Ni56)
+               -rr(2+He4).rates(irni2si) * y(Ni56)
         };
 
         jac(Ni56,He4) = esum3(b);
@@ -578,7 +578,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
         // d(he4)/d(si28)
         b(1) =  rr(1).rates(irsiga);
-        b(2) = -7.0e0_rt * rr(2+He4).rates(irsi2ni) * y(He4);
+        b(2) = -7.0e0_rt * rr(2+Si28).rates(irsi2ni) * y(He4);
 
         jac(He4,Si28) = b(1) + b(2);
 
@@ -629,7 +629,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
         // d(si28)/d(si28)
         b(1) = -rr(1).rates(irsiga);
-        b(2) = -rr(2+He4).rates(irsi2ni) * y(He4);
+        b(2) = -rr(2+Si28).rates(irsi2ni) * y(He4);
 
         jac(Si28,Si28) = b(1) + b(2);
     }
