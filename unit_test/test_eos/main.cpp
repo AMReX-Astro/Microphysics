@@ -165,7 +165,7 @@ void main_main ()
         if (do_cxx == 1) {
           eos_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
-#ifdef MICROPHYSICS_FOR_EOS
+#ifdef MICROPHYSICS_FORT_EOS
         } else {
 #pragma gpu
         do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
