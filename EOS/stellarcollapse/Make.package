@@ -1,2 +1,4 @@
-F90EXE_sources += actual_eos.F90
-f90EXE_sources += eos_aux_data.f90
+ifeq ($(USE_FORT_EOS),TRUE)
+  F90EXE_sources += actual_eos.F90
+  f90EXE_sources += eos_aux_data.f90
+endif
