@@ -13,7 +13,6 @@ CEXE_headers += eos.H
 CEXE_headers += eos_data.H
 CEXE_headers += eos_type.H
 CEXE_headers += eos_override.H
-FEXE_headers += eos_F.H
 
 CEXE_sources += eos_data.cpp
 endif
