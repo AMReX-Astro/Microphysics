@@ -18,6 +18,7 @@
 #include <aprox_rates.H>
 #include <temperature_integration.H>
 #include <ArrayUtilities.H>
+#include <rhs_utilities.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -401,6 +402,40 @@ void screen_iso7(const Real btemp, const Real bden,
 }
 
 
+
+// RHS version (single rate group)
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void evaluate_rates(burn_t const& state, rate_t& rr)
+{
+    Real rho, temp;
+    Array1D<Real, 1, NumSpec> y;
+
+    // Temporary arrays for storing unused derivatives.
+    // A useful cleanup would be to rewrite iso7tab, iso7rat,
+    // and screen_iso7 so that there are versions that do not
+    // evaluate the derivatives.
+    Array1D<Real, 1, Rates::NumRates> dratedt;
+    Array1D<Real, Rates::irsi2ni, Rates::irni2si> dratedy1, dratedy2;
+
+    // Get the data from the state
+    rho  = state.rho;
+    temp = state.T;
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        y(i) = state.xn[i-1] * aion_inv[i-1];
+    }
+
+    // Get the raw reaction rates
+    if (use_tables)
+        iso7tab(temp, rho, rr.rates, dratedt);
+    else
+        iso7rat(temp, rho, rr.rates, dratedt);
+
+    // Do the screening (depends on composition)
+    screen_iso7(temp, rho, y, rr.rates, dratedt, dratedy1, dratedy2);
+}
+
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
@@ -672,201 +707,50 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 }
 
 
-// Evaluates the right hand side of the iso7 ODEs
+// This version adds the neutrino losses directly
+// and is intended for use in the RHS only.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups> const& rr,
-         Array1D<Real, 1, neqs>& dydt,
-         bool deriva, bool for_jacobian_tderiv)
+void ener_rhs(const burn_t& state, Array1D<Real, 1, neqs>& dydt)
 {
-    using namespace Species;
-    using namespace Rates;
+    using namespace iso7;
 
-    // deriva is used in forming the analytic Jacobian to get
-    // the derivative wrt A
+    Real Xdot = 0.0_rt;
 
-    const int index_rate = for_jacobian_tderiv ? 2 : 1;
+    // Sum the mass fraction time derivatives
 
-    for (int i = 1; i <= neqs; ++i) {
-        dydt(i) = 0.0_rt;
+    for (int i = 1; i <= NumSpec; ++i) {
+        Xdot += dydt(i) * mion(i);
     }
 
-    // set up the system of ode's :
-    // 4he reactions
-    {
-        Array1D<Real, 1, 15> a;
-        a(1)  =  3.0e0_rt * y(C12) * rr(index_rate).rates(irg3a);
-        a(2)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr(index_rate).rates(ir3a);
-        a(3)  =  y(O16) * rr(index_rate).rates(iroga);
-        a(4)  = -y(C12) * y(He4) * rr(index_rate).rates(ircag);
-        a(5)  =  0.5e0_rt * y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-        a(6)  =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-        a(7)  =  0.5e0_rt * y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-        a(8)  = -y(O16) * y(He4) * rr(index_rate).rates(iroag);
-        a(9)  =  y(Ne20) * rr(index_rate).rates(irnega);
-        a(10) =  y(Mg24) * rr(index_rate).rates(irmgga);
-        a(11) = -y(Ne20) * y(He4) * rr(index_rate).rates(irneag);
-        a(12) =  y(Si28) * rr(index_rate).rates(irsiga);
-        a(13) = -y(Mg24) * y(He4) * rr(index_rate).rates(irmgag);
-        a(14) = -7.0e0_rt * rr(index_rate).rates(irsi2ni) * y(He4);
-        a(15) =  7.0e0_rt * rr(index_rate).rates(irni2si) * y(Ni56);
+    // This is basically e = m c**2
 
-        dydt(He4) = esum15(a);
-    }
+    dydt(net_ienuc) = Xdot * C::Legacy::enuc_conv2;
 
-    // 12c reactions
-    {
-        Array1D<Real, 1, 6> a;
-        a(1) =  y(He4) * y(He4) * y(He4) * rr(index_rate).rates(ir3a) / 6.0_rt;
-        a(2) = -y(C12) * rr(index_rate).rates(irg3a);
-        a(3) =  y(O16) * rr(index_rate).rates(iroga);
-        a(4) = -y(C12) * y(He4) * rr(index_rate).rates(ircag);
-        a(5) = -y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-        a(6) = -y(C12) * y(O16) * rr(index_rate).rates(ir1216);
+    // Get the neutrino losses
 
-        dydt(C12) = esum6(a);
-    }
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    // 16o reactions
-    {
-        Array1D<Real, 1, 6> a;
-        a(1) = -y(O16) * rr(index_rate).rates(iroga);
-        a(2) =  y(C12) * y(He4) * rr(index_rate).rates(ircag);
-        a(3) = -y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-        a(4) = -y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-        a(5) = -y(O16) * y(He4) * rr(index_rate).rates(iroag);
-        a(6) =  y(Ne20) * rr(index_rate).rates(irnega);
-
-        dydt(O16) = esum6(a);
-    }
-
-    // 20ne reactions
-    {
-        Array1D<Real, 1, 5> a;
-        a(1) =  0.5e0_rt * y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-        a(2) =  y(O16) * y(He4) * rr(index_rate).rates(iroag);
-        a(3) = -y(Ne20) * rr(index_rate).rates(irnega);
-        a(4) =  y(Mg24) * rr(index_rate).rates(irmgga);
-        a(5) = -y(Ne20) * y(He4) * rr(index_rate).rates(irneag);
-
-        dydt(Ne20) = esum5(a);
-    }
-
-    // 24mg reactions
-    {
-        Array1D<Real, 1, 5> a;
-        a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-        a(2) = -y(Mg24) * rr(index_rate).rates(irmgga);
-        a(3) =  y(Ne20) * y(He4) * rr(index_rate).rates(irneag);
-        a(4) =  y(Si28) * rr(index_rate).rates(irsiga);
-        a(5) = -y(Mg24) * y(He4) * rr(index_rate).rates(irmgag);
-
-        dydt(Mg24) = esum5(a);
-    }
-
-    // 28si reactions
-    {
-        Array1D<Real, 1, 6> a;
-        a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-        a(2) =  0.5e0_rt * y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-        a(3) = -y(Si28) * rr(index_rate).rates(irsiga);
-        a(4) =  y(Mg24) * y(He4) * rr(index_rate).rates(irmgag);
-        a(5) = -rr(index_rate).rates(irsi2ni) * y(He4);
-        a(6) =  rr(index_rate).rates(irni2si) * y(Ni56);
-
-        dydt(Si28) = esum6(a);
-    }
-
-    // ni56 reactions
-    {
-        Array1D<Real, 1, 2> a;
-
-        // Loop through rates, adding the ones we care about
-        // to the array that we will sum.
-
-        int a_ctr = 0;
-
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(Ni56, rate);
-
-            if (std::abs(rhs_data.prefactor) > 0.0) {
-                ++a_ctr;
-
-                Real term = rhs_data.prefactor;
-
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
-
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
-
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
-
-                term *= rr(index_rate).rates(rate);
-
-                a(a_ctr) = term;
-            }
-        }
-
-        dydt(Ni56) = a(1) + a(2);
-    }
-
+    dydt(net_ienuc) -= sneut;
 }
+
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
+    // Evaluate the rates
 
-    /*
-     This routine sets up the system of ODE's for the iso7
-     nuclear reactions.  This is an alpha chain + heavy ion network
-     with (a,p)(p,g) links up to silicon, as well as a Si <-> Ni link.
+    rate_t rr;
+    evaluate_rates(state, rr);
 
-     Isotopes: he4,  c12,  o16,  ne20, mg24, si28, ni56
-    */
+    // Call the RHS to get dydt
 
-    Array1D<rate_t, 1, Rates::NumGroups> rr;
+    species_rhs(state, rr, ydot);
 
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    Real enuc;
+    // Instantaneous energy generation rate
 
-    Real rho, temp, abar, zbar;
-    Array1D<Real, 1, NumSpec> y;
-
-    // Get the data from the state
-
-    rho  = state.rho;
-    temp = state.T;
-    abar = state.abar;
-    zbar = state.zbar;
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn[i-1] * aion_inv[i-1];
-    }
-
-    get_rates(state, rr);
-
-    // Call the RHS to actually get dydt.
-
-    bool deriva = false;
-    bool for_jacobian_tderiv = false;
-    rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
-
-    // Instantaneous energy generation rate -- this needs molar fractions
-
-    ener_gener_rate(ydot, enuc);
-
-    // Get the neutrino losses
-
-    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    // Append the energy equation (this is erg/g/s)
-
-    ydot(net_ienuc) = enuc - sneut;
+    ener_rhs(state, ydot);
 
     // Append the temperature equation
 
@@ -927,9 +811,9 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // Evaluate the Jacobian elements with respect to temperature by
     // calling the RHS using d(rate) / dT
 
-    deriva = true;
-    bool for_jacobian_tderiv = true;
-    rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
+    const int index_rate = 2;
+
+    species_rhs(state, rr(index_rate), yderivs);
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i,net_itemp) = yderivs(i);
