@@ -5,9 +5,15 @@
 #include <actual_network.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> construct_species_rhs (Array1D<Real, 1, NumSpec> const& y, rate_t const& rr)
+void species_rhs (const burn_t& state, rate_t const& rr, Array1D<Real, 1, neqs>& ydot)
 {
     Array1D<Real, 1, NumSpec> dydt;
+
+    Array1D<Real, 1, NumSpec> y;
+
+    for (int spec = 1; spec <= NumSpec; ++spec) {
+        y(spec) = state.xn[spec-1] * aion_inv[spec-1];
+    }
 
     for (int spec = 1; spec <= NumSpec; ++spec) {
 
@@ -47,7 +53,9 @@ Array1D<Real, 1, NumSpec> construct_species_rhs (Array1D<Real, 1, NumSpec> const
         dydt(spec) = esum<Rates::NumRates>(a);
     }
 
-    return dydt;
+    for (int spec = 1; spec <= NumSpec; ++spec) {
+        ydot(spec) = dydt(spec);
+    }
 }
 
 #endif
