@@ -10,7 +10,11 @@ extern "C"
 #endif
   void init_variables_F();
 
-  void init_unit_test(const int* name, const int* namlen); 
+  void init_runtime_parameters(const int* name, const int* namlen); 
+
+#ifdef MICROPHYSICS_FORT_EOS
+  void init_fortran_microphysics();
+#endif
 
   void do_eos(const int* lo, const int* hi,
               amrex::Real dlogrho, amrex::Real dlogT, amrex::Real dmetal,
