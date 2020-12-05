@@ -8,7 +8,6 @@ module react_zones_module
   use amrex_fort_module, only : rt => amrex_real
   use amrex_constants_module
   use extern_probin_module
-  use util_module
   use actual_burner_module
 
   implicit none
