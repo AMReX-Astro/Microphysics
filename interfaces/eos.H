@@ -15,7 +15,7 @@ using namespace amrex;
 // call any specific initialization used by the EOS.
 
 inline
-void eos_init() {
+void eos_init(Real& small_temp, Real& small_dens) {
 
   // Allocate and set default values
 
@@ -48,6 +48,15 @@ void eos_init() {
 
   EOSData::initialized = true;
 
+}
+
+// Overload of the above for cases where we didn't pass in small_temp and small_dens
+
+inline
+void eos_init() {
+    Real small_temp = -1.e200;
+    Real small_dens = -1.e200;
+    eos_init(small_temp, small_dens);
 }
 
 inline

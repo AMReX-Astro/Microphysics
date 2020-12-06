@@ -113,7 +113,7 @@ void main_main ()
 
     init_extern_parameters();
 
-    eos_init();
+    eos_init(small_temp, small_dens);
 
     screening_init();
 
