@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 #ifdef CXX_REACTIONS
 
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
-  eos_init();
+  eos_init(small_temp, small_dens);
 
   // C++ Network, RHS, screening, rates initialization
   network_init();
