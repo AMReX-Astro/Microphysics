@@ -490,16 +490,57 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
         // set up the jacobian
         // 4he jacobian elements
         // d(he4)/d(he4)
-        Array1D<Real, 1, 8> b {
-               -1.5e0_rt * y(He4) * y(He4) * rr(1).rates(ir3a),
-               -y(C12) * rr(1).rates(ircag),
-               -y(O16) * rr(1).rates(iroag),
-               -y(Ne20) * rr(1).rates(irneag),
-               -y(Mg24) * rr(1).rates(irmgag),
-               -7.0e0_rt * rr(1).rates(irsi2ni),
-               -7.0e0_rt * rr(2+He4).rates(irsi2ni) * y(He4),
-                7.0e0_rt * rr(2+He4).rates(irni2si) * y(Ni56)
-        };
+        Array1D<Real, 1, 8> b;
+
+        int b_ctr = 0;
+
+        for (int rate = 1; rate <= NumRates; ++rate) {
+            jac_t jac_data = RHS::jac_data(He4, He4, rate);
+
+            if (std::abs(jac_data.prefactor) > 0.0_rt) {
+                ++b_ctr;
+
+                Real term = jac_data.prefactor;
+
+                if (jac_data.specindex1 >= 0) {
+                    term *= y(jac_data.specindex1);
+                }
+
+                if (jac_data.specindex2 >= 0) {
+                    term *= y(jac_data.specindex2);
+                }
+
+                if (jac_data.specindex3 >= 0) {
+                    term *= y(jac_data.specindex3);
+                }
+
+                term *= rr(1).rates(rate);
+
+                b(b_ctr) = term;
+            }
+
+            if (std::abs(jac_data.rate_prefactor) > 0.0_rt) {
+                ++b_ctr;
+
+                Real term = jac_data.rate_prefactor;
+
+                if (jac_data.rate_specindex1 >= 0) {
+                    term *= y(jac_data.rate_specindex1);
+                }
+
+                if (jac_data.rate_specindex2 >= 0) {
+                    term *= y(jac_data.rate_specindex2);
+                }
+
+                if (jac_data.rate_specindex3 >= 0) {
+                    term *= y(jac_data.rate_specindex3);
+                }
+
+                term *= rr(2 + He4).rates(rate);
+
+                b(b_ctr) = term;
+            }
+        }
 
         jac(He4,He4) = esum8(b);
     }
