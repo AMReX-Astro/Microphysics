@@ -4,26 +4,29 @@ F90EXE_sources += microphysics.F90
 CEXE_headers += microphysics_F.H
 
 F90EXE_sources += network.F90
-F90EXE_sources += eos.F90
-F90EXE_sources += eos_override.F90
-F90EXE_sources += eos_type.F90
+
+ifeq ($(USE_FORT_EOS),TRUE)
+  F90EXE_sources += eos.F90
+  F90EXE_sources += eos_override.F90
+  F90EXE_sources += eos_type.F90
+endif
 
 ifeq ($(USE_CXX_EOS),TRUE)
-CEXE_headers += eos.H
-CEXE_headers += eos_data.H
-CEXE_headers += eos_type.H
-CEXE_headers += eos_override.H
+  CEXE_headers += eos.H
+  CEXE_headers += eos_data.H
+  CEXE_headers += eos_type.H
+  CEXE_headers += eos_override.H
 
-CEXE_sources += eos_data.cpp
+  CEXE_sources += eos_data.cpp
 endif
 
 CEXE_headers += network.H
 CEXE_headers += network_utilities.H
 ifeq ($(USE_CXX_REACTIONS),TRUE)
-CEXE_headers += rhs_utilities.H
-CEXE_sources += network_initialization.cpp
-CEXE_headers += fortran_to_cxx_actual_rhs.H
-F90EXE_sources += fortran_to_cxx_actual_rhs.F90
+  CEXE_headers += rhs_utilities.H
+  CEXE_sources += network_initialization.cpp
+  CEXE_headers += fortran_to_cxx_actual_rhs.H
+  F90EXE_sources += fortran_to_cxx_actual_rhs.F90
 endif
 
 ifeq ($(USE_CONDUCTIVITY), TRUE)
