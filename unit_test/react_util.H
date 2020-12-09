@@ -17,7 +17,7 @@ struct init_t {
     Real Xp_max;
 };
 
-AMREX_INLINE AMREX_GPU_HOST_DEVICE
+AMREX_INLINE
 init_t setup_composition(const int nz) {
 
     // get the primary species indices
