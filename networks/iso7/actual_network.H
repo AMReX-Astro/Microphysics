@@ -467,7 +467,7 @@ namespace RHS {
 
         case jac_rate<NumSpec, NumRates>(He4, Si28, irsi2ni):
             data.rate_prefactor = -7.0_rt;
-            data.specindex1 = He4;
+            data.rate_specindex1 = He4;
             break;
 
         case jac_rate<NumSpec, NumRates>(He4, Ni56, irni2si):
