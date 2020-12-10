@@ -486,16 +486,16 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
     using namespace Species;
     using namespace Rates;
 
-    {
-        // set up the jacobian
-        // 4he jacobian elements
-        // d(he4)/d(he4)
-        Array1D<Real, 1, 8> b;
+    for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
+
+        // d(He4) / d(spec2)
+
+        Array1D<Real, 1, Rates::NumRates> b = {0.0};
 
         int b_ctr = 0;
 
         for (int rate = 1; rate <= NumRates; ++rate) {
-            jac_t jac_data = RHS::jac_data(He4, He4, rate);
+            jac_t jac_data = RHS::jac_data(He4, spec2, rate);
 
             if (std::abs(jac_data.prefactor) > 0.0_rt) {
                 ++b_ctr;
@@ -536,33 +536,17 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
                     term *= y(jac_data.rate_specindex3);
                 }
 
-                term *= rr(2 + He4).rates(rate);
+                term *= rr(2 + spec2).rates(rate);
 
                 b(b_ctr) = term;
             }
         }
 
-        jac(He4,He4) = esum8(b);
+        jac(He4, spec2) = esum<Rates::NumRates>(b);
     }
 
     {
         Array1D<Real, 1, 4> b;
-
-        // d(he4)/d(c12)
-        b(1) =  3.0e0_rt * rr(1).rates(irg3a);
-        b(2) = -y(He4) * rr(1).rates(ircag);
-        b(3) =  y(C12) * rr(1).rates(ir1212);
-        b(4) =  0.5e0_rt * y(O16) * rr(1).rates(ir1216);
-
-        jac(He4,C12) = esum4(b);
-
-        // d(he4)/d(o16)
-        b(1) =  rr(1).rates(iroga);
-        b(2) =  0.5e0_rt * y(C12) * rr(1).rates(ir1216);
-        b(3) =  y(O16) * rr(1).rates(ir1616);
-        b(4) = -y(He4) * rr(1).rates(iroag);
-
-        jac(He4,O16) = esum4(b);
 
         // d(c12)/d(c12)
         b(1) = -rr(1).rates(irg3a);
@@ -604,24 +588,6 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
     {
         Array1D<Real, 1, 2> b;
-
-        // d(he4)/d(ne20)
-        b(1) =  rr(1).rates(irnega);
-        b(2) = -y(He4) * rr(1).rates(irneag);
-
-        jac(He4,Ne20) = b(1) + b(2);
-
-        // d(he4)/d(mg24)
-        b(1) =  rr(1).rates(irmgga);
-        b(2) = -y(He4) * rr(1).rates(irmgag);
-
-        jac(He4,Mg24) = b(1) + b(2);
-
-        // d(he4)/d(si28)
-        b(1) =  rr(1).rates(irsiga);
-        b(2) = -7.0e0_rt * rr(2+Si28).rates(irsi2ni) * y(He4);
-
-        jac(He4,Si28) = b(1) + b(2);
 
         // 12c jacobian elements
         // d(c12)/d(he4)
@@ -674,9 +640,6 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
         jac(Si28,Si28) = b(1) + b(2);
     }
-
-    // d(he4)/d(ni56)
-    jac(He4,Ni56) = 7.0e0_rt * rr(1).rates(irni2si);
 
     // d(o16)/d(ne20)
     jac(O16,Ne20) = rr(1).rates(irnega);
