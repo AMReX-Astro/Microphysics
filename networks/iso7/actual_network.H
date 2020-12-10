@@ -405,6 +405,75 @@ namespace RHS {
             data.rate_specindex1 = Ni56;
             break;
 
+        case jac_rate<NumSpec, NumRates>(He4, C12, irg3a):
+            data.prefactor = 3.0_rt;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, C12, ircag):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, C12, ir1212):
+            data.prefactor = 1.0_rt;
+            data.specindex1 = C12;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, C12, ir1216):
+            data.prefactor = 0.5_rt;
+            data.specindex1 = O16;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, O16, iroga):
+            data.prefactor = 1.0_rt;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, O16, ir1216):
+            data.prefactor = 0.5_rt;
+            data.specindex1 = C12;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, O16, ir1616):
+            data.prefactor = 1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, O16, iroag):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, Ne20, irnega):
+            data.prefactor = 1.0_rt;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, Ne20, irneag):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, Mg24, irmgga):
+            data.prefactor = 1.0_rt;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, Mg24, irmgag):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, Si28, irsiga):
+            data.prefactor = 1.0_rt;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, Si28, irsi2ni):
+            data.rate_prefactor = -7.0_rt;
+            data.rate_specindex1 = He4;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(He4, Ni56, irni2si):
+            data.prefactor = 7.0_rt;
+            break;
+
         }
 
         return data;
