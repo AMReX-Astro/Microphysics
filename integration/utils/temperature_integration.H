@@ -10,7 +10,7 @@
 // since most networks will use the same temperature ODE.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+Real temperature_rhs (burn_t& state, const Real& dedT)
 {
     // Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
     // evolve :
@@ -23,6 +23,9 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Note that we no longer include the chemical potential (dE/dX or dH/dX)
     // terms because we believe they analytically should vanish.
 
+    Real dTdt = 0.0_rt;
+
+    // we never access dT/dt for SDC
 #ifndef SIMPLIFIED_SDC
 
     if (state.self_heat) {
@@ -44,7 +47,7 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
             Real cvInv = 1.0_rt / cv;
 
-            ydot(net_itemp) = ydot(net_ienuc) * cvInv;
+            dTdt = dedT * cvInv;
 
         }
         else {
@@ -64,23 +67,14 @@ void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
             Real cpInv = 1.0_rt / cp;
 
-            ydot(net_itemp) = ydot(net_ienuc) * cpInv;
+            dTdt = dedT * cpInv;
 
         }
 
     }
-    else {
-
-        ydot(net_itemp) = 0.0_rt;
-
-    }
-
-#else
-
-    // we never access dT/dt for SDC
-    ydot(net_itemp) = 0.0_rt;
 #endif
 
+    return dTdt;
 }
 
 

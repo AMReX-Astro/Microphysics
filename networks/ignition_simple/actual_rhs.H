@@ -139,7 +139,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Do the temperature equation explicitly here
 
-    temperature_rhs(state, ydot);
+    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
 }
 
 
