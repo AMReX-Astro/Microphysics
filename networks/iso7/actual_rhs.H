@@ -486,206 +486,69 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
     using namespace Species;
     using namespace Rates;
 
-    for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
+    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
 
-        // d(He4) / d(spec2)
+        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
 
-        Array1D<Real, 1, Rates::NumRates> b = {0.0};
+            // d(spec1) / d(spec2)
 
-        int b_ctr = 0;
+            Array1D<Real, 1, Rates::NumRates> b = {0.0};
 
-        for (int rate = 1; rate <= NumRates; ++rate) {
-            jac_t jac_data = RHS::jac_data(He4, spec2, rate);
+            int b_ctr = 0;
 
-            if (std::abs(jac_data.prefactor) > 0.0_rt) {
-                ++b_ctr;
+            for (int rate = 1; rate <= NumRates; ++rate) {
+                jac_t jac_data = RHS::jac_data(spec1, spec2, rate);
 
-                Real term = jac_data.prefactor;
+                if (std::abs(jac_data.prefactor) > 0.0_rt) {
+                    ++b_ctr;
 
-                if (jac_data.specindex1 >= 0) {
-                    term *= y(jac_data.specindex1);
+                    Real term = jac_data.prefactor;
+
+                    if (jac_data.specindex1 >= 0) {
+                        term *= y(jac_data.specindex1);
+                    }
+
+                    if (jac_data.specindex2 >= 0) {
+                        term *= y(jac_data.specindex2);
+                    }
+
+                    if (jac_data.specindex3 >= 0) {
+                        term *= y(jac_data.specindex3);
+                    }
+
+                    term *= rr(1).rates(rate);
+
+                    b(b_ctr) = term;
                 }
 
-                if (jac_data.specindex2 >= 0) {
-                    term *= y(jac_data.specindex2);
+                if (std::abs(jac_data.rate_prefactor) > 0.0_rt) {
+                    ++b_ctr;
+
+                    Real term = jac_data.rate_prefactor;
+
+                    if (jac_data.rate_specindex1 >= 0) {
+                        term *= y(jac_data.rate_specindex1);
+                    }
+
+                    if (jac_data.rate_specindex2 >= 0) {
+                        term *= y(jac_data.rate_specindex2);
+                    }
+
+                    if (jac_data.rate_specindex3 >= 0) {
+                        term *= y(jac_data.rate_specindex3);
+                    }
+
+                    term *= rr(2 + spec2).rates(rate);
+
+                    b(b_ctr) = term;
                 }
-
-                if (jac_data.specindex3 >= 0) {
-                    term *= y(jac_data.specindex3);
-                }
-
-                term *= rr(1).rates(rate);
-
-                b(b_ctr) = term;
             }
 
-            if (std::abs(jac_data.rate_prefactor) > 0.0_rt) {
-                ++b_ctr;
+            jac(spec1, spec2) = esum<Rates::NumRates>(b);
 
-                Real term = jac_data.rate_prefactor;
-
-                if (jac_data.rate_specindex1 >= 0) {
-                    term *= y(jac_data.rate_specindex1);
-                }
-
-                if (jac_data.rate_specindex2 >= 0) {
-                    term *= y(jac_data.rate_specindex2);
-                }
-
-                if (jac_data.rate_specindex3 >= 0) {
-                    term *= y(jac_data.rate_specindex3);
-                }
-
-                term *= rr(2 + spec2).rates(rate);
-
-                b(b_ctr) = term;
-            }
         }
 
-        jac(He4, spec2) = esum<Rates::NumRates>(b);
     }
-
-    {
-        Array1D<Real, 1, 4> b;
-
-        // d(c12)/d(c12)
-        b(1) = -rr(1).rates(irg3a);
-        b(2) = -y(He4) * rr(1).rates(ircag);
-        b(3) = -2.0e0_rt * y(C12) * rr(1).rates(ir1212);
-        b(4) = -y(O16) * rr(1).rates(ir1216);
-
-        jac(C12,C12) = esum4(b);
-
-        // d(o16)/d(o16)
-        b(1) = -rr(1).rates(iroga);
-        b(2) = -y(C12) * rr(1).rates(ir1216);
-        b(3) = -2.0e0_rt * y(O16) * rr(1).rates(ir1616);
-        b(4) = -y(He4) * rr(1).rates(iroag);
-
-        jac(O16,O16) = esum4(b);
-
-        // 28si jacobian elements
-        // d(si28)/d(he4)
-        b(1) =  y(Mg24) * rr(1).rates(irmgag);
-        b(2) = -rr(1).rates(irsi2ni);
-        b(3) = -rr(2+He4).rates(irsi2ni) * y(He4);
-        b(4) =  rr(2+He4).rates(irni2si) * y(Ni56);
-
-        jac(Si28,He4) = esum4(b);
-    }
-
-    {
-        // ni56 jacobian elements
-        // d(ni56)/d(he4)
-        Array1D<Real, 1, 3> b {
-                rr(1).rates(irsi2ni),
-                rr(2+He4).rates(irsi2ni) * y(He4),
-               -rr(2+He4).rates(irni2si) * y(Ni56)
-        };
-
-        jac(Ni56,He4) = esum3(b);
-    }
-
-    {
-        Array1D<Real, 1, 2> b;
-
-        // 12c jacobian elements
-        // d(c12)/d(he4)
-        b(1) =  0.5e0_rt * y(He4) * y(He4) * rr(1).rates(ir3a);
-        b(2) = -y(C12) * rr(1).rates(ircag);
-
-        jac(C12,He4) = b(1) + b(2);
-
-        // d(c12)/d(o16)
-        b(1) =  rr(1).rates(iroga);
-        b(2) = -y(C12) * rr(1).rates(ir1216);
-
-        jac(C12,O16) = b(1) + b(2);
-
-        // 16o jacobian elements
-        // d(o16)/d(he4)
-        b(1) =  y(C12) * rr(1).rates(ircag);
-        b(2) = -y(O16) * rr(1).rates(iroag);
-
-        jac(O16,He4) = b(1) + b(2);
-
-        // d(o16)/d(c12)
-        b(1) =  y(He4) * rr(1).rates(ircag);
-        b(2) = -y(O16) * rr(1).rates(ir1216);
-
-        jac(O16,C12) = b(1) + b(2);
-
-        // 24mg jacobian elements
-        // d(mg24)/d(he4)
-        b(1) =  y(Ne20) * rr(1).rates(irneag);
-        b(2) = -y(Mg24) * rr(1).rates(irmgag);
-
-        jac(Mg24,He4) = b(1) + b(2);
-
-        // d(mg24)/d(mg24)
-        b(1) = -rr(1).rates(irmgga);
-        b(2) = -y(He4) * rr(1).rates(irmgag);
-
-        jac(Mg24,Mg24) = b(1) + b(2);
-
-        // d(si28)/d(o16)
-        b(1) =  y(O16) * rr(1).rates(ir1616);
-        b(2) =  0.5e0_rt * y(C12) * rr(1).rates(ir1216);
-
-        jac(Si28,O16) = b(1) + b(2);
-
-        // d(si28)/d(si28)
-        b(1) = -rr(1).rates(irsiga);
-        b(2) = -rr(2+Si28).rates(irsi2ni) * y(He4);
-
-        jac(Si28,Si28) = b(1) + b(2);
-    }
-
-    // d(o16)/d(ne20)
-    jac(O16,Ne20) = rr(1).rates(irnega);
-
-    // 20ne jacobian elements
-    // d(ne20)/d(he4)
-    jac(Ne20,He4) = y(O16) * rr(1).rates(iroag) - y(Ne20) * rr(1).rates(irneag);
-
-    // d(ne20)/d(c12)
-    jac(Ne20,C12) = y(C12) * rr(1).rates(ir1212);
-
-    // d(ne20)/d(o16)
-    jac(Ne20,O16) = y(He4) * rr(1).rates(iroag);
-
-    // d(ne20)/d(ne20)
-    jac(Ne20,Ne20) = -rr(1).rates(irnega) - y(He4) * rr(1).rates(irneag);
-
-    // d(ne20)/d(mg24)
-    jac(Ne20,Mg24) = rr(1).rates(irmgga);
-
-    // d(mg24)/d(c12)
-    jac(Mg24,C12) = 0.5e0_rt * y(O16) * rr(1).rates(ir1216);
-
-    // d(mg24)/d(o16)
-    jac(Mg24,O16) = 0.5e0_rt * y(C12) * rr(1).rates(ir1216);
-
-    // d(mg24)/d(ne20)
-    jac(Mg24,Ne20) = y(He4) * rr(1).rates(irneag);
-
-    // d(mg24)/d(si28)
-    jac(Mg24,Si28) = rr(1).rates(irsiga);
-
-    // d(si28)/d(c12)
-    jac(Si28,C12) = 0.5e0_rt * y(O16) * rr(1).rates(ir1216);
-
-    // d(si28)/d(mg24)
-    jac(Si28,Mg24) = y(He4) * rr(1).rates(irmgag);
-
-    // d(si28)/d(ni56)
-    jac(Si28,Ni56) = rr(1).rates(irni2si);
-
-    // d(ni56)/d(si28)
-    jac(Ni56,Si28) = rr(2+Si28).rates(irsi2ni) * y(He4);
-
-    // d(ni56)/d(ni56)
-    jac(Ni56,Ni56) = -rr(1).rates(irni2si);
 
 }
 
