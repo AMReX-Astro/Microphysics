@@ -210,6 +210,8 @@ void main_main ()
     Real strt_time = ParallelDescriptor::second();
 
     int num_failed = 0;
+    AsyncArray<int> aa_num_failed(&num_failed, 1);
+    int* num_failed_d = aa_num_failed.data();
 
     // Do the reactions
 #ifdef _OPENMP
@@ -225,11 +227,8 @@ void main_main ()
             auto s = state.array(mfi);
             auto n_rhs = integrator_n_rhs.array(mfi);
 
-            int* num_failed_d = AMREX_MFITER_REDUCE_SUM(&num_failed);
-
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-
                 bool success = do_react(vars, i, j, k, s, n_rhs);
 
                 if (!success) {
@@ -251,6 +250,9 @@ void main_main ()
 #endif
 
     }
+
+    aa_num_failed.copyToHost(&num_failed, 1);
+    Gpu::synchronize();
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors
