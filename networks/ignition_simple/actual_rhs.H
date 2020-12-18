@@ -137,9 +137,11 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ener_gener_rate(ydot(C12), ydot(net_ienuc));
 
+#ifndef SIMPLIFIED_SDC
     // Do the temperature equation explicitly here
 
-    temperature_rhs(state, ydot);
+    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
+#endif
 }
 
 
