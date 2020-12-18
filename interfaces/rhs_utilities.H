@@ -5,7 +5,7 @@
 #include <actual_network.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void species_rhs (const burn_t& state, rate_t const& rr, Array1D<Real, 1, neqs>& ydot)
+Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
 {
     Array1D<Real, 1, NumSpec> dydt;
 
@@ -53,9 +53,7 @@ void species_rhs (const burn_t& state, rate_t const& rr, Array1D<Real, 1, neqs>&
         dydt(spec) = esum<Rates::NumRates>(a);
     }
 
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        ydot(spec) = dydt(spec);
-    }
+    return dydt;
 }
 
 #endif
