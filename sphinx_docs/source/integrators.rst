@@ -52,6 +52,13 @@ are always explicitly done by the individual networks rather than
 being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.
 
+.. index:: react_boost
+
+The standard reaction rates can all be boosted by a constant factor by
+setting the ``react_boost`` runtime parameter.  This will simply
+multiply the righthand sides of each species evolution equation (and
+appropriate Jacobian terms) by the specified constant amount.
+
 Interfaces
 ==========
 
