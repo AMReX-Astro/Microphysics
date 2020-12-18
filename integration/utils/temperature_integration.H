@@ -9,6 +9,7 @@
 // within the actual_rhs routine but is provided here as a convenience
 // since most networks will use the same temperature ODE.
 
+#ifndef SIMPLIFIED_SDC
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real temperature_rhs (burn_t& state, const Real& dedT)
 {
@@ -24,9 +25,6 @@ Real temperature_rhs (burn_t& state, const Real& dedT)
     // terms because we believe they analytically should vanish.
 
     Real dTdt = 0.0_rt;
-
-    // we never access dT/dt for SDC
-#ifndef SIMPLIFIED_SDC
 
     if (state.self_heat) {
 
@@ -72,11 +70,10 @@ Real temperature_rhs (burn_t& state, const Real& dedT)
         }
 
     }
-#endif
 
     return dTdt;
 }
-
+#endif
 
 // Sets up the temperature entries in the Jacobian. This should be called from
 // within the actual_jac routine but is provided here as a convenience
