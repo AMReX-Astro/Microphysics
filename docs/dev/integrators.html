@@ -472,7 +472,7 @@ will provide both of these specific heats; which one to use is a
 choice the user needs to make based on the physics of their problem.
 This is controlled by the parameter <code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code>,
 which will use <span class="math notranslate nohighlight">\(c_v\)</span> if <code class="docutils literal notranslate"><span class="pre">.true.</span></code> and <span class="math notranslate nohighlight">\(c_p\)</span> is <code class="docutils literal notranslate"><span class="pre">.false.</span></code>. See
-<a class="bibtex reference internal" href="zreferences.html#maestro-iii" id="id3">[AlmgrenBellNonakaZingale08]</a> for a discussion of the temperature evolution
+<span class="bibtex" id="id3">[maestro:III]</span> for a discussion of the temperature evolution
 equation.</p>
 <p>A fully accurate integration of Equation <a class="reference internal" href="#equation-eq-temp-integrate">(3)</a>
 requires an evaluation of the specific heat at each integration step,
@@ -544,7 +544,7 @@ type required by the <code class="docutils literal notranslate"><span class="pre
 <p>The name of the integrator can be selected at compile time using
 the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
 the allowed options are BS and VODE.</p>
-<p>We recommend that you use the VODE solver (<a class="bibtex reference internal" href="zreferences.html#vode" id="id4">[BBH89]</a>), as it is the most
+<p>We recommend that you use the VODE solver (<span class="bibtex" id="id4">[vode]</span>), as it is the most
 robust and has both Fortran and C++ implementations.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -777,7 +777,7 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 </div>
 <div class="section" id="bs">
 <h3>BS<a class="headerlink" href="#bs" title="Permalink to this headline">¶</a></h3>
-<p>This integrator is based on the stiff-ODE methods from <a class="bibtex reference internal" href="zreferences.html#nr" id="id7">[PressTeukolskyVetterlingFlannery92]</a>, but
+<p>This integrator is based on the stiff-ODE methods from <span class="bibtex" id="id7">[NR]</span>, but
 written with reaction network integration in mind (so it knows about
 species), and in a modular / threadsafe fashion to work with our data
 structures. This integrator appears quite robust.</p>
@@ -837,7 +837,7 @@ species with an abundance <span class="math notranslate nohighlight">\(\ll\)</sp
 used as strongly in assessing the accuracy of a step.</p>
 </li>
 </ul>
-<p>These correspond to the options presented in <a class="bibtex reference internal" href="zreferences.html#nr" id="id8">[PressTeukolskyVetterlingFlannery92]</a>.</p>
+<p>These correspond to the options presented in <span class="bibtex" id="id8">[NR]</span>.</p>
 <p>A final option, use_timestep_estimator enables the
 timestep estimator from VODE to determine a good starting
 timestep for integration.</p>
