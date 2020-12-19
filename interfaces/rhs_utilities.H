@@ -4,6 +4,19 @@
 #include <network_utilities.H>
 #include <actual_network.H>
 
+template<int species, int j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Real rhs_term (const burn_t& state, rate_t const& rr);
+
+template<int species>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real species_rhs_n (const burn_t& state, rate_t const& rr);
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr);
+
+namespace rhs_impl {
+
 // Determine if a rate is used in the RHS for a given species
 // by seeing if its prefactor is nonzero.
 template<int species, int rate>
@@ -86,6 +99,38 @@ constexpr int rhs_term_impl (std::integer_sequence<int, rates...>)
     return actual_rhs_term_impl<species, j, rates...>(0);
 }
 
+// Implicitly construct an Array1D by expanding the integer sequence.
+// Note that the integer sequence is zero-indexed but the terms are
+// one-indexed.
+template<int species, int... j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Array1D<Real, 1, sizeof...(j)>
+make_RHS_Array1D_impl (const burn_t& state, rate_t const& rr, std::integer_sequence<int, j...>)
+{
+    return {{rhs_term<species, j+1>(state, rr)...}};
+}
+
+// Calculate the set of RHS terms.
+template<int species, int N>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Array1D<Real, 1, N>
+make_RHS_Array1D (const burn_t& state, rate_t const& rr)
+{
+    return make_RHS_Array1D_impl<species>(state, rr, std::make_integer_sequence<int, N>{});
+}
+
+// Implicitly construct an Array1D by expanding the integer sequence.
+// Note that the integer sequence is zero-indexed but the terms are
+// one-indexed.
+template<int... species>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array1D<Real, 1, NumSpec> species_rhs_impl (const burn_t& state, rate_t const& rr, std::integer_sequence<int, species...>)
+{
+    return {{species_rhs_n<species + 1>(state, rr)...}};
+}
+
+} // namespace rhs_impl
+
 // Calculate the j'th RHS term for a given species.
 // It is of the form K * Y(1) * Y(2) * Y(3) * rate,
 // where K is a prefactor constant, rate is the
@@ -99,7 +144,7 @@ template<int species, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
 {
-    constexpr int rate = rhs_term_impl<species, j>(std::make_integer_sequence<int, Rates::NumRates>{});
+    constexpr int rate = rhs_impl::rhs_term_impl<species, j>(std::make_integer_sequence<int, Rates::NumRates>{});
 
     constexpr rhs_t rhs_data = RHS::rhs_data(species, rate);
 
@@ -122,52 +167,22 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
     return term;
 }
 
-// Implicitly construct an Array1D by expanding the integer sequence.
-// Note that the integer sequence is zero-indexed but the terms are
-// one-indexed.
-template<int species, int... j>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Array1D<Real, 1, sizeof...(j)>
-make_RHS_Array1D_impl (const burn_t& state, rate_t const& rr, std::integer_sequence<int, j...>)
-{
-    return {{rhs_term<species, j+1>(state, rr)...}};
-}
-
-// Calculate the set of RHS terms.
-template<int species, int N>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Array1D<Real, 1, N>
-make_RHS_Array1D (const burn_t& state, rate_t const& rr)
-{
-    return make_RHS_Array1D_impl<species>(state, rr, std::make_integer_sequence<int, N>{});
-}
-
 // Calculate the RHS for a given species by constructing the array of terms
 // and then summing them up.
 template<int species>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real species_rhs_n (const burn_t& state, rate_t const& rr)
 {
-    constexpr int nrhs = num_rhs<species>();
-    Array1D<Real, 1, nrhs> a = make_RHS_Array1D<species, nrhs>(state, rr);
+    constexpr int nrhs = rhs_impl::num_rhs<species>();
+    Array1D<Real, 1, nrhs> a = rhs_impl::make_RHS_Array1D<species, nrhs>(state, rr);
     return esum<nrhs>(a);
-}
-
-// Implicitly construct an Array1D by expanding the integer sequence.
-// Note that the integer sequence is zero-indexed but the terms are
-// one-indexed.
-template<int... species>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> species_rhs_impl (const burn_t& state, rate_t const& rr, std::integer_sequence<int, species...>)
-{
-    return {{species_rhs_n<species + 1>(state, rr)...}};
 }
 
 // Calculate the array of RHS terms over all species.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
 {
-    return species_rhs_impl(state, rr, std::make_integer_sequence<int, NumSpec>{});
+    return rhs_impl::species_rhs_impl(state, rr, std::make_integer_sequence<int, NumSpec>{});
 }
 
 #endif
