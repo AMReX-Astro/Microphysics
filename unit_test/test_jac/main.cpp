@@ -43,9 +43,7 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
-#ifdef CXX_REACTIONS
     int do_cxx = 0;
-#endif
 
     // inputs parameters
     {
@@ -62,9 +60,7 @@ void main_main ()
 
         pp.query("prefix", prefix);
 
-#ifdef CXX_REACTIONS
         pp.query("do_cxx", do_cxx);
-#endif
 
     }
 
@@ -127,6 +123,8 @@ void main_main ()
 
     // C++ Network, RHS, screening, rates initialization
     network_init();
+
+    init_variables_F();
 
     plot_t vars;
     vars = init_variables();
@@ -194,12 +192,21 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
-        auto s = state.array(mfi);
+        if (do_cxx) {
 
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-        {
-            do_jac(i, j, k, s, vars);
-        });
+            auto s = state.array(mfi);
+
+            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+            {
+                do_jac(i, j, k, s, vars);
+            });
+
+        } else {
+
+            do_jac(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                   BL_TO_FORTRAN_ANYD(state[mfi]));
+
+        }
 
     }
 
@@ -225,12 +232,13 @@ void main_main ()
     std::string name = "test_rhs.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
+    std::string language = do_cxx == 1 ? ".cxx" : ".fortran";
+
     // Write a plotfile
-    int n = 0;
 
-    WriteSingleLevelPlotfile(prefix + name + integrator, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
 
-    write_job_info(prefix + name + integrator);
+    write_job_info(prefix + name + integrator + language);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
