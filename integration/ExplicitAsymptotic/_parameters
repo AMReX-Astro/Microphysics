@@ -1,0 +1,14 @@
+# Maximum amount any abundance can change by in a timestep
+maximum_X_change_factor_per_timestep     real            1.01
+
+# Error tolerance on timestep satisfying the constraint
+dt_error_tolerance                       real            0.001
+
+# Maximum number of iterations on the timestep constraint loop
+dt_max_iters                             integer         5
+
+# Maximum factor that dt is allowed to grow per timestep
+dt_max_change_factor                     real            1.25
+
+# Start the timestepping with a guess that is this fraction of the full interval
+dt_init_fraction                         real            0.001

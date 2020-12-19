@@ -577,7 +577,7 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 // This version adds the neutrino losses directly
 // and is intended for use in the RHS only.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void ener_rhs(const burn_t& state, Array1D<Real, 1, neqs>& dydt)
+Real ener_rhs(const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
 {
     using namespace iso7;
 
@@ -591,14 +591,16 @@ void ener_rhs(const burn_t& state, Array1D<Real, 1, neqs>& dydt)
 
     // This is basically e = m c**2
 
-    dydt(net_ienuc) = Xdot * C::Legacy::enuc_conv2;
+    Real dedt = Xdot * C::Legacy::enuc_conv2;
 
     // Get the neutrino losses
 
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    dydt(net_ienuc) -= sneut;
+    dedt -= sneut;
+
+    return dedt;
 }
 
 
@@ -613,15 +615,21 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Call the RHS to get dydt
 
-    species_rhs(state, rr, ydot);
+    Array1D<Real, 1, NumSpec> spec_rhs = species_rhs(state, rr);
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        ydot(n) = spec_rhs(n);
+    }
 
     // Instantaneous energy generation rate
 
-    ener_rhs(state, ydot);
+    ydot(net_ienuc) = ener_rhs(state, spec_rhs);
 
+#ifndef SIMPLIFIED_SDC
     // Append the temperature equation
 
-    temperature_rhs(state, ydot);
+    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
+#endif
 }
 
 
@@ -639,7 +647,6 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     Real rho, temp, abar, zbar;
     Array1D<Real, 1, NumSpec> y;
-    Array1D<Real, 1, neqs> yderivs;
 
     jac.zero();
 
@@ -680,7 +687,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     const int index_rate = 2;
 
-    species_rhs(state, rr(index_rate), yderivs);
+    Array1D<Real, 1, NumSpec> yderivs = species_rhs(state, rr(index_rate));
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i,net_itemp) = yderivs(i);
