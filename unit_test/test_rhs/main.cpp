@@ -37,9 +37,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size, print_every_nrhs;
-    Vector<int> bc_lo(AMREX_SPACEDIM,0);
-    Vector<int> bc_hi(AMREX_SPACEDIM,0);
+    int n_cell, max_grid_size;
 
     std::string prefix = "plt";
 
@@ -57,9 +55,6 @@ void main_main ()
         // We need to get n_cell from the inputs file - this is the
         // number of cells on each side of a square (or cubic) domain.
         pp.get("n_cell", n_cell);
-
-	print_every_nrhs = 0;
-	pp.query("print_every_nrhs", print_every_nrhs);
 
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
@@ -256,7 +251,6 @@ void main_main ()
 #endif
 
     // Write a plotfile
-    int n = 0;
 
     WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
 
