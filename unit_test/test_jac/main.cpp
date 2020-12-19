@@ -16,7 +16,7 @@ using namespace amrex;
 #include <eos.H>
 #include <network.H>
 #ifdef CXX_REACTIONS
-#include <rhs_zones.H>
+#include <jac_zones.H>
 #endif
 #include <AMReX_buildInfo.H>
 #include <variables.H>
