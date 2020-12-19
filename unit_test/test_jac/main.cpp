@@ -37,7 +37,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size
+    int n_cell, max_grid_size;
 
     std::string prefix = "plt";
 
@@ -125,12 +125,8 @@ void main_main ()
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
 
-#ifdef CXX_REACTIONS
     // C++ Network, RHS, screening, rates initialization
     network_init();
-#endif
-
-    init_variables_F();
 
     plot_t vars;
     vars = init_variables();
@@ -229,18 +225,12 @@ void main_main ()
     std::string name = "test_rhs.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-#ifdef CXX_REACTIONS
-    std::string language = do_cxx == 1 ? ".cxx" : ".fortran";
-#else
-    std::string language = ".fortran";
-#endif
-
     // Write a plotfile
     int n = 0;
 
-    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator, state, names, geom, time, 0);
 
-    write_job_info(prefix + name + integrator + language);
+    write_job_info(prefix + name + integrator);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
