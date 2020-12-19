@@ -5,6 +5,15 @@
 #include <burn_type.H>
 #include <extern_parameters.H>
 
+///
+/// Compute the numerical Jacobian of the reactive system, dydot/dy,
+/// where ydot = {dX/dt, dT/dt, denuc/dT}, and y = {X, T, enuc}.
+///
+/// Note the analytic Jacobian usually works in terms of molar
+/// fractions, Y, instead of mass fractions, X, but our integrators
+/// always work in terms of X, so the numerical Jacobian is expressed
+/// in terms of X.
+///
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void numerical_jac(burn_t& state, JacNetArray2D& jac)
 {
@@ -21,12 +30,12 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         }
     }
 
+    YdotNetArray1D ydotp;
+    YdotNetArray1D ydotm;
+
     if (centered_diff_jac) {
         burn_t state_delp = state;
         burn_t state_delm = state;
-
-        YdotNetArray1D ydotp;
-        YdotNetArray1D ydotm;
 
         // species derivatives
 
@@ -81,86 +90,97 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         for (int q = 1; q <= NumSpec; q++) {
             ydotp(q) *= aion[q-1];
         }
-%%%%%%%
 
-       state_delm % xn = state % xn
-       state_delm % T  = state % T * (ONE - eps)
+        for (int q = 0; q < NumSpec; q++) {
+            state_delm.xn[q] = state.xn[q];
+        }
+        state_delm.T *= (1.0_rt - eps);
 
-       call actual_rhs(state_delm, ydotm)
+        actual_rhs(state_delm, ydotm);
 
-       ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
+        for (int q = 1; q <= NumSpec; q++) {
+            ydotm(q) *= aion[q-1];
+        }
 
-       do m = 1, neqs
-          scratch = HALF*(ydotp(m) - ydotm(m)) / (eps * state % T)
-          call set_jac_entry(jac, m, net_itemp, scratch)
-       enddo
+        for (int m = 1; m <= neqs; m++) {
+            jac(m, net_itemp) = 0.5_rt * (ydotp(m) - ydotm(m)) / (eps * state.T);
+        }
 
-       ! energy derivatives -- these are all 0! (yay!)
-       scratch = ZERO
-       do m = 1, neqs
-          call set_jac_entry(jac, m, net_ienuc, scratch)
-       enddo
+        // energy derivatives -- these are all 0! (yay!)
 
-    else
-       call copy_burn_t(state_delp, state)
-       call copy_burn_t(state_delm, state)   ! note: delm here is actually just the input
+        for (int m = 1; m <= neqs; m++) {
+            jac(m, net_ienuc) = 0.0_rt;
+        }
 
-       ! default
-       call actual_rhs(state_delm, ydotm)
+    } else {
+        burn_t state_delp = state;
 
-       ydotm(1:nspec) = ydotm(1:nspec) * aion(1:nspec)
+        // default
 
-       ! species derivatives
-       do n = 1, nspec
-          ! perturb species -- we send in X, but ydot is in terms of dY/dt, not dX/dt
-          state_delp % xn = state % xn
+        actual_rhs(state, ydotm);
 
-          h = eps * abs(state % xn(n))
-          if (h == 0) then
-             h = eps
-          endif
+        for (int q = 1; q < NumSpec; q++) {
+            ydotm(q) *= aion[q-1];
+        }
 
-          state_delp % xn(n) = state % xn(n) + h
+        // species derivatives
 
-          call actual_rhs(state_delp, ydotp)
+        for (int n = 1; n <= NumSpec; n++) {
+            // perturb species -- we send in X, but ydot is in terms
+            // of dY/dt, not dX/dt
 
-          ! We integrate X, so convert from the Y we got back from the RHS
+            for (int q = 0; q < NumSpec; q++) {
+                state_delp.xn[q] = state.xn[q];
+            }
 
-          ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
+            Real h = eps * std::abs(state.xn[n-1]);
+            if (h == 0) {
+                h = eps;
+            }
 
-          do m = 1, neqs
-             scratch = (ydotp(m) - ydotm(m)) / h
-             call set_jac_entry(jac, m, n, scratch)
-          enddo
-       enddo
+            state_delp.xn[n-1] += h;
 
-       ! temperature derivative
-       state_delp % xn = state % xn
+            actual_rhs(state_delp, ydotp);
 
-       h = eps * abs(state % T)
-       if (h == 0) then
-          h = eps
-       endif
+            // We integrate X, so convert from the Y we got back from the RHS
 
-       state_delp % T = state % T + h
+            for (int q = 1; q <= NumSpec; q++) {
+                ydotp(q) *= aion[q-1];
+            }
 
-       call actual_rhs(state_delp, ydotp)
+            for (int m = 1; m <= neqs; m++) {
+                jac(m, n) = (ydotp(m) - ydotm(m)) / h;
+            }
+        }
 
-       ydotp(1:nspec) = ydotp(1:nspec) * aion(1:nspec)
+        // temperature derivative
 
-       do m = 1, neqs
-          scratch = (ydotp(m) - ydotm(m)) / h
-          call set_jac_entry(jac, m, net_itemp, scratch)
-       enddo
+        for (int q = 0; q < NumSpec; q++) {
+            state_delp.xn[q] = state.xn[q];
+        }
 
-       ! energy derivatives -- these are all 0! (yay!)
-       scratch = ZERO
-       do m = 1, neqs
-          call set_jac_entry(jac, m, net_ienuc, scratch)
-       enddo
+        Real h = eps * std::abs(state.T);
+        if (h == 0) {
+            h = eps;
+        }
 
-    endif
+        state_delp.T += h;
 
-  end subroutine numerical_jac
+        actual_rhs(state_delp, ydotp);
 
+        for (int q = 1; q <= NumSpec; q++) {
+            ydotp(q) *= aion[q-1];
+        }
+
+        for (int m = 1; m <= neqs; m++) {
+            jac(m, net_itemp) = (ydotp(m) - ydotm(m)) / h;
+        }
+
+        // energy derivatives -- these are all 0! (yay!)
+
+        for (int m = 1; m <= neqs; m++) {
+            jac(m, net_ienuc) = 0.0_rt;
+        }
+    }
+}
 #endif
