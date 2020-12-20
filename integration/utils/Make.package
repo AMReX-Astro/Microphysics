@@ -8,3 +8,4 @@ F90EXE_sources += jacobian_sparsity.F90
 F90EXE_sources += temperature_integration.F90
 f90EXE_sources += nonaka_plot.f90
 
+CEXE_headers += jacobian_utilities.H

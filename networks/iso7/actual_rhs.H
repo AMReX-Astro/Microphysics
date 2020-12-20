@@ -18,6 +18,7 @@
 #include <aprox_rates.H>
 #include <ArrayUtilities.H>
 #include <rhs_utilities.H>
+#include <jacobian_utilities.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -676,19 +677,15 @@ void actual_jac(burn_t& state, MatrixType& jac)
     }
 
     // Evaluate the Jacobian elements with respect to energy by
-    // calling the RHS using d(rate) / dT and then transforming with
-    // d(rate) / dT = (d(rate) / de) * (de / dT)
+    // calling the RHS using d(rate) / dT and then transform them
+    // to our energy integration variable.
 
     const int index_rate = 2;
 
     Array1D<Real, 1, NumSpec> yderivs = species_rhs(state, rr(index_rate));
 
     for (int i = 1; i <= NumSpec; ++i) {
-        if (do_constant_volume_burn) {
-            jac(i,net_ienuc) = yderivs(i) / state.cv;
-        } else {
-            jac(i,net_ienuc) = yderivs(i) / state.cp;
-        }
+        jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
     }
 
 }
