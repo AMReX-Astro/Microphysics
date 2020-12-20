@@ -3,7 +3,7 @@
 
 #include <extern_parameters.H>
 #include <actual_network.H>
-#include <temperature_integration.H>
+#include <jacobian_utilities.H>
 #include <rate_type.H>
 #include <screen.H>
 
@@ -136,12 +136,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     }
 
     ener_gener_rate(ydot(C12), ydot(net_ienuc));
-
-#ifndef SIMPLIFIED_SDC
-    // Do the temperature equation explicitly here
-
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 }
 
 
@@ -170,20 +164,18 @@ void actual_jac (burn_t& state, MatrixType& jac)
     jac(Mg24, C12) = -jac(C12, C12);
 
     // add the temperature derivatives: df(y_i) / dT
-    jac(C12, net_itemp)  = -(1.0_rt / 12.0_rt) * (dens * dratedt * xc12tmp * xc12tmp);
+    Real jac_C12_T = -(1.0_rt / 12.0_rt) * (dens * dratedt * xc12tmp * xc12tmp);
 
     // Convert back to molar form
     // Note that the factor of 1/A cancels in the (C12,C12) Jacobian element,
     // so this conversion is necessarily only for the temperature derivative.
-    jac(C12, net_itemp) *= aion_inv[C12-1];
+    jac_C12_T *= aion_inv[C12-1];
+
+    // Now store as df(y_i) / de
+    jac(C12, net_ienuc) = temperature_to_energy_jacobian(state, jac_C12_T);
 
     // Energy generation rate Jacobian elements with respect to species
     ener_gener_rate(jac(C12, C12), jac(net_ienuc, C12));
-
-    // Jacobian elements with respect to temperature
-    ener_gener_rate(jac(C12, net_itemp), jac(net_ienuc, net_itemp));
-
-    temperature_jac(state, jac);
 }
 
 #endif
