@@ -209,12 +209,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         bool valid_update = true;
 
-#ifndef SIMPLIFIED_SDC
-        if (vstate.y(net_itemp) < 0.0_rt) {
-            valid_update = false;
-        }
-#endif
-
         for (int i = 1; i <= NumSpec; ++i) {
             // Constrain abundances such that they don't change by more than a certain
             // factor in a given step (as long as their initial abundance was large enough

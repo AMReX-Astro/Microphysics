@@ -16,7 +16,6 @@
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
-#include <temperature_integration.H>
 #include <ArrayUtilities.H>
 #include <rhs_utilities.H>
 
@@ -624,12 +623,6 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Instantaneous energy generation rate
 
     ydot(net_ienuc) = ener_rhs(state, spec_rhs);
-
-#ifndef SIMPLIFIED_SDC
-    // Append the temperature equation
-
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 }
 
 
@@ -682,24 +675,21 @@ void actual_jac(burn_t& state, MatrixType& jac)
        jac.add(net_ienuc, j, -b1);
     }
 
-    // Evaluate the Jacobian elements with respect to temperature by
-    // calling the RHS using d(rate) / dT
+    // Evaluate the Jacobian elements with respect to energy by
+    // calling the RHS using d(rate) / dT and then transforming with
+    // d(rate) / dT = (d(rate) / de) * (de / dT)
 
     const int index_rate = 2;
 
     Array1D<Real, 1, NumSpec> yderivs = species_rhs(state, rr(index_rate));
 
     for (int i = 1; i <= NumSpec; ++i) {
-        jac(i,net_itemp) = yderivs(i);
+        if (do_constant_volume_burn) {
+            jac(i,net_ienuc) = yderivs(i) / state.cv;
+        } else {
+            jac(i,net_ienuc) = yderivs(i) / state.cp;
+        }
     }
-
-    ener_gener_rate(yderivs, jac(net_ienuc,net_itemp));
-
-    jac.add(net_ienuc, net_itemp, -dsneutdt);
-
-    // Temperature Jacobian elements
-
-    temperature_jac(state, jac);
 
 }
 
