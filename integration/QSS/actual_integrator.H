@@ -266,10 +266,13 @@ void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& d
     //
     // and then recompute the corrector state
     //
-    // X_c = X_0 + (f_plus - k_bar * X_0) / (1 + alpha_bar * k_bar * dt)
+    // X_c = X_0 + (f_plus_tilde - k_bar * X_0) / (1 + alpha_bar * k_bar * dt)
     //
-    // In the above, we're going to use y = X (mass fraction). We can also do predictor-corrector
-    // on the energy update, which has the more familiar form
+    // where f_plus_tilde is a weighted average of the old and new terms:
+    //
+    // f_plus_tilde = alpha_bar * f_plus_p + (1 - alpha) * f_plus_0
+    //
+    // We can also do predictor-corrector on the energy update, which has the more familiar form
     //
     // e_p = e_0 + dt * f_0
     // e_c = e_0 + dt * (f_0 + f_p) / 2
