@@ -274,6 +274,9 @@ void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& d
     // e_p = e_0 + dt * f_0
     // e_c = e_0 + dt * (f_0 + f_p) / 2
     //
+    // This is actually a special case of the QSS update for k == 0 (no "self-depletion" term) and
+    // alpha = 1/2.
+    //
     // We do not integrate temperature, and instead get it from the EOS.
 
     // Make a copy of the old-time state; we'll be temporarily updating the state with the predictor
