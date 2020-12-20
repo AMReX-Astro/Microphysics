@@ -272,7 +272,7 @@ void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& d
     // on the energy update, which has the more familiar form
     //
     // e_p = e_0 + dt * f_0
-    // e_c = e_0 + (f_0 + f_p) / 2
+    // e_c = e_0 + dt * (f_0 + f_p) / 2
     //
     // We do not integrate temperature, and instead get it from the EOS.
 
