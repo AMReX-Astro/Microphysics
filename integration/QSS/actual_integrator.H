@@ -19,15 +19,13 @@ void initialize_state (burn_t& state);
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
-                   Real& dedt, Real& dTdt);
+                   Real& dedt);
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void calculate_dydt (burn_t& state, const Real& dt,
-                     const Array1D<Real, 1, NumSpec>& f_minus, const Array1D<Real, 1, NumSpec>& f_plus,
-                     Array1D<Real, 1, NumSpec>& dXdt, Real& dedt, Real& dTdt);
+void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt);
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const Real& dt);
+Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const Real& dedt, const Real& dt);
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, Real dt)
@@ -47,15 +45,8 @@ void actual_integrator (burn_t& state, Real dt)
 
     int num_timesteps = 0;
 
-    while (t < (1.0_rt - timestep_safety_factor) * dt)
+    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < max_timesteps)
     {
-        // Evaluate the RHS.
-
-        Array1D<Real, 1, NumSpec> f_plus, f_minus;
-        Real dedt, dTdt;
-
-        evaluate_rhs(state, f_minus, f_plus, dedt, dTdt);
-
         // Iterate over dt, first calculating the update and then determining
         // whether the update satisfies any constraints we have on the timestep.
         // Our initial guess is the previous timestep multiplied by a factor > 1
@@ -65,15 +56,16 @@ void actual_integrator (burn_t& state, Real dt)
         int num_iters = 0;
 
         Array1D<Real, 1, NumSpec> dXdt;
+        Real dedt;
 
         while (std::abs(dt_new - dt_sub) > dt_error_tolerance * dt_sub && num_iters < dt_max_iters)
         {
             dt_sub = dt_new;
             ++num_iters;
 
-            calculate_dydt(state, dt_sub, f_minus, f_plus, dXdt, dedt, dTdt);
+            calculate_dydt(state, dt_sub, dXdt, dedt);
 
-            dt_new = limit_dt(state, dXdt, dt_sub);
+            dt_new = limit_dt(state, dXdt, dedt, dt_sub);
         }
 
         // Update the timestep from the last iteration.
@@ -92,12 +84,7 @@ void actual_integrator (burn_t& state, Real dt)
             state.xn[n-1] += dXdt(n) * dt_sub;
         }
 
-        if (integrate_temperature) {
-            state.T += dTdt * dt_sub;
-        }
-        if (integrate_energy) {
-            state.e += dedt * dt_sub;
-        }
+        state.e += dedt * dt_sub;
 
         clean_state(state);
 
@@ -124,6 +111,16 @@ void clean_state (burn_t& state)
 
     normalize_abundances_burn(state);
 
+    // Evaluate the EOS to get T from e.
+
+    eos_t eos_state;
+
+    burn_to_eos(state, eos_state);
+
+    eos(eos_input_re, eos_state);
+
+    eos_to_burn(eos_state, state);
+
     // Ensure that the temperature always stays within reasonable limits.
 
     state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
@@ -143,8 +140,6 @@ void initialize_state (burn_t& state)
 
     eos_to_burn(eos_state, state);
 
-    clean_state(state);
-
     state.self_heat = true;
 
     state.success = true;
@@ -152,7 +147,7 @@ void initialize_state (burn_t& state)
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
-                   Real& dedt, Real& dTdt)
+                   Real& dedt)
 {
     rate_t rr;
     evaluate_rates(state, rr);
@@ -216,39 +211,144 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Re
     }
 
     dedt = ener_rhs(state, dYdt);
-    dTdt = temperature_rhs(state, dedt);
 
     state.n_rhs += 1;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void calculate_dydt (burn_t& state, const Real& dt,
-                     const Array1D<Real, 1, NumSpec>& f_minus, const Array1D<Real, 1, NumSpec>& f_plus,
-                     Array1D<Real, 1, NumSpec>& dXdt, Real& dedt, Real& dTdt)
+Real alpha (const Real& r)
 {
-    // Given our guess for dt, determine whether this species should be updated using
-    // the asymptotic approximation. The decision criterion for allowing the
-    // asymptotic approximation is whether (f_minus / X) * dt >= 1 (section 7.3).
-    // If we're using the approximation, we calculate the new-time value of X
-    // using Equation 13, and then calculate an effective "explicit" dX/dt based on
-    // this, so that we can just update everything by dt * dX/dt at the end.
+    // Evaluate alpha (Guidry et al. paper II, Equation 4)
+    // Note the first term in the numerator has a typo,
+    // compare to Equation 39 of Mott et al. 2000.
 
-    for (int n = 1; n < NumSpec; ++n)
-    {
-        if (f_minus(n) * dt >= state.xn[n-1])
-        {
-            Real X_new = (state.xn[n-1] + f_plus(n) * dt) / (1 + f_minus(n) * dt / state.xn[n-1]);
-            dXdt(n) = (X_new - state.xn[n-1]) / dt;
-        }
-        else
-        {
-            dXdt(n) = (f_plus(n) - f_minus(n));
-        }
+    if (std::abs(r) <= 1.e-30_rt) { // Protect against underflow
+        return 1.0_rt; // Limit for r -> 0
+    }
+    else if (std::abs(r) >= 1.e30_rt) { // Protect against overflow
+        return 0.5_rt; // Limit for r -> infinity
+    }
+    else {
+        Real r2 = r * r;
+        Real r3 = r2 * r;
+        Real a = (180.0_rt * r3 + 60.0_rt * r2 + 11.0_rt * r + 1.0_rt);
+        a /= (360.0_rt * r3 + 60.0_rt * r2 + 12.0_rt * r + 1.0_rt);
+        return a;
     }
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const Real& dt)
+void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt)
+{
+    // Calculate the quasi-steady-state update. This is based on Guidry et al. paper II.
+    // Section 2 spells out the update for the species using a predictor-corrector method.
+    // The RHS for any term is split into terms f_plus and f_minus, where generally the
+    // terms in f_plus add to X, while f_minus contains all terms that deplete X.
+    // (In practice, we have some two-body reactions like C12 + C12 and three-body reactions
+    // like triple alpha where k is a function of X. The method ignores this subtlety.)
+    //
+    // dX/dt = f_plus - f_minus = f_plus - k * X
+    //
+    // In the QSS method we define the following variables:
+    //
+    // r = 1 / (k * dt)
+    // alpha(r) = (180 * r**3 + 60 * r**2 + 11 * r + 1) / (360 * r**3 + 60 * r**2 + 12 * r + 1)
+    //
+    // and then do a predictor step defined by Guidry Equation 5
+    //
+    // X_p = X_0 + dt * (f_plus - k_0 * X_0) / (1 + alpha_0 * k_0 * dt)
+    //
+    // Then we recompute f_plus and f_minus (and therefore k) from the RHS using the predictor state,
+    // and compute time-centered variables
+    //
+    // k_bar = (k_0 + k_p) / 2
+    // alpha_bar = (alpha_0 + alpha_p) / 2
+    //
+    // and then recompute the corrector state
+    //
+    // X_c = X_0 + (f_plus - k_bar * X_0) / (1 + alpha_bar * k_bar * dt)
+    //
+    // In the above, we're going to use y = X (mass fraction). We can also do predictor-corrector
+    // on the energy update, which has the more familiar form
+    //
+    // e_p = e_0 + dt * f_0
+    // e_c = e_0 + (f_0 + f_p) / 2
+    //
+    // We do not integrate temperature, and instead get it from the EOS.
+
+    // Make a copy of the old-time state; we'll be temporarily updating the state with the predictor
+    // values for the new-time RHS evaluation, but we need to revert those changes later.
+
+    burn_t state_0 = state;
+
+    // Evaluate the RHS using the old-time state.
+
+    Array1D<Real, 1, NumSpec> f_plus_0, f_minus_0;
+    Real dedt_0;
+
+    evaluate_rhs(state_0, f_minus_0, f_plus_0, dedt_0);
+
+    for (int n = 1; n <= NumSpec; ++n)
+    {
+        Real X_0 = state_0.xn[n-1];
+        Real k_0 = f_minus_0(n) / X_0;
+        Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
+        Real alpha_0 = alpha(r_0);
+
+        state.xn[n-1] = X_0 + dt * (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
+    }
+
+    state.e = state_0.e + dt * dedt_0;
+
+    // Now that we have the predictor, re-evaluate the RHS. Note that this also
+    // involves a re-evaluation of the rates. This seems safe given how temperature
+    // sensitive our rates are. Mott et al. recommend this for cases where the integration
+    // is sensitive to T (second to last paragraph of section 4).
+
+    clean_state(state);
+
+    Array1D<Real, 1, NumSpec> f_minus_p, f_plus_p;
+    Real dedt_p;
+
+    evaluate_rhs(state, f_minus_p, f_plus_p, dedt_p);
+
+    // Compute the corrector state.
+
+    for (int n = 1; n <= NumSpec; ++n)
+    {
+        Real X_0 = state_0.xn[n-1];
+        Real X_p = state.xn[n-1];
+        Real k_0 = f_minus_0(n) / X_0;
+        Real k_p = f_minus_p(n) / X_p;
+        Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
+        Real r_p = 1.0_rt / amrex::max(k_p * dt, 1.0e-50_rt);
+        Real alpha_0 = alpha(r_0);
+        Real alpha_p = alpha(r_p);
+
+        Real k_bar = 0.5_rt * (k_p + k_0);
+        Real alpha_bar = 0.5_rt * (alpha_p + alpha_0);
+        Real f_plus_tilde = alpha_bar * f_plus_p(n) + (1.0_rt - alpha_bar) * f_plus_0(n);
+
+        state.xn[n-1] = X_0 + dt * (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
+    }
+
+    state.e = state_0.e + 0.5_rt * dt * (dedt_0 + dedt_p);
+
+    // Now compute the final values for dX/dt and de/dt, and then
+    // reset the state back to the way it was before.
+
+    for (int n = 1; n <= NumSpec; ++n)
+    {
+        dXdt(n) = (state.xn[n-1] - state_0.xn[n-1]) / dt;
+    }
+
+    dedt = (state.e - state_0.e) / dt;
+
+    state = state_0;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const Real& dedt, const Real& dt)
 {
     // Limit dt by whether the update would change the abundance
     // by more than a given factor, using simple linear limiting.
@@ -258,9 +358,11 @@ Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const
 
     for (int n = 1; n < NumSpec; ++n) {
         if (state.xn[n-1] >= atol_spec) {
-            dt_new = amrex::min(dt_new, std::abs((maximum_X_change_factor_per_timestep - 1.0_rt) * state.xn[n-1] / dXdt(n)));
+            dt_new = amrex::min(dt_new, std::abs((maximum_change_factor_per_timestep - 1.0_rt) * state.xn[n-1] / dXdt(n)));
         }
     }
+
+    dt_new = amrex::min(dt_new, std::abs((maximum_change_factor_per_timestep - 1.0_rt) * state.e / dedt));
 
     return dt_new;
 }

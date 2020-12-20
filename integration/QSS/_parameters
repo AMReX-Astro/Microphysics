@@ -1,5 +1,5 @@
-# Maximum amount any abundance can change by in a timestep
-maximum_X_change_factor_per_timestep     real            1.01
+# Maximum amount any integration quantity can change by in a timestep
+maximum_change_factor_per_timestep     real            1.01
 
 # Error tolerance on timestep satisfying the constraint
 dt_error_tolerance                       real            0.001
@@ -12,3 +12,6 @@ dt_max_change_factor                     real            1.25
 
 # Start the timestepping with a guess that is this fraction of the full interval
 dt_init_fraction                         real            0.001
+
+# Maximum number of timesteps
+max_timesteps                            integer         1000000
