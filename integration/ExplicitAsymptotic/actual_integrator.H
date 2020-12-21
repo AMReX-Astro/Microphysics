@@ -262,6 +262,8 @@ Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const
         }
     }
 
+    dt_new = amrex::min(dt_new, ode_max_dt);
+
     return dt_new;
 }
 
