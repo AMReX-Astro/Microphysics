@@ -12,6 +12,3 @@ dt_max_change_factor                     real            1.25
 
 # Start the timestepping with a guess that is this fraction of the full interval
 dt_init_fraction                         real            0.001
-
-# Maximum number of timesteps
-max_timesteps                            integer         1000000

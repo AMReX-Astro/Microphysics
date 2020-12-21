@@ -45,7 +45,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     int num_timesteps = 0;
 
-    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < max_timesteps)
+    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps)
     {
         // Iterate over dt, first calculating the update and then determining
         // whether the update satisfies any constraints we have on the timestep.
