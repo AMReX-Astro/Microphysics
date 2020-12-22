@@ -30,7 +30,7 @@ contains
     use vode_rpar_indices
     use extern_probin_module, only: jacobian, use_jacobian_caching, &
          burner_verbose, &
-         call_eos_in_rhs, dt_crit, ode_max_steps
+         call_eos_in_rhs, dt_crit, ode_max_steps, ode_max_dt
     use cuvode_module, only: dvode
     use eos_module, only: eos
     use eos_type_module, only: eos_t, copy_eos_t
@@ -100,6 +100,10 @@ contains
     ! Set the maximum number of steps allowed.
 
     dvode_state % MXSTEP = ode_max_steps
+
+    ! Set the (inverse of the) timestep limiter.
+
+    dvode_state % HMXI = 1.0_rt / ode_max_dt
 
     ! Start off by assuming a successful burn.
 

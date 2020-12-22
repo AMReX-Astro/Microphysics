@@ -104,27 +104,29 @@ void main_main ()
     for (int i = 0; i < probin_file_length; i++)
       probin_file_name[i] = probin_file[i];
 
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    init_runtime_parameters(probin_file_name.dataPtr(), &probin_file_length);
+
+#ifdef MICROPHYSICS_FORT_EOS
+    init_fortran_microphysics();
+#endif
 
     init_extern_parameters();
 
-    eos_init();
+    eos_init(small_temp, small_dens);
 
     // for C++
     plot_t vars;
 
-    // for F90
-    Vector<std::string> varnames;
-
-    // C++ test
     vars = init_variables();
 
     amrex::Vector<std::string> names;
     get_varnames(vars, names);
 
+#ifdef MICROPHYSICS_FORT_EOS
     // Fortran test
 
     init_variables_F();
+#endif
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -163,11 +165,13 @@ void main_main ()
         if (do_cxx == 1) {
           eos_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
+#ifdef MICROPHYSICS_FORT_EOS
         } else {
 #pragma gpu
         do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                dlogrho, dlogT, dmetal,
                BL_TO_FORTRAN_ANYD(state[mfi]));
+#endif
         }
 
     }

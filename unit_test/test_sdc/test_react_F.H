@@ -16,10 +16,6 @@ extern "C"
                 amrex::Real* state, const int* s_lo, const int* s_hi,
                 int* n_rhs, const int* n_rhs_lo, const int* n_rhs_hi);
 
-  void init_state(const int* lo, const int* hi,
-                  amrex::Real* state, const int* s_lo, const int* s_hi,
-                  const int* npts);
-
 #ifdef __cplusplus
 }
 #endif

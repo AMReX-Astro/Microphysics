@@ -17,6 +17,7 @@ using namespace amrex;
 #include <network.H>
 #include <eos.H>
 #include <variables.H>
+#include <react_util.H>
 
 #include <cmath>
 #include <unit_test.H>
@@ -124,7 +125,7 @@ void main_main ()
     init_extern_parameters();
 
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
-    eos_init();
+    eos_init(small_temp, small_dens);
 
 #ifdef CXX_REACTIONS
     // C++ Network, RHS, screening, rates initialization
@@ -150,13 +151,55 @@ void main_main ()
     MultiFab state(ba, dm, vars.n_plot_comps, Nghost);
 
     // Initialize the state
+
+    Real dlogrho;
+    Real dlogT;
+
+    if (n_cell > 1) {
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
+    } else {
+        dlogrho = 0.0_rt;
+        dlogT   = 0.0_rt;
+    }
+
+    init_t comp_data = setup_composition(n_cell);
+
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.validbox();
 
-        init_state(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
-                   BL_TO_FORTRAN_ANYD(state[mfi]), &n_cell);
+        auto state_arr = state.array(mfi);
 
+        amrex::ParallelFor(bx,
+        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+        {
+
+            state_arr(i, j, k, vars.itemp) =
+                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
+            state_arr(i, j, k, vars.irho) =
+                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+
+            Real xn[NumSpec];
+            get_xn(k, comp_data, xn);
+
+            for (int n = 0; n < NumSpec; n++) {
+                state_arr(i, j, k, vars.ispec_old+n) =
+                    amrex::max(xn[n], 1.e-10_rt);
+            }
+
+            // initialize the auxillary state (in particular, for NSE)
+#ifdef NSE_THERMO
+            eos_t eos_state;
+            for (int n = 0; n < NumSpec; n++) {
+                eos_state.xn[n] = xn[n];
+            }
+            set_nse_aux_from_X(eos_state);
+            for (int n = 0; n < NumAux; n++) {
+                state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
+            }
+#endif
+        });
     }
 
     // allocate a multifab for the number of RHS calls
@@ -167,6 +210,8 @@ void main_main ()
     Real strt_time = ParallelDescriptor::second();
 
     int num_failed = 0;
+    AsyncArray<int> aa_num_failed(&num_failed, 1);
+    int* num_failed_d = aa_num_failed.data();
 
     // Do the reactions
 #ifdef _OPENMP
@@ -182,11 +227,8 @@ void main_main ()
             auto s = state.array(mfi);
             auto n_rhs = integrator_n_rhs.array(mfi);
 
-            int* num_failed_d = AMREX_MFITER_REDUCE_SUM(&num_failed);
-
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-
                 bool success = do_react(vars, i, j, k, s, n_rhs);
 
                 if (!success) {
@@ -208,6 +250,9 @@ void main_main ()
 #endif
 
     }
+
+    aa_num_failed.copyToHost(&num_failed, 1);
+    Gpu::synchronize();
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors

@@ -4,7 +4,6 @@
 #include <network_properties.H>
 #include <eos_data.H>
 #include <eos_type.H>
-#include <eos_F.H>
 #include <eos_composition.H>
 #include <eos_override.H>
 #include <actual_eos.H>
@@ -16,7 +15,7 @@ using namespace amrex;
 // call any specific initialization used by the EOS.
 
 inline
-void eos_init() {
+void eos_init(Real& small_temp, Real& small_dens) {
 
   // Allocate and set default values
 
@@ -40,25 +39,24 @@ void eos_init() {
   // Set up any specific parameters or initialization steps required by the EOS we are using.
   actual_eos_init();
 
-  // we take the approach that the Fortran initialization is the
-  // reference and it has already been done, so we get any overrides
-  // to these from Fortran, to ensure we are consistent.
+  // Set EOSData::min{temp,dens} and small_{temp,dens} to the maximum of the two
+  EOSData::mintemp = amrex::max(EOSData::mintemp, small_temp);
+  small_temp = amrex::max(small_temp, EOSData::mintemp);
 
-
-  // If they exist, save the minimum permitted user temperature and density.
-  // These are only relevant to this module if they are larger than the minimum
-  // possible EOS quantities. We will reset them to be equal to the EOS minimum
-  // if they are smaller than that.
-
-  Real scratch;
-  eos_get_small_temp(&scratch);
-  EOSData::mintemp = scratch;
-
-  eos_get_small_dens(&scratch);
-  EOSData::mindens = scratch;
+  EOSData::mindens = amrex::max(EOSData::mindens, small_dens);
+  small_dens = amrex::max(small_dens, EOSData::mindens);
 
   EOSData::initialized = true;
 
+}
+
+// Overload of the above for cases where we didn't pass in small_temp and small_dens
+
+inline
+void eos_init() {
+    Real small_temp = -1.e200;
+    Real small_dens = -1.e200;
+    eos_init(small_temp, small_dens);
 }
 
 inline

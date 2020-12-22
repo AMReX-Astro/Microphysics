@@ -10,7 +10,6 @@ module cuvode_types_module
   real(rt), parameter :: SRUR = sqrt(UROUND)
   real(rt), parameter :: CCMXJ = 0.2e0_rt
   real(rt), parameter :: HMIN = 0.0_rt
-  real(rt), parameter :: HMXI = 0.0_rt
 
   ! For the backward differentiation formula (BDF) integration
   ! the maximum order should be no greater than 5.
@@ -24,7 +23,7 @@ module cuvode_types_module
   type :: dvode_t
      real(rt) :: HU
      real(rt) :: ACNRM, CONP, CRATE, DRC, EL(13)
-     real(rt) :: ETA, ETAMAX, H, HNEW, HSCAL, PRL1
+     real(rt) :: ETA, ETAMAX, H, HNEW, HSCAL, PRL1, HMXI
      real(rt) :: RC, RL1, TAU(13), TQ(5), TN
      integer  :: NFE, NJE, NST
      integer  :: ICF, IPUP, JCUR, JSTART, JSV, KFLAG
