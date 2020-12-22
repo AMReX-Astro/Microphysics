@@ -69,6 +69,8 @@ Real calculate_dt (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     }
 
+    dt = amrex::min(dt, ode_max_dt);
+
     return dt;
 }
 
