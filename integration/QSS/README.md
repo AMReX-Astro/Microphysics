@@ -8,5 +8,7 @@ and originally proposed in
 David R. Mott, Elaine S. Oran, Bram van Leer, JCP 164, 407 (2000),
 "A Quasi-Steady-State Solver for the Stiff Ordinary Differential Equations of Reaction Kinetics"
 
-The timestepping is determined by not letting any integration
-quantity change by more than a given factor in a timestep.
+Some implementation details, specifically the timestepping algorithm, are taken from
+
+David R. Mott and Elaine S. Oran, NRL/MR/6400--01-8553 (2001),
+"CHEMEQ2: A Solver for the Stiff Ordinary Differential Equations of Chemical Kinetics"
