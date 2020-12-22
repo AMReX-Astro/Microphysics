@@ -133,6 +133,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#test-conductivity">test_conductivity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-cvode-react">test_cvode_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-parameters">test_parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-reaclib-rates">test_reaclib_rates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-react">test_react</a></li>
@@ -1715,6 +1716,72 @@ burns</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e-4</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="test-jac">
+<h1>test_jac<a class="headerlink" href="#test-jac" title="Permalink to this headline">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 51%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
+<td></td>
+<td><p>1.d9</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
+<td></td>
+<td><p>1.d6</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
+<td></td>
+<td><p>1.d15</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_1</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_2</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_3</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<td></td>
+<td><p>0.1d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
