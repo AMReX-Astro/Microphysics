@@ -16,7 +16,7 @@ using namespace amrex;
 #include <eos.H>
 #include <network.H>
 #ifdef CXX_REACTIONS
-#include <rhs_zones.H>
+#include <jac_zones.H>
 #endif
 #include <AMReX_buildInfo.H>
 #include <variables.H>
@@ -43,9 +43,7 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
-#ifdef CXX_REACTIONS
     int do_cxx = 0;
-#endif
 
     // inputs parameters
     {
@@ -62,9 +60,7 @@ void main_main ()
 
         pp.query("prefix", prefix);
 
-#ifdef CXX_REACTIONS
         pp.query("do_cxx", do_cxx);
-#endif
 
     }
 
@@ -125,10 +121,8 @@ void main_main ()
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
 
-#ifdef CXX_REACTIONS
     // C++ Network, RHS, screening, rates initialization
     network_init();
-#endif
 
     init_variables_F();
 
@@ -198,27 +192,21 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
-#ifdef CXX_REACTIONS
         if (do_cxx) {
 
             auto s = state.array(mfi);
 
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-                do_rhs(i, j, k, s, vars);
+                do_jac(i, j, k, s, vars);
             });
 
-        }
-        else {
-#endif
+        } else {
 
-#pragma gpu
-            do_rhs(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+            do_jac(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                    BL_TO_FORTRAN_ANYD(state[mfi]));
 
-#ifdef CXX_REACTIONS
         }
-#endif
 
     }
 
@@ -244,11 +232,7 @@ void main_main ()
     std::string name = "test_rhs.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-#ifdef CXX_REACTIONS
     std::string language = do_cxx == 1 ? ".cxx" : ".fortran";
-#else
-    std::string language = ".fortran";
-#endif
 
     // Write a plotfile
 
