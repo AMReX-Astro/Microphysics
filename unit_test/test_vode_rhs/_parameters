@@ -1,17 +1,33 @@
-dens_min      real       1.d6
-dens_max      real       1.d9
-temp_min      real       1.d6
-temp_max      real       1.d15
-
 run_prefix    character  ""
-
-primary_species_1  character   ""
-primary_species_2  character   ""
-primary_species_3  character   ""
-
-tmax          real       0.1d0
 
 small_temp    real       1.e5
 small_dens    real       1.e5
 
-do_acc        integer    1
+density       real       1.d7
+
+temperature   real       3.d9
+
+X1            real       1.0d0
+X2            real       0.0d0
+X3            real       0.0d0
+X4            real       0.0d0
+X5            real       0.0d0
+X6            real       0.0d0
+X7            real       0.0d0
+X8            real       0.0d0
+X9            real       0.0d0
+X10           real       0.0d0
+X11           real       0.0d0
+X12           real       0.0d0
+X13           real       0.0d0
+X14           real       0.0d0
+X15           real       0.0d0
+X16           real       0.0d0
+X17           real       0.0d0
+X18           real       0.0d0
+X19           real       0.0d0
+X20           real       0.0d0
+X21           real       0.0d0
+
+
+
