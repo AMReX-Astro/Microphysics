@@ -7,6 +7,7 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
+#include <vode_rhs_simplified_sdc.H>
 
 void do_vode_rhs()
 {
@@ -176,6 +177,31 @@ void do_vode_rhs()
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
+
+    // now make the dvode_t
+
+    dvode_t vode_state;
+
+    vode_state.t = 0.0_rt;
+    vode_state.tout = 1.0_rt;
+    
+    // initialize the EOS state using the conserved state that was
+    // passed in
+
+    sdc_burn_to_eos(burn_state, eos_state);
+
+    eos(eos_input_rt, eos_state);
+
+    eos_to_burn(eos_state, burn_state);
+
+    // Fill in the initial integration state.
+
+    burn_to_vode(burn_state, vode_state);
+
+    // call the RHS routine
+
+    RArray1D ydot;
+    rhs(0.0_rt, burn_state, vode_state, ydot);
 
 
 }
