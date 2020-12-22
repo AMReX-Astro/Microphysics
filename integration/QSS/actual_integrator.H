@@ -400,6 +400,8 @@ Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const
 
     dt_new = amrex::min(dt_new, std::abs((maximum_change_factor_per_timestep - 1.0_rt) * state.e / dedt));
 
+    dt_new = amrex::min(dt_new, ode_max_dt);
+
     return dt_new;
 }
 
