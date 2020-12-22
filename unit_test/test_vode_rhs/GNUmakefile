@@ -11,12 +11,15 @@ USE_MPI    = FALSE
 USE_OMP    = FALSE
 
 USE_REACT = TRUE
+USE_SIMPLIFIED_SDC = TRUE
 
 EBASE = main
 
 USE_CXX_EOS = TRUE
 
-USE_CXX_REACTIONS ?= TRUE
+USE_CXX_REACTIONS = TRUE
+
+USE_EXTRA_THERMO = TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
@@ -29,14 +32,11 @@ MICROPHYSICS_HOME  := ../..
 # you'll need to use gamma_law_general
 EOS_DIR     := helmholtz
 
-# This sets the network directory in Castro/Networks
 NETWORK_DIR := aprox13
 
 CONDUCTIVITY_DIR := stellar
-
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
+INTEGRATOR_DIR := VODE
+DEFINES += -DSDC_EVOLVE_ENERGY
 
 EXTERN_SEARCH += .
 

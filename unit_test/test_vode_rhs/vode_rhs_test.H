@@ -11,7 +11,7 @@
 void do_vode_rhs()
 {
 
-    burn_t state;
+    eos_t eos_state;
 
     // Set mass fractions to sanitize inputs for them
     Real massfractions[NumSpec];
@@ -102,26 +102,81 @@ void do_vode_rhs()
         std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;
     }
 
-    state.T   = temperature;
-    state.rho = density;
+    eos_state.T   = temperature;
+    eos_state.rho = density;
     for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] = massfractions[n];
+        eos_state.xn[n] = massfractions[n];
     }
 
-    // normalize -- just in case
-    //normalize_abundances_burn(state);
+#ifdef NSE_THERMO
+    set_nse_aux_from_X(eos_state);
+#endif
 
-    // Initialize initial energy to zero
-    state.e = 0.0_rt;
-    Real energy = 0.0_rt;
+    burn_t burn_state;
 
-    // call the EOS to set initial e
-    eos_t eos_state_in;
-    burn_to_eos(state, eos_state_in);
-    eos(eos_input_rt, eos_state_in);
-    eos_to_burn(eos_state_in, state);
+    burn_state.rho = eos_state.rho;
+    burn_state.T = eos_state.T;
 
-    std::ofstream state_over_time("state_over_time.txt");
+    for (int n = 0; n < NumSpec; n++) {
+      burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
+    }
+
+#if NAUX_NET > 0
+    for (int n = 0; n < NumAux; n++) {
+        burn_state.y[SFX+n] = burn_state.rho * eos_state.aux[n];
+    }
+#endif
+
+#if defined(SDC_EVOLVE_ENERGY)
+    burn_state.y[SRHO] = eos_state.rho;
+
+    // we will pick velocities to be 10% of the sound speed
+    burn_state.y[SMX] = burn_state.y[SRHO] * 0.1_rt * eos_state.cs;
+    burn_state.y[SMY] = burn_state.y[SRHO] * 0.1_rt * eos_state.cs;
+    burn_state.y[SMZ] = burn_state.y[SRHO] * 0.1_rt * eos_state.cs;
+
+    burn_state.y[SEINT] = burn_state.y[SRHO] * eos_state.e;
+    burn_state.y[SEDEN] = burn_state.y[SEINT] +
+      0.5_rt * (burn_state.y[SMX] * burn_state.y[SMX] +
+                burn_state.y[SMY] * burn_state.y[SMY] +
+                burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
+
+    // get T from total energy
+    burn_state.T_from_eden = true;
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    burn_state.y[SENTH] = burn_state.rho * eos_state.h;
+
+    burn_state.p0 = eos_state.p;
+#endif
+
+    // normalize
+    Real sum_spec = 0.0_rt;
+    for (int n = 0; n < NumSpec; n++) {
+      sum_spec += burn_state.y[SFS+n] / burn_state.rho;
+    }
+    for (int n = 0; n < NumSpec; n++) {
+      burn_state.y[SFS+n] /= sum_spec;
+    }
+
+#if defined(SDC_EVOLVE_ENERGY)
+    Real rhoe_old = burn_state.y[SEINT];
+#elif defined (SDC_EVOLVE_ENTHALPY)
+    Real rhoh_old = burn_state.y[SENTH];
+#endif
+
+    // zero out the advective terms
+
+    for (int n = 0; n < SVAR; n++) {
+        burn_state.ydot_a[n] = 0.0;
+    }
+
+    // these need to be initialized 
+
+    burn_state.sdc_iter = 1;
+    burn_state.num_sdc_iters = 1;
+
+
 
 }
 #endif
