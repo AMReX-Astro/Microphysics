@@ -203,6 +203,11 @@ void do_vode_rhs()
     RArray1D ydot;
     rhs(0.0_rt, burn_state, vode_state, ydot);
 
+    std::cout << "ydot = " << std::endl;
+    for (int n = 1; n <= NumSpec+2; n++) {
+        std::cout << n << " " << ydot(n) << std::endl;
+    }
+
 
 }
 #endif
