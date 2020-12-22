@@ -360,13 +360,9 @@ void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& d
         Real X_p = state.xn[n-1];
         Real k_0 = f_minus_0(n) / X_0;
         Real k_p = f_minus_p(n) / X_p;
-        Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
-        Real r_p = 1.0_rt / amrex::max(k_p * dt, 1.0e-50_rt);
-        Real alpha_0 = alpha(r_0);
-        Real alpha_p = alpha(r_p);
-
         Real k_bar = 0.5_rt * (k_p + k_0);
-        Real alpha_bar = 0.5_rt * (alpha_p + alpha_0);
+        Real r_bar = 1.0_rt / amrex::max(k_bar * dt, 1.0e-50_rt);
+        Real alpha_bar = alpha(r_bar);
         Real f_plus_tilde = alpha_bar * f_plus_p(n) + (1.0_rt - alpha_bar) * f_plus_0(n);
 
         state.xn[n-1] = X_0 + dt * (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
