@@ -6,137 +6,9 @@
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <rate_type.H>
-#include <temperature_integration.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (burn_t& state);
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void initialize_state (burn_t& state);
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
-                   Real& dedt);
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt);
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const Real& dedt, const Real& dt);
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
-{
-    initialize_state(state);
-
-    Real T_in = state.T;
-    Real e_in = state.e;
-    Real xn_in[NumSpec];
-    for (int n = 0; n < NumSpec; ++n) {
-        xn_in[n] = state.xn[n];
-    }
-
-    Real t = 0.0;
-
-    // Start the guess for the timestepping with a specified fraction of the full dt.
-
-    Real dt_sub = dt * dt_init_fraction;
-
-    // When checking the integration time to see if we're done,
-    // be careful with roundoff issues.
-
-    const Real timestep_safety_factor = 1.0e-12_rt;
-
-    int num_timesteps = 0;
-
-    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps)
-    {
-        // Iterate over dt, first calculating the update and then determining
-        // whether the update satisfies any constraints we have on the timestep.
-        // Our initial guess is the previous timestep multiplied by a factor > 1
-        // to allow the timestep to grow in the absence of any constraints.
-
-        Real dt_new = dt_max_change_factor * dt_sub;
-        int num_iters = 0;
-
-        Array1D<Real, 1, NumSpec> dXdt;
-        Real dedt;
-
-        while (std::abs(dt_new - dt_sub) > dt_error_tolerance * dt_sub && num_iters < dt_max_iters)
-        {
-            dt_sub = dt_new;
-            ++num_iters;
-
-            calculate_dydt(state, dt_sub, dXdt, dedt);
-
-            dt_new = limit_dt(state, dXdt, dedt, dt_sub);
-        }
-
-        // Update the timestep from the last iteration.
-
-        dt_sub = dt_new;
-
-        // Prevent the timestep from overshooting the final time.
-
-        if (t + dt_sub > dt) {
-            dt_sub = dt - t;
-        }
-
-        // Update the state quantities.
-
-        for (int n = 1; n <= NumSpec; ++n) {
-            state.xn[n-1] += dXdt(n) * dt_sub;
-        }
-
-        state.e += dedt * dt_sub;
-
-        clean_state(state);
-
-        t += dt_sub;
-        ++num_timesteps;
-    }
-
-    if (num_timesteps >= ode_max_steps) {
-        state.success = false;
-    }
-
-#ifndef AMREX_USE_CUDA
-    if (burner_verbose) {
-        // Print out some integration statistics, if desired.
-        std::cout <<  "integration summary: " << std::endl;
-        std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e - e_in << std::endl;
-        std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
-        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
-    }
-#endif
-
-    // If we failed, print out the current state of the integration.
-
-    if (!state.success) {
-#ifndef AMREX_USE_CUDA
-        std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "time = " << t << std::endl;
-        std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << T_in << std::endl;
-        std::cout << "xn start = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << xn_in[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "temp current = " << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << state.xn[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "energy generated = " << state.e - e_in << std::endl;
-#endif
-    }
-}
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state (burn_t& state)
@@ -272,61 +144,13 @@ Real alpha (const Real& r)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt)
+void predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
+                Array1D<Real, 1, NumSpec>& f_plus_0, Real& dedt_0,
+                const Real& dt, burn_t& state)
 {
-    // Calculate the quasi-steady-state update. This is based on Guidry et al. paper II.
-    // Section 2 spells out the update for the species using a predictor-corrector method.
-    // The RHS for any term is split into terms f_plus and f_minus, where generally the
-    // terms in f_plus add to X, while f_minus contains all terms that deplete X.
-    // (In practice, we have some two-body reactions like C12 + C12 and three-body reactions
-    // like triple alpha where k is a function of X. The method ignores this subtlety.)
-    //
-    // dX/dt = f_plus - f_minus = f_plus - k * X
-    //
-    // In the QSS method we define the following variables:
-    //
-    // r = 1 / (k * dt)
-    // alpha(r) = (180 * r**3 + 60 * r**2 + 11 * r + 1) / (360 * r**3 + 60 * r**2 + 12 * r + 1)
-    //
-    // and then do a predictor step defined by Guidry Equation 5
-    //
-    // X_p = X_0 + dt * (f_plus - k_0 * X_0) / (1 + alpha_0 * k_0 * dt)
-    //
-    // Then we recompute f_plus and f_minus (and therefore k) from the RHS using the predictor state,
-    // and compute time-centered variables
-    //
-    // k_bar = (k_0 + k_p) / 2
-    // alpha_bar = (alpha_0 + alpha_p) / 2
-    //
-    // and then recompute the corrector state
-    //
-    // X_c = X_0 + (f_plus_tilde - k_bar * X_0) / (1 + alpha_bar * k_bar * dt)
-    //
-    // where f_plus_tilde is a weighted average of the old and new terms:
-    //
-    // f_plus_tilde = alpha_bar * f_plus_p + (1 - alpha) * f_plus_0
-    //
-    // We can also do predictor-corrector on the energy update, which has the more familiar form
-    //
-    // e_p = e_0 + dt * f_0
-    // e_c = e_0 + dt * (f_0 + f_p) / 2
-    //
-    // This is actually a special case of the QSS update for k == 0 (no "self-depletion" term) and
-    // alpha = 1/2.
-    //
-    // We do not integrate temperature, and instead get it from the EOS.
+    evaluate_rhs(state, f_minus_0, f_plus_0, dedt_0);
 
-    // Make a copy of the old-time state; we'll be temporarily updating the state with the predictor
-    // values for the new-time RHS evaluation, but we need to revert those changes later.
-
-    burn_t state_0 = state;
-
-    // Evaluate the RHS using the old-time state.
-
-    Array1D<Real, 1, NumSpec> f_plus_0, f_minus_0;
-    Real dedt_0;
-
-    evaluate_rhs(state_0, f_minus_0, f_plus_0, dedt_0);
+    // Compute the predictor state.
 
     for (int n = 1; n <= NumSpec; ++n)
     {
@@ -338,21 +162,29 @@ void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& d
         state.xn[n-1] = X_0 + dt * (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
     }
 
-    state.e = state_0.e + dt * dedt_0;
-
-    // Now that we have the predictor, re-evaluate the RHS. Note that this also
-    // involves a re-evaluation of the rates. This seems safe given how temperature
-    // sensitive our rates are. Mott et al. recommend this for cases where the integration
-    // is sensitive to T (second to last paragraph of section 4).
+    state.e = state.e + dt * dedt_0;
 
     clean_state(state);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_0,
+                const Array1D<Real, 1, NumSpec>& f_plus_0, const Real& dedt_0,
+                const Real& dt, burn_t& state)
+{
+    // Note that the corrector involves a re-evaluation of the rates. This seems
+    // safe given how temperature sensitive our rates are. Mott et al. recommend
+    // this for cases where the integration is sensitive to T (second to last
+    // paragraph of section 4).
 
     Array1D<Real, 1, NumSpec> f_minus_p, f_plus_p;
     Real dedt_p;
 
+    // We assume state coming in represents the predictor.
+
     evaluate_rhs(state, f_minus_p, f_plus_p, dedt_p);
 
-    // Compute the corrector state.
+    // Compute the corrector state as an in-place update on the predictor.
 
     for (int n = 1; n <= NumSpec; ++n)
     {
@@ -365,44 +197,209 @@ void calculate_dydt (burn_t& state, const Real& dt, Array1D<Real, 1, NumSpec>& d
         Real alpha_bar = alpha(r_bar);
         Real f_plus_tilde = alpha_bar * f_plus_p(n) + (1.0_rt - alpha_bar) * f_plus_0(n);
 
-        state.xn[n-1] = X_0 + dt * (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
+        Real dXdt = (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
+        Real X_c = X_0 + dt * dXdt;
+
+        state.xn[n-1] = X_c;
     }
 
-    state.e = state_0.e + 0.5_rt * dt * (dedt_0 + dedt_p);
+    Real e_0 = state_0.e;
+    Real e_p = state.e;
 
-    // Now compute the final values for dX/dt and de/dt, and then
-    // reset the state back to the way it was before.
+    Real dedt = 0.5_rt * (dedt_0 + dedt_p);
+    Real e_c = e_0 + dt * dedt;
 
-    for (int n = 1; n <= NumSpec; ++n)
-    {
-        dXdt(n) = (state.xn[n-1] - state_0.xn[n-1]) / dt;
-    }
+    state.e = e_c;
 
-    dedt = (state.e - state_0.e) / dt;
-
-    state = state_0;
+    clean_state(state);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real limit_dt (const burn_t& state, const Array1D<Real, 1, NumSpec>& dXdt, const Real& dedt, const Real& dt)
+void actual_integrator (burn_t& state, Real dt)
 {
-    // Limit dt by whether the update would change the abundance
-    // by more than a given factor, using simple linear limiting.
-    // This step is skipped if the species is below atol_spec.
+    initialize_state(state);
 
-    Real dt_new = dt;
-
-    for (int n = 1; n < NumSpec; ++n) {
-        if (state.xn[n-1] >= atol_spec) {
-            dt_new = amrex::min(dt_new, std::abs((maximum_change_factor_per_timestep - 1.0_rt) * state.xn[n-1] / dXdt(n)));
-        }
+    Real T_in = state.T;
+    Real e_in = state.e;
+    Real xn_in[NumSpec];
+    for (int n = 0; n < NumSpec; ++n) {
+        xn_in[n] = state.xn[n];
     }
 
-    dt_new = amrex::min(dt_new, std::abs((maximum_change_factor_per_timestep - 1.0_rt) * state.e / dedt));
+    Real t = 0.0;
 
-    dt_new = amrex::min(dt_new, ode_max_dt);
+    // Start the guess for the timestepping with a specified fraction of the full dt.
 
-    return dt_new;
+    Real dt_sub = dt * dt_init_fraction;
+
+    dt_sub = amrex::min(dt_sub, ode_max_dt);
+
+    // When checking the integration time to see if we're done,
+    // be careful with roundoff issues.
+
+    const Real timestep_safety_factor = 1.0e-12_rt;
+
+    int num_timesteps = 0;
+
+    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps)
+    {
+        // Start the step with a guess that is a small factor above the previous timestep.
+
+        dt_sub *= dt_max_change_factor;
+
+        dt_sub = amrex::min(dt_sub, ode_max_dt);
+
+        // Prevent the timestep from overshooting the final time.
+
+        if (t + dt_sub > dt) {
+            dt_sub = dt - t;
+        }
+
+        // Make a copy of the old-time state, which does not change in the iterations.
+
+        burn_t state_0 = state;
+
+        // Calculate the quasi-steady-state update. This is based on Guidry et al. paper II.
+        // (The actual implementation largely follows Mott et al. (2000, 2001) from CHEMEQ2.)
+        // Section 2 spells out the update for the species using a predictor-corrector method.
+        // The RHS for any term is split into terms f_plus and f_minus, where generally the
+        // terms in f_plus add to X, while f_minus contains all terms that deplete X.
+        // (In practice, we have some two-body reactions like C12 + C12 and three-body reactions
+        // like triple alpha where k is a function of X. The method ignores this subtlety.)
+        //
+        // dX/dt = f_plus - f_minus = f_plus - k * X
+        //
+        // In the QSS method we define the following variables:
+        //
+        // r = 1 / (k * dt)
+        // alpha(r) = (180 * r**3 + 60 * r**2 + 11 * r + 1) / (360 * r**3 + 60 * r**2 + 12 * r + 1)
+        //
+        // and then do a predictor step defined by Guidry Equation 5
+        //
+        // X_p = X_0 + dt * (f_plus - k_0 * X_0) / (1 + alpha_0 * k_0 * dt)
+        //
+        // Then we recompute f_plus and f_minus (and therefore k) from the RHS using the predictor state,
+        // and compute time-centered variables
+        //
+        // k_bar = (k_0 + k_p) / 2
+        // alpha_bar = (alpha_0 + alpha_p) / 2
+        //
+        // and then compute the corrector state
+        //
+        // X_c = X_0 + (f_plus_tilde - k_bar * X_0) / (1 + alpha_bar * k_bar * dt)
+        //
+        // where f_plus_tilde is a weighted average of the old and new terms:
+        //
+        // f_plus_tilde = alpha_bar * f_plus_p + (1 - alpha) * f_plus_0
+        //
+        // We can also do predictor-corrector on the energy update, which has the more familiar form
+        //
+        // e_p = e_0 + dt * f_0
+        // e_c = e_0 + dt * (f_0 + f_p) / 2
+        //
+        // This is actually a special case of the QSS update for k == 0 (no "self-depletion" term) and
+        // alpha = 1/2.
+        //
+        // We do not integrate temperature, and instead get it from the EOS.
+
+        // Evaluate the predictor.
+
+        Array1D<Real, 1, NumSpec> f_plus_0, f_minus_0;
+        Real dedt_0;
+
+        predictor(state_0, f_minus_0, f_plus_0, dedt_0, dt_sub, state);
+
+        // Save the initial predictor state.
+
+        burn_t predictor_state = state;
+
+        // Iterate over dt.
+
+        for (int timestep_iter = 0; timestep_iter < num_timestep_iters; ++timestep_iter)
+        {
+            // Do a fixed number of iterations on the corrector state. In each iteration
+            // after the first, we use the corrector from the previous iteration as the
+            // predictor for the next. The return value is the maximum relative diff between
+            // the predictor and the corrector.
+
+            for (int corrector_iter = 0; corrector_iter < num_corrector_iters; ++corrector_iter)
+            {
+                corrector(state_0, f_minus_0, f_plus_0, dedt_0, dt_sub, state);
+            }
+
+            // Compute the maximum diff between the initial predictor and the final corrector.
+
+            Real max_diff = 0.0_rt;
+
+            for (int n = 1; n <= NumSpec; ++n)
+            {
+                Real dX = std::abs(state.xn[n-1] - predictor_state.xn[n-1]);
+                max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
+            }
+
+            Real de = std::abs(state.e - predictor_state.e);
+            max_diff = amrex::max(max_diff, de / state.e);
+
+            // If the relative diff was smaller than the requested tolerance factor, we're done.
+            // Otherwise, cut dt and try again.
+
+            if (max_diff <= maximum_timestep_change_factor - 1.0_rt) {
+                break;
+            }
+            else {
+                // Determine a new timestep as indicated in Mott and Oran (2001), Equation 50.
+                // In our notation, \epsilon == (maximum_timestep_change_factor - 1.0) and
+                // \varepsilon == \epsilon * dt_error_tolerance, with dt_error_tolerance < 1.
+                // Note that Mott seems to suggest approximating the square root using Newton's
+                // method; given the expense of our RHS it seems unlikely that this would make
+                // a performance difference, but it is a potential optimization.
+
+                Real sigma = max_diff / (dt_error_tolerance * (maximum_timestep_change_factor - 1.0_rt));
+                dt_sub *= (1.0_rt / std::sqrt(sigma) + 0.005);
+            }
+        }
+
+        t += dt_sub;
+        ++num_timesteps;
+    }
+
+    if (num_timesteps >= ode_max_steps) {
+        state.success = false;
+    }
+
+#ifndef AMREX_USE_CUDA
+    if (burner_verbose) {
+        // Print out some integration statistics, if desired.
+        std::cout <<  "integration summary: " << std::endl;
+        std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
+        std::cout <<  "energy released: " << state.e - e_in << std::endl;
+        std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
+        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
+    }
+#endif
+
+    // If we failed, print out the current state of the integration.
+
+    if (!state.success) {
+#ifndef AMREX_USE_CUDA
+        std::cout << "ERROR: integration failed in net" << std::endl;
+        std::cout << "time = " << t << std::endl;
+        std::cout << "dens = " << state.rho << std::endl;
+        std::cout << "temp start = " << T_in << std::endl;
+        std::cout << "xn start = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << xn_in[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "temp current = " << state.T << std::endl;
+        std::cout << "xn current = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << state.xn[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "energy generated = " << state.e - e_in << std::endl;
+#endif
+    }
 }
 
 #endif
