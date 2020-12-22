@@ -1,4 +1,4 @@
-n_cell = 16
+n_cell = 64
 
 prefix = react_iso7_
 
