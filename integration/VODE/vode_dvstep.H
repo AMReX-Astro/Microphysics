@@ -476,7 +476,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
     // Test tentative new H against THRESH and ETAMAX, and HMXI, then exit.
     if (vstate.ETA >= THRESH && vstate.ETAMAX != 1.0_rt) {
         vstate.ETA = amrex::min(vstate.ETA, vstate.ETAMAX);
-        vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * HMXI * vstate.ETA);
+        vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * vstate.HMXI * vstate.ETA);
         vstate.NEWH = 1;
         vstate.HNEW = vstate.H * vstate.ETA;
         vstate.ETAMAX = ETAMX3;
