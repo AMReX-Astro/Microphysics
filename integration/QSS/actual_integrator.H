@@ -32,6 +32,13 @@ void actual_integrator (burn_t& state, Real dt)
 {
     initialize_state(state);
 
+    Real T_in = state.T;
+    Real e_in = state.e;
+    Real xn_in[NumSpec];
+    for (int n = 0; n < NumSpec; ++n) {
+        xn_in[n] = state.xn[n];
+    }
+
     Real t = 0.0;
 
     // Start the guess for the timestepping with a specified fraction of the full dt.
@@ -92,16 +99,43 @@ void actual_integrator (burn_t& state, Real dt)
         ++num_timesteps;
     }
 
+    if (num_timesteps >= ode_max_steps) {
+        state.success = false;
+    }
+
 #ifndef AMREX_USE_CUDA
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e << std::endl;
+        std::cout <<  "energy released: " << state.e - e_in << std::endl;
         std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
 #endif
+
+    // If we failed, print out the current state of the integration.
+
+    if (!state.success) {
+#ifndef AMREX_USE_CUDA
+        std::cout << "ERROR: integration failed in net" << std::endl;
+        std::cout << "time = " << t << std::endl;
+        std::cout << "dens = " << state.rho << std::endl;
+        std::cout << "temp start = " << T_in << std::endl;
+        std::cout << "xn start = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << xn_in[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "temp current = " << state.T << std::endl;
+        std::cout << "xn current = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << state.xn[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "energy generated = " << state.e - e_in << std::endl;
+#endif
+    }
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
