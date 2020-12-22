@@ -69,28 +69,6 @@ ECSN
 
 
 
-ExplicitAsymptotic
-==================
-
-+----------------------------------+---------------------------------------------------------+--------------------+
-| parameter                        | description                                             | default value      |
-+==================================+=========================================================+====================+
-| ``maximum_X_change_factor_per_timestep`` | Maximum amount any abundance can change by in a         | 1.01               |
-|                                  | timestep                                                |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
-| ``dt_error_tolerance``           | Error tolerance on timestep satisfying the constraint   | 0.001              |
-+----------------------------------+---------------------------------------------------------+--------------------+
-| ``dt_max_iters``                 | Maximum number of iterations on the timestep constraint | 5                  |
-|                                  | loop                                                    |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
-| ``dt_max_change_factor``         | Maximum factor that dt is allowed to grow per timestep  | 1.25               |
-+----------------------------------+---------------------------------------------------------+--------------------+
-| ``dt_init_fraction``             | Start the timestepping with a guess that is this        | 0.001              |
-|                                  | fraction of the full interval                           |                    |
-+----------------------------------+---------------------------------------------------------+--------------------+
-
-
-
 ForwardEuler
 ============
 
@@ -98,6 +76,31 @@ ForwardEuler
 | parameter                        | description                                             | default value      |
 +==================================+=========================================================+====================+
 | ``maximum_timestep_change_factor`` | Maximum amount any quantity can change by in a timestep | 1.01               |
++----------------------------------+---------------------------------------------------------+--------------------+
+
+
+
+QSS
+===
+
++----------------------------------+---------------------------------------------------------+--------------------+
+| parameter                        | description                                             | default value      |
++==================================+=========================================================+====================+
+| ``maximum_timestep_change_factor`` | Maximum amount any integration quantity can change by   | 1.001              |
+|                                  | in a timestep                                           |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``dt_error_tolerance``           | Threshold factor on the error criterion used in         | 0.1                |
+|                                  | timestep selection                                      |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``num_timestep_iters``           | Maximum number of iterations on the timestep constraint | 5                  |
+|                                  | loop                                                    |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``num_corrector_iters``          | Maximum number of iterations on the corrector loop      | 1                  |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``dt_max_change_factor``         | Maximum factor that dt is allowed to grow per timestep  | 1.05               |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``dt_init_fraction``             | Start the timestepping with a guess that is this        | 0.01               |
+|                                  | fraction of the full interval                           |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
 
 
