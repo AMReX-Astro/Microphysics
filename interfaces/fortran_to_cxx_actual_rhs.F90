@@ -13,7 +13,7 @@ contains
                                        aux, &
 #endif
 #ifndef SIMPLIFIED_SDC
-                                       cv, cp, T_old, dcvdT, dcpdT, self_heat, &
+                                       cv, cp, self_heat, T_old, dcvdT, dcpdT, &
 #endif
                                        ydot) bind(C, name='fortran_to_cxx_actual_rhs')
 
@@ -72,7 +72,7 @@ contains
                                        aux, &
 #endif
 #ifndef SIMPLIFIED_SDC
-                                       cv, cp, T_old, dcvdT, dcpdT, self_heat, &
+                                       cv, cp, self_heat, T_old, dcvdT, dcpdT, &
 #endif
                                        jac) bind(C, name='fortran_to_cxx_actual_jac')
 
