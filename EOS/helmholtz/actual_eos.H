@@ -813,9 +813,9 @@ void apply_coulomb_corrections (T& state)
 
 
 
-template <typename T>
+template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void prepare_for_iterations (eos_input_t input, T& state,
+void prepare_for_iterations (I input, T& state,
                              bool& single_iter, Real& v_want, Real& v1_want, Real& v2_want,
                              int& var, int& dvar, int& var1, int& var2)
 {
@@ -879,6 +879,11 @@ void prepare_for_iterations (eos_input_t input, T& state,
         v_want = state.h;
         var  = ienth;
         dvar = idens;
+
+    }
+    else {
+
+        static_assert("Unknown EOS input");
 
     }
 }
@@ -1067,9 +1072,9 @@ void double_iter_update (T& state, int var1, int var2,
 
 
 
-template <typename T>
+template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void finalize_state (eos_input_t input, T& state,
+void finalize_state (I input, T& state,
                      Real v_want, Real v1_want, Real v2_want)
 {
     using namespace helmholtz;
@@ -1129,16 +1134,23 @@ void finalize_state (eos_input_t input, T& state,
            state.h = v_want;
 
        }
+       else {
+
+           static_assert("Unknown EOS input");
+
+       }
 
     }
 }
 
 
 
-template <typename T>
+template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_eos (eos_input_t input, T& state)
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value);
+
     using namespace helmholtz;
 
     const int max_newton = 100;
@@ -1329,9 +1341,12 @@ void actual_eos_finalize ()
 
 
 
+template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool is_input_valid (eos_input_t /*input*/)
+bool is_input_valid (I input)
 {
+  static_assert(std::is_same<I, eos_input_t>::value);
+
   bool valid = true;
 
   return valid;
