@@ -131,9 +131,9 @@ void reset_p (T& state, bool& has_been_reset)
   }
 }
 
-template <typename T>
+template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void reset_inputs(const eos_input_t input, T& state, bool& has_been_reset)
+void reset_inputs(const I input, T& state, bool& has_been_reset)
 {
   // Reset the input quantities to valid values. For inputs other than rho and T,
   // this will evolve an EOS call, which will negate the need to do the main EOS call.
@@ -298,9 +298,9 @@ void check_p (T& state)
   }
 }
 
-template <typename T>
+template <typename I, typename T>
 AMREX_INLINE
-void check_inputs (const eos_input_t input, T& state)
+void check_inputs (const I input, T& state)
 {
   // Check the inputs for validity.
 
@@ -377,10 +377,12 @@ void check_inputs (const eos_input_t input, T& state)
 }
 #endif
 
-template <typename T>
+template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void eos (const eos_input_t input, T& state, bool use_raw_inputs = false)
+void eos (const I input, T& state, bool use_raw_inputs = false)
 {
+  static_assert(std::is_same<I, eos_input_t>::value);
+
   // Input arguments
 
   bool has_been_reset = false;
