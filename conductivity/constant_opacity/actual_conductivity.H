@@ -14,10 +14,11 @@ actual_conductivity_init()
 {
 }
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-actual_conductivity(eos_t& state) {
-
+actual_conductivity (T& state)
+{
   state.conductivity = (16*sigma_SB*state.T*state.T*state.T)/(3*const_opacity*state.rho);
 }
 
