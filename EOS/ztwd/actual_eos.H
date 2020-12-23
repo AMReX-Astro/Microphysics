@@ -122,10 +122,10 @@ void pres_iter (Real pres, Real& dens, Real B)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (eos_input_t input, T& state)
 {
-
     Real dens = state.rho;
     Real temp = state.T;
     Real pres = state.p;
@@ -311,7 +311,6 @@ void actual_eos (eos_input_t input, eos_t& state)
     // Sound speed.
 
     state.cs = std::sqrt(state.dpdr);
-
 }
 
 

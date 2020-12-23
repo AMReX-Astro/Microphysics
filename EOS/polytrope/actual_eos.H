@@ -113,10 +113,10 @@ void eos_set_polytrope_parameters (int polytrope_in, int gamma_in, int K_in, int
 //---------------------------------------------------------------------------
 // The main interface
 //---------------------------------------------------------------------------
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (eos_input_t input, T& state)
 {
-
     Real dens = state.rho;
     Real temp = state.T;
     Real pres = state.p;
@@ -279,7 +279,6 @@ void actual_eos (eos_input_t input, eos_t& state)
 
     // sound speed
     state.cs = std::sqrt(gamma_const * pres / dens);
-
 }
 
 inline

@@ -3,8 +3,9 @@
 
 #include <eos_type.H>
 
-AMREX_GPU_HOST_DEVICE inline
-void eos_override(eos_t& /*state*/) {}
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void eos_override (T& /*state*/) {}
 
 #endif
 

@@ -37,8 +37,9 @@ bool is_input_valid(eos_input_t input) {
   return valid;
 }
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (eos_input_t input, T& state)
 {
 
     const Real R = C::k_B * C::n_A;
