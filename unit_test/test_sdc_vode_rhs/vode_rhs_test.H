@@ -215,6 +215,16 @@ void do_vode_rhs()
 
     integrator(burn_state, tmax);
 
+    for (int n = 0; n < SVAR; n++) {
+        if (n == SFS) {
+            std::cout << "species: " << std::endl;
+#if NAUX_NET > 0
+        } else if (n == SFX) {
+            std::cout << "aux: " << std::endl;
+#endif
+        }
+        std::cout << n << " " << burn_state.y[n] << std::endl;
+    }
 
 }
 #endif
