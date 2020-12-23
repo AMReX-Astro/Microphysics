@@ -113,6 +113,8 @@ void do_vode_rhs()
     set_nse_aux_from_X(eos_state);
 #endif
 
+    eos(eos_input_rt, eos_state);
+
     burn_t burn_state;
 
     burn_state.rho = eos_state.rho;
@@ -183,8 +185,7 @@ void do_vode_rhs()
     dvode_t vode_state;
 
     vode_state.t = 0.0_rt;
-    vode_state.tout = 1.0_rt;
-    
+
     // initialize the EOS state using the conserved state that was
     // passed in
 
@@ -200,6 +201,8 @@ void do_vode_rhs()
 
     // call the RHS routine
 
+    std::cout << "just evaluate the RHS" << std::endl;
+
     RArray1D ydot;
     rhs(0.0_rt, burn_state, vode_state, ydot);
 
@@ -207,6 +210,10 @@ void do_vode_rhs()
     for (int n = 1; n <= NumSpec+2; n++) {
         std::cout << n << " " << ydot(n) << std::endl;
     }
+ 
+    std::cout << "now do a burn" << std::endl;
+
+    integrator(burn_state, tmax);
 
 
 }

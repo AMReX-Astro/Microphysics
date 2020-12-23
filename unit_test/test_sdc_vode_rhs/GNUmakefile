@@ -32,7 +32,7 @@ MICROPHYSICS_HOME  := ../..
 # you'll need to use gamma_law_general
 EOS_DIR     := helmholtz
 
-NETWORK_DIR := aprox13
+NETWORK_DIR := aprox19
 
 CONDUCTIVITY_DIR := stellar
 INTEGRATOR_DIR := VODE
