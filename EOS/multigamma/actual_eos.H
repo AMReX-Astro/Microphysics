@@ -61,8 +61,9 @@ bool is_input_valid(eos_input_t input) {
 }
 
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (eos_input_t input, T& state)
 {
     // Get the mass of a nucleon from Avogadro's number.
     const Real m_nucleon = 1.0_rt / C::n_A;
