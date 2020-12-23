@@ -289,7 +289,6 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     eos_state.T = std::sqrt(min_temp * max_temp);
 
 #if defined(SDC_EVOLVE_ENERGY)
-
     eos(eos_input_re, eos_state);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
