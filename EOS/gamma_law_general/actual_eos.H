@@ -28,8 +28,11 @@ void actual_eos_init() {
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value);
 
   bool valid = true;
 
@@ -41,10 +44,12 @@ bool is_input_valid(eos_input_t input) {
 }
 
 
-template <typename T>
+template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_eos (const eos_input_t input, T& state)
+void actual_eos (I input, T& state)
 {
+  static_assert(std::is_same<I, eos_input_t>::value);
+
   // Get the mass of a nucleon from Avogadro's number.
   const Real m_nucleon = 1.0 / C::n_A;
   const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
