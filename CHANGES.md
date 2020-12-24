@@ -1,3 +1,7 @@
+# 21.01
+
+   * Microphysics now requires C++17 (gcc >= 7, CUDA >= 11). (#485)
+
 # 20.12
 
    * The default absolute tolerance for species (atol_spec) has been
