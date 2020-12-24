@@ -122,7 +122,7 @@ contains
 
     implicit none
 
-    call network_properties_init()
+    call network_properties_finalize()
 
     if (allocated(bion)) then
        deallocate(bion)
