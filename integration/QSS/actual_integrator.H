@@ -150,7 +150,7 @@ bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
                 Array1D<Real, 1, NumSpec>& f_plus_0, Real& dedt_0,
                 const Real& t, const Real& dt, burn_t& state)
 {
-    evaluate_rhs(state, f_minus_0, f_plus_0, dedt_0);
+    evaluate_rhs(state_0, f_minus_0, f_plus_0, dedt_0);
 
     // Compute the predictor state.
 
