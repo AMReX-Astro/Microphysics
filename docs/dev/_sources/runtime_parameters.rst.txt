@@ -99,8 +99,7 @@ QSS
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``dt_max_change_factor``         | Maximum factor that dt is allowed to grow per timestep  | 1.05               |
 +----------------------------------+---------------------------------------------------------+--------------------+
-| ``dt_init_fraction``             | Start the timestepping with a guess that is this        | 0.01               |
-|                                  | fraction of the full interval                           |                    |
+| ``dt_init_fraction``             | Scale factor for initial timestep                       | 0.01               |
 +----------------------------------+---------------------------------------------------------+--------------------+
 
 
