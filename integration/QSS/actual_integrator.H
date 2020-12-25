@@ -159,7 +159,8 @@ void predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
         Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
         Real alpha_0 = alpha(r_0);
 
-        state.xn[n-1] = X_0 + dt * (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
+        Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
+        state.xn[n-1] = X_0 + dt * dXdt;
     }
 
     state.e = state.e + dt * dedt_0;
@@ -228,9 +229,27 @@ void actual_integrator (burn_t& state, Real dt)
 
     Real t = 0.0;
 
-    // Start the guess for the timestepping with a specified fraction of the full dt.
+    // Start the guess for the timestepping by evaluating the RHS and
+    // choose a dt that is some fraction of (X / dX/dt). The exception
+    // will be cases where F_plus >> F_minus (see Mott 1999, Equation 3.40).
 
-    Real dt_sub = dt * dt_init_fraction;
+    Array1D<Real, 1, NumSpec> f_minus_init, f_plus_init;
+    Real dedt_init;
+
+    evaluate_rhs(state, f_minus_init, f_plus_init, dedt_init);
+
+    Real dt_sub = dt;
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (f_plus_init(n) >= 1.e2 * f_minus_init(n)) {
+            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / f_minus_init(n));
+        }
+        else {
+            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / std::abs(f_plus_init(n) - f_minus_init(n)));
+        }
+    }
+
+    dt_sub *= dt_init_fraction;
 
     dt_sub = amrex::min(dt_sub, ode_max_dt);
 

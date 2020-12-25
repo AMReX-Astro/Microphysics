@@ -13,5 +13,5 @@ num_corrector_iters                      integer         1
 # Maximum factor that dt is allowed to grow per timestep
 dt_max_change_factor                     real            1.05
 
-# Start the timestepping with a guess that is this fraction of the full interval
+# Scale factor for initial timestep
 dt_init_fraction                         real            0.01
