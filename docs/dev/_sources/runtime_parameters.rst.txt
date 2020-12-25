@@ -92,12 +92,17 @@ QSS
 | ``dt_error_tolerance``           | Threshold factor on the error criterion used in         | 0.1                |
 |                                  | timestep selection                                      |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
-| ``num_timestep_iters``           | Maximum number of iterations on the timestep constraint | 5                  |
+| ``num_timestep_iters``           | Maximum number of iterations on the timestep constraint | 10                 |
 |                                  | loop                                                    |                    |
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``num_corrector_iters``          | Maximum number of iterations on the corrector loop      | 1                  |
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``dt_max_change_factor``         | Maximum factor that dt is allowed to grow per timestep  | 1.05               |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``dt_cut_factor``                | Multiply the timestep by this factor when we outright   | 0.5                |
+|                                  | reject it                                               |                    |
++----------------------------------+---------------------------------------------------------+--------------------+
+| ``species_tolerance``            | Reject a species update if X < -tol or X > 1.0 + tol    | 0.01               |
 +----------------------------------+---------------------------------------------------------+--------------------+
 | ``dt_init_fraction``             | Scale factor for initial timestep                       | 0.01               |
 +----------------------------------+---------------------------------------------------------+--------------------+
