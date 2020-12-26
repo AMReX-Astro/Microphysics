@@ -11,10 +11,13 @@ USE_MPI    = FALSE
 USE_OMP    = FALSE
 
 USE_REACT = TRUE
-USE_EXTRA_THERMO = TRUE
-USE_CONDUCTIVITY = TRUE
+USE_CONDUCTIVITY = FALSE
 
 EBASE = main
+
+USE_EXTRA_THERMO = TRUE
+
+USE_CXX_EOS = TRUE
 
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
@@ -36,6 +39,6 @@ EXTERN_SEARCH += .
 Bpack   := ./Make.package
 Blocs   := .
 
-include $(MICROPHYSICS_HOME)/Make.Microphysics
+include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 
 

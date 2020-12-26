@@ -10,8 +10,8 @@ else
 CEXE_sources += react_serial.cpp
 endif
 
-FEXE_headers = test_react_F.H
-CEXE_headers = test_react.H
+FEXE_headers += test_react_F.H
+CEXE_headers += test_react.H
 
 F90EXE_sources += variables.F90
 f90EXE_sources += unit_test.f90

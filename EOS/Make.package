@@ -1,2 +1,6 @@
-F90EXE_sources += composition.F90
-CEXE_headers += eos_composition.H
+ifeq ($(USE_FORT_EOS),TRUE)
+  F90EXE_sources += composition.F90
+endif
+ifeq ($(USE_CXX_EOS),TRUE)
+  CEXE_headers += eos_composition.H
+endif

@@ -6,12 +6,21 @@
 #include <AMReX_MultiFab.H>
 #include <AMReX_BCRec.H>
 
+
 using namespace amrex;
 
-#include "test_aprox_rates.H"
-#include "test_aprox_rates_F.H"
-#include "AMReX_buildInfo.H"
+#include <test_aprox_rates.H>
+#include <test_aprox_rates_F.H>
+#include <AMReX_buildInfo.H>
 
+#include <network.H>
+#include <eos.H>
+#include <variables.H>
+#include <aprox_rates.H>
+
+#include <cmath>
+
+#include <unit_test.H>
 
 int main (int argc, char* argv[])
 {
@@ -27,7 +36,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size;
+    int n_cell, max_grid_size, do_cxx;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
@@ -43,6 +52,11 @@ void main_main ()
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
+
+        // do_cxx = 1 for C++ EOS, 0 for Fortran EOS
+        do_cxx = 0;
+        pp.query("do_cxx", do_cxx);
+
     }
 
     Vector<int> is_periodic(AMREX_SPACEDIM,0);
@@ -96,23 +110,28 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    // Ncomp = number of components for each array
-    int Ncomp = -1;
-    init_variables();
-    get_ncomp(&Ncomp);
+    init_extern_parameters();
 
-    int name_len = -1;
-    get_name_len(&name_len);
+    eos_init(small_temp, small_dens);
 
-    // get the variable names
+    rates_init();
+
+    // for C++
+    plot_t vars;
+
+    // for F90
     Vector<std::string> varnames;
 
-    for (int i=0; i<Ncomp; i++) {
-        char* cstring[name_len+1];
-        get_var_name(cstring, &i);
-        std::string name(*cstring);
-        varnames.push_back(name);
-    }
+    // C++ test
+    vars = init_variables();
+
+    amrex::Vector<std::string> names;
+    get_varnames(vars, names);
+
+    // Fortran test
+
+    // Ncomp = number of components for each array
+    init_variables_F();
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -121,7 +140,7 @@ void main_main ()
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
-    MultiFab state(ba, dm, Ncomp, Nghost);
+    MultiFab state(ba, dm, vars.n_plot_comps, Nghost);
 
     // Initialize the state to zero; we will fill
     // it in below in do_eos.
@@ -130,14 +149,35 @@ void main_main ()
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = ParallelDescriptor::second();
 
+
+    Real dlogrho = 0.0e0_rt;
+    Real dlogT = 0.0e0_rt;
+    Real dNi = 0.0_rt;
+
+    if (n_cell > 1) {
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/Real(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/Real(n_cell - 1);
+        dNi = 1.0_rt / Real(n_cell - 1);
+    }
+
     // Initialize the state and compute the different thermodynamics
     // by inverting the EOS
     for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
         const Box& bx = mfi.validbox();
 
-#pragma gpu 
-        do_rates(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()), BL_TO_FORTRAN_ANYD(state[mfi]), n_cell);
+        Array4<Real> const sp = state.array(mfi);
+
+        if (do_cxx == 1) {
+          aprox_rates_test_C(bx, dlogrho, dlogT, dNi, vars, sp);
+
+        } else {
+#pragma gpu
+          do_rates(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                   dlogrho, dlogT, dNi,
+                   BL_TO_FORTRAN_ANYD(state[mfi]));
+
+        }
     }
 
     // Call the timer again and compute the maximum difference between
@@ -147,17 +187,12 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     std::string name = "test_aprox_rates.";
-
-    // get the name of the eos routine
-    int eos_len = -1;
-    get_eos_len(&eos_len);
-
-    char* eos_string[eos_len+1];
-    get_eos_name(eos_string);
-    std::string eos_name(*eos_string);
+    std::string language = do_cxx == 1 ? ".cxx" : "";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos_name, state, varnames, geom, time, 0);
+    WriteSingleLevelPlotfile(name + eos_name + language, state, names, geom, time, 0);
+
+    write_job_info(name + eos_name + language);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

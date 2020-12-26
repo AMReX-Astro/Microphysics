@@ -14,6 +14,10 @@ code.docutils.literal.notranslate {
    font-size: 95%;
 }
 
+div#example-notebook div.highlight-default div.highlight {
+    background-color: inherit;
+}
+
 /* override table width restrictions */
 @media screen and (min-width: 767px) {
 
@@ -28,3 +32,19 @@ code.docutils.literal.notranslate {
    }
 }
 
+.wy-side-nav-search>div.branch{
+    font-weight:normal;
+    color:rgba(255,255,255,0.3);
+    font-size:100%;
+    display:inline-block;
+    padding:4px 6px;
+    margin-top:.8em;
+    margin-bottom:.5em;
+}
+
+.wy-side-nav-search>div.branch>a{
+    /* margin-top:-.4045em;
+    margin-bottom:.809em; */
+    color:#fcfcfc;
+    font-weight:bold;
+}

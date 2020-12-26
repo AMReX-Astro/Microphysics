@@ -147,6 +147,15 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
+        // Save the value of y before calling the solver.
+        // We will use this saved value to determine if any
+        // constraints were violated in the update.
+
+        Array1D<Real, 1, VODE_NEQS> y_save;
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            y_save(i) = vstate.y(i);
+        }
+
         // Call the nonlinear system solver.
 
         Real ACNRM = dvnlsd(pivot, NFLAG, state, vstate);
@@ -195,11 +204,50 @@ int dvstep (burn_t& state, dvode_t& vstate)
             continue;
         }
 
+        // We add to VODE some constraints. If these constraints are violated,
+        // we treat it the same way we will treat an error test failure (below).
+
+        bool valid_update = true;
+
+#ifndef SIMPLIFIED_SDC
+        if (vstate.y(net_itemp) < 0.0_rt) {
+            valid_update = false;
+        }
+#endif
+
+        for (int i = 1; i <= NumSpec; ++i) {
+            // Constrain abundances such that they don't change by more than a certain
+            // factor in a given step (as long as their initial abundance was large enough
+            // for us to worry about).
+
+#ifndef SIMPLIFIED_SDC
+            if (std::abs(y_save(i)) >= atol_spec &&
+                (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
+                 std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
+                valid_update = false;
+            }
+#endif
+
+            // Constrain abundances such that they are not negative (within a tolerance)
+            // or greater than one (within a tolerance).
+
+            if (vstate.y(i) < -vode_failure_tolerance) {
+                valid_update = false;
+            }
+
+#ifndef SIMPLIFIED_SDC
+            // this only makes sense if we are evolving X, not (rho X)
+            if (vstate.y(i) > 1.0_rt + vode_failure_tolerance) {
+                valid_update = false;
+            }
+#endif
+        }
+
         // The corrector has converged (NFLAG = 0). The local error test is
         // made and control passes to statement 500 if it fails.
 
         DSM = ACNRM / vstate.tq(2);
-        if (DSM <= 1.0_rt) {
+        if (DSM <= 1.0_rt && valid_update) {
 
             // After a successful step, update the yh and TAU arrays and decrement
             // NQWAIT. If NQWAIT is then 1 and NQ .lt. MAXORD, then ACOR is saved
@@ -254,7 +302,8 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         }
 
-        // The error test failed. kflag keeps track of multiple failures.
+        // The error test failed (or our constraints on the species failed).
+        // kflag keeps track of multiple failures.
         // Restore tn and the yh array to their previous values, and prepare
         // to try the step again. Compute the optimum step size for the
         // same order. After repeated failures, H is forced to decrease
@@ -427,7 +476,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
     // Test tentative new H against THRESH and ETAMAX, and HMXI, then exit.
     if (vstate.ETA >= THRESH && vstate.ETAMAX != 1.0_rt) {
         vstate.ETA = amrex::min(vstate.ETA, vstate.ETAMAX);
-        vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * HMXI * vstate.ETA);
+        vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * vstate.HMXI * vstate.ETA);
         vstate.NEWH = 1;
         vstate.HNEW = vstate.H * vstate.ETA;
         vstate.ETAMAX = ETAMX3;

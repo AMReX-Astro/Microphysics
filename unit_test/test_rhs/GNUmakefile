@@ -16,7 +16,7 @@ EBASE = main
 
 USE_CXX_EOS = TRUE
 
-USE_CXX_REACTIONS ?= FALSE
+USE_CXX_REACTIONS ?= TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
@@ -43,7 +43,7 @@ EXTERN_SEARCH += .
 Bpack   := ./Make.package
 Blocs   := .
 
-include $(MICROPHYSICS_HOME)/Make.Microphysics
+include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 
 clean::
 	$(RM) *.dat

@@ -29,10 +29,10 @@ contains
     use extern_probin_module, only: jacobian, burner_verbose, &
                                     rtol_spec, rtol_temp, rtol_enuc, &
                                     atol_spec, atol_temp, atol_enuc, &
-                                    burning_mode, retry_burn, &
+                                    retry_burn, &
                                     retry_burn_factor, retry_burn_max_change, &
                                     call_eos_in_rhs, dT_crit, use_jacobian_caching, &
-                                    ode_max_steps
+                                    ode_max_steps, sdc_burn_tol_factor
     use cuvode_parameters_module
     use integration_data, only: integration_status_t
 
@@ -61,6 +61,8 @@ contains
     logical :: integration_failed
     real(rt), parameter :: failure_tolerance = 1.e-2_rt
 
+    real(rt) :: sdc_tol_fac, sdc_min_density
+
     !$gpu
 
     dvode_state % jacobian = jacobian
@@ -70,33 +72,6 @@ contains
     else
        dvode_state % JSV = -1
     endif
-
-    ! Set the tolerances.  We will be more relaxed on the temperature
-    ! since it is only used in evaluating the rates.
-    !
-    ! **NOTE** if you reduce these tolerances, you probably will need
-    ! to (a) decrease dT_crit, (b) increase the maximum number of
-    ! steps allowed.
-
-#if defined(SDC_EVOLVE_ENERGY)
-
-    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec
-    dvode_state % atol(SEDEN)           = status % atol_enuc
-    dvode_state % atol(SEINT)           = status % atol_enuc
-
-    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec
-    dvode_state % rtol(SEDEN)           = status % rtol_enuc
-    dvode_state % rtol(SEINT)           = status % rtol_enuc
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
-    dvode_state % atol(SFS:SFS-1+nspec) = status % atol_spec ! mass fractions
-    dvode_state % atol(SENTH)           = status % atol_enuc ! enthalpy
-
-    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec ! mass fractions
-    dvode_state % rtol(SENTH)           = status % rtol_enuc ! enthalpy
-
-#endif
 
     ! We want VODE to re-initialize each time we call it.
 
@@ -120,6 +95,36 @@ contains
 
     call sdc_to_vode(state_in, dvode_state)
 
+    ! Set the tolerances.  Note: we define the input atol for species
+    ! to refer only to the mass fraction part, and we multiply by a
+    ! representative density so that atol becomes an absolutely
+    ! tolerance on (rho X)
+
+    sdc_tol_fac = sdc_burn_tol_factor**(state_in % num_sdc_iters - state_in % sdc_iter - 1)
+
+#if defined(SDC_EVOLVE_ENERGY)
+
+    sdc_min_density = min(dvode_state % rpar(irp_SRHO), dvode_state % rpar(irp_SRHO) + dvode_state % rpar(irp_ydot_a-1+SRHO) * dt)
+
+    dvode_state % atol(SFS:SFS-1+nspec) = sdc_min_density * status % atol_spec * sdc_tol_fac
+    dvode_state % atol(SEDEN)           = sdc_min_density * status % atol_enuc * sdc_tol_fac
+    dvode_state % atol(SEINT)           = sdc_min_density * status % atol_enuc * sdc_tol_fac
+
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec * sdc_tol_fac
+    dvode_state % rtol(SEDEN)           = status % rtol_enuc * sdc_tol_fac
+    dvode_state % rtol(SEINT)           = status % rtol_enuc * sdc_tol_fac
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+
+    sdc_min_density = min(dvode_state % rpar(irp_SRHO), dvode_state % rpar(irp_SRHO) + sum(dvode_state % rpar(irp_ydot_a-1+SFS:irp_ydot_a-1+SFS+nspec-1)) * dt)
+
+    dvode_state % atol(SFS:SFS-1+nspec) = sdc_min_density * status % atol_spec * sdc_tol_fac ! mass fractions
+    dvode_state % atol(SENTH)           = sdc_min_density * status % atol_enuc * sdc_tol_fac ! enthalpy
+
+    dvode_state % rtol(SFS:SFS-1+nspec) = status % rtol_spec * sdc_tol_fac ! mass fractions
+    dvode_state % rtol(SENTH)           = status % rtol_enuc * sdc_tol_fac ! enthalpy
+
+#endif
 
     ! this is not used but we set it to prevent accessing uninitialzed
     ! data in common routines with the non-SDC integrator

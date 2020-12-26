@@ -40,16 +40,19 @@ module burn_type_module
     real(rt) :: T
     real(rt) :: e
     real(rt) :: xn(nspec)
-#if naux > 0
+#if NAUX_NET > 0
     real(rt) :: aux(naux)
+#endif
+
+#if SDC_EVOLVE_ENTHALPY
+    ! make pressure available to RHS
+    real(rt) :: p0
 #endif
 
     real(rt) :: cv
     real(rt) :: cp
     real(rt) :: y_e
     real(rt) :: eta
-    real(rt) :: cs
-    real(rt) :: dx
     real(rt) :: abar
     real(rt) :: zbar
 
@@ -110,16 +113,18 @@ contains
     to_state % e   = from_state % e
     to_state % xn(1:nspec) = from_state % xn(1:nspec)
 
-#if naux > 0
+#if NAUX_NET > 0
     to_state % aux(1:naux) = from_state % aux(1:naux)
+#endif
+
+#if SDC_EVOLVE_ENTHALPY
+    to_state % p0 = from_state % p0
 #endif
 
     to_state % cv  = from_state % cv
     to_state % cp  = from_state % cp
     to_state % y_e = from_state % y_e
     to_state % eta = from_state % eta
-    to_state % cs  = from_state % cs
-    to_state % dx  = from_state % dx
 
     to_state % abar = from_state % abar
     to_state % zbar = from_state % zbar
@@ -164,14 +169,13 @@ contains
     burn_state % T    = eos_state % T
     burn_state % e    = eos_state % e
     burn_state % xn   = eos_state % xn
-#if naux > 0
+#if NAUX_NET > 0
     burn_state % aux  = eos_state % aux
 #endif
     burn_state % cv   = eos_state % cv
     burn_state % cp   = eos_state % cp
     burn_state % y_e  = eos_state % y_e
     burn_state % eta  = eos_state % eta
-    burn_state % cs   = eos_state % cs
     burn_state % abar = eos_state % abar
     burn_state % zbar = eos_state % zbar
 
@@ -198,14 +202,13 @@ contains
     eos_state % T    = burn_state % T
     eos_state % e    = burn_state % e
     eos_state % xn   = burn_state % xn
-#if naux > 0
+#if NAUX_NET > 0
     eos_state % aux  = burn_state % aux
 #endif
     eos_state % cv   = burn_state % cv
     eos_state % cp   = burn_state % cp
     eos_state % y_e  = burn_state % y_e
     eos_state % eta  = burn_state % eta
-    eos_state % cs   = burn_state % cs
     eos_state % abar = burn_state % abar
     eos_state % zbar = burn_state % zbar
 

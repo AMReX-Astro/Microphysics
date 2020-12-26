@@ -1,7 +1,7 @@
 module cuvode_dvstep_module
 
   use cuvode_parameters_module, only: VODE_NEQS
-  use cuvode_types_module, only: dvode_t, VODE_LMAX, HMIN, HMXI
+  use cuvode_types_module, only: dvode_t, VODE_LMAX, HMIN
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_dvset_module
   use cuvode_dvjust_module
@@ -11,9 +11,6 @@ module cuvode_dvstep_module
 
 contains
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine advance_nordsieck(vstate)
 
     ! Effectively multiplies the Nordsieck history
@@ -40,9 +37,6 @@ contains
   end subroutine advance_nordsieck
 
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine retract_nordsieck(vstate)
 
     ! Undoes the Pascal triangle matrix multiplication
@@ -69,9 +63,6 @@ contains
   end subroutine retract_nordsieck
 
 
-#if defined(AMREX_USE_CUDA) && !defined(AMREX_USE_GPU_PRAGMA)
-  attributes(device) &
-#endif
   subroutine dvstep(pivot, vstate)
 
     !$acc routine seq
@@ -503,7 +494,7 @@ contains
     ! Test tentative new H against THRESH and ETAMAX, and HMXI, then exit. ----
     if (vstate % ETA >= THRESH .and. vstate % ETAMAX /= 1.0_rt) then
        vstate % ETA = min(vstate % ETA,vstate % ETAMAX)
-       vstate % ETA = vstate % ETA / max(1.0_rt, abs(vstate % H) * HMXI * vstate % ETA)
+       vstate % ETA = vstate % ETA / max(1.0_rt, abs(vstate % H) * vstate % HMXI * vstate % ETA)
        vstate % NEWH = 1
        vstate % HNEW = vstate % H * vstate % ETA
        vstate % ETAMAX = ETAMX3

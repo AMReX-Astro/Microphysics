@@ -38,8 +38,11 @@ void actual_eos_finalize ()
 }
 
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value);
 
   bool valid = true;
 
@@ -55,9 +58,11 @@ bool is_input_valid(eos_input_t input) {
 }
 
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value);
 
     const Real R = C::k_B * C::n_A;
 
@@ -87,6 +92,14 @@ void actual_eos (eos_input_t input, eos_t& state)
         state.e = state.cv * state.T;
         state.p = (gamma_const - 1.0_rt) * state.rho * state.e;
         state.gam1 = gamma_const;
+
+        state.cs = std::sqrt(gamma_const * state.p / state.rho);
+        state.dpdr_e = (gamma_const - 1.0_rt) * state.e;
+        state.dpde = (gamma_const - 1.0_rt) * state.rho;
+
+        // Try to avoid the expensive log function.  Since we don't need entropy
+        // in hydro solver, set it to an invalid but "nice" value for the plotfile.
+        state.s = 1.0_rt;
 
         break;
 
@@ -118,6 +131,16 @@ void actual_eos (eos_input_t input, eos_t& state)
         state.T = poverrho * state.mu * (1.0_rt / R);
         state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
         state.gam1 = gamma_const;
+
+        state.cs = std::sqrt(gamma_const * poverrho);
+
+        state.dpdr_e = poverrho;
+        state.dpde = (gamma_const - 1.0_rt) * state.rho;
+
+        // Try to avoid the expensive log function.  Since we don't need entropy
+        // in hydro solver, set it to an invalid but "nice" value for the plotfile.
+        state.s = 1.0_rt;
+
 
         break;
 
@@ -188,7 +211,6 @@ void actual_eos (eos_input_t input, eos_t& state)
     // Give dpdr a value for the purposes of the composition_derivatives routine.
 
     state.dpdr = 0.0_rt;
-
 }
 
 #endif

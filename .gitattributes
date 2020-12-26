@@ -1,0 +1,12 @@
+*.ipynb linguist-vendored
+*.tex linguist-documentation
+*.bib linguist-documentation
+
+*.[123]d* linguist-vendored
+*.[12] linguist-vendored
+*.mg linguist-vendored
+*.M2 linguist-vendored
+*.3alpha linguist-vendored
+*.nse linguist-vendored
+
+*.H linguist-language=C++

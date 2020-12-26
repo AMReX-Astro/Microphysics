@@ -10,13 +10,7 @@ using namespace amrex;
 inline 
 void rates_init()
 {
-    // allocate multi-dimensional array(s)
-    // datn.resize(2);
-    // for (auto i = 0; i < 2; ++i) {
-    //     datn[i].resize(6);
-    // }
-
-    // // store rates 
+    // store rates
     const Vector<Real> datn0 {-4.363_rt, -3.091_rt, -1.275_rt, 1.073_rt, 3.035_rt, 4.825_rt,
         -4.17_rt, -2.964_rt, -1.177_rt, 1.085_rt, 3.037_rt, 4.826_rt,
         -3.834_rt, -2.727_rt, -1.039_rt, 1.104_rt, 3.04_rt, 4.826_rt,
@@ -46,27 +40,27 @@ void rates_init()
         0.9009_rt, 0.9175_rt, 1.2525_rt, 2.3619_rt, 4.0882_rt, 6.1099_rt,
         1.1032_rt, 1.113_rt, 1.3947_rt, 2.4345_rt, 4.1161_rt, 6.1171_rt};
 
-    for (auto i = 0; i < 6; ++i) {
-        for (auto j = 0; j < 14; ++j) {
-            datn(0,i,j) = datn0[i+6*j];
-            datn(1,i,j) = datn1[i+6*j];
+    for (int i = 1; i <= 6; ++i) {
+        for (int j = 1; j <= 14; ++j) {
+            datn(1,i,j) = datn0[(i-1)+6*(j-1)];
+            datn(2,i,j) = datn1[(i-1)+6*(j-1)];
         }
     }
 
     // Evaluate the cubic interp parameters for ni56 electron capture
     // which is used in the langanke subroutine.
-    for (auto k = 1; k < 4; ++k) {
-        rfdm[k] = 1.0_rt / ((rv[k-1]-rv[k])*(rv[k-1]-rv[k+1])*(rv[k-1]-rv[k+2]));
-        rfd0[k] = 1.0_rt / ((rv[k]-rv[k-1])*(rv[k]-rv[k+1])*(rv[k]-rv[k+2]));
-        rfd1[k] = 1.0_rt / ((rv[k+1]-rv[k-1])*(rv[k+1]-rv[k])*(rv[k+1]-rv[k+2]));
-        rfd2[k] = 1.0_rt / ((rv[k+2]-rv[k-1])*(rv[k+2]-rv[k])*(rv[k+2]-rv[k+1]));
+    for (auto k = 2; k <= 4; ++k) {
+        rfdm(k) = 1.0_rt / ((rv(k-1)-rv(k))*(rv(k-1)-rv(k+1))*(rv(k-1)-rv(k+2)));
+        rfd0(k) = 1.0_rt / ((rv(k)-rv(k-1))*(rv(k)-rv(k+1))*(rv(k)-rv(k+2)));
+        rfd1(k) = 1.0_rt / ((rv(k+1)-rv(k-1))*(rv(k+1)-rv(k))*(rv(k+1)-rv(k+2)));
+        rfd2(k) = 1.0_rt / ((rv(k+2)-rv(k-1))*(rv(k+2)-rv(k))*(rv(k+2)-rv(k+1)));
     }
 
-    for (auto j = 1; j < 12; ++j) {
-        tfdm[j] = 1.0_rt / ((tv[j-1]-tv[j])*(tv[j-1]-tv[j+1])*(tv[j-1]-tv[j+2]));
-        tfd0[j] = 1.0_rt / ((tv[j]-tv[j-1])*(tv[j]-tv[j+1])*(tv[j]-tv[j+2]));
-        tfd1[j] = 1.0_rt / ((tv[j+1]-tv[j-1])*(tv[j+1]-tv[j])*(tv[j+1]-tv[j+2]));
-        tfd2[j] = 1.0_rt / ((tv[j+2]-tv[j-1])*(tv[j+2]-tv[j])*(tv[j+2]-tv[j+1]));
+    for (auto j = 2; j <= 12; ++j) {
+        tfdm(j) = 1.0_rt / ((tv(j-1)-tv(j))*(tv(j-1)-tv(j+1))*(tv(j-1)-tv(j+2)));
+        tfd0(j) = 1.0_rt / ((tv(j)-tv(j-1))*(tv(j)-tv(j+1))*(tv(j)-tv(j+2)));
+        tfd1(j) = 1.0_rt / ((tv(j+1)-tv(j-1))*(tv(j+1)-tv(j))*(tv(j+1)-tv(j+2)));
+        tfd2(j) = 1.0_rt / ((tv(j+2)-tv(j-1))*(tv(j+2)-tv(j))*(tv(j+2)-tv(j+1)));
     }
 }
 
@@ -152,22 +146,20 @@ void rate_c12ag_deboer17(tf_t tf, const Real den, Real& fr,
     const Real term_a5_nr = std::exp(a5_nr*tf.t953);
     const Real term_a6_nr = std::pow(tf.t9,a6_nr);
 
-    const Real term_nr = term_a0_nr * term_a1_nr * term_a2_nr * \
-              term_a3_nr * term_a4_nr * term_a5_nr * \
+    const Real term_nr = term_a0_nr * term_a1_nr * term_a2_nr *
+              term_a3_nr * term_a4_nr * term_a5_nr *
               term_a6_nr;
 
-    const Real dterm_a0_nr = 0e0_rt;
-    const Real dterm_a1_nr = 0e0_rt;
     const Real dterm_a2_nr = -a2_nr*tf.t9i43*term_a2_nr/3e0_rt;
     const Real dterm_a3_nr = a3_nr*tf.t9i23*term_a3_nr/3e0_rt;
     const Real dterm_a4_nr = a4_nr*term_a4_nr;
     const Real dterm_a5_nr = a5_nr*tf.t923*term_a5_nr*5.0_rt/3.0_rt;
     const Real dterm_a6_nr = tf.t9i*a6_nr*std::pow(tf.t9,a6_nr);
 
-    const Real dterm_nr = (term_a0_nr * term_a1_nr * dterm_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) + \
-               (term_a0_nr * term_a1_nr * term_a2_nr * dterm_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) + \
-               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * dterm_a4_nr * term_a5_nr * term_a6_nr) + \
-               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * dterm_a5_nr * term_a6_nr) + \
+    const Real dterm_nr = (term_a0_nr * term_a1_nr * dterm_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) +
+               (term_a0_nr * term_a1_nr * term_a2_nr * dterm_a3_nr * term_a4_nr * term_a5_nr * term_a6_nr) +
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * dterm_a4_nr * term_a5_nr * term_a6_nr) +
+               (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * dterm_a5_nr * term_a6_nr) +
                (term_a0_nr * term_a1_nr * term_a2_nr * term_a3_nr * term_a4_nr * term_a5_nr * dterm_a6_nr);
 
     // resonant contributions to the reaction
@@ -187,19 +179,14 @@ void rate_c12ag_deboer17(tf_t tf, const Real den, Real& fr,
     const Real term_a5_r = std::exp(a5_r*tf.t953);
     const Real term_a6_r = std::pow(tf.t9,a6_r);
 
-    const Real term_r = term_a0_r * term_a1_r * term_a2_r * \
-              term_a3_r * term_a4_r * term_a5_r * \
+    const Real term_r = term_a0_r * term_a1_r * term_a2_r *
+              term_a3_r * term_a4_r * term_a5_r *
               term_a6_r;
 
-    const Real dterm_a0_r = 0e0_rt;
     const Real dterm_a1_r = -a1_r*tf.t9i2*term_a1_r;
-    const Real dterm_a2_r = 0e0_rt;
-    const Real dterm_a3_r = 0e0_rt;
-    const Real dterm_a4_r = 0e0_rt;
-    const Real dterm_a5_r = 0e0_rt;
     const Real dterm_a6_r = tf.t9i*a6_r*std::pow(tf.t9,a6_r);
     
-    const Real dterm_r = (term_a0_r * dterm_a1_r * term_a6_r) + \
+    const Real dterm_r = (term_a0_r * dterm_a1_r * term_a6_r) +
               (term_a0_r * term_a1_r * dterm_a6_r);
 
     // full rate is the sum of resonant and non-resonant contributions
@@ -235,9 +222,9 @@ void rate_triplealf(tf_t tf, const Real den, Real& fr,
     const Real bb    = 4.164e9_rt * tf.t9i23 * std::exp(-13.49_rt*tf.t9i13 - tf.t92*q1);
     const Real dbb   = bb*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*13.49_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    const Real cc    = 1.0e0_rt + 0.031_rt*tf.t913 + 8.009_rt*tf.t923 + 1.732_rt*tf.t9 \
+    const Real cc    = 1.0e0_rt + 0.031_rt*tf.t913 + 8.009_rt*tf.t923 + 1.732_rt*tf.t9
           + 49.883_rt*tf.t943 + 27.426_rt*tf.t953;
-    const Real dcc   = 1.0_rt/3.0_rt*0.031_rt*tf.t9i23 + 2.0_rt/3.0_rt*8.009_rt*tf.t9i13 + 1.732_rt \
+    const Real dcc   = 1.0_rt/3.0_rt*0.031_rt*tf.t9i23 + 2.0_rt/3.0_rt*8.009_rt*tf.t9i13 + 1.732_rt
           + 4.0_rt/3.0_rt*49.883_rt*tf.t913 + 5.0_rt/3.0_rt*27.426_rt*tf.t923;
 
     const Real r2abe    = aa + bb * cc;
@@ -250,9 +237,9 @@ void rate_triplealf(tf_t tf, const Real den, Real& fr,
     const Real ee    = 2.510e7_rt * tf.t9i23 * std::exp(-23.57_rt*tf.t9i13 - tf.t92*q2);
     const Real dee   = ee*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*23.57_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q2);
 
-    const Real ff    = 1.0e0_rt + 0.018_rt*tf.t913 + 5.249_rt*tf.t923 + 0.650_rt*tf.t9 + \
+    const Real ff    = 1.0e0_rt + 0.018_rt*tf.t913 + 5.249_rt*tf.t923 + 0.650_rt*tf.t9 +
          19.176_rt*tf.t943 + 6.034_rt*tf.t953;
-    const Real dff   = 1.0_rt/3.0_rt*0.018_rt*tf.t9i23 + 2.0_rt/3.0_rt*5.249_rt*tf.t9i13 + 0.650_rt \
+    const Real dff   = 1.0_rt/3.0_rt*0.018_rt*tf.t9i23 + 2.0_rt/3.0_rt*5.249_rt*tf.t9i13 + 0.650_rt
           + 4.0_rt/3.0_rt*19.176_rt*tf.t913 + 5.0_rt/3.0_rt*6.034_rt*tf.t923;
 
     const Real rbeac    = dd + ee * ff;
@@ -266,8 +253,8 @@ void rate_triplealf(tf_t tf, const Real den, Real& fr,
     // high temperature rate
     if (tf.t9 > 0.08_rt) {
         term    = 2.90e-16_rt * r2abe * rbeac + xx;
-        dtermdt =   2.90e-16_rt * dr2abedt * rbeac \
-                    + 2.90e-16_rt * r2abe * drbeacdt \
+        dtermdt =   2.90e-16_rt * dr2abedt * rbeac
+                    + 2.90e-16_rt * r2abe * drbeacdt
                     + dxx;
 
     // low temperature rate
@@ -284,9 +271,9 @@ void rate_triplealf(tf_t tf, const Real den, Real& fr,
         //    ! fxt f1   = yy * aa;
         const Real df1  = (dyy - f1*dzz)*aa;
         term = 2.90e-16_rt * r2abe * rbeac * f1 +  xx;
-        dtermdt =   2.90e-16_rt * dr2abedt * rbeac * f1 \
-                    + 2.90e-16_rt * r2abe * drbeacdt * f1 \
-                    + 2.90e-16_rt * r2abe * rbeac * df1 \
+        dtermdt =   2.90e-16_rt * dr2abedt * rbeac * f1
+                    + 2.90e-16_rt * r2abe * drbeacdt * f1
+                    + 2.90e-16_rt * r2abe * rbeac * df1
                     + dxx;
     }
 
@@ -323,9 +310,9 @@ void rate_c12c12(tf_t tf, const Real den, Real& fr,
     const Real t9a56   = std::pow(t9a,5.0_rt/6.0_rt);
     const Real dt9a56  = 5.0_rt/6.0_rt*t9a56*zz;
 
-    const Real term    = 4.27e26_rt * t9a56 * tf.t9i32 * \
+    const Real term    = 4.27e26_rt * t9a56 * tf.t9i32 *
          std::exp(-84.165_rt/t9a13 - 2.12e-03_rt*tf.t93);
-    const Real dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf.t9i \
+    const Real dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf.t9i
             + 84.165_rt/(t9a13*t9a13)*dt9a13 - 6.36e-3_rt*tf.t92);
 
     // rates
@@ -394,11 +381,11 @@ void rate_o16o16(tf_t tf, const Real den, Real& fr,
                 Real& drrdt) 
 {
     // o16 + o16
-    const Real term  = 7.10e36_rt * tf.t9i23 * \
+    const Real term  = 7.10e36_rt * tf.t9i23 *
          std::exp(-135.93_rt * tf.t9i13 - 0.629_rt*tf.t923 
          - 0.445_rt*tf.t943 + 0.0103_rt*tf.t9*tf.t9);
 
-    const Real dtermdt = -2.0_rt/3.0_rt*term*tf.t9i \
+    const Real dtermdt = -2.0_rt/3.0_rt*term*tf.t9i
          + term * (1.0_rt/3.0_rt*135.93_rt*tf.t9i43 - 2.0_rt/3.0_rt*0.629_rt*tf.t9i13 
          - 4.0_rt/3.0_rt*0.445_rt*tf.t913 + 0.0206_rt*tf.t9);
 
@@ -459,9 +446,9 @@ void rate_ne20ag(tf_t tf, const Real den, Real& fr,
     Real aa   = 4.11e11_rt * tf.t9i23 * std::exp(-46.766_rt*tf.t9i13 - tf.t92*q1);
     Real daa  = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*46.766_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    Real bb   = 1.0e0_rt + 0.009_rt*tf.t913 + 0.882_rt*tf.t923 + 0.055_rt*tf.t9 \
+    Real bb   = 1.0e0_rt + 0.009_rt*tf.t913 + 0.882_rt*tf.t923 + 0.055_rt*tf.t9
          + 0.749_rt*tf.t943 + 0.119_rt*tf.t953;
-    Real dbb  = 1.0_rt/3.0_rt*0.009_rt*tf.t9i23 + 2.0_rt/3.0_rt*0.882_rt*tf.t9i13 + 0.055_rt \
+    Real dbb  = 1.0_rt/3.0_rt*0.009_rt*tf.t9i23 + 2.0_rt/3.0_rt*0.882_rt*tf.t9i13 + 0.055_rt
          + 4.0_rt/3.0_rt*0.749_rt*tf.t913 + 5.0_rt/3.0_rt*0.119_rt*tf.t923;
 
     const Real term1  = aa * bb;
@@ -564,9 +551,9 @@ void rate_mg24ap(tf_t tf, const Real den, Real& fr,
     Real aa     = 1.10e8_rt * tf.t9i23 * std::exp(-23.261_rt*tf.t9i13 - tf.t92*q1);
     Real daa    = -2.0_rt/3.0_rt*aa*tf.t9i + aa*(23.261_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    Real bb     =  1.0e0_rt + 0.018_rt*tf.t913 + 12.85_rt*tf.t923 + 1.61_rt*tf.t9 \
+    Real bb     =  1.0e0_rt + 0.018_rt*tf.t913 + 12.85_rt*tf.t923 + 1.61_rt*tf.t9
          + 89.87_rt*tf.t943 + 28.66_rt*tf.t953;
-    Real dbb    = 1.0_rt/3.0_rt*0.018_rt*tf.t9i23 + 2.0_rt/3.0_rt*12.85_rt*tf.t9i13 + 1.61_rt \
+    Real dbb    = 1.0_rt/3.0_rt*0.018_rt*tf.t9i23 + 2.0_rt/3.0_rt*12.85_rt*tf.t9i13 + 1.61_rt
            + 4.0_rt/3.0_rt*89.87_rt*tf.t913 + 5.0_rt/3.0_rt*28.66_rt*tf.t923;
 
     const Real term1  = aa * bb;
@@ -665,9 +652,9 @@ void rate_al27pg_old(tf_t tf, const Real den, Real& fr,
     const Real aa  = 1.67e8_rt * tf.t9i23 * std::exp(-23.261_rt*tf.t9i13 - tf.t92*q1);
     const Real daa = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*23.261_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    const Real bb  = 1.0e0_rt + 0.018_rt*tf.t913 + 5.81_rt*tf.t923 + 0.728_rt*tf.t9 \
+    const Real bb  = 1.0e0_rt + 0.018_rt*tf.t913 + 5.81_rt*tf.t923 + 0.728_rt*tf.t9
          + 27.31_rt*tf.t943 + 8.71_rt*tf.t953;
-    const Real dbb = 1.0_rt/3.0_rt*0.018_rt*tf.t9i23 + 2.0_rt/3.0_rt*5.81_rt*tf.t9i13 + 0.728_rt \
+    const Real dbb = 1.0_rt/3.0_rt*0.018_rt*tf.t9i23 + 2.0_rt/3.0_rt*5.81_rt*tf.t9i13 + 0.728_rt
          + 4.0_rt/3.0_rt*27.31_rt*tf.t913 + 5.0_rt/3.0_rt*8.71_rt*tf.t923;
 
     const Real cc  = aa*bb;
@@ -1394,12 +1381,12 @@ void rate_png(tf_t tf, const Real den, Real& fr,
     // p(n,g)d
     // smith,kawano,malany 1992
 
-    const Real aa      = 1.0e0_rt - 0.8504_rt*tf.t912 + 0.4895_rt*tf.t9 \
-         - 0.09623_rt*tf.t932 + 8.471e-3_rt*tf.t92 \
+    const Real aa      = 1.0e0_rt - 0.8504_rt*tf.t912 + 0.4895_rt*tf.t9
+         - 0.09623_rt*tf.t932 + 8.471e-3_rt*tf.t92
          - 2.80e-4_rt*tf.t952;
 
-    const Real daa     =  -0.5e0_rt*0.8504_rt*tf.t9i12 + 0.4895_rt \
-         - 1.5e0_rt*0.09623_rt*tf.t912 + 2.0e0_rt*8.471e-3_rt*tf.t9 \
+    const Real daa     =  -0.5e0_rt*0.8504_rt*tf.t9i12 + 0.4895_rt
+         - 1.5e0_rt*0.09623_rt*tf.t912 + 2.0e0_rt*8.471e-3_rt*tf.t9
          - 2.5e0_rt*2.80e-4_rt*tf.t932;
 
     const Real term    = 4.742e4_rt * aa;
@@ -1478,9 +1465,9 @@ void rate_he3he3(tf_t tf, const Real den, Real& fr,
     const Real aa   = 6.04e10_rt * tf.t9i23 * std::exp(-12.276_rt*tf.t9i13);
     const Real daa  = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*12.276_rt*tf.t9i43);
 
-    const Real bb   = 1.0e0_rt + 0.034_rt*tf.t913 - 0.522_rt*tf.t923 - 0.124_rt*tf.t9 \
+    const Real bb   = 1.0e0_rt + 0.034_rt*tf.t913 - 0.522_rt*tf.t923 - 0.124_rt*tf.t9
          + 0.353_rt*tf.t943 + 0.213_rt*tf.t953;
-    const Real dbb  = 1.0_rt/3.0_rt*0.034_rt*tf.t9i23 - 2.0_rt/3.0_rt*0.522_rt*tf.t9i13 - 0.124_rt \
+    const Real dbb  = 1.0_rt/3.0_rt*0.034_rt*tf.t9i23 - 2.0_rt/3.0_rt*0.522_rt*tf.t9i13 - 0.124_rt
          + 4.0_rt/3.0_rt*0.353_rt*tf.t913 + 5.0_rt/3.0_rt*0.213_rt*tf.t923;
 
     const Real term    = aa * bb;
@@ -1518,7 +1505,7 @@ void rate_he3he4(tf_t tf, const Real den, Real& fr,
     const Real dt9a56  = 5.0_rt/6.0_rt*t9a56*zz;
 
     const Real term    = 5.61e6_rt * t9a56 * tf.t9i32 * std::exp(-12.826_rt/t9a13);
-    const Real dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf.t9i \
+    const Real dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf.t9i
          + 12.826_rt/(t9a13*t9a13) * dt9a13);
 
     // rates
@@ -1543,9 +1530,9 @@ void rate_c12pg(tf_t tf, const Real den, Real& fr,
     const Real aa   = 2.04e7_rt * tf.t9i23 * std::exp(-13.69_rt*tf.t9i13 - tf.t92*q1);
     const Real daa  = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*13.69_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    const Real bb   = 1.0e0_rt + 0.03_rt*tf.t913 + 1.19_rt*tf.t923 + 0.254_rt*tf.t9 \
+    const Real bb   = 1.0e0_rt + 0.03_rt*tf.t913 + 1.19_rt*tf.t923 + 0.254_rt*tf.t9
          + 2.06_rt*tf.t943 + 1.12_rt*tf.t953;
-    const Real dbb  = 1.0_rt/3.0_rt*0.03_rt*tf.t9i23 + 2.0_rt/3.0_rt*1.19_rt*tf.t9i13 + 0.254_rt \
+    const Real dbb  = 1.0_rt/3.0_rt*0.03_rt*tf.t9i23 + 2.0_rt/3.0_rt*1.19_rt*tf.t9i13 + 0.254_rt
          + 4.0_rt/3.0_rt*2.06_rt*tf.t913 + 5.0_rt/3.0_rt*1.12_rt*tf.t923;
 
     const Real cc   = aa * bb;
@@ -1582,9 +1569,9 @@ void rate_n14pg(tf_t tf, const Real den, Real& fr,
     const Real aa  = 4.90e7_rt * tf.t9i23 * std::exp(-15.228_rt*tf.t9i13 - tf.t92*q1);
     const Real daa = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*15.228_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    const Real bb   = 1.0e0_rt + 0.027_rt*tf.t913 - 0.778_rt*tf.t923 - 0.149_rt*tf.t9 \
+    const Real bb   = 1.0e0_rt + 0.027_rt*tf.t913 - 0.778_rt*tf.t923 - 0.149_rt*tf.t9
          + 0.261_rt*tf.t943 + 0.127_rt*tf.t953;
-    const Real dbb  = 1.0_rt/3.0_rt*0.027_rt*tf.t9i23 - 2.0_rt/3.0_rt*0.778_rt*tf.t9i13 - 0.149_rt \
+    const Real dbb  = 1.0_rt/3.0_rt*0.027_rt*tf.t9i23 - 2.0_rt/3.0_rt*0.778_rt*tf.t9i13 - 0.149_rt
          + 4.0_rt/3.0_rt*0.261_rt*tf.t913 + 5.0_rt/3.0_rt*0.127_rt*tf.t923;
 
     const Real cc   = aa * bb;
@@ -1621,9 +1608,9 @@ void rate_n15pg(tf_t tf, const Real den, Real& fr,
     const Real aa  = 9.78e8_rt * tf.t9i23 * std::exp(-15.251_rt*tf.t9i13 - tf.t92*q1);
     const Real daa = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*15.251_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    const Real bb   = 1.0e0_rt  + 0.027_rt*tf.t913 + 0.219_rt*tf.t923 + 0.042_rt*tf.t9 \
+    const Real bb   = 1.0e0_rt  + 0.027_rt*tf.t913 + 0.219_rt*tf.t923 + 0.042_rt*tf.t9
          + 6.83_rt*tf.t943 + 3.32_rt*tf.t953;
-    const Real dbb  = 1.0_rt/3.0_rt*0.027_rt*tf.t9i23 + 2.0_rt/3.0_rt*0.219_rt*tf.t9i13 + 0.042_rt \
+    const Real dbb  = 1.0_rt/3.0_rt*0.027_rt*tf.t9i23 + 2.0_rt/3.0_rt*0.219_rt*tf.t9i13 + 0.042_rt
          + 4.0_rt/3.0_rt*6.83_rt*tf.t913 + 5.0_rt/3.0_rt*3.32_rt*tf.t923;
 
     const Real cc   = aa * bb;
@@ -1664,9 +1651,9 @@ void rate_n15pa(tf_t tf, const Real den, Real& fr,
     const Real aa  = 1.08e12_rt*tf.t9i23*std::exp(-15.251_rt*tf.t9i13 - tf.t92*q1);
     const Real daa = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*15.251_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    const Real bb   = 1.0e0_rt + 0.027_rt*tf.t913 + 2.62_rt*tf.t923 + 0.501_rt*tf.t9 \
+    const Real bb   = 1.0e0_rt + 0.027_rt*tf.t913 + 2.62_rt*tf.t923 + 0.501_rt*tf.t9
          + 5.36_rt*tf.t943 + 2.60_rt*tf.t953;
-    const Real dbb  = 1.0_rt/3.0_rt*0.027_rt*tf.t9i23 + 2.0_rt/3.0_rt*2.62_rt*tf.t9i13 + 0.501_rt \
+    const Real dbb  = 1.0_rt/3.0_rt*0.027_rt*tf.t9i23 + 2.0_rt/3.0_rt*2.62_rt*tf.t9i13 + 0.501_rt
          + 4.0_rt/3.0_rt*5.36_rt*tf.t913 + 5.0_rt/3.0_rt*2.60_rt*tf.t923;
 
     const Real cc   = aa * bb;
@@ -1745,9 +1732,9 @@ void rate_n14ag(tf_t tf, const Real den, Real& fr,
     const Real aa  = 7.78e9_rt * tf.t9i23 * std::exp(-36.031_rt*tf.t9i13- tf.t92*q1);
     const Real daa = aa*(-2.0_rt/3.0_rt*tf.t9i + 1.0_rt/3.0_rt*36.031_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
-    const Real bb   = 1.0e0_rt + 0.012_rt*tf.t913 + 1.45_rt*tf.t923 + 0.117_rt*tf.t9 \
+    const Real bb   = 1.0e0_rt + 0.012_rt*tf.t913 + 1.45_rt*tf.t923 + 0.117_rt*tf.t9
          + 1.97_rt*tf.t943 + 0.406_rt*tf.t953;
-    const Real dbb  = 1.0_rt/3.0_rt*0.012_rt*tf.t9i23 + 2.0_rt/3.0_rt*1.45_rt*tf.t9i13 + 0.117_rt \
+    const Real dbb  = 1.0_rt/3.0_rt*0.012_rt*tf.t9i23 + 2.0_rt/3.0_rt*1.45_rt*tf.t9i13 + 0.117_rt
          + 4.0_rt/3.0_rt*1.97_rt*tf.t913 + 5.0_rt/3.0_rt*0.406_rt*tf.t923;
 
     const Real cc   = aa * bb;
@@ -1828,12 +1815,12 @@ void rate_fe54ng(tf_t tf, const Real den, Real& fr,
                 Real& drrdt) 
 {
     // fe54(n,g)fe55
-    const Real aa   =  2.307390e1_rt - 7.931795e-02_rt * tf.t9i + 7.535681e0_rt * tf.t9i13 \
-         - 1.595025e1_rt * tf.t913 + 1.377715e0_rt * tf.t9 - 1.291479e-01_rt * tf.t953 \
+    const Real aa   =  2.307390e1_rt - 7.931795e-02_rt * tf.t9i + 7.535681e0_rt * tf.t9i13
+         - 1.595025e1_rt * tf.t913 + 1.377715e0_rt * tf.t9 - 1.291479e-01_rt * tf.t953
          + 6.707473e0_rt * std::log(tf.t9);
 
-    const Real daa  =  7.931795e-02_rt * tf.t9i2 - 1.0_rt/3.0_rt * 7.535681e0_rt * tf.t9i43 \
-         - 1.0_rt/3.0_rt * 1.595025e1_rt *tf.t9i23 + 1.377715e0_rt - 5.0_rt/3.0_rt * 1.291479e-01_rt *tf.t923 \
+    const Real daa  =  7.931795e-02_rt * tf.t9i2 - 1.0_rt/3.0_rt * 7.535681e0_rt * tf.t9i43
+         - 1.0_rt/3.0_rt * 1.595025e1_rt *tf.t9i23 + 1.377715e0_rt - 5.0_rt/3.0_rt * 1.291479e-01_rt *tf.t923
          + 6.707473e0_rt * tf.t9i;
 
     Real term, dtermdt;
@@ -1894,12 +1881,12 @@ void rate_fe54ap(tf_t tf, const Real den, Real& fr,
                 Real& drrdt) 
 {
     // fe54(a,p)co57
-    const Real aa   =  3.97474900e1_rt - 6.06543100e0_rt * tf.t9i + 1.63239600e2_rt * tf.t9i13 \
-         - 2.20457700e2_rt * tf.t913 + 8.63980400e0_rt * tf.t9 - 3.45841300e-01_rt * tf.t953 \
+    const Real aa   =  3.97474900e1_rt - 6.06543100e0_rt * tf.t9i + 1.63239600e2_rt * tf.t9i13
+         - 2.20457700e2_rt * tf.t913 + 8.63980400e0_rt * tf.t9 - 3.45841300e-01_rt * tf.t953
          + 1.31464200e2_rt * std::log(tf.t9);
 
-    const Real daa  =  6.06543100e0_rt * tf.t9i2 - 1.0_rt/3.0_rt * 1.63239600e2_rt * tf.t9i43 \
-         - 1.0_rt/3.0_rt * 2.20457700e2_rt * tf.t9i23 + 8.63980400e0_rt - 5.0_rt/3.0_rt * 3.45841300e-01_rt * tf.t923 \
+    const Real daa  =  6.06543100e0_rt * tf.t9i2 - 1.0_rt/3.0_rt * 1.63239600e2_rt * tf.t9i43
+         - 1.0_rt/3.0_rt * 2.20457700e2_rt * tf.t9i23 + 8.63980400e0_rt - 5.0_rt/3.0_rt * 3.45841300e-01_rt * tf.t923
          + 1.31464200e2_rt  * tf.t9i;
 
     Real term, dtermdt;
@@ -1929,12 +1916,12 @@ void rate_fe55ng(tf_t tf, const Real den, Real& fr,
                 Real& drrdt) 
 {
     // fe55(n,g)fe56
-    const Real aa   =  1.954115e1_rt - 6.834029e-02_rt * tf.t9i + 5.379859e0_rt * tf.t9i13 \
-         - 8.758150e0_rt * tf.t913 + 5.285107e-01_rt * tf.t9 - 4.973739e-02_rt  * tf.t953 \
+    const Real aa   =  1.954115e1_rt - 6.834029e-02_rt * tf.t9i + 5.379859e0_rt * tf.t9i13
+         - 8.758150e0_rt * tf.t913 + 5.285107e-01_rt * tf.t9 - 4.973739e-02_rt  * tf.t953
          + 4.065564e0_rt  * std::log(tf.t9);
 
-    const Real daa  =  6.834029e-02_rt * tf.t9i2 - 1.0_rt/3.0_rt * 5.379859e0_rt * tf.t9i43 \
-         - 1.0_rt/3.0_rt * 8.758150e0_rt * tf.t9i23 + 5.285107e-01_rt - 5.0_rt/3.0_rt * 4.973739e-02_rt  *tf.t923 \
+    const Real daa  =  6.834029e-02_rt * tf.t9i2 - 1.0_rt/3.0_rt * 5.379859e0_rt * tf.t9i43
+         - 1.0_rt/3.0_rt * 8.758150e0_rt * tf.t9i23 + 5.285107e-01_rt - 5.0_rt/3.0_rt * 4.973739e-02_rt  *tf.t923
          + 4.065564e0_rt  * tf.t9i;
 
     Real term, dtermdt;
@@ -1965,12 +1952,12 @@ void rate_fe56pg(tf_t tf, const Real den, Real& fr,
 {
     // fe56(p,g)co57
 
-    const Real aa   =  1.755960e2_rt - 7.018872e0_rt * tf.t9i + 2.800131e2_rt * tf.t9i13 \
-         - 4.749343e2_rt * tf.t913 + 2.683860e1_rt * tf.t9 - 1.542324e0_rt  * tf.t953 \
+    const Real aa   =  1.755960e2_rt - 7.018872e0_rt * tf.t9i + 2.800131e2_rt * tf.t9i13
+         - 4.749343e2_rt * tf.t913 + 2.683860e1_rt * tf.t9 - 1.542324e0_rt  * tf.t953
          + 2.315911e2_rt  * std::log(tf.t9);
 
-    const Real daa  =  7.018872e0_rt * tf.t9i2 - 1.0_rt/3.0_rt * 2.800131e2_rt * tf.t9i43 \
-         - 1.0_rt/3.0_rt * 4.749343e2_rt * tf.t9i23 + 2.683860e1_rt - 5.0_rt/3.0_rt * 1.542324e0_rt  *tf.t923 \
+    const Real daa  =  7.018872e0_rt * tf.t9i2 - 1.0_rt/3.0_rt * 2.800131e2_rt * tf.t9i43
+         - 1.0_rt/3.0_rt * 4.749343e2_rt * tf.t9i23 + 2.683860e1_rt - 5.0_rt/3.0_rt * 1.542324e0_rt  *tf.t923
          + 2.315911e2_rt  * tf.t9i;
 
     Real term, dtermdt;
@@ -2018,43 +2005,41 @@ void langanke(const Real btemp, const Real bden,
 
     const Real t9    = amrex::min(btemp, 1.4e10_rt) * 1.0e-9_rt;
     const Real r     = amrex::max(6.0e0_rt, amrex::min(11.0e0_rt, std::log10(bden*ye)));
-    const int jp    = amrex::min(amrex::max(2, int(t9)), 12) - 1;
-    const int kp    = amrex::min(amrex::max(2, int(r)-5), 4) - 1;
-    const Real rfm   = r - rv[kp-1];
-    const Real rf0   = r - rv[kp];
-    const Real rf1   = r - rv[kp+1];
-    const Real rf2   = r - rv[kp+2];
-    const Real dfacm = rf0*rf1*rf2*rfdm[kp];
-    const Real dfac0 = rfm*rf1*rf2*rfd0[kp];
-    const Real dfac1 = rfm*rf0*rf2*rfd1[kp];
-    const Real dfac2 = rfm*rf0*rf1*rfd2[kp];
-    const Real tfm   = t9 - tv[jp-1];
-    const Real tf0   = t9 - tv[jp];
-    const Real tf1   = t9 - tv[jp+1];
-    const Real tf2   = t9 - tv[jp+2];
-    const Real tfacm = tf0*tf1*tf2*tfdm[jp];
-    const Real tfac0 = tfm*tf1*tf2*tfd0[jp];
-    const Real tfac1 = tfm*tf0*tf2*tfd1[jp];
-    const Real tfac2 = tfm*tf0*tf1*tfd2[jp];
+    const int jp    = amrex::min(amrex::max(2, int(t9)), 12);
+    const int kp    = amrex::min(amrex::max(2, int(r)-5), 4);
+    const Real rfm   = r - rv(kp-1);
+    const Real rf0   = r - rv(kp);
+    const Real rf1   = r - rv(kp+1);
+    const Real rf2   = r - rv(kp+2);
+    const Real dfacm = rf0*rf1*rf2*rfdm(kp);
+    const Real dfac0 = rfm*rf1*rf2*rfd0(kp);
+    const Real dfac1 = rfm*rf0*rf2*rfd1(kp);
+    const Real dfac2 = rfm*rf0*rf1*rfd2(kp);
+    const Real tfm   = t9 - tv(jp-1);
+    const Real tf0   = t9 - tv(jp);
+    const Real tf1   = t9 - tv(jp+1);
+    const Real tf2   = t9 - tv(jp+2);
+    const Real tfacm = tf0*tf1*tf2*tfdm(jp);
+    const Real tfac0 = tfm*tf1*tf2*tfd0(jp);
+    const Real tfac1 = tfm*tf0*tf2*tfd1(jp);
+    const Real tfac2 = tfm*tf0*tf1*tfd2(jp);
 
-    Real rnt[2];
-    Real rne[2][14];
+    Array1D<Real, 1, 2> rnt;
+    Array2D<Real, 1, 2, 1, 14> rne;
 
     // evaluate the spline fits
-    for (auto jr = 0; jr < 2; ++jr) {
+    for (auto jr = 1; jr <= 2; ++jr) {
         for (auto jd = jp-1; jd <= jp+2; ++jd) {
-            rne[jr][jd] = dfacm*datn(jr,kp-1,jd) + dfac0*datn(jr,kp,jd) \
+            rne(jr,jd) = dfacm*datn(jr,kp-1,jd) + dfac0*datn(jr,kp,jd)
                 + dfac1*datn(jr,kp+1,jd) + dfac2*datn(jr,kp+2,jd);
         }
-        rnt[jr] =  tfacm*rne[jr][jp-1] + tfac0*rne[jr][jp] \
-                + tfac1*rne[jr][jp+1] + tfac2*rne[jr][jp+2];
+        rnt(jr) =  tfacm*rne(jr,jp-1) + tfac0*rne(jr,jp)
+                 + tfac1*rne(jr,jp+1) + tfac2*rne(jr,jp+2);
     }
 
     // set the output
-    rn56ec = std::pow(10.0e0_rt, rnt[0]);
-    sn56ec = 6.022548e23_rt * 1.60218e-6_rt * y56 * std::pow(10.0e0_rt, rnt[1]);
-   
-    //write(*,*) "btemp",btemp, "bden", bden, "t9",t9,"r",r, "rn56ec",rn56ec, "sn56ec", sn56ec
+    rn56ec = std::pow(10.0e0_rt, rnt(1));
+    sn56ec = 6.022548e23_rt * 1.60218e-6_rt * y56 * std::pow(10.0e0_rt, rnt(2));
 }
 
 // given the electron degeneracy parameter etakep (chemical potential
@@ -2077,22 +2062,15 @@ void ecapnuc(const Real etakep, const Real temp,
     const Real bk     = 1.38062e-16_rt;
     const Real qn2    = 2.0716446e-06_rt;
     const Real c2me   = 8.1872665e-07_rt;
-    const Real xmp    = 1.6726485e-24_rt;
-    const Real xmn    = 1.6749543e-24_rt;
-    const Real qndeca = 1.2533036e-06_rt;
-    const Real tmean  = 886.7e0_rt;
+    const Real pi     = 3.1415927e0_rt;
+    const Real pi2    = pi * pi;
 
-    // tmean and qndeca are the mean lifetime and decay energy of the neutron
-    // xmp,xnp are masses of the p and n in grams.
     // c2me is the constant used to convert the neutrino energy
     // loss rate from mec2/s (as in the paper) to ergs/particle/sec.
 
     // initialize
     rpen   = 0.0e0_rt;
     rnep   = 0.0e0_rt;
-    Real spen   = 0.0e0_rt;
-    Real snep   = 0.0e0_rt;
-    Real t9     = temp * 1.0e-9_rt;
     Real bktinv = 1.0e0_rt/(bk *temp);
     Real qn     = qn1;
 
@@ -2143,11 +2121,11 @@ void ecapnuc(const Real etakep, const Real temp,
             const Real eta4   = eta3*eta;
             f1g = 0.5e0_rt*eta2 + 2.0e0_rt - exmeta;
             f2g = eta3*1.0_rt/3.0_rt + 4.0e0_rt*eta + 2.0e0_rt*exmeta;
-            f3g = 0.25e0_rt*eta4 + 0.5e0_rt*M_PI*M_PI*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta;
-            f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*M_PI*M_PI*1.0_rt/3.0_rt*eta3 + 48.0e0_rt*eta \
+            f3g = 0.25e0_rt*eta4 + 0.5e0_rt*pi2*eta2 + 12.0e0_rt - 6.0e0_rt*exmeta;
+            f4g = 0.2e0_rt*eta4*eta + 2.0e0_rt*pi2*1.0_rt/3.0_rt*eta3 + 48.0e0_rt*eta
                     + 24.0e0_rt*exmeta;
-            f5g = eta4*eta2*1.0_rt/6.0_rt + 5.0e0_rt*1.0_rt/6.0_rt*M_PI*M_PI*eta4 \
-                    + 7.0e0_rt*1.0_rt/6.0_rt*M_PI*M_PI*eta2  + 240.0e0_rt -120.e0_rt*exmeta;
+            f5g = eta4*eta2*1.0_rt/6.0_rt + 5.0e0_rt*1.0_rt/6.0_rt*pi2*eta4
+                    + 7.0e0_rt*1.0_rt/6.0_rt*pi2*eta2  + 240.0e0_rt -120.e0_rt*exmeta;
         }
 
         // factors which are multiplied by the fermi integrals
@@ -2163,26 +2141,24 @@ void ecapnuc(const Real etakep, const Real temp,
         // neutrino emission rate for electron capture:
         const Real facv4 = 5.0e0_rt*etael + 3.0e0_rt*zetan;
         const Real facv3 = 10.0e0_rt*etael2 + 12.0e0_rt*etael*zetan + 3.0e0_rt*zetan2;
-        const Real facv2 = 10.0e0_rt*etael3 + 18.0e0_rt*etael2*zetan \
+        const Real facv2 = 10.0e0_rt*etael3 + 18.0e0_rt*etael2*zetan
             + 9.0e0_rt*etael*zetan2 + zetan2*zetan;
-        const Real facv1 = 5.0e0_rt*etael4 + 12.0e0_rt*etael3*zetan \
+        const Real facv1 = 5.0e0_rt*etael4 + 12.0e0_rt*etael3*zetan
             + 9.0e0_rt*etael2*zetan2 + 2.0e0_rt*etael*zetan2*zetan;
-        const Real facv0 = etael5 + 3.0e0_rt*etael4*zetan \
+        const Real facv0 = etael5 + 3.0e0_rt*etael4*zetan
             + 3.0e0_rt*etael3*zetan2 + etael2*zetan2*zetan;
-        rjv1  = f5l + facv4*f4l + facv3*f3l \
+        rjv1  = f5l + facv4*f4l + facv3*f3l
             + facv2*f2l + facv1*f1l + facv0*f0;
-        rjv2  = f5g + facv4*f4g + facv3*f3g \
+        rjv2  = f5g + facv4*f4g + facv3*f3g
             + facv2*f2g + facv1*f1g + facv0*f0;
 
         // for electrons capture onto protons
         if (iflag < 2) {
             if (eta <= 0.0_rt) {
                 rpen  = twoln*cmk5*t5*rie1*ftinv;
-                spen  = twoln*cmk6*t5*temp*rjv1*ftinv;
                 spenc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me;
             } else {
                 rpen = twoln*cmk5*t5*rie2*ftinv;
-                spen = twoln*cmk6*t5*temp*rjv2*ftinv;
                 spenc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me;
             }
             qn = qn2;
@@ -2192,11 +2168,9 @@ void ecapnuc(const Real etakep, const Real temp,
     // for positrons capture onto neutrons
     if (eta <= 0.0_rt) {
         rnep  = twoln*cmk5*t5*rie1*ftinv;
-        snep  = twoln*cmk6*t5*temp*rjv1*ftinv;
         snepc = twoln*cmk6*t5*temp*rjv1*ftinv*c2me;
     } else {
         rnep  = twoln*cmk5*t5*rie2*ftinv;
-        snep  = twoln*cmk6*t5*temp*rjv2*ftinv;
         snepc = twoln*cmk6*t5*temp*rjv2*ftinv*c2me;
     }
 }

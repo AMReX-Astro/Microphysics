@@ -31,7 +31,7 @@ module variables
 
   type(plot_t), allocatable :: p
 
-#if defined(AMREX_USE_CUDA)
+#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: p
 #endif
 

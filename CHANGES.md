@@ -1,8 +1,92 @@
+# 20.12
+
+   * The default absolute tolerance for species (atol_spec) has been
+     increased to 1.e-8 (from 1.e-12). (#422)
+
+   * An interface has been added for C++ integrators to call the RHS
+     from a network that only has a Fortran implementation. This allows
+     the use of USE_CXX_REACTIONS = TRUE for any network (however, CUDA
+     is not currently supported for this case). (#419)
+
+# 20.11
+
+   * The aprox19 + NSE network was ported to C++ (#362)
+
+   * The simplified-SDC code path was ported to C++ (#389)
+
+# 20.10
+
+   * An option to use NSE instead of integrating the reaction
+     network has been added to the aprox19 network. (#332)
+
+   * The BS integrator no longer supports simplified-SDC (#393)
+
+   * The triple_alpha_plus_cago network switch to using binding
+     energies in MeV, consistent with the aprox nets (#354)
+
+# 20.09
+
+   * Unit tests now write a job_info file (#383)
+
+   * A new single-zone EOS test routine was created as unit_test/eos_cell
+     (#382)
+
+   * The gamma_law eos (not gamma_law_general) now fills the sound speed,
+     entropy, and derivatives for more inputs (#374)
+
+   * The rprox network now has screening (#377)
+
+   * The NETWORK_PROPERTIES file was split to put the number of
+     auxiliary species into its own file, NAUX_NETWORK.  This allows
+     us to put if-logic into the file to choose the number of
+     auxiliary quantities based on make setting (like USE_NSE).
+     (#370)
+
+# 20.08
+
+   * Several of the unit tests had separate C++ and Fortran
+     implementions.  These have been unified (#343, #344, #345)
+
+   * The VBDF integrator was removed (#348)
+
+   * VODE can now reject an internal timestep that has any abundance
+     change by more than a factor of 2, or an abundance < 0 or > 1,
+     as well as timesteps where the temperature ends up negative. (#350)
+
+# 20.07
+
+   * The "master" branch has been renamed "main" (#333)
+
+   * NETWORK_PROPERTIES now includes the number of Aux quantities (#330)
+
+# 20.06
+
+   * For integration with simplified SDC, we now interpret atol_spec
+     as an absolute tolerance on X alone instead of (rho X) (#311)
+
+   * burn_cell can now use the C++ burner if compiled with
+     USE_CXX_REACTIONS=TRUE and run with do_cxx = 1. (#313)
+
+   * The original burn_cell (which used the F90 BoxLib build system)
+     is removed and replaced with burn_cell_C (which uses the newer
+     build system). (#316)
+
+   * The analytic Jacobian with simplified SDC now is written in terms
+     of the conserved fluid state and works for a wide range of
+     problems (#228)
+
 # 20.05
 
-   * A C++ version of the iso7 network was created (#303)
+   * We now have an option for using sparse storage for aprox13 in C++
+     (#307)
+
+   * iso7 and aprox13 are now available as a C++ network (#303, 305)
+
+   * species names are available as an enum in network_properties.H (#304)
 
    * The screening on O16+O16 in iso7 was fixed (#302)
+
+   * The VODE integrator is now available in C++ (#299)
 
 # 20.04
 

@@ -1,7 +1,11 @@
 #ifndef _vode_dvhin_H_
 #define _vode_dvhin_H_
 
+#ifndef SIMPLIFIED_SDC
 #include <vode_rhs.H>
+#else
+#include <vode_rhs_simplified_sdc.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)

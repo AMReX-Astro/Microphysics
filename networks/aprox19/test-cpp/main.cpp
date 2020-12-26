@@ -1,5 +1,3 @@
-#include <winstd.H>
-
 #include <new>
 #include <cstdio>
 #include <cstring>
@@ -10,34 +8,27 @@
 #include <unistd.h>
 #endif
 
-#include <CArena.H>
-#include <REAL.H>
-#include <Utility.H>
-#include <IntVect.H>
-#include <Box.H>
-#include <Amr.H>
-#include <ParmParse.H>
-#include <ParallelDescriptor.H>
-#include <AmrLevel.H>
+#include <AMReX_CArena.H>
+#include <AMReX_REAL.H>
+#include <AMReX_Utility.H>
+#include <AMReX_IntVect.H>
+#include <AMReX_Box.H>
+#include <AMReX_ParmParse.H>
+#include <AMReX_ParallelDescriptor.H>
 
 #include <time.h>
 
-#ifdef HAS_DUMPMODEL
-#include <DumpModel1d.H>
-#endif
-
-#ifdef HAS_XGRAPH
-#include <XGraph1d.H>
-#endif
-
-#include "Castro_io.H"
-
+#include "extern_parameters.H"
+#include "eos.H"
+#include "network.H"
 
 extern "C"
 {
-   void test_jacobian();
-   void do_burn();
+  void do_nse_F();
+  void do_initialization();
 }
+
+void do_nse_cxx();
 
 
 std::string inputs_name = "";
@@ -50,7 +41,7 @@ main (int   argc,
     //
     // Make sure to catch new failures.
     //
-    BoxLib::Initialize(argc,argv);
+    amrex::Initialize(argc,argv);
 
     // save the inputs file name for later
     if (argc > 1) {
@@ -59,11 +50,29 @@ main (int   argc,
       }
     }
 
-    test_jacobian();
+    // initialize the runtime parameters in Fortran and the Fortran microphysics
+    do_initialization();
 
-    do_burn();
+    // Copy extern parameters from Fortran to C++
+    init_extern_parameters();
 
-    BoxLib::Finalize();
+    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    eos_init();
+
+#ifdef CXX_REACTIONS
+    // C++ Network, RHS, screening, rates initialization
+    network_init();
+#endif
+
+    std::cout << "Fortran: " << std::endl;
+    do_nse_F();
+
+#ifdef CXX_REACTIONS
+    std::cout << "C++: " << std::endl;
+    do_nse_cxx();
+#endif
+
+    amrex::Finalize();
 
     return 0;
 }

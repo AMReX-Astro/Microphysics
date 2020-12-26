@@ -63,8 +63,20 @@ module sdc_type_module
      integer :: n_jac
 
      integer :: sdc_iter
+     integer :: num_sdc_iters
 
      logical :: success
   end type sdc_t
+
+contains
+
+  subroutine print_sdc_t(sdc_state)
+    implicit none
+    type(sdc_t), intent(in) :: sdc_state
+
+    print *, "y = ", sdc_state % y(:)
+    print *, "ydot_a = ", sdc_state % ydot_a(:)
+
+  end subroutine print_sdc_t
 
 end module sdc_type_module

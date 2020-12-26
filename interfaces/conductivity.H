@@ -12,8 +12,10 @@ void conductivity_init() {
 }
 
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void conductivity(eos_t& state) {
+void conductivity (T& state)
+{
   actual_conductivity(state);
 }
 #endif

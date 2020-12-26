@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <AMReX_ParallelDescriptor.H>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <actual_eos_data.H>
@@ -36,63 +37,63 @@ const std::string eos_name = "helmholtz";
 
 // quintic hermite polynomial functions
 // psi0 and its derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real psi0 (Real z)
 {
     return z * z * z * (z * (-6.0e0_rt * z + 15.0e0_rt) -10.0e0_rt) + 1.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dpsi0 (Real z)
 {
     return z * z * (z * (-30.0e0_rt*z + 60.0e0_rt) - 30.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ddpsi0 (Real z)
 {
     return z * (z * (-120.0e0_rt * z + 180.0e0_rt) - 60.0e0_rt);
 }
 
 // psi1 and its derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real psi1 (Real z)
 {
     return z * ( z * z * (z * (-3.0e0_rt * z + 8.0e0_rt) - 6.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dpsi1 (Real z)
 {
     return z * z * ( z * (-15.0e0_rt * z + 32.0e0_rt) - 18.0e0_rt) + 1.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ddpsi1 (Real z)
 {
     return z * (z * (-60.0e0_rt * z + 96.0e0_rt) - 36.0e0_rt);
 }
 
 // psi2 and its derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real psi2 (Real z)
 {
     return 0.5e0_rt * z * z * ( z * ( z * (-z + 3.0e0_rt) - 3.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dpsi2 (Real z)
 {
     return 0.5e0_rt * z * (z * (z * (-5.0e0_rt * z + 12.0e0_rt) - 9.0e0_rt) + 2.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ddpsi2 (Real z)
 {
     return 0.5e0_rt * (z * ( z * (-20.0e0_rt * z + 36.0e0_rt) - 18.0e0_rt) + 2.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fwt (const Real* fi, const Real* wt, Real* fwtr)
 {
     fwtr[0] = fi[ 0]*wt[0] + fi[ 1]*wt[1] + fi[ 2]*wt[2] + fi[18]*wt[3] + fi[19]*wt[4] + fi[20]*wt[5];
@@ -105,26 +106,26 @@ void fwt (const Real* fi, const Real* wt, Real* fwtr)
 
 // cubic hermite polynomial functions
 // psi0 & derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xpsi0(Real z)
 {
     return z * z * (2.0e0_rt * z - 3.0e0_rt) + 1.0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xdpsi0(Real z)
 {
     return z * (6.0e0_rt * z - 6.0e0_rt);
 }
 
 // psi1 & derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xpsi1(Real z)
 {
     return z * (z * (z - 2.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xdpsi1(Real z)
 {
     return z * (3.0e0_rt * z - 4.0e0_rt) + 1.0e0_rt;
@@ -132,10 +133,10 @@ Real xdpsi1(Real z)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_electrons(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_electrons (T& state)
 {
-
     using namespace helmholtz;
 
 #ifdef EXTRA_THERMO
@@ -457,10 +458,10 @@ void apply_electrons(eos_t& state)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_ions(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_ions (T& state)
 {
-
     using namespace helmholtz;
 
     const Real pi      = 3.1415926535897932384e0_rt;
@@ -525,15 +526,14 @@ void apply_ions(eos_t& state)
     state.s    = state.s + sion;
     state.dsdT = state.dsdT + dsiondt;
     state.dsdr = state.dsdr + dsiondd;
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_radiation(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_radiation (T& state)
 {
-
     using namespace helmholtz;
 
     const Real clight  = 2.99792458e10_rt;
@@ -604,15 +604,14 @@ void apply_radiation(eos_t& state)
     state.s    = srad;
     state.dsdr = dsraddd;
     state.dsdT = dsraddt;
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_coulomb_corrections(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_coulomb_corrections (T& state)
 {
-
     using namespace helmholtz;
 
     // Constants used for the Coulomb corrections
@@ -657,7 +656,9 @@ void apply_coulomb_corrections(eos_t& state)
     Real ytot1 = 1.0e0_rt / state.abar;
     Real xni     = avo_eos * ytot1 * state.rho;
     Real dxnidd  = avo_eos * ytot1;
+#ifdef EXTRA_THERMO
     Real dxnida  = -xni * ytot1;
+#endif
 
     Real kt      = kerg * state.T;
     Real ktinv   = 1.0e0_rt / kt;
@@ -665,7 +666,9 @@ void apply_coulomb_corrections(eos_t& state)
     z             = forth * pi;
     s             = z * xni;
     Real dsdd     = z * dxnidd;
+#ifdef EXTRA_THERMO
     Real dsda     = z * dxnida;
+#endif
 
     Real lami     = 1.0e0_rt / std::pow(s, onethird);
     Real inv_lami = 1.0e0_rt / lami;
@@ -806,17 +809,16 @@ void apply_coulomb_corrections(eos_t& state)
     state.s    = state.s + scoul;
     state.dsdr = state.dsdr + dscouldd;
     state.dsdT = state.dsdT + dscouldt;
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void prepare_for_iterations(eos_input_t input, eos_t& state,
-                            bool& single_iter, Real& v_want, Real& v1_want, Real& v2_want,
-                            int& var, int& dvar, int& var1, int& var2)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void prepare_for_iterations (I input, T& state,
+                             bool& single_iter, Real& v_want, Real& v1_want, Real& v2_want,
+                             int& var, int& dvar, int& var1, int& var2)
 {
-
     using namespace helmholtz;
 
     single_iter = true;
@@ -879,15 +881,19 @@ void prepare_for_iterations(eos_input_t input, eos_t& state,
         dvar = idens;
 
     }
+    else {
 
+        static_assert("Unknown EOS input");
+
+    }
 }
 
 
 
-
-AMREX_GPU_HOST_DEVICE inline
-void single_iter_update(eos_t& state, int var, int dvar,
-                        Real v_want, bool& converged)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void single_iter_update (T& state, int var, int dvar,
+                         Real v_want, bool& converged)
 {
 
     using namespace helmholtz;
@@ -968,16 +974,15 @@ void single_iter_update(eos_t& state, int var, int dvar,
     Real error = std::abs((xnew - x) / x);
 
     if (error < xtol) converged = true;
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void double_iter_update(eos_t& state, int var1, int var2,
-                        Real v1_want, Real v2_want, bool& converged)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void double_iter_update (T& state, int var1, int var2,
+                         Real v1_want, Real v2_want, bool& converged)
 {
-
     using namespace helmholtz;
 
     Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
@@ -1063,16 +1068,15 @@ void double_iter_update(eos_t& state, int var1, int var2,
     Real error2 = std::abs((tnew - told) / told);
 
     if (error1 < dtol && error2 < ttol) converged = true;
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void finalize_state (eos_input_t input, eos_t& state,
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void finalize_state (I input, T& state,
                      Real v_want, Real v1_want, Real v2_want)
 {
-
     using namespace helmholtz;
 
     // Calculate some remaining derivatives
@@ -1130,16 +1134,22 @@ void finalize_state (eos_input_t input, eos_t& state,
            state.h = v_want;
 
        }
+       else {
+
+           static_assert("Unknown EOS input");
+
+       }
 
     }
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos(eos_input_t input, eos_t& state)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value);
 
     using namespace helmholtz;
 
@@ -1194,15 +1204,13 @@ void actual_eos(eos_input_t input, eos_t& state)
     }
 
     finalize_state(input, state, v_want, v1_want, v2_want);
-
 }
 
 
 
-inline
+AMREX_INLINE
 void actual_eos_init ()
 {
-
     using namespace helmholtz;
 
     Real dth, dt2, dti, dt2i;
@@ -1322,26 +1330,27 @@ void actual_eos_init ()
     EOSData::maxtemp = std::pow(10.e0_rt, thi);
     EOSData::mindens = std::pow(10.e0_rt, dlo);
     EOSData::maxdens = std::pow(10.e0_rt, dhi);
-
 }
 
 
 
-inline
+AMREX_INLINE
 void actual_eos_finalize ()
 {
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value);
 
   bool valid = true;
 
   return valid;
 }
-
 
 #endif
 

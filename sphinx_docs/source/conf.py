@@ -62,6 +62,9 @@ breathe_projects = {
 
 breathe_default_project = "microphysics"
 
+# bibtex
+bibtex_bibfiles = ["refs.bib"]
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -74,8 +77,8 @@ source_suffix = '.rst'
 # see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
 numpydoc_show_class_members = False
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = 'StarKiller Microphysics'
@@ -192,7 +195,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'StarKillerMicrophysics.tex', 'StarKiller Microphysics Documentation',
+    (main_doc, 'StarKillerMicrophysics.tex', 'StarKiller Microphysics Documentation',
      'StarKiller Development Team', 'manual'),
 ]
 
@@ -202,7 +205,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'starkillermicrophysics', 'StarKiller Microphysics Documentation',
+    (main_doc, 'starkillermicrophysics', 'StarKiller Microphysics Documentation',
      [author], 1)
 ]
 
@@ -213,7 +216,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'StarKillerMicrophysics', 'StarKiller Microphysics Documentation',
+    (main_doc, 'StarKillerMicrophysics', 'StarKiller Microphysics Documentation',
      author, 'StarKillerMicrophysics', 'One line description of project.',
      'Miscellaneous'),
 ]

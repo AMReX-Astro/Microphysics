@@ -6,6 +6,9 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
 include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
+include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NAUX_NETWORK
+
+DEFINES += -DNAUX_NET=$(NAUX)
 
 ifeq ($(USE_REACT), TRUE)
 
@@ -77,6 +80,12 @@ ifeq ($(USE_SCREENING), TRUE)
 
 endif
 
+ifeq ($(USE_NSE), TRUE)
+
+  DEFINES += -DNSE_THERMO -DNSE_TABLE -DNSE
+
+endif
+
 ifeq ($(USE_NEUTRINOS), TRUE)
 
   NEUTRINO_PATH := $(MICROPHYSICS_HOME)/neutrinos
@@ -100,6 +109,10 @@ $(NETWORK_OUTPUT_PATH)/network_properties.F90:
 	$(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net $(NETWORK_DIR) \
-           --odir $(NETWORK_OUTPUT_PATH)
+           --odir $(NETWORK_OUTPUT_PATH) \
+           --defines "$(DEFINES)"
 
 endif
+
+test_network_header: $(NETWORK_OUTPUT_PATH)/network_properties.H
+

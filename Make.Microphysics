@@ -31,10 +31,8 @@ ifeq ($(USE_SYSTEM_BLAS), TRUE)
   LIBRARIES += $(BLAS_LIBRARY)
 endif
 
-MANAGED_PROBIN_FLAG :=
 ifdef USE_CUDA
   ifeq ($(USE_CUDA),TRUE)
-    MANAGED_PROBIN_FLAG := --managed
     USE_GPU_PRAGMA = TRUE
     DEFINES += -DCUDA
   endif
@@ -49,8 +47,8 @@ all: build_status $(executable) starkiller_library
 
 build_status:
 	$(AMREX_HOME)/Tools/C_scripts/describe_sources.py \
-          --git_names "Castro AMReX Microphysics" \
-          --git_dirs "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+          --git_names "Microphysics AMReX" \
+          --git_dirs "$(TOP) $(AMREX_HOME)"
 
 starkiller_library: $(executable)
 ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
@@ -170,16 +168,19 @@ ifdef MICROPHYSICS_HOME
    EXTERN_SEARCH += $(MICROPHYSICS_HOME)/networks/
 endif
 
-EXTERN_PARAMETERS := $(shell $(AMREX_HOME)/Tools/F_scripts/findparams.py $(EXTERN_SEARCH))
+EXTERN_PARAMETERS := $(shell $(MICROPHYSICS_HOME)/util/build_scripts/findparams.py $(EXTERN_SEARCH))
 
 $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
 
 $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
 	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
-	$(AMREX_HOME)/Tools/F_scripts/write_probin.py \
+	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py \
            -t $(EXTERN_TEMPLATE) -o $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90 -n extern \
            --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
-           --pa "$(EXTERN_PARAMETERS)" $(MANAGED_PROBIN_FLAG)
+           --pa "$(EXTERN_PARAMETERS)"
+
+# for debugging
+test_extern_params: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
 
 #------------------------------------------------------------------------------
 # build info
@@ -244,6 +245,7 @@ clean::
 	$(RM) network.f90
 	$(RM) extern.f90
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+	@if [ -L nse19.tbl ]; then rm -f nse19.tbl; fi
 
 
 # for debugging.  To see the value of a Makefile variable,

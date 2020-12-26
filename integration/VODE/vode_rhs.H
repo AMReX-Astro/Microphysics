@@ -2,8 +2,12 @@
 #define _vode_rhs_H_
 
 #include <network.H>
+#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
 #include <actual_rhs.H>
+#else
+#include <fortran_to_cxx_actual_rhs.H>
+#endif
 #include <burn_type.H>
 #include <extern_parameters.H>
 #include <vode_type.H>
@@ -13,7 +17,7 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 {
 
     // We are integrating a system of
@@ -22,7 +26,20 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
     // y(net_itemp) = dT/dt
     // y(net_ienuc) = denuc/dt
 
-    // Fix the state as necessary.
+    // Only do the burn if the incoming temperature is within the temperature
+    // bounds. Otherwise set the RHS to zero and return.
+
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+
+        for (int n = 1; n <= VODE_NEQS; ++n) {
+            ydot(n) = 0.0_rt;
+        }
+
+        return;
+
+    }
+
+    // Fix the state as necessary.    
 
     clean_state(vode_state);
 
@@ -72,6 +89,21 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // explicitly passed. VODE always evaluates the analytic
     // Jacobian at vode_state.tn, and we pass vode_state.
 
+    // Only do the burn if the incoming temperature is within the temperature
+    // bounds. Otherwise set the Jacobian to zero and return.
+
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+
+        for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                pd(i,j) = 0.0_rt;
+            }
+        }
+
+        return;
+
+    }
+
     // Call the specific network routine to get the Jacobian.
 
     vode_to_burn(vode_state, state);
@@ -107,8 +139,6 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
             pd(net_ienuc,j) = 0.0_rt;
         }
     }
-
-    burn_to_vode(state, vode_state);
 
 }
 
