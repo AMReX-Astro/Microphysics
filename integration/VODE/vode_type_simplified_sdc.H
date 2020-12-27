@@ -53,9 +53,10 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
 }
 
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void sdc_burn_to_eos(const burn_t& state, eos_t& eos_state) {
-
+void sdc_burn_to_eos (const burn_t& state, T& eos_state)
+{
 #if defined(SDC_EVOLVE_ENERGY)
     eos_state.rho = state.y[SRHO];
 
@@ -84,7 +85,6 @@ void sdc_burn_to_eos(const burn_t& state, eos_t& eos_state) {
 
     // we don't bother filling the other fields, since the EOS call
     // will do that for us
-
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

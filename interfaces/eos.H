@@ -14,9 +14,9 @@ using namespace amrex;
 // EOS initialization routine: read in general EOS parameters, then
 // call any specific initialization used by the EOS.
 
-inline
-void eos_init(Real& small_temp, Real& small_dens) {
-
+AMREX_INLINE
+void eos_init (Real& small_temp, Real& small_dens)
+{
   // Allocate and set default values
 
   EOSData::mintemp = 1.e-200;
@@ -47,30 +47,30 @@ void eos_init(Real& small_temp, Real& small_dens) {
   small_dens = amrex::max(small_dens, EOSData::mindens);
 
   EOSData::initialized = true;
-
 }
 
 // Overload of the above for cases where we didn't pass in small_temp and small_dens
 
-inline
-void eos_init() {
+AMREX_INLINE
+void eos_init ()
+{
     Real small_temp = -1.e200;
     Real small_dens = -1.e200;
     eos_init(small_temp, small_dens);
 }
 
-inline
-void eos_finalize() {
-
+AMREX_INLINE
+void eos_finalize ()
+{
   actual_eos_finalize();
-
 }
 
 // Given an EOS state, ensure that rho and T are
 // valid, then call with eos_input_rt.
-AMREX_GPU_HOST_DEVICE inline
-void eos_reset(eos_t& state, bool& has_been_reset) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void eos_reset (T& state, bool& has_been_reset)
+{
   state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
   state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
 
@@ -80,55 +80,61 @@ void eos_reset(eos_t& state, bool& has_been_reset) {
 }
 
 // For density, just ensure that it is within mindens and maxdens.
-AMREX_GPU_HOST_DEVICE inline
-void reset_rho(eos_t& state) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void reset_rho (T& state)
+{
   state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
 }
 
 // For temperature, just ensure that it is within mintemp and maxtemp.
-AMREX_GPU_HOST_DEVICE inline
-void reset_T(eos_t& state) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void reset_T (T& state)
+{
   state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
 }
 
-
-AMREX_GPU_HOST_DEVICE inline
-void reset_e(eos_t& state, bool& has_been_reset) {
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void reset_e (T& state, bool& has_been_reset) {
 
   if (state.e < EOSData::mine || state.e > EOSData::maxe) {
     eos_reset(state, has_been_reset);
   }
 }
 
-AMREX_GPU_HOST_DEVICE inline
-void reset_h(eos_t& state, bool& has_been_reset) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void reset_h (T& state, bool& has_been_reset)
+{
   if (state.h < EOSData::minh || state.h > EOSData::maxh) {
     eos_reset(state, has_been_reset);
   }
 }
 
-AMREX_GPU_HOST_DEVICE inline
-void reset_s(eos_t& state, bool& has_been_reset) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void reset_s (T& state, bool& has_been_reset)
+{
   if (state.s < EOSData::mins || state.s > EOSData::maxs) {
     eos_reset(state, has_been_reset);
   }
 }
 
-AMREX_GPU_HOST_DEVICE inline
-void reset_p(eos_t& state, bool& has_been_reset) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void reset_p (T& state, bool& has_been_reset)
+{
   if (state.p < EOSData::minp || state.p > EOSData::maxp) {
     eos_reset(state, has_been_reset);
   }
 }
 
-AMREX_GPU_HOST_DEVICE inline
-void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
-
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void reset_inputs(const I input, T& state, bool& has_been_reset)
+{
   // Reset the input quantities to valid values. For inputs other than rho and T,
   // this will evolve an EOS call, which will negate the need to do the main EOS call.
 
@@ -190,12 +196,12 @@ void reset_inputs(const eos_input_t input, eos_t& state, bool& has_been_reset) {
 
     break;
   }
-
 }
 
 #ifndef AMREX_USE_GPU
-inline
-void print_state(eos_t& state) {
+template <typename T>
+AMREX_INLINE
+void print_state (T& state) {
   std::cout << "DENS = " << state.rho << std::endl;
   std::cout << "TEMP = " << state.T << std::endl;
   std::cout << "X = ";
@@ -207,9 +213,10 @@ void print_state(eos_t& state) {
   std::cout << "Y_E = " << state.y_e;
 }
 
-inline
-void check_rho(eos_t& state) {
-
+template <typename T>
+AMREX_INLINE
+void check_rho (T& state)
+{
   if (state.rho < EOSData::mindens) {
     print_state(state);
     amrex::Error("EOS: rho smaller than mindens.");
@@ -220,9 +227,10 @@ void check_rho(eos_t& state) {
   }
 }
 
-inline
-void check_T(eos_t& state) {
-
+template <typename T>
+AMREX_INLINE
+void check_T (T& state)
+{
   if (state.T < EOSData::mintemp) {
     print_state(state);
     amrex::Error("EOS: T smaller than mintemp.");
@@ -233,9 +241,10 @@ void check_T(eos_t& state) {
   }
 }
 
-inline
-void check_e(eos_t& state) {
-
+template <typename T>
+AMREX_INLINE
+void check_e (T& state)
+{
   if (state.e < EOSData::mine) {
     print_state(state);
     amrex::Error("EOS: e smaller than mine.");
@@ -246,9 +255,10 @@ void check_e(eos_t& state) {
   }
 }
 
-inline
-void check_h(eos_t& state) {
-
+template <typename T>
+AMREX_INLINE
+void check_h (T& state)
+{
   if (state.h < EOSData::minh) {
     print_state(state);
     amrex::Error("EOS: h smaller than minh.");
@@ -260,9 +270,10 @@ void check_h(eos_t& state) {
   }
 }
 
-inline
-void check_s(eos_t& state) {
-
+template <typename T>
+AMREX_INLINE
+void check_s (T& state)
+{
   if (state.s < EOSData::mins) {
     print_state(state);
     amrex::Error("EOS: s smaller than mins.");
@@ -273,9 +284,10 @@ void check_s(eos_t& state) {
   }
 }
 
-inline
-void check_p(eos_t& state) {
-
+template <typename T>
+AMREX_INLINE
+void check_p (T& state)
+{
   if (state.p < EOSData::minp) {
     print_state(state);
     amrex::Error("EOS: p smaller than minp.");
@@ -286,9 +298,10 @@ void check_p(eos_t& state) {
   }
 }
 
-inline
-void check_inputs(const eos_input_t input, eos_t& state) {
-
+template <typename I, typename T>
+AMREX_INLINE
+void check_inputs (const I input, T& state)
+{
   // Check the inputs for validity.
 
   for (int n = 0; n < NumSpec; n++) {
@@ -364,8 +377,11 @@ void check_inputs(const eos_input_t input, eos_t& state) {
 }
 #endif
 
-AMREX_GPU_HOST_DEVICE inline
-void eos(const eos_input_t input, eos_t& state, bool use_raw_inputs = false) {
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void eos (const I input, T& state, bool use_raw_inputs = false)
+{
+  static_assert(std::is_same<I, eos_input_t>::value);
 
   // Input arguments
 

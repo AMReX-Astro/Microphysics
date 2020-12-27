@@ -195,10 +195,10 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 
 // Given an eos type, copy the data relevant to the burn type.
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
+void eos_to_burn (const T& eos_state, burn_t& burn_state)
 {
-
     burn_state.rho  = eos_state.rho;
     burn_state.T    = eos_state.T;
     burn_state.e    = eos_state.e;
@@ -220,7 +220,6 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
     burn_state.eta  = eos_state.eta;
     burn_state.abar = eos_state.abar;
     burn_state.zbar = eos_state.zbar;
-
 }
 
 
@@ -231,10 +230,10 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
 // contribution from the advection term. However this is useful
 // for instantaneous RHS evaluations.
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
+void burn_to_eos (const burn_t& burn_state, T& eos_state)
 {
-
     eos_state.rho  = burn_state.rho;
     eos_state.T    = burn_state.T;
     eos_state.e    = burn_state.e;
@@ -256,7 +255,6 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
     eos_state.eta  = burn_state.eta;
     eos_state.abar = burn_state.abar;
     eos_state.zbar = burn_state.zbar;
-
 }
 
 

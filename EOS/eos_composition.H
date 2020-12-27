@@ -18,9 +18,10 @@ struct eos_xderivs_t {
   Real dhdX[NumSpec];
 };
 
-AMREX_GPU_HOST_DEVICE inline
-void composition(eos_t& state) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void composition (T& state)
+{
   // Calculate abar, the mean nucleon number,
   // zbar, the mean proton number,
   // mu, the mean molecular weight,
@@ -53,13 +54,13 @@ void composition(eos_t& state) {
   state.abar = 1.0 / sum;
   state.zbar = state.abar / state.mu_e;
 #endif
-
 }
 
 #ifdef EXTRA_THERMO
-AMREX_GPU_HOST_DEVICE inline
-eos_xderivs_t composition_derivatives(const eos_t& state) {
-
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+eos_xderivs_t composition_derivatives (const T& state)
+{
   eos_xderivs_t state_xderivs;
 
   for (int n = 0; n < NumSpec; n++) {
