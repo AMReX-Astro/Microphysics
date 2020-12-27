@@ -226,5 +226,7 @@ void do_vode_rhs()
         std::cout << n << " " << burn_state.y[n] << std::endl;
     }
 
+    std::cout << "number of RHS calls = " << burn_state.n_rhs << std::endl;
+
 }
 #endif
