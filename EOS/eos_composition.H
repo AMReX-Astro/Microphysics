@@ -43,7 +43,7 @@ void composition (T& state)
   }
 
   state.mu_e = 1.0 / sum;
-  state.y_e = 1.0 / state.mu_e;
+  state.y_e = sum;
 
   sum = 0;
 
@@ -52,7 +52,7 @@ void composition (T& state)
   }
 
   state.abar = 1.0 / sum;
-  state.zbar = state.abar / state.mu_e;
+  state.zbar = state.abar * state.y_e;
 #endif
 }
 
