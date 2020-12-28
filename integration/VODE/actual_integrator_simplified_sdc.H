@@ -28,6 +28,10 @@ void actual_integrator (burn_t& state, Real dt)
     vode_state.t = 0.0_rt;
     vode_state.tout = dt;
 
+    // Set the (inverse of the) timestep limiter.
+
+    vode_state.HMXI = 1.0_rt / ode_max_dt;
+
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 

@@ -1,3 +1,8 @@
+# 21.01
+
+   * The BS integrator was removed.  This was Fortran only, doesn't support
+     SDC integration, and not well used. (#488)
+
 # 20.12
 
    * The default absolute tolerance for species (atol_spec) has been
