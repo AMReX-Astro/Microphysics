@@ -1,3 +1,8 @@
+# 21.01
+
+   * Fortran support for simplified-SDC in the VODE integrator has
+     been removed. (#492)
+
 # 20.12
 
    * The default absolute tolerance for species (atol_spec) has been
