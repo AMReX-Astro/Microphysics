@@ -223,6 +223,31 @@ void nse_interp(const Real T, const Real rho, const Real ye,
 }
 
 
+#ifdef SIMPLIFIED_SDC
+///
+/// update the state due to NSE changes for the simplified-SDC case
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void sdc_nse_burn(burn_t& state, const Real dt) {
+
+    // call the NSE table to get (dYe/dt)^n
+
+    // predict the U* state with advection and a lagged reactive term
+
+    // call the EOS to get the updated T*
+
+    // call the NSE table using the * state to get the t^{n+1} composition data
+
+    // compute the energy release
+
+    // construct the final U^{n+1}
+
+}
+
+#else
+///
+/// update the state due to NSE changes for the Strang-split case
+///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_burn(burn_t& state, const Real dt) {
 
@@ -274,6 +299,6 @@ void nse_burn(burn_t& state, const Real dt) {
   }
 
 }
-
+#endif
 
 #endif
