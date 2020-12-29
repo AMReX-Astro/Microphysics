@@ -167,10 +167,9 @@ void main_main ()
 
 #ifdef MICROPHYSICS_FORT_EOS
         } else {
-#pragma gpu
-        do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-               dlogrho, dlogT, dmetal,
-               BL_TO_FORTRAN_ANYD(state[mfi]));
+            do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
+                   dlogrho, dlogT, dmetal,
+                   BL_TO_FORTRAN_ANYD(state[mfi]));
 #endif
         }
 

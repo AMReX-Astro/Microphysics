@@ -881,11 +881,13 @@ void prepare_for_iterations (I input, T& state,
         dvar = idens;
 
     }
+#ifndef AMREX_USE_GPU
     else {
 
-        static_assert("Unknown EOS input");
+        amrex::Error("Unknown EOS input");
 
     }
+#endif
 }
 
 
@@ -1134,11 +1136,13 @@ void finalize_state (I input, T& state,
            state.h = v_want;
 
        }
+#ifndef AMREX_USE_GPU
        else {
 
-           static_assert("Unknown EOS input");
+           amrex::Error("Unknown EOS input");
 
        }
+#endif
 
     }
 }
@@ -1149,7 +1153,7 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value);
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
     using namespace helmholtz;
 
@@ -1345,7 +1349,7 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value);
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
 

@@ -168,7 +168,6 @@ void main_main ()
         screen_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
       } else {
-#pragma gpu
         do_screening(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                      dlogrho, dlogT, dmetal,
                      BL_TO_FORTRAN_ANYD(state[mfi]));

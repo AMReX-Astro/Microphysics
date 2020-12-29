@@ -170,7 +170,6 @@ void main_main ()
           aprox_rates_test_C(bx, dlogrho, dlogT, dNi, vars, sp);
 
         } else {
-#pragma gpu
           do_rates(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                    dlogrho, dlogT, dNi,
                    BL_TO_FORTRAN_ANYD(state[mfi]));
