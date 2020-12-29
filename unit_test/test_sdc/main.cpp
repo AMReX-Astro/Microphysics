@@ -39,7 +39,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size, do_cxx;
+    int n_cell, max_grid_size;
     Vector<int> bc_lo(AMREX_SPACEDIM,0);
     Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
@@ -62,13 +62,7 @@ void main_main ()
 
         pp.query("prefix", prefix);
 
-        // do_cxx = 1 for C++, 0 for Fortran
-        do_cxx = 0;
-        pp.query("do_cxx", do_cxx);
-
     }
-
-    std::cout << "do_cxx = " << do_cxx << std::endl;
 
     Vector<int> is_periodic(AMREX_SPACEDIM,0);
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
@@ -127,13 +121,8 @@ void main_main ()
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
 
-#ifdef CXX_REACTIONS
     // C++ Network, RHS, screening, rates initialization
     network_init();
-#endif
-
-    // Ncomp = number of components for each array
-    init_variables_F();
 
     plot_t vars;
     vars = init_variables();
@@ -221,33 +210,17 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
-#ifdef CXX_REACTIONS
-        if (do_cxx) {
+        auto s = state.array(mfi);
+        auto n_rhs = integrator_n_rhs.array(mfi);
 
-            auto s = state.array(mfi);
-            auto n_rhs = integrator_n_rhs.array(mfi);
+        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        {
+            bool success = do_react(vars, i, j, k, s, n_rhs);
 
-            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-            {
-                bool success = do_react(vars, i, j, k, s, n_rhs);
-
-                if (!success) {
-                    Gpu::Atomic::Add(num_failed_d, 1);
-                }
-            });
-
-        }
-        else {
-#endif
-
-#pragma gpu
-          do_react_F(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                     BL_TO_FORTRAN_ANYD(state[mfi]),
-                     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
-
-#ifdef CXX_REACTIONS
-        }
-#endif
+            if (!success) {
+                Gpu::Atomic::Add(num_failed_d, 1);
+            }
+        });
 
     }
 
@@ -280,11 +253,7 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-#ifdef CXX_REACTIONS
-    std::string language = do_cxx == 1 ? ".cxx" : "";
-#else
-    std::string language = "";
-#endif
+    std::string language = ".cxx";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
