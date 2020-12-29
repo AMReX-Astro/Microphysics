@@ -46,14 +46,15 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 const int SEDEN = 0;
 const int SEINT = 1;
 const int SFS   = 2;
+// the following are not evolved
 const int SFX   = SFS + NumSpec;
-const int SRHO  = SFS + NumSpec + NumAux; // this will be = SFX for NumAux = 0
+const int SRHO  = SFX + NumAux; // this is SFS + NumSpec if NumAux = 0;
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
 const int SMZ   = SRHO + 3;
 
 const int SVAR  = SMZ+1;
-const int SVAR_EVOLVE = SRHO;
+const int SVAR_EVOLVE = SFX;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 

@@ -15,6 +15,10 @@ public:
   int itemp = -1;
   int ispec = -1;
   int ispec_old = -1;
+#if NAUX_NET > 0
+  int iaux = -1;
+  int iaux_old = -1;
+#endif
   int irodot = -1;
   int irho_Hnuc = -1;
 
