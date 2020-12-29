@@ -31,8 +31,6 @@ void main_main ()
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size;
     amrex::Real tmax;
-    Vector<int> bc_lo(AMREX_SPACEDIM,0);
-    Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
     std::string prefix = "plt";
 
