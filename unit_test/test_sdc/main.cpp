@@ -40,8 +40,6 @@ void main_main ()
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size, do_cxx;
-    Vector<int> bc_lo(AMREX_SPACEDIM,0);
-    Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
     std::string prefix = "plt";
 
@@ -240,7 +238,6 @@ void main_main ()
         else {
 #endif
 
-#pragma gpu
           do_react_F(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                      BL_TO_FORTRAN_ANYD(state[mfi]),
                      BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));

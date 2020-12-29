@@ -1,7 +1,7 @@
 module cuvode_dvstep_module
 
   use cuvode_parameters_module, only: VODE_NEQS
-  use cuvode_types_module, only: dvode_t, VODE_LMAX, HMIN, HMXI
+  use cuvode_types_module, only: dvode_t, VODE_LMAX, HMIN
   use amrex_fort_module, only: rt => amrex_real
   use cuvode_dvset_module
   use cuvode_dvjust_module
@@ -494,7 +494,7 @@ contains
     ! Test tentative new H against THRESH and ETAMAX, and HMXI, then exit. ----
     if (vstate % ETA >= THRESH .and. vstate % ETAMAX /= 1.0_rt) then
        vstate % ETA = min(vstate % ETA,vstate % ETAMAX)
-       vstate % ETA = vstate % ETA / max(1.0_rt, abs(vstate % H) * HMXI * vstate % ETA)
+       vstate % ETA = vstate % ETA / max(1.0_rt, abs(vstate % H) * vstate % HMXI * vstate % ETA)
        vstate % NEWH = 1
        vstate % HNEW = vstate % H * vstate % ETA
        vstate % ETAMAX = ETAMX3

@@ -131,10 +131,10 @@ This test calls the network on each zone, running for a time
 ``tmax``. The full state, including new mass fractions and energy
 release is output to a AMReX plotfile.
 
-You can compile for a specific integrator (e.g., ``BS``) or
+You can compile for a specific integrator (e.g., ``VODE``) or
 network (e.g., ``aprox13``) as::
 
-    make NETWORK_DIR=aprox13 INTEGRATOR_DIR=BS -j 4
+    make NETWORK_DIR=aprox13 INTEGRATOR_DIR=VODE -j 4
 
 The loop over the burner is marked up for OpenMP and CUDA and
 therefore this test can be used to assess threadsafety of the burners

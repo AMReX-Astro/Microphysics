@@ -38,8 +38,11 @@ void actual_eos_init ()
 }
 
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -48,7 +51,7 @@ bool is_input_valid(eos_input_t input) {
 
 
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real pressure (Real x)
 {
     return A * (x * (2.0_rt * x * x - 3.0_rt) * std::sqrt(x * x + 1.0_rt) + 3.0_rt * std::asinh(x));
@@ -56,7 +59,7 @@ Real pressure (Real x)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real enthalpy (Real x, Real B)
 {
     return (8.0_rt * A / B) * std::sqrt(1.0_rt + x * x);
@@ -64,7 +67,7 @@ Real enthalpy (Real x, Real B)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dpdx (Real x)
 {
     return A * ((2.0_rt * x * x - 3.0_rt) * std::sqrt(x * x + 1.0_rt) +
@@ -75,7 +78,7 @@ Real dpdx (Real x)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dhdx (Real x, Real B)
 {
     return enthalpy(x, B) * (x / (x * x + 1.0_rt));
@@ -84,7 +87,7 @@ Real dhdx (Real x, Real B)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void pres_iter (Real pres, Real& dens, Real B)
 {
 
@@ -122,9 +125,11 @@ void pres_iter (Real pres, Real& dens, Real B)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
     Real dens = state.rho;
     Real temp = state.T;
@@ -311,7 +316,6 @@ void actual_eos (eos_input_t input, eos_t& state)
     // Sound speed.
 
     state.cs = std::sqrt(state.dpdr);
-
 }
 
 

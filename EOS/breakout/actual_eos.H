@@ -21,8 +21,11 @@ void actual_eos_init ()
 
 }
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -37,9 +40,11 @@ bool is_input_valid(eos_input_t input) {
   return valid;
 }
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
     const Real R = C::k_B * C::n_A;
 

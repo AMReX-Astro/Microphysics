@@ -69,6 +69,8 @@ Real calculate_dt (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     }
 
+    dt = amrex::min(dt, ode_max_dt);
+
     return dt;
 }
 
@@ -105,6 +107,8 @@ void actual_integrator (burn_t& state, Real dt)
 
     state.success = true;
 
+    state.n_rhs = 0;
+
     Real t = 0.0;
 
     // When checking the integration time to see if we're done,
@@ -112,7 +116,9 @@ void actual_integrator (burn_t& state, Real dt)
 
     const Real timestep_safety_factor = 1.0e-12_rt;
 
-    while (t < (1.0_rt - timestep_safety_factor) * dt) {
+    int num_timesteps = 0;
+
+    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps) {
 
         // Evaluate the RHS.
 
@@ -152,8 +158,48 @@ void actual_integrator (burn_t& state, Real dt)
         clean_state(state);
 
         t += dt_sub;
+        ++num_timesteps;
 
     }
+
+    if (num_timesteps >= ode_max_steps) {
+        state.success = false;
+    }
+
+#ifndef AMREX_USE_CUDA
+    if (burner_verbose) {
+        // Print out some integration statistics, if desired.
+        std::cout <<  "integration summary: " << std::endl;
+        std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
+        std::cout <<  "energy released: " << state.e - eos_state.e << std::endl;
+        std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
+        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
+    }
+#endif
+
+    // If we failed, print out the current state of the integration.
+
+    if (!state.success) {
+#ifndef AMREX_USE_CUDA
+        std::cout << "ERROR: integration failed in net" << std::endl;
+        std::cout << "time = " << t << std::endl;
+        std::cout << "dens = " << state.rho << std::endl;
+        std::cout << "temp start = " << eos_state.T << std::endl;
+        std::cout << "xn start = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << eos_state.xn[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "temp current = " << state.T << std::endl;
+        std::cout << "xn current = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            std::cout << state.xn[n] << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "energy generated = " << state.e - eos_state.e << std::endl;
+#endif
+    }
+
 }
 
 #endif
