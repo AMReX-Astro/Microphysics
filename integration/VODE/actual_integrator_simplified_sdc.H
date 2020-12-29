@@ -102,7 +102,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Copy the integration data back to the burn state.
 
-    vode_to_burn(0.0_rt, vode_state, state);
+    vode_to_burn(vode_state.t, vode_state, state);
 
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the

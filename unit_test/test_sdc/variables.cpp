@@ -7,8 +7,15 @@ plot_t init_variables() {
 
   p.irho = p.next_index(1);
   p.itemp = p.next_index(1);
+
   p.ispec = p.next_index(NumSpec);
   p.ispec_old = p.next_index(NumSpec);
+
+#if NAUX_NET > 0
+  p.iaux = p.next_index(NumAux);
+  p.iaux_old = p.next_index(NumAux);
+#endif
+
   p.irodot = p.next_index(NumSpec);
   p.irho_Hnuc = p.next_index(1);
 
@@ -28,4 +35,10 @@ void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
   }
   names[p.irho_Hnuc] = "rho_Hnuc";
 
+#if NAUX_NET > 0  
+  for (int n = 0; n < NumAux; n++) {
+      names[p.iaux + n] = aux_names_cxx[n];
+      names[p.iaux_old + n] = "old_" + aux_names_cxx[n];
+  }
+#endif
 }
