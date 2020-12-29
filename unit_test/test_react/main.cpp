@@ -238,7 +238,6 @@ void main_main ()
         else {
 #endif
 
-#pragma gpu
             do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                      BL_TO_FORTRAN_ANYD(state[mfi]),
                      BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));

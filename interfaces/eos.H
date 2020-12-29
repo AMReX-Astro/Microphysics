@@ -15,7 +15,7 @@ using namespace amrex;
 // call any specific initialization used by the EOS.
 
 AMREX_INLINE
-void eos_init (Real& small_temp, Real& small_dens)
+void eos_init (Real& small_temp_in, Real& small_dens_in)
 {
   // Allocate and set default values
 
@@ -40,11 +40,11 @@ void eos_init (Real& small_temp, Real& small_dens)
   actual_eos_init();
 
   // Set EOSData::min{temp,dens} and small_{temp,dens} to the maximum of the two
-  EOSData::mintemp = amrex::max(EOSData::mintemp, small_temp);
-  small_temp = amrex::max(small_temp, EOSData::mintemp);
+  EOSData::mintemp = amrex::max(EOSData::mintemp, small_temp_in);
+  small_temp = amrex::max(small_temp_in, EOSData::mintemp);
 
-  EOSData::mindens = amrex::max(EOSData::mindens, small_dens);
-  small_dens = amrex::max(small_dens, EOSData::mindens);
+  EOSData::mindens = amrex::max(EOSData::mindens, small_dens_in);
+  small_dens = amrex::max(small_dens_in, EOSData::mindens);
 
   EOSData::initialized = true;
 }
@@ -54,9 +54,9 @@ void eos_init (Real& small_temp, Real& small_dens)
 AMREX_INLINE
 void eos_init ()
 {
-    Real small_temp = -1.e200;
-    Real small_dens = -1.e200;
-    eos_init(small_temp, small_dens);
+    Real small_temp_tmp = -1.e200;
+    Real small_dens_tmp = -1.e200;
+    eos_init(small_temp_tmp, small_dens_tmp);
 }
 
 AMREX_INLINE
@@ -381,7 +381,7 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void eos (const I input, T& state, bool use_raw_inputs = false)
 {
-  static_assert(std::is_same<I, eos_input_t>::value);
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   // Input arguments
 
