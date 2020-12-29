@@ -1136,13 +1136,6 @@ void finalize_state (I input, T& state,
            state.h = v_want;
 
        }
-#ifndef AMREX_USE_GPU
-       else {
-
-           amrex::Error("Unknown EOS input");
-
-       }
-#endif
 
     }
 }
