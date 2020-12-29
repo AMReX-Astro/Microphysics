@@ -321,9 +321,9 @@ for by the primary species mass fractions.</p>
 <p>This test calls the network on each zone, running for a time
 <code class="docutils literal notranslate"><span class="pre">tmax</span></code>. The full state, including new mass fractions and energy
 release is output to a AMReX plotfile.</p>
-<p>You can compile for a specific integrator (e.g., <code class="docutils literal notranslate"><span class="pre">BS</span></code>) or
+<p>You can compile for a specific integrator (e.g., <code class="docutils literal notranslate"><span class="pre">VODE</span></code>) or
 network (e.g., <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>) as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">NETWORK_DIR</span><span class="o">=</span><span class="n">aprox13</span> <span class="n">INTEGRATOR_DIR</span><span class="o">=</span><span class="n">BS</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">NETWORK_DIR</span><span class="o">=</span><span class="n">aprox13</span> <span class="n">INTEGRATOR_DIR</span><span class="o">=</span><span class="n">VODE</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
 </pre></div>
 </div>
 <p>The loop over the burner is marked up for OpenMP and CUDA and

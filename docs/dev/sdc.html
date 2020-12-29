@@ -289,8 +289,8 @@ interface is no longer a <code class="docutils literal notranslate"><span class=
 <p>The flow of this main routine is simpler than the non-SDC version:</p>
 <ol class="arabic">
 <li><p>Convert from the <code class="docutils literal notranslate"><span class="pre">sdc_t</span></code> type to the integrator’s internal
-representation (e.g., <code class="docutils literal notranslate"><span class="pre">sdc_to_bs</span></code> converts from a <code class="docutils literal notranslate"><span class="pre">bs_t</span></code>
-for the BS integrator).</p>
+representation (e.g., <code class="docutils literal notranslate"><span class="pre">sdc_to_vode</span></code> converts from a <code class="docutils literal notranslate"><span class="pre">vode_t</span></code>
+for the VODE integrator).</p>
 <p>This copies the state variables and advective sources into the
 integration type. Since we only actually integrate <span class="math notranslate nohighlight">\((\rho X_k),
 (\rho e), (\rho E)\)</span>, the terms corresponding to density and momentum
@@ -311,9 +311,7 @@ internal energy, but we need to convert these to the conservative
 system we are integrating, including the advective terms.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In the example here, we’ll assume we are using the VODE
-integrator, but the BS integrator also supports
-simplified-SDC integration.</p>
+<p>Presently only the VODE integrator supports SDC evolution.</p>
 </div>
 <ol class="arabic">
 <li><p>Call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code></p></li>

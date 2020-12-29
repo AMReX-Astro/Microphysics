@@ -123,13 +123,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#c-interfaces">C++ interfaces</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#burner"><code class="docutils literal notranslate"><span class="pre">burner</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#sec-bs">Righthand side wrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">Righthand side wrapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id6">Jacobian wrapper</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#bs">BS</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#bs-t-data-structure">bs_t data structure.</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#error-criteria">Error criteria.</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#retries">Retries</a></li>
@@ -247,7 +242,7 @@
 <span class="eqno">(3)<a class="headerlink" href="#equation-eq-temp-integrate" title="Permalink to this equation">¶</a></span>\[\frac{dT}{dt} =\frac{\edot}{c_x} .\]</div>
 <p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(\enuc\)</span> is the specifc
 nuclear energy created through reactions, <span class="math notranslate nohighlight">\(T\)</span> is the
-temperature <a class="footnote-reference brackets" href="#id9" id="id1">1</a> , and <span class="math notranslate nohighlight">\(c_x\)</span> is the specific heat for the
+temperature <a class="footnote-reference brackets" href="#id7" id="id1">1</a> , and <span class="math notranslate nohighlight">\(c_x\)</span> is the specific heat for the
 fluid. The function <span class="math notranslate nohighlight">\(f\)</span> provides the energy release based on the
 instantaneous reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous
 section, this is implemented in a network-specific manner.</p>
@@ -419,7 +414,7 @@ other partial derivatives) can be frozen during the integration to
 their initial values, updated for every RHS call, or something
 in-between. Just before we call the network-specific RHS routine, we
 update the thermodynamics of our state (by calling
-<code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>) <a class="footnote-reference brackets" href="#id10" id="id2">2</a> The thermodynamic quantity update depends on two runtime
+<code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>) <a class="footnote-reference brackets" href="#id8" id="id2">2</a> The thermodynamic quantity update depends on two runtime
 parameters, call_eos_in_rhs and dT_crit:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">T</span></code>:</p>
@@ -547,8 +542,14 @@ from the integrator’s internal representation to the <code class="docutils lit
 type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> routine.</p>
 <p>The name of the integrator can be selected at compile time using
 the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
-the allowed options are BS and VODE.</p>
-<p>We recommend that you use the VODE solver (<span id="id4">[<a class="reference internal" href="zreferences.html#id26"><span>BBH89</span></a>]</span>), as it is the most
+the allowed options are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
+meant for testing purposes only.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE (<span id="id4">[<a class="reference internal" href="zreferences.html#id26"><span>BBH89</span></a>]</span>) integration package.  We ported this
+integrator to C++ and removed the non-stiff integration code paths.</p></li>
+</ul>
+<p>We recommend that you use the VODE solver, as it is the most
 robust and has both Fortran and C++ implementations.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -577,10 +578,10 @@ because their relative error values are fairly large.
 However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
 and not so low that it takes incredible amounts of computer time,
 so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
-<div class="figure align-default" id="id11">
+<div class="figure align-default" id="id9">
 <span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
 <p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
-to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
 </div>
 <p>The integration tolerances for the burn are controlled by
 <code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code>, <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>, and <code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code>,
@@ -746,8 +747,8 @@ in the <code class="docutils literal notranslate"><span class="pre">dvode_t</spa
 <li><p>normalize the abundances so they sum to 1.</p></li>
 </ol>
 </div>
-<div class="section" id="sec-bs">
-<span id="id5"></span><h4>Righthand side wrapper<a class="headerlink" href="#sec-bs" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="id5">
+<h4>Righthand side wrapper<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
 <ol class="arabic simple">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> on the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
 <li><p>update the thermodynamics by calling <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>.  This takes both
@@ -779,76 +780,8 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 </ol>
 </div>
 </div>
-<div class="section" id="bs">
-<h3>BS<a class="headerlink" href="#bs" title="Permalink to this headline">¶</a></h3>
-<p>This integrator is based on the stiff-ODE methods from <span id="id7">[<a class="reference internal" href="zreferences.html#id25"><span>PressTeukolskyVetterlingFlannery92</span></a>]</span>, but
-written with reaction network integration in mind (so it knows about
-species), and in a modular / threadsafe fashion to work with our data
-structures. This integrator appears quite robust.</p>
-<div class="section" id="bs-t-data-structure">
-<h4>bs_t data structure.<a class="headerlink" href="#bs-t-data-structure" title="Permalink to this headline">¶</a></h4>
-<p>The <code class="docutils literal notranslate"><span class="pre">bs_t</span></code> type is the main data structure for the BS integrator.
-This holds the integration variables (as <code class="docutils literal notranslate"><span class="pre">y(1:neqs)</span></code>) and data
-associated with the timestepping. It also holds a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type
-as <code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">burn_s</span></code>. This component is used to interface with
-the networks. The conversion routines <code class="docutils literal notranslate"><span class="pre">bs_to_burn</span></code> and
-<code class="docutils literal notranslate"><span class="pre">burn_to_bs</span></code> simply sync up <code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">y(:)</span></code> and <code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">burn_s</span></code>.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">upar(:)</span></code> component contains the meta-data that is not held in
-the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> but nevertheless is associate with the current
-state. This is an array that can be indexed via the integers define
-in the <code class="docutils literal notranslate"><span class="pre">rpar_indices</span></code> module. Note that because the <code class="docutils literal notranslate"><span class="pre">bs_t</span></code>
-contains its own <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type, the BS integrator does not need
-as much meta-data as some other integrators. The fields of upar
-are:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">upar(irp_t_sound)</span></code></p>
-<p>This is the sound-crossing time for a zone.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">bs_t</span> <span class="pre">%</span> <span class="pre">upar(irp_t0)</span></code></p>
-<p>This is the simulation time at the start of integration. This can be
-used as an offset to convert between simulation time and integration
-time (we always start the integration at <span class="math notranslate nohighlight">\(t = 0\)</span>).</p>
-</li>
-</ul>
-</div>
-<div class="section" id="error-criteria">
-<h4>Error criteria.<a class="headerlink" href="#error-criteria" title="Permalink to this headline">¶</a></h4>
-<p>There is a single relative tolerance used for all ODEs, instead of a
-separate one for species, temperature, and energy, it is simply the
-maximum of {<code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code>, <code class="docutils literal notranslate"><span class="pre">rtol_temp</span></code>, <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>}. The absolute
-tolerance parameters are ignored.</p>
-<p>A relative tolerance needs a metric against which to compare. BS
-has two options, chosen by the runtime parameter scaling_method.
-Considering a vector <span class="math notranslate nohighlight">\({\bf y} = (Y_k, e, T)^\intercal\)</span>, the scales
-to compare against, <span class="math notranslate nohighlight">\({\bf y}_\mathrm{scal}\)</span>, are:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">scaling_method</span></code> = 1 :</p>
-<div class="math notranslate nohighlight">
-\[{\bf y}_\mathrm{scal} = |{\bf y}| + \Delta t  |\dot{\bf y}| + \epsilon\]</div>
-<p>This is an extrapolation of <span class="math notranslate nohighlight">\({\bf y}\)</span> in time. The quantity
-<span class="math notranslate nohighlight">\(\epsilon\)</span> is a small number (hardcoded to <span class="math notranslate nohighlight">\(10^{-30}\)</span>)
-to prevent any scale from being zero.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">scaling_method</span></code> = 2 :</p>
-<div class="math notranslate nohighlight">
-\[({y}_\mathrm{scal})_j = \max \left (|y_j|, \mathtt{ode\_scale\_floor} \right )\]</div>
-<p>for <span class="math notranslate nohighlight">\(j = 1, \ldots, {\tt neq}\)</span>.  Here, <code class="docutils literal notranslate"><span class="pre">ode_scale_floor</span></code> is
-a runtime parameter that sets a lower-limit to the scaling for each
-variable in the vector <span class="math notranslate nohighlight">\({\bf y}_\mathrm{scal}\)</span>. The default
-value is currently <span class="math notranslate nohighlight">\(10^{-6}\)</span> (although any network can
-override this using priorities). The effect of this scaling is that
-species with an abundance <span class="math notranslate nohighlight">\(\ll\)</span> <code class="docutils literal notranslate"><span class="pre">ode_scal_floor</span></code> will not be
-used as strongly in assessing the accuracy of a step.</p>
-</li>
-</ul>
-<p>These correspond to the options presented in <span id="id8">[<a class="reference internal" href="zreferences.html#id25"><span>PressTeukolskyVetterlingFlannery92</span></a>]</span>.</p>
-<p>A final option, use_timestep_estimator enables the
-timestep estimator from VODE to determine a good starting
-timestep for integration.</p>
-</div>
-</div>
 <div class="section" id="retries">
-<span id="sec-vode"></span><h3>Retries<a class="headerlink" href="#retries" title="Permalink to this headline">¶</a></h3>
+<h3>Retries<a class="headerlink" href="#retries" title="Permalink to this headline">¶</a></h3>
 </div>
 </div>
 <div class="section" id="overriding-parameter-defaults-on-a-network-by-network-basis">
@@ -864,7 +797,7 @@ integer value for the priority in a network’s <code class="docutils literal no
 ensure that it takes precedence.</p>
 <p><img alt="image" src="_images/doxygen_network.png" /></p>
 <dl class="footnote brackets">
-<dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
 <dd><p>Note that in previous versions of our networks in
 CASTRO and MAESTRO, there was another term in the temperature
 equation relating to the chemical potential of the gas as it came
@@ -875,7 +808,7 @@ approximation of it in the integration scheme. So the current
 results given by our networks will in general be a little different
 than in the past.</p>
 </dd>
-<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
+<dt class="label" id="id8"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
 <dd><p>Note: each integrator provides its
 own implementation of this, since it operates on the internal
 data-structure of the integrator, but the basic procedure is the
