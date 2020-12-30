@@ -1,5 +1,7 @@
 # 21.01
 
+   * Microphysics now requires C++17 (gcc >= 7, CUDA >= 11). (#485)
+
    * The BS integrator was removed.  This was Fortran only, doesn't support
      SDC integration, and not well used. (#488)
 
