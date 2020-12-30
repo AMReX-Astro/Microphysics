@@ -1,0 +1,40 @@
+&extern
+
+  run_prefix = "react_aprox19_"
+
+  small_temp = 1d5
+  small_dens = 1d5
+
+  renormalize_abundances = F
+
+  rtol_spec = 1.0d-6
+  rtol_enuc = 1.0d-6
+  rtol_temp = 1.0d-6
+  atol_spec = 1.0d-6
+  atol_enuc = 1.0d-6
+  atol_temp = 1.0d-6
+
+  density      = 1.d6
+  temperature  = 3.d9
+
+  X1  = 0.7d0
+  X2  = 0.025d0
+  X3  = 0.2d0
+  X4  = 0.022d0
+  X5  = 0.02d0
+  X6  = 0.02d0
+  X7  = 0.001d0
+  X8  = 0.001d0
+  X9  = 0.001d0
+  X10 = 0.001d0
+  X11 = 0.001d0
+  X12 = 0.001d0
+  X13 = 0.001d0
+  X14 = 0.001d0
+  X15 = 0.001d0
+  X16 = 0.001d0
+  X17 = 0.001d0
+  X18 = 0.001d0
+  X19 = 0.001d0
+
+/

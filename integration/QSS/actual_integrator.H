@@ -49,6 +49,8 @@ void initialize_state (burn_t& state)
     state.self_heat = true;
 
     state.success = true;
+
+    state.n_rhs = 0;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -144,11 +146,11 @@ Real alpha (const Real& r)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
+bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
                 Array1D<Real, 1, NumSpec>& f_plus_0, Real& dedt_0,
-                const Real& dt, burn_t& state)
+                const Real& t, const Real& dt, burn_t& state)
 {
-    evaluate_rhs(state, f_minus_0, f_plus_0, dedt_0);
+    evaluate_rhs(state_0, f_minus_0, f_plus_0, dedt_0);
 
     // Compute the predictor state.
 
@@ -159,18 +161,25 @@ void predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
         Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
         Real alpha_0 = alpha(r_0);
 
-        state.xn[n-1] = X_0 + dt * (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
+        Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
+        state.xn[n-1] = X_0 + dt * dXdt;
+
+        if (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance) {
+            return false;
+        }
     }
 
-    state.e = state.e + dt * dedt_0;
+    state.e = state_0.e + dt * dedt_0;
 
     clean_state(state);
+
+    return true;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_0,
+bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_0,
                 const Array1D<Real, 1, NumSpec>& f_plus_0, const Real& dedt_0,
-                const Real& dt, burn_t& state)
+                const Real& t, const Real& dt, burn_t& state)
 {
     // Note that the corrector involves a re-evaluation of the rates. This seems
     // safe given how temperature sensitive our rates are. Mott et al. recommend
@@ -201,6 +210,10 @@ void corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
         Real X_c = X_0 + dt * dXdt;
 
         state.xn[n-1] = X_c;
+
+        if (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance) {
+            return false;
+        }
     }
 
     Real e_0 = state_0.e;
@@ -212,6 +225,8 @@ void corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
     state.e = e_c;
 
     clean_state(state);
+
+    return true;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -228,9 +243,27 @@ void actual_integrator (burn_t& state, Real dt)
 
     Real t = 0.0;
 
-    // Start the guess for the timestepping with a specified fraction of the full dt.
+    // Start the guess for the timestepping by evaluating the RHS and
+    // choose a dt that is some fraction of (X / dX/dt). The exception
+    // will be cases where F_plus >> F_minus (see Mott 1999, Equation 3.40).
 
-    Real dt_sub = dt * dt_init_fraction;
+    Array1D<Real, 1, NumSpec> f_minus_init, f_plus_init;
+    Real dedt_init;
+
+    evaluate_rhs(state, f_minus_init, f_plus_init, dedt_init);
+
+    Real dt_sub = dt;
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (f_plus_init(n) >= 1.e2 * f_minus_init(n)) {
+            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / f_minus_init(n));
+        }
+        else {
+            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / std::abs(f_plus_init(n) - f_minus_init(n)));
+        }
+    }
+
+    dt_sub *= dt_init_fraction;
 
     dt_sub = amrex::min(dt_sub, ode_max_dt);
 
@@ -302,21 +335,30 @@ void actual_integrator (burn_t& state, Real dt)
         //
         // We do not integrate temperature, and instead get it from the EOS.
 
-        // Evaluate the predictor.
-
-        Array1D<Real, 1, NumSpec> f_plus_0, f_minus_0;
-        Real dedt_0;
-
-        predictor(state_0, f_minus_0, f_plus_0, dedt_0, dt_sub, state);
-
-        // Save the initial predictor state.
-
-        burn_t predictor_state = state;
-
         // Iterate over dt.
 
-        for (int timestep_iter = 0; timestep_iter < num_timestep_iters; ++timestep_iter)
+        int timestep_iter = 0;
+
+        for (timestep_iter = 0; timestep_iter < num_timestep_iters; ++timestep_iter)
         {
+            // Evaluate the predictor. The return value indicates whether we consider it
+            // a successful prediction; if it was unsuccessful, we'll cut the timestep by
+            // an arbitrary factor and try again.
+
+            Array1D<Real, 1, NumSpec> f_plus_0, f_minus_0;
+            Real dedt_0;
+
+            bool success = predictor(state_0, f_minus_0, f_plus_0, dedt_0, t, dt_sub, state);
+
+            // Save the initial predictor state.
+
+            burn_t predictor_state = state;
+
+            if (!success) {
+                dt_sub *= dt_cut_factor;
+                continue;
+            }
+
             // Do a fixed number of iterations on the corrector state. In each iteration
             // after the first, we use the corrector from the previous iteration as the
             // predictor for the next. The return value is the maximum relative diff between
@@ -324,7 +366,16 @@ void actual_integrator (burn_t& state, Real dt)
 
             for (int corrector_iter = 0; corrector_iter < num_corrector_iters; ++corrector_iter)
             {
-                corrector(state_0, f_minus_0, f_plus_0, dedt_0, dt_sub, state);
+                success = corrector(state_0, f_minus_0, f_plus_0, dedt_0, t, dt_sub, state);
+
+                if (!success) {
+                    break;
+                }
+            }
+
+            if (!success) {
+                dt_sub *= dt_cut_factor;
+                continue;
             }
 
             // Compute the maximum diff between the initial predictor and the final corrector.
@@ -357,6 +408,13 @@ void actual_integrator (burn_t& state, Real dt)
                 Real sigma = max_diff / (dt_error_tolerance * (maximum_timestep_change_factor - 1.0_rt));
                 dt_sub *= (1.0_rt / std::sqrt(sigma) + 0.005);
             }
+        }
+
+        // If we didn't get a converged timestep in the fixed number of iterations, the integration failed.
+
+        if (timestep_iter >= num_timestep_iters) {
+            state.success = false;
+            break;
         }
 
         t += dt_sub;

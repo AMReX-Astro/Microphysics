@@ -429,12 +429,12 @@ def write_probin(probin_template, param_files,
 
         fout.write("\n")
         fout.write("  void init_{}_parameters() {{\n".format(os.path.basename(cxx_prefix)))
-        fout.write("    int slen = 0;\n\n")
 
         for p in params:
             if p.dtype == "character":
-                fout.write("    get_f90_{}_len(slen);\n".format(p.var))
-                fout.write("    char _{}[slen+1];\n".format(p.var))
+                fout.write("    int slen_{} = 0;\n".format(p.var))
+                fout.write("    get_f90_{}_len(slen_{});\n".format(p.var, p.var))
+                fout.write("    char _{}[slen_{}+1];\n".format(p.var, p.var))
                 fout.write("    get_f90_{}(_{});\n".format(p.var, p.var))
                 fout.write("    {} = std::string(_{});\n\n".format(p.var, p.var))
             else:
