@@ -231,16 +231,44 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sdc_nse_burn(burn_t& state, const Real dt) {
 
     // call the NSE table to get (dYe/dt)^n
+    Real abar_out;
+    Real dq_out;
+    Real dyedt;
+    Real X[NumSpec];
+
+    nse_interp(state.T, state.rho, state.aux[iye],
+               abar_out, dq_out, dyedt, X);
+
+    // density and momentum have no reactive sources
+
+    state.y[SRHO] += state.ydot_a[SRHO] * dt;
+    state.y[SMX] += state.ydot_a[SMX] * dt;
+    state.y[SMY] += state.ydot_a[SMY] * dt;
+    state.y[SMZ] += state.ydot_a[SMZ] * dt;
 
     // predict the U* state with advection and a lagged reactive term
+    // we actually only need to predict the energy and auxiliary data
+    // here, since that's all that is used (along with rho) for the
+    // equation of state.
+
+    Real rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * Iq_rhoe;
+    
 
     // call the EOS to get the updated T*
+
+    eos_t eos_state;
 
     // call the NSE table using the * state to get the t^{n+1} composition data
 
     // compute the energy release
 
     // construct the final U^{n+1}
+
+    // the new mass fractions are just those that come from the table
+
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] = state.y[SRHO] * X[n];
+    }
 
 }
 
