@@ -70,14 +70,6 @@ ifeq ($(USE_ACC), TRUE)
   DEFINES += -DACC
 endif
 
-ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
-  DEFINES += -DSIMPLIFIED_SDC
-else ifeq ($(USE_TRUE_SDC), TRUE)
-  DEFINES += -DTRUE_SDC
-else
-  DEFINES += -DSTRANG
-endif
-
 ifeq ($(USE_REACT), TRUE)
   DEFINES += -DREACTIONS
 endif
