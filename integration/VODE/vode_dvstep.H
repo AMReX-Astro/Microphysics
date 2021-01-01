@@ -248,7 +248,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
-            if (std::abs(y_save(SFS+i)) >= atol_spec &&
+            if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
                 (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
                  std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
                 valid_update = false;
@@ -258,7 +258,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 valid_update = false;
             }
 
-            if (vstate.y(i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
+            if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
                 valid_update = false;
             }
 #endif
