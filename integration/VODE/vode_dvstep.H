@@ -215,6 +215,10 @@ int dvstep (burn_t& state, dvode_t& vstate)
         }
 #endif
 
+#ifdef SIMPLIFIED_SDC
+        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+#endif
+
         for (int i = 1; i <= NumSpec; ++i) {
 
 #ifdef STRANG
@@ -245,8 +249,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             // these are basically the same checks as with Strang above, except
             // now we are evolving rhoX instead of X
-
-            Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
             if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
                 (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
