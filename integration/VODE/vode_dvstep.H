@@ -226,8 +226,15 @@ int dvstep (burn_t& state, dvode_t& vstate)
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
                 valid_update = false;
             }
+#else
+            if (std::abs(y_save(SFS+i)) >= atol_spec &&
+                (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+                valid_update = false;
+            }
 #endif
 
+#ifndef SIMPLIFIED_SDC
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
 
@@ -235,9 +242,16 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 valid_update = false;
             }
 
-#ifndef SIMPLIFIED_SDC
-            // this only makes sense if we are evolving X, not (rho X)
             if (vstate.y(i) > 1.0_rt + vode_failure_tolerance) {
+                valid_update = false;
+            }
+
+#else
+            if (vstate.y(SFS+i) < -vode_failure_tolerance * std::abs(y_save(SRHO+1))) {
+                valid_update = false;
+            }
+
+            if (vstate.y(i) > (1.0_rt + vode_failure_tolerance) * std::abs(y_save(SRHO+1))) {
                 valid_update = false;
             }
 #endif
