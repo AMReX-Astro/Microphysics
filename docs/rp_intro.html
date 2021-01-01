@@ -40,7 +40,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="BS" href="runtime_parameters.html" />
+    <link rel="next" title="C-burn-simple" href="runtime_parameters.html" />
     <link rel="prev" title="Data Structures" href="data_structures.html" /> 
 </head>
 
@@ -97,12 +97,12 @@
 <li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Runtime parameters</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html">BS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#c-burn-simple">C-burn-simple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html">C-burn-simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#c-test">C-test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#cvode">CVODE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#ecsn">ECSN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#forwardeuler">ForwardEuler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#qss">QSS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#urca-simple">URCA-simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#vode">VODE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#aprox19">aprox19</a></li>
@@ -132,12 +132,14 @@
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-conductivity">test_conductivity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-cvode-react">test_cvode_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-eos">test_eos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-jac">test_jac</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-parameters">test_parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-reaclib-rates">test_reaclib_rates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-react">test_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-rhs">test_rhs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-screening">test_screening</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-sdc">test_sdc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#test-sdc-vode-rhs">test_sdc_vode_rhs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
 <li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#xrb-simple">xrb_simple</a></li>
 </ul>
@@ -270,12 +272,12 @@ specific implementations to override the general parameter defaults.</p>
 in the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files.</p>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html">BS</a></li>
-<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#c-burn-simple">C-burn-simple</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html">C-burn-simple</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#c-test">C-test</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#cvode">CVODE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#ecsn">ECSN</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#forwardeuler">ForwardEuler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#qss">QSS</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#urca-simple">URCA-simple</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#vode">VODE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#aprox19">aprox19</a></li>
@@ -305,12 +307,14 @@ in the <code class="docutils literal notranslate"><span class="pre">_parameters<
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-conductivity">test_conductivity</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-cvode-react">test_cvode_react</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-eos">test_eos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-jac">test_jac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-parameters">test_parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-reaclib-rates">test_reaclib_rates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-react">test_react</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-rhs">test_rhs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-screening">test_screening</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-sdc">test_sdc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#test-sdc-vode-rhs">test_sdc_vode_rhs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
 <li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html#xrb-simple">xrb_simple</a></li>
 </ul>
@@ -325,7 +329,7 @@ in the <code class="docutils literal notranslate"><span class="pre">_parameters<
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="runtime_parameters.html" class="btn btn-neutral float-right" title="BS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="runtime_parameters.html" class="btn btn-neutral float-right" title="C-burn-simple" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="data_structures.html" class="btn btn-neutral float-left" title="Data Structures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -247,44 +247,43 @@ through your <code class="docutils literal notranslate"><span class="pre">~/.bas
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MICROPHYSICS_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">Microphysics</span>
 </pre></div>
 </div>
-<p>For CASTRO the name of the EOS and network are set via the make
-variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>. The macros in CASTRO’s
-<code class="docutils literal notranslate"><span class="pre">Make.Castro</span></code> will know to look in Microphysics using the
-<code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable to find the codes.</p>
-<p>For MAESTROeX, the name of the EOS and network are set via the make
-variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>, and the macros in MAESTRO’s
-<code class="docutils literal notranslate"><span class="pre">Make.Maestro</span></code> file will find the code, again using the
-<code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable.</p>
-<p>For other codes, one can use the interfaces in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces/</span></code> and sample routines in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/</span></code> to incorporate these modules into your
-code. Note that there are a few AMReX files required at the moment
-(mainly error handling and constants).</p>
+<p>For CASTRO and MAESTROeX the name of the EOS and network are set via
+the make variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>. These codes then
+rely on the Microphysics <code class="docutils literal notranslate"><span class="pre">Make.Microphysics_extern</span></code> makefile stub
+(found via the <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable) to add the necessary
+source to the build.  All of the interfaces that these codes use
+are found in <code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces/</span></code>.</p>
+<p>Other codes can use Microphysics in the same fashion.  Unit tests in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/</span></code> provide some examples of using the
+interfaces.</p>
 </div>
 <div class="section" id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
 <p>The high-level directory structure delineates the types of microphysics
 and the generic solvers:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code>: this User’s Guide</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conductivity</span></code>: thermal conductivity routines</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">`constants</span></code>: fundamental constants</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the
 reaction networks</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: copies of the main derived types that are used to
-interface with the EOS and reaction networks. Note that most application
-codes will have their own local copies. These are provided for unit testing
-in Microphysics.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: the main structs / derived types that are used to
+interface with the EOS and reaction networks.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the
 righthand side of the network, as the actual integrators are decoupled from
 the network.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">opacity/</span></code>: opacity routines for radiation transport</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">python_library/</span></code>: python bindings for the Microphysics routines</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the
 networks.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the
 reaction networks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sphinx_docs</span></code>: the sphinx source for this documentation</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t
 need any application code to build, but will require AMReX.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">viscosity/</span></code>: viscosity routines</p></li>
 </ul>
 </div>
 <div class="section" id="design-philosophy">

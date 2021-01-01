@@ -289,8 +289,8 @@ interface is no longer a <code class="docutils literal notranslate"><span class=
 <p>The flow of this main routine is simpler than the non-SDC version:</p>
 <ol class="arabic">
 <li><p>Convert from the <code class="docutils literal notranslate"><span class="pre">sdc_t</span></code> type to the integrator’s internal
-representation (e.g., <code class="docutils literal notranslate"><span class="pre">sdc_to_bs</span></code> converts from a <code class="docutils literal notranslate"><span class="pre">bs_t</span></code>
-for the BS integrator).</p>
+representation (e.g., <code class="docutils literal notranslate"><span class="pre">sdc_to_vode</span></code> converts from a <code class="docutils literal notranslate"><span class="pre">vode_t</span></code>
+for the VODE integrator).</p>
 <p>This copies the state variables and advective sources into the
 integration type. Since we only actually integrate <span class="math notranslate nohighlight">\((\rho X_k),
 (\rho e), (\rho E)\)</span>, the terms corresponding to density and momentum
@@ -311,9 +311,7 @@ internal energy, but we need to convert these to the conservative
 system we are integrating, including the advective terms.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In the example here, we’ll assume we are using the VODE
-integrator, but the BS integrator also supports
-simplified-SDC integration.</p>
+<p>Presently only the VODE integrator supports SDC evolution.</p>
 </div>
 <ol class="arabic">
 <li><p>Call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code></p></li>
@@ -371,7 +369,7 @@ intergrator through the <code class="docutils literal notranslate"><span class="
 <h3>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this headline">¶</a></h3>
 <p>The Jacobian of this system is <span class="math notranslate nohighlight">\({\bf J} = \partial \Rb /
 \partial \Uc\)</span>, since <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is held constant during the
-integration.  We follow the approach of <a class="bibtex reference internal" href="zreferences.html#castro-sdc" id="id1">[ZingaleKatzBell+19]</a> and factor
+integration.  We follow the approach of <span id="id1">[<a class="reference internal" href="zreferences.html#id28"><span>ZingaleKatzBell+19</span></a>]</span> and factor
 the Jacobian as:</p>
 <div class="math notranslate nohighlight">
 \[{\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
