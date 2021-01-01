@@ -216,6 +216,14 @@ int dvstep (burn_t& state, dvode_t& vstate)
 #endif
 
 #ifdef SIMPLIFIED_SDC
+#if defined(SDC_EVOLVE_ENERGY)
+        if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
+            valid_update = false;
+        }
+#endif
+#endif
+
+#ifdef SIMPLIFIED_SDC
         Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 #endif
 
@@ -234,7 +242,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-
             if (vstate.y(i) < -vode_failure_tolerance) {
                 valid_update = false;
             }
@@ -250,19 +257,24 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // these are basically the same checks as with Strang above, except
             // now we are evolving rhoX instead of X
 
-            if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
-                (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-                 std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+
+            // this doesn't seem to work well with SDC
+
+            //if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
+            //    (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+            //     std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+            //    valid_update = false;
+            //}
+
+            if (vstate.y(SFS+i) < -vode_failure_tolerance) {
                 valid_update = false;
             }
 
-            if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
-                valid_update = false;
-            }
 
             if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
                 valid_update = false;
             }
+
 #endif
         }
 
