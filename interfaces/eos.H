@@ -41,10 +41,10 @@ void eos_init (Real& small_temp_in, Real& small_dens_in)
 
   // Set EOSData::min{temp,dens} and small_{temp,dens} to the maximum of the two
   EOSData::mintemp = amrex::max(EOSData::mintemp, small_temp_in);
-  small_temp = amrex::max(small_temp_in, EOSData::mintemp);
+  small_temp_in = amrex::max(small_temp_in, EOSData::mintemp);
 
   EOSData::mindens = amrex::max(EOSData::mindens, small_dens_in);
-  small_dens = amrex::max(small_dens_in, EOSData::mindens);
+  small_dens_in = amrex::max(small_dens_in, EOSData::mindens);
 
   EOSData::initialized = true;
 }
