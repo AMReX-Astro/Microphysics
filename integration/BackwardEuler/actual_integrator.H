@@ -182,6 +182,10 @@ void actual_integrator (burn_t& state, Real dt)
 
             actual_rhs(state, ydot);
 
+            // need to compute T, e
+
+            state.n_rhs += 1;
+
             // Scale species terms by A (they come from the RHS in terms of Y, not X).
 
             for (int n = 1; n <= NumSpec; ++n) {
@@ -199,33 +203,73 @@ void actual_integrator (burn_t& state, Real dt)
             dgefa(jac, pivot, ier);
             dgesl(jac, pivot, b);
 
+            // update our current guess for the solution
+
+            for (int n = 1; n <= neqs; n++) {
+                y_np1(n) += b(n);
+            }
+
             // check to see if we converged
             // we compute the norms
 
+            Real y_norm = 0.0;
+            Real b_norm = 0.0;
+            for (int n = 1; n < neqs; n++) {
+                ynorm += y_np1(n) * y_np1(n);
+                bnorm += b(n) * b(n);
+            }
+            ynorm = std::sqrt(ynorm / neqs);
+            bnorm = std::sqrt(bnorm / neqs);
+
+            if (bnorm < tol * ynorm) {
+                converged = true;
+                break;
+            }
+
         }
 
+        // we are done iterating -- did we converge?
 
-        for (int n = 1; n <= NumSpec; ++n) {
-            state.xn[n-1] += ydot(n) * dt_sub;
+        if (! converged) {
+            // for now we'll abort.  Later we should refactor things
+            // to reduce the timestep and try again
+
+            amrex::abort("Failed to converge in integration");
         }
 
-        if (integrate_temperature) {
-            state.T += ydot(net_itemp) * dt_sub;
-        }
-        if (integrate_energy) {
-            state.e += ydot(net_ienuc) * dt_sub;
-        }
+        // update the solution vector
 
-        clean_state(state);
+        for (int n = 1; n < = neqs; n++) {
+            y(n) = y_np1(n);
+        }
 
         t += dt_sub;
+
         ++num_timesteps;
 
     }
 
+    // update output
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        state.xn[n-1] = y(n);
+    }
+
+    if (integrate_temperature) {
+        state.T = y(net_itemp);
+    }
+
+    if (integrate_energy) {
+        state.e = y(net_ienuc);
+    }
+
+    clean_state(state);
+
     if (num_timesteps >= ode_max_steps) {
         state.success = false;
     }
+
+
 
 #ifndef AMREX_USE_CUDA
     if (burner_verbose) {
