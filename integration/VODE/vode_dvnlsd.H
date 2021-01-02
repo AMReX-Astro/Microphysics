@@ -2,7 +2,7 @@
 #define _vode_dvnlsd_H_
 
 #include <vode_type.H>
-#include <vode_linpack.H>
+#include <linpack.H>
 #include <vode_dvjac.H>
 
 #ifdef NETWORK_SOLVER
@@ -114,7 +114,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
 #ifdef NETWORK_SOLVER
             actual_solve(vstate.jac, vstate.y);
 #else
-            dgesl(vstate.jac, pivot, vstate.y);
+            dgesl<VODE_NEQS>(vstate.jac, pivot, vstate.y);
 #endif
 
             if (vstate.RC != 1.0_rt) {
