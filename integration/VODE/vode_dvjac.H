@@ -2,7 +2,7 @@
 #define _vode_dvjac_H_
 
 #include <vode_type.H>
-#include <vode_linpack.H>
+#include <linpack.H>
 #ifndef SIMPLIFIED_SDC
 #include <vode_rhs.H>
 #else
@@ -162,7 +162,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
 #ifndef NETWORK_SOLVER
     int IER;
-    dgefa(vstate.jac, pivot, IER);
+    dgefa<VODE_NEQS>(vstate.jac, pivot, IER);
 
     if (IER != 0) {
         IERPJ = 1;
