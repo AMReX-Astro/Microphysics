@@ -78,6 +78,7 @@ class Parameter:
         self.dtype = ""
         self.value = ""
         self.priority = 0
+        self.namespace = ""
 
     def get_f90_decl(self):
         """ get the Fortran 90 declaration """
@@ -100,6 +101,8 @@ class Parameter:
     def __lt__(self, other):
         return self.priority < other.priority
 
+    def __str__(self):
+        return f"{self.namespace}.{self.var}"
 
 def get_next_line(fin):
     """return the next, non-blank line, with comments stripped"""
@@ -121,6 +124,8 @@ def parse_param_file(params_list, param_file):
 
     err = 0
 
+    namespace = None
+
     try:
         f = open(param_file, "r")
     except IOError:
@@ -131,6 +136,17 @@ def parse_param_file(params_list, param_file):
     line = get_next_line(f)
 
     while line and not err:
+
+        if line[0] == "@":
+            # this defines a namespace
+            cmd, value = line.split(":")
+            if cmd == "@namespace":
+                namespace = value
+            else:
+                sys.exit("invalid command")
+
+            line = get_next_line(f)
+            continue
 
         fields = line.split()
 
@@ -144,6 +160,7 @@ def parse_param_file(params_list, param_file):
         current_param.var = fields[0]
         current_param.dtype = fields[1]
         current_param.value = fields[2]
+        current_param.namespace = namespace
 
         try:
             current_param.priority = int(fields[3])
@@ -160,10 +177,11 @@ def parse_param_file(params_list, param_file):
         except:
             idx = -1
         else:
-            if params_list[idx] < current_param:
-                params_list.pop(idx)
-            else:
-                skip = 1
+            if params_list[idx].namespace == current_param.namespace:
+                if params_list[idx] < current_param:
+                    params_list.pop(idx)
+                else:
+                    skip = 1
 
         if not err == 1 and not skip == 1:
             params_list.append(current_param)

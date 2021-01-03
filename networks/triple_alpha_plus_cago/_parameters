@@ -1,3 +1,5 @@
+@namespace: network
+
 # override the default tolerances for backwards compatibility
 atol_spec                real      1.0e-12 100
 rtol_spec                real      1.0e-12 100
