@@ -233,23 +233,18 @@ def write_probin(probin_template, param_files,
                     if p.dtype == "character":
                         fout.write("{}{}, public :: {}\n".format(
                             indent, p.get_f90_decl(), p.var))
-                        fout.write("{}!$acc declare create({})\n".format(indent, p.var))
 
                     else:
                         fout.write("{}{}, allocatable, public :: {}\n".format(
                             indent, p.get_f90_decl(), p.var))
-                        fout.write("{}!$acc declare create({})\n".format(indent, p.var))
 
                 if not params:
                     # we always make sure there is atleast one variable
                     fout.write("{}integer, save, public :: a_dummy_var = 0\n".format(indent))
 
             elif keyword == "cudaattributes":
-                for p in params:
-                    if p.dtype != "character":
-                        fout.write("#ifdef AMREX_USE_GPU_PRAGMA\n")
-                        fout.write("{}attributes(managed) :: {}\n".format(indent, p.var))
-                        fout.write("#endif\n")
+                # we no longer do Fortran with CUDA
+                pass
 
             elif keyword == "allocations":
                 for p in params:
@@ -312,21 +307,9 @@ def write_probin(probin_template, param_files,
 
 
             elif keyword == "acc":
+                # we no longer do Fortran openacc
 
-                fout.write(indent + "!$acc update &\n")
-                fout.write(indent + "!$acc device(")
-
-                for n, p in enumerate(params):
-                    fout.write("{}".format(p.var))
-
-                    if n == len(params)-1:
-                        fout.write(")\n")
-                    else:
-                        if n % 3 == 2:
-                            fout.write(") &\n" + indent + "!$acc device(")
-                        else:
-                            fout.write(", ")
-
+                pass
             elif keyword == "cxx_gets":
                 # this writes out the Fortran functions that can be
                 # called from C++ to get the value of the parameters
