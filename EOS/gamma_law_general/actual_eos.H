@@ -159,7 +159,7 @@ void actual_eos (I input, T& state)
 
           // Solve for temperature and density
 
-          if constexpr (has_pressure<T>::value) {
+          if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
               state.rho = state.p / state.h * eos_gamma / (eos_gamma - 1.0);
               state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
           }
