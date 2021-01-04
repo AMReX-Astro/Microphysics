@@ -199,19 +199,22 @@ void actual_eos (I input, T& state)
 
     state.T   = temp;
     state.rho = dens;
+    Real pres = dens * (C::k_B / m_nucleon) * temp / state.abar;
+    Real ener = (C::k_B / m_nucleon) * temp * sumY_gm1;
+    Real enth = ener + pres / dens;
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
     if constexpr (has_pressure<T>::value) {
-        state.p = dens * (C::k_B / m_nucleon) * temp / state.abar;
+        state.p = pres;
     }
     if constexpr (has_energy<T>::value) {
-        state.e = (C::k_B / m_nucleon) * temp * sumY_gm1;
+        state.e = ener;
     }
 
     // Enthalpy is h = e + p/rho
     if constexpr (has_enthalpy<T>::value) {
-        state.h = state.e + state.p / dens;
+        state.h = enth;
     }
 
     // entropy (per gram) -- this is wrong. Not sure what the expression
@@ -224,28 +227,39 @@ void actual_eos (I input, T& state)
     }
 
     // Compute the thermodynamic derivatives and specific heats
+    Real dpdT = pres / temp;
+    Real dpdr = pres / dens;
     if constexpr (has_pressure<T>::value) {
-        state.dpdT = state.p / temp;
-        state.dpdr = state.p / dens;
+        state.dpdT = dpdT;
+        state.dpdr = dpdr;
     }
+
+    Real dedT = ener / temp;
+    Real dedr = 0.0_rt;
     if constexpr (has_energy<T>::value) {
-        state.dedT = state.e / temp;
-        state.dedr = 0.0_rt;
+        state.dedT = dedT;
+        state.dedr = dedr;
     }
+
+    Real dsdT = 0.0_rt;
+    Real dsdr = 0.0_rt;
     if constexpr (has_entropy<T>::value) {
-        state.dsdT = 0.0_rt;
-        state.dsdr = 0.0_rt;
+        state.dsdT = dsdT;
+        state.dsdr = dsdr;
     }
+
+    Real dhdT = dedT + dpdT / dens;
+    Real dhdr = 0.0_rt;
     if constexpr (has_enthalpy<T>::value) {
-        state.dhdT = state.dedT + state.dpdT / dens;
-        state.dhdr = 0.0_rt;
+        state.dhdT = dhdT;
+        state.dhdr = dhdr;
     }
 
     if constexpr (has_energy<T>::value) {
         state.cv = state.dedT;
     }
     if constexpr (has_pressure<T>::value && has_energy<T>::value) {
-        state.cp = state.h / state.T;
+        state.cp = enth / state.T;
 
         state.gam1 = state.cp / state.cv;
 
