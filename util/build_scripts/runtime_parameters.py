@@ -24,9 +24,17 @@ class Param:
                  ifdef=None):
 
         self.name = name
+
         self.dtype = dtype
+        if self.dtype == "character":
+            self.dtype = "string"
+
         self.default = default
+
         self.cpp_var_name = cpp_var_name
+        if self.cpp_var_name is None:
+            self.cpp_var_name = self.name
+
         self.priority = priority
 
         self.namespace = namespace
@@ -44,22 +52,44 @@ class Param:
         else:
             self.nm_pre = f"{self.namespace}::"
 
+    def get_cxx_decl(self):
+         """ get the Fortran 90 declaration """
+         if self.dtype == "real":
+             return "amrex::Real"
+         elif self.dtype == "string":
+             return "std::string"
+         elif self.dtype == "bool":
+             return "bool"
+
+         return "int"
+
     def get_declare_string(self):
         """this is the line that goes into, e.g., castro_declares.H included
         into Castro.cpp"""
 
-        if self.dtype == "int":
-            tstr = f"AMREX_GPU_MANAGED int         {self.nm_pre}{self.cpp_var_name}"
-        elif self.dtype == "bool":
-            tstr = f"AMREX_GPU_MANAGED bool        {self.nm_pre}{self.cpp_var_name}"
-        elif self.dtype == "real":
-            tstr = f"AMREX_GPU_MANAGED amrex::Real {self.nm_pre}{self.cpp_var_name}"
+        if self.dtype != "string":
+            tstr = f"AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.nm_pre}{self.cpp_var_name}"
         elif self.dtype == "string":
             tstr = f"std::string {self.nm_pre}{self.cpp_var_name}"
         else:
             sys.exit(f"invalid data type for parameter {self.name}")
 
-        return rf"{tstr};\n"
+        return f"{tstr};\n"
+
+    def get_decl_string(self):
+        """this is the line that goes into, e.g., castro_params.H included
+        into Castro.H"""
+
+        tstr = ""
+
+        if self.dtype != "string":
+            tstr = f"extern AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.cpp_var_name};\n"
+        elif self.dtype == "string":
+            tstr = f"extern std::string {self.cpp_var_name};\n"
+        else:
+            sys.exit(f"invalid data type for parameter {self.name}")
+
+        return tstr
 
     def get_default_string(self):
         """this is the line that goes into, e.g., castro_declares.H included
@@ -79,8 +109,8 @@ class Param:
         return ostr
 
     def get_f90_default_string(self):
-        """this is the line that goes into, e.g., set_castro_method_params()
-        to set the default value of the variable"""
+        """For Fortran, allocate the variable and set the default.  This is typically
+        triggered by @@allocation@@ in the template"""
 
         ostr = ""
 
@@ -157,24 +187,14 @@ class Param:
 
         return ostr
 
-    def get_decl_string(self):
-        """this is the line that goes into, e.g., castro_params.H included
-        into Castro.H"""
-
-        tstr = ""
-
-        if self.dtype == "int":
-            tstr = f"extern AMREX_GPU_MANAGED int {self.cpp_var_name};\n"
-        elif self.dtype == "bool":
-            tstr = f"extern AMREX_GPU_MANAGED bool {self.cpp_var_name};\n"
-        elif self.dtype == "real":
-            tstr = f"extern AMREX_GPU_MANAGED amrex::Real {self.cpp_var_name};\n"
+    def get_f90_decl(self):
+        """ get the Fortran 90 declaration """
+        if self.dtype == "real":
+            return "real (kind=rt)"
         elif self.dtype == "string":
-            tstr = f"extern std::string {self.cpp_var_name};\n"
-        else:
-            sys.exit(f"invalid data type for parameter {self.name}")
+            return "character (len=256)"
 
-        return tstr
+        return self.dtype
 
     def get_f90_decl_string(self):
         """this is the line that goes into, e.g., meth_params_nd.F90"""
@@ -182,12 +202,8 @@ class Param:
         if not self.in_fortran:
             return None
 
-        if self.dtype == "int":
-            tstr = f"integer,  allocatable, save :: {self.name}\n"
-        elif self.dtype == "real":
-            tstr = f"real(rt), allocatable, save :: {self.name}\n"
-        elif self.dtype == "logical":
-            tstr = f"logical,  allocatable, save :: {self.name}\n"
+        if self.dtype != "string":
+            tstr = f"{self.get_f90_decl()},  allocatable, save :: {self.name}\n"
         elif self.dtype == "string":
             tstr = f"character (len=:), allocatable, save :: {self.name}\n"
             print(f"warning: string parameter {self.name} will not be available on the GPU")

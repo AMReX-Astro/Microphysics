@@ -111,11 +111,11 @@ def parse_param_file(params_list, param_file):
             err = 1
             continue
 
-        current_param = runtime_parameters.Param()
+        name = fields[0]
+        dtype = fields[1]
+        default = fields[2]
 
-        current_param.name = fields[0]
-        current_param.dtype = fields[1]
-        current_param.default = fields[2]
+        current_param = runtime_parameters.Param(name, dtype, default, in_fortran=1)
 
         try:
             current_param.priority = int(fields[3])
@@ -214,12 +214,11 @@ def write_probin(probin_template, param_files,
 
             elif keyword == "allocations":
                 for p in params:
-                    if p.dtype != "character":
-                        fout.write("{}allocate({})\n".format(indent, p.name))
+                    fout.write(p.get_f90_default_string())
 
             elif keyword == "deallocations":
                 for p in params:
-                    if p.dtype != "character":
+                    if p.dtype != "string":
                         fout.write("{}deallocate({})\n".format(indent, p.name))
 
             elif keyword == "namelist":
@@ -232,8 +231,8 @@ def write_probin(probin_template, param_files,
                         indent, namelist_name))
 
             elif keyword == "defaults":
-                for p in params:
-                    fout.write("{}{} = {}\n".format(indent, p.name, p.default))
+                # this is no longer used -- we do the defaults together with allocations
+                pass
 
             elif keyword == "printing":
 
@@ -256,7 +255,7 @@ def write_probin(probin_template, param_files,
                         fout.write("{}write (unit,102) {}, &\n \"{}\", {}\n".format(
                             indent, cmd, p.name, p.name))
 
-                    elif p.dtype == "character":
+                    elif p.dtype == "string":
                         fout.write("{}write (unit,100) {}, &\n \"{}\", trim({})\n".format(
                             indent, cmd, p.name, p.name))
 
@@ -281,7 +280,7 @@ def write_probin(probin_template, param_files,
                 # called from C++ to get the value of the parameters
 
                 for p in params:
-                    if p.dtype == "character":
+                    if p.dtype == "string":
                         fout.write("{}subroutine get_f90_{}_len(slen) bind(C, name=\"get_f90_{}_len\")\n".format(
                             indent, p.name, p.name))
                         fout.write("{}   integer, intent(inout) :: slen\n".format(indent))
@@ -333,12 +332,12 @@ def write_probin(probin_template, param_files,
     # for the parameters + a _F.H file for the Fortran communication
 
     # first the _F.H file
-    ofile = "{}_parameters_F.H".format(cxx_prefix)
+    ofile = f"{cxx_prefix}_parameters_F.H"
     with open(ofile, "w") as fout:
         fout.write(CXX_F_HEADER)
 
         for p in params:
-            if p.dtype == "character":
+            if p.dtype == "string":
                 fout.write("  void get_f90_{}(char* {});\n\n".format(
                     p.name, p.name))
                 fout.write("  void get_f90_{}_len(int& slen);\n\n".format(p.name))
@@ -350,37 +349,33 @@ def write_probin(probin_template, param_files,
         fout.write(CXX_F_FOOTER)
 
     # now the main C++ header with the global data
-    ofile = "{}_parameters.H".format(cxx_prefix)
+    cxx_base = os.path.basename(cxx_prefix)
+
+    ofile = f"{cxx_prefix}_parameters.H"
     with open(ofile, "w") as fout:
         fout.write(CXX_HEADER)
 
-        fout.write("  void init_{}_parameters();\n\n".format(os.path.basename(cxx_prefix)))
+        fout.write(f"  void init_{cxx_base}_parameters();\n\n")
 
         for p in params:
-            if p.dtype == "character":
-                fout.write("  extern std::string {};\n\n".format(p.name))
-            else:
-                fout.write("  extern AMREX_GPU_MANAGED {} {};\n\n".format(p.get_cxx_decl(), p.name))
+            fout.write(f"  {p.get_decl_string()}")
 
         fout.write(CXX_FOOTER)
 
     # finally the C++ initialization routines
-    ofile = "{}_parameters.cpp".format(cxx_prefix)
+    ofile = f"{cxx_prefix}_parameters.cpp"
     with open(ofile, "w") as fout:
-        fout.write("#include <{}_parameters.H>\n".format(os.path.basename(cxx_prefix)))
-        fout.write("#include <{}_parameters_F.H>\n\n".format(os.path.basename(cxx_prefix)))
+        fout.write(f"#include <{cxx_base}_parameters.H>\n")
+        fout.write(f"#include <{cxx_base}_parameters_F.H>\n\n")
 
         for p in params:
-            if p.dtype == "character":
-                fout.write("  std::string {};\n\n".format(p.name))
-            else:
-                fout.write("  AMREX_GPU_MANAGED {} {};\n\n".format(p.get_cxx_decl(), p.name))
+            fout.write(f"  {p.get_declare_string()}")
 
         fout.write("\n")
-        fout.write("  void init_{}_parameters() {{\n".format(os.path.basename(cxx_prefix)))
+        fout.write(f"  void init_{cxx_base}_parameters() {{\n")
 
         for p in params:
-            if p.dtype == "character":
+            if p.dtype == "string":
                 fout.write("    int slen_{} = 0;\n".format(p.name))
                 fout.write("    get_f90_{}_len(slen_{});\n".format(p.name, p.name))
                 fout.write("    char _{}[slen_{}+1];\n".format(p.name, p.name))
