@@ -81,7 +81,7 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
     // (which has supplementary data such as density) and the
     // VODE state (which has the current xn, T, and e).
 
-    eos_t eos_state;
+    eos_re_t eos_state;
 
 #ifdef NSE_THERMO
     // we are handling the thermodynamics via the aux quantities, which
