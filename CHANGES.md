@@ -1,7 +1,14 @@
-# 21.01
+# 21.02
 
    * Fortran support for simplified-SDC in the VODE integrator has
      been removed. (#492)
+
+# 21.01
+
+   * Microphysics now requires C++17 (gcc >= 7, CUDA >= 11). (#485)
+
+   * The BS integrator was removed.  This was Fortran only, doesn't support
+     SDC integration, and not well used. (#488)
 
 # 20.12
 

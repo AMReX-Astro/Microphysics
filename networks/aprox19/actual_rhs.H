@@ -2655,7 +2655,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ydot(net_ienuc) = enuc - sneut;
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     // Append the temperature equation
 
     ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
@@ -2743,6 +2743,7 @@ void actual_jac (burn_t& state, MatrixType& jac)
     // Temperature Jacobian elements
 
     temperature_jac(state, jac);
+
 }
 
 #endif

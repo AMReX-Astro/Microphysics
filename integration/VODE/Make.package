@@ -31,7 +31,6 @@ CEXE_headers += vode_dvjust.H
 CEXE_headers += vode_dvnlsd.H
 CEXE_headers += vode_dvset.H
 CEXE_headers += vode_dvstep.H
-CEXE_headers += vode_linpack.H
 CEXE_headers += vode_parameters.H
 
 VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source/
