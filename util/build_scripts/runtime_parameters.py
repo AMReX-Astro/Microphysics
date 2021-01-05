@@ -59,15 +59,15 @@ class Param:
             self.nm_pre = f"{self.namespace}::"
 
     def get_cxx_decl(self):
-         """ get the Fortran 90 declaration """
-         if self.dtype == "real":
-             return "amrex::Real"
-         elif self.dtype == "string":
-             return "std::string"
-         elif self.dtype == "bool":
-             return "bool"
+        """ get the Fortran 90 declaration """
+        if self.dtype == "real":
+            return "amrex::Real"
+        elif self.dtype == "string":
+            return "std::string"
+        elif self.dtype == "bool":
+            return "bool"
 
-         return "int"
+        return "int"
 
     def get_declare_string(self):
         """this is the line that goes into, e.g., castro_declares.H included
