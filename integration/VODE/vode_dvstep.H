@@ -209,31 +209,66 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         bool valid_update = true;
 
+#ifdef SIMPLIFIED_SDC
+#if defined(SDC_EVOLVE_ENERGY)
+        if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
+            valid_update = false;
+        }
+#endif
+#endif
+
+#ifdef SIMPLIFIED_SDC
+        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+#endif
+
         for (int i = 1; i <= NumSpec; ++i) {
+
+#ifdef STRANG
             // Constrain abundances such that they don't change by more than a certain
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-#ifndef SIMPLIFIED_SDC
             if (std::abs(y_save(i)) >= atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
                 valid_update = false;
             }
-#endif
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-
             if (vstate.y(i) < -vode_failure_tolerance) {
                 valid_update = false;
             }
 
-#ifndef SIMPLIFIED_SDC
-            // this only makes sense if we are evolving X, not (rho X)
             if (vstate.y(i) > 1.0_rt + vode_failure_tolerance) {
                 valid_update = false;
             }
+
+#endif
+
+#ifdef SIMPLIFIED_SDC
+
+            // these are basically the same checks as with Strang above, except
+            // now we are evolving rhoX instead of X
+
+
+            // this doesn't seem to work well with SDC
+
+            //if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
+            //    (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+            //     std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+            //    valid_update = false;
+            //}
+
+            if (vstate.y(SFS+i) < -vode_failure_tolerance) {
+                valid_update = false;
+            }
+
+
+            if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
+                valid_update = false;
+            }
+
 #endif
         }
 
