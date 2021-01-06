@@ -270,13 +270,18 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     using namespace AuxZero;
 
+    state.success = true;
+    state.n_rhs = 0;
+    state.n_jac = 0;
+
     // call the NSE table to get (dYe/dt)^n
     Real abar_out;
     Real dq_out;
     Real dyedt;
     Real X[NumSpec];
 
-    nse_interp(state.T, state.rho, state.aux[iye],
+    Real ye_in = state.y[SFX+iye] / state.rho;
+    nse_interp(state.T, state.rho, ye_in,
                abar_out, dq_out, dyedt, X);
 
     // density and momentum have no reactive sources
