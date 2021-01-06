@@ -41,6 +41,3 @@ ifeq ($(USE_REACT), TRUE)
   CEXE_headres += burn_type.H
   CEXE_headers += burner.H
 endif
-ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
-  F90EXE_sources += sdc_type.F90
-endif
