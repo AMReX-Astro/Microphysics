@@ -299,12 +299,12 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     Real rho_aux_new[NumAux];
     for (int n = 0; n < NumAux; n++) {
-        rho_aux_new[n] = state.y[SMX+n] + dt * state.ydot_a[SMX+n] + dt * state.Iq_aux[n];
+        rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * rho_half * state.Iq_aux[n];
     }
 
     // override the source for Ye
 
-    rho_aux_new[iye] = state.y[SMX+iye] + dt * state.ydot_a[SMX+iye] + dt * rho_half * dyedt;
+    rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * rho_half * dyedt;
 
     // call the EOS to get the updated T*
 
