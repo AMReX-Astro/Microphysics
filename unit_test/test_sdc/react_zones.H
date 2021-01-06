@@ -105,7 +105,7 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
-    integrator(burn_state, tmax);
+    burner(burn_state, tmax);
 
     for (int n = 0; n < NumSpec; ++n) {
         state(i, j, k, p.ispec + n) = burn_state.y[SFS+n]/burn_state.rho;

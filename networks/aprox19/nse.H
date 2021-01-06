@@ -50,9 +50,8 @@ void init_nse() {
 }
 
 
-template <class state_t> 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(const state_t& state) {
+bool in_nse(const eos_t& state) {
 
   using namespace Species;
 
@@ -75,6 +74,44 @@ bool in_nse(const state_t& state) {
   }
 
   return nse_check;
+
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool in_nse(const burn_t& state) {
+
+    using namespace Species;
+
+    bool nse_check = false;
+
+    if (state.rho > rho_nse && state.T > T_nse) {
+
+        // Ma checks on Fe-group (for our composition, this means Cr48, Fe52, Fe54, Ni56)
+        // and C-group (for us, that is C12, N14)
+        // and He-group (for us, that is H1, He3, He4)
+
+#ifdef STRANG
+        Real Fe_group = state.xn[Cr48-1] + state.xn[Fe52-1] +
+                        state.xn[Fe54-1] + state.xn[Ni56-1];
+        Real C_group = state.xn[C12-1] + state.xn[N14-1];
+        Real He_group = state.xn[H1-1] + state.xn[He3-1] + state.xn[He4-1];
+
+#else
+        // we need to get the mass fractions from the conserved state passed in
+
+        Real Fe_group = (state.y[SFS+Cr48-1] + state.y[SFS+Fe52-1] +
+                         state.y[SFS+Fe54-1] + state.y[SFS+Ni56-1]) / state.rho;
+        Real C_group = (state.y[SFS+C12-1] + state.y[SFS+N14-1]) / state.rho;
+        Real He_group = (state.y[SFS+H1-1] + state.y[SFS+He3-1] + state.y[SFS+He4-1]) / state.rho;
+#endif
+
+        if (Fe_group + He_group > He_Fe_nse && C_group < C_nse) {
+            nse_check = true;
+        }
+    }
+
+    return nse_check;
 
 }
 
