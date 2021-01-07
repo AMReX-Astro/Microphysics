@@ -293,6 +293,19 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     state.y[SMY] += dt * state.ydot_a[SMY];
     state.y[SMZ] += dt * state.ydot_a[SMZ];
 
+#if 0
+
+    state.y[SEDEN] += dt * state.ydot_a[SEDEN];
+    state.y[SEINT] += dt * state.ydot_a[SEINT];
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] += dt * state.ydot_a[SFS+n];
+    }
+    for (int n = 0; n < NumAux; n++) {
+        state.y[SFX+n] += dt * state.ydot_a[SFX+n];
+    }
+
+#else
+
     // predict the U* state with advection and a lagged reactive term
     // we actually only need to predict the energy and auxiliary data
     // here, since that's all that is used (along with rho) for the
@@ -333,10 +346,11 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     // this is MeV / nucleon * g / cm**3
     Real delta_rhoq = eos_state.rho * dq_out - rho_bea_old;
+    Real dq = dq_out - rho_bea_old/rho_old;
 
     // convert the energy to erg / cm**3
     Real rho_enuc = delta_rhoq * C::MeV2eV * C::ev2erg * C::n_A;
-
+    Real enuc = dq * C::MeV2eV * C::ev2erg * C::n_A;
     // construct the final U^{n+1}
 
     // the new mass fractions are just those that come from the table
@@ -355,8 +369,9 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     // update the total and internal energy now
 
-    state.y[SEINT] += dt * state.ydot_a[SEINT] + rho_enuc;
-    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + rho_enuc;
+    state.y[SEINT] += dt * state.ydot_a[SEINT] + rho_half * enuc ; //+ rho_enuc;
+    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + rho_half * enuc ; //+ rho_enuc;
+#endif
 
 }
 
