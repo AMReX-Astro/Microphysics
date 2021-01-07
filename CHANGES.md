@@ -1,5 +1,8 @@
 # 21.02
 
+   * simplified-SDC can be used with the NSE table in aprox19 now
+     (#423, #497)
+
    * Fortran support for simplified-SDC in the VODE integrator has
      been removed. (#492)
 
