@@ -189,8 +189,8 @@ class Param:
 
         ostr = (
             f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format()} ? "    "' +
-            ': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
-            '<< {self.np_pre}{self.cpp_var_name} << std::endl;\n')
+            f': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
+            f'<< {self.nm_pre}{self.cpp_var_name} << std::endl;\n')
 
         return ostr
 
@@ -201,6 +201,8 @@ class Param:
             return "real (kind=rt)"
         elif self.dtype == "string":
             return "character (len=256)"
+        elif self.dtype == "int":
+            return "integer"
 
         return self.dtype
 
