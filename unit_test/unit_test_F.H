@@ -1,5 +1,5 @@
-#ifndef BURN_CELL_F_H_
-#define BURN_CELL_F_H
+#ifndef UNIT_TEST_F_H
+#define UNIT_TEST_F_H
 
 #include <AMReX_BLFort.H>
 
@@ -8,8 +8,7 @@
 extern "C"
 {
 #endif
-
-void burn_cell();
+  void init_unit_test(const int* name, const int* namlen);
 
 #ifdef __cplusplus
 }
