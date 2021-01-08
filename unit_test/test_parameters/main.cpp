@@ -48,6 +48,7 @@ void main_main ()
     // initialize the F90 parameters
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
+    // initialize the C++ parameters
     init_extern_parameters();
 
     do_f90_parameters();
