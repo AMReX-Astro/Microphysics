@@ -139,7 +139,11 @@ class Param:
             if "d" in default:
                 default = default.replace("d", "e")
             default += "_rt"
-
+        elif self.dtype == "bool":
+            if default == "true":
+                default = ".true."
+            elif default == "false":
+                default = ".false."
         name = self.name
 
         # for a character, we need to allocate its length.  We allocate
@@ -189,8 +193,8 @@ class Param:
 
         ostr = (
             f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format()} ? "    "' +
-            ': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
-            '<< {self.np_pre}{self.cpp_var_name} << std::endl;\n')
+            f': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
+            f'<< {self.nm_pre}{self.cpp_var_name} << std::endl;\n')
 
         return ostr
 
@@ -201,7 +205,10 @@ class Param:
             return "real (kind=rt)"
         elif self.dtype == "string":
             return "character (len=256)"
-
+        elif self.dtype == "int":
+            return "integer"
+        elif self.dtype == "bool":
+            return "logical"
         return self.dtype
 
     def get_f90_decl_string(self):

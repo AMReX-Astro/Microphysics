@@ -128,7 +128,7 @@ def parse_param_file(params_list, param_file):
         dtype = fields[1]
         default = fields[2]
 
-        current_param = runtime_parameters.Param(name, dtype, default, in_fortran=1, namespace=namespace)
+        current_param = runtime_parameters.Param(name, dtype, default, in_fortran=1, namespace
 
         try:
             current_param.priority = int(fields[3])

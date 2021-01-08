@@ -74,15 +74,19 @@ void actual_eos (I input, T& state)
 
     case eos_input_rt:
 
-        state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
-        state.e  = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, 1 - eos_c_v_exp_n) / (1 - eos_c_v_exp_n);
+        if constexpr (has_energy<T>::value) {
+            state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
+            state.e  = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, 1 - eos_c_v_exp_n) / (1 - eos_c_v_exp_n);
+        }
 
         break;
 
     case eos_input_re:
 
-        state.T  = std::pow((1 - eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_c_v_exp_m) / eos_const_c_v, 1.0_rt / (1.0_rt - eos_c_v_exp_n));
-        state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
+        if constexpr (has_energy<T>::value) {
+            state.T  = std::pow((1 - eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_c_v_exp_m) / eos_const_c_v, 1.0_rt / (1.0_rt - eos_c_v_exp_n));
+            state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
+        }
 
         break;
 
@@ -99,16 +103,25 @@ void actual_eos (I input, T& state)
     // Set some data to nonsense values so that things intentionally go wrong
     // if this EOS is somehow used for hydro.
 
-    state.p    = -1.e0_rt;
-    state.gam1 = -1.e0_rt;
-    state.cs   = -1.e0_rt;
-    state.s    = -1.e0_rt;
-    state.h    = -1.e0_rt;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = -1.e0_rt;
+    }
+    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+        state.gam1 = -1.e0_rt;
+        state.cs   = -1.e0_rt;
+    }
+    if constexpr (has_entropy<T>::value) {
+        state.s    = -1.e0_rt;
+    }
+    if constexpr (has_enthalpy<T>::value) {
+        state.h    = -1.e0_rt;
+    }
 
     // Give dpdr a value for the purposes of the composition_derivatives routine.
 
-    state.dpdr = 0.e0_rt;
-
+    if constexpr (has_pressure<T>::value) {
+        state.dpdr = 0.e0_rt;
+    }
 }
 
 #endif
