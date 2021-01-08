@@ -22,6 +22,7 @@ using namespace amrex;
 
 #include <cmath>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
