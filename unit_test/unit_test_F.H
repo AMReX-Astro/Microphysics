@@ -1,5 +1,5 @@
-#ifndef TEST_EOS_F_H_
-#define TEST_EOS_F_H_
+#ifndef UNIT_TEST_F_H
+#define UNIT_TEST_F_H
 
 #include <AMReX_BLFort.H>
 

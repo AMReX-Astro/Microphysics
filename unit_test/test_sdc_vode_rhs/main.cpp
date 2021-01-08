@@ -11,13 +11,13 @@
 using namespace amrex;
 
 #include <test_react.H>
-#include <test_react_F.H>
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
 #include <vode_rhs_test.H>
 #include <AMReX_buildInfo.H>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {

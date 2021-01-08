@@ -20,6 +20,7 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
+#include <unit_test_F.H>
 #include <react_util.H>
 #ifdef NSE_THERMO
 #include <nse.H>

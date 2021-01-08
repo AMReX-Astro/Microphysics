@@ -11,7 +11,6 @@
 using namespace amrex;
 
 #include <test_react.H>
-#include <test_react_F.H>
 #include <AMReX_buildInfo.H>
 
 #include <network.H>
@@ -21,6 +20,7 @@ using namespace amrex;
 
 #include <cmath>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 #include <react_zones.H>
 #include <integrator_sdc.H>
