@@ -57,12 +57,10 @@ subroutine runtime_init(name,namlen)
 
 
   ! read in the namelist
-  un = 9
-  open (unit=un, file=probin(1:namlen), form='formatted', status='old')
+  open (newunit=un, file=probin(1:namlen), form='formatted', status='old')
 #else
   ! read in the namelist
-  un = 9
-  open (unit=un, file=trim(probin), form='formatted', status='old')
+  open (newunit=un, file=trim(probin), form='formatted', status='old')
 #endif
   read (unit=un, nml=extern, iostat=status)
 
@@ -81,6 +79,18 @@ subroutine runtime_init(name,namlen)
   close (unit=un)
 
 end subroutine runtime_init
+
+subroutine update_fortran_extern_after_cxx() bind(C, name="update_fortran_extern_after_cxx")
+
+  use extern_probin_module
+  use amrex_parmparse_module, only: amrex_parmparse_build, amrex_parmparse_destroy, amrex_parmparse
+  use amrex_fort_module, only : rt => amrex_real
+
+  implicit none
+
+  @@fortran_parmparse_overrides@@
+
+end subroutine update_fortran_extern_after_cxx
 
 subroutine runtime_pretty_print(name, namlen) bind(C, name="runtime_pretty_print")
 
