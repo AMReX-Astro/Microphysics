@@ -20,7 +20,6 @@ class Param:
                  namespace=None,
                  debug_default=None,
                  in_fortran=0,
-                 allocate_f90_chars=0,
                  priority=0,
                  ifdef=None):
 
@@ -42,11 +41,6 @@ class Param:
 
         self.debug_default = debug_default
         self.in_fortran = in_fortran
-
-        # if the runtime parameter is managed in Fortran, then we
-        # don't want to allocate characters.  If it is managed in C++,
-        # then we will.
-        self.allocate_f90_chars = allocate_f90_chars
 
         if ifdef == "None":
             self.ifdef = None
@@ -146,12 +140,7 @@ class Param:
                 default = ".false."
         name = self.name
 
-        # for a character, we need to allocate its length.  We allocate
-        # to 1, and the Fortran parmparse will resize
-        if self.dtype == "string":
-            if self.allocate_f90_chars:
-                ostr += "    allocate(character(len=1)::{})\n".format(name)
-        else:
+        if self.dtype != "string":
             ostr += "    allocate({})\n".format(name)
 
         if not self.debug_default is None:
@@ -174,7 +163,13 @@ class Param:
         if language == "C++":
             ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
         elif language == "F90":
-            ostr += f"    call pp%query(\"{self.name}\", {self.name})\n"
+            if self.dtype == "string":
+                ostr += "    allocate(character(len=1) :: dummy_string_param)\n"
+                ostr += f"    call pp%query(\"{self.name}\", dummy_string_param)\n"
+                ostr += f"    {self.name} = dummy_string_param\n"
+                ostr += "    deallocate(dummy_string_param)\n"
+            else:
+                ostr += f"    call pp%query(\"{self.name}\", {self.name})\n"
         else:
             sys.exit("invalid language choice in get_query_string")
 
@@ -220,10 +215,7 @@ class Param:
         if self.dtype != "string":
             tstr = f"{self.get_f90_decl()},  allocatable, save :: {self.name}\n"
         elif self.dtype == "string":
-            if self.allocate_f90_chars:
-                tstr = f"character (len=:), allocatable, save :: {self.name}\n"
-            else:
-                tstr = f"character (len=256) :: {self.name}\n"
+            tstr = f"character (len=256) :: {self.name}\n"
             print(f"warning: string parameter {self.name} will not be available on the GPU")
         else:
             sys.exit(f"unsupported datatype for Fortran: {self.name}")
