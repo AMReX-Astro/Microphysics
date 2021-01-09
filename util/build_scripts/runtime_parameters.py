@@ -38,7 +38,11 @@ class Param:
 
         self.priority = priority
 
-        self.namespace = namespace
+        if namespace is not None:
+            self.namespace = namespace.strip()
+        else:
+            self.namespace = namespace
+
         # if this is true, then we use the namespace when we read the var
         # (e.g., via ParmParse), but we do not declare the C++
         # parameter to be in a namespace

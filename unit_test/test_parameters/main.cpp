@@ -15,6 +15,7 @@ using namespace amrex;
 
 #include <extern_parameters.H>
 #include <unit_test_F.H>
+#include <unit_test.H>
 
 int main (int argc, char* argv[])
 {
