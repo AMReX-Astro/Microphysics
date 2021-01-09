@@ -57,5 +57,6 @@ void main_main ()
     std::cout << "  eos_input_is_constant = " << eos_input_is_constant << std::endl;
     std::cout << "  test_string = " << test_string << std::endl;
     std::cout << "  dens_min = " << dens_min << std::endl;
+    std::cout << "  nonaka_file = " << nonaka_file << std::endl;
 
 }

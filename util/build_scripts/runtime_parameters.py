@@ -174,8 +174,9 @@ class Param:
         elif language == "F90":
             if self.dtype == "string":
                 ostr += "    allocate(character(len=1) :: dummy_string_param)\n"
+                ostr += "    dummy_string_param = \"\"\n"
                 ostr += f"    call pp%query(\"{self.name}\", dummy_string_param)\n"
-                ostr += f"    {self.name} = dummy_string_param\n"
+                ostr += f"    if (dummy_string_param /= \"\") {self.name} = dummy_string_param\n"
                 ostr += "    deallocate(dummy_string_param)\n"
             else:
                 ostr += f"    call pp%query(\"{self.name}\", {self.name})\n"
