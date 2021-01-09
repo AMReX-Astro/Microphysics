@@ -109,8 +109,6 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    init_extern_parameters();
-
     eos_init(small_temp, small_dens);
     conductivity_init();
 

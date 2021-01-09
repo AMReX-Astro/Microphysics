@@ -1,12 +1,24 @@
 #ifndef UNIT_TEST_H
 #define UNIT_TEST_H
 
+#include <unit_test_F.H>
+
 void write_job_info(const std::string& dir);
 
-extern "C" {
+AMREX_INLINE
+void
+init_unit_test(const int* name, const int* namelen) {
 
-void runtime_pretty_print(int* jobinfo_file_name, const int* jobinfo_file_length);
+    // first read in the Fortran parameters
+    init_unit_test_fortran(name, namelen);
+
+    // now sync with C++ and read in the C++ parameters 
+    init_extern_parameters();
+
+    // sync any C++ changes with Fortran
+
+    // initialize Fortran microphysics
+    init_microphysics_fortran();
 
 }
-
 #endif
