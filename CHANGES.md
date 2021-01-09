@@ -1,5 +1,10 @@
 # 21.02
 
+   * Runtime parameters can now be set in the inputs file instead of
+     the probin file (and then they are read in by C++ ParmParse).  If
+     a parameter is set in both places, then the inputs value is used.
+     (#505)
+
    * Fortran support for simplified-SDC in the VODE integrator has
      been removed. (#492)
 
