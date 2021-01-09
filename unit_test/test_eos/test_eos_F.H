@@ -12,10 +12,6 @@ extern "C"
 
   void init_runtime_parameters(const int* name, const int* namlen); 
 
-#ifdef MICROPHYSICS_FORT_EOS
-  void init_fortran_microphysics();
-#endif
-
   void do_eos(const int* lo, const int* hi,
               amrex::Real dlogrho, amrex::Real dlogT, amrex::Real dmetal,
               amrex::Real* state, const int* s_lo, const int* s_hi);

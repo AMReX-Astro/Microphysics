@@ -12,7 +12,7 @@ using namespace amrex;
 #include <network.H>
 #include <burn_cell.H>
 #endif
-
+#include <unit_test_F.H>
 #include <burn_cell_F.H>
 
 int main(int argc, char *argv[]) {

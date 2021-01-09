@@ -9,8 +9,6 @@ extern "C"
 {
 #endif
 
-  void init_unit_test(const int* name, const int* namlen); 
-
   void do_f90_parameters();
 
 #ifdef __cplusplus

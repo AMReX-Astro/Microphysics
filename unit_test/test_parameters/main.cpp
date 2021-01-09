@@ -14,6 +14,7 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 
 #include <extern_parameters.H>
+#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
