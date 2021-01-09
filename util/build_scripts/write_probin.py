@@ -51,6 +51,11 @@ CXX_F_HEADER = """
 extern "C"
 {
 #endif
+
+void runtime_pretty_print(int* jobinfo_file_name, const int* jobinfo_file_length);
+
+void update_fortran_extern_after_cxx();
+
 """
 
 CXX_F_FOOTER = """
@@ -128,7 +133,10 @@ def parse_param_file(params_list, param_file):
         dtype = fields[1]
         default = fields[2]
 
-        current_param = runtime_parameters.Param(name, dtype, default, in_fortran=1, namespace
+        current_param = runtime_parameters.Param(name, dtype, default,
+                                                 in_fortran=1,
+                                                 namespace=namespace,
+                                                 skip_namespace_in_declare=True)
 
         try:
             current_param.priority = int(fields[3])
@@ -335,6 +343,20 @@ def write_probin(probin_template, param_files,
                         fout.write("{}end subroutine get_f90_{}\n\n".format(
                             indent, p.name))
 
+            elif keyword == "fortran_parmparse_overrides":
+
+                namespaces = {q.namespace for q in params}
+                for nm in namespaces:
+                    params_nm = [q for q in params if q.namespace == nm]
+
+                    fout.write(f'    call amrex_parmparse_build(pp, "{nm}")\n')
+
+                    for p in params_nm:
+                        fout.write(p.get_query_string("F90"))
+
+                    fout.write('    call amrex_parmparse_destroy(pp)\n')
+
+                    fout.write("\n\n")
 
         else:
             fout.write(line)
@@ -381,12 +403,19 @@ def write_probin(probin_template, param_files,
     with open(ofile, "w") as fout:
         fout.write(f"#include <{cxx_base}_parameters.H>\n")
         fout.write(f"#include <{cxx_base}_parameters_F.H>\n\n")
+        fout.write("#include <AMReX_ParmParse.H>\n\n")
 
         for p in params:
             fout.write(f"  {p.get_declare_string()}")
 
         fout.write("\n")
         fout.write(f"  void init_{cxx_base}_parameters() {{\n")
+
+        # first write the "get" routines to get the parameter from the
+        # Fortran read -- this will either be the default or the value
+        # from the probin
+
+        fout.write("    // get the values of the parameters from Fortran\n\n");
 
         for p in params:
             if p.dtype == "string":
@@ -397,6 +426,27 @@ def write_probin(probin_template, param_files,
                 fout.write("    {} = std::string(_{});\n\n".format(p.name, p.name))
             else:
                 fout.write("    get_f90_{}(&{});\n\n".format(p.name, p.name))
+
+
+        # now write the parmparse code to get the value from the C++
+        # inputs.  this will overwrite
+
+        fout.write("    // get the value from the inputs file (this overwrites the Fortran value)\n\n")
+
+        namespaces = {q.namespace for q in params}
+
+        for nm in namespaces:
+            params_nm = [q for q in params if q.namespace == nm]
+
+            # open namespace
+            fout.write("    {\n");
+            fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
+            for p in params_nm:
+                qstr = p.get_query_string("C++")
+                fout.write(f"      {qstr}")
+            fout.write("    }\n");
+
+        # have Fortran 
 
         fout.write("  }\n")
 

@@ -14,6 +14,8 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 
 #include <extern_parameters.H>
+#include <unit_test_F.H>
+#include <unit_test.H>
 
 int main (int argc, char* argv[])
 {
@@ -48,12 +50,13 @@ void main_main ()
     // initialize the F90 parameters
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    // initialize the C++ parameters
-    init_extern_parameters();
-
     do_f90_parameters();
 
-    std::cout << "dens_min = " << dens_min << std::endl;
+    std::cout << "in C++" << std::endl;
 
-    std::cout << "test_string = " << test_string << std::endl;
+    std::cout << "  eos_input_is_constant = " << eos_input_is_constant << std::endl;
+    std::cout << "  test_string = " << test_string << std::endl;
+    std::cout << "  dens_min = " << dens_min << std::endl;
+    std::cout << "  nonaka_file = " << nonaka_file << std::endl;
+
 }
