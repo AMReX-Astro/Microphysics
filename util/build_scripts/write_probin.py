@@ -51,6 +51,11 @@ CXX_F_HEADER = """
 extern "C"
 {
 #endif
+
+void runtime_pretty_print(int* jobinfo_file_name, const int* jobinfo_file_length);
+
+void update_fortran_extern_after_cxx();
+
 """
 
 CXX_F_FOOTER = """
@@ -338,6 +343,20 @@ def write_probin(probin_template, param_files,
                         fout.write("{}end subroutine get_f90_{}\n\n".format(
                             indent, p.name))
 
+            elif keyword == "fortran_parmparse_overrides":
+
+                namespaces = {q.namespace for q in params}
+                for nm in namespaces:
+                    params_nm = [q for q in params if q.namespace == nm]
+
+                    fout.write(f'    call amrex_parmparse_build(pp, "{nm}")\n')
+
+                    for p in params_nm:
+                        fout.write(p.get_query_string("F90"))
+
+                    fout.write('    call amrex_parmparse_destroy(pp)\n')
+
+                    fout.write("\n\n")
 
         else:
             fout.write(line)

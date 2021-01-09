@@ -52,7 +52,10 @@ void main_main ()
 
     do_f90_parameters();
 
-    std::cout << "dens_min = " << dens_min << std::endl;
+    std::cout << "in C++" << std::endl;
 
-    std::cout << "test_string = " << test_string << std::endl;
+    std::cout << "  eos_input_is_constant = " << eos_input_is_constant << std::endl;
+    std::cout << "  test_string = " << test_string << std::endl;
+    std::cout << "  dens_min = " << dens_min << std::endl;
+
 }

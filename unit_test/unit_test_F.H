@@ -12,8 +12,6 @@ extern "C"
 
     void init_microphysics_fortran();
 
-    void runtime_pretty_print(int* jobinfo_file_name, const int* jobinfo_file_length);
-
 #ifdef __cplusplus
 }
 #endif
