@@ -234,3 +234,6 @@ class Param:
 
     def __lt__(self, other):
         return self.priority < other.priority
+
+    def __str__(self):
+        return self.name

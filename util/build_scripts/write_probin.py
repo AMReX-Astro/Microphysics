@@ -96,8 +96,6 @@ def parse_param_file(params_list, param_file):
     parameters to the params list.
     """
 
-    err = 0
-
     namespace = None
 
     try:
@@ -108,6 +106,8 @@ def parse_param_file(params_list, param_file):
         print("write_probin.py: working on parameter file {}...".format(param_file))
 
     line = get_next_line(f)
+
+    err = 0
 
     while line and not err:
 
@@ -150,8 +150,8 @@ def parse_param_file(params_list, param_file):
         p_names = [p.name for p in params_list]
         try:
             idx = p_names.index(current_param.name)
-        except:
-            idx = -1
+        except ValueError:
+            pass
         else:
             if params_list[idx].namespace == current_param.namespace:
                 if params_list[idx] < current_param:
