@@ -18,6 +18,7 @@ class Param:
     def __init__(self, name, dtype, default,
                  cpp_var_name=None,
                  namespace=None,
+                 skip_namespace_in_declare=False,
                  debug_default=None,
                  in_fortran=0,
                  priority=0,
@@ -37,7 +38,15 @@ class Param:
 
         self.priority = priority
 
-        self.namespace = namespace
+        if namespace is not None:
+            self.namespace = namespace.strip()
+        else:
+            self.namespace = namespace
+
+        # if this is true, then we use the namespace when we read the var
+        # (e.g., via ParmParse), but we do not declare the C++
+        # parameter to be in a namespace
+        self.skip_namespace_in_declare = skip_namespace_in_declare
 
         self.debug_default = debug_default
         self.in_fortran = in_fortran
@@ -47,7 +56,7 @@ class Param:
         else:
             self.ifdef = ifdef
 
-        if self.namespace is None or self.namespace == "":
+        if self.namespace is None or self.namespace == "" or self.skip_namespace_in_declare:
             self.nm_pre = ""
         else:
             self.nm_pre = f"{self.namespace}::"
@@ -165,8 +174,9 @@ class Param:
         elif language == "F90":
             if self.dtype == "string":
                 ostr += "    allocate(character(len=1) :: dummy_string_param)\n"
+                ostr += "    dummy_string_param = \"\"\n"
                 ostr += f"    call pp%query(\"{self.name}\", dummy_string_param)\n"
-                ostr += f"    {self.name} = dummy_string_param\n"
+                ostr += f"    if (dummy_string_param /= \"\") {self.name} = dummy_string_param\n"
                 ostr += "    deallocate(dummy_string_param)\n"
             else:
                 ostr += f"    call pp%query(\"{self.name}\", {self.name})\n"
@@ -224,3 +234,6 @@ class Param:
 
     def __lt__(self, other):
         return self.priority < other.priority
+
+    def __str__(self):
+        return self.name

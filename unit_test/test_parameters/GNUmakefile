@@ -10,7 +10,7 @@ COMP	   = gnu
 USE_MPI    = FALSE
 USE_OMP    = FALSE
 
-USE_REACT = FALSE
+USE_REACT = TRUE
 
 EBASE = main
 
