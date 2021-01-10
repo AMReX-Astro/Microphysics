@@ -2,4 +2,34 @@ n_cell = 16
 
 prefix = react_reaclib_cburn_
 
-amr.probin_file = probin.reaclib_cburn
+amr.probin_file = probin
+
+unit_test.dens_min = 1.e-3
+unit_test.dens_max = 5.e9
+unit_test.temp_min = 1.e7
+unit_test.temp_max = 6.e8
+
+unit_test.tmax = 1.0e-1
+
+unit_test.primary_species_1 = "carbon-12"
+unit_test.primary_species_2 = "helium-4"
+unit_test.primary_species_3 = "oxygen-16"
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+integrator.jacobian   = 1
+
+integrator.retry_burn = 0
+integrator.renormalize_abundances = 0
+
+network.small_x = 1.e-16
+
+integrator.rtol_spec = 1.0e-12
+integrator.rtol_enuc = 1.0e-9
+integrator.rtol_temp = 1.0e-9
+integrator.atol_spec = 1.0e-12
+integrator.atol_enuc = 1.0e-9
+integrator.atol_temp = 1.0e-9
+
+integrator.burner_verbose = 0
