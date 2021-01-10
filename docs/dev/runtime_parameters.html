@@ -253,9 +253,9 @@
 <h1>C-burn-simple<a class="headerlink" href="#c-burn-simple" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -275,9 +275,9 @@
 <h1>C-test<a class="headerlink" href="#c-test" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -297,9 +297,9 @@
 <h1>CVODE<a class="headerlink" href="#cvode" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -323,9 +323,9 @@
 <h1>ECSN<a class="headerlink" href="#ecsn" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -343,17 +343,87 @@
 </div>
 <div class="section" id="forwardeuler">
 <h1>ForwardEuler<a class="headerlink" href="#forwardeuler" title="Permalink to this headline">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">maximum_timestep_change_factor</span></code></p></td>
+<td><p>Maximum amount any quantity can change by in a timestep</p></td>
+<td><p>1.01</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="qss">
 <h1>QSS<a class="headerlink" href="#qss" title="Permalink to this headline">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">maximum_timestep_change_factor</span></code></p></td>
+<td><p>Maximum amount any integration quantity can change by
+in a timestep</p></td>
+<td><p>1.001</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dt_error_tolerance</span></code></p></td>
+<td><p>Threshold factor on the error criterion used in
+timestep selection</p></td>
+<td><p>0.1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">num_timestep_iters</span></code></p></td>
+<td><p>Maximum number of iterations on the timestep constraint
+loop</p></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">num_corrector_iters</span></code></p></td>
+<td><p>Maximum number of iterations on the corrector loop</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dt_max_change_factor</span></code></p></td>
+<td><p>Maximum factor that dt is allowed to grow per timestep</p></td>
+<td><p>1.05</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dt_cut_factor</span></code></p></td>
+<td><p>Multiply the timestep by this factor when we outright
+reject it</p></td>
+<td><p>0.5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_tolerance</span></code></p></td>
+<td><p>Reject a species update if X &lt; -tol or X &gt; 1.0 + tol</p></td>
+<td><p>0.01</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dt_init_fraction</span></code></p></td>
+<td><p>Scale factor for initial timestep</p></td>
+<td><p>0.01</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="urca-simple">
 <h1>URCA-simple<a class="headerlink" href="#urca-simple" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -373,9 +443,9 @@
 <h1>VODE<a class="headerlink" href="#vode" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -395,9 +465,9 @@
 <h1>aprox19<a class="headerlink" href="#aprox19" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -433,9 +503,9 @@
 <h1>breakout<a class="headerlink" href="#breakout" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -455,9 +525,9 @@
 <h1>burn_cell<a class="headerlink" href="#burn-cell" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -585,9 +655,9 @@
 <h1>cj_detonation<a class="headerlink" href="#cj-detonation" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -607,9 +677,9 @@
 <h1>constant<a class="headerlink" href="#constant" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -633,9 +703,9 @@
 <h1>constant_opacity<a class="headerlink" href="#constant-opacity" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -655,9 +725,9 @@
 <h1>eos_cell<a class="headerlink" href="#eos-cell" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -773,9 +843,9 @@
 <h1>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -799,9 +869,9 @@
 <h1>gamma_law_general<a class="headerlink" href="#gamma-law-general" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -825,9 +895,9 @@
 <h1>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -869,9 +939,9 @@
 <h1>integration<a class="headerlink" href="#integration" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1048,9 +1118,9 @@ integration.</p></td>
 <h1>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1094,9 +1164,9 @@ integration.</p></td>
 <h1>networks<a class="headerlink" href="#networks" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1125,9 +1195,9 @@ network?</p></td>
 <h1>nova<a class="headerlink" href="#nova" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1147,9 +1217,9 @@ network?</p></td>
 <h1>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1181,9 +1251,9 @@ network?</p></td>
 <h1>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1236,9 +1306,9 @@ priority</p></td>
 <h1>python_library<a class="headerlink" href="#python-library" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1262,9 +1332,9 @@ priority</p></td>
 <h1>rad_power_law<a class="headerlink" href="#rad-power-law" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1348,9 +1418,9 @@ priority</p></td>
 <h1>rprox<a class="headerlink" href="#rprox" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1400,9 +1470,9 @@ burns</p></td>
 <h1>sn160<a class="headerlink" href="#sn160" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1422,9 +1492,9 @@ burns</p></td>
 <h1>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1448,9 +1518,9 @@ burns</p></td>
 <h1>subch<a class="headerlink" href="#subch" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1470,9 +1540,9 @@ burns</p></td>
 <h1>subch2<a class="headerlink" href="#subch2" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1492,9 +1562,9 @@ burns</p></td>
 <h1>test_aprox_rates<a class="headerlink" href="#test-aprox-rates" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1538,9 +1608,9 @@ burns</p></td>
 <h1>test_conductivity<a class="headerlink" href="#test-conductivity" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1584,9 +1654,9 @@ burns</p></td>
 <h1>test_cvode_react<a class="headerlink" href="#test-cvode-react" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1642,9 +1712,9 @@ burns</p></td>
 <h1>test_eos<a class="headerlink" href="#test-eos" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1688,9 +1758,9 @@ burns</p></td>
 <h1>test_jac<a class="headerlink" href="#test-jac" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1754,9 +1824,9 @@ burns</p></td>
 <h1>test_parameters<a class="headerlink" href="#test-parameters" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1800,9 +1870,9 @@ burns</p></td>
 <h1>test_reaclib_rates<a class="headerlink" href="#test-reaclib-rates" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1830,9 +1900,9 @@ burns</p></td>
 <h1>test_react<a class="headerlink" href="#test-react" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1896,9 +1966,9 @@ burns</p></td>
 <h1>test_rhs<a class="headerlink" href="#test-rhs" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1962,9 +2032,9 @@ burns</p></td>
 <h1>test_screening<a class="headerlink" href="#test-screening" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2008,9 +2078,9 @@ burns</p></td>
 <h1>test_sdc<a class="headerlink" href="#test-sdc" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2070,9 +2140,9 @@ burns</p></td>
 <h1>test_sdc_vode_rhs<a class="headerlink" href="#test-sdc-vode-rhs" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2196,9 +2266,9 @@ burns</p></td>
 <h1>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2248,9 +2318,9 @@ burns</p></td>
 <h1>xrb_simple<a class="headerlink" href="#xrb-simple" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
-<col style="width: 31%" />
-<col style="width: 51%" />
-<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>

@@ -210,7 +210,7 @@
 <p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> can be run in a manner where we blends the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>
 network with a table for nuclear statistic equilibrium at high density
 and temperatures.  This is based on the table described in
-<span class="xref std std-ref">ma:2013</span>.  This option is enabled by building with <code class="docutils literal notranslate"><span class="pre">USE_NSE=TRUE</span></code>.</p>
+<span id="id1">[<a class="reference internal" href="zreferences.html#id29"><span>MaWoosleyMalone+13</span></a>]</span>.  This option is enabled by building with <code class="docutils literal notranslate"><span class="pre">USE_NSE=TRUE</span></code>.</p>
 <p>The NSE table provides:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
@@ -263,7 +263,7 @@ Strang-split evolution)</p></li>
 <ul>
 <li><p>use <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(Y_e\)</span> to call the table.
 This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <span class="math notranslate nohighlight">\((B/A)_{\rm out}\)</span>, and <span class="math notranslate nohighlight">\(\bar{A}_{\rm out}\)</span>.</p></li>
-<li><p>update <span class="math notranslate nohighlight">\(Y_e\)</span> <a class="footnote-reference brackets" href="#fy" id="id1">1</a> :</p>
+<li><p>update <span class="math notranslate nohighlight">\(Y_e\)</span> <a class="footnote-reference brackets" href="#fy" id="id2">1</a> :</p>
 <div class="math notranslate nohighlight">
 \[(Y_e)_{\rm out} = (Y_e)_{\rm in} + \Delta t \frac{dY_e}{dt}\]</div>
 </li>
@@ -302,7 +302,7 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </ul>
 <p class="rubric">Footnotes</p>
 <dl class="footnote brackets">
-<dt class="label" id="fy"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dt class="label" id="fy"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
 <dd><p>The table actually provides the weak rate, which is the sum
 of all electron capture and positron decay rates times the
 appropriate abundances minus a similar rate for the beta decay and
