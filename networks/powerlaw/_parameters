@@ -1,3 +1,5 @@
+@namespace: network
+
 # We are modeling a reaction of the form
 #
 #   f + f -> a + gamma

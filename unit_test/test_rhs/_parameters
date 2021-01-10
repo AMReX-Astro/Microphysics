@@ -1,3 +1,5 @@
+@namespace: unit_test
+
 dens_min      real       1.d6
 dens_max      real       1.d9
 temp_min      real       1.d6

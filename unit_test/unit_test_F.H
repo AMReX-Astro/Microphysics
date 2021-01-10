@@ -8,7 +8,9 @@
 extern "C"
 {
 #endif
-  void init_unit_test(const int* name, const int* namlen);
+    void init_unit_test_fortran(const int* name, const int* namlen);
+
+    void init_microphysics_fortran();
 
 #ifdef __cplusplus
 }
