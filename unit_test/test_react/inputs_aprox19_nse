@@ -21,8 +21,8 @@ unit_test.primary_species_2 = "iron-54"
 
 integrator.jacobian = 1
 
-integrator.rtol_spec = 1.d-8
-integrator.atol_spec = 1.d-10
+integrator.rtol_spec = 1.e-8
+integrator.atol_spec = 1.e-10
 
 network.small_x = 1.e-10
 
