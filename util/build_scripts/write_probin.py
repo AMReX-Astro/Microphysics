@@ -415,7 +415,7 @@ def write_probin(probin_template, param_files,
         # Fortran read -- this will either be the default or the value
         # from the probin
 
-        fout.write("    // get the values of the parameters from Fortran\n\n");
+        fout.write("    // get the values of the parameters from Fortran\n\n")
 
         for p in params:
             if p.dtype == "string":
@@ -439,14 +439,14 @@ def write_probin(probin_template, param_files,
             params_nm = [q for q in params if q.namespace == nm]
 
             # open namespace
-            fout.write("    {\n");
+            fout.write("    {\n")
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
                 qstr = p.get_query_string("C++")
                 fout.write(f"      {qstr}")
-            fout.write("    }\n");
+            fout.write("    }\n")
 
-        # have Fortran 
+        # have Fortran
 
         fout.write("  }\n")
 
