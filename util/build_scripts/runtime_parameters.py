@@ -18,9 +18,9 @@ class Param:
     def __init__(self, name, dtype, default,
                  cpp_var_name=None,
                  namespace=None,
+                 skip_namespace_in_declare=False,
                  debug_default=None,
                  in_fortran=0,
-                 allocate_f90_chars=0,
                  priority=0,
                  ifdef=None):
 
@@ -38,22 +38,25 @@ class Param:
 
         self.priority = priority
 
-        self.namespace = namespace
+        if namespace is not None:
+            self.namespace = namespace.strip()
+        else:
+            self.namespace = namespace
+
+        # if this is true, then we use the namespace when we read the var
+        # (e.g., via ParmParse), but we do not declare the C++
+        # parameter to be in a namespace
+        self.skip_namespace_in_declare = skip_namespace_in_declare
 
         self.debug_default = debug_default
         self.in_fortran = in_fortran
-
-        # if the runtime parameter is managed in Fortran, then we
-        # don't want to allocate characters.  If it is managed in C++,
-        # then we will.
-        self.allocate_f90_chars = allocate_f90_chars
 
         if ifdef == "None":
             self.ifdef = None
         else:
             self.ifdef = ifdef
 
-        if self.namespace is None or self.namespace == "":
+        if self.namespace is None or self.namespace == "" or self.skip_namespace_in_declare:
             self.nm_pre = ""
         else:
             self.nm_pre = f"{self.namespace}::"
@@ -139,15 +142,14 @@ class Param:
             if "d" in default:
                 default = default.replace("d", "e")
             default += "_rt"
-
+        elif self.dtype == "bool":
+            if default == "true":
+                default = ".true."
+            elif default == "false":
+                default = ".false."
         name = self.name
 
-        # for a character, we need to allocate its length.  We allocate
-        # to 1, and the Fortran parmparse will resize
-        if self.dtype == "string":
-            if self.allocate_f90_chars:
-                ostr += "    allocate(character(len=1)::{})\n".format(name)
-        else:
+        if self.dtype != "string":
             ostr += "    allocate({})\n".format(name)
 
         if not self.debug_default is None:
@@ -170,7 +172,14 @@ class Param:
         if language == "C++":
             ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
         elif language == "F90":
-            ostr += f"    call pp%query(\"{self.name}\", {self.name})\n"
+            if self.dtype == "string":
+                ostr += "    allocate(character(len=1) :: dummy_string_param)\n"
+                ostr += "    dummy_string_param = \"\"\n"
+                ostr += f"    call pp%query(\"{self.name}\", dummy_string_param)\n"
+                ostr += f"    if (dummy_string_param /= \"\") {self.name} = dummy_string_param\n"
+                ostr += "    deallocate(dummy_string_param)\n"
+            else:
+                ostr += f"    call pp%query(\"{self.name}\", {self.name})\n"
         else:
             sys.exit("invalid language choice in get_query_string")
 
@@ -189,8 +198,8 @@ class Param:
 
         ostr = (
             f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format()} ? "    "' +
-            ': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
-            '<< {self.np_pre}{self.cpp_var_name} << std::endl;\n')
+            f': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
+            f'<< {self.nm_pre}{self.cpp_var_name} << std::endl;\n')
 
         return ostr
 
@@ -201,7 +210,10 @@ class Param:
             return "real (kind=rt)"
         elif self.dtype == "string":
             return "character (len=256)"
-
+        elif self.dtype == "int":
+            return "integer"
+        elif self.dtype == "bool":
+            return "logical"
         return self.dtype
 
     def get_f90_decl_string(self):
@@ -213,10 +225,7 @@ class Param:
         if self.dtype != "string":
             tstr = f"{self.get_f90_decl()},  allocatable, save :: {self.name}\n"
         elif self.dtype == "string":
-            if self.allocate_f90_chars:
-                tstr = f"character (len=:), allocatable, save :: {self.name}\n"
-            else:
-                tstr = f"character (len=256) :: {self.name}\n"
+            tstr = f"character (len=256) :: {self.name}\n"
             print(f"warning: string parameter {self.name} will not be available on the GPU")
         else:
             sys.exit(f"unsupported datatype for Fortran: {self.name}")
@@ -225,3 +234,6 @@ class Param:
 
     def __lt__(self, other):
         return self.priority < other.priority
+
+    def __str__(self):
+        return self.name

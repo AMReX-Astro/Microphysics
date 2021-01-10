@@ -2,3 +2,10 @@ n_cell = 16
 max_grid_size = 32
 
 amr.probin = probin
+
+unit_test.dens_min = 10.e0
+unit_test.dens_max = 5.e9
+unit_test.temp_min = 1.e6
+unit_test.temp_max = 1.e10
+
+unit_test.metalicity_max = 0.5e0

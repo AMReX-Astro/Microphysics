@@ -1,3 +1,5 @@
+@namespace: opacity
+
 # Opacity constant (Planck)
 const_kappa_p                real           -1.0d0
 

@@ -11,7 +11,6 @@
 using namespace amrex;
 
 #include <test_react.H>
-#include <test_react_F.H>
 #include <AMReX_buildInfo.H>
 
 #include <network.H>
@@ -21,6 +20,7 @@ using namespace amrex;
 
 #include <cmath>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 #include <react_zones.H>
 #include <integrator_sdc.H>
@@ -112,9 +112,6 @@ void main_main ()
       probin_file_name[i] = probin_file[i];
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-    // Copy extern parameters from Fortran to C++
-    init_extern_parameters();
 
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);

@@ -20,6 +20,7 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
+#include <unit_test_F.H>
 #include <react_util.H>
 #ifdef NSE_THERMO
 #include <nse.H>
@@ -120,9 +121,6 @@ void main_main ()
       probin_file_name[i] = probin_file[i];
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-    // Copy extern parameters from Fortran to C++
-    init_extern_parameters();
 
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);

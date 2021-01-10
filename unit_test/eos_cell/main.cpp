@@ -10,7 +10,7 @@ using namespace amrex;
 #include <eos.H>
 #include <network.H>
 #include <eos_cell.H>
-#include <eos_cell_F.H>
+#include <unit_test_F.H>
 
 int main(int argc, char *argv[]) {
 
@@ -33,9 +33,6 @@ int main(int argc, char *argv[]) {
     probin_file_name[i] = probin_file[i];
 
   init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-  // Copy extern parameters from Fortran to C++
-  init_extern_parameters();
 
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
   eos_init(small_temp, small_dens);

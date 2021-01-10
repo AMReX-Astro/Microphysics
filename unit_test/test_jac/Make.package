@@ -5,7 +5,6 @@ CEXE_headers += test_react.H
 
 F90EXE_sources += variables_F.F90
 F90EXE_sources += jac_zones.F90
-f90EXE_sources += unit_test.f90
 
 CEXE_headers += variables.H
 CEXE_sources += variables.cpp
