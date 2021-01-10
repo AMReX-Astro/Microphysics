@@ -2,7 +2,7 @@ n_cell = 16
 
 prefix = react_iso7_
 
-amr.probin_file = probin.iso7
+amr.probin_file = probin
 
 unit_test.small_dens = 1.0d0
 
