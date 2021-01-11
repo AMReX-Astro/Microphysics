@@ -23,6 +23,7 @@ class Param:
                  in_fortran=0,
                  priority=0,
                  size=1,
+                 in_namelist = False,
                  ifdef=None):
 
         self.name = name
@@ -38,6 +39,8 @@ class Param:
             self.cpp_var_name = self.name
 
         self.priority = priority
+
+        self.in_namelist = in_namelist
 
         if namespace is not None:
             self.namespace = namespace.strip()
@@ -136,13 +139,15 @@ class Param:
             if self.dtype == "real":
                 if "d" in debug_default:
                     debug_default = debug_default.replace("d", "e")
-                debug_default += "_rt"
+                if not debug_default.endswith("_rt"):
+                    debug_default += "_rt"
 
         default = self.default
         if self.dtype == "real":
             if "d" in default:
                 default = default.replace("d", "e")
-            default += "_rt"
+            if not default.endswith("_rt"):
+                default += "_rt"
         elif self.dtype == "bool":
             if default == "true":
                 default = ".true."
@@ -151,16 +156,24 @@ class Param:
         name = self.name
 
         if self.dtype != "string":
-            ostr += f"    allocate({name})\n"
+            if self.is_array():
+                ostr += f"    allocate({name}({self.size}))\n"
+            else:
+                ostr += f"    allocate({name})\n"
+
+        if self.is_array():
+            name_set = f"{name}(:)"
+        else:
+            name_set = f"{name}"
 
         if not self.debug_default is None:
             ostr += "#ifdef AMREX_DEBUG\n"
-            ostr += f"    {name} = {debug_default}\n"
+            ostr += f"    {name_set} = {debug_default}\n"
             ostr += "#else\n"
-            ostr += f"    {name} = {default}\n"
+            ostr += f"    {name_set} = {default}\n"
             ostr += "#endif\n"
         else:
-            ostr += f"    {name} = {default}\n"
+            ostr += f"    {name_set} = {default}\n"
 
         return ostr
 
@@ -224,9 +237,15 @@ class Param:
             return None
 
         if self.dtype != "string":
-            tstr = f"{self.get_f90_decl()},  allocatable, save :: {self.name}\n"
+            if self.is_array():
+                tstr = f"{self.get_f90_decl()},  allocatable, save :: {self.name}(:)\n"
+            else:
+                tstr = f"{self.get_f90_decl()},  allocatable, save :: {self.name}\n"
         elif self.dtype == "string":
-            tstr = f"character (len=256) :: {self.name}\n"
+            if self.is_array():
+                print("error: cannot have a character array")
+            else:
+                tstr = f"character (len=256) :: {self.name}\n"
             print(f"warning: string parameter {self.name} will not be available on the GPU")
         else:
             sys.exit(f"unsupported datatype for Fortran: {self.name}")
