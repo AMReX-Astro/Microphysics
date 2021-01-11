@@ -243,7 +243,7 @@ class Param:
                 tstr = f"{self.get_f90_decl()},  allocatable, save :: {self.name}\n"
         elif self.dtype == "string":
             if self.is_array():
-                print("error: cannot have a character array")
+                sys.exit("error: cannot have a character array")
             else:
                 tstr = f"character (len=256) :: {self.name}\n"
             print(f"warning: string parameter {self.name} will not be available on the GPU")
