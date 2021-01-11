@@ -101,9 +101,9 @@ def parse_param_file(params_list, param_file):
     try:
         f = open(param_file, "r")
     except IOError:
-        sys.exit("write_probin.py: ERROR: file {} does not exist".format(param_file))
+        sys.exit(f"write_probin.py: ERROR: file {param_file} does not exist")
     else:
-        print("write_probin.py: working on parameter file {}...".format(param_file))
+        print(f"write_probin.py: working on parameter file {param_file}...")
 
     line = get_next_line(f)
 
@@ -186,7 +186,7 @@ def write_probin(probin_template, param_files,
     params = []
 
     print(" ")
-    print("write_probin.py: creating {}".format(out_file))
+    print(f"write_probin.py: creating {out_file}")
 
     # read the parameters defined in the parameter files
 
@@ -199,7 +199,7 @@ def write_probin(probin_template, param_files,
     try:
         ftemplate = open(probin_template, "r")
     except IOError:
-        sys.exit("write_probin.py: ERROR: file {} does not exist".format(probin_template))
+        sys.exit(f"write_probin.py: ERROR: file {probin_template} does not exist")
 
     template_lines = ftemplate.readlines()
 
@@ -241,16 +241,14 @@ def write_probin(probin_template, param_files,
             elif keyword == "deallocations":
                 for p in params:
                     if p.dtype != "string":
-                        fout.write("{}deallocate({})\n".format(indent, p.name))
+                        fout.write(f"{indent}deallocate({p.name})\n")
 
             elif keyword == "namelist":
                 for p in params:
-                    fout.write("{}namelist /{}/ {}\n".format(
-                        indent, namelist_name, p.name))
+                    fout.write(f"{indent}namelist /{namelist_name}/ {p.name}\n")
 
                 if not params:
-                    fout.write("{}namelist /{}/ a_dummy_var\n".format(
-                        indent, namelist_name))
+                    fout.write(f"{indent}namelist /{namelist_name}/ a_dummy_var\n")
 
             elif keyword == "defaults":
                 # this is no longer used -- we do the defaults together with allocations
@@ -265,32 +263,28 @@ def write_probin(probin_template, param_files,
 
                 for p in params:
                     if p.dtype == "logical":
-                        ltest = "\n{}ltest = {} .eqv. {}\n".format(indent, p.name, p.default)
+                        ltest = f"\n{indent}ltest = {p.name} .eqv. {p.default}\n"
                     else:
-                        ltest = "\n{}ltest = {} == {}\n".format(indent, p.name, p.default)
+                        ltest = f"\n{indent}ltest = {p.name} == {p.default}\n"
 
                     fout.write(ltest)
 
                     cmd = "merge(\"   \", \"[*]\", ltest)"
 
                     if p.dtype == "real":
-                        fout.write("{}write (unit,102) {}, &\n \"{}\", {}\n".format(
-                            indent, cmd, p.name, p.name))
+                        fout.write(f"{indent}write (unit,102) {cmd}, &\n \"{p.name}\", {p.name}\n")
 
                     elif p.dtype == "string":
-                        fout.write("{}write (unit,100) {}, &\n \"{}\", trim({})\n".format(
-                            indent, cmd, p.name, p.name))
+                        fout.write(f"{indent}write (unit,100) {cmd}, &\n \"{p.name}\", trim({p.name})\n")
 
                     elif p.dtype == "integer":
-                        fout.write("{}write (unit,101) {}, &\n \"{}\", {}\n".format(
-                            indent, cmd, p.name, p.name))
+                        fout.write(f"{indent}write (unit,101) {cmd}, &\n \"{p.name}\", {p.name}\n")
 
                     elif p.dtype == "logical":
-                        fout.write("{}write (unit,103) {}, &\n \"{}\", {}\n".format(
-                            indent, cmd, p.name, p.name))
+                        fout.write(f"{indent}write (unit,103) {cmd}, &\n \"{p.name}\", {p.name}\n")
 
                     else:
-                        print("write_probin.py: invalid datatype for variable {}".format(p.name))
+                        print(f"write_probin.py: invalid datatype for variable {p.name}")
 
 
             elif keyword == "acc":
@@ -302,46 +296,7 @@ def write_probin(probin_template, param_files,
                 # called from C++ to get the value of the parameters
 
                 for p in params:
-                    if p.dtype == "string":
-                        fout.write("{}subroutine get_f90_{}_len(slen) bind(C, name=\"get_f90_{}_len\")\n".format(
-                            indent, p.name, p.name))
-                        fout.write("{}   integer, intent(inout) :: slen\n".format(indent))
-                        fout.write("{}   slen = len(trim({}))\n".format(indent, p.name))
-                        fout.write("{}end subroutine get_f90_{}_len\n\n".format(indent, p.name))
-
-                        fout.write("{}subroutine get_f90_{}({}_in) bind(C, name=\"get_f90_{}\")\n".format(
-                            indent, p.name, p.name, p.name))
-                        fout.write("{}   character(kind=c_char) :: {}_in(*)\n".format(
-                            indent, p.name))
-                        fout.write("{}   integer :: n\n".format(indent))
-                        fout.write("{}   do n = 1, len(trim({}))\n".format(indent, p.name))
-                        fout.write("{}      {}_in(n:n) = {}(n:n)\n".format(indent, p.name, p.name))
-                        fout.write("{}   end do\n".format(indent))
-                        fout.write("{}   {}_in(len(trim({}))+1) = char(0)\n".format(indent, p.name, p.name))
-                        fout.write("{}end subroutine get_f90_{}\n\n".format(indent, p.name))
-
-                    elif p.dtype == "logical":
-                        # F90 logicals are integers in C++
-                        fout.write("{}subroutine get_f90_{}({}_in) bind(C, name=\"get_f90_{}\")\n".format(
-                            indent, p.name, p.name, p.name))
-                        fout.write("{}   integer, intent(inout) :: {}_in\n".format(
-                            indent, p.name))
-                        fout.write("{}   {}_in = 0\n".format(indent, p.name))
-                        fout.write("{}   if ({}) then\n".format(indent, p.name))
-                        fout.write("{}      {}_in = 1\n".format(indent, p.name))
-                        fout.write("{}   endif\n".format(indent))
-                        fout.write("{}end subroutine get_f90_{}\n\n".format(
-                            indent, p.name))
-
-                    else:
-                        fout.write("{}subroutine get_f90_{}({}_in) bind(C, name=\"get_f90_{}\")\n".format(
-                            indent, p.name, p.name, p.name))
-                        fout.write("{}   {}, intent(inout) :: {}_in\n".format(
-                            indent, p.get_f90_decl(), p.name))
-                        fout.write("{}   {}_in = {}\n".format(
-                            indent, p.name, p.name))
-                        fout.write("{}end subroutine get_f90_{}\n\n".format(
-                            indent, p.name))
+                    fout.write(p.get_f90_get_function())
 
             elif keyword == "fortran_parmparse_overrides":
 
@@ -374,13 +329,11 @@ def write_probin(probin_template, param_files,
 
         for p in params:
             if p.dtype == "string":
-                fout.write("  void get_f90_{}(char* {});\n\n".format(
-                    p.name, p.name))
-                fout.write("  void get_f90_{}_len(int& slen);\n\n".format(p.name))
+                fout.write(f"  void get_f90_{p.name}(char* {p.name});\n\n")
+                fout.write(f"  void get_f90_{p.name}_len(int& slen);\n\n")
 
             else:
-                fout.write("  void get_f90_{}({}* {});\n\n".format(
-                    p.name, p.get_cxx_decl(), p.name))
+                fout.write(f"  void get_f90_{p.name}({p.get_cxx_decl()}* {p.name});\n\n")
 
         fout.write(CXX_F_FOOTER)
 
@@ -419,13 +372,13 @@ def write_probin(probin_template, param_files,
 
         for p in params:
             if p.dtype == "string":
-                fout.write("    int slen_{} = 0;\n".format(p.name))
-                fout.write("    get_f90_{}_len(slen_{});\n".format(p.name, p.name))
-                fout.write("    char _{}[slen_{}+1];\n".format(p.name, p.name))
-                fout.write("    get_f90_{}(_{});\n".format(p.name, p.name))
-                fout.write("    {} = std::string(_{});\n\n".format(p.name, p.name))
+                fout.write(f"    int slen_{p.name} = 0;\n")
+                fout.write(f"    get_f90_{p.name}_len(slen_{p.name});\n")
+                fout.write(f"    char _{p.name}[slen_{p.name}+1];\n")
+                fout.write(f"    get_f90_{p.name}(_{p.name});\n")
+                fout.write(f"    {p.name} = std::string(_{p.name});\n\n")
             else:
-                fout.write("    get_f90_{}(&{});\n\n".format(p.name, p.name))
+                fout.write(f"    get_f90_{p.name}(&{p.name});\n\n")
 
 
         # now write the parmparse code to get the value from the C++
