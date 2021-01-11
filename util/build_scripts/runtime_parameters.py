@@ -22,6 +22,7 @@ class Param:
                  debug_default=None,
                  in_fortran=0,
                  priority=0,
+                 size=1,
                  ifdef=None):
 
         self.name = name
@@ -31,7 +32,7 @@ class Param:
             self.dtype = "string"
 
         self.default = default
-
+        self.size = size
         self.cpp_var_name = cpp_var_name
         if self.cpp_var_name is None:
             self.cpp_var_name = self.name
@@ -150,7 +151,7 @@ class Param:
         name = self.name
 
         if self.dtype != "string":
-            ostr += "    allocate({})\n".format(name)
+            ostr += f"    allocate({name})\n"
 
         if not self.debug_default is None:
             ostr += "#ifdef AMREX_DEBUG\n"
@@ -189,7 +190,7 @@ class Param:
         """return the variable in a format that it can be recognized in C++
         code--in particular, preserve the quotes for strings"""
         if self.dtype == "string":
-            return '{}'.format(self.default)
+            return f'{self.default}'
 
         return self.default
 
@@ -231,6 +232,56 @@ class Param:
             sys.exit(f"unsupported datatype for Fortran: {self.name}")
 
         return tstr
+
+    def get_f90_get_function(self):
+        """this returns the "getter" function in Fortran that is called from C++"""
+        ostr = ""
+        if self.dtype == "string":
+            ostr += f"  subroutine get_f90_{self.name}_len(slen) bind(C, name=\"get_f90_{self.name}_len\")\n"
+            ostr +=  "     integer, intent(inout) :: slen\n"
+            ostr += f"     slen = len(trim({self.name}))\n"
+            ostr += f"  end subroutine get_f90_{self.name}_len\n\n"
+
+            ostr += f"  subroutine get_f90_{self.name}({self.name}_in) bind(C, name=\"get_f90_{self.name}\")\n"
+            ostr += f"     character(kind=c_char) :: {self.name}_in(*)\n"
+            ostr +=  "     integer :: n\n"
+            ostr += f"     do n = 1, len(trim({self.name}))\n"
+            ostr += f"        {self.name}_in(n:n) = {self.name}(n:n)\n"
+            ostr +=  "     end do\n"
+            ostr += f"     {self.name}_in(len(trim({self.name}))+1) = char(0)\n"
+            ostr += f"  end subroutine get_f90_{self.name}\n\n"
+
+        elif self.dtype == "bool":
+            # F90 logicals are integers in C++
+            ostr += f"  subroutine get_f90_{self.name}({self.name}_in) bind(C, name=\"get_f90_{self.name}\")\n"
+            ostr += f"     integer, intent(inout) :: {self.name}_in\n"
+            ostr += f"     {self.name}_in = 0\n"
+            ostr += f"     if ({self.name}) then\n"
+            ostr += f"        {self.name}_in = 1\n"
+            ostr +=  "     endif\n"
+            ostr += f"  end subroutine get_f90_{self.name}\n\n"
+
+        else:
+            ostr += f"  subroutine get_f90_{self.name}({self.name}_in) bind(C, name=\"get_f90_{self.name}\")\n"
+            if self.is_array():
+                ostr += f"     {self.get_f90_decl()}, intent(inout) :: {self.name}_in({self.size})\n"
+            else:
+                ostr += f"     {self.get_f90_decl()}, intent(inout) :: {self.name}_in\n"
+            ostr += f"     {self.name}_in = {self.name}\n"
+            ostr += f"  end subroutine get_f90_{self.name}\n\n"
+
+        return ostr
+
+    def is_array(self):
+        """return true if the parameter is an array"""
+        try:
+            isize = int(self.size)
+        except ValueError:
+            return True
+        else:
+            if isize == 1:
+                return False
+            return True
 
     def __lt__(self, other):
         return self.priority < other.priority
