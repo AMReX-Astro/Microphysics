@@ -6,9 +6,9 @@
 
 #include <ArrayUtilities.H>
 
-template <int num_eqs>
+template <int num_eqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
+void dgesl (T& a, IArray1D& pivot, RArray1D& b)
 {
 
     int nm1 = num_eqs - 1;
@@ -45,9 +45,9 @@ void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
 
 
 
-template <int num_eqs>
+template <int num_eqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dgefa (RArray2D& a, IArray1D& pivot, int& info)
+void dgefa (T& a, IArray1D& pivot, int& info)
 {
 
     // dgefa factors a matrix by gaussian elimination.
