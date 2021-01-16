@@ -6,7 +6,7 @@ module microphysics_module
 #endif
 #ifdef REACTIONS
   use actual_rhs_module, only : actual_rhs_init
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
   use actual_burner_module, only : actual_burner_init
 #endif
 #endif
@@ -50,7 +50,7 @@ contains
 
 #ifdef REACTIONS
     call actual_rhs_init()
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     call actual_burner_init()
 #endif
 #endif

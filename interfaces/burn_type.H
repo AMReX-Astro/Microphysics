@@ -150,7 +150,7 @@ struct burn_t
 #ifdef TRUE_SDC
   Real E_var;
   Real mom[3];
-  Real f_source[NumSpec+2]
+  Real f_source[NumSpec+2];
 #endif
 
   Real y_e;
@@ -219,7 +219,7 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
     }
 #endif
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     burn_state.cv   = eos_state.cv;
     burn_state.cp   = eos_state.cp;
 #endif
@@ -254,7 +254,7 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
     }
 #endif
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
 #endif
