@@ -8,5 +8,8 @@ ifeq ($(USE_REACT), TRUE)
       f90EXE_sources += actual_burner.f90
     endif
   endif
-  f90EXE_sources += actual_rhs.f90
+
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    f90EXE_sources += actual_rhs.f90
+  endif
 endif

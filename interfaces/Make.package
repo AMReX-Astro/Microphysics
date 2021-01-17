@@ -26,7 +26,9 @@ ifeq ($(USE_CXX_REACTIONS),TRUE)
   CEXE_headers += rhs_utilities.H
   CEXE_sources += network_initialization.cpp
   CEXE_headers += fortran_to_cxx_actual_rhs.H
-  F90EXE_sources += fortran_to_cxx_actual_rhs.F90
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    F90EXE_sources += fortran_to_cxx_actual_rhs.F90
+  endif
 endif
 
 ifeq ($(USE_CONDUCTIVITY), TRUE)

@@ -8,7 +8,10 @@ ifeq ($(USE_REACT),TRUE)
       F90EXE_sources += actual_burner.F90
     endif
   endif
-  F90EXE_sources += actual_rhs.F90
+
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    F90EXE_sources += actual_rhs.F90
+  endif
 
   USE_SCREENING = TRUE
 endif

@@ -9,6 +9,7 @@ ifeq ($(USE_REACT),TRUE)
       F90EXE_sources += actual_burner.F90
     endif
   endif
+
   F90EXE_sources += actual_rhs.F90
   F90EXE_sources += tfactors.F90
   F90EXE_sources += rates_module.F90

@@ -10,18 +10,21 @@ ifeq ($(USE_REACT),TRUE)
       F90EXE_sources += actual_burner.F90
     endif
   endif
-F90EXE_sources += actual_rhs.F90
-F90EXE_sources += dydt.F90
-F90EXE_sources += screen_module.F90
-F90EXE_sources += rates_module.F90
 
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-CEXE_sources += actual_network_data.cpp
-CEXE_headers += actual_network.H
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    F90EXE_sources += actual_rhs.F90
+    F90EXE_sources += dydt.F90
+    F90EXE_sources += screen_module.F90
+    F90EXE_sources += rates_module.F90
+  endif
 
-CEXE_sources += actual_rhs_data.cpp
-CEXE_headers += actual_rhs.H
-endif
+  ifeq ($(USE_CXX_REACTIONS),TRUE)
+    CEXE_sources += actual_network_data.cpp
+    CEXE_headers += actual_network.H
 
-USE_SCREENING = TRUE
+    CEXE_sources += actual_rhs_data.cpp
+    CEXE_headers += actual_rhs.H
+  endif
+
+  USE_SCREENING = TRUE
 endif

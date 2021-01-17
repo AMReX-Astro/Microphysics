@@ -8,20 +8,23 @@ ifeq ($(USE_REACT),TRUE)
       F90EXE_sources += actual_burner.F90
     endif
   endif
-F90EXE_sources += actual_rhs.F90
 
-DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    F90EXE_sources += actual_rhs.F90
+  endif
 
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-CEXE_sources += actual_network_data.cpp
-CEXE_headers += actual_network.H
+  DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
 
-CEXE_sources += actual_rhs_data.cpp
-CEXE_headers += actual_rhs.H
-CEXE_headers += actual_linear_solver.H
-endif
+  ifeq ($(USE_CXX_REACTIONS),TRUE)
+    CEXE_sources += actual_network_data.cpp
+    CEXE_headers += actual_network.H
 
-USE_RATES       = TRUE
-USE_SCREENING   = TRUE
-USE_NEUTRINOS   = TRUE
+    CEXE_sources += actual_rhs_data.cpp
+    CEXE_headers += actual_rhs.H
+    CEXE_headers += actual_linear_solver.H
+  endif
+
+  USE_RATES       = TRUE
+  USE_SCREENING   = TRUE
+  USE_NEUTRINOS   = TRUE
 endif

@@ -4,13 +4,16 @@ module jacobian_sparsity_module
   use actual_network, only: NETWORK_SPARSE_JAC_NNZ
 #endif
 
+#ifndef TRUE_SDC
   use burn_type_module
+#endif
   use amrex_fort_module, only : rt => amrex_real
 
   implicit none
 
 contains
 
+#ifndef TRUE_SDC
 #ifdef REACT_SPARSE_JACOBIAN
   subroutine lookup_csr_jac_loc(row, col, csr_loc)
 
@@ -247,6 +250,6 @@ contains
 #endif
 
   end subroutine set_jac_zero
-
+#endif
 end module jacobian_sparsity_module
 
