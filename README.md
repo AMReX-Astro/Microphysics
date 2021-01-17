@@ -85,12 +85,10 @@ system to ensure the interfaces are tested.
 
 # Documentation
 
-A user's guide for Microphysics can be found in `Docs/`. Type `make`
-to build it from its LaTeX source.
+A user's guide for Microphysics is available at:
+http://starkiller-astro.github.io/Microphysics/docs/
 
-A PDF of the user's guide is available here:
-http://bender.astro.sunysb.edu/Castro/staging/Microphysics/Docs/MicrophysicsUsersGuide.pdf
-
+The sphinx source for the documentation is in `Microphysics/sphinx_docs/`
 
 ## Development Model:
 
