@@ -3,8 +3,13 @@ F90EXE_sources += network_properties.F90
 CEXE_headers += network_properties.H
 
 ifeq ($(USE_REACT), TRUE)
-  f90EXE_sources += actual_rhs.f90
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    f90EXE_sources += actual_rhs.f90
+  endif
+
   ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
-  f90EXE_sources += actual_burner.f90
+    ifneq ($(USE_TRUE_SDC), TRUE)
+      f90EXE_sources += actual_burner.f90
+    endif
   endif
 endif

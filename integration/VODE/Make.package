@@ -3,23 +3,21 @@ ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   CEXE_headers += vode_rhs_simplified_sdc.H
   CEXE_headers += vode_type_simplified_sdc.H
 else
-  CEXE_headers += vode_rhs.H
-  CEXE_headers += actual_integrator.H
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    CEXE_headers += vode_rhs.H
+    CEXE_headers += actual_integrator.H
+  endif
 endif
 
-ifeq ($(USE_TRUE_SDC), TRUE)
-  F90EXE_sources += vode_integrator_true_sdc.F90
-  F90EXE_sources += vode_rhs_true_sdc.F90
-  F90EXE_sources += vode_type_true_sdc.F90
-else
+ifneq ($(USE_TRUE_SDC), TRUE)
   F90EXE_sources += vode_integrator.F90
   F90EXE_sources += vode_rhs.F90
   F90EXE_sources += vode_type.F90
   CEXE_headers += vode_type_strang.H
-endif
 
-F90EXE_sources += cuvode_parameters.F90
-F90EXE_sources += vode_rpar.F90
+  F90EXE_sources += cuvode_parameters.F90
+  F90EXE_sources += vode_rpar.F90
+endif
 
 DEFINES += -DINTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
 
@@ -33,9 +31,11 @@ CEXE_headers += vode_dvset.H
 CEXE_headers += vode_dvstep.H
 CEXE_headers += vode_parameters.H
 
-VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source/
-include $(VODE_SOURCE_DIR)/Make.package
+ifneq ($(USE_TRUE_SDC), TRUE)
+  VODE_SOURCE_DIR = $(MICROPHYSICS_HOME)/integration/VODE/cuVODE/source/
+  include $(VODE_SOURCE_DIR)/Make.package
 
-INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)
-VPATH_LOCATIONS   += $(VODE_SOURCE_DIR)
-EXTERN_CORE       += $(VODE_SOURCE_DIR)
+  INCLUDE_LOCATIONS += $(VODE_SOURCE_DIR)
+  VPATH_LOCATIONS   += $(VODE_SOURCE_DIR)
+  EXTERN_CORE       += $(VODE_SOURCE_DIR)
+endif

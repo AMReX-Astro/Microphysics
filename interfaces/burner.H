@@ -4,9 +4,12 @@
 #include <burn_type.H>
 #ifdef SIMPLIFIED_SDC
 #include <integrator_sdc.H>
-#else
+#endif
+#ifdef STRANG
 #include <integrator.H>
 #endif
+
+#include <ArrayUtilities.H>
 
 #ifdef NSE_TABLE
 #include <nse.H>
@@ -16,7 +19,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void burner (burn_t& state, Real dt)
 {
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
 
     // Strang code path
 
@@ -43,13 +46,14 @@ void burner (burn_t& state, Real dt)
 #endif
 
 #else
-
+#ifdef SIMPLIFIED_SDC
     // simplified SDC code path
 
     // right now, we don't have NSE implemented, so just call the integrator
 
     integrator(state, dt);
 
+#endif
 #endif
 
 }

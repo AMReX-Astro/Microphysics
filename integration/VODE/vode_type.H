@@ -172,7 +172,8 @@ void print_state(dvode_t& dvode_state)
 
 #ifdef SIMPLIFIED_SDC
 #include <vode_type_simplified_sdc.H>
-#else
+#endif
+#ifdef STRANG
 #include <vode_type_strang.H>
 #endif
 
