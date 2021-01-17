@@ -23,11 +23,7 @@ contains
     !  coefficient matrix. This is done by DGEFA.
     ! -----------------------------------------------------------------------
 
-#ifdef TRUE_SDC
-    use sdc_vode_rhs_module, only: f_rhs, jac
-#else
     use vode_rhs_module, only: f_rhs, jac
-#endif
 
     implicit none
 

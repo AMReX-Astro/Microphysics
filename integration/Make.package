@@ -59,8 +59,11 @@ ifeq ($(USE_NONAKA_PLOT), TRUE)
 endif
 
 ifneq ($(USE_SIMPLIFIED_SDC),TRUE)
-  F90EXE_sources += integrator.F90
+  ifneq ($(USE_TRUE_SDC),TRUE)
+    F90EXE_sources += integrator.F90
+  endif
 endif
+
 CEXE_HEADERS += integrator.H
 F90EXE_sources += integrator_scaling.F90
 f90EXE_sources += integration_data.f90
