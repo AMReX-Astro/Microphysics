@@ -12,7 +12,7 @@ using namespace amrex;
 #include <network.H>
 #include <burn_cell.H>
 #endif
-
+#include <unit_test_F.H>
 #include <burn_cell_F.H>
 
 int main(int argc, char *argv[]) {
@@ -48,13 +48,10 @@ int main(int argc, char *argv[]) {
 
   init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-  // Copy extern parameters from Fortran to C++
-  init_extern_parameters();
-
 #ifdef CXX_REACTIONS
 
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
-  eos_init();
+  eos_init(small_temp, small_dens);
 
   // C++ Network, RHS, screening, rates initialization
   network_init();

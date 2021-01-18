@@ -46,14 +46,15 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 const int SEDEN = 0;
 const int SEINT = 1;
 const int SFS   = 2;
+// the following are not evolved
 const int SFX   = SFS + NumSpec;
-const int SRHO  = SFS + NumSpec + NumAux; // this will be = SFX for NumAux = 0
+const int SRHO  = SFX + NumAux; // this is SFS + NumSpec if NumAux = 0;
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
 const int SMZ   = SRHO + 3;
 
 const int SVAR  = SMZ+1;
-const int SVAR_EVOLVE = SRHO;
+const int SVAR_EVOLVE = SFX;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -67,11 +68,12 @@ const int SVAR_EVOLVE = SVAR;
 
 #endif
 
+#endif
+
 // this is the data type of the dense Jacobian that the network wants.
 // it is not the same size as the Jacobian that VODE cares about when
 // we are doing simplified-SDC
 typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> JacNetArray2D;
-#endif
 
 struct burn_t
 {
@@ -123,7 +125,9 @@ struct burn_t
   int sdc_iter;
   int num_sdc_iters;
 
-#else
+#endif
+
+#ifdef STRANG
   // Strang stuff
 
   Real cv;
@@ -141,6 +145,12 @@ struct burn_t
   // Are we doing a self-heating burn?
   bool self_heat;
 
+#endif
+
+#ifdef TRUE_SDC
+  Real E_var;
+  Real mom[3];
+  Real f_source[NumSpec+2];
 #endif
 
   Real y_e;
@@ -193,10 +203,10 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 
 // Given an eos type, copy the data relevant to the burn type.
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
+void eos_to_burn (const T& eos_state, burn_t& burn_state)
 {
-
     burn_state.rho  = eos_state.rho;
     burn_state.T    = eos_state.T;
     burn_state.e    = eos_state.e;
@@ -209,7 +219,7 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
     }
 #endif
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     burn_state.cv   = eos_state.cv;
     burn_state.cp   = eos_state.cp;
 #endif
@@ -218,18 +228,20 @@ void eos_to_burn (const eos_t& eos_state, burn_t& burn_state)
     burn_state.eta  = eos_state.eta;
     burn_state.abar = eos_state.abar;
     burn_state.zbar = eos_state.zbar;
-
 }
 
 
 
-#ifndef SIMPLIFIED_SDC
-
 // Given a burn type, copy the data relevant to the eos type. 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
-{
+// Note that when doing simplified SDC integration, we should
+// avoid using this interface because the energy includes a
+// contribution from the advection term. However this is useful
+// for instantaneous RHS evaluations.
 
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void burn_to_eos (const burn_t& burn_state, T& eos_state)
+{
     eos_state.rho  = burn_state.rho;
     eos_state.T    = burn_state.T;
     eos_state.e    = burn_state.e;
@@ -242,16 +254,16 @@ void burn_to_eos (const burn_t& burn_state, eos_t& eos_state)
     }
 #endif
 
+#ifdef STRANG
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
+#endif
 
     eos_state.y_e  = burn_state.y_e;
     eos_state.eta  = burn_state.eta;
     eos_state.abar = burn_state.abar;
     eos_state.zbar = burn_state.zbar;
-
 }
-#endif
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

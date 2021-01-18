@@ -2,5 +2,16 @@ n_cell = 16
 
 prefix = react_xrb_simple_
 
-amr.probin_file = probin.xrb_simple
+amr.probin_file = probin
+
+unit_test.dens_min = 1.e4
+unit_test.dens_max = 3.e6
+unit_test.temp_min = 1.e8
+unit_test.temp_max = 1.e9
+
+unit_test.tmax = 0.002e0
+
+unit_test.primary_species_1 = "hydrogen-1"
+unit_test.primary_species_2 = "helium-4"
+
 

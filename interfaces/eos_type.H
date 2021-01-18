@@ -53,6 +53,62 @@ struct eos_t {
 
 };
 
+template <typename T, typename Enable = void>
+struct has_energy
+    : std::false_type {};
+
+template <typename T>
+struct has_energy<T, typename std::enable_if<(sizeof(((T*)0)->e) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_enthalpy
+    : std::false_type {};
+
+template <typename T>
+struct has_enthalpy<T, typename std::enable_if<(sizeof(((T*)0)->h) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_entropy
+    : std::false_type {};
+
+template <typename T>
+struct has_entropy<T, typename std::enable_if<(sizeof(((T*)0)->s) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_pressure
+    : std::false_type {};
+
+template <typename T>
+struct has_pressure<T, typename std::enable_if<(sizeof(((T*)0)->p) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_pele_ppos
+    : std::false_type {};
+
+template <typename T>
+struct has_pele_ppos<T, typename std::enable_if<(sizeof(((T*)0)->pele) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_xne_xnp
+    : std::false_type {};
+
+template <typename T>
+struct has_xne_xnp<T, typename std::enable_if<(sizeof(((T*)0)->xne) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_eta
+    : std::false_type {};
+
+template <typename T>
+struct has_eta<T, typename std::enable_if<(sizeof(((T*)0)->eta) > 0)>::type>
+    : std::true_type {};
+
 inline
 std::ostream& operator<< (std::ostream& o, eos_t const& eos_state)
 {

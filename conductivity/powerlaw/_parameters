@@ -1,3 +1,5 @@
+@namespace: conductivity
+
 cond_coeff       real 1.0
 cond_exponent    real 1.0
 

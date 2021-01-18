@@ -1,3 +1,30 @@
+# 21.02
+
+   * Runtime parameters can now be set in the inputs file instead of
+     the probin file (and then they are read in by C++ ParmParse).  If
+     a parameter is set in both places, then the inputs value is used.
+     (#505)
+
+   * Fortran support for simplified-SDC in the VODE integrator has
+     been removed. (#492)
+
+# 21.01
+
+   * Microphysics now requires C++17 (gcc >= 7, CUDA >= 11). (#485)
+
+   * The BS integrator was removed.  This was Fortran only, doesn't support
+     SDC integration, and not well used. (#488)
+
+# 20.12
+
+   * The default absolute tolerance for species (atol_spec) has been
+     increased to 1.e-8 (from 1.e-12). (#422)
+
+   * An interface has been added for C++ integrators to call the RHS
+     from a network that only has a Fortran implementation. This allows
+     the use of USE_CXX_REACTIONS = TRUE for any network (however, CUDA
+     is not currently supported for this case). (#419)
+
 # 20.11
 
    * The aprox19 + NSE network was ported to C++ (#362)

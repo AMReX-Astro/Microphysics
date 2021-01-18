@@ -15,12 +15,14 @@ public:
   int itemp = -1;
   int ispec = -1;
   int ispec_old = -1;
+#if NAUX_NET > 0
+  int iaux = -1;
+  int iaux_old = -1;
+#endif
   int irodot = -1;
   int irho_Hnuc = -1;
 
   int n_plot_comps = 0;
-
-  amrex::Vector<std::string> names;
 
   int next_index(const int num) {
     int next = n_plot_comps;
@@ -32,5 +34,6 @@ public:
 
 plot_t init_variables();
 
+void get_varnames(const plot_t p, amrex::Vector<std::string>& names);
 
 #endif

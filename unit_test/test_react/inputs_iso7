@@ -2,4 +2,28 @@ n_cell = 16
 
 prefix = react_iso7_
 
-amr.probin_file = probin.iso7
+amr.probin_file = probin
+
+unit_test.small_dens = 1.0e0
+
+unit_test.dens_min = 1.e6
+unit_test.dens_max = 5.e8
+unit_test.temp_min = 3.e7
+unit_test.temp_max = 5.e8
+
+unit_test.tmax = 1.e-6
+
+unit_test.primary_species_1 = "helium-4"
+unit_test.primary_species_2 = "carbon-12"
+unit_test.primary_species_3 = "oxygen-16"
+
+integrator.do_constant_volume_burn = 1
+
+integrator.rtol_spec = 1.e-6
+integrator.atol_spec = 1.e-6
+
+integrator.rtol_temp = 1.e-6
+integrator.atol_temp = 1.e-6
+
+integrator.rtol_enuc = 1.e-6
+integrator.atol_enuc = 1.e-6

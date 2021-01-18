@@ -6,17 +6,17 @@
 
 There are several core types of microphysics routines hosted here:
 
-* `EOS/`: these are the equations of state. All of them use a Fortran
-  derived type `eos_t` to pass the thermodynamic state information in
-  and out.
+* `EOS/`: these are the equations of state. All of them accept a struct
+  called `eos_t` to pass the thermodynamic state information in
+  and out, though in C++ they are templated such that they can accept
+  other objects with members of the same name.
 
-* `integration/`: this holds the various ODE integrators. Some have
-  been marked up with OpenACC to run on GPUs
+* `integration/`: this holds the various ODE integrators. VODE is the
+  primary integrator for production use, but other integrators are provided
+  for experimentation.
 
-* `interfaces/`: this holds the Fortran derived types used to
-  interface with the EOS and networks. Note: copies of these are
-  included with Maestro and Castro. They are copied here for testing
-  and to enable other codes to use this repo.
+* `interfaces/`: this holds the structs used to interface with the
+  EOS and networks.
 
 * `networks/`: these are the reaction networks. They serve both to
   define the composition and its properties, as well as describe the
@@ -28,10 +28,10 @@ There are several core types of microphysics routines hosted here:
 * `rates/`: this contains some common rate routines used by the
   various `aprox` networks, and could be expanded to contain other
   collections of rates in the future
-  
+
 * `screening/`: the screening routines for nuclear reactions. These
   are called by the various networks
-  
+
 * `unit_test/`: code specific to unit tests within this repo. In
   particular,
 
@@ -43,8 +43,20 @@ There are several core types of microphysics routines hosted here:
   - `test_react` will call a reaction network on a cube of
     data (rho, T, X).
 
+  - `test_rhs` will evaluate the right-hand-side of a network
+    without integrating it.
+
+  - `test_sdc` tests integration using the set of variables for
+    simplified SDC.
+
+  - `test_jac` evaluates the Jacobian for comparison between the
+    analytical and numerical Jacobians.
+
+  - `test_screening` evaluates the screening routines.
+
 * `util`: linear algebra routines for the various integrators
-  (including BLAS and LINPACK)
+  (including BLAS and LINPACK), other math routines, and build
+  scripts
 
 
 # AMReX-Astro Codes
@@ -73,12 +85,10 @@ system to ensure the interfaces are tested.
 
 # Documentation
 
-A user's guide for Microphysics can be found in `Docs/`. Type `make`
-to build it from its LaTeX source.
+A user's guide for Microphysics is available at:
+http://starkiller-astro.github.io/Microphysics/docs/
 
-A PDF of the user's guide is available here:
-http://bender.astro.sunysb.edu/Castro/staging/Microphysics/Docs/MicrophysicsUsersGuide.pdf
-
+The sphinx source for the documentation is in `Microphysics/sphinx_docs/`
 
 ## Development Model:
 

@@ -73,8 +73,11 @@ void actual_eos_init ()
 }
 
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -113,16 +116,34 @@ void eos_set_polytrope_parameters (int polytrope_in, int gamma_in, int K_in, int
 //---------------------------------------------------------------------------
 // The main interface
 //---------------------------------------------------------------------------
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
     Real dens = state.rho;
     Real temp = state.T;
-    Real pres = state.p;
-    Real enth = state.h;
-    Real eint = state.e;
-    Real entr = state.s;
+
+    Real pres = 1.0_rt;
+    if constexpr (has_pressure<T>::value) {
+        pres = state.p;
+    }
+
+    Real enth = 1.0_rt;
+    if constexpr (has_enthalpy<T>::value) {
+        enth = state.h;
+    }
+
+    Real eint = 1.0_rt;
+    if constexpr (has_energy<T>::value) {
+        eint = state.e;
+    }
+
+    Real entr = 1.0_rt;
+    if constexpr (has_entropy<T>::value) {
+        entr = state.s;
+    }
 
     switch (input) {
 
@@ -230,7 +251,7 @@ void actual_eos (eos_input_t input, eos_t& state)
 
     default:
 
-#if !(defined(AMREX_USE_ACC) || defined(AMREX_USE_CUDA))
+#ifndef AMREX_USE_GPU
         amrex::Error("EOS: invalid input.");
 #endif
 
@@ -244,42 +265,69 @@ void actual_eos (eos_input_t input, eos_t& state)
 
     state.T   = temp;
     state.rho = dens;
-    state.h   = enth;
-    state.s   = entr;
-    state.e   = eint;
-    state.p   = pres;
+    if constexpr (has_enthalpy<T>::value) {
+        state.h   = enth;
+    }
+    if constexpr (has_entropy<T>::value) {
+        state.s   = entr;
+    }
+    if constexpr (has_energy<T>::value) {
+        state.e   = eint;
+    }
+    if constexpr (has_pressure<T>::value) {
+        state.p   = pres;
+    }
 
-    // Compute the thermodynamic derivatives and specific heats 
-    state.dpdT = 0.0_rt;
-    state.dpdr = gamma_const * pres / dens;
-    state.dedT = 0.0_rt;
-    state.dedr = pres / (dens * dens);
-    state.dsdT = 0.0_rt;
-    state.dsdr = 0.0_rt;
-    state.dhdT = 0.0_rt;
-    state.dhdr = state.dedr + gm1 * pres / (dens * dens);
+    // Compute the thermodynamic derivatives and specific heats
+    if constexpr (has_pressure<T>::value) {
+        state.dpdT = 0.0_rt;
+        state.dpdr = gamma_const * pres / dens;
+    }
+    if constexpr (has_energy<T>::value) {
+        state.dedT = 0.0_rt;
+        state.dedr = pres / (dens * dens);
+    }
+    if constexpr (has_entropy<T>::value) {
+        state.dsdT = 0.0_rt;
+        state.dsdr = 0.0_rt;
+    }
+    if constexpr (has_enthalpy<T>::value) {
+        state.dhdT = 0.0_rt;
+        state.dhdr = state.dedr + gm1 * pres / (dens * dens);
+    }
 
-    state.dpde = 0.0_rt;
-    state.dpdr_e = gamma_const * pres / dens;
-    
-    state.cv = state.dedT;
-    state.cp = gamma_const * state.cv;
+    if constexpr (has_pressure<T>::value) {
+        state.dpde = 0.0_rt;
+        state.dpdr_e = gamma_const * pres / dens;
+    }
 
-    state.gam1 = gamma_const;
+    if constexpr (has_energy<T>::value) {
+        state.cv = state.dedT;
+    }
+    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+        state.cp = gamma_const * state.cv;
+
+        state.gam1 = gamma_const;
+    }
 
 #ifdef EXTRA_THERMO
     // Compute dpdX, dedX, dhdX.
 
-    state.dpdA = - state.p / state.abar;
-    state.dpdZ =   state.p / (1.0_rt + state.zbar);
+    if constexpr (has_pressure<T>::value) {
+        state.dpdA = - state.p / state.abar;
+        state.dpdZ =   state.p / (1.0_rt + state.zbar);
+    }
 
-    state.dedA = - state.e / state.abar;
-    state.dedZ =   state.e / (1.0_rt + state.zbar);
+    if constexpr (has_energy<T>::value) {
+        state.dedA = - state.e / state.abar;
+        state.dedZ =   state.e / (1.0_rt + state.zbar);
+    }
 #endif
 
     // sound speed
-    state.cs = std::sqrt(gamma_const * pres / dens);
-
+    if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+        state.cs = std::sqrt(gamma_const * pres / dens);
+    }
 }
 
 inline

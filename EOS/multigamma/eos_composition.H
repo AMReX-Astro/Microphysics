@@ -17,10 +17,10 @@ struct eos_xderivs_t {
 // Given a set of mass fractions, calculate quantities that depend
 // on the composition like abar and zbar.
 
-AMREX_GPU_HOST_DEVICE inline
-void subroutine (eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void subroutine (T& state)
 {
-
     // Calculate abar, the mean nucleon number,
     // zbar, the mean proton number,
     // mu, the mean molecular weight,
@@ -39,7 +39,6 @@ void subroutine (eos_t& state)
     }
     state.abar = 1.0_rt / sum;
     state.zbar = state.abar / state.mu_e;
-
 }
 
 
@@ -47,10 +46,10 @@ void subroutine (eos_t& state)
 // Compute thermodynamic derivatives with respect to xn(:)
 
 #ifdef EXTRA_THERMO
-AMREX_GPU_HOST_DEVICE inline
-eos_x_derivs_t composition_derivatives (const eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+eos_x_derivs_t composition_derivatives (const T& state)
 {
-
     eos_xderivs_t state_xderivs;
 
     // Get the mass of a nucleon from Avogadro's number.
@@ -66,7 +65,6 @@ eos_x_derivs_t composition_derivatives (const eos_t& state)
     }
 
     return state_xderivs;
-
 }
 #endif
 
