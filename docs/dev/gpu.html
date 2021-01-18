@@ -113,10 +113,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#reaction-network-test">Reaction Network Test</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#cvode">CVODE</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">Reaction Network Test</a></li>
-</ul>
-</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#common-compiler-errors">Common Compiler Errors</a><ul>
@@ -245,9 +241,10 @@ saved back to the grid.</p>
 <div class="section" id="reaction-network-integration">
 <h2>Reaction Network Integration<a class="headerlink" href="#reaction-network-integration" title="Permalink to this headline">¶</a></h2>
 <p>There are currently two ways to integrate reaction networks using
-GPUs: CUDA Fortran VODE and CVODE.</p>
-<p>We recommend using CUDA Fortran VODE for the networks in Microphysics
-for production simulations at this time.</p>
+GPUs: CUDA Fortran VODE and CUDA C++ VODE.</p>
+<p>We recommend using CUDA C++ VODE for the networks in Microphysics for
+production simulations, as we are transitioning to supporting only the C++
+versions of Microphysics routines.</p>
 <div class="section" id="vode-cuda-fortran-vode">
 <h3>VODE - CUDA Fortran VODE<a class="headerlink" href="#vode-cuda-fortran-vode" title="Permalink to this headline">¶</a></h3>
 <p>This integrator is located in <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE</span></code> and
@@ -285,44 +282,6 @@ optionally calling the EOS in the right hand side evaluation. This
 test thus closely emulates the environment of a production simulation.</p>
 <p>To run this test, see the setup in <code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_react</span></code>
 and the included Readme file.</p>
-</div>
-</div>
-<div class="section" id="cvode">
-<h3>CVODE<a class="headerlink" href="#cvode" title="Permalink to this headline">¶</a></h3>
-<p>Microphysics also includes a test setup and interfaces for using CVODE
-to integrate an entire grid of cells together either serially, on the
-GPU using CVODE’s Krylov linear solver, or on the GPU using cuSOLVER’s
-batched sparse QR linear solver.</p>
-<p>This approach does not follow the GPU paradigm of one thread per cell
-as in the case of CUDA Fortran VODE. The CVODE interface packs the
-network ODEs from an entire grid into a single vector of
-ODEs. Logically, the linear system that arises when solving the BDF
-equation for such a system is block-diagonal. All cells are integrated
-together in lock-step as if there were only one system of ODEs.</p>
-<p>CVODE implements GPU parallelism by expressing vector operations as
-operations on <code class="docutils literal notranslate"><span class="pre">NVector</span></code> data structures that exist in GPU
-memory. Arithmetic operations on <code class="docutils literal notranslate"><span class="pre">NVector</span></code> objects are implemented as
-CUDA kernels operating on the GPU-resident <code class="docutils literal notranslate"><span class="pre">NVector</span></code> data.</p>
-<p>This interface is under development and testing and is not ready for
-production use.</p>
-<div class="section" id="id1">
-<h4>Reaction Network Test<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<p>There is a test setup that exercises the CVODE interface in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_cvode_react</span></code> along with a Readme file
-with details for compiling and running.</p>
-<p>It is recommended to experiment with the different linear solvers to
-determine which is best for a given network. For <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> the sparse
-direct solver in the cuSOLVER toolkit is preferred.</p>
-<p>At present, this setup requires a modified version of CVODE
-incorporating the interface to the batched sparse QR linear solver in
-the cuSOLVER toolkit. The modified version of CVODE is located here:</p>
-<p><a class="reference external" href="https://github.com/dwillcox/cvode-4.0.0-development">https://github.com/dwillcox/cvode-4.0.0-development</a></p>
-<p>Note that because this integrator interface effectively couples many
-independent cells together, the error norm check in the nonlinear
-solver may not be sensitive to relatively large convergence errors in
-only a small subset of the grid cells. As a result, it can occur that
-this integration scheme will not yield results identical to
-integrating each cell independently of the others.</p>
 </div>
 </div>
 </div>

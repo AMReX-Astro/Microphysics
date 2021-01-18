@@ -101,7 +101,6 @@
 <li class="toctree-l1 current"><a class="reference internal" href="rp_intro.html">Runtime parameters</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">C-burn-simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#c-test">C-test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cvode">CVODE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ecsn">ECSN</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#forwardeuler">ForwardEuler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#qss">QSS</a></li>
@@ -132,7 +131,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#subch2">subch2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-aprox-rates">test_aprox_rates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-conductivity">test_conductivity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#test-cvode-react">test_cvode_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-parameters">test_parameters</a></li>
@@ -289,32 +287,6 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
 <td><p>Turn off thermal neutrino losses</p></td>
 <td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="cvode">
-<h1>CVODE<a class="headerlink" href="#cvode" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">store_jacobian</span></code></p></td>
-<td></td>
-<td><p>1</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">num_steps_save_jacobian</span></code></p></td>
-<td></td>
-<td><p>-1</p></td>
 </tr>
 </tbody>
 </table>
@@ -1646,64 +1618,6 @@ burns</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e-4</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="test-cvode-react">
-<h1>test_cvode_react<a class="headerlink" href="#test-cvode-react" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
-<td></td>
-<td><p>1.d6</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
-<td></td>
-<td><p>1.d9</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
-<td></td>
-<td><p>1.d6</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
-<td></td>
-<td><p>1.d15</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xin_file</span></code></p></td>
-<td></td>
-<td><p>“uniform”</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
-<td></td>
-<td><p>“”</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_set</span></code></p></td>
-<td></td>
-<td><p>“gr0_3d”</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
-<td></td>
-<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
