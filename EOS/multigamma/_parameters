@@ -1,3 +1,5 @@
+@namespace: eos
+
 eos_gamma_default       real          1.4
 
 species_a_name          character     ""

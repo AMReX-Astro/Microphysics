@@ -99,8 +99,8 @@ interface is no longer a ``burn_t``, but instead is an
 The flow of this main routine is simpler than the non-SDC version:
 
 #. Convert from the ``sdc_t`` type to the integrator’s internal
-   representation (e.g., ``sdc_to_bs`` converts from a ``bs_t``
-   for the BS integrator).
+   representation (e.g., ``sdc_to_vode`` converts from a ``vode_t``
+   for the VODE integrator).
 
    This copies the state variables and advective sources into the
    integration type. Since we only actually integrate :math:`(\rho X_k),
@@ -124,9 +124,7 @@ system we are integrating, including the advective terms.
 
 .. note::
 
-   In the example here, we'll assume we are using the VODE
-   integrator, but the BS integrator also supports
-   simplified-SDC integration.
+   Presently only the VODE integrator supports SDC evolution.
 
 
 #. Call ``clean_state``

@@ -5,7 +5,7 @@ NSE
 The ``aprox19`` can be run in a manner where we blends the ``aprox19``
 network with a table for nuclear statistic equilibrium at high density
 and temperatures.  This is based on the table described in
-:ref:`ma:2013`.  This option is enabled by building with ``USE_NSE=TRUE``.
+:cite:`ma:2013`.  This option is enabled by building with ``USE_NSE=TRUE``.
 
 The NSE table provides:
 

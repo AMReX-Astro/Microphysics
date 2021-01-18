@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <AMReX_ParallelDescriptor.H>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <actual_eos_data.H>
@@ -36,63 +37,63 @@ const std::string eos_name = "helmholtz";
 
 // quintic hermite polynomial functions
 // psi0 and its derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real psi0 (Real z)
 {
     return z * z * z * (z * (-6.0e0_rt * z + 15.0e0_rt) -10.0e0_rt) + 1.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dpsi0 (Real z)
 {
     return z * z * (z * (-30.0e0_rt*z + 60.0e0_rt) - 30.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ddpsi0 (Real z)
 {
     return z * (z * (-120.0e0_rt * z + 180.0e0_rt) - 60.0e0_rt);
 }
 
 // psi1 and its derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real psi1 (Real z)
 {
     return z * ( z * z * (z * (-3.0e0_rt * z + 8.0e0_rt) - 6.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dpsi1 (Real z)
 {
     return z * z * ( z * (-15.0e0_rt * z + 32.0e0_rt) - 18.0e0_rt) + 1.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ddpsi1 (Real z)
 {
     return z * (z * (-60.0e0_rt * z + 96.0e0_rt) - 36.0e0_rt);
 }
 
 // psi2 and its derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real psi2 (Real z)
 {
     return 0.5e0_rt * z * z * ( z * ( z * (-z + 3.0e0_rt) - 3.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real dpsi2 (Real z)
 {
     return 0.5e0_rt * z * (z * (z * (-5.0e0_rt * z + 12.0e0_rt) - 9.0e0_rt) + 2.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ddpsi2 (Real z)
 {
     return 0.5e0_rt * (z * ( z * (-20.0e0_rt * z + 36.0e0_rt) - 18.0e0_rt) + 2.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fwt (const Real* fi, const Real* wt, Real* fwtr)
 {
     fwtr[0] = fi[ 0]*wt[0] + fi[ 1]*wt[1] + fi[ 2]*wt[2] + fi[18]*wt[3] + fi[19]*wt[4] + fi[20]*wt[5];
@@ -105,26 +106,26 @@ void fwt (const Real* fi, const Real* wt, Real* fwtr)
 
 // cubic hermite polynomial functions
 // psi0 & derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xpsi0(Real z)
 {
     return z * z * (2.0e0_rt * z - 3.0e0_rt) + 1.0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xdpsi0(Real z)
 {
     return z * (6.0e0_rt * z - 6.0e0_rt);
 }
 
 // psi1 & derivatives
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xpsi1(Real z)
 {
     return z * (z * (z - 2.0e0_rt) + 1.0e0_rt);
 }
 
-AMREX_GPU_HOST_DEVICE inline
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real xdpsi1(Real z)
 {
     return z * (3.0e0_rt * z - 4.0e0_rt) + 1.0e0_rt;
@@ -132,10 +133,10 @@ Real xdpsi1(Real z)
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_electrons(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_electrons (T& state)
 {
-
     using namespace helmholtz;
 
 #ifdef EXTRA_THERMO
@@ -426,41 +427,53 @@ void apply_electrons(eos_t& state)
     Real deepdz  = ytot1* (free + state.y_e * df_d * state.rho) + state.T * dsepdz;
 #endif
 
-    state.p    = state.p + pele;
-    state.dpdT = state.dpdT + dpepdt;
-    state.dpdr = state.dpdr + dpepdd;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = state.p + pele;
+        state.dpdT = state.dpdT + dpepdt;
+        state.dpdr = state.dpdr + dpepdd;
 #ifdef EXTRA_THERMO
-    state.dpdA = state.dpdA + dpepda;
-    state.dpdZ = state.dpdZ + dpepdz;
+        state.dpdA = state.dpdA + dpepda;
+        state.dpdZ = state.dpdZ + dpepdz;
 #endif
+    }
 
-    state.s    = state.s + sele;
-    state.dsdT = state.dsdT + dsepdt;
-    state.dsdr = state.dsdr + dsepdd;
+    if constexpr (has_entropy<T>::value) {
+        state.s    = state.s + sele;
+        state.dsdT = state.dsdT + dsepdt;
+        state.dsdr = state.dsdr + dsepdd;
+    }
 
-    state.e    = state.e + eele;
-    state.dedT = state.dedT + deepdt;
-    state.dedr = state.dedr + deepdd;
+    if constexpr (has_energy<T>::value) {
+        state.e    = state.e + eele;
+        state.dedT = state.dedT + deepdt;
+        state.dedr = state.dedr + deepdd;
 #ifdef EXTRA_THERMO
-    state.dedA = state.dedA + deepda;
-    state.dedZ = state.dedZ + deepdz;
+        state.dedA = state.dedA + deepda;
+        state.dedZ = state.dedZ + deepdz;
 #endif
+    }
 
-    state.eta = etaele;
-    state.xne = xnefer;
-    state.xnp = 0.0e0_rt;
+    if constexpr (has_eta<T>::value) {
+        state.eta = etaele;
+    }
 
-    state.pele = pele;
-    state.ppos = 0.0e0_rt;
+    if constexpr (has_xne_xnp<T>::value) {
+        state.xne = xnefer;
+        state.xnp = 0.0e0_rt;
+    }
 
+    if constexpr (has_pele_ppos<T>::value) {
+        state.pele = pele;
+        state.ppos = 0.0e0_rt;
+    }
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_ions(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_ions (T& state)
 {
-
     using namespace helmholtz;
 
     const Real pi      = 3.1415926535897932384e0_rt;
@@ -506,34 +519,39 @@ void apply_ions(eos_t& state)
                    (pion * deni + eion) * tempi * tempi +
                    1.5e0_rt * kergavo * tempi * ytot1;
 
-    state.p    = state.p + pion;
-    state.dpdT = state.dpdT + dpiondt;
-    state.dpdr = state.dpdr + dpiondd;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = state.p + pion;
+        state.dpdT = state.dpdT + dpiondt;
+        state.dpdr = state.dpdr + dpiondd;
 #ifdef EXTRA_THERMO
-    state.dpdA = state.dpdA + dpionda;
-    state.dpdZ = state.dpdZ + dpiondz;
+        state.dpdA = state.dpdA + dpionda;
+        state.dpdZ = state.dpdZ + dpiondz;
 #endif
+    }
 
-    state.e    = state.e + eion;
-    state.dedT = state.dedT + deiondt;
-    state.dedr = state.dedr + deiondd;
+    if constexpr (has_energy<T>::value) {
+        state.e    = state.e + eion;
+        state.dedT = state.dedT + deiondt;
+        state.dedr = state.dedr + deiondd;
 #ifdef EXTRA_THERMO
-    state.dedA = state.dedA + deionda;
-    state.dedZ = state.dedZ + deiondz;
+        state.dedA = state.dedA + deionda;
+        state.dedZ = state.dedZ + deiondz;
 #endif
+    }
 
-    state.s    = state.s + sion;
-    state.dsdT = state.dsdT + dsiondt;
-    state.dsdr = state.dsdr + dsiondd;
-
+    if constexpr (has_entropy<T>::value) {
+        state.s    = state.s + sion;
+        state.dsdT = state.dsdT + dsiondt;
+        state.dsdr = state.dsdr + dsiondd;
+    }
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_radiation(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_radiation (T& state)
 {
-
     using namespace helmholtz;
 
     const Real clight  = 2.99792458e10_rt;
@@ -585,34 +603,39 @@ void apply_radiation(eos_t& state)
     // sets these terms instead of adding to them,
     // since it comes first.
 
-    state.p    = prad;
-    state.dpdr = dpraddd;
-    state.dpdT = dpraddt;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = prad;
+        state.dpdr = dpraddd;
+        state.dpdT = dpraddt;
 #ifdef EXTRA_THERMO
-    state.dpdA = dpradda;
-    state.dpdZ = dpraddz;
+        state.dpdA = dpradda;
+        state.dpdZ = dpraddz;
 #endif
+    }
 
-    state.e    = erad;
-    state.dedr = deraddd;
-    state.dedT = deraddt;
+    if constexpr (has_energy<T>::value) {
+        state.e    = erad;
+        state.dedr = deraddd;
+        state.dedT = deraddt;
 #ifdef EXTRA_THERMO
-    state.dedA = deradda;
-    state.dedZ = deraddz;
+        state.dedA = deradda;
+        state.dedZ = deraddz;
 #endif
+    }
 
-    state.s    = srad;
-    state.dsdr = dsraddd;
-    state.dsdT = dsraddt;
-
+    if constexpr (has_entropy<T>::value) {
+        state.s    = srad;
+        state.dsdr = dsraddd;
+        state.dsdT = dsraddt;
+    }
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void apply_coulomb_corrections(eos_t& state)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_coulomb_corrections (T& state)
 {
-
     using namespace helmholtz;
 
     // Constants used for the Coulomb corrections
@@ -766,8 +789,15 @@ void apply_coulomb_corrections(eos_t& state)
     // Disable Coulomb corrections if they cause
     // the energy or pressure to go negative.
 
-    Real p_temp = state.p + pcoul;
-    Real e_temp = state.e + ecoul;
+    Real p_temp = std::numeric_limits<Real>::max();
+    Real e_temp = std::numeric_limits<Real>::max();
+
+    if constexpr (has_pressure<T>::value) {
+        p_temp = state.p + pcoul;
+    }
+    if constexpr (has_energy<T>::value) {
+        e_temp = state.e + ecoul;
+    }
 
     if (p_temp <= 0.0e0_rt || e_temp <= 0.0e0_rt)
     {
@@ -791,36 +821,41 @@ void apply_coulomb_corrections(eos_t& state)
 
     }
 
-    state.p    = state.p + pcoul;
-    state.dpdr = state.dpdr + dpcouldd;
-    state.dpdT = state.dpdT + dpcouldt;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = state.p + pcoul;
+        state.dpdr = state.dpdr + dpcouldd;
+        state.dpdT = state.dpdT + dpcouldt;
 #ifdef EXTRA_THERMO
-    state.dpdA = state.dpdA + dpcoulda;
-    state.dpdZ = state.dpdZ + dpcouldz;
+        state.dpdA = state.dpdA + dpcoulda;
+        state.dpdZ = state.dpdZ + dpcouldz;
 #endif
+    }
 
-    state.e    = state.e + ecoul;
-    state.dedr = state.dedr + decouldd;
-    state.dedT = state.dedT + decouldt;
+    if constexpr (has_energy<T>::value) {
+        state.e    = state.e + ecoul;
+        state.dedr = state.dedr + decouldd;
+        state.dedT = state.dedT + decouldt;
 #ifdef EXTRA_THERMO
-    state.dedA = state.dedA + decoulda;
-    state.dedZ = state.dedZ + decouldz;
+        state.dedA = state.dedA + decoulda;
+        state.dedZ = state.dedZ + decouldz;
 #endif
+    }
 
-    state.s    = state.s + scoul;
-    state.dsdr = state.dsdr + dscouldd;
-    state.dsdT = state.dsdT + dscouldt;
-
+    if constexpr (has_entropy<T>::value) {
+        state.s    = state.s + scoul;
+        state.dsdr = state.dsdr + dscouldd;
+        state.dsdT = state.dsdT + dscouldt;
+    }
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void prepare_for_iterations(eos_input_t input, eos_t& state,
-                            bool& single_iter, Real& v_want, Real& v1_want, Real& v2_want,
-                            int& var, int& dvar, int& var1, int& var2)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void prepare_for_iterations (I input, T& state,
+                             bool& single_iter, Real& v_want, Real& v1_want, Real& v2_want,
+                             int& var, int& dvar, int& var1, int& var2)
 {
-
     using namespace helmholtz;
 
     single_iter = true;
@@ -832,66 +867,86 @@ void prepare_for_iterations(eos_input_t input, eos_t& state,
     }
     else if (input == eos_input_rh) {
 
-        v_want = state.h;
-        var  = ienth;
-        dvar = itemp;
+        if constexpr (has_enthalpy<T>::value) {
+            v_want = state.h;
+            var  = ienth;
+            dvar = itemp;
+        }
 
     }
     else if (input == eos_input_tp) {
 
-        v_want = state.p;
-        var  = ipres;
-        dvar = idens;
+        if constexpr (has_pressure<T>::value) {
+            v_want = state.p;
+            var  = ipres;
+            dvar = idens;
+        }
 
     }
     else if (input == eos_input_rp) {
 
-        v_want = state.p;
-        var  = ipres;
-        dvar = itemp;
+        if constexpr (has_pressure<T>::value) {
+            v_want = state.p;
+            var  = ipres;
+            dvar = itemp;
+        }
 
     }
     else if (input == eos_input_re) {
 
-        v_want = state.e;
-        var  = iener;
-        dvar = itemp;
+        if constexpr (has_energy<T>::value) {
+            v_want = state.e;
+            var  = iener;
+            dvar = itemp;
+        }
 
     }
     else if (input == eos_input_ps) {
 
-        single_iter = false;
-        v1_want = state.p;
-        v2_want = state.s;
-        var1 = ipres;
-        var2 = ientr;
+        if constexpr (has_pressure<T>::value && has_entropy<T>::value) {
+            single_iter = false;
+            v1_want = state.p;
+            v2_want = state.s;
+            var1 = ipres;
+            var2 = ientr;
+        }
 
     }
     else if (input == eos_input_ph) {
 
-        single_iter = false;
-        v1_want = state.p;
-        v2_want = state.h;
-        var1 = ipres;
-        var2 = ienth;
+        if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+            single_iter = false;
+            v1_want = state.p;
+            v2_want = state.h;
+            var1 = ipres;
+            var2 = ienth;
+        }
 
     }
     else if (input == eos_input_th) {
 
-        v_want = state.h;
-        var  = ienth;
-        dvar = idens;
+        if constexpr (has_enthalpy<T>::value) {
+            v_want = state.h;
+            var  = ienth;
+            dvar = idens;
+        }
 
     }
+#ifndef AMREX_USE_GPU
+    else {
 
+        amrex::Error("Unknown EOS input");
+
+    }
+#endif
 }
 
 
 
-
-AMREX_GPU_HOST_DEVICE inline
-void single_iter_update(eos_t& state, int var, int dvar,
-                        Real v_want, bool& converged)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void single_iter_update (T& state, int var, int dvar,
+                         Real v_want, bool& converged)
 {
 
     using namespace helmholtz;
@@ -905,20 +960,28 @@ void single_iter_update(eos_t& state, int var, int dvar,
         xtol = ttol;
 
         if (var == ipres) {
-            v    = state.p;
-            dvdx = state.dpdT;
+            if constexpr (has_pressure<T>::value) {
+                v    = state.p;
+                dvdx = state.dpdT;
+            }
         }
         else if (var == iener) {
-            v    = state.e;
-            dvdx = state.dedT;
+            if constexpr (has_energy<T>::value) {
+                v    = state.e;
+                dvdx = state.dedT;
+            }
         }
         else if (var == ientr) {
-            v    = state.s;
-            dvdx = state.dsdT;
+            if constexpr (has_entropy<T>::value) {
+                v    = state.s;
+                dvdx = state.dsdT;
+            }
         }
         else if (var == ienth) {
-            v    = state.h;
-            dvdx = state.dhdT;
+            if constexpr (has_enthalpy<T>::value) {
+                v    = state.h;
+                dvdx = state.dhdT;
+            }
         }
 
     }
@@ -930,20 +993,28 @@ void single_iter_update(eos_t& state, int var, int dvar,
         xtol = dtol;
 
         if (var == ipres) {
-            v    = state.p;
-            dvdx = state.dpdr;
+            if constexpr (has_pressure<T>::value) {
+                v    = state.p;
+                dvdx = state.dpdr;
+            }
         }
         else if (var == iener) {
-            v    = state.e;
-            dvdx = state.dedr;
+            if constexpr (has_energy<T>::value) {
+                v    = state.e;
+                dvdx = state.dedr;
+            }
         }
         else if (var == ientr) {
-            v    = state.s;
-            dvdx = state.dsdr;
+            if constexpr (has_entropy<T>::value) {
+                v    = state.s;
+                dvdx = state.dsdr;
+            }
         }
         else if (var == ienth) {
-            v    = state.h;
-            dvdx = state.dhdr;
+            if constexpr (has_enthalpy<T>::value) {
+                v    = state.h;
+                dvdx = state.dhdr;
+            }
         }
 
     }
@@ -972,16 +1043,15 @@ void single_iter_update(eos_t& state, int var, int dvar,
     Real error = std::abs((xnew - x) / x);
 
     if (error < xtol) converged = true;
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void double_iter_update(eos_t& state, int var1, int var2,
-                        Real v1_want, Real v2_want, bool& converged)
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void double_iter_update (T& state, int var1, int var2,
+                         Real v1_want, Real v2_want, bool& converged)
 {
-
     using namespace helmholtz;
 
     Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
@@ -992,45 +1062,61 @@ void double_iter_update(eos_t& state, int var1, int var2,
     Real rold = state.rho;
 
     if (var1 == ipres) {
-        v1    = state.p;
-        dv1dt = state.dpdT;
-        dv1dr = state.dpdr;
+        if constexpr (has_pressure<T>::value) {
+            v1    = state.p;
+            dv1dt = state.dpdT;
+            dv1dr = state.dpdr;
+        }
     }
     else if (var1 == iener) {
-        v1    = state.e;
-        dv1dt = state.dedT;
-        dv1dr = state.dedr;
+        if constexpr (has_energy<T>::value) {
+            v1    = state.e;
+            dv1dt = state.dedT;
+            dv1dr = state.dedr;
+        }
     }
     else if (var1 == ientr) {
-        v1    = state.s;
-        dv1dt = state.dsdT;
-        dv1dr = state.dsdr;
+        if constexpr (has_entropy<T>::value) {
+            v1    = state.s;
+            dv1dt = state.dsdT;
+            dv1dr = state.dsdr;
+        }
     }
     else if (var1 == ienth) {
-        v1    = state.h;
-        dv1dt = state.dhdT;
-        dv1dr = state.dhdr;
+        if constexpr (has_enthalpy<T>::value) {
+            v1    = state.h;
+            dv1dt = state.dhdT;
+            dv1dr = state.dhdr;
+        }
     }
 
     if (var2 == ipres) {
-        v2    = state.p;
-        dv2dt = state.dpdT;
-        dv2dr = state.dpdr;
+        if constexpr (has_pressure<T>::value) {
+            v2    = state.p;
+            dv2dt = state.dpdT;
+            dv2dr = state.dpdr;
+        }
     }
     else if (var2 == iener) {
-        v2    = state.e;
-        dv2dt = state.dedT;
-        dv2dr = state.dedr;
+        if constexpr (has_energy<T>::value) {
+            v2    = state.e;
+            dv2dt = state.dedT;
+            dv2dr = state.dedr;
+        }
     }
     else if (var2 == ientr) {
-        v2    = state.s;
-        dv2dt = state.dsdT;
-        dv2dr = state.dsdr;
+        if constexpr (has_entropy<T>::value) {
+            v2    = state.s;
+            dv2dt = state.dsdT;
+            dv2dr = state.dsdr;
+        }
     }
     else if (var2 == ienth) {
-        v2    = state.h;
-        dv2dt = state.dhdT;
-        dv2dr = state.dhdr;
+        if constexpr (has_enthalpy<T>::value) {
+            v2    = state.h;
+            dv2dt = state.dhdT;
+            dv2dr = state.dhdr;
+        }
     }
 
     // Two functions, f and g, to iterate over
@@ -1067,83 +1153,110 @@ void double_iter_update(eos_t& state, int var1, int var2,
     Real error2 = std::abs((tnew - told) / told);
 
     if (error1 < dtol && error2 < ttol) converged = true;
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void finalize_state (eos_input_t input, eos_t& state,
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void finalize_state (I input, T& state,
                      Real v_want, Real v1_want, Real v2_want)
 {
-
     using namespace helmholtz;
 
     // Calculate some remaining derivatives
-    state.dpde = state.dpdT / state.dedT;
-    state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
+    if constexpr (has_pressure<T>::value) {
+        state.dpde = state.dpdT / state.dedT;
+        state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
+    }
 
     // Specific heats and Gamma_1
-    Real chit = state.T / state.p * state.dpdT;
-    Real chid = state.dpdr * state.rho / state.p;
+    if constexpr (has_energy<T>::value) {
+        state.cv = state.dedT;
 
-    state.cv = state.dedT;
-    state.gam1 = (chit * (state.p / state.rho)) * (chit / (state.T * state.cv)) + chid;
-    state.cp = state.cv * state.gam1 / chid;
+        if constexpr (has_pressure<T>::value) {
+            Real chit = state.T / state.p * state.dpdT;
+            Real chid = state.dpdr * state.rho / state.p;
+
+            state.gam1 = (chit * (state.p / state.rho)) * (chit / (state.T * state.cv)) + chid;
+            state.cp = state.cv * state.gam1 / chid;
+        }
+    }
 
     // Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     // This replaces the relativistic version that comes out of helmeos.
-    state.cs = std::sqrt(state.gam1 * state.p / state.rho);
+    if constexpr (has_pressure<T>::value) {
+        state.cs = std::sqrt(state.gam1 * state.p / state.rho);
+    }
 
     if (input_is_constant) {
 
        if (input == eos_input_rh) {
 
-           state.h = v_want;
+           if constexpr (has_enthalpy<T>::value) {
+               state.h = v_want;
+           }
 
        }
        else if (input == eos_input_tp) {
 
-           state.p = v_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v_want;
+           }
 
        }
        else if (input == eos_input_rp) {
 
-           state.p = v_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v_want;
+           }
 
        }
        else if (input == eos_input_re) {
 
-           state.e = v_want;
+           if constexpr (has_energy<T>::value) {
+               state.e = v_want;
+           }
 
        }
        else if (input == eos_input_ps) {
 
-           state.p = v1_want;
-           state.s = v2_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v1_want;
+           }
+           if constexpr (has_entropy<T>::value) {
+               state.s = v2_want;
+           }
 
        }
        else if (input == eos_input_ph) {
 
-           state.p = v1_want;
-           state.h = v2_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v1_want;
+           }
+           if constexpr (has_enthalpy<T>::value) {
+               state.h = v2_want;
+           }
 
        }
        else if (input == eos_input_th) {
 
-           state.h = v_want;
+           if constexpr (has_enthalpy<T>::value) {
+               state.h = v_want;
+           }
 
        }
 
     }
-
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos(eos_input_t input, eos_t& state)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
     using namespace helmholtz;
 
@@ -1181,9 +1294,11 @@ void actual_eos(eos_input_t input, eos_t& state)
 
         // Calculate enthalpy the usual way, h = e + p / rho.
 
-        state.h = state.e + state.p / state.rho;
-        state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
-        state.dhdT = state.dedT + state.dpdT / state.rho;
+        if constexpr (has_enthalpy<T>::value) {
+            state.h = state.e + state.p / state.rho;
+            state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
+            state.dhdT = state.dedT + state.dpdT / state.rho;
+        }
 
         if (converged) {
             break;
@@ -1198,15 +1313,13 @@ void actual_eos(eos_input_t input, eos_t& state)
     }
 
     finalize_state(input, state, v_want, v1_want, v2_want);
-
 }
 
 
 
-inline
+AMREX_INLINE
 void actual_eos_init ()
 {
-
     using namespace helmholtz;
 
     Real dth, dt2, dti, dt2i;
@@ -1326,26 +1439,27 @@ void actual_eos_init ()
     EOSData::maxtemp = std::pow(10.e0_rt, thi);
     EOSData::mindens = std::pow(10.e0_rt, dlo);
     EOSData::maxdens = std::pow(10.e0_rt, dhi);
-
 }
 
 
 
-inline
+AMREX_INLINE
 void actual_eos_finalize ()
 {
 }
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t /*input*/) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
 
   return valid;
 }
-
 
 #endif
 

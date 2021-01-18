@@ -16,12 +16,12 @@ using namespace amrex;
 #include <network.H>
 #include <eos.H>
 #include <screen.H>
-#include <screen_data.H>
 
 #include <variables.H>
 
 #include <cmath>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
@@ -38,8 +38,6 @@ void main_main ()
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size, do_cxx;
-    Vector<int> bc_lo(AMREX_SPACEDIM,0);
-    Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
     // inputs parameters
     {
@@ -111,43 +109,23 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    init_extern_parameters();
-
-    eos_init();
+    eos_init(small_temp, small_dens);
 
     screening_init();
-
-    int Ncomp = -1;
 
     // for C++
     plot_t vars;
 
-    // for F90
-    Vector<std::string> varnames;
+    // C++ test
 
-    if (do_cxx == 1) {
-      // C++ test
-      vars = init_variables();
-      Ncomp = vars.n_plot_comps;
+    vars = init_variables();
 
-    } else {
-      // Fortran test
+    amrex::Vector<std::string> names;
+    get_varnames(vars, names);
 
-      // Ncomp = number of components for each array
-      init_variables_F();
-      get_ncomp(&Ncomp);
+    // Fortran test
 
-      int name_len = -1;
-      get_name_len(&name_len);
-
-      // get the variable names
-      for (int i=0; i<Ncomp; i++) {
-        char* cstring[name_len+1];
-        get_var_name(cstring, &i);
-        std::string name(*cstring);
-        varnames.push_back(name);
-      }
-    }
+    init_variables_F();
 
     // time = starting time in the simulation
     Real time = 0.0;
@@ -156,7 +134,7 @@ void main_main ()
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
-    MultiFab state(ba, dm, Ncomp, Nghost);
+    MultiFab state(ba, dm, vars.n_plot_comps, Nghost);
 
     // Initialize the state to zero; we will fill
     // it in below in do_eos.
@@ -188,7 +166,6 @@ void main_main ()
         screen_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
       } else {
-#pragma gpu
         do_screening(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                      dlogrho, dlogT, dmetal,
                      BL_TO_FORTRAN_ANYD(state[mfi]));
@@ -207,11 +184,7 @@ void main_main ()
     std::string language = do_cxx == 1 ? ".cxx" : "";
 
     // Write a plotfile
-    if (do_cxx == 1) {
-      WriteSingleLevelPlotfile(name + language, state, vars.names, geom, time, 0);
-    } else {
-      WriteSingleLevelPlotfile(name + language, state, varnames, geom, time, 0);
-    }
+    WriteSingleLevelPlotfile(name + language, state, names, geom, time, 0);
 
     write_job_info(name + language);
 

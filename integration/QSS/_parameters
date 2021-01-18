@@ -1,0 +1,25 @@
+@namespace: integrator
+
+# Maximum amount any integration quantity can change by in a timestep
+maximum_timestep_change_factor           real            1.001
+
+# Threshold factor on the error criterion used in timestep selection
+dt_error_tolerance                       real            0.1
+
+# Maximum number of iterations on the timestep constraint loop
+num_timestep_iters                       integer         10
+
+# Maximum number of iterations on the corrector loop
+num_corrector_iters                      integer         1
+
+# Maximum factor that dt is allowed to grow per timestep
+dt_max_change_factor                     real            1.05
+
+# Multiply the timestep by this factor when we outright reject it
+dt_cut_factor                            real            0.5
+
+# Reject a species update if X < -tol or X > 1.0 + tol
+species_tolerance                        real            0.01
+
+# Scale factor for initial timestep
+dt_init_fraction                         real            0.01

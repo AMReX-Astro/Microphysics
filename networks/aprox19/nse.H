@@ -49,8 +49,9 @@ void init_nse() {
 }
 
 
+template <class state_t> 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(const burn_t& state) {
+bool in_nse(const state_t& state) {
 
   using namespace Species;
 
@@ -80,8 +81,9 @@ bool in_nse(const burn_t& state) {
 /// After doing a burn via integrating the network, update the composition
 /// aux variables to be consistent with the new X's resulting from the burn.
 ///
+template <class state_t> 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void set_nse_aux_from_X(burn_t& state) {
+void set_nse_aux_from_X(state_t& state) {
 
   using namespace AuxZero;
 
@@ -232,6 +234,17 @@ void nse_burn(burn_t& state, const Real dt) {
   Real dyedt;
   Real X[NumSpec];
 
+  // use the NSE table to get an estimate of dYe/dt
+
+  nse_interp(state.T, state.rho, state.aux[iye],
+             abar_out, dq_out, dyedt, X);
+
+  // update Ye
+
+  state.aux[iye] += dt * dyedt;
+
+  // now get the composition from the table using the upated Ye
+
   nse_interp(state.T, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
 
@@ -244,7 +257,7 @@ void nse_burn(burn_t& state, const Real dt) {
   Real deltaq = dq_out - state.aux[ibea];
 
   // under-relaxation / inertia (see Ma et el. 2013)
-  deltaq = 0.3_rt * deltaq;
+  deltaq = eta * deltaq;
 
   state.aux[ibea] += deltaq;
 
@@ -253,7 +266,6 @@ void nse_burn(burn_t& state, const Real dt) {
 
   state.e = enuc + state.e;
 
-  state.aux[iye] += dt * dyedt;
   state.aux[iabar] = abar_out;
 
   // store the new composition

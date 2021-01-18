@@ -21,10 +21,11 @@ Reaction Network Integration
 ============================
 
 There are currently two ways to integrate reaction networks using
-GPUs: CUDA Fortran VODE and CVODE.
+GPUs: CUDA Fortran VODE and CUDA C++ VODE.
 
-We recommend using CUDA Fortran VODE for the networks in Microphysics
-for production simulations at this time.
+We recommend using CUDA C++ VODE for the networks in Microphysics for
+production simulations, as we are transitioning to supporting only the C++
+versions of Microphysics routines.
 
 VODE - CUDA Fortran VODE
 ------------------------
@@ -71,53 +72,6 @@ test thus closely emulates the environment of a production simulation.
 
 To run this test, see the setup in ``Microphysics/unit_test/test_react``
 and the included Readme file.
-
-CVODE
------
-
-Microphysics also includes a test setup and interfaces for using CVODE
-to integrate an entire grid of cells together either serially, on the
-GPU using CVODE's Krylov linear solver, or on the GPU using cuSOLVER's
-batched sparse QR linear solver.
-
-This approach does not follow the GPU paradigm of one thread per cell
-as in the case of CUDA Fortran VODE. The CVODE interface packs the
-network ODEs from an entire grid into a single vector of
-ODEs. Logically, the linear system that arises when solving the BDF
-equation for such a system is block-diagonal. All cells are integrated
-together in lock-step as if there were only one system of ODEs.
-
-CVODE implements GPU parallelism by expressing vector operations as
-operations on ``NVector`` data structures that exist in GPU
-memory. Arithmetic operations on ``NVector`` objects are implemented as
-CUDA kernels operating on the GPU-resident ``NVector`` data.
-
-This interface is under development and testing and is not ready for
-production use.
-
-Reaction Network Test
-^^^^^^^^^^^^^^^^^^^^^
-
-There is a test setup that exercises the CVODE interface in
-``Microphysics/unit_test/test_cvode_react`` along with a Readme file
-with details for compiling and running.
-
-It is recommended to experiment with the different linear solvers to
-determine which is best for a given network. For ``aprox13`` the sparse
-direct solver in the cuSOLVER toolkit is preferred.
-
-At present, this setup requires a modified version of CVODE
-incorporating the interface to the batched sparse QR linear solver in
-the cuSOLVER toolkit. The modified version of CVODE is located here:
-
-`<https://github.com/dwillcox/cvode-4.0.0-development>`_
-
-Note that because this integrator interface effectively couples many
-independent cells together, the error norm check in the nonlinear
-solver may not be sensitive to relatively large convergence errors in
-only a small subset of the grid cells. As a result, it can occur that
-this integration scheme will not yield results identical to
-integrating each cell independently of the others.
 
 Common Compiler Errors
 ======================

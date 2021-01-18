@@ -1,15 +1,19 @@
 F90EXE_sources += actual_network.F90
 F90EXE_sources += network_properties.F90
 
+DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
 CEXE_headers += network_properties.H
 CEXE_headers += actual_network.H
 CEXE_sources += actual_network_data.cpp
 
 ifeq ($(USE_REACT),TRUE)
-ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
-F90EXE_sources += actual_burner.F90
-endif
-F90EXE_sources += actual_rhs.F90
-CEXE_headers += actual_rhs.H
-CEXE_sources += actual_rhs_data.cpp
+  ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
+    ifneq ($(USE_TRUE_SDC), TRUE)
+      F90EXE_sources += actual_burner.F90
+    endif
+  endif
+  F90EXE_sources += actual_rhs.F90
+  CEXE_headers += actual_rhs.H
+  CEXE_sources += actual_rhs_data.cpp
 endif

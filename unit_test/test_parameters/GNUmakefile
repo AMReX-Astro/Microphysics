@@ -10,7 +10,7 @@ COMP	   = gnu
 USE_MPI    = FALSE
 USE_OMP    = FALSE
 
-USE_REACT = FALSE
+USE_REACT = TRUE
 
 EBASE = main
 
@@ -36,6 +36,5 @@ EXTERN_SEARCH += .
 Bpack   := ./Make.package
 Blocs   := .
 
-include $(MICROPHYSICS_HOME)/Make.Microphysics
-
+include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 

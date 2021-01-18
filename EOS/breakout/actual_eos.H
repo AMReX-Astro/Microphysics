@@ -21,8 +21,11 @@ void actual_eos_init ()
 
 }
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -37,13 +40,15 @@ bool is_input_valid(eos_input_t input) {
   return valid;
 }
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos (eos_input_t input, eos_t& state)
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
 {
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
     const Real R = C::k_B * C::n_A;
 
-    Real poverrho;
+    Real p, e, cv, poverrho;
 
     // Calculate mu. This is the only difference between
     // this EOS and gamma_law.
@@ -54,10 +59,18 @@ void actual_eos (eos_input_t input, eos_t& state)
     case eos_input_rt:
 
         // dens, temp and xmass are inputs
-        state.cv = R / (state.mu * (gamma_const - 1.0_rt)) ;
-        state.e = state.cv * state.T;
-        state.p = (gamma_const - 1.0_rt) * state.rho * state.e;
-        state.gam1 = gamma_const;
+        cv = R / (state.mu * (gamma_const - 1.0_rt));
+        e = cv * state.T;
+        if constexpr (has_energy<T>::value) {
+            state.cv = cv;
+            state.e = e;
+        }
+        if constexpr (has_pressure<T>::value) {
+            state.p = (gamma_const - 1.0_rt) * state.rho * e;
+        }
+        if constexpr (has_pressure<T>::value && has_energy<T>::value) {
+            state.gam1 = gamma_const;
+        }
 
         break;
 
@@ -83,10 +96,14 @@ void actual_eos (eos_input_t input, eos_t& state)
 
         // dens, pres, and xmass are inputs
 
-        poverrho = state.p / state.rho;
-        state.T = poverrho * state.mu * (1.0_rt / R);
-        state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
-        state.gam1 = gamma_const;
+        if constexpr (has_pressure<T>::value) {
+            poverrho = state.p / state.rho;
+            state.T = poverrho * state.mu * (1.0_rt / R);
+            if constexpr (has_energy<T>::value) {
+                state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
+                state.gam1 = gamma_const;
+            }
+        }
 
         break;
 
@@ -94,21 +111,27 @@ void actual_eos (eos_input_t input, eos_t& state)
 
         // dens, energy, and xmass are inputs
 
-        poverrho = (gamma_const - 1.0_rt) * state.e;
+        if constexpr (has_energy<T>::value) {
+            poverrho = (gamma_const - 1.0_rt) * state.e;
+            state.T = poverrho * state.mu * (1.0_rt / R);
 
-        state.p = poverrho * state.rho;
-        state.T = poverrho * state.mu * (1.0_rt / R);
-        state.gam1 = gamma_const;
+            if constexpr (has_pressure<T>::value) {
+                state.p = poverrho * state.rho;
+                state.gam1 = gamma_const;
 
-        // sound speed
-        state.cs = sqrt(gamma_const * poverrho);
+                // sound speed
+                state.cs = sqrt(gamma_const * poverrho);
 
-        state.dpdr_e = poverrho;
-        state.dpde = (gamma_const - 1.0_rt) * state.rho;
+                state.dpdr_e = poverrho;
+                state.dpde = (gamma_const - 1.0_rt) * state.rho;
+            }
+        }
 
         // Try to avoid the expensive log function.  Since we don't need entropy 
         // in hydro solver, set it to an invalid but "nice" value for the plotfile.
-        state.s = 1.0_rt;
+        if constexpr (has_entropy<T>::value) {
+            state.s = 1.0_rt;
+        }
 
         break;
 
