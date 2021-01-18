@@ -10,13 +10,10 @@
 #include <temperature_integration.H>
 #include <rprox_tfactors.H>
 #include <rprox_rates.H>
+#include <screen.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
-
-AMREX_INLINE
-void actual_rhs_init () {}
-
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
@@ -69,53 +66,119 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     Real wk19ne;
     rate_ne19_to_f19(tfactors, wk19ne, dratedt);
 
+    // now the remaining rates -- we'll do screening inline here
+
+    Real sc1a, sc1adt, sc1add;
+    Real sc2a, sc2adt, sc2add;
+    Real sc3a, sc3adt, sc3add;
+
+    plasma_state_t pstate;
+    fill_plasma_state(pstate, T9 * 1.e9_rt, dens, y);
+
     // 12c(p,g)13n
     rate_p_c12_to_n13(tfactors, rate, dratedt);
-    rr(1).rates(irpg12c) = dens * rate;
-    rr(2).rates(irpg12c) = dens * dratedt;
+
+    int jscr = 0;
+    screen5(pstate, jscr,
+            zion[C12-1], aion[C12-1], zion[H1-1], aion[H1-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irpg12c) = dens * rate * sc1a;
+    rr(2).rates(irpg12c) = dens * (dratedt * sc1a + rate * sc1adt);
 
     // triple alpha
     rate_he4_he4_he4_to_c12(tfactors, rate, dratedt);
-    rr(1).rates(ir3a) = dens * dens * rate;
-    rr(2).rates(ir3a) = dens * dens * dratedt;
+
+    jscr = 1;
+    screen5(pstate, jscr,
+            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
+            sc1a, sc1adt, sc1add);
+
+    jscr = 2;
+    screen5(pstate, jscr,
+            zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
+            sc2a, sc2adt, sc2add);
+
+    sc3a = sc1a * sc2a;
+    sc3adt = sc1adt*sc2a + sc1a*sc2adt;
+
+    rr(1).rates(ir3a) = dens * dens * rate * sc3a;
+    rr(2).rates(ir3a) = dens * dens * (dratedt * sc3a + rate * sc3adt);
 
     // 17f(p,g)18ne
     rate_p_f17_to_ne18(tfactors, rate, dratedt);
-    rr(1).rates(irpg17f) = dens * rate;
-    rr(2).rates(irpg17f) = dens * dratedt;
 
-    // 17f(g,p)16o
+    jscr = 3;
+    screen5(pstate, jscr,
+            zion[F17-1], aion[F17-1], zion[H1-1], aion[H1-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irpg17f) = dens * rate * sc1a;
+    rr(2).rates(irpg17f) = dens * (dratedt * sc1a + rate * sc1adt);
+
+    // 17f(g,p)16o -- not screened
     rate_f17_to_p_o16(tfactors, rate, dratedt);
     rr(1).rates(irgp17f) = rate;
     rr(2).rates(irgp17f) = dratedt;
 
     // 15o(a,g)19ne
     rate_he4_o15_to_ne19(tfactors, rate, dratedt);
-    rr(1).rates(irag15o) = dens * rate;
-    rr(2).rates(irag15o) = dens * dratedt;
+
+    jscr = 4;
+    screen5(pstate, jscr,
+            zion[O15-1], aion[O15-1], zion[He4-1], aion[He4-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irag15o) = dens * rate * sc1a;
+    rr(2).rates(irag15o) = dens * (dratedt * sc1a + rate * sc1adt);
 
     // 16o(a,g)20ne
     rate_he4_o16_to_ne20(tfactors, rate, dratedt);
-    rr(1).rates(irag16o) = dens * rate;
-    rr(2).rates(irag16o) = dens * dratedt;
+
+    jscr = 5;
+    screen5(pstate, jscr,
+            zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irag16o) = dens * rate * sc1a;
+    rr(2).rates(irag16o) = dens * (dratedt * sc1a + rate * sc1adt);
 
     // 16o(p,g)17f
     rate_p_o16_to_f17(tfactors, rate, dratedt);
-    rr(1).rates(irpg16o) = dens * rate;
-    rr(2).rates(irpg16o) = dens * dratedt;
+
+    jscr = 6;
+    screen5(pstate, jscr,
+            zion[O16-1], aion[O16-1], zion[H1-1], aion[H1-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irpg16o) = dens * rate * sc1a;
+    rr(2).rates(irpg16o) = dens * (dratedt * sc1a + rate * sc1adt);
 
     // 14o(a,p)17f
     rate_he4_o14_to_p_f17(tfactors, rate, dratedt);
-    rr(1).rates(irap14o) = dens * rate;
-    rr(2).rates(irap14o) = dens * dratedt;
+
+    jscr = 7;
+    screen5(pstate, jscr,
+            zion[O14-1], aion[O14-1], zion[He4-1], aion[He4-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irap14o) = dens * rate * sc1a;
+    rr(2).rates(irap14o) = dens * (dratedt * sc1a + rate * sc1adt);
 
     // limit CNO as minimum between 14n(p,g)15o and 15o(beta nu)15n
     // we store the limited rate in irlambCNO; this is lambda_CNO in WW81
     rate_p_n14_to_o15(tfactors, rate, dratedt);
-    rr(1).rates(irlambCNO) = amrex::min(rr(1).rates(irwk15o), rate * dens * y(H1));
+
+    jscr = 8;
+    screen5(pstate, jscr,
+            7.0_rt, 14.0_rt, zion[H1-1], aion[H1-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irlambCNO) = amrex::min(rr(1).rates(irwk15o),
+                                        rate * dens * sc1a * y(H1));
     if (rr(1).rates(irlambCNO) < rr(1).rates(irwk15o)) {
-        rr(2).rates(irlambCNO) = dens * y(H1) * dratedt;
-        rr(3).rates(dlambCNOdh1) = rate * dens;
+        rr(2).rates(irlambCNO) = dens * y(H1) * (dratedt * sc1a + rate * sc1adt);
+        rr(3).rates(dlambCNOdh1) = rate * dens * sc1a;
     }
 
     // 22mg(...)30s
@@ -123,10 +186,17 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     // the Lweak is from WW81, eqn C15
     // we store the rate in irlambda1; this is the lambda1 in WW81
     rate_he4_si26_to_p_p29(tfactors, rate, dratedt);
-    rr(1).rates(irlambda1) = amrex::max(rr(1).rates(irLweak), dens * y(He4) * rate);
+
+    jscr = 9;
+    screen5(pstate, jscr,
+            14.0_rt, 26.0_rt, zion[He4-1], aion[He4-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irlambda1) = amrex::max(rr(1).rates(irLweak),
+                                        dens * y(He4) * rate * sc1a);
     if (rr(1).rates(irlambda1) > rr(1).rates(irLweak)) {
-        rr(2).rates(irlambda1) = dens * y(He4) * dratedt;
-        rr(3).rates(dlambda1dhe4) = dens * rate;
+        rr(2).rates(irlambda1) = dens * y(He4) * (dratedt * sc1a + rate *  sc1adt);
+        rr(3).rates(dlambda1dhe4) = dens * rate * sc1a;
         // use the sign of state.rates(1, irlambda1) to indicate the value of delta1 in WW81
         // if delta1 = 1, then we multiply the rate by -1
         rr(1).rates(irlambda1) = -1.0_rt * rr(1).rates(irlambda1);
@@ -137,10 +207,17 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     // use 44ti(a,p)v47 as a typical limiting rate for the (a,p) process
     // store this in irlambda2; this is lambda2 in WW81
     rate_he4_ti44_to_p_v47(tfactors, rate, dratedt);
-    rr(1).rates(irlambda2) = amrex::max(rr(1).rates(irla2), dens * y(He4) * rate);
+
+    jscr = 10;
+    screen5(pstate, jscr,
+            22.0_rt, 44.0_rt, zion[He4-1], aion[He4-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irlambda2) = amrex::max(rr(1).rates(irla2),
+                                        dens * y(He4) * rate * sc1a);
     if (rr(1).rates(irlambda2) > rr(1).rates(irla2)) {
-        rr(2).rates(irlambda2) = dens * y(He4) * dratedt;
-        rr(3).rates(dlambda2dhe4) = dens * rate;
+        rr(2).rates(irlambda2) = dens * y(He4) * (dratedt * sc1a + rate * sc1adt);
+        rr(3).rates(dlambda2dhe4) = dens * rate * sc1a;
         // use the sign of rr(1).rates(irlambda2) to indicate the value of delta2
         // if delta2 = 1, then we multiply the rate by -1
         rr(1).rates(irlambda2) = -1.0_rt * rr(1).rates(irlambda2);
@@ -150,21 +227,33 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     // store result in irs1
     // 18ne(a,p)21na
     rate_he4_ne18_to_p_na21(tfactors, rate, dratedt);
-    rr(1).rates(irs1) = wk18ne / (wk18ne + dens * y(He4) * rate);
-    rr(2).rates(irs1) = -rr(1).rates(irs1) * dens * y(He4) * dratedt 
-                         / (wk18ne + dens * y(He4) * rate);
-    rr(3).rates(drs1dhe4) = -rr(1).rates(irs1) * dens * rate
-                             / (wk18ne + dens * y(He4) * rate);
+
+    jscr = 11;
+    screen5(pstate, jscr,
+            10.0_rt, 18.0_rt, zion[He4-1], aion[He4-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irs1) = wk18ne / (wk18ne + dens * y(He4) * rate * sc1a);
+    rr(2).rates(irs1) = -rr(1).rates(irs1) * dens * y(He4) * (dratedt * sc1a + rate * sc1adt)
+                         / (wk18ne + dens * y(He4) * rate * sc1a);
+    rr(3).rates(drs1dhe4) = -rr(1).rates(irs1) * dens * rate * sc1a
+                             / (wk18ne + dens * y(He4) * rate * sc1a);
 
     // form r1 from WW81; ranching ratio for 19ne beta decay (wk19ne) vs (p,g)
     // store result in irr1
     // 19ne(p,g)20na
     rate_p_ne19_to_na20(tfactors, rate, dratedt);
-    rr(1).rates(irr1) = wk19ne / (wk19ne + dens * y(H1) * rate);
-    rr(2).rates(irr1) = -rr(1).rates(irr1) * dens * y(H1) * dratedt
-                         / (wk19ne + dens * y(H1) * rate);
-    rr(3).rates(drr1dh1) = -rr(1).rates(irr1) * dens * rate
-                            / (wk19ne + dens * y(H1) * rate);
+
+    jscr = 12;
+    screen5(pstate, jscr,
+            10.0_rt, 19.0_rt, zion[H1-1], aion[H1-1],
+            sc1a, sc1adt, sc1add);
+
+    rr(1).rates(irr1) = wk19ne / (wk19ne + dens * y(H1) * rate * sc1a);
+    rr(2).rates(irr1) = -rr(1).rates(irr1) * dens * y(H1) * (dratedt * sc1a + rate * sc1adt)
+                         / (wk19ne + dens * y(H1) * rate * sc1a);
+    rr(3).rates(drr1dh1) = -rr(1).rates(irr1) * dens * rate * sc1a
+                            / (wk19ne + dens * y(H1) * rate * sc1a);
 
 
     //....
@@ -530,5 +619,71 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     temperature_jac(state, jac);
 }
+
+
+AMREX_INLINE
+void set_up_screening_factors()
+{
+
+    // Compute and store the more expensive screening factors
+
+    using namespace Species;
+
+    // note: we need to set these up in the same order that we evaluate the
+    // rates in actual_rhs.H (yes, it's ugly)
+    int jscr = 0;
+
+
+    // 0: C12(p,g)N13
+    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[H1-1], aion[H1-1]);
+
+    // 1, 2: 3-alpha
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt);
+
+    // 3: F17(p,g)Ne18
+    add_screening_factor(jscr++, zion[F17-1], aion[F17-1], zion[H1-1], aion[H1-1]);
+
+    // F17(g,p)O16 is unscreened
+
+    // 4: O15(a,g)Ne19
+    add_screening_factor(jscr++, zion[O15-1], aion[O15-1], zion[He4-1], aion[He4-1]);
+
+    // 5: O16(a,g)Ne20
+    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1]);
+
+    // 6: O16(p,g)F17
+    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[H1-1], aion[H1-1]);
+
+    // 7: O14(a,p)F17
+    add_screening_factor(jscr++, zion[O14-1], aion[O14-1], zion[He4-1], aion[He4-1]);
+
+    // 8: N14(p,g)O15
+    add_screening_factor(jscr++, 7.0_rt, 14.0_rt, zion[H1-1], aion[H1-1]);
+
+    // 9: Si26(a,p)P29
+    add_screening_factor(jscr++, 14.0_rt, 26.0_rt, zion[He4-1], aion[He4-1]);
+
+    // 10: Ti44(a,p)V47
+    add_screening_factor(jscr++, 22.0_rt, 44.0_rt, zion[He4-1], aion[He4-1]);
+
+    // 11: Ne18(a,p)Na21
+    add_screening_factor(jscr++, 10.0_rt, 18.0e0_rt, zion[He4-1], aion[He4-1]);
+
+    // 12: Ne19(p,g)Na20
+    add_screening_factor(jscr++, 10.0_rt, 19.0_rt, zion[H1-1], aion[H1-1]);
+
+}
+
+AMREX_INLINE
+void actual_rhs_init () {
+
+    screening_init();
+
+    set_up_screening_factors();
+
+}
+
+
 
 #endif
