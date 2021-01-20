@@ -10,6 +10,8 @@ ifeq ($(USE_REACT),TRUE)
     endif
   endif
 
+  DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
   F90EXE_sources += actual_rhs.F90
   F90EXE_sources += tfactors.F90
   F90EXE_sources += rates_module.F90
