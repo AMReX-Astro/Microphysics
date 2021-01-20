@@ -1,0 +1,8 @@
+AMReX (20.07-6-g0f1dfb3e1250) initialized
+reading extern runtime parameters ...
+ 
+ Initializing Helmholtz EOS and using Coulomb corrections.
+ 
+Edot Ratio (PF/NOPF): 2.293683464
+The estimated for 1e10k is 2.294
+AMReX (20.07-6-g0f1dfb3e1250) finalized
