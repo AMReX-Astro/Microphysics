@@ -74,7 +74,7 @@ struct dvode_t
     // Jacobian
     SparseMatrix jac;
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     SparseMatrix jac_save;
 #endif
@@ -84,7 +84,7 @@ struct dvode_t
     // Jacobian
     RArray2D jac;
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     RArray2D jac_save;
 #endif
