@@ -615,7 +615,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Call the RHS to get dydt
 
-    Array1D<Real, 1, NumSpec> spec_rhs = species_rhs(state, rr);
+    Array1D<Real, 1, NumSpec> spec_rhs = RHS::species_rhs(state, rr);
 
     for (int n = 1; n <= NumSpec; ++n) {
         ydot(n) = spec_rhs(n);
@@ -625,7 +625,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ydot(net_ienuc) = ener_rhs(state, spec_rhs);
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     // Append the temperature equation
 
     ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
@@ -687,7 +687,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     const int index_rate = 2;
 
-    Array1D<Real, 1, NumSpec> yderivs = species_rhs(state, rr(index_rate));
+    Array1D<Real, 1, NumSpec> yderivs = RHS::species_rhs(state, rr(index_rate));
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i,net_itemp) = yderivs(i);

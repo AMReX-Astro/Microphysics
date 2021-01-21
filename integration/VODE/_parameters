@@ -1,3 +1,5 @@
+@namespace: integrator
+
 # SDC iteration tolerance adjustment factor
 sdc_burn_tol_factor          real         1.d0
 

@@ -107,6 +107,8 @@ void actual_integrator (burn_t& state, Real dt)
 
     state.success = true;
 
+    state.n_rhs = 0;
+
     Real t = 0.0;
 
     // When checking the integration time to see if we're done,

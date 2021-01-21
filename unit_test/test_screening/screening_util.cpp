@@ -11,7 +11,6 @@
 #include <eos.H>
 
 #include <screen.H>
-#include <screen_data.H>
 
 #include <cmath>
 

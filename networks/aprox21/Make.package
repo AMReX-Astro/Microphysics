@@ -3,12 +3,17 @@ F90EXE_sources += network_properties.F90
 CEXE_headers += network_properties.H
 
 ifeq ($(USE_REACT),TRUE)
-ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
-F90EXE_sources += actual_burner.F90
-endif
-F90EXE_sources += actual_rhs.F90
+  ifneq ($(USE_SIMPLIFIED_SDC), TRUE)
+    ifneq ($(USE_TRUE_SDC), TRUE)
+      F90EXE_sources += actual_burner.F90
+    endif
+  endif
 
-USE_RATES       = TRUE
-USE_SCREENING   = TRUE
-USE_NEUTRINOS   = TRUE
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    F90EXE_sources += actual_rhs.F90
+  endif
+
+  USE_RATES       = TRUE
+  USE_SCREENING   = TRUE
+  USE_NEUTRINOS   = TRUE
 endif

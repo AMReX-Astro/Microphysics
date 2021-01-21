@@ -9,17 +9,13 @@ contains
 
   subroutine burner_init() bind(C, name="burner_init")
 
-#ifdef SIMPLIFIED_SDC
-    use integrator_module, only: integrator_init
-#else
+#ifndef SIMPLIFIED_SDC
     use actual_burner_module, only: actual_burner_init
 #endif
 
     implicit none
 
-#ifdef SIMPLIFIED_SDC
-    call integrator_init()
-#else
+#ifndef SIMPLIFIED_SDC
     call actual_burner_init()
 #endif
 

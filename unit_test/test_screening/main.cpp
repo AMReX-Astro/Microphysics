@@ -16,12 +16,12 @@ using namespace amrex;
 #include <network.H>
 #include <eos.H>
 #include <screen.H>
-#include <screen_data.H>
 
 #include <variables.H>
 
 #include <cmath>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
@@ -38,8 +38,6 @@ void main_main ()
 
     // AMREX_SPACEDIM: number of dimensions
     int n_cell, max_grid_size, do_cxx;
-    Vector<int> bc_lo(AMREX_SPACEDIM,0);
-    Vector<int> bc_hi(AMREX_SPACEDIM,0);
 
     // inputs parameters
     {
@@ -111,8 +109,6 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    init_extern_parameters();
-
     eos_init(small_temp, small_dens);
 
     screening_init();
@@ -170,7 +166,6 @@ void main_main ()
         screen_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
       } else {
-#pragma gpu
         do_screening(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                      dlogrho, dlogT, dmetal,
                      BL_TO_FORTRAN_ANYD(state[mfi]));

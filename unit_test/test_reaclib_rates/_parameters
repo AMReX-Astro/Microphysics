@@ -1,3 +1,5 @@
+@namespace: unit_test
+
 run_prefix    character  ""
 
 small_temp    real       1.e5

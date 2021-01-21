@@ -2,5 +2,16 @@ n_cell = 16
 
 prefix = react_3alpha_
 
-amr.probin_file = probin.3alpha
+amr.probin_file = probin
+
+unit_test.dens_min = 1.e4
+unit_test.dens_max = 1.e7
+unit_test.temp_min = 5.e7
+unit_test.temp_max = 5.e8
+
+unit_test.tmax = 1.e-3
+
+unit_test.primary_species_1 = "helium-4"
+
+integrator.retry_burn = 1
 

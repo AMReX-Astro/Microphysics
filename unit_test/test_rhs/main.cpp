@@ -21,6 +21,7 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
+#include <unit_test_F.H>
 #include <react_util.H>
 
 int main (int argc, char* argv[])
@@ -119,9 +120,6 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    // Copy extern parameters from Fortran to C++
-    init_extern_parameters();
-
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
 
@@ -212,7 +210,6 @@ void main_main ()
         else {
 #endif
 
-#pragma gpu
             do_rhs(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                    BL_TO_FORTRAN_ANYD(state[mfi]));
 
