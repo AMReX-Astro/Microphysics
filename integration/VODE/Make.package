@@ -9,6 +9,15 @@ else
   endif
 endif
 
+# by default we do not enable Jacobian caching on GPUs to save memory
+ifneq ($(USE_CUDA), TRUE)
+  DEFINES += -DALLOW_JACOBIAN_CACHING
+endif
+
+ifeq ($(USE_JACOBIAN_CACHING), TRUE)
+  DEFINES += -DALLOW_JACOBIAN_CACHING
+endif
+
 ifneq ($(USE_TRUE_SDC), TRUE)
   F90EXE_sources += vode_integrator.F90
   F90EXE_sources += vode_rhs.F90
