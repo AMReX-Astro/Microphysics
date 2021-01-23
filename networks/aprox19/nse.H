@@ -25,7 +25,7 @@ void init_nse() {
   // read in table
   std::ifstream nse_table;
 
-  std::cout << "reading the NSE table (C++) ..." << std::endl;
+  amrex::Print() << "reading the NSE table (C++) ..." << std::endl;
 
   nse_table.open("nse19.tbl", std::ios::in);
 
