@@ -1,3 +1,5 @@
+@namespace: integrator
+
 # these are the parameters for the integration module
 
 # When evolving the temperature, should we assume a constant pressure (default) 

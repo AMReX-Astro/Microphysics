@@ -16,12 +16,12 @@ using namespace amrex;
 #include <network.H>
 #include <eos.H>
 #include <screen.H>
-#include <screen_data.H>
 
 #include <variables.H>
 
 #include <cmath>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
@@ -108,8 +108,6 @@ void main_main ()
       probin_file_name[i] = probin_file[i];
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-    init_extern_parameters();
 
     eos_init(small_temp, small_dens);
 

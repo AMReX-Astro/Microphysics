@@ -5,10 +5,11 @@
 #include <cstring>
 #include <AMReX_Utility.H>
 #include <AMReX_buildInfo.H>
-
+#include <AMReX_GpuDevice.H>
 #include <extern_parameters.H>
 #include <network.H>
 #include <unit_test.H>
+#include <extern_parameters_F.H>
 
 #ifdef _OPENMP
 #include <omp.h>

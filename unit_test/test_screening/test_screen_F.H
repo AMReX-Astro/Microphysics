@@ -11,8 +11,6 @@ extern "C"
 
   void init_variables_F();
 
-  void init_unit_test(const int* name, const int* namlen);
-
   void do_screening(const int* lo, const int* hi,
                     const Real dlogrho, const Real dlogT, const Real dmetal,
                     amrex::Real* state, const int* s_lo, const int* s_hi);

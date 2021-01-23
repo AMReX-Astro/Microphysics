@@ -19,6 +19,7 @@ using namespace amrex;
 
 #include <cmath>
 #include <unit_test.H>
+#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
@@ -104,13 +105,7 @@ void main_main ()
     for (int i = 0; i < probin_file_length; i++)
       probin_file_name[i] = probin_file[i];
 
-    init_runtime_parameters(probin_file_name.dataPtr(), &probin_file_length);
-
-#ifdef MICROPHYSICS_FORT_EOS
-    init_fortran_microphysics();
-#endif
-
-    init_extern_parameters();
+    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
     eos_init(small_temp, small_dens);
 

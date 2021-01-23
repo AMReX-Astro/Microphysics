@@ -4,6 +4,7 @@
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
+#include <actual_rhs.H>
 
 ///
 /// Compute the numerical Jacobian of the reactive system, dydot/dy,

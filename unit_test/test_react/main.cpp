@@ -10,16 +10,14 @@
 using namespace amrex;
 
 #include <test_react.H>
-#include <test_react_F.H>
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#ifdef CXX_REACTIONS
 #include <react_zones.H>
-#endif
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
+#include <unit_test_F.H>
 #include <react_util.H>
 #ifdef NSE_THERMO
 #include <nse.H>
@@ -44,8 +42,6 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
-    int do_cxx = 0;
-
     // inputs parameters
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -63,10 +59,6 @@ void main_main ()
         pp.query("max_grid_size", max_grid_size);
 
         pp.query("prefix", prefix);
-
-#ifdef CXX_REACTIONS
-        pp.query("do_cxx", do_cxx);
-#endif
 
     }
 
@@ -121,18 +113,11 @@ void main_main ()
 
     init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-    // Copy extern parameters from Fortran to C++
-    init_extern_parameters();
-
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
 
-#ifdef CXX_REACTIONS
     // C++ Network, RHS, screening, rates initialization
     network_init();
-#endif
-
-    init_variables_F();
 
     plot_t vars;
     vars = init_variables();
@@ -219,36 +204,28 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
-#ifdef CXX_REACTIONS
-        if (do_cxx) {
+        auto s = state.array(mfi);
+        auto n_rhs = integrator_n_rhs.array(mfi);
 
-            auto s = state.array(mfi);
-            auto n_rhs = integrator_n_rhs.array(mfi);
+        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        {
+            bool success = do_react(i, j, k, s, n_rhs, vars);
+
+            if (!success) {
+                Gpu::Atomic::Add(num_failed_d, 1);
+            }
+        });
+
+        if (print_every_nrhs != 0) {
+
+            auto int_state = integrator_n_rhs.array(mfi);
 
             AMREX_PARALLEL_FOR_3D(bx, i, j, k,
             {
-                bool success = do_react(i, j, k, s, n_rhs, vars);
-
-                if (!success) {
-                    Gpu::Atomic::Add(num_failed_d, 1);
-                }
+                std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
             });
-
         }
-        else {
-#endif
 
-            do_react(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                     BL_TO_FORTRAN_ANYD(state[mfi]),
-                     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
-
-#ifdef CXX_REACTIONS
-        }
-#endif
-
-	if (print_every_nrhs != 0)
-	  print_nrhs(AMREX_ARLIM_ANYD(bx.loVect()), AMREX_ARLIM_ANYD(bx.hiVect()),
-		     BL_TO_FORTRAN_ANYD(integrator_n_rhs[mfi]));
     }
 
     aa_num_failed.copyToHost(&num_failed, 1);
@@ -284,11 +261,7 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-#ifdef CXX_REACTIONS
-    std::string language = do_cxx == 1 ? ".cxx" : "";
-#else
-    std::string language = "";
-#endif
+    std::string language = ".cxx";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);

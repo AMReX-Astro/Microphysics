@@ -1,5 +1,2 @@
 F90EXE_sources += screen.F90
 CEXE_headers += screen.H
-CEXE_headers += screen_data.H
-CEXE_sources += screen_data.cpp
-
