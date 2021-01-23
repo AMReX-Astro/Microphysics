@@ -1,2 +1,0 @@
-VODE was downloaded from netlib where it is freely available.  No
-explicit license is provided.
