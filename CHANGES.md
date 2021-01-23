@@ -1,5 +1,7 @@
 # 21.02
 
+   * Fortran support for the VODE integrator has been removed (#538)
+
    * Runtime parameters can now be set in the inputs file instead of
      the probin file (and then they are read in by C++ ParmParse).  If
      a parameter is set in both places, then the inputs value is used.
