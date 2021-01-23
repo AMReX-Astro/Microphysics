@@ -2,6 +2,7 @@
 #define _eos_H_
 
 #include <network_properties.H>
+#include <eos_data.H>
 #include <eos_type.H>
 #include <eos_composition.H>
 #include <eos_override.H>
@@ -9,29 +10,6 @@
 #include <AMReX_Algorithm.H>
 
 using namespace amrex;
-
-// store some global limits set at initialization time
-
-namespace EOSData
-{
-  inline bool initialized;
-  inline AMREX_GPU_MANAGED amrex::Real mintemp;
-  inline AMREX_GPU_MANAGED amrex::Real maxtemp;
-  inline AMREX_GPU_MANAGED amrex::Real mindens;
-  inline AMREX_GPU_MANAGED amrex::Real maxdens;
-  inline AMREX_GPU_MANAGED amrex::Real minx;
-  inline AMREX_GPU_MANAGED amrex::Real maxx;
-  inline AMREX_GPU_MANAGED amrex::Real minye;
-  inline AMREX_GPU_MANAGED amrex::Real maxye;
-  inline AMREX_GPU_MANAGED amrex::Real mine;
-  inline AMREX_GPU_MANAGED amrex::Real maxe;
-  inline AMREX_GPU_MANAGED amrex::Real minp;
-  inline AMREX_GPU_MANAGED amrex::Real maxp;
-  inline AMREX_GPU_MANAGED amrex::Real mins;
-  inline AMREX_GPU_MANAGED amrex::Real maxs;
-  inline AMREX_GPU_MANAGED amrex::Real minh;
-  inline AMREX_GPU_MANAGED amrex::Real maxh;
-}
 
 // EOS initialization routine: read in general EOS parameters, then
 // call any specific initialization used by the EOS.

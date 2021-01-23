@@ -13,6 +13,7 @@ endif
 
 ifeq ($(USE_CXX_EOS),TRUE)
   CEXE_headers += eos.H
+  CEXE_headers += eos_data.H
   CEXE_headers += eos_type.H
   CEXE_headers += eos_override.H
 endif
