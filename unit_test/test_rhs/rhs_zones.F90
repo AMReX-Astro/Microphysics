@@ -63,7 +63,6 @@ contains
                 state(ii, jj, kk, p % ispec + j - 1) = ydot(j)
              enddo
 
-             state(ii, jj, kk, p % itemp_dot) = ydot(net_itemp)
              state(ii, jj, kk, p % ienuc_dot) = ydot(net_ienuc)
 
              n = 0
