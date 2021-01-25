@@ -495,11 +495,11 @@ void jac_to_vode(const Real time, burn_t& state,
 
     // d( d(rho X_m)/dt)/dT
     for (int m = 1; m <= NumSpec; m++) {
-        dRdw(SFS+m, iwT) = state.rho * jac_react(m, net_itemp);
+        dRdw(SFS+m, iwT) = state.rho * jac_react(m, net_ienuc);
     }
 
     // d( d(rho e)/dt)/dT
-    dRdw(SEINT+1, iwT) = state.rho * jac_react(net_ienuc, net_itemp);
+    dRdw(SEINT+1, iwT) = state.rho * jac_react(net_ienuc, net_ienuc);
 
     // d( d(rho E)/dt)/dT
     dRdw(SEDEN+1, iwT) = dRdw(SEINT+1, iwT);
@@ -533,7 +533,7 @@ void jac_to_vode(const Real time, burn_t& state,
     dwdU(iwK, SEINT+1) = -1.0_rt / state.rho;
     dwdU(iwK, SEDEN+1) = 1.0_rt / state.rho;
 
-    // T row
+    // e row
     eos_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = 1.e4_rt;   // initial guess
@@ -552,17 +552,16 @@ void jac_to_vode(const Real time, burn_t& state,
 
     // temperature row
     for (int n = 1; n <= NumSpec; n++) {
-        dwdU(iwT, SFS+n) = -eos_xderivs.dedX[n-1]/  (state.rho * eos_state.dedT);
+        dwdU(iwT, SFS+n) = -eos_xderivs.dedX[n-1] /  state.rho;
     }
-    dwdU(iwT, SEINT+1) = 1.0_rt / (state.rho * eos_state.dedT);
+    dwdU(iwT, SEINT+1) = 1.0_rt / state.rho;
     dwdU(iwT, SEDEN+1) = 0.0_rt;
     Real X_dedX_sum = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
         X_dedX_sum += eos_state.xn[n] * eos_xderivs.dedX[n];
     }
     dwdU(iwT, SRHO_EXTRA+1) =
-        (X_dedX_sum - state.rho * eos_state.dedr - eos_state.e) /
-        (state.rho * eos_state.dedT);
+        (X_dedX_sum - eos_state.e) / state.rho;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
