@@ -688,6 +688,11 @@ void actual_jac(burn_t& state, MatrixType& jac)
         jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
     }
 
+    Real jac_e_T;
+    ener_gener_rate(yderivs, jac_e_T);
+    jac_e_T -= dsneutdt;
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
+
 }
 
 
