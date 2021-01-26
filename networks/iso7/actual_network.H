@@ -47,9 +47,14 @@ namespace Rates {
                        C12_He4_to_O16_reverse,
                        He4_He4_He4_to_C12_forward,
                        He4_He4_He4_to_C12_reverse,
-                       C12_C12,
-                       C12_O16,
-                       O16_O16,
+                       C12_C12_to_Ne20_He4_forward,
+                       C12_C12_to_Ne20_He4_reverse,
+                       C12_O16_to_Mg24_He4_forward,
+                       C12_O16_to_Mg24_He4_reverse,
+                       C12_O16_to_Si28_forward,
+                       C12_O16_to_Si28_reverse,
+                       O16_O16_to_Si28_He4_forward,
+                       O16_O16_to_Si28_He4_reverse,
                        O16_He4_to_Ne20_forward,
                        O16_He4_to_Ne20_reverse,
                        Ne20_He4_to_Mg24_forward,
@@ -107,19 +112,19 @@ namespace RHS {
             data.specindex2 = He4;
             break;
 
-        case rhs_rate<NumRates>(He4, C12_C12):
+        case rhs_rate<NumRates>(He4, C12_C12_to_Ne20_He4_forward):
             data.prefactor  = 0.5_rt;
             data.specindex1 = C12;
             data.specindex2 = C12;
             break;
 
-        case rhs_rate<NumRates>(He4, C12_O16):
-            data.prefactor  = 0.5_rt;
+        case rhs_rate<NumRates>(He4, C12_O16_to_Mg24_He4_forward):
+            data.prefactor  = 1.0_rt;
             data.specindex1 = C12;
             data.specindex2 = O16;
             break;
 
-        case rhs_rate<NumRates>(He4, O16_O16):
+        case rhs_rate<NumRates>(He4, O16_O16_to_Si28_He4_forward):
             data.prefactor  = 0.5_rt;
             data.specindex1 = O16;
             data.specindex2 = O16;
@@ -191,13 +196,19 @@ namespace RHS {
             data.specindex2 = He4;
             break;
 
-        case rhs_rate<NumRates>(C12, C12_C12):
+        case rhs_rate<NumRates>(C12, C12_C12_to_Ne20_He4_forward):
             data.prefactor  = -1.0_rt;
             data.specindex1 = C12;
             data.specindex2 = C12;
             break;
 
-        case rhs_rate<NumRates>(C12, C12_O16):
+        case rhs_rate<NumRates>(C12, C12_O16_to_Mg24_He4_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(C12, C12_O16_to_Si28_forward):
             data.prefactor  = -1.0_rt;
             data.specindex1 = C12;
             data.specindex2 = O16;
@@ -214,13 +225,19 @@ namespace RHS {
             data.specindex2 = He4;
             break;
 
-        case rhs_rate<NumRates>(O16, C12_O16):
+        case rhs_rate<NumRates>(O16, C12_O16_to_Mg24_He4_forward):
             data.prefactor  = -1.0_rt;
             data.specindex1 = C12;
             data.specindex2 = O16;
             break;
 
-        case rhs_rate<NumRates>(O16, O16_O16):
+        case rhs_rate<NumRates>(O16, C12_O16_to_Si28_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(O16, O16_O16_to_Si28_He4_forward):
             data.prefactor  = -1.0_rt;
             data.specindex1 = O16;
             data.specindex2 = O16;
@@ -237,7 +254,7 @@ namespace RHS {
             data.specindex1 = Ne20;
             break;
 
-        case rhs_rate<NumRates>(Ne20, C12_C12):
+        case rhs_rate<NumRates>(Ne20, C12_C12_to_Ne20_He4_forward):
             data.prefactor  = 0.5_rt;
             data.specindex1 = C12;
             data.specindex2 = C12;
@@ -265,8 +282,8 @@ namespace RHS {
             data.specindex2 = He4;
             break;
 
-        case rhs_rate<NumRates>(Mg24, C12_O16):
-            data.prefactor  = 0.5_rt;
+        case rhs_rate<NumRates>(Mg24, C12_O16_to_Mg24_He4_forward):
+            data.prefactor  = 1.0_rt;
             data.specindex1 = C12;
             data.specindex2 = O16;
             break;
@@ -293,13 +310,13 @@ namespace RHS {
             data.specindex2 = He4;
             break;
 
-        case rhs_rate<NumRates>(Si28, C12_O16):
-            data.prefactor  = 0.5_rt;
+        case rhs_rate<NumRates>(Si28, C12_O16_to_Si28_forward):
+            data.prefactor  = 1.0_rt;
             data.specindex1 = C12;
             data.specindex2 = O16;
             break;
 
-        case rhs_rate<NumRates>(Si28, O16_O16):
+        case rhs_rate<NumRates>(Si28, O16_O16_to_Si28_He4_forward):
             data.prefactor  = 0.5_rt;
             data.specindex1 = O16;
             data.specindex2 = O16;
@@ -414,13 +431,13 @@ namespace RHS {
             data.specindex1 = He4;
             break;
 
-        case jac_rate<NumSpec, NumRates>(He4, C12, C12_C12):
+        case jac_rate<NumSpec, NumRates>(He4, C12, C12_C12_to_Ne20_He4_forward):
             data.prefactor = 1.0_rt;
             data.specindex1 = C12;
             break;
 
-        case jac_rate<NumSpec, NumRates>(He4, C12, C12_O16):
-            data.prefactor = 0.5_rt;
+        case jac_rate<NumSpec, NumRates>(He4, C12, C12_O16_to_Mg24_He4_forward):
+            data.prefactor = 1.0_rt;
             data.specindex1 = O16;
             break;
 
@@ -428,12 +445,12 @@ namespace RHS {
             data.prefactor = 1.0_rt;
             break;
 
-        case jac_rate<NumSpec, NumRates>(He4, O16, C12_O16):
-            data.prefactor = 0.5_rt;
+        case jac_rate<NumSpec, NumRates>(He4, O16, C12_O16_to_Mg24_He4_forward):
+            data.prefactor = 1.0_rt;
             data.specindex1 = C12;
             break;
 
-        case jac_rate<NumSpec, NumRates>(He4, O16, O16_O16):
+        case jac_rate<NumSpec, NumRates>(He4, O16, O16_O16_to_Si28_He4_forward):
             data.prefactor = 1.0_rt;
             data.specindex1 = O16;
             break;
@@ -494,12 +511,17 @@ namespace RHS {
             data.specindex1 = He4;
             break;
 
-        case jac_rate<NumSpec, NumRates>(C12, C12, C12_C12):
+        case jac_rate<NumSpec, NumRates>(C12, C12, C12_C12_to_Ne20_He4_forward):
             data.prefactor = -2.0_rt;
             data.specindex1 = C12;
             break;
 
-        case jac_rate<NumSpec, NumRates>(C12, C12, C12_O16):
+        case jac_rate<NumSpec, NumRates>(C12, C12, C12_O16_to_Mg24_He4_forward):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(C12, C12, C12_O16_to_Si28_forward):
             data.prefactor = -1.0_rt;
             data.specindex1 = O16;
             break;
@@ -508,7 +530,12 @@ namespace RHS {
             data.prefactor = 1.0_rt;
             break;
 
-        case jac_rate<NumSpec, NumRates>(C12, O16, C12_O16):
+        case jac_rate<NumSpec, NumRates>(C12, O16, C12_O16_to_Mg24_He4_forward):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = C12;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(C12, O16, C12_O16_to_Si28_forward):
             data.prefactor = -1.0_rt;
             data.specindex1 = C12;
             break;
@@ -528,7 +555,12 @@ namespace RHS {
             data.specindex1 = He4;
             break;
 
-        case jac_rate<NumSpec, NumRates>(O16, C12, C12_O16):
+        case jac_rate<NumSpec, NumRates>(O16, C12, C12_O16_to_Mg24_He4_forward):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(O16, C12, C12_O16_to_Si28_forward):
             data.prefactor = -1.0_rt;
             data.specindex1 = O16;
             break;
@@ -537,12 +569,17 @@ namespace RHS {
             data.prefactor = -1.0_rt;
             break;
 
-        case jac_rate<NumSpec, NumRates>(O16, O16, C12_O16):
+        case jac_rate<NumSpec, NumRates>(O16, O16, C12_O16_to_Mg24_He4_forward):
             data.prefactor = -1.0_rt;
             data.specindex1 = C12;
             break;
 
-        case jac_rate<NumSpec, NumRates>(O16, O16, O16_O16):
+        case jac_rate<NumSpec, NumRates>(O16, O16, C12_O16_to_Si28_forward):
+            data.prefactor = -1.0_rt;
+            data.specindex1 = C12;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(O16, O16, O16_O16_to_Si28_He4_forward):
             data.prefactor = -2.0_rt;
             data.specindex1 = O16;
             break;
@@ -566,7 +603,7 @@ namespace RHS {
             data.specindex1 = Ne20;
             break;
 
-        case jac_rate<NumSpec, NumRates>(Ne20, C12, C12_C12):
+        case jac_rate<NumSpec, NumRates>(Ne20, C12, C12_C12_to_Ne20_He4_forward):
             data.prefactor = 1.0_rt;
             data.specindex1 = C12;
             break;
@@ -599,13 +636,13 @@ namespace RHS {
             data.specindex1 = Mg24;
             break;
 
-        case jac_rate<NumSpec, NumRates>(Mg24, C12, C12_O16):
-            data.prefactor = 0.5_rt;
+        case jac_rate<NumSpec, NumRates>(Mg24, C12, C12_O16_to_Mg24_He4_forward):
+            data.prefactor = 1.0_rt;
             data.specindex1 = O16;
             break;
 
-        case jac_rate<NumSpec, NumRates>(Mg24, O16, C12_O16):
-            data.prefactor = 0.5_rt;
+        case jac_rate<NumSpec, NumRates>(Mg24, O16, C12_O16_to_Mg24_He4_forward):
+            data.prefactor = 1.0_rt;
             data.specindex1 = C12;
             break;
 
@@ -644,18 +681,18 @@ namespace RHS {
             data.rate_specindex1 = Ni56;
             break;
 
-        case jac_rate<NumSpec, NumRates>(Si28, C12, C12_O16):
-            data.prefactor = 0.5_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, O16, O16_O16):
+        case jac_rate<NumSpec, NumRates>(Si28, C12, C12_O16_to_Si28_forward):
             data.prefactor = 1.0_rt;
             data.specindex1 = O16;
             break;
 
-        case jac_rate<NumSpec, NumRates>(Si28, O16, C12_O16):
-            data.prefactor = 0.5_rt;
+        case jac_rate<NumSpec, NumRates>(Si28, O16, O16_O16_to_Si28_He4_forward):
+            data.prefactor = 1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case jac_rate<NumSpec, NumRates>(Si28, O16, C12_O16_to_Si28_forward):
+            data.prefactor = 1.0_rt;
             data.specindex1 = C12;
             break;
 
