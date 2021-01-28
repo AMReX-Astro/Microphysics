@@ -12,6 +12,10 @@
 #ifdef NSE_THERMO
 #include <nse.H>
 #endif
+#if defined(SDC_EVOLVE_ENTHALPY)
+#include <maestro_params.H>
+#endif
+
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
@@ -46,7 +50,7 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
     state.rho = 0.0_rt;
     for (int n = 1; n <= NumSpec; n++) {
         // use 1-based indexing into vode_state.y
-        state.rho += vode_state.y[SFS+n];
+        state.rho += vode_state.y(SFS+n);
     }
 #endif
 
@@ -269,7 +273,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    if (use_tfromp) {
+    if (maestro::use_tfromp) {
         // under this assumption, we are assuming that there is no base state evolution
         eos_state.p = state.p0;
     } else {
@@ -293,7 +297,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    if (use_tfromp) {
+    if (maestro::use_tfromp) {
         // NOT SURE IF THIS IS VALID
         // used to be an Abort statement
         eos(eos_input_rp, eos_state);
