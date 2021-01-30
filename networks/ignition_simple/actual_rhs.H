@@ -137,7 +137,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ener_gener_rate(ydot(C12), ydot(net_ienuc));
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     // Do the temperature equation explicitly here
 
     ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
@@ -184,6 +184,7 @@ void actual_jac (burn_t& state, MatrixType& jac)
     ener_gener_rate(jac(C12, net_itemp), jac(net_ienuc, net_itemp));
 
     temperature_jac(state, jac);
+
 }
 
 #endif

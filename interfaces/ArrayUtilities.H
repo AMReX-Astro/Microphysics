@@ -28,11 +28,13 @@ namespace ArrayUtil
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         const Real& operator() (int i) const noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI);
             return arr[i-XLO];
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         Real& operator() (int i) noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI);
             return arr[i-XLO];
         }
 
@@ -59,21 +61,25 @@ namespace ArrayUtil
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void set (const int i, const int j, const Real x) noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] = x;
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void add (const int i, const int j, const Real x) noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] += x;
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         void mul (const int i, const int j, const Real x) noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] *= x;
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         Real get (const int i, const int j) const noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
 
@@ -93,11 +99,13 @@ namespace ArrayUtil
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         const Real& operator() (int i, int j) const noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         Real& operator() (int i, int j) noexcept {
+            AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
         }
 

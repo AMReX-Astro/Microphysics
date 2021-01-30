@@ -4,10 +4,11 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <AMReX.H>
+#include <AMReX_REAL.H>
 #include <AMReX_ParallelDescriptor.H>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
-#include <actual_eos_data.H>
 #include <eos_type.H>
 #include <eos_data.H>
 #include <cmath>
@@ -34,6 +35,65 @@
 // references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
 const std::string eos_name = "helmholtz";
+
+namespace helmholtz
+{
+    inline AMREX_GPU_MANAGED bool do_coulomb;
+    inline AMREX_GPU_MANAGED bool input_is_constant;
+
+    // for the tables
+
+    const int imax = 541;
+    const int jmax = 201;
+
+    inline AMREX_GPU_MANAGED int itmax;
+    inline AMREX_GPU_MANAGED int jtmax;
+
+    inline AMREX_GPU_MANAGED amrex::Real d[imax];
+    inline AMREX_GPU_MANAGED amrex::Real t[jmax];
+
+    inline AMREX_GPU_MANAGED amrex::Real tlo;
+    inline AMREX_GPU_MANAGED amrex::Real thi;
+    inline AMREX_GPU_MANAGED amrex::Real tstp;
+    inline AMREX_GPU_MANAGED amrex::Real tstpi;
+
+    inline AMREX_GPU_MANAGED amrex::Real dlo;
+    inline AMREX_GPU_MANAGED amrex::Real dhi;
+    inline AMREX_GPU_MANAGED amrex::Real dstp;
+    inline AMREX_GPU_MANAGED amrex::Real dstpi;
+
+    inline AMREX_GPU_MANAGED amrex::Real ttol;
+    inline AMREX_GPU_MANAGED amrex::Real dtol;
+
+    // for the helmholtz free energy tables
+    inline AMREX_GPU_MANAGED amrex::Real f[jmax][imax][9];
+
+    // for the pressure derivative with density tables
+    inline AMREX_GPU_MANAGED amrex::Real dpdf[jmax][imax][4];
+
+    // for chemical potential tables
+    inline AMREX_GPU_MANAGED amrex::Real ef[jmax][imax][4];
+
+    // for the number density tables
+    inline AMREX_GPU_MANAGED amrex::Real xf[jmax][imax][4];
+
+    // for storing the differences
+    inline AMREX_GPU_MANAGED amrex::Real dt_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dt2_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dti_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dt2i_sav[jmax];
+
+    inline AMREX_GPU_MANAGED amrex::Real dd_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real dd2_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real ddi_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real dd2i_sav[imax];
+
+    // 2006 CODATA physical constants
+    const amrex::Real h = 6.6260689633e-27;
+    const amrex::Real avo_eos = 6.0221417930e23;
+    const amrex::Real kerg = 1.380650424e-16;
+    const amrex::Real amu = 1.66053878283e-24;
+}
 
 // quintic hermite polynomial functions
 // psi0 and its derivatives

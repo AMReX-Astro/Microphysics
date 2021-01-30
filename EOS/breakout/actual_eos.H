@@ -60,7 +60,7 @@ void actual_eos (I input, T& state)
 
         // dens, temp and xmass are inputs
         cv = R / (state.mu * (gamma_const - 1.0_rt));
-        e = cv * T;
+        e = cv * state.T;
         if constexpr (has_energy<T>::value) {
             state.cv = cv;
             state.e = e;

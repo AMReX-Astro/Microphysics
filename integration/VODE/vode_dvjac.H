@@ -3,10 +3,14 @@
 
 #include <vode_type.H>
 #include <linpack.H>
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
 #include <vode_rhs.H>
-#else
+#endif
+#ifdef SIMPLIFIED_SDC
 #include <vode_rhs_simplified_sdc.H>
+#endif
+#ifdef TRUE_SDC
+#include <vode_rhs_true_sdc.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -22,7 +26,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
     IERPJ = 0;
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
     // See whether the Jacobian should be evaluated. Start by basing
     // the decision on whether we're caching the Jacobian.
 
@@ -79,7 +83,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
             jac(state, vstate, vstate.jac);
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
             if (use_jacobian_caching == 1) {
                 vstate.jac_save = vstate.jac;
@@ -129,7 +133,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
             // Increment the RHS evaluation counter by N.
             vstate.NFE += VODE_NEQS;
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
             if (use_jacobian_caching == 1) {
                 vstate.jac_save = vstate.jac;
@@ -138,7 +142,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
 
         }
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
     }
     else {
 

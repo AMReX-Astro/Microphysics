@@ -12,7 +12,7 @@ using namespace amrex;
 #include <network.H>
 #include <burn_cell.H>
 #endif
-
+#include <unit_test_F.H>
 #include <burn_cell_F.H>
 
 int main(int argc, char *argv[]) {
@@ -47,9 +47,6 @@ int main(int argc, char *argv[]) {
     probin_file_name[i] = probin_file[i];
 
   init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
-
-  // Copy extern parameters from Fortran to C++
-  init_extern_parameters();
 
 #ifdef CXX_REACTIONS
 
