@@ -72,6 +72,11 @@ struct eos_re_t {
 
     amrex::Real abar;
     amrex::Real zbar;
+
+#ifdef EXTRA_THERMO
+    amrex::Real dedA;
+    amrex::Real dedZ;
+#endif
 };
 
 template <typename T, typename Enable = void>
