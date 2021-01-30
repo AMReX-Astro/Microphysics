@@ -73,10 +73,6 @@ void actual_integrator (burn_t& state, Real dt)
 
     int istate = dvode(state, vode_state);
 
-    // Subtract the energy offset.
-
-    vode_state.y(net_ienuc) -= e_in;
-
     // Copy the integration data back to the burn state.
 
     vode_to_burn(vode_state, state);
