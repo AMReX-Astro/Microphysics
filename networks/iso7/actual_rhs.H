@@ -288,10 +288,10 @@ void screen_iso7(const Real btemp, const Real bden,
     dratedt(He4_He4_He4_to_C12_forward) = dratedt(He4_He4_He4_to_C12_forward) * sc3a + rate(He4_He4_He4_to_C12_forward) * sc3adt;
     rate(He4_He4_He4_to_C12_forward)    = rate(He4_He4_He4_to_C12_forward) * sc3a;
 
-    // Identical particle factor (He4 + He4)
+    // Identical particle factor (He4 + He4 + He4)
 
-    rate(He4_He4_He4_to_C12_forward)    *= 0.5_rt;
-    dratedt(He4_He4_He4_to_C12_forward) *= 0.5_rt;
+    rate(He4_He4_He4_to_C12_forward)    *= 1.0_rt / 6.0_rt;
+    dratedt(He4_He4_He4_to_C12_forward) *= 1.0_rt / 6.0_rt;
 
     // c12 to o16
     jscr++;

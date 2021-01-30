@@ -95,7 +95,7 @@ namespace RHS {
             break;
 
         case rhs_rate<NumRates>(He4, He4_He4_He4_to_C12_forward):
-            data.prefactor  = -1.0_rt;
+            data.prefactor  = -3.0_rt;
             data.specindex1 = He4;
             data.specindex2 = He4;
             data.specindex3 = He4;
@@ -174,7 +174,7 @@ namespace RHS {
             break;
 
         case rhs_rate<NumRates>(C12, He4_He4_He4_to_C12_forward):
-            data.prefactor  = 1.0_rt / 3.0_rt;
+            data.prefactor  = 1.0_rt;
             data.specindex1 = He4;
             data.specindex2 = He4;
             data.specindex3 = He4;
@@ -385,7 +385,7 @@ namespace RHS {
         switch (jac_rate<NumSpec, NumRates>(species1, species2, rateindex)) {
 
         case jac_rate<NumSpec, NumRates>(He4, He4, He4_He4_He4_to_C12_forward):
-            data.prefactor = -3.0_rt;
+            data.prefactor = -9.0_rt;
             data.specindex1 = He4;
             data.specindex2 = He4;
             break;
@@ -492,7 +492,7 @@ namespace RHS {
             break;
 
         case jac_rate<NumSpec, NumRates>(C12, He4, He4_He4_He4_to_C12_forward):
-            data.prefactor = 1.0_rt;
+            data.prefactor = 3.0_rt;
             data.specindex1 = He4;
             data.specindex2 = He4;
             break;
