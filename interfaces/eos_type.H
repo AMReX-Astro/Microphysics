@@ -64,7 +64,6 @@ struct eos_re_t {
     amrex::Real dedr;
 
     amrex::Real cv;
-    amrex::Real cp;
 
     amrex::Real mu;
     amrex::Real mu_e;
