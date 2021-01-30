@@ -62,9 +62,14 @@ void iso7tab(const Real btemp, const Real bden,
         dtab(C12_He4_to_O16_reverse)  = 1.0e0_rt;
         dtab(He4_He4_He4_to_C12_forward)   = bden*bden;
         dtab(He4_He4_He4_to_C12_reverse)  = 1.0e0_rt;
-        dtab(C12_C12) = bden;
-        dtab(C12_O16) = bden;
-        dtab(O16_O16) = bden;
+        dtab(C12_C12_to_Ne20_He4_forward) = bden;
+        dtab(C12_C12_to_Ne20_He4_reverse) = bden; // rate is zero in this net
+        dtab(C12_O16_to_Mg24_He4_forward) = bden;
+        dtab(C12_O16_to_Mg24_He4_reverse) = bden; // rate is zero in this net
+        dtab(C12_O16_to_Si28_forward) = bden;
+        dtab(C12_O16_to_Si28_reverse) = bden; // rate is zero in this net
+        dtab(O16_O16_to_Si28_He4_forward) = bden;
+        dtab(O16_O16_to_Si28_He4_reverse) = bden; // rate is zero in this net
         dtab(O16_He4_to_Ne20_forward)  = bden;
         dtab(O16_He4_to_Ne20_reverse) = 1.0e0_rt;
         dtab(Ne20_He4_to_Mg24_forward) = bden;
@@ -162,17 +167,17 @@ void iso7rat(const Real btemp, const Real bden,
 
     // c12 + c12
     rate_c12c12(tf,bden,
-                rate(C12_C12),dratedt(C12_C12),
+                rate(C12_C12_to_Ne20_He4_forward),dratedt(C12_C12_to_Ne20_He4_forward),
                 rrate,drratedt);
 
     // c12 + o16
     rate_c12o16(tf,bden,
-                rate(C12_O16),dratedt(C12_O16),
+                rate(C12_O16_to_Mg24_He4_forward),dratedt(C12_O16_to_Mg24_He4_forward),
                 rrate,drratedt);
 
     // 16o + 16o
     rate_o16o16(tf,bden,
-                rate(O16_O16),dratedt(O16_O16),
+                rate(O16_O16_to_Si28_He4_forward),dratedt(O16_O16_to_Si28_He4_forward),
                 rrate,drratedt);
 
     // o16(a,g)ne20
@@ -298,8 +303,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(C12_C12) = dratedt(C12_C12) * sc1a + rate(C12_C12) * sc1adt;
-    rate(C12_C12)    = rate(C12_C12) * sc1a;
+    dratedt(C12_C12_to_Ne20_He4_forward) = dratedt(C12_C12_to_Ne20_He4_forward) * sc1a + rate(C12_C12_to_Ne20_He4_forward) * sc1adt;
+    rate(C12_C12_to_Ne20_He4_forward)    = rate(C12_C12_to_Ne20_He4_forward) * sc1a;
 
     // c12 + o16
     jscr++;
@@ -307,8 +312,16 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(C12_O16) = dratedt(C12_O16) * sc1a + rate(C12_O16) * sc1adt;
-    rate(C12_O16)    = rate(C12_O16) * sc1a;
+    dratedt(C12_O16_to_Mg24_He4_forward) = dratedt(C12_O16_to_Mg24_He4_forward) * sc1a + rate(C12_O16_to_Mg24_He4_forward) * sc1adt;
+    rate(C12_O16_to_Mg24_He4_forward)    = rate(C12_O16_to_Mg24_He4_forward) * sc1a;
+
+    // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
+
+    rate(C12_O16_to_Mg24_He4_forward) *= 0.5;
+    dratedt(C12_O16_to_Mg24_He4_forward) *= 0.5;
+
+    rate(C12_O16_to_Si28_forward) = rate(C12_O16_to_Mg24_He4_forward);
+    dratedt(C12_O16_to_Si28_forward) = dratedt(C12_O16_to_Mg24_He4_forward);
 
     // o16 + o16
     jscr++;
@@ -316,8 +329,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(O16_O16) = dratedt(O16_O16) * sc1a + rate(O16_O16) * sc1adt;
-    rate(O16_O16)    = rate(O16_O16) * sc1a;
+    dratedt(O16_O16_to_Si28_He4_forward) = dratedt(O16_O16_to_Si28_He4_forward) * sc1a + rate(O16_O16_to_Si28_He4_forward) * sc1adt;
+    rate(O16_O16_to_Si28_He4_forward)    = rate(O16_O16_to_Si28_He4_forward) * sc1a;
 
     // o16 to ne20
     jscr++;
@@ -687,6 +700,11 @@ void actual_jac(burn_t& state, MatrixType& jac)
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
     }
+
+    Real jac_e_T;
+    ener_gener_rate(yderivs, jac_e_T);
+    jac_e_T -= dsneutdt;
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 
 }
 

@@ -126,11 +126,12 @@ struct burn_t
 
 #endif
 
-#ifdef STRANG
-  // Strang stuff
-
+  // all coupling types need the specific heats to transform the
+  // reaction Jacobian elements from T to e
   Real cv;
   Real cp;
+
+#ifdef STRANG
 
   // Are we doing a self-heating burn?
   bool self_heat;
@@ -209,10 +210,8 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
     }
 #endif
 
-#ifdef STRANG
     burn_state.cv   = eos_state.cv;
     burn_state.cp   = eos_state.cp;
-#endif
 
     burn_state.y_e  = eos_state.y_e;
     burn_state.eta  = eos_state.eta;
@@ -244,10 +243,8 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
     }
 #endif
 
-#ifdef STRANG
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
-#endif
 
     eos_state.y_e  = burn_state.y_e;
     eos_state.eta  = burn_state.eta;

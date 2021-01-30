@@ -46,9 +46,14 @@ void actual_network_init()
         names[C12_He4_to_O16_reverse-1]     = "roga";
         names[He4_He4_He4_to_C12_forward-1] = "r3a";
         names[He4_He4_He4_to_C12_reverse-1] = "rg3a";
-        names[C12_C12-1]                    = "r1212";
-        names[C12_O16-1]                    = "r1216";
-        names[O16_O16-1]                    = "r1616";
+        names[C12_C12_to_Ne20_He4_forward-1] = "r1212";
+        names[C12_C12_to_Ne20_He4_reverse-1] = "r1212_r";
+        names[C12_O16_to_Mg24_He4_forward-1] = "r1216";
+        names[C12_O16_to_Mg24_He4_reverse-1] = "r1216_r";
+        names[C12_O16_to_Si28_forward-1]    = "r1216_Si";
+        names[C12_O16_to_Si28_reverse-1]    = "r1216_Si_r";
+        names[O16_O16_to_Si28_He4_forward-1] = "r1616";
+        names[O16_O16_to_Si28_He4_reverse-1] = "r1616_r";
         names[O16_He4_to_Ne20_forward-1]    = "roag";
         names[O16_He4_to_Ne20_reverse-1]    = "rnega";
         names[Ne20_He4_to_Mg24_forward-1]   = "rneag";

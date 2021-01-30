@@ -335,6 +335,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Energy generation rate
 
     ener_gener_rate(ydot, ydot(net_ienuc));
+
 }
 
 
@@ -394,6 +395,13 @@ void actual_jac (burn_t& state, MatrixType& jac)
         auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
         ener_gener_rate(jac_slice_2, jac(net_ienuc, j));
     }
+
+    // Energy generation rate Jacobian element with respect to energy
+
+    Real jac_e_T;
+    ener_gener_rate(ydot, jac_e_T);
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
+
 }
 
 

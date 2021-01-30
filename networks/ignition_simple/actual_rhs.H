@@ -176,6 +176,9 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     // Energy generation rate Jacobian elements with respect to species
     ener_gener_rate(jac(C12, C12), jac(net_ienuc, C12));
+
+    // Energy generation rate Jacobian element with respect to energy
+    ener_gener_rate(jac(net_ienuc, net_ienuc), jac_C12_T);
 }
 
 #endif
