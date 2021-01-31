@@ -202,6 +202,25 @@ namespace RHS {
             data.consumed_E_reverse = 1;
             break;
 
+        case C12_O16_to_Si28:
+            data.species_A = C12;
+            data.species_B = O16;
+            data.species_D = Si28;
+
+            data.exponent_A_forward = 1;
+            data.exponent_B_forward = 1;
+
+            data.consumed_A_forward = 1;
+            data.consumed_B_forward = 1;
+            data.produced_D_forward = 1;
+
+            data.exponent_D_reverse = 1;
+
+            data.produced_A_reverse = 1;
+            data.produced_B_reverse = 1;
+            data.consumed_D_reverse = 1;
+            break;
+
         case O16_O16_to_Si28_He4:
             data.species_A = O16;
             data.species_D = Si28;
