@@ -184,6 +184,17 @@ constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
 
     constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
+    // Static assertion: for any given species, the amount consumed in the forward
+    // reaction should be the amount produced in the reverse direction. This could
+    // be relaxed if there was a reaction pair where this was not true.
+
+    static_assert(rhs_data.consumed_A_forward == rhs_data.produced_A_reverse);
+    static_assert(rhs_data.consumed_B_forward == rhs_data.produced_B_reverse);
+    static_assert(rhs_data.consumed_C_forward == rhs_data.produced_C_reverse);
+    static_assert(rhs_data.produced_D_forward == rhs_data.consumed_D_reverse);
+    static_assert(rhs_data.produced_E_forward == rhs_data.consumed_E_reverse);
+    static_assert(rhs_data.produced_F_forward == rhs_data.consumed_F_reverse);
+
     // First, compute the Y * rate component of both the forward and
     // reverse reactions, which is the same regardless of which species
     // we're producing or consuming.
