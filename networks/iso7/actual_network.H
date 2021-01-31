@@ -221,7 +221,7 @@ namespace RHS {
             data.consumed_E_reverse = 1;
             break;
 
-        case O16_He4_to_Ne20_forward:
+        case O16_He4_to_Ne20:
             data.species_A = O16;
             data.species_B = He4;
             data.species_D = Ne20;
