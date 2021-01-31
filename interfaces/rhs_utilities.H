@@ -218,17 +218,17 @@ constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
 
     Real reverse_term = rr.reverse_rates(rate);
 
-    if (rhs_data.species_D >= 0) {
+    if constexpr (rhs_data.species_D >= 0) {
         Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
         reverse_term *= std::pow(Y_D, rhs_data.exponent_D_reverse);
     }
 
-    if (rhs_data.species_E >= 0) {
+    if constexpr (rhs_data.species_E >= 0) {
         Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
         reverse_term *= std::pow(Y_E, rhs_data.exponent_E_reverse);
     }
 
-    if (rhs_data.species_F >= 0) {
+    if constexpr (rhs_data.species_F >= 0) {
         Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
         reverse_term *= std::pow(Y_F, rhs_data.exponent_F_reverse);
     }
