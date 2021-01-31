@@ -304,14 +304,14 @@ namespace RHS {
 
             data.exponent_B_forward = 1;
 
-            data.consumed_A_forward = 7;
-            data.consumed_B_forward = 1;
+            data.consumed_A_forward = 1;
+            data.consumed_B_forward = 7;
             data.produced_D_forward = 1;
 
             data.exponent_D_reverse = 1;
 
-            data.produced_A_reverse = 7;
-            data.produced_B_reverse = 1;
+            data.produced_A_reverse = 1;
+            data.produced_B_reverse = 7;
             data.consumed_D_reverse = 1;
             break;
 
