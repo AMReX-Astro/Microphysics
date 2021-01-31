@@ -4,10 +4,34 @@
 #include <AMReX_REAL.H>
 
 struct rhs_t {
-    amrex::Real prefactor;
-    int specindex1;
-    int specindex2;
-    int specindex3;
+    int species_A = -1;
+    int species_B = -1;
+    int species_C = -1;
+    int species_D = -1;
+    int species_E = -1;
+    int species_F = -1;
+
+    int exponent_A_forward = 0;
+    int exponent_B_forward = 0;
+    int exponent_C_forward = 0;
+
+    int consumed_A_forward = 0;
+    int consumed_B_forward = 0;
+    int consumed_C_forward = 0;
+    int produced_D_forward = 0;
+    int produced_E_forward = 0;
+    int produced_F_forward = 0;
+
+    int exponent_D_reverse = 0;
+    int exponent_E_reverse = 0;
+    int exponent_F_reverse = 0;
+
+    int produced_A_reverse = 0;
+    int produced_B_reverse = 0;
+    int produced_C_reverse = 0;
+    int consumed_D_reverse = 0;
+    int consumed_E_reverse = 0;
+    int consumed_F_reverse = 0;
 };
 
 struct jac_t {
