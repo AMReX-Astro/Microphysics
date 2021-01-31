@@ -190,17 +190,17 @@ constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
 
     Real forward_term = rr.forward_rates(rate);
 
-    if (rhs_data.species_A >= 0) {
+    if constexpr (rhs_data.species_A >= 0) {
         Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
         forward_term *= std::pow(Y_A, rhs_data.exponent_A_forward);
     }
 
-    if (rhs_data.species_B >= 0) {
+    if constexpr (rhs_data.species_B >= 0) {
         Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
         forward_term *= std::pow(Y_B, rhs_data.exponent_B_forward);
     }
 
-    if (rhs_data.species_C >= 0) {
+    if constexpr (rhs_data.species_C >= 0) {
         Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
         forward_term *= std::pow(Y_C, rhs_data.exponent_C_forward);
     }
@@ -226,22 +226,22 @@ constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
 
     Real term = 0.0_rt;
 
-    if (rhs_data.species_A == species) {
+    if constexpr (rhs_data.species_A == species) {
         term = rhs_data.produced_A_reverse * reverse_term - rhs_data.consumed_A_forward * forward_term;
     }
-    else if (rhs_data.species_B == species) {
+    if constexpr (rhs_data.species_B == species) {
         term = rhs_data.produced_B_reverse * reverse_term - rhs_data.consumed_B_forward * forward_term;
     }
-    else if (rhs_data.species_C == species) {
+    if constexpr (rhs_data.species_C == species) {
         term = rhs_data.produced_C_reverse * reverse_term - rhs_data.consumed_C_forward * forward_term;
     }
-    else if (rhs_data.species_D == species) {
+    if constexpr (rhs_data.species_D == species) {
         term = rhs_data.produced_D_forward * forward_term - rhs_data.consumed_D_reverse * reverse_term;
     }
-    else if (rhs_data.species_E == species) {
+    if constexpr (rhs_data.species_E == species) {
         term = rhs_data.produced_E_forward * forward_term - rhs_data.consumed_E_reverse * reverse_term;
     }
-    else if (rhs_data.species_F == species) {
+    if constexpr (rhs_data.species_F == species) {
         term = rhs_data.produced_F_forward * forward_term - rhs_data.consumed_F_reverse * reverse_term;
     }
 
