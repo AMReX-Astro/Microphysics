@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>GPUs &mdash; StarKiller Microphysics  documentation</title>
   
@@ -17,7 +17,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -30,7 +33,6 @@
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
@@ -56,7 +58,7 @@
 
 
           
-            <a href="index.html" class="icon icon-home" alt="Documentation Home"> StarKiller Microphysics
+            <a href="index.html" class="icon icon-home"> StarKiller Microphysics
           
 
           
@@ -109,10 +111,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#vode-cuda-fortran-vode">VODE - CUDA Fortran VODE</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#standalone-test">Standalone Test</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#reaction-network-test">Reaction Network Test</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#cvode">CVODE</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#id1">Reaction Network Test</a></li>
 </ul>
 </li>
 </ul>
@@ -174,6 +172,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -185,7 +185,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="_sources/gpu.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -241,9 +241,10 @@ saved back to the grid.</p>
 <div class="section" id="reaction-network-integration">
 <h2>Reaction Network Integration<a class="headerlink" href="#reaction-network-integration" title="Permalink to this headline">¶</a></h2>
 <p>There are currently two ways to integrate reaction networks using
-GPUs: CUDA Fortran VODE and CVODE.</p>
-<p>We recommend using CUDA Fortran VODE for the networks in Microphysics
-for production simulations at this time.</p>
+GPUs: CUDA Fortran VODE and CUDA C++ VODE.</p>
+<p>We recommend using CUDA C++ VODE for the networks in Microphysics for
+production simulations, as we are transitioning to supporting only the C++
+versions of Microphysics routines.</p>
 <div class="section" id="vode-cuda-fortran-vode">
 <h3>VODE - CUDA Fortran VODE<a class="headerlink" href="#vode-cuda-fortran-vode" title="Permalink to this headline">¶</a></h3>
 <p>This integrator is located in <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE</span></code> and
@@ -281,44 +282,6 @@ optionally calling the EOS in the right hand side evaluation. This
 test thus closely emulates the environment of a production simulation.</p>
 <p>To run this test, see the setup in <code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_react</span></code>
 and the included Readme file.</p>
-</div>
-</div>
-<div class="section" id="cvode">
-<h3>CVODE<a class="headerlink" href="#cvode" title="Permalink to this headline">¶</a></h3>
-<p>Microphysics also includes a test setup and interfaces for using CVODE
-to integrate an entire grid of cells together either serially, on the
-GPU using CVODE’s Krylov linear solver, or on the GPU using cuSOLVER’s
-batched sparse QR linear solver.</p>
-<p>This approach does not follow the GPU paradigm of one thread per cell
-as in the case of CUDA Fortran VODE. The CVODE interface packs the
-network ODEs from an entire grid into a single vector of
-ODEs. Logically, the linear system that arises when solving the BDF
-equation for such a system is block-diagonal. All cells are integrated
-together in lock-step as if there were only one system of ODEs.</p>
-<p>CVODE implements GPU parallelism by expressing vector operations as
-operations on <code class="docutils literal notranslate"><span class="pre">NVector</span></code> data structures that exist in GPU
-memory. Arithmetic operations on <code class="docutils literal notranslate"><span class="pre">NVector</span></code> objects are implemented as
-CUDA kernels operating on the GPU-resident <code class="docutils literal notranslate"><span class="pre">NVector</span></code> data.</p>
-<p>This interface is under development and testing and is not ready for
-production use.</p>
-<div class="section" id="id1">
-<h4>Reaction Network Test<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
-<p>There is a test setup that exercises the CVODE interface in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_cvode_react</span></code> along with a Readme file
-with details for compiling and running.</p>
-<p>It is recommended to experiment with the different linear solvers to
-determine which is best for a given network. For <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> the sparse
-direct solver in the cuSOLVER toolkit is preferred.</p>
-<p>At present, this setup requires a modified version of CVODE
-incorporating the interface to the batched sparse QR linear solver in
-the cuSOLVER toolkit. The modified version of CVODE is located here:</p>
-<p><a class="reference external" href="https://github.com/dwillcox/cvode-4.0.0-development">https://github.com/dwillcox/cvode-4.0.0-development</a></p>
-<p>Note that because this integrator interface effectively couples many
-independent cells together, the error norm check in the nonlinear
-solver may not be sensitive to relatively large convergence errors in
-only a small subset of the grid cells. As a result, it can occur that
-this integration scheme will not yield results identical to
-integrating each cell independently of the others.</p>
 </div>
 </div>
 </div>
@@ -407,37 +370,29 @@ occurred, but generally doesn’t produce line numbers.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="unit_tests.html" class="btn btn-neutral float-right" title="Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="cxx.html" class="btn btn-neutral float-left" title="C++ interfaces" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="unit_tests.html" class="btn btn-neutral float-right" title="Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cxx.html" class="btn btn-neutral float-left" title="C++ interfaces" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2018, StarKiller Development Team
+        &#169; Copyright 2018, StarKiller Development Team.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
