@@ -1,7 +1,11 @@
-# 21.02
+# 21.03
 
    * simplified-SDC can be used with the NSE table in aprox19 now
      (#423, #497)
+
+# 21.02
+
+   * Fortran support for the VODE integrator has been removed (#538)
 
    * Runtime parameters can now be set in the inputs file instead of
      the probin file (and then they are read in by C++ ParmParse).  If

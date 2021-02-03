@@ -1,6 +1,5 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
-CVODE_HOME ?= /path/to/CVODE
 
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
@@ -93,11 +92,6 @@ endif
 ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
   DEFINES += -DCOMPILE_WITH_F2PY
 endif
-
-#------------------------------------------------------------------------------
-# CVODE directories
-#------------------------------------------------------------------------------
-include $(MICROPHYSICS_HOME)/Make.CVODE
 
 
 #------------------------------------------------------------------------------

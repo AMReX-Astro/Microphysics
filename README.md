@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/starkiller-astro/Microphysics.svg?branch=main)](https://travis-ci.org/starkiller-astro/Microphysics) [![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
+[![github pages](https://github.com/starkiller-astro/Microphysics/workflows/github%20pages/badge.svg?branch=main)](https://github.com/starkiller-astro/Microphysics/actions?query=workflow%3A%22github+pages%22)
+[![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
 
 # Microphysics
 
@@ -85,12 +86,10 @@ system to ensure the interfaces are tested.
 
 # Documentation
 
-A user's guide for Microphysics can be found in `Docs/`. Type `make`
-to build it from its LaTeX source.
+A user's guide for Microphysics is available at:
+http://starkiller-astro.github.io/Microphysics/docs/
 
-A PDF of the user's guide is available here:
-http://bender.astro.sunysb.edu/Castro/staging/Microphysics/Docs/MicrophysicsUsersGuide.pdf
-
+The sphinx source for the documentation is in `Microphysics/sphinx_docs/`
 
 ## Development Model:
 
