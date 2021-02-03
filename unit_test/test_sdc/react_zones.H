@@ -93,12 +93,19 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
         burn_state.ydot_a[n] = 0.0;
     }
 
+#ifdef NSE_THERMO
+    burn_state.Iq_rhoe = 0.0;
+    for (int n = 0; n < NumAux; n++) {
+        burn_state.Iq_aux[n] = 0.0;
+    }
+#endif
+
     // these need to be initialized 
 
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
-    integrator(burn_state, tmax);
+    burner(burn_state, tmax);
 
     for (int n = 0; n < NumSpec; ++n) {
         state(i, j, k, p.ispec + n) = burn_state.y[SFS+n]/burn_state.rho;
