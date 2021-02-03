@@ -6,7 +6,7 @@
 #include <extern_parameters.H>
 
 #include <vode_type_simplified_sdc.H>
-
+#include <vode_jac_util_simplified_sdc.H>
 #ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
 #include <actual_rhs.H>

@@ -96,6 +96,14 @@ struct burn_t
   // final conserved state.
   Real y[SVAR];
 
+#ifdef NSE_THERMO
+  // Iq is the reactive source that was used as the predictor for the
+  // advection.  We need it for NSE for the prediction of the conserved
+  // state to the new time
+  Real Iq_aux[NumAux];
+  Real Iq_rhoe; 
+#endif
+
   // we need to store a copy of the original state as well so we can
   // handle the non-evolved state evolution
   Real rho_orig;
