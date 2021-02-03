@@ -19,6 +19,8 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void burner (burn_t& state, Real dt)
 {
 
+#ifndef TRUE_SDC
+
 #ifdef NSE_TABLE
 
     bool nse_check = in_nse(state);
@@ -47,6 +49,8 @@ void burner (burn_t& state, Real dt)
 #else
     // we did not compile with NSE
     integrator(state, dt);
+#endif
+
 #endif
 
 }
