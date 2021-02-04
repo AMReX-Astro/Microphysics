@@ -7,30 +7,16 @@
 using namespace amrex;
 
 #include <extern_parameters.H>
-#ifdef CXX_REACTIONS
 #include <eos.H>
 #include <network.H>
 #include <burn_cell.H>
-#endif
 #include <unit_test_F.H>
-#include <burn_cell_F.H>
 
 int main(int argc, char *argv[]) {
 
   amrex::Initialize(argc, argv);
 
   std::cout << "starting the single zone burn..." << std::endl;
-
-  int do_cxx = 0;
-
-  {
-      ParmParse pp;
-
-#ifdef CXX_REACTIONS
-      pp.query("do_cxx", do_cxx);
-#endif
-
-  }
 
   ParmParse ppa("amr");
 
@@ -48,23 +34,13 @@ int main(int argc, char *argv[]) {
 
   init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
 
-#ifdef CXX_REACTIONS
-
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
   eos_init(small_temp, small_dens);
 
   // C++ Network, RHS, screening, rates initialization
   network_init();
-#endif
 
-  if (do_cxx) {
-#ifdef CXX_REACTIONS
-      burn_cell_c();
-#endif
-  }
-  else {
-      burn_cell();
-  }
+  burn_cell_c();
 
   amrex::Finalize();
 }
