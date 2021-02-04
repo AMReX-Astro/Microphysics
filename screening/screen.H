@@ -180,7 +180,9 @@ void screen5(const plasma_state_t state,
 {
     using namespace scrn;
 
+#ifndef AMREX_USE_GPU
     AMREX_ASSERT(scn_facs[jscreen].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
+#endif
 
   // this subroutine calculates screening factors and their derivatives
   // for nuclear reaction rates in the weak, intermediate and strong regimes.
