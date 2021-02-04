@@ -39,21 +39,6 @@ Real calculate_dt (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     }
 
-    if (integrate_temperature) {
-
-        Real target_dT;
-        if (ydot(net_itemp) > 0.0) {
-            target_dT = (maximum_timestep_change_factor - 1.0_rt) * state.T;
-        } else {
-            target_dT = (1.0_rt - 1.0_rt / maximum_timestep_change_factor) * state.T;
-        }
-
-        Real dTdt = amrex::max(std::abs(ydot(net_itemp)), 1.0e-30_rt);
-
-        dt = amrex::min(dt, target_dT / dTdt);
-
-    }
-
     if (integrate_energy) {
 
         Real target_de;
@@ -81,6 +66,16 @@ void clean_state (burn_t& state)
 
     normalize_abundances_burn(state);
 
+    // Evaluate the EOS to get T from e.
+
+    eos_t eos_state;
+
+    burn_to_eos(state, eos_state);
+
+    eos(eos_input_re, eos_state);
+
+    eos_to_burn(eos_state, state);
+
     // Ensure that the temperature always stays within reasonable limits.
 
     state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
@@ -88,7 +83,7 @@ void clean_state (burn_t& state)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+void initialize_state (burn_t& state)
 {
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -101,13 +96,24 @@ void actual_integrator (burn_t& state, Real dt)
 
     eos_to_burn(eos_state, state);
 
-    clean_state(state);
-
     state.self_heat = true;
 
     state.success = true;
 
     state.n_rhs = 0;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_integrator (burn_t& state, Real dt)
+{
+    initialize_state(state);
+
+    Real T_in = state.T;
+    Real e_in = state.e;
+    Real xn_in[NumSpec];
+    for (int n = 0; n < NumSpec; ++n) {
+        xn_in[n] = state.xn[n];
+    }
 
     Real t = 0.0;
 
@@ -148,9 +154,6 @@ void actual_integrator (burn_t& state, Real dt)
             state.xn[n-1] += ydot(n) * dt_sub;
         }
 
-        if (integrate_temperature) {
-            state.T += ydot(net_itemp) * dt_sub;
-        }
         if (integrate_energy) {
             state.e += ydot(net_ienuc) * dt_sub;
         }
@@ -171,7 +174,7 @@ void actual_integrator (burn_t& state, Real dt)
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e - eos_state.e << std::endl;
+        std::cout <<  "energy released: " << state.e - e_in << std::endl;
         std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -184,10 +187,10 @@ void actual_integrator (burn_t& state, Real dt)
         std::cout << "ERROR: integration failed in net" << std::endl;
         std::cout << "time = " << t << std::endl;
         std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << eos_state.T << std::endl;
+        std::cout << "temp start = " << T_in << std::endl;
         std::cout << "xn start = ";
         for (int n = 0; n < NumSpec; ++n) {
-            std::cout << eos_state.xn[n] << " ";
+            std::cout << xn_in[n] << " ";
         }
         std::cout << std::endl;
         std::cout << "temp current = " << state.T << std::endl;
@@ -196,7 +199,7 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << state.xn[n] << " ";
         }
         std::cout << std::endl;
-        std::cout << "energy generated = " << state.e - eos_state.e << std::endl;
+        std::cout << "energy generated = " << state.e - e_in << std::endl;
 #endif
     }
 
