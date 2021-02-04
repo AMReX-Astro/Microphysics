@@ -4,10 +4,11 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <AMReX.H>
+#include <AMReX_REAL.H>
 #include <AMReX_ParallelDescriptor.H>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
-#include <actual_eos_data.H>
 #include <eos_type.H>
 #include <eos_data.H>
 #include <cmath>
@@ -34,6 +35,65 @@
 // references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
 const std::string eos_name = "helmholtz";
+
+namespace helmholtz
+{
+    inline AMREX_GPU_MANAGED bool do_coulomb;
+    inline AMREX_GPU_MANAGED bool input_is_constant;
+
+    // for the tables
+
+    const int imax = 541;
+    const int jmax = 201;
+
+    inline AMREX_GPU_MANAGED int itmax;
+    inline AMREX_GPU_MANAGED int jtmax;
+
+    inline AMREX_GPU_MANAGED amrex::Real d[imax];
+    inline AMREX_GPU_MANAGED amrex::Real t[jmax];
+
+    inline AMREX_GPU_MANAGED amrex::Real tlo;
+    inline AMREX_GPU_MANAGED amrex::Real thi;
+    inline AMREX_GPU_MANAGED amrex::Real tstp;
+    inline AMREX_GPU_MANAGED amrex::Real tstpi;
+
+    inline AMREX_GPU_MANAGED amrex::Real dlo;
+    inline AMREX_GPU_MANAGED amrex::Real dhi;
+    inline AMREX_GPU_MANAGED amrex::Real dstp;
+    inline AMREX_GPU_MANAGED amrex::Real dstpi;
+
+    inline AMREX_GPU_MANAGED amrex::Real ttol;
+    inline AMREX_GPU_MANAGED amrex::Real dtol;
+
+    // for the helmholtz free energy tables
+    inline AMREX_GPU_MANAGED amrex::Real f[jmax][imax][9];
+
+    // for the pressure derivative with density tables
+    inline AMREX_GPU_MANAGED amrex::Real dpdf[jmax][imax][4];
+
+    // for chemical potential tables
+    inline AMREX_GPU_MANAGED amrex::Real ef[jmax][imax][4];
+
+    // for the number density tables
+    inline AMREX_GPU_MANAGED amrex::Real xf[jmax][imax][4];
+
+    // for storing the differences
+    inline AMREX_GPU_MANAGED amrex::Real dt_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dt2_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dti_sav[jmax];
+    inline AMREX_GPU_MANAGED amrex::Real dt2i_sav[jmax];
+
+    inline AMREX_GPU_MANAGED amrex::Real dd_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real dd2_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real ddi_sav[imax];
+    inline AMREX_GPU_MANAGED amrex::Real dd2i_sav[imax];
+
+    // 2006 CODATA physical constants
+    const amrex::Real h = 6.6260689633e-27;
+    const amrex::Real avo_eos = 6.0221417930e23;
+    const amrex::Real kerg = 1.380650424e-16;
+    const amrex::Real amu = 1.66053878283e-24;
+}
 
 // quintic hermite polynomial functions
 // psi0 and its derivatives
@@ -427,33 +487,45 @@ void apply_electrons (T& state)
     Real deepdz  = ytot1* (free + state.y_e * df_d * state.rho) + state.T * dsepdz;
 #endif
 
-    state.p    = state.p + pele;
-    state.dpdT = state.dpdT + dpepdt;
-    state.dpdr = state.dpdr + dpepdd;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = state.p + pele;
+        state.dpdT = state.dpdT + dpepdt;
+        state.dpdr = state.dpdr + dpepdd;
 #ifdef EXTRA_THERMO
-    state.dpdA = state.dpdA + dpepda;
-    state.dpdZ = state.dpdZ + dpepdz;
+        state.dpdA = state.dpdA + dpepda;
+        state.dpdZ = state.dpdZ + dpepdz;
 #endif
+    }
 
-    state.s    = state.s + sele;
-    state.dsdT = state.dsdT + dsepdt;
-    state.dsdr = state.dsdr + dsepdd;
+    if constexpr (has_entropy<T>::value) {
+        state.s    = state.s + sele;
+        state.dsdT = state.dsdT + dsepdt;
+        state.dsdr = state.dsdr + dsepdd;
+    }
 
-    state.e    = state.e + eele;
-    state.dedT = state.dedT + deepdt;
-    state.dedr = state.dedr + deepdd;
+    if constexpr (has_energy<T>::value) {
+        state.e    = state.e + eele;
+        state.dedT = state.dedT + deepdt;
+        state.dedr = state.dedr + deepdd;
 #ifdef EXTRA_THERMO
-    state.dedA = state.dedA + deepda;
-    state.dedZ = state.dedZ + deepdz;
+        state.dedA = state.dedA + deepda;
+        state.dedZ = state.dedZ + deepdz;
 #endif
+    }
 
-    state.eta = etaele;
-    state.xne = xnefer;
-    state.xnp = 0.0e0_rt;
+    if constexpr (has_eta<T>::value) {
+        state.eta = etaele;
+    }
 
-    state.pele = pele;
-    state.ppos = 0.0e0_rt;
+    if constexpr (has_xne_xnp<T>::value) {
+        state.xne = xnefer;
+        state.xnp = 0.0e0_rt;
+    }
 
+    if constexpr (has_pele_ppos<T>::value) {
+        state.pele = pele;
+        state.ppos = 0.0e0_rt;
+    }
 }
 
 
@@ -507,25 +579,31 @@ void apply_ions (T& state)
                    (pion * deni + eion) * tempi * tempi +
                    1.5e0_rt * kergavo * tempi * ytot1;
 
-    state.p    = state.p + pion;
-    state.dpdT = state.dpdT + dpiondt;
-    state.dpdr = state.dpdr + dpiondd;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = state.p + pion;
+        state.dpdT = state.dpdT + dpiondt;
+        state.dpdr = state.dpdr + dpiondd;
 #ifdef EXTRA_THERMO
-    state.dpdA = state.dpdA + dpionda;
-    state.dpdZ = state.dpdZ + dpiondz;
+        state.dpdA = state.dpdA + dpionda;
+        state.dpdZ = state.dpdZ + dpiondz;
 #endif
+    }
 
-    state.e    = state.e + eion;
-    state.dedT = state.dedT + deiondt;
-    state.dedr = state.dedr + deiondd;
+    if constexpr (has_energy<T>::value) {
+        state.e    = state.e + eion;
+        state.dedT = state.dedT + deiondt;
+        state.dedr = state.dedr + deiondd;
 #ifdef EXTRA_THERMO
-    state.dedA = state.dedA + deionda;
-    state.dedZ = state.dedZ + deiondz;
+        state.dedA = state.dedA + deionda;
+        state.dedZ = state.dedZ + deiondz;
 #endif
+    }
 
-    state.s    = state.s + sion;
-    state.dsdT = state.dsdT + dsiondt;
-    state.dsdr = state.dsdr + dsiondd;
+    if constexpr (has_entropy<T>::value) {
+        state.s    = state.s + sion;
+        state.dsdT = state.dsdT + dsiondt;
+        state.dsdr = state.dsdr + dsiondd;
+    }
 }
 
 
@@ -585,25 +663,31 @@ void apply_radiation (T& state)
     // sets these terms instead of adding to them,
     // since it comes first.
 
-    state.p    = prad;
-    state.dpdr = dpraddd;
-    state.dpdT = dpraddt;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = prad;
+        state.dpdr = dpraddd;
+        state.dpdT = dpraddt;
 #ifdef EXTRA_THERMO
-    state.dpdA = dpradda;
-    state.dpdZ = dpraddz;
+        state.dpdA = dpradda;
+        state.dpdZ = dpraddz;
 #endif
+    }
 
-    state.e    = erad;
-    state.dedr = deraddd;
-    state.dedT = deraddt;
+    if constexpr (has_energy<T>::value) {
+        state.e    = erad;
+        state.dedr = deraddd;
+        state.dedT = deraddt;
 #ifdef EXTRA_THERMO
-    state.dedA = deradda;
-    state.dedZ = deraddz;
+        state.dedA = deradda;
+        state.dedZ = deraddz;
 #endif
+    }
 
-    state.s    = srad;
-    state.dsdr = dsraddd;
-    state.dsdT = dsraddt;
+    if constexpr (has_entropy<T>::value) {
+        state.s    = srad;
+        state.dsdr = dsraddd;
+        state.dsdT = dsraddt;
+    }
 }
 
 
@@ -765,8 +849,15 @@ void apply_coulomb_corrections (T& state)
     // Disable Coulomb corrections if they cause
     // the energy or pressure to go negative.
 
-    Real p_temp = state.p + pcoul;
-    Real e_temp = state.e + ecoul;
+    Real p_temp = std::numeric_limits<Real>::max();
+    Real e_temp = std::numeric_limits<Real>::max();
+
+    if constexpr (has_pressure<T>::value) {
+        p_temp = state.p + pcoul;
+    }
+    if constexpr (has_energy<T>::value) {
+        e_temp = state.e + ecoul;
+    }
 
     if (p_temp <= 0.0e0_rt || e_temp <= 0.0e0_rt)
     {
@@ -790,25 +881,31 @@ void apply_coulomb_corrections (T& state)
 
     }
 
-    state.p    = state.p + pcoul;
-    state.dpdr = state.dpdr + dpcouldd;
-    state.dpdT = state.dpdT + dpcouldt;
+    if constexpr (has_pressure<T>::value) {
+        state.p    = state.p + pcoul;
+        state.dpdr = state.dpdr + dpcouldd;
+        state.dpdT = state.dpdT + dpcouldt;
 #ifdef EXTRA_THERMO
-    state.dpdA = state.dpdA + dpcoulda;
-    state.dpdZ = state.dpdZ + dpcouldz;
+        state.dpdA = state.dpdA + dpcoulda;
+        state.dpdZ = state.dpdZ + dpcouldz;
 #endif
+    }
 
-    state.e    = state.e + ecoul;
-    state.dedr = state.dedr + decouldd;
-    state.dedT = state.dedT + decouldt;
+    if constexpr (has_energy<T>::value) {
+        state.e    = state.e + ecoul;
+        state.dedr = state.dedr + decouldd;
+        state.dedT = state.dedT + decouldt;
 #ifdef EXTRA_THERMO
-    state.dedA = state.dedA + decoulda;
-    state.dedZ = state.dedZ + decouldz;
+        state.dedA = state.dedA + decoulda;
+        state.dedZ = state.dedZ + decouldz;
 #endif
+    }
 
-    state.s    = state.s + scoul;
-    state.dsdr = state.dsdr + dscouldd;
-    state.dsdT = state.dsdT + dscouldt;
+    if constexpr (has_entropy<T>::value) {
+        state.s    = state.s + scoul;
+        state.dsdr = state.dsdr + dscouldd;
+        state.dsdT = state.dsdT + dscouldt;
+    }
 }
 
 
@@ -830,55 +927,69 @@ void prepare_for_iterations (I input, T& state,
     }
     else if (input == eos_input_rh) {
 
-        v_want = state.h;
-        var  = ienth;
-        dvar = itemp;
+        if constexpr (has_enthalpy<T>::value) {
+            v_want = state.h;
+            var  = ienth;
+            dvar = itemp;
+        }
 
     }
     else if (input == eos_input_tp) {
 
-        v_want = state.p;
-        var  = ipres;
-        dvar = idens;
+        if constexpr (has_pressure<T>::value) {
+            v_want = state.p;
+            var  = ipres;
+            dvar = idens;
+        }
 
     }
     else if (input == eos_input_rp) {
 
-        v_want = state.p;
-        var  = ipres;
-        dvar = itemp;
+        if constexpr (has_pressure<T>::value) {
+            v_want = state.p;
+            var  = ipres;
+            dvar = itemp;
+        }
 
     }
     else if (input == eos_input_re) {
 
-        v_want = state.e;
-        var  = iener;
-        dvar = itemp;
+        if constexpr (has_energy<T>::value) {
+            v_want = state.e;
+            var  = iener;
+            dvar = itemp;
+        }
 
     }
     else if (input == eos_input_ps) {
 
-        single_iter = false;
-        v1_want = state.p;
-        v2_want = state.s;
-        var1 = ipres;
-        var2 = ientr;
+        if constexpr (has_pressure<T>::value && has_entropy<T>::value) {
+            single_iter = false;
+            v1_want = state.p;
+            v2_want = state.s;
+            var1 = ipres;
+            var2 = ientr;
+        }
 
     }
     else if (input == eos_input_ph) {
 
-        single_iter = false;
-        v1_want = state.p;
-        v2_want = state.h;
-        var1 = ipres;
-        var2 = ienth;
+        if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+            single_iter = false;
+            v1_want = state.p;
+            v2_want = state.h;
+            var1 = ipres;
+            var2 = ienth;
+        }
 
     }
     else if (input == eos_input_th) {
 
-        v_want = state.h;
-        var  = ienth;
-        dvar = idens;
+        if constexpr (has_enthalpy<T>::value) {
+            v_want = state.h;
+            var  = ienth;
+            dvar = idens;
+        }
 
     }
 #ifndef AMREX_USE_GPU
@@ -909,20 +1020,28 @@ void single_iter_update (T& state, int var, int dvar,
         xtol = ttol;
 
         if (var == ipres) {
-            v    = state.p;
-            dvdx = state.dpdT;
+            if constexpr (has_pressure<T>::value) {
+                v    = state.p;
+                dvdx = state.dpdT;
+            }
         }
         else if (var == iener) {
-            v    = state.e;
-            dvdx = state.dedT;
+            if constexpr (has_energy<T>::value) {
+                v    = state.e;
+                dvdx = state.dedT;
+            }
         }
         else if (var == ientr) {
-            v    = state.s;
-            dvdx = state.dsdT;
+            if constexpr (has_entropy<T>::value) {
+                v    = state.s;
+                dvdx = state.dsdT;
+            }
         }
         else if (var == ienth) {
-            v    = state.h;
-            dvdx = state.dhdT;
+            if constexpr (has_enthalpy<T>::value) {
+                v    = state.h;
+                dvdx = state.dhdT;
+            }
         }
 
     }
@@ -934,20 +1053,28 @@ void single_iter_update (T& state, int var, int dvar,
         xtol = dtol;
 
         if (var == ipres) {
-            v    = state.p;
-            dvdx = state.dpdr;
+            if constexpr (has_pressure<T>::value) {
+                v    = state.p;
+                dvdx = state.dpdr;
+            }
         }
         else if (var == iener) {
-            v    = state.e;
-            dvdx = state.dedr;
+            if constexpr (has_energy<T>::value) {
+                v    = state.e;
+                dvdx = state.dedr;
+            }
         }
         else if (var == ientr) {
-            v    = state.s;
-            dvdx = state.dsdr;
+            if constexpr (has_entropy<T>::value) {
+                v    = state.s;
+                dvdx = state.dsdr;
+            }
         }
         else if (var == ienth) {
-            v    = state.h;
-            dvdx = state.dhdr;
+            if constexpr (has_enthalpy<T>::value) {
+                v    = state.h;
+                dvdx = state.dhdr;
+            }
         }
 
     }
@@ -995,45 +1122,61 @@ void double_iter_update (T& state, int var1, int var2,
     Real rold = state.rho;
 
     if (var1 == ipres) {
-        v1    = state.p;
-        dv1dt = state.dpdT;
-        dv1dr = state.dpdr;
+        if constexpr (has_pressure<T>::value) {
+            v1    = state.p;
+            dv1dt = state.dpdT;
+            dv1dr = state.dpdr;
+        }
     }
     else if (var1 == iener) {
-        v1    = state.e;
-        dv1dt = state.dedT;
-        dv1dr = state.dedr;
+        if constexpr (has_energy<T>::value) {
+            v1    = state.e;
+            dv1dt = state.dedT;
+            dv1dr = state.dedr;
+        }
     }
     else if (var1 == ientr) {
-        v1    = state.s;
-        dv1dt = state.dsdT;
-        dv1dr = state.dsdr;
+        if constexpr (has_entropy<T>::value) {
+            v1    = state.s;
+            dv1dt = state.dsdT;
+            dv1dr = state.dsdr;
+        }
     }
     else if (var1 == ienth) {
-        v1    = state.h;
-        dv1dt = state.dhdT;
-        dv1dr = state.dhdr;
+        if constexpr (has_enthalpy<T>::value) {
+            v1    = state.h;
+            dv1dt = state.dhdT;
+            dv1dr = state.dhdr;
+        }
     }
 
     if (var2 == ipres) {
-        v2    = state.p;
-        dv2dt = state.dpdT;
-        dv2dr = state.dpdr;
+        if constexpr (has_pressure<T>::value) {
+            v2    = state.p;
+            dv2dt = state.dpdT;
+            dv2dr = state.dpdr;
+        }
     }
     else if (var2 == iener) {
-        v2    = state.e;
-        dv2dt = state.dedT;
-        dv2dr = state.dedr;
+        if constexpr (has_energy<T>::value) {
+            v2    = state.e;
+            dv2dt = state.dedT;
+            dv2dr = state.dedr;
+        }
     }
     else if (var2 == ientr) {
-        v2    = state.s;
-        dv2dt = state.dsdT;
-        dv2dr = state.dsdr;
+        if constexpr (has_entropy<T>::value) {
+            v2    = state.s;
+            dv2dt = state.dsdT;
+            dv2dr = state.dsdr;
+        }
     }
     else if (var2 == ienth) {
-        v2    = state.h;
-        dv2dt = state.dhdT;
-        dv2dr = state.dhdr;
+        if constexpr (has_enthalpy<T>::value) {
+            v2    = state.h;
+            dv2dt = state.dhdT;
+            dv2dr = state.dhdr;
+        }
     }
 
     // Two functions, f and g, to iterate over
@@ -1082,58 +1225,85 @@ void finalize_state (I input, T& state,
     using namespace helmholtz;
 
     // Calculate some remaining derivatives
-    state.dpde = state.dpdT / state.dedT;
-    state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
+    if constexpr (has_pressure<T>::value) {
+        state.dpde = state.dpdT / state.dedT;
+        state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
+    }
 
     // Specific heats and Gamma_1
-    Real chit = state.T / state.p * state.dpdT;
-    Real chid = state.dpdr * state.rho / state.p;
+    if constexpr (has_energy<T>::value) {
+        state.cv = state.dedT;
 
-    state.cv = state.dedT;
-    state.gam1 = (chit * (state.p / state.rho)) * (chit / (state.T * state.cv)) + chid;
-    state.cp = state.cv * state.gam1 / chid;
+        if constexpr (has_pressure<T>::value) {
+            Real chit = state.T / state.p * state.dpdT;
+            Real chid = state.dpdr * state.rho / state.p;
+
+            state.gam1 = (chit * (state.p / state.rho)) * (chit / (state.T * state.cv)) + chid;
+            state.cp = state.cv * state.gam1 / chid;
+        }
+    }
 
     // Use the non-relativistic version of the sound speed, cs = sqrt(gam_1 * P / rho).
     // This replaces the relativistic version that comes out of helmeos.
-    state.cs = std::sqrt(state.gam1 * state.p / state.rho);
+    if constexpr (has_pressure<T>::value) {
+        state.cs = std::sqrt(state.gam1 * state.p / state.rho);
+    }
 
     if (input_is_constant) {
 
        if (input == eos_input_rh) {
 
-           state.h = v_want;
+           if constexpr (has_enthalpy<T>::value) {
+               state.h = v_want;
+           }
 
        }
        else if (input == eos_input_tp) {
 
-           state.p = v_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v_want;
+           }
 
        }
        else if (input == eos_input_rp) {
 
-           state.p = v_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v_want;
+           }
 
        }
        else if (input == eos_input_re) {
 
-           state.e = v_want;
+           if constexpr (has_energy<T>::value) {
+               state.e = v_want;
+           }
 
        }
        else if (input == eos_input_ps) {
 
-           state.p = v1_want;
-           state.s = v2_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v1_want;
+           }
+           if constexpr (has_entropy<T>::value) {
+               state.s = v2_want;
+           }
 
        }
        else if (input == eos_input_ph) {
 
-           state.p = v1_want;
-           state.h = v2_want;
+           if constexpr (has_pressure<T>::value) {
+               state.p = v1_want;
+           }
+           if constexpr (has_enthalpy<T>::value) {
+               state.h = v2_want;
+           }
 
        }
        else if (input == eos_input_th) {
 
-           state.h = v_want;
+           if constexpr (has_enthalpy<T>::value) {
+               state.h = v_want;
+           }
 
        }
 
@@ -1184,9 +1354,11 @@ void actual_eos (I input, T& state)
 
         // Calculate enthalpy the usual way, h = e + p / rho.
 
-        state.h = state.e + state.p / state.rho;
-        state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
-        state.dhdT = state.dedT + state.dpdT / state.rho;
+        if constexpr (has_enthalpy<T>::value) {
+            state.h = state.e + state.p / state.rho;
+            state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
+            state.dhdT = state.dedT + state.dpdT / state.rho;
+        }
 
         if (converged) {
             break;

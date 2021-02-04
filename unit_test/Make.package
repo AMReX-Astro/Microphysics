@@ -1,3 +1,6 @@
 CEXE_headers += unit_test.H
 CEXE_sources += write_job_info.cpp
 CEXE_headers += react_util.H
+
+F90EXE_headers += unit_test_F.H
+F90EXE_sources += unit_test.F90

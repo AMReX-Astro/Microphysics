@@ -97,6 +97,14 @@ struct burn_t
   // final conserved state.
   Real y[SVAR];
 
+#ifdef NSE_THERMO
+  // Iq is the reactive source that was used as the predictor for the
+  // advection.  We need it for NSE for the prediction of the conserved
+  // state to the new time
+  Real Iq_aux[NumAux];
+  Real Iq_rhoe; 
+#endif
+
   // we need to store a copy of the original state as well so we can
   // handle the non-evolved state evolution
   Real rho_orig;
@@ -125,7 +133,9 @@ struct burn_t
   int sdc_iter;
   int num_sdc_iters;
 
-#else
+#endif
+
+#ifdef STRANG
   // Strang stuff
 
   Real cv;
@@ -143,6 +153,12 @@ struct burn_t
   // Are we doing a self-heating burn?
   bool self_heat;
 
+#endif
+
+#ifdef TRUE_SDC
+  Real E_var;
+  Real mom[3];
+  Real f_source[NumSpec+2];
 #endif
 
   Real y_e;
@@ -211,7 +227,7 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
     }
 #endif
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     burn_state.cv   = eos_state.cv;
     burn_state.cp   = eos_state.cp;
 #endif
@@ -246,7 +262,7 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
     }
 #endif
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
     eos_state.cv   = burn_state.cv;
     eos_state.cp   = burn_state.cp;
 #endif

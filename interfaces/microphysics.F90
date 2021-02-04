@@ -5,9 +5,8 @@ module microphysics_module
   use eos_module, only : eos_init
 #endif
 #ifdef REACTIONS
+#ifndef TRUE_SDC
   use actual_rhs_module, only : actual_rhs_init
-#ifndef SIMPLIFIED_SDC
-  use actual_burner_module, only : actual_burner_init
 #endif
 #endif
 
@@ -49,9 +48,8 @@ contains
 #endif
 
 #ifdef REACTIONS
+#ifndef TRUE_SDC
     call actual_rhs_init()
-#ifndef SIMPLIFIED_SDC
-    call actual_burner_init()
 #endif
 #endif
 

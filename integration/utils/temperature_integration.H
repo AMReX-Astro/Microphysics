@@ -9,7 +9,7 @@
 // within the actual_rhs routine but is provided here as a convenience
 // since most networks will use the same temperature ODE.
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real temperature_rhs (burn_t& state, const Real& dedT)
 {
@@ -83,7 +83,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void temperature_jac (burn_t& state, MatrixType& jac)
 {
 
-#ifndef SIMPLIFIED_SDC
+#ifdef STRANG
 
     if (state.self_heat) {
 
