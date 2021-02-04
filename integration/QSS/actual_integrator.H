@@ -57,8 +57,16 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
                    Real& dedt)
 {
-    rate_t rr;
-    evaluate_rates(state, rr);
+    rate_t rr_old;
+    evaluate_rates(state, rr_old);
+
+    rate_fr_t rr;
+
+    // Convert old-style rates to new-style
+    for (int j = 1; j <= Rates::NumRatesFR; ++j) {
+        rr.forward_rates(j) = rr_old.rates(2 * j - 1);
+        rr.reverse_rates(j) = rr_old.rates(2 * j);
+    }
 
     Array1D<Real, 1, NumSpec> y;
 
@@ -77,36 +85,88 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Re
         // to the RHS for this species get the full term added to f_plus.
         // All terms that deplete this species are added to f_minus.
 
-        for (int rate = 1; rate <= Rates::NumRates; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(spec, rate);
+        for (int rate = 1; rate <= Rates::NumRatesFR; ++rate) {
+            rhs_t rhs_data = RHS::rhs_data(rate);
 
-            if (std::abs(rhs_data.prefactor) > 0.0) {
+            // First, compute the Y * rate component of both the forward and
+            // reverse reactions, which is the same regardless of which species
+            // we're producing or consuming.
 
-                Real term = rhs_data.prefactor;
+            Real forward_term = rr.forward_rates(rate);
 
-                if (rhs_data.specindex1 >= 0) {
-                    term *= y(rhs_data.specindex1);
-                }
+            if (rhs_data.species_A >= 0) {
+                forward_term *= std::pow(y(rhs_data.species_A), rhs_data.exponent_A_forward);
+            }
 
-                if (rhs_data.specindex2 >= 0) {
-                    term *= y(rhs_data.specindex2);
-                }
+            if (rhs_data.species_B >= 0) {
+                forward_term *= std::pow(y(rhs_data.species_B), rhs_data.exponent_B_forward);
+            }
 
-                if (rhs_data.specindex3 >= 0) {
-                    term *= y(rhs_data.specindex3);
-                }
+            if (rhs_data.species_C >= 0) {
+                forward_term *= std::pow(y(rhs_data.species_C), rhs_data.exponent_C_forward);
+            }
 
-                term *= rr.rates(rate);
+            Real reverse_term = rr.reverse_rates(rate);
 
-                // Scale by aion to get dX/dt instead of dY/dt.
+            if (rhs_data.species_D >= 0) {
+                reverse_term *= std::pow(y(rhs_data.species_D), rhs_data.exponent_D_reverse);
+            }
 
-                term *= aion[spec - 1];
+            if (rhs_data.species_E >= 0) {
+                reverse_term *= std::pow(y(rhs_data.species_E), rhs_data.exponent_E_reverse);
+            }
 
-                if (rhs_data.prefactor > 0.0) {
-                    f_plus(spec) += term;
-                } else {
-                    f_minus(spec) -= term;
-                }
+            if (rhs_data.species_F >= 0) {
+                reverse_term *= std::pow(y(rhs_data.species_F), rhs_data.exponent_F_reverse);
+            }
+
+            // Now compute the total contribution to this species.
+
+            if (rhs_data.species_A == spec) {
+                forward_term *= -rhs_data.consumed_A_forward;
+                reverse_term *= rhs_data.produced_A_reverse;
+            }
+            else if (rhs_data.species_B == spec) {
+                forward_term *= -rhs_data.consumed_B_forward;
+                reverse_term *= rhs_data.produced_B_reverse;
+            }
+            else if (rhs_data.species_C == spec) {
+                forward_term *= -rhs_data.consumed_C_forward;
+                reverse_term *= rhs_data.produced_C_reverse;
+            }
+            else if (rhs_data.species_D == spec) {
+                forward_term *= rhs_data.produced_D_forward;
+                reverse_term *= -rhs_data.consumed_D_reverse;
+            }
+            else if (rhs_data.species_E == spec) {
+                forward_term *= rhs_data.produced_E_forward;
+                reverse_term *= -rhs_data.consumed_E_reverse;
+            }
+            else if (rhs_data.species_F == spec) {
+                forward_term *= rhs_data.produced_F_forward;
+                reverse_term *= -rhs_data.consumed_F_reverse;
+            }
+            else {
+                forward_term = 0.0_rt;
+                reverse_term = 0.0_rt;
+            }
+
+            // Scale by aion to get dX/dt instead of dY/dt.
+            forward_term *= aion[spec - 1];
+            reverse_term *= aion[spec - 1];
+
+            if (forward_term > 0.0_rt) {
+                f_plus(spec) += forward_term;
+            }
+            else {
+                f_minus(spec) -= forward_term;
+            }
+
+            if (reverse_term > 0.0_rt) {
+                f_plus(spec) += reverse_term;
+            }
+            else {
+                f_minus(spec) -= reverse_term;
             }
         }
     }
