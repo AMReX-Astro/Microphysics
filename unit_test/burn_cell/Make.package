@@ -1,9 +1,2 @@
 CEXE_sources += main.cpp
-
-F90EXE_sources += burn_cell.F90
-
-ifeq ($(USE_CXX_REACTIONS), TRUE)
-  CEXE_headers += burn_cell.H
-endif
-
-FEXE_headers += burn_cell_F.H
+CEXE_headers += burn_cell.H
