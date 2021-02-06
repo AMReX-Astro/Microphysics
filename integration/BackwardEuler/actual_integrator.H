@@ -167,6 +167,14 @@ void actual_integrator (burn_t& state, Real dt)
             JacNetArray2D jac;
             actual_jac(state, jac);
 
+            // We integrate X, not Y
+            for (int j = 1; j <= NumSpec; ++j) {
+                for (int i = 1; i <= neqs; ++i) {
+                    jac(j, i) *= aion[j-1];
+                    jac(i, j) *= aion_inv[j-1];
+                }
+            }
+
             // construct the matrix for the linear system
             // (I - dt J) dy^{n+1} = rhs
 
