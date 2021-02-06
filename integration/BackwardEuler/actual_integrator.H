@@ -10,6 +10,7 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <be_linpack.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real calculate_dt (burn_t& state, Array1D<Real, 1, neqs>& ydot)
@@ -215,13 +216,13 @@ void actual_integrator (burn_t& state, Real dt)
             Real y_norm = 0.0;
             Real b_norm = 0.0;
             for (int n = 1; n < neqs; n++) {
-                ynorm += y_np1(n) * y_np1(n);
-                bnorm += b(n) * b(n);
+                y_norm += y_np1(n) * y_np1(n);
+                b_norm += b(n) * b(n);
             }
-            ynorm = std::sqrt(ynorm / neqs);
-            bnorm = std::sqrt(bnorm / neqs);
+            y_norm = std::sqrt(y_norm / neqs);
+            b_norm = std::sqrt(b_norm / neqs);
 
-            if (bnorm < tol * ynorm) {
+            if (b_norm < tol * y_norm) {
                 converged = true;
                 break;
             }
@@ -234,12 +235,12 @@ void actual_integrator (burn_t& state, Real dt)
             // for now we'll abort.  Later we should refactor things
             // to reduce the timestep and try again
 
-            amrex::abort("Failed to converge in integration");
+            amrex::Error("Failed to converge in integration");
         }
 
         // update the solution vector
 
-        for (int n = 1; n < = neqs; n++) {
+        for (int n = 1; n <= neqs; n++) {
             y(n) = y_np1(n);
         }
 
