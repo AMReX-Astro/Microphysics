@@ -11,6 +11,7 @@
 #include <eos.H>
 #include <extern_parameters.H>
 #include <be_linpack.H>
+#include <numerical_jacobian.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real calculate_dt (burn_t& state, Array1D<Real, 1, neqs>& ydot)
@@ -160,19 +161,27 @@ void actual_integrator (burn_t& state, Real dt)
         }
 
 
+        // try to take a step dt
+
         for (int iter = 1; iter <= max_iter; iter++) {
 
             // construct the Jacobian
 
             JacNetArray2D jac;
-            actual_jac(state, jac);
 
-            // We integrate X, not Y
-            for (int j = 1; j <= NumSpec; ++j) {
-                for (int i = 1; i <= neqs; ++i) {
-                    jac(j, i) *= aion[j-1];
-                    jac(i, j) *= aion_inv[j-1];
+            if (jacobian == 1) {
+                actual_jac(state, jac);
+
+                // We integrate X, not Y
+                for (int j = 1; j <= NumSpec; ++j) {
+                    for (int i = 1; i <= neqs; ++i) {
+                        jac(j, i) *= aion[j-1];
+                        jac(i, j) *= aion_inv[j-1];
+                    }
                 }
+
+            } else {
+                numerical_jac(state, jac);
             }
 
             // construct the matrix for the linear system
@@ -235,7 +244,7 @@ void actual_integrator (burn_t& state, Real dt)
                 break;
             }
 
-        }
+        }   // end of stepping
 
         // we are done iterating -- did we converge?
 
