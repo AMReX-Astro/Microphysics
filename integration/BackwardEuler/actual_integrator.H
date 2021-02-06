@@ -89,6 +89,153 @@ void clean_state (burn_t& state)
 
 }
 
+
+///
+/// update y through a timestep dt to produce ynew
+/// we return an error code
+///
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int single_step (burn_t burn_state_in,
+                 Array1D<Real, 1, BE_NEQS> y, Real dt, Array1D<Real, 1, BE_NEQS> ynew)
+{
+
+    int ierr = BE_SUCCESS;
+
+    bool converged = false;
+
+    // create our current guess for the solution
+
+    Array1D<Real, 1, BE_NEQS> y_np1;
+    for (int n = 1; n <= BE_NEQS; n++) {
+        y_np1(n) = y(n);
+    }
+
+    for (int iter = 1; iter <= max_iter; iter++) {
+
+        // take the current guess at the solution and put it into a
+        // burn_t.  The only thing we need from the incoming burn_t is
+        // the density.
+
+        burn_t burn_state = burn_state_in;
+
+        burn_state.T = y_np1(net_itemp);
+
+        for (int n = 0; n < NumSpec; n++) {
+            burn_state.xn[n] = y_np1(n+1);
+        }
+
+        // construct the Jacobian
+
+        JacNetArray2D jac;
+
+        if (jacobian == 1) {
+            actual_jac(burn_state, jac);
+
+            // We integrate X, not Y
+            for (int j = 1; j <= NumSpec; ++j) {
+                for (int i = 1; i <= neqs; ++i) {
+                    jac(j, i) *= aion[j-1];
+                    jac(i, j) *= aion_inv[j-1];
+                }
+            }
+
+        } else {
+            numerical_jac(burn_state, jac);
+        }
+
+        // construct the matrix for the linear system
+        // (I - dt J) dy^{n+1} = rhs
+
+        for (int m  = 1; m <= BE_NEQS; m++) {
+            for (int n = 1; n <= BE_NEQS; n++) {
+                jac(m, n) *= dt;
+                if (m == n) {
+                    jac(m, n) = 1.0_rt - jac(m, n);
+                }
+            }
+        }
+
+        // get the ydots for our current guess of y
+
+        Array1D<Real, 1, neqs> ydot;
+        actual_rhs(burn_state, ydot);
+
+        burn_state_in.n_rhs += 1;
+
+        // Scale species terms by A (they come from the RHS in terms of Y, not X).
+
+        for (int n = 1; n <= NumSpec; ++n) {
+            ydot(n) *= aion[n-1];
+        }
+
+
+        // construct the RHS of our linear system
+
+        Array1D<Real, 1, BE_NEQS> b;
+        for (int n = 1; n <= BE_NEQS; n++) {
+            b(n) = y(n) - y_np1(n) + dt * ydot(n);
+        }
+
+        // solve the linear system
+
+        int ierr_linpack;
+        IArray1D pivot;
+        dgefa(jac, pivot, ierr_linpack);
+
+        if (ierr_linpack != 0) {
+            ierr = BE_LU_DECOMPOSITION_ERROR;
+            break;
+        }
+
+        dgesl(jac, pivot, b);
+
+        // update our current guess for the solution
+
+        for (int n = 1; n <= BE_NEQS; n++) {
+            y_np1(n) += b(n);
+        }
+
+        // check to see if we converged
+        // we compute the norms
+
+        Real y_norm = 0.0;
+        Real b_norm = 0.0;
+        for (int n = 1; n < BE_NEQS; n++) {
+            y_norm += y_np1(n) * y_np1(n);
+            b_norm += b(n) * b(n);
+        }
+        y_norm = std::sqrt(y_norm / BE_NEQS);
+        b_norm = std::sqrt(b_norm / BE_NEQS);
+
+        if (b_norm < tol * y_norm) {
+            converged = true;
+            break;
+        }
+
+    }
+
+    // we are done iterating -- did we converge?
+
+    if (! converged) {
+        // for now we'll abort.  Later we should refactor things
+        // to reduce the timestep and try again
+
+        ierr = BE_NONCONVERGENCE;
+
+    } else {
+
+        // update the solution vector
+
+        for (int n = 1; n <= BE_NEQS; n++) {
+            ynew(n) = y_np1(n);
+        }
+
+    }
+
+    return ierr;
+
+}
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, Real dt)
 {
@@ -120,7 +267,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     // pack the solution into a vector
 
-    Array1D<Real, 1, neqs> y;
+    Array1D<Real, 1, BE_NEQS> y;
     for (int n = 0; n < NumSpec; n++) {
         y(n+1) = state.xn[n];
     }
@@ -129,16 +276,11 @@ void actual_integrator (burn_t& state, Real dt)
 
     int num_timesteps = 0;
 
-    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps) {
+    // main timestepping loop
 
-        bool converged = false;
+    while (t < (1.0_rt - timestep_safety_factor) * dt &&
+           num_timesteps < ode_max_steps) {
 
-        // initial guess
-
-        Array1D<Real, 1, neqs> y_np1;
-        for (int n = 1; n <= neqs; n++) {
-            y_np1(n) = y(n);
-        }
 
         // evaluate the RHS and estimate the timestep
 
@@ -153,6 +295,7 @@ void actual_integrator (burn_t& state, Real dt)
             ydot(n) *= aion[n-1];
         }
 
+        // estimate the timestep
 
         Real dt_sub = calculate_dt(state, ydot);
 
@@ -163,108 +306,24 @@ void actual_integrator (burn_t& state, Real dt)
 
         // try to take a step dt
 
-        for (int iter = 1; iter <= max_iter; iter++) {
+        Array1D<Real, 1, BE_NEQS> ynew;
+        int ierr = single_step(state, y, dt_sub, ynew);
 
-            // construct the Jacobian
+        if (ierr == BE_SUCCESS) {
+            t += dt_sub;
 
-            JacNetArray2D jac;
-
-            if (jacobian == 1) {
-                actual_jac(state, jac);
-
-                // We integrate X, not Y
-                for (int j = 1; j <= NumSpec; ++j) {
-                    for (int i = 1; i <= neqs; ++i) {
-                        jac(j, i) *= aion[j-1];
-                        jac(i, j) *= aion_inv[j-1];
-                    }
-                }
-
-            } else {
-                numerical_jac(state, jac);
+            for (int n = 1; n <= BE_NEQS; ++n) {
+                y(n) = ynew(n);
             }
 
-            // construct the matrix for the linear system
-            // (I - dt J) dy^{n+1} = rhs
+            ++num_timesteps;
 
-            for (int m  = 1; m <= neqs; m++) {
-                for (int n = 1; n <= neqs; n++) {
-                    jac(m, n) *= dt_sub;
-                    if (m == n) {
-                        jac(m, n) = 1.0_rt - jac(m, n);
-                    }
-                }
-            }
+        } else {
 
-            // construct the RHS
+            // adjust the timestep and try again
+            dt /= 2;
 
-            actual_rhs(state, ydot);
-
-            // need to compute T, e
-
-            state.n_rhs += 1;
-
-            // Scale species terms by A (they come from the RHS in terms of Y, not X).
-
-            for (int n = 1; n <= NumSpec; ++n) {
-                ydot(n) *= aion[n-1];
-            }
-
-            Array1D<Real, 1, neqs> b;
-            for (int n = 1; n <= neqs; n++) {
-                b(n) = y(n) - y_np1(n) + dt * ydot(n);
-            }
-
-            // solve the linear system
-            int ier;
-            IArray1D pivot;
-            dgefa(jac, pivot, ier);
-            dgesl(jac, pivot, b);
-
-            // update our current guess for the solution
-
-            for (int n = 1; n <= neqs; n++) {
-                y_np1(n) += b(n);
-            }
-
-            // check to see if we converged
-            // we compute the norms
-
-            Real y_norm = 0.0;
-            Real b_norm = 0.0;
-            for (int n = 1; n < neqs; n++) {
-                y_norm += y_np1(n) * y_np1(n);
-                b_norm += b(n) * b(n);
-            }
-            y_norm = std::sqrt(y_norm / neqs);
-            b_norm = std::sqrt(b_norm / neqs);
-
-            if (b_norm < tol * y_norm) {
-                converged = true;
-                break;
-            }
-
-        }   // end of stepping
-
-        // we are done iterating -- did we converge?
-
-        if (! converged) {
-            // for now we'll abort.  Later we should refactor things
-            // to reduce the timestep and try again
-
-            amrex::Error("Failed to converge in integration");
         }
-
-        // update the solution vector
-
-        for (int n = 1; n <= neqs; n++) {
-            y(n) = y_np1(n);
-        }
-
-        t += dt_sub;
-
-        ++num_timesteps;
-
     }
 
     // update output
