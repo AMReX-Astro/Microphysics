@@ -95,7 +95,7 @@ void clean_state (burn_t& state)
 /// we return an error code
 ///
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int single_step (burn_t burn_state_in,
+int single_step (burn_t& burn_state_in,
                  Array1D<Real, 1, BE_NEQS> y, Real dt, Array1D<Real, 1, BE_NEQS> ynew)
 {
 
