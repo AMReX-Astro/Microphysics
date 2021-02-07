@@ -105,6 +105,8 @@ int single_step (burn_t& burn_state_in,
 
     // create our current guess for the solution
 
+    Array1D<Real, 1, neqs> ydot;
+
     Array1D<Real, 1, BE_NEQS> y_np1;
     for (int n = 1; n <= BE_NEQS; n++) {
         y_np1(n) = y(n);
@@ -148,16 +150,15 @@ int single_step (burn_t& burn_state_in,
 
         for (int m  = 1; m <= BE_NEQS; m++) {
             for (int n = 1; n <= BE_NEQS; n++) {
-                jac(m, n) *= dt;
+                jac(m, n) *= -dt;
                 if (m == n) {
-                    jac(m, n) = 1.0_rt - jac(m, n);
+                    jac(m, n) = 1.0_rt + jac(m, n);
                 }
             }
         }
 
         // get the ydots for our current guess of y
 
-        Array1D<Real, 1, neqs> ydot;
         actual_rhs(burn_state, ydot);
 
         burn_state_in.n_rhs += 1;
