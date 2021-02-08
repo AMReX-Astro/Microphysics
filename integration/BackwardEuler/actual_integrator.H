@@ -324,7 +324,7 @@ void actual_integrator (burn_t& state, const Real dt)
         Array1D<Real, 1, BE_NEQS> yd;
 
         int ierr1 = single_step(state, y, dt_sub/2, ynew);
-        int ierr2 = single_step(state, y, dt_sub/2, yd);
+        int ierr2 = single_step(state, ynew, dt_sub/2, yd);
 
         int ierr3 = single_step(state, y, dt_sub, ynew);
 
