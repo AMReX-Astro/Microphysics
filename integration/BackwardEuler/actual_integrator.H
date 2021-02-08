@@ -238,7 +238,7 @@ int single_step (burn_t& burn_state_in,
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+void actual_integrator (burn_t& state, const Real dt)
 {
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -277,54 +277,107 @@ void actual_integrator (burn_t& state, Real dt)
 
     int num_timesteps = 0;
 
+    // estimate the timestep
+
+    Array1D<Real, 1, neqs> ydot;
+    actual_rhs(state, ydot);
+
+    state.n_rhs += 1;
+
+    // Scale species terms by A (they come from the RHS in terms of Y, not X).
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        ydot(n) *= aion[n-1];
+    }
+
+    Real dt_sub = calculate_dt(state, ydot);
+
     // main timestepping loop
 
     while (t < (1.0_rt - timestep_safety_factor) * dt &&
            num_timesteps < ode_max_steps) {
 
-
-        // evaluate the RHS and estimate the timestep
-
-        Array1D<Real, 1, neqs> ydot;
-        actual_rhs(state, ydot);
-
-        state.n_rhs += 1;
-
-        // Scale species terms by A (they come from the RHS in terms of Y, not X).
-
-        for (int n = 1; n <= NumSpec; ++n) {
-            ydot(n) *= aion[n-1];
-        }
-
-        // estimate the timestep
-
-        Real dt_sub = calculate_dt(state, ydot);
+        // don't go too far
 
         if (t + dt_sub > dt) {
             dt_sub = dt - t;
         }
 
+        // our strategy is to take 2 steps at dt/2 and one at dt and
+        // to compute the error from those
+
 
         // try to take a step dt
 
         Array1D<Real, 1, BE_NEQS> ynew;
-        int ierr = single_step(state, y, dt_sub, ynew);
+        Array1D<Real, 1, BE_NEQS> yd;
 
-        if (ierr == BE_SUCCESS) {
-            t += dt_sub;
+        int ierr1 = single_step(state, y, dt_sub/2, ynew);
+        int ierr2 = single_step(state, y, dt_sub/2, yd);
 
-            for (int n = 1; n <= BE_NEQS; ++n) {
-                y(n) = ynew(n);
+        int ierr3 = single_step(state, y, dt_sub, ynew);
+
+        // now yd is the solution with 2 small timesteps and ynew is
+        // the solution with a single step
+
+        // define a weight for each variable to use in checking the error
+
+        Array1D<Real, 1, BE_NEQS> w;
+        for (int n = 1; n <= NumSpec; n++) {
+            w(n) = 1.0_rt / (rtol_spec * std::abs(yd(n)) + atol_spec);
+        }
+        w(NumSpec+1) = 1.0_rt / (rtol_temp * std::abs(yd(NumSpec+1)) + atol_temp);
+        w(NumSpec+2) = 1.0_rt / (rtol_enuc * std::abs(yd(NumSpec+2)) + atol_enuc);
+
+        // now compute the norm of the weighted error
+
+        Real err_norm = 0.0_rt;
+        for (int n = 1; n <= BE_NEQS; n++) {
+            err_norm += std::pow(w(n) * (yd(n) - ynew(n)), 2);
+        }
+        err_norm = std::sqrt(err_norm / BE_NEQS);
+
+        bool step_success = false;
+        if (err_norm < 1.0_rt) {
+            step_success = true;
+        }
+
+        if (ierr1 == BE_SUCCESS && ierr2 == BE_SUCCESS && ierr3 == BE_SUCCESS) {
+
+            // there were no problems with the mechanics of the step
+            // (linear algebra, etc.).  Now check if we met our error
+            // goals.
+
+            if (step_success) {
+                t += dt_sub;
+
+                for (int n = 1; n <= BE_NEQS; ++n) {
+                    y(n) = yd(n);
+                }
+
+                // can we potentially increase the timestep?
+
+                Real dt_new = dt_sub / err_norm;
+
+                dt_sub = amrex::min(amrex::max(0.9 * dt_new, dt_sub / 2.0), 2.0 * dt_sub);
+
+            } else {
+
+                // we did not make our error goals, so just cut the timestep and leave the old solution in place
+
+                dt_sub /= 2;
+
             }
-
-            ++num_timesteps;
-
         } else {
 
             // adjust the timestep and try again
-            dt /= 2;
+            dt_sub /= 2;
 
         }
+
+        ++num_timesteps;
+        ++num_timesteps;
+
     }
 
     // update output
