@@ -67,19 +67,6 @@ namespace Rates {
                        Si28_7He4_to_Ni56_reverse,
                        NumRates = Si28_7He4_to_Ni56_reverse};
 
-    enum NetworkRatesFR {C12_He4_to_O16 = 1,
-                         He4_He4_He4_to_C12,
-                         C12_C12_to_Ne20_He4,
-                         C12_O16_to_Mg24_He4,
-                         C12_O16_to_Si28,
-                         O16_O16_to_Si28_He4,
-                         O16_He4_to_Ne20,
-                         Ne20_He4_to_Mg24,
-                         Mg24_He4_to_Si28,
-                         Ca40_He4_to_Ti44,
-                         Si28_7He4_to_Ni56,
-                         NumRatesFR = Si28_7He4_to_Ni56};
-
     const int NumGroups = 2 + NumSpec;
 
     extern amrex::Vector<std::string> names;
@@ -88,231 +75,282 @@ namespace Rates {
 namespace RHS {
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr rhs_t rhs_data (int rate)
+    constexpr rhs_t rhs_data (int species, int rateindex)
     {
         using namespace Species;
         using namespace Rates;
 
         rhs_t data{};
 
-        data.species_A = -1;
-        data.species_B = -1;
-        data.species_C = -1;
-        data.species_D = -1;
-        data.species_E = -1;
-        data.species_F = -1;
+        data.prefactor  = 0.0_rt;
+        data.specindex1 = -1;
+        data.specindex2 = -1;
+        data.specindex3 = -1;
 
-        data.exponent_A_forward = 0;
-        data.exponent_B_forward = 0;
-        data.exponent_C_forward = 0;
+        switch (rhs_rate<NumRates>(species, rateindex)) {
 
-        data.consumed_A_forward = 0;
-        data.consumed_B_forward = 0;
-        data.consumed_C_forward = 0;
-        data.produced_D_forward = 0;
-        data.produced_E_forward = 0;
-        data.produced_F_forward = 0;
-
-        data.exponent_D_reverse = 0;
-        data.exponent_E_reverse = 0;
-        data.exponent_F_reverse = 0;
-
-        data.produced_A_reverse = 0;
-        data.produced_B_reverse = 0;
-        data.produced_C_reverse = 0;
-        data.consumed_D_reverse = 0;
-        data.consumed_E_reverse = 0;
-        data.consumed_F_reverse = 0;
-
-        switch (rate) {
-
-        case He4_He4_He4_to_C12:
-            data.species_A = He4;
-            data.species_D = C12;
-
-            data.exponent_A_forward = 3;
-
-            data.consumed_A_forward = 3;
-            data.produced_D_forward = 1;
-
-            data.exponent_D_reverse = 1;
-
-            data.produced_A_reverse = 3;
-            data.consumed_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, He4_He4_He4_to_C12_reverse):
+            data.prefactor  = 3.0_rt;
+            data.specindex1 = C12;
             break;
 
-        case C12_He4_to_O16:
-            data.species_A = C12;
-            data.species_B = He4;
-            data.species_D = O16;
-
-            data.exponent_A_forward = 1;
-            data.exponent_B_forward = 1;
-
-            data.consumed_A_forward = 1;
-            data.consumed_B_forward = 1;
-            data.produced_D_forward = 1;
-
-            data.exponent_D_reverse = 1;
-
-            data.produced_A_reverse = 1;
-            data.produced_B_reverse = 1;
-            data.consumed_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, He4_He4_He4_to_C12_forward):
+            data.prefactor  = -3.0_rt;
+            data.specindex1 = He4;
+            data.specindex2 = He4;
+            data.specindex3 = He4;
             break;
 
-        case C12_C12_to_Ne20_He4:
-            data.species_A = C12;
-            data.species_D = Ne20;
-            data.species_E = He4;
-
-            data.exponent_A_forward = 2;
-
-            data.consumed_A_forward = 2;
-            data.produced_D_forward = 1;
-            data.produced_E_forward = 1;
-
-            data.exponent_D_reverse = 1;
-            data.exponent_E_reverse = 1;
-
-            data.produced_A_reverse = 2;
-            data.consumed_D_reverse = 1;
-            data.consumed_E_reverse = 1;
+        case rhs_rate<NumRates>(He4, C12_He4_to_O16_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
             break;
 
-        case C12_O16_to_Mg24_He4:
-            data.species_A = C12;
-            data.species_B = O16;
-            data.species_D = Mg24;
-            data.species_E = He4;
-
-            data.exponent_A_forward = 1;
-            data.exponent_B_forward = 1;
-
-            data.consumed_A_forward = 1;
-            data.consumed_B_forward = 1;
-            data.produced_D_forward = 1;
-            data.produced_E_forward = 1;
-
-            data.exponent_D_reverse = 1;
-            data.exponent_E_reverse = 1;
-
-            data.produced_A_reverse = 1;
-            data.produced_B_reverse = 1;
-            data.consumed_D_reverse = 1;
-            data.consumed_E_reverse = 1;
+        case rhs_rate<NumRates>(He4, C12_He4_to_O16_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = He4;
             break;
 
-        case C12_O16_to_Si28:
-            data.species_A = C12;
-            data.species_B = O16;
-            data.species_D = Si28;
-
-            data.exponent_A_forward = 1;
-            data.exponent_B_forward = 1;
-
-            data.consumed_A_forward = 1;
-            data.consumed_B_forward = 1;
-            data.produced_D_forward = 1;
-
-            data.exponent_D_reverse = 1;
-
-            data.produced_A_reverse = 1;
-            data.produced_B_reverse = 1;
-            data.consumed_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, C12_C12_to_Ne20_He4_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = C12;
             break;
 
-        case O16_O16_to_Si28_He4:
-            data.species_A = O16;
-            data.species_D = Si28;
-            data.species_E = He4;
-
-            data.exponent_A_forward = 2;
-
-            data.consumed_A_forward = 2;
-            data.produced_D_forward = 1;
-            data.produced_E_forward = 1;
-
-            data.exponent_D_reverse = 1;
-            data.exponent_E_reverse = 1;
-
-            data.produced_A_reverse = 2;
-            data.consumed_D_reverse = 1;
-            data.consumed_E_reverse = 1;
+        case rhs_rate<NumRates>(He4, C12_O16_to_Mg24_He4_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
             break;
 
-        case O16_He4_to_Ne20:
-            data.species_A = O16;
-            data.species_B = He4;
-            data.species_D = Ne20;
-
-            data.exponent_A_forward = 1;
-            data.exponent_B_forward = 1;
-
-            data.consumed_A_forward = 1;
-            data.consumed_B_forward = 1;
-            data.produced_D_forward = 1;
-
-            data.exponent_D_reverse = 1;
-
-            data.produced_A_reverse = 1;
-            data.produced_B_reverse = 1;
-            data.consumed_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, O16_O16_to_Si28_He4_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = O16;
             break;
 
-        case Ne20_He4_to_Mg24:
-            data.species_A = Ne20;
-            data.species_B = He4;
-            data.species_D = Mg24;
-
-            data.exponent_A_forward = 1;
-            data.exponent_B_forward = 1;
-
-            data.consumed_A_forward = 1;
-            data.consumed_B_forward = 1;
-            data.produced_D_forward = 1;
-
-            data.exponent_D_reverse = 1;
-
-            data.produced_A_reverse = 1;
-            data.produced_B_reverse = 1;
-            data.consumed_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, O16_He4_to_Ne20_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = He4;
             break;
 
-        case Mg24_He4_to_Si28:
-            data.species_A = Mg24;
-            data.species_B = He4;
-            data.species_D = Si28;
-
-            data.exponent_A_forward = 1;
-            data.exponent_B_forward = 1;
-
-            data.consumed_A_forward = 1;
-            data.consumed_B_forward = 1;
-            data.produced_D_forward = 1;
-
-            data.exponent_D_reverse = 1;
-
-            data.produced_A_reverse = 1;
-            data.produced_B_reverse = 1;
-            data.consumed_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, O16_He4_to_Ne20_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ne20;
             break;
 
-        case Si28_7He4_to_Ni56:
-            data.species_A = Si28;
-            data.species_B = He4;
-            data.species_D = Ni56;
+        case rhs_rate<NumRates>(He4, Ne20_He4_to_Mg24_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Mg24;
+            break;
 
-            data.exponent_B_forward = 1;
+        case rhs_rate<NumRates>(He4, Ne20_He4_to_Mg24_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ne20;
+            data.specindex2 = He4;
+            break;
 
-            data.consumed_A_forward = 1;
-            data.consumed_B_forward = 7;
-            data.produced_D_forward = 1;
+        case rhs_rate<NumRates>(He4, Mg24_He4_to_Si28_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Si28;
+            break;
 
-            data.exponent_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, Mg24_He4_to_Si28_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Mg24;
+            data.specindex2 = He4;
+            break;
 
-            data.produced_A_reverse = 1;
-            data.produced_B_reverse = 7;
-            data.consumed_D_reverse = 1;
+        case rhs_rate<NumRates>(He4, Si28_7He4_to_Ni56_forward):
+            data.prefactor  = -7.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case rhs_rate<NumRates>(He4, Si28_7He4_to_Ni56_reverse):
+            data.prefactor  = 7.0_rt;
+            data.specindex1 = Ni56;
+            break;
+
+        case rhs_rate<NumRates>(C12, He4_He4_He4_to_C12_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = He4;
+            data.specindex2 = He4;
+            data.specindex3 = He4;
+            break;
+
+        case rhs_rate<NumRates>(C12, He4_He4_He4_to_C12_reverse):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            break;
+
+        case rhs_rate<NumRates>(C12, C12_He4_to_O16_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case rhs_rate<NumRates>(C12, C12_He4_to_O16_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(C12, C12_C12_to_Ne20_He4_forward):
+            data.prefactor  = -2.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = C12;
+            break;
+
+        case rhs_rate<NumRates>(C12, C12_O16_to_Mg24_He4_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(C12, C12_O16_to_Si28_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(O16, C12_He4_to_O16_reverse):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = O16;
+            break;
+
+        case rhs_rate<NumRates>(O16, C12_He4_to_O16_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(O16, C12_O16_to_Mg24_He4_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(O16, C12_O16_to_Si28_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(O16, O16_O16_to_Si28_He4_forward):
+            data.prefactor  = -2.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(O16, O16_He4_to_Ne20_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(O16, O16_He4_to_Ne20_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ne20;
+            break;
+
+        case rhs_rate<NumRates>(Ne20, C12_C12_to_Ne20_He4_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = C12;
+            break;
+
+        case rhs_rate<NumRates>(Ne20, O16_He4_to_Ne20_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Ne20, O16_He4_to_Ne20_reverse):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ne20;
+            break;
+
+        case rhs_rate<NumRates>(Ne20, Ne20_He4_to_Mg24_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Mg24;
+            break;
+
+        case rhs_rate<NumRates>(Ne20, Ne20_He4_to_Mg24_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ne20;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Mg24, C12_O16_to_Mg24_He4_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(Mg24, Ne20_He4_to_Mg24_reverse):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Mg24;
+            break;
+
+        case rhs_rate<NumRates>(Mg24, Ne20_He4_to_Mg24_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ne20;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Mg24, Mg24_He4_to_Si28_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Si28;
+            break;
+
+        case rhs_rate<NumRates>(Mg24, Mg24_He4_to_Si28_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Mg24;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Si28, C12_O16_to_Si28_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = C12;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(Si28, O16_O16_to_Si28_He4_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = O16;
+            data.specindex2 = O16;
+            break;
+
+        case rhs_rate<NumRates>(Si28, Mg24_He4_to_Si28_reverse):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Si28;
+            break;
+
+        case rhs_rate<NumRates>(Si28, Mg24_He4_to_Si28_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Mg24;
+            data.specindex2 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Si28, Si28_7He4_to_Ni56_forward):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Si28, Si28_7He4_to_Ni56_reverse):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = Ni56;
+            break;
+
+        case rhs_rate<NumRates>(Ni56, Si28_7He4_to_Ni56_forward):
+            data.prefactor  = 1.0_rt;
+            data.specindex1 = He4;
+            break;
+
+        case rhs_rate<NumRates>(Ni56, Si28_7He4_to_Ni56_reverse):
+            data.prefactor  = -1.0_rt;
+            data.specindex1 = Ni56;
             break;
 
         }

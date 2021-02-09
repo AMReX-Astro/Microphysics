@@ -12,12 +12,4 @@ struct rate_t
     amrex::Array1D<amrex::Real, 1, Rates::NumRates> rates;
 };
 
-struct rate_fr_t
-{
-    // forward rate data
-    amrex::Array1D<amrex::Real, 1, Rates::NumRatesFR> forward_rates;
-    // reverse rate data
-    amrex::Array1D<amrex::Real, 1, Rates::NumRatesFR> reverse_rates;
-};
-
 #endif

@@ -12,7 +12,7 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real calculate_dt (burn_t& state, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt)
+Real calculate_dt (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     // Our timestepping strategy is to prevent any quantity
     // from changing by more than a certain factor in any
@@ -25,15 +25,15 @@ Real calculate_dt (burn_t& state, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt)
         if (state.xn[n-1] >= atol_spec) {
 
             Real target_dX;
-            if (dXdt(n) > 0.0) {
+            if (ydot(n) > 0.0) {
                 target_dX = (maximum_timestep_change_factor - 1.0_rt) * state.xn[n-1];
             } else {
                 target_dX = (1.0_rt - 1.0_rt / maximum_timestep_change_factor) * state.xn[n-1];
             }
 
-            Real dXdt_abs = amrex::max(std::abs(dXdt(n)), 1.0e-30_rt);
+            Real dXdt = amrex::max(std::abs(ydot(n)), 1.0e-30_rt);
 
-            dt = amrex::min(dt, target_dX / dXdt_abs);
+            dt = amrex::min(dt, target_dX / dXdt);
 
         }
 
@@ -42,13 +42,13 @@ Real calculate_dt (burn_t& state, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt)
     if (integrate_energy) {
 
         Real target_de;
-        if (dedt > 0.0) {
+        if (ydot(net_ienuc) > 0.0) {
             target_de = (maximum_timestep_change_factor - 1.0_rt) * state.e;
         } else {
             target_de = (1.0_rt - 1.0_rt / maximum_timestep_change_factor) * state.e;
         }
 
-        Real dedt = amrex::max(std::abs(dedt), 1.0e-30_rt);
+        Real dedt = amrex::max(std::abs(ydot(net_ienuc)), 1.0e-30_rt);
 
         dt = amrex::min(dt, target_de / dedt);
 
@@ -104,118 +104,6 @@ void initialize_state (burn_t& state)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& dXdt, Real& dedt)
-{
-    rate_t rr_old;
-    evaluate_rates(state, rr_old);
-
-    rate_fr_t rr;
-
-    // Convert old-style rates to new-style
-    for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr.forward_rates(j) = rr_old.rates(2 * j - 1);
-        rr.reverse_rates(j) = rr_old.rates(2 * j);
-    }
-
-    Array1D<Real, 1, NumSpec> y;
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        y(spec) = state.xn[spec-1] * aion_inv[spec-1];
-    }
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-
-        dXdt(spec) = 0.0;
-
-        // Loop through rates.
-
-        for (int rate = 1; rate <= Rates::NumRatesFR; ++rate) {
-            rhs_t rhs_data = RHS::rhs_data(rate);
-
-            // First, compute the Y * rate component of both the forward and
-            // reverse reactions, which is the same regardless of which species
-            // we're producing or consuming.
-
-            Real forward_term = rr.forward_rates(rate);
-
-            if (rhs_data.species_A >= 0) {
-                forward_term *= std::pow(y(rhs_data.species_A), rhs_data.exponent_A_forward);
-            }
-
-            if (rhs_data.species_B >= 0) {
-                forward_term *= std::pow(y(rhs_data.species_B), rhs_data.exponent_B_forward);
-            }
-
-            if (rhs_data.species_C >= 0) {
-                forward_term *= std::pow(y(rhs_data.species_C), rhs_data.exponent_C_forward);
-            }
-
-            Real reverse_term = rr.reverse_rates(rate);
-
-            if (rhs_data.species_D >= 0) {
-                reverse_term *= std::pow(y(rhs_data.species_D), rhs_data.exponent_D_reverse);
-            }
-
-            if (rhs_data.species_E >= 0) {
-                reverse_term *= std::pow(y(rhs_data.species_E), rhs_data.exponent_E_reverse);
-            }
-
-            if (rhs_data.species_F >= 0) {
-                reverse_term *= std::pow(y(rhs_data.species_F), rhs_data.exponent_F_reverse);
-            }
-
-            // Now compute the total contribution to this species.
-
-            if (rhs_data.species_A == spec) {
-                forward_term *= -rhs_data.consumed_A_forward;
-                reverse_term *= rhs_data.produced_A_reverse;
-            }
-            else if (rhs_data.species_B == spec) {
-                forward_term *= -rhs_data.consumed_B_forward;
-                reverse_term *= rhs_data.produced_B_reverse;
-            }
-            else if (rhs_data.species_C == spec) {
-                forward_term *= -rhs_data.consumed_C_forward;
-                reverse_term *= rhs_data.produced_C_reverse;
-            }
-            else if (rhs_data.species_D == spec) {
-                forward_term *= rhs_data.produced_D_forward;
-                reverse_term *= -rhs_data.consumed_D_reverse;
-            }
-            else if (rhs_data.species_E == spec) {
-                forward_term *= rhs_data.produced_E_forward;
-                reverse_term *= -rhs_data.consumed_E_reverse;
-            }
-            else if (rhs_data.species_F == spec) {
-                forward_term *= rhs_data.produced_F_forward;
-                reverse_term *= -rhs_data.consumed_F_reverse;
-            }
-            else {
-                forward_term = 0.0_rt;
-                reverse_term = 0.0_rt;
-            }
-
-            // Scale by aion to get dX/dt instead of dY/dt.
-            forward_term *= aion[spec - 1];
-            reverse_term *= aion[spec - 1];
-
-            dXdt(spec) += forward_term + reverse_term;
-        }
-    }
-
-    // Determine the corresponding energy and temperature RHS.
-
-    Array1D<Real, 1, NumSpec> dYdt;
-    for (int n = 1; n <= NumSpec; ++n) {
-        dYdt(n) = dXdt(n) * aion_inv[n - 1];
-    }
-
-    dedt = ener_rhs(state, dYdt);
-
-    state.n_rhs += 1;
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, Real dt)
 {
     initialize_state(state);
@@ -240,16 +128,21 @@ void actual_integrator (burn_t& state, Real dt)
 
         // Evaluate the RHS.
 
-        Array1D<Real, 1, NumSpec> dXdt;
-        Real dedt;
+        Array1D<Real, 1, neqs> ydot;
 
-        evaluate_rhs(state, dXdt, dedt);
+        actual_rhs(state, ydot);
 
         state.n_rhs += 1;
 
+        // Scale species terms by A (they come from the RHS in terms of Y, not X).
+
+        for (int n = 1; n <= NumSpec; ++n) {
+            ydot(n) *= aion[n-1];
+        }
+
         // Calculate the timestep.
 
-        Real dt_sub = calculate_dt(state, dXdt, dedt);
+        Real dt_sub = calculate_dt(state, ydot);
 
         // Prevent the timestep from overshooting the final time.
 
@@ -258,11 +151,11 @@ void actual_integrator (burn_t& state, Real dt)
         }
 
         for (int n = 1; n <= NumSpec; ++n) {
-            state.xn[n-1] += dXdt(n) * dt_sub;
+            state.xn[n-1] += ydot(n) * dt_sub;
         }
 
         if (integrate_energy) {
-            state.e += dedt * dt_sub;
+            state.e += ydot(net_ienuc) * dt_sub;
         }
 
         clean_state(state);
