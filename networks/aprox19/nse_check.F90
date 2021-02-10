@@ -13,7 +13,7 @@ contains
     type(burn_t), intent(in) :: burn_state
     integer, intent(out) :: nse_check
 
-    real(rt) Fe_group, C_group, He_group
+    real(rt) Fe_group, C_group, He_group, SI_group, O_group
 
     !$gpu
 
