@@ -2,7 +2,7 @@ module nse_check_module
 
   use network
   use burn_type_module, only : burn_t
-  use extern_probin_module, only : rho_nse, T_nse, C_nse, He_Fe_nse
+  use extern_probin_module, only : rho_nse, T_nse, C_nse, He_Fe_nse, O_nse, Si_nse
 
   implicit none
 
