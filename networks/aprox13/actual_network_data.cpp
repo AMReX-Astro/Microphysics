@@ -45,7 +45,8 @@ void actual_network_init()
         names[He4_He4_He4_to_C12_forward-1] = "r3a";
         names[He4_He4_He4_to_C12_reverse-1] = "rg3a";
         names[C12_He4_to_O16_forward-1]     = "rcag";
-        names[C12_C12_forward-1]            = "r1212";
+        names[C12_C12_to_Ne20_He4_forward-1] = "r1212";
+        names[C12_C12_to_Ne20_He4_reverse-1] = "r1212_reverse";
         names[C12_O16_forward-1]            = "r1216";
         names[O16_O16_forward-1]            = "r1616";
         names[C12_He4_to_O16_reverse-1]     = "roga";
