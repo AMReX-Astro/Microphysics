@@ -986,11 +986,11 @@ void screen_aprox19 (Real btemp, Real bden,
     // fe52(n,g)fe53(n,g)fe54 equilibrium links
 
     ratdum(ir1f54) = 0.0_rt;
-    dratdumdy1(ir1f54) = 0.0_rt;
+    //dratdumdy1(ir1f54) = 0.0_rt;
     dratdumdt(ir1f54)  = 0.0_rt;
     //dratdumdd(ir1f54)  = 0.0_rt;
     ratdum(ir2f54) = 0.0_rt;
-    dratdumdy1(ir2f54) = 0.0_rt;
+    //dratdumdy1(ir2f54) = 0.0_rt;
     dratdumdt(ir2f54)  = 0.0_rt;
     //dratdumdd(ir2f54)  = 0.0_rt;
 
@@ -1002,12 +1002,12 @@ void screen_aprox19 (Real btemp, Real bden,
        zz      = 1.0e0_rt/denom;
 
        ratdum(ir1f54)     = ratdum(ir54gn)*ratdum(ir53gn)*zz;
-       dratdumdy1(ir1f54) = -ratdum(ir1f54)*zz * ratdum(ir53ng);
+       //dratdumdy1(ir1f54) = -ratdum(ir1f54)*zz * ratdum(ir53ng);
        dratdumdt(ir1f54)  = dratdumdt(ir54gn)*ratdum(ir53gn)*zz + ratdum(ir54gn)*dratdumdt(ir53gn)*zz - ratdum(ir1f54)*zz*denomdt;
        //dratdumdd(ir1f54)  = dratdumdd(ir54gn)*ratdum(ir53gn)*zz + ratdum(ir54gn)*dratdumdd(ir53gn)*zz - ratdum(ir1f54)*zz*denomdd;
 
        ratdum(ir2f54)     = ratdum(ir52ng)*ratdum(ir53ng)*zz;
-       dratdumdy1(ir2f54) = -ratdum(ir2f54)*zz * ratdum(ir53ng);
+       //dratdumdy1(ir2f54) = -ratdum(ir2f54)*zz * ratdum(ir53ng);
        dratdumdt(ir2f54)  = dratdumdt(ir52ng)*ratdum(ir53ng)*zz + ratdum(ir52ng)*dratdumdt(ir53ng)*zz - ratdum(ir2f54)*zz*denomdt;
        //dratdumdd(ir2f54)  = dratdumdd(ir52ng)*ratdum(ir53ng)*zz + ratdum(ir52ng)*dratdumdd(ir53ng)*zz - ratdum(ir2f54)*zz*denomdd;
     }
@@ -1100,13 +1100,13 @@ void screen_aprox19 (Real btemp, Real bden,
     // p(n,g)h2(p,g)he3(n,g)he4
 
     ratdum(iralf1)     = 0.0_rt;
-    dratdumdy1(iralf1) = 0.0_rt;
-    dratdumdy2(iralf1) = 0.0_rt;
+    //dratdumdy1(iralf1) = 0.0_rt;
+    //dratdumdy2(iralf1) = 0.0_rt;
     dratdumdt(iralf1)  = 0.0_rt;
     //dratdumdd(iralf1)  = 0.0_rt;
     ratdum(iralf2)     = 0.0_rt;
-    dratdumdy1(iralf2) = 0.0_rt;
-    dratdumdy2(iralf2) = 0.0_rt;
+    //dratdumdy1(iralf2) = 0.0_rt;
+    //dratdumdy2(iralf2) = 0.0_rt;
     dratdumdt(iralf2)  = 0.0_rt;
     //dratdumdd(iralf2)  = 0.0_rt;
 
@@ -1125,8 +1125,8 @@ void screen_aprox19 (Real btemp, Real bden,
        zz = 1.0e0_rt/denom;
 
        ratdum(iralf1)     = ratdum(irhegn) * ratdum(irhegp) * ratdum(irdgn) * zz;
-       dratdumdy1(iralf1) = -ratdum(iralf1) * zz * (ratdum(irheng)*ratdum(irdgn) + y(P)*ratdum(irheng)*ratdum(irdpg));
-       dratdumdy2(iralf1) = -ratdum(iralf1) * zz * y(N) * ratdum(irheng) * ratdum(irdpg);
+       //dratdumdy1(iralf1) = -ratdum(iralf1) * zz * (ratdum(irheng)*ratdum(irdgn) + y(P)*ratdum(irheng)*ratdum(irdpg));
+       //dratdumdy2(iralf1) = -ratdum(iralf1) * zz * y(N) * ratdum(irheng) * ratdum(irdpg);
        dratdumdt(iralf1)  = dratdumdt(irhegn)*ratdum(irhegp) * ratdum(irdgn) * zz
             + ratdum(irhegn)*dratdumdt(irhegp)*ratdum(irdgn)*zz
             + ratdum(irhegn)*ratdum(irhegp)*dratdumdt(irdgn)*zz
@@ -1138,8 +1138,8 @@ void screen_aprox19 (Real btemp, Real bden,
 
 
        ratdum(iralf2)     = ratdum(irheng)*ratdum(irdpg) * ratdum(irhng)*zz;
-       dratdumdy1(iralf2) = -ratdum(iralf2) * zz * (ratdum(irheng)*ratdum(irdgn) + y(P)*ratdum(irheng)*ratdum(irdpg));
-       dratdumdy2(iralf2) = -ratdum(iralf2) * zz * y(N) * ratdum(irheng) * ratdum(irdpg);
+       //dratdumdy1(iralf2) = -ratdum(iralf2) * zz * (ratdum(irheng)*ratdum(irdgn) + y(P)*ratdum(irheng)*ratdum(irdpg));
+       //dratdumdy2(iralf2) = -ratdum(iralf2) * zz * y(N) * ratdum(irheng) * ratdum(irdpg);
        dratdumdt(iralf2)  = dratdumdt(irheng)*ratdum(irdpg) * ratdum(irhng) * zz
             + ratdum(irheng)*dratdumdt(irdpg)*ratdum(irhng)*zz
             + ratdum(irheng)*ratdum(irdpg)*dratdumdt(irhng)*zz
@@ -1159,11 +1159,11 @@ void screen_aprox19 (Real btemp, Real bden,
        xx            = 0.896e0_rt/y(He4);
        ratdum(irhe3ag)  = amrex::min(ratdum(irhe3ag),xx);
        if (ratdum(irhe3ag) == xx) {
-          dratdumdy1(irhe3ag) = -xx/y(He4);
+          //dratdumdy1(irhe3ag) = -xx/y(He4);
           dratdumdt(irhe3ag)  = 0.0_rt;
           //dratdumdd(irhe3ag)  = 0.0_rt;
        } else {
-           dratdumdy1(irhe3ag) = 0.0_rt;
+           //dratdumdy1(irhe3ag) = 0.0_rt;
        }
     }
 
@@ -1174,11 +1174,11 @@ void screen_aprox19 (Real btemp, Real bden,
        xx = 5.68e-03_rt/(y(H1)*1.57e0_rt);
        ratdum(irnpg) = amrex::min(ratdum(irnpg),xx);
        if (ratdum(irnpg) == xx) {
-           dratdumdy1(irnpg) = -xx/y(H1);
+           //dratdumdy1(irnpg) = -xx/y(H1);
            dratdumdt(irnpg)  = 0.0_rt;
            //dratdumdd(irnpg)  = 0.0_rt;
        } else {
-           dratdumdy1(irnpg) = 0.0_rt;
+           //dratdumdy1(irnpg) = 0.0_rt;
        }
 
        xx = 0.0105e0_rt/y(H1);

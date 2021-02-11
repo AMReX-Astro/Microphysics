@@ -1862,11 +1862,11 @@ contains
     ! fe52(n,g)fe53(n,g)fe54 equilibrium links
 
     ratdum(ir1f54) = ZERO
-    dratdumdy1(ir1f54) = ZERO
+    !dratdumdy1(ir1f54) = ZERO
     dratdumdt(ir1f54)  = ZERO
     !dratdumdd(ir1f54)  = ZERO
     ratdum(ir2f54) = ZERO
-    dratdumdy1(ir2f54) = ZERO
+    !dratdumdy1(ir2f54) = ZERO
     dratdumdt(ir2f54)  = ZERO
     !dratdumdd(ir2f54)  = ZERO
 
@@ -1878,12 +1878,12 @@ contains
        zz      = 1.0e0_rt/denom
 
        ratdum(ir1f54)     = ratdum(ir54gn)*ratdum(ir53gn)*zz
-       dratdumdy1(ir1f54) = -ratdum(ir1f54)*zz * ratdum(ir53ng)
+       !dratdumdy1(ir1f54) = -ratdum(ir1f54)*zz * ratdum(ir53ng)
        dratdumdt(ir1f54)  = dratdumdt(ir54gn)*ratdum(ir53gn)*zz + ratdum(ir54gn)*dratdumdt(ir53gn)*zz - ratdum(ir1f54)*zz*denomdt
        !dratdumdd(ir1f54)  = dratdumdd(ir54gn)*ratdum(ir53gn)*zz + ratdum(ir54gn)*dratdumdd(ir53gn)*zz - ratdum(ir1f54)*zz*denomdd
 
        ratdum(ir2f54)     = ratdum(ir52ng)*ratdum(ir53ng)*zz
-       dratdumdy1(ir2f54) = -ratdum(ir2f54)*zz * ratdum(ir53ng)
+       !dratdumdy1(ir2f54) = -ratdum(ir2f54)*zz * ratdum(ir53ng)
        dratdumdt(ir2f54)  = dratdumdt(ir52ng)*ratdum(ir53ng)*zz + ratdum(ir52ng)*dratdumdt(ir53ng)*zz - ratdum(ir2f54)*zz*denomdt
        !dratdumdd(ir2f54)  = dratdumdd(ir52ng)*ratdum(ir53ng)*zz + ratdum(ir52ng)*dratdumdd(ir53ng)*zz - ratdum(ir2f54)*zz*denomdd
     end if
@@ -1892,11 +1892,11 @@ contains
     ! fe54(n,g)fe55(n,g)fe56 equilibrium links
 
     ratdum(irfe56_aux1) = ZERO
-    dratdumdy1(irfe56_aux1) = ZERO
+    !dratdumdy1(irfe56_aux1) = ZERO
     dratdumdt(irfe56_aux1)  = ZERO
     !dratdumdd(irfe56_aux1)  = ZERO
     ratdum(irfe56_aux2) = ZERO
-    dratdumdy1(irfe56_aux2) = ZERO
+    !dratdumdy1(irfe56_aux2) = ZERO
     dratdumdt(irfe56_aux2)  = ZERO
     !dratdumdd(irfe56_aux2)  = ZERO
 
@@ -1908,14 +1908,14 @@ contains
        zz      = 1.0e0_rt/denom
 
        ratdum(irfe56_aux1)     = ratdum(ir56gn)*ratdum(ir55gn)*zz
-       dratdumdy1(irfe56_aux1) = -ratdum(irfe56_aux1)*zz * ratdum(ir55ng)
+       !dratdumdy1(irfe56_aux1) = -ratdum(irfe56_aux1)*zz * ratdum(ir55ng)
        dratdumdt(irfe56_aux1)  = dratdumdt(ir56gn)*ratdum(ir55gn)*zz &
                                + ratdum(ir56gn)*dratdumdt(ir55gn)*zz - ratdum(irfe56_aux1)*zz*denomdt
        !dratdumdd(irfe56_aux1)  = dratdumdd(ir56gn)*ratdum(ir55gn)*zz &
        !                        + ratdum(ir56gn)*dratdumdd(ir55gn)*zz - ratdum(irfe56_aux1)*zz*denomdd
 
        ratdum(irfe56_aux2)     = ratdum(ir54ng)*ratdum(ir55ng)*zz
-       dratdumdy1(irfe56_aux2) = -ratdum(irfe56_aux2)*zz * ratdum(ir55ng)
+       !dratdumdy1(irfe56_aux2) = -ratdum(irfe56_aux2)*zz * ratdum(ir55ng)
        dratdumdt(irfe56_aux2)  = dratdumdt(ir54ng)*ratdum(ir55ng)*zz &
                                + ratdum(ir54ng)*dratdumdt(ir55ng)*zz - ratdum(irfe56_aux2)*zz*denomdt
        !dratdumdd(irfe56_aux2)  = dratdumdd(ir54ng)*ratdum(ir55ng)*zz &
@@ -1926,11 +1926,11 @@ contains
     ! fe54(a,p)co57(g,p)fe56 equilibrium links
 
     ratdum(irfe56_aux3)     = ZERO
-    dratdumdy1(irfe56_aux3) = ZERO
+    !dratdumdy1(irfe56_aux3) = ZERO
     dratdumdt(irfe56_aux3)  = ZERO
     !dratdumdd(irfe56_aux3)  = ZERO
     ratdum(irfe56_aux4)     = ZERO
-    dratdumdy1(irfe56_aux4) = ZERO
+    !dratdumdy1(irfe56_aux4) = ZERO
     dratdumdt(irfe56_aux4)  = ZERO
     !dratdumdd(irfe56_aux4)  = ZERO
 
@@ -1942,14 +1942,14 @@ contains
        zz      = 1.0e0_rt/denom
 
        ratdum(irfe56_aux3)     = ratdum(irfe56pg) * ratdum(irco57pa) * zz
-       dratdumdy1(irfe56_aux3) = -ratdum(irfe56_aux3) * zz * ratdum(irco57pa)
+       !dratdumdy1(irfe56_aux3) = -ratdum(irfe56_aux3) * zz * ratdum(irco57pa)
        dratdumdt(irfe56_aux3)  = dratdumdt(irfe56pg) * ratdum(irco57pa) * zz &
                                + ratdum(irfe56pg) * dratdumdt(irco57pa) * zz - ratdum(irfe56_aux3) * zz * denomdt
        !dratdumdd(irfe56_aux3)  = dratdumdd(irfe56pg) * ratdum(irco57pa) * zz &
        !                        + ratdum(irfe56pg) * dratdumdd(irco57pa) * zz - ratdum(irfe56_aux3) * zz * denomdd
 
        ratdum(irfe56_aux4)     = ratdum(irfe54ap) * ratdum(irco57gp) * zz
-       dratdumdy1(irfe56_aux4) = -ratdum(irfe56_aux4) * zz * ratdum(irco57pa)
+       !dratdumdy1(irfe56_aux4) = -ratdum(irfe56_aux4) * zz * ratdum(irco57pa)
        dratdumdt(irfe56_aux4)  = dratdumdt(irfe54ap) * ratdum(irco57gp) * zz &
                                + ratdum(irfe54ap) * dratdumdt(irco57gp) * zz - ratdum(irfe56_aux4) * zz * denomdt
        !dratdumdd(irfe56_aux4)  = dratdumdd(irfe54ap) * ratdum(irco57gp) * zz &
@@ -1962,27 +1962,27 @@ contains
     ! fe52(a,p)co55(p,g)ni56 equilibrium links r7f54 r8f54
 
     ratdum(ir3f54) = ZERO
-    dratdumdy1(ir3f54) = ZERO
+    !dratdumdy1(ir3f54) = ZERO
     dratdumdt(ir3f54) = ZERO
     !dratdumdd(ir3f54) = ZERO
     ratdum(ir4f54) = ZERO
-    dratdumdy1(ir4f54) = ZERO
+    !dratdumdy1(ir4f54) = ZERO
     dratdumdt(ir4f54) = ZERO
     !dratdumdd(ir4f54) = ZERO
     ratdum(ir5f54) = ZERO
-    dratdumdy1(ir5f54) = ZERO
+    !dratdumdy1(ir5f54) = ZERO
     dratdumdt(ir5f54) = ZERO
     !dratdumdd(ir5f54) = ZERO
     ratdum(ir6f54) = ZERO
-    dratdumdy1(ir6f54) = ZERO
+    !dratdumdy1(ir6f54) = ZERO
     dratdumdt(ir6f54) = ZERO
     !dratdumdd(ir6f54) = ZERO
     ratdum(ir7f54) = ZERO
-    dratdumdy1(ir7f54) = ZERO
+    !dratdumdy1(ir7f54) = ZERO
     dratdumdt(ir7f54) = ZERO
     !dratdumdd(ir7f54) = ZERO
     ratdum(ir8f54) = ZERO
-    dratdumdy1(ir8f54) = ZERO
+    !dratdumdy1(ir8f54) = ZERO
     dratdumdt(ir8f54) = ZERO
     !dratdumdd(ir8f54) = ZERO
 
@@ -1996,42 +1996,42 @@ contains
        zz      = 1.0e0_rt/denom
 
        ratdum(ir3f54)     = ratdum(irfepg) * ratdum(ircopg) * zz
-       dratdumdy1(ir3f54) = -ratdum(ir3f54) * zz * (ratdum(ircopg) + ratdum(ircopa))
+       !dratdumdy1(ir3f54) = -ratdum(ir3f54) * zz * (ratdum(ircopg) + ratdum(ircopa))
        dratdumdt(ir3f54)  = dratdumdt(irfepg) * ratdum(ircopg) * zz &
                           + ratdum(irfepg) * dratdumdt(ircopg) * zz - ratdum(ir3f54)*zz*denomdt
        !dratdumdd(ir3f54)  = dratdumdd(irfepg) * ratdum(ircopg) * zz &
        !                   + ratdum(irfepg) * dratdumdd(ircopg) * zz - ratdum(ir3f54)*zz*denomdd
 
        ratdum(ir4f54)     = ratdum(irnigp) * ratdum(ircogp) * zz
-       dratdumdy1(ir4f54) = -ratdum(ir4f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
+       !dratdumdy1(ir4f54) = -ratdum(ir4f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
        dratdumdt(ir4f54)  =  dratdumdt(irnigp) * ratdum(ircogp) * zz &
                           + ratdum(irnigp) * dratdumdt(ircogp) * zz - ratdum(ir4f54)*zz*denomdt
        !dratdumdd(ir4f54)  = dratdumdd(irnigp) * ratdum(ircogp) * zz &
        !                   + ratdum(irnigp) * dratdumdd(ircogp) * zz  - ratdum(ir4f54)*zz*denomdd
 
        ratdum(ir5f54)     = ratdum(irfepg) * ratdum(ircopa) * zz
-       dratdumdy1(ir5f54) = -ratdum(ir5f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
+       !dratdumdy1(ir5f54) = -ratdum(ir5f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
        dratdumdt(ir5f54)  = dratdumdt(irfepg) * ratdum(ircopa) * zz &
                           + ratdum(irfepg) * dratdumdt(ircopa) * zz - ratdum(ir5f54) * zz * denomdt
        !dratdumdd(ir5f54)  = dratdumdd(irfepg) * ratdum(ircopa) * zz &
        !                   + ratdum(irfepg) * dratdumdd(ircopa) * zz - ratdum(ir5f54) * zz * denomdd
 
        ratdum(ir6f54)     = ratdum(irfeap) * ratdum(ircogp) * zz
-       dratdumdy1(ir6f54) = -ratdum(ir6f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
+       !dratdumdy1(ir6f54) = -ratdum(ir6f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
        dratdumdt(ir6f54)  = dratdumdt(irfeap) * ratdum(ircogp) * zz &
                           + ratdum(irfeap) * dratdumdt(ircogp) * zz - ratdum(ir6f54) * zz * denomdt
        !dratdumdd(ir6f54)  = dratdumdd(irfeap) * ratdum(ircogp) * zz &
        !                   + ratdum(irfeap) * dratdumdd(ircogp) * zz - ratdum(ir6f54) * zz * denomdd
 
        ratdum(ir7f54)     = ratdum(irfeap) * ratdum(ircopg) * zz
-       dratdumdy1(ir7f54) = -ratdum(ir7f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
+       !dratdumdy1(ir7f54) = -ratdum(ir7f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
        dratdumdt(ir7f54)  = dratdumdt(irfeap) * ratdum(ircopg) * zz &
                           + ratdum(irfeap) * dratdumdt(ircopg) * zz - ratdum(ir7f54) * zz * denomdt
        !dratdumdd(ir7f54)  = dratdumdd(irfeap) * ratdum(ircopg) * zz &
        !                   + ratdum(irfeap) * dratdumdd(ircopg) * zz - ratdum(ir7f54) * zz * denomdd
 
        ratdum(ir8f54)     = ratdum(irnigp) * ratdum(ircopa) * zz
-       dratdumdy1(ir8f54) = -ratdum(ir8f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
+       !dratdumdy1(ir8f54) = -ratdum(ir8f54) * zz * (ratdum(ircopg)+ratdum(ircopa))
        dratdumdt(ir8f54)  = dratdumdt(irnigp) * ratdum(ircopa) * zz &
                           + ratdum(irnigp) * dratdumdt(ircopa) * zz - ratdum(ir8f54) * zz * denomdt
        !dratdumdd(ir8f54)  = dratdumdd(irnigp) * ratdum(ircopa) * zz &
@@ -2043,13 +2043,13 @@ contains
     ! p(n,g)h2(p,g)he3(n,g)he4
 
     ratdum(iralf1)     = ZERO
-    dratdumdy1(iralf1) = ZERO
-    dratdumdy2(iralf1) = ZERO
+    !dratdumdy1(iralf1) = ZERO
+    !dratdumdy2(iralf1) = ZERO
     dratdumdt(iralf1)  = ZERO
     !dratdumdd(iralf1)  = ZERO
     ratdum(iralf2)     = ZERO
-    dratdumdy1(iralf2) = ZERO
-    dratdumdy2(iralf2) = ZERO
+    !dratdumdy1(iralf2) = ZERO
+    !dratdumdy2(iralf2) = ZERO
     dratdumdt(iralf2)  = ZERO
     !dratdumdd(iralf2)  = ZERO
 
@@ -2068,8 +2068,8 @@ contains
        zz = 1.0e0_rt/denom
 
        ratdum(iralf1)     = ratdum(irhegn) * ratdum(irhegp) * ratdum(irdgn) * zz
-       dratdumdy1(iralf1) = -ratdum(iralf1) * zz * (ratdum(irheng)*ratdum(irdgn) + y(iprot)*ratdum(irheng)*ratdum(irdpg))
-       dratdumdy2(iralf1) = -ratdum(iralf1) * zz * y(ineut) * ratdum(irheng) * ratdum(irdpg)
+       !dratdumdy1(iralf1) = -ratdum(iralf1) * zz * (ratdum(irheng)*ratdum(irdgn) + y(iprot)*ratdum(irheng)*ratdum(irdpg))
+       !dratdumdy2(iralf1) = -ratdum(iralf1) * zz * y(ineut) * ratdum(irheng) * ratdum(irdpg)
        dratdumdt(iralf1)  = dratdumdt(irhegn)*ratdum(irhegp) * ratdum(irdgn) * zz &
             + ratdum(irhegn)*dratdumdt(irhegp)*ratdum(irdgn)*zz &
             + ratdum(irhegn)*ratdum(irhegp)*dratdumdt(irdgn)*zz &
@@ -2081,8 +2081,8 @@ contains
 
 
        ratdum(iralf2)     = ratdum(irheng)*ratdum(irdpg) * ratdum(irhng)*zz
-       dratdumdy1(iralf2) = -ratdum(iralf2) * zz * (ratdum(irheng)*ratdum(irdgn) + y(iprot)*ratdum(irheng)*ratdum(irdpg))
-       dratdumdy2(iralf2) = -ratdum(iralf2) * zz * y(ineut) * ratdum(irheng) * ratdum(irdpg)
+       !dratdumdy1(iralf2) = -ratdum(iralf2) * zz * (ratdum(irheng)*ratdum(irdgn) + y(iprot)*ratdum(irheng)*ratdum(irdpg))
+       !dratdumdy2(iralf2) = -ratdum(iralf2) * zz * y(ineut) * ratdum(irheng) * ratdum(irdpg)
        dratdumdt(iralf2)  = dratdumdt(irheng)*ratdum(irdpg) * ratdum(irhng) * zz &
             + ratdum(irheng)*dratdumdt(irdpg)*ratdum(irhng)*zz &
             + ratdum(irheng)*ratdum(irdpg)*dratdumdt(irhng)*zz &
@@ -2102,11 +2102,11 @@ contains
        xx            = 0.896e0_rt/y(ihe4)
        ratdum(irhe3ag)  = min(ratdum(irhe3ag),xx)
        if (ratdum(irhe3ag) .eq. xx) then
-          dratdumdy1(irhe3ag) = -xx/y(ihe4)
+          !dratdumdy1(irhe3ag) = -xx/y(ihe4)
           dratdumdt(irhe3ag)  = ZERO
           !dratdumdd(irhe3ag)  = ZERO
        else
-          dratdumdy1(irhe3ag) = ZERO
+          !dratdumdy1(irhe3ag) = ZERO
        endif
     endif
 
@@ -2117,21 +2117,21 @@ contains
        xx = 5.68e-03_rt/(y(ih1)*1.57e0_rt)
        ratdum(irnpg) = min(ratdum(irnpg),xx)
        if (ratdum(irnpg) .eq. xx) then
-          dratdumdy1(irnpg) = -xx/y(ih1)
+          !dratdumdy1(irnpg) = -xx/y(ih1)
           dratdumdt(irnpg)  = ZERO
           !dratdumdd(irnpg)  = ZERO
        else
-          dratdumdy1(irnpg) = ZERO
+          !dratdumdy1(irnpg) = ZERO
        end if
 
        xx = 0.0105e0_rt/y(ih1)
        ratdum(iropg) = min(ratdum(iropg),xx)
        if (ratdum(iropg) .eq. xx) then
-          dratdumdy1(iropg) = -xx/y(ih1)
+          !dratdumdy1(iropg) = -xx/y(ih1)
           dratdumdt(iropg)  = ZERO
           !dratdumdd(iropg)  = ZERO
        else
-          dratdumdy1(iropg) = ZERO
+          !dratdumdy1(iropg) = ZERO
        end if
     end if
 
