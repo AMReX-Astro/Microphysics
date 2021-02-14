@@ -77,6 +77,11 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_to_burn(vode_state, state);
 
+    // Subtract off the initial energy (the application codes expect
+    // to get back only the generated energy during the burn).
+
+    state.e -= e_in;
+
     // Normalize the final abundances.
 
     normalize_abundances_burn(state);
