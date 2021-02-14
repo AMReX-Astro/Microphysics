@@ -114,7 +114,6 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
         dtab(ircopa) = bden;
         dtab(ircopg) = bden;
         dtab(irnigp) = 1.0e0_rt;
-        dtab(irr1)   = 0.0e0_rt;
         dtab(irs1)   = 0.0e0_rt;
         dtab(irt1)   = 0.0e0_rt;
         dtab(iru1)   = 0.0e0_rt;
@@ -848,16 +847,24 @@ void screen_aprox13(const Real btemp, const Real bden,
     // now form those lovely dummy proton link rates
 
     // mg24(a,p)27al(p,g)28si
-    rr(1).rates(irr1)  = 0.0e0_rt;
-    rr(2).rates(irr1)  = 0.0e0_rt;
+    Real rate_irr1    = 0.0e0_rt;
+    Real dratedt_irr1 = 0.0e0_rt;
     denom    = rr(1).rates(iralpa) + rr(1).rates(iralpg);
     denomdt  = rr(2).rates(iralpa) + rr(2).rates(iralpg);
 
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rr(1).rates(irr1) = rr(1).rates(iralpa)*zz;
-       rr(2).rates(irr1) = (rr(2).rates(iralpa) - rr(1).rates(irr1)*denomdt)*zz;
+       rate_irr1    = rr(1).rates(iralpa)*zz;
+       dratedt_irr1 = (rr(2).rates(iralpa) - rate_irr1*denomdt)*zz;
     }
+
+    // add to the effective Mg24 <-> Si28 rates
+
+    rr(1).rates(Mg24_He4_to_Si28_forward) += rr(1).rates(irmgap) * (1.0_rt - rate_irr1);
+    rr(2).rates(Mg24_He4_to_Si28_forward) += rr(2).rates(irmgap) * (1.0_rt - rate_irr1) - rr(1).rates(irmgap) * dratedt_irr1;
+
+    rr(1).rates(Mg24_He4_to_Si28_reverse) += rr(1).rates(irsigp) * rate_irr1;
+    rr(2).rates(Mg24_He4_to_Si28_reverse) += rr(2).rates(irsigp) * rate_irr1 + rr(1).rates(irsigp) * dratedt_irr1;
 
     // si28(a,p)p31(p,g)s32
     rr(1).rates(irs1)  = 0.0e0_rt;
@@ -992,7 +999,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
             -y(Ti44) * rr(1).rates(Ti44_He4_to_Cr48_forward),
             -y(Cr48) * rr(1).rates(Cr48_He4_to_Fe52_forward),
             -y(Fe52) * rr(1).rates(Fe52_He4_to_Ni56_forward),
-            -y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1)),
+            0.0_rt, // previously Mg24 -> Al27 -> Si28
             -y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1)),
             -y(S32)  * rr(1).rates(irsap)  * (1.0e0_rt-rr(1).rates(irt1)),
             -y(Ar36) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1)),
@@ -1033,7 +1040,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         b(1) =  rr(1).rates(Mg24_He4_to_Si28_reverse);
         b(2) = -y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
         b(3) = -y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
-        b(4) =  rr(1).rates(irr1) * rr(1).rates(irsigp);
+        b(4) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
 
         jac(He4,Si28) = esum4(b);
 
@@ -1105,7 +1112,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // d(si28)/d(he4)
         b(1) =  y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward);
         b(2) = -y(Si28) * rr(1).rates(Si28_He4_to_S32_forward);
-        b(3) =  y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
         b(4) = -y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
 
         jac(Si28,He4) = esum4(b);
@@ -1113,7 +1120,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // d(si28)/d(si28)
         b(1) =  -y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
         b(2) = -rr(1).rates(Mg24_He4_to_Si28_reverse);
-        b(3) = -rr(1).rates(irr1) * rr(1).rates(irsigp);
+        b(3) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
         b(4) = -y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
 
         jac(Si28,Si28) = esum4(b);
@@ -1227,7 +1234,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // d(he4)/d(mg24)
         b(1) =  rr(1).rates(Ne20_He4_to_Mg24_reverse);
         b(2) = -y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
-        b(3) = -y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(He4,Mg24) = esum3(b);
 
@@ -1235,14 +1242,14 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // d(mg24)/d(he4)
         b(1) =  y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward);
         b(2) = -y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward);
-        b(3) = -y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(Mg24,He4) = esum3(b);
 
         // d(mg24)/d(mg24)
         b(1) = -y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
         b(2) = -rr(1).rates(Ne20_He4_to_Mg24_reverse);
-        b(3) = -y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(Mg24,Mg24) = esum3(b);
 
@@ -1310,13 +1317,13 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // d(mg24)/d(si28)
         b(1) = rr(1).rates(Mg24_He4_to_Si28_reverse);
-        b(2) = rr(1).rates(irr1) * rr(1).rates(irsigp);
+        b(2) = 0.0_rt; // previously Si28 -> Al27 -> Mg24
 
         jac(Mg24,Si28) = b(1) + b(2);
 
         // d(si28)/d(mg24)
         b(1) =  y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
-        b(2) =  y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(2) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(Si28,Mg24) = b(1) + b(2);
 
@@ -1536,8 +1543,8 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     if (!deriva) {
 
        a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(O16_O16_forward);
-       a(2)  = -y(He4)  * y(Mg24) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
-       a(3)  =  y(Si28) * rr(index_rate).rates(irsigp) * rr(index_rate).rates(irr1);
+       a(2)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(3)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
        a(4)  = -y(He4)  * y(Si28) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
        a(5)  =  y(S32)  * rr(index_rate).rates(irsgp) * rr(index_rate).rates(irs1);
        a(6)  = -y(He4)  * y(S32) * rr(index_rate).rates(irsap)*(1.0e0_rt-rr(index_rate).rates(irt1));
@@ -1559,10 +1566,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
        a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1) * rr(index_rate).rates(O16_O16_forward);
        a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1) * rr(1).rates(O16_O16_forward);
-       a(3)  = -y(He4)*y(Mg24) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
-       a(4)  =  y(He4)*y(Mg24) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
-       a(5)  =  y(Si28) * rr(1).rates(irsigp) * rr(index_rate).rates(irr1);
-       a(6)  =  y(Si28) * rr(index_rate).rates(irsigp) * rr(1).rates(irr1);
+       a(3)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(4)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(5)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
+       a(6)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
        a(7)  = -y(He4)*y(Si28) * rr(index_rate).rates(irsiap)*(1.0e0_rt - rr(1).rates(irs1));
        a(8)  =  y(He4)*y(Si28) * rr(1).rates(irsiap) * rr(index_rate).rates(irs1);
        a(9)  =  y(S32)  * rr(1).rates(irsgp) * rr(index_rate).rates(irs1);
@@ -1645,17 +1652,17 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     if (!deriva) {
 
-       a(1) = -y(Mg24) * y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
-       a(2) =  y(Si28) * rr(index_rate).rates(irr1) * rr(index_rate).rates(irsigp);
+       a(1) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(2) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
 
        dydt(Mg24) = dydt(Mg24) + a(1) + a(2);
 
     } else {
 
-       a(1) = -y(Mg24)*y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
-       a(2) =  y(Mg24)*y(He4) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
-       a(3) =  y(Si28) * rr(1).rates(irr1) * rr(index_rate).rates(irsigp);
-       a(4) =  y(Si28) * rr(index_rate).rates(irr1) * rr(1).rates(irsigp);
+       a(1) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(2) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(3) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
+       a(4) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
 
        dydt(Mg24) = dydt(Mg24) + esum4(a);
 
@@ -1675,8 +1682,8 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     if (!deriva) {
 
        a(1) =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(O16_O16_forward);
-       a(2) =  y(Mg24) * y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
-       a(3) = -y(Si28) * rr(index_rate).rates(irr1) * rr(index_rate).rates(irsigp);
+       a(2) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(3) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
        a(4) = -y(Si28) * y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
        a(5) =  y(S32)  * rr(index_rate).rates(irs1) * rr(index_rate).rates(irsgp);
 
@@ -1686,10 +1693,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
        a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1)*rr(index_rate).rates(O16_O16_forward);
        a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1)*rr(1).rates(O16_O16_forward);
-       a(3)  =  y(Mg24)*y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
-       a(4)  = -y(Mg24)*y(He4) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
-       a(5)  = -y(Si28) * rr(1).rates(irr1) * rr(index_rate).rates(irsigp);
-       a(6)  = -y(Si28) * rr(index_rate).rates(irr1) * rr(1).rates(irsigp);
+       a(3)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(4)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+       a(5)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
+       a(6)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
        a(7)  = -y(Si28)*y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt - rr(1).rates(irs1));
        a(8)  =  y(Si28)*y(He4) * rr(1).rates(irsiap)*rr(index_rate).rates(irs1);
        a(9)  = y(S32) * rr(1).rates(irs1) * rr(index_rate).rates(irsgp);
