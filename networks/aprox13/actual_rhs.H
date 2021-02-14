@@ -42,6 +42,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
     using namespace RateTable;
+    using namespace Rates;
 
     constexpr int mp = 4;
 
@@ -49,80 +50,6 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
     Real x, x1, x2, x3, x4;
     Real a, b, c, d, e, f, g, h, p, q;
     Real alfa, beta, gama, delt;
-    Array1D<Real, 1, Rates::NumRates> dtab;
-
-    // Set the density dependence array
-    {
-        using namespace Rates;
-        dtab(He4_He4_He4_to_C12_forward)   = bden*bden;
-        dtab(He4_He4_He4_to_C12_reverse)  = 1.0e0_rt;
-        dtab(C12_He4_to_O16_forward)  = bden;
-        dtab(C12_He4_to_O16_reverse)  = 1.0e0_rt;
-        dtab(C12_C12_to_Ne20_He4_forward) = bden;
-        dtab(C12_C12_to_Ne20_He4_reverse) = bden; // rate is zero in this net
-        dtab(C12_O16_forward) = bden;
-        dtab(O16_O16_forward) = bden;
-        dtab(O16_He4_to_Ne20_forward)  = bden;
-        dtab(O16_He4_to_Ne20_reverse) = 1.0e0_rt;
-        dtab(Ne20_He4_to_Mg24_forward) = bden;
-        dtab(Ne20_He4_to_Mg24_reverse) = 1.0e0_rt;
-        dtab(Mg24_He4_to_Si28_forward) = bden;
-        dtab(Mg24_He4_to_Si28_reverse) = 1.0e0_rt;
-        dtab(irmgap) = bden;
-        dtab(iralpa) = bden;
-        dtab(iralpg) = bden;
-        dtab(irsigp) = 1.0e0_rt;
-        dtab(Si28_He4_to_S32_forward) = bden;
-        dtab(Si28_He4_to_S32_reverse)  = 1.0e0_rt;
-        dtab(irppa)  = bden;
-        dtab(irsiap) = bden;
-        dtab(irppg)  = bden;
-        dtab(irsgp)  = 1.0e0_rt;
-        dtab(S32_He4_to_Ar36_forward)  = bden;
-        dtab(S32_He4_to_Ar36_reverse) = 1.0e0_rt;
-        dtab(irsap)  = bden;
-        dtab(irclpa) = bden;
-        dtab(irclpg) = bden;
-        dtab(irargp) = 1.0e0_rt;
-        dtab(Ar36_He4_to_Ca40_forward) = bden;
-        dtab(Ar36_He4_to_Ca40_reverse) = 1.0e0_rt;
-        dtab(irarap) = bden;
-        dtab(irkpa)  = bden;
-        dtab(irkpg)  = bden;
-        dtab(ircagp) = 1.0e0_rt;
-        dtab(Ca40_He4_to_Ti44_forward) = bden;
-        dtab(Ca40_He4_to_Ti44_reverse) = 1.0e0_rt;
-        dtab(ircaap) = bden;
-        dtab(irscpa) = bden;
-        dtab(irscpg) = bden;
-        dtab(irtigp) = 1.0e0_rt;
-        dtab(Ti44_He4_to_Cr48_forward) = bden;
-        dtab(Ti44_He4_to_Cr48_reverse) = 1.0e0_rt;
-        dtab(irtiap) = bden;
-        dtab(irvpa)  = bden;
-        dtab(irvpg)  = bden;
-        dtab(ircrgp) = 1.0e0_rt;
-        dtab(Cr48_He4_to_Fe52_forward) = bden;
-        dtab(Cr48_He4_to_Fe52_reverse) = 1.0e0_rt;
-        dtab(ircrap) = bden;
-        dtab(irmnpa) = bden;
-        dtab(irmnpg) = bden;
-        dtab(irfegp) = 1.0e0_rt;
-        dtab(Fe52_He4_to_Ni56_forward) = bden;
-        dtab(Fe52_He4_to_Ni56_reverse) = 1.0e0_rt;
-        dtab(irfeap) = bden;
-        dtab(ircopa) = bden;
-        dtab(ircopg) = bden;
-        dtab(irnigp) = 1.0e0_rt;
-        dtab(irr1)   = 0.0e0_rt;
-        dtab(irs1)   = 0.0e0_rt;
-        dtab(irt1)   = 0.0e0_rt;
-        dtab(iru1)   = 0.0e0_rt;
-        dtab(irv1)   = 0.0e0_rt;
-        dtab(irw1)   = 0.0e0_rt;
-        dtab(irx1)   = 0.0e0_rt;
-        dtab(iry1)   = 0.0e0_rt;
-    }
 
     // hash locate
     iat = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
@@ -150,17 +77,263 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
     delt = -a*b*c/(g*p*q);
 
     // crank off the raw reaction rates
-    for (int j = 1; j <= Rates::NumRates; ++j) {
+    for (int rate = 1; rate <= Rates::NumRates; ++rate) {
 
-       rr(1).rates(j) = (  alfa * rattab(j,iat  )
-                        + beta * rattab(j,iat+1)
-                        + gama * rattab(j,iat+2)
-                        + delt * rattab(j,iat+3) ) * dtab(j);
+        Real dtab = 0.0_rt;
 
-       rr(2).rates(j) = (  alfa * drattabdt(j,iat  )
-                        + beta * drattabdt(j,iat+1)
-                        + gama * drattabdt(j,iat+2)
-                        + delt * drattabdt(j,iat+3) ) * dtab(j);
+        // Set the density dependence
+        switch (rate) {
+
+        case (He4_He4_He4_to_C12_forward):
+            dtab = bden*bden;
+            break;
+
+        case (He4_He4_He4_to_C12_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (C12_He4_to_O16_forward):
+            dtab = bden;
+            break;
+
+        case (C12_He4_to_O16_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (C12_C12_to_Ne20_He4_forward):
+            dtab = bden;
+            break;
+
+        case (C12_C12_to_Ne20_He4_reverse):
+            dtab = bden; // rate is zero in this net
+            break;
+
+        case (C12_O16_forward):
+            dtab = bden;
+            break;
+
+        case (O16_O16_forward):
+            dtab = bden;
+            break;
+
+        case (O16_He4_to_Ne20_forward):
+            dtab = bden;
+            break;
+
+        case (O16_He4_to_Ne20_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ne20_He4_to_Mg24_forward):
+            dtab = bden;
+            break;
+
+        case (Ne20_He4_to_Mg24_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Mg24_He4_to_Si28_forward):
+            dtab = bden;
+            break;
+
+        case (Mg24_He4_to_Si28_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irmgap):
+            dtab = bden;
+            break;
+
+        case (iralpa):
+            dtab = bden;
+            break;
+
+        case (iralpg):
+            dtab = bden;
+            break;
+
+        case (irsigp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Si28_He4_to_S32_forward):
+            dtab = bden;
+            break;
+
+        case (Si28_He4_to_S32_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irppa):
+            dtab = bden;
+            break;
+
+        case (irsiap):
+            dtab = bden;
+            break;
+
+        case (irppg):
+            dtab = bden;
+            break;
+
+        case (irsgp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (S32_He4_to_Ar36_forward):
+            dtab = bden;
+            break;
+
+        case (S32_He4_to_Ar36_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irsap):
+            dtab = bden;
+            break;
+
+        case (irclpa):
+            dtab = bden;
+            break;
+
+        case (irclpg):
+            dtab = bden;
+            break;
+
+        case (irargp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ar36_He4_to_Ca40_forward):
+            dtab = bden;
+            break;
+
+        case (Ar36_He4_to_Ca40_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irarap):
+            dtab = bden;
+            break;
+
+        case (irkpa):
+            dtab = bden;
+            break;
+
+        case (irkpg):
+            dtab = bden;
+            break;
+
+        case (ircagp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ca40_He4_to_Ti44_forward):
+            dtab = bden;
+            break;
+
+        case (Ca40_He4_to_Ti44_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (ircaap):
+            dtab = bden;
+            break;
+
+        case (irscpa):
+            dtab = bden;
+            break;
+
+        case (irscpg):
+            dtab = bden;
+            break;
+
+        case (irtigp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ti44_He4_to_Cr48_forward):
+            dtab = bden;
+            break;
+
+        case (Ti44_He4_to_Cr48_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irtiap):
+            dtab = bden;
+            break;
+
+        case (irvpa):
+            dtab = bden;
+            break;
+
+        case (irvpg):
+            dtab = bden;
+            break;
+
+        case (ircrgp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Cr48_He4_to_Fe52_forward):
+            dtab = bden;
+            break;
+
+        case (Cr48_He4_to_Fe52_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (ircrap):
+            dtab = bden;
+            break;
+
+        case (irmnpa):
+            dtab = bden;
+            break;
+
+        case (irmnpg):
+            dtab = bden;
+            break;
+
+        case (irfegp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Fe52_He4_to_Ni56_forward):
+            dtab = bden;
+            break;
+
+        case (Fe52_He4_to_Ni56_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irfeap):
+            dtab = bden;
+            break;
+
+        case (ircopa):
+            dtab = bden;
+            break;
+
+        case (ircopg):
+            dtab = bden;
+            break;
+
+        case (irnigp):
+            dtab = 1.0e0_rt;
+            break;
+        }
+
+        rr(1).rates(rate) = (alfa * rattab(rate, iat  ) +
+                             beta * rattab(rate, iat+1) +
+                             gama * rattab(rate, iat+2) +
+                             delt * rattab(rate, iat+3)) * dtab;
+
+        rr(2).rates(rate) = (alfa * drattabdt(rate, iat  ) +
+                             beta * drattabdt(rate, iat+1) +
+                             gama * drattabdt(rate, iat+2) +
+                             delt * drattabdt(rate, iat+3)) * dtab;
 
     }
 }
