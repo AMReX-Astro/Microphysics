@@ -54,61 +54,62 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
     // Set the density dependence array
     {
         using namespace Rates;
-        dtab(ir3a)   = bden*bden;
-        dtab(irg3a)  = 1.0e0_rt;
-        dtab(ircag)  = bden;
-        dtab(iroga)  = 1.0e0_rt;
-        dtab(ir1212) = bden;
-        dtab(ir1216) = bden;
-        dtab(ir1616) = bden;
-        dtab(iroag)  = bden;
-        dtab(irnega) = 1.0e0_rt;
-        dtab(irneag) = bden;
-        dtab(irmgga) = 1.0e0_rt;
-        dtab(irmgag) = bden;
-        dtab(irsiga) = 1.0e0_rt;
+        dtab(He4_He4_He4_to_C12_forward)   = bden*bden;
+        dtab(He4_He4_He4_to_C12_reverse)  = 1.0e0_rt;
+        dtab(C12_He4_to_O16_forward)  = bden;
+        dtab(C12_He4_to_O16_reverse)  = 1.0e0_rt;
+        dtab(C12_C12_to_Ne20_He4_forward) = bden;
+        dtab(C12_C12_to_Ne20_He4_reverse) = bden; // rate is zero in this net
+        dtab(C12_O16_forward) = bden;
+        dtab(O16_O16_forward) = bden;
+        dtab(O16_He4_to_Ne20_forward)  = bden;
+        dtab(O16_He4_to_Ne20_reverse) = 1.0e0_rt;
+        dtab(Ne20_He4_to_Mg24_forward) = bden;
+        dtab(Ne20_He4_to_Mg24_reverse) = 1.0e0_rt;
+        dtab(Mg24_He4_to_Si28_forward) = bden;
+        dtab(Mg24_He4_to_Si28_reverse) = 1.0e0_rt;
         dtab(irmgap) = bden;
         dtab(iralpa) = bden;
         dtab(iralpg) = bden;
         dtab(irsigp) = 1.0e0_rt;
-        dtab(irsiag) = bden;
-        dtab(irsga)  = 1.0e0_rt;
+        dtab(Si28_He4_to_S32_forward) = bden;
+        dtab(Si28_He4_to_S32_reverse)  = 1.0e0_rt;
         dtab(irppa)  = bden;
         dtab(irsiap) = bden;
         dtab(irppg)  = bden;
         dtab(irsgp)  = 1.0e0_rt;
-        dtab(irsag)  = bden;
-        dtab(irarga) = 1.0e0_rt;
+        dtab(S32_He4_to_Ar36_forward)  = bden;
+        dtab(S32_He4_to_Ar36_reverse) = 1.0e0_rt;
         dtab(irsap)  = bden;
         dtab(irclpa) = bden;
         dtab(irclpg) = bden;
         dtab(irargp) = 1.0e0_rt;
-        dtab(irarag) = bden;
-        dtab(ircaga) = 1.0e0_rt;
+        dtab(Ar36_He4_to_Ca40_forward) = bden;
+        dtab(Ar36_He4_to_Ca40_reverse) = 1.0e0_rt;
         dtab(irarap) = bden;
         dtab(irkpa)  = bden;
         dtab(irkpg)  = bden;
         dtab(ircagp) = 1.0e0_rt;
-        dtab(ircaag) = bden;
-        dtab(irtiga) = 1.0e0_rt;
+        dtab(Ca40_He4_to_Ti44_forward) = bden;
+        dtab(Ca40_He4_to_Ti44_reverse) = 1.0e0_rt;
         dtab(ircaap) = bden;
         dtab(irscpa) = bden;
         dtab(irscpg) = bden;
         dtab(irtigp) = 1.0e0_rt;
-        dtab(irtiag) = bden;
-        dtab(ircrga) = 1.0e0_rt;
+        dtab(Ti44_He4_to_Cr48_forward) = bden;
+        dtab(Ti44_He4_to_Cr48_reverse) = 1.0e0_rt;
         dtab(irtiap) = bden;
         dtab(irvpa)  = bden;
         dtab(irvpg)  = bden;
         dtab(ircrgp) = 1.0e0_rt;
-        dtab(ircrag) = bden;
-        dtab(irfega) = 1.0e0_rt;
+        dtab(Cr48_He4_to_Fe52_forward) = bden;
+        dtab(Cr48_He4_to_Fe52_reverse) = 1.0e0_rt;
         dtab(ircrap) = bden;
         dtab(irmnpa) = bden;
         dtab(irmnpg) = bden;
         dtab(irfegp) = 1.0e0_rt;
-        dtab(irfeag) = bden;
-        dtab(irniga) = 1.0e0_rt;
+        dtab(Fe52_He4_to_Ni56_forward) = bden;
+        dtab(Fe52_He4_to_Ni56_reverse) = 1.0e0_rt;
         dtab(irfeap) = bden;
         dtab(ircopa) = bden;
         dtab(ircopg) = bden;
@@ -191,49 +192,49 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
     if (use_c12ag_deboer17) {
         // deboer + 2017 c12(a,g)o16 rate
         rate_c12ag_deboer17(tf,bden,
-                            rr(1).rates(ircag),rr(2).rates(ircag),
-                            rr(1).rates(iroga),rr(2).rates(iroga));
+                            rr(1).rates(C12_He4_to_O16_forward),rr(2).rates(C12_He4_to_O16_forward),
+                            rr(1).rates(C12_He4_to_O16_reverse),rr(2).rates(C12_He4_to_O16_reverse));
     } else {
         // 1.7 times cf88 c12(a,g)o16 rate
         rate_c12ag(tf,bden,
-                   rr(1).rates(ircag),rr(2).rates(ircag),
-                   rr(1).rates(iroga),rr(2).rates(iroga));
+                   rr(1).rates(C12_He4_to_O16_forward),rr(2).rates(C12_He4_to_O16_forward),
+                   rr(1).rates(C12_He4_to_O16_reverse),rr(2).rates(C12_He4_to_O16_reverse));
     }
 
     // triple alpha to c12
     rate_triplealf(tf,bden,
-                   rr(1).rates(ir3a),rr(2).rates(ir3a),
-                   rr(1).rates(irg3a),rr(2).rates(irg3a));
+                   rr(1).rates(He4_He4_He4_to_C12_forward),rr(2).rates(He4_He4_He4_to_C12_forward),
+                   rr(1).rates(He4_He4_He4_to_C12_reverse),rr(2).rates(He4_He4_He4_to_C12_reverse));
 
     // c12 + c12
     rate_c12c12(tf,bden,
-                rr(1).rates(ir1212),rr(2).rates(ir1212),
+                rr(1).rates(C12_C12_to_Ne20_He4_forward),rr(2).rates(C12_C12_to_Ne20_He4_forward),
                 rrate,drratedt);
 
     // c12 + o16
     rate_c12o16(tf,bden,
-                rr(1).rates(ir1216),rr(2).rates(ir1216),
+                rr(1).rates(C12_O16_forward),rr(2).rates(C12_O16_forward),
                 rrate,drratedt);
 
     // o16 + o16
     rate_o16o16(tf,bden,
-                rr(1).rates(ir1616),rr(2).rates(ir1616),
+                rr(1).rates(O16_O16_forward),rr(2).rates(O16_O16_forward),
                 rrate,drratedt);
 
     // o16(a,g)ne20
     rate_o16ag(tf,bden,
-               rr(1).rates(iroag),rr(2).rates(iroag),
-               rr(1).rates(irnega),rr(2).rates(irnega));
+               rr(1).rates(O16_He4_to_Ne20_forward),rr(2).rates(O16_He4_to_Ne20_forward),
+               rr(1).rates(O16_He4_to_Ne20_reverse),rr(2).rates(O16_He4_to_Ne20_reverse));
 
     // ne20(a,g)mg24
     rate_ne20ag(tf,bden,
-                rr(1).rates(irneag),rr(2).rates(irneag),
-                rr(1).rates(irmgga),rr(2).rates(irmgga));
+                rr(1).rates(Ne20_He4_to_Mg24_forward),rr(2).rates(Ne20_He4_to_Mg24_forward),
+                rr(1).rates(Ne20_He4_to_Mg24_reverse),rr(2).rates(Ne20_He4_to_Mg24_reverse));
 
     // mg24(a,g)si28
     rate_mg24ag(tf,bden,
-                rr(1).rates(irmgag),rr(2).rates(irmgag),
-                rr(1).rates(irsiga),rr(2).rates(irsiga));
+                rr(1).rates(Mg24_He4_to_Si28_forward),rr(2).rates(Mg24_He4_to_Si28_forward),
+                rr(1).rates(Mg24_He4_to_Si28_reverse),rr(2).rates(Mg24_He4_to_Si28_reverse));
 
     // mg24(a,p)al27
     rate_mg24ap(tf,bden,
@@ -247,8 +248,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // si28(a,g)s32
     rate_si28ag(tf,bden,
-                rr(1).rates(irsiag),rr(2).rates(irsiag),
-                rr(1).rates(irsga),rr(2).rates(irsga));
+                rr(1).rates(Si28_He4_to_S32_forward),rr(2).rates(Si28_He4_to_S32_forward),
+                rr(1).rates(Si28_He4_to_S32_reverse),rr(2).rates(Si28_He4_to_S32_reverse));
 
     // si28(a,p)p31
     rate_si28ap(tf,bden,
@@ -262,8 +263,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // s32(a,g)ar36
     rate_s32ag(tf,bden,
-               rr(1).rates(irsag),rr(2).rates(irsag),
-               rr(1).rates(irarga),rr(2).rates(irarga));
+               rr(1).rates(S32_He4_to_Ar36_forward),rr(2).rates(S32_He4_to_Ar36_forward),
+               rr(1).rates(S32_He4_to_Ar36_reverse),rr(2).rates(S32_He4_to_Ar36_reverse));
 
     // s32(a,p)cl35
     rate_s32ap(tf,bden,
@@ -277,8 +278,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ar36(a,g)ca40
     rate_ar36ag(tf,bden,
-                rr(1).rates(irarag),rr(2).rates(irarag),
-                rr(1).rates(ircaga),rr(2).rates(ircaga));
+                rr(1).rates(Ar36_He4_to_Ca40_forward),rr(2).rates(Ar36_He4_to_Ca40_forward),
+                rr(1).rates(Ar36_He4_to_Ca40_reverse),rr(2).rates(Ar36_He4_to_Ca40_reverse));
 
     // ar36(a,p)k39
     rate_ar36ap(tf,bden,
@@ -292,8 +293,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ca40(a,g)ti44
     rate_ca40ag(tf,bden,
-                rr(1).rates(ircaag),rr(2).rates(ircaag),
-                rr(1).rates(irtiga),rr(2).rates(irtiga));
+                rr(1).rates(Ca40_He4_to_Ti44_forward),rr(2).rates(Ca40_He4_to_Ti44_forward),
+                rr(1).rates(Ca40_He4_to_Ti44_reverse),rr(2).rates(Ca40_He4_to_Ti44_reverse));
 
     // ca40(a,p)sc43
     rate_ca40ap(tf,bden,
@@ -307,8 +308,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ti44(a,g)cr48
     rate_ti44ag(tf,bden,
-                rr(1).rates(irtiag),rr(2).rates(irtiag),
-                rr(1).rates(ircrga),rr(2).rates(ircrga));
+                rr(1).rates(Ti44_He4_to_Cr48_forward),rr(2).rates(Ti44_He4_to_Cr48_forward),
+                rr(1).rates(Ti44_He4_to_Cr48_reverse),rr(2).rates(Ti44_He4_to_Cr48_reverse));
 
     // ti44(a,p)v47
     rate_ti44ap(tf,bden,
@@ -322,8 +323,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // cr48(a,g)fe52
     rate_cr48ag(tf,bden,
-                rr(1).rates(ircrag),rr(2).rates(ircrag),
-                rr(1).rates(irfega),rr(2).rates(irfega));
+                rr(1).rates(Cr48_He4_to_Fe52_forward),rr(2).rates(Cr48_He4_to_Fe52_forward),
+                rr(1).rates(Cr48_He4_to_Fe52_reverse),rr(2).rates(Cr48_He4_to_Fe52_reverse));
 
     // cr48(a,p)mn51
     rate_cr48ap(tf,bden,
@@ -337,8 +338,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // fe52(a,g)ni56
     rate_fe52ag(tf,bden,
-                rr(1).rates(irfeag),rr(2).rates(irfeag),
-                rr(1).rates(irniga),rr(2).rates(irniga));
+                rr(1).rates(Fe52_He4_to_Ni56_forward),rr(2).rates(Fe52_He4_to_Ni56_forward),
+                rr(1).rates(Fe52_He4_to_Ni56_reverse),rr(2).rates(Fe52_He4_to_Ni56_reverse));
 
     // fe52(a,p)co55
     rate_fe52ap(tf,bden,
@@ -420,13 +421,13 @@ void screen_aprox13(const Real btemp, const Real bden,
     sc3a   = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
 
-    ratraw = rr(1).rates(ir3a);
-    rr(1).rates(ir3a) = ratraw * sc3a;
-    rr(2).rates(ir3a) = rr(2).rates(ir3a)*sc3a + ratraw*sc3adt;
+    ratraw = rr(1).rates(He4_He4_He4_to_C12_forward);
+    rr(1).rates(He4_He4_He4_to_C12_forward) = ratraw * sc3a;
+    rr(2).rates(He4_He4_He4_to_C12_forward) = rr(2).rates(He4_He4_He4_to_C12_forward)*sc3a + ratraw*sc3adt;
 
-    ratraw = rr(1).rates(irg3a);
-    rr(1).rates(irg3a) = ratraw * sc3a;
-    rr(2).rates(irg3a) = rr(2).rates(irg3a)*sc3a + ratraw*sc3adt;
+    ratraw = rr(1).rates(He4_He4_He4_to_C12_reverse);
+    rr(1).rates(He4_He4_He4_to_C12_reverse) = ratraw * sc3a;
+    rr(2).rates(He4_He4_He4_to_C12_reverse) = rr(2).rates(He4_He4_He4_to_C12_reverse)*sc3a + ratraw*sc3adt;
 
     // c12 to o16
     // c12(a,g)o16
@@ -435,13 +436,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ircag);
-    rr(1).rates(ircag)  = ratraw * sc1a;
-    rr(2).rates(ircag)  = rr(2).rates(ircag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_He4_to_O16_forward);
+    rr(1).rates(C12_He4_to_O16_forward)  = ratraw * sc1a;
+    rr(2).rates(C12_He4_to_O16_forward)  = rr(2).rates(C12_He4_to_O16_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(iroga);
-    rr(1).rates(iroga)  = ratraw * sc1a;
-    rr(2).rates(iroga)  = rr(2).rates(iroga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_He4_to_O16_reverse);
+    rr(1).rates(C12_He4_to_O16_reverse)  = ratraw * sc1a;
+    rr(2).rates(C12_He4_to_O16_reverse)  = rr(2).rates(C12_He4_to_O16_reverse)*sc1a + ratraw*sc1adt;
 
     // c12 + c12
     jscr++;
@@ -449,9 +450,14 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ir1212);
-    rr(1).rates(ir1212) = ratraw * sc1a;
-    rr(2).rates(ir1212) = rr(2).rates(ir1212)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_C12_to_Ne20_He4_forward);
+    rr(1).rates(C12_C12_to_Ne20_He4_forward) = ratraw * sc1a;
+    rr(2).rates(C12_C12_to_Ne20_He4_forward) = rr(2).rates(C12_C12_to_Ne20_He4_forward)*sc1a + ratraw*sc1adt;
+
+    // Identical particle factor (C12 + C12)
+
+    rr(1).rates(C12_C12_to_Ne20_He4_forward) *= 0.5_rt;
+    rr(2).rates(C12_C12_to_Ne20_He4_forward) *= 0.5_rt;
 
     // c12 + o16
     jscr++;
@@ -459,9 +465,9 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1], 
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ir1216);
-    rr(1).rates(ir1216) = ratraw * sc1a;
-    rr(2).rates(ir1216) = rr(2).rates(ir1216)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_O16_forward);
+    rr(1).rates(C12_O16_forward) = ratraw * sc1a;
+    rr(2).rates(C12_O16_forward) = rr(2).rates(C12_O16_forward)*sc1a + ratraw*sc1adt;
 
     // o16 + o16
     jscr++;
@@ -469,9 +475,9 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ir1616);
-    rr(1).rates(ir1616) = ratraw * sc1a;
-    rr(2).rates(ir1616) = rr(2).rates(ir1616)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(O16_O16_forward);
+    rr(1).rates(O16_O16_forward) = ratraw * sc1a;
+    rr(2).rates(O16_O16_forward) = rr(2).rates(O16_O16_forward)*sc1a + ratraw*sc1adt;
 
     // o16 to ne20
     jscr++;
@@ -481,13 +487,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // o16(a,g)ne20
-    ratraw = rr(1).rates(iroag);
-    rr(1).rates(iroag) = ratraw * sc1a;
-    rr(2).rates(iroag) = rr(2).rates(iroag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(O16_He4_to_Ne20_forward);
+    rr(1).rates(O16_He4_to_Ne20_forward) = ratraw * sc1a;
+    rr(2).rates(O16_He4_to_Ne20_forward) = rr(2).rates(O16_He4_to_Ne20_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irnega);
-    rr(1).rates(irnega) = ratraw * sc1a;
-    rr(2).rates(irnega) = rr(2).rates(irnega)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(O16_He4_to_Ne20_reverse);
+    rr(1).rates(O16_He4_to_Ne20_reverse) = ratraw * sc1a;
+    rr(2).rates(O16_He4_to_Ne20_reverse) = rr(2).rates(O16_He4_to_Ne20_reverse)*sc1a + ratraw*sc1adt;
 
     // ne20 to mg24
     jscr++;
@@ -497,13 +503,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ne20(a,g)mg24
-    ratraw = rr(1).rates(irneag);
-    rr(1).rates(irneag) = ratraw * sc1a;
-    rr(2).rates(irneag) = rr(2).rates(irneag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ne20_He4_to_Mg24_forward);
+    rr(1).rates(Ne20_He4_to_Mg24_forward) = ratraw * sc1a;
+    rr(2).rates(Ne20_He4_to_Mg24_forward) = rr(2).rates(Ne20_He4_to_Mg24_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irmgga);
-    rr(1).rates(irmgga) = ratraw * sc1a;
-    rr(2).rates(irmgga) = rr(2).rates(irmgga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ne20_He4_to_Mg24_reverse);
+    rr(1).rates(Ne20_He4_to_Mg24_reverse) = ratraw * sc1a;
+    rr(2).rates(Ne20_He4_to_Mg24_reverse) = rr(2).rates(Ne20_He4_to_Mg24_reverse)*sc1a + ratraw*sc1adt;
 
     // mg24 to si28
     jscr++;
@@ -513,13 +519,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // mg24(a,g)si28
-    ratraw = rr(1).rates(irmgag);
-    rr(1).rates(irmgag) = ratraw * sc1a;
-    rr(2).rates(irmgag) = rr(2).rates(irmgag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mg24_He4_to_Si28_forward);
+    rr(1).rates(Mg24_He4_to_Si28_forward) = ratraw * sc1a;
+    rr(2).rates(Mg24_He4_to_Si28_forward) = rr(2).rates(Mg24_He4_to_Si28_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irsiga);
-    rr(1).rates(irsiga) = ratraw * sc1a;
-    rr(2).rates(irsiga) = rr(2).rates(irsiga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mg24_He4_to_Si28_reverse);
+    rr(1).rates(Mg24_He4_to_Si28_reverse) = ratraw * sc1a;
+    rr(2).rates(Mg24_He4_to_Si28_reverse) = rr(2).rates(Mg24_He4_to_Si28_reverse)*sc1a + ratraw*sc1adt;
 
 
     // mg24(a,p)al27
@@ -554,13 +560,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // si28(a,g)s32
-    ratraw = rr(1).rates(irsiag);
-    rr(1).rates(irsiag) = ratraw * sc1a;
-    rr(2).rates(irsiag) = rr(2).rates(irsiag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Si28_He4_to_S32_forward);
+    rr(1).rates(Si28_He4_to_S32_forward) = ratraw * sc1a;
+    rr(2).rates(Si28_He4_to_S32_forward) = rr(2).rates(Si28_He4_to_S32_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irsga);
-    rr(1).rates(irsga) = ratraw * sc1a;
-    rr(2).rates(irsga) = rr(2).rates(irsga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Si28_He4_to_S32_reverse);
+    rr(1).rates(Si28_He4_to_S32_reverse) = ratraw * sc1a;
+    rr(2).rates(Si28_He4_to_S32_reverse) = rr(2).rates(Si28_He4_to_S32_reverse)*sc1a + ratraw*sc1adt;
 
 
     // si28(a,p)p31
@@ -596,13 +602,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // s32(a,g)ar36
-    ratraw = rr(1).rates(irsag);
-    rr(1).rates(irsag)  = ratraw * sc1a;
-    rr(2).rates(irsag)  = rr(2).rates(irsag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(S32_He4_to_Ar36_forward);
+    rr(1).rates(S32_He4_to_Ar36_forward)  = ratraw * sc1a;
+    rr(2).rates(S32_He4_to_Ar36_forward)  = rr(2).rates(S32_He4_to_Ar36_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irarga);
-    rr(1).rates(irarga)  = ratraw * sc1a;
-    rr(2).rates(irarga)  = rr(2).rates(irarga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(S32_He4_to_Ar36_reverse);
+    rr(1).rates(S32_He4_to_Ar36_reverse)  = ratraw * sc1a;
+    rr(2).rates(S32_He4_to_Ar36_reverse)  = rr(2).rates(S32_He4_to_Ar36_reverse)*sc1a + ratraw*sc1adt;
 
     // s32(a,p)cl35
     ratraw = rr(1).rates(irsap);
@@ -637,13 +643,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ar36(a,g)ca40
-    ratraw = rr(1).rates(irarag);
-    rr(1).rates(irarag) = ratraw * sc1a;
-    rr(2).rates(irarag) = rr(2).rates(irarag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ar36_He4_to_Ca40_forward);
+    rr(1).rates(Ar36_He4_to_Ca40_forward) = ratraw * sc1a;
+    rr(2).rates(Ar36_He4_to_Ca40_forward) = rr(2).rates(Ar36_He4_to_Ca40_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(ircaga);
-    rr(1).rates(ircaga) = ratraw * sc1a;
-    rr(2).rates(ircaga) = rr(2).rates(ircaga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ar36_He4_to_Ca40_reverse);
+    rr(1).rates(Ar36_He4_to_Ca40_reverse) = ratraw * sc1a;
+    rr(2).rates(Ar36_He4_to_Ca40_reverse) = rr(2).rates(Ar36_He4_to_Ca40_reverse)*sc1a + ratraw*sc1adt;
 
 
     // ar36(a,p)k39
@@ -679,13 +685,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ca40(a,g)ti44
-    ratraw = rr(1).rates(ircaag);
-    rr(1).rates(ircaag) = ratraw * sc1a;
-    rr(2).rates(ircaag) = rr(2).rates(ircaag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ca40_He4_to_Ti44_forward);
+    rr(1).rates(Ca40_He4_to_Ti44_forward) = ratraw * sc1a;
+    rr(2).rates(Ca40_He4_to_Ti44_forward) = rr(2).rates(Ca40_He4_to_Ti44_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irtiga);
-    rr(1).rates(irtiga) = ratraw * sc1a;
-    rr(2).rates(irtiga) = rr(2).rates(irtiga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ca40_He4_to_Ti44_reverse);
+    rr(1).rates(Ca40_He4_to_Ti44_reverse) = ratraw * sc1a;
+    rr(2).rates(Ca40_He4_to_Ti44_reverse) = rr(2).rates(Ca40_He4_to_Ti44_reverse)*sc1a + ratraw*sc1adt;
 
 
     // ca40(a,p)sc43
@@ -721,13 +727,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ti44(a,g)cr48
-    ratraw = rr(1).rates(irtiag);
-    rr(1).rates(irtiag) = ratraw * sc1a;
-    rr(2).rates(irtiag) = rr(2).rates(irtiag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ti44_He4_to_Cr48_forward);
+    rr(1).rates(Ti44_He4_to_Cr48_forward) = ratraw * sc1a;
+    rr(2).rates(Ti44_He4_to_Cr48_forward) = rr(2).rates(Ti44_He4_to_Cr48_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(ircrga);
-    rr(1).rates(ircrga) = ratraw * sc1a;
-    rr(2).rates(ircrga) = rr(2).rates(ircrga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ti44_He4_to_Cr48_reverse);
+    rr(1).rates(Ti44_He4_to_Cr48_reverse) = ratraw * sc1a;
+    rr(2).rates(Ti44_He4_to_Cr48_reverse) = rr(2).rates(Ti44_He4_to_Cr48_reverse)*sc1a + ratraw*sc1adt;
 
     // ti44(a,p)v47
     ratraw = rr(1).rates(irtiap);
@@ -762,13 +768,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // cr48(a,g)fe52
-    ratraw = rr(1).rates(ircrag);
-    rr(1).rates(ircrag) = ratraw * sc1a;
-    rr(2).rates(ircrag) = rr(2).rates(ircrag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cr48_He4_to_Fe52_forward);
+    rr(1).rates(Cr48_He4_to_Fe52_forward) = ratraw * sc1a;
+    rr(2).rates(Cr48_He4_to_Fe52_forward) = rr(2).rates(Cr48_He4_to_Fe52_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irfega);
-    rr(1).rates(irfega) = ratraw * sc1a;
-    rr(2).rates(irfega) = rr(2).rates(irfega)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cr48_He4_to_Fe52_reverse);
+    rr(1).rates(Cr48_He4_to_Fe52_reverse) = ratraw * sc1a;
+    rr(2).rates(Cr48_He4_to_Fe52_reverse) = rr(2).rates(Cr48_He4_to_Fe52_reverse)*sc1a + ratraw*sc1adt;
 
 
     // cr48(a,p)mn51
@@ -804,13 +810,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // fe52(a,g)ni56
-    ratraw = rr(1).rates(irfeag);
-    rr(1).rates(irfeag) = ratraw * sc1a;
-    rr(2).rates(irfeag) = rr(2).rates(irfeag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Fe52_He4_to_Ni56_forward);
+    rr(1).rates(Fe52_He4_to_Ni56_forward) = ratraw * sc1a;
+    rr(2).rates(Fe52_He4_to_Ni56_forward) = rr(2).rates(Fe52_He4_to_Ni56_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irniga);
-    rr(1).rates(irniga) = ratraw * sc1a;
-    rr(2).rates(irniga) = rr(2).rates(irniga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Fe52_He4_to_Ni56_reverse);
+    rr(1).rates(Fe52_He4_to_Ni56_reverse) = ratraw * sc1a;
+    rr(2).rates(Fe52_He4_to_Ni56_reverse) = rr(2).rates(Fe52_He4_to_Ni56_reverse)*sc1a + ratraw*sc1adt;
 
 
     // fe52(a,p)co55
@@ -974,18 +980,18 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // he4 jacobian elements
         // d(he4)/d(he4)
         Array1D<Real, 1, 20> b {
-            -1.5e0_rt * y(He4) * y(He4) * rr(1).rates(ir3a),
-            -y(C12)  * rr(1).rates(ircag),
-            -y(O16)  * rr(1).rates(iroag),
-            -y(Ne20) * rr(1).rates(irneag),
-            -y(Mg24) * rr(1).rates(irmgag),
-            -y(Si28) * rr(1).rates(irsiag),
-            -y(S32)  * rr(1).rates(irsag),
-            -y(Ar36) * rr(1).rates(irarag),
-            -y(Ca40) * rr(1).rates(ircaag),
-            -y(Ti44) * rr(1).rates(irtiag),
-            -y(Cr48) * rr(1).rates(ircrag),
-            -y(Fe52) * rr(1).rates(irfeag),
+            -1.5e0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward),
+            -y(C12)  * rr(1).rates(C12_He4_to_O16_forward),
+            -y(O16)  * rr(1).rates(O16_He4_to_Ne20_forward),
+            -y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward),
+            -y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward),
+            -y(Si28) * rr(1).rates(Si28_He4_to_S32_forward),
+            -y(S32)  * rr(1).rates(S32_He4_to_Ar36_forward),
+            -y(Ar36) * rr(1).rates(Ar36_He4_to_Ca40_forward),
+            -y(Ca40) * rr(1).rates(Ca40_He4_to_Ti44_forward),
+            -y(Ti44) * rr(1).rates(Ti44_He4_to_Cr48_forward),
+            -y(Cr48) * rr(1).rates(Cr48_He4_to_Fe52_forward),
+            -y(Fe52) * rr(1).rates(Fe52_He4_to_Ni56_forward),
             -y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1)),
             -y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1)),
             -y(S32)  * rr(1).rates(irsap)  * (1.0e0_rt-rr(1).rates(irt1)),
@@ -1002,11 +1008,11 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
     {
         // (he4)/d(o16)
         Array1D<Real, 1, 5> b {
-            0.5e0_rt * y(C12) * rr(1).rates(ir1216),
-            1.12e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(ir1616),
-            0.68e0_rt * rr(1).rates(irs1) * 0.5e0_rt*y(O16) * rr(1).rates(ir1616),
-            rr(1).rates(iroga),
-            -y(He4) * rr(1).rates(iroag),
+            0.5e0_rt * y(C12) * rr(1).rates(C12_O16_forward),
+            1.12e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(O16_O16_forward),
+            0.68e0_rt * rr(1).rates(irs1) * 0.5e0_rt*y(O16) * rr(1).rates(O16_O16_forward),
+            rr(1).rates(C12_He4_to_O16_reverse),
+            -y(He4) * rr(1).rates(O16_He4_to_Ne20_forward),
         };
 
         jac(He4,O16) = esum5(b);
@@ -1016,97 +1022,97 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         Array1D<Real, 1, 4> b;
 
         // d(he4)/d(c12)
-        b(1) =  y(C12) * rr(1).rates(ir1212);
-        b(2) =  0.5e0_rt * y(O16) * rr(1).rates(ir1216);
-        b(3) =  3.0e0_rt * rr(1).rates(irg3a);
-        b(4) = -y(He4) * rr(1).rates(ircag);
+        b(1) =  2.0e0_rt * y(C12) * rr(1).rates(C12_C12_to_Ne20_He4_forward);
+        b(2) =  0.5e0_rt * y(O16) * rr(1).rates(C12_O16_forward);
+        b(3) =  3.0e0_rt * rr(1).rates(He4_He4_He4_to_C12_reverse);
+        b(4) = -y(He4) * rr(1).rates(C12_He4_to_O16_forward);
 
         jac(He4,C12) = esum4(b);
 
         // d(he4)/d(si28)
-        b(1) =  rr(1).rates(irsiga);
-        b(2) = -y(He4) * rr(1).rates(irsiag);
+        b(1) =  rr(1).rates(Mg24_He4_to_Si28_reverse);
+        b(2) = -y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
         b(3) = -y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
         b(4) =  rr(1).rates(irr1) * rr(1).rates(irsigp);
 
         jac(He4,Si28) = esum4(b);
 
         // d(he4)/d(s32)
-        b(1) =  rr(1).rates(irsga);
-        b(2) = -y(He4) * rr(1).rates(irsag);
+        b(1) =  rr(1).rates(Si28_He4_to_S32_reverse);
+        b(2) = -y(He4) * rr(1).rates(S32_He4_to_Ar36_forward);
         b(3) = -y(He4) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
         b(4) =  rr(1).rates(irs1) * rr(1).rates(irsgp);
 
         jac(He4,S32) = esum4(b);
 
         // d(he4)/d(ar36)
-        b(1)  =  rr(1).rates(irarga);
-        b(2)  = -y(He4) * rr(1).rates(irarag);
+        b(1)  =  rr(1).rates(S32_He4_to_Ar36_reverse);
+        b(2)  = -y(He4) * rr(1).rates(Ar36_He4_to_Ca40_forward);
         b(3)  = -y(He4) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1));
         b(4)  =  rr(1).rates(irt1) * rr(1).rates(irargp);
 
         jac(He4,Ar36) = esum4(b);
 
         // d(he4)/d(ca40)
-        b(1) =  rr(1).rates(ircaga);
-        b(2) = -y(He4) * rr(1).rates(ircaag);
+        b(1) =  rr(1).rates(Ar36_He4_to_Ca40_reverse);
+        b(2) = -y(He4) * rr(1).rates(Ca40_He4_to_Ti44_forward);
         b(3) = -y(He4) * rr(1).rates(ircaap) * (1.0e0_rt-rr(1).rates(irv1));
         b(4) =  rr(1).rates(iru1) * rr(1).rates(ircagp);
 
         jac(He4,Ca40) = esum4(b);
 
         // d(he4)/d(ti44)
-        b(1) =  rr(1).rates(irtiga);
-        b(2) = -y(He4) * rr(1).rates(irtiag);
+        b(1) =  rr(1).rates(Ca40_He4_to_Ti44_reverse);
+        b(2) = -y(He4) * rr(1).rates(Ti44_He4_to_Cr48_forward);
         b(3) = -y(He4) * rr(1).rates(irtiap) * (1.0e0_rt-rr(1).rates(irw1));
         b(4) =  rr(1).rates(irv1) * rr(1).rates(irtigp);
 
         jac(He4,Ti44) = esum4(b);
 
         // d(he4)/d(cr48)
-        b(1) =  rr(1).rates(ircrga);
-        b(2) = -y(He4) * rr(1).rates(ircrag);
+        b(1) =  rr(1).rates(Ti44_He4_to_Cr48_reverse);
+        b(2) = -y(He4) * rr(1).rates(Cr48_He4_to_Fe52_forward);
         b(3) = -y(He4) * rr(1).rates(ircrap) * (1.0e0_rt-rr(1).rates(irx1));
         b(4) =  rr(1).rates(irw1) * rr(1).rates(ircrgp);
 
         jac(He4,Cr48) = esum4(b);
 
         // d(he4)/d(fe52)
-        b(1) =  rr(1).rates(irfega);
-        b(2) = -y(He4) * rr(1).rates(irfeag);
+        b(1) =  rr(1).rates(Cr48_He4_to_Fe52_reverse);
+        b(2) = -y(He4) * rr(1).rates(Fe52_He4_to_Ni56_forward);
         b(3) = -y(He4) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
         b(4) =  rr(1).rates(irx1) * rr(1).rates(irfegp);
 
         jac(He4,Fe52) = esum4(b);
 
         // d(c12)/d(c12)
-        b(1) = -2.0e0_rt * y(C12) * rr(1).rates(ir1212);
-        b(2) = -y(O16) * rr(1).rates(ir1216);
-        b(3) = -rr(1).rates(irg3a);
-        b(4) = -y(He4) * rr(1).rates(ircag);
+        b(1) = -4.0e0_rt * y(C12) * rr(1).rates(C12_C12_to_Ne20_He4_forward);
+        b(2) = -y(O16) * rr(1).rates(C12_O16_forward);
+        b(3) = -rr(1).rates(He4_He4_He4_to_C12_reverse);
+        b(4) = -y(He4) * rr(1).rates(C12_He4_to_O16_forward);
 
         jac(C12,C12) = esum4(b);
 
         // d(o16)/d(o16)
-        b(1) = -y(C12) * rr(1).rates(ir1216);
-        b(2) = -2.0e0_rt * y(O16) * rr(1).rates(ir1616);
-        b(3) = -y(He4) * rr(1).rates(iroag);
-        b(4) = -rr(1).rates(iroga);
+        b(1) = -y(C12) * rr(1).rates(C12_O16_forward);
+        b(2) = -2.0e0_rt * y(O16) * rr(1).rates(O16_O16_forward);
+        b(3) = -y(He4) * rr(1).rates(O16_He4_to_Ne20_forward);
+        b(4) = -rr(1).rates(C12_He4_to_O16_reverse);
 
         jac(O16,O16) = esum4(b);
 
         // si28 jacobian elements
         // d(si28)/d(he4)
-        b(1) =  y(Mg24) * rr(1).rates(irmgag);
-        b(2) = -y(Si28) * rr(1).rates(irsiag);
+        b(1) =  y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward);
+        b(2) = -y(Si28) * rr(1).rates(Si28_He4_to_S32_forward);
         b(3) =  y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
         b(4) = -y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
 
         jac(Si28,He4) = esum4(b);
 
         // d(si28)/d(si28)
-        b(1) =  -y(He4) * rr(1).rates(irsiag);
-        b(2) = -rr(1).rates(irsiga);
+        b(1) =  -y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
+        b(2) = -rr(1).rates(Mg24_He4_to_Si28_reverse);
         b(3) = -rr(1).rates(irr1) * rr(1).rates(irsigp);
         b(4) = -y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
 
@@ -1114,16 +1120,16 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // s32 jacobian elements
         // d(s32)/d(he4)
-        b(1) =  y(Si28) * rr(1).rates(irsiag);
-        b(2) = -y(S32) * rr(1).rates(irsag);
+        b(1) =  y(Si28) * rr(1).rates(Si28_He4_to_S32_forward);
+        b(2) = -y(S32) * rr(1).rates(S32_He4_to_Ar36_forward);
         b(3) =  y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
         b(4) = -y(S32) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
 
         jac(S32,He4) = esum4(b);
 
         // d(s32)/d(s32)
-        b(1) = -y(He4) * rr(1).rates(irsag);
-        b(2) = -rr(1).rates(irsga);
+        b(1) = -y(He4) * rr(1).rates(S32_He4_to_Ar36_forward);
+        b(2) = -rr(1).rates(Si28_He4_to_S32_reverse);
         b(3) = -rr(1).rates(irs1) * rr(1).rates(irsgp);
         b(4) = -y(He4) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
 
@@ -1131,16 +1137,16 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // ar36 jacobian elements
         // d(ar36)/d(he4)
-        b(1) =  y(S32)  * rr(1).rates(irsag);
-        b(2) = -y(Ar36) * rr(1).rates(irarag);
+        b(1) =  y(S32)  * rr(1).rates(S32_He4_to_Ar36_forward);
+        b(2) = -y(Ar36) * rr(1).rates(Ar36_He4_to_Ca40_forward);
         b(3) =  y(S32)  * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
         b(4) = -y(Ar36) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1));
 
         jac(Ar36,He4) = esum4(b);
 
         // d(ar36)/d(ar36)
-        b(1) = -y(He4) * rr(1).rates(irarag);
-        b(2) = -rr(1).rates(irarga);
+        b(1) = -y(He4) * rr(1).rates(Ar36_He4_to_Ca40_forward);
+        b(2) = -rr(1).rates(S32_He4_to_Ar36_reverse);
         b(3) = -rr(1).rates(irt1) * rr(1).rates(irargp);
         b(4) = -y(He4) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1));
 
@@ -1148,16 +1154,16 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // ca40 jacobian elements
         // d(ca40)/d(he4)
-        b(1)  =  y(Ar36) * rr(1).rates(irarag);
-        b(2)  = -y(Ca40) * rr(1).rates(ircaag);
+        b(1)  =  y(Ar36) * rr(1).rates(Ar36_He4_to_Ca40_forward);
+        b(2)  = -y(Ca40) * rr(1).rates(Ca40_He4_to_Ti44_forward);
         b(3)  =  y(Ar36) * rr(1).rates(irarap)*(1.0e0_rt-rr(1).rates(iru1));
         b(4)  = -y(Ca40) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
 
         jac(Ca40,He4) = esum4(b);
 
         // d(ca40)/d(ca40)
-        b(1) = -y(He4) * rr(1).rates(ircaag);
-        b(2) = -rr(1).rates(ircaga);
+        b(1) = -y(He4) * rr(1).rates(Ca40_He4_to_Ti44_forward);
+        b(2) = -rr(1).rates(Ar36_He4_to_Ca40_reverse);
         b(3) = -rr(1).rates(ircagp) * rr(1).rates(iru1);
         b(4) = -y(He4) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
 
@@ -1165,16 +1171,16 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // ti44 jacobian elements
         // d(ti44)/d(he4)
-        b(1) =  y(Ca40) * rr(1).rates(ircaag);
-        b(2) = -y(Ti44) * rr(1).rates(irtiag);
+        b(1) =  y(Ca40) * rr(1).rates(Ca40_He4_to_Ti44_forward);
+        b(2) = -y(Ti44) * rr(1).rates(Ti44_He4_to_Cr48_forward);
         b(3) =  y(Ca40) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
         b(4) = -y(Ti44) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
 
         jac(Ti44,He4) = esum4(b);
 
         // d(ti44)/d(ti44)
-        b(1) = -y(He4) * rr(1).rates(irtiag);
-        b(2) = -rr(1).rates(irtiga);
+        b(1) = -y(He4) * rr(1).rates(Ti44_He4_to_Cr48_forward);
+        b(2) = -rr(1).rates(Ca40_He4_to_Ti44_reverse);
         b(3) = -rr(1).rates(irv1) * rr(1).rates(irtigp);
         b(4) = -y(He4) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
 
@@ -1182,16 +1188,16 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // cr48 jacobian elements
         // d(cr48)/d(he4)
-        b(1) =  y(Ti44) * rr(1).rates(irtiag);
-        b(2) = -y(Cr48) * rr(1).rates(ircrag);
+        b(1) =  y(Ti44) * rr(1).rates(Ti44_He4_to_Cr48_forward);
+        b(2) = -y(Cr48) * rr(1).rates(Cr48_He4_to_Fe52_forward);
         b(3) =  y(Ti44) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
         b(4) = -y(Cr48) * rr(1).rates(ircrap)*(1.0e0_rt-rr(1).rates(irx1));
 
         jac(Cr48,He4) = esum4(b);
 
         // d(cr48)/d(cr48)
-        b(1) = -y(He4) * rr(1).rates(ircrag);
-        b(2) = -rr(1).rates(ircrga);
+        b(1) = -y(He4) * rr(1).rates(Cr48_He4_to_Fe52_forward);
+        b(2) = -rr(1).rates(Ti44_He4_to_Cr48_reverse);
         b(3) = -rr(1).rates(irw1) * rr(1).rates(ircrgp);
         b(4) = -y(He4) * rr(1).rates(ircrap)*(1.0e0_rt-rr(1).rates(irx1));
 
@@ -1199,16 +1205,16 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // fe52 jacobian elements
         // d(fe52)/d(he4)
-        b(1) =  y(Cr48) * rr(1).rates(ircrag);
-        b(2) = -y(Fe52) * rr(1).rates(irfeag);
+        b(1) =  y(Cr48) * rr(1).rates(Cr48_He4_to_Fe52_forward);
+        b(2) = -y(Fe52) * rr(1).rates(Fe52_He4_to_Ni56_forward);
         b(3) =  y(Cr48) * rr(1).rates(ircrap) * (1.0e0_rt-rr(1).rates(irx1));
         b(4) = -y(Fe52) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
 
         jac(Fe52,He4) = esum4(b);
 
         // d(fe52)/d(fe52)
-        b(1) = -y(He4) * rr(1).rates(irfeag);
-        b(2) = -rr(1).rates(irfega);
+        b(1) = -y(He4) * rr(1).rates(Fe52_He4_to_Ni56_forward);
+        b(2) = -rr(1).rates(Cr48_He4_to_Fe52_reverse);
         b(3) = -rr(1).rates(irx1) * rr(1).rates(irfegp);
         b(4) = -y(He4) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
 
@@ -1219,31 +1225,31 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         Array1D<Real, 1, 3> b;
 
         // d(he4)/d(mg24)
-        b(1) =  rr(1).rates(irmgga);
-        b(2) = -y(He4) * rr(1).rates(irmgag);
+        b(1) =  rr(1).rates(Ne20_He4_to_Mg24_reverse);
+        b(2) = -y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
         b(3) = -y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
 
         jac(He4,Mg24) = esum3(b);
 
         // mg24 jacobian elements
         // d(mg24)/d(he4)
-        b(1) =  y(Ne20) * rr(1).rates(irneag);
-        b(2) = -y(Mg24) * rr(1).rates(irmgag);
+        b(1) =  y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward);
+        b(2) = -y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward);
         b(3) = -y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
 
         jac(Mg24,He4) = esum3(b);
 
         // d(mg24)/d(mg24)
-        b(1) = -y(He4) * rr(1).rates(irmgag);
-        b(2) = -rr(1).rates(irmgga);
+        b(1) = -y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
+        b(2) = -rr(1).rates(Ne20_He4_to_Mg24_reverse);
         b(3) = -y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
 
         jac(Mg24,Mg24) = esum3(b);
 
         // d(si28)/d(o16)
-        b(1) = 0.5e0_rt * y(C12) * rr(1).rates(ir1216);
-        b(2) = 1.12e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(ir1616);
-        b(3) = 0.68e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(irs1) * rr(1).rates(ir1616);
+        b(1) = 0.5e0_rt * y(C12) * rr(1).rates(C12_O16_forward);
+        b(2) = 1.12e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(O16_O16_forward);
+        b(3) = 0.68e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(irs1) * rr(1).rates(O16_O16_forward);
 
         jac(Si28,O16) = esum3(b);
     }
@@ -1252,195 +1258,195 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         Array1D<Real, 1, 2> b;
 
         // d(he4)/d(ne20)
-        b(1) =  rr(1).rates(irnega);
-        b(2) = -y(He4) * rr(1).rates(irneag);
+        b(1) =  rr(1).rates(O16_He4_to_Ne20_reverse);
+        b(2) = -y(He4) * rr(1).rates(Ne20_He4_to_Mg24_forward);
 
         jac(He4,Ne20) = b(1) + b(2);
 
         // d(he4)/d(ni56)
-        b(1) = rr(1).rates(irniga);
+        b(1) = rr(1).rates(Fe52_He4_to_Ni56_reverse);
         b(2) = rr(1).rates(iry1) * rr(1).rates(irnigp);
 
         jac(He4,Ni56) = b(1) + b(2);
 
         // c12 jacobian elements
         // d(c12)/d(he4)
-        b(1) =  0.5e0_rt * y(He4) * y(He4) * rr(1).rates(ir3a);
-        b(2) = -y(C12) * rr(1).rates(ircag);
+        b(1) =  0.5e0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward);
+        b(2) = -y(C12) * rr(1).rates(C12_He4_to_O16_forward);
 
         jac(C12,He4) = b(1) + b(2);
 
         // d(c12)/d(o16)
-        b(1) = -y(C12) * rr(1).rates(ir1216);
-        b(2) =  rr(1).rates(iroga);
+        b(1) = -y(C12) * rr(1).rates(C12_O16_forward);
+        b(2) =  rr(1).rates(C12_He4_to_O16_reverse);
 
         jac(C12,O16) = b(1) + b(2);
 
         // o16 jacobian elements
         // d(o16)/d(he4)
-        b(1) =  y(C12)*rr(1).rates(ircag);
-        b(2) = -y(O16)*rr(1).rates(iroag);
+        b(1) =  y(C12)*rr(1).rates(C12_He4_to_O16_forward);
+        b(2) = -y(O16)*rr(1).rates(O16_He4_to_Ne20_forward);
 
         jac(O16,He4) = b(1) + b(2);
 
         // d(o16)/d(c12)
-        b(1) = -y(O16)*rr(1).rates(ir1216);
-        b(2) =  y(He4)*rr(1).rates(ircag);
+        b(1) = -y(O16)*rr(1).rates(C12_O16_forward);
+        b(2) =  y(He4)*rr(1).rates(C12_He4_to_O16_forward);
 
         jac(O16,C12) = b(1) + b(2);
 
         // ne20 jacobian elements
         // d(ne20)/d(he4)
-        b(1) =  y(O16) * rr(1).rates(iroag);
-        b(2) = -y(Ne20) * rr(1).rates(irneag);
+        b(1) =  y(O16) * rr(1).rates(O16_He4_to_Ne20_forward);
+        b(2) = -y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward);
 
         jac(Ne20,He4) = b(1) + b(2);
 
         // d(ne20)/d(ne20)
-        b(1) = -y(He4) * rr(1).rates(irneag);
-        b(2) = -rr(1).rates(irnega);
+        b(1) = -y(He4) * rr(1).rates(Ne20_He4_to_Mg24_forward);
+        b(2) = -rr(1).rates(O16_He4_to_Ne20_reverse);
 
         jac(Ne20,Ne20) = b(1) + b(2);
 
         // d(mg24)/d(si28)
-        b(1) = rr(1).rates(irsiga);
+        b(1) = rr(1).rates(Mg24_He4_to_Si28_reverse);
         b(2) = rr(1).rates(irr1) * rr(1).rates(irsigp);
 
         jac(Mg24,Si28) = b(1) + b(2);
 
         // d(si28)/d(mg24)
-        b(1) =  y(He4) * rr(1).rates(irmgag);
+        b(1) =  y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
         b(2) =  y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
 
         jac(Si28,Mg24) = b(1) + b(2);
 
         // d(si28)/d(s32)
-        b(1) = rr(1).rates(irsga);
+        b(1) = rr(1).rates(Si28_He4_to_S32_reverse);
         b(2) = rr(1).rates(irs1) * rr(1).rates(irsgp);
 
         jac(Si28,S32) = b(1) + b(2);
 
         // d(s32)/d(o16)
-        b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rr(1).rates(ir1616)*(1.0e0_rt-rr(1).rates(irs1));
-        b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(ir1616);
+        b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rr(1).rates(O16_O16_forward)*(1.0e0_rt-rr(1).rates(irs1));
+        b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(O16_O16_forward);
 
         jac(S32,O16) = b(1) + b(2);
 
         // d(s32)/d(si28)
-        b(1)  =y(He4) * rr(1).rates(irsiag);
+        b(1)  =y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
         b(2) = y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
 
         jac(S32,Si28) = b(1) + b(2);
 
         // d(s32)/d(ar36)
-        b(1) = rr(1).rates(irarga);
+        b(1) = rr(1).rates(S32_He4_to_Ar36_reverse);
         b(2) = rr(1).rates(irt1) * rr(1).rates(irargp);
 
         jac(S32,Ar36) = b(1) + b(2);
 
         // d(ar36)/d(s32)
-        b(1) = y(He4) * rr(1).rates(irsag);
+        b(1) = y(He4) * rr(1).rates(S32_He4_to_Ar36_forward);
         b(2) = y(He4) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
 
         jac(Ar36,S32) = b(1) + b(2);
 
         // d(ar36)/d(ca40)
-        b(1) = rr(1).rates(ircaga);
+        b(1) = rr(1).rates(Ar36_He4_to_Ca40_reverse);
         b(2) = rr(1).rates(ircagp) * rr(1).rates(iru1);
 
         jac(Ar36,Ca40) = b(1) + b(2);
 
         // d(ca40)/d(ar36)
-        b(1) =  y(He4) * rr(1).rates(irarag);
+        b(1) =  y(He4) * rr(1).rates(Ar36_He4_to_Ca40_forward);
         b(2) =  y(He4) * rr(1).rates(irarap)*(1.0e0_rt-rr(1).rates(iru1));
 
         jac(Ca40,Ar36) = b(1) + b(2);
 
         // d(ca40)/d(ti44)
-        b(1) = rr(1).rates(irtiga);
+        b(1) = rr(1).rates(Ca40_He4_to_Ti44_reverse);
         b(2) = rr(1).rates(irtigp) * rr(1).rates(irv1);
 
         jac(Ca40,Ti44) = b(1) + b(2);
 
         // d(ti44)/d(ca40)
-        b(1) =  y(He4) * rr(1).rates(ircaag);
+        b(1) =  y(He4) * rr(1).rates(Ca40_He4_to_Ti44_forward);
         b(2) =  y(He4) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
 
         jac(Ti44,Ca40) = b(1) + b(2);
 
         // d(ti44)/d(cr48)
-        b(1) = rr(1).rates(ircrga);
+        b(1) = rr(1).rates(Ti44_He4_to_Cr48_reverse);
         b(2) = rr(1).rates(irw1) * rr(1).rates(ircrgp);
 
         jac(Ti44,Cr48) = b(1) + b(2);
 
         // d(cr48)/d(ti44)
-        b(1) =  y(He4) * rr(1).rates(irtiag);
+        b(1) =  y(He4) * rr(1).rates(Ti44_He4_to_Cr48_forward);
         b(2) =  y(He4) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
 
         jac(Cr48,Ti44) = b(1) + b(2);
 
         // d(cr48)/d(fe52)
-        b(1) = rr(1).rates(irfega);
+        b(1) = rr(1).rates(Cr48_He4_to_Fe52_reverse);
         b(2) = rr(1).rates(irx1) * rr(1).rates(irfegp);
 
         jac(Cr48,Fe52) = b(1) + b(2);
 
         // d(fe52)/d(cr48)
-        b(1) = y(He4) * rr(1).rates(ircrag);
+        b(1) = y(He4) * rr(1).rates(Cr48_He4_to_Fe52_forward);
         b(2) = y(He4) * rr(1).rates(ircrap) * (1.0e0_rt-rr(1).rates(irx1));
 
         jac(Fe52,Cr48) = b(1) + b(2);
 
         // d(fe52)/d(ni56)
-        b(1) = rr(1).rates(irniga);
+        b(1) = rr(1).rates(Fe52_He4_to_Ni56_reverse);
         b(2) = rr(1).rates(iry1) * rr(1).rates(irnigp);
 
         jac(Fe52,Ni56) = b(1) + b(2);
 
         // ni56 jacobian elements
         // d(ni56)/d(he4)
-        b(1) =  y(Fe52) * rr(1).rates(irfeag);
+        b(1) =  y(Fe52) * rr(1).rates(Fe52_He4_to_Ni56_forward);
         b(2) =  y(Fe52) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
 
         jac(Ni56,He4) = b(1) + b(2);
 
         // d(ni56)/d(fe52)
-        b(1) = y(He4) * rr(1).rates(irfeag);
+        b(1) = y(He4) * rr(1).rates(Fe52_He4_to_Ni56_forward);
         b(2) = y(He4) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
 
         jac(Ni56,Fe52) = b(1) + b(2);
 
         // d(ni56)/d(ni56)
-        b(1) = -rr(1).rates(irniga);
+        b(1) = -rr(1).rates(Fe52_He4_to_Ni56_reverse);
         b(2) = -rr(1).rates(iry1) * rr(1).rates(irnigp);
 
         jac(Ni56,Ni56) = b(1) + b(2);
     }
 
     // d(o16)/d(ne20)
-    jac(O16,Ne20) = rr(1).rates(irnega);
+    jac(O16,Ne20) = rr(1).rates(O16_He4_to_Ne20_reverse);
 
     // d(ne20)/d(c12)
-    jac(Ne20,C12) = y(C12) * rr(1).rates(ir1212);
+    jac(Ne20,C12) = 2.0e0_rt * y(C12) * rr(1).rates(C12_C12_to_Ne20_He4_forward);
 
     // d(ne20)/d(o16)
-    jac(Ne20,O16) = y(He4) * rr(1).rates(iroag);
+    jac(Ne20,O16) = y(He4) * rr(1).rates(O16_He4_to_Ne20_forward);
 
     // d(ne20)/d(mg24)
-    jac(Ne20,Mg24) = rr(1).rates(irmgga);
+    jac(Ne20,Mg24) = rr(1).rates(Ne20_He4_to_Mg24_reverse);
 
     // d(mg24)/d(c12)
-    jac(Mg24,C12) = 0.5e0_rt * y(O16) * rr(1).rates(ir1216);
+    jac(Mg24,C12) = 0.5e0_rt * y(O16) * rr(1).rates(C12_O16_forward);
 
     // d(mg24)/d(o16)
-    jac(Mg24,O16) = 0.5e0_rt * y(C12) * rr(1).rates(ir1216);
+    jac(Mg24,O16) = 0.5e0_rt * y(C12) * rr(1).rates(C12_O16_forward);
 
     // d(mg24)/d(ne20)
-    jac(Mg24,Ne20) = y(He4) * rr(1).rates(irneag);
+    jac(Mg24,Ne20) = y(He4) * rr(1).rates(Ne20_He4_to_Mg24_forward);
 
     // d(si28)/d(c12)
-    jac(Si28,C12) = 0.5e0_rt * y(O16) * rr(1).rates(ir1216);
+    jac(Si28,C12) = 0.5e0_rt * y(O16) * rr(1).rates(C12_O16_forward);
 
 }
 
@@ -1488,40 +1494,40 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     // he4 reactions
     // heavy ion reactions
-    a(1)  = 0.5e0_rt * y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-    a(2)  = 0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(3)  = 0.56e0_rt * 0.5e0_rt * y(O16) * y(O16) * rr(index_rate).rates(ir1616);
+    a(1)  = y(C12) * y(C12) * rr(index_rate).rates(C12_C12_to_Ne20_He4_forward);
+    a(2)  = 0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(C12_O16_forward);
+    a(3)  = 0.56e0_rt * 0.5e0_rt * y(O16) * y(O16) * rr(index_rate).rates(O16_O16_forward);
 
     dydt(He4) = dydt(He4) + esum3(a);
 
     // (a,g) and (g,a) reactions
-    a(1)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr(index_rate).rates(ir3a);
-    a(2)  =  3.0e0_rt * y(C12) * rr(index_rate).rates(irg3a);
-    a(3)  = -y(He4)  * y(C12) * rr(index_rate).rates(ircag);
-    a(4)  =  y(O16)  * rr(index_rate).rates(iroga);
-    a(5)  = -y(He4)  * y(O16) * rr(index_rate).rates(iroag);
-    a(6)  =  y(Ne20) * rr(index_rate).rates(irnega);
-    a(7)  = -y(He4)  * y(Ne20) * rr(index_rate).rates(irneag);
-    a(8)  =  y(Mg24) * rr(index_rate).rates(irmgga);
-    a(9)  = -y(He4)  * y(Mg24)* rr(index_rate).rates(irmgag);
-    a(10) =  y(Si28) * rr(index_rate).rates(irsiga);
-    a(11) = -y(He4)  * y(Si28)*rr(index_rate).rates(irsiag);
-    a(12) =  y(S32)  * rr(index_rate).rates(irsga);
+    a(1)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr(index_rate).rates(He4_He4_He4_to_C12_forward);
+    a(2)  =  3.0e0_rt * y(C12) * rr(index_rate).rates(He4_He4_He4_to_C12_reverse);
+    a(3)  = -y(He4)  * y(C12) * rr(index_rate).rates(C12_He4_to_O16_forward);
+    a(4)  =  y(O16)  * rr(index_rate).rates(C12_He4_to_O16_reverse);
+    a(5)  = -y(He4)  * y(O16) * rr(index_rate).rates(O16_He4_to_Ne20_forward);
+    a(6)  =  y(Ne20) * rr(index_rate).rates(O16_He4_to_Ne20_reverse);
+    a(7)  = -y(He4)  * y(Ne20) * rr(index_rate).rates(Ne20_He4_to_Mg24_forward);
+    a(8)  =  y(Mg24) * rr(index_rate).rates(Ne20_He4_to_Mg24_reverse);
+    a(9)  = -y(He4)  * y(Mg24)* rr(index_rate).rates(Mg24_He4_to_Si28_forward);
+    a(10) =  y(Si28) * rr(index_rate).rates(Mg24_He4_to_Si28_reverse);
+    a(11) = -y(He4)  * y(Si28)*rr(index_rate).rates(Si28_He4_to_S32_forward);
+    a(12) =  y(S32)  * rr(index_rate).rates(Si28_He4_to_S32_reverse);
 
     dydt(He4) = dydt(He4) + esum12(a);
 
-    a(1)  = -y(He4)  * y(S32) * rr(index_rate).rates(irsag);
-    a(2)  =  y(Ar36) * rr(index_rate).rates(irarga);
-    a(3)  = -y(He4)  * y(Ar36)*rr(index_rate).rates(irarag);
-    a(4)  =  y(Ca40) * rr(index_rate).rates(ircaga);
-    a(5)  = -y(He4)  * y(Ca40)*rr(index_rate).rates(ircaag);
-    a(6)  =  y(Ti44) * rr(index_rate).rates(irtiga);
-    a(7)  = -y(He4)  * y(Ti44)*rr(index_rate).rates(irtiag);
-    a(8)  =  y(Cr48) * rr(index_rate).rates(ircrga);
-    a(9)  = -y(He4)  * y(Cr48)*rr(index_rate).rates(ircrag);
-    a(10) =  y(Fe52) * rr(index_rate).rates(irfega);
-    a(11) = -y(He4)  * y(Fe52) * rr(index_rate).rates(irfeag);
-    a(12) =  y(Ni56) * rr(index_rate).rates(irniga);
+    a(1)  = -y(He4)  * y(S32) * rr(index_rate).rates(S32_He4_to_Ar36_forward);
+    a(2)  =  y(Ar36) * rr(index_rate).rates(S32_He4_to_Ar36_reverse);
+    a(3)  = -y(He4)  * y(Ar36)*rr(index_rate).rates(Ar36_He4_to_Ca40_forward);
+    a(4)  =  y(Ca40) * rr(index_rate).rates(Ar36_He4_to_Ca40_reverse);
+    a(5)  = -y(He4)  * y(Ca40)*rr(index_rate).rates(Ca40_He4_to_Ti44_forward);
+    a(6)  =  y(Ti44) * rr(index_rate).rates(Ca40_He4_to_Ti44_reverse);
+    a(7)  = -y(He4)  * y(Ti44)*rr(index_rate).rates(Ti44_He4_to_Cr48_forward);
+    a(8)  =  y(Cr48) * rr(index_rate).rates(Ti44_He4_to_Cr48_reverse);
+    a(9)  = -y(He4)  * y(Cr48)*rr(index_rate).rates(Cr48_He4_to_Fe52_forward);
+    a(10) =  y(Fe52) * rr(index_rate).rates(Cr48_He4_to_Fe52_reverse);
+    a(11) = -y(He4)  * y(Fe52) * rr(index_rate).rates(Fe52_He4_to_Ni56_forward);
+    a(12) =  y(Ni56) * rr(index_rate).rates(Fe52_He4_to_Ni56_reverse);
 
     dydt(He4) = dydt(He4) + esum12(a);
 
@@ -1529,7 +1535,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     if (!deriva) {
 
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(ir1616);
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(O16_O16_forward);
        a(2)  = -y(He4)  * y(Mg24) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
        a(3)  =  y(Si28) * rr(index_rate).rates(irsigp) * rr(index_rate).rates(irr1);
        a(4)  = -y(He4)  * y(Si28) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
@@ -1551,8 +1557,8 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     } else {
 
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1) * rr(index_rate).rates(ir1616);
-       a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1) * rr(1).rates(ir1616);
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1) * rr(index_rate).rates(O16_O16_forward);
+       a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1) * rr(1).rates(O16_O16_forward);
        a(3)  = -y(He4)*y(Mg24) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
        a(4)  =  y(He4)*y(Mg24) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
        a(5)  =  y(Si28) * rr(1).rates(irsigp) * rr(index_rate).rates(irr1);
@@ -1597,43 +1603,43 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     }
 
     // c12 reactions
-    a(1) = -y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-    a(2) = -y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(3) =  y(He4) * y(He4) * y(He4) * rr(index_rate).rates(ir3a) / 6.0_rt;;
-    a(4) = -y(C12) * rr(index_rate).rates(irg3a);
-    a(5) = -y(C12) * y(He4) * rr(index_rate).rates(ircag);
-    a(6) =  y(O16) * rr(index_rate).rates(iroga);
+    a(1) = -2.0e0_rt * y(C12) * y(C12) * rr(index_rate).rates(C12_C12_to_Ne20_He4_forward);
+    a(2) = -y(C12) * y(O16) * rr(index_rate).rates(C12_O16_forward);
+    a(3) =  y(He4) * y(He4) * y(He4) * rr(index_rate).rates(He4_He4_He4_to_C12_forward) / 6.0_rt;;
+    a(4) = -y(C12) * rr(index_rate).rates(He4_He4_He4_to_C12_reverse);
+    a(5) = -y(C12) * y(He4) * rr(index_rate).rates(C12_He4_to_O16_forward);
+    a(6) =  y(O16) * rr(index_rate).rates(C12_He4_to_O16_reverse);
 
     dydt(C12) = dydt(C12) + esum6(a);
 
 
     // o16 reactions
-    a(1) = -y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(2) = -y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-    a(3) =  y(C12) * y(He4) * rr(index_rate).rates(ircag);
-    a(4) = -y(O16) * y(He4) * rr(index_rate).rates(iroag);
-    a(5) = -y(O16) * rr(index_rate).rates(iroga);
-    a(6) =  y(Ne20) * rr(index_rate).rates(irnega);
+    a(1) = -y(C12) * y(O16) * rr(index_rate).rates(C12_O16_forward);
+    a(2) = -y(O16) * y(O16) * rr(index_rate).rates(O16_O16_forward);
+    a(3) =  y(C12) * y(He4) * rr(index_rate).rates(C12_He4_to_O16_forward);
+    a(4) = -y(O16) * y(He4) * rr(index_rate).rates(O16_He4_to_Ne20_forward);
+    a(5) = -y(O16) * rr(index_rate).rates(C12_He4_to_O16_reverse);
+    a(6) =  y(Ne20) * rr(index_rate).rates(O16_He4_to_Ne20_reverse);
 
     dydt(O16) = dydt(O16) + esum6(a);
 
 
     // ne20 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-    a(2) =  y(O16) * y(He4) * rr(index_rate).rates(iroag);
-    a(3) = -y(Ne20) * y(He4) * rr(index_rate).rates(irneag);
-    a(4) = -y(Ne20) * rr(index_rate).rates(irnega);
-    a(5) =  y(Mg24) * rr(index_rate).rates(irmgga);
+    a(1) =  y(C12) * y(C12) * rr(index_rate).rates(C12_C12_to_Ne20_He4_forward);
+    a(2) =  y(O16) * y(He4) * rr(index_rate).rates(O16_He4_to_Ne20_forward);
+    a(3) = -y(Ne20) * y(He4) * rr(index_rate).rates(Ne20_He4_to_Mg24_forward);
+    a(4) = -y(Ne20) * rr(index_rate).rates(O16_He4_to_Ne20_reverse);
+    a(5) =  y(Mg24) * rr(index_rate).rates(Ne20_He4_to_Mg24_reverse);
 
     dydt(Ne20) = dydt(Ne20) + esum5(a);
 
 
     // mg24 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(2) =  y(Ne20) * y(He4) * rr(index_rate).rates(irneag);
-    a(3) = -y(Mg24) * y(He4) * rr(index_rate).rates(irmgag);
-    a(4) = -y(Mg24) * rr(index_rate).rates(irmgga);
-    a(5) =  y(Si28) * rr(index_rate).rates(irsiga);
+    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(C12_O16_forward);
+    a(2) =  y(Ne20) * y(He4) * rr(index_rate).rates(Ne20_He4_to_Mg24_forward);
+    a(3) = -y(Mg24) * y(He4) * rr(index_rate).rates(Mg24_He4_to_Si28_forward);
+    a(4) = -y(Mg24) * rr(index_rate).rates(Ne20_He4_to_Mg24_reverse);
+    a(5) =  y(Si28) * rr(index_rate).rates(Mg24_He4_to_Si28_reverse);
 
     dydt(Mg24) = dydt(Mg24) + esum5(a);
 
@@ -1657,18 +1663,18 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // si28 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(2) =  0.56e0_rt * 0.5e0_rt*y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-    a(3) =  y(Mg24) * y(He4) * rr(index_rate).rates(irmgag);
-    a(4) = -y(Si28) * y(He4) * rr(index_rate).rates(irsiag);
-    a(5) = -y(Si28) * rr(index_rate).rates(irsiga);
-    a(6) =  y(S32)  * rr(index_rate).rates(irsga);
+    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(C12_O16_forward);
+    a(2) =  0.56e0_rt * 0.5e0_rt*y(O16) * y(O16) * rr(index_rate).rates(O16_O16_forward);
+    a(3) =  y(Mg24) * y(He4) * rr(index_rate).rates(Mg24_He4_to_Si28_forward);
+    a(4) = -y(Si28) * y(He4) * rr(index_rate).rates(Si28_He4_to_S32_forward);
+    a(5) = -y(Si28) * rr(index_rate).rates(Mg24_He4_to_Si28_reverse);
+    a(6) =  y(S32)  * rr(index_rate).rates(Si28_He4_to_S32_reverse);
 
     dydt(Si28) = dydt(Si28) + esum6(a);
 
     if (!deriva) {
 
-       a(1) =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(ir1616);
+       a(1) =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(O16_O16_forward);
        a(2) =  y(Mg24) * y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
        a(3) = -y(Si28) * rr(index_rate).rates(irr1) * rr(index_rate).rates(irsigp);
        a(4) = -y(Si28) * y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
@@ -1678,8 +1684,8 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     } else {
 
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1)*rr(index_rate).rates(ir1616);
-       a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1)*rr(1).rates(ir1616);
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1)*rr(index_rate).rates(O16_O16_forward);
+       a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1)*rr(1).rates(O16_O16_forward);
        a(3)  =  y(Mg24)*y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
        a(4)  = -y(Mg24)*y(He4) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
        a(5)  = -y(Si28) * rr(1).rates(irr1) * rr(index_rate).rates(irsigp);
@@ -1695,18 +1701,18 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // s32 reactions
-    a(1) =  0.1e0_rt * 0.5e0_rt*y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-    a(2) =  y(Si28) * y(He4) * rr(index_rate).rates(irsiag);
-    a(3) = -y(S32) * y(He4) * rr(index_rate).rates(irsag);
-    a(4) = -y(S32) * rr(index_rate).rates(irsga);
-    a(5) =  y(Ar36) * rr(index_rate).rates(irarga);
+    a(1) =  0.1e0_rt * 0.5e0_rt*y(O16) * y(O16) * rr(index_rate).rates(O16_O16_forward);
+    a(2) =  y(Si28) * y(He4) * rr(index_rate).rates(Si28_He4_to_S32_forward);
+    a(3) = -y(S32) * y(He4) * rr(index_rate).rates(S32_He4_to_Ar36_forward);
+    a(4) = -y(S32) * rr(index_rate).rates(Si28_He4_to_S32_reverse);
+    a(5) =  y(Ar36) * rr(index_rate).rates(S32_He4_to_Ar36_reverse);
 
     dydt(S32) = dydt(S32) + esum5(a);
 
 
     if (!deriva) {
 
-       a(1) =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)* rr(index_rate).rates(ir1616)*(1.0e0_rt-rr(index_rate).rates(irs1));
+       a(1) =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)* rr(index_rate).rates(O16_O16_forward)*(1.0e0_rt-rr(index_rate).rates(irs1));
        a(2) =  y(Si28) * y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
        a(3) = -y(S32) * rr(index_rate).rates(irs1) * rr(index_rate).rates(irsgp);
        a(4) = -y(S32) * y(He4) * rr(index_rate).rates(irsap)*(1.0e0_rt-rr(index_rate).rates(irt1));
@@ -1716,8 +1722,8 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     } else {
 
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(ir1616)*(1.0e0_rt-rr(1).rates(irs1));
-       a(2)  = -0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(ir1616)*rr(index_rate).rates(irs1);
+       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(O16_O16_forward)*(1.0e0_rt-rr(1).rates(irs1));
+       a(2)  = -0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(O16_O16_forward)*rr(index_rate).rates(irs1);
        a(3)  =  y(Si28)*y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(1).rates(irs1));
        a(4)  = -y(Si28)*y(He4) * rr(1).rates(irsiap)*rr(index_rate).rates(irs1);
        a(5)  = -y(S32) * rr(1).rates(irs1) * rr(index_rate).rates(irsgp);
@@ -1733,10 +1739,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // ar36 reactions
-    a(1) =  y(S32)  * y(He4) * rr(index_rate).rates(irsag);
-    a(2) = -y(Ar36) * y(He4) * rr(index_rate).rates(irarag);
-    a(3) = -y(Ar36) * rr(index_rate).rates(irarga);
-    a(4) =  y(Ca40) * rr(index_rate).rates(ircaga);
+    a(1) =  y(S32)  * y(He4) * rr(index_rate).rates(S32_He4_to_Ar36_forward);
+    a(2) = -y(Ar36) * y(He4) * rr(index_rate).rates(Ar36_He4_to_Ca40_forward);
+    a(3) = -y(Ar36) * rr(index_rate).rates(S32_He4_to_Ar36_reverse);
+    a(4) =  y(Ca40) * rr(index_rate).rates(Ar36_He4_to_Ca40_reverse);
 
     dydt(Ar36) = dydt(Ar36) + esum4(a);
 
@@ -1766,10 +1772,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // ca40 reactions
-    a(1) =  y(Ar36) * y(He4) * rr(index_rate).rates(irarag);
-    a(2) = -y(Ca40) * y(He4) * rr(index_rate).rates(ircaag);
-    a(3) = -y(Ca40) * rr(index_rate).rates(ircaga);
-    a(4) =  y(Ti44) * rr(index_rate).rates(irtiga);
+    a(1) =  y(Ar36) * y(He4) * rr(index_rate).rates(Ar36_He4_to_Ca40_forward);
+    a(2) = -y(Ca40) * y(He4) * rr(index_rate).rates(Ca40_He4_to_Ti44_forward);
+    a(3) = -y(Ca40) * rr(index_rate).rates(Ar36_He4_to_Ca40_reverse);
+    a(4) =  y(Ti44) * rr(index_rate).rates(Ca40_He4_to_Ti44_reverse);
 
     dydt(Ca40) = dydt(Ca40) + esum4(a);
 
@@ -1799,10 +1805,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // ti44 reactions
-    a(1) =  y(Ca40) * y(He4) * rr(index_rate).rates(ircaag);
-    a(2) = -y(Ti44) * y(He4) * rr(index_rate).rates(irtiag);
-    a(3) = -y(Ti44) * rr(index_rate).rates(irtiga);
-    a(4) =  y(Cr48) * rr(index_rate).rates(ircrga);
+    a(1) =  y(Ca40) * y(He4) * rr(index_rate).rates(Ca40_He4_to_Ti44_forward);
+    a(2) = -y(Ti44) * y(He4) * rr(index_rate).rates(Ti44_He4_to_Cr48_forward);
+    a(3) = -y(Ti44) * rr(index_rate).rates(Ca40_He4_to_Ti44_reverse);
+    a(4) =  y(Cr48) * rr(index_rate).rates(Ti44_He4_to_Cr48_reverse);
 
     dydt(Ti44) = dydt(Ti44) + esum4(a);
 
@@ -1832,10 +1838,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // cr48 reactions
-    a(1) =  y(Ti44) * y(He4) * rr(index_rate).rates(irtiag);
-    a(2) = -y(Cr48) * y(He4) * rr(index_rate).rates(ircrag);
-    a(3) = -y(Cr48) * rr(index_rate).rates(ircrga);
-    a(4) =  y(Fe52) * rr(index_rate).rates(irfega);
+    a(1) =  y(Ti44) * y(He4) * rr(index_rate).rates(Ti44_He4_to_Cr48_forward);
+    a(2) = -y(Cr48) * y(He4) * rr(index_rate).rates(Cr48_He4_to_Fe52_forward);
+    a(3) = -y(Cr48) * rr(index_rate).rates(Ti44_He4_to_Cr48_reverse);
+    a(4) =  y(Fe52) * rr(index_rate).rates(Cr48_He4_to_Fe52_reverse);
 
     dydt(Cr48) = dydt(Cr48) + esum4(a);
 
@@ -1865,10 +1871,10 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // fe52 reactions
-    a(1) =  y(Cr48) * y(He4) * rr(index_rate).rates(ircrag);
-    a(2) = -y(Fe52) * y(He4) * rr(index_rate).rates(irfeag);
-    a(3) = -y(Fe52) * rr(index_rate).rates(irfega);
-    a(4) =  y(Ni56) * rr(index_rate).rates(irniga);
+    a(1) =  y(Cr48) * y(He4) * rr(index_rate).rates(Cr48_He4_to_Fe52_forward);
+    a(2) = -y(Fe52) * y(He4) * rr(index_rate).rates(Fe52_He4_to_Ni56_forward);
+    a(3) = -y(Fe52) * rr(index_rate).rates(Cr48_He4_to_Fe52_reverse);
+    a(4) =  y(Ni56) * rr(index_rate).rates(Fe52_He4_to_Ni56_reverse);
 
     dydt(Fe52) = dydt(Fe52) + esum4(a);
 
@@ -1898,8 +1904,8 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
 
     // ni56 reactions
-    a(1) =  y(Fe52) * y(He4) * rr(index_rate).rates(irfeag);
-    a(2) = -y(Ni56) * rr(index_rate).rates(irniga);
+    a(1) =  y(Fe52) * y(He4) * rr(index_rate).rates(Fe52_He4_to_Ni56_forward);
+    a(2) = -y(Ni56) * rr(index_rate).rates(Fe52_He4_to_Ni56_reverse);
 
     dydt(Ni56) = dydt(Ni56) + a(1) + a(2);
 

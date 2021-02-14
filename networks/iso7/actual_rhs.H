@@ -404,11 +404,10 @@ void screen_iso7(const Real btemp, const Real bden,
 
        denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
-       rate(Si28_7He4_to_Ni56_forward)     = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward)*y(Si28);
+       rate(Si28_7He4_to_Ni56_forward)     = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward);
        dratedY(He4, Si28_7He4_to_Ni56_forward) = 3.0e0_rt * rate(Si28_7He4_to_Ni56_forward)/y(He4);
-       dratedY(Si28, Si28_7He4_to_Ni56_forward) = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward);
        dratedt(Si28_7He4_to_Ni56_forward)  = (yeff_ca40dt*rate(Ca40_He4_to_Ti44_forward)
-                                              + yeff_ca40*dratedt(Ca40_He4_to_Ti44_forward))*denom*y(Si28)*1.0e-9_rt;
+                                              + yeff_ca40*dratedt(Ca40_He4_to_Ti44_forward))*denom*1.0e-9_rt;
 
        if (denom != 0.0_rt) {
 

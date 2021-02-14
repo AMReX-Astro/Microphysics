@@ -218,7 +218,9 @@ int dvstep (burn_t& state, dvode_t& vstate)
 #endif
 
 #ifdef SIMPLIFIED_SDC
+#if defined(SDC_EVOLVE_ENERGY)
         Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+#endif
 #endif
 
         for (int i = 1; i <= NumSpec; ++i) {
@@ -264,10 +266,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 valid_update = false;
             }
 
-
+#if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
                 valid_update = false;
             }
+#endif
 
 #endif
         }
