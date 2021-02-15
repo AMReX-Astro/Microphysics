@@ -102,7 +102,6 @@ namespace Rates {
                         ircopa,
                         ircopg,
                         irnigp,
-                        irr1,
                         irs1,
                         irt1,
                         iru1,
