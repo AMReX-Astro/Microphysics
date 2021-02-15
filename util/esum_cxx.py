@@ -51,6 +51,34 @@ module_end = """
 """
 
 
+esum_base_template_start = """
+template<int n, class T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real esum(T const& array)
+{
+    // return value
+    Real sum = 0.0_rt;
+
+    switch (n) {
+    case 1:
+        sum = array(1);
+        break;
+    case 2:
+        sum = array(1) + array(2);
+        break;
+"""
+
+
+esum_base_template_end = """
+    default:
+        sum = 0.0_rt;
+        break;
+    }
+    return sum;
+}
+"""
+
+
 
 esum_template_start = """
 template<class T>
@@ -197,7 +225,10 @@ if __name__ == "__main__":
 
         ef.write(module_start)
 
-        for num in range(3, 31):
+        first_esum = 3;
+        last_esum = 30;
+
+        for num in range(first_esum, last_esum + 1):
 
             ef.write(esum_template_start.replace("@NUM@", str(num)))
 
@@ -250,5 +281,17 @@ if __name__ == "__main__":
 
             ef.write(esum_template_end.replace("@NUM@", str(num)))
             ef.write("\n")
+
+        # Now write out the base template that can call all the others
+
+        ef.write(esum_base_template_start)
+
+        for num in range(first_esum, last_esum + 1):
+            ef.write("    case {}:\n".format(num))
+            ef.write("        sum = esum{}(array);\n".format(num))
+            ef.write("        break;\n")
+
+        ef.write(esum_base_template_end)
+        ef.write("\n")
 
         ef.write(module_end)

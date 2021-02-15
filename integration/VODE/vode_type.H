@@ -24,7 +24,6 @@ typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 const amrex::Real CCMXJ = 0.2e0_rt;
 const amrex::Real HMIN = 0.0_rt;
-const amrex::Real HMXI = 0.0_rt;
 
 // We will use this parameter to determine if a given species abundance
 // is unreasonably small or large (each X must satisfy
@@ -49,7 +48,7 @@ const int max_steps_between_jacobian_evals = 50;
 struct dvode_t
 {
     amrex::Real CONP, CRATE, DRC;
-    amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1;
+    amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1, HMXI;
     amrex::Real RC, RL1, tn;
     int NFE, NJE, NST;
     int ICF, IPUP, JCUR;
@@ -75,7 +74,7 @@ struct dvode_t
     // Jacobian
     SparseMatrix jac;
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     SparseMatrix jac_save;
 #endif
@@ -85,7 +84,7 @@ struct dvode_t
     // Jacobian
     RArray2D jac;
 
-#ifndef AMREX_USE_GPU
+#ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     RArray2D jac_save;
 #endif
@@ -173,7 +172,8 @@ void print_state(dvode_t& dvode_state)
 
 #ifdef SIMPLIFIED_SDC
 #include <vode_type_simplified_sdc.H>
-#else
+#endif
+#ifdef STRANG
 #include <vode_type_strang.H>
 #endif
 

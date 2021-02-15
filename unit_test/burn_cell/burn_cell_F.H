@@ -9,8 +9,6 @@ extern "C"
 {
 #endif
 
-void init_unit_test(const int* name, const int* namlen);
-
 void burn_cell();
 
 #ifdef __cplusplus

@@ -17,10 +17,11 @@ actual_conductivity_init()
 
 }
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-actual_conductivity(eos_t& state) {
-
+actual_conductivity (T& state)
+{
   // this routine is sig99, it approximates the thermal transport
   // coefficients.
   //

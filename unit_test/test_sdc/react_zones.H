@@ -28,8 +28,8 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = state(i, j, k, p.ispec_old+n);
     }
-#if NAUX_NET > 0
-    amrex::Error("aux not implemented in do_react");
+#ifdef NSE_THERMO
+    set_nse_aux_from_X(eos_state);
 #endif
 
     eos(eos_input_rt, eos_state);
@@ -42,6 +42,12 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     for (int n = 0; n < NumSpec; n++) {
       burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
     }
+
+#if NAUX_NET > 0
+    for (int n = 0; n < NumAux; n++) {
+        burn_state.y[SFX+n] = burn_state.rho * eos_state.aux[n];
+    }
+#endif
 
 #if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = state(i, j, k, p.irho);
@@ -87,18 +93,31 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
         burn_state.ydot_a[n] = 0.0;
     }
 
+#ifdef NSE_THERMO
+    burn_state.Iq_rhoe = 0.0;
+    for (int n = 0; n < NumAux; n++) {
+        burn_state.Iq_aux[n] = 0.0;
+    }
+#endif
+
     // these need to be initialized 
 
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
-    integrator(burn_state, tmax);
+    burner(burn_state, tmax);
 
     for (int n = 0; n < NumSpec; ++n) {
         state(i, j, k, p.ispec + n) = burn_state.y[SFS+n]/burn_state.rho;
         state(i, j, k, p.irodot + n) = (burn_state.y[SFS+n] -
                                         state(i, j, k, p.irho) * state(i, j, k, p.ispec_old + n)) / tmax;
     }
+
+#if NAUX_NET > 0
+    for (int n = 0; n < NumAux; ++n) {
+        state(i, j, k, p.iaux + n) = burn_state.y[SFX+n]/burn_state.rho;
+    }
+#endif
 
 #if defined(SDC_EVOLVE_ENERGY)
     state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / tmax;

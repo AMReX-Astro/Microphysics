@@ -28,8 +28,11 @@ void actual_eos_init() {
 
 
 
-AMREX_GPU_HOST_DEVICE inline
-bool is_input_valid(eos_input_t input) {
+template <typename I>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_input_valid (I input)
+{
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -41,191 +44,249 @@ bool is_input_valid(eos_input_t input) {
 }
 
 
-AMREX_GPU_HOST_DEVICE inline
-void actual_eos(const eos_input_t input, eos_t& state) {
+template <typename I, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_eos (I input, T& state)
+{
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
-  // Get the mass of a nucleon from Avogadro's number.
-  const Real m_nucleon = 1.0 / C::n_A;
-  const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
+    // Get the mass of a nucleon from Avogadro's number.
+    const Real m_nucleon = 1.0 / C::n_A;
+    const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
-  if (eos_assume_neutral) {
-    state.mu = state.abar;
+    if (eos_assume_neutral) {
+        state.mu = state.abar;
 
-  } else {
-    Real sum = 0.0;
-    for (int n = 0; n < NumSpec; n++) {
-      sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+    } else {
+        Real sum = 0.0;
+        for (int n = 0; n < NumSpec; n++) {
+            sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+        }
+        state.mu = 1.0 / sum;
     }
-    state.mu = 1.0 / sum;
-  }
 
-  // For all EOS input modes EXCEPT eos_input_rt, first compute dens
-  // and temp as needed from the inputs.
+    // For all EOS input modes EXCEPT eos_input_rt, first compute dens
+    // and temp as needed from the inputs.
 
-  switch (input)
+    switch (input)
     {
 
-    case eos_input_rt:
+      case eos_input_rt:
 
-      // dens, temp and xmass are inputs
+          // dens, temp and xmass are inputs
 
-      // We don't need to do anything here
-      break;
+          // We don't need to do anything here
+          break;
 
-    case eos_input_rh:
+      case eos_input_rh:
 
-      // dens, enthalpy, and xmass are inputs
+        // dens, enthalpy, and xmass are inputs
 
-      // Solve for the temperature:
-      // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
+        // Solve for the temperature:
+        // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
 
-      state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_gamma - 1.0)/eos_gamma;
+          if constexpr (has_enthalpy<T>::value) {
+              state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_gamma - 1.0)/eos_gamma;
+          }
 
-      break;
+          break;
 
-    case eos_input_tp:
+      case eos_input_tp:
 
-      // temp, pres, and xmass are inputs
+          // temp, pres, and xmass are inputs
 
-      // Solve for the density:
-      // p = rho k T / (mu m_nucleon)
+          // Solve for the density:
+          // p = rho k T / (mu m_nucleon)
 
-      state.rho =  state.p * state.mu * m_nucleon / (C::k_B * state.T);
+          if constexpr (has_pressure<T>::value) {
+              state.rho =  state.p * state.mu * m_nucleon / (C::k_B * state.T);
+          }
 
-      break;
+          break;
 
-    case eos_input_rp:
+      case eos_input_rp:
 
-      // dens, pres, and xmass are inputs
+          // dens, pres, and xmass are inputs
 
-      // Solve for the temperature:
-      // p = rho k T / (mu m_nucleon)
+          // Solve for the temperature:
+          // p = rho k T / (mu m_nucleon)
 
-      state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
+          if constexpr (has_pressure<T>::value) {
+              state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
+          }
 
-      break;
+          break;
 
-    case eos_input_re:
+      case eos_input_re:
 
-      // dens, energy, and xmass are inputs
+          // dens, energy, and xmass are inputs
 
-      // Solve for the temperature
-      // e = k T / [(mu m_nucleon)*(gamma-1)]
+          // Solve for the temperature
+          // e = k T / [(mu m_nucleon)*(gamma-1)]
 
-      state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / C::k_B;
+          if constexpr (has_energy<T>::value) {
+              state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / C::k_B;
+          }
 
-      break;
+          break;
 
-    case eos_input_ps:
+      case eos_input_ps:
 
-      // pressure, entropy, and xmass are inputs
+          // pressure, entropy, and xmass are inputs
 
-      // Solve for the temperature
-      // Invert Sackur-Tetrode eqn (below) using
-      // rho = p mu m_nucleon / (k T)
+          // Solve for the temperature
+          // Invert Sackur-Tetrode eqn (below) using
+          // rho = p mu m_nucleon / (k T)
 
-      state.T = std::pow(state.p, 2.0/5.0) *
-        std::pow(2.0*M_PI*C::hbar*C::hbar/(state.mu*m_nucleon), 3.0/5.0) *
-        exp(2.0*state.mu*m_nucleon*state.s/(5.0*C::k_B) - 1.0) / C::k_B;
+          if constexpr (has_pressure<T>::value && has_entropy<T>::value) {
+              state.T = std::pow(state.p, 2.0/5.0) *
+                        std::pow(2.0 * M_PI * C::hbar * C::hbar / (state.mu * m_nucleon), 3.0/5.0) *
+                        std::exp(2.0 * state.mu * m_nucleon * state.s / (5.0 * C::k_B) - 1.0) / C::k_B;
+          }
 
-      // Solve for the density
-      // rho = p mu m_nucleon / (k T)
+          // Solve for the density
+          // rho = p mu m_nucleon / (k T)
 
-      state.rho = state.p * state.mu * m_nucleon / (C::k_B * state.T);
+          if constexpr (has_pressure<T>::value) {
+              state.rho = state.p * state.mu * m_nucleon / (C::k_B * state.T);
+          }
 
-      break;
+          break;
 
-    case eos_input_ph:
+      case eos_input_ph:
 
-      // pressure, enthalpy and xmass are inputs
+          // pressure, enthalpy and xmass are inputs
 
-      // Solve for temperature and density
+          // Solve for temperature and density
 
-      state.rho = state.p / state.h * eos_gamma / (eos_gamma - 1.0);
-      state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
+          if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+              state.rho = state.p / state.h * eos_gamma / (eos_gamma - 1.0);
+              state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
+          }
 
-      break;
+          break;
 
-    case eos_input_th:
+      case eos_input_th:
 
-      // temperature, enthalpy and xmass are inputs
+          // temperature, enthalpy and xmass are inputs
 
-      // This system is underconstrained.
+          // This system is underconstrained.
 
-#ifndef AMREX_USE_GPU
-      amrex::Error("EOS: eos_input_th is not a valid input for the gamma law EOS.");
-#endif
+  #ifndef AMREX_USE_GPU
+          amrex::Error("EOS: eos_input_th is not a valid input for the gamma law EOS.");
+  #endif
 
-      break;
+          break;
 
-    default:
+      default:
 
-#ifndef AMREX_USE_GPU
-      amrex::Error("EOS: invalid input.");
-#endif
+  #ifndef AMREX_USE_GPU
+          amrex::Error("EOS: invalid input.");
+  #endif
 
-      break;
+        break;
 
     }
 
-  // Now we have the density and temperature (and mass fractions /
-  // mu), regardless of the inputs.
+    // Now we have the density and temperature (and mass fractions /
+    // mu), regardless of the inputs.
 
-  Real Tinv = 1.0 / state.T;
-  Real rhoinv = 1.0 / state.rho;
+    Real Tinv = 1.0 / state.T;
+    Real rhoinv = 1.0 / state.rho;
 
-  // Compute the pressure simply from the ideal gas law, and the
-  // specific internal energy using the gamma-law EOS relation.
-  state.p = state.rho * state.T * (C::k_B / (state.mu*m_nucleon));
-  state.e = state.p/(eos_gamma - 1.0) * rhoinv;
+    // Compute the pressure simply from the ideal gas law, and the
+    // specific internal energy using the gamma-law EOS relation.
+    Real pressure = state.rho * state.T * (C::k_B / (state.mu * m_nucleon));
+    Real energy = pressure / (eos_gamma - 1.0) * rhoinv;
+    if constexpr (has_pressure<T>::value) {
+        state.p = pressure;
+    }
+    if constexpr (has_energy<T>::value) {
+        state.e = energy;
+    }
 
-  // enthalpy is h = e + p/rho
-  state.h = state.e + state.p * rhoinv;
+    // enthalpy is h = e + p/rho
+    if constexpr (has_enthalpy<T>::value) {
+        state.h = energy + pressure * rhoinv;
+    }
 
-  // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
-  // NOTE: this expression is only valid for gamma = 5/3.
-  state.s = (C::k_B/(state.mu*m_nucleon))*
-    (2.5 + log((std::pow(state.mu*m_nucleon, 2.5) * rhoinv ) *
-               std::pow(C::k_B * state.T, 1.5) * fac ) );
+    // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
+    // NOTE: this expression is only valid for gamma = 5/3.
+    if constexpr (has_entropy<T>::value) {
+        state.s = (C::k_B / (state.mu * m_nucleon)) *
+                  (2.5 + std::log((std::pow(state.mu * m_nucleon, 2.5) * rhoinv) *
+                                  std::pow(C::k_B * state.T, 1.5) * fac));
+    }
 
-  // Compute the thermodynamic derivatives and specific heats
-  state.dpdT = state.p * Tinv;
-  state.dpdr = state.p * rhoinv;
-  state.dedT = state.e * Tinv;
-  state.dedr = 0.0;
-  state.dsdT = 1.5 * (C::k_B / (state.mu * m_nucleon)) * Tinv;
-  state.dsdr = - (C::k_B / (state.mu * m_nucleon)) * rhoinv;
-  state.dhdT = state.dedT + state.dpdT * rhoinv;
-  state.dhdr = 0.0;
+    // Compute the thermodynamic derivatives and specific heats
+    if constexpr (has_pressure<T>::value) {
+        state.dpdT = state.p * Tinv;
+        state.dpdr = state.p * rhoinv;
+    }
+    if constexpr (has_energy<T>::value) {
+        state.dedT = state.e * Tinv;
+        state.dedr = 0.0;
+    }
+    if constexpr (has_entropy<T>::value) {
+        state.dsdT = 1.5 * (C::k_B / (state.mu * m_nucleon)) * Tinv;
+        state.dsdr = - (C::k_B / (state.mu * m_nucleon)) * rhoinv;
+    }
+    if constexpr (has_enthalpy<T>::value) {
+        state.dhdT = state.dedT + state.dpdT * rhoinv;
+        state.dhdr = 0.0;
+    }
 
-  state.xne = 0.0;
-  state.xnp = 0.0;
-  state.eta = 0.0;
-  state.pele = 0.0;
-  state.ppos = 0.0;
+    if constexpr (has_xne_xnp<T>::value) {
+        state.xne = 0.0;
+        state.xnp = 0.0;
+    }
+    if constexpr (has_eta<T>::value) {
+        state.eta = 0.0;
+    }
+    if constexpr (has_pele_ppos<T>::value) {
+        state.pele = 0.0;
+        state.ppos = 0.0;
+    }
 
-  state.cv = state.dedT;
-  state.cp = eos_gamma * state.cv;
+    if constexpr (has_energy<T>::value) {
+        state.cv = state.dedT;
 
-  state.gam1 = eos_gamma;
+        if constexpr (has_pressure<T>::value) {
+            state.cp = eos_gamma * state.cv;
 
-  state.dpdr_e = state.dpdr - state.dpdT * state.dedr * (1.0/state.dedT);
-  state.dpde = state.dpdT * (1.0/state.dedT);
+            state.gam1 = eos_gamma;
 
-  // sound speed
-  state.cs = std::sqrt(eos_gamma * state.p * rhoinv);
+            state.dpdr_e = state.dpdr - state.dpdT * state.dedr * (1.0 / state.dedT);
+            state.dpde = state.dpdT * (1.0 / state.dedT);
+
+            // sound speed
+            state.cs = std::sqrt(eos_gamma * state.p * rhoinv);
+        }
+    }
 
 #ifdef EXTRA_THERMO
-  state.dpdA = - state.p * (1.0/state.abar);
-  state.dedA = - state.e * (1.0/state.abar);
+    if constexpr (has_pressure<T>::value) {
+        state.dpdA = - state.p * (1.0 / state.abar);
+    }
+    if constexpr (has_energy<T>::value) {
+        state.dedA = - state.e * (1.0 / state.abar);
+    }
 
-  if (eos_assume_neutral) {
-      state.dpdZ = 0.0;
-      state.dedZ = 0.0;
-  } else {
-    state.dpdZ = state.p * (1.0/(1.0 + state.zbar));
-    state.dedZ = state.e * (1.0/(1.0 + state.zbar));
-  } 
+    if (eos_assume_neutral) {
+        if constexpr (has_pressure<T>::value) {
+            state.dpdZ = 0.0;
+        }
+        if constexpr (has_energy<T>::value) {
+            state.dedZ = 0.0;
+        }
+    } else {
+        if constexpr (has_pressure<T>::value) {
+            state.dpdZ = state.p * (1.0 / (1.0 + state.zbar));
+        }
+        if constexpr (has_energy<T>::value) {
+            state.dedZ = state.e * (1.0/(1.0 + state.zbar));
+        }
+    }
 #endif
 }
 

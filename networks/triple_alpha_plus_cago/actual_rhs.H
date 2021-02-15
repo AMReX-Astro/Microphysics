@@ -336,7 +336,9 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ener_gener_rate(ydot, ydot(net_ienuc));
 
-    temperature_rhs(state, ydot);
+#ifdef STRANG
+    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
+#endif
 }
 
 

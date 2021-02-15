@@ -1,5 +1,6 @@
-F90EXE_sources += actual_eos.F90
-
+ifeq ($(USE_FORT_EOS),TRUE)
+  F90EXE_sources += actual_eos.F90
+endif
 ifeq ($(USE_CXX_EOS),TRUE)
-CEXE_headers += actual_eos.H
+  CEXE_headers += actual_eos.H
 endif

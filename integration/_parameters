@@ -1,3 +1,5 @@
+@namespace: integrator
+
 # these are the parameters for the integration module
 
 # When evolving the temperature, should we assume a constant pressure (default) 
@@ -47,7 +49,7 @@ rtol_spec                real      1.d-12
 rtol_temp                real      1.d-6
 rtol_enuc                real      1.d-6
 
-atol_spec                real      1.d-12
+atol_spec                real      1.d-8
 atol_temp                real      1.d-6
 atol_enuc                real      1.d-6
 
@@ -87,6 +89,9 @@ reactions_energy_scale           real         1.d0
 
 # maximum number of timesteps for the integrator
 ode_max_steps              integer      150000
+
+# maximum timestep for the integrator
+ode_max_dt                 real         1.d30
 
 # Whether to use Jacobian caching in VODE
 use_jacobian_caching    logical   .true.
