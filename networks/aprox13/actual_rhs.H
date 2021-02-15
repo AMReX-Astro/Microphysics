@@ -602,6 +602,11 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(1).rates(He4_He4_He4_to_C12_reverse) = ratraw * sc3a;
     rr(2).rates(He4_He4_He4_to_C12_reverse) = rr(2).rates(He4_He4_He4_to_C12_reverse)*sc3a + ratraw*sc3adt;
 
+    // Identical particle factor (He4 + He4 + He4)
+
+    rr(1).rates(He4_He4_He4_to_C12_forward) *= 1.0_rt / 6.0_rt;
+    rr(2).rates(He4_He4_He4_to_C12_forward) *= 1.0_rt / 6.0_rt;
+
     // c12 to o16
     // c12(a,g)o16
     jscr++;
@@ -1185,7 +1190,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // he4 jacobian elements
         // d(he4)/d(he4)
         Array1D<Real, 1, 20> b {
-            -1.5e0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward),
+            -9.0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward),
             -y(C12)  * rr(1).rates(C12_He4_to_O16_forward),
             -y(O16)  * rr(1).rates(O16_He4_to_Ne20_forward),
             -y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward),
@@ -1476,7 +1481,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // c12 jacobian elements
         // d(c12)/d(he4)
-        b(1) =  0.5e0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward);
+        b(1) =  3.0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward);
         b(2) = -y(C12) * rr(1).rates(C12_He4_to_O16_forward);
 
         jac(C12,He4) = b(1) + b(2);
@@ -1706,7 +1711,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     dydt(He4) = dydt(He4) + esum3(a);
 
     // (a,g) and (g,a) reactions
-    a(1)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr(index_rate).rates(He4_He4_He4_to_C12_forward);
+    a(1)  = -3.0e0_rt * y(He4) * y(He4) * y(He4) * rr(index_rate).rates(He4_He4_He4_to_C12_forward);
     a(2)  =  3.0e0_rt * y(C12) * rr(index_rate).rates(He4_He4_He4_to_C12_reverse);
     a(3)  = -y(He4)  * y(C12) * rr(index_rate).rates(C12_He4_to_O16_forward);
     a(4)  =  y(O16)  * rr(index_rate).rates(C12_He4_to_O16_reverse);
@@ -1810,7 +1815,7 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     // c12 reactions
     a(1) = -2.0e0_rt * y(C12) * y(C12) * rr(index_rate).rates(C12_C12_to_Ne20_He4_forward);
     a(2) = -y(C12) * y(O16) * rr(index_rate).rates(C12_O16_forward);
-    a(3) =  y(He4) * y(He4) * y(He4) * rr(index_rate).rates(He4_He4_He4_to_C12_forward) / 6.0_rt;;
+    a(3) =  y(He4) * y(He4) * y(He4) * rr(index_rate).rates(He4_He4_He4_to_C12_forward);
     a(4) = -y(C12) * rr(index_rate).rates(He4_He4_He4_to_C12_reverse);
     a(5) = -y(C12) * y(He4) * rr(index_rate).rates(C12_He4_to_O16_forward);
     a(6) =  y(O16) * rr(index_rate).rates(C12_He4_to_O16_reverse);
