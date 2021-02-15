@@ -1263,14 +1263,14 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
     {
         // (he4)/d(o16)
-        Array1D<Real, 1, 5> b {
+        Array1D<Real, 1, 4> b {
             y(C12) * rr(1).rates(C12_O16_to_Mg24_He4_forward),
             y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward),
             rr(1).rates(C12_He4_to_O16_reverse),
             -y(He4) * rr(1).rates(O16_He4_to_Ne20_forward),
         };
 
-        jac(He4,O16) = esum5(b);
+        jac(He4,O16) = esum4(b);
     }
 
     {
