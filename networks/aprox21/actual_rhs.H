@@ -2907,10 +2907,11 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ydot(net_ienuc) = enuc - sneut;
 
+#ifdef STRANG
     // Append the temperature equation
 
-    temperature_rhs(state, ydot);
-
+    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
+#endif
 }
 
 // Analytical Jacobian
