@@ -341,9 +341,9 @@ integration
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | parameter                             | description                                             | default value      |
 +=======================================+=========================================================+====================+
-| ``do_constant_volume_burn``           | When evolving the temperature, should we assume a       | .false.            |
-|                                       | constant pressure (default) or a constant volume        |                    |
-|                                       | (do_constant_volume_burn = T)?                          |                    |
+| ``do_constant_volume_burn``           | When evolving the temperature, should we assume a       | .true.             |
+|                                       | constant volume (default) or a constant pressure        |                    |
+|                                       | (do_constant_volume_burn = F)?                          |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``call_eos_in_rhs``                   | Do we call the EOS each time we enter the EOS?  This is | .false.            |
 |                                       | expensive, but more accurate.  Otherwise, we instead    |                    |
@@ -612,9 +612,6 @@ rprox
 | ``rtol_enuc``                         |                                                         | 1.0e-8             |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``jacobian``                          | override so that the default is an analytical Jacobian  | 1                  |
-+---------------------------------------+---------------------------------------------------------+--------------------+
-| ``do_constant_volume_burn``           | we typically run this network for constant-pressure     | .false.            |
-|                                       | burns                                                   |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
 
@@ -994,9 +991,6 @@ triple_alpha_plus_cago
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``jacobian``                          | override so that the default is an analytical Jacobian  | 1                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``do_constant_volume_burn``           | we typically run this network for constant-pressure     | .false.            |
-|                                       | burns                                                   |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
 
 
 
@@ -1021,9 +1015,6 @@ xrb_simple
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``jacobian``                          | override so that the default is a numerical Jacobian;   | 2                  |
 |                                       | we don't yet have an analytical Jacobian                |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
-| ``do_constant_volume_burn``           | we typically run this network for constant-pressure     | .false.            |
-|                                       | burns                                                   |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
 
