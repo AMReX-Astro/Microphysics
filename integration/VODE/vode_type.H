@@ -11,9 +11,15 @@
 #include <actual_matrix.H>
 #endif
 
+#ifdef STRANG
+const int VODE_NEQS = NumSpec + 1;
+#endif
+
 #ifdef SIMPLIFIED_SDC
 const int VODE_NEQS = SVAR_EVOLVE;
-#else
+#endif
+
+#ifdef TRUE_SDC
 const int VODE_NEQS = NumSpec + 2;
 #endif
 

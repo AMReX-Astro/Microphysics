@@ -6,7 +6,6 @@
 
 #include <network.H>
 #include <burn_type.H>
-#include <temperature_integration.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
@@ -29,13 +28,11 @@ void actual_integrator (burn_t& state, Real dt)
     for (int n = 1; n <= NumSpec; ++n) {
         vode_state.atol(n) = atol_spec; // mass fractions
     }
-    vode_state.atol(net_itemp) = atol_temp; // temperature
     vode_state.atol(net_ienuc) = atol_enuc; // energy generated
 
     for (int n = 1; n <= NumSpec; ++n) {
         vode_state.rtol(n) = rtol_spec; // mass fractions
     }
-    vode_state.rtol(net_itemp) = rtol_temp; // temperature
     vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
 
     // Start off by assuming a successful burn.
@@ -70,38 +67,20 @@ void actual_integrator (burn_t& state, Real dt)
 
     Real e_in = state.e;
 
-    // If we are using the dT_crit functionality and therefore doing a linear
-    // interpolation of the specific heat in between EOS calls, do a second
-    // EOS call here to establish an initial slope.
-
-    state.T_old = state.T;
-    state.cv_old = state.cv;
-    state.cp_old = state.cp;
-
-    if (dT_crit < 1.0e19_rt) {
-
-        eos_state.T *= (1.0_rt + std::sqrt(std::numeric_limits<Real>::epsilon()));
-
-        eos(eos_input_rt, eos_state);
-
-        state.dcvdT = (eos_state.cv - state.cv_old) / (eos_state.T - state.T_old);
-        state.dcpdT = (eos_state.cp - state.cp_old) / (eos_state.T - state.T_old);
-
-    }
-
     state.self_heat = true;
 
     // Call the integration routine.
 
     int istate = dvode(state, vode_state);
 
-    // Subtract the energy offset.
-
-    vode_state.y(net_ienuc) -= e_in;
-
     // Copy the integration data back to the burn state.
 
     vode_to_burn(vode_state, state);
+
+    // Subtract off the initial energy (the application codes expect
+    // to get back only the generated energy during the burn).
+
+    state.e -= e_in;
 
     // Normalize the final abundances.
 
@@ -117,10 +96,6 @@ void actual_integrator (burn_t& state, Real dt)
     // integration was successful.
 
     if (istate < 0) {
-        state.success = false;
-    }
-
-    if (vode_state.y(net_itemp) < 0.0_rt) {
         state.success = false;
     }
 
@@ -165,7 +140,7 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << state.xn[n] << " ";
         }
         std::cout << std::endl;
-        std::cout << "energy generated = " << state.e - e_in << std::endl;
+        std::cout << "energy generated = " << state.e << std::endl;
 #endif
     }
 
