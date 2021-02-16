@@ -15,5 +15,4 @@ ifeq ($(USE_NONAKA_PLOT), TRUE)
   f90EXE_sources += nonaka_plot.f90
 endif
 
-CEXE_headers += temperature_integration.H
-
+CEXE_headers += jacobian_utilities.H

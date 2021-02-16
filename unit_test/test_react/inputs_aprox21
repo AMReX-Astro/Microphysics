@@ -19,5 +19,5 @@ integrator.jacobian = 2
 integrator.centered_diff_jac = 1
 
 integrator.call_eos_in_rhs = 1
-integrator.do_constant_volume_burn = 1
+
 
