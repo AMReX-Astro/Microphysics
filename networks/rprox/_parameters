@@ -16,6 +16,3 @@ rtol_enuc                real      1.0e-8  100
 
 # override so that the default is an analytical Jacobian
 jacobian                 integer   1       100
-
-# we typically run this network for constant-pressure burns
-do_constant_volume_burn  logical   .false. 100

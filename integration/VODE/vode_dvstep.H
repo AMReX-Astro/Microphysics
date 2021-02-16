@@ -209,12 +209,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         bool valid_update = true;
 
-#ifdef STRANG
-        if (vstate.y(net_itemp) < 0.0_rt) {
-            valid_update = false;
-        }
-#endif
-
 #ifdef SIMPLIFIED_SDC
 #if defined(SDC_EVOLVE_ENERGY)
         if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
