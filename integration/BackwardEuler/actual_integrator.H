@@ -107,9 +107,20 @@ int single_step (burn_t& burn_state_in,
 
     Array1D<Real, 1, neqs> ydot;
 
+    actual_rhs(burn_state_in, ydot);
+
+    burn_state_in.n_rhs += 1;
+
+    // Scale species terms by A (they come from the RHS in terms of Y, not X).
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        ydot(n) *= aion[n-1];
+    }
+
+
     Array1D<Real, 1, BE_NEQS> y_np1;
     for (int n = 1; n <= BE_NEQS; n++) {
-        y_np1(n) = y(n);
+        y_np1(n) = y(n) + dt * ydot(n);
     }
 
     for (int iter = 1; iter <= max_iter; iter++) {
@@ -313,7 +324,7 @@ void actual_integrator (burn_t& state, const Real dt)
         Array1D<Real, 1, BE_NEQS> yd;
 
         int ierr1 = single_step(state, y, dt_sub/2, ynew);
-        int ierr2 = single_step(state, y, dt_sub/2, yd);
+        int ierr2 = single_step(state, ynew, dt_sub/2, yd);
 
         int ierr3 = single_step(state, y, dt_sub, ynew);
 
