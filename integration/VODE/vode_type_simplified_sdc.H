@@ -354,6 +354,4 @@ void rhs_to_vode(const Real time, burn_t& state,
 
 }
 
-
-
 #endif

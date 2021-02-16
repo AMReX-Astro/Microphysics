@@ -2,9 +2,9 @@
 
 # these are the parameters for the integration module
 
-# When evolving the temperature, should we assume a constant pressure (default) 
-# or a constant volume (do_constant_volume_burn = T)?
-do_constant_volume_burn  logical   .false.
+# When evolving the temperature, should we assume a constant volume (default)
+# or a constant pressure (do_constant_volume_burn = F)?
+do_constant_volume_burn  logical   .true.
 
 # Do we call the EOS each time we enter the EOS?  This is expensive,
 # but more accurate.  Otherwise, we instead call the EOS at the start

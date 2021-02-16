@@ -79,12 +79,17 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         }
 
 
-        // temperature derivative
+        // e derivative
 
         for (int q = 0; q < NumSpec; q++) {
             state_delp.xn[q] = state.xn[q];
         }
-        state_delp.T *= (1.0_rt + eps);
+        state_delp.e *= (1.0_rt + eps);
+
+        eos_t eos_state;
+        burn_to_eos(state_delp, eos_state);
+        eos(eos_input_re, eos_state);
+        eos_to_burn(eos_state, state_delp);
 
         actual_rhs(state_delp, ydotp);
 
@@ -95,7 +100,12 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         for (int q = 0; q < NumSpec; q++) {
             state_delm.xn[q] = state.xn[q];
         }
-        state_delm.T *= (1.0_rt - eps);
+
+        state_delm.e *= (1.0_rt - eps);
+
+        burn_to_eos(state_delm, eos_state);
+        eos(eos_input_re, eos_state);
+        eos_to_burn(eos_state, state_delm);
 
         actual_rhs(state_delm, ydotm);
 
@@ -104,14 +114,9 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         }
 
         for (int m = 1; m <= neqs; m++) {
-            jac(m, net_itemp) = 0.5_rt * (ydotp(m) - ydotm(m)) / (eps * state.T);
+            jac(m, net_ienuc) = 0.5_rt * (ydotp(m) - ydotm(m)) / (eps * state.e);
         }
 
-        // energy derivatives -- these are all 0! (yay!)
-
-        for (int m = 1; m <= neqs; m++) {
-            jac(m, net_ienuc) = 0.0_rt;
-        }
 
     } else {
         burn_t state_delp = state;
@@ -154,18 +159,23 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
             }
         }
 
-        // temperature derivative
+        // e derivative
 
         for (int q = 0; q < NumSpec; q++) {
             state_delp.xn[q] = state.xn[q];
         }
 
-        Real h = eps * std::abs(state.T);
+        Real h = eps * std::abs(state.e);
         if (h == 0) {
             h = eps;
         }
 
-        state_delp.T += h;
+        state_delp.e += h;
+
+        eos_t eos_state;
+        burn_to_eos(state_delp, eos_state);
+        eos(eos_input_re, eos_state);
+        eos_to_burn(eos_state, state_delp);
 
         actual_rhs(state_delp, ydotp);
 
@@ -174,14 +184,9 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         }
 
         for (int m = 1; m <= neqs; m++) {
-            jac(m, net_itemp) = (ydotp(m) - ydotm(m)) / h;
+            jac(m, net_ienuc) = (ydotp(m) - ydotm(m)) / h;
         }
 
-        // energy derivatives -- these are all 0! (yay!)
-
-        for (int m = 1; m <= neqs; m++) {
-            jac(m, net_ienuc) = 0.0_rt;
-        }
     }
 }
 #endif

@@ -17,8 +17,6 @@ unit_test.primary_species_1 = "helium-4"
 unit_test.primary_species_2 = "carbon-12"
 unit_test.primary_species_3 = "oxygen-16"
 
-integrator.do_constant_volume_burn = 1
-
 integrator.rtol_spec = 1.e-6
 integrator.atol_spec = 1.e-6
 

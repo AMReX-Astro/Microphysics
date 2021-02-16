@@ -18,7 +18,6 @@ module variables
      integer :: itemp = -1
      integer :: ispec = -1
      integer :: ispec_old = -1
-     integer :: itemp_dot = -1
      integer :: ienuc_dot = -1
      integer :: ijac = -1
 
@@ -64,7 +63,6 @@ contains
     p % itemp     = p % next_index(1)
     p % ispec     = p % next_index(nspec)
     p % ispec_old = p % next_index(nspec)
-    p % itemp_dot = p % next_index(1)
     p % ienuc_dot = p % next_index(1)
     p % ijac      = p % next_index(neqs * neqs)
 
