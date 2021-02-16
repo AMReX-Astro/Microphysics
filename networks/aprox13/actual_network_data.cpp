@@ -102,7 +102,6 @@ void actual_network_init()
         names[ircopa-1] = "rcopa";
         names[ircopg-1] = "rcopg";
         names[irnigp-1] = "rnigp";
-        names[irr1-1]   = "r1";
         names[irs1-1]   = "s1";
         names[irt1-1]   = "t1";
         names[iru1-1]   = "u1";
