@@ -16,7 +16,7 @@
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
-#include <temperature_integration.H>
+#include <jacobian_utilities.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -2906,12 +2906,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Append the energy equation (this is erg/g/s)
 
     ydot(net_ienuc) = enuc - sneut;
-
-#ifdef STRANG
-    // Append the temperature equation
-
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 }
 
 // Analytical Jacobian
@@ -2974,16 +2968,13 @@ void actual_jac (burn_t& state, MatrixType& jac)
     rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
 
     for (int i = 1; i <= NumSpec; ++i) {
-        jac(i, net_itemp) = yderivs(i);
+        jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
     }
 
-    ener_gener_rate(yderivs, jac(net_ienuc, net_itemp));
-
-    jac(net_ienuc, net_itemp) -= dsneutdt;
-
-    // Temperature Jacobian elements
-
-    temperature_jac(state, jac);
+    Real jac_e_T;
+    ener_gener_rate(yderivs, jac_e_T);
+    jac_e_T -= dsneutdt;
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
 
 #endif
