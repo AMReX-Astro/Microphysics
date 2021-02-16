@@ -16,9 +16,9 @@
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
-#include <temperature_integration.H>
 #include <ArrayUtilities.H>
 #include <rhs_utilities.H>
+#include <jacobian_utilities.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -404,11 +404,10 @@ void screen_iso7(const Real btemp, const Real bden,
 
        denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
-       rate(Si28_7He4_to_Ni56_forward)     = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward)*y(Si28);
+       rate(Si28_7He4_to_Ni56_forward)     = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward);
        dratedY(He4, Si28_7He4_to_Ni56_forward) = 3.0e0_rt * rate(Si28_7He4_to_Ni56_forward)/y(He4);
-       dratedY(Si28, Si28_7He4_to_Ni56_forward) = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward);
        dratedt(Si28_7He4_to_Ni56_forward)  = (yeff_ca40dt*rate(Ca40_He4_to_Ti44_forward)
-                                              + yeff_ca40*dratedt(Ca40_He4_to_Ti44_forward))*denom*y(Si28)*1.0e-9_rt;
+                                              + yeff_ca40*dratedt(Ca40_He4_to_Ti44_forward))*denom*1.0e-9_rt;
 
        if (denom != 0.0_rt) {
 
@@ -652,12 +651,6 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Instantaneous energy generation rate
 
     ydot(net_ienuc) = ener_rhs(state, spec_rhs);
-
-#ifdef STRANG
-    // Append the temperature equation
-
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 }
 
 
@@ -710,24 +703,22 @@ void actual_jac(burn_t& state, MatrixType& jac)
        jac.add(net_ienuc, j, -b1);
     }
 
-    // Evaluate the Jacobian elements with respect to temperature by
-    // calling the RHS using d(rate) / dT
+    // Evaluate the Jacobian elements with respect to energy by
+    // calling the RHS using d(rate) / dT and then transform them
+    // to our energy integration variable.
 
     const int index_rate = 2;
 
     Array1D<Real, 1, NumSpec> yderivs = RHS::species_rhs(state, rr(index_rate));
 
     for (int i = 1; i <= NumSpec; ++i) {
-        jac(i,net_itemp) = yderivs(i);
+        jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
     }
 
-    ener_gener_rate(yderivs, jac(net_ienuc,net_itemp));
-
-    jac.add(net_ienuc, net_itemp, -dsneutdt);
-
-    // Temperature Jacobian elements
-
-    temperature_jac(state, jac);
+    Real jac_e_T;
+    ener_gener_rate(yderivs, jac_e_T);
+    jac_e_T -= dsneutdt;
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 
 }
 
