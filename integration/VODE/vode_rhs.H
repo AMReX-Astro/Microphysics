@@ -23,7 +23,6 @@ void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydo
     // We are integrating a system of
     //
     // y(1:NumSpec) = dX/dt
-    // y(net_itemp) = dT/dt
     // y(net_ienuc) = denuc/dt
 
     // Only do the burn if the incoming temperature is within the temperature
@@ -58,10 +57,7 @@ void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydo
         ydot(n) *= aion[n-1];
     }
 
-    // Allow temperature and energy integration to be disabled.
-    if (!integrate_temperature) {
-        ydot(net_itemp) = 0.0_rt;
-    }
+    // Allow energy integration to be disabled.
 
     if (!integrate_energy) {
         ydot(net_ienuc) = 0.0_rt;
@@ -128,11 +124,6 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     }
 
     // Allow temperature and energy integration to be disabled.
-    if (!integrate_temperature) {
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            pd(net_itemp,j) = 0.0_rt;
-        }
-    }
 
     if (!integrate_energy) {
         for (int j = 1; j <= VODE_NEQS; ++j) {

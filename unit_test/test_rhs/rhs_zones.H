@@ -59,7 +59,6 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t p)
 
     for (int n = 1; n <= NumSpec; ++n) {
         state(i, j, k, p.ispec + n - 1) = ydot(n);
-        state(i, j, k, p.itemp_dot) = ydot(net_itemp);
         state(i, j, k, p.ienuc_dot) = ydot(net_ienuc);
     }
 
