@@ -41,21 +41,6 @@ Real calculate_dt (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     }
 
-    if (integrate_temperature) {
-
-        Real target_dT;
-        if (ydot(net_itemp) > 0.0) {
-            target_dT = (maximum_timestep_change_factor - 1.0_rt) * state.T;
-        } else {
-            target_dT = (1.0_rt - 1.0_rt / maximum_timestep_change_factor) * state.T;
-        }
-
-        Real dTdt = amrex::max(std::abs(ydot(net_itemp)), 1.0e-30_rt);
-
-        dt = amrex::min(dt, target_dT / dTdt);
-
-    }
-
     if (integrate_energy) {
 
         Real target_de;
@@ -130,8 +115,6 @@ int single_step (burn_t& burn_state_in,
         // the density.
 
         burn_t burn_state = burn_state_in;
-
-        burn_state.T = y_np1(net_itemp);
 
         for (int n = 0; n < NumSpec; n++) {
             burn_state.xn[n] = y_np1(n+1);
@@ -283,7 +266,6 @@ void actual_integrator (burn_t& state, const Real dt)
     for (int n = 0; n < NumSpec; n++) {
         y(n+1) = state.xn[n];
     }
-    y(net_itemp) = state.T;
     y(net_ienuc) = state.e;
 
     int num_timesteps = 0;
@@ -395,10 +377,6 @@ void actual_integrator (burn_t& state, const Real dt)
 
     for (int n = 1; n <= NumSpec; ++n) {
         state.xn[n-1] = y(n);
-    }
-
-    if (integrate_temperature) {
-        state.T = y(net_itemp);
     }
 
     if (integrate_energy) {
