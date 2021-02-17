@@ -1298,7 +1298,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // (he4)/d(o16)
         Array1D<Real, 1, 4> b {
             y(C12) * rr(1).rates(C12_O16_to_Mg24_He4_forward),
-            y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward),
+            2.0_rt * y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward),
             rr(1).rates(C12_He4_to_O16_reverse),
             -y(He4) * rr(1).rates(O16_He4_to_Ne20_forward),
         };
@@ -1539,7 +1539,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
         // d(si28)/d(o16)
         b(1) = y(C12) * rr(1).rates(C12_O16_to_Si28_forward);
-        b(2) = y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward);
+        b(2) = 2.0_rt * y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward);
 
         jac(Si28,O16) = b(1) + b(2);
     }
@@ -1619,7 +1619,7 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         jac(Si28,S32) = b(1) + b(2);
 
         // d(s32)/d(o16)
-        b(1) = y(O16) * rr(1).rates(O16_O16_to_S32_forward);
+        b(1) = 2.0_rt * y(O16) * rr(1).rates(O16_O16_to_S32_forward);
 
         jac(S32,O16) = b(1);
 
