@@ -121,7 +121,7 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             break;
 
         case (C12_O16_to_Si28_reverse):
-            dtab = bden; // rate is zero in this net
+            dtab = 1.0_rt; // rate is zero in this net
             break;
 
         case (O16_O16_to_Si28_He4_forward):
@@ -137,7 +137,7 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             break;
 
         case (O16_O16_to_S32_reverse):
-            dtab = bden; // rate is zero in this net
+            dtab = 1.0_rt; // rate is zero in this net
             break;
 
         case (O16_He4_to_Ne20_forward):
