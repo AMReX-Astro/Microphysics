@@ -1772,13 +1772,10 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups> const& rr,
          Array1D<Real, 1, neqs>& dydt,
-         bool deriva, bool for_jacobian_tderiv)
+         bool for_jacobian_tderiv)
 {
     using namespace Species;
     using namespace Rates;
-
-    // deriva is used in forming the analytic Jacobian to get
-    // the derivative wrt A
 
     const int index_rate = for_jacobian_tderiv ? 2 : 1;
 
@@ -1827,77 +1824,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     dydt(He4) = dydt(He4) + esum12(a);
 
-    // (a,p)(p,g) and (g,p)(p,a) reactions
-
-    if (!deriva) {
-
-       a(1)  =  0.0_rt;
-       a(2)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(3)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-       a(4)  =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(5)  =  0.0_rt; // previously S32  -> P31  -> Si28
-       a(6)  =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(7)  =  0.0_rt; // previously Al36 -> Cl35 -> S32
-       a(8)  =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(9)  =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-       a(10) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(11) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-       a(12) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(13) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-       a(14) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(15) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-       a(16) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(17) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-
-       dydt(He4) = dydt(He4) + esum17(a);
-
-    } else {
-
-       a(1)  =  0.0_rt;
-       a(2)  =  0.0_rt;
-       a(3)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(4)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(5)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-       a(6)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-       a(7)  =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(8)  =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(9)  =  0.0_rt; // previously S32  -> P31  -> Si28
-       a(10) =  0.0_rt; // previously S32  -> P31  -> Si28
-
-       dydt(He4) = dydt(He4) + esum10(a);
-
-       a(1)  =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(2)  =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(3)  =  0.0_rt; // previously Al36 -> Cl35 -> S32
-       a(4)  =  0.0_rt; // previously Al36 -> Cl35 -> S32
-       a(5)  =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(6)  =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(7)  =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-       a(8)  =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-       a(9)  =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(10) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(11) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-       a(12) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-
-       dydt(He4) = dydt(He4) + esum12(a);
-
-       a(1)  =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(2)  =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(3)  =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-       a(4)  =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-       a(5)  =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(6)  =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(7)  =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-       a(8)  =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-       a(9)  =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(10) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(11) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-       a(12) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-
-       dydt(He4) = dydt(He4) + esum12(a);
-    
-    }
-
     // c12 reactions
     a(1) = -2.0e0_rt * y(C12) * y(C12) * rr(index_rate).rates(C12_C12_to_Ne20_He4_forward);
     a(2) = -y(C12) * y(O16) * rr(index_rate).rates(C12_O16_to_Mg24_He4_forward);
@@ -1942,24 +1868,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     dydt(Mg24) = dydt(Mg24) + esum5(a);
 
-    if (!deriva) {
-
-       a(1) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(2) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-
-       dydt(Mg24) = dydt(Mg24) + a(1) + a(2);
-
-    } else {
-
-       a(1) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(2) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(3) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-       a(4) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-
-       dydt(Mg24) = dydt(Mg24) + esum4(a);
-
-    }
-
 
     // si28 reactions
     a(1) =  y(C12) * y(O16) * rr(index_rate).rates(C12_O16_to_Si28_forward);
@@ -1970,33 +1878,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     a(6) =  y(S32)  * rr(index_rate).rates(Si28_He4_to_S32_reverse);
 
     dydt(Si28) = dydt(Si28) + esum6(a);
-
-    if (!deriva) {
-
-       a(1) =  0.0_rt;
-       a(2) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(3) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-       a(4) =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(5) =  0.0_rt; // previously S32  -> P31  -> Si28
-
-       dydt(Si28) = dydt(Si28) + esum5(a);
-
-    } else {
-
-       a(1)  =  0.0_rt;
-       a(2)  =  0.0_rt;
-       a(3)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(4)  =  0.0_rt; // previously Mg24 -> Al27 -> Si28
-       a(5)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-       a(6)  =  0.0_rt; // previously Si28 -> Al27 -> Mg24
-       a(7)  =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(8)  =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(9)  =  0.0_rt; // previously S32  -> P31  -> Si28
-       a(10) =  0.0_rt; // previously S32  -> P31  -> Si28
-
-       dydt(Si28) = dydt(Si28) + esum10(a);
-
-    }
 
 
     // s32 reactions
@@ -2009,34 +1890,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     dydt(S32) = dydt(S32) + esum5(a);
 
 
-    if (!deriva) {
-
-       a(1) =  0.0_rt;
-       a(2) =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(3) =  0.0_rt; // previously S32  -> P31  -> Si28
-       a(4) =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(5) =  0.0_rt; // previously Ar36 -> Cl35 -> S32
-
-       dydt(S32) = dydt(S32) + esum5(a);
-
-    } else {
-
-       a(1)  =  0.0_rt;
-       a(2)  =  0.0_rt;
-       a(3)  =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(4)  =  0.0_rt; // previously Si28 -> P31  -> S32
-       a(5)  =  0.0_rt; // previously S32  -> P31  -> Si28
-       a(6)  =  0.0_rt; // previously S32  -> P31  -> Si28
-       a(7)  =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(8)  =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(9)  =  0.0_rt; // previously Ar36 -> Cl35 -> S32
-       a(10) =  0.0_rt; // previously Ar36 -> Cl35 -> S32
-
-       dydt(S32) = dydt(S32) + esum10(a);
-
-    }
-
-
     // ar36 reactions
     a(1) =  y(S32)  * y(He4) * rr(index_rate).rates(S32_He4_to_Ar36_forward);
     a(2) = -y(Ar36) * y(He4) * rr(index_rate).rates(Ar36_He4_to_Ca40_forward);
@@ -2044,30 +1897,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     a(4) =  y(Ca40) * rr(index_rate).rates(Ar36_He4_to_Ca40_reverse);
 
     dydt(Ar36) = dydt(Ar36) + esum4(a);
-
-    if (!deriva) {
-
-       a(1) =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(2) =  0.0_rt; // previously Ar36 -> Cl35 -> S32
-       a(3) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(4) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-
-       dydt(Ar36) = dydt(Ar36) + esum4(a);
-
-    } else {
-
-       a(1) =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(2) =  0.0_rt; // previously S32  -> Cl35 -> Ar36
-       a(3) =  0.0_rt; // previously Ar36 -> Cl35 -> S32
-       a(4) =  0.0_rt; // previously Ar36 -> Cl35 -> S32
-       a(5) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(6) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(7) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-       a(8) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-
-       dydt(Ar36) = dydt(Ar36) + esum8(a);
-
-    }
 
 
     // ca40 reactions
@@ -2078,30 +1907,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     dydt(Ca40) = dydt(Ca40) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(2) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-       a(3) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(4) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-
-       dydt(Ca40) = dydt(Ca40) + esum4(a);
-
-    } else {
-
-       a(1) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(2) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
-       a(3) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-       a(4) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
-       a(5) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(6) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(7) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-       a(8) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-
-       dydt(Ca40) = dydt(Ca40) + esum8(a);
-
-    }
-
 
     // ti44 reactions
     a(1) =  y(Ca40) * y(He4) * rr(index_rate).rates(Ca40_He4_to_Ti44_forward);
@@ -2110,30 +1915,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
     a(4) =  y(Cr48) * rr(index_rate).rates(Ti44_He4_to_Cr48_reverse);
 
     dydt(Ti44) = dydt(Ti44) + esum4(a);
-
-    if (!deriva) {
-
-       a(1) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(2) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-       a(3) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(4) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-
-       dydt(Ti44) = dydt(Ti44) + esum4(a);
-
-    } else {
-
-       a(1) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(2) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
-       a(3) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-       a(4) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
-       a(5) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(6) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(7) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-       a(8) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-
-       dydt(Ti44) = dydt(Ti44) + esum8(a);
-
-    }
 
 
     // cr48 reactions
@@ -2144,30 +1925,6 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     dydt(Cr48) = dydt(Cr48) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(2) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-       a(3) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(4) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-
-       dydt(Cr48) = dydt(Cr48) + esum4(a);
-
-    } else {
-
-       a(1) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(2) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
-       a(3) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-       a(4) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
-       a(5) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(6) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(7) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-       a(8) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-
-       dydt(Cr48) = dydt(Cr48) + esum8(a);
-
-    }
-
 
     // fe52 reactions
     a(1) =  y(Cr48) * y(He4) * rr(index_rate).rates(Cr48_He4_to_Fe52_forward);
@@ -2177,55 +1934,12 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     dydt(Fe52) = dydt(Fe52) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(2) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-       a(3) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(4) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-
-       dydt(Fe52) = dydt(Fe52) + esum4(a);
-
-    } else {
-
-       a(1) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(2) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
-       a(3) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-       a(4) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
-       a(5) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(6) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(7) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-       a(8) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-
-       dydt(Fe52) = dydt(Fe52) + esum8(a);
-
-    }
-
 
     // ni56 reactions
     a(1) =  y(Fe52) * y(He4) * rr(index_rate).rates(Fe52_He4_to_Ni56_forward);
     a(2) = -y(Ni56) * rr(index_rate).rates(Fe52_He4_to_Ni56_reverse);
 
     dydt(Ni56) = dydt(Ni56) + a(1) + a(2);
-
-    if (!deriva) {
-
-       a(1) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(2) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-
-       dydt(Ni56) = dydt(Ni56) + a(1) + a(2);
-
-    } else {
-
-       a(1) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(2) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
-       a(3) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-       a(4) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
-
-       dydt(Ni56) = dydt(Ni56) + esum4(a);
-
-    }
-
 }
 
 
@@ -2273,9 +1987,8 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Call the RHS to actually get dydt.
 
-    bool deriva = false;
     bool for_jacobian_tderiv = false;
-    rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
+    rhs(y, rr, ydot, for_jacobian_tderiv);
 
     // Instantaneous energy generation rate -- this needs molar fractions
 
@@ -2349,9 +2062,8 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // Evaluate the Jacobian elements with respect to temperature by
     // calling the RHS using d(rate) / dT
 
-    deriva = true;
     bool for_jacobian_tderiv = true;
-    rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
+    rhs(y, rr, yderivs, for_jacobian_tderiv);
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
