@@ -8,11 +8,6 @@ namespace iso7
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> wion;
 }
 
-namespace Rates
-{
-    amrex::Vector<std::string> names;
-}
-
 void actual_network_init()
 {
     using namespace Species;
@@ -36,33 +31,5 @@ void actual_network_init()
 
         // Common approximation to molar mass
         wion(i) = aion[i-1];
-    }
-
-    // set the names of the reaction rates
-    {
-        using namespace Rates;
-        names.resize(NumRates);
-        names[C12_He4_to_O16_forward-1]     = "rcag";
-        names[C12_He4_to_O16_reverse-1]     = "roga";
-        names[He4_He4_He4_to_C12_forward-1] = "r3a";
-        names[He4_He4_He4_to_C12_reverse-1] = "rg3a";
-        names[C12_C12_to_Ne20_He4_forward-1] = "r1212";
-        names[C12_C12_to_Ne20_He4_reverse-1] = "r1212_r";
-        names[C12_O16_to_Mg24_He4_forward-1] = "r1216";
-        names[C12_O16_to_Mg24_He4_reverse-1] = "r1216_r";
-        names[C12_O16_to_Si28_forward-1]    = "r1216_Si";
-        names[C12_O16_to_Si28_reverse-1]    = "r1216_Si_r";
-        names[O16_O16_to_Si28_He4_forward-1] = "r1616";
-        names[O16_O16_to_Si28_He4_reverse-1] = "r1616_r";
-        names[O16_He4_to_Ne20_forward-1]    = "roag";
-        names[O16_He4_to_Ne20_reverse-1]    = "rnega";
-        names[Ne20_He4_to_Mg24_forward-1]   = "rneag";
-        names[Ne20_He4_to_Mg24_reverse-1]   = "rmgga";
-        names[Mg24_He4_to_Si28_forward-1]   = "rmgag";
-        names[Mg24_He4_to_Si28_reverse-1]   = "rsiga";
-        names[Ca40_He4_to_Ti44_forward-1]   = "rcaag";
-        names[Ca40_He4_to_Ti44_reverse-1]   = "rtiga";
-        names[Si28_7He4_to_Ni56_forward-1]  = "rsi2ni";
-        names[Si28_7He4_to_Ni56_reverse-1]  = "rni2si";
     }
 }

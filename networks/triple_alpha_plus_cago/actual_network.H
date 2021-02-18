@@ -28,8 +28,6 @@ namespace Rates
     };
 
     const int NumGroups = 2;
-
-    extern amrex::Vector<std::string> names;
 };
 
 #endif
