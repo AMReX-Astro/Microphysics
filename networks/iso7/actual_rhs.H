@@ -126,7 +126,7 @@ void iso7tab(const Real btemp, const Real bden,
             break;
 
         case (C12_O16_to_Si28_reverse):
-            dtab = bden; // rate is zero in this net
+            dtab = 1.0_rt; // rate is zero in this net
             break;
 
         case (O16_O16_to_Si28_He4_forward):
