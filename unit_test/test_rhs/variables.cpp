@@ -41,16 +41,12 @@ void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
 
           if (i < NumSpec) {
               names[p.ijac + n] += spec_names_cxx[i] + "_";
-          } else if (i == NumSpec) {
-              names[p.ijac + n] += "T_";
           } else {
               names[p.ijac + n] += "E_";
           }
 
           if (j < NumSpec) {
               names[p.ijac + n] += spec_names_cxx[j];
-          } else if (j == NumSpec) {
-              names[p.ijac + n] += "T";
           } else {
               names[p.ijac + n] += "E";
           }
