@@ -57,8 +57,6 @@ namespace Rates
 
     const int NumGroups = 3;
 
-    extern amrex::Vector<std::string> names;
-
     constexpr int dlambCNOdh1   = 1;
     constexpr int drs1dhe4      = 2;
     constexpr int drr1dh1       = 3;

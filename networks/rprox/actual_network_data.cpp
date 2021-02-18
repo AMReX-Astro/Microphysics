@@ -6,11 +6,6 @@ namespace rprox
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> ebin;
 }
 
-namespace Rates
-{
-    amrex::Vector<std::string> names;
-}
-
 void actual_network_init()
 {
     using namespace Species;
@@ -32,30 +27,5 @@ void actual_network_init()
     // convert to erg / g by multiplying by N_A / aion and converting to erg
     for (int i = 1; i <= NumSpec; ++i) {
         ebin(i) = -ebin(i) * C::Legacy::N_A * C::Legacy::MeV2erg / aion[i-1];
-    }
-
-    // set the names of the reaction rates
-    {
-        using namespace Rates;
-        names.resize(NumRates);
-
-        names[irlambCNO-1] = "rlambdaCNO";
-        names[irag15o-1]   = "rag15o";
-        names[irr1-1]      = "rr1";
-        names[irag16o-1]   = "rag16o";
-        names[irpg16o-1]   = "rpg16o";
-        names[irpg17f-1]   = "rpg17f";
-        names[irgp17f-1]   = "rgp17f";
-        names[irlambda2-1] = "rlambda2";
-        names[irap14o-1]   = "rap14o";
-        names[irs1-1]      = "rs1";
-        names[irlambda1-1] = "rlambda1";
-        names[ir3a-1]      = "r3a";
-        names[irpg12c-1]   = "rpg12c";
-        names[irwk14o-1]   = "wk14o";
-        names[irwk17f-1]   = "wk17f";
-        names[irwk15o-1]   = "wk15o";
-        names[irLweak-1]   = "Lweak";
-        names[irla2-1]     = "la2";
     }
 }
