@@ -86,7 +86,7 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         }
         state_delp.e *= (1.0_rt + eps);
 
-        eos_t eos_state;
+        eos_re_t eos_state;
         burn_to_eos(state_delp, eos_state);
         eos(eos_input_re, eos_state);
         eos_to_burn(eos_state, state_delp);
@@ -172,7 +172,7 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
 
         state_delp.e += h;
 
-        eos_t eos_state;
+        eos_re_t eos_state;
         burn_to_eos(state_delp, eos_state);
         eos(eos_input_re, eos_state);
         eos_to_burn(eos_state, state_delp);
