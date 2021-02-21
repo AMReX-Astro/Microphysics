@@ -11,9 +11,10 @@
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
-#include "extern_parameters.H"
+#include <extern_parameters.H>
 
-#include "burn_type.H"
+#include <burn_type.H>
+#include <eos.H>
 
 using namespace amrex;
 
@@ -49,9 +50,8 @@ void init_nse() {
 }
 
 
-template <class state_t> 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(const state_t& state) {
+bool in_nse(const eos_t& state) {
 
   using namespace Species;
 
@@ -62,18 +62,63 @@ bool in_nse(const state_t& state) {
     // Ma checks on Fe-group (for our composition, this means Cr48, Fe52, Fe54, Ni56)
     // and C-group (for us, that is C12, N14)
     // and He-group (for us, that is H1, He3, He4)
+    // also make sure there is not a lot of O16 (O16 burning will dominate then) or Si28
 
     Real Fe_group = state.xn[Cr48-1] + state.xn[Fe52-1] +
                     state.xn[Fe54-1] + state.xn[Ni56-1];
     Real C_group = state.xn[C12-1] + state.xn[N14-1];
     Real He_group = state.xn[H1-1] + state.xn[He3-1] + state.xn[He4-1];
+    Real O_group = state.xn[O16-1];
+    Real Si_group = state.xn[Si28-1];
 
-    if (Fe_group + He_group > He_Fe_nse && C_group < C_nse) {
+    if (Fe_group + He_group > He_Fe_nse && C_group < C_nse && O_group < O_nse && Si_group < Si_nse) {
       nse_check = true;
     }
   }
 
   return nse_check;
+
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool in_nse(const burn_t& state) {
+
+    using namespace Species;
+
+    bool nse_check = false;
+
+    if (state.rho > rho_nse && state.T > T_nse) {
+
+        // Ma checks on Fe-group (for our composition, this means Cr48, Fe52, Fe54, Ni56)
+        // and C-group (for us, that is C12, N14)
+        // and He-group (for us, that is H1, He3, He4)
+        // also make sure there is not a lot of O16 (O16 burning will dominate then) or Si28
+
+#ifdef STRANG
+        Real Fe_group = state.xn[Cr48-1] + state.xn[Fe52-1] +
+                        state.xn[Fe54-1] + state.xn[Ni56-1];
+        Real C_group = state.xn[C12-1] + state.xn[N14-1];
+        Real He_group = state.xn[H1-1] + state.xn[He3-1] + state.xn[He4-1];
+        Real O_group = state.xn[O16-1];
+        Real Si_group = state.xn[Si28-1];
+#else
+        // we need to get the mass fractions from the conserved state passed in
+
+        Real Fe_group = (state.y[SFS+Cr48-1] + state.y[SFS+Fe52-1] +
+                         state.y[SFS+Fe54-1] + state.y[SFS+Ni56-1]) / state.rho;
+        Real C_group = (state.y[SFS+C12-1] + state.y[SFS+N14-1]) / state.rho;
+        Real He_group = (state.y[SFS+H1-1] + state.y[SFS+He3-1] + state.y[SFS+He4-1]) / state.rho;
+        Real O_group = state.y[SFS+O16-1] / state.rho;
+        Real Si_group = state.y[SFS+Si28-1] / state.rho;
+#endif
+
+        if (Fe_group + He_group > He_Fe_nse && C_group < C_nse && O_group < O_nse && Si_group < Si_nse) {
+            nse_check = true;
+        }
+    }
+
+    return nse_check;
 
 }
 
@@ -223,6 +268,108 @@ void nse_interp(const Real T, const Real rho, const Real ye,
 }
 
 
+#ifdef SIMPLIFIED_SDC
+///
+/// update the state due to NSE changes for the simplified-SDC case
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void sdc_nse_burn(burn_t& state, const Real dt) {
+
+    using namespace AuxZero;
+
+    state.success = true;
+    state.n_rhs = 0;
+    state.n_jac = 0;
+
+    // call the NSE table to get (dYe/dt)^n
+    Real abar_out;
+    Real dq_out;
+    Real dyedt;
+    Real X[NumSpec];
+
+    Real ye_in = state.y[SFX+iye] / state.rho;
+    nse_interp(state.T, state.rho, ye_in,
+               abar_out, dq_out, dyedt, X);
+
+    // density and momentum have no reactive sources
+    Real rho_old = state.y[SRHO];
+    Real rho_bea_old = state.y[SFX+ibea];
+
+    state.y[SRHO] += dt * state.ydot_a[SRHO];
+    state.y[SMX] += dt * state.ydot_a[SMX];
+    state.y[SMY] += dt * state.ydot_a[SMY];
+    state.y[SMZ] += dt * state.ydot_a[SMZ];
+
+    // predict the U* state with advection and a lagged reactive term
+    // we actually only need to predict the energy and auxiliary data
+    // here, since that's all that is used (along with rho) for the
+    // equation of state.
+
+    Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
+
+    Real rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * state.Iq_rhoe;
+
+    Real rho_aux_new[NumAux];
+    for (int n = 0; n < NumAux; n++) {
+        rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * rho_half * state.Iq_aux[n];
+    }
+
+    // override the source for Ye
+
+    rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * rho_half * dyedt;
+
+    // call the EOS to get the updated T*
+
+    eos_t eos_state;
+
+    eos_state.rho = state.y[SRHO];
+    eos_state.T = 1.e6_rt;   // initial guess
+    eos_state.e = rhoe_new / state.y[SRHO];
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = rho_aux_new[n] / state.y[SRHO];
+    }
+
+    eos(eos_input_re, eos_state);
+
+    // call the NSE table using the * state to get the t^{n+1} composition data
+
+    nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
+               abar_out, dq_out, dyedt, X);
+
+    // compute the energy release
+
+    // this is MeV / nucleon * g / cm**3
+    Real dq = dq_out - rho_bea_old/rho_old;
+
+    // convert the energy to erg / cm**3
+    Real enuc = dq * C::MeV2eV * C::ev2erg * C::n_A;
+    // construct the final U^{n+1}
+
+    // the new mass fractions are just those that come from the table
+
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] = state.y[SRHO] * X[n];
+    }
+
+    // aux data comes from the table (except Ye, which we predicted)
+
+    state.y[SFX+iye] = eos_state.rho * eos_state.aux[iye];
+    state.y[SFX+iabar] = eos_state.rho * abar_out;
+    state.y[SFX+ibea] = eos_state.rho * dq_out;
+
+    // density and momenta have already been updated
+
+    // update the total and internal energy now
+
+    state.y[SEINT] += dt * state.ydot_a[SEINT] + rho_half * enuc;
+    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + rho_half * enuc;
+
+}
+
+#else
+///
+/// update the state due to NSE changes for the Strang-split case
+///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_burn(burn_t& state, const Real dt) {
 
@@ -274,6 +421,6 @@ void nse_burn(burn_t& state, const Real dt) {
   }
 
 }
-
+#endif
 
 #endif

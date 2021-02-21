@@ -8,12 +8,10 @@ endif
 
 F90EXE_sources += jacobian_sparsity.F90
 ifneq ($(USE_TRUE_SDC), TRUE)
-  F90EXE_sources += network_rhs.F90
   F90EXE_sources += temperature_integration.F90
 endif
 ifeq ($(USE_NONAKA_PLOT), TRUE)
   f90EXE_sources += nonaka_plot.f90
 endif
 
-CEXE_headers += temperature_integration.H
-
+CEXE_headers += jacobian_utilities.H

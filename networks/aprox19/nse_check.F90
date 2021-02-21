@@ -2,7 +2,7 @@ module nse_check_module
 
   use network
   use burn_type_module, only : burn_t
-  use extern_probin_module, only : rho_nse, T_nse, C_nse, He_Fe_nse
+  use extern_probin_module, only : rho_nse, T_nse, C_nse, He_Fe_nse, O_nse, Si_nse
 
   implicit none
 
@@ -13,7 +13,7 @@ contains
     type(burn_t), intent(in) :: burn_state
     integer, intent(out) :: nse_check
 
-    real(rt) Fe_group, C_group, He_group
+    real(rt) Fe_group, C_group, He_group, SI_group, O_group
 
     !$gpu
 
@@ -29,8 +29,10 @@ contains
                   burn_state % xn(ife54) + burn_state % xn(ini56)
        C_group = burn_state % xn(ic12) + burn_state % xn(in14)
        He_group = burn_state % xn(ih1) + burn_state % xn(ihe3) + burn_state % xn(ihe4)
+       O_group = burn_state % xn(io16)
+       Si_group = burn_state % xn(isi28)
 
-       if (Fe_group + He_group > He_Fe_nse .and. C_group < C_nse) then
+       if (Fe_group + He_group > He_Fe_nse .and. C_group < C_nse .and. O_group < O_nse .and. Si_group < Si_nse) then
           nse_check = 1
        end if
     end if

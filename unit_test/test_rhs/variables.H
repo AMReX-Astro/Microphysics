@@ -16,7 +16,6 @@ public:
     int itemp = 1;
     int ispec = -1;
     int ispec_old = -1;
-    int itemp_dot = -1;
     int ienuc_dot = -1;
     int ijac = -1;
 

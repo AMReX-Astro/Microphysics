@@ -16,7 +16,7 @@
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
-#include <temperature_integration.H>
+#include <jacobian_utilities.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -42,6 +42,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
     using namespace RateTable;
+    using namespace Rates;
 
     constexpr int mp = 4;
 
@@ -49,79 +50,6 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
     Real x, x1, x2, x3, x4;
     Real a, b, c, d, e, f, g, h, p, q;
     Real alfa, beta, gama, delt;
-    Array1D<Real, 1, Rates::NumRates> dtab;
-
-    // Set the density dependence array
-    {
-        using namespace Rates;
-        dtab(ir3a)   = bden*bden;
-        dtab(irg3a)  = 1.0e0_rt;
-        dtab(ircag)  = bden;
-        dtab(iroga)  = 1.0e0_rt;
-        dtab(ir1212) = bden;
-        dtab(ir1216) = bden;
-        dtab(ir1616) = bden;
-        dtab(iroag)  = bden;
-        dtab(irnega) = 1.0e0_rt;
-        dtab(irneag) = bden;
-        dtab(irmgga) = 1.0e0_rt;
-        dtab(irmgag) = bden;
-        dtab(irsiga) = 1.0e0_rt;
-        dtab(irmgap) = bden;
-        dtab(iralpa) = bden;
-        dtab(iralpg) = bden;
-        dtab(irsigp) = 1.0e0_rt;
-        dtab(irsiag) = bden;
-        dtab(irsga)  = 1.0e0_rt;
-        dtab(irppa)  = bden;
-        dtab(irsiap) = bden;
-        dtab(irppg)  = bden;
-        dtab(irsgp)  = 1.0e0_rt;
-        dtab(irsag)  = bden;
-        dtab(irarga) = 1.0e0_rt;
-        dtab(irsap)  = bden;
-        dtab(irclpa) = bden;
-        dtab(irclpg) = bden;
-        dtab(irargp) = 1.0e0_rt;
-        dtab(irarag) = bden;
-        dtab(ircaga) = 1.0e0_rt;
-        dtab(irarap) = bden;
-        dtab(irkpa)  = bden;
-        dtab(irkpg)  = bden;
-        dtab(ircagp) = 1.0e0_rt;
-        dtab(ircaag) = bden;
-        dtab(irtiga) = 1.0e0_rt;
-        dtab(ircaap) = bden;
-        dtab(irscpa) = bden;
-        dtab(irscpg) = bden;
-        dtab(irtigp) = 1.0e0_rt;
-        dtab(irtiag) = bden;
-        dtab(ircrga) = 1.0e0_rt;
-        dtab(irtiap) = bden;
-        dtab(irvpa)  = bden;
-        dtab(irvpg)  = bden;
-        dtab(ircrgp) = 1.0e0_rt;
-        dtab(ircrag) = bden;
-        dtab(irfega) = 1.0e0_rt;
-        dtab(ircrap) = bden;
-        dtab(irmnpa) = bden;
-        dtab(irmnpg) = bden;
-        dtab(irfegp) = 1.0e0_rt;
-        dtab(irfeag) = bden;
-        dtab(irniga) = 1.0e0_rt;
-        dtab(irfeap) = bden;
-        dtab(ircopa) = bden;
-        dtab(ircopg) = bden;
-        dtab(irnigp) = 1.0e0_rt;
-        dtab(irr1)   = 0.0e0_rt;
-        dtab(irs1)   = 0.0e0_rt;
-        dtab(irt1)   = 0.0e0_rt;
-        dtab(iru1)   = 0.0e0_rt;
-        dtab(irv1)   = 0.0e0_rt;
-        dtab(irw1)   = 0.0e0_rt;
-        dtab(irx1)   = 0.0e0_rt;
-        dtab(iry1)   = 0.0e0_rt;
-    }
 
     // hash locate
     iat = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
@@ -149,17 +77,287 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
     delt = -a*b*c/(g*p*q);
 
     // crank off the raw reaction rates
-    for (int j = 1; j <= Rates::NumRates; ++j) {
+    for (int rate = 1; rate <= Rates::NumRates; ++rate) {
 
-       rr(1).rates(j) = (  alfa * rattab(j,iat  )
-                        + beta * rattab(j,iat+1)
-                        + gama * rattab(j,iat+2)
-                        + delt * rattab(j,iat+3) ) * dtab(j);
+        Real dtab = 0.0_rt;
 
-       rr(2).rates(j) = (  alfa * drattabdt(j,iat  )
-                        + beta * drattabdt(j,iat+1)
-                        + gama * drattabdt(j,iat+2)
-                        + delt * drattabdt(j,iat+3) ) * dtab(j);
+        // Set the density dependence
+        switch (rate) {
+
+        case (He4_He4_He4_to_C12_forward):
+            dtab = bden*bden;
+            break;
+
+        case (He4_He4_He4_to_C12_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (C12_He4_to_O16_forward):
+            dtab = bden;
+            break;
+
+        case (C12_He4_to_O16_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (C12_C12_to_Ne20_He4_forward):
+            dtab = bden;
+            break;
+
+        case (C12_C12_to_Ne20_He4_reverse):
+            dtab = bden; // rate is zero in this net
+            break;
+
+        case (C12_O16_to_Mg24_He4_forward):
+            dtab = bden;
+            break;
+
+        case (C12_O16_to_Mg24_He4_reverse):
+            dtab = bden; // rate is zero in this net
+            break;
+
+        case (C12_O16_to_Si28_forward):
+            dtab = bden;
+            break;
+
+        case (C12_O16_to_Si28_reverse):
+            dtab = 1.0_rt; // rate is zero in this net
+            break;
+
+        case (O16_O16_to_Si28_He4_forward):
+            dtab = bden;
+            break;
+
+        case (O16_O16_to_Si28_He4_reverse):
+            dtab = bden; // rate is zero in this net
+            break;
+
+        case (O16_O16_to_S32_forward):
+            dtab = bden;
+            break;
+
+        case (O16_O16_to_S32_reverse):
+            dtab = 1.0_rt; // rate is zero in this net
+            break;
+
+        case (O16_He4_to_Ne20_forward):
+            dtab = bden;
+            break;
+
+        case (O16_He4_to_Ne20_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ne20_He4_to_Mg24_forward):
+            dtab = bden;
+            break;
+
+        case (Ne20_He4_to_Mg24_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Mg24_He4_to_Si28_forward):
+            dtab = bden;
+            break;
+
+        case (Mg24_He4_to_Si28_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irmgap):
+            dtab = bden;
+            break;
+
+        case (iralpa):
+            dtab = bden;
+            break;
+
+        case (iralpg):
+            dtab = bden;
+            break;
+
+        case (irsigp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Si28_He4_to_S32_forward):
+            dtab = bden;
+            break;
+
+        case (Si28_He4_to_S32_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irppa):
+            dtab = bden;
+            break;
+
+        case (irsiap):
+            dtab = bden;
+            break;
+
+        case (irppg):
+            dtab = bden;
+            break;
+
+        case (irsgp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (S32_He4_to_Ar36_forward):
+            dtab = bden;
+            break;
+
+        case (S32_He4_to_Ar36_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irsap):
+            dtab = bden;
+            break;
+
+        case (irclpa):
+            dtab = bden;
+            break;
+
+        case (irclpg):
+            dtab = bden;
+            break;
+
+        case (irargp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ar36_He4_to_Ca40_forward):
+            dtab = bden;
+            break;
+
+        case (Ar36_He4_to_Ca40_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irarap):
+            dtab = bden;
+            break;
+
+        case (irkpa):
+            dtab = bden;
+            break;
+
+        case (irkpg):
+            dtab = bden;
+            break;
+
+        case (ircagp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ca40_He4_to_Ti44_forward):
+            dtab = bden;
+            break;
+
+        case (Ca40_He4_to_Ti44_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (ircaap):
+            dtab = bden;
+            break;
+
+        case (irscpa):
+            dtab = bden;
+            break;
+
+        case (irscpg):
+            dtab = bden;
+            break;
+
+        case (irtigp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Ti44_He4_to_Cr48_forward):
+            dtab = bden;
+            break;
+
+        case (Ti44_He4_to_Cr48_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irtiap):
+            dtab = bden;
+            break;
+
+        case (irvpa):
+            dtab = bden;
+            break;
+
+        case (irvpg):
+            dtab = bden;
+            break;
+
+        case (ircrgp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Cr48_He4_to_Fe52_forward):
+            dtab = bden;
+            break;
+
+        case (Cr48_He4_to_Fe52_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (ircrap):
+            dtab = bden;
+            break;
+
+        case (irmnpa):
+            dtab = bden;
+            break;
+
+        case (irmnpg):
+            dtab = bden;
+            break;
+
+        case (irfegp):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (Fe52_He4_to_Ni56_forward):
+            dtab = bden;
+            break;
+
+        case (Fe52_He4_to_Ni56_reverse):
+            dtab = 1.0e0_rt;
+            break;
+
+        case (irfeap):
+            dtab = bden;
+            break;
+
+        case (ircopa):
+            dtab = bden;
+            break;
+
+        case (ircopg):
+            dtab = bden;
+            break;
+
+        case (irnigp):
+            dtab = 1.0e0_rt;
+            break;
+        }
+
+        rr(1).rates(rate) = (alfa * rattab(rate, iat  ) +
+                             beta * rattab(rate, iat+1) +
+                             gama * rattab(rate, iat+2) +
+                             delt * rattab(rate, iat+3)) * dtab;
+
+        rr(2).rates(rate) = (alfa * drattabdt(rate, iat  ) +
+                             beta * drattabdt(rate, iat+1) +
+                             gama * drattabdt(rate, iat+2) +
+                             delt * drattabdt(rate, iat+3)) * dtab;
 
     }
 }
@@ -191,49 +389,49 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
     if (use_c12ag_deboer17) {
         // deboer + 2017 c12(a,g)o16 rate
         rate_c12ag_deboer17(tf,bden,
-                            rr(1).rates(ircag),rr(2).rates(ircag),
-                            rr(1).rates(iroga),rr(2).rates(iroga));
+                            rr(1).rates(C12_He4_to_O16_forward),rr(2).rates(C12_He4_to_O16_forward),
+                            rr(1).rates(C12_He4_to_O16_reverse),rr(2).rates(C12_He4_to_O16_reverse));
     } else {
         // 1.7 times cf88 c12(a,g)o16 rate
         rate_c12ag(tf,bden,
-                   rr(1).rates(ircag),rr(2).rates(ircag),
-                   rr(1).rates(iroga),rr(2).rates(iroga));
+                   rr(1).rates(C12_He4_to_O16_forward),rr(2).rates(C12_He4_to_O16_forward),
+                   rr(1).rates(C12_He4_to_O16_reverse),rr(2).rates(C12_He4_to_O16_reverse));
     }
 
     // triple alpha to c12
     rate_triplealf(tf,bden,
-                   rr(1).rates(ir3a),rr(2).rates(ir3a),
-                   rr(1).rates(irg3a),rr(2).rates(irg3a));
+                   rr(1).rates(He4_He4_He4_to_C12_forward),rr(2).rates(He4_He4_He4_to_C12_forward),
+                   rr(1).rates(He4_He4_He4_to_C12_reverse),rr(2).rates(He4_He4_He4_to_C12_reverse));
 
     // c12 + c12
     rate_c12c12(tf,bden,
-                rr(1).rates(ir1212),rr(2).rates(ir1212),
+                rr(1).rates(C12_C12_to_Ne20_He4_forward),rr(2).rates(C12_C12_to_Ne20_He4_forward),
                 rrate,drratedt);
 
     // c12 + o16
     rate_c12o16(tf,bden,
-                rr(1).rates(ir1216),rr(2).rates(ir1216),
+                rr(1).rates(C12_O16_to_Mg24_He4_forward),rr(2).rates(C12_O16_to_Mg24_He4_forward),
                 rrate,drratedt);
 
     // o16 + o16
     rate_o16o16(tf,bden,
-                rr(1).rates(ir1616),rr(2).rates(ir1616),
+                rr(1).rates(O16_O16_to_Si28_He4_forward),rr(2).rates(O16_O16_to_Si28_He4_forward),
                 rrate,drratedt);
 
     // o16(a,g)ne20
     rate_o16ag(tf,bden,
-               rr(1).rates(iroag),rr(2).rates(iroag),
-               rr(1).rates(irnega),rr(2).rates(irnega));
+               rr(1).rates(O16_He4_to_Ne20_forward),rr(2).rates(O16_He4_to_Ne20_forward),
+               rr(1).rates(O16_He4_to_Ne20_reverse),rr(2).rates(O16_He4_to_Ne20_reverse));
 
     // ne20(a,g)mg24
     rate_ne20ag(tf,bden,
-                rr(1).rates(irneag),rr(2).rates(irneag),
-                rr(1).rates(irmgga),rr(2).rates(irmgga));
+                rr(1).rates(Ne20_He4_to_Mg24_forward),rr(2).rates(Ne20_He4_to_Mg24_forward),
+                rr(1).rates(Ne20_He4_to_Mg24_reverse),rr(2).rates(Ne20_He4_to_Mg24_reverse));
 
     // mg24(a,g)si28
     rate_mg24ag(tf,bden,
-                rr(1).rates(irmgag),rr(2).rates(irmgag),
-                rr(1).rates(irsiga),rr(2).rates(irsiga));
+                rr(1).rates(Mg24_He4_to_Si28_forward),rr(2).rates(Mg24_He4_to_Si28_forward),
+                rr(1).rates(Mg24_He4_to_Si28_reverse),rr(2).rates(Mg24_He4_to_Si28_reverse));
 
     // mg24(a,p)al27
     rate_mg24ap(tf,bden,
@@ -247,8 +445,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // si28(a,g)s32
     rate_si28ag(tf,bden,
-                rr(1).rates(irsiag),rr(2).rates(irsiag),
-                rr(1).rates(irsga),rr(2).rates(irsga));
+                rr(1).rates(Si28_He4_to_S32_forward),rr(2).rates(Si28_He4_to_S32_forward),
+                rr(1).rates(Si28_He4_to_S32_reverse),rr(2).rates(Si28_He4_to_S32_reverse));
 
     // si28(a,p)p31
     rate_si28ap(tf,bden,
@@ -262,8 +460,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // s32(a,g)ar36
     rate_s32ag(tf,bden,
-               rr(1).rates(irsag),rr(2).rates(irsag),
-               rr(1).rates(irarga),rr(2).rates(irarga));
+               rr(1).rates(S32_He4_to_Ar36_forward),rr(2).rates(S32_He4_to_Ar36_forward),
+               rr(1).rates(S32_He4_to_Ar36_reverse),rr(2).rates(S32_He4_to_Ar36_reverse));
 
     // s32(a,p)cl35
     rate_s32ap(tf,bden,
@@ -277,8 +475,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ar36(a,g)ca40
     rate_ar36ag(tf,bden,
-                rr(1).rates(irarag),rr(2).rates(irarag),
-                rr(1).rates(ircaga),rr(2).rates(ircaga));
+                rr(1).rates(Ar36_He4_to_Ca40_forward),rr(2).rates(Ar36_He4_to_Ca40_forward),
+                rr(1).rates(Ar36_He4_to_Ca40_reverse),rr(2).rates(Ar36_He4_to_Ca40_reverse));
 
     // ar36(a,p)k39
     rate_ar36ap(tf,bden,
@@ -292,8 +490,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ca40(a,g)ti44
     rate_ca40ag(tf,bden,
-                rr(1).rates(ircaag),rr(2).rates(ircaag),
-                rr(1).rates(irtiga),rr(2).rates(irtiga));
+                rr(1).rates(Ca40_He4_to_Ti44_forward),rr(2).rates(Ca40_He4_to_Ti44_forward),
+                rr(1).rates(Ca40_He4_to_Ti44_reverse),rr(2).rates(Ca40_He4_to_Ti44_reverse));
 
     // ca40(a,p)sc43
     rate_ca40ap(tf,bden,
@@ -307,8 +505,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ti44(a,g)cr48
     rate_ti44ag(tf,bden,
-                rr(1).rates(irtiag),rr(2).rates(irtiag),
-                rr(1).rates(ircrga),rr(2).rates(ircrga));
+                rr(1).rates(Ti44_He4_to_Cr48_forward),rr(2).rates(Ti44_He4_to_Cr48_forward),
+                rr(1).rates(Ti44_He4_to_Cr48_reverse),rr(2).rates(Ti44_He4_to_Cr48_reverse));
 
     // ti44(a,p)v47
     rate_ti44ap(tf,bden,
@@ -322,8 +520,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // cr48(a,g)fe52
     rate_cr48ag(tf,bden,
-                rr(1).rates(ircrag),rr(2).rates(ircrag),
-                rr(1).rates(irfega),rr(2).rates(irfega));
+                rr(1).rates(Cr48_He4_to_Fe52_forward),rr(2).rates(Cr48_He4_to_Fe52_forward),
+                rr(1).rates(Cr48_He4_to_Fe52_reverse),rr(2).rates(Cr48_He4_to_Fe52_reverse));
 
     // cr48(a,p)mn51
     rate_cr48ap(tf,bden,
@@ -337,8 +535,8 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // fe52(a,g)ni56
     rate_fe52ag(tf,bden,
-                rr(1).rates(irfeag),rr(2).rates(irfeag),
-                rr(1).rates(irniga),rr(2).rates(irniga));
+                rr(1).rates(Fe52_He4_to_Ni56_forward),rr(2).rates(Fe52_He4_to_Ni56_forward),
+                rr(1).rates(Fe52_He4_to_Ni56_reverse),rr(2).rates(Fe52_He4_to_Ni56_reverse));
 
     // fe52(a,p)co55
     rate_fe52ap(tf,bden,
@@ -420,13 +618,18 @@ void screen_aprox13(const Real btemp, const Real bden,
     sc3a   = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
 
-    ratraw = rr(1).rates(ir3a);
-    rr(1).rates(ir3a) = ratraw * sc3a;
-    rr(2).rates(ir3a) = rr(2).rates(ir3a)*sc3a + ratraw*sc3adt;
+    ratraw = rr(1).rates(He4_He4_He4_to_C12_forward);
+    rr(1).rates(He4_He4_He4_to_C12_forward) = ratraw * sc3a;
+    rr(2).rates(He4_He4_He4_to_C12_forward) = rr(2).rates(He4_He4_He4_to_C12_forward)*sc3a + ratraw*sc3adt;
 
-    ratraw = rr(1).rates(irg3a);
-    rr(1).rates(irg3a) = ratraw * sc3a;
-    rr(2).rates(irg3a) = rr(2).rates(irg3a)*sc3a + ratraw*sc3adt;
+    ratraw = rr(1).rates(He4_He4_He4_to_C12_reverse);
+    rr(1).rates(He4_He4_He4_to_C12_reverse) = ratraw * sc3a;
+    rr(2).rates(He4_He4_He4_to_C12_reverse) = rr(2).rates(He4_He4_He4_to_C12_reverse)*sc3a + ratraw*sc3adt;
+
+    // Identical particle factor (He4 + He4 + He4)
+
+    rr(1).rates(He4_He4_He4_to_C12_forward) *= 1.0_rt / 6.0_rt;
+    rr(2).rates(He4_He4_He4_to_C12_forward) *= 1.0_rt / 6.0_rt;
 
     // c12 to o16
     // c12(a,g)o16
@@ -435,13 +638,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ircag);
-    rr(1).rates(ircag)  = ratraw * sc1a;
-    rr(2).rates(ircag)  = rr(2).rates(ircag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_He4_to_O16_forward);
+    rr(1).rates(C12_He4_to_O16_forward)  = ratraw * sc1a;
+    rr(2).rates(C12_He4_to_O16_forward)  = rr(2).rates(C12_He4_to_O16_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(iroga);
-    rr(1).rates(iroga)  = ratraw * sc1a;
-    rr(2).rates(iroga)  = rr(2).rates(iroga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_He4_to_O16_reverse);
+    rr(1).rates(C12_He4_to_O16_reverse)  = ratraw * sc1a;
+    rr(2).rates(C12_He4_to_O16_reverse)  = rr(2).rates(C12_He4_to_O16_reverse)*sc1a + ratraw*sc1adt;
 
     // c12 + c12
     jscr++;
@@ -449,9 +652,14 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ir1212);
-    rr(1).rates(ir1212) = ratraw * sc1a;
-    rr(2).rates(ir1212) = rr(2).rates(ir1212)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_C12_to_Ne20_He4_forward);
+    rr(1).rates(C12_C12_to_Ne20_He4_forward) = ratraw * sc1a;
+    rr(2).rates(C12_C12_to_Ne20_He4_forward) = rr(2).rates(C12_C12_to_Ne20_He4_forward)*sc1a + ratraw*sc1adt;
+
+    // Identical particle factor (C12 + C12)
+
+    rr(1).rates(C12_C12_to_Ne20_He4_forward) *= 0.5_rt;
+    rr(2).rates(C12_C12_to_Ne20_He4_forward) *= 0.5_rt;
 
     // c12 + o16
     jscr++;
@@ -459,9 +667,17 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1], 
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ir1216);
-    rr(1).rates(ir1216) = ratraw * sc1a;
-    rr(2).rates(ir1216) = rr(2).rates(ir1216)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(C12_O16_to_Mg24_He4_forward);
+    rr(1).rates(C12_O16_to_Mg24_He4_forward) = ratraw * sc1a;
+    rr(2).rates(C12_O16_to_Mg24_He4_forward) = rr(2).rates(C12_O16_to_Mg24_He4_forward)*sc1a + ratraw*sc1adt;
+
+    // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
+
+    rr(1).rates(C12_O16_to_Mg24_He4_forward) *= 0.5;
+    rr(2).rates(C12_O16_to_Mg24_He4_forward) *= 0.5;
+
+    rr(1).rates(C12_O16_to_Si28_forward) = rr(1).rates(C12_O16_to_Mg24_He4_forward);
+    rr(2).rates(C12_O16_to_Si28_forward) = rr(2).rates(C12_O16_to_Mg24_He4_forward);
 
     // o16 + o16
     jscr++;
@@ -469,9 +685,17 @@ void screen_aprox13(const Real btemp, const Real bden,
             zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    ratraw = rr(1).rates(ir1616);
-    rr(1).rates(ir1616) = ratraw * sc1a;
-    rr(2).rates(ir1616) = rr(2).rates(ir1616)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(O16_O16_to_Si28_He4_forward);
+    rr(1).rates(O16_O16_to_Si28_He4_forward) = ratraw * sc1a;
+    rr(2).rates(O16_O16_to_Si28_He4_forward) = rr(2).rates(O16_O16_to_Si28_He4_forward)*sc1a + ratraw*sc1adt;
+
+    // Identical particle factor (O16 + O16)
+
+    rr(1).rates(O16_O16_to_Si28_He4_forward) *= 0.5_rt;
+    rr(2).rates(O16_O16_to_Si28_He4_forward) *= 0.5_rt;
+
+    Real O16_O16_rate = rr(1).rates(O16_O16_to_Si28_He4_forward);
+    Real O16_O16_dratedt = rr(2).rates(O16_O16_to_Si28_He4_forward);
 
     // o16 to ne20
     jscr++;
@@ -481,13 +705,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // o16(a,g)ne20
-    ratraw = rr(1).rates(iroag);
-    rr(1).rates(iroag) = ratraw * sc1a;
-    rr(2).rates(iroag) = rr(2).rates(iroag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(O16_He4_to_Ne20_forward);
+    rr(1).rates(O16_He4_to_Ne20_forward) = ratraw * sc1a;
+    rr(2).rates(O16_He4_to_Ne20_forward) = rr(2).rates(O16_He4_to_Ne20_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irnega);
-    rr(1).rates(irnega) = ratraw * sc1a;
-    rr(2).rates(irnega) = rr(2).rates(irnega)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(O16_He4_to_Ne20_reverse);
+    rr(1).rates(O16_He4_to_Ne20_reverse) = ratraw * sc1a;
+    rr(2).rates(O16_He4_to_Ne20_reverse) = rr(2).rates(O16_He4_to_Ne20_reverse)*sc1a + ratraw*sc1adt;
 
     // ne20 to mg24
     jscr++;
@@ -497,13 +721,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ne20(a,g)mg24
-    ratraw = rr(1).rates(irneag);
-    rr(1).rates(irneag) = ratraw * sc1a;
-    rr(2).rates(irneag) = rr(2).rates(irneag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ne20_He4_to_Mg24_forward);
+    rr(1).rates(Ne20_He4_to_Mg24_forward) = ratraw * sc1a;
+    rr(2).rates(Ne20_He4_to_Mg24_forward) = rr(2).rates(Ne20_He4_to_Mg24_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irmgga);
-    rr(1).rates(irmgga) = ratraw * sc1a;
-    rr(2).rates(irmgga) = rr(2).rates(irmgga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ne20_He4_to_Mg24_reverse);
+    rr(1).rates(Ne20_He4_to_Mg24_reverse) = ratraw * sc1a;
+    rr(2).rates(Ne20_He4_to_Mg24_reverse) = rr(2).rates(Ne20_He4_to_Mg24_reverse)*sc1a + ratraw*sc1adt;
 
     // mg24 to si28
     jscr++;
@@ -513,13 +737,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // mg24(a,g)si28
-    ratraw = rr(1).rates(irmgag);
-    rr(1).rates(irmgag) = ratraw * sc1a;
-    rr(2).rates(irmgag) = rr(2).rates(irmgag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mg24_He4_to_Si28_forward);
+    rr(1).rates(Mg24_He4_to_Si28_forward) = ratraw * sc1a;
+    rr(2).rates(Mg24_He4_to_Si28_forward) = rr(2).rates(Mg24_He4_to_Si28_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irsiga);
-    rr(1).rates(irsiga) = ratraw * sc1a;
-    rr(2).rates(irsiga) = rr(2).rates(irsiga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mg24_He4_to_Si28_reverse);
+    rr(1).rates(Mg24_He4_to_Si28_reverse) = ratraw * sc1a;
+    rr(2).rates(Mg24_He4_to_Si28_reverse) = rr(2).rates(Mg24_He4_to_Si28_reverse)*sc1a + ratraw*sc1adt;
 
 
     // mg24(a,p)al27
@@ -554,13 +778,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // si28(a,g)s32
-    ratraw = rr(1).rates(irsiag);
-    rr(1).rates(irsiag) = ratraw * sc1a;
-    rr(2).rates(irsiag) = rr(2).rates(irsiag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Si28_He4_to_S32_forward);
+    rr(1).rates(Si28_He4_to_S32_forward) = ratraw * sc1a;
+    rr(2).rates(Si28_He4_to_S32_forward) = rr(2).rates(Si28_He4_to_S32_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irsga);
-    rr(1).rates(irsga) = ratraw * sc1a;
-    rr(2).rates(irsga) = rr(2).rates(irsga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Si28_He4_to_S32_reverse);
+    rr(1).rates(Si28_He4_to_S32_reverse) = ratraw * sc1a;
+    rr(2).rates(Si28_He4_to_S32_reverse) = rr(2).rates(Si28_He4_to_S32_reverse)*sc1a + ratraw*sc1adt;
 
 
     // si28(a,p)p31
@@ -596,13 +820,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // s32(a,g)ar36
-    ratraw = rr(1).rates(irsag);
-    rr(1).rates(irsag)  = ratraw * sc1a;
-    rr(2).rates(irsag)  = rr(2).rates(irsag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(S32_He4_to_Ar36_forward);
+    rr(1).rates(S32_He4_to_Ar36_forward)  = ratraw * sc1a;
+    rr(2).rates(S32_He4_to_Ar36_forward)  = rr(2).rates(S32_He4_to_Ar36_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irarga);
-    rr(1).rates(irarga)  = ratraw * sc1a;
-    rr(2).rates(irarga)  = rr(2).rates(irarga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(S32_He4_to_Ar36_reverse);
+    rr(1).rates(S32_He4_to_Ar36_reverse)  = ratraw * sc1a;
+    rr(2).rates(S32_He4_to_Ar36_reverse)  = rr(2).rates(S32_He4_to_Ar36_reverse)*sc1a + ratraw*sc1adt;
 
     // s32(a,p)cl35
     ratraw = rr(1).rates(irsap);
@@ -637,13 +861,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ar36(a,g)ca40
-    ratraw = rr(1).rates(irarag);
-    rr(1).rates(irarag) = ratraw * sc1a;
-    rr(2).rates(irarag) = rr(2).rates(irarag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ar36_He4_to_Ca40_forward);
+    rr(1).rates(Ar36_He4_to_Ca40_forward) = ratraw * sc1a;
+    rr(2).rates(Ar36_He4_to_Ca40_forward) = rr(2).rates(Ar36_He4_to_Ca40_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(ircaga);
-    rr(1).rates(ircaga) = ratraw * sc1a;
-    rr(2).rates(ircaga) = rr(2).rates(ircaga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ar36_He4_to_Ca40_reverse);
+    rr(1).rates(Ar36_He4_to_Ca40_reverse) = ratraw * sc1a;
+    rr(2).rates(Ar36_He4_to_Ca40_reverse) = rr(2).rates(Ar36_He4_to_Ca40_reverse)*sc1a + ratraw*sc1adt;
 
 
     // ar36(a,p)k39
@@ -679,13 +903,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ca40(a,g)ti44
-    ratraw = rr(1).rates(ircaag);
-    rr(1).rates(ircaag) = ratraw * sc1a;
-    rr(2).rates(ircaag) = rr(2).rates(ircaag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ca40_He4_to_Ti44_forward);
+    rr(1).rates(Ca40_He4_to_Ti44_forward) = ratraw * sc1a;
+    rr(2).rates(Ca40_He4_to_Ti44_forward) = rr(2).rates(Ca40_He4_to_Ti44_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irtiga);
-    rr(1).rates(irtiga) = ratraw * sc1a;
-    rr(2).rates(irtiga) = rr(2).rates(irtiga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ca40_He4_to_Ti44_reverse);
+    rr(1).rates(Ca40_He4_to_Ti44_reverse) = ratraw * sc1a;
+    rr(2).rates(Ca40_He4_to_Ti44_reverse) = rr(2).rates(Ca40_He4_to_Ti44_reverse)*sc1a + ratraw*sc1adt;
 
 
     // ca40(a,p)sc43
@@ -721,13 +945,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ti44(a,g)cr48
-    ratraw = rr(1).rates(irtiag);
-    rr(1).rates(irtiag) = ratraw * sc1a;
-    rr(2).rates(irtiag) = rr(2).rates(irtiag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ti44_He4_to_Cr48_forward);
+    rr(1).rates(Ti44_He4_to_Cr48_forward) = ratraw * sc1a;
+    rr(2).rates(Ti44_He4_to_Cr48_forward) = rr(2).rates(Ti44_He4_to_Cr48_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(ircrga);
-    rr(1).rates(ircrga) = ratraw * sc1a;
-    rr(2).rates(ircrga) = rr(2).rates(ircrga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ti44_He4_to_Cr48_reverse);
+    rr(1).rates(Ti44_He4_to_Cr48_reverse) = ratraw * sc1a;
+    rr(2).rates(Ti44_He4_to_Cr48_reverse) = rr(2).rates(Ti44_He4_to_Cr48_reverse)*sc1a + ratraw*sc1adt;
 
     // ti44(a,p)v47
     ratraw = rr(1).rates(irtiap);
@@ -762,13 +986,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // cr48(a,g)fe52
-    ratraw = rr(1).rates(ircrag);
-    rr(1).rates(ircrag) = ratraw * sc1a;
-    rr(2).rates(ircrag) = rr(2).rates(ircrag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cr48_He4_to_Fe52_forward);
+    rr(1).rates(Cr48_He4_to_Fe52_forward) = ratraw * sc1a;
+    rr(2).rates(Cr48_He4_to_Fe52_forward) = rr(2).rates(Cr48_He4_to_Fe52_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irfega);
-    rr(1).rates(irfega) = ratraw * sc1a;
-    rr(2).rates(irfega) = rr(2).rates(irfega)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cr48_He4_to_Fe52_reverse);
+    rr(1).rates(Cr48_He4_to_Fe52_reverse) = ratraw * sc1a;
+    rr(2).rates(Cr48_He4_to_Fe52_reverse) = rr(2).rates(Cr48_He4_to_Fe52_reverse)*sc1a + ratraw*sc1adt;
 
 
     // cr48(a,p)mn51
@@ -804,13 +1028,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // fe52(a,g)ni56
-    ratraw = rr(1).rates(irfeag);
-    rr(1).rates(irfeag) = ratraw * sc1a;
-    rr(2).rates(irfeag) = rr(2).rates(irfeag)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Fe52_He4_to_Ni56_forward);
+    rr(1).rates(Fe52_He4_to_Ni56_forward) = ratraw * sc1a;
+    rr(2).rates(Fe52_He4_to_Ni56_forward) = rr(2).rates(Fe52_He4_to_Ni56_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irniga);
-    rr(1).rates(irniga) = ratraw * sc1a;
-    rr(2).rates(irniga) = rr(2).rates(irniga)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Fe52_He4_to_Ni56_reverse);
+    rr(1).rates(Fe52_He4_to_Ni56_reverse) = ratraw * sc1a;
+    rr(2).rates(Fe52_He4_to_Ni56_reverse) = rr(2).rates(Fe52_He4_to_Ni56_reverse)*sc1a + ratraw*sc1adt;
 
 
     // fe52(a,p)co55
@@ -842,16 +1066,24 @@ void screen_aprox13(const Real btemp, const Real bden,
     // now form those lovely dummy proton link rates
 
     // mg24(a,p)27al(p,g)28si
-    rr(1).rates(irr1)  = 0.0e0_rt;
-    rr(2).rates(irr1)  = 0.0e0_rt;
+    Real rate_irr1    = 0.0e0_rt;
+    Real dratedt_irr1 = 0.0e0_rt;
     denom    = rr(1).rates(iralpa) + rr(1).rates(iralpg);
     denomdt  = rr(2).rates(iralpa) + rr(2).rates(iralpg);
 
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rr(1).rates(irr1) = rr(1).rates(iralpa)*zz;
-       rr(2).rates(irr1) = (rr(2).rates(iralpa) - rr(1).rates(irr1)*denomdt)*zz;
+       rate_irr1    = rr(1).rates(iralpa)*zz;
+       dratedt_irr1 = (rr(2).rates(iralpa) - rate_irr1*denomdt)*zz;
     }
+
+    // add to the effective Mg24 <-> Si28 rates
+
+    rr(1).rates(Mg24_He4_to_Si28_forward) += rr(1).rates(irmgap) * (1.0_rt - rate_irr1);
+    rr(2).rates(Mg24_He4_to_Si28_forward) += rr(2).rates(irmgap) * (1.0_rt - rate_irr1) - rr(1).rates(irmgap) * dratedt_irr1;
+
+    rr(1).rates(Mg24_He4_to_Si28_reverse) += rr(1).rates(irsigp) * rate_irr1;
+    rr(2).rates(Mg24_He4_to_Si28_reverse) += rr(2).rates(irsigp) * rate_irr1 + rr(1).rates(irsigp) * dratedt_irr1;
 
     // si28(a,p)p31(p,g)s32
     rr(1).rates(irs1)  = 0.0e0_rt;
@@ -864,6 +1096,25 @@ void screen_aprox13(const Real btemp, const Real bden,
        rr(2).rates(irs1) = (rr(2).rates(irppa) - rr(1).rates(irs1)*denomdt)*zz;
     }
 
+    // add to the effective Si28 <-> S32 rates
+
+    rr(1).rates(Si28_He4_to_S32_forward) += rr(1).rates(irsiap) * (1.0_rt - rr(1).rates(irs1));
+    rr(2).rates(Si28_He4_to_S32_forward) += rr(2).rates(irsiap) * (1.0_rt - rr(1).rates(irs1)) - rr(1).rates(irsiap) * rr(2).rates(irs1);
+
+    rr(1).rates(Si28_He4_to_S32_reverse) += rr(1).rates(irsgp) * rr(1).rates(irs1);
+    rr(2).rates(Si28_He4_to_S32_reverse) += rr(2).rates(irsgp) * rr(1).rates(irs1) + rr(1).rates(irsgp) * rr(2).rates(irs1);
+
+    // Branching ratios for O16 + O16:
+    // 0.56: O16 + O16 -> Si28 + He4
+    // 0.34: O16 + O16 -> P31 + proton
+    // 0.10: O16 + O16 -> S32
+
+    rr(1).rates(O16_O16_to_Si28_He4_forward) = 0.56_rt * O16_O16_rate + 0.34_rt * O16_O16_rate * rr(1).rates(irs1);
+    rr(2).rates(O16_O16_to_Si28_He4_forward) = 0.56_rt * O16_O16_dratedt + 0.34_rt * (O16_O16_dratedt * rr(1).rates(irs1) + O16_O16_rate * rr(2).rates(irs1));
+
+    rr(1).rates(O16_O16_to_S32_forward) = 0.10_rt * O16_O16_rate + 0.34_rt * O16_O16_rate * (1.0_rt - rr(1).rates(irs1));
+    rr(2).rates(O16_O16_to_S32_forward) = 0.10_rt * O16_O16_dratedt + 0.34_rt * (O16_O16_dratedt * (1.0_rt - rr(1).rates(irs1)) - O16_O16_rate * rr(2).rates(irs1));
+
     // s32(a,p)cl35(p,g)ar36
     rr(1).rates(irt1)  = 0.0e0_rt;
     rr(2).rates(irt1)  = 0.0e0_rt;
@@ -874,6 +1125,14 @@ void screen_aprox13(const Real btemp, const Real bden,
        rr(1).rates(irt1) = rr(1).rates(irclpa)*zz;
        rr(2).rates(irt1) = (rr(2).rates(irclpa) - rr(1).rates(irt1)*denomdt)*zz;
     }
+
+    // add to the effective S32 <-> Ar36 rates
+
+    rr(1).rates(S32_He4_to_Ar36_forward) += rr(1).rates(irsap) * (1.0_rt - rr(1).rates(irt1));
+    rr(2).rates(S32_He4_to_Ar36_forward) += rr(2).rates(irsap) * (1.0_rt - rr(1).rates(irt1)) - rr(1).rates(irsap) * rr(2).rates(irt1);
+
+    rr(1).rates(S32_He4_to_Ar36_reverse) += rr(1).rates(irargp) * rr(1).rates(irt1);
+    rr(2).rates(S32_He4_to_Ar36_reverse) += rr(2).rates(irargp) * rr(1).rates(irt1) + rr(1).rates(irargp) * rr(2).rates(irt1);
 
     // ar36(a,p)k39(p,g)ca40
     rr(1).rates(iru1)  = 0.0e0_rt;
@@ -886,6 +1145,14 @@ void screen_aprox13(const Real btemp, const Real bden,
        rr(2).rates(iru1) = (rr(2).rates(irkpa) - rr(1).rates(iru1)*denomdt)*zz;
     }
 
+    // add to the effective Ar36 <-> Ca40 rates
+
+    rr(1).rates(Ar36_He4_to_Ca40_forward) += rr(1).rates(irarap) * (1.0_rt - rr(1).rates(iru1));
+    rr(2).rates(Ar36_He4_to_Ca40_forward) += rr(2).rates(irarap) * (1.0_rt - rr(1).rates(iru1)) - rr(1).rates(irarap) * rr(2).rates(iru1);
+
+    rr(1).rates(Ar36_He4_to_Ca40_reverse) += rr(1).rates(ircagp) * rr(1).rates(iru1);
+    rr(2).rates(Ar36_He4_to_Ca40_reverse) += rr(2).rates(ircagp) * rr(1).rates(iru1) + rr(1).rates(ircagp) * rr(2).rates(iru1);
+
     // ca40(a,p)sc43(p,g)ti44
     rr(1).rates(irv1)  = 0.0e0_rt;
     rr(2).rates(irv1)  = 0.0e0_rt;
@@ -896,6 +1163,14 @@ void screen_aprox13(const Real btemp, const Real bden,
        rr(1).rates(irv1) = rr(1).rates(irscpa)*zz;
        rr(2).rates(irv1) = (rr(2).rates(irscpa) - rr(1).rates(irv1)*denomdt)*zz;
     }
+
+    // add to the effective Ca40 <-> Ti44 rates
+
+    rr(1).rates(Ca40_He4_to_Ti44_forward) += rr(1).rates(ircaap) * (1.0_rt - rr(1).rates(irv1));
+    rr(2).rates(Ca40_He4_to_Ti44_forward) += rr(2).rates(ircaap) * (1.0_rt - rr(1).rates(irv1)) - rr(1).rates(ircaap) * rr(2).rates(irv1);
+
+    rr(1).rates(Ca40_He4_to_Ti44_reverse) += rr(1).rates(irtigp) * rr(1).rates(irv1);
+    rr(2).rates(Ca40_He4_to_Ti44_reverse) += rr(2).rates(irtigp) * rr(1).rates(irv1) + rr(1).rates(irtigp) * rr(2).rates(irv1);
 
     // ti44(a,p)v47(p,g)cr48
     rr(1).rates(irw1) = 0.0e0_rt;
@@ -908,6 +1183,14 @@ void screen_aprox13(const Real btemp, const Real bden,
        rr(2).rates(irw1) = (rr(2).rates(irvpa) - rr(1).rates(irw1)*denomdt)*zz;
     }
 
+    // add to the effective Ti44 <-> Cr48 rates
+
+    rr(1).rates(Ti44_He4_to_Cr48_forward) += rr(1).rates(irtiap) * (1.0_rt - rr(1).rates(irw1));
+    rr(2).rates(Ti44_He4_to_Cr48_forward) += rr(2).rates(irtiap) * (1.0_rt - rr(1).rates(irw1)) - rr(1).rates(irtiap) * rr(2).rates(irw1);
+
+    rr(1).rates(Ti44_He4_to_Cr48_reverse) += rr(1).rates(ircrgp) * rr(1).rates(irw1);
+    rr(2).rates(Ti44_He4_to_Cr48_reverse) += rr(2).rates(ircrgp) * rr(1).rates(irw1) + rr(1).rates(ircrgp) * rr(2).rates(irw1);
+
     // cr48(a,p)mn51(p,g)fe52
     rr(1).rates(irx1) = 0.0e0_rt;
     rr(2).rates(irx1) = 0.0e0_rt;
@@ -919,6 +1202,14 @@ void screen_aprox13(const Real btemp, const Real bden,
        rr(2).rates(irx1) = (rr(2).rates(irmnpa) - rr(1).rates(irx1)*denomdt)*zz;
     }
 
+    // add to the effective Cr48 <-> Fe52 rates
+
+    rr(1).rates(Cr48_He4_to_Fe52_forward) += rr(1).rates(ircrap) * (1.0_rt - rr(1).rates(irx1));
+    rr(2).rates(Cr48_He4_to_Fe52_forward) += rr(2).rates(ircrap) * (1.0_rt - rr(1).rates(irx1)) - rr(1).rates(ircrap) * rr(2).rates(irx1);
+
+    rr(1).rates(Cr48_He4_to_Fe52_reverse) += rr(1).rates(irfegp) * rr(1).rates(irx1);
+    rr(2).rates(Cr48_He4_to_Fe52_reverse) += rr(2).rates(irfegp) * rr(1).rates(irx1) + rr(1).rates(irfegp) * rr(2).rates(irx1);
+
     // fe52(a,p)co55(p,g)ni56
     rr(1).rates(iry1) = 0.0e0_rt;
     rr(2).rates(iry1) = 0.0e0_rt;
@@ -929,6 +1220,15 @@ void screen_aprox13(const Real btemp, const Real bden,
        rr(1).rates(iry1) = rr(1).rates(ircopa)*zz;
        rr(2).rates(iry1) = (rr(2).rates(ircopa) - rr(1).rates(iry1)*denomdt)*zz;
     }
+
+    // add to the effective Fe52 <-> Ni56 rates
+
+    rr(1).rates(Fe52_He4_to_Ni56_forward) += rr(1).rates(irfeap) * (1.0_rt - rr(1).rates(iry1));
+    rr(2).rates(Fe52_He4_to_Ni56_forward) += rr(2).rates(irfeap) * (1.0_rt - rr(1).rates(iry1)) - rr(1).rates(irfeap) * rr(2).rates(iry1);
+
+    rr(1).rates(Fe52_He4_to_Ni56_reverse) += rr(1).rates(irnigp) * rr(1).rates(iry1);
+    rr(2).rates(Fe52_He4_to_Ni56_reverse) += rr(2).rates(irnigp) * rr(1).rates(iry1) + rr(1).rates(irnigp) * rr(2).rates(iry1);
+
 }
 
 
@@ -974,26 +1274,26 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         // he4 jacobian elements
         // d(he4)/d(he4)
         Array1D<Real, 1, 20> b {
-            -1.5e0_rt * y(He4) * y(He4) * rr(1).rates(ir3a),
-            -y(C12)  * rr(1).rates(ircag),
-            -y(O16)  * rr(1).rates(iroag),
-            -y(Ne20) * rr(1).rates(irneag),
-            -y(Mg24) * rr(1).rates(irmgag),
-            -y(Si28) * rr(1).rates(irsiag),
-            -y(S32)  * rr(1).rates(irsag),
-            -y(Ar36) * rr(1).rates(irarag),
-            -y(Ca40) * rr(1).rates(ircaag),
-            -y(Ti44) * rr(1).rates(irtiag),
-            -y(Cr48) * rr(1).rates(ircrag),
-            -y(Fe52) * rr(1).rates(irfeag),
-            -y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1)),
-            -y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1)),
-            -y(S32)  * rr(1).rates(irsap)  * (1.0e0_rt-rr(1).rates(irt1)),
-            -y(Ar36) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1)),
-            -y(Ca40) * rr(1).rates(ircaap) * (1.0e0_rt-rr(1).rates(irv1)),
-            -y(Ti44) * rr(1).rates(irtiap) * (1.0e0_rt-rr(1).rates(irw1)),
-            -y(Cr48) * rr(1).rates(ircrap) * (1.0e0_rt-rr(1).rates(irx1)),
-            -y(Fe52) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1))
+            -9.0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward),
+            -y(C12)  * rr(1).rates(C12_He4_to_O16_forward),
+            -y(O16)  * rr(1).rates(O16_He4_to_Ne20_forward),
+            -y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward),
+            -y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward),
+            -y(Si28) * rr(1).rates(Si28_He4_to_S32_forward),
+            -y(S32)  * rr(1).rates(S32_He4_to_Ar36_forward),
+            -y(Ar36) * rr(1).rates(Ar36_He4_to_Ca40_forward),
+            -y(Ca40) * rr(1).rates(Ca40_He4_to_Ti44_forward),
+            -y(Ti44) * rr(1).rates(Ti44_He4_to_Cr48_forward),
+            -y(Cr48) * rr(1).rates(Cr48_He4_to_Fe52_forward),
+            -y(Fe52) * rr(1).rates(Fe52_He4_to_Ni56_forward),
+            0.0_rt, // previously Mg24 -> Al27 -> Si28
+            0.0_rt, // previously Si28 -> P31  -> S32
+            0.0_rt, // previously S32  -> Cl35 -> Ar36
+            0.0_rt, // previously Ar36 -> K39  -> Ca40
+            0.0_rt, // previously Ca40 -> Sc43 -> Ti44
+            0.0_rt, // previously Ti44 -> V47  -> Cr48
+            0.0_rt, // previously Cr48 -> Mn51 -> Fe52
+            0.0_rt  // previously Fe52 -> Co55 -> Ni56
         };
 
         jac(He4,He4) = esum20(b);
@@ -1001,216 +1301,218 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
 
     {
         // (he4)/d(o16)
-        Array1D<Real, 1, 5> b {
-            0.5e0_rt * y(C12) * rr(1).rates(ir1216),
-            1.12e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(ir1616),
-            0.68e0_rt * rr(1).rates(irs1) * 0.5e0_rt*y(O16) * rr(1).rates(ir1616),
-            rr(1).rates(iroga),
-            -y(He4) * rr(1).rates(iroag),
+        Array1D<Real, 1, 4> b {
+            y(C12) * rr(1).rates(C12_O16_to_Mg24_He4_forward),
+            2.0_rt * y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward),
+            rr(1).rates(C12_He4_to_O16_reverse),
+            -y(He4) * rr(1).rates(O16_He4_to_Ne20_forward),
         };
 
-        jac(He4,O16) = esum5(b);
+        jac(He4,O16) = esum4(b);
     }
 
     {
-        Array1D<Real, 1, 4> b;
+        Array1D<Real, 1, 6> b;
 
         // d(he4)/d(c12)
-        b(1) =  y(C12) * rr(1).rates(ir1212);
-        b(2) =  0.5e0_rt * y(O16) * rr(1).rates(ir1216);
-        b(3) =  3.0e0_rt * rr(1).rates(irg3a);
-        b(4) = -y(He4) * rr(1).rates(ircag);
+        b(1) =  2.0e0_rt * y(C12) * rr(1).rates(C12_C12_to_Ne20_He4_forward);
+        b(2) =  y(O16) * rr(1).rates(C12_O16_to_Mg24_He4_forward);
+        b(3) =  3.0e0_rt * rr(1).rates(He4_He4_He4_to_C12_reverse);
+        b(4) = -y(He4) * rr(1).rates(C12_He4_to_O16_forward);
 
         jac(He4,C12) = esum4(b);
 
         // d(he4)/d(si28)
-        b(1) =  rr(1).rates(irsiga);
-        b(2) = -y(He4) * rr(1).rates(irsiag);
-        b(3) = -y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
-        b(4) =  rr(1).rates(irr1) * rr(1).rates(irsigp);
+        b(1) =  rr(1).rates(Mg24_He4_to_Si28_reverse);
+        b(2) = -y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
+        b(3) =  0.0_rt; // previously Si28 -> P31  -> S32
+        b(4) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
 
         jac(He4,Si28) = esum4(b);
 
         // d(he4)/d(s32)
-        b(1) =  rr(1).rates(irsga);
-        b(2) = -y(He4) * rr(1).rates(irsag);
-        b(3) = -y(He4) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
-        b(4) =  rr(1).rates(irs1) * rr(1).rates(irsgp);
+        b(1) =  rr(1).rates(Si28_He4_to_S32_reverse);
+        b(2) = -y(He4) * rr(1).rates(S32_He4_to_Ar36_forward);
+        b(3) =  0.0_rt; // previously S32 -> Cl35 -> Ar36
+        b(4) =  0.0_rt; // previously S32 -> P31  -> Si28
 
         jac(He4,S32) = esum4(b);
 
         // d(he4)/d(ar36)
-        b(1)  =  rr(1).rates(irarga);
-        b(2)  = -y(He4) * rr(1).rates(irarag);
-        b(3)  = -y(He4) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1));
-        b(4)  =  rr(1).rates(irt1) * rr(1).rates(irargp);
+        b(1)  =  rr(1).rates(S32_He4_to_Ar36_reverse);
+        b(2)  = -y(He4) * rr(1).rates(Ar36_He4_to_Ca40_forward);
+        b(3)  =  0.0_rt; // previously Ar36 -> K39  -> Ca40
+        b(4)  =  0.0_rt; // previously Ar36 -> Cl35 -> S32
 
         jac(He4,Ar36) = esum4(b);
 
         // d(he4)/d(ca40)
-        b(1) =  rr(1).rates(ircaga);
-        b(2) = -y(He4) * rr(1).rates(ircaag);
-        b(3) = -y(He4) * rr(1).rates(ircaap) * (1.0e0_rt-rr(1).rates(irv1));
-        b(4) =  rr(1).rates(iru1) * rr(1).rates(ircagp);
+        b(1) =  rr(1).rates(Ar36_He4_to_Ca40_reverse);
+        b(2) = -y(He4) * rr(1).rates(Ca40_He4_to_Ti44_forward);
+        b(3) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
+        b(4) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
 
         jac(He4,Ca40) = esum4(b);
 
         // d(he4)/d(ti44)
-        b(1) =  rr(1).rates(irtiga);
-        b(2) = -y(He4) * rr(1).rates(irtiag);
-        b(3) = -y(He4) * rr(1).rates(irtiap) * (1.0e0_rt-rr(1).rates(irw1));
-        b(4) =  rr(1).rates(irv1) * rr(1).rates(irtigp);
+        b(1) =  rr(1).rates(Ca40_He4_to_Ti44_reverse);
+        b(2) = -y(He4) * rr(1).rates(Ti44_He4_to_Cr48_forward);
+        b(3) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
+        b(4) =  0.0_rt; // previously Ti44 -> Sc43 -> Ca40
 
         jac(He4,Ti44) = esum4(b);
 
         // d(he4)/d(cr48)
-        b(1) =  rr(1).rates(ircrga);
-        b(2) = -y(He4) * rr(1).rates(ircrag);
-        b(3) = -y(He4) * rr(1).rates(ircrap) * (1.0e0_rt-rr(1).rates(irx1));
-        b(4) =  rr(1).rates(irw1) * rr(1).rates(ircrgp);
+        b(1) =  rr(1).rates(Ti44_He4_to_Cr48_reverse);
+        b(2) = -y(He4) * rr(1).rates(Cr48_He4_to_Fe52_forward);
+        b(3) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
+        b(4) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
 
         jac(He4,Cr48) = esum4(b);
 
         // d(he4)/d(fe52)
-        b(1) =  rr(1).rates(irfega);
-        b(2) = -y(He4) * rr(1).rates(irfeag);
-        b(3) = -y(He4) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
-        b(4) =  rr(1).rates(irx1) * rr(1).rates(irfegp);
+        b(1) =  rr(1).rates(Cr48_He4_to_Fe52_reverse);
+        b(2) = -y(He4) * rr(1).rates(Fe52_He4_to_Ni56_forward);
+        b(3) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
+        b(4) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
 
         jac(He4,Fe52) = esum4(b);
 
         // d(c12)/d(c12)
-        b(1) = -2.0e0_rt * y(C12) * rr(1).rates(ir1212);
-        b(2) = -y(O16) * rr(1).rates(ir1216);
-        b(3) = -rr(1).rates(irg3a);
-        b(4) = -y(He4) * rr(1).rates(ircag);
+        b(1) = -4.0e0_rt * y(C12) * rr(1).rates(C12_C12_to_Ne20_He4_forward);
+        b(2) = -y(O16) * rr(1).rates(C12_O16_to_Mg24_He4_forward);
+        b(3) = -y(O16) * rr(1).rates(C12_O16_to_Si28_forward);
+        b(4) = -rr(1).rates(He4_He4_He4_to_C12_reverse);
+        b(5) = -y(He4) * rr(1).rates(C12_He4_to_O16_forward);
 
-        jac(C12,C12) = esum4(b);
+        jac(C12,C12) = esum5(b);
 
         // d(o16)/d(o16)
-        b(1) = -y(C12) * rr(1).rates(ir1216);
-        b(2) = -2.0e0_rt * y(O16) * rr(1).rates(ir1616);
-        b(3) = -y(He4) * rr(1).rates(iroag);
-        b(4) = -rr(1).rates(iroga);
+        b(1) = -y(C12) * rr(1).rates(C12_O16_to_Mg24_He4_forward);
+        b(2) = -y(C12) * rr(1).rates(C12_O16_to_Si28_forward);
+        b(3) = -4.0e0_rt * y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward);
+        b(4) = -4.0e0_rt * y(O16) * rr(1).rates(O16_O16_to_S32_forward);
+        b(5) = -y(He4) * rr(1).rates(O16_He4_to_Ne20_forward);
+        b(6) = -rr(1).rates(C12_He4_to_O16_reverse);
 
-        jac(O16,O16) = esum4(b);
+        jac(O16,O16) = esum6(b);
 
         // si28 jacobian elements
         // d(si28)/d(he4)
-        b(1) =  y(Mg24) * rr(1).rates(irmgag);
-        b(2) = -y(Si28) * rr(1).rates(irsiag);
-        b(3) =  y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
-        b(4) = -y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
+        b(1) =  y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward);
+        b(2) = -y(Si28) * rr(1).rates(Si28_He4_to_S32_forward);
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
+        b(4) =  0.0_rt; // previously Si28 -> P31 -> S32
 
         jac(Si28,He4) = esum4(b);
 
         // d(si28)/d(si28)
-        b(1) =  -y(He4) * rr(1).rates(irsiag);
-        b(2) = -rr(1).rates(irsiga);
-        b(3) = -rr(1).rates(irr1) * rr(1).rates(irsigp);
-        b(4) = -y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
+        b(1) =  -y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
+        b(2) = -rr(1).rates(Mg24_He4_to_Si28_reverse);
+        b(3) =  0.0_rt; // previously Si28 -> Al27 -> Mg24
+        b(4) =  0.0_rt; // previously Si28 -> P31 -> S32
 
         jac(Si28,Si28) = esum4(b);
 
         // s32 jacobian elements
         // d(s32)/d(he4)
-        b(1) =  y(Si28) * rr(1).rates(irsiag);
-        b(2) = -y(S32) * rr(1).rates(irsag);
-        b(3) =  y(Si28) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
-        b(4) = -y(S32) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
+        b(1) =  y(Si28) * rr(1).rates(Si28_He4_to_S32_forward);
+        b(2) = -y(S32) * rr(1).rates(S32_He4_to_Ar36_forward);
+        b(3) =  0.0_rt; // previously Si28 -> P31  -> S32
+        b(4) =  0.0_rt; // previously S32  -> Cl35 -> Ar36
 
         jac(S32,He4) = esum4(b);
 
         // d(s32)/d(s32)
-        b(1) = -y(He4) * rr(1).rates(irsag);
-        b(2) = -rr(1).rates(irsga);
-        b(3) = -rr(1).rates(irs1) * rr(1).rates(irsgp);
-        b(4) = -y(He4) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
+        b(1) = -y(He4) * rr(1).rates(S32_He4_to_Ar36_forward);
+        b(2) = -rr(1).rates(Si28_He4_to_S32_reverse);
+        b(3) =  0.0_rt; // previously S32  -> P31  -> Si28
+        b(4) =  0.0_rt; // previously S32  -> Cl35 -> Ar36
 
         jac(S32,S32) = esum4(b);
 
         // ar36 jacobian elements
         // d(ar36)/d(he4)
-        b(1) =  y(S32)  * rr(1).rates(irsag);
-        b(2) = -y(Ar36) * rr(1).rates(irarag);
-        b(3) =  y(S32)  * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
-        b(4) = -y(Ar36) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1));
+        b(1) =  y(S32)  * rr(1).rates(S32_He4_to_Ar36_forward);
+        b(2) = -y(Ar36) * rr(1).rates(Ar36_He4_to_Ca40_forward);
+        b(3) =  0.0_rt; // previously S32  -> Cl35 -> Ar36
+        b(4) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
 
         jac(Ar36,He4) = esum4(b);
 
         // d(ar36)/d(ar36)
-        b(1) = -y(He4) * rr(1).rates(irarag);
-        b(2) = -rr(1).rates(irarga);
-        b(3) = -rr(1).rates(irt1) * rr(1).rates(irargp);
-        b(4) = -y(He4) * rr(1).rates(irarap) * (1.0e0_rt-rr(1).rates(iru1));
+        b(1) = -y(He4) * rr(1).rates(Ar36_He4_to_Ca40_forward);
+        b(2) = -rr(1).rates(S32_He4_to_Ar36_reverse);
+        b(3) =  0.0_rt; // previously Ar36 -> Cl35 -> S32
+        b(4) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
 
         jac(Ar36,Ar36) = esum4(b);
 
         // ca40 jacobian elements
         // d(ca40)/d(he4)
-        b(1)  =  y(Ar36) * rr(1).rates(irarag);
-        b(2)  = -y(Ca40) * rr(1).rates(ircaag);
-        b(3)  =  y(Ar36) * rr(1).rates(irarap)*(1.0e0_rt-rr(1).rates(iru1));
-        b(4)  = -y(Ca40) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
+        b(1)  =  y(Ar36) * rr(1).rates(Ar36_He4_to_Ca40_forward);
+        b(2)  = -y(Ca40) * rr(1).rates(Ca40_He4_to_Ti44_forward);
+        b(3)  =  0.0_rt; // previously Ar36 -> K39  -> Ca40
+        b(4)  =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
 
         jac(Ca40,He4) = esum4(b);
 
         // d(ca40)/d(ca40)
-        b(1) = -y(He4) * rr(1).rates(ircaag);
-        b(2) = -rr(1).rates(ircaga);
-        b(3) = -rr(1).rates(ircagp) * rr(1).rates(iru1);
-        b(4) = -y(He4) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
+        b(1) = -y(He4) * rr(1).rates(Ca40_He4_to_Ti44_forward);
+        b(2) = -rr(1).rates(Ar36_He4_to_Ca40_reverse);
+        b(3) =  0.0_rt; // previously Ca40 -> K39  -> Ar36
+        b(4) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
 
         jac(Ca40,Ca40) = esum4(b);
 
         // ti44 jacobian elements
         // d(ti44)/d(he4)
-        b(1) =  y(Ca40) * rr(1).rates(ircaag);
-        b(2) = -y(Ti44) * rr(1).rates(irtiag);
-        b(3) =  y(Ca40) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
-        b(4) = -y(Ti44) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
+        b(1) =  y(Ca40) * rr(1).rates(Ca40_He4_to_Ti44_forward);
+        b(2) = -y(Ti44) * rr(1).rates(Ti44_He4_to_Cr48_forward);
+        b(3) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
+        b(4) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
 
         jac(Ti44,He4) = esum4(b);
 
         // d(ti44)/d(ti44)
-        b(1) = -y(He4) * rr(1).rates(irtiag);
-        b(2) = -rr(1).rates(irtiga);
-        b(3) = -rr(1).rates(irv1) * rr(1).rates(irtigp);
-        b(4) = -y(He4) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
+        b(1) = -y(He4) * rr(1).rates(Ti44_He4_to_Cr48_forward);
+        b(2) = -rr(1).rates(Ca40_He4_to_Ti44_reverse);
+        b(3) =  0.0_rt; // previously Ti40 -> Sc43 -> Ca40
+        b(4) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
 
         jac(Ti44,Ti44) = esum4(b);
 
         // cr48 jacobian elements
         // d(cr48)/d(he4)
-        b(1) =  y(Ti44) * rr(1).rates(irtiag);
-        b(2) = -y(Cr48) * rr(1).rates(ircrag);
-        b(3) =  y(Ti44) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
-        b(4) = -y(Cr48) * rr(1).rates(ircrap)*(1.0e0_rt-rr(1).rates(irx1));
+        b(1) =  y(Ti44) * rr(1).rates(Ti44_He4_to_Cr48_forward);
+        b(2) = -y(Cr48) * rr(1).rates(Cr48_He4_to_Fe52_forward);
+        b(3) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
+        b(4) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
 
         jac(Cr48,He4) = esum4(b);
 
         // d(cr48)/d(cr48)
-        b(1) = -y(He4) * rr(1).rates(ircrag);
-        b(2) = -rr(1).rates(ircrga);
-        b(3) = -rr(1).rates(irw1) * rr(1).rates(ircrgp);
-        b(4) = -y(He4) * rr(1).rates(ircrap)*(1.0e0_rt-rr(1).rates(irx1));
+        b(1) = -y(He4) * rr(1).rates(Cr48_He4_to_Fe52_forward);
+        b(2) = -rr(1).rates(Ti44_He4_to_Cr48_reverse);
+        b(3) =  0.0_rt; // previously Cr48 -> V47  -> Ti44
+        b(4) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
 
         jac(Cr48,Cr48) = esum4(b);
 
         // fe52 jacobian elements
         // d(fe52)/d(he4)
-        b(1) =  y(Cr48) * rr(1).rates(ircrag);
-        b(2) = -y(Fe52) * rr(1).rates(irfeag);
-        b(3) =  y(Cr48) * rr(1).rates(ircrap) * (1.0e0_rt-rr(1).rates(irx1));
-        b(4) = -y(Fe52) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
+        b(1) =  y(Cr48) * rr(1).rates(Cr48_He4_to_Fe52_forward);
+        b(2) = -y(Fe52) * rr(1).rates(Fe52_He4_to_Ni56_forward);
+        b(3) =  0.0_rt; // previously Cr48 -> Mn51 -> Fe52
+        b(4) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
 
         jac(Fe52,He4) = esum4(b);
 
         // d(fe52)/d(fe52)
-        b(1) = -y(He4) * rr(1).rates(irfeag);
-        b(2) = -rr(1).rates(irfega);
-        b(3) = -rr(1).rates(irx1) * rr(1).rates(irfegp);
-        b(4) = -y(He4) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
+        b(1) = -y(He4) * rr(1).rates(Fe52_He4_to_Ni56_forward);
+        b(2) = -rr(1).rates(Cr48_He4_to_Fe52_reverse);
+        b(3) =  0.0_rt; // previously Fe52 -> Mn51 -> Cr48
+        b(4) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
 
         jac(Fe52,Fe52) = esum4(b);
     }
@@ -1219,228 +1521,228 @@ void dfdy_isotopes_aprox13(Array1D<Real, 1, NumSpec> const& y,
         Array1D<Real, 1, 3> b;
 
         // d(he4)/d(mg24)
-        b(1) =  rr(1).rates(irmgga);
-        b(2) = -y(He4) * rr(1).rates(irmgag);
-        b(3) = -y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(1) =  rr(1).rates(Ne20_He4_to_Mg24_reverse);
+        b(2) = -y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(He4,Mg24) = esum3(b);
 
         // mg24 jacobian elements
         // d(mg24)/d(he4)
-        b(1) =  y(Ne20) * rr(1).rates(irneag);
-        b(2) = -y(Mg24) * rr(1).rates(irmgag);
-        b(3) = -y(Mg24) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(1) =  y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward);
+        b(2) = -y(Mg24) * rr(1).rates(Mg24_He4_to_Si28_forward);
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(Mg24,He4) = esum3(b);
 
         // d(mg24)/d(mg24)
-        b(1) = -y(He4) * rr(1).rates(irmgag);
-        b(2) = -rr(1).rates(irmgga);
-        b(3) = -y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(1) = -y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
+        b(2) = -rr(1).rates(Ne20_He4_to_Mg24_reverse);
+        b(3) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(Mg24,Mg24) = esum3(b);
 
         // d(si28)/d(o16)
-        b(1) = 0.5e0_rt * y(C12) * rr(1).rates(ir1216);
-        b(2) = 1.12e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(ir1616);
-        b(3) = 0.68e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(irs1) * rr(1).rates(ir1616);
+        b(1) = y(C12) * rr(1).rates(C12_O16_to_Si28_forward);
+        b(2) = 2.0_rt * y(O16) * rr(1).rates(O16_O16_to_Si28_He4_forward);
 
-        jac(Si28,O16) = esum3(b);
+        jac(Si28,O16) = b(1) + b(2);
     }
 
     {
-        Array1D<Real, 1, 2> b;
+        Array1D<Real, 1, 3> b;
 
         // d(he4)/d(ne20)
-        b(1) =  rr(1).rates(irnega);
-        b(2) = -y(He4) * rr(1).rates(irneag);
+        b(1) =  rr(1).rates(O16_He4_to_Ne20_reverse);
+        b(2) = -y(He4) * rr(1).rates(Ne20_He4_to_Mg24_forward);
 
         jac(He4,Ne20) = b(1) + b(2);
 
         // d(he4)/d(ni56)
-        b(1) = rr(1).rates(irniga);
-        b(2) = rr(1).rates(iry1) * rr(1).rates(irnigp);
+        b(1) = rr(1).rates(Fe52_He4_to_Ni56_reverse);
+        b(2) = 0.0_rt; // previously Ni56 -> Co55 -> Fe52
 
         jac(He4,Ni56) = b(1) + b(2);
 
         // c12 jacobian elements
         // d(c12)/d(he4)
-        b(1) =  0.5e0_rt * y(He4) * y(He4) * rr(1).rates(ir3a);
-        b(2) = -y(C12) * rr(1).rates(ircag);
+        b(1) =  3.0_rt * y(He4) * y(He4) * rr(1).rates(He4_He4_He4_to_C12_forward);
+        b(2) = -y(C12) * rr(1).rates(C12_He4_to_O16_forward);
 
         jac(C12,He4) = b(1) + b(2);
 
         // d(c12)/d(o16)
-        b(1) = -y(C12) * rr(1).rates(ir1216);
-        b(2) =  rr(1).rates(iroga);
+        b(1) = -y(C12) * rr(1).rates(C12_O16_to_Mg24_He4_forward);
+        b(2) = -y(C12) * rr(1).rates(C12_O16_to_Si28_forward);
+        b(3) =  rr(1).rates(C12_He4_to_O16_reverse);
 
-        jac(C12,O16) = b(1) + b(2);
+        jac(C12,O16) = esum3(b);
 
         // o16 jacobian elements
         // d(o16)/d(he4)
-        b(1) =  y(C12)*rr(1).rates(ircag);
-        b(2) = -y(O16)*rr(1).rates(iroag);
+        b(1) =  y(C12)*rr(1).rates(C12_He4_to_O16_forward);
+        b(2) = -y(O16)*rr(1).rates(O16_He4_to_Ne20_forward);
 
         jac(O16,He4) = b(1) + b(2);
 
         // d(o16)/d(c12)
-        b(1) = -y(O16)*rr(1).rates(ir1216);
-        b(2) =  y(He4)*rr(1).rates(ircag);
+        b(1) = -y(O16)*rr(1).rates(C12_O16_to_Mg24_He4_forward);
+        b(2) = -y(O16)*rr(1).rates(C12_O16_to_Si28_forward);
+        b(3) =  y(He4)*rr(1).rates(C12_He4_to_O16_forward);
 
-        jac(O16,C12) = b(1) + b(2);
+        jac(O16,C12) = esum3(b);
 
         // ne20 jacobian elements
         // d(ne20)/d(he4)
-        b(1) =  y(O16) * rr(1).rates(iroag);
-        b(2) = -y(Ne20) * rr(1).rates(irneag);
+        b(1) =  y(O16) * rr(1).rates(O16_He4_to_Ne20_forward);
+        b(2) = -y(Ne20) * rr(1).rates(Ne20_He4_to_Mg24_forward);
 
         jac(Ne20,He4) = b(1) + b(2);
 
         // d(ne20)/d(ne20)
-        b(1) = -y(He4) * rr(1).rates(irneag);
-        b(2) = -rr(1).rates(irnega);
+        b(1) = -y(He4) * rr(1).rates(Ne20_He4_to_Mg24_forward);
+        b(2) = -rr(1).rates(O16_He4_to_Ne20_reverse);
 
         jac(Ne20,Ne20) = b(1) + b(2);
 
         // d(mg24)/d(si28)
-        b(1) = rr(1).rates(irsiga);
-        b(2) = rr(1).rates(irr1) * rr(1).rates(irsigp);
+        b(1) = rr(1).rates(Mg24_He4_to_Si28_reverse);
+        b(2) = 0.0_rt; // previously Si28 -> Al27 -> Mg24
 
         jac(Mg24,Si28) = b(1) + b(2);
 
         // d(si28)/d(mg24)
-        b(1) =  y(He4) * rr(1).rates(irmgag);
-        b(2) =  y(He4) * rr(1).rates(irmgap) * (1.0e0_rt-rr(1).rates(irr1));
+        b(1) =  y(He4) * rr(1).rates(Mg24_He4_to_Si28_forward);
+        b(2) =  0.0_rt; // previously Mg24 -> Al27 -> Si28
 
         jac(Si28,Mg24) = b(1) + b(2);
 
         // d(si28)/d(s32)
-        b(1) = rr(1).rates(irsga);
-        b(2) = rr(1).rates(irs1) * rr(1).rates(irsgp);
+        b(1) = rr(1).rates(Si28_He4_to_S32_reverse);
+        b(2) = 0.0_rt; // previously S32 -> P31  -> Si28
 
         jac(Si28,S32) = b(1) + b(2);
 
         // d(s32)/d(o16)
-        b(1) = 0.68e0_rt*0.5e0_rt*y(O16)*rr(1).rates(ir1616)*(1.0e0_rt-rr(1).rates(irs1));
-        b(2) = 0.2e0_rt * 0.5e0_rt*y(O16) * rr(1).rates(ir1616);
+        b(1) = 2.0_rt * y(O16) * rr(1).rates(O16_O16_to_S32_forward);
 
-        jac(S32,O16) = b(1) + b(2);
+        jac(S32,O16) = b(1);
 
         // d(s32)/d(si28)
-        b(1)  =y(He4) * rr(1).rates(irsiag);
-        b(2) = y(He4) * rr(1).rates(irsiap) * (1.0e0_rt-rr(1).rates(irs1));
+        b(1)  =y(He4) * rr(1).rates(Si28_He4_to_S32_forward);
+        b(2) = 0.0_rt; // previously Si28 -> P31 -> S32
 
         jac(S32,Si28) = b(1) + b(2);
 
         // d(s32)/d(ar36)
-        b(1) = rr(1).rates(irarga);
-        b(2) = rr(1).rates(irt1) * rr(1).rates(irargp);
+        b(1) = rr(1).rates(S32_He4_to_Ar36_reverse);
+        b(2) = 0.0_rt; // previously Ar36 -> Cl35 -> S32
 
         jac(S32,Ar36) = b(1) + b(2);
 
         // d(ar36)/d(s32)
-        b(1) = y(He4) * rr(1).rates(irsag);
-        b(2) = y(He4) * rr(1).rates(irsap) * (1.0e0_rt-rr(1).rates(irt1));
+        b(1) = y(He4) * rr(1).rates(S32_He4_to_Ar36_forward);
+        b(2) = 0.0_rt; // previously S32  -> Cl35 -> Ar36
 
         jac(Ar36,S32) = b(1) + b(2);
 
         // d(ar36)/d(ca40)
-        b(1) = rr(1).rates(ircaga);
-        b(2) = rr(1).rates(ircagp) * rr(1).rates(iru1);
+        b(1) = rr(1).rates(Ar36_He4_to_Ca40_reverse);
+        b(2) = 0.0_rt; // previously Ca40 -> K39  -> Ar36
 
         jac(Ar36,Ca40) = b(1) + b(2);
 
         // d(ca40)/d(ar36)
-        b(1) =  y(He4) * rr(1).rates(irarag);
-        b(2) =  y(He4) * rr(1).rates(irarap)*(1.0e0_rt-rr(1).rates(iru1));
+        b(1) =  y(He4) * rr(1).rates(Ar36_He4_to_Ca40_forward);
+        b(2) =  0.0_rt; // previously Ar36 -> K39  -> Ca40
 
         jac(Ca40,Ar36) = b(1) + b(2);
 
         // d(ca40)/d(ti44)
-        b(1) = rr(1).rates(irtiga);
-        b(2) = rr(1).rates(irtigp) * rr(1).rates(irv1);
+        b(1) = rr(1).rates(Ca40_He4_to_Ti44_reverse);
+        b(2) = 0.0_rt; // previously Ti44 -> Sc43 -> Ca40
 
         jac(Ca40,Ti44) = b(1) + b(2);
 
         // d(ti44)/d(ca40)
-        b(1) =  y(He4) * rr(1).rates(ircaag);
-        b(2) =  y(He4) * rr(1).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
+        b(1) =  y(He4) * rr(1).rates(Ca40_He4_to_Ti44_forward);
+        b(2) =  0.0_rt; // previously Ca40 -> Sc43 -> Ti44
 
         jac(Ti44,Ca40) = b(1) + b(2);
 
         // d(ti44)/d(cr48)
-        b(1) = rr(1).rates(ircrga);
-        b(2) = rr(1).rates(irw1) * rr(1).rates(ircrgp);
+        b(1) = rr(1).rates(Ti44_He4_to_Cr48_reverse);
+        b(2) = 0.0_rt; // previously Cr48 -> V47  -> Ti44
 
         jac(Ti44,Cr48) = b(1) + b(2);
 
         // d(cr48)/d(ti44)
-        b(1) =  y(He4) * rr(1).rates(irtiag);
-        b(2) =  y(He4) * rr(1).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
+        b(1) =  y(He4) * rr(1).rates(Ti44_He4_to_Cr48_forward);
+        b(2) =  0.0_rt; // previously Ti44 -> V47  -> Cr48
 
         jac(Cr48,Ti44) = b(1) + b(2);
 
         // d(cr48)/d(fe52)
-        b(1) = rr(1).rates(irfega);
-        b(2) = rr(1).rates(irx1) * rr(1).rates(irfegp);
+        b(1) = rr(1).rates(Cr48_He4_to_Fe52_reverse);
+        b(2) = 0.0_rt; // previously Fe52 -> Mn51 -> Cr48
 
         jac(Cr48,Fe52) = b(1) + b(2);
 
         // d(fe52)/d(cr48)
-        b(1) = y(He4) * rr(1).rates(ircrag);
-        b(2) = y(He4) * rr(1).rates(ircrap) * (1.0e0_rt-rr(1).rates(irx1));
+        b(1) = y(He4) * rr(1).rates(Cr48_He4_to_Fe52_forward);
+        b(2) = 0.0_rt; // previously Cr48 -> Mn51 -> Fe52
 
         jac(Fe52,Cr48) = b(1) + b(2);
 
         // d(fe52)/d(ni56)
-        b(1) = rr(1).rates(irniga);
-        b(2) = rr(1).rates(iry1) * rr(1).rates(irnigp);
+        b(1) = rr(1).rates(Fe52_He4_to_Ni56_reverse);
+        b(2) = 0.0_rt; // previously Ni56 -> Co55 -> Fe52
 
         jac(Fe52,Ni56) = b(1) + b(2);
 
         // ni56 jacobian elements
         // d(ni56)/d(he4)
-        b(1) =  y(Fe52) * rr(1).rates(irfeag);
-        b(2) =  y(Fe52) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
+        b(1) =  y(Fe52) * rr(1).rates(Fe52_He4_to_Ni56_forward);
+        b(2) =  0.0_rt; // previously Fe52 -> Co55 -> Ni56
 
         jac(Ni56,He4) = b(1) + b(2);
 
         // d(ni56)/d(fe52)
-        b(1) = y(He4) * rr(1).rates(irfeag);
-        b(2) = y(He4) * rr(1).rates(irfeap) * (1.0e0_rt-rr(1).rates(iry1));
+        b(1) = y(He4) * rr(1).rates(Fe52_He4_to_Ni56_forward);
+        b(2) = 0.0_rt; // previously Fe52 -> Co55 -> Ni56
 
         jac(Ni56,Fe52) = b(1) + b(2);
 
         // d(ni56)/d(ni56)
-        b(1) = -rr(1).rates(irniga);
-        b(2) = -rr(1).rates(iry1) * rr(1).rates(irnigp);
+        b(1) = -rr(1).rates(Fe52_He4_to_Ni56_reverse);
+        b(2) =  0.0_rt; // previously Ni56 -> Co55 -> Fe52
 
         jac(Ni56,Ni56) = b(1) + b(2);
     }
 
     // d(o16)/d(ne20)
-    jac(O16,Ne20) = rr(1).rates(irnega);
+    jac(O16,Ne20) = rr(1).rates(O16_He4_to_Ne20_reverse);
 
     // d(ne20)/d(c12)
-    jac(Ne20,C12) = y(C12) * rr(1).rates(ir1212);
+    jac(Ne20,C12) = 2.0e0_rt * y(C12) * rr(1).rates(C12_C12_to_Ne20_He4_forward);
 
     // d(ne20)/d(o16)
-    jac(Ne20,O16) = y(He4) * rr(1).rates(iroag);
+    jac(Ne20,O16) = y(He4) * rr(1).rates(O16_He4_to_Ne20_forward);
 
     // d(ne20)/d(mg24)
-    jac(Ne20,Mg24) = rr(1).rates(irmgga);
+    jac(Ne20,Mg24) = rr(1).rates(Ne20_He4_to_Mg24_reverse);
 
     // d(mg24)/d(c12)
-    jac(Mg24,C12) = 0.5e0_rt * y(O16) * rr(1).rates(ir1216);
+    jac(Mg24,C12) = y(O16) * rr(1).rates(C12_O16_to_Mg24_He4_forward);
 
     // d(mg24)/d(o16)
-    jac(Mg24,O16) = 0.5e0_rt * y(C12) * rr(1).rates(ir1216);
+    jac(Mg24,O16) = y(C12) * rr(1).rates(C12_O16_to_Mg24_He4_forward);
 
     // d(mg24)/d(ne20)
-    jac(Mg24,Ne20) = y(He4) * rr(1).rates(irneag);
+    jac(Mg24,Ne20) = y(He4) * rr(1).rates(Ne20_He4_to_Mg24_forward);
 
     // d(si28)/d(c12)
-    jac(Si28,C12) = 0.5e0_rt * y(O16) * rr(1).rates(ir1216);
+    jac(Si28,C12) = y(O16) * rr(1).rates(C12_O16_to_Si28_forward);
 
 }
 
@@ -1468,17 +1770,11 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 
 // Evaluates the right hand side of the aprox13 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups> const& rr,
-         Array1D<Real, 1, neqs>& dydt,
-         bool deriva, bool for_jacobian_tderiv)
+void rhs(Array1D<Real, 1, NumSpec> const& y, const rate_t& rr,
+         Array1D<Real, 1, neqs>& dydt)
 {
     using namespace Species;
     using namespace Rates;
-
-    // deriva is used in forming the analytic Jacobian to get
-    // the derivative wrt A
-
-    const int index_rate = for_jacobian_tderiv ? 2 : 1;
 
     for (int i = 1; i <= NumSpec; ++i) {
         dydt(i) = 0.0_rt;
@@ -1488,439 +1784,159 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, Array1D<rate_t, 1, Rates::NumGroups
 
     // he4 reactions
     // heavy ion reactions
-    a(1)  = 0.5e0_rt * y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-    a(2)  = 0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(3)  = 0.56e0_rt * 0.5e0_rt * y(O16) * y(O16) * rr(index_rate).rates(ir1616);
+    a(1)  = y(C12) * y(C12) * rr.rates(C12_C12_to_Ne20_He4_forward);
+    a(2)  = y(C12) * y(O16) * rr.rates(C12_O16_to_Mg24_He4_forward);
+    a(3)  = y(O16) * y(O16) * rr.rates(O16_O16_to_Si28_He4_forward);
 
     dydt(He4) = dydt(He4) + esum3(a);
 
     // (a,g) and (g,a) reactions
-    a(1)  = -0.5e0_rt * y(He4) * y(He4) * y(He4) * rr(index_rate).rates(ir3a);
-    a(2)  =  3.0e0_rt * y(C12) * rr(index_rate).rates(irg3a);
-    a(3)  = -y(He4)  * y(C12) * rr(index_rate).rates(ircag);
-    a(4)  =  y(O16)  * rr(index_rate).rates(iroga);
-    a(5)  = -y(He4)  * y(O16) * rr(index_rate).rates(iroag);
-    a(6)  =  y(Ne20) * rr(index_rate).rates(irnega);
-    a(7)  = -y(He4)  * y(Ne20) * rr(index_rate).rates(irneag);
-    a(8)  =  y(Mg24) * rr(index_rate).rates(irmgga);
-    a(9)  = -y(He4)  * y(Mg24)* rr(index_rate).rates(irmgag);
-    a(10) =  y(Si28) * rr(index_rate).rates(irsiga);
-    a(11) = -y(He4)  * y(Si28)*rr(index_rate).rates(irsiag);
-    a(12) =  y(S32)  * rr(index_rate).rates(irsga);
+    a(1)  = -3.0e0_rt * y(He4) * y(He4) * y(He4) * rr.rates(He4_He4_He4_to_C12_forward);
+    a(2)  =  3.0e0_rt * y(C12) * rr.rates(He4_He4_He4_to_C12_reverse);
+    a(3)  = -y(He4)  * y(C12) * rr.rates(C12_He4_to_O16_forward);
+    a(4)  =  y(O16)  * rr.rates(C12_He4_to_O16_reverse);
+    a(5)  = -y(He4)  * y(O16) * rr.rates(O16_He4_to_Ne20_forward);
+    a(6)  =  y(Ne20) * rr.rates(O16_He4_to_Ne20_reverse);
+    a(7)  = -y(He4)  * y(Ne20) * rr.rates(Ne20_He4_to_Mg24_forward);
+    a(8)  =  y(Mg24) * rr.rates(Ne20_He4_to_Mg24_reverse);
+    a(9)  = -y(He4)  * y(Mg24) * rr.rates(Mg24_He4_to_Si28_forward);
+    a(10) =  y(Si28) * rr.rates(Mg24_He4_to_Si28_reverse);
+    a(11) = -y(He4)  * y(Si28) * rr.rates(Si28_He4_to_S32_forward);
+    a(12) =  y(S32)  * rr.rates(Si28_He4_to_S32_reverse);
 
     dydt(He4) = dydt(He4) + esum12(a);
 
-    a(1)  = -y(He4)  * y(S32) * rr(index_rate).rates(irsag);
-    a(2)  =  y(Ar36) * rr(index_rate).rates(irarga);
-    a(3)  = -y(He4)  * y(Ar36)*rr(index_rate).rates(irarag);
-    a(4)  =  y(Ca40) * rr(index_rate).rates(ircaga);
-    a(5)  = -y(He4)  * y(Ca40)*rr(index_rate).rates(ircaag);
-    a(6)  =  y(Ti44) * rr(index_rate).rates(irtiga);
-    a(7)  = -y(He4)  * y(Ti44)*rr(index_rate).rates(irtiag);
-    a(8)  =  y(Cr48) * rr(index_rate).rates(ircrga);
-    a(9)  = -y(He4)  * y(Cr48)*rr(index_rate).rates(ircrag);
-    a(10) =  y(Fe52) * rr(index_rate).rates(irfega);
-    a(11) = -y(He4)  * y(Fe52) * rr(index_rate).rates(irfeag);
-    a(12) =  y(Ni56) * rr(index_rate).rates(irniga);
+    a(1)  = -y(He4)  * y(S32) * rr.rates(S32_He4_to_Ar36_forward);
+    a(2)  =  y(Ar36) * rr.rates(S32_He4_to_Ar36_reverse);
+    a(3)  = -y(He4)  * y(Ar36) * rr.rates(Ar36_He4_to_Ca40_forward);
+    a(4)  =  y(Ca40) * rr.rates(Ar36_He4_to_Ca40_reverse);
+    a(5)  = -y(He4)  * y(Ca40) * rr.rates(Ca40_He4_to_Ti44_forward);
+    a(6)  =  y(Ti44) * rr.rates(Ca40_He4_to_Ti44_reverse);
+    a(7)  = -y(He4)  * y(Ti44) * rr.rates(Ti44_He4_to_Cr48_forward);
+    a(8)  =  y(Cr48) * rr.rates(Ti44_He4_to_Cr48_reverse);
+    a(9)  = -y(He4)  * y(Cr48) * rr.rates(Cr48_He4_to_Fe52_forward);
+    a(10) =  y(Fe52) * rr.rates(Cr48_He4_to_Fe52_reverse);
+    a(11) = -y(He4)  * y(Fe52) * rr.rates(Fe52_He4_to_Ni56_forward);
+    a(12) =  y(Ni56) * rr.rates(Fe52_He4_to_Ni56_reverse);
 
     dydt(He4) = dydt(He4) + esum12(a);
-
-    // (a,p)(p,g) and (g,p)(p,a) reactions
-
-    if (!deriva) {
-
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(ir1616);
-       a(2)  = -y(He4)  * y(Mg24) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
-       a(3)  =  y(Si28) * rr(index_rate).rates(irsigp) * rr(index_rate).rates(irr1);
-       a(4)  = -y(He4)  * y(Si28) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
-       a(5)  =  y(S32)  * rr(index_rate).rates(irsgp) * rr(index_rate).rates(irs1);
-       a(6)  = -y(He4)  * y(S32) * rr(index_rate).rates(irsap)*(1.0e0_rt-rr(index_rate).rates(irt1));
-       a(7)  =  y(Ar36) * rr(index_rate).rates(irargp) * rr(index_rate).rates(irt1);
-       a(8)  = -y(He4)  * y(Ar36) * rr(index_rate).rates(irarap)*(1.0e0_rt-rr(index_rate).rates(iru1));
-       a(9)  =  y(Ca40) * rr(index_rate).rates(ircagp) * rr(index_rate).rates(iru1);
-       a(10) = -y(He4)  * y(Ca40) * rr(index_rate).rates(ircaap)*(1.0e0_rt-rr(index_rate).rates(irv1));
-       a(11) =  y(Ti44) * rr(index_rate).rates(irtigp) * rr(index_rate).rates(irv1);
-       a(12) = -y(He4)  * y(Ti44) * rr(index_rate).rates(irtiap)*(1.0e0_rt-rr(index_rate).rates(irw1));
-       a(13) =  y(Cr48) * rr(index_rate).rates(ircrgp) * rr(index_rate).rates(irw1);
-       a(14) = -y(He4)  * y(Cr48) * rr(index_rate).rates(ircrap)*(1.0e0_rt-rr(index_rate).rates(irx1));
-       a(15) =  y(Fe52) * rr(index_rate).rates(irfegp) * rr(index_rate).rates(irx1);
-       a(16) = -y(He4)  * y(Fe52) * rr(index_rate).rates(irfeap)*(1.0e0_rt-rr(index_rate).rates(iry1));
-       a(17) =  y(Ni56) * rr(index_rate).rates(irnigp) * rr(index_rate).rates(iry1);
-
-       dydt(He4) = dydt(He4) + esum17(a);
-
-    } else {
-
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1) * rr(index_rate).rates(ir1616);
-       a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1) * rr(1).rates(ir1616);
-       a(3)  = -y(He4)*y(Mg24) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
-       a(4)  =  y(He4)*y(Mg24) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
-       a(5)  =  y(Si28) * rr(1).rates(irsigp) * rr(index_rate).rates(irr1);
-       a(6)  =  y(Si28) * rr(index_rate).rates(irsigp) * rr(1).rates(irr1);
-       a(7)  = -y(He4)*y(Si28) * rr(index_rate).rates(irsiap)*(1.0e0_rt - rr(1).rates(irs1));
-       a(8)  =  y(He4)*y(Si28) * rr(1).rates(irsiap) * rr(index_rate).rates(irs1);
-       a(9)  =  y(S32)  * rr(1).rates(irsgp) * rr(index_rate).rates(irs1);
-       a(10) =  y(S32)  * rr(index_rate).rates(irsgp) * rr(1).rates(irs1);
-
-       dydt(He4) = dydt(He4) + esum10(a);
-
-       a(1)  = -y(He4)*y(S32) * rr(index_rate).rates(irsap)*(1.0e0_rt - rr(1).rates(irt1));
-       a(2)  =  y(He4)*y(S32) * rr(1).rates(irsap)*rr(index_rate).rates(irt1);
-       a(3)  =  y(Ar36) * rr(1).rates(irargp) * rr(index_rate).rates(irt1);
-       a(4)  =  y(Ar36) * rr(index_rate).rates(irargp) * rr(1).rates(irt1);
-       a(5)  = -y(He4)*y(Ar36) * rr(index_rate).rates(irarap)*(1.0e0_rt - rr(1).rates(iru1));
-       a(6)  =  y(He4)*y(Ar36) * rr(1).rates(irarap)*rr(index_rate).rates(iru1);
-       a(7)  =  y(Ca40) * rr(1).rates(ircagp) * rr(index_rate).rates(iru1);
-       a(8)  =  y(Ca40) * rr(index_rate).rates(ircagp) * rr(1).rates(iru1);
-       a(9)  = -y(He4)*y(Ca40) * rr(index_rate).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
-       a(10) =  y(He4)*y(Ca40) * rr(1).rates(ircaap)*rr(index_rate).rates(irv1);
-       a(11) =  y(Ti44) * rr(1).rates(irtigp) * rr(index_rate).rates(irv1);
-       a(12) =  y(Ti44) * rr(index_rate).rates(irtigp) * rr(1).rates(irv1);
-
-       dydt(He4) = dydt(He4) + esum12(a);
-
-       a(1)  = -y(He4)*y(Ti44) * rr(index_rate).rates(irtiap)*(1.0e0_rt - rr(1).rates(irw1));
-       a(2)  =  y(He4)*y(Ti44) * rr(1).rates(irtiap)*rr(index_rate).rates(irw1);
-       a(3)  =  y(Cr48) * rr(1).rates(ircrgp) * rr(index_rate).rates(irw1);
-       a(4)  =  y(Cr48) * rr(index_rate).rates(ircrgp) * rr(1).rates(irw1);
-       a(5)  = -y(He4)*y(Cr48) * rr(index_rate).rates(ircrap)*(1.0e0_rt - rr(1).rates(irx1));
-       a(6)  =  y(He4)*y(Cr48) * rr(1).rates(ircrap)*rr(index_rate).rates(irx1);
-       a(7)  =  y(Fe52) * rr(1).rates(irfegp) * rr(index_rate).rates(irx1);
-       a(8)  =  y(Fe52) * rr(index_rate).rates(irfegp) * rr(1).rates(irx1);
-       a(9)  = -y(He4)*y(Fe52) * rr(index_rate).rates(irfeap)*(1.0e0_rt - rr(1).rates(iry1));
-       a(10) =  y(He4)*y(Fe52) * rr(1).rates(irfeap)*rr(index_rate).rates(iry1);
-       a(11) =  y(Ni56) * rr(1).rates(irnigp) * rr(index_rate).rates(iry1);
-       a(12) =  y(Ni56) * rr(index_rate).rates(irnigp) * rr(1).rates(iry1);
-
-       dydt(He4) = dydt(He4) + esum12(a);
-    
-    }
 
     // c12 reactions
-    a(1) = -y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-    a(2) = -y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(3) =  y(He4) * y(He4) * y(He4) * rr(index_rate).rates(ir3a) / 6.0_rt;;
-    a(4) = -y(C12) * rr(index_rate).rates(irg3a);
-    a(5) = -y(C12) * y(He4) * rr(index_rate).rates(ircag);
-    a(6) =  y(O16) * rr(index_rate).rates(iroga);
+    a(1) = -2.0e0_rt * y(C12) * y(C12) * rr.rates(C12_C12_to_Ne20_He4_forward);
+    a(2) = -y(C12) * y(O16) * rr.rates(C12_O16_to_Mg24_He4_forward);
+    a(3) = -y(C12) * y(O16) * rr.rates(C12_O16_to_Si28_forward);
+    a(4) =  y(He4) * y(He4) * y(He4) * rr.rates(He4_He4_He4_to_C12_forward);
+    a(5) = -y(C12) * rr.rates(He4_He4_He4_to_C12_reverse);
+    a(6) = -y(C12) * y(He4) * rr.rates(C12_He4_to_O16_forward);
+    a(7) =  y(O16) * rr.rates(C12_He4_to_O16_reverse);
 
-    dydt(C12) = dydt(C12) + esum6(a);
+    dydt(C12) = dydt(C12) + esum7(a);
 
 
     // o16 reactions
-    a(1) = -y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(2) = -y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-    a(3) =  y(C12) * y(He4) * rr(index_rate).rates(ircag);
-    a(4) = -y(O16) * y(He4) * rr(index_rate).rates(iroag);
-    a(5) = -y(O16) * rr(index_rate).rates(iroga);
-    a(6) =  y(Ne20) * rr(index_rate).rates(irnega);
+    a(1) = -y(C12) * y(O16) * rr.rates(C12_O16_to_Mg24_He4_forward);
+    a(2) = -y(C12) * y(O16) * rr.rates(C12_O16_to_Si28_forward);
+    a(3) = -2.0_rt * y(O16) * y(O16) * rr.rates(O16_O16_to_Si28_He4_forward);
+    a(4) = -2.0_rt * y(O16) * y(O16) * rr.rates(O16_O16_to_S32_forward);
+    a(5) =  y(C12) * y(He4) * rr.rates(C12_He4_to_O16_forward);
+    a(6) = -y(O16) * y(He4) * rr.rates(O16_He4_to_Ne20_forward);
+    a(7) = -y(O16) * rr.rates(C12_He4_to_O16_reverse);
+    a(8) =  y(Ne20) * rr.rates(O16_He4_to_Ne20_reverse);
 
-    dydt(O16) = dydt(O16) + esum6(a);
+    dydt(O16) = dydt(O16) + esum8(a);
 
 
     // ne20 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(C12) * rr(index_rate).rates(ir1212);
-    a(2) =  y(O16) * y(He4) * rr(index_rate).rates(iroag);
-    a(3) = -y(Ne20) * y(He4) * rr(index_rate).rates(irneag);
-    a(4) = -y(Ne20) * rr(index_rate).rates(irnega);
-    a(5) =  y(Mg24) * rr(index_rate).rates(irmgga);
+    a(1) =  y(C12) * y(C12) * rr.rates(C12_C12_to_Ne20_He4_forward);
+    a(2) =  y(O16) * y(He4) * rr.rates(O16_He4_to_Ne20_forward);
+    a(3) = -y(Ne20) * y(He4) * rr.rates(Ne20_He4_to_Mg24_forward);
+    a(4) = -y(Ne20) * rr.rates(O16_He4_to_Ne20_reverse);
+    a(5) =  y(Mg24) * rr.rates(Ne20_He4_to_Mg24_reverse);
 
     dydt(Ne20) = dydt(Ne20) + esum5(a);
 
 
     // mg24 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(2) =  y(Ne20) * y(He4) * rr(index_rate).rates(irneag);
-    a(3) = -y(Mg24) * y(He4) * rr(index_rate).rates(irmgag);
-    a(4) = -y(Mg24) * rr(index_rate).rates(irmgga);
-    a(5) =  y(Si28) * rr(index_rate).rates(irsiga);
+    a(1) =  y(C12) * y(O16) * rr.rates(C12_O16_to_Mg24_He4_forward);
+    a(2) =  y(Ne20) * y(He4) * rr.rates(Ne20_He4_to_Mg24_forward);
+    a(3) = -y(Mg24) * y(He4) * rr.rates(Mg24_He4_to_Si28_forward);
+    a(4) = -y(Mg24) * rr.rates(Ne20_He4_to_Mg24_reverse);
+    a(5) =  y(Si28) * rr.rates(Mg24_He4_to_Si28_reverse);
 
     dydt(Mg24) = dydt(Mg24) + esum5(a);
 
-    if (!deriva) {
-
-       a(1) = -y(Mg24) * y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
-       a(2) =  y(Si28) * rr(index_rate).rates(irr1) * rr(index_rate).rates(irsigp);
-
-       dydt(Mg24) = dydt(Mg24) + a(1) + a(2);
-
-    } else {
-
-       a(1) = -y(Mg24)*y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
-       a(2) =  y(Mg24)*y(He4) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
-       a(3) =  y(Si28) * rr(1).rates(irr1) * rr(index_rate).rates(irsigp);
-       a(4) =  y(Si28) * rr(index_rate).rates(irr1) * rr(1).rates(irsigp);
-
-       dydt(Mg24) = dydt(Mg24) + esum4(a);
-
-    }
-
 
     // si28 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rr(index_rate).rates(ir1216);
-    a(2) =  0.56e0_rt * 0.5e0_rt*y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-    a(3) =  y(Mg24) * y(He4) * rr(index_rate).rates(irmgag);
-    a(4) = -y(Si28) * y(He4) * rr(index_rate).rates(irsiag);
-    a(5) = -y(Si28) * rr(index_rate).rates(irsiga);
-    a(6) =  y(S32)  * rr(index_rate).rates(irsga);
+    a(1) =  y(C12) * y(O16) * rr.rates(C12_O16_to_Si28_forward);
+    a(2) =  y(O16) * y(O16) * rr.rates(O16_O16_to_Si28_He4_forward);
+    a(3) =  y(Mg24) * y(He4) * rr.rates(Mg24_He4_to_Si28_forward);
+    a(4) = -y(Si28) * y(He4) * rr.rates(Si28_He4_to_S32_forward);
+    a(5) = -y(Si28) * rr.rates(Mg24_He4_to_Si28_reverse);
+    a(6) =  y(S32)  * rr.rates(Si28_He4_to_S32_reverse);
 
     dydt(Si28) = dydt(Si28) + esum6(a);
 
-    if (!deriva) {
-
-       a(1) =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)*rr(index_rate).rates(irs1)*rr(index_rate).rates(ir1616);
-       a(2) =  y(Mg24) * y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt-rr(index_rate).rates(irr1));
-       a(3) = -y(Si28) * rr(index_rate).rates(irr1) * rr(index_rate).rates(irsigp);
-       a(4) = -y(Si28) * y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
-       a(5) =  y(S32)  * rr(index_rate).rates(irs1) * rr(index_rate).rates(irsgp);
-
-       dydt(Si28) = dydt(Si28) + esum5(a);
-
-    } else {
-
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(irs1)*rr(index_rate).rates(ir1616);
-       a(2)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(irs1)*rr(1).rates(ir1616);
-       a(3)  =  y(Mg24)*y(He4) * rr(index_rate).rates(irmgap)*(1.0e0_rt - rr(1).rates(irr1));
-       a(4)  = -y(Mg24)*y(He4) * rr(1).rates(irmgap)*rr(index_rate).rates(irr1);
-       a(5)  = -y(Si28) * rr(1).rates(irr1) * rr(index_rate).rates(irsigp);
-       a(6)  = -y(Si28) * rr(index_rate).rates(irr1) * rr(1).rates(irsigp);
-       a(7)  = -y(Si28)*y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt - rr(1).rates(irs1));
-       a(8)  =  y(Si28)*y(He4) * rr(1).rates(irsiap)*rr(index_rate).rates(irs1);
-       a(9)  = y(S32) * rr(1).rates(irs1) * rr(index_rate).rates(irsgp);
-       a(10) = y(S32) * rr(index_rate).rates(irs1) * rr(1).rates(irsgp);
-
-       dydt(Si28) = dydt(Si28) + esum10(a);
-
-    }
-
 
     // s32 reactions
-    a(1) =  0.1e0_rt * 0.5e0_rt*y(O16) * y(O16) * rr(index_rate).rates(ir1616);
-    a(2) =  y(Si28) * y(He4) * rr(index_rate).rates(irsiag);
-    a(3) = -y(S32) * y(He4) * rr(index_rate).rates(irsag);
-    a(4) = -y(S32) * rr(index_rate).rates(irsga);
-    a(5) =  y(Ar36) * rr(index_rate).rates(irarga);
+    a(1) =  y(O16) * y(O16) * rr.rates(O16_O16_to_S32_forward);
+    a(2) =  y(Si28) * y(He4) * rr.rates(Si28_He4_to_S32_forward);
+    a(3) = -y(S32) * y(He4) * rr.rates(S32_He4_to_Ar36_forward);
+    a(4) = -y(S32) * rr.rates(Si28_He4_to_S32_reverse);
+    a(5) =  y(Ar36) * rr.rates(S32_He4_to_Ar36_reverse);
 
     dydt(S32) = dydt(S32) + esum5(a);
 
 
-    if (!deriva) {
-
-       a(1) =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16)* rr(index_rate).rates(ir1616)*(1.0e0_rt-rr(index_rate).rates(irs1));
-       a(2) =  y(Si28) * y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(index_rate).rates(irs1));
-       a(3) = -y(S32) * rr(index_rate).rates(irs1) * rr(index_rate).rates(irsgp);
-       a(4) = -y(S32) * y(He4) * rr(index_rate).rates(irsap)*(1.0e0_rt-rr(index_rate).rates(irt1));
-       a(5) =  y(Ar36) * rr(index_rate).rates(irt1) * rr(index_rate).rates(irargp);
-
-       dydt(S32) = dydt(S32) + esum5(a);
-
-    } else {
-
-       a(1)  =  0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(index_rate).rates(ir1616)*(1.0e0_rt-rr(1).rates(irs1));
-       a(2)  = -0.34e0_rt*0.5e0_rt*y(O16)*y(O16) * rr(1).rates(ir1616)*rr(index_rate).rates(irs1);
-       a(3)  =  y(Si28)*y(He4) * rr(index_rate).rates(irsiap)*(1.0e0_rt-rr(1).rates(irs1));
-       a(4)  = -y(Si28)*y(He4) * rr(1).rates(irsiap)*rr(index_rate).rates(irs1);
-       a(5)  = -y(S32) * rr(1).rates(irs1) * rr(index_rate).rates(irsgp);
-       a(6)  = -y(S32) * rr(index_rate).rates(irs1) * rr(1).rates(irsgp);
-       a(7)  = -y(S32)*y(He4) * rr(index_rate).rates(irsap)*(1.0e0_rt-rr(1).rates(irt1));
-       a(8)  =  y(S32)*y(He4) * rr(1).rates(irsap)*rr(index_rate).rates(irt1);
-       a(9)  =  y(Ar36) * rr(1).rates(irt1) * rr(index_rate).rates(irargp);
-       a(10) =  y(Ar36) * rr(index_rate).rates(irt1) * rr(1).rates(irargp);
-
-       dydt(S32) = dydt(S32) + esum10(a);
-
-    }
-
-
     // ar36 reactions
-    a(1) =  y(S32)  * y(He4) * rr(index_rate).rates(irsag);
-    a(2) = -y(Ar36) * y(He4) * rr(index_rate).rates(irarag);
-    a(3) = -y(Ar36) * rr(index_rate).rates(irarga);
-    a(4) =  y(Ca40) * rr(index_rate).rates(ircaga);
+    a(1) =  y(S32)  * y(He4) * rr.rates(S32_He4_to_Ar36_forward);
+    a(2) = -y(Ar36) * y(He4) * rr.rates(Ar36_He4_to_Ca40_forward);
+    a(3) = -y(Ar36) * rr.rates(S32_He4_to_Ar36_reverse);
+    a(4) =  y(Ca40) * rr.rates(Ar36_He4_to_Ca40_reverse);
 
     dydt(Ar36) = dydt(Ar36) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) = y(S32)  * y(He4) * rr(index_rate).rates(irsap)*(1.0e0_rt-rr(index_rate).rates(irt1));
-       a(2) = -y(Ar36) * rr(index_rate).rates(irt1) * rr(index_rate).rates(irargp);
-       a(3) = -y(Ar36) * y(He4) * rr(index_rate).rates(irarap)*(1.0e0_rt-rr(index_rate).rates(iru1));
-       a(4) =  y(Ca40) * rr(index_rate).rates(ircagp) * rr(index_rate).rates(iru1);
-
-       dydt(Ar36) = dydt(Ar36) + esum4(a);
-
-    } else {
-
-       a(1) =  y(S32)*y(He4) * rr(index_rate).rates(irsap)*(1.0e0_rt - rr(1).rates(irt1));
-       a(2) = -y(S32)*y(He4) * rr(1).rates(irsap)*rr(index_rate).rates(irt1);
-       a(3) = -y(Ar36) * rr(1).rates(irt1) * rr(index_rate).rates(irargp);
-       a(4) = -y(Ar36) * rr(index_rate).rates(irt1) * rr(1).rates(irargp);
-       a(5) = -y(Ar36)*y(He4) * rr(index_rate).rates(irarap)*(1.0e0_rt-rr(1).rates(iru1));
-       a(6) =  y(Ar36)*y(He4) * rr(1).rates(irarap)*rr(index_rate).rates(iru1);
-       a(7) =  y(Ca40) * rr(1).rates(ircagp) * rr(index_rate).rates(iru1);
-       a(8) =  y(Ca40) * rr(index_rate).rates(ircagp) * rr(1).rates(iru1);
-
-       dydt(Ar36) = dydt(Ar36) + esum8(a);
-
-    }
-
 
     // ca40 reactions
-    a(1) =  y(Ar36) * y(He4) * rr(index_rate).rates(irarag);
-    a(2) = -y(Ca40) * y(He4) * rr(index_rate).rates(ircaag);
-    a(3) = -y(Ca40) * rr(index_rate).rates(ircaga);
-    a(4) =  y(Ti44) * rr(index_rate).rates(irtiga);
+    a(1) =  y(Ar36) * y(He4) * rr.rates(Ar36_He4_to_Ca40_forward);
+    a(2) = -y(Ca40) * y(He4) * rr.rates(Ca40_He4_to_Ti44_forward);
+    a(3) = -y(Ca40) * rr.rates(Ar36_He4_to_Ca40_reverse);
+    a(4) =  y(Ti44) * rr.rates(Ca40_He4_to_Ti44_reverse);
 
     dydt(Ca40) = dydt(Ca40) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) =  y(Ar36) * y(He4) * rr(index_rate).rates(irarap)*(1.0e0_rt-rr(index_rate).rates(iru1));
-       a(2) = -y(Ca40) * rr(index_rate).rates(ircagp) * rr(index_rate).rates(iru1);
-       a(3) = -y(Ca40) * y(He4) * rr(index_rate).rates(ircaap)*(1.0e0_rt-rr(index_rate).rates(irv1));
-       a(4) =  y(Ti44) * rr(index_rate).rates(irtigp) * rr(index_rate).rates(irv1);
-
-       dydt(Ca40) = dydt(Ca40) + esum4(a);
-
-    } else {
-
-       a(1) =  y(Ar36)*y(He4) * rr(index_rate).rates(irarap)*(1.0e0_rt-rr(1).rates(iru1));
-       a(2) = -y(Ar36)*y(He4) * rr(1).rates(irarap)*rr(index_rate).rates(iru1);
-       a(3) = -y(Ca40) * rr(1).rates(ircagp) * rr(index_rate).rates(iru1);
-       a(4) = -y(Ca40) * rr(index_rate).rates(ircagp) * rr(1).rates(iru1);
-       a(5) = -y(Ca40)*y(He4) * rr(index_rate).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
-       a(6) =  y(Ca40)*y(He4) * rr(1).rates(ircaap)*rr(index_rate).rates(irv1);
-       a(7) =  y(Ti44) * rr(1).rates(irtigp) * rr(index_rate).rates(irv1);
-       a(8) =  y(Ti44) * rr(index_rate).rates(irtigp) * rr(1).rates(irv1);
-
-       dydt(Ca40) = dydt(Ca40) + esum8(a);
-
-    }
-
 
     // ti44 reactions
-    a(1) =  y(Ca40) * y(He4) * rr(index_rate).rates(ircaag);
-    a(2) = -y(Ti44) * y(He4) * rr(index_rate).rates(irtiag);
-    a(3) = -y(Ti44) * rr(index_rate).rates(irtiga);
-    a(4) =  y(Cr48) * rr(index_rate).rates(ircrga);
+    a(1) =  y(Ca40) * y(He4) * rr.rates(Ca40_He4_to_Ti44_forward);
+    a(2) = -y(Ti44) * y(He4) * rr.rates(Ti44_He4_to_Cr48_forward);
+    a(3) = -y(Ti44) * rr.rates(Ca40_He4_to_Ti44_reverse);
+    a(4) =  y(Cr48) * rr.rates(Ti44_He4_to_Cr48_reverse);
 
     dydt(Ti44) = dydt(Ti44) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) =  y(Ca40) * y(He4) * rr(index_rate).rates(ircaap)*(1.0e0_rt-rr(index_rate).rates(irv1));
-       a(2) = -y(Ti44) * rr(index_rate).rates(irv1) * rr(index_rate).rates(irtigp);
-       a(3) = -y(Ti44) * y(He4) * rr(index_rate).rates(irtiap)*(1.0e0_rt-rr(index_rate).rates(irw1));
-       a(4) =  y(Cr48) * rr(index_rate).rates(irw1) * rr(index_rate).rates(ircrgp);
-
-       dydt(Ti44) = dydt(Ti44) + esum4(a);
-
-    } else {
-
-       a(1) =  y(Ca40)*y(He4) * rr(index_rate).rates(ircaap)*(1.0e0_rt-rr(1).rates(irv1));
-       a(2) = -y(Ca40)*y(He4) * rr(1).rates(ircaap)*rr(index_rate).rates(irv1);
-       a(3) = -y(Ti44) * rr(1).rates(irv1) * rr(index_rate).rates(irtigp);
-       a(4) = -y(Ti44) * rr(index_rate).rates(irv1) * rr(1).rates(irtigp);
-       a(5) = -y(Ti44)*y(He4) * rr(index_rate).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
-       a(6) =  y(Ti44)*y(He4) * rr(1).rates(irtiap)*rr(index_rate).rates(irw1);
-       a(7) =  y(Cr48) * rr(1).rates(irw1) * rr(index_rate).rates(ircrgp);
-       a(8) =  y(Cr48) * rr(index_rate).rates(irw1) * rr(1).rates(ircrgp);
-
-       dydt(Ti44) = dydt(Ti44) + esum8(a);
-
-    }
-
 
     // cr48 reactions
-    a(1) =  y(Ti44) * y(He4) * rr(index_rate).rates(irtiag);
-    a(2) = -y(Cr48) * y(He4) * rr(index_rate).rates(ircrag);
-    a(3) = -y(Cr48) * rr(index_rate).rates(ircrga);
-    a(4) =  y(Fe52) * rr(index_rate).rates(irfega);
+    a(1) =  y(Ti44) * y(He4) * rr.rates(Ti44_He4_to_Cr48_forward);
+    a(2) = -y(Cr48) * y(He4) * rr.rates(Cr48_He4_to_Fe52_forward);
+    a(3) = -y(Cr48) * rr.rates(Ti44_He4_to_Cr48_reverse);
+    a(4) =  y(Fe52) * rr.rates(Cr48_He4_to_Fe52_reverse);
 
     dydt(Cr48) = dydt(Cr48) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) =  y(Ti44) * y(He4) * rr(index_rate).rates(irtiap)*(1.0e0_rt-rr(index_rate).rates(irw1));
-       a(2) = -y(Cr48) * rr(index_rate).rates(irw1) * rr(index_rate).rates(ircrgp);
-       a(3) = -y(Cr48) * y(He4) * rr(index_rate).rates(ircrap)*(1.0e0_rt-rr(index_rate).rates(irx1));
-       a(4) =  y(Fe52) * rr(index_rate).rates(irx1) * rr(index_rate).rates(irfegp);
-
-       dydt(Cr48) = dydt(Cr48) + esum4(a);
-
-    } else {
-
-       a(1) =  y(Ti44)*y(He4) * rr(index_rate).rates(irtiap)*(1.0e0_rt-rr(1).rates(irw1));
-       a(2) = -y(Ti44)*y(He4) * rr(1).rates(irtiap)*rr(index_rate).rates(irw1);
-       a(3) = -y(Cr48) * rr(1).rates(irw1) * rr(index_rate).rates(ircrgp);
-       a(4) = -y(Cr48) * rr(index_rate).rates(irw1) * rr(1).rates(ircrgp);
-       a(5) = -y(Cr48)*y(He4) * rr(index_rate).rates(ircrap)*(1.0e0_rt-rr(1).rates(irx1));
-       a(6) =  y(Cr48)*y(He4) * rr(1).rates(ircrap)*rr(index_rate).rates(irx1);
-       a(7) =  y(Fe52) * rr(1).rates(irx1) * rr(index_rate).rates(irfegp);
-       a(8) =  y(Fe52) * rr(index_rate).rates(irx1) * rr(1).rates(irfegp);
-
-       dydt(Cr48) = dydt(Cr48) + esum8(a);
-
-    }
-
 
     // fe52 reactions
-    a(1) =  y(Cr48) * y(He4) * rr(index_rate).rates(ircrag);
-    a(2) = -y(Fe52) * y(He4) * rr(index_rate).rates(irfeag);
-    a(3) = -y(Fe52) * rr(index_rate).rates(irfega);
-    a(4) =  y(Ni56) * rr(index_rate).rates(irniga);
+    a(1) =  y(Cr48) * y(He4) * rr.rates(Cr48_He4_to_Fe52_forward);
+    a(2) = -y(Fe52) * y(He4) * rr.rates(Fe52_He4_to_Ni56_forward);
+    a(3) = -y(Fe52) * rr.rates(Cr48_He4_to_Fe52_reverse);
+    a(4) =  y(Ni56) * rr.rates(Fe52_He4_to_Ni56_reverse);
 
     dydt(Fe52) = dydt(Fe52) + esum4(a);
 
-    if (!deriva) {
-
-       a(1) =  y(Cr48) * y(He4) * rr(index_rate).rates(ircrap)*(1.0e0_rt-rr(index_rate).rates(irx1));
-       a(2) = -y(Fe52) * rr(index_rate).rates(irx1) * rr(index_rate).rates(irfegp);
-       a(3) = -y(Fe52) * y(He4) * rr(index_rate).rates(irfeap)*(1.0e0_rt-rr(index_rate).rates(iry1));
-       a(4) =  y(Ni56) * rr(index_rate).rates(iry1) * rr(index_rate).rates(irnigp);
-
-       dydt(Fe52) = dydt(Fe52) + esum4(a);
-
-    } else {
-
-       a(1) =  y(Cr48)*y(He4) * rr(index_rate).rates(ircrap)*(1.0e0_rt-rr(1).rates(irx1));
-       a(2) = -y(Cr48)*y(He4) * rr(1).rates(ircrap)*rr(index_rate).rates(irx1);
-       a(3) = -y(Fe52) * rr(1).rates(irx1) * rr(index_rate).rates(irfegp);
-       a(4) = -y(Fe52) * rr(index_rate).rates(irx1) * rr(1).rates(irfegp);
-       a(5) = -y(Fe52)*y(He4) * rr(index_rate).rates(irfeap)*(1.0e0_rt-rr(1).rates(iry1));
-       a(6) =  y(Fe52)*y(He4) * rr(1).rates(irfeap)*rr(index_rate).rates(iry1);
-       a(7) =  y(Ni56) * rr(1).rates(iry1) * rr(index_rate).rates(irnigp);
-       a(8) =  y(Ni56) * rr(index_rate).rates(iry1) * rr(1).rates(irnigp);
-
-       dydt(Fe52) = dydt(Fe52) + esum8(a);
-
-    }
-
 
     // ni56 reactions
-    a(1) =  y(Fe52) * y(He4) * rr(index_rate).rates(irfeag);
-    a(2) = -y(Ni56) * rr(index_rate).rates(irniga);
+    a(1) =  y(Fe52) * y(He4) * rr.rates(Fe52_He4_to_Ni56_forward);
+    a(2) = -y(Ni56) * rr.rates(Fe52_He4_to_Ni56_reverse);
 
     dydt(Ni56) = dydt(Ni56) + a(1) + a(2);
-
-    if (!deriva) {
-
-       a(1) =  y(Fe52) * y(He4) * rr(index_rate).rates(irfeap)*(1.0e0_rt-rr(index_rate).rates(iry1));
-       a(2) = -y(Ni56) * rr(index_rate).rates(iry1) * rr(index_rate).rates(irnigp);
-
-       dydt(Ni56) = dydt(Ni56) + a(1) + a(2);
-
-    } else {
-
-       a(1) =  y(Fe52)*y(He4) * rr(index_rate).rates(irfeap)*(1.0e0_rt-rr(1).rates(iry1));
-       a(2) = -y(Fe52)*y(He4) * rr(1).rates(irfeap)*rr(index_rate).rates(iry1);
-       a(3) = -y(Ni56) * rr(1).rates(iry1) * rr(index_rate).rates(irnigp);
-       a(4) = -y(Ni56) * rr(index_rate).rates(iry1) * rr(1).rates(irnigp);
-
-       dydt(Ni56) = dydt(Ni56) + esum4(a);
-
-    }
-
 }
 
 
@@ -1968,9 +1984,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Call the RHS to actually get dydt.
 
-    bool deriva = false;
-    bool for_jacobian_tderiv = false;
-    rhs(y, rr, ydot, deriva, for_jacobian_tderiv);
+    rhs(y, rr(1), ydot);
 
     // Instantaneous energy generation rate -- this needs molar fractions
 
@@ -1983,12 +1997,6 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Append the energy equation (this is erg/g/s)
 
     ydot(net_ienuc) = enuc - sneut;
-
-#ifdef STRANG
-    // Append the temperature equation
-
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 }
 
 
@@ -2050,22 +2058,16 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // Evaluate the Jacobian elements with respect to temperature by
     // calling the RHS using d(rate) / dT
 
-    deriva = true;
-    bool for_jacobian_tderiv = true;
-    rhs(y, rr, yderivs, deriva, for_jacobian_tderiv);
+    rhs(y, rr(2), yderivs);
 
     for (int i = 1; i <= NumSpec; ++i) {
-        jac(i,net_itemp) = yderivs(i);
+        jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
     }
 
-    ener_gener_rate(yderivs, jac(net_ienuc,net_itemp));
-
-    jac(net_ienuc,net_itemp) -= dsneutdt;
-
-    // Temperature Jacobian elements
-
-    temperature_jac(state, jac);
-
+    Real jac_e_T;
+    ener_gener_rate(yderivs, jac_e_T);
+    jac_e_T -= dsneutdt;
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
 
 
