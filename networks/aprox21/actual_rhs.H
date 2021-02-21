@@ -24,8 +24,6 @@ using namespace Rates;
 
 constexpr Real c54 = 56.0e0_rt / 54.0e0_rt;
 
-void actual_rhs_init();
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void aprox21rat (Real btemp, Real bden,
                  Array1D<Real, 1, NumRates>& ratraw,
@@ -2975,6 +2973,16 @@ void actual_jac (burn_t& state, MatrixType& jac)
     ener_gener_rate(yderivs, jac_e_T);
     jac_e_T -= dsneutdt;
     jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
+}
+
+AMREX_INLINE
+void actual_rhs_init ()
+{
+    rates_init();
+
+    screening_init();
+
+    set_up_screening_factors();
 }
 
 #endif

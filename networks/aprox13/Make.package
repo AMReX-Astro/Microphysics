@@ -10,10 +10,7 @@ ifeq ($(USE_REACT),TRUE)
   DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
 
   ifeq ($(USE_CXX_REACTIONS),TRUE)
-    CEXE_sources += actual_network_data.cpp
     CEXE_headers += actual_network.H
-
-    CEXE_sources += actual_rhs_data.cpp
     CEXE_headers += actual_rhs.H
     CEXE_headers += actual_matrix.H
   endif

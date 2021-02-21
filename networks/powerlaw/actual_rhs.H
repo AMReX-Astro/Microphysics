@@ -13,8 +13,6 @@
 
 using namespace amrex;
 
-void actual_rhs_init();
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
@@ -66,6 +64,11 @@ void actual_jac (burn_t& state, MatrixType& jac)
         }
     }
 
+}
+
+AMREX_INLINE
+void actual_rhs_init ()
+{
 }
 
 #endif

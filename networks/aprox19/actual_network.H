@@ -10,8 +10,6 @@
 
 using namespace amrex;
 
-void actual_network_init();
-
 namespace C
 {
     namespace Legacy
@@ -40,8 +38,8 @@ const std::string network_name = "aprox19_nse";
 
 namespace aprox19
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
+    inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
 }
 
 namespace table
@@ -53,15 +51,15 @@ namespace table
   constexpr int nden = 31;
   constexpr int nye = 21;
 
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
+  inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
+  inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
+  inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
 
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> wratetab;
+  inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
+  inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
+  inline AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> wratetab;
 
-  extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;
+  inline AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;
 
 }
 
@@ -172,6 +170,43 @@ namespace Rates {
                       };
 
     const int NumGroups = 4;
+}
+
+AMREX_INLINE
+void actual_network_init ()
+{
+    using namespace Species;
+    using namespace aprox19;
+
+#ifdef NSE_TABLE
+    init_nse();
+#endif
+
+    // Set the binding energy of the element
+    bion(H1)   = 0.0e0_rt;
+    bion(He3)  = 7.71819e0_rt;
+    bion(He4)  = 28.29603e0_rt;
+    bion(C12)  = 92.16294e0_rt;
+    bion(N14)  = 104.65998e0_rt;
+    bion(O16)  = 127.62093e0_rt;
+    bion(Ne20) = 160.64788e0_rt;
+    bion(Mg24) = 198.25790e0_rt;
+    bion(Si28) = 236.53790e0_rt;
+    bion(S32)  = 271.78250e0_rt;
+    bion(Ar36) = 306.72020e0_rt;
+    bion(Ca40) = 342.05680e0_rt;
+    bion(Ti44) = 375.47720e0_rt;
+    bion(Cr48) = 411.46900e0_rt;
+    bion(Fe52) = 447.70800e0_rt;
+    bion(Fe54) = 471.7696e0_rt;
+    bion(Ni56) = 484.00300e0_rt;
+    bion(N)    = 0.0e0_rt;
+    bion(P)    = 0.0e0_rt;
+
+    // Set the mass
+    for (int i = 1; i <= NumSpec; ++i) {
+        mion(i) = (aion[i-1] - zion[i-1]) * C::Legacy::m_n + zion[i-1] * (C::Legacy::m_p + C::Legacy::m_e) - bion(i) * C::Legacy::MeV2gr;
+    }
 }
 
 #endif

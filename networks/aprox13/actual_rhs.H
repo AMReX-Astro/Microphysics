@@ -21,8 +21,6 @@
 using namespace amrex;
 using namespace ArrayUtil;
 
-void actual_rhs_init();
-
 namespace RateTable
 {
     constexpr Real tab_tlo = 6.0e0_rt;
@@ -32,9 +30,9 @@ namespace RateTable
     constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
     constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
 
-    extern AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> rattab;
-    extern AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> drattabdt;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
+    inline AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> rattab;
+    inline AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> drattabdt;
+    inline AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
 }
 
 
@@ -2130,6 +2128,22 @@ void set_up_screening_factors()
 
     add_screening_factor(jscr++, 27.0e0_rt, 55.0e0_rt, 1.0e0_rt, 1.0e0_rt);
 
+}
+
+AMREX_INLINE
+void actual_rhs_init ()
+{
+    rates_init();
+
+    screening_init();
+
+    set_up_screening_factors();
+
+    if (use_tables)
+    {
+        amrex::Print() << "\nInitializing aprox13 rate table\n";
+        set_aprox13rat();
+    }
 }
 
 #endif

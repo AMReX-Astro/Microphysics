@@ -23,8 +23,6 @@
 using namespace amrex;
 using namespace ArrayUtil;
 
-void actual_rhs_init();
-
 namespace RateTable
 {
     constexpr Real tab_tlo = 6.0e0_rt;
@@ -34,11 +32,10 @@ namespace RateTable
     constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
     constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
 
-    extern AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> rattab;
-    extern AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> drattabdt;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
+    inline AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> rattab;
+    inline AMREX_GPU_MANAGED Array2D<Real, 1, Rates::NumRates, 1, nrattab> drattabdt;
+    inline AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
 }
-
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7tab(const Real btemp, const Real bden,
@@ -744,6 +741,22 @@ void set_up_screening_factors()
     add_screening_factor(jscr++, zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1]);
     add_screening_factor(jscr++,  20.0e0_rt,  40.0e0_rt, zion[He4-1], aion[He4-1]);
 
+}
+
+AMREX_INLINE
+void actual_rhs_init ()
+{
+    rates_init();
+
+    screening_init();
+
+    set_up_screening_factors();
+
+    if (use_tables)
+    {
+        amrex::Print() << "\nInitializing iso7 rate table\n";
+        set_iso7rat();
+    }
 }
 
 #endif

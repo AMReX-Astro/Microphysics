@@ -9,8 +9,6 @@
 
 using namespace amrex;
 
-void actual_rhs_init ();
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void evaluate_rates(burn_t& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
@@ -179,6 +177,17 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     // Energy generation rate Jacobian element with respect to energy
     ener_gener_rate(jac(net_ienuc, net_ienuc), jac_C12_T);
+}
+
+AMREX_INLINE
+void actual_rhs_init ()
+{
+    using namespace Species;
+
+    screening_init();
+
+    int jscr = 0;
+    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
 }
 
 #endif
