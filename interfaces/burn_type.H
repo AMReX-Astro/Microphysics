@@ -87,6 +87,10 @@ struct burn_t
   Real aux[NumAux];
 #endif
 
+  // derivatives needed for calling the EOS
+  Real dedr;
+  Real dedT;
+
   // now come the bits that we need for SDC or Strang evolution
 
 #ifdef SIMPLIFIED_SDC
@@ -151,6 +155,8 @@ struct burn_t
   Real f_source[NumSpec+2];
 #endif
 
+  Real mu;
+  Real mu_e;
   Real y_e;
   Real eta;
   Real abar;
