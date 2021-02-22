@@ -19,7 +19,7 @@ void clean_state (burn_t& state)
 
     // Evaluate the EOS to get T from e.
 
-    eos_t eos_state;
+    eos_re_t eos_state;
 
     burn_to_eos(state, eos_state);
 
@@ -38,7 +38,7 @@ void initialize_state (burn_t& state)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    eos_t eos_state;
+    eos_re_t eos_state;
 
     burn_to_eos(state, eos_state);
 
