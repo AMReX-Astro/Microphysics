@@ -163,3 +163,11 @@ Core developers will be recognized in the following ways:
 
 If a core developer is inactive for 3 years, we may reassess their
 status as a core developer.
+
+
+## Getting help
+
+We use github discussions for requesting help and interacting with the
+community:
+
+https://github.com/starkiller-astro/Microphysics/discussions
