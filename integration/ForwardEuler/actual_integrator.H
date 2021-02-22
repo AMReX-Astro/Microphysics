@@ -68,13 +68,7 @@ void clean_state (burn_t& state)
 
     // Evaluate the EOS to get T from e.
 
-    eos_re_t eos_state;
-
-    burn_to_eos(state, eos_state);
-
-    eos(eos_input_re, eos_state);
-
-    eos_to_burn(eos_state, state);
+    eos(eos_input_re, state);
 
     // Ensure that the temperature always stays within reasonable limits.
 
@@ -88,13 +82,7 @@ void initialize_state (burn_t& state)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    eos_re_t eos_state;
-
-    burn_to_eos(state, eos_state);
-
-    eos(eos_input_rt, eos_state);
-
-    eos_to_burn(eos_state, state);
+    eos(eos_input_rt, state);
 
     state.self_heat = true;
 
