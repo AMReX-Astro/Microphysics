@@ -70,13 +70,6 @@ void clean_state (dvode_t& vode_state)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 {
-
-    // Fill an EOS state using a combination of the burn data
-    // (which has supplementary data such as density) and the
-    // VODE state (which has the current xn, T, and e).
-
-    eos_re_t eos_state;
-
 #ifdef NSE_THERMO
     // we are handling the thermodynamics via the aux quantities, which
     // are stored in the burn_t here, so we need to update those based on
@@ -97,19 +90,14 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 
 #endif
 
-    burn_to_eos(state, eos_state);
-
     for (int n = 1; n <= NumSpec; ++n) {
-        eos_state.xn[n-1] = vode_state.y(n);
+        state.xn[n-1] = vode_state.y(n);
     }
-    eos_state.e = vode_state.y(net_ienuc);
+    state.e = vode_state.y(net_ienuc);
 
     // Get T from e (also updates composition quantities).
 
-    eos(eos_input_re, eos_state);
-
-    eos_to_burn(eos_state, state);
-
+    eos(eos_input_re, state);
 }
 
 #endif

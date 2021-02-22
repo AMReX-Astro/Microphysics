@@ -51,20 +51,19 @@ void actual_integrator (burn_t& state, Real dt)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    eos_re_t eos_state;
-
-    burn_to_eos(state, eos_state);
-
-    eos(eos_input_rt, eos_state);
-
-    eos_to_burn(eos_state, state);
+    eos(eos_input_rt, state);
 
     // Fill in the initial integration state.
 
     burn_to_vode(state, vode_state);
 
-    // Save the initial energy for our later diagnostics.
+    // Save the initial composition, temperature, and energy for our later diagnostics.
 
+    Real xn_in[NumSpec];
+    for (int n = 0; n < NumSpec; ++n) {
+        xn_in[n] = state.xn[n];
+    }
+    Real T_in = state.T;
     Real e_in = state.e;
 
     state.self_heat = true;
@@ -128,10 +127,10 @@ void actual_integrator (burn_t& state, Real dt)
         std::cout << "istate = " << istate << std::endl;
         std::cout << "time = " << vode_state.t << std::endl;
         std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << eos_state.T << std::endl;
+        std::cout << "temp start = " << T_in << std::endl;
         std::cout << "xn start = ";
         for (int n = 0; n < NumSpec; ++n) {
-            std::cout << eos_state.xn[n] << " ";
+            std::cout << xn_in[n] << " ";
         }
         std::cout << std::endl;
         std::cout << "temp current = " << state.T << std::endl;
