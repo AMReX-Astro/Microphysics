@@ -90,6 +90,10 @@ struct burn_t
   // derivatives needed for calling the EOS
   Real dedr;
   Real dedT;
+#ifdef EXTRA_THERMO
+  Real dedA;
+  Real dedZ;
+#endif
 
   // now come the bits that we need for SDC or Strang evolution
 
