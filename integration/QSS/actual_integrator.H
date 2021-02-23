@@ -19,7 +19,9 @@ void clean_state (burn_t& state)
 
     // Evaluate the EOS to get T from e.
 
-    eos(eos_input_re, state);
+    if (call_eos_in_rhs) {
+        eos(eos_input_re, state);
+    }
 
     // Ensure that the temperature always stays within reasonable limits.
 
