@@ -117,7 +117,8 @@ int single_step (burn_t& state, const Real dt)
     int ierr = BE_SUCCESS;
     bool converged = false;
 
-    // create our current guess for the solution
+    // create our current guess for the solution -- just as a first
+    // order explicit prediction
 
     Array1D<Real, 1, neqs> ydot;
 
@@ -225,7 +226,7 @@ int single_step (burn_t& state, const Real dt)
 
         Real y_norm = 0.0;
         Real b_norm = 0.0;
-        for (int n = 1; n < BE_NEQS; n++) {
+        for (int n = 1; n <= BE_NEQS; n++) {
             y_norm += y_np1(n) * y_np1(n);
             b_norm += b(n) * b(n);
         }
