@@ -21,8 +21,6 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
         burn_state.xn[n] = state(i, j, k, p.ispec_old + n);
     }
 
-    std::cout << "in do_react " << burn_state.rho << " " << burn_state.T << std::endl;
-
 #if NAUX_NET > 0
     for (int n = 0; n < NumAux; ++n) {
       burn_state.aux[n] = state(i, j, k, p.iaux_old + n);

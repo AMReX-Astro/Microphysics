@@ -357,6 +357,7 @@ void actual_integrator (burn_t& state, const Real dt)
             ierr = single_step(state_coarse_dt, dt_sub);
         }
 
+#ifdef VODELIKE_ERROR
         // define a weight for each variable to use in checking the error
 
         Array1D<Real, 1, BE_NEQS> w;
@@ -378,6 +379,29 @@ void actual_integrator (burn_t& state, const Real dt)
         if (err_norm < 1.0_rt) {
             step_success = true;
         }
+#else
+
+        // compute a relative error only for the species that are more
+        // abundant that atol_spec
+
+        Real rel_error = 0.0_rt;
+        for (int n = 1; n <= NumSpec; n++) {
+            if (state.xn[n-1] > atol_spec) {
+                rel_error = amrex::max(rel_error,
+                                       std::abs((state.xn[n-1] - state_coarse_dt.xn[n-1]) /
+                                                (state.xn[n-1] + atol_spec)));
+            }
+        }
+        rel_error = amrex::max(rel_error,
+                               std::abs((state.e - state_coarse_dt.e) / state.e));
+
+        bool step_success = false;
+        if (rel_error < rtol_spec) {
+            step_success = true;
+        }
+
+#endif
+
 
         if (ierr == BE_SUCCESS) {
 
@@ -393,9 +417,14 @@ void actual_integrator (burn_t& state, const Real dt)
                 // can we potentially increase the timestep?
                 // backward-Euler has a local truncation error of dt**2
 
+#ifdef VODELIKE_ERROR
                 Real dt_new = dt_sub * std::pow(1.0_rt / err_norm, 0.5_rt);
-
-                dt_sub = amrex::min(amrex::max(0.9 * dt_new, dt_sub / 2.0), 2.0 * dt_sub);
+#else
+                Real dt_new = dt_sub * std::pow(rtol_spec / rel_error, 0.5_rt);
+#endif
+                //std::cout << "old dt: " << dt_sub << " " << rtol_spec << " " << rel_error << " " << rtol_spec/rel_error << " " << dt_new << " ";
+                dt_sub = amrex::min(amrex::max(dt_new, dt_sub / 2.0), 2.0 * dt_sub);
+                //std::cout << "  new dt: " << dt_sub << std::endl;
 
             } else {
 
