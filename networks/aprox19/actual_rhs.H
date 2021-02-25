@@ -115,13 +115,13 @@ void aprox19rat (Real btemp, Real bden,
     }
 
     // c12 + c12
-    rate_c12c12(tf, bden, ratraw(C12_C12_forward), dratrawdt(C12_C12_forward), rrate, drratedt);
+    rate_c12c12(tf, bden, ratraw(C12_C12_to_Ne20_He4_forward), dratrawdt(C12_C12_to_Ne20_He4_forward), rrate, drratedt);
 
     // c12 + o16
-    rate_c12o16(tf, bden, ratraw(C12_O16_forward), dratrawdt(C12_O16_forward), rrate, drratedt);
+    rate_c12o16(tf, bden, ratraw(C12_O16_to_Mg24_He4_forward), dratrawdt(C12_O16_to_Mg24_He4_forward), rrate, drratedt);
 
     // o16 + o16
-    rate_o16o16(tf, bden, ratraw(O16_O16_forward), dratrawdt(O16_O16_forward), rrate, drratedt);
+    rate_o16o16(tf, bden, ratraw(O16_O16_to_Si28_He4_forward), dratrawdt(O16_O16_to_Si28_He4_forward), rrate, drratedt);
 
     // o16(a,g)ne20
     rate_o16ag(tf, bden, ratraw(O16_He4_to_Ne20_forward), dratrawdt(O16_He4_to_Ne20_forward), ratraw(O16_He4_to_Ne20_reverse), dratrawdt(O16_He4_to_Ne20_reverse));
@@ -338,14 +338,14 @@ void screen_aprox19 (Real btemp, Real bden,
             sc1a, sc1adt, sc1add);
 
 
-    ratdum(C12_C12_forward)    = ratraw(C12_C12_forward) * sc1a;
-    dratdumdt(C12_C12_forward) = dratrawdt(C12_C12_forward)*sc1a + ratraw(C12_C12_forward)*sc1adt;
-    //dratdumdd(C12_C12_forward) = dratrawdd(C12_C12_forward)*sc1a + ratraw(C12_C12_forward)*sc1add;;
+    ratdum(C12_C12_to_Ne20_He4_forward)    = ratraw(C12_C12_to_Ne20_He4_forward) * sc1a;
+    dratdumdt(C12_C12_to_Ne20_He4_forward) = dratrawdt(C12_C12_to_Ne20_He4_forward)*sc1a + ratraw(C12_C12_to_Ne20_He4_forward)*sc1adt;
+    //dratdumdd(C12_C12_to_Ne20_He4_forward) = dratrawdd(C12_C12_to_Ne20_He4_forward)*sc1a + ratraw(C12_C12_to_Ne20_He4_forward)*sc1add;;
 
     // Identical particle factor (C12 + C12)
 
-    ratdum(C12_C12_forward) *= 0.5_rt;
-    dratdumdt(C12_C12_forward) *= 0.5_rt;
+    ratdum(C12_C12_to_Ne20_He4_forward) *= 0.5_rt;
+    dratdumdt(C12_C12_to_Ne20_He4_forward) *= 0.5_rt;
 
 
 
@@ -355,10 +355,17 @@ void screen_aprox19 (Real btemp, Real bden,
             zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1],
             sc1a, sc1adt, sc1add);
 
-    ratdum(C12_O16_forward)    = ratraw(C12_O16_forward) * sc1a;
-    dratdumdt(C12_O16_forward) = dratrawdt(C12_O16_forward)*sc1a + ratraw(C12_O16_forward)*sc1adt;
-    //dratdumdd(C12_O16_forward) = dratrawdd(C12_O16_forward)*sc1a + ratraw(C12_O16_forward)*sc1add;;
+    ratdum(C12_O16_to_Mg24_He4_forward)    = ratraw(C12_O16_to_Mg24_He4_forward) * sc1a;
+    dratdumdt(C12_O16_to_Mg24_He4_forward) = dratrawdt(C12_O16_to_Mg24_He4_forward)*sc1a + ratraw(C12_O16_to_Mg24_He4_forward)*sc1adt;
+    //dratdumdd(C12_O16_to_Mg24_He4_forward) = dratrawdd(C12_O16_to_Mg24_He4_forward)*sc1a + ratraw(C12_O16_to_Mg24_He4_forward)*sc1add;;
 
+    // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
+
+    ratdum(C12_O16_to_Mg24_He4_forward) *= 0.5;
+    dratdumdt(C12_O16_to_Mg24_He4_forward) *= 0.5;
+
+    ratdum(C12_O16_to_Si28_forward) = ratdum(C12_O16_to_Mg24_He4_forward);
+    dratdumdt(C12_O16_to_Si28_forward) = dratdumdt(C12_O16_to_Mg24_He4_forward);
 
 
     // o16 + o16
@@ -368,14 +375,17 @@ void screen_aprox19 (Real btemp, Real bden,
             sc1a, sc1adt, sc1add);
 
 
-    ratdum(O16_O16_forward)    = ratraw(O16_O16_forward) * sc1a;
-    dratdumdt(O16_O16_forward) = dratrawdt(O16_O16_forward)*sc1a + ratraw(O16_O16_forward)*sc1adt;
-    //dratdumdd(O16_O16_forward) = dratrawdd(O16_O16_forward)*sc1a + ratraw(O16_O16_forward)*sc1add;;
+    ratdum(O16_O16_to_Si28_He4_forward)    = ratraw(O16_O16_to_Si28_He4_forward) * sc1a;
+    dratdumdt(O16_O16_to_Si28_He4_forward) = dratrawdt(O16_O16_to_Si28_He4_forward)*sc1a + ratraw(O16_O16_to_Si28_He4_forward)*sc1adt;
+    //dratdumdd(O16_O16_to_Si28_He4_forward) = dratrawdd(O16_O16_to_Si28_He4_forward)*sc1a + ratraw(O16_O16_to_Si28_He4_forward)*sc1add;;
 
     // Identical particle factor (O16 + O16)
 
-    ratdum(O16_O16_forward) *= 0.5_rt;
-    dratdumdt(O16_O16_forward) *= 0.5_rt;
+    ratdum(O16_O16_to_Si28_He4_forward) *= 0.5_rt;
+    dratdumdt(O16_O16_to_Si28_He4_forward) *= 0.5_rt;
+
+    Real O16_O16_rate = ratdum(O16_O16_to_Si28_He4_forward);
+    Real O16_O16_dratedt = dratdumdt(O16_O16_to_Si28_He4_forward);
 
 
 
@@ -937,6 +947,17 @@ void screen_aprox19 (Real btemp, Real bden,
        //dratdumdd(irs1) = (dratdumdd(irppa) - ratdum(irs1)*denomdd)*zz;
     }
 
+    // Branching ratios for O16 + O16:
+    // 0.56: O16 + O16 -> Si28 + He4
+    // 0.34: O16 + O16 -> P31 + proton
+    // 0.10: O16 + O16 -> S32
+
+    ratdum(O16_O16_to_Si28_He4_forward) = 0.56_rt * O16_O16_rate + 0.34_rt * O16_O16_rate * ratdum(irs1);
+    dratdumdt(O16_O16_to_Si28_He4_forward) = 0.56_rt * O16_O16_dratedt + 0.34_rt * (O16_O16_dratedt * ratdum(irs1) + O16_O16_rate * dratdumdt(irs1));
+
+    ratdum(O16_O16_to_S32_forward) = 0.10_rt * O16_O16_rate + 0.34_rt * O16_O16_rate * (1.0_rt - ratdum(irs1));
+    dratdumdt(O16_O16_to_S32_forward) = 0.10_rt * O16_O16_dratedt + 0.34_rt * (O16_O16_dratedt * (1.0_rt - ratdum(irs1)) - O16_O16_rate * dratdumdt(irs1));
+
     // s32(a,p)cl35(p,g)ar36
     ratdum(irt1)     = 0.0_rt;
     dratdumdt(irt1)  = 0.0_rt;
@@ -1309,9 +1330,9 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
     // he4 reactions
     // heavy ion reactions
-    a(1)  = y(C12) * y(C12) * rate(C12_C12_forward);
-    a(2)  = 0.5e0_rt * y(C12) * y(O16) * rate(C12_O16_forward);
-    a(3)  = 0.56e0_rt * y(O16) * y(O16) * rate(O16_O16_forward);
+    a(1)  = y(C12) * y(C12) * rate(C12_C12_to_Ne20_He4_forward);
+    a(2)  = y(C12) * y(O16) * rate(C12_O16_to_Mg24_He4_forward);
+    a(3)  = y(O16) * y(O16) * rate(O16_O16_to_Si28_He4_forward);
 
     dydt(He4) =  dydt(He4) + esum3(a);
 
@@ -1351,7 +1372,7 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     // (a,p)(p,g) and (g,p)(p,a) reactions
 
     if (!deriva) {
-        a(1)  =  0.34e0_rt*y(O16)*y(O16)*rate(irs1)*rate(O16_O16_forward);
+        a(1)  =  0.0_rt;
         a(2)  = -y(He4)  * y(Mg24) * rate(irmgap)*(1.0e0_rt-rate(irr1));
         a(3)  =  y(Si28) * rate(irsigp) * rate(irr1);
         a(4)  = -y(He4)  * y(Si28) * rate(irsiap)*(1.0e0_rt-rate(irs1));
@@ -1370,8 +1391,8 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
         dydt(He4) =  dydt(He4) + esum15(a);
 
     } else {
-        a(1)  =  0.34e0_rt*y(O16)*y(O16) * ratdum(irs1) * rate(O16_O16_forward);
-        a(2)  =  0.34e0_rt*y(O16)*y(O16) * rate(irs1) * ratdum(O16_O16_forward);
+        a(1)  =  0.0_rt;
+        a(2)  =  0.0_rt;
         a(3)  = -y(He4)*y(Mg24) * rate(irmgap)*(1.0e0_rt - ratdum(irr1));
         a(4)  =  y(He4)*y(Mg24) * ratdum(irmgap)*rate(irr1);
         a(5)  =  y(Si28) * ratdum(irsigp) * rate(irr1);
@@ -1446,15 +1467,16 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
 
     // c12 reactions
-    a(1) = -2.0_rt * y(C12) * y(C12) * rate(C12_C12_forward);
-    a(2) = -y(C12) * y(O16) * rate(C12_O16_forward);
-    a(3) =  y(He4) * y(He4) * y(He4) * rate(He4_He4_He4_to_C12_forward);
-    a(4) = -y(C12) * rate(He4_He4_He4_to_C12_reverse);
-    a(5) = -y(C12) * y(He4) * rate(C12_He4_to_O16_forward);
-    a(6) =  y(O16) * rate(C12_He4_to_O16_reverse);
-    a(7) = -y(C12) * y(H1) * rate(ircpg);
+    a(1) = -2.0_rt * y(C12) * y(C12) * rate(C12_C12_to_Ne20_He4_forward);
+    a(2) = -y(C12) * y(O16) * rate(C12_O16_to_Mg24_He4_forward);
+    a(3) = -y(C12) * y(O16) * rate(C12_O16_to_Si28_forward);
+    a(4) =  y(He4) * y(He4) * y(He4) * rate(He4_He4_He4_to_C12_forward);
+    a(5) = -y(C12) * rate(He4_He4_He4_to_C12_reverse);
+    a(6) = -y(C12) * y(He4) * rate(C12_He4_to_O16_forward);
+    a(7) =  y(O16) * rate(C12_He4_to_O16_reverse);
+    a(8) = -y(C12) * y(H1) * rate(ircpg);
 
-    dydt(C12) =  dydt(C12) + esum7(a);
+    dydt(C12) =  dydt(C12) + esum8(a);
 
     if (!deriva) {
         a(1) =  y(N14) * y(H1) * rate(ifa) * rate(irnpg);
@@ -1476,15 +1498,17 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
 
     // o16 reactions
-    a(1) = -y(C12) * y(O16) * rate(C12_O16_forward);
-    a(2) = -2.0_rt * y(O16) * y(O16) * rate(O16_O16_forward);
-    a(3) =  y(C12) * y(He4) * rate(C12_He4_to_O16_forward);
-    a(4) = -y(O16) * y(He4) * rate(O16_He4_to_Ne20_forward);
-    a(5) = -y(O16) * rate(C12_He4_to_O16_reverse);
-    a(6) =  y(Ne20) * rate(O16_He4_to_Ne20_reverse);
-    a(7) = -y(O16) * y(H1) * rate(iropg);
+    a(1) = -y(C12) * y(O16) * rate(C12_O16_to_Mg24_He4_forward);
+    a(2) = -y(C12) * y(O16) * rate(C12_O16_to_Si28_forward);
+    a(3) = -2.0_rt * y(O16) * y(O16) * rate(O16_O16_to_Si28_He4_forward);
+    a(4) = -2.0_rt * y(O16) * y(O16) * rate(O16_O16_to_S32_forward);
+    a(5) =  y(C12) * y(He4) * rate(C12_He4_to_O16_forward);
+    a(6) = -y(O16) * y(He4) * rate(O16_He4_to_Ne20_forward);
+    a(7) = -y(O16) * rate(C12_He4_to_O16_reverse);
+    a(8) =  y(Ne20) * rate(O16_He4_to_Ne20_reverse);
+    a(9) = -y(O16) * y(H1) * rate(iropg);
 
-    dydt(O16) =  dydt(O16) + esum7(a);
+    dydt(O16) =  dydt(O16) + esum9(a);
 
     if (!deriva) {
         a(1) =  y(N14) * y(H1) * rate(ifg) * rate(irnpg);
@@ -1497,7 +1521,7 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
 
     // ne20 reactions
-    a(1) =  y(C12) * y(C12) * rate(C12_C12_forward);
+    a(1) =  y(C12) * y(C12) * rate(C12_C12_to_Ne20_He4_forward);
     a(2) =  y(O16) * y(He4) * rate(O16_He4_to_Ne20_forward);
     a(3) = -y(Ne20) * y(He4) * rate(Ne20_He4_to_Mg24_forward);
     a(4) = -y(Ne20) * rate(O16_He4_to_Ne20_reverse);
@@ -1508,7 +1532,7 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
 
     // mg24 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rate(C12_O16_forward);
+    a(1) =  y(C12) * y(O16) * rate(C12_O16_to_Mg24_He4_forward);
     a(2) =  y(Ne20) * y(He4) * rate(Ne20_He4_to_Mg24_forward);
     a(3) = -y(Mg24) * y(He4) * rate(Mg24_He4_to_Si28_forward);
     a(4) = -y(Mg24) * rate(Ne20_He4_to_Mg24_reverse);
@@ -1533,8 +1557,8 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
 
     // si28 reactions
-    a(1) =  0.5e0_rt * y(C12) * y(O16) * rate(C12_O16_forward);
-    a(2) =  0.56e0_rt * y(O16) * y(O16) * rate(O16_O16_forward);
+    a(1) =  y(C12) * y(O16) * rate(C12_O16_to_Si28_forward);
+    a(2) =  y(O16) * y(O16) * rate(O16_O16_to_Si28_He4_forward);
     a(3) =  y(Mg24) * y(He4) * rate(Mg24_He4_to_Si28_forward);
     a(4) = -y(Si28) * y(He4) * rate(Si28_He4_to_S32_forward);
     a(5) = -y(Si28) * rate(Mg24_He4_to_Si28_reverse);
@@ -1543,7 +1567,7 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(Si28) =  dydt(Si28) + esum6(a);
 
     if (!deriva) {
-        a(1) =  0.34e0_rt*y(O16)*y(O16)*rate(irs1)*rate(O16_O16_forward);
+        a(1) =  0.0_rt;
         a(2) =  y(Mg24) * y(He4) * rate(irmgap)*(1.0e0_rt-rate(irr1));
         a(3) = -y(Si28) * rate(irr1) * rate(irsigp);
         a(4) = -y(Si28) * y(He4) * rate(irsiap)*(1.0e0_rt-rate(irs1));
@@ -1552,8 +1576,8 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
         dydt(Si28) =  dydt(Si28) + esum5(a);
 
     } else {
-        a(1)  =  0.34e0_rt*y(O16)*y(O16) * ratdum(irs1)*rate(O16_O16_forward);
-        a(2)  =  0.34e0_rt*y(O16)*y(O16) * rate(irs1)*ratdum(O16_O16_forward);
+        a(1)  =  0.0_rt;
+        a(2)  =  0.0_rt;
         a(3)  =  y(Mg24)*y(He4) * rate(irmgap)*(1.0e0_rt - ratdum(irr1));
         a(4)  = -y(Mg24)*y(He4) * ratdum(irmgap)*rate(irr1);
         a(5)  = -y(Si28) * ratdum(irr1) * rate(irsigp);
@@ -1568,7 +1592,7 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
 
     // s32 reactions
-    a(1) =  0.1e0_rt * y(O16) * y(O16) * rate(O16_O16_forward);
+    a(1) =  y(O16) * y(O16) * rate(O16_O16_to_S32_forward);
     a(2) =  y(Si28) * y(He4) * rate(Si28_He4_to_S32_forward);
     a(3) = -y(S32) * y(He4) * rate(S32_He4_to_Ar36_forward);
     a(4) = -y(S32) * rate(Si28_He4_to_S32_reverse);
@@ -1577,7 +1601,7 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(S32) =  dydt(S32) + esum5(a);
 
     if (!deriva) {
-        a(1) =  0.34e0_rt*y(O16)*y(O16)* rate(O16_O16_forward)*(1.0e0_rt-rate(irs1));
+        a(1) =  0.0_rt;
         a(2) =  y(Si28) * y(He4) * rate(irsiap)*(1.0e0_rt-rate(irs1));
         a(3) = -y(S32) * rate(irs1) * rate(irsgp);
         a(4) = -y(S32) * y(He4) * rate(irsap)*(1.0e0_rt-rate(irt1));
@@ -1586,8 +1610,8 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
         dydt(S32) =  dydt(S32) + esum5(a);
 
     } else {
-        a(1)  =  0.34e0_rt*y(O16)*y(O16) * rate(O16_O16_forward)*(1.0e0_rt-ratdum(irs1));
-        a(2)  = -0.34e0_rt*y(O16)*y(O16) * ratdum(O16_O16_forward)*rate(irs1);
+        a(1)  =  0.0_rt;
+        a(2)  =  0.0_rt;
         a(3)  =  y(Si28)*y(He4) * rate(irsiap)*(1.0e0_rt-ratdum(irs1));
         a(4)  = -y(Si28)*y(He4) * ratdum(irsiap)*rate(irs1);
         a(5)  = -y(S32) * ratdum(irs1) * rate(irsgp);
@@ -1915,8 +1939,8 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(He4,He4) = esum25(b);
 
     // d(he4)/d(c12)
-    b(1) =  2.0_rt * y(C12) * ratdum(C12_C12_forward);
-    b(2) =  0.5e0_rt * y(O16) * ratdum(C12_O16_forward);
+    b(1) =  2.0_rt * y(C12) * ratdum(C12_C12_to_Ne20_He4_forward);
+    b(2) =  y(O16) * ratdum(C12_O16_to_Mg24_He4_forward);
     b(3) =  3.0e0_rt * ratdum(He4_He4_He4_to_C12_reverse);
     b(4) = -y(He4) * ratdum(C12_He4_to_O16_forward);
     dfdy(He4,C12) = esum4(b);
@@ -1927,13 +1951,12 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(He4,N14) = b(1) + b(2);
 
     // d(he4)/d(o16)
-    b(1) =  0.5e0_rt * y(C12) * ratdum(C12_O16_forward);
-    b(2) =  1.12e0_rt * y(O16) * ratdum(O16_O16_forward);
-    b(3) =  0.68e0_rt * ratdum(irs1) * y(O16) * ratdum(O16_O16_forward);
-    b(4) =  ratdum(C12_He4_to_O16_reverse);
-    b(5) = -y(He4) * ratdum(O16_He4_to_Ne20_forward);
-    b(6) =  y(H1) * ratdum(iropg);
-    dfdy(He4,O16) = esum6(b);
+    b(1) =  y(C12) * ratdum(C12_O16_to_Mg24_He4_forward);
+    b(2) =  2.0_rt * y(O16) * ratdum(O16_O16_to_Si28_He4_forward);
+    b(3) =  ratdum(C12_He4_to_O16_reverse);
+    b(4) = -y(He4) * ratdum(O16_He4_to_Ne20_forward);
+    b(5) =  y(H1) * ratdum(iropg);
+    dfdy(He4,O16) = esum5(b);
 
     // d(he4)/d(ne20)
     b(1) =  ratdum(O16_He4_to_Ne20_reverse);
@@ -2037,20 +2060,22 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(C12,He4) = b(1) + b(2);
 
     // d(c12)/d(c12)
-    b(1) = -4.0e0_rt * y(C12) * ratdum(C12_C12_forward);
-    b(2) = -y(O16) * ratdum(C12_O16_forward);
-    b(3) = -ratdum(He4_He4_He4_to_C12_reverse);
-    b(4) = -y(He4) * ratdum(C12_He4_to_O16_forward);
-    b(5) = -y(H1) * ratdum(ircpg);
-    dfdy(C12,C12) = esum5(b);
+    b(1) = -4.0e0_rt * y(C12) * ratdum(C12_C12_to_Ne20_He4_forward);
+    b(2) = -y(O16) * ratdum(C12_O16_to_Mg24_He4_forward);
+    b(3) = -y(O16) * ratdum(C12_O16_to_Si28_forward);
+    b(4) = -ratdum(He4_He4_He4_to_C12_reverse);
+    b(5) = -y(He4) * ratdum(C12_He4_to_O16_forward);
+    b(6) = -y(H1) * ratdum(ircpg);
+    dfdy(C12,C12) = esum6(b);
 
     // d(c12)/d(n14)
     dfdy(C12,N14) = y(H1) * ratdum(ifa) * ratdum(irnpg);
 
     // d(c12)/d(o16)
-    b(1) = -y(C12) * ratdum(C12_O16_forward);
-    b(2) =  ratdum(C12_He4_to_O16_reverse);
-    dfdy(C12,O16) = b(1) + b(2);
+    b(1) = -y(C12) * ratdum(C12_O16_to_Mg24_He4_forward);
+    b(2) = -y(C12) * ratdum(C12_O16_to_Si28_forward);
+    b(3) =  ratdum(C12_He4_to_O16_reverse);
+    dfdy(C12,O16) = esum3(b);
 
 
     // n14 jacobian elements
@@ -2091,20 +2116,23 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(O16,He4) = b(1) + b(2);
 
     // d(o16)/d(c12)
-    b(1) = -y(O16)*ratdum(C12_O16_forward);
-    b(2) =  y(He4)*ratdum(C12_He4_to_O16_forward);
-    dfdy(O16,C12) = b(1) + b(2);
+    b(1) = -y(O16)*ratdum(C12_O16_to_Mg24_He4_forward);
+    b(2) = -y(O16)*ratdum(C12_O16_to_Si28_forward);
+    b(3) =  y(He4)*ratdum(C12_He4_to_O16_forward);
+    dfdy(O16,C12) = esum3(b);
 
     // d(o16)/d(n14)
     dfdy(O16,N14) = y(H1) * ratdum(ifg) * ratdum(irnpg);
 
     // d(o16)/d(o16)
-    b(1) = -y(C12) * ratdum(C12_O16_forward);
-    b(2) = -4.0e0_rt * y(O16) * ratdum(O16_O16_forward);
-    b(3) = -y(He4) * ratdum(O16_He4_to_Ne20_forward);
-    b(4) = -ratdum(C12_He4_to_O16_reverse);
-    b(5) = -y(H1) * ratdum(iropg);
-    dfdy(O16,O16) = esum5(b);
+    b(1) = -y(C12) * ratdum(C12_O16_to_Mg24_He4_forward);
+    b(2) = -y(C12) * ratdum(C12_O16_to_Si28_forward);
+    b(3) = -4.0e0_rt * y(O16) * ratdum(O16_O16_to_Si28_He4_forward);
+    b(4) = -4.0e0_rt * y(O16) * ratdum(O16_O16_to_S32_forward);
+    b(5) = -y(He4) * ratdum(O16_He4_to_Ne20_forward);
+    b(6) = -ratdum(C12_He4_to_O16_reverse);
+    b(7) = -y(H1) * ratdum(iropg);
+    dfdy(O16,O16) = esum7(b);
 
     // d(o16)/d(ne20)
     dfdy(O16,Ne20) = ratdum(O16_He4_to_Ne20_reverse);
@@ -2118,7 +2146,7 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(Ne20,He4) = esum3(b);
 
     // d(ne20)/d(c12)
-    dfdy(Ne20,C12) = 2.0_rt * y(C12) * ratdum(C12_C12_forward);
+    dfdy(Ne20,C12) = 2.0_rt * y(C12) * ratdum(C12_C12_to_Ne20_He4_forward);
 
     // d(ne20)/d(n14)
     dfdy(Ne20,N14) = y(He4) * ratdum(irnag);
@@ -2143,10 +2171,10 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(Mg24,He4) = esum3(b);
 
     // d(mg24)/d(c12)
-    dfdy(Mg24,C12) = 0.5e0_rt * y(O16) * ratdum(C12_O16_forward);
+    dfdy(Mg24,C12) = y(O16) * ratdum(C12_O16_to_Mg24_He4_forward);
 
     // d(mg24)/d(o16)
-    dfdy(Mg24,O16) = 0.5e0_rt * y(C12) * ratdum(C12_O16_forward);
+    dfdy(Mg24,O16) = y(C12) * ratdum(C12_O16_to_Mg24_He4_forward);
 
     // d(mg24)/d(ne20)
     dfdy(Mg24,Ne20) = y(He4) * ratdum(Ne20_He4_to_Mg24_forward);
@@ -2172,13 +2200,12 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(Si28,He4) = esum4(b);
 
     // d(si28)/d(c12)
-    dfdy(Si28,C12) =  0.5e0_rt * y(O16) * ratdum(C12_O16_forward);
+    dfdy(Si28,C12) =  y(O16) * ratdum(C12_O16_to_Si28_forward);
 
     // d(si28)/d(o16)
-    b(1) = 0.5e0_rt * y(C12) * ratdum(C12_O16_forward);
-    b(2) = 1.12e0_rt * y(O16) * ratdum(O16_O16_forward);
-    b(3) = 0.68e0_rt * y(O16) * ratdum(irs1) * ratdum(O16_O16_forward);
-    dfdy(Si28,O16) = esum3(b);
+    b(1) = y(C12) * ratdum(C12_O16_to_Si28_forward);
+    b(2) = 2.0_rt * y(O16) * ratdum(O16_O16_to_Si28_He4_forward);
+    dfdy(Si28,O16) = b(1) + b(2);
 
     // d(si28)/d(mg24)
     b(1) =  y(He4) * ratdum(Mg24_He4_to_Si28_forward);
@@ -2207,9 +2234,8 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     dfdy(S32,He4) = esum4(b);
 
     // d(s32)/d(o16)
-    b(1) = 0.68e0_rt*y(O16)*ratdum(O16_O16_forward)*(1.0e0_rt-ratdum(irs1));
-    b(2) = 0.2e0_rt * y(O16) * ratdum(O16_O16_forward);
-    dfdy(S32,O16) = b(1) + b(2);
+    b(1) = 2.0_rt * y(O16) * ratdum(O16_O16_to_S32_forward);
+    dfdy(S32,O16) = b(1);
 
     // d(s32)/d(si28)
     b(1)  =y(He4) * ratdum(Si28_He4_to_S32_forward);
