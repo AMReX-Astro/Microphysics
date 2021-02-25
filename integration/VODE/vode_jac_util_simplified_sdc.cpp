@@ -187,7 +187,7 @@ void jac_to_vode(const Real time, burn_t& state,
     dwdU(iwK, SEDEN+1) = 1.0_rt / state.rho;
 
     // e row
-    eos_t eos_state;
+    eos_re_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = 1.e4_rt;   // initial guess
     for (int n = 0; n < NumSpec; n++) {
@@ -290,7 +290,7 @@ void jac_to_vode(const Real time, burn_t& state,
     }
 
     // e row
-    eos_t eos_state;
+    eos_re_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = 1.e4_rt;   // initial guess
     for (int n = 0; n < NumSpec; n++) {
