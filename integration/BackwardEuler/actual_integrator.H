@@ -94,30 +94,36 @@ void initialize_state (burn_t& state)
 
 
 ///
-/// update y through a timestep dt to produce ynew
+/// update state.xn[] and state.e through a timestep dt
+/// state is updated in place -- if we are unsuccessful, we reset it
 /// we return an error code
 ///
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int single_step (burn_t& burn_state_in,
-                 Array1D<Real, 1, BE_NEQS> y, Real dt, Array1D<Real, 1, BE_NEQS>& ynew)
+int single_step (burn_t& state, const Real dt)
 {
 
-    // todo: we should just rewrite this all in terms of a burn_state, since we need to
-    // have a valid temperature, which we do not seem to have here at the moment.
+    clean_state(state);
 
-    // then we would do a clean state here
+    // pack the initial state into a vector -- we need this for the
+    // RHS of the linear system and to reset the state if we are
+    // unsuccessful here
+
+    Array1D<Real, 1, BE_NEQS> y;
+    for (int n = 1; n <= NumSpec; n++) {
+        y(n) = state.xn[n-1];
+    }
+    y(net_ienuc) = state.e;
 
     int ierr = BE_SUCCESS;
-
     bool converged = false;
 
     // create our current guess for the solution
 
     Array1D<Real, 1, neqs> ydot;
 
-    actual_rhs(burn_state_in, ydot);
+    actual_rhs(state, ydot);
 
-    burn_state_in.n_rhs += 1;
+    state.n_rhs += 1;
 
     // Scale species terms by A (they come from the RHS in terms of Y, not X).
 
@@ -125,30 +131,31 @@ int single_step (burn_t& burn_state_in,
         ydot(n) *= aion[n-1];
     }
 
-
     Array1D<Real, 1, BE_NEQS> y_np1;
+
     for (int n = 1; n <= BE_NEQS; n++) {
         y_np1(n) = y(n) + dt * ydot(n);
     }
 
+    // Newton loop
+
     for (int iter = 1; iter <= max_iter; iter++) {
 
-        // take the current guess at the solution and put it into a
-        // burn_t.  The only thing we need from the incoming burn_t is
-        // the density.
-
-        burn_t burn_state = burn_state_in;
+        // work with the current guess
 
         for (int n = 0; n < NumSpec; n++) {
-            burn_state.xn[n] = y_np1(n+1);
+            state.xn[n] = y_np1(n+1);
         }
+        state.e = y_np1(net_ienuc);
+
+        clean_state(state);
 
         // construct the Jacobian
 
         JacNetArray2D jac;
 
         if (jacobian == 1) {
-            actual_jac(burn_state, jac);
+            actual_jac(state, jac);
 
             // We integrate X, not Y
             for (int j = 1; j <= NumSpec; ++j) {
@@ -159,7 +166,7 @@ int single_step (burn_t& burn_state_in,
             }
 
         } else {
-            numerical_jac(burn_state, jac);
+            numerical_jac(state, jac);
         }
 
         // construct the matrix for the linear system
@@ -176,9 +183,9 @@ int single_step (burn_t& burn_state_in,
 
         // get the ydots for our current guess of y
 
-        actual_rhs(burn_state, ydot);
+        actual_rhs(state, ydot);
 
-        burn_state_in.n_rhs += 1;
+        state.n_rhs += 1;
 
         // Scale species terms by A (they come from the RHS in terms of Y, not X).
 
@@ -235,18 +242,30 @@ int single_step (burn_t& burn_state_in,
     // we are done iterating -- did we converge?
 
     if (! converged) {
-        // for now we'll abort.  Later we should refactor things
-        // to reduce the timestep and try again
 
-        ierr = BE_NONCONVERGENCE;
+        if (ierr = BE_SUCCESS) {
+
+            // if we didn't set another error, then we probably ran
+            // out of iterations, so set nonconvergence
+
+            ierr = BE_NONCONVERGENCE;
+        }
+
+        // reset the state
+
+        for (int n = 0; n < NumSpec; n++) {
+            state.xn[n] = y(n+1);
+        }
+        state.e = y(net_ienuc);
 
     } else {
 
-        // update the solution vector
+        // update the state to the latest values
 
-        for (int n = 1; n <= BE_NEQS; n++) {
-            ynew(n) = y_np1(n);
+        for (int n = 0; n < NumSpec; n++) {
+            state.xn[n] = y_np1(n+1);
         }
+        state.e = y_np1(net_ienuc);
 
     }
 
@@ -322,34 +341,36 @@ void actual_integrator (burn_t& state, const Real dt)
 
         // try to take a step dt
 
-        Array1D<Real, 1, BE_NEQS> ynew;
-        Array1D<Real, 1, BE_NEQS> yd;
+        burn_t state_coarse_dt = state;
 
-        int ierr1 = single_step(state, y, dt_sub/2, ynew);
+        // first do 2 (fine) dt/2 steps
 
-        int ierr2 = single_step(state, ynew, dt_sub/2, yd);
+        int ierr = single_step(state, dt_sub/2);
+        if (ierr == BE_SUCCESS) {
+            ierr = single_step(state, dt_sub/2);
+        }
 
+        // now that single (coarse) dt step
 
-        int ierr3 = single_step(state, y, dt_sub, ynew);
-
-        // now yd is the solution with 2 small timesteps and ynew is
-        // the solution with a single step
+        if (ierr == BE_SUCCESS) {
+            ierr = single_step(state_coarse_dt, dt_sub);
+        }
 
         // define a weight for each variable to use in checking the error
 
         Array1D<Real, 1, BE_NEQS> w;
         for (int n = 1; n <= NumSpec; n++) {
-            w(n) = 1.0_rt / (rtol_spec * std::abs(yd(n)) + atol_spec);
+            w(n) = 1.0_rt / (rtol_spec * std::abs(state.xn[n-1]) + atol_spec);
         }
-        w(NumSpec+1) = 1.0_rt / (rtol_temp * std::abs(yd(NumSpec+1)) + atol_temp);
-        w(NumSpec+2) = 1.0_rt / (rtol_enuc * std::abs(yd(NumSpec+2)) + atol_enuc);
+        w(net_ienuc) = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_enuc);
 
         // now compute the norm of the weighted error
 
         Real err_norm = 0.0_rt;
-        for (int n = 1; n <= BE_NEQS; n++) {
-            err_norm += std::pow(w(n) * (yd(n) - ynew(n)), 2);
+        for (int n = 1; n <= NumSpec; n++) {
+            err_norm += std::pow(w(n) * (state.xn[n-1] - state_coarse_dt.xn[n-1]), 2);
         }
+        err_norm += std::pow(w(net_ienuc) * (state.e - state_coarse_dt.e), 2);
         err_norm = std::sqrt(err_norm / BE_NEQS);
 
         bool step_success = false;
@@ -357,18 +378,16 @@ void actual_integrator (burn_t& state, const Real dt)
             step_success = true;
         }
 
-        if (ierr1 == BE_SUCCESS && ierr2 == BE_SUCCESS && ierr3 == BE_SUCCESS) {
+        if (ierr == BE_SUCCESS) {
 
             // there were no problems with the mechanics of the step
             // (linear algebra, etc.).  Now check if we met our error
             // goals.
 
+            // state has the current best solution
+
             if (step_success) {
                 t += dt_sub;
-
-                for (int n = 1; n <= BE_NEQS; ++n) {
-                    y(n) = yd(n);
-                }
 
                 // can we potentially increase the timestep?
                 // backward-Euler has a local truncation error of dt**2
@@ -396,15 +415,7 @@ void actual_integrator (burn_t& state, const Real dt)
 
     }
 
-    // update output
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        state.xn[n-1] = y(n);
-    }
-
-    if (integrate_energy) {
-        state.e = y(net_ienuc);
-    }
+    // do a final clean_state on the solution
 
     clean_state(state);
 
@@ -419,7 +430,7 @@ void actual_integrator (burn_t& state, const Real dt)
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e - eos_state.e << std::endl;
+        std::cout <<  "energy released: " << state.e - e_in << std::endl;
         std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -432,10 +443,10 @@ void actual_integrator (burn_t& state, const Real dt)
         std::cout << "ERROR: integration failed in net" << std::endl;
         std::cout << "time = " << t << std::endl;
         std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << eos_state.T << std::endl;
+        std::cout << "temp start = " << T_in << std::endl;
         std::cout << "xn start = ";
         for (int n = 0; n < NumSpec; ++n) {
-            std::cout << eos_state.xn[n] << " ";
+            std::cout << xn_in[n] << " ";
         }
         std::cout << std::endl;
         std::cout << "temp current = " << state.T << std::endl;
@@ -444,7 +455,7 @@ void actual_integrator (burn_t& state, const Real dt)
             std::cout << state.xn[n] << " ";
         }
         std::cout << std::endl;
-        std::cout << "energy generated = " << state.e - eos_state.e << std::endl;
+        std::cout << "energy generated = " << state.e - e_in << std::endl;
 #endif
     }
 
