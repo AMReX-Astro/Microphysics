@@ -320,7 +320,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     // call the EOS to get the updated T*
 
-    eos_t eos_state;
+    eos_re_t eos_state;
 
     eos_state.rho = state.y[SRHO];
     eos_state.T = 1.e6_rt;   // initial guess
