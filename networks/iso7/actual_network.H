@@ -83,8 +83,6 @@ namespace Rates {
                        NumRates = Si28_7He4_to_Ni56_reverse};
 
     const int NumGroups = 2 + NumSpec;
-
-    extern amrex::Vector<std::string> names;
 }
 
 namespace RHS {

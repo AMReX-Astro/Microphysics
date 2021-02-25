@@ -1,3 +1,5 @@
+#ifndef NETWORK_HAS_CXX_IMPLEMENTATION
+
 module fortran_to_cxx_actual_rhs_module
 
   use amrex_fort_module, only: rt => amrex_real
@@ -81,3 +83,5 @@ contains
   end subroutine fortran_to_cxx_actual_jac
 
 end module fortran_to_cxx_actual_rhs_module
+
+#endif

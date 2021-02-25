@@ -12,11 +12,7 @@ Real temperature_to_energy_jacobian (const burn_t& state, const Real& jac_T)
 {
     Real jac_e = 0.0_rt;
 
-    if (do_constant_volume_burn) {
-        jac_e = jac_T / state.cv;
-    } else {
-        jac_e = jac_T / state.cp;
-    }
+    jac_e = jac_T / state.cv;
 
     return jac_e;
 }

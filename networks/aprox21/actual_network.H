@@ -158,8 +158,6 @@ namespace Rates {
                       };
 
     const int NumGroups = 4;
-
-    extern amrex::Vector<std::string> names;
 };
 
 #endif
