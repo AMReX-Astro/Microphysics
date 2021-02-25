@@ -14,18 +14,17 @@ using namespace amrex;
 // A generic structure holding data necessary to do a nuclear burn.
 
 // Set the number of independent variables -- this should be
-// temperature, enuc + the number of species which participate
+// enuc + the number of species which participate
 // in the evolution equations.
 
 // For Strang evolution, this will be the number of equations we are
 // evolving.  For simplified-SDC, we will need neqs when getting the
 // reaction sources from the network's RHS.
-const int neqs = 2 + NumSpec;
+const int neqs = 1 + NumSpec;
 
-// Indices of the temperature and energy variables in the work arrays.
+// Index of the energy variable in the work arrays.
 
-const int net_itemp = NumSpec + 1;
-const int net_ienuc = NumSpec + 2;
+const int net_ienuc = NumSpec + 1;
 
 // this is the data type that is used to get the ydots from the actual
 // RHS of the network, regardless of Strang or SDC
@@ -88,6 +87,14 @@ struct burn_t
   Real aux[NumAux];
 #endif
 
+  // derivatives needed for calling the EOS
+  Real dedr;
+  Real dedT;
+#ifdef EXTRA_THERMO
+  Real dedA;
+  Real dedZ;
+#endif
+
   // now come the bits that we need for SDC or Strang evolution
 
 #ifdef SIMPLIFIED_SDC
@@ -135,20 +142,11 @@ struct burn_t
 
 #endif
 
-#ifdef STRANG
-  // Strang stuff
-
+  // all coupling types need the specific heats to transform the
+  // reaction Jacobian elements from T to e
   Real cv;
-  Real cp;
 
-  // Last temperature we evaluated the EOS at
-  Real T_old;
-  Real cv_old;
-  Real cp_old;
-
-  // Temperature derivatives of specific heat
-  Real dcvdT;
-  Real dcpdT;
+#ifdef STRANG
 
   // Are we doing a self-heating burn?
   bool self_heat;
@@ -161,6 +159,8 @@ struct burn_t
   Real f_source[NumSpec+2];
 #endif
 
+  Real mu;
+  Real mu_e;
   Real y_e;
   Real eta;
   Real abar;
@@ -227,10 +227,7 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
     }
 #endif
 
-#ifdef STRANG
     burn_state.cv   = eos_state.cv;
-    burn_state.cp   = eos_state.cp;
-#endif
 
     burn_state.y_e  = eos_state.y_e;
     burn_state.eta  = eos_state.eta;
@@ -262,10 +259,7 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
     }
 #endif
 
-#ifdef STRANG
     eos_state.cv   = burn_state.cv;
-    eos_state.cp   = burn_state.cp;
-#endif
 
     eos_state.y_e  = burn_state.y_e;
     eos_state.eta  = burn_state.eta;

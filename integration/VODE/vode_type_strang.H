@@ -11,7 +11,6 @@ void vode_to_burn (const dvode_t& vode_state, burn_t& state)
         state.xn[n-1] = vode_state.y(n);
     }
 
-    state.T = vode_state.y(net_itemp);
     state.e = vode_state.y(net_ienuc);
 }
 
@@ -25,7 +24,6 @@ void burn_to_vode (const burn_t& state, dvode_t& vode_state)
         vode_state.y(n) = state.xn[n-1];
     }
 
-    vode_state.y(net_itemp) = state.T;
     vode_state.y(net_ienuc) = state.e;
 }
 
@@ -62,10 +60,6 @@ void clean_state (dvode_t& vode_state)
         renormalize_species(vode_state);
     }
 
-    // Ensure that the temperature always stays within reasonable limits.
-
-    vode_state.y(net_itemp) = amrex::min(MAX_TEMP, amrex::max(vode_state.y(net_itemp), EOSData::mintemp));
-
 }
 
 ///
@@ -76,13 +70,6 @@ void clean_state (dvode_t& vode_state)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 {
-
-    // Fill an EOS state using a combination of the burn data
-    // (which has supplementary data such as density) and the
-    // VODE state (which has the current xn, T, and e).
-
-    eos_t eos_state;
-
 #ifdef NSE_THERMO
     // we are handling the thermodynamics via the aux quantities, which
     // are stored in the burn_t here, so we need to update those based on
@@ -103,48 +90,14 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 
 #endif
 
-    burn_to_eos(state, eos_state);
-
     for (int n = 1; n <= NumSpec; ++n) {
-        eos_state.xn[n-1] = vode_state.y(n);
+        state.xn[n-1] = vode_state.y(n);
     }
-    eos_state.T = vode_state.y(net_itemp);
-    eos_state.e = vode_state.y(net_ienuc);
+    state.e = vode_state.y(net_ienuc);
 
-    // Evaluate the thermodynamics -- if desired. Note that we can
-    // either do this as an unconditional update (call_eos_in_rhs)
-    // or we optionally set a fraction dT_crit such that we don't
-    // call the EOS if the last temperature we evaluated the EOS
-    // at is relatively close to the current temperature. Otherwise
-    // just do the composition calculations since that's needed to
-    // construct dX/dt.
+    // Get T from e (also updates composition quantities).
 
-    if (call_eos_in_rhs && state.self_heat) {
-
-        eos(eos_input_rt, eos_state);
-
-    }
-    else if (std::abs(eos_state.T - state.T_old) > dT_crit * eos_state.T && state.self_heat)
-    {
-
-        eos(eos_input_rt, eos_state);
-
-        state.dcvdT = (eos_state.cv - state.cv_old) / (eos_state.T - state.T_old);
-        state.dcpdT = (eos_state.cp - state.cp_old) / (eos_state.T - state.T_old);
-
-        state.T_old = eos_state.T;
-        state.cv_old = eos_state.cv;
-        state.cp_old = eos_state.cp;
-
-    }
-    else {
-
-        composition(eos_state);
-
-    }
-
-    eos_to_burn(eos_state, state);
-
+    eos(eos_input_re, state);
 }
 
 #endif

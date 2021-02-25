@@ -160,7 +160,7 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
     // provided by the EOS. Same for the internal energy implied by the
     // total energy (which we get by subtracting kinetic energy).
 
-    eos_t eos_state;
+    eos_re_t eos_state;
     eos_state.rho = state.y[SRHO];
     eos_state.T = MAX_TEMP;
     for (int n = 0; n < NumSpec; n++) {
@@ -243,7 +243,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
     Real rhoInv = 1.0_rt / state.rho;
 
-    eos_t eos_state;
+    eos_re_t eos_state;
     eos_state.rho = state.rho;
     for (int n = 0; n < NumSpec; n++) {
         // vode_state uses 1-based indexing
@@ -353,7 +353,5 @@ void rhs_to_vode(const Real time, burn_t& state,
 #endif
 
 }
-
-
 
 #endif

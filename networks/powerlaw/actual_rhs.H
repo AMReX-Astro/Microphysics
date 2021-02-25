@@ -10,7 +10,6 @@
 #include <network_properties.H>
 #include <extern_parameters.H>
 #include <burn_type.H>
-#include <temperature_integration.H>
 
 using namespace amrex;
 
@@ -51,9 +50,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ydot(net_ienuc) = ydot(2) * aion[1] * specific_q_burn;
 
-#ifdef STRANG
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 }
 
 

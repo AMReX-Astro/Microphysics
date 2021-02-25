@@ -11,8 +11,6 @@
   primary_species_2 = "carbon-12"
   primary_species_3 = "silicon-28"
 
-  do_constant_volume_burn = T
-
   call_eos_in_rhs = T
 
 /

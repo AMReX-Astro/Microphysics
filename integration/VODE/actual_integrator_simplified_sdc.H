@@ -6,7 +6,6 @@
 
 #include <network.H>
 #include <burn_type.H>
-#include <temperature_integration.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
@@ -35,7 +34,7 @@ void actual_integrator (burn_t& state, Real dt)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    eos_t eos_state;
+    eos_re_t eos_state;
 
     // initialize the EOS state using the conserved state that was
     // passed in

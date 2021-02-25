@@ -1,5 +1,9 @@
 # 21.03
 
+   * We now integrate internal energy (e) directly instead of integrating
+     temperature (T) for the thermodynamic evolution. T is obtained from e
+     with an EOS call when needed to evaluate the rates. (#496)
+
    * simplified-SDC can be used with the NSE table in aprox19 now
      (#423, #497)
 

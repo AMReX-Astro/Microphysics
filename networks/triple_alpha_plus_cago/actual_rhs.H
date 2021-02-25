@@ -13,7 +13,7 @@
 #include <burn_type.H>
 #include <rate_type.H>
 #include <screen.H>
-#include <temperature_integration.H>
+#include <jacobian_utilities.H>
 #include <fundamental_constants.H>
 
 using namespace amrex;
@@ -336,9 +336,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ener_gener_rate(ydot, ydot(net_ienuc));
 
-#ifdef STRANG
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 }
 
 
@@ -383,13 +380,13 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     // ======================================================================
 
-    // Add the temperature derivatives: df(y_i) / dT
+    // Add the temperature derivatives: df(y_i) / dT, then convert to energy
 
     Array1D<Real, 1, NumSpec> ydot;
     dydt(ymol, dratesdt, ydot);
 
     for (int j = 1; j <= NumSpec; ++j) {
-        jac(j, net_itemp) = ydot(j);
+        jac(j, net_ienuc) = temperature_to_energy_jacobian(state, ydot(j));
     }
 
     // Energy generation rate Jacobian elements with respect to species
@@ -399,11 +396,12 @@ void actual_jac (burn_t& state, MatrixType& jac)
         ener_gener_rate(jac_slice_2, jac(net_ienuc, j));
     }
 
-    // Jacobian elements with respect to temperature
+    // Energy generation rate Jacobian element with respect to energy
 
-    ener_gener_rate(ydot, jac(net_ienuc, net_itemp));
+    Real jac_e_T;
+    ener_gener_rate(ydot, jac_e_T);
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 
-    temperature_jac(state, jac);
 }
 
 
