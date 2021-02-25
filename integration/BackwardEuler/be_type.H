@@ -14,7 +14,7 @@
 #ifdef SIMPLIFIED_SDC
 const int BE_NEQS = SVAR_EVOLVE;
 #else
-const int BE_NEQS = NumSpec + 2;
+const int BE_NEQS = NumSpec + 1;
 #endif
 
 const int BE_SUCCESS = 0;

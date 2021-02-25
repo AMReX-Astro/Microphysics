@@ -6,7 +6,6 @@
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <rate_type.H>
-#include <temperature_integration.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
@@ -68,10 +67,29 @@ void clean_state (burn_t& state)
 
     normalize_abundances_burn(state);
 
+    // Evaluate the EOS to get T from e.
+
+    eos(eos_input_re, state);
+
     // Ensure that the temperature always stays within reasonable limits.
 
     state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
 
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void initialize_state (burn_t& state)
+{
+    // We assume that (rho, T) coming in are valid, do an EOS call
+    // to fill the rest of the thermodynamic variables.
+
+    eos(eos_input_rt, state);
+
+    state.self_heat = true;
+
+    state.success = true;
+
+    state.n_rhs = 0;
 }
 
 
@@ -83,6 +101,11 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int single_step (burn_t& burn_state_in,
                  Array1D<Real, 1, BE_NEQS> y, Real dt, Array1D<Real, 1, BE_NEQS>& ynew)
 {
+
+    // todo: we should just rewrite this all in terms of a burn_state, since we need to
+    // have a valid temperature, which we do not seem to have here at the moment.
+
+    // then we would do a clean state here
 
     int ierr = BE_SUCCESS;
 
@@ -237,17 +260,14 @@ void actual_integrator (burn_t& state, const Real dt)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    eos_t eos_state;
+    initialize_state(state);
 
-    burn_to_eos(state, eos_state);
-
-    eos(eos_input_rt, eos_state);
-
-    eos_to_burn(eos_state, state);
-
-    clean_state(state);
-
-    state.self_heat = true;
+    Real T_in = state.T;
+    Real e_in = state.e;
+    Real xn_in[NumSpec];
+    for (int n = 0; n < NumSpec; ++n) {
+        xn_in[n] = state.xn[n];
+    }
 
     state.success = true;
 
@@ -306,7 +326,9 @@ void actual_integrator (burn_t& state, const Real dt)
         Array1D<Real, 1, BE_NEQS> yd;
 
         int ierr1 = single_step(state, y, dt_sub/2, ynew);
+
         int ierr2 = single_step(state, ynew, dt_sub/2, yd);
+
 
         int ierr3 = single_step(state, y, dt_sub, ynew);
 
@@ -349,8 +371,9 @@ void actual_integrator (burn_t& state, const Real dt)
                 }
 
                 // can we potentially increase the timestep?
+                // backward-Euler has a local truncation error of dt**2
 
-                Real dt_new = dt_sub / err_norm;
+                Real dt_new = dt_sub * std::pow(1.0_rt / err_norm, 0.5_rt);
 
                 dt_sub = amrex::min(amrex::max(0.9 * dt_new, dt_sub / 2.0), 2.0 * dt_sub);
 
