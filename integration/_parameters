@@ -6,15 +6,11 @@
 # or a constant pressure (do_constant_volume_burn = F)?
 do_constant_volume_burn  logical   .true.
 
-# Do we call the EOS each time we enter the EOS?  This is expensive,
-# but more accurate.  Otherwise, we instead call the EOS at the start
-# of the integration and freeze the thermodynamics throughout the RHS
-# evalulation.  This only affects the temperature integration (which
-# is the input to the rate evaluation). In particular, since we
-# calculate the composition factors either way, this determines
-# whether we're updating the thermodynamic derivatives and other
-# quantities (cp and cv) as we go.
-call_eos_in_rhs          logical   .false.
+# Normally we update the temperature during a burn to be consistent with
+# the current internal energy. This is done with an EOS call, which can
+# be turned off if desired. This will freeze the temperature and specific heat
+# to the values at the beginning of the burn, which is inaccurate but cheaper.
+call_eos_in_rhs          logical   .true.
 
 # If we want to call the EOS in general, but don't want to overdo it,
 # we can set a fraction ``dT_crit`` such that we only do the EOS call
