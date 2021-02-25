@@ -216,6 +216,7 @@ void main_main ()
             }
         });
 
+#ifndef AMREX_USE_GPU
         if (print_every_nrhs != 0) {
 
             auto int_state = integrator_n_rhs.array(mfi);
@@ -225,15 +226,18 @@ void main_main ()
                 std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
             });
         }
+#endif
 
     }
 
     aa_num_failed.copyToHost(&num_failed, 1);
     Gpu::synchronize();
 
+#ifndef AMREX_USE_GPU
     if (num_failed > 0) {
         amrex::Abort("Integration failed");
     }
+#endif
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors

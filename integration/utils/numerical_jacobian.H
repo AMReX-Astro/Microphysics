@@ -86,10 +86,7 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
         }
         state_delp.e *= (1.0_rt + eps);
 
-        eos_t eos_state;
-        burn_to_eos(state_delp, eos_state);
-        eos(eos_input_re, eos_state);
-        eos_to_burn(eos_state, state_delp);
+        eos(eos_input_re, state_delp);
 
         actual_rhs(state_delp, ydotp);
 
@@ -103,9 +100,7 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
 
         state_delm.e *= (1.0_rt - eps);
 
-        burn_to_eos(state_delm, eos_state);
-        eos(eos_input_re, eos_state);
-        eos_to_burn(eos_state, state_delm);
+        eos(eos_input_re, state_delm);
 
         actual_rhs(state_delm, ydotm);
 
@@ -172,10 +167,7 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
 
         state_delp.e += h;
 
-        eos_t eos_state;
-        burn_to_eos(state_delp, eos_state);
-        eos(eos_input_re, eos_state);
-        eos_to_burn(eos_state, state_delp);
+        eos(eos_input_re, state_delp);
 
         actual_rhs(state_delp, ydotp);
 
