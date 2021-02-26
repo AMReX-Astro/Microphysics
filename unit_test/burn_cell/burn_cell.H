@@ -138,6 +138,16 @@ void burn_cell_c()
     }
     state_over_time << std::endl;
 
+    Real t = 0.0;
+
+    state_over_time << std::setw(10) << t;
+    state_over_time << std::setw(12) << state.T; 
+    for (int x = 0; x < NumSpec; ++x){
+        state_over_time << std::setw(12) << state.xn[x]; 
+    }
+    state_over_time << std::endl;
+
+
     // store the initial internal energy -- we'll update this after
     // each substep
 
@@ -162,7 +172,7 @@ void burn_cell_c()
 
         eos(eos_input_re, state);
 
-        Real t = n*dt; 
+        t += dt;
 
 	state_over_time << std::setw(10) << t;
 	state_over_time << std::setw(12) << state.T; 
