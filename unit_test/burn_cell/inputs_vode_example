@@ -18,12 +18,11 @@ unit_test.X2  = 0.0e0
 unit_test.X3  = 0.0e0
 
 
-integrator.rtol_spec = 1.0e-6
-integrator.rtol_enuc = 1.0e-6
-integrator.rtol_temp = 1.0e-6
-integrator.atol_spec = 1.0e-6
-integrator.atol_enuc = 1.0e-6
-integrator.atol_temp = 1.0e-6
+integrator.rtol_spec = 1.0e-8
+integrator.rtol_enuc = 1.0e-8
+
+integrator.atol_spec = 1.0e-14
+integrator.atol_enuc = 1.0e-8
 
 
 amr.probin_file = probin
