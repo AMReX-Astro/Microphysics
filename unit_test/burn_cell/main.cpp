@@ -10,7 +10,7 @@ using namespace amrex;
 #include <eos.H>
 #include <network.H>
 #include <burn_cell.H>
-#include <unit_test_F.H>
+#include <unit_test.H>
 
 int main(int argc, char *argv[]) {
 
