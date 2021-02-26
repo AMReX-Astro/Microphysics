@@ -1,0 +1,29 @@
+
+unit_test.run_prefix = react_vode_example_
+
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1e5
+
+unit_test.tfirst = 0.4
+unit_test.tmax = 4.e10
+unit_test.nsteps = 12
+
+# these don't matter for the VODE burner, but we'll make them values that are in our EOS table
+
+unit_test.density = 1.e5
+unit_test.temperature   = 1.e8
+
+unit_test.X1  = 1.0e0
+unit_test.X2  = 0.0e0
+unit_test.X3  = 0.0e0
+
+
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
+integrator.rtol_temp = 1.0e-6
+integrator.atol_spec = 1.0e-6
+integrator.atol_enuc = 1.0e-6
+integrator.atol_temp = 1.0e-6
+
+
+amr.probin_file = probin

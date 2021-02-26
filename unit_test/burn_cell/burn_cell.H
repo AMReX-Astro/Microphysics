@@ -119,9 +119,16 @@ void burn_cell_c()
 
     std::ofstream state_over_time("state_over_time.txt");
 
-    // we will divide the total integration time into nsteps
+    // we will divide the total integration time into nsteps that are
+    // logarithmically spaced
 
-    Real dt = tmax/nsteps;
+    Real dlogt = 0.0_rt;
+
+    if (tfirst == 0.0_rt) {
+        dlogt = std::log10(tmax) / nsteps;
+    } else {
+        dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
+    }
 
     // save the initial state -- we'll use this to determine
     // how much things changed over the entire burn
@@ -157,6 +164,17 @@ void burn_cell_c()
 
     for (int n = 0; n < nsteps; n++){
 
+        // compute the time we wish to integrate to
+
+        Real tend;
+        if (tfirst == 0.0_rt) {
+            tend = std::pow(10.0_rt, dlogt * (n + 1));
+        } else {
+            tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
+        }
+
+        Real dt = tend - t;
+
     	burner(state, dt);
 
         // state.e represents the change in energy over the burn (for
@@ -187,7 +205,7 @@ void burn_cell_c()
 
     std::cout << "------------------------------------" << std::endl;
     std::cout << "successful? " << state.success << std::endl;
-    std::cout << " - Hnuc = " << (state.e - state_in.e) / dt << std::endl;
+    std::cout << " - Hnuc = " << (state.e - state_in.e) / tmax << std::endl;
     std::cout << " - added e = " << state.e - state_in.e << std::endl;
     std::cout << " - final T = " << state.T << std::endl;
 
@@ -207,7 +225,7 @@ void burn_cell_c()
     std::cout << "species creation rates: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
-                  << (state.xn[n] - state_in.xn[n]) / dt << std::endl;
+                  << (state.xn[n] - state_in.xn[n]) / tmax << std::endl;
     }
 
 }
