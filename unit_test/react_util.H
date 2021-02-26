@@ -52,8 +52,8 @@ init_t setup_composition(const int nz) {
         comp_data.n2 = 0;
         comp_data.n3 = 0;
 
-        comp_data.Xp_min = 0.2_rt;
-        comp_data.Xp_max = 0.9_rt;
+        comp_data.Xp_min = 1.0_rt;
+        comp_data.Xp_max = 1.0_rt;
 
     } else if (comp_data.nprim == 2) {
         comp_data.n1 = nz/2;

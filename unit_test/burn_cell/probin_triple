@@ -21,10 +21,10 @@
   atol_enuc = 1.0d-6
   atol_temp = 1.0d-6
 
-  tmax    = 1.0d-6
+  tmax    = 1.0d-3
 
   density      = 1.d6
-  temperature  = 1.d9
+  temperature  = 3.d9
 
   X1 = 1.0d0
   X2 = 0.0d0
