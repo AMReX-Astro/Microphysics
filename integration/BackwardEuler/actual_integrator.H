@@ -5,12 +5,13 @@
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
-#include <rate_type.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
 #include <be_linpack.H>
 #include <numerical_jacobian.H>
+
+#define VODELIKE_ERROR 1
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state (burn_t& state)
@@ -414,17 +415,16 @@ void actual_integrator (burn_t& state, const Real dt)
         }
         w(net_ienuc) = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_enuc);
 
-        // now compute the norm of the weighted error
+        // now look for w |y_fine - y_coarse| < 1
 
-        Real err_norm = 0.0_rt;
+        Real rel_error = 0.0_rt;
         for (int n = 1; n <= NumSpec; n++) {
-            err_norm += std::pow(w(n) * (state.xn[n-1] - state_coarse_dt.xn[n-1]), 2);
+            rel_error = amrex::max(rel_error, w(n) * std::abs(state.xn[n-1] - state_coarse_dt.xn[n-1]));
         }
-        err_norm += std::pow(w(net_ienuc) * (state.e - state_coarse_dt.e), 2);
-        err_norm = std::sqrt(err_norm / BE_NEQS);
+        rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(state.e - state_coarse_dt.e));
 
         bool step_success = false;
-        if (err_norm < 1.0_rt) {
+        if (rel_error < 1.0_rt) {
             step_success = true;
         }
 #else
@@ -466,7 +466,7 @@ void actual_integrator (burn_t& state, const Real dt)
                 // backward-Euler has a local truncation error of dt**2
 
 #ifdef VODELIKE_ERROR
-                Real dt_new = dt_sub * std::pow(1.0_rt / err_norm, 0.5_rt);
+                Real dt_new = dt_sub * std::pow(1.0_rt / rel_error, 0.5_rt);
 #else
                 Real dt_new = dt_sub * std::pow(rtol_spec / rel_error, 0.5_rt);
 #endif
