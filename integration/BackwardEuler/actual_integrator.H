@@ -22,13 +22,36 @@ void clean_state (burn_t& state)
 
     // Evaluate the EOS to get T from e.
 
-    eos(eos_input_re, state);
+    if (call_eos_in_rhs) {
+        eos(eos_input_re, state);
+    }
 
     // Ensure that the temperature always stays within reasonable limits.
 
     state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
 
 }
+
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void evaluate_rhs(burn_t state, Array1D<Real, 1, BE_NEQS>& ydot)
+{
+
+    actual_rhs(state, ydot);
+
+    // convert species to be in terms of mass fractions
+
+    for (int ii = 1; ii <= NumSpec; ++ii) {
+        ydot(ii) *= aion[ii-1];
+    }
+
+    // if we are not integrating e, then zero this out
+
+    if (integrate_energy) {
+        ydot(net_ienuc) = 0.0_rt;
+    }
+}
+
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real initial_dt (burn_t& state, const Real tmax, Array1D<Real, 1, BE_NEQS>& ydot)
@@ -87,11 +110,7 @@ Real initial_dt (burn_t& state, const Real tmax, Array1D<Real, 1, BE_NEQS>& ydot
 
        clean_state(state_temp);
 
-       actual_rhs(state_temp, ydot_temp);
-
-       for (int ii = 1; ii <= NumSpec; ++ii) {
-           ydot_temp(ii) *= aion[ii-1];
-       }
+       evaluate_rhs(state_temp, ydot_temp);
 
        for (int ii = 1; ii <= BE_NEQS; ii++) {
            ddydtt(ii) = (ydot_temp(ii) - ydot(ii)) / h;
@@ -171,15 +190,9 @@ int single_step (burn_t& state, const Real dt)
 
     Array1D<Real, 1, neqs> ydot;
 
-    actual_rhs(state, ydot);
+    evaluate_rhs(state, ydot);
 
     state.n_rhs += 1;
-
-    // Scale species terms by A (they come from the RHS in terms of Y, not X).
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        ydot(n) *= aion[n-1];
-    }
 
     Array1D<Real, 1, BE_NEQS> y_np1;
 
@@ -233,16 +246,9 @@ int single_step (burn_t& state, const Real dt)
 
         // get the ydots for our current guess of y
 
-        actual_rhs(state, ydot);
+        evaluate_rhs(state, ydot);
 
         state.n_rhs += 1;
-
-        // Scale species terms by A (they come from the RHS in terms of Y, not X).
-
-        for (int n = 1; n <= NumSpec; ++n) {
-            ydot(n) *= aion[n-1];
-        }
-
 
         // construct the RHS of our linear system
 
@@ -362,15 +368,9 @@ void actual_integrator (burn_t& state, const Real dt)
     // estimate the timestep
 
     Array1D<Real, 1, neqs> ydot;
-    actual_rhs(state, ydot);
+    evaluate_rhs(state, ydot);
 
     state.n_rhs += 1;
-
-    // Scale species terms by A (they come from the RHS in terms of Y, not X).
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        ydot(n) *= aion[n-1];
-    }
 
     Real dt_sub = initial_dt(state, dt, ydot);
 
