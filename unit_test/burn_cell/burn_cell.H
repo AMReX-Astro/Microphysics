@@ -173,6 +173,9 @@ void burn_cell_c()
             tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
         }
 
+        // the burner always starts integrating from 0, so pass in just
+        // the change in time we want to accomplish over this burn
+
         Real dt = tend - t;
 
     	burner(state, dt);
