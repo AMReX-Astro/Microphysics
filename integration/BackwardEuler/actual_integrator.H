@@ -170,6 +170,8 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int single_step (burn_t& state, const Real dt)
 {
 
+    std::cout << "stepping with dt = " << dt << std::endl;
+
     clean_state(state);
 
     // pack the initial state into a vector -- we need this for the
@@ -356,12 +358,6 @@ void actual_integrator (burn_t& state, const Real dt)
     const Real timestep_safety_factor = 1.0e-12_rt;
 
     // pack the solution into a vector
-
-    Array1D<Real, 1, BE_NEQS> y;
-    for (int n = 0; n < NumSpec; n++) {
-        y(n+1) = state.xn[n];
-    }
-    y(net_ienuc) = state.e;
 
     int num_timesteps = 0;
 
