@@ -34,8 +34,6 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script type="text/x-mathjax-config">MathJax.Hub.Config({"TeX": {"Macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -134,7 +132,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-parameters">test_parameters</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#test-reaclib-rates">test_reaclib_rates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-react">test_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-rhs">test_rhs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-screening">test_screening</a></li>
@@ -460,6 +457,14 @@ reject it</p></td>
 <td></td>
 <td><p>0.01</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
+<td></td>
+<td><p>0.01</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
+<td></td>
+<td><p>0.01</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
 <td></td>
 <td><p>0.88</p></td>
@@ -660,13 +665,13 @@ reject it</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
-<td></td>
-<td><p>1.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_viscosity</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_viscosity</span></code></p></td>
 <td></td>
 <td><p>1.0d-4</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
+<td></td>
+<td><p>1.0d0</p></td>
 </tr>
 </tbody>
 </table>
@@ -924,21 +929,18 @@ reject it</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
 <td><p>When evolving the temperature, should we assume a
-constant pressure (default) or a constant volume
-(do_constant_volume_burn = T)?</p></td>
-<td><p>.false.</p></td>
+constant volume (default) or a constant pressure
+(do_constant_volume_burn = F)?</p></td>
+<td><p>.true.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></p></td>
-<td><p>Do we call the EOS each time we enter the EOS?  This is
-expensive, but more accurate.  Otherwise, we instead
-call the EOS at the start of the integration and freeze
-the thermodynamics throughout the RHS evalulation.
-This only affects the temperature integration (which is
-the input to the rate evaluation). In particular, since
-we calculate the composition factors either way, this
-determines whether we’re updating the thermodynamic
-derivatives and other quantities (cp and cv) as we go.</p></td>
-<td><p>.false.</p></td>
+<td><p>Normally we update the temperature during a burn to be
+consistent with the current internal energy. This is
+done with an EOS call, which can be turned off if
+desired. This will freeze the temperature and specific
+heat to the values at the beginning of the burn, which
+is inaccurate but cheaper.</p></td>
+<td><p>.true.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></p></td>
 <td><p>If we want to call the EOS in general, but don’t want
@@ -1430,11 +1432,6 @@ compatibility</p></td>
 <td><p>override so that the default is an analytical Jacobian</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
-<td><p>we typically run this network for constant-pressure
-burns</p></td>
-<td><p>.false.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -1776,36 +1773,6 @@ burns</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_string</span></code></p></td>
 <td></td>
 <td><p>“test”</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="test-reaclib-rates">
-<h1>test_reaclib_rates<a class="headerlink" href="#test-reaclib-rates" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
-<td></td>
-<td><p>“”</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
 </tr>
 </tbody>
 </table>
@@ -2220,11 +2187,6 @@ compatibility</p></td>
 <td><p>override so that the default is an analytical Jacobian</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
-<td><p>we typically run this network for constant-pressure
-burns</p></td>
-<td><p>.false.</p></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -2272,11 +2234,6 @@ compatibility</p></td>
 <td><p>override so that the default is a numerical Jacobian;
 we don’t yet have an analytical Jacobian</p></td>
 <td><p>2</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
-<td><p>we typically run this network for constant-pressure
-burns</p></td>
-<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
