@@ -54,7 +54,7 @@ void evaluate_rhs(burn_t state, Array1D<Real, 1, BE_NEQS>& ydot)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real initial_dt (burn_t& state, const Real tmax, Array1D<Real, 1, BE_NEQS>& ydot)
+Real initial_dt (burn_t& state, const Real tend, Array1D<Real, 1, BE_NEQS>& ydot)
 {
     // this is a version of the initial timestep estimator from VODE
 
@@ -67,8 +67,8 @@ Real initial_dt (burn_t& state, const Real tmax, Array1D<Real, 1, BE_NEQS>& ydot
 
     // initial lower and upper bounds on the timestep
 
-    Real hL = 100.0_rt * std::numeric_limits<Real>::epsilon() * tmax;
-    Real hU = 0.1_rt * tmax;
+    Real hL = 100.0_rt * std::numeric_limits<Real>::epsilon() * tend;
+    Real hU = 0.1_rt * tend;
 
     // initial guess for the itteraction
 
@@ -299,7 +299,7 @@ int single_step (burn_t& state, const Real dt)
 
     if (! converged) {
 
-        if (ierr = BE_SUCCESS) {
+        if (ierr == BE_SUCCESS) {
 
             // if we didn't set another error, then we probably ran
             // out of iterations, so set nonconvergence
