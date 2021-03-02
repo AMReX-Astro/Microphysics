@@ -470,9 +470,7 @@ void actual_integrator (burn_t& state, const Real dt)
 #else
                 Real dt_new = dt_sub * std::pow(rtol_spec / rel_error, 0.5_rt);
 #endif
-                //std::cout << "old dt: " << dt_sub << " " << rtol_spec << " " << rel_error << " " << rtol_spec/rel_error << " " << dt_new << " ";
                 dt_sub = amrex::min(amrex::max(dt_new, dt_sub / 2.0), 2.0 * dt_sub);
-                //std::cout << "  new dt: " << dt_sub << std::endl;
 
             } else {
 
@@ -497,10 +495,14 @@ void actual_integrator (burn_t& state, const Real dt)
 
     clean_state(state);
 
+    // Subtract off the initial energy (the application codes expect
+    // to get back only the generated energy during the burn).
+
+    state.e -= e_in;
+
     if (num_timesteps >= ode_max_steps) {
         state.success = false;
     }
-
 
 
 #ifndef AMREX_USE_CUDA
@@ -508,7 +510,7 @@ void actual_integrator (burn_t& state, const Real dt)
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e - e_in << std::endl;
+        std::cout <<  "energy released: " << state.e << std::endl;
         std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -533,7 +535,7 @@ void actual_integrator (burn_t& state, const Real dt)
             std::cout << state.xn[n] << " ";
         }
         std::cout << std::endl;
-        std::cout << "energy generated = " << state.e - e_in << std::endl;
+        std::cout << "energy generated = " << state.e << std::endl;
 #endif
     }
 
