@@ -47,7 +47,7 @@ void evaluate_rhs(burn_t state, Array1D<Real, 1, BE_NEQS>& ydot)
 
     // if we are not integrating e, then zero this out
 
-    if (integrate_energy) {
+    if (!integrate_energy) {
         ydot(net_ienuc) = 0.0_rt;
     }
 }
@@ -169,8 +169,6 @@ void initialize_state (burn_t& state)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int single_step (burn_t& state, const Real dt)
 {
-
-    std::cout << "stepping with dt = " << dt << std::endl;
 
     clean_state(state);
 
