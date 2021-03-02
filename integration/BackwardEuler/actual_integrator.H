@@ -232,6 +232,12 @@ int single_step (burn_t& state, const Real dt)
             numerical_jac(state, jac);
         }
 
+        if (!integrate_energy) {
+            for (int j = 1; j <= BE_NEQS; j++) {
+                jac(net_ienuc, j) = 0.0_rt;
+            }
+        }
+
         // construct the matrix for the linear system
         // (I - dt J) dy^{n+1} = rhs
 
