@@ -88,6 +88,8 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
 
         eos(eos_input_re, state_delp);
 
+        std::cout << state_delp << std::endl;
+
         actual_rhs(state_delp, ydotp);
 
         for (int q = 1; q <= NumSpec; q++) {
@@ -120,7 +122,7 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
 
         actual_rhs(state, ydotm);
 
-        for (int q = 1; q < NumSpec; q++) {
+        for (int q = 1; q <= NumSpec; q++) {
             ydotm(q) *= aion[q-1];
         }
 
