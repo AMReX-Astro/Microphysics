@@ -2,7 +2,5 @@ ifeq ($(USE_FORT_EOS),TRUE)
   F90EXE_sources += gamma_law.F90
 endif
 ifeq ($(USE_CXX_EOS),TRUE)
-  CEXE_headers += actual_eos_data.H
-  CEXE_sources += actual_eos_data.cpp
   CEXE_headers += actual_eos.H
 endif
