@@ -97,7 +97,9 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 
     // Get T from e (also updates composition quantities).
 
-    eos(eos_input_re, state);
+    if (call_eos_in_rhs) {
+        eos(eos_input_re, state);
+    }
 }
 
 #endif

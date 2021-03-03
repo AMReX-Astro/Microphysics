@@ -108,14 +108,7 @@ namespace Rates {
                         ircopa,
                         ircopg,
                         irnigp,
-                        irs1,
-                        irt1,
-                        iru1,
-                        irv1,
-                        irw1,
-                        irx1,
-                        iry1,
-                        NumRates=iry1
+                        NumRates=irnigp
                       };
 
     const int NumGroups = 2;

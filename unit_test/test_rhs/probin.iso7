@@ -8,8 +8,7 @@
   temp_max   = 1.d10
 
   primary_species_1 = "helium-4"
-  primary_species_2 = "carbon-12"
-  primary_species_3 = "silicon-28"
+  primary_species_2 = "silicon-28"
 
   call_eos_in_rhs = T
 

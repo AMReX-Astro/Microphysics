@@ -16,8 +16,6 @@ ifeq ($(USE_CXX_EOS),TRUE)
   CEXE_headers += eos_data.H
   CEXE_headers += eos_type.H
   CEXE_headers += eos_override.H
-
-  CEXE_sources += eos_data.cpp
 endif
 
 CEXE_headers += network.H
