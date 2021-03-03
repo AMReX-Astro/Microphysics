@@ -5,7 +5,6 @@
 //
 // This a simplified version of the more general eos_gamma_general.
 
-#include <actual_eos_data.H>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network.H>
@@ -13,6 +12,9 @@
 #include <cmath>
 
 const std::string eos_name = "gamma_law";
+
+inline AMREX_GPU_MANAGED amrex::Real gamma_const;
+inline AMREX_GPU_MANAGED bool assume_neutral;
 
 inline
 void actual_eos_init ()
