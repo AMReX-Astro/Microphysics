@@ -8,23 +8,23 @@
 
 namespace EOSData
 {
-  extern bool initialized;
-  extern AMREX_GPU_MANAGED amrex::Real mintemp;
-  extern AMREX_GPU_MANAGED amrex::Real maxtemp;
-  extern AMREX_GPU_MANAGED amrex::Real mindens;
-  extern AMREX_GPU_MANAGED amrex::Real maxdens;
-  extern AMREX_GPU_MANAGED amrex::Real minx;
-  extern AMREX_GPU_MANAGED amrex::Real maxx;
-  extern AMREX_GPU_MANAGED amrex::Real minye;
-  extern AMREX_GPU_MANAGED amrex::Real maxye;
-  extern AMREX_GPU_MANAGED amrex::Real mine;
-  extern AMREX_GPU_MANAGED amrex::Real maxe;
-  extern AMREX_GPU_MANAGED amrex::Real minp;
-  extern AMREX_GPU_MANAGED amrex::Real maxp;
-  extern AMREX_GPU_MANAGED amrex::Real mins;
-  extern AMREX_GPU_MANAGED amrex::Real maxs;
-  extern AMREX_GPU_MANAGED amrex::Real minh;
-  extern AMREX_GPU_MANAGED amrex::Real maxh;
+  inline bool initialized;
+  inline AMREX_GPU_MANAGED amrex::Real mintemp;
+  inline AMREX_GPU_MANAGED amrex::Real maxtemp;
+  inline AMREX_GPU_MANAGED amrex::Real mindens;
+  inline AMREX_GPU_MANAGED amrex::Real maxdens;
+  inline AMREX_GPU_MANAGED amrex::Real minx;
+  inline AMREX_GPU_MANAGED amrex::Real maxx;
+  inline AMREX_GPU_MANAGED amrex::Real minye;
+  inline AMREX_GPU_MANAGED amrex::Real maxye;
+  inline AMREX_GPU_MANAGED amrex::Real mine;
+  inline AMREX_GPU_MANAGED amrex::Real maxe;
+  inline AMREX_GPU_MANAGED amrex::Real minp;
+  inline AMREX_GPU_MANAGED amrex::Real maxp;
+  inline AMREX_GPU_MANAGED amrex::Real mins;
+  inline AMREX_GPU_MANAGED amrex::Real maxs;
+  inline AMREX_GPU_MANAGED amrex::Real minh;
+  inline AMREX_GPU_MANAGED amrex::Real maxh;
 }
 
 #endif

@@ -120,7 +120,7 @@ void numerical_jac(burn_t& state, JacNetArray2D& jac)
 
         actual_rhs(state, ydotm);
 
-        for (int q = 1; q < NumSpec; q++) {
+        for (int q = 1; q <= NumSpec; q++) {
             ydotm(q) *= aion[q-1];
         }
 
