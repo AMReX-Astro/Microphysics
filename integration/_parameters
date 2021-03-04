@@ -19,9 +19,6 @@ call_eos_in_rhs          logical   .true.
 # in between EOS calls. This will work regardless of call_eos_in_rhs.
 dT_crit                  real      1.0d20
 
-# Allow the temperature integration to be disabled by setting the RHS to zero.
-integrate_temperature    logical   .true.
-
 # Allow the energy integration to be disabled by setting the RHS to zero.
 integrate_energy         logical   .true.
 
@@ -53,12 +50,6 @@ atol_enuc                real      1.d-6
 # do we want to try again with a looser tolerance?
 retry_burn               logical   .false.
 
-# If we do retry a burn, by what factor should we loosen the tolerance?
-retry_burn_factor        real      1.25d0
-
-# What is the maximum factor we can increase the original tolerances by?
-retry_burn_max_change    real      1.0d2
-
 # Should we abort the run when the burn fails?
 abort_on_failure         logical   .true.
 
@@ -77,11 +68,6 @@ MAX_TEMP                     real            1.0d11
 
 # boost the reaction rates by a factor > 1
 react_boost                 real         -1.d0
-
-# density, temperature, and energy scaling factors
-reactions_density_scale          real         1.d0
-reactions_temperature_scale      real         1.d0
-reactions_energy_scale           real         1.d0
 
 # maximum number of timesteps for the integrator
 ode_max_steps              integer      150000
