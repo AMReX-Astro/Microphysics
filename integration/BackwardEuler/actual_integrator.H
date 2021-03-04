@@ -1,6 +1,7 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <be_type.H>
 #include <network.H>
 #include <actual_network.H>
 #include <actual_rhs.H>
@@ -8,7 +9,7 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
-#include <be_linpack.H>
+#include <linpack.H>
 #include <numerical_jacobian.H>
 
 #define VODELIKE_ERROR 1
@@ -267,14 +268,14 @@ int single_step (burn_t& state, const Real dt)
 
         int ierr_linpack;
         IArray1D pivot;
-        dgefa(jac, pivot, ierr_linpack);
+        dgefa<BE_NEQS>(jac, pivot, ierr_linpack);
 
         if (ierr_linpack != 0) {
             ierr = BE_LU_DECOMPOSITION_ERROR;
             break;
         }
 
-        dgesl(jac, pivot, b);
+        dgesl<BE_NEQS>(jac, pivot, b);
 
         // update our current guess for the solution
 
