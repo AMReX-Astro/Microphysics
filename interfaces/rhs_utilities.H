@@ -15,19 +15,19 @@ constexpr int is_rate_used ();
 
 template<int species, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (const burn_t& state, rate_t const& rr);
+constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr);
 
 template<int species, int N>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Array1D<Real, 1, N>
-make_RHS_Array1D (const burn_t& state, rate_t const& rr);
+make_RHS_Array1D (const burn_t& state, rate_fr_t const& rr);
 
 template<int species>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real species_rhs_n (const burn_t& state, rate_t const& rr);
+Real species_rhs_n (const burn_t& state, rate_fr_t const& rr);
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr);
+Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr);
 
 } // namespace RHS
 
@@ -99,7 +99,7 @@ constexpr int rhs_term_impl (std::integer_sequence<int, rates...>)
 template<int species, int... j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Array1D<Real, 1, sizeof...(j)>
-make_RHS_Array1D_impl (const burn_t& state, rate_t const& rr, std::integer_sequence<int, j...>)
+make_RHS_Array1D_impl (const burn_t& state, rate_fr_t const& rr, std::integer_sequence<int, j...>)
 {
     return {{RHS::rhs_term<species, j+1>(state, rr)...}};
 }
@@ -109,7 +109,7 @@ make_RHS_Array1D_impl (const burn_t& state, rate_t const& rr, std::integer_seque
 // one-indexed.
 template<int... species>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> species_rhs_impl (const burn_t& state, rate_t const& rr, std::integer_sequence<int, species...>)
+Array1D<Real, 1, NumSpec> species_rhs_impl (const burn_t& state, rate_fr_t const& rr, std::integer_sequence<int, species...>)
 {
     return {{RHS::species_rhs_n<species + 1>(state, rr)...}};
 }
@@ -127,12 +127,17 @@ template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int is_rate_used ()
 {
-    constexpr rhs_t rhs_data = RHS::rhs_data(species, rate);
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
     static_assert(species >= 1 && species <= NumSpec);
     static_assert(rate >= 1 && rate <= Rates::NumRates);
 
-    if (std::abs(rhs_data.prefactor) > 0.0) {
+    if (rhs_data.species_A == species ||
+        rhs_data.species_B == species ||
+        rhs_data.species_C == species ||
+        rhs_data.species_D == species ||
+        rhs_data.species_E == species ||
+        rhs_data.species_F == species) {
         return 1;
     } else {
         return 0;
@@ -148,37 +153,97 @@ constexpr int num_rhs ()
 }
 
 // Calculate the j'th RHS term for a given species.
-// It is of the form K * Y(1) * Y(2) * Y(3) * rate,
-// where K is a prefactor constant, rate is the
-// reaction rate, and Y(1), Y(2), and Y(3) are up to
-// three molar fractions that participate (for one-body,
-// two-body, and three-body reactions, respectively). If
-// a given reaction uses fewer than three bodies, we infer
+//
+// The general form of a reaction is
+// n_a A + n_b B + n_c C <-> n_d D + n_e E + n_f F
+// for species A, B, C, D, E, and F, where n_a particles of A,
+// n_b particles of B, and n_C particles of C are consumed in
+// the forward reaction and produced in the reverse reaction.
+//
+// For a given species, such as species A, the forward reaction
+// term is of the form
+// -n_A * Y(A)**a * Y(B)**b * Y(C)**c * forward_rate,
+// and the reverse reaction term is of the form
+//  n_A * Y(D)**d * Y(E)**e * Y(F)**f * reverse_rate.
+// Here a, b, and c are reaction-specific exponents which usually,
+// but not always, are equal to n_a, n_b, and n_c respectively.
+//
+// For example, in C12 + He4 <-> O16, species A is C12, species B
+// is He4, species D is O16 (the other species are unused). Then
+// n_a = n_b = n_d = 1, and a = b = d = 1. In the triple alpha forward
+// reaction we have A = He4, D = C12, n_a = 3, a = 3, and n_d = 1.
+//
+// If a given reaction uses fewer than three species, we infer
 // this by calling its index -1 and then not accessing it
 // in the multiplication.
 template<int species, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
+constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
 {
     constexpr int rate = RHS_impl::rhs_term_impl<species, j>(std::make_integer_sequence<int, Rates::NumRates>{});
 
-    constexpr rhs_t rhs_data = RHS::rhs_data(species, rate);
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
-    Real term = rhs_data.prefactor;
+    // First, compute the Y * rate component of both the forward and
+    // reverse reactions, which is the same regardless of which species
+    // we're producing or consuming.
 
-    if (rhs_data.specindex1 >= 0) {
-        term *= state.xn[rhs_data.specindex1-1] * aion_inv[rhs_data.specindex1-1];
+    Real forward_term = rr.forward_rates(rate);
+
+    if constexpr (rhs_data.species_A >= 0) {
+        Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
+        forward_term *= std::pow(Y_A, rhs_data.exponent_A);
     }
 
-    if (rhs_data.specindex2 >= 0) {
-        term *= state.xn[rhs_data.specindex2-1] * aion_inv[rhs_data.specindex2-1];
+    if constexpr (rhs_data.species_B >= 0) {
+        Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
+        forward_term *= std::pow(Y_B, rhs_data.exponent_B);
     }
 
-    if (rhs_data.specindex3 >= 0) {
-        term *= state.xn[rhs_data.specindex3-1] * aion_inv[rhs_data.specindex3-1];
+    if constexpr (rhs_data.species_C >= 0) {
+        Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
+        forward_term *= std::pow(Y_C, rhs_data.exponent_C);
     }
 
-    term *= rr.rates(rate);
+    Real reverse_term = rr.reverse_rates(rate);
+
+    if constexpr (rhs_data.species_D >= 0) {
+        Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
+        reverse_term *= std::pow(Y_D, rhs_data.exponent_D);
+    }
+
+    if constexpr (rhs_data.species_E >= 0) {
+        Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
+        reverse_term *= std::pow(Y_E, rhs_data.exponent_E);
+    }
+
+    if constexpr (rhs_data.species_F >= 0) {
+        Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
+        reverse_term *= std::pow(Y_F, rhs_data.exponent_F);
+    }
+
+    // Now compute the total contribution to this species.
+
+    Real term = 0.0_rt;
+
+    if constexpr (rhs_data.species_A == species) {
+        term = rhs_data.number_A * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_B == species) {
+        term = rhs_data.number_B * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_C == species) {
+        term = rhs_data.number_C * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_D == species) {
+        term = rhs_data.number_D * (forward_term - reverse_term);
+    }
+    if constexpr (rhs_data.species_E == species) {
+        term = rhs_data.number_E * (forward_term - reverse_term);
+    }
+    if constexpr (rhs_data.species_F == species) {
+        term = rhs_data.number_F * (forward_term - reverse_term);
+    }
 
     return term;
 }
@@ -187,7 +252,7 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
 template<int species, int N>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Array1D<Real, 1, N>
-make_RHS_Array1D (const burn_t& state, rate_t const& rr)
+make_RHS_Array1D (const burn_t& state, rate_fr_t const& rr)
 {
     return RHS_impl::make_RHS_Array1D_impl<species>(state, rr, std::make_integer_sequence<int, N>{});
 }
@@ -196,7 +261,7 @@ make_RHS_Array1D (const burn_t& state, rate_t const& rr)
 // and then summing them up.
 template<int species>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real species_rhs_n (const burn_t& state, rate_t const& rr)
+Real species_rhs_n (const burn_t& state, rate_fr_t const& rr)
 {
     constexpr int nrhs = num_rhs<species>();
     Array1D<Real, 1, nrhs> a = make_RHS_Array1D<species, nrhs>(state, rr);
@@ -207,7 +272,15 @@ Real species_rhs_n (const burn_t& state, rate_t const& rr)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
 {
-    return RHS_impl::species_rhs_impl(state, rr, std::make_integer_sequence<int, NumSpec>{});
+    rate_fr_t rr_fr;
+
+    // Convert old-style rates to new-style
+    for (int j = 1; j <= Rates::NumRatesFR; ++j) {
+        rr_fr.forward_rates(j) = rr.rates(2 * j - 1);
+        rr_fr.reverse_rates(j) = rr.rates(2 * j);
+    }
+
+    return RHS_impl::species_rhs_impl(state, rr_fr, std::make_integer_sequence<int, NumSpec>{});
 }
 
 } // namespace RHS

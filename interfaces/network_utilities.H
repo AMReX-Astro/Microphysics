@@ -4,10 +4,26 @@
 #include <AMReX_REAL.H>
 
 struct rhs_t {
-    amrex::Real prefactor;
-    int specindex1;
-    int specindex2;
-    int specindex3;
+    int species_A;
+    int species_B;
+    int species_C;
+    int species_D;
+    int species_E;
+    int species_F;
+
+    int number_A;
+    int number_B;
+    int number_C;
+    int number_D;
+    int number_E;
+    int number_F;
+
+    int exponent_A;
+    int exponent_B;
+    int exponent_C;
+    int exponent_D;
+    int exponent_E;
+    int exponent_F;
 };
 
 struct jac_t {
