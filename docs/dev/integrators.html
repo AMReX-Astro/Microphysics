@@ -495,8 +495,6 @@ called. This represents a middle ground between fully on and fully
 off.</p>
 <p>Note: if <code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">self_heat</span> <span class="pre">=</span> <span class="pre">F</span></code> (Fortran) or <code class="docutils literal notranslate"><span class="pre">state.self_heat</span> <span class="pre">=</span>
 <span class="pre">false</span></code> (C++), then we do not evolve temperature.</p>
-<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrate_temperature</span></code> can be used to disable
-temperature evolution (by zeroing out <code class="docutils literal notranslate"><span class="pre">ydot(net_itemp)</span></code>).</p>
 </div>
 </div>
 <div class="section" id="energy-integration">
@@ -673,10 +671,9 @@ or if the <code class="docutils literal notranslate"><span class="pre">dT_crit</
 </li>
 <li><p>call <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code> to convert to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
 <li><p>call the actual RHS</p></li>
-<li><p>convert derivatives to mass-fraction-based (since we integrate <span class="math notranslate nohighlight">\(X\)</span>),
-and zero out the temperature or
-energy derivatives (if <code class="docutils literal notranslate"><span class="pre">integrate_temperature</span> <span class="pre">=</span> <span class="pre">F</span></code> or
-<code class="docutils literal notranslate"><span class="pre">integrate_energy</span> <span class="pre">=</span> <span class="pre">F</span></code>, respectively).</p></li>
+<li><p>convert derivatives to mass-fraction-based (since we integrate
+<span class="math notranslate nohighlight">\(X\)</span>), and zero out energy derivatives (if <code class="docutils literal notranslate"><span class="pre">integrate_energy</span>
+<span class="pre">=</span> <span class="pre">F</span></code>).</p></li>
 <li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0.</p></li>
 <li><p>convert back to the integrator’s internal representation by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
@@ -696,10 +693,9 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 <ol class="arabic simple">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code> to convert to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type.</p></li>
 <li><p>call the actual Jacobian routine</p></li>
-<li><p>convert derivatives to mass-fraction-based (since we integrate <span class="math notranslate nohighlight">\(X\)</span>),
-and zero out the temperature or
-energy derivatives (if <code class="docutils literal notranslate"><span class="pre">integrate_temperature</span> <span class="pre">=</span> <span class="pre">F</span></code> or
-<code class="docutils literal notranslate"><span class="pre">integrate_energy</span> <span class="pre">=</span> <span class="pre">F</span></code>, respectively).</p></li>
+<li><p>convert derivatives to mass-fraction-based (since we integrate
+<span class="math notranslate nohighlight">\(X\)</span>), and zero out the energy derivative (if
+<code class="docutils literal notranslate"><span class="pre">integrate_energy</span> <span class="pre">=</span> <span class="pre">F</span></code>).</p></li>
 <li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0.</p></li>
 <li><p>convert back to the integrator’s internal representation by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
