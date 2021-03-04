@@ -1,0 +1,14 @@
+F90EXE_sources += actual_network.F90
+F90EXE_sources += network_properties.F90
+CEXE_headers += network_properties.H
+
+DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
+ifeq ($(USE_REACT),TRUE)
+  F90EXE_sources += actual_rhs.F90
+
+  ifeq ($(USE_CXX_REACTIONS),TRUE)
+    CEXE_headers += actual_network.H
+    CEXE_headers += actual_rhs.H
+  endif
+endif
