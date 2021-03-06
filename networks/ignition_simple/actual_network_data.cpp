@@ -1,6 +1,6 @@
 #include <actual_network.H>
 
-namespace ignition_simple
+namespace network
 {
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
@@ -9,7 +9,7 @@ namespace ignition_simple
 void actual_network_init()
 {
     using namespace Species;
-    using namespace ignition_simple;
+    using namespace network;
 
     // Binding energies per nucleus in MeV
     bion(C12)  = 92.16294e0_rt;

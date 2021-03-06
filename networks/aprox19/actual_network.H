@@ -38,7 +38,7 @@ const std::string network_name = "aprox19";
 const std::string network_name = "aprox19_nse";
 #endif
 
-namespace aprox19
+namespace network
 {
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;

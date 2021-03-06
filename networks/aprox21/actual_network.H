@@ -34,7 +34,7 @@ namespace C
 
 const std::string network_name = "aprox21";
 
-namespace aprox21
+namespace network
 {
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;

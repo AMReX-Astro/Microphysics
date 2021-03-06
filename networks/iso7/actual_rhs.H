@@ -653,7 +653,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate(T const& dydt, Real& enuc)
 {
 
-    using namespace iso7;
+    using namespace network;
 
     // Computes the instantaneous energy generation rate
 
@@ -675,7 +675,7 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ener_rhs(const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
 {
-    using namespace iso7;
+    using namespace network;
 
     Real Xdot = 0.0_rt;
 
