@@ -1768,6 +1768,34 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 
 }
 
+// This version adds the neutrino losses directly
+// and is intended for use in the RHS only.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real ener_rhs (const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
+{
+    using namespace aprox13;
+
+    Real Xdot = 0.0_rt;
+
+    // Sum the mass fraction time derivatives
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        Xdot += dydt(i) * mion(i);
+    }
+
+    // This is basically e = m c**2
+
+    Real dedt = Xdot * C::Legacy::enuc_conv2;
+
+    // Get the neutrino losses
+
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    dedt -= sneut;
+
+    return dedt;
+}
 
 // Evaluates the right hand side of the aprox13 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -1944,46 +1972,12 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, const rate_t& rr,
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
-
-    /*
-     This routine sets up the system of ODE's for the aprox13
-     nuclear reactions.  This is an alpha chain + heavy ion network
-     with (a,p)(p,g) links.
-
-     Isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
-               ar36, ca40, ti44, cr48, fe52, ni56
-    */
-
-    Array1D<rate_t, 1, Rates::NumGroups> rr;
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    Real enuc;
-
-    Real rho, temp, abar, zbar;
-    Array1D<Real, 1, NumSpec> y;
-
-    // Initialize ydot to 0
-
-    for (int i = 1; i <= neqs; ++i) {
-        ydot(i) = 0.0_rt;
-    }
-
     // Evaluate the rates
 
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
     evaluate_rates(state, rr);
 
-    // Get the data from the state
-
-    rho  = state.rho;
-    temp = state.T;
-    abar = state.abar;
-    zbar = state.zbar;
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn[i-1] * aion_inv[i-1];
-    }
-
-    // Call the RHS to actually get dydt.
+    // Call the RHS to get dydt
 
     Array1D<Real, 1, NumSpec> spec_rhs = RHS::species_rhs(state, rr(1));
 
@@ -1991,17 +1985,9 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
         ydot(n) = spec_rhs(n);
     }
 
-    // Instantaneous energy generation rate -- this needs molar fractions
+    // Instantaneous energy generation rate
 
-    ener_gener_rate(ydot, enuc);
-
-    // Get the neutrino losses
-
-    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    // Append the energy equation (this is erg/g/s)
-
-    ydot(net_ienuc) = enuc - sneut;
+    ydot(net_ienuc) = ener_rhs(state, spec_rhs);
 }
 
 
