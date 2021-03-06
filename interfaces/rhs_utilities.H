@@ -283,6 +283,223 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
     return RHS_impl::species_rhs_impl(state, rr_fr, std::make_integer_sequence<int, NumSpec>{});
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array1D<Real, 1, 6> equilibrium_state (const rhs_t& rhs_data, const burn_t& state,
+                                       Real forward_rate, Real reverse_rate)
+{
+    int n_A = rhs_data.number_A;
+    int n_B = rhs_data.number_B;
+    int n_C = rhs_data.number_C;
+    int n_D = rhs_data.number_D;
+    int n_E = rhs_data.number_E;
+    int n_F = rhs_data.number_F;
+
+    int e_A = rhs_data.exponent_A;
+    int e_B = rhs_data.exponent_B;
+    int e_C = rhs_data.exponent_C;
+    int e_D = rhs_data.exponent_D;
+    int e_E = rhs_data.exponent_E;
+    int e_F = rhs_data.exponent_F;
+
+    Real Y_A = 0.0_rt;
+    if (rhs_data.species_A >= 0) {
+        Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
+    }
+
+    Real Y_B = 0.0_rt;
+    if (rhs_data.species_B >= 0) {
+        Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
+    }
+
+    Real Y_C = 0.0_rt;
+    if (rhs_data.species_C >= 0) {
+        Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
+    }
+
+    Real Y_D = 0.0_rt;
+    if (rhs_data.species_D >= 0) {
+        Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
+    }
+
+    Real Y_E = 0.0_rt;
+    if (rhs_data.species_E >= 0) {
+        Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
+    }
+
+    Real Y_F = 0.0_rt;
+    if (rhs_data.species_F >= 0) {
+        Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
+    }
+
+    Real k_f = forward_rate;
+    Real k_r = reverse_rate;
+
+    Real Y_A_eq = 0.0_rt;
+    Real Y_B_eq = 0.0_rt;
+    Real Y_C_eq = 0.0_rt;
+    Real Y_D_eq = 0.0_rt;
+    Real Y_E_eq = 0.0_rt;
+    Real Y_F_eq = 0.0_rt;
+
+    // The general form of our reactions has forward reactions of the form:
+    // N * (Y_A**e_A * Y_B**e_B * Y_C**e_C * k_f)
+    // and reverse reactions of the form:
+    // N * (Y_D**e_D * Y_B**e_E * Y_F**e_F * k_r)
+    // where N is the number of particles consumed/produced, Y is the molar
+    // fraction, and e is an integer exponent coefficient, k_f is the forward
+    // rate, and k_r is the reverse rate.
+    //
+    // If the reaction is in equilibrium, we will satisfy
+    // Y_A**e_A * Y_B**e_B * Y_C**e_C * k_f = Y_D**e_D * Y_B**e_E * Y_F**e_F * k_r
+    // We expect that often this relation will not be satisfied exactly,
+    // but sufficiently close that we will likely achieve equilibrium soon.
+    //
+    // So, given a state and a set of rates, we want to determine the corresponding
+    // equilibrium solution. This involves solving the t -> infinity limit of the ODE.
+    // For certain common values of the exponents this solution is easy to write down
+    // analytically. We will solve for these cases specifically and ignore other cases.
+
+    if (e_A == 1 && e_B == 1 && e_C == 0 && e_D == 1 && e_E == 0 && e_F == 0 &&
+        n_A == 1 && n_B == 1 && n_C == 0 && n_D == 1 && n_E == 0 && n_F == 0)
+    {
+        // This reaction looks like
+        // A + B --> D
+        // and the corresponding ODE for species A is
+        // dY_A / dt = -k_f * Y_A * Y_B + k_r * Y_D
+        //
+        // The conserved scalars are
+        // c_1 = Y_A - Y_B
+        // c_2 = Y_A + Y_D
+        //
+        // The species A ODE in terms of only Y_A is
+        // dY_A / dt = a * Y_A**2 + b * Y_A + c
+        // where
+        // a = -k_f
+        // b = c_1 * k_f - k_r
+        // c = k_r * c_2
+        //
+        // The equilibrium solution for species A is
+        // Y_A_eq = (-1 / 2a) * (b + sqrt(b * b - 4 * a * c))
+        //
+        // The equilibrium solutions for the other species are
+        // Y_B_eq = Y_A_eq - c_1
+        // Y_D_eq = c_2 - Y_A_eq
+
+        Real c_1 = Y_A - Y_B;
+        Real c_2 = Y_A + Y_D;
+
+        Real a = -k_f;
+        Real b = c_1 * k_f - k_r;
+        Real c = k_r * c_2;
+
+        Y_A_eq = (-0.5_rt / a) * (b + std::sqrt(b * b - 4.0_rt * a * c));
+        Y_B_eq = Y_A_eq - c_1;
+        Y_D_eq = c_2 - Y_A_eq;
+    }
+
+    Real X_A_eq = 0.0_rt;
+    if (rhs_data.species_A >= 0) {
+        X_A_eq = Y_A_eq * aion[rhs_data.species_A-1];
+    }
+
+    Real X_B_eq = 0.0_rt;
+    if (rhs_data.species_B >= 0) {
+        X_B_eq = Y_B_eq * aion[rhs_data.species_B-1];
+    }
+
+    Real X_C_eq = 0.0_rt;
+    if (rhs_data.species_C >= 0) {
+        X_C_eq = Y_C_eq * aion[rhs_data.species_C-1];
+    }
+
+    Real X_D_eq = 0.0_rt;
+    if (rhs_data.species_D >= 0) {
+        X_D_eq = Y_D_eq * aion[rhs_data.species_D-1];
+    }
+
+    Real X_E_eq = 0.0_rt;
+    if (rhs_data.species_E >= 0) {
+        X_E_eq = Y_E_eq * aion[rhs_data.species_E-1];
+    }
+
+    Real X_F_eq = 0.0_rt;
+    if (rhs_data.species_F >= 0) {
+        X_F_eq = Y_F_eq * aion[rhs_data.species_F-1];
+    }
+
+    Array1D<Real, 1, 6> eq_state = {X_A_eq, X_B_eq, X_C_eq, X_D_eq, X_E_eq, X_F_eq};
+
+    return eq_state;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+bool is_reaction_in_equilibrium (const rhs_t& rhs_data, const burn_t& state,
+                                 const Array1D<Real, 1, 6>& equilibrium_state)
+{
+    // Check whether all species are within a given certain tolerance of the
+    // corresponding equilibrium mass fractions.
+
+    const Real equilibrium_tolerance = 0.005_rt;
+
+    bool equilibrium = true;
+
+    if (rhs_data.species_A >= 0) {
+        Real X = state.xn[rhs_data.species_A - 1];
+        Real X_eq = equilibrium_state(1);
+
+        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
+            equilibrium = false;
+        }
+    }
+
+    if (rhs_data.species_B >= 0) {
+        Real X = state.xn[rhs_data.species_B - 1];
+        Real X_eq = equilibrium_state(2);
+
+        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
+            equilibrium = false;
+        }
+    }
+
+    if (rhs_data.species_C >= 0) {
+        Real X = state.xn[rhs_data.species_C - 1];
+        Real X_eq = equilibrium_state(3);
+
+        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
+            equilibrium = false;
+        }
+    }
+
+    if (rhs_data.species_D >= 0) {
+        Real X = state.xn[rhs_data.species_D - 1];
+        Real X_eq = equilibrium_state(4);
+
+        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
+            equilibrium = false;
+        }
+    }
+
+    if (rhs_data.species_E >= 0) {
+        Real X = state.xn[rhs_data.species_E - 1];
+        Real X_eq = equilibrium_state(5);
+
+        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
+            equilibrium = false;
+        }
+    }
+
+    if (rhs_data.species_F >= 0) {
+        Real X = state.xn[rhs_data.species_F - 1];
+        Real X_eq = equilibrium_state(6);
+
+        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
+            equilibrium = false;
+        }
+    }
+
+    return equilibrium;
+}
+
 } // namespace RHS
 
 #endif
