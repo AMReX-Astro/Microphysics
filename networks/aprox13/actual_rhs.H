@@ -16,6 +16,7 @@
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
+#include <rhs_utilities.H>
 #include <jacobian_utilities.H>
 
 using namespace amrex;
@@ -1984,7 +1985,11 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Call the RHS to actually get dydt.
 
-    rhs(y, rr(1), ydot);
+    Array1D<Real, 1, NumSpec> spec_rhs = RHS::species_rhs(state, rr(1));
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        ydot(n) = spec_rhs(n);
+    }
 
     // Instantaneous energy generation rate -- this needs molar fractions
 
