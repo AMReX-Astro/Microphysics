@@ -25,7 +25,7 @@ namespace C
 
 const std::string network_name = "rprox";
 
-namespace rprox
+namespace network
 {
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> ebin;
 }

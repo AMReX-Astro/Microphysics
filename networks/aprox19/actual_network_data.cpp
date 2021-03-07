@@ -4,7 +4,7 @@
 #include <nse.H>
 #endif
 
-namespace aprox19
+namespace network
 {
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
@@ -30,7 +30,7 @@ namespace table
 void actual_network_init()
 {
     using namespace Species;
-    using namespace aprox19;
+    using namespace network;
 
 #ifdef NSE_TABLE
     init_nse();

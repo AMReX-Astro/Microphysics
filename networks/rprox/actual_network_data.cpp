@@ -1,7 +1,7 @@
 #include <AMReX_Vector.H>
 #include <actual_network.H>
 
-namespace rprox
+namespace network
 {
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> ebin;
 }
@@ -9,7 +9,7 @@ namespace rprox
 void actual_network_init()
 {
     using namespace Species;
-    using namespace rprox;
+    using namespace network;
 
     // Our convention is that binding energy is negative.  The
     // following are the binding energies in MeV.

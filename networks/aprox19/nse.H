@@ -139,7 +139,7 @@ void set_nse_aux_from_X(state_t& state) {
   for (int n = 0; n < NumSpec; n++) {
     state.aux[iye] += state.xn[n] * zion[n] * aion_inv[n];
     state.aux[iabar] += state.xn[n] * aion_inv[n];
-    state.aux[ibea] += state.xn[n] * aprox19::bion(n+1) * aion_inv[n];
+    state.aux[ibea] += state.xn[n] * network::bion(n+1) * aion_inv[n];
   }
   state.aux[iabar] = 1.0_rt/state.aux[iabar];
 
