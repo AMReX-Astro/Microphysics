@@ -31,7 +31,7 @@ namespace C
 
 const std::string network_name = "ignition_simple";
 
-namespace ignition_simple
+namespace network
 {
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;

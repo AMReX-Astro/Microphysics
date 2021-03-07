@@ -1,7 +1,7 @@
 #include <AMReX_Vector.H>
 #include <actual_network.H>
 
-namespace triple_alpha_plus_cago
+namespace network
 {
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
 }
@@ -9,7 +9,7 @@ namespace triple_alpha_plus_cago
 void actual_network_init ()
 {
     using namespace Species;
-    using namespace triple_alpha_plus_cago;
+    using namespace network;
 
     // our convention is that binding energy is negative.  The following are
     // the binding energies per unit mass (erg / g) obtained by converting
