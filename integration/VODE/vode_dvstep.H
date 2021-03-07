@@ -262,7 +262,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             //    valid_update = false;
             //}
 
-            if (vstate.y(SFS+i) < -vode_failure_tolerance) {
+            if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
                 valid_update = false;
             }
 
@@ -282,7 +282,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             //  y(2:2+NumSpec-1) = rho X
             //  y(NumSpec+2) = rho e
 
-            if (vstate.y(1+i) < -vode_failure_tolerance) {
+            if (vstate.y(1+i) < -vode_failure_tolerance * vstate.y(1)) {
                 valid_update = false;
             }
 
