@@ -26,6 +26,6 @@ void actual_network_init()
 
     // convert to erg / g by multiplying by N_A / aion and converting to erg
     for (int i = 1; i <= NumSpec; ++i) {
-        ebin(i) = -ebin(i) * C::Legacy::N_A * C::Legacy::MeV2erg / aion[i-1];
+        ebin(i) = -ebin(i) * C::Legacy::n_A * C::Legacy::MeV2erg / aion[i-1];
     }
 }
