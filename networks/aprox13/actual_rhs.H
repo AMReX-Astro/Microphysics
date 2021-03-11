@@ -1768,35 +1768,6 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 
 }
 
-// This version adds the neutrino losses directly
-// and is intended for use in the RHS only.
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real ener_rhs (const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
-{
-    using namespace network;
-
-    Real Xdot = 0.0_rt;
-
-    // Sum the mass fraction time derivatives
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        Xdot += dydt(i) * mion(i);
-    }
-
-    // This is basically e = m c**2
-
-    Real dedt = Xdot * C::Legacy::enuc_conv2;
-
-    // Get the neutrino losses
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    dedt -= sneut;
-
-    return dedt;
-}
-
 // Evaluates the right hand side of the aprox13 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs(Array1D<Real, 1, NumSpec> const& y, const rate_t& rr,
@@ -1987,7 +1958,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Instantaneous energy generation rate
 
-    ydot(net_ienuc) = ener_rhs(state, spec_rhs);
+    ydot(net_ienuc) = RHS::ener_rhs(state, spec_rhs);
 }
 
 

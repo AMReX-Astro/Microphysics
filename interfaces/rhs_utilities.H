@@ -283,6 +283,34 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
     return RHS_impl::species_rhs_impl(state, rr_fr, std::make_integer_sequence<int, NumSpec>{});
 }
 
+// Calculate the energy generation rate, including neutrino losses.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real ener_rhs (const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
+{
+    using namespace network;
+
+    Real Xdot = 0.0_rt;
+
+    // Sum the mass fraction time derivatives
+
+    for (int i = 1; i <= NumSpec; ++i) {
+        Xdot += dydt(i) * mion(i);
+    }
+
+    // This is basically e = m c**2
+
+    Real dedt = Xdot * C::Legacy::enuc_conv2;
+
+    // Get the neutrino losses
+
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    dedt -= sneut;
+
+    return dedt;
+}
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, 6> equilibrium_state (const rhs_t& rhs_data, const burn_t& state,
                                        Real forward_rate, Real reverse_rate)
