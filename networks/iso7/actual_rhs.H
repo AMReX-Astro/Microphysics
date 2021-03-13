@@ -596,10 +596,6 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
             // d(spec1) / d(spec2)
 
-            Array1D<Real, 1, Rates::NumRates> b = {0.0};
-
-            int b_ctr = 0;
-
             for (int rate = 1; rate <= NumRatesFR; ++rate) {
                 rhs_t rhs_data = RHS::rhs_data(rate);
 
@@ -696,36 +692,28 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
                 // Now compute the total contribution to this species.
 
+                Real term = 0.0_rt;
+
                 if (rhs_data.species_A == spec1) {
-                    ++b_ctr;
-                    Real term = rhs_data.number_A * (reverse_term - forward_term);
-                    b(b_ctr) = term;
+                    term = rhs_data.number_A * (reverse_term - forward_term);
                 }
                 if (rhs_data.species_B == spec1) {
-                    ++b_ctr;
-                    Real term = rhs_data.number_B * (reverse_term - forward_term);
-                    b(b_ctr) = term;
+                    term = rhs_data.number_B * (reverse_term - forward_term);
                 }
                 if (rhs_data.species_C == spec1) {
-                    ++b_ctr;
-                    Real term = rhs_data.number_C * (reverse_term - forward_term);
-                    b(b_ctr) = term;
+                    term = rhs_data.number_C * (reverse_term - forward_term);
                 }
                 if (rhs_data.species_D == spec1) {
-                    ++b_ctr;
-                    Real term = rhs_data.number_D * (forward_term - reverse_term);
-                    b(b_ctr) = term;
+                    term = rhs_data.number_D * (forward_term - reverse_term);
                 }
                 if (rhs_data.species_E == spec1) {
-                    ++b_ctr;
-                    Real term = rhs_data.number_E * (forward_term - reverse_term);
-                    b(b_ctr) = term;
+                    term = rhs_data.number_E * (forward_term - reverse_term);
                 }
                 if (rhs_data.species_F == spec1) {
-                    ++b_ctr;
-                    Real term = rhs_data.number_F * (forward_term - reverse_term);
-                    b(b_ctr) = term;
+                    term = rhs_data.number_F * (forward_term - reverse_term);
                 }
+
+                jac(spec1, spec2) += term;
 
             }
 
@@ -735,8 +723,6 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
                 jac_t jac_data = RHS::jac_data(spec1, spec2, rate);
 
                 if (std::abs(jac_data.rate_prefactor) > 0.0_rt) {
-                    ++b_ctr;
-
                     Real term = jac_data.rate_prefactor;
 
                     if (jac_data.rate_specindex1 >= 0) {
@@ -753,11 +739,9 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
                     term *= rr(2 + spec2).rates(rate);
 
-                    b(b_ctr) = term;
+                    jac(spec1, spec2) += term;
                 }
             }
-
-            jac(spec1, spec2) = esum<Rates::NumRates>(b);
 
         }
 
