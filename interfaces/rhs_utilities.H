@@ -265,7 +265,12 @@ Real species_rhs_n (const burn_t& state, rate_fr_t const& rr)
 {
     constexpr int nrhs = num_rhs<species>();
     Array1D<Real, 1, nrhs> a = make_RHS_Array1D<species, nrhs>(state, rr);
-    return esum<nrhs>(a);
+
+    Real sum = 0.0_rt;
+    for (int n = 1; n <= nrhs; ++n) {
+        sum += a(n);
+    }
+    return sum;
 }
 
 // Calculate the array of RHS terms over all species.
