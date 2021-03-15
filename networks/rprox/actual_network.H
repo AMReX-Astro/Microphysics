@@ -5,23 +5,13 @@
 #include <AMReX_Array.H>
 #include <AMReX_Vector.H>
 
+#include <fundamental_constants.H>
 #include <network_properties.H>
 #include <microphysics_math.H>
 
 using namespace amrex;
 
 void actual_network_init();
-
-namespace C
-{
-    namespace Legacy
-    {
-        // These are the values of the constants used in the original aprox13
-
-        constexpr amrex::Real MeV2erg = 1.60217646e-6_rt;
-        constexpr amrex::Real N_A = 6.0221415e23_rt;
-    }
-}
 
 const std::string network_name = "rprox";
 
