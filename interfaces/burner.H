@@ -44,6 +44,19 @@ void burner (burn_t& state, Real dt)
         set_nse_aux_from_X(state);
 #endif
 
+        // if we failed our burn, it may have been because we tried to
+        // enter NSE and required too many steps.  At this point, the
+        // aux data, T, and e represent the result from the incomplete
+        // burn.
+
+        if (in_nse(state)) {
+            // ideally, we want to replace dt with just the dt
+            // remaining from the failed VODE burn.  This will append
+            // to state.e the amount additional energy released from
+            // adjusting to the new NSE state
+
+            nse_burn(state, dt);
+        }
     }
 
 #else
