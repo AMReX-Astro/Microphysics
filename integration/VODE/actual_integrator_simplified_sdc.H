@@ -103,6 +103,12 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_to_burn(vode_state.t, vode_state, state);
 
+    // normalize the abundances on exit.  We'll assume that the driver
+    // calling this is making use of the conserved state (state.y[]),
+    // so that is what will be normalized.
+
+    renormalize_species(state);
+
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the
     // integration was successful.

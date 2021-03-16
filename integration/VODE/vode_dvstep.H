@@ -214,12 +214,12 @@ int dvstep (burn_t& state, dvode_t& vstate)
         if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
             valid_update = false;
         }
-#endif
-#endif
 
-#ifdef SIMPLIFIED_SDC
-#if defined(SDC_EVOLVE_ENERGY)
         Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+
+        if (rho_current < 0.0_rt) {
+            valid_update = false;
+        }
 #endif
 #endif
 
