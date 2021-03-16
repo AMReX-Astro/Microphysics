@@ -49,7 +49,7 @@ void burner (burn_t& state, Real dt)
         // aux data, T, and e represent the result from the incomplete
         // burn.
 
-        if (in_nse(state)) {
+        if (in_nse(state) && state.success == false) {
             // ideally, we want to replace dt with just the dt
             // remaining from the failed VODE burn.  This will append
             // to state.e the amount additional energy released from
