@@ -6,7 +6,6 @@
 
 #include <network.H>
 #include <burn_type.H>
-#include <temperature_integration.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
@@ -35,7 +34,7 @@ void actual_integrator (burn_t& state, Real dt)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    eos_t eos_state;
+    eos_re_t eos_state;
 
     // initialize the EOS state using the conserved state that was
     // passed in
@@ -103,6 +102,12 @@ void actual_integrator (burn_t& state, Real dt)
     // Copy the integration data back to the burn state.
 
     vode_to_burn(vode_state.t, vode_state, state);
+
+    // normalize the abundances on exit.  We'll assume that the driver
+    // calling this is making use of the conserved state (state.y[]),
+    // so that is what will be normalized.
+
+    renormalize_species(state);
 
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the

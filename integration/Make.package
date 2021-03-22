@@ -1,72 +1,18 @@
 
 INTEGRATOR_DIR ?= VODE
 
-# Arbitrarily number the integrators so we can preprocessor tests in the code.
+INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
+VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
+EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
 
-INTEGRATOR_NUM := -1
-
-ifeq ($(INTEGRATOR_DIR),VODE)
-  INTEGRATOR_NUM := 0
-else ifeq ($(INTEGRATOR_DIR),BS)
-  $(warn BS has been removed)
-  override INTEGRATOR_DIR := VODE
-  INTEGRATOR_NUM := 0
-else ifeq ($(INTEGRATOR_DIR),VBDF)
-  $(warn VBDF has been removed)
-  override INTEGRATOR_DIR := VODE
-  INTEGRATOR_NUM := 0
-else ifeq ($(INTEGRATOR_DIR),VODE90)
-  $(warn VODE90 has been renamed VODE)
-  override INTEGRATOR_DIR := VODE
-  INTEGRATOR_NUM := 0
-endif
-
-DEFINES += -DINTEGRATOR=$(INTEGRATOR_NUM)
-
-ifeq ($(USE_CUDA), TRUE)
-  ifneq ($(INTEGRATOR_DIR), VODE)
-    $(error Only the VODE integrator supports GPUs currently, please change INTEGRATOR_DIR)
-  endif
-endif
-
-# Include all integrators in the build.
-
-ifeq ($(INTEGRATOR_DIR),VODE)
-
-  # Include VODE
-
-  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/VODE
-  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/VODE
-  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/VODE
-
-  include $(MICROPHYSICS_HOME)/integration/VODE/Make.package
-
-  DEFINES += -DVODE
-
-else
-
-  INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
-  VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
-  EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)
-
-  include $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/Make.package
-
-endif
+include $(MICROPHYSICS_HOME)/integration/$(INTEGRATOR_DIR)/Make.package
 
 # Check if we should make a Nonaka plot and add to cpp definitions
 ifeq ($(USE_NONAKA_PLOT), TRUE)
   DEFINES += -DNONAKA_PLOT
 endif
 
-ifneq ($(USE_SIMPLIFIED_SDC),TRUE)
-  ifneq ($(USE_TRUE_SDC),TRUE)
-    F90EXE_sources += integrator.F90
-  endif
-endif
-
 CEXE_HEADERS += integrator.H
-F90EXE_sources += integrator_scaling.F90
-f90EXE_sources += integration_data.f90
 
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
 VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils

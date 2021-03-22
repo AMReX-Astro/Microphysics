@@ -7,7 +7,7 @@
 #include <extern_parameters.H>
 #include <actual_network.H>
 #include <rate_type.H>
-#include <temperature_integration.H>
+#include <jacobian_utilities.H>
 #include <rprox_tfactors.H>
 #include <rprox_rates.H>
 #include <screen.H>
@@ -421,7 +421,7 @@ void ener_gener_rate(T& dydt, Real& enuc)
     enuc = 0.0_rt;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        enuc -= dydt(i) * aion[i-1] * rprox::ebin(i);
+        enuc -= dydt(i) * aion[i-1] * network::ebin(i);
     }
 }
 
@@ -450,12 +450,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Energy release
     ener_gener_rate(ydot, ydot(net_ienuc));
-
-#ifdef STRANG
-    // Append the temperature equation
-
-    ydot(net_itemp) = temperature_rhs(state, ydot(net_ienuc));
-#endif
 
 }
 
@@ -600,12 +594,12 @@ void actual_jac(burn_t& state, MatrixType& jac)
                    2.0_rt * ymol(O15) * ymol(He4) * rr(1).rates(irag15o) * rr(3).rates(drr1dh1) -
                    56.0e0_rt * ymol(Ni56) * rr(3).rates(r56eff);
 
-    // temperature derivatives df(Y)/df(T)
+    // energy derivatives df(Y)/df(e)
     Array1D<Real, 1, neqs> ydot;
     make_ydots(ymol, T9, state, rr, ydot, true);
 
     for (int i = 1; i <= NumSpec; ++i) {
-        jac(i, net_itemp) = ydot(i);
+        jac(i, net_ienuc) = temperature_to_energy_jacobian(state, ydot(i));
     }
 
     // Energy generation rate Jacobian elements with respect to species
@@ -615,13 +609,11 @@ void actual_jac(burn_t& state, MatrixType& jac)
         ener_gener_rate(jac_slice_2, jac(net_ienuc, j));
     }
 
-    // Jacobian elements with respect to temperature
+    // Energy generation rate Jacobian element with respect to energy
+    Real jac_e_T;
+    ener_gener_rate(ydot, jac_e_T);
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 
-    ener_gener_rate(ydot, jac(net_ienuc, net_itemp));
-
-    // Temperature Jacobian elements
-
-    temperature_jac(state, jac);
 }
 
 

@@ -26,12 +26,12 @@ void jac_to_vode(const Real time, burn_t& state,
     constexpr int iwrho = 1;
     constexpr int iwfs = 2;
     constexpr int iwK = iwfs+NumSpec;
-    constexpr int iwT = iwK+1;
+    constexpr int iwe = iwK+1;
     constexpr int iwvar = 3+NumSpec;
 #else
     constexpr int iwrho = 1;
     constexpr int iwfs=2;
-    constexpr int iwT = iwfs+NumSpec;
+    constexpr int iwe = iwfs+NumSpec;
     constexpr int iwvar = 2+NumSpec;
 #endif
 
@@ -144,18 +144,18 @@ void jac_to_vode(const Real time, burn_t& state,
     }
 
     // now fill the column corresponding to derivatives with respect to
-    // temperature -- this column is iwT
+    // internal energy -- this column is iwe
 
-    // d( d(rho X_m)/dt)/dT
+    // d( d(rho X_m)/dt)/de
     for (int m = 1; m <= NumSpec; m++) {
-        dRdw(SFS+m, iwT) = state.rho * jac_react(m, net_itemp);
+        dRdw(SFS+m, iwe) = state.rho * jac_react(m, net_ienuc);
     }
 
-    // d( d(rho e)/dt)/dT
-    dRdw(SEINT+1, iwT) = state.rho * jac_react(net_ienuc, net_itemp);
+    // d( d(rho e)/dt)/de
+    dRdw(SEINT+1, iwe) = state.rho * jac_react(net_ienuc, net_ienuc);
 
-    // d( d(rho E)/dt)/dT
-    dRdw(SEDEN+1, iwT) = dRdw(SEINT+1, iwT);
+    // d( d(rho E)/dt)/de
+    dRdw(SEDEN+1, iwe) = dRdw(SEINT+1, iwe);
 
     // for the K derivatives, dRdw(:, iwK), and the rho sources,
     // dRdw(SRHO_EXTRA, :), we don't need to do anything, because these
@@ -186,8 +186,8 @@ void jac_to_vode(const Real time, burn_t& state,
     dwdU(iwK, SEINT+1) = -1.0_rt / state.rho;
     dwdU(iwK, SEDEN+1) = 1.0_rt / state.rho;
 
-    // T row
-    eos_t eos_state;
+    // e row
+    eos_re_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = 1.e4_rt;   // initial guess
     for (int n = 0; n < NumSpec; n++) {
@@ -203,19 +203,18 @@ void jac_to_vode(const Real time, burn_t& state,
 
     const eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    // temperature row
+    // internal energy row
     for (int n = 1; n <= NumSpec; n++) {
-        dwdU(iwT, SFS+n) = -eos_xderivs.dedX[n-1]/  (state.rho * eos_state.dedT);
+        dwdU(iwe, SFS+n) = -eos_xderivs.dedX[n-1] / state.rho;
     }
-    dwdU(iwT, SEINT+1) = 1.0_rt / (state.rho * eos_state.dedT);
-    dwdU(iwT, SEDEN+1) = 0.0_rt;
+    dwdU(iwe, SEINT+1) = 1.0_rt / state.rho;
+    dwdU(iwe, SEDEN+1) = 0.0_rt;
     Real X_dedX_sum = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
         X_dedX_sum += eos_state.xn[n] * eos_xderivs.dedX[n];
     }
-    dwdU(iwT, SRHO_EXTRA+1) =
-        (X_dedX_sum - state.rho * eos_state.dedr - eos_state.e) /
-        (state.rho * eos_state.dedT);
+    dwdU(iwe, SRHO_EXTRA+1) =
+        (X_dedX_sum - eos_state.e) / state.rho;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -264,18 +263,18 @@ void jac_to_vode(const Real time, burn_t& state,
     }
 
     // now fill the column corresponding to derivatives with respect to
-    // temperature -- this column is iwT
+    // internal energy -- this column is iwe
 
-    // d( d(rho X_m)/dt)/dT
+    // d( d(rho X_m)/dt)/de
     for (int m = 1; m <= NumSpec; m++) {
-        dRdw(SFS+m, iwT) = state.rho * jac_react(m, net_itemp);
+        dRdw(SFS+m, iwe) = state.rho * jac_react(m, net_ienuc);
     }
 
-    // d( d(rho h)/dt)/dT
-    dRdw(SENTH+1, iwT) = state.rho * jac_react(net_ienuc, net_itemp);
+    // d( d(rho h)/dt)/de
+    dRdw(SENTH+1, iwe) = state.rho * jac_react(net_ienuc, net_enuc);
 
-    // d( d(rho)/dt)/dT
-    dRdw(SRHO_EXTRA+1, iwT) = 0.0_rt;
+    // d( d(rho)/dt)/de
+    dRdw(SRHO_EXTRA+1, iwe) = 0.0_rt;
 
     // that completes dRdw
 
@@ -290,8 +289,8 @@ void jac_to_vode(const Real time, burn_t& state,
         dwdU(iwfs-1+m, SRHO_EXTRA+1) = -state.xn[m-1] / state.rho;
     }
 
-    // T row
-    eos_t eos_state;
+    // e row
+    eos_re_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = 1.e4_rt;   // initial guess
     for (int n = 0; n < NumSpec; n++) {
@@ -307,16 +306,16 @@ void jac_to_vode(const Real time, burn_t& state,
 
     const eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    // temperature row
+    // internal energy row
     for (int n = 1; n <= NumSpec; n++) {  
-        dwdU(iwT, SFS+n) = -eos_xderivs.dhdX[n-1] / (state.rho * eos_state.dedT);
+        dwdU(iwe, SFS+n) = -eos_xderivs.dhdX[n-1] / (state.rho * eos_state.dedT);
     }
-    dwdU(iwT, SENTH+1) = 1.0_rt / (state.rho * eos_state.dhdT);
+    dwdU(iwe, SENTH+1) = 1.0_rt / (state.rho * eos_state.dhdT);
     Real X_dhdX_sum = 0.0;
     for (int n = 0; n < NumSpec; n++) {
         X_dhdX_sum += eos_state.xn[n] * eos_xderivs.dhdX[n];
     }
-    dwdU(iwT, SRHO_EXTRA+1) =
+    dwdU(iwe, SRHO_EXTRA+1) =
         (X_dhdX_sum - state.rho * eos_state.dhdr - eos_state.h) /
         (state.rho * eos_state.dhdT);
 

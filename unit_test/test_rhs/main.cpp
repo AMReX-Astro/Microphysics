@@ -11,13 +11,10 @@
 using namespace amrex;
 
 #include <test_react.H>
-#include <test_react_F.H>
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#ifdef CXX_REACTIONS
 #include <rhs_zones.H>
-#endif
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
@@ -44,10 +41,6 @@ void main_main ()
 
     IntVect tile_size(1024, 8, 8);
 
-#ifdef CXX_REACTIONS
-    int do_cxx = 0;
-#endif
-
     // inputs parameters
     {
         // ParmParse is way of reading inputs from the inputs file
@@ -62,10 +55,6 @@ void main_main ()
         pp.query("max_grid_size", max_grid_size);
 
         pp.query("prefix", prefix);
-
-#ifdef CXX_REACTIONS
-        pp.query("do_cxx", do_cxx);
-#endif
 
     }
 
@@ -123,12 +112,8 @@ void main_main ()
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
 
-#ifdef CXX_REACTIONS
     // C++ Network, RHS, screening, rates initialization
     network_init();
-#endif
-
-    init_variables_F();
 
     plot_t vars;
     vars = init_variables();
@@ -196,26 +181,12 @@ void main_main ()
     {
         const Box& bx = mfi.tilebox();
 
-#ifdef CXX_REACTIONS
-        if (do_cxx) {
+        auto s = state.array(mfi);
 
-            auto s = state.array(mfi);
-
-            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-            {
-                do_rhs(i, j, k, s, vars);
-            });
-
-        }
-        else {
-#endif
-
-            do_rhs(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                   BL_TO_FORTRAN_ANYD(state[mfi]));
-
-#ifdef CXX_REACTIONS
-        }
-#endif
+        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        {
+            do_rhs(i, j, k, s, vars);
+        });
 
     }
 
@@ -241,17 +212,11 @@ void main_main ()
     std::string name = "test_rhs.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-#ifdef CXX_REACTIONS
-    std::string language = do_cxx == 1 ? ".cxx" : ".fortran";
-#else
-    std::string language = ".fortran";
-#endif
-
     // Write a plotfile
 
-    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator, state, names, geom, time, 0);
 
-    write_job_info(prefix + name + integrator + language);
+    write_job_info(prefix + name + integrator);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

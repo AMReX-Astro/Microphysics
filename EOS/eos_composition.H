@@ -64,20 +64,27 @@ eos_xderivs_t composition_derivatives (const T& state)
   eos_xderivs_t state_xderivs;
 
   for (int n = 0; n < NumSpec; n++) {
-    state_xderivs.dpdX[n] =
-      state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
-      state.dpdZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
+      if constexpr (has_pressure<T>::value) {
+          state_xderivs.dpdX[n] =
+              state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
+              state.dpdZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
+      }
 
-    state_xderivs.dedX[n] =
-      state.dedA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
-      state.dedZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
+      if constexpr (has_energy<T>::value) {
+          state_xderivs.dedX[n] =
+              state.dedA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
+              state.dedZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
+      }
 
-    if (state.dpdr != 0.0) {
+      if constexpr (has_pressure<T>::value) {
+          if (state.dpdr != 0.0) {
 
-      state_xderivs.dhdX[n] = state_xderivs.dedX[n]
-            + (state.p / (state.rho*state.rho) - state.dedr)
-            * state_xderivs.dpdX[n] / state.dpdr;
-    }
+              state_xderivs.dhdX[n] = state_xderivs.dedX[n]
+                  + (state.p / (state.rho*state.rho) - state.dedr)
+                  * state_xderivs.dpdX[n] / state.dpdr;
+
+          }
+      }
   }
 
   return state_xderivs;

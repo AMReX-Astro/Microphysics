@@ -209,23 +209,20 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
         bool valid_update = true;
 
-#ifdef STRANG
-        if (vstate.y(net_itemp) < 0.0_rt) {
-            valid_update = false;
-        }
-#endif
-
 #ifdef SIMPLIFIED_SDC
 #if defined(SDC_EVOLVE_ENERGY)
         if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
             valid_update = false;
         }
-#endif
-#endif
 
 #ifdef SIMPLIFIED_SDC
 #if defined(SDC_EVOLVE_ENERGY)
         Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+
+        if (rho_current < 0.0_rt) {
+            valid_update = false;
+        }
+#endif
 #endif
 #endif
 
@@ -268,7 +265,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             //    valid_update = false;
             //}
 
-            if (vstate.y(SFS+i) < -vode_failure_tolerance) {
+            if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
                 valid_update = false;
             }
 
@@ -279,6 +276,25 @@ int dvstep (burn_t& state, dvode_t& vstate)
 #endif
 
 #endif
+
+#ifdef TRUE_SDC
+            // as above, we want to make sure that the mass fractions stay bounded, but we are
+            // evolving:
+            //
+            //  y(1) = density
+            //  y(2:2+NumSpec-1) = rho X
+            //  y(NumSpec+2) = rho e
+
+            if (vstate.y(1+i) < -vode_failure_tolerance * vstate.y(1)) {
+                valid_update = false;
+            }
+
+            if (vstate.y(1+i) > (1.0_rt + vode_failure_tolerance) * vstate.y(1)) {
+                valid_update = false;
+            }
+#endif
+
+
         }
 
         // The corrector has converged (NFLAG = 0). The local error test is
