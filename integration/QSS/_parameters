@@ -1,7 +1,7 @@
 @namespace: integrator
 
 # Allowable difference between the predictor and corrector
-predictor_corrector_tolerance            real            1.01
+predictor_corrector_tolerance            real            0.01
 
 # Threshold factor on the error criterion used in timestep selection
 tolerance_safety_factor                  real            10.0

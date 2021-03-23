@@ -446,18 +446,18 @@ void actual_integrator (burn_t& state, Real dt)
             // If the relative diff was smaller than the requested tolerance factor, we're done.
             // Otherwise, cut dt and try again.
 
-            if (max_diff <= predictor_corrector_tolerance - 1.0_rt) {
+            if (max_diff <= predictor_corrector_tolerance) {
                 break;
             }
             else {
                 // Determine a new timestep as indicated in Mott and Oran (2001), Equation 50.
-                // In our notation, \epsilon == (predictor_corrector_tolerance - 1.0) and
+                // In our notation, \epsilon == predictor_corrector_tolerance and
                 // \varepsilon == \epsilon * tolerance_safety_factor, with tolerance_safety_factor > 1.
                 // Note that Mott seems to suggest approximating the square root using Newton's
                 // method; given the expense of our RHS it seems unlikely that this would make
                 // a performance difference, but it is a potential optimization.
 
-                Real sigma = max_diff / ((predictor_corrector_tolerance - 1.0_rt) / tolerance_safety_factor);
+                Real sigma = max_diff / (predictor_corrector_tolerance / tolerance_safety_factor);
                 dt_sub *= (1.0_rt / std::sqrt(sigma) + 0.005);
             }
         }
