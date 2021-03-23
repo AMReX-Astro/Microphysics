@@ -163,7 +163,7 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Re
         f_minus(spec) *= aion[spec - 1];
     }
  
-    // Determine the corresponding energy and temperature RHS.
+    // Determine the corresponding energy RHS.
 
     Array1D<Real, 1, NumSpec> dYdt;
     for (int n = 1; n <= NumSpec; ++n) {
@@ -446,18 +446,18 @@ void actual_integrator (burn_t& state, Real dt)
             // If the relative diff was smaller than the requested tolerance factor, we're done.
             // Otherwise, cut dt and try again.
 
-            if (max_diff <= maximum_timestep_change_factor - 1.0_rt) {
+            if (max_diff <= predictor_corrector_tolerance - 1.0_rt) {
                 break;
             }
             else {
                 // Determine a new timestep as indicated in Mott and Oran (2001), Equation 50.
-                // In our notation, \epsilon == (maximum_timestep_change_factor - 1.0) and
-                // \varepsilon == \epsilon * dt_error_tolerance, with dt_error_tolerance < 1.
+                // In our notation, \epsilon == (predictor_corrector_tolerance - 1.0) and
+                // \varepsilon == \epsilon * tolerance_safety_factor, with tolerance_safety_factor > 1.
                 // Note that Mott seems to suggest approximating the square root using Newton's
                 // method; given the expense of our RHS it seems unlikely that this would make
                 // a performance difference, but it is a potential optimization.
 
-                Real sigma = max_diff / (dt_error_tolerance * (maximum_timestep_change_factor - 1.0_rt));
+                Real sigma = max_diff / ((predictor_corrector_tolerance - 1.0_rt) / tolerance_safety_factor);
                 dt_sub *= (1.0_rt / std::sqrt(sigma) + 0.005);
             }
         }

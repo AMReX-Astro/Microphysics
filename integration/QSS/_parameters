@@ -1,10 +1,10 @@
 @namespace: integrator
 
-# Maximum amount any integration quantity can change by in a timestep
-maximum_timestep_change_factor           real            1.001
+# Allowable difference between the predictor and corrector
+predictor_corrector_tolerance            real            1.01
 
 # Threshold factor on the error criterion used in timestep selection
-dt_error_tolerance                       real            0.1
+tolerance_safety_factor                  real            10.0
 
 # Maximum number of iterations on the timestep constraint loop
 num_timestep_iters                       integer         10
