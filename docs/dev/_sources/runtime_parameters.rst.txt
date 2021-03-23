@@ -48,10 +48,10 @@ QSS
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | parameter                             | description                                             | default value      |
 +=======================================+=========================================================+====================+
-| ``maximum_timestep_change_factor``    | Maximum amount any integration quantity can change by   | 1.001              |
-|                                       | in a timestep                                           |                    |
+| ``predictor_corrector_tolerance``     | Allowable difference between the predictor and          | 0.01               |
+|                                       | corrector                                               |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``dt_error_tolerance``                | Threshold factor on the error criterion used in         | 0.1                |
+| ``tolerance_safety_factor``           | Threshold factor on the error criterion used in         | 10.0               |
 |                                       | timestep selection                                      |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``num_timestep_iters``                | Maximum number of iterations on the timestep constraint | 10                 |
