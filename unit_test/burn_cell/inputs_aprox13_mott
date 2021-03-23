@@ -6,7 +6,7 @@ unit_test.small_dens = 1e5
 
 unit_test.tfirst = 0.0
 unit_test.nsteps = 1
-unit_test.tmax = 1.e-1
+unit_test.tmax = 1.e2
 
 unit_test.density       = 1.e7
 unit_test.temperature   = 5.e9
