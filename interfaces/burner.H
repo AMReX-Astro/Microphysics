@@ -54,8 +54,11 @@ void burner (burn_t& state, Real dt)
             // remaining from the failed VODE burn.  This will append
             // to state.e the amount additional energy released from
             // adjusting to the new NSE state
-
+#ifdef SIMPLIFIED_SDC
+            sdc_nse_burn(state, dt);
+#else
             nse_burn(state, dt);
+#endif
         }
     }
 
