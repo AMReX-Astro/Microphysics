@@ -76,6 +76,14 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_to_burn(vode_state, state);
 
+#ifdef NSE
+    // compute the temperature based on the energy release -- we need 
+    // this in case we failed in our burn here because we entered NSE
+
+    eos(eos_input_re, state);
+
+#endif
+
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
 
