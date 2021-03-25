@@ -272,7 +272,11 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
     Real rhoInv = 1.0_rt / state.rho;
 
+#if defined(SDC_EVOLVE_ENERGY)
     eos_re_t eos_state;
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    eos_t eos_state;
+#endif
     eos_state.rho = state.rho;
     for (int n = 0; n < NumSpec; n++) {
         // vode_state uses 1-based indexing
