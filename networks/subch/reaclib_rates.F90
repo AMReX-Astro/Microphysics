@@ -74,7 +74,8 @@ contains
       zion(jhe4), aion(jhe4))
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
-      4, 8), &
+      4.0, 8.0)
+
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jc12), aion(jc12))
 
