@@ -211,9 +211,9 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
 #ifdef SIMPLIFIED_SDC
 #if defined(SDC_EVOLVE_ENERGY)
-        if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
-            valid_update = false;
-        }
+	if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
+	    valid_update = false;
+	}
 
         Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
@@ -262,11 +262,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
             //    valid_update = false;
             //}
 
+#if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
                 valid_update = false;
             }
 
-#if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
                 valid_update = false;
             }

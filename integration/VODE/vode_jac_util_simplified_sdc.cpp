@@ -271,7 +271,7 @@ void jac_to_vode(const Real time, burn_t& state,
     }
 
     // d( d(rho h)/dt)/de
-    dRdw(SENTH+1, iwe) = state.rho * jac_react(net_ienuc, net_enuc);
+    dRdw(SENTH+1, iwe) = state.rho * jac_react(net_ienuc, net_ienuc);
 
     // d( d(rho)/dt)/de
     dRdw(SRHO_EXTRA+1, iwe) = 0.0_rt;
@@ -289,8 +289,8 @@ void jac_to_vode(const Real time, burn_t& state,
         dwdU(iwfs-1+m, SRHO_EXTRA+1) = -state.xn[m-1] / state.rho;
     }
 
-    // e row
-    eos_re_t eos_state;
+    // h row
+    eos_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = 1.e4_rt;   // initial guess
     for (int n = 0; n < NumSpec; n++) {
