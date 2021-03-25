@@ -78,6 +78,7 @@ contains
     real(rt) :: rhoy
     real(rt) :: rate, drate_dt, edot_nu
     real(rt) :: scor, dscor_dt, dscor_dd
+    real(rt) :: scor2, dscor2_dt, dscor2_dd
 
     !$gpu
 
@@ -163,8 +164,10 @@ contains
 
 
       call screen5(pstate, 13, scor, dscor_dt, dscor_dd)
-      rate_eval % unscreened_rates(i_scor,19) = scor
-      rate_eval % unscreened_rates(i_dscor_dt,19) = dscor_dt
+
+      call screen5(pstate, 14, scor2, dscor2_dt, dscor2_dd)
+      rate_eval % unscreened_rates(i_scor,19) = scor * scor2
+      rate_eval % unscreened_rates(i_dscor_dt,19) = scor * dscor2_dt + dscor_dt * scor2
 
     end if
 
