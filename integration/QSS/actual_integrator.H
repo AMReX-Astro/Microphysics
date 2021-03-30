@@ -440,9 +440,6 @@ void actual_integrator (burn_t& state, Real dt)
                 max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
             }
 
-            Real de = std::abs(state.e - predictor_state.e);
-            max_diff = amrex::max(max_diff, de / state.e);
-
             // If the relative diff was smaller than the requested tolerance factor, we're done.
             // Otherwise, cut dt and try again.
 
