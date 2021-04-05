@@ -62,6 +62,10 @@ struct dvode_t
     int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
     int NSLP;
 
+    // input flag to dvstep showing whether H was reduced by
+    // the driver
+    int KUTH;
+
     amrex::Array1D<Real, 1, VODE_LMAX> el;
     amrex::Array1D<Real, 1, VODE_LMAX> tau;
     amrex::Array1D<Real, 1, 5> tq;

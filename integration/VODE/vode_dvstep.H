@@ -95,6 +95,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
     // If a change of order was dictated on the previous step, then
     // it is done here and appropriate adjustments in the history are made.
 
+    if (vstate.KUTH == 1) {
+        vstate.ETA = amrex::min(vstate.ETA, vstate.H/vstate.HSCAL);
+        vstate.NEWH = 1;
+    }
+
     if (vstate.NEWH != 0) {
 
         if (vstate.NEWQ < vstate.NQ) {

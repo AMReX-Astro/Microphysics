@@ -111,6 +111,7 @@ int dvode (burn_t& state, dvode_t& vstate)
     vstate.NEWH = 0;
     vstate.NSLP = 0;
     vstate.IPUP = 1;
+    vstate.KUTH = 0;
 
     bool skip_loop_start = true;
 
@@ -232,6 +233,7 @@ int dvode (burn_t& state, dvode_t& vstate)
            Real tnext = vstate.tn + vstate.HNEW * (1.0_rt + 4.0_rt * UROUND);
            if ((tnext - vstate.tout) * vstate.H > 0.0_rt) {
                vstate.H = (vstate.tout - vstate.tn)*(1.0_rt - 4.0_rt * UROUND);
+               vstate.KUTH = 1;
            }
 
            continue;
