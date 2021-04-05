@@ -223,15 +223,19 @@ int dvode (burn_t& state, dvode_t& vstate)
        // Otherwise, we've had a successful return from the integrator (kflag = 0).
        // Test for our stopping condition.
 
-       // make sure that our step doesn't take us past tout
-       // this is essentially the logic that was in vode originally
-       // for itask = 4
-       Real tnext = vstate.tn + vstate.HNEW * (1.0_rt + 4.0_rt * UROUND);
-       if ((tnext - vstate.tout) * vstate.H > 0.0_rt) {
-           vstate.H = (vstate.tout - vstate.tn)*(1.0_rt - 4.0_rt * UROUND);
-       }
 
-       if ((vstate.tn - vstate.tout) * vstate.H < 0.0_rt) continue;
+       if ((vstate.tn - vstate.tout) * vstate.H < 0.0_rt) {
+
+           // make sure that our step doesn't take us past tout
+           // this is essentially the logic that was in vode originally
+           // for itask = 4
+           Real tnext = vstate.tn + vstate.HNEW * (1.0_rt + 4.0_rt * UROUND);
+           if ((tnext - vstate.tout) * vstate.H > 0.0_rt) {
+               vstate.H = (vstate.tout - vstate.tn)*(1.0_rt - 4.0_rt * UROUND);
+           }
+
+           continue;
+       }
 
        // If TOUT has been reached, interpolate.
 
