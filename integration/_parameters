@@ -25,6 +25,7 @@ integrate_energy         logical   .true.
 # Whether to use an analytical or numerical Jacobian.
 # 1 == Analytical
 # 2 == Numerical
+# 3 == Numerical for reactions; analytic for primitive -> conserved (simplified-SDC only)
 jacobian                 integer   1
 
 # one-sided numerical jacobian (.False.) or centered-difference
