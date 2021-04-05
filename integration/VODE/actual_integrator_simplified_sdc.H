@@ -86,7 +86,7 @@ void actual_integrator (burn_t& state, Real dt)
         vode_state.atol(SFS+n) = sdc_min_density * atol_spec * sdc_tol_fac;
     }
     for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol(SFS+n) = sdc_min_density * rtol_spec * sdc_tol_fac;
+        vode_state.rtol(SFS+n) = rtol_spec * sdc_tol_fac;
     }
 
 
