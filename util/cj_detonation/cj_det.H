@@ -45,7 +45,7 @@ adiabat(const eos_t eos_state_fuel, eos_t& eos_state_ash, const Real q, int& ist
     }
 
     if (!converged) {
-       istatus = -1;
+        istatus = -1;
     } else {
         istatus = 0;
     }
@@ -73,13 +73,14 @@ cj_cond(const eos_t eos_state_fuel, eos_t& eos_state_ash, const Real q) {
         (1.0_rt + (eos_state_ash.p - eos_state_fuel.p) /
          (eos_state_ash.gam1 * eos_state_ash.p));
 
+    int istatus;
+
     int iter = 0;
     bool converged = false;
     while (!converged && iter < max_iter) {
 
         Real rho_old = eos_state_ash.rho;
 
-        int istatus;
         adiabat(eos_state_fuel, eos_state_ash, q, istatus);
 
         // this is the density we find from the tangent point to the

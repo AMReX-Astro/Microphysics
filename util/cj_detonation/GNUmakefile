@@ -40,8 +40,8 @@ endif
 
 EXTERN_SEARCH += .
 
-Bpack   := ./Make.package
-Blocs   := .
+Bpack   := ./Make.package ../../unit_test/Make.package
+Blocs   := .  ../../unit_test
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 

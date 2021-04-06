@@ -9,8 +9,9 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include <burn_cell.H>
+#include <cj_det.H>
 #include <unit_test.H>
+#include <actual_rhs.H>
 
 int main(int argc, char *argv[]) {
 
@@ -74,7 +75,7 @@ int main(int argc, char *argv[]) {
   Array1D<Real, 1, NumSpec> dymol;
 
   for (int n = 1; n <= NumSpec; n++) {
-      dymol[n] = eos_state_ash.xn[n-1] * aion_inv[n-1] -
+      dymol(n) = eos_state_ash.xn[n-1] * aion_inv[n-1] -
                  eos_state_fuel.xn[n-1] * aion_inv[n-1];
   }
 
