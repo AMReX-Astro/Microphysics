@@ -63,8 +63,8 @@ void actual_integrator (burn_t& state, Real dt)
     vode_state.atol(SEDEN+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
     vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
 
-    vode_state.rtol(SEDEN+1) = sdc_min_density * rtol_enuc * sdc_tol_fac; 
-    vode_state.rtol(SEINT+1) = sdc_min_density * rtol_enuc * sdc_tol_fac;
+    vode_state.rtol(SEDEN+1) = rtol_enuc * sdc_tol_fac; 
+    vode_state.rtol(SEINT+1) = rtol_enuc * sdc_tol_fac;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     Real sdc_min_density = state.rho;
@@ -74,7 +74,7 @@ void actual_integrator (burn_t& state, Real dt)
     sdc_min_density = amrex::min(state.rho, sdc_min_density);
 
     vode_state.atol(SENTH+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
-    vode_state.rtol(SENTH+1) = sdc_min_density * rtol_enuc * sdc_tol_fac; 
+    vode_state.rtol(SENTH+1) = rtol_enuc * sdc_tol_fac; 
 
 #endif
 
@@ -86,7 +86,7 @@ void actual_integrator (burn_t& state, Real dt)
         vode_state.atol(SFS+n) = sdc_min_density * atol_spec * sdc_tol_fac;
     }
     for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol(SFS+n) = sdc_min_density * rtol_spec * sdc_tol_fac;
+        vode_state.rtol(SFS+n) = rtol_spec * sdc_tol_fac;
     }
 
 

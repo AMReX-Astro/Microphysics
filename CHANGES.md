@@ -1,3 +1,13 @@
+# 21.04
+
+   * We added a new mechanism to recover a failed burn when the state
+     tries to enter NSE during the evolution, when using the aprox19 +
+     NSE network.  Now it will capture the failure and redo the burn
+     if it satisfies the NSE criteria (#628)
+
+   * We updated the VODE logic for rejecting a step to consider mass
+     fractions for both simplified-SDC and true SDC burns (#619)
+
 # 21.03
 
    * We now integrate internal energy (e) directly instead of integrating
