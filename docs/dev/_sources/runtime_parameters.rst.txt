@@ -367,7 +367,9 @@ integration
 |                                       | the RHS to zero.                                        |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``jacobian``                          | Whether to use an analytical or numerical Jacobian. 1   | 1                  |
-|                                       | == Analytical 2 == Numerical                            |                    |
+|                                       | == Analytical 2 == Numerical 3 == Numerical for         |                    |
+|                                       | reactions; analytic for primitive -> conserved          |                    |
+|                                       | (simplified-SDC only)                                   |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``centered_diff_jac``                 | one-sided numerical jacobian (.False.) or centered-     | .false.            |
 |                                       | difference Jacobian (.true.).  Note: the centered-      |                    |
