@@ -97,7 +97,6 @@ int dvode (burn_t& state, dvode_t& vstate)
 
     vstate.NQ = 1;
     vstate.L = 2;
-    vstate.NQNYH = vstate.NQ * VODE_NEQS;
     vstate.tau(1) = vstate.H;
     vstate.PRL1 = 1.0_rt;
     vstate.RC = 0.0_rt;
