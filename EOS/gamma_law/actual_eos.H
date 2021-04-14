@@ -1,43 +1,31 @@
 #ifndef _actual_eos_H_
 #define _actual_eos_H_
 
-// This is a constant gamma equation of state, using an ideal gas.
-//
-// This a simplified version of the more general eos_gamma_general.
-
+#include <string>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
-#include <network.H>
-#include <eos_type.H>
 #include <cmath>
 
-const std::string eos_name = "gamma_law";
+// This is a constant gamma equation of state, using an ideal gas.
+//
+// The gas may either be completely ionized or completely neutral.
+//
+// The ratio of specific heats (gamma) is allowed to vary.  NOTE: the
+// expression for entropy is only valid for an ideal MONATOMIC gas
+// (gamma = 5/3).
 
-inline AMREX_GPU_MANAGED amrex::Real gamma_const;
-inline AMREX_GPU_MANAGED bool assume_neutral;
+const std::string eos_name = "gamma_law_general";
 
 inline
-void actual_eos_init ()
-{
+void actual_eos_init() {
 
-    // constant ratio of specific heats
-    if (eos_gamma > 0.e0_rt)
-    {
-        gamma_const = eos_gamma;
-    }
-    else
-    {
-        amrex::Error("gamma_const cannot be < 0");
-    }
-
-    assume_neutral = eos_assume_neutral;
+  // constant ratio of specific heats
+  if (eos_gamma <= 0.0) {
+    amrex::Error("gamma_const cannot be < 0");
+  }
 
 }
 
-inline
-void actual_eos_finalize ()
-{
-}
 
 
 template <typename I>
@@ -48,11 +36,7 @@ bool is_input_valid (I input)
 
   bool valid = true;
 
-  if (input == eos_input_rh ||
-      input == eos_input_tp ||
-      input == eos_input_ps ||
-      input == eos_input_ph ||
-      input == eos_input_th) {
+  if (input == eos_input_th) {
     valid = false;
   }
 
@@ -66,182 +50,249 @@ void actual_eos (I input, T& state)
 {
     static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
-    const Real R = C::k_B * C::n_A;
+    // Get the mass of a nucleon from Avogadro's number.
+    const Real m_nucleon = 1.0 / C::n_A;
+    const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
-    // Calculate mu.
-
-    if (assume_neutral)
-    {
+    if (eos_assume_neutral) {
         state.mu = state.abar;
+
+    } else {
+        Real sum = 0.0;
+        for (int n = 0; n < NumSpec; n++) {
+            sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+        }
+        state.mu = 1.0 / sum;
     }
-    else
+
+    // For all EOS input modes EXCEPT eos_input_rt, first compute dens
+    // and temp as needed from the inputs.
+
+    switch (input)
     {
-        Real sum = 0.0_rt;
-        for (int n = 0; n < NumSpec; ++n) {
-            sum = sum + (1.0_rt + zion[n]) * state.xn[n] * aion_inv[n];
-        }
-        state.mu = 1.0_rt / sum;
-    }
 
-    Real p, e, cv, poverrho;
+      case eos_input_rt:
 
-    switch (input) {
+          // dens, temp and xmass are inputs
 
-    case eos_input_rt:
+          // We don't need to do anything here
+          break;
 
-        // dens, temp and xmass are inputs
-        cv = R / (state.mu * (gamma_const - 1.0_rt));
-        e = cv * state.T;
-        p = (gamma_const - 1.0_rt) * state.rho * e;
-
-        if constexpr (has_energy<T>::value) {
-            state.cv = cv;
-            state.e = e;
-        }
-        if constexpr (has_pressure<T>::value) {
-            state.p = p;
-            state.gam1 = gamma_const;
-        }
-
-        if constexpr (has_energy<T>::value && has_pressure<T>::value) {
-            state.cs = std::sqrt(gamma_const * state.p / state.rho);
-            state.dpdr_e = (gamma_const - 1.0_rt) * state.e;
-            state.dpde = (gamma_const - 1.0_rt) * state.rho;
-        }
-
-        // Try to avoid the expensive log function.  Since we don't need entropy
-        // in hydro solver, set it to an invalid but "nice" value for the plotfile.
-        if constexpr (has_entropy<T>::value) {
-            state.s = 1.0_rt;
-        }
-
-        break;
-
-    case eos_input_rh:
+      case eos_input_rh:
 
         // dens, enthalpy, and xmass are inputs
 
-#ifndef AMREX_USE_GPU
-        amrex::Error("EOS: eos_input_rh is not supported in this EOS.");
-#endif
+        // Solve for the temperature:
+        // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
 
-        break;
+          if constexpr (has_enthalpy<T>::value) {
+              state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_gamma - 1.0)/eos_gamma;
+          }
 
-    case eos_input_tp:
+          break;
 
-        // temp, pres, and xmass are inputs
+      case eos_input_tp:
 
-#ifndef AMREX_USE_GPU
-        amrex::Error("EOS: eos_input_tp is not supported in this EOS.");
-#endif
+          // temp, pres, and xmass are inputs
 
-        break;
+          // Solve for the density:
+          // p = rho k T / (mu m_nucleon)
 
-    case eos_input_rp:
+          if constexpr (has_pressure<T>::value) {
+              state.rho =  state.p * state.mu * m_nucleon / (C::k_B * state.T);
+          }
 
-        // dens, pres, and xmass are inputs
+          break;
 
-        if constexpr (has_pressure<T>::value) {
-            poverrho = state.p / state.rho;
-            state.T = poverrho * state.mu * (1.0_rt / R);
-        }
+      case eos_input_rp:
 
-        if constexpr (has_pressure<T>::value && has_energy<T>::value) {
-            state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
-            state.gam1 = gamma_const;
+          // dens, pres, and xmass are inputs
 
-            state.cs = std::sqrt(gamma_const * poverrho);
+          // Solve for the temperature:
+          // p = rho k T / (mu m_nucleon)
 
-            state.dpdr_e = poverrho;
-            state.dpde = (gamma_const - 1.0_rt) * state.rho;
-        }
+          if constexpr (has_pressure<T>::value) {
+              state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
+          }
 
-        // Try to avoid the expensive log function.  Since we don't need entropy
-        // in hydro solver, set it to an invalid but "nice" value for the plotfile.
-        if constexpr (has_entropy<T>::value) {
-            state.s = 1.0_rt;
-        }
+          break;
 
-        break;
+      case eos_input_re:
 
-    case eos_input_re:
+          // dens, energy, and xmass are inputs
 
-        // dens, energy, and xmass are inputs
+          // Solve for the temperature
+          // e = k T / [(mu m_nucleon)*(gamma-1)]
 
-        if constexpr (has_energy<T>::value) {
-            poverrho = (gamma_const - 1.0_rt) * state.e;
+          if constexpr (has_energy<T>::value) {
+              state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / C::k_B;
+          }
 
-            state.T = poverrho * state.mu * (1.0_rt / R);
-        }
+          break;
 
-        if constexpr (has_pressure<T>::value) {
-            state.p = poverrho * state.rho;
-            state.gam1 = gamma_const;
-        }
+      case eos_input_ps:
 
-        if constexpr (has_pressure<T>::value && has_energy<T>::value) {
-            // sound speed
-            state.cs = std::sqrt(gamma_const * poverrho);
+          // pressure, entropy, and xmass are inputs
 
-            state.dpdr_e = poverrho;
-            state.dpde = (gamma_const - 1.0_rt) * state.rho;
-        }
+          // Solve for the temperature
+          // Invert Sackur-Tetrode eqn (below) using
+          // rho = p mu m_nucleon / (k T)
 
-        // Try to avoid the expensive log function.  Since we don't need entropy
-        // in hydro solver, set it to an invalid but "nice" value for the plotfile.
-        if constexpr (has_entropy<T>::value) {
-            state.s = 1.0_rt;
-        }
+          if constexpr (has_pressure<T>::value && has_entropy<T>::value) {
+              state.T = std::pow(state.p, 2.0/5.0) *
+                        std::pow(2.0 * M_PI * C::hbar * C::hbar / (state.mu * m_nucleon), 3.0/5.0) *
+                        std::exp(2.0 * state.mu * m_nucleon * state.s / (5.0 * C::k_B) - 1.0) / C::k_B;
+          }
 
-        break;
+          // Solve for the density
+          // rho = p mu m_nucleon / (k T)
 
-    case eos_input_ps:
+          if constexpr (has_pressure<T>::value) {
+              state.rho = state.p * state.mu * m_nucleon / (C::k_B * state.T);
+          }
 
-        // pressure entropy, and xmass are inputs
+          break;
 
-#ifndef AMREX_USE_GPU
-        amrex::Error("EOS: eos_input_ps is not supported in this EOS.");
-#endif
+      case eos_input_ph:
 
-        break;
+          // pressure, enthalpy and xmass are inputs
 
-    case (eos_input_ph):
+          // Solve for temperature and density
 
-        // pressure, enthalpy and xmass are inputs
+          if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
+              state.rho = state.p / state.h * eos_gamma / (eos_gamma - 1.0);
+              state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
+          }
 
-#ifndef AMREX_USE_GPU
-        amrex::Error("EOS: eos_input_ph is not supported in this EOS.");
-#endif
+          break;
 
-        break;
+      case eos_input_th:
 
-    case eos_input_th:
+          // temperature, enthalpy and xmass are inputs
 
-        // temperature, enthalpy and xmass are inputs
+          // This system is underconstrained.
 
-        // This system is underconstrained.
+  #ifndef AMREX_USE_GPU
+          amrex::Error("EOS: eos_input_th is not a valid input for the gamma law EOS.");
+  #endif
 
-#ifndef AMREX_USE_GPU
-        amrex::Error("EOS: eos_input_th is not a valid input for the gamma law EOS.");
-#endif
+          break;
 
-        break;
+      default:
 
-    default:
-
-#ifndef AMREX_USE_GPU
-        amrex::Error("EOS: invalid input.");
-#endif
+  #ifndef AMREX_USE_GPU
+          amrex::Error("EOS: invalid input.");
+  #endif
 
         break;
 
     }
 
-    // Give dpdr a value for the purposes of the composition_derivatives routine.
+    // Now we have the density and temperature (and mass fractions /
+    // mu), regardless of the inputs.
 
+    Real Tinv = 1.0 / state.T;
+    Real rhoinv = 1.0 / state.rho;
+
+    // Compute the pressure simply from the ideal gas law, and the
+    // specific internal energy using the gamma-law EOS relation.
+    Real pressure = state.rho * state.T * (C::k_B / (state.mu * m_nucleon));
+    Real energy = pressure / (eos_gamma - 1.0) * rhoinv;
     if constexpr (has_pressure<T>::value) {
-        state.dpdr = 0.0_rt;
+        state.p = pressure;
     }
+    if constexpr (has_energy<T>::value) {
+        state.e = energy;
+    }
+
+    // enthalpy is h = e + p/rho
+    if constexpr (has_enthalpy<T>::value) {
+        state.h = energy + pressure * rhoinv;
+    }
+
+    // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
+    // NOTE: this expression is only valid for gamma = 5/3.
+    if constexpr (has_entropy<T>::value) {
+        state.s = (C::k_B / (state.mu * m_nucleon)) *
+                  (2.5 + std::log((std::pow(state.mu * m_nucleon, 2.5) * rhoinv) *
+                                  std::pow(C::k_B * state.T, 1.5) * fac));
+    }
+
+    // Compute the thermodynamic derivatives and specific heats
+    if constexpr (has_pressure<T>::value) {
+        state.dpdT = state.p * Tinv;
+        state.dpdr = state.p * rhoinv;
+    }
+    if constexpr (has_energy<T>::value) {
+        state.dedT = state.e * Tinv;
+        state.dedr = 0.0;
+    }
+    if constexpr (has_entropy<T>::value) {
+        state.dsdT = 1.5 * (C::k_B / (state.mu * m_nucleon)) * Tinv;
+        state.dsdr = - (C::k_B / (state.mu * m_nucleon)) * rhoinv;
+    }
+    if constexpr (has_enthalpy<T>::value) {
+        state.dhdT = state.dedT + state.dpdT * rhoinv;
+        state.dhdr = 0.0;
+    }
+
+    if constexpr (has_xne_xnp<T>::value) {
+        state.xne = 0.0;
+        state.xnp = 0.0;
+    }
+    if constexpr (has_eta<T>::value) {
+        state.eta = 0.0;
+    }
+    if constexpr (has_pele_ppos<T>::value) {
+        state.pele = 0.0;
+        state.ppos = 0.0;
+    }
+
+    if constexpr (has_energy<T>::value) {
+        state.cv = state.dedT;
+
+        if constexpr (has_pressure<T>::value) {
+            state.cp = eos_gamma * state.cv;
+
+            state.gam1 = eos_gamma;
+
+            state.dpdr_e = state.dpdr - state.dpdT * state.dedr * (1.0 / state.dedT);
+            state.dpde = state.dpdT * (1.0 / state.dedT);
+
+            // sound speed
+            state.cs = std::sqrt(eos_gamma * state.p * rhoinv);
+        }
+    }
+
+#ifdef EXTRA_THERMO
+    if constexpr (has_pressure<T>::value) {
+        state.dpdA = - state.p * (1.0 / state.abar);
+    }
+    if constexpr (has_energy<T>::value) {
+        state.dedA = - state.e * (1.0 / state.abar);
+    }
+
+    if (eos_assume_neutral) {
+        if constexpr (has_pressure<T>::value) {
+            state.dpdZ = 0.0;
+        }
+        if constexpr (has_energy<T>::value) {
+            state.dedZ = 0.0;
+        }
+    } else {
+        if constexpr (has_pressure<T>::value) {
+            state.dpdZ = state.p * (1.0 / (1.0 + state.zbar));
+        }
+        if constexpr (has_energy<T>::value) {
+            state.dedZ = state.e * (1.0/(1.0 + state.zbar));
+        }
+    }
+#endif
+}
+
+inline
+void actual_eos_finalize() {
+
 }
 
 #endif
