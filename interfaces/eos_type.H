@@ -93,10 +93,12 @@ struct eos_rep_t {
 
     amrex::Real dpdT;
     amrex::Real dpdr;
+    amrex::Real dpdr_e;
 
     amrex::Real cv;
     amrex::Real cp;
     amrex::Real gam1;
+    amrex::Real cs;
 
     amrex::Real mu;
     amrex::Real mu_e;
