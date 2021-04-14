@@ -231,9 +231,6 @@ contains
 
     state % gam1 = gamma_const
 
-    state % dpdr_e = state % dpdr - state % dpdT * state % dedr * (ONE/state % dedT)
-    state % dpde   = state % dpdT * (ONE/ state % dedT)
-
     ! sound speed
     state % cs = sqrt(gamma_const * state % p * rhoinv)
 

@@ -1124,10 +1124,6 @@ contains
 
     !$gpu
 
-    ! Calculate some remaining derivatives
-    state % dpde = state % dpdT / state % dedT
-    state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
-
     ! Specific heats and Gamma_1
     chit = state % T / state % p * state % dpdT
     chid = state % dpdr * state % rho / state % p

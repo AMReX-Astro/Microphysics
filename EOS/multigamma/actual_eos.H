@@ -263,9 +263,6 @@ void actual_eos (I input, T& state)
         state.cp = enth / state.T;
 
         state.gam1 = state.cp / state.cv;
-
-        state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
-        state.dpde   = state.dpdT / state.dedT;
     }
 
 #ifdef EXTRA_THERMO

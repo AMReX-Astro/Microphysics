@@ -226,10 +226,6 @@ contains
 
     state % gam1 = state % cp / state % cv
 
-    state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
-    state % dpde   = state % dpdT / state % dedT
-
-
 #ifdef EXTRA_THERMO
     ! These need to be worked out.
     state % dpdA = ZERO

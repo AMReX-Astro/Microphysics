@@ -105,8 +105,6 @@ void actual_eos (I input, T& state)
 
         if constexpr (has_energy<T>::value && has_pressure<T>::value) {
             state.cs = std::sqrt(gamma_const * state.p / state.rho);
-            state.dpdr_e = (gamma_const - 1.0_rt) * state.e;
-            state.dpde = (gamma_const - 1.0_rt) * state.rho;
         }
 
         // Try to avoid the expensive log function.  Since we don't need entropy
@@ -151,9 +149,6 @@ void actual_eos (I input, T& state)
             state.gam1 = gamma_const;
 
             state.cs = std::sqrt(gamma_const * poverrho);
-
-            state.dpdr_e = poverrho;
-            state.dpde = (gamma_const - 1.0_rt) * state.rho;
         }
 
         // Try to avoid the expensive log function.  Since we don't need entropy
@@ -182,9 +177,6 @@ void actual_eos (I input, T& state)
         if constexpr (has_pressure<T>::value && has_energy<T>::value) {
             // sound speed
             state.cs = std::sqrt(gamma_const * poverrho);
-
-            state.dpdr_e = poverrho;
-            state.dpde = (gamma_const - 1.0_rt) * state.rho;
         }
 
         // Try to avoid the expensive log function.  Since we don't need entropy

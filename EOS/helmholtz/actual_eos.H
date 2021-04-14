@@ -1224,12 +1224,6 @@ void finalize_state (I input, T& state,
 {
     using namespace helmholtz;
 
-    // Calculate some remaining derivatives
-    if constexpr (has_pressure<T>::value) {
-        state.dpde = state.dpdT / state.dedT;
-        state.dpdr_e = state.dpdr - state.dpdT * state.dedr / state.dedT;
-    }
-
     // Specific heats and Gamma_1
     if constexpr (has_energy<T>::value) {
         state.cv = state.dedT;

@@ -23,8 +23,6 @@ struct eos_t {
     amrex::Real dhdr;
     amrex::Real dsdT;
     amrex::Real dsdr;
-    amrex::Real dpde;
-    amrex::Real dpdr_e;
 
     amrex::Real cv;
     amrex::Real cp;
@@ -165,8 +163,6 @@ std::ostream& operator<< (std::ostream& o, eos_t const& eos_state)
   o << "dhdr = " << eos_state.dhdr << std::endl;
   o << "dsdT = " << eos_state.dsdT << std::endl;
   o << "dsdr = " << eos_state.dsdr << std::endl;
-  o << "dpde = " << eos_state.dpde << std::endl;
-  o << "dpdr_e = " << eos_state.dpdr_e  << std::endl;
 
   o << "cv = " << eos_state.cv << std::endl;
   o << "cp = " << eos_state.cp << std::endl;

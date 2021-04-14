@@ -96,8 +96,6 @@ subroutine do_eos(lo, hi, &
            sp(ii, jj, kk, p % idpdz) = eos_state % dpdz
            sp(ii, jj, kk, p % ideda) = eos_state % deda
            sp(ii, jj, kk, p % idedz) = eos_state % dedz
-           sp(ii, jj, kk, p % idpde) = eos_state % dpde
-           sp(ii, jj, kk, p % idpdre) = eos_state % dpdr_e
 
 
            ! call EOS using rho, h

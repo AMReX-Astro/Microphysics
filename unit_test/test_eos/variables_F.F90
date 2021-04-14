@@ -62,8 +62,6 @@ module variables
      integer :: idpdz = -1
      integer :: ideda = -1
      integer :: idedz = -1
-     integer :: idpde = -1
-     integer :: idpdre = -1
 
      integer :: n_plot_comps = 0
 
@@ -150,8 +148,6 @@ contains
     p % idpdz = p % next_index(1)
     p % ideda = p % next_index(1)
     p % idedz = p % next_index(1)
-    p % idpde = p % next_index(1)
-    p % idpdre = p % next_index(1)
 
   end subroutine init_variables_F
 

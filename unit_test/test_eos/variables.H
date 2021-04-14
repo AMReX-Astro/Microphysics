@@ -58,8 +58,6 @@ public:
   int idpdz = -1;
   int ideda = -1;
   int idedz = -1;
-  int idpde = -1;
-  int idpdre = -1;
 
   int n_plot_comps = 0;
 

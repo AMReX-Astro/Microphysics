@@ -93,8 +93,6 @@ void eos_test_C(const Box& bx,
     sp(i, j, k, vars.idpdz) = eos_state.dpdZ;
     sp(i, j, k, vars.ideda) = eos_state.dedA;
     sp(i, j, k, vars.idedz) = eos_state.dedZ;
-    sp(i, j, k, vars.idpde) = eos_state.dpde;
-    sp(i, j, k, vars.idpdre) = eos_state.dpdr_e;
 
 
     // call EOS using rho, h

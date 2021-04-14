@@ -118,8 +118,6 @@ module eos_type_module
   ! dpdZ     -- d pressure/ d zbar
   ! dedA     -- d energy/ d abar
   ! dedZ     -- d energy/ d zbar
-  ! dpde     -- d pressure / d energy |_rho
-  ! dpdr_e   -- d pressure / d rho |_energy
   ! conductivity -- thermal conductivity (in erg/cm/K/sec)
 
   type :: eos_t
@@ -141,8 +139,6 @@ module eos_type_module
     real(rt) :: dhdr
     real(rt) :: dsdT
     real(rt) :: dsdr
-    real(rt) :: dpde
-    real(rt) :: dpdr_e
 
     real(rt) :: cv
     real(rt) :: cp
@@ -200,8 +196,6 @@ contains
     to_eos % dhdr = from_eos % dhdr
     to_eos % dsdT = from_eos % dsdT
     to_eos % dsdr = from_eos % dsdr
-    to_eos % dpde = from_eos % dpde
-    to_eos % dpdr_e = from_eos % dpdr_e
 
     to_eos % cv = from_eos % cv
     to_eos % cp = from_eos % cp

@@ -123,9 +123,6 @@ contains
        ! sound speed
        state % cs = sqrt(gamma_const * poverrho)
 
-       state % dpdr_e = poverrho
-       state % dpde = (gamma_const-ONE) * state % rho
-
        ! Try to avoid the expensive log function.  Since we don't need entropy 
        ! in hydro solver, set it to an invalid but "nice" value for the plotfile.
        state % s = ONE  

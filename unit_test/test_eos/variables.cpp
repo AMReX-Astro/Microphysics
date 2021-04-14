@@ -52,8 +52,6 @@ plot_t init_variables() {
   p.idpdz = p.next_index(1);
   p.ideda = p.next_index(1);
   p.idedz = p.next_index(1);
-  p.idpde = p.next_index(1);
-  p.idpdre = p.next_index(1);
 
   return p;
 }
@@ -114,8 +112,6 @@ void get_varnames(const plot_t p, amrex::Vector<std::string>& names) {
   names[p.idpdz] = "dp_dZ";
   names[p.ideda] = "de_dA";
   names[p.idedz] = "de_dZ";
-  names[p.idpde] = "dp_de_rho";
-  names[p.idpdre] = "dp_drho_e";
 
 }
 

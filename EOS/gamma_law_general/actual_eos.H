@@ -256,9 +256,6 @@ void actual_eos (I input, T& state)
 
             state.gam1 = eos_gamma;
 
-            state.dpdr_e = state.dpdr - state.dpdT * state.dedr * (1.0 / state.dedT);
-            state.dpde = state.dpdT * (1.0 / state.dedT);
-
             // sound speed
             state.cs = std::sqrt(eos_gamma * state.p * rhoinv);
         }

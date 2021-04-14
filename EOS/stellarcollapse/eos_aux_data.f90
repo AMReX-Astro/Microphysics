@@ -11,26 +11,24 @@ module eos_aux_data_module
   real(rt)                      :: energy_shift = 0.0e0_rt
   ! these are the indices in the eos_table
   ! we probably don't need all of these, but oh well
-  integer, parameter :: eos_nvars = 19
+  integer, parameter :: eos_nvars = 17
   integer, parameter :: ilogpress = 1
   integer, parameter :: ilogenergy = 2
   integer, parameter :: ientropy = 3
   integer, parameter :: imunu = 4
   integer, parameter :: ics2 = 5
   integer, parameter :: idedt = 6
-  integer, parameter :: idpdrhoe = 7
-  integer, parameter :: idpderho = 8
-  integer, parameter :: imuhat = 9
-  integer, parameter :: imu_e = 10
-  integer, parameter :: imu_p = 11
-  integer, parameter :: imu_n = 12
-  integer, parameter :: ixa = 13
-  integer, parameter :: ixh = 14
-  integer, parameter :: ixn = 15
-  integer, parameter :: ixp = 16
-  integer, parameter :: iabar = 17
-  integer, parameter :: izbar = 18
-  integer, parameter :: igamma = 19
+  integer, parameter :: imuhat = 7
+  integer, parameter :: imu_e = 8
+  integer, parameter :: imu_p = 9
+  integer, parameter :: imu_n = 10
+  integer, parameter :: ixa = 11
+  integer, parameter :: ixh = 12
+  integer, parameter :: ixn = 13
+  integer, parameter :: ixp = 14
+  integer, parameter :: iabar = 15
+  integer, parameter :: izbar = 16
+  integer, parameter :: igamma = 17
 
   real(rt)        , save :: mintemp_tbl, maxtemp_tbl
   real(rt)        , save :: mindens_tbl, maxdens_tbl
@@ -135,20 +133,6 @@ contains
     call h5dclose_f(dset_id,error)
     total_error = total_error + error
 
-    ! derivative of pressure wrt density at constant energy (cgs)
-    call h5dopen_f(file_id,'dpdrhoe',dset_id,error)
-    call h5dread_f(dset_id,H5T_NATIVE_DOUBLE, &
-                   eos_table(:,:,:,idpdrhoe),dims3,error)
-    call h5dclose_f(dset_id,error)
-    total_error = total_error + error
-
-    ! derivative of pressure wrt energy at constant density (cgs)
-    call h5dopen_f(file_id,'dpderho',dset_id,error)
-    call h5dread_f(dset_id,H5T_NATIVE_DOUBLE, &
-                   eos_table(:,:,:,idpderho),dims3,error)
-    call h5dclose_f(dset_id,error)
-    total_error = total_error + error
-    
     ! gamma_1
     call h5dopen_f(file_id,'gamma',dset_id,error)
     call h5dread_f(dset_id,H5T_NATIVE_DOUBLE, &
@@ -429,14 +413,6 @@ contains
                         eos_logrho,eos_logtemp,eos_ye, &
                         eos_table(:,:,:,idedt), &
                         state%dedT,derivs,err)
-    call tri_interpolate(rho,temp,ye,nrho,ntemp,nye, &
-                        eos_logrho,eos_logtemp,eos_ye, &
-                        eos_table(:,:,:,idpdrhoe), &
-                        state%dpdr_e,derivs,err)
-    call tri_interpolate(rho,temp,ye,nrho,ntemp,nye, &
-                        eos_logrho,eos_logtemp,eos_ye, &
-                        eos_table(:,:,:,idpderho), &
-                        state%dpde,derivs,err)
     
   end subroutine table_lookup
 

@@ -302,11 +302,6 @@ void actual_eos (I input, T& state)
         state.dhdr = state.dedr + gm1 * pres / (dens * dens);
     }
 
-    if constexpr (has_pressure<T>::value) {
-        state.dpde = 0.0_rt;
-        state.dpdr_e = gamma_const * pres / dens;
-    }
-
     if constexpr (has_energy<T>::value) {
         state.cv = state.dedT;
     }
