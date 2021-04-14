@@ -91,7 +91,12 @@ struct eos_rep_t {
     amrex::Real dedT;
     amrex::Real dedr;
 
+    amrex::Real dpdT;
+    amrex::Real dpdr;
+
     amrex::Real cv;
+    amrex::Real cp;
+    amrex::Real gam1;
 
     amrex::Real mu;
     amrex::Real mu_e;
@@ -107,29 +112,6 @@ struct eos_rep_t {
 #endif
 };
 
-struct eos_rt_t {
-    amrex::Real rho;
-    amrex::Real T;
-    amrex::Real e;
-    amrex::Real p;
-    amrex::Real xn[NumSpec];
-#if NAUX_NET > 0
-    amrex::Real aux[NumAux];
-#endif
-
-    amrex::Real mu;
-    amrex::Real mu_e;
-    amrex::Real y_e;
-    amrex::Real eta;
-
-    amrex::Real abar;
-    amrex::Real zbar;
-
-#ifdef EXTRA_THERMO
-    amrex::Real dedA;
-    amrex::Real dedZ;
-#endif
-};
 
 template <typename T, typename Enable = void>
 struct has_energy
