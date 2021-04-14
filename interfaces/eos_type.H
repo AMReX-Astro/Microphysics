@@ -79,6 +79,43 @@ struct eos_re_t {
 #endif
 };
 
+struct eos_rep_t {
+    amrex::Real rho;
+    amrex::Real T;
+    amrex::Real e;
+    amrex::Real p;
+    amrex::Real xn[NumSpec];
+#if NAUX_NET > 0
+    amrex::Real aux[NumAux];
+#endif
+    amrex::Real dedT;
+    amrex::Real dedr;
+
+    amrex::Real dpdT;
+    amrex::Real dpdr;
+    amrex::Real dpdr_e;
+    amrex::Real dpde;
+
+    amrex::Real cv;
+    amrex::Real cp;
+    amrex::Real gam1;
+    amrex::Real cs;
+
+    amrex::Real mu;
+    amrex::Real mu_e;
+    amrex::Real y_e;
+    amrex::Real eta;
+
+    amrex::Real abar;
+    amrex::Real zbar;
+
+#ifdef EXTRA_THERMO
+    amrex::Real dedA;
+    amrex::Real dedZ;
+#endif
+};
+
+
 template <typename T, typename Enable = void>
 struct has_energy
     : std::false_type {};
@@ -138,34 +175,34 @@ struct has_eta<T, typename std::enable_if<(sizeof(((T*)0)->eta) > 0)>::type>
 inline
 std::ostream& operator<< (std::ostream& o, eos_t const& eos_state)
 {
-  o << "rho = " << eos_state.rho << std::endl;
-  o << "T =   " << eos_state.T << std::endl;
-  o << "xn = ";
-  for (int n = 0; n < NumSpec; ++n) {
-    o << eos_state.xn[n] << " ";
-  }
-  o << std::endl;
+    o << "rho = " << eos_state.rho << std::endl;
+    o << "T =   " << eos_state.T << std::endl;
+    o << "xn = ";
+    for (int n = 0; n < NumSpec; ++n) {
+        o << eos_state.xn[n] << " ";
+    }
+    o << std::endl;
 #if NAUX_NET > 0
-  o << "aux = ";
-  for (int n = 0; n < NumAux; ++n) {
-    o << eos_state.aux[n] << " ";
-  }
-  o << std::endl;
+    o << "aux = ";
+    for (int n = 0; n < NumAux; ++n) {
+        o << eos_state.aux[n] << " ";
+    }
+    o << std::endl;
 #endif
-  o << "p = " << eos_state.p << std::endl;
-  o << "e = " << eos_state.e << std::endl;
-  o << "h = " << eos_state.h << std::endl;
-  o << "s = " << eos_state.s << std::endl;
+    o << "p = " << eos_state.p << std::endl;
+    o << "e = " << eos_state.e << std::endl;
+    o << "h = " << eos_state.h << std::endl;
+    o << "s = " << eos_state.s << std::endl;
 
-  o << "dpdT = " << eos_state.dpdT << std::endl;
-  o << "dpdr = " << eos_state.dpdr << std::endl;
-  o << "dedT = " << eos_state.dedT << std::endl;
-  o << "dedr = " << eos_state.dedr << std::endl;
-  o << "dhdT = " << eos_state.dhdT << std::endl;
-  o << "dhdr = " << eos_state.dhdr << std::endl;
-  o << "dsdT = " << eos_state.dsdT << std::endl;
-  o << "dsdr = " << eos_state.dsdr << std::endl;
-  o << "dpde = " << eos_state.dpde << std::endl;
+    o << "dpdT = " << eos_state.dpdT << std::endl;
+    o << "dpdr = " << eos_state.dpdr << std::endl;
+    o << "dedT = " << eos_state.dedT << std::endl;
+    o << "dedr = " << eos_state.dedr << std::endl;
+    o << "dhdT = " << eos_state.dhdT << std::endl;
+    o << "dhdr = " << eos_state.dhdr << std::endl;
+    o << "dsdT = " << eos_state.dsdT << std::endl;
+    o << "dsdr = " << eos_state.dsdr << std::endl;
+    o << "dpde = " << eos_state.dpde << std::endl;
   o << "dpdr_e = " << eos_state.dpdr_e  << std::endl;
 
   o << "cv = " << eos_state.cv << std::endl;
