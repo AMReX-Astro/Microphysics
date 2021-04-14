@@ -79,6 +79,58 @@ struct eos_re_t {
 #endif
 };
 
+struct eos_rep_t {
+    amrex::Real rho;
+    amrex::Real T;
+    amrex::Real e;
+    amrex::Real p;
+    amrex::Real xn[NumSpec];
+#if NAUX_NET > 0
+    amrex::Real aux[NumAux];
+#endif
+    amrex::Real dedT;
+    amrex::Real dedr;
+
+    amrex::Real cv;
+
+    amrex::Real mu;
+    amrex::Real mu_e;
+    amrex::Real y_e;
+    amrex::Real eta;
+
+    amrex::Real abar;
+    amrex::Real zbar;
+
+#ifdef EXTRA_THERMO
+    amrex::Real dedA;
+    amrex::Real dedZ;
+#endif
+};
+
+struct eos_rt_t {
+    amrex::Real rho;
+    amrex::Real T;
+    amrex::Real e;
+    amrex::Real p;
+    amrex::Real xn[NumSpec];
+#if NAUX_NET > 0
+    amrex::Real aux[NumAux];
+#endif
+
+    amrex::Real mu;
+    amrex::Real mu_e;
+    amrex::Real y_e;
+    amrex::Real eta;
+
+    amrex::Real abar;
+    amrex::Real zbar;
+
+#ifdef EXTRA_THERMO
+    amrex::Real dedA;
+    amrex::Real dedZ;
+#endif
+};
+
 template <typename T, typename Enable = void>
 struct has_energy
     : std::false_type {};
