@@ -110,6 +110,8 @@ struct eos_rep_t {
     amrex::Real zbar;
 
 #ifdef EXTRA_THERMO
+    amrex::Real dpdA;
+    amrex::Real dpdZ;
     amrex::Real dedA;
     amrex::Real dedZ;
 #endif
