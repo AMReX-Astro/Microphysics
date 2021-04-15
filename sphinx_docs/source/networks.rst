@@ -271,7 +271,7 @@ energy generation, we take our reaction to release a specific energy,
 
 There are a number of parameters we use to control the constants in
 this network. This is one of the few networks that was designed
-to work with gamma_law_general as the EOS.
+to work with ``gamma_law`` as the EOS.
 
 rprox
 -----
