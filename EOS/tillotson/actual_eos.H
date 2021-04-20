@@ -130,6 +130,11 @@ void actual_eos (I input, T& state)
 
     state.dpdr = state.dpdr_e;
 
+    // For our arbitrary temperature implementation, get the corresponding temperature derivatives
+
+    state.dpdT = state.dpde * eos_c_v;
+    state.dedT = eos_c_v;
+
     // Usual formula for enthalpy
 
     if constexpr (has_enthalpy<T>::value) {
