@@ -68,8 +68,8 @@ void actual_eos (I input, T& state)
     P_c = amrex::max(P_c, EOSData::minp);
     P_e = amrex::max(P_e, EOSData::minp);
 
-    Real cs_squared_c = (g_c + 1.0_rt) * P_c / state.rho + (eos_A + eos_B * (eta * eta - 1.0_rt)) / state.rho +
-                        (eos_lb / (omega * omega)) * (omega - 1.0_rt) * (2.0_rt * state.e - P_c / state.rho);
+    Real cs_squared_c = (g_c + 2.0_rt * eos_lb * (omega - 1.0_rt) / (omega * omega)) * state.e +
+                        (eos_A + 2.0_rt * eos_B * mu) / eos_rho_0;
     Real cs_squared_e = (g_e + 1.0_rt) * P_e / state.rho +
                         eos_A / eos_rho_0 * std::exp(-eos_alpha * z - eos_beta * z * z) *
                         (1.0_rt + mu / (eta * eta) * (eos_alpha + 2.0_rt * eos_beta * z - eta)) +
