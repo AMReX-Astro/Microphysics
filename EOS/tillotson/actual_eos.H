@@ -46,10 +46,10 @@ void actual_eos (I input, T& state)
     // in with eos_input_rt that we are consistent with eos_input_re.
 
     if (input == eos_input_re) {
-        state.T = state.e / eos_c_v;
+        state.T = amrex::max(state.e / eos_c_v, EOSData::mintemp);
     }
     else if (input == eos_input_rt) {
-        state.e = eos_c_v * state.T;
+        state.e = amrex::max(eos_c_v * state.T, EOSData::mine);
     }
 
     Real eta = state.rho / eos_rho_0;
