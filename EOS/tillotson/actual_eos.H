@@ -70,12 +70,10 @@ void actual_eos (I input, T& state)
 
     Real cs_squared_c = (g_c + 2.0_rt * eos_lb * (omega - 1.0_rt) / (omega * omega)) * state.e +
                         (eos_A + 2.0_rt * eos_B * mu) / eos_rho_0;
-    Real cs_squared_e = (g_e + 1.0_rt) * P_e / state.rho +
-                        eos_A / eos_rho_0 * std::exp(-eos_alpha * z - eos_beta * z * z) *
-                        (1.0_rt + mu / (eta * eta) * (eos_alpha + 2.0_rt * eos_beta * z - eta)) +
-                        (eos_lb * state.rho * state.e) / (omega * omega * eta * eta) *
-                        std::exp(-eos_beta * z * z) * (2.0_rt * eos_beta * z * omega / eos_rho_0 +
-                                                       (P_e / state.rho - 2.0_rt * state.e) / (eos_e_0 * state.rho));
+    Real cs_squared_e = (g_e + (2.0_rt * eos_lb / omega) * std::exp(-eos_beta * z * z) *
+                         ((omega - 1.0_rt) / omega + eos_beta * z / eta)) * state.e +
+                        (eos_A / eos_rho_0) * std::exp(-eos_alpha * z - eos_beta * z * z) *
+                        (1.0_rt + mu / (eta * eta) * (eos_alpha + 2.0_rt * eos_beta * z));
 
     // Floor the sound speed as well (and make sure we get the floor dimensionally right)
 
