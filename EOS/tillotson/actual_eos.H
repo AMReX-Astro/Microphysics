@@ -40,6 +40,18 @@ void actual_eos (I input, T& state)
 {
     static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
+    // First make T and e consistent with each other.
+    // We use an arbitrary expression for T; although this shouldn't be used for
+    // other physics (e.g. chemistry) it is fine for making sure that if we come
+    // in with eos_input_rt that we are consistent with eos_input_re.
+
+    if (input == eos_input_re) {
+        state.T = state.e / eos_c_v;
+    }
+    else if (input == eos_input_rt) {
+        state.e = eos_c_v * state.T;
+    }
+
     Real eta = state.rho / eos_rho_0;
     Real mu = eta - 1.0_rt;
     Real omega = state.e / (eos_e_0 * eta * eta) + 1.0_rt;
@@ -72,18 +84,6 @@ void actual_eos (I input, T& state)
 
     Real dPde_c = eos_la * state.rho + eos_lb * state.rho / (omega * omega);
     Real dPde_e = eos_la * state.rho + eos_lb * state.rho / (omega * omega) * std::exp(-eos_beta * z * z);
-
-    // First make T and e consistent with each other.
-    // We use an arbitrary expression for T; although this shouldn't be used for
-    // other physics (e.g. chemistry) it is fine for making sure that if we come
-    // in with eos_input_rt that we are consistent with eos_input_re.
-
-    if (input == eos_input_re) {
-        state.T = state.e / eos_c_v;
-    }
-    else if (input == eos_input_rt) {
-        state.e = eos_c_v * state.T;
-    }
 
     // At this point we should have valid (rho, e); compute P = P(rho, e).
 
