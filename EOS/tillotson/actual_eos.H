@@ -129,6 +129,18 @@ void actual_eos (I input, T& state)
     // For this EOS dpdr == dpdr_e
 
     state.dpdr = state.dpdr_e;
+
+    // Usual formula for enthalpy
+
+    if constexpr (has_enthalpy<T>::value) {
+        state.h = state.e + state.p / state.rho;
+    }
+
+    // Arbitrary value for entropy
+
+    if constexpr (has_entropy<T>::value) {
+        state.s = 1.0_rt;
+    }
 }
 
 inline
