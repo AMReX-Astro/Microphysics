@@ -104,12 +104,15 @@ void actual_eos (I input, T& state)
     else {
         // Region III (interpolate between compressed and expanded state)
 
-        Real xi_c = (state.e - eos_e_s) / (eos_e_s_prime - eos_e_s);
-        Real xi_e = (eos_e_s_prime - state.e) / (eos_e_s_prime - eos_e_s);
+        Real denom = (eos_e_s_prime - eos_e_s);
+        Real xi_c = (state.e - eos_e_s) / denom;
+        Real xi_e = (eos_e_s_prime - state.e) / denom;
 
         state.p = P_c * xi_c + P_e * xi_e;
         state.dpdr_e = cs_squared_c * xi_c + cs_squared_e * xi_e;
-        state.dpde = dPde_c * xi_c + dPde_e * xi_e;
+        // Note that the interpolation function depends on e, so this term
+        // needs to have the derivatives of xi to be accurate.
+        state.dpde = dPde_c * xi_c + P_c / denom + dPde_e * xi_e - P_e / denom;
     }
 
     // Sound speed
