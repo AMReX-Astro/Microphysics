@@ -93,19 +93,21 @@ void actual_eos (I input, T& state)
 
     // At this point we should have valid (rho, e); compute P = P(rho, e).
 
+    Real pres, dpdr_e, dpde;
+
     if (state.rho >= eos_rho_0 || (state.rho < eos_rho_0 && state.e < eos_e_s)) {
         // Region I, II (compressed state)
 
-        state.p = P_c;
-        state.dpdr_e = cs_squared_c;
-        state.dpde = dPde_c;
+        pres = P_c;
+        dpdr_e = cs_squared_c;
+        dpde = dPde_c;
     }
     else if (state.rho < eos_rho_0 && state.e > eos_e_s_prime) {
         // Region IV (expanded state)
 
-        state.p = P_e;
-        state.dpdr_e = cs_squared_e;
-        state.dpde = dPde_e;
+        pres = P_e;
+        dpdr_e = cs_squared_e;
+        dpde = dPde_e;
     }
     else {
         // Region III (interpolate between compressed and expanded state)
@@ -114,33 +116,50 @@ void actual_eos (I input, T& state)
         Real xi_c = (state.e - eos_e_s) / denom;
         Real xi_e = (eos_e_s_prime - state.e) / denom;
 
-        state.p = P_c * xi_c + P_e * xi_e;
-        state.dpdr_e = cs_squared_c * xi_c + cs_squared_e * xi_e;
+        pres = P_c * xi_c + P_e * xi_e;
+        dpdr_e = cs_squared_c * xi_c + cs_squared_e * xi_e;
         // Note that the interpolation function depends on e, so this term
         // needs to have the derivatives of xi to be accurate.
-        state.dpde = dPde_c * xi_c + P_c / denom + dPde_e * xi_e - P_e / denom;
+        dpde = dPde_c * xi_c + P_c / denom + dPde_e * xi_e - P_e / denom;
+    }
+
+    // Pressure and pressure derivatives
+
+    if constexpr (has_pressure<T>::value) {
+        state.p = pres;
+        state.dpdr_e = dpdr_e;
+        state.dpde = dpde;
+
+        // For this EOS dpdr == dpdr_e
+
+        state.dpdr = state.dpdr_e;
+
+        // Use chain rule to get dp/dT from de/dT
+        state.dpdT = state.dpde * eos_c_v;
     }
 
     // Sound speed
 
-    state.cs = std::sqrt(state.dpdr_e);
+    if constexpr (has_pressure<T>::value) {
+        state.cs = std::sqrt(state.dpdr_e);
+    }
 
     // Compute gamma from sound speed
 
-    state.gam1 = state.cs * state.rho / state.p;
+    if constexpr (has_pressure<T>::value) {
+        state.gam1 = state.cs * state.rho / state.p;
+    }
 
     // Fill in heat capacity (c_v from provided data, c_p from c_v)
 
     state.cv = eos_c_v;
-    state.cp = state.gam1 * eos_c_v;
 
-    // For this EOS dpdr == dpdr_e
+    if constexpr (has_pressure<T>::value) {
+        state.cp = state.gam1 * eos_c_v;
+    }
 
-    state.dpdr = state.dpdr_e;
+    // de/dT == specific heat at constant volume
 
-    // For our arbitrary temperature implementation, get the corresponding temperature derivatives
-
-    state.dpdT = state.dpde * eos_c_v;
     state.dedT = eos_c_v;
 
     // Usual formula for enthalpy
