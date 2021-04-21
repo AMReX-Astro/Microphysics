@@ -12,6 +12,13 @@ const std::string eos_name = "tillotson";
 inline
 void actual_eos_init() {
 
+    // Assert that the minimum internal energy should be e_0,
+    // since this is intended to be the internal energy at 0 K.
+    // (Note that rho_0 is not the minimum density but rather just
+    // a reference density.)
+
+    EOSData::mine = eos_e_0;
+
 }
 
 template <typename I>
@@ -41,15 +48,16 @@ void actual_eos (I input, T& state)
     static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
     // First make T and e consistent with each other.
-    // We use an arbitrary expression for T; although this shouldn't be used for
-    // other physics (e.g. chemistry) it is fine for making sure that if we come
-    // in with eos_input_rt that we are consistent with eos_input_re.
+    // We assume a simple relationship between energy and temperature.
+    // Although this shouldn't be used for other physics (e.g. chemistry)
+    // it is fine for making sure that if we come in with eos_input_rt
+    // that we are consistent with eos_input_re.
 
     if (input == eos_input_re) {
-        state.T = amrex::max(state.e / eos_c_v, EOSData::mintemp);
+        state.T = amrex::max((state.e - eos_e_0) / eos_c_v, EOSData::mintemp);
     }
     else if (input == eos_input_rt) {
-        state.e = amrex::max(eos_c_v * state.T, EOSData::mine);
+        state.e = amrex::max(eos_e_0 + eos_c_v * state.T, EOSData::mine);
     }
 
     Real eta = state.rho / eos_rho_0;

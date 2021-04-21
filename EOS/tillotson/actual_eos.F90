@@ -28,6 +28,7 @@ contains
 
   subroutine actual_eos(input, state)
 
+    use amrex_error_module, only: amrex_error
     use eos_type_module, only: eos_t
 
     implicit none
@@ -36,6 +37,8 @@ contains
     type (eos_t), intent(inout) :: state
 
     ! Not implemented in Fortran
+
+    call amrex_error("No Fortran implementation for this EOS")
 
   end subroutine actual_eos
 
