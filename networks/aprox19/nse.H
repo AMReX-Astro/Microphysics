@@ -355,15 +355,11 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
         aux_source[iye] = 0.5_rt * (rho_old * dyedt_old + eos_state.rho * dyedt);
         aux_source[iabar] = (eos_state.rho * abar_out - state.y[SFX+iabar]) / dt;
-        aux_source[ibea] = (eos_state.rho * dq_out - state.y[SFX+ibea]) / dt;
+        aux_source[ibea] = (eos_state.rho * dq_out - state.y[SFX+ibea]) / dt;   // this is actually not used
 
     }
 
     // now update the aux quantities
-
-    // convert the energy to erg / cm**3
-    Real enuc  = enucdot * dt;
-
 
     // the new mass fractions are just those that come from the table
 
@@ -381,8 +377,8 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     // update the total and internal energy now
 
-    state.y[SEINT] += dt * state.ydot_a[SEINT] + rho_half * enuc;
-    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + rho_half * enuc;
+    state.y[SEINT] += dt * state.ydot_a[SEINT] + dt * rho_half * enucdot;
+    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + dt * rho_half * enucdot;
 
 }
 
