@@ -300,57 +300,67 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     state.y[SMY] += dt * state.ydot_a[SMY];
     state.y[SMZ] += dt * state.ydot_a[SMZ];
 
-    // predict the U* state with only the Ye reaction term and advection to dt/2
-
-    Real rho_half = rho_old + 0.5_rt * dt * state.ydot_a[SRHO];
-    Real rhoe_half = state.y[SEINT] + 0.5_rt * dt * state.ydot_a[SEINT];;
-
-    Real rho_aux_new[NumAux];
-    for (int n = 0; n < NumAux; n++) {
-        rho_aux_new[n] = state.y[SFX+n] + 0.5_rt * dt * state.ydot_a[SFX+n];
-    }
-
-    // override the source for Ye
-
-    rho_aux_new[iye] = state.y[SFX+iye] + 0.5_rt * dt * state.ydot_a[SFX+iye] + 0.5_rt * dt * rho_old * dyedt;
-
-    // call the EOS to get the updated T*
+    // predict the U^{n+1,*} state with only the Ye reaction term and advection to dt/2
 
     eos_re_t eos_state;
 
-    eos_state.rho = rho_half;
-    eos_state.T = 1.e6_rt;   // initial guess
-    eos_state.e = rhoe_half / rho_half;
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = rho_aux_new[n] / rho_half;
+    // initial aux_sources
+    Real aux_source[NumAux] = {0.0_rt};
+
+    aux_source[iye] = rho_old * dyedt;
+
+    Real rho_half;
+    Real rhoe_half;
+    Real rho_aux_half[NumAux];
+    Real dq;
+    Real enucdot;
+
+    for (int iter = 0; iter < 2; iter++) {
+
+        rho_half = rho_old + 0.5_rt * dt * state.ydot_a[SRHO];
+        rhoe_half = state.y[SEINT] + 0.5_rt * dt * state.ydot_a[SEINT];;
+
+        for (int n = 0; n < NumAux; n++) {
+            rho_aux_half[n] = state.y[SFX+n] + 0.5_rt * dt * state.ydot_a[SFX+n] + 0.5_rt * dt * aux_source[n];
+        }
+
+        // call the EOS to get the updated T*
+
+        eos_state.rho = rho_half;
+        eos_state.T = 1.e6_rt;   // initial guess
+        eos_state.e = rhoe_half / rho_half;
+        for (int n = 0; n < NumAux; n++) {
+            eos_state.aux[n] = rho_aux_half[n] / rho_half;
+        }
+
+        eos(eos_input_re, eos_state);
+
+        // call the NSE table using the * state to get the t^{n+1/2} source estimates
+
+        nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
+                   abar_out, dq_out, dyedt, X);
+
+        // compute the energy release
+
+        // this is MeV / nucleon * g / cm**3
+        dq = dq_out - rho_bea_old/rho_old;
+
+        // convert the energy to erg / cm**3
+        enucdot  = dq * C::MeV2eV * C::ev2erg * C::n_A / (0.5_rt * dt);
+
+        // update the aux source terms
+
+        aux_source[iye] = rho_half * dyedt;
+        aux_source[iabar] = (eos_state.rho * abar_out - state.y[SFX+iabar]) / (0.5_rt * dt);
+        aux_source[ibea] = (eos_state.rho * dq_out - state.y[SFX+ibea]) / (0.5_rt * dt);
+
     }
-
-    eos(eos_input_re, eos_state);
-
-    // call the NSE table using the * state to get the t^{n+1/2} source estimates
-
-    nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
-               abar_out, dq_out, dyedt, X);
-
-    // compute the energy release
-
-    // this is MeV / nucleon * g / cm**3
-    Real dq = dq_out - rho_bea_old/rho_old;
-
-    // convert the energy to erg / cm**3
-    Real enucdot  = dq * C::MeV2eV * C::ev2erg * C::n_A / (0.5_rt * dt);
-
-    // compute the aux source terms
-    Real aux_source[NumAux];
-
-    // construct the final U^{n+1}
-    aux_source[iye] = rho_half * dyedt;
-    aux_source[iabar] = (eos_state.rho * abar_out - state.y[SFX+iabar]) / (0.5_rt * dt);
-    aux_source[ibea] = (eos_state.rho * dq_out - state.y[SFX+ibea]) / (0.5_rt * dt);
 
     // now redo the update, starting from time n and advance to n+1 using these new sources
 
     Real rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_half * enucdot;
+
+    Real rho_aux_new[NumAux];
 
     for (int n = 0; n < NumAux; n++) {
         rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * aux_source[n];
