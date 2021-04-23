@@ -353,9 +353,9 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
         // update the aux source terms
 
-        aux_source[iye] = 0.5_rt * (rho_old * dyedt_old + eos_state.rho * dyedt);
-        aux_source[iabar] = (eos_state.rho * abar_out - state.y[SFX+iabar]) / dt;
-        aux_source[ibea] = (eos_state.rho * dq_out - state.y[SFX+ibea]) / dt;   // this is actually not used
+        aux_source[iye] = 0.5_rt * rho_half * (dyedt_old + dyedt);
+        aux_source[iabar] = rho_half * (abar_out - state.y[SFX+iabar] / rho_old) / dt;
+        aux_source[ibea] = 0.0;   // this is actually not used in the EOS
 
     }
 
