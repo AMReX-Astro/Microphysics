@@ -147,7 +147,7 @@ void actual_eos (I input, T& state)
     // Compute gamma from sound speed
 
     if constexpr (has_pressure<T>::value) {
-        state.gam1 = state.cs * state.rho / state.p;
+        state.gam1 = state.cs * state.cs * state.rho / state.p;
     }
 
     // Fill in heat capacity (c_v from provided data, c_p from c_v)
