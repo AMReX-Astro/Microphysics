@@ -77,6 +77,10 @@ typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> JacNetArray2D;
 struct burn_t
 {
 
+  // on exit, this will be set to the integration time we achieved
+
+  Real time;
+
   // this first group are the quantities the network RHS uses
 
   Real rho;
