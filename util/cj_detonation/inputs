@@ -1,5 +1,1 @@
-&probin
-
-  smallx = 1.e-10
-
-/
+amr.probin_file = probin

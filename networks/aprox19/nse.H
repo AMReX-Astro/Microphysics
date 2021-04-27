@@ -291,6 +291,8 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     nse_interp(state.T, state.rho, ye_in,
                abar_out, dq_out, dyedt, X);
 
+    Real dyedt_old = dyedt;
+
     // density and momentum have no reactive sources
     Real rho_old = state.y[SRHO];
     Real rho_bea_old = state.y[SFX+ibea];
@@ -300,50 +302,64 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     state.y[SMY] += dt * state.ydot_a[SMY];
     state.y[SMZ] += dt * state.ydot_a[SMZ];
 
-    // predict the U* state with advection and a lagged reactive term
-    // we actually only need to predict the energy and auxiliary data
-    // here, since that's all that is used (along with rho) for the
-    // equation of state.
+    // predict the U^{n+1,*} state with only estimates of the aux
+    // reaction terms and advection to dt
+
+    eos_re_t eos_state;
+    eos_state.T = 1.e6_rt; // initial guess
+
+    // initial aux_sources
+    Real aux_source[NumAux] = {0.0_rt};
+
+    aux_source[iye] = rho_old * dyedt;
+
+    Real rhoe_new;
+    Real rho_aux_new[NumAux];
+    Real dq;
+    Real enucdot = 0.0_rt;
 
     Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
 
-    Real rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * state.Iq_rhoe;
+    for (int iter = 0; iter < 3; iter++) {
 
-    Real rho_aux_new[NumAux];
-    for (int n = 0; n < NumAux; n++) {
-        rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * rho_half * state.Iq_aux[n];
+        rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_half * enucdot;
+
+        for (int n = 0; n < NumAux; n++) {
+            rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * aux_source[n];
+        }
+
+        // call the EOS to get the updated T*
+
+        eos_state.rho = state.y[SRHO];
+        eos_state.e = rhoe_new / state.y[SRHO];
+        for (int n = 0; n < NumAux; n++) {
+            eos_state.aux[n] = rho_aux_new[n] / state.y[SRHO];
+        }
+
+        eos(eos_input_re, eos_state);
+
+        // call the NSE table using the * state to get the t^{n+1} source estimates
+
+        nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
+                   abar_out, dq_out, dyedt, X);
+
+        // compute the energy release
+
+        // this is MeV / nucleon * g / cm**3
+        dq = dq_out - rho_bea_old/rho_old;
+
+        // convert the energy to erg / cm**3
+        enucdot  = dq * C::MeV2eV * C::ev2erg * C::n_A / dt;
+
+        // update the aux source terms
+
+        aux_source[iye] = 0.5_rt * rho_half * (dyedt_old + dyedt);
+        aux_source[iabar] = rho_half * (abar_out - state.y[SFX+iabar] / rho_old) / dt;
+        aux_source[ibea] = 0.0;   // this is actually not used in the EOS
+
     }
 
-    // override the source for Ye
-
-    rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * rho_half * dyedt;
-
-    // call the EOS to get the updated T*
-
-    eos_re_t eos_state;
-
-    eos_state.rho = state.y[SRHO];
-    eos_state.T = 1.e6_rt;   // initial guess
-    eos_state.e = rhoe_new / state.y[SRHO];
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = rho_aux_new[n] / state.y[SRHO];
-    }
-
-    eos(eos_input_re, eos_state);
-
-    // call the NSE table using the * state to get the t^{n+1} composition data
-
-    nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
-               abar_out, dq_out, dyedt, X);
-
-    // compute the energy release
-
-    // this is MeV / nucleon * g / cm**3
-    Real dq = dq_out - rho_bea_old/rho_old;
-
-    // convert the energy to erg / cm**3
-    Real enuc = dq * C::MeV2eV * C::ev2erg * C::n_A;
-    // construct the final U^{n+1}
+    // now update the aux quantities
 
     // the new mass fractions are just those that come from the table
 
@@ -361,8 +377,8 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     // update the total and internal energy now
 
-    state.y[SEINT] += dt * state.ydot_a[SEINT] + rho_half * enuc;
-    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + rho_half * enuc;
+    state.y[SEINT] += dt * state.ydot_a[SEINT] + dt * rho_half * enucdot;
+    state.y[SEDEN] += dt * state.ydot_a[SEDEN] + dt * rho_half * enucdot;
 
 }
 

@@ -1,3 +1,11 @@
+# 21.05
+
+   * The old gamma_law EOS was removed and gamma_law_general was
+     renamed gamma_law.  The old gamma_law EOS have a very reduced
+     subset of thermodynamic quantities that it computed, for
+     efficiency purposes.  This is no longer needed now that we have
+     templated the EOSes and have different eos_t data types.
+
 # 21.04
 
    * We added a new mechanism to recover a failed burn when the state
