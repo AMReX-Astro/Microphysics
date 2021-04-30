@@ -19,7 +19,7 @@ module reaclib_rates
   ! Reaction multiplicities-1 (how many rates contribute - 1)
   integer, allocatable :: rate_extra_mult(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: ctemp_rate, rate_start_idx, rate_extra_mult
 #endif
 
@@ -183,6 +183,9 @@ contains
 
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jhe4), aion(jhe4))
+
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      4.0_rt, 8.0_rt)
 
 
     call screening_init()
