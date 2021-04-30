@@ -1,1 +1,4 @@
 smallx     real   1.e-10
+
+small_temp    real       1.e5
+small_dens    real       1.e5

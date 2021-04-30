@@ -5,6 +5,7 @@ module actual_rhs_module
   use physical_constants, only: N_AVO
   use network
   use table_rates
+  use reaclib_rates
   use burn_type_module
 
   implicit none
@@ -24,7 +25,11 @@ module actual_rhs_module
 contains
 
   subroutine actual_rhs_init()
-    ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
+
+    call init_reaclib()
+    call init_tabular()
+    call net_screening_init()
+
     return
   end subroutine actual_rhs_init
 
@@ -73,6 +78,7 @@ contains
     real(rt) :: rhoy
     real(rt) :: rate, drate_dt, edot_nu
     real(rt) :: scor, dscor_dt, dscor_dd
+    real(rt) :: scor2, dscor2_dt, dscor2_dd
 
     !$gpu
 
@@ -94,41 +100,43 @@ contains
     if (screen_reaclib) then
 
       call screen5(pstate, 1, scor, dscor_dt, dscor_dd)
-      rate_eval % unscreened_rates(i_scor,1) = scor
-      rate_eval % unscreened_rates(i_dscor_dt,1) = dscor_dt
+
+      call screen5(pstate, 2, scor2, dscor2_dt, dscor2_dd)
+      rate_eval % unscreened_rates(i_scor,1) = scor * scor2
+      rate_eval % unscreened_rates(i_dscor_dt,1) = scor * dscor2_dt + dscor_dt * scor2
 
 
-      call screen5(pstate, 2, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 3, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,2) = scor
       rate_eval % unscreened_rates(i_dscor_dt,2) = dscor_dt
 
 
-      call screen5(pstate, 3, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 4, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,3) = scor
       rate_eval % unscreened_rates(i_dscor_dt,3) = dscor_dt
 
 
-      call screen5(pstate, 4, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 5, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,4) = scor
       rate_eval % unscreened_rates(i_dscor_dt,4) = dscor_dt
 
 
-      call screen5(pstate, 5, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 6, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,5) = scor
       rate_eval % unscreened_rates(i_dscor_dt,5) = dscor_dt
 
 
-      call screen5(pstate, 6, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 7, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,6) = scor
       rate_eval % unscreened_rates(i_dscor_dt,6) = dscor_dt
 
 
-      call screen5(pstate, 7, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 8, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,7) = scor
       rate_eval % unscreened_rates(i_dscor_dt,7) = dscor_dt
 
 
-      call screen5(pstate, 8, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 9, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,8) = scor
       rate_eval % unscreened_rates(i_dscor_dt,8) = dscor_dt
 

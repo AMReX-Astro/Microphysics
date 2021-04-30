@@ -76,6 +76,14 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_to_burn(vode_state, state);
 
+#ifdef NSE
+    // compute the temperature based on the energy release -- we need 
+    // this in case we failed in our burn here because we entered NSE
+
+    eos(eos_input_re, state);
+
+#endif
+
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
 
@@ -122,25 +130,31 @@ void actual_integrator (burn_t& state, Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
-        std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "istate = " << istate << std::endl;
-        std::cout << "time = " << vode_state.t << std::endl;
-        std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << T_in << std::endl;
-        std::cout << "xn start = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << xn_in[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "temp current = " << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << state.xn[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "energy generated = " << state.e << std::endl;
+        if (istate != -100) {
+#ifndef AMREX_USE_GPU
+            std::cout << "ERROR: integration failed in net" << std::endl;
+            std::cout << "istate = " << istate << std::endl;
+            std::cout << "time = " << vode_state.t << std::endl;
+            std::cout << "dens = " << state.rho << std::endl;
+            std::cout << "temp start = " << T_in << std::endl;
+            std::cout << "xn start = ";
+            for (int n = 0; n < NumSpec; ++n) {
+                std::cout << xn_in[n] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "temp current = " << state.T << std::endl;
+            std::cout << "xn current = ";
+            for (int n = 0; n < NumSpec; ++n) {
+                std::cout << state.xn[n] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "energy generated = " << state.e << std::endl;
 #endif
+        } else {
+#ifndef AMREX_USE_GPU
+            std::cout << "burn entered NSE during integration" << std::endl;
+#endif
+        }
     }
 
 }

@@ -35,7 +35,7 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
     // we are always integrating from t = 0, so there is no offset
     // time needed here.  The indexing of ydot_a is based on
     // the indices in burn_t and is 0-based
-    state.y[SRHO] = state.rho_orig + state.ydot_a[SRHO] * time;
+    state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
 
     // for consistency
     state.rho = state.y[SRHO];
@@ -126,6 +126,35 @@ void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
 
 }
 
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void renormalize_species(burn_t& state)
+{
+
+    // Constrain the partial densities in burn_t state to sum to the 
+    // density.
+    //
+    // This is meant to be used upon exit, and we assume that
+    // vode_to_burn was already called
+
+#ifdef SDC_EVOLVE_ENERGY
+
+    // we have state.y[SRHO] to constrain to
+
+    Real rhoX_sum = 0.0_rt;
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
+        rhoX_sum += state.y[SFS+n];
+    }
+    rhoX_sum /= state.y[SRHO];
+
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] /= rhoX_sum;
+    }
+
+#endif
+
+}
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
@@ -231,6 +260,8 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     // this makes burn_t represent the current integration state.  The
     // main thing this really does is compute the current temperature
 
+    state.time = time;
+
     for (int n = 0; n < SVAR_EVOLVE; n++) {
         // note vode_state uses 1-based indexing
         state.y[n] = vode_state.y(n+1);
@@ -243,7 +274,11 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
     Real rhoInv = 1.0_rt / state.rho;
 
+#if defined(SDC_EVOLVE_ENERGY)
     eos_re_t eos_state;
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    eos_t eos_state;
+#endif
     eos_state.rho = state.rho;
     for (int n = 0; n < NumSpec; n++) {
         // vode_state uses 1-based indexing
@@ -282,15 +317,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
 #endif
 
-    // Give the temperature an initial guess -- use the geometric mean
-    // of the minimum and maximum temperatures.
-
-    // TODO: we should just change this to use state.T
-
-    Real min_temp = EOSData::mintemp;
-    Real max_temp = EOSData::maxtemp;
-
-    eos_state.T = std::sqrt(min_temp * max_temp);
+    eos_state.T = state.T;  // initial guess
 
 #if defined(SDC_EVOLVE_ENERGY)
     eos(eos_input_re, eos_state);
