@@ -5,6 +5,7 @@ module actual_rhs_module
   use physical_constants, only: N_AVO
   use network
   use table_rates
+  use reaclib_rates
   use burn_type_module
 
   implicit none
@@ -24,7 +25,11 @@ module actual_rhs_module
 contains
 
   subroutine actual_rhs_init()
-    ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
+
+    call init_reaclib()
+    call init_tabular()
+    call net_screening_init()
+
     return
   end subroutine actual_rhs_init
 
@@ -73,6 +78,7 @@ contains
     real(rt) :: rhoy
     real(rt) :: rate, drate_dt, edot_nu
     real(rt) :: scor, dscor_dt, dscor_dd
+    real(rt) :: scor2, dscor2_dt, dscor2_dd
 
     !$gpu
 
@@ -158,8 +164,10 @@ contains
 
 
       call screen5(pstate, 13, scor, dscor_dt, dscor_dd)
-      rate_eval % unscreened_rates(i_scor,19) = scor
-      rate_eval % unscreened_rates(i_dscor_dt,19) = dscor_dt
+
+      call screen5(pstate, 14, scor2, dscor2_dt, dscor2_dd)
+      rate_eval % unscreened_rates(i_scor,19) = scor * scor2
+      rate_eval % unscreened_rates(i_dscor_dt,19) = scor * dscor2_dt + dscor_dt * scor2
 
     end if
 
