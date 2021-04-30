@@ -81,7 +81,7 @@ void numerical_jac(burn_t& state, const jac_info_t jac_info, JacNetArray2D& jac)
         // perturb species -- we send in X, but ydot is in terms
         // of dY/dt, not dX/dt
 
-        Real yj = state.xn[n-1];
+        Real yj = state_delp.xn[n-1];
 
         w = rtol_spec * std::abs(yj) + atol_spec;
 
@@ -103,7 +103,7 @@ void numerical_jac(burn_t& state, const jac_info_t jac_info, JacNetArray2D& jac)
             jac(m, n) = (ydotp(m) - ydotm(m)) / dy;
         }
 
-        state.xn[n-1] = yj;
+        state_delp.xn[n-1] = yj;
     }
 
     // e derivative
