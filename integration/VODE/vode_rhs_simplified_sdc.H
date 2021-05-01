@@ -73,6 +73,21 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         numerical_jac(state, jac_react);
     } else {
         actual_jac(state, jac_react);
+
+        // The Jacobian from the nets is in terms of dYdot/dY, but we want
+        // it was dXdot/dX, so convert here.
+        for (int n = 1; n <= NumSpec; n++) {
+            for (int m = 1; m <= neqs; m++) {
+                jac_react(n,m) = jac_react(n,m) * aion[n-1];
+            }
+        }
+
+        for (int m = 1; m <= neqs; m++) {
+            for (int n = 1; n <= NumSpec; n++) {
+                jac_react(m,n) = jac_react(m,n) * aion_inv[n-1];
+            }
+        }
+
     }
 
     // apply fudge factor:
