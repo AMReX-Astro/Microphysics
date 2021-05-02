@@ -48,20 +48,6 @@ void jac_to_vode(const Real time, burn_t& state,
     // network variables, X, T. e.  It does not have derivatives with
     // respect to density, so we'll have to compute those ourselves.
 
-    // The Jacobian from the nets is in terms of dYdot/dY, but we want
-    // it was dXdot/dX, so convert here.
-    for (int n = 1; n <= NumSpec; n++) {
-        for (int m = 1; m <= neqs; m++) {
-            jac_react(n,m) = jac_react(n,m) * aion[n-1];
-        }
-    }
-
-    for (int m = 1; m <= neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
-            jac_react(m,n) = jac_react(m,n) * aion_inv[n-1];
-        }
-    }
-
     // also fill the ydot
     YdotNetArray1D ydot;
     vode_to_burn(time, vode_state, state);
