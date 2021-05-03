@@ -260,6 +260,8 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     // this makes burn_t represent the current integration state.  The
     // main thing this really does is compute the current temperature
 
+    state.time = time;
+
     for (int n = 0; n < SVAR_EVOLVE; n++) {
         // note vode_state uses 1-based indexing
         state.y[n] = vode_state.y(n+1);
@@ -315,15 +317,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
 #endif
 
-    // Give the temperature an initial guess -- use the geometric mean
-    // of the minimum and maximum temperatures.
-
-    // TODO: we should just change this to use state.T
-
-    Real min_temp = EOSData::mintemp;
-    Real max_temp = EOSData::maxtemp;
-
-    eos_state.T = std::sqrt(min_temp * max_temp);
+    eos_state.T = state.T;  // initial guess
 
 #if defined(SDC_EVOLVE_ENERGY)
     eos(eos_input_re, eos_state);
