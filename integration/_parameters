@@ -1,4 +1,4 @@
-namespace: integrator
+@namespace: integrator
 
 # these are the parameters for the integration module
 
