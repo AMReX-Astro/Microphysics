@@ -8,9 +8,6 @@
 atol_spec                real      1.0e-11 100
 rtol_spec                real      1.0e-12 100
 
-atol_temp                real      1.0e-8  100
-rtol_temp                real      1.0e-8  100
-
 atol_enuc                real      1.0e-8  100
 rtol_enuc                real      1.0e-8  100
 
