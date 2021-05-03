@@ -437,7 +437,7 @@ so :math:`10^{-9}` should be used as the default tolerance in future simulations
    to a run with an ODE tolerance of :math:`10^{-12}`.
 
 The integration tolerances for the burn are controlled by
-``rtol_spec``, ``rtol_enuc``, and ``rtol_temp``,
+``rtol_spec`` and  ``rtol_enuc``,
 which are the relative error tolerances for
 :eq:`eq:spec_integrate`, :eq:`eq:enuc_integrate`, and
 :eq:`eq:temp_integrate`, respectively. There are corresponding
