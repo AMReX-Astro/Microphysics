@@ -21,8 +21,6 @@ contains
     real(rt)        , intent(in   ) :: t9
     type (temp_t), intent(out) :: tfactors
 
-    !$gpu
-
     tfactors%t9 = t9
     tfactors%t9i = 1.e0_rt / tfactors%t9
     tfactors%t9i13 = tfactors%t9i**THIRD

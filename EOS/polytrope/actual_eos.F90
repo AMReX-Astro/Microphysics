@@ -98,8 +98,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
   end subroutine is_input_valid
@@ -148,8 +146,6 @@ contains
 
     ! Local variables
     real(rt)         :: dens, temp, enth, pres, eint, entr
-
-    !$gpu
 
     dens = state % rho
     temp = state % T

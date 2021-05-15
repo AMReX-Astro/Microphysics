@@ -54,8 +54,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
     if (input == eos_input_th) then
@@ -78,8 +76,6 @@ contains
     real(rt)        , parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5e0_rt
 
     real(rt)         :: Tinv, rhoinv
-
-    !$gpu
 
     ! Calculate mu.
     

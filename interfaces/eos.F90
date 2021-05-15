@@ -133,8 +133,6 @@ contains
 
     logical :: has_been_reset, use_composition_routine
 
-    !$gpu
-
     ! Local variables
 
 #ifndef AMREX_USE_GPU
@@ -253,8 +251,6 @@ contains
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
 
-    !$gpu
-
     ! Reset the input quantities to valid values. For inputs other than rho and T,
     ! this will evolve an EOS call, which will negate the need to do the main EOS call.
 
@@ -315,8 +311,6 @@ contains
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
 
-    !$gpu
-
     state % rho = min(maxdens, max(mindens, state % rho))
 
   end subroutine reset_rho
@@ -334,8 +328,6 @@ contains
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
 
-    !$gpu
-
     state % T = min(maxtemp, max(mintemp, state % T))
 
   end subroutine reset_T
@@ -350,8 +342,6 @@ contains
 
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
-
-    !$gpu
 
     if (state % e .lt. mine .or. state % e .gt. maxe) then
        call eos_reset(state, has_been_reset)
@@ -370,8 +360,6 @@ contains
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
 
-    !$gpu
-
     if (state % h .lt. minh .or. state % h .gt. maxh) then
        call eos_reset(state, has_been_reset)
     endif
@@ -389,8 +377,6 @@ contains
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
 
-    !$gpu
-
     if (state % s .lt. mins .or. state % s .gt. maxs) then
        call eos_reset(state, has_been_reset)
     endif
@@ -407,8 +393,6 @@ contains
 
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
-
-    !$gpu
 
     if (state % p .lt. minp .or. state % p .gt. maxp) then
        call eos_reset(state, has_been_reset)
@@ -430,8 +414,6 @@ contains
 
     type (eos_t), intent(inout) :: state
     logical,      intent(inout) :: has_been_reset
-
-    !$gpu
 
     state % T = min(maxtemp, max(mintemp, state % T))
     state % rho = min(maxdens, max(mindens, state % rho))

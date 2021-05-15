@@ -69,8 +69,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
     if (input == eos_input_ps .or. &
@@ -95,8 +93,6 @@ contains
 
     ! Get the mass of a nucleon from Avogadro's number.
     real(rt)        , parameter :: m_nucleon = ONE / n_A
-
-    !$gpu
 
     ! Special gamma factors
 

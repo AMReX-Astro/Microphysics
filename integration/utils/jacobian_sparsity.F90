@@ -26,8 +26,6 @@ contains
 
     integer :: num_in_row, row_start_loc, row_end_loc, i
 
-    !$gpu
-
     ! Looks up the index into a CSR-formatted Jacobian
     ! matrix given row and col indices into the
     ! equivalent dense matrix.
@@ -58,8 +56,6 @@ contains
 
     integer :: csr_loc
 
-    !$gpu
-
     ! Get index into the CSR Jacobian
     call lookup_csr_jac_loc(row, col, csr_loc)
 
@@ -86,8 +82,6 @@ contains
     real(rt), intent(in) :: val
 
     integer :: csr_loc
-
-    !$gpu
 
     ! Get index into the CSR Jacobian
     call lookup_csr_jac_loc(row, col, csr_loc)
@@ -118,8 +112,6 @@ contains
 
     integer :: csr_loc
 
-    !$gpu
-
     ! Get index into the CSR Jacobian
     call lookup_csr_jac_loc(row, col, csr_loc)
 
@@ -149,8 +141,6 @@ contains
     integer, intent(in) :: row, col
     real(rt), intent(in) :: val
 
-    !$gpu
-
 #ifdef REACT_SPARSE_JACOBIAN
     call set_csr_jac_entry(jac, row, col, val)
 #else
@@ -175,8 +165,6 @@ contains
     integer, intent(in) :: row, col
     real(rt), intent(in) :: val
 
-    !$gpu
-
 #ifdef REACT_SPARSE_JACOBIAN
     call scale_csr_jac_entry(jac, row, col, val)
 #else
@@ -200,8 +188,6 @@ contains
     integer, intent(in) :: row, col
     real(rt), intent(out) :: val
 
-    !$gpu
-
 #ifdef REACT_SPARSE_JACOBIAN
     call get_csr_jac_entry(jac, row, col, val)
 #else
@@ -224,8 +210,6 @@ contains
 #else
     real(rt), intent(inout) :: jac(neqs, neqs)
 #endif
-
-    !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
     jac(:) = ZERO

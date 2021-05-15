@@ -111,8 +111,6 @@ contains
 
     real(rt)        , parameter :: q1 = 1.0e0_rt/12.222016e0_rt
 
-    !$gpu
-
     ! c12(a,g)o16
     aa   = 1.0e0_rt + 0.0489e0_rt*tf%t9i23
     daa  = -twoth*0.0489e0_rt*tf%t9i53
@@ -189,8 +187,6 @@ contains
                         term_nr,term_r,dterm_nr,dterm_r,  &
                         term,dtermdt,rev,drevdt
 
-    !$gpu
-    
     ! from Table XXVI of deboer + 2017
     ! non-resonant contributions to the reaction
     a0_nr = 24.1e0_rt
@@ -295,8 +291,6 @@ contains
     real(rt)        , parameter :: q1     = 1.0e0_rt/0.009604e0_rt
     real(rt)        , parameter :: q2     = 1.0e0_rt/0.055225e0_rt
 
-    !$gpu
-
     ! triple alfa to c12
     ! this is a(a,g)be8
     aa    = 7.40e+05_rt * tf%t9i32 * exp(-1.0663_rt*tf%t9i)
@@ -393,8 +387,6 @@ contains
     real(rt)         :: term,dtermdt,t9a,dt9a,t9a13,dt9a13,t9a56,dt9a56, &
                         aa,zz
 
-    !$gpu
-
     ! c12 + c12 reaction
     aa      = 1.0e0_rt + 0.0396_rt*tf%t9
     zz      = 1.0e0_rt/aa
@@ -436,8 +428,6 @@ contains
 
     real(rt)         :: term,dtermdt,t9a,dt9a,t9a13,dt9a13,t9a23,dt9a23, &
                         t9a56,dt9a56,aa,daa,bb,dbb,cc,dcc,zz
-
-    !$gpu
 
     ! c12 + o16 reaction; see cf88 references 47-4
     if (tf%t9.ge.0.5_rt) then
@@ -500,8 +490,6 @@ contains
 
     real(rt)         :: term,dtermdt
 
-    !$gpu
-
     ! o16 + o16
     term  = 7.10e36_rt * tf%t9i23 * &
          exp(-135.93_rt * tf%t9i13 - 0.629_rt*tf%t923 &
@@ -536,8 +524,6 @@ contains
                         cc,dcc,term2,dterm2,rev,drevdt
 
     real(rt)        , parameter :: q1 = 1.0e0_rt/2.515396e0_rt
-
-    !$gpu
 
     ! o16(a,g)ne20
     term1   = 9.37e9_rt * tf%t9i23 * exp(-39.757_rt*tf%t9i13 - tf%t92*q1)
@@ -587,8 +573,6 @@ contains
 
     real(rt)        , parameter :: rc102 = 0.1e0_rt
     real(rt)        , parameter :: q1    = 1.0e0_rt/4.923961e0_rt
-
-    !$gpu
 
     ! ne20(a,g)mg24
     aa   = 4.11e+11_rt * tf%t9i23 * exp(-46.766_rt*tf%t9i13 - tf%t92*q1)
@@ -662,8 +646,6 @@ contains
 
     real(rt)        , parameter :: rc121 = 0.1e0_rt
 
-    !$gpu
-
     ! 24mg(a,g)28si
     aa    = 4.78e+01_rt * tf%t9i32 * exp(-13.506_rt*tf%t9i)
     daa   = aa*(-1.5e0_rt*tf%t9i + 13.506_rt*tf%t9i2)
@@ -722,8 +704,6 @@ contains
 
     real(rt)        , parameter :: rc148 = 0.1e0_rt
     real(rt)        , parameter :: q1    = 1.0e0_rt/0.024649e0_rt
-
-    !$gpu
 
     ! 24mg(a,p)al27
     aa     = 1.10e+08_rt * tf%t9i23 * exp(-23.261_rt*tf%t9i13 - tf%t92*q1)
@@ -791,8 +771,6 @@ contains
     real(rt)         :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb,cc,dcc, &
                         dd,ddd,ee,dee,ff,dff,gg,dgg
 
-    !$gpu
-
     ! al27(p,g)si28
     ! champagne 1996
 
@@ -850,8 +828,6 @@ contains
 
     real(rt)        , parameter :: rc147 = 0.1e0_rt
     real(rt)        , parameter :: q1    = 1.0e0_rt/0.024025e0_rt
-
-    !$gpu
 
     ! 27al(p,g)si28  cf88
     aa  = 1.67e+08_rt * tf%t9i23 * exp(-23.261_rt*tf%t9i13 - tf%t92*q1)
@@ -919,8 +895,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! si28(a,g)s32
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -959,8 +933,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! si28(a,p)p31
     z     = min(tf%t9,10.0e0_rt)
@@ -1002,8 +974,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! p31(p,g)s32
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1043,8 +1013,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! s32(a,g)ar36
     z     = min(tf%t9,10.0e0_rt)
@@ -1086,8 +1054,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! s32(a,p)cl35
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1128,8 +1094,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt
 
-    !$gpu
-
     ! cl35(p,g)ar36
     aa    = 1.0e0_rt + 1.761e-1_rt*tf%t9 - 1.322e-2_rt*tf%t92 + 5.245e-4_rt*tf%t93
     daa   = 1.761e-1_rt - 2.0e0_rt*1.322e-2_rt*tf%t9 + 3.0e0_rt*5.245e-4_rt*tf%t92
@@ -1162,8 +1126,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! ar36(a,g)ca40
     z     = min(tf%t9,10.0e0_rt)
@@ -1205,8 +1167,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! ar36(a,p)k39
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1246,8 +1206,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! k39(p,g)ca40
     z     = min(tf%t9,10.0e0_rt)
@@ -1289,8 +1247,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! ca40(a,g)ti44
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1330,8 +1286,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! ca40(a,p)sc43
     z     = min(tf%t9,10.0e0_rt)
@@ -1373,8 +1327,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! sc43(p,g)ca40
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1414,8 +1366,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! ti44(a,g)cr48
     z     = min(tf%t9,10.0e0_rt)
@@ -1457,8 +1407,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! ti44(a,p)v47
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1498,8 +1446,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! v47(p,g)cr48
     z     = min(tf%t9,10.0e0_rt)
@@ -1541,8 +1487,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! cr48(a,g)fe52
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1582,8 +1526,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! cr48(a,p)mn51
     z     = min(tf%t9,10.0e0_rt)
@@ -1625,8 +1567,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! mn51(p,g)fe52
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1666,8 +1606,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! fe52(a,g)ni56
     z     = min(tf%t9,10.0e0_rt)
@@ -1709,8 +1647,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
 
-    !$gpu
-
     ! fe52(a,p)co55
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -1750,8 +1686,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,aa,daa,rev,drevdt,z,z2,z3
-
-    !$gpu
 
     ! co55(p,g)ni56
     z     = min(tf%t9,10.0e0_rt)
@@ -1793,8 +1727,6 @@ contains
 
     real(rt)         :: term,dtermdt,aa,daa,bb,dbb
 
-    !$gpu
-
     ! p(p,e+nu)d
     if (tf%t9 .le. 3.0_rt) then
        aa   = 4.01e-15_rt * tf%t9i23 * exp(-3.380e0_rt*tf%t9i13)
@@ -1832,8 +1764,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,rev,drevdt,aa,daa
-
-    !$gpu
 
     ! p(n,g)d
     ! smith,kawano,malany 1992
@@ -1884,8 +1814,6 @@ contains
 
     real(rt)         :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb
 
-    !$gpu
-
     ! d(p,g)he3
     aa      = 2.24e+03_rt * tf%t9i23 * exp(-3.720_rt*tf%t9i13)
     daa     = aa*(-twoth*tf%t9i + oneth*3.720_rt*tf%t9i43)
@@ -1922,8 +1850,6 @@ contains
 
     real(rt)         :: term,dtermdt,rev,drevdt
 
-    !$gpu
-
     ! he3(n,g)he4
     term    = 6.62_rt * (1.0e0_rt + 905.0_rt*tf%t9)
     dtermdt = 5.9911e3_rt
@@ -1952,8 +1878,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb
-
-    !$gpu
 
     ! he3(he3,2p)he4
     aa   = 6.04e+10_rt * tf%t9i23 * exp(-12.276_rt*tf%t9i13)
@@ -1992,8 +1916,6 @@ contains
 
     real(rt)         :: term,dtermdt,rev,drevdt,aa,daa,t9a,dt9a, &
                         t9a13,dt9a13,t9a56,dt9a56,zz
-
-    !$gpu
 
     ! he3(he4,g)be7
     aa      = 1.0e0_rt + 0.0495_rt*tf%t9
@@ -2041,8 +1963,6 @@ contains
                         cc,dcc,dd,ddd,ee,dee
 
     real(rt)        , parameter :: q1 = 1.0e0_rt/2.25e0_rt
-
-    !$gpu
 
     ! c12(p,g)13n
     aa   = 2.04e+07_rt * tf%t9i23 * exp(-13.69_rt*tf%t9i13 - tf%t92*q1)
@@ -2093,8 +2013,6 @@ contains
 
     real(rt)        , parameter :: q1 = 1.0e0_rt/10.850436e0_rt
 
-    !$gpu
-
     ! n14(p,g)o15
     aa  = 4.90e+07_rt * tf%t9i23 * exp(-15.228_rt*tf%t9i13 - tf%t92*q1)
     daa = aa*(-twoth*tf%t9i + oneth*15.228_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
@@ -2143,8 +2061,6 @@ contains
                         cc,dcc,dd,ddd,ee,dee,ff,dff
 
     real(rt)        , parameter :: q1 = 1.0e0_rt/0.2025e0_rt
-
-    !$gpu
 
     ! n15(p,g)o16
     aa  = 9.78e+08_rt * tf%t9i23 * exp(-15.251_rt*tf%t9i13 - tf%t92*q1)
@@ -2199,8 +2115,6 @@ contains
     real(rt)        , parameter :: theta = 0.1e0_rt
     real(rt)        , parameter :: q1    = 1.0e0_rt/0.272484e0_rt
 
-    !$gpu
-
     ! n15(p,a)c12
     aa  = 1.08e+12_rt*tf%t9i23*exp(-15.251_rt*tf%t9i13 - tf%t92*q1)
     daa = aa*(-twoth*tf%t9i + oneth*15.251_rt*tf%t9i43 - 2.0e0_rt*tf%t9*q1)
@@ -2254,8 +2168,6 @@ contains
     real(rt)         :: term,dtermdt,rev,drevdt,aa,daa,bb,dbb, &
                         cc,dcc,dd,ddd,ee,dee,zz
 
-    !$gpu
-
     ! o16(p,g)f17
     aa  = exp(-0.728_rt*tf%t923)
     daa = -twoth*aa*0.728_rt*tf%t9i13
@@ -2304,8 +2216,6 @@ contains
                         cc,dcc,dd,ddd,ee,dee,ff,dff
 
     real(rt)        , parameter :: q1 = 1.0e0_rt/0.776161e0_rt
-
-    !$gpu
 
     ! n14(a,g)f18
     aa  = 7.78e+09_rt * tf%t9i23 * exp(-36.031_rt*tf%t9i13- tf%t92*q1)
@@ -2356,8 +2266,6 @@ contains
 
     real(rt)         :: term,dtermdt,rev,drevdt,tq2
 
-    !$gpu
-
     ! fe52(n,g)fe53
     tq2     = tf%t9 - 0.348e0_rt
     term    = 9.604e+05_rt * exp(-0.0626_rt*tq2)
@@ -2387,8 +2295,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: term,dtermdt,rev,drevdt,tq1,tq10,dtq10,tq2
-
-    !$gpu
 
     ! fe53(n,g)fe54
     tq1   = tf%t9/0.348_rt
@@ -2423,8 +2329,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: aa, daa, bb, dbb, term, dtermdt
-
-    !$gpu
 
     ! fe54(n,g)fe55
     aa   =  2.307390e+01_rt - 7.931795e-02_rt * tf%t9i + 7.535681e+00_rt * tf%t9i13 &
@@ -2469,8 +2373,6 @@ contains
 
     real(rt)         :: term,dtermdt,rev,drevdt,aa,daa,z,z2,z3
 
-    !$gpu
-
     ! fe54(p,g)co55
     z     = min(tf%t9,10.0e0_rt)
     z2    = z*z
@@ -2511,8 +2413,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: aa,daa,bb,dbb,term,dtermdt
-
-    !$gpu
 
     ! fe54(a,p)co57
     aa   =  3.97474900e+01_rt - 6.06543100e+00_rt * tf%t9i + 1.63239600e+02_rt * tf%t9i13 &
@@ -2557,8 +2457,6 @@ contains
 
     real(rt)         :: aa,daa,bb,dbb,term,dtermdt
 
-    !$gpu
-
     ! fe55(n,g)fe56
     aa   =  1.954115e+01_rt - 6.834029e-02_rt * tf%t9i + 5.379859e+00_rt * tf%t9i13 &
          - 8.758150e+00_rt * tf%t913 + 5.285107e-01_rt * tf%t9 - 4.973739e-02_rt  * tf%t953 &
@@ -2602,8 +2500,6 @@ contains
     type (tf_t)      :: tf
 
     real(rt)         :: aa,daa,bb,dbb,term,dtermdt
-
-    !$gpu
 
     ! fe56(p,g)co57
 
@@ -2662,8 +2558,6 @@ contains
     real(rt)         :: rnt(2),rne(2,14),t9,r,rfm,rf0, &
                         rf1,rf2,dfacm,dfac0,dfac1,dfac2, &
                         tfm,tf0,tf1,tf2,tfacm,tfac0,tfac1,tfac2
-
-    !$gpu
 
     ! calculate ni56 electron capture and neutrino loss rates
     rn56ec = 0.0_rt
@@ -2752,8 +2646,6 @@ contains
     real(rt)         third,sixth
     parameter        (third = 1.0e0_rt/3.0e0_rt, &
          sixth = 1.0e0_rt/6.0e0_rt)
-
-    !$gpu
 
     ! tmean and qndeca are the mean lifetime and decay energy of the neutron
     ! xmp,xnp are masses of the p and n in grams.

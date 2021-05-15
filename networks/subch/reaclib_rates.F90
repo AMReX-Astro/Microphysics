@@ -119,8 +119,6 @@ contains
     real(rt) :: ri, T9, T9_exp, lnirate, irate, dirate_dt, dlnirate_dt
     integer :: i, j, m, istart
 
-    !$gpu
-
     ri = 0.0e0_rt
     rate = 0.0e0_rt
     drate_dt = 0.0e0_rt
