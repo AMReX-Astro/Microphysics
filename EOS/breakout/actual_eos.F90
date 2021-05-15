@@ -42,8 +42,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
     if (input == eos_input_rh .or. &
@@ -68,8 +66,6 @@ contains
     real(rt)        , parameter :: R = k_B*n_A
 
     real(rt)         :: poverrho
-
-    !$gpu
 
     ! Calculate mu.
 

@@ -48,8 +48,6 @@ contains
 
     real(rt)         :: y(nspec)
 
-    !$gpu
-
     call evaluate_rates(state, rr)
 
 
@@ -138,8 +136,6 @@ contains
     real(rt)         :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
     real(rt)         :: cInv, scratch, scratch2
-
-    !$gpu
 
     call evaluate_rates(state, rr)
 
@@ -235,8 +231,6 @@ contains
     integer :: jscr
     type(plasma_state) :: pstate
 
-    !$gpu
-
     temp = state % T
     dens = state % rho
 
@@ -290,8 +284,6 @@ contains
     implicit none
 
     real(rt)         :: dydt, enuc
-
-    !$gpu
 
     ! This is basically e = m c**2
 

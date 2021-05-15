@@ -91,8 +91,6 @@ contains
 
     real(rt)         :: y(nspec)
 
-    !$gpu
-
     call evaluate_rates(state, rr)
 
     rho  = state % rho
@@ -154,8 +152,6 @@ contains
 
     real(rt)         :: rho, temp, abar, zbar, scratch
     real(rt)         :: y(nspec), yderivs(nspec)
-
-    !$gpu
 
     call set_jac_zero(jac)
 
@@ -232,8 +228,6 @@ contains
 
     real(rt)         :: y(nspec)
 
-    !$gpu
-
     rho  = state % rho
     temp = state % T
     abar = state % abar
@@ -269,8 +263,6 @@ contains
     real(rt)         :: alfa, beta, gama, delt
 
     real(rt)         :: dtab(nrates)
-
-    !$gpu
 
     ! Set the density dependence array
 
@@ -495,8 +487,6 @@ contains
 
     logical          :: for_jacobian_tderiv
     integer          :: index_rate
-
-    !$gpu
 
     if (for_jacobian_tderiv) then
        index_rate = 2
@@ -939,8 +929,6 @@ contains
     real(rt)         :: dratedd1, dratedd2
     type (tf_t)      :: tf
 
-    !$gpu
-
     do i=1,nrates
        rr % rates(1,i) = ZERO
        rr % rates(2,i) = ZERO
@@ -1147,8 +1135,6 @@ contains
     real(rt)         :: ratraw
 
     type (plasma_state) :: state
-
-    !$gpu
 
     ! Set up the state data, which is the same for all screening factors.
 
@@ -1744,8 +1730,6 @@ contains
 
     real(rt)         :: b(30)
 
-    !$gpu
-
     ! he4 jacobian elements
     ! d(he4)/d(he4)
     b(1)  = -1.5e0_rt * y(ihe4) * y(ihe4) * rr % rates(1,ir3a)
@@ -2235,8 +2219,6 @@ contains
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
-
-    !$gpu
 
     ! This is basically e = m c**2
 

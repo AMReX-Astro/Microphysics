@@ -58,8 +58,6 @@ contains
 
     real(rt)         :: y(nspec), r1(nrates), r2(nrates)
 
-    !$gpu
-
     deriva = .false.
 
     call evaluate_rates(state, rr)
@@ -121,8 +119,6 @@ contains
 
     real(rt)         :: rho, temp, abar, zbar
     real(rt)         :: y(nspec), r1(nrates), r2(nrates), r3(nrates), spec_jac(nspec,nspec)
-
-    !$gpu
 
     deriva = .true.
 
@@ -193,8 +189,6 @@ contains
 
     real(rt)         :: y(nspec)
 
-    !$gpu
-
     ! Get the data from the state
 
     rho  = state % rho
@@ -243,8 +237,6 @@ contains
     ! local variables
 
     real(rt)         :: a(20)
-
-    !$gpu
 
     dydt(1:nspec) = ZERO
 
@@ -793,8 +785,6 @@ contains
     !real(rt)         :: dtotdd
     type (tf_t)      :: tf
 
-    !$gpu
-
     do i=1,nrates
        ratraw(i)    = ZERO
        dratrawdt(i) = ZERO
@@ -1082,8 +1072,6 @@ contains
 
     real(rt)         :: xx, spen, snep
 
-    !$gpu
-
     ! initialize
     ratraw(irpen)      = 0.0e0_rt
     dratrawdt(irpen)   = 0.0e0_rt
@@ -1132,8 +1120,6 @@ contains
     !real(rt)         :: sc3add, denomdd
 
     type (plasma_state) :: state
-
-    !$gpu
 
     ! initialize
     do i = 1, nrates
@@ -2011,8 +1997,6 @@ contains
 
     real(rt)         :: b(30)
 
-    !$gpu
-
     ! h1 jacobian elements
     ! d(h1)/d(h1)
     b(1) = -3.0e0_rt * y(ih1)  * ratdum(irpp)
@@ -2717,8 +2701,6 @@ contains
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
-
-    !$gpu
 
     ! This is basically e = m c**2
 

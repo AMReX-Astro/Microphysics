@@ -160,8 +160,6 @@ contains
     integer, intent(out) :: index
     integer :: n, i, j, nup, ndn
 
-    !$gpu
-
     n = size(vector)
     if ( fvar .lt. vector(1) ) then
        index = 1
@@ -199,8 +197,6 @@ contains
     real(rt), intent(in)  :: xlo, xhi, flo, fhi, x
     real(rt), intent(out) :: f
 
-    !$gpu
-
     if ( x .le. xlo ) then
        f = flo
     else if ( x .ge. xhi ) then
@@ -222,8 +218,6 @@ contains
     ! If x <= xlo or x >= xhi, f(x) is extrapolated at x
     real(rt), intent(in)  :: xlo, xhi, flo, fhi, x
     real(rt), intent(out) :: f
-
-    !$gpu
 
     f = ( flo * ( xhi - x ) + fhi * ( x - xlo ) ) / ( xhi - xlo )
   end subroutine bl_extrap
@@ -248,8 +242,6 @@ contains
     real(rt) :: temp_lo, temp_hi, rhoy_lo, rhoy_hi
     integer :: irhoy_lo, irhoy_hi, itemp_lo, itemp_hi
     integer :: ivar
-
-    !$gpu
 
     ! Get box-corner points for interpolation
     ! This deals with out-of-range inputs via linear extrapolation
@@ -347,8 +339,6 @@ contains
     real(rt), intent(out)   :: rate, drate_dt, edot_nu
 
     real(rt) :: entries(num_vars+add_vars)
-
-    !$gpu
 
     ! Get the table entries at this rhoy, temp
     call get_entries(rate_table, rhoy_table, temp_table, &

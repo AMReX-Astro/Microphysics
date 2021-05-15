@@ -236,8 +236,6 @@ contains
     real(rt)         :: pp, qq, dppdt, xni
 !    real(rt)         :: dppdd
 
-    !$gpu
-
     abar   = ONE / sum(y)
     zbar   = sum(zion * y) * abar
     z2bar  = sum(zion**2 * y) * abar
@@ -319,8 +317,6 @@ contains
 !    real(rt)         :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
 !    real(rt)         :: dh12dd,dh12wdd,dh12xdd,alph12dd
 !    real(rt)         :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
-
-    !$gpu
 
     ! Get the ion data based on the input index
 

@@ -48,8 +48,6 @@ contains
                      THREE_HALVES = THREE * HALF, &
                      T2T9         = 1.0e-9_rt
 
-    !$gpu
-
     t9r   = temp * T2T9
     t9r32 = t9r**THREE_HALVES
     t9ri  = ONE / t9r

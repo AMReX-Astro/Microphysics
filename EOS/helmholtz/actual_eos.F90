@@ -106,8 +106,6 @@ contains
     integer :: var, dvar, var1, var2, iter
     real(rt)         :: v_want, v1_want, v2_want
 
-    !$gpu
-
     ! Initial setup for iterations.
 
     call prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2)
@@ -184,8 +182,6 @@ contains
     real(rt)         :: xt, xd, mxt, mxd
     real(rt)         :: fi(36)
     real(rt)         :: wdt(16), sit(6), sid(6), dsit(6), dsid(6), fwtr(6), ddsit(6)
-
-    !$gpu
 
     !..assume complete ionization
     ytot1 = 1.0e0_rt / state % abar
@@ -454,8 +450,6 @@ contains
     real(rt)        , parameter :: sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h)
     real(rt)        , parameter :: kergavo = kerg * avo_eos
 
-    !$gpu
-
     deni = 1.0e0_rt / state % rho
     tempi = 1.0e0_rt / state % T
 
@@ -554,8 +548,6 @@ contains
     real(rt)        , parameter :: asol    = 4.0e0_rt * ssol / clight
     real(rt)        , parameter :: asoli3  = asol/3.0e0_rt
 
-    !$gpu
-    
     deni = 1.0e0_rt / state % rho
     tempi = 1.0e0_rt / state % T
 
@@ -667,8 +659,6 @@ contains
     real(rt)        , parameter :: onethird = 1.0e0_rt/3.0e0_rt
     real(rt)        , parameter :: forth = 4.0e0_rt/3.0e0_rt
     real(rt)        , parameter :: pi    = 3.1415926535897932384e0_rt
-
-    !$gpu
 
     pcoul    = ZERO
     dpcouldd = ZERO
@@ -866,8 +856,6 @@ contains
     real(rt)        , intent(inout) :: v_want, v1_want, v2_want
     integer,          intent(inout) :: var, dvar, var1, var2
 
-    !$gpu
-
     single_iter = .true.
 
     if (input .eq. eos_input_rt) then
@@ -938,8 +926,6 @@ contains
     logical,          intent(inout) :: converged
 
     real(rt)         :: x, xnew, v, dvdx, xtol, smallx, error
-
-    !$gpu
 
     if (dvar .eq. itemp) then
 
@@ -1027,8 +1013,6 @@ contains
     real(rt)         :: told, rold, delr, rnew, tnew
     real(rt)         :: v1, dv1dt, dv1dr, v2, dv2dt, dv2dr, v1i, v2i
     real(rt)         :: error1, error2
-
-    !$gpu
 
     ! Figure out which variables we're using
 
@@ -1122,8 +1106,6 @@ contains
 
     real(rt)         :: chit, chid
 
-    !$gpu
-
     ! Calculate some remaining derivatives
     state % dpde = state % dpdT / state % dedT
     state % dpdr_e = state % dpdr - state % dpdT * state % dedr / state % dedT
@@ -1183,8 +1165,6 @@ contains
     implicit none
     integer, intent(in) :: input
     logical, intent(out) :: valid
-
-    !$gpu
 
     valid = .true.
 
@@ -1389,7 +1369,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: psi0r
-    !$gpu
     psi0r = z**3 * ( z * (-6.0e0_rt*z + 15.0e0_rt) -10.0e0_rt) + 1.0e0_rt
   end function psi0
 
@@ -1397,7 +1376,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: dpsi0r
-    !$gpu
     dpsi0r = z**2 * ( z * (-30.0e0_rt*z + 60.0e0_rt) - 30.0e0_rt)
   end function dpsi0
 
@@ -1405,7 +1383,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: ddpsi0r
-    !$gpu
     ddpsi0r = z* ( z*( -120.0e0_rt*z + 180.0e0_rt) -60.0e0_rt)
   end function ddpsi0
 
@@ -1414,7 +1391,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: psi1r
-    !$gpu
     psi1r = z* ( z**2 * ( z * (-3.0e0_rt*z + 8.0e0_rt) - 6.0e0_rt) + 1.0e0_rt)
   end function psi1
 
@@ -1422,7 +1398,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: dpsi1r
-    !$gpu
     dpsi1r = z*z * ( z * (-15.0e0_rt*z + 32.0e0_rt) - 18.0e0_rt) +1.0e0_rt
   end function dpsi1
 
@@ -1430,7 +1405,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: ddpsi1r
-    !$gpu
     ddpsi1r = z * (z * (-60.0e0_rt*z + 96.0e0_rt) -36.0e0_rt)
   end function ddpsi1
 
@@ -1439,7 +1413,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: psi2r
-    !$gpu
     psi2r = 0.5e0_rt*z*z*( z* ( z * (-z + 3.0e0_rt) - 3.0e0_rt) + 1.0e0_rt)
   end function psi2
 
@@ -1447,7 +1420,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: dpsi2r
-    !$gpu
     dpsi2r = 0.5e0_rt*z*( z*(z*(-5.0e0_rt*z + 12.0e0_rt) - 9.0e0_rt) + 2.0e0_rt)
   end function dpsi2
 
@@ -1455,7 +1427,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: ddpsi2r
-    !$gpu
     ddpsi2r = 0.5e0_rt*(z*( z * (-20.0e0_rt*z + 36.0e0_rt) - 18.0e0_rt) + 2.0e0_rt)
   end function ddpsi2
 
@@ -1463,8 +1434,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: fi(36), wt(6)
     real(rt)         :: fwtr(6)
-
-    !$gpu
 
     fwtr(1) = fi( 1)*wt(1) + fi( 2)*wt(2) + fi( 3)*wt(3) + fi(19)*wt(4) + fi(20)*wt(5) + fi(21)*wt(6)
     fwtr(2) = fi( 4)*wt(1) + fi( 6)*wt(2) + fi( 8)*wt(3) + fi(22)*wt(4) + fi(24)*wt(5) + fi(26)*wt(6)
@@ -1483,7 +1452,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xpsi0r
-    !$gpu
     xpsi0r = z * z * (2.0e0_rt*z - 3.0e0_rt) + 1.0_rt
   end function xpsi0
 
@@ -1491,7 +1459,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xdpsi0r
-    !$gpu
     xdpsi0r = z * (6.0e0_rt*z - 6.0e0_rt)
   end function xdpsi0
 
@@ -1501,7 +1468,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xpsi1r
-    !$gpu
     xpsi1r = z * ( z * (z - 2.0e0_rt) + 1.0e0_rt)
   end function xpsi1
 
@@ -1509,7 +1475,6 @@ contains
     !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xdpsi1r
-    !$gpu
     xdpsi1r = z * (3.0e0_rt*z - 4.0e0_rt) + 1.0e0_rt
   end function xdpsi1
 

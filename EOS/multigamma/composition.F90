@@ -28,8 +28,6 @@ contains
 
     type (eos_t), intent(inout) :: state
 
-    !$gpu
-
     ! Calculate abar, the mean nucleon number,
     ! zbar, the mean proton number,
     ! mu, the mean molecular weight,
@@ -63,8 +61,6 @@ contains
     ! Get the mass of a nucleon from Avogadro's number.
     real(rt)        , parameter :: m_nucleon = ONE / n_A
     
-    !$gpu
-
     ! Composition derivatives
 
 #ifdef EXTRA_THERMO

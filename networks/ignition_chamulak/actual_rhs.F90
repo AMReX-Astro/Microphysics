@@ -35,8 +35,6 @@ contains
 
     real(rt)         :: rho9, q_eff
 
-    !$gpu
-
     ebin(1:nspec) = ZERO
 
     ! Chamulak et al. provide the q-value resulting from C12 burning,
@@ -84,8 +82,6 @@ contains
     real(rt)        , parameter :: FIVE6TH = FIVE / SIX
     integer :: jscr
     type(plasma_state) :: pstate
-
-    !$gpu
 
     temp = state % T
     dens = state % rho
@@ -143,8 +139,6 @@ contains
     real(rt)         :: y(nspec), ebin(nspec)
 
     real(rt)        , parameter :: FIVE6TH = FIVE / SIX
-
-    !$gpu
 
     ydot = ZERO
 
@@ -226,8 +220,6 @@ contains
 
     integer          :: j
 
-    !$gpu
-
     jac(:,:)  = ZERO
 
     ! Get data from the state
@@ -283,8 +275,6 @@ contains
     implicit none
 
     real(rt)         :: dydt(nspec), ebin(nspec), enuc
-
-    !$gpu
 
     enuc = dydt(ic12) * aion(ic12) * ebin(ic12)
 

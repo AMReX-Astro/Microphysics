@@ -106,8 +106,6 @@ contains
     real(rt) :: td, rd, xd
     real(rt) :: omtd, omrd, omxd
 
-    !$gpu
-
     tlog = log10(T)
     rholog = log10(rho)
     yet = ye

@@ -74,8 +74,6 @@ contains
     real(rt)         :: rate(nrates), dratedt(nrates)
     real(rt)         :: dratedy1(irsi2ni:irni2si), dratedy2(irsi2ni:irni2si)
 
-    !$gpu
-
     ! Get the data from the state
 
     rho  = state % rho
@@ -119,8 +117,6 @@ contains
     real(rt)         :: alfa, beta, gama, delt
 
     real(rt)         :: dtab(nrates)
-
-    !$gpu
 
     ! Set the density dependence array
     dtab(ircag)  = bden
@@ -257,8 +253,6 @@ contains
     real(rt)         :: rho, temp, abar, zbar
     real(rt)         :: y(nspec)
 
-    !$gpu
-
     ! Get the data from the state
 
     rho  = state % rho
@@ -317,8 +311,6 @@ contains
 
     real(rt)         :: rho, temp, abar, zbar
     real(rt)         :: y(nspec), yderivs(nspec)
-
-    !$gpu
 
     jac(:,:) = ZERO
 
@@ -395,8 +387,6 @@ contains
     else
        index_rate = 1
     endif
-
-    !$gpu
 
     dydt(1:nspec) = ZERO
 
@@ -496,8 +486,6 @@ contains
     real(rt)         :: ff1,dff1dt,dff1dd,ff2,dff2dt,dff2dd,tot,dtotdt,dtotdd,invtot
     type (tf_t)      :: tf
 
-    !$gpu
-    
     do i=1,nrates
        rate(i)    = ZERO
        dratedt(i) = ZERO
@@ -593,8 +581,6 @@ contains
     type (plasma_state) :: pstate
     type (tf_t)         :: tf
 
-    !$gpu
-    
     ! initialize
     dratedy1(:) = ZERO
     dratedy2(:) = ZERO
@@ -735,8 +721,6 @@ contains
     real(rt)        , intent(inout) :: jac(njrows, njcols)
 
     real(rt)         :: b(8)
-
-    !$gpu
 
     ! set up the jacobian
     ! 4he jacobian elements
@@ -971,8 +955,6 @@ contains
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
-
-    !$gpu
 
     ! This is basically e = m c**2
 

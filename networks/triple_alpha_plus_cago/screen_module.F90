@@ -34,8 +34,6 @@ contains
 
     type (plasma_state) :: state
 
-    !$gpu
-    
     rates_in    = rates
     dratesdt_in = dratesdt
 

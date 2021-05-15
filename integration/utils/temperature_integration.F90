@@ -36,8 +36,6 @@ contains
 
     real(rt) :: cv, cp, cvInv, cpInv
 
-    !$gpu
-
     if (state % self_heat) then
 
        ! Set up the temperature ODE.  For constant pressure, Dp/Dt = 0, we
@@ -112,8 +110,6 @@ contains
     real(rt) :: scratch, cspec, cspecInv
 
     integer :: k
-
-    !$gpu
 
     ! Temperature Jacobian elements
 

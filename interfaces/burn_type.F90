@@ -106,8 +106,6 @@ contains
     type (burn_t), intent(in   ) :: from_state
     type (burn_t), intent(  out) :: to_state
 
-    !$gpu
-
     to_state % rho = from_state % rho
     to_state % T   = from_state % T
     to_state % e   = from_state % e
@@ -163,8 +161,6 @@ contains
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
 
-    !$gpu
-
     burn_state % rho  = eos_state % rho
     burn_state % T    = eos_state % T
     burn_state % e    = eos_state % e
@@ -196,8 +192,6 @@ contains
     type (burn_t) :: burn_state
     type (eos_t)  :: eos_state
 
-    !$gpu
-
     eos_state % rho  = burn_state % rho
     eos_state % T    = burn_state % T
     eos_state % e    = burn_state % e
@@ -225,8 +219,6 @@ contains
     implicit none
 
     type (burn_t), intent(inout) :: state
-
-    !$gpu
 
     state % xn(:) = max(small_x, min(ONE, state % xn(:)))
     state % xn(:) = state % xn(:) / sum(state % xn(:))

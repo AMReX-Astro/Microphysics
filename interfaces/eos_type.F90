@@ -181,8 +181,6 @@ contains
 
     type(eos_t) :: to_eos, from_eos
 
-    !$gpu
-
     to_eos % rho = from_eos % rho
     to_eos % T = from_eos % T
     to_eos % p = from_eos % p
@@ -245,8 +243,6 @@ contains
 
     type (eos_t), intent(inout) :: state
 
-    !$gpu
-
     state % xn = max(small_x, min(ONE, state % xn))
 
     state % xn = state % xn / sum(state % xn)
@@ -261,8 +257,6 @@ contains
     implicit none
 
     type (eos_t), intent(inout) :: state
-
-    !$gpu
 
     state % T = min(maxtemp, max(mintemp, state % T))
     state % rho = min(maxdens, max(mindens, state % rho))
@@ -295,8 +289,6 @@ contains
 
     real(rt), intent(out) :: small_temp_out
 
-    !$gpu
-
     small_temp_out = mintemp
 
   end subroutine eos_get_small_temp
@@ -310,8 +302,6 @@ contains
     implicit none
 
     real(rt), intent(out) :: small_dens_out
-
-    !$gpu
 
     small_dens_out = mindens
 
@@ -327,8 +317,6 @@ contains
 
     real(rt), intent(out) :: max_temp_out
 
-    !$gpu
-
     max_temp_out = maxtemp
 
   end subroutine eos_get_max_temp
@@ -343,8 +331,6 @@ contains
 
     real(rt), intent(out) :: max_dens_out
 
-    !$gpu
-
     max_dens_out = maxdens
 
   end subroutine eos_get_max_dens
@@ -358,8 +344,6 @@ contains
 
     integer, intent(in) :: input, ivar
     logical :: has
-
-    !$gpu
 
     has = .false.
     

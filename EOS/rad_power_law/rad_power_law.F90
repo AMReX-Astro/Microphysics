@@ -73,8 +73,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
     if (input == eos_input_rh .or. &
@@ -98,8 +96,6 @@ contains
 
     integer,      intent(in   ) :: input
     type (eos_t), intent(inout) :: state
-
-    !$gpu
 
     select case (input)
 
