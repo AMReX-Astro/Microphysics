@@ -23,9 +23,6 @@ module reaclib_rates
   attributes(managed) :: ctemp_rate, rate_start_idx, rate_extra_mult
 #endif
 
-  !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult)
-  !$acc declare copyin(screen_reaclib)
-
 contains
 
   subroutine init_reaclib()
@@ -56,8 +53,6 @@ contains
 
     close(unit)
 
-    !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult)
-
   end subroutine init_reaclib
 
   subroutine term_reaclib()
@@ -87,8 +82,6 @@ contains
 
 
   subroutine reaclib_evaluate(pstate, temp, iwhich, rate, drate_dt)
-
-    !$acc routine seq
 
     implicit none
 

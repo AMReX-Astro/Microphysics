@@ -24,9 +24,6 @@ module nse_module
   attributes(managed) :: massfractab
 #endif
 
-  !$acc declare create(ttlog, ddlog, yetab, abartab, ebtab, wratetab, massfractab)
-  !! !$acc declare create(helium, sica, fegroup)
-
   private ntemp, nden, nye, npts
 
 contains
@@ -71,10 +68,6 @@ contains
           end do
        end do
     end do
-
-    !$acc update device(ttlog, ddlog, yetab)
-    !! !$acc update device(helium, sica, fegroup)
-    !$acc update device(abartab, ebtab, wratetab, massfractab)
 
   end subroutine init_nse_F
 

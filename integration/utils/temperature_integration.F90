@@ -9,8 +9,6 @@ module temperature_integration_module
   attributes(managed) :: self_heat
 #endif
 
-  !$acc declare create(self_heat)
-
   public
 
 contains
@@ -20,8 +18,6 @@ contains
   ! since most networks will use the same temperature ODE.
 
   subroutine temperature_rhs(state, ydot)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
     use network, only: nspec
@@ -96,8 +92,6 @@ contains
   ! since most networks will use the same temperature ODE.
 
   subroutine temperature_jac(state, jac)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
     use network, only: nspec
@@ -181,8 +175,6 @@ contains
 
     allocate(self_heat)
     self_heat = .true.
-
-    !$acc update device(self_heat)
 
   end subroutine temperature_rhs_init
 

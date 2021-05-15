@@ -26,8 +26,6 @@ contains
 
   subroutine actual_rhs(state, ydot)
 
-    !$acc routine seq
-
     use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
@@ -122,8 +120,6 @@ contains
 
   subroutine actual_jac(state, jac)
 
-    !$acc routine seq
-
     use extern_probin_module, only: do_constant_volume_burn
     use jacobian_sparsity_module, only: set_jac_zero, get_jac_entry, set_jac_entry, scale_jac_entry
 
@@ -213,8 +209,6 @@ contains
 
   subroutine evaluate_rates(state, rr)
 
-    !$acc routine seq
-
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     implicit none
@@ -283,8 +277,6 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
 
-    !$acc routine seq
-    
     use network
 
     implicit none

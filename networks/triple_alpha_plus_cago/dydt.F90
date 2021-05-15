@@ -13,8 +13,6 @@ contains
 
   subroutine dydt(ymol, rates, ydot)
 
-    !$acc routine seq
-
     real(rt)        , intent(IN   ) :: ymol(nspec), rates(nrates)
     real(rt)        , intent(  OUT) :: ydot(nspec)
 

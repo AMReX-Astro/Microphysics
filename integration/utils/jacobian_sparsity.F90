@@ -17,8 +17,6 @@ contains
 #ifdef REACT_SPARSE_JACOBIAN
   subroutine lookup_csr_jac_loc(row, col, csr_loc)
 
-    !$acc routine seq
-
     use actual_network, only: csr_jac_col_index, csr_jac_row_count
 
     implicit none
@@ -52,8 +50,6 @@ contains
 
   subroutine set_csr_jac_entry(csr_jac, row, col, val)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(inout) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -83,8 +79,6 @@ contains
 
   subroutine scale_csr_jac_entry(csr_jac, row, col, val)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(inout) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -113,8 +107,6 @@ contains
 
 
   subroutine get_csr_jac_entry(csr_jac, row, col, val)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO
 
@@ -147,8 +139,6 @@ contains
 
     use burn_type_module, only : neqs
 
-    !$acc routine seq
-
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -171,8 +161,6 @@ contains
 
 
   subroutine scale_jac_entry(jac, row, col, val)
-
-    !$acc routine seq
 
     use burn_type_module, only : neqs
 
@@ -200,8 +188,6 @@ contains
 
   subroutine get_jac_entry(jac, row, col, val)
 
-    !$acc routine seq
-
     use burn_type_module, only : neqs
     use amrex_fort_module, only : rt => amrex_real
     implicit none
@@ -226,8 +212,6 @@ contains
 
 
   subroutine set_jac_zero(jac)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO
     use burn_type_module, only : neqs

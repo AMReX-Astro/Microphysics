@@ -99,8 +99,6 @@ contains
   ! (yet) support derived type copying on the device.
   subroutine copy_burn_t(to_state, from_state)
 
-    !$acc routine seq
-
     implicit none
 
     type (burn_t), intent(in   ) :: from_state
@@ -154,8 +152,6 @@ contains
 
   subroutine eos_to_burn(eos_state, burn_state)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t
 
     implicit none
@@ -187,8 +183,6 @@ contains
 
   subroutine burn_to_eos(burn_state, eos_state)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t
 
     implicit none
@@ -216,8 +210,6 @@ contains
 
 
   subroutine normalize_abundances_burn(state)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ONE
     use extern_probin_module, only: small_x

@@ -30,8 +30,6 @@ module actual_network
 
   real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:)
 
-  !$acc declare create(aion, aion_inv, zion)
-
 #if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: aion, aion_inv, zion
 #endif
@@ -62,8 +60,6 @@ contains
     @@AUX_NAMES@@
 
     @@SHORT_AUX_NAMES@@
-
-    !$acc update device(aion, aion_inv, zion)
 
   end subroutine actual_network_init
 
