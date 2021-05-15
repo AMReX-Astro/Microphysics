@@ -106,8 +106,6 @@ contains
 
     type(tf_t) :: tf
 
-    !$gpu
-
     tf%temp = temp
 
     tf%t9    = temp * 1.0e-9_rt

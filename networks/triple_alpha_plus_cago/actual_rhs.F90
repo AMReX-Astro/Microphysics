@@ -37,8 +37,6 @@ contains
 
     real(rt)         :: rates(nrates), dratesdt(nrates)
 
-    !$gpu
-
     temp = state % T
     dens = state % rho
     ymol = state % xn * aion_inv
@@ -66,8 +64,6 @@ contains
     real(rt)         :: ymol(nspec)
     real(rt)         :: rates(nrates)
     integer :: k
-
-    !$gpu
 
     ydot = ZERO
 
@@ -108,8 +104,6 @@ contains
     real(rt)         :: rates(nrates), dratesdt(nrates)
 
     integer :: i, j
-
-    !$gpu
 
     call get_rates(state, rr)
 
@@ -166,8 +160,6 @@ contains
     use network
 
     implicit none
-
-    !$gpu
 
     real(rt)         :: dydt(nspec), enuc
 

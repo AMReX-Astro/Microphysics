@@ -38,8 +38,6 @@ contains
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
 
-    !$gpu
-    
     return
   end subroutine update_unevolved_species
 
@@ -49,8 +47,6 @@ contains
     implicit none
 
     type(rate_eval_t), intent(inout) :: rate_eval
-
-    !$gpu
 
     rate_eval % unscreened_rates(i_rate, :) = ZERO
     rate_eval % unscreened_rates(i_drate_dt, :) = ZERO
@@ -78,8 +74,6 @@ contains
     real(rt) :: rate, drate_dt, edot_nu
     real(rt) :: scor, dscor_dt, dscor_dd
     real(rt) :: scor2, dscor2_dt, dscor2_dd
-
-    !$gpu
 
     Y(:) = state % xn(:) * aion_inv(:)
     rhoy = state % rho * state % y_e
@@ -167,8 +161,6 @@ contains
     real(rt) :: rhoy, ye, enuc
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
 
-    !$gpu
-
     ! Set molar abundances
     Y(:) = state % xn(:) * aion_inv(:)
 
@@ -206,10 +198,6 @@ contains
     real(rt), intent(out) :: ydot_nuc(nspec)
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
-
-    !$gpu
-
-
 
     ydot_nuc(jp) = ( &
       screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*state % rho + &
@@ -293,8 +281,6 @@ contains
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
     integer  :: j, k
 
-    !$gpu
-
     ! Set molar abundances
     Y(:) = state % xn(:) * aion_inv(:)
     
@@ -368,10 +354,6 @@ contains
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
     real(rt) :: scratch
-
-
-    !$gpu
-
 
     scratch = (&
       -screened_rates(k_p_c12__n13)*Y(jc12)*state % rho &

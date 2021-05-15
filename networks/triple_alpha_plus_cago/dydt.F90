@@ -16,8 +16,6 @@ contains
     real(rt)        , intent(IN   ) :: ymol(nspec), rates(nrates)
     real(rt)        , intent(  OUT) :: ydot(nspec)
 
-    !$gpu
-
     ydot(:) = ZERO
 
     ! He4 reactions

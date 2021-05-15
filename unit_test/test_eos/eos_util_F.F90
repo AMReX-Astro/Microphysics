@@ -30,8 +30,6 @@ subroutine do_eos(lo, hi, &
 
   integer :: ii, jj, kk, n
 
-  !$gpu
-
   do kk = lo(3), hi(3)
 
      ! set the composition -- approximately solar

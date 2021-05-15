@@ -160,8 +160,6 @@ contains
 
     real(rt) :: dydt(nspec), enuc
 
-    !$gpu
-
     ! This is basically e = m c**2
 
     enuc = sum(dydt(:) * mion(:)) * enuc_conv2
