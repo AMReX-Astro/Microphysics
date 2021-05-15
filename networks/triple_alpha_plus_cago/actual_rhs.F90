@@ -29,8 +29,6 @@ contains
 
   subroutine get_rates(state, rr)
 
-    !$acc routine seq
-
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -55,8 +53,6 @@ contains
 
 
   subroutine actual_rhs(state, ydot)
-
-    !$acc routine seq
 
     use temperature_integration_module, only: temperature_rhs
 
@@ -97,8 +93,6 @@ contains
 
 
   subroutine actual_jac(state, jac)
-
-    !$acc routine seq
 
     use burn_type_module, only : neqs, njrows, njcols
     use temperature_integration_module, only: temperature_jac
@@ -168,8 +162,6 @@ contains
 
 
   subroutine ener_gener_rate(dydt, enuc)
-
-    !$acc routine seq
 
     use network
 

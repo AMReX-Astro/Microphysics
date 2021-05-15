@@ -26,9 +26,6 @@ module actual_rhs_module
   attributes(managed) :: rattab, drattabdt, ttab !, drattabdd
 #endif
 
-  !$acc declare create(rattab, drattabdt, ttab)
-  !!$acc declare create(drattabdd)
-
 contains
 
 
@@ -416,9 +413,6 @@ contains
 #else
     call set_aprox13rat()
 #endif
-
-    !$acc update device(rattab, drattabdt, ttab)
-    !!$acc update device(drattabdd)
 
   end subroutine create_rates_table
 

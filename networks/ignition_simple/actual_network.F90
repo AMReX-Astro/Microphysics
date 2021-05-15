@@ -27,8 +27,6 @@ module actual_network
   attributes(managed) :: bion, mion
 #endif
 
-  !$acc declare create(bion, mion)
-
   integer, parameter :: nrates = 1
   integer, parameter :: num_rate_groups = 4
 
@@ -74,8 +72,6 @@ contains
     csr_jac_col_index = [1, 2, 1, 2, 1, 2, 3]
     csr_jac_row_count = [1, 3, 5, 8]
 #endif
-
-    !$acc update device(nion, mion)
 
   end subroutine actual_network_init
 

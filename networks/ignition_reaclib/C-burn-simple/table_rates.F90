@@ -89,7 +89,6 @@ contains
 
 
   subroutine vector_index_lu(vector, fvar, index)
-    !$acc routine seq
 
     ! Returns the greatest index of vector for which vector(index) < fvar.
     ! Return 1 if fvar < vector(1)
@@ -127,7 +126,6 @@ contains
 
 
   subroutine bl_clamp(xlo, xhi, flo, fhi, x, f)
-    !$acc routine seq
 
     ! Perform bilinear interpolation within the interval [xlo, xhi]
     ! where the function values at the endpoints are defined by:
@@ -152,7 +150,6 @@ contains
 
 
   subroutine bl_extrap(xlo, xhi, flo, fhi, x, f)
-    !$acc routine seq
 
     ! Perform bilinear interpolation within the interval [xlo, xhi]
     ! where the function values at the endpoints are defined by:

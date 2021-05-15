@@ -59,10 +59,6 @@ module eos_type_module
   real(rt), allocatable :: minh
   real(rt), allocatable :: maxh
 
-  !$acc declare &
-  !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
-  !$acc create(mine, maxe, minp, maxp, mins, maxs, minh, maxh)
-
 #if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
   attributes(managed) :: mintemp
   attributes(managed) :: maxtemp
@@ -289,8 +285,6 @@ contains
 
   subroutine eos_get_small_temp(small_temp_out) bind(C, name="eos_get_small_temp")
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(out) :: small_temp_out
@@ -304,8 +298,6 @@ contains
 
 
   subroutine eos_get_small_dens(small_dens_out) bind(C, name="eos_get_small_dens")
-
-    !$acc routine seq
 
     implicit none
 
@@ -321,8 +313,6 @@ contains
 
   subroutine eos_get_max_temp(max_temp_out)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(out) :: max_temp_out
@@ -336,8 +326,6 @@ contains
 
 
   subroutine eos_get_max_dens(max_dens_out)
-
-    !$acc routine seq
 
     implicit none
 

@@ -58,7 +58,6 @@ contains
 
 
   subroutine evaluate_rates(state, rate_eval)
-    !$acc routine seq
 
     use reaclib_rates, only: screen_reaclib, reaclib_evaluate
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -118,8 +117,6 @@ contains
 
   subroutine actual_rhs(state, ydot)
     
-    !$acc routine seq
-
     use extern_probin_module, only: do_constant_volume_burn, disable_thermal_neutrinos
     use burn_type_module, only: net_itemp, net_ienuc, neqs
     use sneut_module, only: sneut5
@@ -168,8 +165,6 @@ contains
 
 
   subroutine rhs_nuc(state, ydot_nuc, Y, screened_rates)
-
-    !$acc routine seq
 
     implicit none
 
@@ -225,8 +220,6 @@ contains
 
 
   subroutine actual_jac(state, jac)
-
-    !$acc routine seq
 
     use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
     use extern_probin_module, only: disable_thermal_neutrinos
@@ -310,8 +303,6 @@ contains
 
 
   subroutine jac_nuc(state, jac, Y, screened_rates)
-
-    !$acc routine seq
 
     use jacobian_sparsity_module, only: set_jac_entry
 
