@@ -15,10 +15,6 @@ module aprox_rates_module
   real(rt)        , allocatable :: rfdm(:),rfd0(:),rfd1(:),rfd2(:)
   real(rt)        , allocatable :: tfdm(:),tfd0(:),tfd1(:),tfd2(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: rv, tv, datn, rfdm, rfd0, rfd1, rfd2, tfdm, tfd0, tfd1, tfd2
-#endif
-
 contains
 
   subroutine rates_init()

@@ -22,10 +22,6 @@ module actual_eos_module
 
   logical, allocatable, save :: assume_neutral
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: gamma_const, assume_neutral
-#endif
- 
 contains
 
   subroutine actual_eos_init

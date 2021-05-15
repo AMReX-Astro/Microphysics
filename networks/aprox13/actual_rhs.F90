@@ -22,10 +22,6 @@ module actual_rhs_module
 !  real(rt)        , allocatable :: drattabdd(:,:)
   real(rt)        , allocatable :: ttab(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: rattab, drattabdt, ttab !, drattabdd
-#endif
-
 contains
 
 
@@ -388,34 +384,19 @@ contains
 
     implicit none
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-    integer, parameter :: numThreads=256
-    integer :: numBlocks
-#endif
-
     ! Allocate memory for the tables
     allocate(rattab(nrates, nrattab))
     allocate(drattabdt(nrates, nrattab))
 !    allocate(drattabdd(nrates, nrattab))
     allocate(ttab(nrattab))
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-    numBlocks = ceiling(real(tab_imax)/numThreads)
-    call set_aprox13rat<<<numBlocks, numThreads>>>()
-#else
     call set_aprox13rat()
-#endif
 
   end subroutine create_rates_table
 
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(global) &
-#endif
   subroutine set_aprox13rat()
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-    use cudafor
-#endif
+
     real(rt)         :: btemp, bden
     type (rate_t)    :: rr
 
@@ -423,41 +404,25 @@ contains
 
     bden = 1.0e0_rt
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-    i = blockDim%x * (blockIdx%x - 1) + threadIdx%x
-    if (i .le. tab_imax) then
-#else
-       do i = 1, tab_imax
-#endif
+    do i = 1, tab_imax
 
-          btemp = tab_tlo + dble(i-1) * tab_tstp
-          btemp = 10.0e0_rt**(btemp)
+       btemp = tab_tlo + dble(i-1) * tab_tstp
+       btemp = 10.0e0_rt**(btemp)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-#ifdef AMREX_GPU_PRAGMA_NO_HOST
-          call aprox13rat(btemp, bden, rr)
-#else
-          call aprox13rat_device(btemp, bden, rr)
-#endif
-#else
-          call aprox13rat(btemp, bden, rr)
-#endif
+       call aprox13rat(btemp, bden, rr)
 
-          ttab(i) = btemp
+       ttab(i) = btemp
 
-          do j = 1, nrates
+       do j = 1, nrates
 
-             rattab(j,i)    = rr % rates(1, j)
-             drattabdt(j,i) = rr % rates(2, j)
-             !drattabdd(j,i) = dratrawdd(j)
+          rattab(j,i)    = rr % rates(1, j)
+          drattabdt(j,i) = rr % rates(2, j)
+          !drattabdd(j,i) = dratrawdd(j)
 
-          enddo
-
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-    endif
-#else
        enddo
-#endif
+
+    enddo
+
   end subroutine set_aprox13rat
 
 

@@ -16,10 +16,6 @@ module actual_network
 
   character (len=32), parameter :: network_name = "powerlaw"
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: ebin
-#endif
-
 contains
   
   subroutine actual_network_init

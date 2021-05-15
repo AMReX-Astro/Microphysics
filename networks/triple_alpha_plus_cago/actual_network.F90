@@ -13,10 +13,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion
-#endif
-
   character (len=32), parameter :: network_name = "triple_alpha_plus_cago"
 
   ! Rates data
