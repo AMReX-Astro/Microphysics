@@ -99,10 +99,6 @@ contains
 
     initialized = .true.
 
-    !$acc update &
-    !$acc device(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
-    !$acc device(mine, maxe, minp, maxp, mins, maxs, minh, maxh)
-
   end subroutine eos_init
 
 
@@ -118,8 +114,6 @@ contains
 
 
   subroutine eos(input, state, use_raw_inputs)
-
-    !$acc routine seq
 
     use eos_type_module, only: eos_t
     use eos_composition_module, only : composition
@@ -249,8 +243,6 @@ contains
 
   subroutine reset_inputs(input, state, has_been_reset)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t, &
                                eos_input_rt, eos_input_re, eos_input_rh, eos_input_tp, &
                                eos_input_rp, eos_input_th, eos_input_ph, eos_input_ps
@@ -316,8 +308,6 @@ contains
 
   subroutine reset_rho(state, has_been_reset)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t, mindens, maxdens
 
     implicit none
@@ -337,8 +327,6 @@ contains
 
   subroutine reset_T(state, has_been_reset)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t, mintemp, maxtemp
 
     implicit none
@@ -355,8 +343,6 @@ contains
 
 
   subroutine reset_e(state, has_been_reset)
-
-    !$acc routine seq
 
     use eos_type_module, only: eos_t, mine, maxe
 
@@ -377,8 +363,6 @@ contains
 
   subroutine reset_h(state, has_been_reset)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t, minh, maxh
 
     implicit none
@@ -398,8 +382,6 @@ contains
 
   subroutine reset_s(state, has_been_reset)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t, mins, maxs
 
     implicit none
@@ -418,8 +400,6 @@ contains
 
 
   subroutine reset_p(state, has_been_reset)
-
-    !$acc routine seq
 
     use eos_type_module, only: eos_t, minp, maxp
 
@@ -442,8 +422,6 @@ contains
   ! valid, then call with eos_input_rt.
 
   subroutine eos_reset(state, has_been_reset)
-
-    !$acc routine seq
 
     use eos_type_module, only: eos_t, eos_input_rt, mintemp, maxtemp, mindens, maxdens
     use actual_eos_module, only: actual_eos

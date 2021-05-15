@@ -52,8 +52,6 @@ contains
     reac_names(ir3a)   = "3agc"   !     3 He4 --> C12
     reac_names(ircago) = "cago"   ! C12 + He4 --> O16
 
-    !$acc update device(bion)
-
   end subroutine actual_network_init
 
 

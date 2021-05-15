@@ -44,8 +44,6 @@ module actual_network
 
   real(rt)        , parameter :: enuc_conv2 = -avo*c_light*c_light
 
-  !$acc declare create(aion, zion, nion, bion, mion)
-
   ! Rates data
 
   integer, parameter :: nrates = 67
@@ -158,8 +156,6 @@ contains
 
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
-
-    !$acc update device(aion, zion, nion, bion, mion)
 
     ratenames(ir3a)   = 'r3a  '
     ratenames(irg3a)  = 'rg3a '

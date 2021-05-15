@@ -17,8 +17,6 @@ contains
 
   subroutine screen(temp, dens, ymol, rates, dratesdt)
 
-    !$acc routine seq
-
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     real(rt), intent(IN   ) :: temp, dens, ymol(nspec)

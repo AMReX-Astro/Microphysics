@@ -55,16 +55,6 @@ module actual_eos_module
   real(rt)        , parameter :: kerg    = 1.380650424e-16_rt
   real(rt)        , parameter :: amu     = 1.66053878283e-24_rt
 
-  !$acc declare &
-  !$acc create(tlo, thi, dlo, dhi) &
-  !$acc create(tstp, tstpi, dstp, dstpi) &
-  !$acc create(ttol, dtol) &
-  !$acc create(itmax, jtmax, d, t) &
-  !$acc create(f, dpdf, ef, xf) &
-  !$acc create(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
-  !$acc create(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
-  !$acc create(do_coulomb, input_is_constant)
-
   public actual_eos, actual_eos_init, actual_eos_finalize
 
 contains
@@ -91,8 +81,6 @@ contains
   !..references: cox & giuli chapter 24 ; timmes & swesty apj 1999
   
   subroutine actual_eos(input, state)
-
-    !$acc routine seq
 
     implicit none
 
@@ -159,8 +147,6 @@ contains
 
 
   subroutine apply_electrons(state)
-
-    !$acc routine seq
 
     implicit none
 
@@ -430,8 +416,6 @@ contains
 
   subroutine apply_ions(state)
 
-    !$acc routine seq
-
     implicit none
 
     type(eos_t), intent(inout) :: state
@@ -527,7 +511,6 @@ contains
   subroutine apply_radiation(state)
 
     use extern_probin_module, only: prad_limiter_rho_c, prad_limiter_delta_rho
-    !$acc routine seq
 
     implicit none
 
@@ -625,8 +608,6 @@ contains
 
 
   subroutine apply_coulomb_corrections(state)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO
 
@@ -856,8 +837,6 @@ contains
 
   subroutine prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2)
 
-    !$acc routine seq
-
     implicit none
 
     integer,          intent(in   ) :: input
@@ -927,8 +906,6 @@ contains
 
 
   subroutine single_iter_update(state, var, dvar, v_want, converged)
-
-    !$acc routine seq
 
     implicit none
 
@@ -1012,8 +989,6 @@ contains
 
 
   subroutine double_iter_update(state, var1, var2, v1_want, v2_want, converged)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: HALF, TWO
 
@@ -1111,8 +1086,6 @@ contains
 
 
   subroutine finalize_state(input, state, v_want, v1_want, v2_want)
-
-    !$acc routine seq
 
     implicit none
 
@@ -1368,17 +1341,6 @@ contains
     mindens = 10.e0_rt**dlo
     maxdens = 10.e0_rt**dhi
 
-    !$acc update device(mintemp, maxtemp, mindens, maxdens)
-
-    !$acc update &
-    !$acc device(tlo, thi, dlo, dhi) &
-    !$acc device(tstp, tstpi, dstp, dstpi) &
-    !$acc device(itmax, jtmax, d, t) &
-    !$acc device(f, dpdf, ef, xf) &
-    !$acc device(dt_sav, dt2_sav, dti_sav, dt2i_sav) &
-    !$acc device(dd_sav, dd2_sav, ddi_sav, dd2i_sav) &
-    !$acc device(do_coulomb, input_is_constant)
-
   end subroutine actual_eos_init
 
 
@@ -1386,7 +1348,6 @@ contains
   ! quintic hermite polynomial functions
   ! psi0 and its derivatives
   pure function psi0(z) result(psi0r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: psi0r
     !$gpu
@@ -1394,7 +1355,6 @@ contains
   end function psi0
 
   pure function dpsi0(z) result(dpsi0r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: dpsi0r
     !$gpu
@@ -1402,7 +1362,6 @@ contains
   end function dpsi0
 
   pure function ddpsi0(z) result(ddpsi0r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: ddpsi0r
     !$gpu
@@ -1411,7 +1370,6 @@ contains
 
   ! psi1 and its derivatives
   pure function psi1(z) result(psi1r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: psi1r
     !$gpu
@@ -1419,7 +1377,6 @@ contains
   end function psi1
 
   pure function dpsi1(z) result(dpsi1r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: dpsi1r
     !$gpu
@@ -1427,7 +1384,6 @@ contains
   end function dpsi1
 
   pure function ddpsi1(z) result(ddpsi1r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: ddpsi1r
     !$gpu
@@ -1436,7 +1392,6 @@ contains
 
   ! psi2  and its derivatives
   pure function psi2(z) result(psi2r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: psi2r
     !$gpu
@@ -1444,7 +1399,6 @@ contains
   end function psi2
 
   pure function dpsi2(z) result(dpsi2r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: dpsi2r
     !$gpu
@@ -1452,7 +1406,6 @@ contains
   end function dpsi2
 
   pure function ddpsi2(z) result(ddpsi2r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: ddpsi2r
     !$gpu
@@ -1460,7 +1413,6 @@ contains
   end function ddpsi2
 
   pure function fwt(fi, wt) result(fwtr)
-    !$acc routine seq
     real(rt)        , intent(in) :: fi(36), wt(6)
     real(rt)         :: fwtr(6)
 
@@ -1480,7 +1432,6 @@ contains
   ! cubic hermite polynomial functions
   ! psi0 & derivatives
   pure function xpsi0(z) result(xpsi0r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xpsi0r
     !$gpu
@@ -1488,7 +1439,6 @@ contains
   end function xpsi0
 
   pure function xdpsi0(z) result(xdpsi0r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xdpsi0r
     !$gpu
@@ -1498,7 +1448,6 @@ contains
 
   ! psi1 & derivatives
   pure function xpsi1(z) result(xpsi1r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xpsi1r
     !$gpu
@@ -1506,7 +1455,6 @@ contains
   end function xpsi1
 
   pure function xdpsi1(z) result(xdpsi1r)
-    !$acc routine seq
     real(rt)        , intent(in) :: z
     real(rt)         :: xdpsi1r
     !$gpu

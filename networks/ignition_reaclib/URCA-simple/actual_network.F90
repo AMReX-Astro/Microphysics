@@ -66,8 +66,6 @@ module actual_network
   attributes(managed) :: bion, mion
 #endif
 
-  !$acc declare create(bion, mion)
-
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
   integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 51
@@ -110,8 +108,6 @@ contains
     mion(:) = nion(:) * mass_neutron + zion(:) * (mass_proton + mass_electron) &
          - bion(:)/(c_light**2)
 
-
-    !$acc update device(bion, mion)
 
 #ifdef REACT_SPARSE_JACOBIAN
     ! Set CSR format metadata for Jacobian
@@ -215,8 +211,6 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
     ! Computes the instantaneous energy generation rate
-
-    !$acc routine seq
 
     implicit none
 
