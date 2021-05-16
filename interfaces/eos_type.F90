@@ -59,25 +59,6 @@ module eos_type_module
   real(rt), allocatable :: minh
   real(rt), allocatable :: maxh
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: mintemp
-  attributes(managed) :: maxtemp
-  attributes(managed) :: mindens
-  attributes(managed) :: maxdens
-  attributes(managed) :: minx
-  attributes(managed) :: maxx
-  attributes(managed) :: minye
-  attributes(managed) :: maxye
-  attributes(managed) :: mine
-  attributes(managed) :: maxe
-  attributes(managed) :: minp
-  attributes(managed) :: maxp
-  attributes(managed) :: mins
-  attributes(managed) :: maxs
-  attributes(managed) :: minh
-  attributes(managed) :: maxh
-#endif
-
   ! A generic structure holding thermodynamic quantities and their derivatives,
   ! plus some other quantities of interest.
 
@@ -397,11 +378,7 @@ contains
 
     case default
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-       stop
-#else
        call amrex_error("EOS: invalid independent variable")
-#endif
 
     end select
 

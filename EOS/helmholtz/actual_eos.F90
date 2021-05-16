@@ -37,18 +37,6 @@ module actual_eos_module
                                    dd_sav(:), dd2_sav(:),          &
                                    ddi_sav(:), dd2i_sav(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: do_coulomb, input_is_constant
-  attributes(managed) :: itmax, jtmax
-  attributes(managed) :: d, t
-  attributes(managed) :: tlo, thi, tstp, tstpi
-  attributes(managed) :: dlo, dhi, dstp, dstpi
-  attributes(managed) :: ttol, dtol
-  attributes(managed) :: f, dpdf, ef, xf
-  attributes(managed) :: dt_sav, dt2_sav, dti_sav, dt2i_sav
-  attributes(managed) :: dd_sav, dd2_sav, ddi_sav, dd2i_sav
-#endif
-
   ! 2006 CODATA physical constants
   real(rt)        , parameter :: h       = 6.6260689633e-27_rt
   real(rt)        , parameter :: avo_eos = 6.0221417930e23_rt

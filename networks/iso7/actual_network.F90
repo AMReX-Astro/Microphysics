@@ -15,10 +15,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:), wion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion, mion, wion
-#endif
-
   character (len=32), parameter :: network_name = "iso7"
 
   ! Some fundamental physical constants

@@ -30,10 +30,6 @@ module actual_network
 
   real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: aion, aion_inv, zion
-#endif
-
   integer, parameter :: nrates = 0
   integer, parameter :: num_rate_groups = 0
 

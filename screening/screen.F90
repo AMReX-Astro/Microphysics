@@ -50,11 +50,6 @@ module screening_module
 
   end type plasma_state
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: z1scr, z2scr, a1scr, a2scr
-  attributes(managed) :: zs13, zs13inv, zhat, zhat2, lzav, aznut
-#endif
-
 contains
 
   subroutine screening_init()
