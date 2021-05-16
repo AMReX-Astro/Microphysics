@@ -31,10 +31,6 @@ module network_properties
 
   real(rt), allocatable, save :: aion(:), aion_inv(:), zion(:), nion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: aion, aion_inv, zion, nion
-#endif
-
 contains
 
   subroutine network_properties_init

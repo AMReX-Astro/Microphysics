@@ -23,10 +23,6 @@ module actual_eos_module
 
   real(rt), allocatable, save :: const_c_v, c_v_exp_m, c_v_exp_n
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: const_c_v, c_v_exp_m, c_v_exp_n
-#endif
-
 contains
 
   subroutine actual_eos_init

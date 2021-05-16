@@ -5,10 +5,6 @@ module temperature_integration_module
 
   logical, save, allocatable :: self_heat
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: self_heat
-#endif
-
   public
 
 contains

@@ -19,10 +19,6 @@ module actual_eos_module
 
   real(rt)        , allocatable, save :: gammas(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: gammas
-#endif
-
 contains
 
   subroutine actual_eos_init
