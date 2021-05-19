@@ -109,6 +109,9 @@ contains
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jhe4), aion(jhe4))
 
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      4.0_rt, 8.0_rt)
+
 
     call screening_init()
   end subroutine net_screening_init

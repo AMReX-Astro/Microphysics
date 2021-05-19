@@ -173,6 +173,8 @@ void actual_integrator (burn_t& state, Real dt)
         state.success = false;
     }
 
+    state.time = t;
+
 #ifndef AMREX_USE_CUDA
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
