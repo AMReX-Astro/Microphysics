@@ -28,7 +28,6 @@ void actual_opacity (Real& kp, Real& kr, Real rho, Real temp, Real rhoYe, Real n
         }
 #endif
         kp = const_kappa_p * std::pow(rho, kappa_p_exp_m) * std::pow(teff, -kappa_p_exp_n) * nup_kpp;
-        kp = amrex::max(kp, kappa_floor);
     }
 
     if (get_Rosseland_mean) {
