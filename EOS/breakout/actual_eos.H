@@ -51,8 +51,6 @@ void actual_eos (I input, T& state)
 
     const Real R = C::k_B * C::n_A;
 
-    Real p, e, cv, poverrho;
-
     // Calculate mu. This is the only difference between
     // this EOS and gamma_law.
     state.mu = 1.0_rt / state.aux[1];
@@ -60,10 +58,11 @@ void actual_eos (I input, T& state)
     switch (input) {
 
     case eos_input_rt:
+    {
 
         // dens, temp and xmass are inputs
-        cv = R / (state.mu * (gamma_const - 1.0_rt));
-        e = cv * state.T;
+        Real cv = R / (state.mu * (gamma_const - 1.0_rt));
+        Real e = cv * state.T;
         if constexpr (has_energy<T>::value) {
             state.cv = cv;
             state.e = e;
@@ -76,31 +75,31 @@ void actual_eos (I input, T& state)
         }
 
         break;
-
+    }
     case eos_input_rh:
-
+    {
         // dens, enthalpy, and xmass are inputs
 #ifndef AMREX_USE_GPU
         amrex::Error("EOS: eos_input_rh is not supported in this EOS.");
 #endif
 
         break;
-
+    }
     case eos_input_tp:
-
+    {
         // temp, pres, and xmass are inputs
 #ifndef AMREX_USE_GPU
         amrex::Error("EOS: eos_input_tp is not supported in this EOS.");
 #endif
 
         break;
-
+    }
     case eos_input_rp:
-
+    {
         // dens, pres, and xmass are inputs
 
         if constexpr (has_pressure<T>::value) {
-            poverrho = state.p / state.rho;
+            Real poverrho = state.p / state.rho;
             state.T = poverrho * state.mu * (1.0_rt / R);
             if constexpr (has_energy<T>::value) {
                 state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
@@ -109,13 +108,13 @@ void actual_eos (I input, T& state)
         }
 
         break;
-
+    }
     case eos_input_re:
-
+    {
         // dens, energy, and xmass are inputs
 
         if constexpr (has_energy<T>::value) {
-            poverrho = (gamma_const - 1.0_rt) * state.e;
+            Real poverrho = (gamma_const - 1.0_rt) * state.e;
             state.T = poverrho * state.mu * (1.0_rt / R);
 
             if constexpr (has_pressure<T>::value) {
@@ -137,9 +136,9 @@ void actual_eos (I input, T& state)
         }
 
         break;
-
+    }
     case eos_input_ps:
-
+    {
         // pressure entropy, and xmass are inputs
 
 #ifndef AMREX_USE_GPU
@@ -147,18 +146,18 @@ void actual_eos (I input, T& state)
 #endif
 
         break;
-
+    }
     case eos_input_ph:
-
+    {
         // pressure, enthalpy and xmass are inputs
 #ifndef AMREX_USE_GPU
         amrex::Error("EOS: eos_input_ph is not supported in this EOS.");
 #endif
 
         break;
-
+    }
     case eos_input_th:
-
+    {
         // temperature, enthalpy and xmass are inputs
 
         // This system is underconstrained.
@@ -167,17 +166,17 @@ void actual_eos (I input, T& state)
 #endif
 
         break;
-
+    }
     default:
-
+    {
 #ifndef AMREX_USE_GPU
         amrex::Error("EOS: invalid input.");
 #endif
 
         break;
-
     }
 
+    }
 }
 
 

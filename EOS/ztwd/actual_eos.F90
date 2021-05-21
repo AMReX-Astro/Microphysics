@@ -49,8 +49,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
   end subroutine is_input_valid
@@ -75,8 +73,6 @@ contains
     real(rt) :: dens, temp, enth, pres, eint, entr
     real(rt) :: x, dxdr
     real(rt) :: B
-
-    !$gpu
 
     dens = state % rho
     temp = state % T
@@ -272,8 +268,6 @@ contains
 
     real(rt) :: p
 
-    !$gpu
-
     p = A * ( x * (TWO * x**2 - THREE) * (x**2 + ONE)**HALF + THREE * asinh(x) )
 
   end function pressure
@@ -288,8 +282,6 @@ contains
 
     real(rt) :: h
 
-    !$gpu
-
     h = (EIGHT * A / B) * (ONE + x**2)**HALF
 
   end function enthalpy
@@ -303,8 +295,6 @@ contains
     real(rt), intent(in) :: x
 
     real(rt) :: dp
-
-    !$gpu
 
     dp = A * ((TWO * x**2 - THREE)*(x**2 + ONE)**HALF + &
               x * (4*x) * (x**2 + ONE)**HALF + &
@@ -322,8 +312,6 @@ contains
     real(rt), intent(in) :: x, B
 
     real(rt) :: dh
-
-    !$gpu
 
     dh = enthalpy(x, B) * (x / (x**2 + ONE))
 
@@ -343,8 +331,6 @@ contains
 
     real(rt) :: x, dx
     integer  :: iter
-
-    !$gpu
 
     ! Starting guess for the iteration.
 

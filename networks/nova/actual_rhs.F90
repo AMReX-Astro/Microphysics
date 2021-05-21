@@ -38,8 +38,6 @@ contains
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
 
-    !$gpu
-    
     return
   end subroutine update_unevolved_species
 
@@ -49,8 +47,6 @@ contains
     implicit none
 
     type(rate_eval_t), intent(inout) :: rate_eval
-
-    !$gpu
 
     rate_eval % unscreened_rates(i_rate, :) = ZERO
     rate_eval % unscreened_rates(i_drate_dt, :) = ZERO
@@ -63,7 +59,6 @@ contains
 
 
   subroutine evaluate_rates(state, rate_eval)
-    !$acc routine seq
 
     use reaclib_rates, only: screen_reaclib, reaclib_evaluate
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -79,8 +74,6 @@ contains
     real(rt) :: rate, drate_dt, edot_nu
     real(rt) :: scor, dscor_dt, dscor_dd
     real(rt) :: scor2, dscor2_dt, dscor2_dd
-
-    !$gpu
 
     Y(:) = state % xn(:) * aion_inv(:)
     rhoy = state % rho * state % y_e
@@ -181,8 +174,6 @@ contains
 
   subroutine actual_rhs(state, ydot)
     
-    !$acc routine seq
-
     use extern_probin_module, only: do_constant_volume_burn, disable_thermal_neutrinos
     use burn_type_module, only: net_itemp, net_ienuc, neqs
     use sneut_module, only: sneut5
@@ -198,8 +189,6 @@ contains
     integer :: i, j
     real(rt) :: rhoy, ye, enuc
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
-
-    !$gpu
 
     ! Set molar abundances
     Y(:) = state % xn(:) * aion_inv(:)
@@ -232,18 +221,12 @@ contains
 
   subroutine rhs_nuc(state, ydot_nuc, Y, screened_rates)
 
-    !$acc routine seq
-
     implicit none
 
     type (burn_t), intent(in) :: state
     real(rt), intent(out) :: ydot_nuc(nspec)
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
-
-    !$gpu
-
-
 
     ydot_nuc(jp) = ( &
       screened_rates(k_he4_n13__p_o16)*Y(jhe4)*Y(jn13)*state % rho + &
@@ -347,8 +330,6 @@ contains
 
   subroutine actual_jac(state, jac)
 
-    !$acc routine seq
-
     use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
     use extern_probin_module, only: disable_thermal_neutrinos
     use sneut_module, only: sneut5
@@ -366,8 +347,6 @@ contains
     real(rt) :: ye, rhoy, b1, scratch
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
     integer  :: j, k
-
-    !$gpu
 
     ! Set molar abundances
     Y(:) = state % xn(:) * aion_inv(:)
@@ -432,8 +411,6 @@ contains
 
   subroutine jac_nuc(state, jac, Y, screened_rates)
 
-    !$acc routine seq
-
     use jacobian_sparsity_module, only: set_jac_entry
 
     implicit none
@@ -444,10 +421,6 @@ contains
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
     real(rt) :: scratch
-
-
-    !$gpu
-
 
     scratch = (&
       -screened_rates(k_p_c12__n13)*Y(jc12)*state % rho - screened_rates(k_p_c13__n14)*Y(jc13)* &

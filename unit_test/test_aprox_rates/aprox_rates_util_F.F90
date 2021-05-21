@@ -29,8 +29,6 @@ subroutine do_rates(lo, hi, &
 
     integer :: i, j, k
 
-    !$gpu
-
     do k = lo(3), hi(3)
 
         ! set the composition -- approximately solar

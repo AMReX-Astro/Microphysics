@@ -13,10 +13,6 @@ module actual_eos_module
   
   real(rt), allocatable, save :: gamma_const
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: gamma_const
-#endif
-
 contains
 
   subroutine actual_eos_init
@@ -42,8 +38,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
     if (input == eos_input_rh .or. &
@@ -68,8 +62,6 @@ contains
     real(rt)        , parameter :: R = k_B*n_A
 
     real(rt)         :: poverrho
-
-    !$gpu
 
     ! Calculate mu.
 
