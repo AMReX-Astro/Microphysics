@@ -56,7 +56,6 @@ contains
        end if
 #endif
        kp = const_kappa_p * (rho**kappa_p_exp_m) * (teff**(-kappa_p_exp_n)) * nup_kpp
-       kp = max(kp, kappa_floor)
     end if
 
     if (get_Rosseland_mean) then
