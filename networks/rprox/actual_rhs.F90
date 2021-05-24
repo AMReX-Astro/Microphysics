@@ -36,8 +36,6 @@ contains
     type (rate_t)    :: rr
     real(rt)         :: dens, t9, y(nspec)
 
-    !$gpu
-
     ydot = ZERO
 
     dens = state % rho
@@ -96,8 +94,6 @@ contains
     integer :: jscr 
     type (plasma_state) :: pstate
     type (temp_t) :: tfactors
-
-    !$gpu
 
     rr % rates(:,:) = ZERO ! Zero out rates
 
@@ -317,8 +313,6 @@ contains
     real(rt)         :: ddelta1, ddelta2
     real(rt)         :: dens
 
-    !$gpu
-
     ! initialize
     dydt = ZERO
     dens = state % rho
@@ -461,8 +455,6 @@ contains
     real(rt)         :: dens, ymol(nspec), T9, ydot(nspec)
     real(rt)         :: psum
     integer          :: i, j
-
-    !$gpu
 
     ! initialize
     jac(:,:) = ZERO
@@ -628,8 +620,6 @@ contains
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
-
-    !$gpu
 
     enuc = -sum(dydt(:) * aion(1:nspec) * ebin(1:nspec))
 

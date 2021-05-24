@@ -71,8 +71,6 @@ esum_template_end = """
 
 
 sum_template = """
-    !$gpu
-
     esum = sum(array)
 """
 
@@ -81,8 +79,6 @@ sum_template = """
 kahan_template = """
     integer :: i
     real(rt) :: x, y, z
-
-    !$gpu
 
     esum = array(1)
     x = ZERO
@@ -98,8 +94,6 @@ kahan_template = """
 
 higher_precision_template = """
     real*16 :: higher_prec_array(@NUM@)
-
-    !$gpu
 
     higher_prec_array(:) = array(:)
 
@@ -140,8 +134,6 @@ msum_template_start = """
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)

@@ -23,8 +23,6 @@ contains
 
   subroutine make_rates(temp, dens, rates, dratesdt)
 
-    !$acc routine seq
-
     ! rates given in terms of molar fractions
 
     real(rt), intent(IN   ) :: temp, dens
@@ -47,8 +45,6 @@ contains
                      FIVE_THIRDS  = FIVE * THIRD, &
                      THREE_HALVES = THREE * HALF, &
                      T2T9         = 1.0e-9_rt
-
-    !$gpu
 
     t9r   = temp * T2T9
     t9r32 = t9r**THREE_HALVES

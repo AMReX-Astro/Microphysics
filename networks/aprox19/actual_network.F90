@@ -32,10 +32,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion, mion
-#endif
-
 #ifndef NSE
   character (len=32), parameter :: network_name = "aprox19"
 #else

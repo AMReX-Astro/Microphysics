@@ -114,8 +114,6 @@ contains
     real(rt)        , parameter :: tfac5  = 0.5e0_rt * tfac2
     real(rt)        , parameter :: tfac6  = cv*cv + 1.5e0_rt*ca*ca + (xnufam - 1.0e0_rt)*(cvp*cvp + 1.5e0_rt*cap*cap)
 
-    !$gpu
-
     ! initialize
     spair   = 0.0e0_rt
     spairdt = 0.0e0_rt
@@ -1076,8 +1074,6 @@ contains
     integer          :: i,m1,k1,m2,k2
     real(rt)         :: f,an,a1(12),b1(12),a2(12),b2(12),rn,den,ff, ifermi12r
 
-    !$gpu
-
     ! load the coefficients of the expansion
     an = 0.5e0_rt
     m1 = 4
@@ -1153,8 +1149,6 @@ contains
     ! declare
     integer          :: i,m1,k1,m2,k2
     real(rt)         :: x,an,a1(12),b1(12),a2(12),b2(12),rn,den,xx, zfermim12r
-
-    !$gpu
 
     ! load the coefficients of the expansion
     an = -0.5e0_rt

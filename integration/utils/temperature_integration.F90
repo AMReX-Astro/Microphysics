@@ -5,12 +5,6 @@ module temperature_integration_module
 
   logical, save, allocatable :: self_heat
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: self_heat
-#endif
-
-  !$acc declare create(self_heat)
-
   public
 
 contains
@@ -20,8 +14,6 @@ contains
   ! since most networks will use the same temperature ODE.
 
   subroutine temperature_rhs(state, ydot)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO, ONE
     use network, only: nspec
@@ -35,8 +27,6 @@ contains
     real(rt), intent(inout) :: ydot(neqs)
 
     real(rt) :: cv, cp, cvInv, cpInv
-
-    !$gpu
 
     if (state % self_heat) then
 
@@ -97,8 +87,6 @@ contains
 
   subroutine temperature_jac(state, jac)
 
-    !$acc routine seq
-
     use amrex_constants_module, only: ZERO, ONE
     use network, only: nspec
     use burn_type_module
@@ -112,8 +100,6 @@ contains
     real(rt) :: scratch, cspec, cspecInv
 
     integer :: k
-
-    !$gpu
 
     ! Temperature Jacobian elements
 
@@ -181,8 +167,6 @@ contains
 
     allocate(self_heat)
     self_heat = .true.
-
-    !$acc update device(self_heat)
 
   end subroutine temperature_rhs_init
 
