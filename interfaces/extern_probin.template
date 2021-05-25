@@ -72,9 +72,7 @@ subroutine runtime_init(name,namlen)
 
      else if (status > 0) then
         ! some problem in the namelist
-#ifndef AMREX_USE_GPU
         print *, 'ERROR: problem in the extern namelist'
-#endif
         stop
      endif
 
