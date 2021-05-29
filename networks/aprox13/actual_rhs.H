@@ -16,6 +16,7 @@
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
+#include <rhs_utilities.H>
 #include <jacobian_utilities.H>
 
 using namespace amrex;
@@ -1751,7 +1752,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate(T const& dydt, Real& enuc)
 {
 
-    using namespace aprox13;
+    using namespace network;
 
     // Computes the instantaneous energy generation rate
 
@@ -1766,7 +1767,6 @@ void ener_gener_rate(T const& dydt, Real& enuc)
     enuc = Xdot * C::Legacy::enuc_conv2;
 
 }
-
 
 // Evaluates the right hand side of the aprox13 ODEs
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -1943,60 +1943,22 @@ void rhs(Array1D<Real, 1, NumSpec> const& y, const rate_t& rr,
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
-
-    /*
-     This routine sets up the system of ODE's for the aprox13
-     nuclear reactions.  This is an alpha chain + heavy ion network
-     with (a,p)(p,g) links.
-
-     Isotopes: he4,  c12,  o16,  ne20, mg24, si28, s32,
-               ar36, ca40, ti44, cr48, fe52, ni56
-    */
-
-    Array1D<rate_t, 1, Rates::NumGroups> rr;
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    Real enuc;
-
-    Real rho, temp, abar, zbar;
-    Array1D<Real, 1, NumSpec> y;
-
-    // Initialize ydot to 0
-
-    for (int i = 1; i <= neqs; ++i) {
-        ydot(i) = 0.0_rt;
-    }
-
     // Evaluate the rates
 
+    Array1D<rate_t, 1, Rates::NumGroups> rr;
     evaluate_rates(state, rr);
 
-    // Get the data from the state
+    // Call the RHS to get dydt
 
-    rho  = state.rho;
-    temp = state.T;
-    abar = state.abar;
-    zbar = state.zbar;
+    Array1D<Real, 1, NumSpec> spec_rhs = RHS::species_rhs(state, rr(1));
 
-    for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn[i-1] * aion_inv[i-1];
+    for (int n = 1; n <= NumSpec; ++n) {
+        ydot(n) = spec_rhs(n);
     }
 
-    // Call the RHS to actually get dydt.
+    // Instantaneous energy generation rate
 
-    rhs(y, rr(1), ydot);
-
-    // Instantaneous energy generation rate -- this needs molar fractions
-
-    ener_gener_rate(ydot, enuc);
-
-    // Get the neutrino losses
-
-    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    // Append the energy equation (this is erg/g/s)
-
-    ydot(net_ienuc) = enuc - sneut;
+    ydot(net_ienuc) = RHS::ener_rhs(state, spec_rhs);
 }
 
 

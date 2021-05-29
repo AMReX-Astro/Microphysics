@@ -325,8 +325,6 @@ off.
 Note: if ``state % self_heat = F`` (Fortran) or ``state.self_heat =
 false`` (C++), then we do not evolve temperature.
 
-The runtime parameter ``integrate_temperature`` can be used to disable
-temperature evolution (by zeroing out ``ydot(net_itemp)``).
 
 Energy Integration
 ==================
@@ -439,7 +437,7 @@ so :math:`10^{-9}` should be used as the default tolerance in future simulations
    to a run with an ODE tolerance of :math:`10^{-12}`.
 
 The integration tolerances for the burn are controlled by
-``rtol_spec``, ``rtol_enuc``, and ``rtol_temp``,
+``rtol_spec`` and  ``rtol_enuc``,
 which are the relative error tolerances for
 :eq:`eq:spec_integrate`, :eq:`eq:enuc_integrate`, and
 :eq:`eq:temp_integrate`, respectively. There are corresponding
@@ -543,10 +541,9 @@ The basic outline of this routine is:
 
 #. call the actual RHS
 
-#. convert derivatives to mass-fraction-based (since we integrate :math:`X`),
-   and zero out the temperature or
-   energy derivatives (if ``integrate_temperature = F`` or
-   ``integrate_energy = F``, respectively).
+#. convert derivatives to mass-fraction-based (since we integrate
+   :math:`X`), and zero out energy derivatives (if ``integrate_energy
+   = F``).
 
 #. apply any boosting to the rates if ``react_boost`` > 0.
 
@@ -571,10 +568,9 @@ The basic outline of this routine is:
 
 #. call the actual Jacobian routine
 
-#. convert derivatives to mass-fraction-based (since we integrate :math:`X`),
-   and zero out the temperature or
-   energy derivatives (if ``integrate_temperature = F`` or
-   ``integrate_energy = F``, respectively).
+#. convert derivatives to mass-fraction-based (since we integrate
+   :math:`X`), and zero out the energy derivative (if
+   ``integrate_energy = F``).
 
 #. apply any boosting to the rates if ``react_boost`` > 0.
 

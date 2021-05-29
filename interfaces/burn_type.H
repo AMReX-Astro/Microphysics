@@ -77,6 +77,10 @@ typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> JacNetArray2D;
 struct burn_t
 {
 
+  // on exit, this will be set to the integration time we achieved
+
+  Real time;
+
   // this first group are the quantities the network RHS uses
 
   Real rho;
@@ -103,14 +107,6 @@ struct burn_t
   // in time as we integrate, such that upon output it will be the
   // final conserved state.
   Real y[SVAR];
-
-#ifdef NSE_THERMO
-  // Iq is the reactive source that was used as the predictor for the
-  // advection.  We need it for NSE for the prediction of the conserved
-  // state to the new time
-  Real Iq_aux[NumAux];
-  Real Iq_rhoe; 
-#endif
 
   // we need to store a copy of the original state as well so we can
   // handle the non-evolved state evolution

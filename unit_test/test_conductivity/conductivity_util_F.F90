@@ -26,8 +26,6 @@ subroutine do_conductivity(lo, hi, &
 
   integer :: ii, jj, kk
 
-  !$gpu
-
   do kk = lo(3), hi(3)
 
      ! set the composition -- approximately solar

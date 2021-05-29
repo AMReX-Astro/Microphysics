@@ -12,6 +12,8 @@ void vode_to_burn (const dvode_t& vode_state, burn_t& state)
     }
 
     state.e = vode_state.y(net_ienuc);
+
+    state.time = vode_state.t;
 }
 
 

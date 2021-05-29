@@ -421,7 +421,7 @@ void ener_gener_rate(T& dydt, Real& enuc)
     enuc = 0.0_rt;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        enuc -= dydt(i) * aion[i-1] * rprox::ebin(i);
+        enuc -= dydt(i) * aion[i-1] * network::ebin(i);
     }
 }
 

@@ -30,8 +30,6 @@ contains
 
     type (eos_t), intent(inout) :: state
 
-    !$gpu
-
     ! Calculate abar, the mean nucleon number,
     ! zbar, the mean proton number,
     ! mu, the mean molecular weight,
@@ -68,8 +66,6 @@ contains
 
     type (eos_t), intent(in) :: state
     type (eos_xderivs_t), intent(out) :: state_xderivs
-
-    !$gpu
 
 #ifdef EXTRA_THERMO
     state_xderivs % dpdX(:) = state % dpdA * (state % abar * aion_inv(:))   &

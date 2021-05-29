@@ -29,8 +29,6 @@ contains
 
   subroutine get_rates(state, rr)
 
-    !$acc routine seq
-
     type (burn_t), intent(in) :: state
     type (rate_t), intent(out) :: rr
 
@@ -38,8 +36,6 @@ contains
     real(rt)         :: ymol(nspec)
 
     real(rt)         :: rates(nrates), dratesdt(nrates)
-
-    !$gpu
 
     temp = state % T
     dens = state % rho
@@ -56,8 +52,6 @@ contains
 
   subroutine actual_rhs(state, ydot)
 
-    !$acc routine seq
-
     use temperature_integration_module, only: temperature_rhs
 
     implicit none
@@ -70,8 +64,6 @@ contains
     real(rt)         :: ymol(nspec)
     real(rt)         :: rates(nrates)
     integer :: k
-
-    !$gpu
 
     ydot = ZERO
 
@@ -98,8 +90,6 @@ contains
 
   subroutine actual_jac(state, jac)
 
-    !$acc routine seq
-
     use burn_type_module, only : neqs, njrows, njcols
     use temperature_integration_module, only: temperature_jac
 
@@ -114,8 +104,6 @@ contains
     real(rt)         :: rates(nrates), dratesdt(nrates)
 
     integer :: i, j
-
-    !$gpu
 
     call get_rates(state, rr)
 
@@ -169,13 +157,9 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
 
-    !$acc routine seq
-
     use network
 
     implicit none
-
-    !$gpu
 
     real(rt)         :: dydt(nspec), enuc
 

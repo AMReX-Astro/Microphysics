@@ -579,44 +579,24 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
     using namespace Species;
     using namespace Rates;
 
+    auto spec_jac = RHS::species_jac(state, rr(1));
+
+    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
+        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
+            jac(spec1, spec2) = spec_jac(spec1, spec2);
+        }
+    }
+
     for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
 
         for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
 
-            // d(spec1) / d(spec2)
-
-            Array1D<Real, 1, Rates::NumRates> b = {0.0};
-
-            int b_ctr = 0;
+            // Now handle the terms that include a d(rate)/dY contribution.
 
             for (int rate = 1; rate <= NumRates; ++rate) {
                 jac_t jac_data = RHS::jac_data(spec1, spec2, rate);
 
-                if (std::abs(jac_data.prefactor) > 0.0_rt) {
-                    ++b_ctr;
-
-                    Real term = jac_data.prefactor;
-
-                    if (jac_data.specindex1 >= 0) {
-                        term *= y(jac_data.specindex1);
-                    }
-
-                    if (jac_data.specindex2 >= 0) {
-                        term *= y(jac_data.specindex2);
-                    }
-
-                    if (jac_data.specindex3 >= 0) {
-                        term *= y(jac_data.specindex3);
-                    }
-
-                    term *= rr(1).rates(rate);
-
-                    b(b_ctr) = term;
-                }
-
                 if (std::abs(jac_data.rate_prefactor) > 0.0_rt) {
-                    ++b_ctr;
-
                     Real term = jac_data.rate_prefactor;
 
                     if (jac_data.rate_specindex1 >= 0) {
@@ -633,11 +613,9 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
 
                     term *= rr(2 + spec2).rates(rate);
 
-                    b(b_ctr) = term;
+                    jac(spec1, spec2) += term;
                 }
             }
-
-            jac(spec1, spec2) = esum<Rates::NumRates>(b);
 
         }
 
@@ -650,7 +628,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate(T const& dydt, Real& enuc)
 {
 
-    using namespace iso7;
+    using namespace network;
 
     // Computes the instantaneous energy generation rate
 
@@ -665,37 +643,6 @@ void ener_gener_rate(T const& dydt, Real& enuc)
     enuc = Xdot * C::Legacy::enuc_conv2;
 
 }
-
-
-// This version adds the neutrino losses directly
-// and is intended for use in the RHS only.
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real ener_rhs(const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
-{
-    using namespace iso7;
-
-    Real Xdot = 0.0_rt;
-
-    // Sum the mass fraction time derivatives
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        Xdot += dydt(i) * mion(i);
-    }
-
-    // This is basically e = m c**2
-
-    Real dedt = Xdot * C::Legacy::enuc_conv2;
-
-    // Get the neutrino losses
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    dedt -= sneut;
-
-    return dedt;
-}
-
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -716,7 +663,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Instantaneous energy generation rate
 
-    ydot(net_ienuc) = ener_rhs(state, spec_rhs);
+    ydot(net_ienuc) = RHS::ener_rhs(state, spec_rhs);
 }
 
 

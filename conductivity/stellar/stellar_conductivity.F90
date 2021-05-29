@@ -89,8 +89,6 @@ contains
     real(rt), parameter :: t6_switch2 = 0.9e0_rt
     ! parameter        (t6_switch1 = 1.0e0_rt, t6_switch2 = 1.5e0_rt)
 
-    !$gpu
-
     !..initialize
     opac      = 0.0e0_rt
     orad      = 0.0e0_rt

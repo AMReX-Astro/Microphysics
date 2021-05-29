@@ -14,10 +14,10 @@ Except where noted, each of these EOSs will provide the full
 thermodynamic data (including all derivatives) in the ``eos_t``
 type.
 
-gamma_law_general
------------------
+gamma_law
+---------
 
-``gamma_law_general`` represents a gamma law gas, with
+``gamma_law`` represents a gamma law gas, with
 equation of state:
 
 .. math:: p = (\gamma - 1) \rho e.
