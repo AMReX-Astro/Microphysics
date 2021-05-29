@@ -17,16 +17,6 @@ module nse_module
   real(rt), allocatable :: abartab(:), ebtab(:), wratetab(:)
   real(rt), allocatable :: massfractab(:, :)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: ttlog, ddlog, yetab
-  !attributes(managed) :: helium, sica, fegroup
-  attributes(managed) :: abartab, ebtab, wratetab
-  attributes(managed) :: massfractab
-#endif
-
-  !$acc declare create(ttlog, ddlog, yetab, abartab, ebtab, wratetab, massfractab)
-  !! !$acc declare create(helium, sica, fegroup)
-
   private ntemp, nden, nye, npts
 
 contains
@@ -72,10 +62,6 @@ contains
        end do
     end do
 
-    !$acc update device(ttlog, ddlog, yetab)
-    !! !$acc update device(helium, sica, fegroup)
-    !$acc update device(abartab, ebtab, wratetab, massfractab)
-
   end subroutine init_nse_F
 
   subroutine nse_interp(T, rho, ye, abar, dq, dyedt, X)
@@ -105,8 +91,6 @@ contains
     real(rt) :: t0, r0, x0
     real(rt) :: td, rd, xd
     real(rt) :: omtd, omrd, omxd
-
-    !$gpu
 
     tlog = log10(T)
     rholog = log10(rho)

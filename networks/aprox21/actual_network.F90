@@ -29,10 +29,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion, mion
-#endif
-
   character (len=32), parameter :: network_name = "aprox21"
 
   ! Some fundamental physical constants

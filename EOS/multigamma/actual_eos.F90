@@ -19,10 +19,6 @@ module actual_eos_module
 
   real(rt)        , allocatable, save :: gammas(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: gammas
-#endif
-
 contains
 
   subroutine actual_eos_init
@@ -69,8 +65,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
     if (input == eos_input_ps .or. &
@@ -95,8 +89,6 @@ contains
 
     ! Get the mass of a nucleon from Avogadro's number.
     real(rt)        , parameter :: m_nucleon = ONE / n_A
-
-    !$gpu
 
     ! Special gamma factors
 
