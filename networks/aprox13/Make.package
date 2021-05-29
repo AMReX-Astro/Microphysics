@@ -3,10 +3,6 @@ F90EXE_sources += network_properties.F90
 CEXE_headers += network_properties.H
 
 ifeq ($(USE_REACT),TRUE)
-  ifneq ($(USE_TRUE_SDC), TRUE)
-    F90EXE_sources += actual_rhs.F90
-  endif
-
   DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
 
   ifeq ($(USE_CXX_REACTIONS),TRUE)
