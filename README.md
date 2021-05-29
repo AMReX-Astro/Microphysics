@@ -55,9 +55,9 @@ There are several core types of microphysics routines hosted here:
 
   - `test_screening` evaluates the screening routines.
 
-* `util`: linear algebra routines for the various integrators
-  (including BLAS and LINPACK), other math routines, and build
-  scripts
+* `util`: linear algebra routines for the integrators
+  (specifically a linear system solver from LINPACK),
+  other math routines, and build scripts
 
 
 # AMReX-Astro Codes
