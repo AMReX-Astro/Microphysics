@@ -65,7 +65,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
         // We want to evaluate the Jacobian -- now the path depends on
         // whether we're using the numerical or analytic Jacobian.
 
-        if (jacobian == 1) {
+        if (jacobian != 2) {
 
             // For the analytic Jacobian, call the user-supplied function.
 

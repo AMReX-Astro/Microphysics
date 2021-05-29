@@ -38,10 +38,6 @@ module actual_eos_module
 
   real(rt)        , allocatable, save :: gm1, polytrope_index
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: gamma_const, K_const, mu_e, polytrope, gm1, polytrope_index
-#endif
-
 contains
 
   subroutine actual_eos_init
@@ -98,8 +94,6 @@ contains
     integer, intent(in) :: input
     logical, intent(out) :: valid
 
-    !$gpu
-
     valid = .true.
 
   end subroutine is_input_valid
@@ -148,8 +142,6 @@ contains
 
     ! Local variables
     real(rt)         :: dens, temp, enth, pres, eint, entr
-
-    !$gpu
 
     dens = state % rho
     temp = state % T

@@ -11,15 +11,11 @@ contains
 
   subroutine eos_override(state)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t
 
     implicit none
 
     type (eos_t) :: state
-
-    !$gpu
 
   end subroutine eos_override
 

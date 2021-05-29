@@ -29,8 +29,6 @@ subroutine do_screening(lo, hi, &
 
   integer :: jscr
 
-  !$gpu
-
   do kk = lo(3), hi(3)
 
      ! set the composition -- approximately solar

@@ -1,3 +1,31 @@
+# 21.05
+
+   * For aprox19 + NSE, we now "bail out" of the integration
+     immediately if the state enters NSE, and then do the rest of the
+     update through the NSE table. (#658)
+
+   * The old gamma_law EOS was removed and gamma_law_general was
+     renamed gamma_law.  The old gamma_law EOS have a very reduced
+     subset of thermodynamic quantities that it computed, for
+     efficiency purposes.  This is no longer needed now that we have
+     templated the EOSes and have different eos_t data types (#653).
+
+   * Integration for simplified-SDC was interpreting rtol incorrectly.
+     This has been fixed (#643)
+
+   * Screening for the 3-alpha reaction in the subch, subch2, and nova
+     networks was fixed (#627, #634, #635)
+
+# 21.04
+
+   * We added a new mechanism to recover a failed burn when the state
+     tries to enter NSE during the evolution, when using the aprox19 +
+     NSE network.  Now it will capture the failure and redo the burn
+     if it satisfies the NSE criteria (#628)
+
+   * We updated the VODE logic for rejecting a step to consider mass
+     fractions for both simplified-SDC and true SDC burns (#619)
+
 # 21.03
 
    * We now integrate internal energy (e) directly instead of integrating

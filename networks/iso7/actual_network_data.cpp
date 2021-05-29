@@ -1,7 +1,7 @@
 #include <AMReX_Vector.H>
 #include <actual_network.H>
 
-namespace iso7
+namespace network
 {
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
@@ -11,7 +11,7 @@ namespace iso7
 void actual_network_init()
 {
     using namespace Species;
-    using namespace iso7;
+    using namespace network;
 
     // Set the binding energy of the element
     bion(He4)  = 28.29603e0_rt;

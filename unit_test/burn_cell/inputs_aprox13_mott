@@ -1,0 +1,40 @@
+
+unit_test.run_prefix = "react_aprox13_mott_"
+
+unit_test.small_temp = 1e5
+unit_test.small_dens = 1e5
+
+unit_test.tfirst = 0.0
+unit_test.nsteps = 1
+unit_test.tmax = 1.e2
+
+unit_test.density       = 1.e7
+unit_test.temperature   = 5.e9
+
+unit_test.X1  = 0.0e0
+unit_test.X2  = 0.5e0
+unit_test.X3  = 0.5e0
+unit_test.X4  = 0.0e0
+unit_test.X5  = 0.0e0
+unit_test.X6  = 0.0e0
+unit_test.X7  = 0.0e0
+unit_test.X8  = 0.0e0
+unit_test.X9  = 0.0e0
+unit_test.X10 = 0.0e0
+unit_test.X11 = 0.0e0
+unit_test.X12 = 0.0e0
+unit_test.X13 = 0.0e0
+
+integrator.burner_verbose = 1
+integrator.jacobian = 2
+
+integrator.renormalize_abundances = 0
+
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
+integrator.atol_spec = 1.0e-6
+integrator.atol_enuc = 1.0e-6
+
+integrator.call_eos_in_rhs = 0
+
+integrator.ode_max_steps = 10000000

@@ -13,6 +13,7 @@
 #else
 #include <fortran_to_cxx_actual_rhs.H>
 #endif
+#include <numerical_jacobian.H>
 
 // The f_rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
@@ -68,7 +69,26 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     JacNetArray2D jac_react;
 
-    actual_jac(state, jac_react);
+    if (jacobian == 3) {
+        numerical_jac(state, jac_react);
+    } else {
+        actual_jac(state, jac_react);
+
+        // The Jacobian from the nets is in terms of dYdot/dY, but we want
+        // it was dXdot/dX, so convert here.
+        for (int n = 1; n <= NumSpec; n++) {
+            for (int m = 1; m <= neqs; m++) {
+                jac_react(n,m) = jac_react(n,m) * aion[n-1];
+            }
+        }
+
+        for (int m = 1; m <= neqs; m++) {
+            for (int n = 1; n <= NumSpec; n++) {
+                jac_react(m,n) = jac_react(m,n) * aion_inv[n-1];
+            }
+        }
+
+    }
 
     // apply fudge factor:
 

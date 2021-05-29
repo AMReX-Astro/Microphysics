@@ -933,6 +933,15 @@ void screen_aprox19 (Real btemp, Real bden,
        //dratdumdd(irr1) = (dratdumdd(iralpa) - ratdum(irr1)*denomdd)*zz;
     }
 
+    // add to the effective Mg24 <-> Si28 rates
+
+    ratdum(Mg24_He4_to_Si28_forward) += ratdum(irmgap) * (1.0_rt - ratdum(irr1));
+    dratdumdt(Mg24_He4_to_Si28_forward) += dratdumdt(irmgap) * (1.0_rt - ratdum(irr1)) - ratdum(irmgap) * dratdumdt(irr1);
+
+    ratdum(Mg24_He4_to_Si28_reverse) += ratdum(irsigp) * ratdum(irr1);
+    dratdumdt(Mg24_He4_to_Si28_reverse) += dratdumdt(irsigp) * ratdum(irr1) + ratdum(irsigp) * dratdumdt(irr1);
+
+
     // si28(a,p)p31(p,g)s32
     ratdum(irs1)     = 0.0_rt;
     dratdumdt(irs1)  = 0.0_rt;
@@ -946,6 +955,14 @@ void screen_aprox19 (Real btemp, Real bden,
        dratdumdt(irs1) = (dratdumdt(irppa) - ratdum(irs1)*denomdt)*zz;
        //dratdumdd(irs1) = (dratdumdd(irppa) - ratdum(irs1)*denomdd)*zz;
     }
+
+    // add to the effective Si28 <-> S32 rates
+
+    ratdum(Si28_He4_to_S32_forward) += ratdum(irsiap) * (1.0_rt - ratdum(irs1));
+    dratdumdt(Si28_He4_to_S32_forward) += dratdumdt(irsiap) * (1.0_rt - ratdum(irs1)) - ratdum(irsiap) * dratdumdt(irs1);
+
+    ratdum(Si28_He4_to_S32_reverse) += ratdum(irsgp) * ratdum(irs1);
+    dratdumdt(Si28_He4_to_S32_reverse) += dratdumdt(irsgp) * ratdum(irs1) + ratdum(irsgp) * dratdumdt(irs1);
 
     // Branching ratios for O16 + O16:
     // 0.56: O16 + O16 -> Si28 + He4
@@ -972,6 +989,14 @@ void screen_aprox19 (Real btemp, Real bden,
        //dratdumdd(irt1) = (dratdumdd(irclpa) - ratdum(irt1)*denomdd)*zz;
     }
 
+    // add to the effective S32 <-> Ar36 rates
+
+    ratdum(S32_He4_to_Ar36_forward) += ratdum(irsap) * (1.0_rt - ratdum(irt1));
+    dratdumdt(S32_He4_to_Ar36_forward) += dratdumdt(irsap) * (1.0_rt - ratdum(irt1)) - ratdum(irsap) * dratdumdt(irt1);
+
+    ratdum(S32_He4_to_Ar36_reverse) += ratdum(irargp) * ratdum(irt1);
+    dratdumdt(S32_He4_to_Ar36_reverse) += dratdumdt(irargp) * ratdum(irt1) + ratdum(irargp) * dratdumdt(irt1);
+
     // ar36(a,p)k39(p,g)ca40
     ratdum(iru1)     = 0.0_rt;
     dratdumdt(iru1)  = 0.0_rt;
@@ -985,6 +1010,14 @@ void screen_aprox19 (Real btemp, Real bden,
        dratdumdt(iru1) = (dratdumdt(irkpa) - ratdum(iru1)*denomdt)*zz;
        //dratdumdd(iru1) = (dratdumdd(irkpa) - ratdum(iru1)*denomdd)*zz;
     }
+
+    // add to the effective Ar36 <-> Ca40 rates
+
+    ratdum(Ar36_He4_to_Ca40_forward) += ratdum(irarap) * (1.0_rt - ratdum(iru1));
+    dratdumdt(Ar36_He4_to_Ca40_forward) += dratdumdt(irarap) * (1.0_rt - ratdum(iru1)) - ratdum(irarap) * dratdumdt(iru1);
+
+    ratdum(Ar36_He4_to_Ca40_reverse) += ratdum(ircagp) * ratdum(iru1);
+    dratdumdt(Ar36_He4_to_Ca40_reverse) += dratdumdt(ircagp) * ratdum(iru1) + ratdum(ircagp) * dratdumdt(iru1);
 
     // ca40(a,p)sc43(p,g)ti44
     ratdum(irv1)     = 0.0_rt;
@@ -1000,6 +1033,14 @@ void screen_aprox19 (Real btemp, Real bden,
        //dratdumdd(irv1) = (dratdumdd(irscpa) - ratdum(irv1)*denomdd)*zz;
     }
 
+    // add to the effective Ca40 <-> Ti44 rates
+
+    ratdum(Ca40_He4_to_Ti44_forward) += ratdum(ircaap) * (1.0_rt - ratdum(irv1));
+    dratdumdt(Ca40_He4_to_Ti44_forward) += dratdumdt(ircaap) * (1.0_rt - ratdum(irv1)) - ratdum(ircaap) * dratdumdt(irv1);
+
+    ratdum(Ca40_He4_to_Ti44_reverse) += ratdum(irtigp) * ratdum(irv1);
+    dratdumdt(Ca40_He4_to_Ti44_reverse) += dratdumdt(irtigp) * ratdum(irv1) + ratdum(irtigp) * dratdumdt(irv1);
+
     // ti44(a,p)v47(p,g)cr48
     ratdum(irw1)    = 0.0_rt;
     dratdumdt(irw1) = 0.0_rt;
@@ -1014,6 +1055,14 @@ void screen_aprox19 (Real btemp, Real bden,
        //dratdumdd(irw1) = (dratdumdd(irvpa) - ratdum(irw1)*denomdd)*zz;
     }
 
+    // add to the effective Ti44 <-> Cr48 rates
+
+    ratdum(Ti44_He4_to_Cr48_forward) += ratdum(irtiap) * (1.0_rt - ratdum(irw1));
+    dratdumdt(Ti44_He4_to_Cr48_forward) += dratdumdt(irtiap) * (1.0_rt - ratdum(irw1)) - ratdum(irtiap) * dratdumdt(irw1);
+
+    ratdum(Ti44_He4_to_Cr48_reverse) += ratdum(ircrgp) * ratdum(irw1);
+    dratdumdt(Ti44_He4_to_Cr48_reverse) += dratdumdt(ircrgp) * ratdum(irw1) + ratdum(ircrgp) * dratdumdt(irw1);
+
     // cr48(a,p)mn51(p,g)fe52
     ratdum(irx1)    = 0.0_rt;
     dratdumdt(irx1) = 0.0_rt;
@@ -1027,6 +1076,14 @@ void screen_aprox19 (Real btemp, Real bden,
        dratdumdt(irx1) = (dratdumdt(irmnpa) - ratdum(irx1)*denomdt)*zz;
        //dratdumdd(irx1) = (dratdumdd(irmnpa) - ratdum(irx1)*denomdd)*zz;
     }
+
+    // add to the effective Cr48 <-> Fe52 rates
+
+    ratdum(Cr48_He4_to_Fe52_forward) += ratdum(ircrap) * (1.0_rt - ratdum(irx1));
+    dratdumdt(Cr48_He4_to_Fe52_forward) += dratdumdt(ircrap) * (1.0_rt - ratdum(irx1)) - ratdum(ircrap) * dratdumdt(irx1);
+
+    ratdum(Cr48_He4_to_Fe52_reverse) += ratdum(irfegp) * ratdum(irx1);
+    dratdumdt(Cr48_He4_to_Fe52_reverse) += dratdumdt(irfegp) * ratdum(irx1) + ratdum(irfegp) * dratdumdt(irx1);
 
 
     // fe52(n,g)fe53(n,g)fe54 equilibrium links
@@ -1373,60 +1430,60 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
     if (!deriva) {
         a(1)  =  0.0_rt;
-        a(2)  = -y(He4)  * y(Mg24) * rate(irmgap)*(1.0e0_rt-rate(irr1));
-        a(3)  =  y(Si28) * rate(irsigp) * rate(irr1);
-        a(4)  = -y(He4)  * y(Si28) * rate(irsiap)*(1.0e0_rt-rate(irs1));
-        a(5)  =  y(S32)  * rate(irsgp) * rate(irs1);
-        a(6)  = -y(He4)  * y(S32) * rate(irsap)*(1.0e0_rt-rate(irt1));
-        a(7)  =  y(Ar36) * rate(irargp) * rate(irt1);
-        a(8)  = -y(He4)  * y(Ar36) * rate(irarap)*(1.0e0_rt-rate(iru1));
-        a(9)  =  y(Ca40) * rate(ircagp) * rate(iru1);
-        a(10) = -y(He4)  * y(Ca40) * rate(ircaap)*(1.0e0_rt-rate(irv1));
-        a(11) =  y(Ti44) * rate(irtigp) * rate(irv1);
-        a(12) = -y(He4)  * y(Ti44) * rate(irtiap)*(1.0e0_rt-rate(irw1));
-        a(13) =  y(Cr48) * rate(ircrgp) * rate(irw1);
-        a(14) = -y(He4)  * y(Cr48) * rate(ircrap)*(1.0e0_rt-rate(irx1));
-        a(15) =  y(Fe52) * rate(irfegp) * rate(irx1);
+        a(2)  =  0.0_rt;
+        a(3)  =  0.0_rt;
+        a(4)  =  0.0_rt;
+        a(5)  =  0.0_rt;
+        a(6)  =  0.0_rt;
+        a(7)  =  0.0_rt;
+        a(8)  =  0.0_rt;
+        a(9)  =  0.0_rt;
+        a(10) =  0.0_rt;
+        a(11) =  0.0_rt;
+        a(12) =  0.0_rt;
+        a(13) =  0.0_rt;
+        a(14) =  0.0_rt;
+        a(15) =  0.0_rt;
 
         dydt(He4) =  dydt(He4) + esum15(a);
 
     } else {
         a(1)  =  0.0_rt;
         a(2)  =  0.0_rt;
-        a(3)  = -y(He4)*y(Mg24) * rate(irmgap)*(1.0e0_rt - ratdum(irr1));
-        a(4)  =  y(He4)*y(Mg24) * ratdum(irmgap)*rate(irr1);
-        a(5)  =  y(Si28) * ratdum(irsigp) * rate(irr1);
-        a(6)  =  y(Si28) * rate(irsigp) * ratdum(irr1);
-        a(7)  = -y(He4)*y(Si28) * rate(irsiap)*(1.0e0_rt - ratdum(irs1));
-        a(8)  =  y(He4)*y(Si28) * ratdum(irsiap) * rate(irs1);
-        a(9)  =  y(S32)  * ratdum(irsgp) * rate(irs1);
-        a(10) =  y(S32)  * rate(irsgp) * ratdum(irs1);
+        a(3)  =  0.0_rt;
+        a(4)  =  0.0_rt;
+        a(5)  =  0.0_rt;
+        a(6)  =  0.0_rt;
+        a(7)  =  0.0_rt;
+        a(8)  =  0.0_rt;
+        a(9)  =  0.0_rt;
+        a(10) =  0.0_rt;
 
         dydt(He4) =  dydt(He4) + esum10(a);
 
-        a(1)  = -y(He4)*y(S32) * rate(irsap)*(1.0e0_rt - ratdum(irt1));
-        a(2)  =  y(He4)*y(S32) * ratdum(irsap)*rate(irt1);
-        a(3)  =  y(Ar36) * ratdum(irargp) * rate(irt1);
-        a(4)  =  y(Ar36) * rate(irargp) * ratdum(irt1);
-        a(5)  = -y(He4)*y(Ar36) * rate(irarap)*(1.0e0_rt - ratdum(iru1));
-        a(6)  =  y(He4)*y(Ar36) * ratdum(irarap)*rate(iru1);
-        a(7)  =  y(Ca40) * ratdum(ircagp) * rate(iru1);
-        a(8)  =  y(Ca40) * rate(ircagp) * ratdum(iru1);
-        a(9)  = -y(He4)*y(Ca40) * rate(ircaap)*(1.0e0_rt-ratdum (irv1));
-        a(10) =  y(He4)*y(Ca40) * ratdum(ircaap)*rate(irv1);
-        a(11) =  y(Ti44) * ratdum(irtigp) * rate(irv1);
-        a(12) =  y(Ti44) * rate(irtigp) * ratdum(irv1);
+        a(1)  =  0.0_rt;
+        a(2)  =  0.0_rt;
+        a(3)  =  0.0_rt;
+        a(4)  =  0.0_rt;
+        a(5)  =  0.0_rt;
+        a(6)  =  0.0_rt;
+        a(7)  =  0.0_rt;
+        a(8)  =  0.0_rt;
+        a(9)  =  0.0_rt;
+        a(10) =  0.0_rt;
+        a(11) =  0.0_rt;
+        a(12) =  0.0_rt;
 
         dydt(He4) =  dydt(He4) + esum12(a);
 
-        a(1)  = -y(He4)*y(Ti44) * rate(irtiap)*(1.0e0_rt - ratdum(irw1));
-        a(2)  =  y(He4)*y(Ti44) * ratdum(irtiap)*rate(irw1);
-        a(3)  =  y(Cr48) * ratdum(ircrgp) * rate(irw1);
-        a(4)  =  y(Cr48) * rate(ircrgp) * ratdum(irw1);
-        a(5)  = -y(He4)*y(Cr48) * rate(ircrap)*(1.0e0_rt - ratdum(irx1));
-        a(6)  =  y(He4)*y(Cr48) * ratdum(ircrap)*rate(irx1);
-        a(7)  =  y(Fe52) * ratdum(irfegp) * rate(irx1);
-        a(8)  =  y(Fe52) * rate(irfegp) * ratdum(irx1);
+        a(1)  =  0.0_rt;
+        a(2)  =  0.0_rt;
+        a(3)  =  0.0_rt;
+        a(4)  =  0.0_rt;
+        a(5)  =  0.0_rt;
+        a(6)  =  0.0_rt;
+        a(7)  =  0.0_rt;
+        a(8)  =  0.0_rt;
 
         dydt(He4) =  dydt(He4) + esum8(a);
     }
@@ -1541,16 +1598,16 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(Mg24) =  dydt(Mg24) + esum5(a);
 
     if (!deriva) {
-        a(1) = -y(Mg24) * y(He4) * rate(irmgap)*(1.0e0_rt-rate(irr1));
-        a(2) =  y(Si28) * rate(irr1) * rate(irsigp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
 
         dydt(Mg24) =  dydt(Mg24) + (a(1) + a(2));
 
     } else {
-        a(1) = -y(Mg24)*y(He4) * rate(irmgap)*(1.0e0_rt - ratdum(irr1));
-        a(2) =  y(Mg24)*y(He4) * ratdum(irmgap)*rate(irr1);
-        a(3) =  y(Si28) * ratdum(irr1) * rate(irsigp);
-        a(4) =  y(Si28) * rate(irr1) * ratdum(irsigp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
 
         dydt(Mg24) =  dydt(Mg24) + esum4(a);
     }
@@ -1568,24 +1625,24 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
     if (!deriva) {
         a(1) =  0.0_rt;
-        a(2) =  y(Mg24) * y(He4) * rate(irmgap)*(1.0e0_rt-rate(irr1));
-        a(3) = -y(Si28) * rate(irr1) * rate(irsigp);
-        a(4) = -y(Si28) * y(He4) * rate(irsiap)*(1.0e0_rt-rate(irs1));
-        a(5) =  y(S32)  * rate(irs1) * rate(irsgp);
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
+        a(5) =  0.0_rt;
 
         dydt(Si28) =  dydt(Si28) + esum5(a);
 
     } else {
         a(1)  =  0.0_rt;
         a(2)  =  0.0_rt;
-        a(3)  =  y(Mg24)*y(He4) * rate(irmgap)*(1.0e0_rt - ratdum(irr1));
-        a(4)  = -y(Mg24)*y(He4) * ratdum(irmgap)*rate(irr1);
-        a(5)  = -y(Si28) * ratdum(irr1) * rate(irsigp);
-        a(6)  = -y(Si28) * rate(irr1) * ratdum(irsigp);
-        a(7)  = -y(Si28)*y(He4) * rate(irsiap)*(1.0e0_rt - ratdum(irs1));
-        a(8)  =  y(Si28)*y(He4) * ratdum(irsiap)*rate(irs1);
-        a(9)  = y(S32) * ratdum(irs1) * rate(irsgp);
-        a(10) = y(S32) * rate(irs1) * ratdum(irsgp);
+        a(3)  =  0.0_rt;
+        a(4)  =  0.0_rt;
+        a(5)  =  0.0_rt;
+        a(6)  =  0.0_rt;
+        a(7)  =  0.0_rt;
+        a(8)  =  0.0_rt;
+        a(9)  =  0.0_rt;
+        a(10) =  0.0_rt;
 
         dydt(Si28) =  dydt(Si28) + esum10(a);
     }
@@ -1602,24 +1659,24 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
 
     if (!deriva) {
         a(1) =  0.0_rt;
-        a(2) =  y(Si28) * y(He4) * rate(irsiap)*(1.0e0_rt-rate(irs1));
-        a(3) = -y(S32) * rate(irs1) * rate(irsgp);
-        a(4) = -y(S32) * y(He4) * rate(irsap)*(1.0e0_rt-rate(irt1));
-        a(5) =  y(Ar36) * rate(irt1) * rate(irargp);
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
+        a(5) =  0.0_rt;
 
         dydt(S32) =  dydt(S32) + esum5(a);
 
     } else {
         a(1)  =  0.0_rt;
         a(2)  =  0.0_rt;
-        a(3)  =  y(Si28)*y(He4) * rate(irsiap)*(1.0e0_rt-ratdum(irs1));
-        a(4)  = -y(Si28)*y(He4) * ratdum(irsiap)*rate(irs1);
-        a(5)  = -y(S32) * ratdum(irs1) * rate(irsgp);
-        a(6)  = -y(S32) * rate(irs1) * ratdum(irsgp);
-        a(7)  = -y(S32)*y(He4) * rate(irsap)*(1.0e0_rt-ratdum(irt1));
-        a(8)  =  y(S32)*y(He4) * ratdum(irsap)*rate(irt1);
-        a(9)  =  y(Ar36) * ratdum(irt1) * rate(irargp);
-        a(10) =  y(Ar36) * rate(irt1) * ratdum(irargp);
+        a(3)  =  0.0_rt;
+        a(4)  =  0.0_rt;
+        a(5)  =  0.0_rt;
+        a(6)  =  0.0_rt;
+        a(7)  =  0.0_rt;
+        a(8)  =  0.0_rt;
+        a(9)  =  0.0_rt;
+        a(10) =  0.0_rt;
 
         dydt(S32) =  dydt(S32) + esum10(a);
     }
@@ -1634,22 +1691,22 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(Ar36) =  dydt(Ar36) + esum4(a);
 
     if (!deriva) {
-        a(1) = y(S32)  * y(He4) * rate(irsap)*(1.0e0_rt-rate(irt1));
-        a(2) = -y(Ar36) * rate(irt1) * rate(irargp);
-        a(3) = -y(Ar36) * y(He4) * rate(irarap)*(1.0e0_rt-rate(iru1));
-        a(4) =  y(Ca40) * rate(ircagp) * rate(iru1);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
 
         dydt(Ar36) =  dydt(Ar36) + esum4(a);
 
     } else {
-        a(1) =  y(S32)*y(He4) * rate(irsap)*(1.0e0_rt - ratdum(irt1));
-        a(2) = -y(S32)*y(He4) * ratdum(irsap)*rate(irt1);
-        a(3) = -y(Ar36) * ratdum(irt1) * rate(irargp);
-        a(4) = -y(Ar36) * rate(irt1) * ratdum(irargp);
-        a(5) = -y(Ar36)*y(He4) * rate(irarap)*(1.0e0_rt-ratdum(iru1));
-        a(6) =  y(Ar36)*y(He4) * ratdum(irarap)*rate(iru1);
-        a(7) =  y(Ca40) * ratdum(ircagp) * rate(iru1);
-        a(8) =  y(Ca40) * rate(ircagp) * ratdum(iru1);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
+        a(5) =  0.0_rt;
+        a(6) =  0.0_rt;
+        a(7) =  0.0_rt;
+        a(8) =  0.0_rt;
 
         dydt(Ar36) =  dydt(Ar36) + esum8(a);
     }
@@ -1664,22 +1721,22 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(Ca40) =  dydt(Ca40) + esum4(a);
 
     if (!deriva) {
-        a(1) =  y(Ar36) * y(He4) * rate(irarap)*(1.0e0_rt-rate(iru1));
-        a(2) = -y(Ca40) * rate(ircagp) * rate(iru1);
-        a(3) = -y(Ca40) * y(He4) * rate(ircaap)*(1.0e0_rt-rate(irv1));
-        a(4) =  y(Ti44) * rate(irtigp) * rate(irv1);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
 
         dydt(Ca40) =  dydt(Ca40) + esum4(a);
 
     } else {
-        a(1) =  y(Ar36)*y(He4) * rate(irarap)*(1.0e0_rt-ratdum(iru1));
-        a(2) = -y(Ar36)*y(He4) * ratdum(irarap)*rate(iru1);
-        a(3) = -y(Ca40) * ratdum(ircagp) * rate(iru1);
-        a(4) = -y(Ca40) * rate(ircagp) * ratdum(iru1);
-        a(5) = -y(Ca40)*y(He4) * rate(ircaap)*(1.0e0_rt-ratdum(irv1));
-        a(6) =  y(Ca40)*y(He4) * ratdum(ircaap)*rate(irv1);
-        a(7) =  y(Ti44) * ratdum(irtigp) * rate(irv1);
-        a(8) =  y(Ti44) * rate(irtigp) * ratdum(irv1);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
+        a(5) =  0.0_rt;
+        a(6) =  0.0_rt;
+        a(7) =  0.0_rt;
+        a(8) =  0.0_rt;
 
         dydt(Ca40) =  dydt(Ca40) + esum8(a);
     }
@@ -1694,22 +1751,22 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(Ti44) =  dydt(Ti44) + esum4(a);
 
     if (!deriva) {
-        a(1) =  y(Ca40) * y(He4) * rate(ircaap)*(1.0e0_rt-rate(irv1));
-        a(2) = -y(Ti44) * rate(irv1) * rate(irtigp);
-        a(3) = -y(Ti44) * y(He4) * rate(irtiap)*(1.0e0_rt-rate(irw1));
-        a(4) =  y(Cr48) * rate(irw1) * rate(ircrgp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
 
         dydt(Ti44) =  dydt(Ti44) + esum4(a);
 
     } else {
-        a(1) =  y(Ca40)*y(He4) * rate(ircaap)*(1.0e0_rt-ratdum(irv1));
-        a(2) = -y(Ca40)*y(He4) * ratdum(ircaap)*rate(irv1);
-        a(3) = -y(Ti44) * ratdum(irv1) * rate(irtigp);
-        a(4) = -y(Ti44) * rate(irv1) * ratdum(irtigp);
-        a(5) = -y(Ti44)*y(He4) * rate(irtiap)*(1.0e0_rt-ratdum(irw1));
-        a(6) =  y(Ti44)*y(He4) * ratdum(irtiap)*rate(irw1);
-        a(7) =  y(Cr48) * ratdum(irw1) * rate(ircrgp);
-        a(8) =  y(Cr48) * rate(irw1) * ratdum(ircrgp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
+        a(5) =  0.0_rt;
+        a(6) =  0.0_rt;
+        a(7) =  0.0_rt;
+        a(8) =  0.0_rt;
 
         dydt(Ti44) =  dydt(Ti44) + esum8(a);
     }
@@ -1724,22 +1781,22 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(Cr48) =  dydt(Cr48) + esum4(a);
 
     if (!deriva) {
-        a(1) =  y(Ti44) * y(He4) * rate(irtiap)*(1.0e0_rt-rate(irw1));
-        a(2) = -y(Cr48) * rate(irw1) * rate(ircrgp);
-        a(3) = -y(Cr48) * y(He4) * rate(ircrap)*(1.0e0_rt-rate(irx1));
-        a(4) =  y(Fe52) * rate(irx1) * rate(irfegp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
 
         dydt(Cr48) =  dydt(Cr48) + esum4(a);
 
     } else {
-        a(1) =  y(Ti44)*y(He4) * rate(irtiap)*(1.0e0_rt-ratdum(irw1));
-        a(2) = -y(Ti44)*y(He4) * ratdum(irtiap)*rate(irw1);
-        a(3) = -y(Cr48) * ratdum(irw1) * rate(ircrgp);
-        a(4) = -y(Cr48) * rate(irw1) * ratdum(ircrgp);
-        a(5) = -y(Cr48)*y(He4) * rate(ircrap)*(1.0e0_rt-ratdum(irx1));
-        a(6) =  y(Cr48)*y(He4) * ratdum(ircrap)*rate(irx1);
-        a(7) =  y(Fe52) * ratdum(irx1) * rate(irfegp);
-        a(8) =  y(Fe52) * rate(irx1) * ratdum(irfegp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
+        a(5) =  0.0_rt;
+        a(6) =  0.0_rt;
+        a(7) =  0.0_rt;
+        a(8) =  0.0_rt;
 
         dydt(Cr48) =  dydt(Cr48) + esum8(a);
     }
@@ -1755,15 +1812,15 @@ void rhs (Array1D<Real, 1, NumSpec> const& y,
     dydt(Fe52) =  dydt(Fe52) + esum4(a);
 
     if (!deriva) {
-        a(1) =  y(Cr48) * y(He4) * rate(ircrap)*(1.0e0_rt-rate(irx1));
-        a(2) = -y(Fe52) * rate(irx1) * rate(irfegp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
         dydt(Fe52) =  dydt(Fe52) + (a(1) + a(2));
 
     } else {
-        a(1) =  y(Cr48)*y(He4) * rate(ircrap)*(1.0e0_rt-ratdum(irx1));
-        a(2) = -y(Cr48)*y(He4) * ratdum(ircrap)*rate(irx1);
-        a(3) = -y(Fe52) * ratdum(irx1) * rate(irfegp);
-        a(4) = -y(Fe52) * rate(irx1) * ratdum(irfegp);
+        a(1) =  0.0_rt;
+        a(2) =  0.0_rt;
+        a(3) =  0.0_rt;
+        a(4) =  0.0_rt;
         dydt(Fe52) =  dydt(Fe52) + esum4(a);
     }
 
@@ -1923,13 +1980,13 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     b(10) = -y(Ti44) * ratdum(Ti44_He4_to_Cr48_forward);
     b(11) = -y(Cr48) * ratdum(Cr48_He4_to_Fe52_forward);
     b(12) = -y(Fe52) * ratdum(Fe52_He4_to_Ni56_forward);
-    b(13) = -y(Mg24) * ratdum(irmgap) * (1.0e0_rt-ratdum(irr1));
-    b(14) = -y(Si28) * ratdum(irsiap) * (1.0e0_rt-ratdum(irs1));
-    b(15) = -y(S32)  * ratdum(irsap)  * (1.0e0_rt-ratdum(irt1));
-    b(16) = -y(Ar36) * ratdum(irarap) * (1.0e0_rt-ratdum(iru1));
-    b(17) = -y(Ca40) * ratdum(ircaap) * (1.0e0_rt-ratdum(irv1));
-    b(18) = -y(Ti44) * ratdum(irtiap) * (1.0e0_rt-ratdum(irw1));
-    b(19) = -y(Cr48) * ratdum(ircrap) * (1.0e0_rt-ratdum(irx1));
+    b(13) =  0.0_rt;
+    b(14) =  0.0_rt;
+    b(15) =  0.0_rt;
+    b(16) =  0.0_rt;
+    b(17) =  0.0_rt;
+    b(18) =  0.0_rt;
+    b(19) =  0.0_rt;
     b(20) = -y(Fe52) * ratdum(ir6f54);
     b(21) = -y(Fe52) * y(P) * ratdum(ir7f54);
     b(22) = -ratdum(iralf1);
@@ -1966,55 +2023,55 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(he4)/d(mg24)
     b(1) =  ratdum(Ne20_He4_to_Mg24_reverse);
     b(2) = -y(He4) * ratdum(Mg24_He4_to_Si28_forward);
-    b(3) = -y(He4) * ratdum(irmgap) * (1.0e0_rt-ratdum(irr1));
+    b(3) =  0.0_rt;
     dfdy(He4,Mg24) = esum3(b);
 
     // d(he4)/d(si28)
     b(1) =  ratdum(Mg24_He4_to_Si28_reverse);
     b(2) = -y(He4) * ratdum(Si28_He4_to_S32_forward);
-    b(3) = -y(He4) * ratdum(irsiap) * (1.0e0_rt-ratdum(irs1));
-    b(4) =  ratdum(irr1) * ratdum(irsigp);
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(He4,Si28) = esum4(b);
 
     // d(he4)/d(s32)
     b(1) =  ratdum(Si28_He4_to_S32_reverse);
     b(2) = -y(He4) * ratdum(S32_He4_to_Ar36_forward);
-    b(3) = -y(He4) * ratdum(irsap) * (1.0e0_rt-ratdum(irt1));
-    b(4) =  ratdum(irs1) * ratdum(irsgp);
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(He4,S32) = esum4(b);
 
     // d(he4)/d(ar36)
     b(1)  =  ratdum(S32_He4_to_Ar36_reverse);
     b(2)  = -y(He4) * ratdum(Ar36_He4_to_Ca40_forward);
-    b(3)  = -y(He4) * ratdum(irarap) * (1.0e0_rt-ratdum(iru1));
-    b(4)  =  ratdum(irt1) * ratdum(irargp);
+    b(3)  =  0.0_rt;
+    b(4)  =  0.0_rt;
     dfdy(He4,Ar36) = esum4(b);
 
     // d(he4)/d(ca40)
     b(1) =  ratdum(Ar36_He4_to_Ca40_reverse);
     b(2) = -y(He4) * ratdum(Ca40_He4_to_Ti44_forward);
-    b(3) = -y(He4) * ratdum(ircaap) * (1.0e0_rt-ratdum(irv1));
-    b(4) =  ratdum(iru1) * ratdum(ircagp);
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(He4,Ca40) = esum4(b);
 
     // d(he4)/d(ti44)
     b(1) =  ratdum(Ca40_He4_to_Ti44_reverse);
     b(2) = -y(He4) * ratdum(Ti44_He4_to_Cr48_forward);
-    b(3) = -y(He4) * ratdum(irtiap) * (1.0e0_rt-ratdum(irw1));
-    b(4) =  ratdum(irv1) * ratdum(irtigp);
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(He4,Ti44) = esum4(b);
 
     // d(he4)/d(cr48)
     b(1) =  ratdum(Ti44_He4_to_Cr48_reverse);
     b(2) = -y(He4) * ratdum(Cr48_He4_to_Fe52_forward);
-    b(3) = -y(He4) * ratdum(ircrap) * (1.0e0_rt-ratdum(irx1));
-    b(4) =  ratdum(irw1) * ratdum(ircrgp);
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(He4,Cr48) = esum4(b);
 
     // d(he4)/d(fe52)
     b(1) =  ratdum(Cr48_He4_to_Fe52_reverse);
     b(2) = -y(He4) * ratdum(Fe52_He4_to_Ni56_forward);
-    b(3) =  ratdum(irx1) * ratdum(irfegp);
+    b(3) =  0.0_rt;
     b(4) = -y(He4) * ratdum(ir6f54);
     b(5) = -y(He4) * y(P) * ratdum(ir7f54);
     dfdy(He4,Fe52) = esum5(b);
@@ -2167,7 +2224,7 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(mg24)/d(he4)
     b(1) =  y(Ne20) * ratdum(Ne20_He4_to_Mg24_forward);
     b(2) = -y(Mg24) * ratdum(Mg24_He4_to_Si28_forward);
-    b(3) = -y(Mg24) * ratdum(irmgap) * (1.0e0_rt-ratdum(irr1));
+    b(3) =  0.0_rt;
     dfdy(Mg24,He4) = esum3(b);
 
     // d(mg24)/d(c12)
@@ -2182,12 +2239,12 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(mg24)/d(mg24)
     b(1) = -y(He4) * ratdum(Mg24_He4_to_Si28_forward);
     b(2) = -ratdum(Ne20_He4_to_Mg24_reverse);
-    b(3) = -y(He4) * ratdum(irmgap) * (1.0e0_rt-ratdum(irr1));
+    b(3) =  0.0_rt;
     dfdy(Mg24,Mg24) = esum3(b);
 
     // d(mg24)/d(si28)
     b(1) = ratdum(Mg24_He4_to_Si28_reverse);
-    b(2) = ratdum(irr1) * ratdum(irsigp);
+    b(2) = 0.0_rt;
     dfdy(Mg24,Si28) = b(1) + b(2);
 
 
@@ -2195,8 +2252,8 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(si28)/d(he4)
     b(1) =  y(Mg24) * ratdum(Mg24_He4_to_Si28_forward);
     b(2) = -y(Si28) * ratdum(Si28_He4_to_S32_forward);
-    b(3) =  y(Mg24) * ratdum(irmgap) * (1.0e0_rt-ratdum(irr1));
-    b(4) = -y(Si28) * ratdum(irsiap) * (1.0e0_rt-ratdum(irs1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Si28,He4) = esum4(b);
 
     // d(si28)/d(c12)
@@ -2209,19 +2266,19 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
 
     // d(si28)/d(mg24)
     b(1) =  y(He4) * ratdum(Mg24_He4_to_Si28_forward);
-    b(2) =  y(He4) * ratdum(irmgap) * (1.0e0_rt-ratdum(irr1));
+    b(2) =  0.0_rt;
     dfdy(Si28,Mg24) = b(1) + b(2);
 
     // d(si28)/d(si28)
     b(1) =  -y(He4) * ratdum(Si28_He4_to_S32_forward);
     b(2) = -ratdum(Mg24_He4_to_Si28_reverse);
-    b(3) = -ratdum(irr1) * ratdum(irsigp);
-    b(4) = -y(He4) * ratdum(irsiap) * (1.0e0_rt-ratdum(irs1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Si28,Si28) = esum4(b);
 
     // d(si28)/d(s32)
     b(1) = ratdum(Si28_He4_to_S32_reverse);
-    b(2) = ratdum(irs1) * ratdum(irsgp);
+    b(2) = 0.0_rt;
     dfdy(Si28,S32) = b(1) + b(2);
 
 
@@ -2229,8 +2286,8 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(s32)/d(he4)
     b(1) =  y(Si28) * ratdum(Si28_He4_to_S32_forward);
     b(2) = -y(S32) * ratdum(S32_He4_to_Ar36_forward);
-    b(3) =  y(Si28) * ratdum(irsiap) * (1.0e0_rt-ratdum(irs1));
-    b(4) = -y(S32) * ratdum(irsap) * (1.0e0_rt-ratdum(irt1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(S32,He4) = esum4(b);
 
     // d(s32)/d(o16)
@@ -2239,19 +2296,19 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
 
     // d(s32)/d(si28)
     b(1)  =y(He4) * ratdum(Si28_He4_to_S32_forward);
-    b(2) = y(He4) * ratdum(irsiap) * (1.0e0_rt-ratdum(irs1));
+    b(2) = 0.0_rt;
     dfdy(S32,Si28) = b(1) + b(2);
 
     // d(s32)/d(s32)
     b(1) = -y(He4) * ratdum(S32_He4_to_Ar36_forward);
     b(2) = -ratdum(Si28_He4_to_S32_reverse);
-    b(3) = -ratdum(irs1) * ratdum(irsgp);
-    b(4) = -y(He4) * ratdum(irsap) * (1.0e0_rt-ratdum(irt1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(S32,S32) = esum4(b);
 
     // d(s32)/d(ar36)
     b(1) = ratdum(S32_He4_to_Ar36_reverse);
-    b(2) = ratdum(irt1) * ratdum(irargp);
+    b(2) = 0.0_rt;
     dfdy(S32,Ar36) = b(1) + b(2);
 
 
@@ -2259,25 +2316,25 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(ar36)/d(he4)
     b(1) =  y(S32)  * ratdum(S32_He4_to_Ar36_forward);
     b(2) = -y(Ar36) * ratdum(Ar36_He4_to_Ca40_forward);
-    b(3) =  y(S32)  * ratdum(irsap) * (1.0e0_rt-ratdum(irt1));
-    b(4) = -y(Ar36) * ratdum(irarap) * (1.0e0_rt-ratdum(iru1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Ar36,He4) = esum4(b);
 
     // d(ar36)/d(s32)
     b(1) = y(He4) * ratdum(S32_He4_to_Ar36_forward);
-    b(2) = y(He4) * ratdum(irsap) * (1.0e0_rt-ratdum(irt1));
+    b(2) = 0.0_rt;
     dfdy(Ar36,S32) = b(1) + b(2);
 
     // d(ar36)/d(ar36)
     b(1) = -y(He4) * ratdum(Ar36_He4_to_Ca40_forward);
     b(2) = -ratdum(S32_He4_to_Ar36_reverse);
-    b(3) = -ratdum(irt1) * ratdum(irargp);
-    b(4) = -y(He4) * ratdum(irarap) * (1.0e0_rt-ratdum(iru1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Ar36,Ar36) = esum4(b);
 
     // d(ar36)/d(ca40)
     b(1) = ratdum(Ar36_He4_to_Ca40_reverse);
-    b(2) = ratdum(ircagp) * ratdum(iru1);
+    b(2) = 0.0_rt;
     dfdy(Ar36,Ca40) = b(1) + b(2);
 
 
@@ -2285,25 +2342,25 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(ca40)/d(he4)
     b(1)  =  y(Ar36) * ratdum(Ar36_He4_to_Ca40_forward);
     b(2)  = -y(Ca40) * ratdum(Ca40_He4_to_Ti44_forward);
-    b(3)  =  y(Ar36) * ratdum(irarap)*(1.0e0_rt-ratdum(iru1));
-    b(4)  = -y(Ca40) * ratdum(ircaap)*(1.0e0_rt-ratdum(irv1));
+    b(3)  =  0.0_rt;
+    b(4)  =  0.0_rt;
     dfdy(Ca40,He4) = esum4(b);
 
     // d(ca40)/d(ar36)
     b(1) =  y(He4) * ratdum(Ar36_He4_to_Ca40_forward);
-    b(2) =  y(He4) * ratdum(irarap)*(1.0e0_rt-ratdum(iru1));
+    b(2) =  0.0_rt;
     dfdy(Ca40,Ar36) = b(1) + b(2);
 
     // d(ca40)/d(ca40)
     b(1) = -y(He4) * ratdum(Ca40_He4_to_Ti44_forward);
     b(2) = -ratdum(Ar36_He4_to_Ca40_reverse);
-    b(3) = -ratdum(ircagp) * ratdum(iru1);
-    b(4) = -y(He4) * ratdum(ircaap)*(1.0e0_rt-ratdum(irv1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Ca40,Ca40) = esum4(b);
 
     // d(ca40)/d(ti44)
     b(1) = ratdum(Ca40_He4_to_Ti44_reverse);
-    b(2) = ratdum(irtigp) * ratdum(irv1);
+    b(2) = 0.0_rt;
     dfdy(Ca40,Ti44) = b(1) + b(2);
 
 
@@ -2311,25 +2368,25 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(ti44)/d(he4)
     b(1) =  y(Ca40) * ratdum(Ca40_He4_to_Ti44_forward);
     b(2) = -y(Ti44) * ratdum(Ti44_He4_to_Cr48_forward);
-    b(3) =  y(Ca40) * ratdum(ircaap)*(1.0e0_rt-ratdum(irv1));
-    b(4) = -y(Ti44) * ratdum(irtiap)*(1.0e0_rt-ratdum(irw1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Ti44,He4) = esum4(b);
 
     // d(ti44)/d(ca40)
     b(1) =  y(He4) * ratdum(Ca40_He4_to_Ti44_forward);
-    b(2) =  y(He4) * ratdum(ircaap)*(1.0e0_rt-ratdum(irv1));
+    b(2) =  0.0_rt;
     dfdy(Ti44,Ca40) = b(1) + b(2);
 
     // d(ti44)/d(ti44)
     b(1) = -y(He4) * ratdum(Ti44_He4_to_Cr48_forward);
     b(2) = -ratdum(Ca40_He4_to_Ti44_reverse);
-    b(3) = -ratdum(irv1) * ratdum(irtigp);
-    b(4) = -y(He4) * ratdum(irtiap)*(1.0e0_rt-ratdum(irw1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Ti44,Ti44) = esum4(b);
 
     // d(ti44)/d(cr48)
     b(1) = ratdum(Ti44_He4_to_Cr48_reverse);
-    b(2) = ratdum(irw1) * ratdum(ircrgp);
+    b(2) = 0.0_rt;
     dfdy(Ti44,Cr48) = b(1) + b(2);
 
 
@@ -2337,25 +2394,25 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(cr48)/d(he4)
     b(1) =  y(Ti44) * ratdum(Ti44_He4_to_Cr48_forward);
     b(2) = -y(Cr48) * ratdum(Cr48_He4_to_Fe52_forward);
-    b(3) =  y(Ti44) * ratdum(irtiap)*(1.0e0_rt-ratdum(irw1));
-    b(4) = -y(Cr48) * ratdum(ircrap)*(1.0e0_rt-ratdum(irx1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Cr48,He4) = esum4(b);
 
     // d(cr48)/d(ti44)
     b(1) =  y(He4) * ratdum(Ti44_He4_to_Cr48_forward);
-    b(2) =  y(He4) * ratdum(irtiap)*(1.0e0_rt-ratdum(irw1));
+    b(2) =  0.0_rt;
     dfdy(Cr48,Ti44) = b(1) + b(2);
 
     // d(cr48)/d(cr48)
     b(1) = -y(He4) * ratdum(Cr48_He4_to_Fe52_forward);
     b(2) = -ratdum(Ti44_He4_to_Cr48_reverse);
-    b(3) = -ratdum(irw1) * ratdum(ircrgp);
-    b(4) = -y(He4) * ratdum(ircrap)*(1.0e0_rt-ratdum(irx1));
+    b(3) =  0.0_rt;
+    b(4) =  0.0_rt;
     dfdy(Cr48,Cr48) = esum4(b);
 
     // d(cr48)/d(fe52)
     b(1) = ratdum(Cr48_He4_to_Fe52_reverse);
-    b(2) = ratdum(irx1) * ratdum(irfegp);
+    b(2) = 0.0_rt;
     dfdy(Cr48,Fe52) = b(1) + b(2);
 
 
@@ -2363,20 +2420,20 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // d(fe52)/d(he4)
     b(1) =  y(Cr48) * ratdum(Cr48_He4_to_Fe52_forward);
     b(2) = -y(Fe52) * ratdum(Fe52_He4_to_Ni56_forward);
-    b(3) =  y(Cr48) * ratdum(ircrap) * (1.0e0_rt-ratdum(irx1));
+    b(3) =  0.0_rt;
     b(4) = -y(Fe52) * ratdum(ir6f54);
     b(5) = -y(Fe52) * y(P) * ratdum(ir7f54);
     dfdy(Fe52,He4) = esum5(b);
 
     // d(fe52)/d(cr48)
     b(1) = y(He4) * ratdum(Cr48_He4_to_Fe52_forward);
-    b(2) = y(He4) * ratdum(ircrap) * (1.0e0_rt-ratdum(irx1));
+    b(2) = 0.0_rt;
     dfdy(Fe52,Cr48) = b(1) + b(2);
 
     // d(fe52)/d(fe52)
     b(1) = -y(He4) * ratdum(Fe52_He4_to_Ni56_forward);
     b(2) = -ratdum(Cr48_He4_to_Fe52_reverse);
-    b(3) = -ratdum(irx1) * ratdum(irfegp);
+    b(3) =  0.0_rt;
     b(4) = -y(N) * y(N) * ratdum(ir2f54);
     b(5) = -y(He4) * ratdum(ir6f54);
     b(6) = -y(He4) * y(P) * ratdum(ir7f54);
@@ -2549,7 +2606,7 @@ template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate (T const& dydt, Real& enuc)
 {
-    using namespace aprox19;
+    using namespace network;
 
     // This is basically e = m c**2
 

@@ -22,12 +22,6 @@ module actual_eos_module
 
   logical, allocatable, save :: assume_neutral
 
-  !$acc declare create(gamma_const, assume_neutral)
-
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: gamma_const, assume_neutral
-#endif
- 
 contains
 
   subroutine actual_eos_init
@@ -48,8 +42,6 @@ contains
 
     assume_neutral = eos_assume_neutral
 
-    !$acc update device(gamma_const, eos_assume_neutral)
-    
   end subroutine actual_eos_init
 
 
@@ -57,8 +49,6 @@ contains
     implicit none
     integer, intent(in) :: input
     logical, intent(out) :: valid
-
-    !$gpu
 
     valid = .true.
 
@@ -69,8 +59,6 @@ contains
 
 
   subroutine actual_eos(input, state)
-
-    !$acc routine seq
 
     use fundamental_constants_module, only: k_B, n_A, hbar
 
@@ -84,8 +72,6 @@ contains
     real(rt)        , parameter :: fac = ONE / (TWO*M_PI*hbar*hbar)**1.5e0_rt
 
     real(rt)         :: Tinv, rhoinv
-
-    !$gpu
 
     ! Calculate mu.
     

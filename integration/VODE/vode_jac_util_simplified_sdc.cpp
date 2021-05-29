@@ -48,20 +48,6 @@ void jac_to_vode(const Real time, burn_t& state,
     // network variables, X, T. e.  It does not have derivatives with
     // respect to density, so we'll have to compute those ourselves.
 
-    // The Jacobian from the nets is in terms of dYdot/dY, but we want
-    // it was dXdot/dX, so convert here.
-    for (int n = 1; n <= NumSpec; n++) {
-        for (int m = 1; m <= neqs; m++) {
-            jac_react(n,m) = jac_react(n,m) * aion[n-1];
-        }
-    }
-
-    for (int m = 1; m <= neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
-            jac_react(m,n) = jac_react(m,n) * aion_inv[n-1];
-        }
-    }
-
     // also fill the ydot
     YdotNetArray1D ydot;
     vode_to_burn(time, vode_state, state);
@@ -271,7 +257,7 @@ void jac_to_vode(const Real time, burn_t& state,
     }
 
     // d( d(rho h)/dt)/de
-    dRdw(SENTH+1, iwe) = state.rho * jac_react(net_ienuc, net_enuc);
+    dRdw(SENTH+1, iwe) = state.rho * jac_react(net_ienuc, net_ienuc);
 
     // d( d(rho)/dt)/de
     dRdw(SRHO_EXTRA+1, iwe) = 0.0_rt;
@@ -289,8 +275,8 @@ void jac_to_vode(const Real time, burn_t& state,
         dwdU(iwfs-1+m, SRHO_EXTRA+1) = -state.xn[m-1] / state.rho;
     }
 
-    // e row
-    eos_re_t eos_state;
+    // h row
+    eos_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = 1.e4_rt;   // initial guess
     for (int n = 0; n < NumSpec; n++) {

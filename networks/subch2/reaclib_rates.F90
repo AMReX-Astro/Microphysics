@@ -19,12 +19,9 @@ module reaclib_rates
   ! Reaction multiplicities-1 (how many rates contribute - 1)
   integer, allocatable :: rate_extra_mult(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
+#ifdef AMREX_USE_CUDA
   attributes(managed) :: ctemp_rate, rate_start_idx, rate_extra_mult
 #endif
-
-  !$acc declare create(ctemp_rate, rate_start_idx, rate_extra_mult)
-  !$acc declare copyin(screen_reaclib)
 
 contains
 
@@ -55,8 +52,6 @@ contains
     enddo
 
     close(unit)
-
-    !$acc update device(ctemp_rate, rate_start_idx, rate_extra_mult)
 
   end subroutine init_reaclib
 
@@ -184,6 +179,9 @@ contains
     call add_screening_factor(zion(jhe4), aion(jhe4), &
       zion(jhe4), aion(jhe4))
 
+    call add_screening_factor(zion(jhe4), aion(jhe4), &
+      4.0_rt, 8.0_rt)
+
 
     call screening_init()
   end subroutine net_screening_init
@@ -199,8 +197,6 @@ contains
 
   subroutine reaclib_evaluate(pstate, temp, iwhich, rate, drate_dt)
 
-    !$acc routine seq
-
     implicit none
 
     type(plasma_state), intent(in) :: pstate
@@ -212,8 +208,6 @@ contains
 
     real(rt) :: ri, T9, T9_exp, lnirate, irate, dirate_dt, dlnirate_dt
     integer :: i, j, m, istart
-
-    !$gpu
 
     ri = 0.0e0_rt
     rate = 0.0e0_rt
