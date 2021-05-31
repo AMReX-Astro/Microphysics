@@ -199,19 +199,23 @@ class Param:
 
         return ostr
 
-    def default_format(self):
+    def default_format(self, lang="Fortran"):
         """return the variable in a format that it can be recognized in C++
         code--in particular, preserve the quotes for strings"""
         if self.dtype == "string":
             return f'{self.default}'
-
+        elif self.dtype in ["bool", "logical"] and lang == "C++":
+            if self.default.lower() in [".true.", "true"]:
+                return 1
+            else:
+                return 0
         return self.default
 
-    def get_job_info_test(self):
+    def get_job_info_test(self, lang="Fortran"):
         """this is the output in C++ in the job_info writing"""
 
         ostr = (
-            f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format()} ? "    "' +
+            f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format(lang=lang)} ? "    "' +
             f': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
             f'<< {self.nm_pre}{self.cpp_var_name} << std::endl;\n')
 
