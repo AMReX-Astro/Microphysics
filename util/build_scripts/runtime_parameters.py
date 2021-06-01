@@ -217,7 +217,12 @@ class Param:
                 return 1
             else:
                 return 0
-        return self.default
+        elif self.dtype == "real" and lang == "C++":
+            if "d" in val:
+                val = val.replace("d", "e")
+            if not val.endswith("_rt"):
+                val += "_rt"
+        return val
 
     def get_job_info_test(self, lang="Fortran"):
         """this is the output in C++ in the job_info writing"""
