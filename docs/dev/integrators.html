@@ -476,7 +476,7 @@ will provide both of these specific heats; which one to use is a
 choice the user needs to make based on the physics of their problem.
 This is controlled by the parameter <code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code>,
 which will use <span class="math notranslate nohighlight">\(c_v\)</span> if <code class="docutils literal notranslate"><span class="pre">.true.</span></code> and <span class="math notranslate nohighlight">\(c_p\)</span> is <code class="docutils literal notranslate"><span class="pre">.false.</span></code>. See
-<span id="id3">[<a class="reference internal" href="zreferences.html#id8">AlmgrenBellNonakaZingale08</a>]</span> for a discussion of the temperature evolution
+<span id="id3">[<a class="reference internal" href="zreferences.html#id8" title="A. S. Almgren, J. B. Bell, A. Nonaka, and M. Zingale. Low Mach Number Modeling of Type Ia Supernovae. III. Reactions. ApJ, 684:449-470, September 2008. doi:10.1086/590321.">AlmgrenBellNonakaZingale08</a>]</span> for a discussion of the temperature evolution
 equation.</p>
 <p>A fully accurate integration of Equation <a class="reference internal" href="#equation-eq-temp-integrate">(3)</a>
 requires an evaluation of the specific heat at each integration step,
@@ -549,7 +549,7 @@ the allowed options are:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
 meant for testing purposes only.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE (<span id="id4">[<a class="reference internal" href="zreferences.html#id26">BBH89</a>]</span>) integration package.  We ported this
+<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE (<span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span>) integration package.  We ported this
 integrator to C++ and removed the non-stiff integration code paths.</p></li>
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
