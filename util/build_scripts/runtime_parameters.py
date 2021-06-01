@@ -112,12 +112,12 @@ class Param:
 
         if not self.debug_default is None:
             ostr += "#ifdef AMREX_DEBUG\n"
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.debug_default};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++', debug=True)};\n"
             ostr += "#else\n"
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++')};\n"
             ostr += "#endif\n"
         else:
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++')};\n"
 
         return ostr
 
@@ -199,13 +199,21 @@ class Param:
 
         return ostr
 
-    def default_format(self, lang="Fortran"):
-        """return the variable in a format that it can be recognized in C++
-        code--in particular, preserve the quotes for strings"""
+    def default_format(self, lang="Fortran", debug=False):
+        """return the value of the parameter in a format that it can be
+        recognized in C++ code--in particular, preserve the quotes for
+        strings
+
+        """
+        if debug:
+            val = self.debug_default
+        else:
+            val = self.default
+
         if self.dtype == "string":
-            return f'{self.default}'
+            return f'{val}'
         elif self.dtype in ["bool", "logical"] and lang == "C++":
-            if self.default.lower() in [".true.", "true"]:
+            if val.lower() in [".true.", "true"]:
                 return 1
             else:
                 return 0
