@@ -8,7 +8,7 @@
 
 ///
 /// Compute the numerical Jacobian of the reactive system, dydot/dy,
-/// where ydot = {dX/dt, dT/dt, denuc/dT}, and y = {X, T, enuc}.
+/// where ydot = {dX/dt, denuc/dt}, and y = {X, e}.
 ///
 /// Note the analytic Jacobian usually works in terms of molar
 /// fractions, Y, instead of mass fractions, X, but our integrators

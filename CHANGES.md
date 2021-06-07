@@ -1,3 +1,37 @@
+# 21.06
+
+   * The ability to use a system BLAS library was removed (#675)
+
+   * An equation of state for hypervelocity impacts was added (#645)
+
+# 21.05
+
+   * For aprox19 + NSE, we now "bail out" of the integration
+     immediately if the state enters NSE, and then do the rest of the
+     update through the NSE table. (#658)
+
+   * The old gamma_law EOS was removed and gamma_law_general was
+     renamed gamma_law.  The old gamma_law EOS have a very reduced
+     subset of thermodynamic quantities that it computed, for
+     efficiency purposes.  This is no longer needed now that we have
+     templated the EOSes and have different eos_t data types (#653).
+
+   * Integration for simplified-SDC was interpreting rtol incorrectly.
+     This has been fixed (#643)
+
+   * Screening for the 3-alpha reaction in the subch, subch2, and nova
+     networks was fixed (#627, #634, #635)
+
+# 21.04
+
+   * We added a new mechanism to recover a failed burn when the state
+     tries to enter NSE during the evolution, when using the aprox19 +
+     NSE network.  Now it will capture the failure and redo the burn
+     if it satisfies the NSE criteria (#628)
+
+   * We updated the VODE logic for rejecting a step to consider mass
+     fractions for both simplified-SDC and true SDC burns (#619)
+
 # 21.03
 
    * We now integrate internal energy (e) directly instead of integrating
@@ -322,16 +356,16 @@
   * a new subCh network for He burning was added.
 
   * implemented the new c12(a,g)o16 nuclear reaction rate and its
-    corresponding inverse from the work of Deboer et al. 2017 
-    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007). 
-    To use the new rate, user must set `use_c12ag_deboer17` to `true`. 
+    corresponding inverse from the work of Deboer et al. 2017
+    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007).
+    To use the new rate, user must set `use_c12ag_deboer17` to `true`.
     This rate is only useable in the `aprox13`, `aprox19`, `aprox21`,
     and `iso7` reaction rate networks. Closes issue #44.
 
   * a routine util/cj_detonation was added to compute the
      Chapman-Jouguet detonation velocity for any of the networks
 
-  * the burn retry strategy now sticks with the current integrator and 
+  * the burn retry strategy now sticks with the current integrator and
     uses looser tolerances before switching to a different integrator.
 
 # 18.04
@@ -347,7 +381,7 @@
 
    * we now disable some composition derivatives in the EOS
      by default, for performance and memory reasons.  They can
-     be reenabled by defining the preprocessor variable 
+     be reenabled by defining the preprocessor variable
      EXTRA_THERMO (PR #59)
 
 # 17.10

@@ -20,8 +20,6 @@ contains
 
     type (eos_t), intent(inout) :: eos_state
 
-    !$gpu
-
     eos_state % conductivity = cond_coeff * eos_state % T**cond_exponent
 
   end subroutine actual_conductivity

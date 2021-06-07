@@ -50,17 +50,6 @@ module screening_module
 
   end type plasma_state
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: z1scr, z2scr, a1scr, a2scr
-  attributes(managed) :: zs13, zs13inv, zhat, zhat2, lzav, aznut
-#endif
-
-  !$acc declare &
-  !$acc create(nscreen) &
-  !$acc create(fact, co2, gamefx, gamefs, h12_max) &
-  !$acc create(z1scr, z2scr, a1scr, a2scr) &
-  !$acc create(zs13, zs13inv, zhat, zhat2, lzav, aznut)
-
 contains
 
   subroutine screening_init()
@@ -89,8 +78,6 @@ contains
        aznut(i)   = (z1scr(i)**2 * z2scr(i)**2 * a1scr(i)*a2scr(i) / (a1scr(i) + a2scr(i)))**THIRD
 
     enddo
-
-    !$acc update device(zs13, zs13inv, zhat, zhat2, lzav, aznut)
 
   end subroutine screening_init
 
@@ -213,14 +200,10 @@ contains
     z2scr(nscreen) = z2
     a2scr(nscreen) = a2
 
-    !$acc update device(nscreen, z1scr, a1scr, z2scr, a2scr)
-
   end subroutine add_screening_factor
 
 
   subroutine fill_plasma_state(state, temp, dens, y)
-
-    !$acc routine seq
 
     use network, only: nspec, zion
 
@@ -235,8 +218,6 @@ contains
     real(rt)         :: ytot, rr, tempi, dtempi
     real(rt)         :: pp, qq, dppdt, xni
 !    real(rt)         :: dppdd
-
-    !$gpu
 
     abar   = ONE / sum(y)
     zbar   = sum(zion * y) * abar
@@ -272,8 +253,6 @@ contains
 
 
   subroutine screen5(state,jscreen,scor,scordt,scordd)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: M_PI
 
@@ -319,8 +298,6 @@ contains
 !    real(rt)         :: dccdd,dqqdd,dvvdd,drrdd,dssdd,dttdd,duudd
 !    real(rt)         :: dh12dd,dh12wdd,dh12xdd,alph12dd
 !    real(rt)         :: gampdd,gamefdd,dxlgcfacdd,gamp14dd
-
-    !$gpu
 
     ! Get the ion data based on the input index
 

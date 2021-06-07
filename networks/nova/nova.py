@@ -1,5 +1,5 @@
 import pynucastro as pyna
-from pynucastro.networks import StarKillerNetwork
+from pynucastro.networks import StarKillerNetwork, RateCollection, Composition
 
 library_file = "20180319default2"
 mylibrary = pyna.rates.Library(library_file)
@@ -12,3 +12,13 @@ print(nova_library)
 
 net = StarKillerNetwork(libraries=[nova_library])
 net.write_network()
+
+# make a plot
+
+rc = RateCollection(libraries=[nova_library])
+
+comp = Composition(rc.get_nuclei())
+comp.set_solar_like()
+
+rc.plot(outfile="nova.png", rho=1.e4, T=9.e7, comp=comp)
+

@@ -17,8 +17,6 @@ contains
 #ifdef REACT_SPARSE_JACOBIAN
   subroutine lookup_csr_jac_loc(row, col, csr_loc)
 
-    !$acc routine seq
-
     use actual_network, only: csr_jac_col_index, csr_jac_row_count
 
     implicit none
@@ -27,8 +25,6 @@ contains
     integer, intent(out) :: csr_loc
 
     integer :: num_in_row, row_start_loc, row_end_loc, i
-
-    !$gpu
 
     ! Looks up the index into a CSR-formatted Jacobian
     ! matrix given row and col indices into the
@@ -52,8 +48,6 @@ contains
 
   subroutine set_csr_jac_entry(csr_jac, row, col, val)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(inout) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -61,8 +55,6 @@ contains
     real(rt), intent(in) :: val
 
     integer :: csr_loc
-
-    !$gpu
 
     ! Get index into the CSR Jacobian
     call lookup_csr_jac_loc(row, col, csr_loc)
@@ -83,8 +75,6 @@ contains
 
   subroutine scale_csr_jac_entry(csr_jac, row, col, val)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(inout) :: csr_jac(NETWORK_SPARSE_JAC_NNZ)
@@ -92,8 +82,6 @@ contains
     real(rt), intent(in) :: val
 
     integer :: csr_loc
-
-    !$gpu
 
     ! Get index into the CSR Jacobian
     call lookup_csr_jac_loc(row, col, csr_loc)
@@ -114,8 +102,6 @@ contains
 
   subroutine get_csr_jac_entry(csr_jac, row, col, val)
 
-    !$acc routine seq
-
     use amrex_constants_module, only: ZERO
 
     implicit none
@@ -125,8 +111,6 @@ contains
     real(rt), intent(out) :: val
 
     integer :: csr_loc
-
-    !$gpu
 
     ! Get index into the CSR Jacobian
     call lookup_csr_jac_loc(row, col, csr_loc)
@@ -147,8 +131,6 @@ contains
 
     use burn_type_module, only : neqs
 
-    !$acc routine seq
-
     implicit none
 
 #ifdef REACT_SPARSE_JACOBIAN
@@ -158,8 +140,6 @@ contains
 #endif
     integer, intent(in) :: row, col
     real(rt), intent(in) :: val
-
-    !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
     call set_csr_jac_entry(jac, row, col, val)
@@ -171,8 +151,6 @@ contains
 
 
   subroutine scale_jac_entry(jac, row, col, val)
-
-    !$acc routine seq
 
     use burn_type_module, only : neqs
 
@@ -187,8 +165,6 @@ contains
     integer, intent(in) :: row, col
     real(rt), intent(in) :: val
 
-    !$gpu
-
 #ifdef REACT_SPARSE_JACOBIAN
     call scale_csr_jac_entry(jac, row, col, val)
 #else
@@ -199,8 +175,6 @@ contains
 
 
   subroutine get_jac_entry(jac, row, col, val)
-
-    !$acc routine seq
 
     use burn_type_module, only : neqs
     use amrex_fort_module, only : rt => amrex_real
@@ -214,8 +188,6 @@ contains
     integer, intent(in) :: row, col
     real(rt), intent(out) :: val
 
-    !$gpu
-
 #ifdef REACT_SPARSE_JACOBIAN
     call get_csr_jac_entry(jac, row, col, val)
 #else
@@ -226,8 +198,6 @@ contains
 
 
   subroutine set_jac_zero(jac)
-
-    !$acc routine seq
 
     use amrex_constants_module, only: ZERO
     use burn_type_module, only : neqs
@@ -240,8 +210,6 @@ contains
 #else
     real(rt), intent(inout) :: jac(neqs, neqs)
 #endif
-
-    !$gpu
 
 #ifdef REACT_SPARSE_JACOBIAN
     jac(:) = ZERO

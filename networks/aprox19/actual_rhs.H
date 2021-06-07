@@ -2606,7 +2606,7 @@ template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate (T const& dydt, Real& enuc)
 {
-    using namespace aprox19;
+    using namespace network;
 
     // This is basically e = m c**2
 

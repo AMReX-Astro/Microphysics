@@ -5,6 +5,7 @@ module actual_rhs_module
   use physical_constants, only: N_AVO
   use network
   use table_rates
+  use reaclib_rates
   use burn_type_module
 
   implicit none
@@ -24,7 +25,11 @@ module actual_rhs_module
 contains
 
   subroutine actual_rhs_init()
-    ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
+
+    call init_reaclib()
+    call init_tabular()
+    call net_screening_init()
+
     return
   end subroutine actual_rhs_init
 
@@ -33,8 +38,6 @@ contains
     ! STUB FOR INTEGRATOR
     type(burn_t)     :: state
 
-    !$gpu
-    
     return
   end subroutine update_unevolved_species
 
@@ -44,8 +47,6 @@ contains
     implicit none
 
     type(rate_eval_t), intent(inout) :: rate_eval
-
-    !$gpu
 
     rate_eval % unscreened_rates(i_rate, :) = ZERO
     rate_eval % unscreened_rates(i_drate_dt, :) = ZERO
@@ -58,7 +59,6 @@ contains
 
 
   subroutine evaluate_rates(state, rate_eval)
-    !$acc routine seq
 
     use reaclib_rates, only: screen_reaclib, reaclib_evaluate
     use screening_module, only: screen5, plasma_state, fill_plasma_state
@@ -73,8 +73,7 @@ contains
     real(rt) :: rhoy
     real(rt) :: rate, drate_dt, edot_nu
     real(rt) :: scor, dscor_dt, dscor_dd
-
-    !$gpu
+    real(rt) :: scor2, dscor2_dt, dscor2_dd
 
     Y(:) = state % xn(:) * aion_inv(:)
     rhoy = state % rho * state % y_e
@@ -94,41 +93,43 @@ contains
     if (screen_reaclib) then
 
       call screen5(pstate, 1, scor, dscor_dt, dscor_dd)
-      rate_eval % unscreened_rates(i_scor,1) = scor
-      rate_eval % unscreened_rates(i_dscor_dt,1) = dscor_dt
+
+      call screen5(pstate, 2, scor2, dscor2_dt, dscor2_dd)
+      rate_eval % unscreened_rates(i_scor,1) = scor * scor2
+      rate_eval % unscreened_rates(i_dscor_dt,1) = scor * dscor2_dt + dscor_dt * scor2
 
 
-      call screen5(pstate, 2, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 3, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,2) = scor
       rate_eval % unscreened_rates(i_dscor_dt,2) = dscor_dt
 
 
-      call screen5(pstate, 3, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 4, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,3) = scor
       rate_eval % unscreened_rates(i_dscor_dt,3) = dscor_dt
 
 
-      call screen5(pstate, 4, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 5, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,4) = scor
       rate_eval % unscreened_rates(i_dscor_dt,4) = dscor_dt
 
 
-      call screen5(pstate, 5, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 6, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,5) = scor
       rate_eval % unscreened_rates(i_dscor_dt,5) = dscor_dt
 
 
-      call screen5(pstate, 6, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 7, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,6) = scor
       rate_eval % unscreened_rates(i_dscor_dt,6) = dscor_dt
 
 
-      call screen5(pstate, 7, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 8, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,7) = scor
       rate_eval % unscreened_rates(i_dscor_dt,7) = dscor_dt
 
 
-      call screen5(pstate, 8, scor, dscor_dt, dscor_dd)
+      call screen5(pstate, 9, scor, dscor_dt, dscor_dd)
       rate_eval % unscreened_rates(i_scor,8) = scor
       rate_eval % unscreened_rates(i_dscor_dt,8) = dscor_dt
 
@@ -144,8 +145,6 @@ contains
 
   subroutine actual_rhs(state, ydot)
     
-    !$acc routine seq
-
     use extern_probin_module, only: do_constant_volume_burn, disable_thermal_neutrinos
     use burn_type_module, only: net_itemp, net_ienuc, neqs
     use sneut_module, only: sneut5
@@ -161,8 +160,6 @@ contains
     integer :: i, j
     real(rt) :: rhoy, ye, enuc
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
-
-    !$gpu
 
     ! Set molar abundances
     Y(:) = state % xn(:) * aion_inv(:)
@@ -195,18 +192,12 @@ contains
 
   subroutine rhs_nuc(state, ydot_nuc, Y, screened_rates)
 
-    !$acc routine seq
-
     implicit none
 
     type (burn_t), intent(in) :: state
     real(rt), intent(out) :: ydot_nuc(nspec)
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
-
-    !$gpu
-
-
 
     ydot_nuc(jp) = ( &
       screened_rates(k_he4_f18__p_ne21)*Y(jf18)*Y(jhe4)*state % rho + &
@@ -272,8 +263,6 @@ contains
 
   subroutine actual_jac(state, jac)
 
-    !$acc routine seq
-
     use burn_type_module, only: net_itemp, net_ienuc, neqs, njrows, njcols
     use extern_probin_module, only: disable_thermal_neutrinos
     use sneut_module, only: sneut5
@@ -291,8 +280,6 @@ contains
     real(rt) :: ye, rhoy, b1, scratch
     real(rt) :: sneut, dsneutdt, dsneutdd, snuda, snudz
     integer  :: j, k
-
-    !$gpu
 
     ! Set molar abundances
     Y(:) = state % xn(:) * aion_inv(:)
@@ -357,8 +344,6 @@ contains
 
   subroutine jac_nuc(state, jac, Y, screened_rates)
 
-    !$acc routine seq
-
     use jacobian_sparsity_module, only: set_jac_entry
 
     implicit none
@@ -369,10 +354,6 @@ contains
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
     real(rt) :: scratch
-
-
-    !$gpu
-
 
     scratch = (&
       -screened_rates(k_p_c12__n13)*Y(jc12)*state % rho &

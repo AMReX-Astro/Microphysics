@@ -69,7 +69,7 @@ void ener_gener_rate (const Real& dydt, Real& enuc)
 {
     using namespace Species;
     using namespace C::Legacy;
-    using namespace ignition_simple;
+    using namespace network;
 
     // This is basically e = m c**2
 

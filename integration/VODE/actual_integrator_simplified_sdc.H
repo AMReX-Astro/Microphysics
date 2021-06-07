@@ -63,8 +63,8 @@ void actual_integrator (burn_t& state, Real dt)
     vode_state.atol(SEDEN+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
     vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
 
-    vode_state.rtol(SEDEN+1) = sdc_min_density * rtol_enuc * sdc_tol_fac; 
-    vode_state.rtol(SEINT+1) = sdc_min_density * rtol_enuc * sdc_tol_fac;
+    vode_state.rtol(SEDEN+1) = rtol_enuc * sdc_tol_fac; 
+    vode_state.rtol(SEINT+1) = rtol_enuc * sdc_tol_fac;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     Real sdc_min_density = state.rho;
@@ -74,7 +74,7 @@ void actual_integrator (burn_t& state, Real dt)
     sdc_min_density = amrex::min(state.rho, sdc_min_density);
 
     vode_state.atol(SENTH+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
-    vode_state.rtol(SENTH+1) = sdc_min_density * rtol_enuc * sdc_tol_fac; 
+    vode_state.rtol(SENTH+1) = rtol_enuc * sdc_tol_fac; 
 
 #endif
 
@@ -86,7 +86,7 @@ void actual_integrator (burn_t& state, Real dt)
         vode_state.atol(SFS+n) = sdc_min_density * atol_spec * sdc_tol_fac;
     }
     for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol(SFS+n) = sdc_min_density * rtol_spec * sdc_tol_fac;
+        vode_state.rtol(SFS+n) = rtol_spec * sdc_tol_fac;
     }
 
 
@@ -102,6 +102,12 @@ void actual_integrator (burn_t& state, Real dt)
     // Copy the integration data back to the burn state.
 
     vode_to_burn(vode_state.t, vode_state, state);
+
+    // normalize the abundances on exit.  We'll assume that the driver
+    // calling this is making use of the conserved state (state.y[]),
+    // so that is what will be normalized.
+
+    renormalize_species(state);
 
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the
@@ -154,24 +160,30 @@ void actual_integrator (burn_t& state, Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
-        std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "istate = " << istate << std::endl;
-        std::cout << "time = " << vode_state.t << std::endl;
-        std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << eos_state.T << std::endl;
-        std::cout << "xn start = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << eos_state.xn[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "temp current = " << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << state.xn[n] << " ";
-        }
-        std::cout << std::endl;
+        if (istate != -100) {
+#ifndef AMREX_USE_GPU
+            std::cout << "ERROR: integration failed in net" << std::endl;
+            std::cout << "istate = " << istate << std::endl;
+            std::cout << "time = " << vode_state.t << std::endl;
+            std::cout << "dens = " << state.rho << std::endl;
+            std::cout << "temp start = " << eos_state.T << std::endl;
+            std::cout << "xn start = ";
+            for (int n = 0; n < NumSpec; ++n) {
+                std::cout << eos_state.xn[n] << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "temp current = " << state.T << std::endl;
+            std::cout << "xn current = ";
+            for (int n = 0; n < NumSpec; ++n) {
+                std::cout << state.xn[n] << " ";
+            }
+            std::cout << std::endl;
 #endif
+        } else {
+#ifndef AMREX_USE_GPU
+            std::cout << "burn entered NSE during integration" << std::endl;
+#endif
+        }
     }
 
 }

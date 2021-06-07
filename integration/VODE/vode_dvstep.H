@@ -124,7 +124,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.H = vstate.HSCAL * vstate.ETA;
         vstate.HSCAL = vstate.H;
         vstate.RC = vstate.RC * vstate.ETA;
-        vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
     }
 
@@ -199,7 +198,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.H = vstate.HSCAL * vstate.ETA;
             vstate.HSCAL = vstate.H;
             vstate.RC *= vstate.ETA;
-            vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
             continue;
         }
@@ -211,15 +209,15 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
 #ifdef SIMPLIFIED_SDC
 #if defined(SDC_EVOLVE_ENERGY)
-        if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
+	if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
+	    valid_update = false;
+	}
+
+        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+
+        if (rho_current < 0.0_rt) {
             valid_update = false;
         }
-#endif
-#endif
-
-#ifdef SIMPLIFIED_SDC
-#if defined(SDC_EVOLVE_ENERGY)
-        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 #endif
 #endif
 
@@ -262,17 +260,36 @@ int dvstep (burn_t& state, dvode_t& vstate)
             //    valid_update = false;
             //}
 
-            if (vstate.y(SFS+i) < -vode_failure_tolerance) {
+#if defined(SDC_EVOLVE_ENERGY)
+            if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
                 valid_update = false;
             }
 
-#if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
                 valid_update = false;
             }
 #endif
 
 #endif
+
+#ifdef TRUE_SDC
+            // as above, we want to make sure that the mass fractions stay bounded, but we are
+            // evolving:
+            //
+            //  y(1) = density
+            //  y(2:2+NumSpec-1) = rho X
+            //  y(NumSpec+2) = rho e
+
+            if (vstate.y(1+i) < -vode_failure_tolerance * vstate.y(1)) {
+                valid_update = false;
+            }
+
+            if (vstate.y(1+i) > (1.0_rt + vode_failure_tolerance) * vstate.y(1)) {
+                valid_update = false;
+            }
+#endif
+
+
         }
 
         // The corrector has converged (NFLAG = 0). The local error test is
@@ -319,7 +336,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.NEWQ = vstate.NQ;
             vstate.NEWH = 0;
             vstate.ETA = 1.0_rt;
-            vstate.HNEW = vstate.H;
             vstate.ETAMAX = ETAMX3;
             if (vstate.NST <= 10) {
                 vstate.ETAMAX = ETAMX2;
@@ -377,7 +393,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.H = vstate.HSCAL * vstate.ETA;
             vstate.HSCAL = vstate.H;
             vstate.RC = vstate.RC * vstate.ETA;
-            vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
             continue;
 
@@ -415,7 +430,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.H = vstate.HSCAL * vstate.ETA;
             vstate.HSCAL = vstate.H;
             vstate.RC = vstate.RC * vstate.ETA;
-            vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
             continue;
 
@@ -510,7 +524,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.ETA = amrex::min(vstate.ETA, vstate.ETAMAX);
         vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * vstate.HMXI * vstate.ETA);
         vstate.NEWH = 1;
-        vstate.HNEW = vstate.H * vstate.ETA;
         vstate.ETAMAX = ETAMX3;
         if (vstate.NST <= 10) {
             vstate.ETAMAX = ETAMX2;
@@ -525,7 +538,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
     vstate.NEWQ = vstate.NQ;
     vstate.NEWH = 0;
     vstate.ETA = 1.0_rt;
-    vstate.HNEW = vstate.H;
     vstate.ETAMAX = ETAMX3;
     if (vstate.NST <= 10) {
         vstate.ETAMAX = ETAMX2;
