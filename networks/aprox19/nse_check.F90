@@ -15,8 +15,6 @@ contains
 
     real(rt) Fe_group, C_group, He_group, SI_group, O_group
 
-    !$gpu
-
     nse_check = 0
 
     if (burn_state % rho > rho_nse .and. burn_state % T > T_nse) then

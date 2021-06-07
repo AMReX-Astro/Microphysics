@@ -34,7 +34,7 @@ subroutine runtime_init(name,namlen)
 
   integer, parameter :: maxlen = 256
   character (len=maxlen) :: probin
-
+  logical :: probin_exists
 
   @@namelist@@
 
@@ -55,28 +55,29 @@ subroutine runtime_init(name,namlen)
      probin(i:i) = char(name(i))
   end do
 
+  inquire(file=probin(1:namlen), exist=probin_exists)
 
-  ! read in the namelist
-  open (newunit=un, file=probin(1:namlen), form='formatted', status='old')
+  if (probin_exists) then
+     ! read in the namelist
+     open (newunit=un, file=probin(1:namlen), form='formatted', status='old')
 #else
-  ! read in the namelist
-  open (newunit=un, file=trim(probin), form='formatted', status='old')
+     ! read in the namelist
+     open (newunit=un, file=trim(probin), form='formatted', status='old')
 #endif
-  read (unit=un, nml=extern, iostat=status)
+     read (unit=un, nml=extern, iostat=status)
 
-  if (status < 0) then
-     ! the namelist does not exist, so we just go with the defaults
-     continue
+     if (status < 0) then
+        ! the namelist does not exist, so we just go with the defaults
+        continue
 
-  else if (status > 0) then
-     ! some problem in the namelist
-#ifndef AMREX_USE_CUDA 
-     print *, 'ERROR: problem in the extern namelist'
-#endif
-     stop
-  endif
+     else if (status > 0) then
+        ! some problem in the namelist
+        print *, 'ERROR: problem in the extern namelist'
+        stop
+     endif
 
-  close (unit=un)
+     close (unit=un)
+  end if
 
 end subroutine runtime_init
 

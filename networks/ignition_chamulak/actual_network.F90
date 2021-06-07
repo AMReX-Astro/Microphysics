@@ -16,10 +16,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion, mion
-#endif
-
   integer, parameter :: nrates = 1
   integer, parameter :: num_rate_groups = 4
 
