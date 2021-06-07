@@ -21,10 +21,6 @@ module actual_network
 
   real(rt)        , allocatable :: ebin(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: ebin
-#endif
-
   character (len=32), parameter :: network_name = "rprox"
 
   ! Rates data

@@ -5,9 +5,6 @@ CEXE_headers += network_properties.H
 DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
 
 ifeq ($(USE_REACT),TRUE)
-  ifneq ($(USE_TRUE_SDC), TRUE)
-    F90EXE_sources += actual_rhs.F90
-  endif
 
   ifeq ($(USE_CXX_REACTIONS),TRUE)
     CEXE_sources += actual_network_data.cpp

@@ -13,10 +13,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion
-#endif
-
   character (len=32), parameter :: network_name = "triple_alpha_plus_cago"
 
   ! Rates data
@@ -51,8 +47,6 @@ contains
     ! Reaction rate names
     reac_names(ir3a)   = "3agc"   !     3 He4 --> C12
     reac_names(ircago) = "cago"   ! C12 + He4 --> O16
-
-    !$acc update device(bion)
 
   end subroutine actual_network_init
 

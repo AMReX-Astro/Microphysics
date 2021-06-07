@@ -14,21 +14,12 @@ ifeq ($(USE_REACT), TRUE)
 
   ifeq ($(INTEGRATOR_DIR), VODE90)
     override INTEGRATOR_DIR = VODE
-    $(warn VODE90 has been renamed VODE)
+    $(warning VODE90 has been renamed VODE)
   endif
 
   ifeq ($(INTEGRATOR_DIR), VODE)
     ifeq ($(USE_CLEANED_CORRECTOR), TRUE)
       DEFINES += -DCLEAN_INTEGRATOR_CORRECTION
-    endif
-  endif
-
-  ifneq ($(USE_SYSTEM_BLAS), TRUE)
-    ifneq ($(INTEGRATOR_DIR), VODE)
-      INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
-      VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
-
-      include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
     endif
   endif
 

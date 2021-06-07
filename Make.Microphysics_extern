@@ -19,6 +19,11 @@ ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
 endif
 
+ifeq ($(EOS_DIR), gamma_law_general)
+  override EOS_DIR := gamma_law
+  $(warning gamma_law_general has been renamed gamma_law)
+endif
+
 
 EOS_PATH := $(MICROPHYSICS_HOME)/EOS/$(strip $(EOS_DIR))
 NETWORK_PATH := $(MICROPHYSICS_HOME)/networks/$(strip $(NETWORK_DIR))
@@ -68,7 +73,7 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
-ifeq ($(findstring gamma_law_general, $(EOS_DIR)), gamma_law_general)
+ifeq ($(findstring gamma_law, $(EOS_DIR)), gamma_law)
    DEFINES += -DEOS_GAMMA_LAW_GENERAL
 endif
 

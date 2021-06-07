@@ -37,8 +37,6 @@ contains
     integer       , intent(in   ) :: input
     type (eos_t)  , intent(inout) :: state
 
-    !$gpu
-
     ! call the EOS, passing through the arguments we called conducteos with
     call eos(input, state)
 
@@ -52,8 +50,6 @@ contains
     use eos_type_module, only : eos_t
 
     implicit none
-
-    !$gpu
 
     type (eos_t)  , intent(inout) :: state
 

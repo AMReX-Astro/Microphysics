@@ -26,9 +26,7 @@ integrator.renormalize_abundances = 0
 
 integrator.rtol_spec = 1.0e-12
 integrator.rtol_enuc = 1.0e-9
-integrator.rtol_temp = 1.0e-9
 integrator.atol_spec = 1.0e-12
 integrator.atol_enuc = 1.0e-9
-integrator.atol_temp = 1.0e-9
 
 
