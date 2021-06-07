@@ -9,9 +9,6 @@ CUDA_VERBOSE ?= FALSE
 # default is not to compile in the conductivity
 USE_CONDUCTIVITY ?= FALSE
 
-# system blas
-BLAS_LIBRARY ?= -lopenblas
-
 TOP := $(MICROPHYSICS_HOME)
 
 # default microphysics locations
@@ -25,10 +22,6 @@ EBASE ?= main
 # Networks and Util this list will be searched for runtime parameters
 EXTERN_CORE ?=
 
-
-ifeq ($(USE_SYSTEM_BLAS), TRUE)
-  LIBRARIES += $(BLAS_LIBRARY)
-endif
 
 ifdef USE_CUDA
   ifeq ($(USE_CUDA),TRUE)

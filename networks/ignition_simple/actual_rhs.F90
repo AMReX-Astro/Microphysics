@@ -26,8 +26,6 @@ contains
 
   subroutine actual_rhs(state, ydot)
 
-    !$acc routine seq
-
     use extern_probin_module, only: do_constant_volume_burn
 
     implicit none
@@ -47,8 +45,6 @@ contains
     real(rt)         :: a, b, dadt, dbdt
 
     real(rt)         :: y(nspec)
-
-    !$gpu
 
     call evaluate_rates(state, rr)
 
@@ -122,8 +118,6 @@ contains
 
   subroutine actual_jac(state, jac)
 
-    !$acc routine seq
-
     use extern_probin_module, only: do_constant_volume_burn
     use jacobian_sparsity_module, only: set_jac_zero, get_jac_entry, set_jac_entry, scale_jac_entry
 
@@ -138,8 +132,6 @@ contains
     real(rt)         :: rate, dratedt, scorr, dscorrdt, xc12tmp
 
     real(rt)         :: cInv, scratch, scratch2
-
-    !$gpu
 
     call evaluate_rates(state, rr)
 
@@ -213,8 +205,6 @@ contains
 
   subroutine evaluate_rates(state, rr)
 
-    !$acc routine seq
-
     use screening_module, only: screen5, plasma_state, fill_plasma_state
 
     implicit none
@@ -234,8 +224,6 @@ contains
     real(rt)         :: y(nspec)
     integer :: jscr
     type(plasma_state) :: pstate
-
-    !$gpu
 
     temp = state % T
     dens = state % rho
@@ -283,15 +271,11 @@ contains
 
   subroutine ener_gener_rate(dydt, enuc)
 
-    !$acc routine seq
-    
     use network
 
     implicit none
 
     real(rt)         :: dydt, enuc
-
-    !$gpu
 
     ! This is basically e = m c**2
 

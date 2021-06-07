@@ -10,7 +10,6 @@
 using namespace amrex;
 
 #include <test_aprox_rates.H>
-#include <test_aprox_rates_F.H>
 #include <AMReX_buildInfo.H>
 
 #include <network.H>
@@ -37,7 +36,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size, do_cxx;
+    int n_cell, max_grid_size;
 
     // inputs parameters
     {
@@ -51,10 +50,6 @@ void main_main ()
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
-
-        // do_cxx = 1 for C++ EOS, 0 for Fortran EOS
-        do_cxx = 0;
-        pp.query("do_cxx", do_cxx);
 
     }
 
@@ -125,11 +120,6 @@ void main_main ()
     amrex::Vector<std::string> names;
     get_varnames(vars, names);
 
-    // Fortran test
-
-    // Ncomp = number of components for each array
-    init_variables_F();
-
     // time = starting time in the simulation
     Real time = 0.0;
 
@@ -165,15 +155,8 @@ void main_main ()
 
         Array4<Real> const sp = state.array(mfi);
 
-        if (do_cxx == 1) {
-          aprox_rates_test_C(bx, dlogrho, dlogT, dNi, vars, sp);
+        aprox_rates_test_C(bx, dlogrho, dlogT, dNi, vars, sp);
 
-        } else {
-          do_rates(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                   dlogrho, dlogT, dNi,
-                   BL_TO_FORTRAN_ANYD(state[mfi]));
-
-        }
     }
 
     // Call the timer again and compute the maximum difference between
@@ -183,7 +166,7 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     std::string name = "test_aprox_rates.";
-    std::string language = do_cxx == 1 ? ".cxx" : "";
+    std::string language = ".cxx";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name + eos_name + language, state, names, geom, time, 0);

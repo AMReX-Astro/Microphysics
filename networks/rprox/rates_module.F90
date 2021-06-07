@@ -33,8 +33,6 @@ contains
     real(rt)         :: r0, r1
     real(rt)         :: dr0dt, dr1dt
 
-    !$gpu
-
     rate = ZERO
     dratedt = ZERO
 
@@ -98,8 +96,6 @@ contains
     real(rt)         :: r0
     real(rt)         :: dr0dt
 
-    !$gpu
-
     rate = ZERO
     dratedt = ZERO
 
@@ -141,8 +137,6 @@ contains
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
 
-    !$gpu
-
     rate = f17_to_o17
     dratedt = ZERO
 
@@ -161,8 +155,6 @@ contains
 
     real(rt)         :: r0, r1
     real(rt)         :: dr0dt, dr1dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -232,8 +224,6 @@ contains
 
     real(rt)         :: r0, r1, r2
     real(rt)         :: dr0dt, dr1dt, dr2dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -324,8 +314,6 @@ contains
     real(rt)         :: r0, r1, r2, r3
     real(rt)         :: dr0dt, dr1dt, dr2dt, dr3dt
 
-    !$gpu
-
     rate = ZERO
     dratedt = ZERO
 
@@ -410,8 +398,6 @@ contains
 
     real(rt)         :: r0, r1, r2, r3, r4, r5, r6
     real(rt)         :: dr0dt, dr1dt, dr2dt, dr3dt, dr4dt, dr5dt, dr6dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -520,8 +506,6 @@ contains
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
 
-    !$gpu
-
     rate = ne18_to_f18
     dratedt = ZERO
 
@@ -535,8 +519,6 @@ contains
     type (temp_t),    intent(in   ) :: tfactors
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
-
-    !$gpu
 
     rate = ne19_to_f19
     dratedt = ZERO
@@ -556,8 +538,6 @@ contains
 
     real(rt)         :: r0, r1
     real(rt)         :: dr0dt, dr1dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -621,8 +601,6 @@ contains
 
     real(rt)         :: r0, r1, r2, r3, r4, r5
     real(rt)         :: dr0dt, dr1dt, dr2dt, dr3dt, dr4dt, dr5dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -717,8 +695,6 @@ contains
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
 
-    !$gpu
-
     rate = o14_to_n14
     dratedt = ZERO
 
@@ -737,8 +713,6 @@ contains
 
     real(rt)         :: r0, r1, r2
     real(rt)         :: dr0dt, dr1dt, dr2dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -806,8 +780,6 @@ contains
     real(rt)        , intent(  out) :: rate
     real(rt)        , intent(  out) :: dratedt
 
-    !$gpu
-
     rate = o15_to_n15
     dratedt = ZERO
 
@@ -826,8 +798,6 @@ contains
 
     real(rt)         :: r0, r1, r2
     real(rt)         :: dr0dt, dr1dt, dr2dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO
@@ -903,8 +873,6 @@ contains
     real(rt)         :: r0
     real(rt)         :: dr0dt
 
-    !$gpu
-
     rate = ZERO
     dratedt = ZERO
 
@@ -948,8 +916,6 @@ contains
     real(rt)         :: r0
     real(rt)         :: dr0dt
 
-    !$gpu
-
     rate = ZERO
     dratedt = ZERO
 
@@ -992,8 +958,6 @@ contains
 
     real(rt)         :: r0
     real(rt)         :: dr0dt
-
-    !$gpu
 
     rate = ZERO
     dratedt = ZERO

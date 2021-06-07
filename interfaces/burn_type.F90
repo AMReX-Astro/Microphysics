@@ -99,14 +99,10 @@ contains
   ! (yet) support derived type copying on the device.
   subroutine copy_burn_t(to_state, from_state)
 
-    !$acc routine seq
-
     implicit none
 
     type (burn_t), intent(in   ) :: from_state
     type (burn_t), intent(  out) :: to_state
-
-    !$gpu
 
     to_state % rho = from_state % rho
     to_state % T   = from_state % T
@@ -154,16 +150,12 @@ contains
 
   subroutine eos_to_burn(eos_state, burn_state)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t
 
     implicit none
 
     type (eos_t)  :: eos_state
     type (burn_t) :: burn_state
-
-    !$gpu
 
     burn_state % rho  = eos_state % rho
     burn_state % T    = eos_state % T
@@ -187,16 +179,12 @@ contains
 
   subroutine burn_to_eos(burn_state, eos_state)
 
-    !$acc routine seq
-
     use eos_type_module, only: eos_t
 
     implicit none
 
     type (burn_t) :: burn_state
     type (eos_t)  :: eos_state
-
-    !$gpu
 
     eos_state % rho  = burn_state % rho
     eos_state % T    = burn_state % T
@@ -217,16 +205,12 @@ contains
 
   subroutine normalize_abundances_burn(state)
 
-    !$acc routine seq
-
     use amrex_constants_module, only: ONE
     use extern_probin_module, only: small_x
 
     implicit none
 
     type (burn_t), intent(inout) :: state
-
-    !$gpu
 
     state % xn(:) = max(small_x, min(ONE, state % xn(:)))
     state % xn(:) = state % xn(:) / sum(state % xn(:))

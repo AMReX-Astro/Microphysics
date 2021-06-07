@@ -15,6 +15,5 @@
   primary_species_2 = "carbon-12"
   primary_species_3 = "oxygen-16"
 
-  centered_diff_jac = T
 /
 

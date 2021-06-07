@@ -1,0 +1,13 @@
+@namespace: eos
+
+eos_la               real     0.5
+eos_lb               real     1.3
+eos_e_0              real     1.6e11
+eos_rho_0            real     2.7
+eos_A                real     1.8e11
+eos_B                real     1.8e11
+eos_e_s              real     3.5e10
+eos_e_s_prime        real     1.8e11
+eos_alpha            real     5.0
+eos_beta             real     5.0
+eos_c_v              real     7.9e6

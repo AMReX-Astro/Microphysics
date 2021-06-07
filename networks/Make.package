@@ -23,15 +23,6 @@ ifeq ($(USE_REACT), TRUE)
     endif
   endif
 
-  ifneq ($(USE_SYSTEM_BLAS), TRUE)
-    ifneq ($(INTEGRATOR_DIR), VODE)
-      INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
-      VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
-
-      include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
-    endif
-  endif
-
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
   f90EXE_sources += rate_type.f90
   CEXE_headers += rate_type.H

@@ -26,8 +26,6 @@ contains
     double precision, parameter :: Ksc = 0.4d0 ! Thomson scattering 
     double precision, parameter :: fac = 1.d-4 ! Planck mean is assumed to be fac*Ksc
 
-    !$gpu
-
     if (get_planck_mean) then
        kp = rhoYe*Ksc * fac
     end if
@@ -53,8 +51,6 @@ contains
     logical, intent(in) :: comp_ab, comp_sc, ldummy
     double precision, intent(in) :: rho, rdummy, temp, nu
     double precision, intent(out) :: ab, sc, delta, eta
-
-    !$gpu
 
     ab = 0.d0
     sc = 0.d0

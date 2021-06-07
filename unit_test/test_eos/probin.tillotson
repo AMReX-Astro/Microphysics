@@ -1,0 +1,8 @@
+&extern
+
+  dens_min   = 1.0d0
+  dens_max   = 10.0d0
+  temp_min   = 1.d4
+  temp_max   = 1.d5
+
+/
