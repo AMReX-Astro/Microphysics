@@ -184,7 +184,18 @@ class Param:
 
         ostr = ""
         if language == "C++":
-            ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
+            if self.is_array():
+                # we need to create an amrex::Vector to read and then
+                # copy into our managed array
+                ostr += "\n"
+                ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
+                ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
+                ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
+                ostr += f"                {self.nm_pre}{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
+                ostr += "            }\n\n"
+                ostr += "        }\n\n"
+            else:
+                ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
         elif language == "F90":
             if self.dtype == "string":
                 ostr += "    allocate(character(len=1) :: dummy_string_param)\n"
