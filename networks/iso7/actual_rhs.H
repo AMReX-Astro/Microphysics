@@ -474,7 +474,6 @@ void screen_iso7(const Real btemp, const Real bden,
        denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
        rate(Si28_7He4_to_Ni56_forward)     = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward);
-       dratedY(He4, Si28_7He4_to_Ni56_forward) = 3.0e0_rt * rate(Si28_7He4_to_Ni56_forward)/y(He4);
        dratedt(Si28_7He4_to_Ni56_forward)  = (yeff_ca40dt*rate(Ca40_He4_to_Ti44_forward)
                                               + yeff_ca40*dratedt(Ca40_He4_to_Ti44_forward))*denom*1.0e-9_rt;
 
@@ -484,10 +483,8 @@ void screen_iso7(const Real btemp, const Real bden,
           rate(Si28_7He4_to_Ni56_reverse) = amrex::min(1.0e10_rt,yeff_ti44*rate(Ca40_He4_to_Ti44_reverse)*zz);
 
           if (rate(Si28_7He4_to_Ni56_reverse) == 1.0e10_rt) {
-             dratedY(He4, Si28_7He4_to_Ni56_reverse) = 0.0e0_rt;
              dratedt(Si28_7He4_to_Ni56_reverse)  = 0.0e0_rt;
           } else {
-             dratedY(He4, Si28_7He4_to_Ni56_reverse) = -3.0e0_rt * rate(Si28_7He4_to_Ni56_reverse)/y(He4);
              dratedt(Si28_7He4_to_Ni56_reverse)  = (yeff_ti44dt*rate(Ca40_He4_to_Ti44_reverse)
                                                     + yeff_ti44*dratedt(Ca40_He4_to_Ti44_reverse))*zz*1.0e-9_rt;
           }
