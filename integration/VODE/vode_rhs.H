@@ -25,6 +25,14 @@ void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydo
     // y(1:NumSpec) = dX/dt
     // y(net_ienuc) = denuc/dt
 
+    // Fix the state as necessary.    
+
+    clean_state(vode_state);
+
+    // Update the thermodynamics as necessary.
+
+    update_thermodynamics(state, vode_state);
+
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the RHS to zero and return.
 
@@ -37,14 +45,6 @@ void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydo
         return;
 
     }
-
-    // Fix the state as necessary.    
-
-    clean_state(vode_state);
-
-    // Update the thermodynamics as necessary.
-
-    update_thermodynamics(state, vode_state);
 
     // Call the specific network routine to get the RHS.
 
