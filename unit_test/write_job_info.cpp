@@ -154,16 +154,9 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << " Inputs File Parameters\n";
   jobInfoFile << PrettyLine;
 
+#include <extern_job_info_tests.H>
+
   jobInfoFile.close();
 
-  // now the external parameters
-  const int jobinfo_file_length = FullPathJobInfoFile.length();
-  Vector<int> jobinfo_file_name(jobinfo_file_length);
-
-  for (int i = 0; i < jobinfo_file_length; i++) {
-    jobinfo_file_name[i] = FullPathJobInfoFile[i];
-  }
-
-  runtime_pretty_print(jobinfo_file_name.dataPtr(), &jobinfo_file_length);
 
 }
