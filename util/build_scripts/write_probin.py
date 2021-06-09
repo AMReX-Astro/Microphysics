@@ -52,8 +52,6 @@ extern "C"
 {
 #endif
 
-void runtime_pretty_print(int* jobinfo_file_name, const int* jobinfo_file_length);
-
 void update_fortran_extern_after_cxx();
 
 """
@@ -350,6 +348,12 @@ def write_probin(probin_template, param_files,
             fout.write(f"  {p.get_decl_string()}")
 
         fout.write(CXX_FOOTER)
+
+    # now the C++ job_info tests
+    ofile = f"{cxx_prefix}_job_info_tests.H"
+    with open(ofile, "w") as fout:
+        for p in params:
+            fout.write(p.get_job_info_test(lang="C++"))
 
     # finally the C++ initialization routines
     ofile = f"{cxx_prefix}_parameters.cpp"
