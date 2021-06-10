@@ -39,12 +39,24 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 
     // make sure that the temperature is valid
 
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+
+        for (int n = 1; n <= VODE_NEQS; ++n) {
+            ydot(n) = 0.0_rt;
+        }
+
+        return;
+
+    }
+
     // call the specific network to get the RHS
+
     YdotNetArray1D ydot_react = {0};
 
     actual_rhs(state, ydot_react);
 
     // apply fudge factor:
+
     if (react_boost > 0.0_rt) {
         // the correct size here is the size of the reactive state RHS,
         // not the SDC state RHS (neqs, not VODE_NEQS)
@@ -76,10 +88,25 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     fill_unevolved_variables(vode_state.tn, state, vode_state);
 
-
-    // Call the specific network routine to get the Jacobian.
+    // convert to the burn_t -- this does an EOS call to get T
+    // and populates the (burn_t) state
 
     vode_to_burn(vode_state.tn, vode_state, state);
+
+
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+
+        for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                pd(i,j) = 0.0_rt;
+            }
+        }
+
+        return;
+
+    }
+
+    // Call the specific network routine to get the Jacobian.
 
     JacNetArray2D jac_react;
 
