@@ -587,40 +587,6 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
         }
     }
 
-    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
-
-        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
-
-            // Now handle the terms that include a d(rate)/dY contribution.
-
-            for (int rate = 1; rate <= NumRates; ++rate) {
-                jac_t jac_data = RHS::jac_data(spec1, spec2, rate);
-
-                if (std::abs(jac_data.rate_prefactor) > 0.0_rt) {
-                    Real term = jac_data.rate_prefactor;
-
-                    if (jac_data.rate_specindex1 >= 0) {
-                        term *= y(jac_data.rate_specindex1);
-                    }
-
-                    if (jac_data.rate_specindex2 >= 0) {
-                        term *= y(jac_data.rate_specindex2);
-                    }
-
-                    if (jac_data.rate_specindex3 >= 0) {
-                        term *= y(jac_data.rate_specindex3);
-                    }
-
-                    term *= rr(2 + spec2).rates(rate);
-
-                    jac(spec1, spec2) += term;
-                }
-            }
-
-        }
-
-    }
-
 }
 
 template<class T>
