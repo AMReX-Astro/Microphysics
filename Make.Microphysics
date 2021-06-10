@@ -141,9 +141,12 @@ INCLUDE_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
 #------------------------------------------------------------------------------
 
 # runtime parameter support for extern/ routines
-F90EXE_sources += extern.F90
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+  F90EXE_sources += extern.F90
+  FEXE_headers += extern_parameters_F.H
+endif
+
 CEXE_sources += extern_parameters.cpp
-FEXE_headers += extern_parameters_F.H
 CEXE_headers += extern_parameters.H
 
 EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/interfaces/extern_probin.template
@@ -156,17 +159,23 @@ endif
 
 EXTERN_PARAMETERS := $(shell $(MICROPHYSICS_HOME)/util/build_scripts/findparams.py $(EXTERN_SEARCH))
 
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+   extern_fort_opts = -t $(EXTERN_TEMPLATE) -o $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90 -n extern
+else
+   extern_fort_opts =
+endif
 
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp
+
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
 	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
-	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py \
-           -t $(EXTERN_TEMPLATE) -o $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90 -n extern \
+	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py $(extern_fort_opts) \
            --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
            --pa "$(EXTERN_PARAMETERS)"
 
 # for debugging
-test_extern_params: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
+test_extern_params: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp
 
 #------------------------------------------------------------------------------
 # build info
