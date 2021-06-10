@@ -2,7 +2,7 @@
 # You should set NETWORK_OUTPUT_PATH before including this file
 
 USE_FORT_MICROPHYSICS ?= TRUE
-ifneq ($(USE_FORT_MICROPHYSICS), TRUE)
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
   DEFINES += -DMICROPHYSICS_FORT
 endif
 
