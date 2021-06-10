@@ -3,7 +3,9 @@ CEXE_headers += ArrayUtilities.H
 F90EXE_sources += microphysics.F90
 CEXE_headers += microphysics_F.H
 
-F90EXE_sources += network.F90
+ifeq ($(USE_FORT_NETWORK), TRUE)
+  F90EXE_sources += network.F90
+endif
 
 ifeq ($(USE_FORT_EOS),TRUE)
   F90EXE_sources += eos.F90
