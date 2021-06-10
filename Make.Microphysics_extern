@@ -1,9 +1,9 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
-USE_FORT_NETWORK ?= TRUE
-ifeq ($(USE_FORT_NETWORK), TRUE)
-  USE_FORT_EOS := TRUE
+USE_FORT_MICROPHYSICS ?= TRUE
+ifneq ($(USE_FORT_MICROPHYSICS), TRUE)
+  DEFINES += -DMICROPHYSICS_FORT
 endif
 
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
@@ -12,11 +12,6 @@ else ifeq ($(USE_TRUE_SDC), TRUE)
   DEFINES += -DTRUE_SDC
 else
   DEFINES += -DSTRANG
-endif
-
-USE_FORT_EOS ?= TRUE
-ifeq ($(USE_FORT_EOS),TRUE)
-  DEFINES += -DMICROPHYSICS_FORT_EOS
 endif
 
 USE_CXX_REACTIONS ?= FALSE

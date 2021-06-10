@@ -1,4 +1,4 @@
-ifeq ($(USE_FORT_NETWORK), TRUE)
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
   F90EXE_sources += actual_network.F90
   ifeq ($(USE_REACT),TRUE)
     F90EXE_sources += actual_rhs.F90
@@ -9,7 +9,7 @@ CEXE_headers += network_properties.H
 
 $(NETWORK_OUTPUT_PATH)/actual_network.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
-ifeq ($(USE_FORT_NETWORK), TRUE)
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
   NETWORK_TEMPLATE := $(MICROPHYSICS_HOME)/networks/general_null/network.template
   fort_opts := -t $(NETWORK_TEMPLATE) -o $(NETWORK_OUTPUT_PATH)/actual_network.F90
 else
