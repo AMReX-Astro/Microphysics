@@ -393,7 +393,9 @@ def write_probin(probin_template, param_files,
         # now write the parmparse code to get the value from the C++
         # inputs.  this will overwrite
 
-        fout.write("    // get the value from the inputs file (this overwrites the Fortran value)\n\n")
+        fout.write("    // get the value from the inputs file\n")
+        if write_fortran:
+            fout.write("    // (this overwrites the Fortran value)\n\n")
 
         namespaces = {q.namespace for q in params}
 
@@ -404,8 +406,9 @@ def write_probin(probin_template, param_files,
             fout.write("    {\n")
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
-                qstr = p.get_query_string("C++")
-                fout.write(f"      {qstr}")
+                if not write_fortran:
+                    fout.write(f"        {p.get_default_string()}")
+                fout.write(f"      {p.get_query_string('C++')}\n")
             fout.write("    }\n")
 
         # have Fortran
