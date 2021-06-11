@@ -1,4 +1,4 @@
-#ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
   f90EXE_sources += constants_cgs.f90
-#endif
+endif
 CEXE_headers += fundamental_constants.H
