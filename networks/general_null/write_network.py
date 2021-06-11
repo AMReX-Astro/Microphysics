@@ -229,6 +229,9 @@ def write_network(network_template, header_template,
 
     for tmp, out_file, lang in templates:
 
+        if tmp == "":
+            continue
+
         print("writing {}".format(out_file))
 
         # read the template
@@ -373,9 +376,6 @@ def main():
                         help="and preprocessor defines that are used in building the code")
 
     args = parser.parse_args()
-
-    if args.t == "" or args.o == "":
-        sys.exit("write_probin.py: ERROR: invalid calling sequence")
 
     write_network(args.t, args.header_template,
                   args.s, args.other_properties,
