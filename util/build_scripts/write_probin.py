@@ -45,6 +45,7 @@ CXX_F_HEADER = """
 #define _external_parameters_F_H_
 #include <AMReX.H>
 #include <AMReX_BLFort.H>
+#include <AMReX_REAL.H>
 
 #ifdef __cplusplus
 #include <AMReX.H>
@@ -68,6 +69,7 @@ CXX_HEADER = """
 #ifndef _external_parameters_H_
 #define _external_parameters_H_
 #include <AMReX_BLFort.H>
+#include <AMReX_REAL.H>
 
 """
 
@@ -365,12 +367,16 @@ def write_probin(probin_template, param_files,
         if write_fortran:
             fout.write(f"#include <{cxx_base}_parameters_F.H>\n\n")
         fout.write("#include <AMReX_ParmParse.H>\n\n")
+        fout.write("#include <AMReX_REAL.H>\n\n")
 
         for p in params:
             fout.write(f"  {p.get_declare_string()}")
 
         fout.write("\n")
         fout.write(f"  void init_{cxx_base}_parameters() {{\n")
+
+        # we need access to _rt
+        fout.write("      using namespace amrex;\n\n")
 
         if write_fortran:
             # first write the "get" routines to get the parameter from the
@@ -393,7 +399,9 @@ def write_probin(probin_template, param_files,
         # now write the parmparse code to get the value from the C++
         # inputs.  this will overwrite
 
-        fout.write("    // get the value from the inputs file (this overwrites the Fortran value)\n\n")
+        fout.write("    // get the value from the inputs file\n")
+        if write_fortran:
+            fout.write("    // (this overwrites the Fortran value)\n\n")
 
         namespaces = {q.namespace for q in params}
 
@@ -404,8 +412,9 @@ def write_probin(probin_template, param_files,
             fout.write("    {\n")
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
-                qstr = p.get_query_string("C++")
-                fout.write(f"      {qstr}")
+                if not write_fortran:
+                    fout.write(f"        {p.get_default_string()}")
+                fout.write(f"      {p.get_query_string('C++')}\n")
             fout.write("    }\n")
 
         # have Fortran
