@@ -106,5 +106,3 @@ $(NETWORK_OUTPUT_PATH)/network_properties.F90:
            --defines "$(DEFINES)"
 
 endif
-
-test_network_header: $(NETWORK_OUTPUT_PATH)/network_properties.H
