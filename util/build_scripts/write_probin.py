@@ -45,6 +45,7 @@ CXX_F_HEADER = """
 #define _external_parameters_F_H_
 #include <AMReX.H>
 #include <AMReX_BLFort.H>
+#include <AMReX_REAL.H>
 
 #ifdef __cplusplus
 #include <AMReX.H>
@@ -68,6 +69,7 @@ CXX_HEADER = """
 #ifndef _external_parameters_H_
 #define _external_parameters_H_
 #include <AMReX_BLFort.H>
+#include <AMReX_REAL.H>
 
 """
 
@@ -365,12 +367,16 @@ def write_probin(probin_template, param_files,
         if write_fortran:
             fout.write(f"#include <{cxx_base}_parameters_F.H>\n\n")
         fout.write("#include <AMReX_ParmParse.H>\n\n")
+        fout.write("#include <AMReX_REAL.H>\n\n")
 
         for p in params:
             fout.write(f"  {p.get_declare_string()}")
 
         fout.write("\n")
         fout.write(f"  void init_{cxx_base}_parameters() {{\n")
+
+        # we need access to _rt
+        fout.write("      using namespace amrex;\n\n")
 
         if write_fortran:
             # first write the "get" routines to get the parameter from the
