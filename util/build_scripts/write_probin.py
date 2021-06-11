@@ -184,7 +184,7 @@ def write_probin(probin_template, param_files,
     params = []
 
     print(" ")
-    print(f"write_probin.py: creating {out_file}")
+    print("write_probin.py: creating extern parameter files")
 
     # read the parameters defined in the parameter files
 
@@ -418,7 +418,7 @@ def main():
     parser.add_argument('-t', type=str, help='probin_template')
     parser.add_argument('-o', type=str, default="", help='out_file')
     parser.add_argument('-n', type=str, help='namelist_name')
-    parser.add_argument("--write_fortran", action="store_true")
+    parser.add_argument("--with_fortran", action="store_true")
     parser.add_argument('--pa', type=str, help='parameter files')
     parser.add_argument('--cxx_prefix', type=str, default="extern",
                         help="a name to use in the C++ file names")
@@ -433,7 +433,7 @@ def main():
     param_files = param_files_str.split()
 
     write_probin(probin_template, param_files,
-                 namelist_name, out_file, args.cxx_prefix, args.write_fortran)
+                 namelist_name, out_file, args.cxx_prefix, args.with_fortran)
 
 if __name__ == "__main__":
     main()
