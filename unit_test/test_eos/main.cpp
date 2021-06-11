@@ -117,7 +117,7 @@ void main_main ()
     amrex::Vector<std::string> names;
     get_varnames(vars, names);
 
-#ifdef MICROPHYSICS_FORT_EOS
+#ifdef MICROPHYSICS_FORT
     // Fortran test
 
     init_variables_F();
@@ -160,7 +160,7 @@ void main_main ()
         if (do_cxx == 1) {
           eos_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
-#ifdef MICROPHYSICS_FORT_EOS
+#ifdef MICROPHYSICS_FORT
         } else {
             do_eos(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
                    dlogrho, dlogT, dmetal,
