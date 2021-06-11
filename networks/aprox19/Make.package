@@ -1,5 +1,8 @@
-F90EXE_sources += actual_network.F90
-F90EXE_sources += network_properties.F90
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+  F90EXE_sources += actual_network.F90
+  F90EXE_sources += network_properties.F90
+endif
+
 CEXE_headers += network_properties.H
 
 DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
@@ -21,8 +24,10 @@ ifeq ($(USE_REACT),TRUE)
     ifeq ($(USE_CXX_REACTIONS),TRUE)
       CEXE_headers += nse.H
     endif
-    F90EXE_sources += nse_check.F90
-    F90EXE_sources += nse_F.F90
+    ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+      F90EXE_sources += nse_check.F90
+      F90EXE_sources += nse_F.F90
+    endif
   endif
 
 endif
