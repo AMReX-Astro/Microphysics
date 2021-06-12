@@ -1,3 +1,5 @@
-F90EXE_sources += constant_conductive_opacity.F90
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+  F90EXE_sources += constant_conductive_opacity.F90
+endif
 CEXE_headers += actual_conductivity.H
 

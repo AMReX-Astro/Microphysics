@@ -23,17 +23,10 @@ ifeq ($(USE_REACT), TRUE)
     endif
   endif
 
-  ifneq ($(USE_SYSTEM_BLAS), TRUE)
-    ifneq ($(INTEGRATOR_DIR), VODE)
-      INCLUDE_LOCATIONS += $(MICROPHYSICS_UTIL_PATH)/BLAS
-      VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)/BLAS
-
-      include $(MICROPHYSICS_UTIL_PATH)/BLAS/Make.package
-    endif
-  endif
-
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
-  f90EXE_sources += rate_type.f90
+  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)  
+    f90EXE_sources += rate_type.f90
+  endif
   CEXE_headers += rate_type.H
 
   # we need the actual integrator in the VPATH before the
@@ -94,19 +87,24 @@ endif
 
 NETWORK_OUTPUT_PATH ?= .
 
-net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.F90
+# for dependency resolution
+$(depEXETempDir)/%.d: $(NETWORK_OUTPUT_PATH)/network_properties.H
+$(depEXETempDir)/f90.depends: $(NETWORK_OUTPUT_PATH)/network_properties.H
+
+net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
 ifneq ($(NETWORK_DIR), general_null)
-$(NETWORK_OUTPUT_PATH)/network_properties.H: $(NETWORK_OUTPUT_PATH)/network_properties.F90
+  $(NETWORK_OUTPUT_PATH)/network_properties.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
-$(NETWORK_OUTPUT_PATH)/network_properties.F90:
-	$(MICROPHYSICS_HOME)/networks/update_headers.py \
+  ifneq ($(USE_FORT_MICROPHYSICS), TRUE)
+    net_opts := --skip_fortran
+  endif
+
+$(NETWORK_OUTPUT_PATH)/network_properties.H:
+	$(MICROPHYSICS_HOME)/networks/update_headers.py $(net_opts) \
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net $(NETWORK_DIR) \
            --odir $(NETWORK_OUTPUT_PATH) \
            --defines "$(DEFINES)"
 
 endif
-
-test_network_header: $(NETWORK_OUTPUT_PATH)/network_properties.H
-

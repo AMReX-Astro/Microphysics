@@ -194,18 +194,10 @@ void iso7rat(const Real btemp, const Real bden,
     // get the temperature factors
     tf_t tf = get_tfactors(btemp);
 
-    // Determine which c12(a,g)o16 rate to use
-    if (use_c12ag_deboer17) {
-        // deboer + 2017 c12(a,g)o16 rate
-        rate_c12ag_deboer17(tf,bden,
-                            rate(C12_He4_to_O16_forward),dratedt(C12_He4_to_O16_forward),
-                            rate(C12_He4_to_O16_reverse),dratedt(C12_He4_to_O16_reverse));
-    } else {
-        // 1.7 times cf88 c12(a,g)o16 rate
-        rate_c12ag(tf,bden,
-                   rate(C12_He4_to_O16_forward),dratedt(C12_He4_to_O16_forward),
-                   rate(C12_He4_to_O16_reverse),dratedt(C12_He4_to_O16_reverse));
-    }
+    // c12(a,g)o16
+    rate_c12ag(tf,bden,
+               rate(C12_He4_to_O16_forward),dratedt(C12_He4_to_O16_forward),
+               rate(C12_He4_to_O16_reverse),dratedt(C12_He4_to_O16_reverse));
 
     // triple alpha to c12
     rate_triplealf(tf,bden,
@@ -454,7 +446,6 @@ void screen_iso7(const Real btemp, const Real bden,
        denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
        rate(Si28_7He4_to_Ni56_forward)     = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward);
-       dratedY(He4, Si28_7He4_to_Ni56_forward) = 3.0e0_rt * rate(Si28_7He4_to_Ni56_forward)/y(He4);
        dratedt(Si28_7He4_to_Ni56_forward)  = (yeff_ca40dt*rate(Ca40_He4_to_Ti44_forward)
                                               + yeff_ca40*dratedt(Ca40_He4_to_Ti44_forward))*denom*1.0e-9_rt;
 
@@ -464,10 +455,8 @@ void screen_iso7(const Real btemp, const Real bden,
           rate(Si28_7He4_to_Ni56_reverse) = amrex::min(1.0e10_rt,yeff_ti44*rate(Ca40_He4_to_Ti44_reverse)*zz);
 
           if (rate(Si28_7He4_to_Ni56_reverse) == 1.0e10_rt) {
-             dratedY(He4, Si28_7He4_to_Ni56_reverse) = 0.0e0_rt;
              dratedt(Si28_7He4_to_Ni56_reverse)  = 0.0e0_rt;
           } else {
-             dratedY(He4, Si28_7He4_to_Ni56_reverse) = -3.0e0_rt * rate(Si28_7He4_to_Ni56_reverse)/y(He4);
              dratedt(Si28_7He4_to_Ni56_reverse)  = (yeff_ti44dt*rate(Ca40_He4_to_Ti44_reverse)
                                                     + yeff_ti44*dratedt(Ca40_He4_to_Ti44_reverse))*zz*1.0e-9_rt;
           }
@@ -568,40 +557,6 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
         for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
             jac(spec1, spec2) = spec_jac(spec1, spec2);
         }
-    }
-
-    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
-
-        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
-
-            // Now handle the terms that include a d(rate)/dY contribution.
-
-            for (int rate = 1; rate <= NumRates; ++rate) {
-                jac_t jac_data = RHS::jac_data(spec1, spec2, rate);
-
-                if (std::abs(jac_data.rate_prefactor) > 0.0_rt) {
-                    Real term = jac_data.rate_prefactor;
-
-                    if (jac_data.rate_specindex1 >= 0) {
-                        term *= y(jac_data.rate_specindex1);
-                    }
-
-                    if (jac_data.rate_specindex2 >= 0) {
-                        term *= y(jac_data.rate_specindex2);
-                    }
-
-                    if (jac_data.rate_specindex3 >= 0) {
-                        term *= y(jac_data.rate_specindex3);
-                    }
-
-                    term *= rr(2 + spec2).rates(rate);
-
-                    jac(spec1, spec2) += term;
-                }
-            }
-
-        }
-
     }
 
 }

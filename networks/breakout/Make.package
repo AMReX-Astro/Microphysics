@@ -1,9 +1,14 @@
-f90EXE_sources += actual_network.f90
-F90EXE_sources += network_properties.F90
+ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+  f90EXE_sources += actual_network.f90
+  F90EXE_sources += network_properties.F90
+endif
+
 CEXE_headers += network_properties.H
 
 ifeq ($(USE_REACT), TRUE)
   ifneq ($(USE_TRUE_SDC), TRUE)
-    f90EXE_sources += actual_rhs.f90
+    ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+      f90EXE_sources += actual_rhs.f90
+    endif
   endif
 endif

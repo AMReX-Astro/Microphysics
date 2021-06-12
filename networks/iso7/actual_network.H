@@ -243,69 +243,6 @@ namespace RHS {
         return data;
     }
 
-    // Contribution to the Jacobian from d(RHS(species1)) / d(species2)
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr jac_t jac_data (int species1, int species2, int rateindex)
-    {
-        using namespace Species;
-        using namespace Rates;
-
-        jac_t data{};
-
-        // The RHS for species 1 has the form prefactor * Y(speciesA) * Y(speciesB) * Y(speciesC) * rate.
-        // If species2 is one of species{A,B,C}, then the Jacobian has a contribution from the derivative
-        // of the RHS term with respect to Y(species2). Additionally, the rate itself may have a functional
-        // dependence on species2 so we also return the same format for d(rate) / d(species2) if it exists.
-
-        data.prefactor  = 0.0_rt;
-        data.specindex1 = -1;
-        data.specindex2 = -1;
-        data.specindex3 = -1;
-
-        data.rate_prefactor = 0.0_rt;
-        data.rate_specindex1 = -1;
-        data.rate_specindex2 = -1;
-        data.rate_specindex3 = -1;
-
-        switch (jac_rate<NumSpec, NumRates>(species1, species2, rateindex)) {
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, Si28_7He4_to_Ni56_forward):
-            data.rate_prefactor = -7.0_rt;
-            data.rate_specindex1 = He4;
-            data.rate_specindex2 = Si28;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, Si28_7He4_to_Ni56_reverse):
-            data.rate_prefactor = 7.0_rt;
-            data.rate_specindex1 = Ni56;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, He4, Si28_7He4_to_Ni56_forward):
-            data.rate_prefactor = -1.0_rt;
-            data.rate_specindex1 = He4;
-            data.rate_specindex2 = Si28;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, He4, Si28_7He4_to_Ni56_reverse):
-            data.rate_prefactor = 1.0_rt;
-            data.rate_specindex1 = Ni56;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ni56, He4, Si28_7He4_to_Ni56_forward):
-            data.rate_prefactor = 1.0_rt;
-            data.rate_specindex1 = He4;
-            data.rate_specindex2 = Si28;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ni56, He4, Si28_7He4_to_Ni56_reverse):
-            data.rate_prefactor = -1.0_rt;
-            data.rate_specindex1 = Ni56;
-            break;
-
-        }
-
-        return data;
-    }
 }
 
 #endif

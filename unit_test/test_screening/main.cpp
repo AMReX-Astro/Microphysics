@@ -58,6 +58,12 @@ void main_main ()
 
     }
 
+#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
+    if (do_cxx == 0) {
+        amrex::Error("Error: cannot test Fortran screening with C++ network");
+    }
+#endif
+
     Vector<int> is_periodic(AMREX_SPACEDIM,0);
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
       is_periodic[idim] = 1;

@@ -1,12 +1,12 @@
 module microphysics_module
 
   use network
-#ifdef MICROPHYSICS_FORT_EOS
   use eos_module, only : eos_init
-#endif
 #ifdef REACTIONS
+#ifndef NETWORK_HAS_CXX_IMPLEMENTATION
 #ifndef TRUE_SDC
   use actual_rhs_module, only : actual_rhs_init
+#endif
 #endif
 #endif
 
@@ -35,7 +35,6 @@ contains
 
     call network_init()
 
-#ifdef MICROPHYSICS_FORT_EOS
     if (present(small_temp) .and. present(small_dens)) then
        call eos_init(small_temp=small_temp, small_dens=small_dens)
     else if (present(small_temp)) then
@@ -45,11 +44,12 @@ contains
     else
        call eos_init()
     endif
-#endif
 
 #ifdef REACTIONS
+#ifndef NETWORK_HAS_CXX_IMPLEMENTATION
 #ifndef TRUE_SDC
     call actual_rhs_init()
+#endif
 #endif
 #endif
 
@@ -61,17 +61,13 @@ contains
 
   subroutine microphysics_finalize() bind(C, name="microphysics_finalize")
 
-#ifdef MICROPHYSICS_FORT_EOS
     use eos_module, only: eos_finalize
-#endif
 #ifdef USE_SCREENING
     use screening_module, only: screening_finalize
     call screening_finalize()
 #endif
 
-#ifdef MICROPHYSICS_FORT_EOS
     call eos_finalize()
-#endif
     call network_finalize()
 
   end subroutine microphysics_finalize
