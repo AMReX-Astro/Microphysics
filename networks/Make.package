@@ -88,8 +88,7 @@ endif
 NETWORK_OUTPUT_PATH ?= .
 
 # for dependency resolution
-$(depEXETempDir)/%.d: $(NETWORK_OUTPUT_PATH)/network_properties.H
-$(depEXETempDir)/f90.depends: $(NETWORK_OUTPUT_PATH)/network_properties.H
+AUTO_BUILD_SOURCES += $(NETWORK_OUTPUT_PATH)/network_properties.H
 
 net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
