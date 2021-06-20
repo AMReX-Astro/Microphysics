@@ -53,6 +53,7 @@ extern "C"
 {
 #endif
 
+void runtime_init(const int* name, const int* namlen);
 void update_fortran_extern_after_cxx();
 
 """
