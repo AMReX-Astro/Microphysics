@@ -7,6 +7,10 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void integrator (burn_t& state, Real dt)
 {
     actual_integrator(state, dt);
+
+    if (!state.success && abort_on_failure) {
+        amrex::Error("integration failed in burner");
+    }
 }
 
 #endif
