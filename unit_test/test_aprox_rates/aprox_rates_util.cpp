@@ -62,7 +62,10 @@ void aprox_rates_test_C(const Box& bx,
     sp(i, j, k, vars.ic12ag+2) = rr;
     sp(i, j, k, vars.ic12ag+3) = drrdt;
 
-    rate_c12ag_deboer17(tf, dens_zone, fr, dfrdt, rr, drrdt);
+    // override to get the other rate
+    use_c12ag_deboer17 = 1;
+
+    rate_c12ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
     sp(i, j, k, vars.ic12ag_deboer17) = fr;
     sp(i, j, k, vars.ic12ag_deboer17+1) = dfrdt;
