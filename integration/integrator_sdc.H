@@ -15,7 +15,9 @@ void integrator (burn_t& state, Real dt)
     if (!state.success && abort_on_failure) {
         std::cout << "failure: \n";
         std::cout << state << std::endl;
+#ifndef AMREX_USE_GPU
         amrex::Error("integration failed in burner");
+#endif
     }
 #endif
 }
