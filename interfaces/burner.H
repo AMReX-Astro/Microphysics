@@ -62,6 +62,8 @@ void burner (burn_t& state, Real dt)
 #endif
         } else if (state.success == false && abort_on_failure) {
 #ifndef AMREX_USE_GPU
+            std::cout << "failure \n";
+            std::cout << state << std::endl;
             amrex::Error("integration failed in burner");
 #endif
         }

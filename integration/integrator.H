@@ -13,9 +13,9 @@ void integrator (burn_t& state, Real dt)
     // Note, for NSE we get a second chance if the state entered NSE,
     // in burner()
     if (!state.success && abort_on_failure) {
+#ifndef AMREX_USE_GPU
         std::cout << "failure: \n";
         std::cout << state << std::endl;
-#ifndef AMREX_USE_GPU
         amrex::Error("integration failed in burner");
 #endif
     }
