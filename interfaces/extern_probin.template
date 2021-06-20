@@ -20,14 +20,14 @@ subroutine runtime_init(probin)
   implicit none
 
 #else
-subroutine runtime_init(name,namlen)
+subroutine runtime_init(name,namlen) bind(C, name="runtime_init")
 
   use extern_probin_module
 
   implicit none
 
-  integer :: namlen
-  integer :: name(namlen)
+  integer, intent(in) :: namlen
+  integer, intent(in) :: name(namlen)
 #endif
 
   integer :: un, i, status
