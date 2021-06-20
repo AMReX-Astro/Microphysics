@@ -60,6 +60,8 @@ void burner (burn_t& state, Real dt)
 #else
             nse_burn(state, dt_remaining);
 #endif
+        } else if (state.success == false && abort_on_failure) {
+            amrex::Error("integration failed in burner");
         }
     }
 

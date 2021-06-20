@@ -8,9 +8,16 @@ void integrator (burn_t& state, Real dt)
 {
     actual_integrator(state, dt);
 
+#ifndef NSE_TABLE
+    // optionally abort here if we don't have retries in the driver.
+    // Note, for NSE we get a second chance if the state entered NSE,
+    // in burner()
     if (!state.success && abort_on_failure) {
+        std::cout << "failure: \n";
+        std::cout << state << std::endl;
         amrex::Error("integration failed in burner");
     }
+#endif
 }
 
 #endif
