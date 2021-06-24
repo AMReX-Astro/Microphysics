@@ -15,10 +15,10 @@
 
 using namespace amrex;
 
-void aprox_rates_test_C(const Box& bx,
-                        const Real dlogrho, const Real dlogT, const Real dNi,
-                        const plot_t vars,
-                        Array4<Real> const sp) {
+void aprox_rates_test(const Box& bx,
+                      const Real dlogrho, const Real dlogT, const Real dNi,
+                      const plot_t vars,
+                      Array4<Real> const sp) {
 
   const int ini56 = network_spec_index("nickel-56");
 
@@ -61,13 +61,6 @@ void aprox_rates_test_C(const Box& bx,
     sp(i, j, k, vars.ic12ag+1) = dfrdt;
     sp(i, j, k, vars.ic12ag+2) = rr;
     sp(i, j, k, vars.ic12ag+3) = drrdt;
-
-    rate_c12ag_deboer17(tf, dens_zone, fr, dfrdt, rr, drrdt);
-
-    sp(i, j, k, vars.ic12ag_deboer17) = fr;
-    sp(i, j, k, vars.ic12ag_deboer17+1) = dfrdt;
-    sp(i, j, k, vars.ic12ag_deboer17+2) = rr;
-    sp(i, j, k, vars.ic12ag_deboer17+3) = drrdt;
 
     rate_triplealf(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
@@ -439,4 +432,53 @@ void aprox_rates_test_C(const Box& bx,
     sp(i, j, k, vars.iecapnuc+3) = snepc;
   });
 
+}
+
+
+void aprox_rates_extra_c12ag(const Box& bx,
+                             const Real dlogrho, const Real dlogT, const Real dNi,
+                             const plot_t vars,
+                             Array4<Real> const sp) {
+
+    const int ini56 = network_spec_index("nickel-56");
+
+    AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+    {
+
+        eos_t eos_state;
+
+        Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
+        eos_state.T = temp_zone;
+
+        Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
+        eos_state.rho = dens_zone;
+
+        Real ni56 = Real(k) * dNi;
+        for(auto comp = 0; comp < NumSpec; ++comp) {
+            eos_state.xn[comp] = 1.0_rt - ni56 / Real(NumSpec - 1);
+        }
+
+        eos_state.xn[ini56] = ni56;
+
+        // call the EOS using rho, T
+        eos(eos_input_rt, eos_state);
+
+        auto tf = get_tfactors(temp_zone);
+
+        Real fr;
+        Real dfrdt;
+        Real rr;
+        Real drrdt;
+
+        // override to get the other rate
+        use_c12ag_deboer17 = 1;
+
+        rate_c12ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
+
+        sp(i, j, k, vars.ic12ag_deboer17) = fr;
+        sp(i, j, k, vars.ic12ag_deboer17+1) = dfrdt;
+        sp(i, j, k, vars.ic12ag_deboer17+2) = rr;
+        sp(i, j, k, vars.ic12ag_deboer17+3) = drrdt;
+
+    });
 }
