@@ -26,18 +26,6 @@ struct rhs_t {
     int exponent_F;
 };
 
-struct jac_t {
-    amrex::Real prefactor;
-    int specindex1;
-    int specindex2;
-    int specindex3;
-
-    amrex::Real rate_prefactor;
-    int rate_specindex1;
-    int rate_specindex2;
-    int rate_specindex3;
-};
-
 // Form a unique numerical identifier from a given
 // (species, rate) combination.
 template<int num_rates>
