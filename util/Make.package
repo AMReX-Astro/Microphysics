@@ -1,6 +1,8 @@
 ifeq ($(USE_REACT),TRUE)
-  F90EXE_sources += microphysics_math.F90
-  F90EXE_sources += esum_module.F90
+  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+    F90EXE_sources += microphysics_math.F90
+    F90EXE_sources += esum_module.F90
+  endif
 
   CEXE_headers += microphysics_math.H
   CEXE_headers += esum.H
