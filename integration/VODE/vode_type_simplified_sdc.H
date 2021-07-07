@@ -157,7 +157,7 @@ void renormalize_species(burn_t& state)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state(const Real time, const burn_t state, dvode_t& vode_state)
+void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
 {
 
     // Ensure that mass fractions always stay positive.
