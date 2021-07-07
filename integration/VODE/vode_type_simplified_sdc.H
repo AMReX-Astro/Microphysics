@@ -225,6 +225,11 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
         state.y[n] = vode_state.y(n+1);
     }
 
+    // update rho, rho*u, ... in the burn_t state
+    // this may be redundant, but better to be safe
+
+    fill_unevolved_variables(time, state, vode_state);
+
     Real rhoInv = 1.0_rt / state.rho;
 
 #if defined(SDC_EVOLVE_ENERGY)
