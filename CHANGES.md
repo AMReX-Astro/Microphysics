@@ -1,3 +1,8 @@
+# 21.07
+
+   * The C++ networks now implement abort_on_failure functionality
+     (#697)
+
 # 21.06
 
    * The ability to use a system BLAS library was removed (#675)

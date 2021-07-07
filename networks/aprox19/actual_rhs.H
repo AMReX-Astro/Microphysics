@@ -103,16 +103,9 @@ void aprox19rat (Real btemp, Real bden,
     // n14(a,g)f18
     rate_n14ag(tf, bden, ratraw(irnag), dratrawdt(irnag), rrate, drratedt);
 
-    // Determine which c12(a,g)o16 rate to use
-    if (use_c12ag_deboer17) {
-        // deboer + 2017 c12(a,g)o16 rate
-        rate_c12ag_deboer17(tf, bden, ratraw(C12_He4_to_O16_forward), dratrawdt(C12_He4_to_O16_forward),
-                            ratraw(C12_He4_to_O16_reverse), dratrawdt(C12_He4_to_O16_reverse));
-    } else {
-        // 1.7 times cf88 c12(a,g)o16 rate
-        rate_c12ag(tf, bden, ratraw(C12_He4_to_O16_forward), dratrawdt(C12_He4_to_O16_forward),
-                   ratraw(C12_He4_to_O16_reverse), dratrawdt(C12_He4_to_O16_reverse));
-    }
+    // c12(a,g)o16
+    rate_c12ag(tf, bden, ratraw(C12_He4_to_O16_forward), dratrawdt(C12_He4_to_O16_forward),
+               ratraw(C12_He4_to_O16_reverse), dratrawdt(C12_He4_to_O16_reverse));
 
     // c12 + c12
     rate_c12c12(tf, bden, ratraw(C12_C12_to_Ne20_He4_forward), dratrawdt(C12_C12_to_Ne20_He4_forward), rrate, drratedt);

@@ -155,7 +155,8 @@ void main_main ()
 
         Array4<Real> const sp = state.array(mfi);
 
-        aprox_rates_test_C(bx, dlogrho, dlogT, dNi, vars, sp);
+        aprox_rates_test(bx, dlogrho, dlogT, dNi, vars, sp);
+        aprox_rates_extra_c12ag(bx, dlogrho, dlogT, dNi, vars, sp);
 
     }
 

@@ -216,18 +216,10 @@ void iso7rat(const Real btemp, const Real bden,
     // get the temperature factors
     tf_t tf = get_tfactors(btemp);
 
-    // Determine which c12(a,g)o16 rate to use
-    if (use_c12ag_deboer17) {
-        // deboer + 2017 c12(a,g)o16 rate
-        rate_c12ag_deboer17(tf,bden,
-                            rate(C12_He4_to_O16_forward),dratedt(C12_He4_to_O16_forward),
-                            rate(C12_He4_to_O16_reverse),dratedt(C12_He4_to_O16_reverse));
-    } else {
-        // 1.7 times cf88 c12(a,g)o16 rate
-        rate_c12ag(tf,bden,
-                   rate(C12_He4_to_O16_forward),dratedt(C12_He4_to_O16_forward),
-                   rate(C12_He4_to_O16_reverse),dratedt(C12_He4_to_O16_reverse));
-    }
+    // c12(a,g)o16
+    rate_c12ag(tf,bden,
+               rate(C12_He4_to_O16_forward),dratedt(C12_He4_to_O16_forward),
+               rate(C12_He4_to_O16_reverse),dratedt(C12_He4_to_O16_reverse));
 
     // triple alpha to c12
     rate_triplealf(tf,bden,
