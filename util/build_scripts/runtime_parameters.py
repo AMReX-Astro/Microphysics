@@ -112,12 +112,12 @@ class Param:
 
         if not self.debug_default is None:
             ostr += "#ifdef AMREX_DEBUG\n"
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.debug_default};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++', debug=True)};\n"
             ostr += "#else\n"
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++')};\n"
             ostr += "#endif\n"
         else:
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++')};\n"
 
         return ostr
 
@@ -184,7 +184,18 @@ class Param:
 
         ostr = ""
         if language == "C++":
-            ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
+            if self.is_array():
+                # we need to create an amrex::Vector to read and then
+                # copy into our managed array
+                ostr += "\n"
+                ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
+                ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
+                ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
+                ostr += f"                {self.nm_pre}{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
+                ostr += "            }\n\n"
+                ostr += "        }\n\n"
+            else:
+                ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
         elif language == "F90":
             if self.dtype == "string":
                 ostr += "    allocate(character(len=1) :: dummy_string_param)\n"
@@ -199,19 +210,36 @@ class Param:
 
         return ostr
 
-    def default_format(self):
-        """return the variable in a format that it can be recognized in C++
-        code--in particular, preserve the quotes for strings"""
+    def default_format(self, lang="Fortran", debug=False):
+        """return the value of the parameter in a format that it can be
+        recognized in C++ code--in particular, preserve the quotes for
+        strings
+
+        """
+        if debug:
+            val = self.debug_default
+        else:
+            val = self.default
+
         if self.dtype == "string":
-            return f'{self.default}'
+            return f'{val}'
+        elif self.dtype in ["bool", "logical"] and lang == "C++":
+            if val.lower() in [".true.", "true"]:
+                return 1
+            else:
+                return 0
+        elif self.dtype == "real" and lang == "C++":
+            if "d" in val:
+                val = val.replace("d", "e")
+            if not val.endswith("_rt"):
+                val += "_rt"
+        return val
 
-        return self.default
-
-    def get_job_info_test(self):
+    def get_job_info_test(self, lang="Fortran"):
         """this is the output in C++ in the job_info writing"""
 
         ostr = (
-            f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format()} ? "    "' +
+            f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format(lang=lang)} ? "    "' +
             f': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
             f'<< {self.nm_pre}{self.cpp_var_name} << std::endl;\n')
 

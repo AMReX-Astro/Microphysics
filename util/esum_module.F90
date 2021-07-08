@@ -77,8 +77,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -166,8 +164,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -254,8 +250,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -384,8 +378,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -512,8 +504,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -682,8 +672,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -850,8 +838,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -1060,8 +1046,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -1268,8 +1252,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -1518,8 +1500,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -1766,8 +1746,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -2056,8 +2034,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -2344,8 +2320,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -2674,8 +2648,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -3002,8 +2974,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -3372,8 +3342,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -3740,8 +3708,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -4150,8 +4116,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -4558,8 +4522,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -5008,8 +4970,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -5456,8 +5416,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -5946,8 +5904,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -6434,8 +6390,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -6964,8 +6918,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -7492,8 +7444,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -8062,8 +8012,6 @@ contains
     ! flag for ifort.
     real(rt) :: hi, lo
 
-    !$gpu
-
     ! The first partial is just the first term.
     esum = array(1)
 
@@ -8630,8 +8578,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)
@@ -9239,8 +9185,6 @@ contains
     ! by default, so you must use the -assume-protect-parens
     ! flag for ifort.
     real(rt) :: hi, lo
-
-    !$gpu
 
     ! The first partial is just the first term.
     esum = array(1)

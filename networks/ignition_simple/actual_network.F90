@@ -23,12 +23,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion, mion
-#endif
-
-  !$acc declare create(bion, mion)
-
   integer, parameter :: nrates = 1
   integer, parameter :: num_rate_groups = 4
 
@@ -41,10 +35,6 @@ module actual_network
   ! Shape of Jacobian in Compressed Sparse Row format
   integer, parameter :: NETWORK_SPARSE_JAC_NNZ = 7
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
-
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: csr_jac_col_index, csr_jac_row_count
-#endif
 #endif
 
 contains
@@ -74,8 +64,6 @@ contains
     csr_jac_col_index = [1, 2, 1, 2, 1, 2, 3]
     csr_jac_row_count = [1, 3, 5, 8]
 #endif
-
-    !$acc update device(nion, mion)
 
   end subroutine actual_network_init
 
