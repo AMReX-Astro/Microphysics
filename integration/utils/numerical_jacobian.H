@@ -29,11 +29,6 @@ void numerical_jac(burn_t& state, const jac_info_t jac_info, JacNetArray2D& jac)
 {
 
 
-    // the choice of eps should be ~ sqrt(eps), where eps is machine epsilon.
-    // this balances truncation vs. roundoff error in the differencing
-
-    constexpr Real eps = 1.e-8_rt;
-
     for (int i = 1; i <= neqs; i++) {
         for (int j = 1; j <= neqs; j++) {
             jac(i,j) = 0.0_rt;
@@ -62,7 +57,7 @@ void numerical_jac(burn_t& state, const jac_info_t jac_info, JacNetArray2D& jac)
         w = 1.0_rt / (rtol_spec * std::abs(state.xn[i-1]) + atol_spec);
         fac += (ydotm(i) * w) * (ydotm(i) * w);
     }
-    w = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_spec);
+    w = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_enuc);
     fac += (ydotm(net_ienuc) * w) * (ydotm(net_ienuc) * w);
     fac = std::sqrt(fac / neqs);
 
