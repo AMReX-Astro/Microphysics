@@ -157,7 +157,7 @@ void renormalize_species(burn_t& state)
 
     eos_re_t eos_state;
     for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.y[SFS+n];
+        eos_state.xn[n] = state.y[SFS+n] / state.y[SRHO];
     }
 
     set_nse_aux_from_X(eos_state);
