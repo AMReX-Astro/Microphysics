@@ -152,6 +152,23 @@ void renormalize_species(burn_t& state)
         state.y[SFS+n] /= rhoX_sum;
     }
 
+#ifdef NSE_THERMO
+    // make the aux data consistent with the vode_state X's
+
+    eos_re_t eos_state;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.y[SFS+n] / state.y[SRHO];
+    }
+
+    set_nse_aux_from_X(eos_state);
+
+    // also store it in the burn_t state
+
+    for (int n = 0; n < NumAux; n++) {
+        state.y[SFX+n] = state.y[SRHO] * eos_state.aux[n];
+    }
+#endif
+
 #endif
 
 }
