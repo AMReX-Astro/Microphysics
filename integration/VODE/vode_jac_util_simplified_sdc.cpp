@@ -76,7 +76,7 @@ void jac_to_vode(const Real time, burn_t& state,
 
     // now the energy rows
 
-    for (int n = 1; n < NumSpec; n++) {
+    for (int n = 1; n <= NumSpec; n++) {
         jac(SEDEN+1, SFS+n) = jac_react(net_ienuc, n) - jac_react(net_ienuc, net_ienuc) * eos_xderivs.dedX[n-1];
         jac(SEINT+1, SFS+n) = jac(SEDEN+1, SFS+n);
     }
