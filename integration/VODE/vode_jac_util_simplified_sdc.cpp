@@ -19,6 +19,8 @@ void jac_to_vode(const Real time, burn_t& state,
     // has the derivatives with respect to the native network
     // variables, X, e.
 
+#if defined(SDC_EVOLVE_ENERGY)
+
     // e row
     eos_re_t eos_state;
     eos_state.rho = state.rho;
@@ -36,9 +38,6 @@ void jac_to_vode(const Real time, burn_t& state,
 
     const eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-
-
-#if defined(SDC_EVOLVE_ENERGY)
 
     // The system we integrate has the form (rho X_k, rho E, rho e)
 
@@ -88,6 +87,49 @@ void jac_to_vode(const Real time, burn_t& state,
     jac(SEINT+1, SEINT+1) = jac_react(net_ienuc, net_ienuc);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
+
+    constexpr int iwrho = 1;
+    constexpr int iwfs=2;
+    constexpr int iwe = iwfs+NumSpec;
+    constexpr int iwvar = 2+NumSpec;
+
+    amrex::Array2D<Real, 1, SVAR_EVOLVE+1, 1, iwvar> dRdw = {0.0_rt};
+    amrex::Array2D<Real, 1, iwvar, 1, SVAR_EVOLVE+1> dwdU = {0.0_rt};
+
+    constexpr Real eps = 1.e-8_rt;
+
+    // this is 0-based to be consistent with SFS, SEDEN, ...
+    constexpr int SRHO_EXTRA = SVAR_EVOLVE;
+
+    // jac_react has the derivatives with respect to the native
+    // network variables, X, T. e.  It does not have derivatives with
+    // respect to density, so we'll have to compute those ourselves.
+
+    // also fill the ydot
+    YdotNetArray1D ydot;
+    vode_to_burn(time, vode_state, state);
+    actual_rhs(state, ydot);
+
+    // at this point, our Jacobian should be entirely in terms of X,
+    // not Y.  Let's now fix the rhs terms themselves to be in terms of
+    // dX/dt and not dY/dt.
+    for (int n = 1; n <= NumSpec; n++) {
+        ydot(n) = ydot(n) * aion[n-1];
+    }
+
+    // now perturb density and call the RHS to compute the derivative wrt rho
+    // species rates come back in terms of molar fractions
+    burn_t state_pert = state;
+    state_pert.rho = state.rho * (1.0_rt + eps);
+
+    YdotNetArray1D ydot_pert;
+    actual_rhs(state_pert, ydot_pert);
+
+    // make the rates dX/dt and not dY/dt
+    for (int n = 1; n <= NumSpec; n++) {
+        ydot_pert(n) = ydot_pert(n) * aion[n-1];
+    }
+
 
     // Our R source has components for species and enthalpy only.  But
     // we will extend it here to include the mass density too to ensure
