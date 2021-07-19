@@ -20,14 +20,14 @@ subroutine runtime_init(probin)
   implicit none
 
 #else
-subroutine runtime_init(name,namlen)
+subroutine runtime_init(name,namlen) bind(C, name="runtime_init")
 
   use extern_probin_module
 
   implicit none
 
-  integer :: namlen
-  integer :: name(namlen)
+  integer, intent(in) :: namlen
+  integer, intent(in) :: name(namlen)
 #endif
 
   integer :: un, i, status
@@ -95,40 +95,6 @@ subroutine update_fortran_extern_after_cxx() bind(C, name="update_fortran_extern
   @@fortran_parmparse_overrides@@
 
 end subroutine update_fortran_extern_after_cxx
-
-subroutine runtime_pretty_print(name, namlen) bind(C, name="runtime_pretty_print")
-
-  use amrex_constants_module
-  use extern_probin_module
-
-  implicit none
-
-  integer :: unit, i
-
-  integer :: namlen
-  integer :: name(namlen)
-
-  logical :: ltest
-
-  integer, parameter :: maxlen = 256
-  character (len=maxlen) :: probin
-
-  if (namlen > maxlen) then
-     print *, "probin file name too long"
-  endif
-
-  do i = 1, namlen
-     probin(i:i) = char(name(i))
-  end do
-
-  ! open the job info file in Fortran
-  open(newunit=unit, file=probin(1:namlen), status="old", position="append")
-
-  @@printing@@
-
-  close(unit=unit)
-
-end subroutine runtime_pretty_print
 
 module extern_f90_to_cxx
 
