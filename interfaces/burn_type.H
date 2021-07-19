@@ -113,18 +113,14 @@ struct burn_t
   Real rho_orig;
 
 #if defined(SDC_EVOLVE_ENERGY)
-  Real umx_orig;
-  Real umy_orig;
-  Real umz_orig;
+  Real rhoe_orig;
 #endif
 
   // ydot_a are the advective terms that will modify the state y due
   // to hydrodynamics over the timestep.
   Real ydot_a[SVAR];
 
-#if defined(SDC_EVOLVE_ENERGY)
-  bool T_from_eden;
-#elif defined(SDC_EVOLVE_ENTHALPY)
+#if defined(SDC_EVOLVE_ENTHALPY)
   // Pressure in case we wish to use it for EOS calls
   Real p0;
 #endif

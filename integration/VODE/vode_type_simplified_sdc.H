@@ -40,10 +40,6 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
     // for consistency
     state.rho = state.y[SRHO];
 
-    state.y[SMX] = state.umx_orig + state.ydot_a[SMX] * time;
-    state.y[SMY] = state.umy_orig + state.ydot_a[SMY] * time;
-    state.y[SMZ] = state.umz_orig + state.ydot_a[SMZ] * time;
-
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
     // Keep density consistent with the partial densities.
@@ -207,14 +203,12 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
         vode_state.y(n+1) = state.y[n];
     }
 
-    // store the original rho and rho U
+    // store the original rho and rho e
 #if defined(SDC_EVOLVE_ENERGY)
 
     state.rho_orig = state.y[SRHO];
 
-    state.umx_orig = state.y[SMX];
-    state.umy_orig = state.y[SMY];
-    state.umz_orig = state.y[SMZ];
+    state.rhoe_orig = state.y[SEINT];
 
 #else
 

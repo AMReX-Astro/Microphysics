@@ -91,6 +91,13 @@ void actual_integrator (burn_t& state, Real dt)
 
     int istate = dvode(state, vode_state);
 
+    // we only evolved (rho e), not (rho E), so we need to update the
+    // total energy now to ensure we are conservative
+
+    Real rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+
+    vode_state.y(SEDEN) += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
+
     // Get the number of RHS and Jacobian evaluations.
 
     state.n_rhs = vode_state.NFE;
