@@ -365,10 +365,6 @@ integration
 |                                       | reactions; analytic for primitive -> conserved          |                    |
 |                                       | (simplified-SDC only)                                   |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``centered_diff_jac``                 | one-sided numerical jacobian (.False.) or centered-     | .false.            |
-|                                       | difference Jacobian (.true.).  Note: the centered-      |                    |
-|                                       | difference requires twice as many RHS calls             |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
 | ``burner_verbose``                    | Should we print out diagnostic output after the solve?  | .false.            |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``rtol_spec``                         | Tolerances for the solver (relative and absolute), for  | 1.d-12             |
