@@ -18,6 +18,9 @@ USE_EXTRA_THERMO = TRUE
 
 USE_CXX_EOS = TRUE
 
+USE_FORT_MICROPHYSICS = FALSE
+BL_NO_FORT=TRUE
+
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 

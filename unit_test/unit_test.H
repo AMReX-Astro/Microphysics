@@ -13,7 +13,7 @@ init_unit_test(const int* name, const int* namelen) {
 
 #ifdef MICROPHYSICS_FORT
     // first read in the Fortran parameters
-    init_unit_test_fortran(name, namelen);
+    runtime_init(name, namelen);
 #endif
 
     // now sync with C++ and read in the C++ parameters
