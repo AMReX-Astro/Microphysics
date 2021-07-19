@@ -42,17 +42,17 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 // integrate rho*X, internal energy, total energy
 // carry momentum as an unevolved variable
 
-const int SEDEN = 0;
-const int SEINT = 1;
-const int SFS   = 2;
+const int SEINT = 0;
+const int SFS   = 1;
 // the following are not evolved
 const int SFX   = SFS + NumSpec;
 const int SRHO  = SFX + NumAux; // this is SFS + NumSpec if NumAux = 0;
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
 const int SMZ   = SRHO + 3;
+const int SEDEN = SMZ+1;
 
-const int SVAR  = SMZ+1;
+const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)

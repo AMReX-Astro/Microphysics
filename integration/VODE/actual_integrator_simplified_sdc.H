@@ -60,10 +60,7 @@ void actual_integrator (burn_t& state, Real dt)
 #if defined(SDC_EVOLVE_ENERGY)
     Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
 
-    vode_state.atol(SEDEN+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
     vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
-
-    vode_state.rtol(SEDEN+1) = rtol_enuc * sdc_tol_fac; 
     vode_state.rtol(SEINT+1) = rtol_enuc * sdc_tol_fac;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -119,8 +116,8 @@ void actual_integrator (burn_t& state, Real dt)
     }
 
 #if defined(SDC_EVOLVE_ENERGY)
-    if (vode_state.y(SEINT+1) < 0.0_rt || vode_state.y(SEDEN+1) < 0.0_rt) {
-      state.success = false;
+    if (vode_state.y(SEINT+1) < 0.0_rt) {
+        state.success = false;
     }
 
     for (int n = 1; n <= NumSpec; ++n) {

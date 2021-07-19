@@ -272,14 +272,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    if (state.T_from_eden) {
-        eos_state.e = (vode_state.y(SEDEN+1) -
-                       0.5_rt * rhoInv * (state.y[SMX] * state.y[SMX] +
-                                          state.y[SMY] * state.y[SMY] +
-                                          state.y[SMZ] * state.y[SMZ])) * rhoInv;
-    } else {
-        eos_state.e = vode_state.y(SEINT+1) * rhoInv;
-    }
+    eos_state.e = vode_state.y(SEINT+1) * rhoInv;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -346,7 +339,6 @@ void rhs_to_vode(const Real time, burn_t& state,
 #if defined(SDC_EVOLVE_ENERGY)
 
     ydot(SEINT+1) += state.rho * ydot_react(net_ienuc);
-    ydot(SEDEN+1) += state.rho * ydot_react(net_ienuc);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
