@@ -96,7 +96,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     Real rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
 
-    vode_state.y(SEDEN+1) += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
+    state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
 
     // Get the number of RHS and Jacobian evaluations.
 

@@ -263,12 +263,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     }
 #endif
 
-
 #if defined(SDC_EVOLVE_ENERGY)
-
-    // we didn't evolve EDEN, so it wasn't copied above
-
-    state.y[SEDEN] = vode_state.y(SEDEN+1);
 
     // set internal energy for EOS call
 
