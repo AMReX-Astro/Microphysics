@@ -43,13 +43,12 @@ void jac_to_vode(const Real time, burn_t& state,
 
     // dR/dw has the form:
     //
-    //  SFS         / d(rho X1dot)/dX1   d(rho X1dit)/dX2   ...  0   d(rho X1dot)/dT \
-    //              | d(rho X2dot)/dX1   d(rho X2dot)/dX2   ...  0   d(rho X2dot)/dT |
-    //  SFS-1+nspec |   ...                                      0                   |
-    //  SEDEN       | d(rho Edot)/dX1    d(rho Edot)/dX2    ...  0   d(rho Edot)/dT  |
-    //  SEINT       \ d(rho Edot)/dX1    d(rho Edot)/dX2    ...  0   d(rho Edot)/dT  /
+    //  SFS         / d(rho X1dot)/dX1   d(rho X1dit)/dX2   ...  d(rho X1dot)/dT \
+    //              | d(rho X2dot)/dX1   d(rho X2dot)/dX2   ...  d(rho X2dot)/dT |
+    //  SFS-1+nspec |   ...                                                      |
+    //  SEINT       \ d(rho Edot)/dX1    d(rho Edot)/dX2    ...  d(rho Edot)/dT  /
     //
-    //                   SFS                                    SEDEN     SEINT
+    //                   SFS                                         SEINT
 
 
     // keep in mind here that that we are using 1-based indexing but SFS, ... are 0-based.
@@ -68,22 +67,15 @@ void jac_to_vode(const Real time, burn_t& state,
 
         // now the energy derivatives
 
-        jac(SFS+m, SEDEN+1) = 0.0_rt;
-
         jac(SFS+m, SEINT+1) = jac_react(m, net_ienuc);
     }
 
     // now the energy rows
 
     for (int n = 1; n <= NumSpec; n++) {
-        jac(SEDEN+1, SFS+n) = jac_react(net_ienuc, n) - jac_react(net_ienuc, net_ienuc) * eos_xderivs.dedX[n-1];
-        jac(SEINT+1, SFS+n) = jac(SEDEN+1, SFS+n);
+        jac(SEINT+1, SFS+n) = jac_react(net_ienuc, n) - jac_react(net_ienuc, net_ienuc) * eos_xderivs.dedX[n-1];
     }
 
-    jac(SEDEN+1, SEDEN+1) = 0.0_rt;
-    jac(SEINT+1, SEDEN+1) = 0.0_rt;
-
-    jac(SEDEN+1, SEINT+1) = jac_react(net_ienuc, net_ienuc);
     jac(SEINT+1, SEINT+1) = jac_react(net_ienuc, net_ienuc);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -98,7 +90,7 @@ void jac_to_vode(const Real time, burn_t& state,
 
     constexpr Real eps = 1.e-8_rt;
 
-    // this is 0-based to be consistent with SFS, SEDEN, ...
+    // this is 0-based to be consistent with SFS, ...
     constexpr int SRHO_EXTRA = SVAR_EVOLVE;
 
     // jac_react has the derivatives with respect to the native
