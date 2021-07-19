@@ -5,6 +5,7 @@ module actual_rhs_module
   use physical_constants, only: N_AVO
   use network
   use table_rates
+  use reaclib_rates
   use burn_type_module
 
   implicit none
@@ -24,8 +25,11 @@ module actual_rhs_module
 contains
 
   subroutine actual_rhs_init()
-    ! STUB FOR MAESTRO'S TEST_REACT. ALL THE INIT IS DONE BY BURNER_INIT
-    return
+
+    call init_reaclib()
+    call init_tabular()
+    call net_screening_init()
+
   end subroutine actual_rhs_init
 
 
@@ -68,6 +72,7 @@ contains
     real(rt) :: rhoy
     real(rt) :: rate, drate_dt, edot_nu
     real(rt) :: scor, dscor_dt, dscor_dd
+    real(rt) :: scor2, dscor2_dt, dscor2_dd
 
     Y(:) = state % xn(:) * aion_inv(:)
     rhoy = state % rho * state % y_e
@@ -181,6 +186,8 @@ contains
     real(rt), intent(out) :: ydot_nuc(nspec)
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
+
+
 
     ydot_nuc(jn) = ( &
       0.5e0_rt*screened_rates(k_c12_c12__n_mg23)*Y(jc12)**2*state % rho - &
@@ -322,6 +329,8 @@ contains
     real(rt), intent(in)  :: Y(nspec)
     real(rt), intent(in)  :: screened_rates(nrates)
     real(rt) :: scratch
+
+
 
     scratch = (&
       -screened_rates(k_n__p__weak__wc12) &
