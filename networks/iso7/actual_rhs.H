@@ -147,22 +147,22 @@ void iso7tab(const Real btemp, const Real bden,
 
         }
 
-        rate(2 * rateindex) = (alfa * rattab(rateindex, 1, iat  ) +
-                               beta * rattab(rateindex, 1, iat+1) +
-                               gama * rattab(rateindex, 1, iat+2) +
-                               delt * rattab(rateindex, 1, iat+3)) * forward_dtab;
+        rate(2 * rateindex - 1) = (alfa * rattab(rateindex, 1, iat  ) +
+                                   beta * rattab(rateindex, 1, iat+1) +
+                                   gama * rattab(rateindex, 1, iat+2) +
+                                   delt * rattab(rateindex, 1, iat+3)) * forward_dtab;
 
-        rate(2 * rateindex + 1) = (alfa * rattab(rateindex, 2, iat  ) +
+        rate(2 * rateindex    ) = (alfa * rattab(rateindex, 2, iat  ) +
                                    beta * rattab(rateindex, 2, iat+1) +
                                    gama * rattab(rateindex, 2, iat+2) +
                                    delt * rattab(rateindex, 2, iat+3)) * reverse_dtab;
 
-        dratedt(2 * rateindex) = (alfa * drattabdt(rateindex, 1, iat  ) +
-                                  beta * drattabdt(rateindex, 1, iat+1) +
-                                  gama * drattabdt(rateindex, 1, iat+2) +
-                                  delt * drattabdt(rateindex, 1, iat+3)) * forward_dtab;
+        dratedt(2 * rateindex - 1) = (alfa * drattabdt(rateindex, 1, iat  ) +
+                                      beta * drattabdt(rateindex, 1, iat+1) +
+                                      gama * drattabdt(rateindex, 1, iat+2) +
+                                      delt * drattabdt(rateindex, 1, iat+3)) * forward_dtab;
 
-        dratedt(2 * rateindex + 1) = (alfa * drattabdt(rateindex, 2, iat  ) +
+        dratedt(2 * rateindex    ) = (alfa * drattabdt(rateindex, 2, iat  ) +
                                       beta * drattabdt(rateindex, 2, iat+1) +
                                       gama * drattabdt(rateindex, 2, iat+2) +
                                       delt * drattabdt(rateindex, 2, iat+3)) * reverse_dtab;
@@ -263,10 +263,10 @@ void set_iso7rat()
 
        for (int j = 1; j <= Rates::NumRatesFR; ++j) {
 
-           rattab(j, 1, i)    = rate(j);
-           rattab(j, 2, i)    = rate(j+1);
-           drattabdt(j, 1, i) = dratedt(j);
-           drattabdt(j, 2, i) = dratedt(j+1);
+           rattab(j, 1, i)    = rate(2 * j - 1);
+           rattab(j, 2, i)    = rate(2 * j    );
+           drattabdt(j, 1, i) = dratedt(2 * j - 1);
+           drattabdt(j, 2, i) = dratedt(2 * j    );
 
        }
     }
