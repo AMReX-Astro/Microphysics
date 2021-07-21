@@ -4,8 +4,6 @@ do_cxx = 1
 
 prefix = react_aprox19_sdc_
 
-amr.probin_file = probin
-
 unit_test.dens_min   = 1.e4
 unit_test.dens_max   = 1.e8
 unit_test.temp_min   = 5.e7
