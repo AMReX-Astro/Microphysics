@@ -43,16 +43,6 @@ module table_rates
   integer               :: num_header_j_ne23_na23
 
 
-#ifdef AMREX_USE_CUDA
-
-  attributes(managed) :: rate_table_j_na23_ne23, rhoy_table_j_na23_ne23, temp_table_j_na23_ne23
-  attributes(managed) :: num_rhoy_j_na23_ne23, num_temp_j_na23_ne23, num_vars_j_na23_ne23
-
-  attributes(managed) :: rate_table_j_ne23_na23, rhoy_table_j_ne23_na23, temp_table_j_ne23_na23
-  attributes(managed) :: num_rhoy_j_ne23_na23, num_temp_j_ne23_na23, num_vars_j_ne23_na23
-
-#endif
-
 contains
 
   subroutine init_tabular()

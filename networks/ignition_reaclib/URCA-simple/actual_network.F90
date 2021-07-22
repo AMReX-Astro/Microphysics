@@ -62,18 +62,10 @@ module actual_network
 
   real(rt), allocatable, save :: bion(:), mion(:)
 
-#ifdef AMREX_USE_CUDA
-  attributes(managed) :: bion, mion
-#endif
-
 #ifdef REACT_SPARSE_JACOBIAN
   ! Shape of Jacobian in Compressed Sparse Row format
   integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 51
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
-
-#ifdef AMREX_USE_CUDA
-  attributes(managed) :: csr_jac_col_index, csr_jac_row_count
-#endif
 #endif
 
 contains
