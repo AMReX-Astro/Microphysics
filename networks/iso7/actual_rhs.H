@@ -141,11 +141,18 @@ void iso7tab(const Real btemp, const Real bden,
             break;
 
         case (Si28_7He4_to_Ni56):
+            // This reaction is evaluated in the screening routine
             forward_dtab = 0.0e0_rt;
             reverse_dtab = 0.0e0_rt;
             break;
 
         }
+
+        // The rate array is flattened and for each reaction should contain the
+        // forward rate and then the backward rate. So for any given rate index
+        // we need to fill in 2 * index - 1 and 2 * index in the legacy flattened
+        // scheme used by the rate array (whereas at every index the table has both
+        // the forward and reverse terms).
 
         rate(2 * rateindex - 1) = (alfa * rattab(rateindex, 1, iat  ) +
                                    beta * rattab(rateindex, 1, iat+1) +
