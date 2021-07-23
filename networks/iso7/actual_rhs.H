@@ -42,8 +42,7 @@ namespace RateTable
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7tab(const Real btemp, const Real bden,
-             Array1D<Real, 1, Rates::NumRates>& rate,
-             Array1D<Real, 1, Rates::NumRates>& dratedt)
+             rate_fr_t& rate, rate_fr_t& dratedt)
 {
     using namespace RateTable;
     using namespace Rates;
@@ -154,22 +153,22 @@ void iso7tab(const Real btemp, const Real bden,
         // scheme used by the rate array (whereas at every index the table has both
         // the forward and reverse terms).
 
-        rate(2 * rateindex - 1) = (alfa * rattab(rateindex, 1, iat  ) +
+        rate.forward(rateindex) = (alfa * rattab(rateindex, 1, iat  ) +
                                    beta * rattab(rateindex, 1, iat+1) +
                                    gama * rattab(rateindex, 1, iat+2) +
                                    delt * rattab(rateindex, 1, iat+3)) * forward_dtab;
 
-        rate(2 * rateindex    ) = (alfa * rattab(rateindex, 2, iat  ) +
+        rate.reverse(rateindex) = (alfa * rattab(rateindex, 2, iat  ) +
                                    beta * rattab(rateindex, 2, iat+1) +
                                    gama * rattab(rateindex, 2, iat+2) +
                                    delt * rattab(rateindex, 2, iat+3)) * reverse_dtab;
 
-        dratedt(2 * rateindex - 1) = (alfa * drattabdt(rateindex, 1, iat  ) +
+        dratedt.forward(rateindex) = (alfa * drattabdt(rateindex, 1, iat  ) +
                                       beta * drattabdt(rateindex, 1, iat+1) +
                                       gama * drattabdt(rateindex, 1, iat+2) +
                                       delt * drattabdt(rateindex, 1, iat+3)) * forward_dtab;
 
-        dratedt(2 * rateindex    ) = (alfa * drattabdt(rateindex, 2, iat  ) +
+        dratedt.reverse(rateindex) = (alfa * drattabdt(rateindex, 2, iat  ) +
                                       beta * drattabdt(rateindex, 2, iat+1) +
                                       gama * drattabdt(rateindex, 2, iat+2) +
                                       delt * drattabdt(rateindex, 2, iat+3)) * reverse_dtab;
@@ -180,71 +179,69 @@ void iso7tab(const Real btemp, const Real bden,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7rat(const Real btemp, const Real bden,
-             Array1D<Real, 1, Rates::NumRates>& rate,
-             Array1D<Real, 1, Rates::NumRates>& dratedt)
+             rate_fr_t& rate, rate_fr_t& dratedt)
 {
     using namespace Rates;
 
     // this routine generates unscreened
     // nuclear reaction rates for the iso7 network.
 
-    Real rrate,drratedt;
-
-    for (int i = 1; i <= Rates::NumRates; ++i) {
-       rate(i)    = 0.0_rt;
-       dratedt(i) = 0.0_rt;
+     for (int i = 1; i <= Rates::NumRatesFR; ++i) {
+       rate.forward(i) = 0.0_rt;
+       rate.reverse(i) = 0.0_rt;
+       dratedt.forward(i) = 0.0_rt;
+       dratedt.reverse(i) = 0.0_rt;
     }
 
     if (btemp < 1.0e6_rt) return;
-
 
     // get the temperature factors
     tf_t tf = get_tfactors(btemp);
 
     // c12(a,g)o16
-    rate_c12ag(tf,bden,
-               rate(C12_He4_to_O16_forward),dratedt(C12_He4_to_O16_forward),
-               rate(C12_He4_to_O16_reverse),dratedt(C12_He4_to_O16_reverse));
+    rate_c12ag(tf, bden,
+               rate.forward(C12_He4_to_O16), dratedt.forward(C12_He4_to_O16),
+               rate.reverse(C12_He4_to_O16), dratedt.reverse(C12_He4_to_O16));
 
     // triple alpha to c12
-    rate_triplealf(tf,bden,
-                   rate(He4_He4_He4_to_C12_forward),dratedt(He4_He4_He4_to_C12_forward),
-                   rate(He4_He4_He4_to_C12_reverse),dratedt(He4_He4_He4_to_C12_reverse));
+    rate_triplealf(tf, bden,
+                   rate.forward(He4_He4_He4_to_C12), dratedt.forward(He4_He4_He4_to_C12),
+                   rate.reverse(He4_He4_He4_to_C12), dratedt.reverse(He4_He4_He4_to_C12));
 
     // c12 + c12
-    rate_c12c12(tf,bden,
-                rate(C12_C12_to_Ne20_He4_forward),dratedt(C12_C12_to_Ne20_He4_forward),
-                rate(C12_C12_to_Ne20_He4_reverse),dratedt(C12_C12_to_Ne20_He4_reverse));
+    rate_c12c12(tf, bden,
+                rate.forward(C12_C12_to_Ne20_He4), dratedt.forward(C12_C12_to_Ne20_He4),
+                rate.reverse(C12_C12_to_Ne20_He4), dratedt.reverse(C12_C12_to_Ne20_He4));
 
     // c12 + o16
-    rate_c12o16(tf,bden,
-                rate(C12_O16_to_Mg24_He4_forward),dratedt(C12_O16_to_Mg24_He4_forward),
-                rate(C12_O16_to_Mg24_He4_reverse),dratedt(C12_O16_to_Mg24_He4_reverse));
+    rate_c12o16(tf, bden,
+                rate.forward(C12_O16_to_Mg24_He4), dratedt.forward(C12_O16_to_Mg24_He4),
+                rate.reverse(C12_O16_to_Mg24_He4), dratedt.reverse(C12_O16_to_Mg24_He4));
 
     // 16o + 16o
-    rate_o16o16(tf,bden,
-                rate(O16_O16_to_Si28_He4_forward),dratedt(O16_O16_to_Si28_He4_forward),
-                rate(O16_O16_to_Si28_He4_reverse),dratedt(O16_O16_to_Si28_He4_reverse));
+    rate_o16o16(tf, bden,
+                rate.forward(O16_O16_to_Si28_He4), dratedt.forward(O16_O16_to_Si28_He4),
+                rate.reverse(O16_O16_to_Si28_He4), dratedt.reverse(O16_O16_to_Si28_He4));
 
     // o16(a,g)ne20
-    rate_o16ag(tf,bden,
-               rate(O16_He4_to_Ne20_forward),dratedt(O16_He4_to_Ne20_forward),
-               rate(O16_He4_to_Ne20_reverse),dratedt(O16_He4_to_Ne20_reverse));
+    rate_o16ag(tf, bden,
+               rate.forward(O16_He4_to_Ne20), dratedt.forward(O16_He4_to_Ne20),
+               rate.reverse(O16_He4_to_Ne20), dratedt.reverse(O16_He4_to_Ne20));
 
     // ne20(a,g)mg24
-    rate_ne20ag(tf,bden,
-                rate(Ne20_He4_to_Mg24_forward),dratedt(Ne20_He4_to_Mg24_forward),
-                rate(Ne20_He4_to_Mg24_reverse),dratedt(Ne20_He4_to_Mg24_reverse));
+    rate_ne20ag(tf, bden,
+                rate.forward(Ne20_He4_to_Mg24), dratedt.forward(Ne20_He4_to_Mg24),
+                rate.reverse(Ne20_He4_to_Mg24), dratedt.reverse(Ne20_He4_to_Mg24));
 
     // mg24(a,g)si28
-    rate_mg24ag(tf,bden,
-                rate(Mg24_He4_to_Si28_forward),dratedt(Mg24_He4_to_Si28_forward),
-                rate(Mg24_He4_to_Si28_reverse),dratedt(Mg24_He4_to_Si28_reverse));
+    rate_mg24ag(tf, bden,
+                rate.forward(Mg24_He4_to_Si28), dratedt.forward(Mg24_He4_to_Si28),
+                rate.reverse(Mg24_He4_to_Si28), dratedt.reverse(Mg24_He4_to_Si28));
 
     // ca40(a,g)ti44
-    rate_ca40ag(tf,bden,
-                rate(Ca40_He4_to_Ti44_forward),dratedt(Ca40_He4_to_Ti44_forward),
-                rate(Ca40_He4_to_Ti44_reverse),dratedt(Ca40_He4_to_Ti44_reverse));
+    rate_ca40ag(tf, bden,
+                rate.forward(Ca40_He4_to_Ti44), dratedt.forward(Ca40_He4_to_Ti44),
+                rate.reverse(Ca40_He4_to_Ti44), dratedt.reverse(Ca40_He4_to_Ti44));
 
 }
 
@@ -256,8 +253,8 @@ void set_iso7rat()
 
     Real btemp;
     Real bden = 1.0e0_rt;
-    Array1D<Real, 1, Rates::NumRates> rate;
-    Array1D<Real, 1, Rates::NumRates> dratedt;
+    rate_fr_t rate;
+    rate_fr_t dratedt;
 
     for (int i = 1; i <= tab_imax; ++i) {
 
@@ -270,10 +267,10 @@ void set_iso7rat()
 
        for (int j = 1; j <= Rates::NumRatesFR; ++j) {
 
-           rattab(j, 1, i)    = rate(2 * j - 1);
-           rattab(j, 2, i)    = rate(2 * j    );
-           drattabdt(j, 1, i) = dratedt(2 * j - 1);
-           drattabdt(j, 2, i) = dratedt(2 * j    );
+           rattab(j, 1, i)    = rate.forward(j);
+           rattab(j, 2, i)    = rate.reverse(j);
+           drattabdt(j, 1, i) = dratedt.forward(j);
+           drattabdt(j, 2, i) = dratedt.reverse(j);
 
        }
     }
@@ -283,8 +280,7 @@ void set_iso7rat()
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
                  Array1D<Real, 1, NumSpec> const& y,
-                 Array1D<Real, 1, Rates::NumRates>& rate,
-                 Array1D<Real, 1, Rates::NumRates>& dratedt,
+                 rate_fr_t& rate, rate_fr_t& dratedt,
                  Array2D<Real, 1, NumSpec, 1, Rates::NumRates>& dratedY)
 {
     using namespace Species;
@@ -333,8 +329,8 @@ void screen_iso7(const Real btemp, const Real bden,
     sc3a   = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
 
-    dratedt(He4_He4_He4_to_C12_forward) = dratedt(He4_He4_He4_to_C12_forward) * sc3a + rate(He4_He4_He4_to_C12_forward) * sc3adt;
-    rate(He4_He4_He4_to_C12_forward)    = rate(He4_He4_He4_to_C12_forward) * sc3a;
+    dratedt.forward(He4_He4_He4_to_C12) = dratedt.forward(He4_He4_He4_to_C12) * sc3a + rate.forward(He4_He4_He4_to_C12) * sc3adt;
+    rate.forward(He4_He4_He4_to_C12)    = rate.forward(He4_He4_He4_to_C12) * sc3a;
 
     // c12 to o16
     jscr++;
@@ -342,8 +338,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(C12_He4_to_O16_forward)  = dratedt(C12_He4_to_O16_forward) * sc1a + rate(C12_He4_to_O16_forward) * sc1adt;
-    rate(C12_He4_to_O16_forward)     = rate(C12_He4_to_O16_forward) * sc1a;
+    dratedt.forward(C12_He4_to_O16)  = dratedt.forward(C12_He4_to_O16) * sc1a + rate.forward(C12_He4_to_O16) * sc1adt;
+    rate.forward(C12_He4_to_O16)     = rate.forward(C12_He4_to_O16) * sc1a;
 
     // c12 + c12
     jscr++;
@@ -351,8 +347,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(C12_C12_to_Ne20_He4_forward) = dratedt(C12_C12_to_Ne20_He4_forward) * sc1a + rate(C12_C12_to_Ne20_He4_forward) * sc1adt;
-    rate(C12_C12_to_Ne20_He4_forward)    = rate(C12_C12_to_Ne20_He4_forward) * sc1a;
+    dratedt.forward(C12_C12_to_Ne20_He4) = dratedt.forward(C12_C12_to_Ne20_He4) * sc1a + rate.forward(C12_C12_to_Ne20_He4) * sc1adt;
+    rate.forward(C12_C12_to_Ne20_He4)    = rate.forward(C12_C12_to_Ne20_He4) * sc1a;
 
     // c12 + o16
     jscr++;
@@ -360,16 +356,16 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(C12_O16_to_Mg24_He4_forward) = dratedt(C12_O16_to_Mg24_He4_forward) * sc1a + rate(C12_O16_to_Mg24_He4_forward) * sc1adt;
-    rate(C12_O16_to_Mg24_He4_forward)    = rate(C12_O16_to_Mg24_He4_forward) * sc1a;
+    dratedt.forward(C12_O16_to_Mg24_He4) = dratedt.forward(C12_O16_to_Mg24_He4) * sc1a + rate.forward(C12_O16_to_Mg24_He4) * sc1adt;
+    rate.forward(C12_O16_to_Mg24_He4)    = rate.forward(C12_O16_to_Mg24_He4) * sc1a;
 
     // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
 
-    rate(C12_O16_to_Mg24_He4_forward) *= 0.5;
-    dratedt(C12_O16_to_Mg24_He4_forward) *= 0.5;
+    rate.forward(C12_O16_to_Mg24_He4) *= 0.5;
+    dratedt.forward(C12_O16_to_Mg24_He4) *= 0.5;
 
-    rate(C12_O16_to_Si28_forward) = rate(C12_O16_to_Mg24_He4_forward);
-    dratedt(C12_O16_to_Si28_forward) = dratedt(C12_O16_to_Mg24_He4_forward);
+    rate.forward(C12_O16_to_Si28) = rate.forward(C12_O16_to_Mg24_He4);
+    dratedt.forward(C12_O16_to_Si28) = dratedt.forward(C12_O16_to_Mg24_He4);
 
     // o16 + o16
     jscr++;
@@ -377,8 +373,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(O16_O16_to_Si28_He4_forward) = dratedt(O16_O16_to_Si28_He4_forward) * sc1a + rate(O16_O16_to_Si28_He4_forward) * sc1adt;
-    rate(O16_O16_to_Si28_He4_forward)    = rate(O16_O16_to_Si28_He4_forward) * sc1a;
+    dratedt.forward(O16_O16_to_Si28_He4) = dratedt.forward(O16_O16_to_Si28_He4) * sc1a + rate.forward(O16_O16_to_Si28_He4) * sc1adt;
+    rate.forward(O16_O16_to_Si28_He4)    = rate.forward(O16_O16_to_Si28_He4) * sc1a;
 
     // o16 to ne20
     jscr++;
@@ -386,8 +382,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(O16_He4_to_Ne20_forward) = dratedt(O16_He4_to_Ne20_forward) * sc1a + rate(O16_He4_to_Ne20_forward) * sc1adt;
-    rate(O16_He4_to_Ne20_forward)    = rate(O16_He4_to_Ne20_forward) * sc1a;
+    dratedt.forward(O16_He4_to_Ne20) = dratedt.forward(O16_He4_to_Ne20) * sc1a + rate.forward(O16_He4_to_Ne20) * sc1adt;
+    rate.forward(O16_He4_to_Ne20)    = rate.forward(O16_He4_to_Ne20) * sc1a;
 
     // ne20 to mg24
     jscr++;
@@ -395,8 +391,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(Ne20_He4_to_Mg24_forward) = dratedt(Ne20_He4_to_Mg24_forward) * sc1a + rate(Ne20_He4_to_Mg24_forward) * sc1adt;
-    rate(Ne20_He4_to_Mg24_forward)    = rate(Ne20_He4_to_Mg24_forward) * sc1a;
+    dratedt.forward(Ne20_He4_to_Mg24) = dratedt.forward(Ne20_He4_to_Mg24) * sc1a + rate.forward(Ne20_He4_to_Mg24) * sc1adt;
+    rate.forward(Ne20_He4_to_Mg24)    = rate.forward(Ne20_He4_to_Mg24) * sc1a;
 
     // mg24 to si28
     jscr++;
@@ -404,8 +400,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(Mg24_He4_to_Si28_forward) = dratedt(Mg24_He4_to_Si28_forward) * sc1a + rate(Mg24_He4_to_Si28_forward) * sc1adt;
-    rate(Mg24_He4_to_Si28_forward)    = rate(Mg24_He4_to_Si28_forward) * sc1a;
+    dratedt.forward(Mg24_He4_to_Si28) = dratedt.forward(Mg24_He4_to_Si28) * sc1a + rate.forward(Mg24_He4_to_Si28) * sc1adt;
+    rate.forward(Mg24_He4_to_Si28)    = rate.forward(Mg24_He4_to_Si28) * sc1a;
 
     // ca40 to ti44
     jscr++;
@@ -413,8 +409,8 @@ void screen_iso7(const Real btemp, const Real bden,
             20.0_rt, 40.0_rt, zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt(Ca40_He4_to_Ti44_forward) = dratedt(Ca40_He4_to_Ti44_forward) * sc1a + rate(Ca40_He4_to_Ti44_forward) * sc1adt;
-    rate(Ca40_He4_to_Ti44_forward)    = rate(Ca40_He4_to_Ti44_forward) * sc1a;
+    dratedt.forward(Ca40_He4_to_Ti44) = dratedt.forward(Ca40_He4_to_Ti44) * sc1a + rate.forward(Ca40_He4_to_Ti44) * sc1adt;
+    rate.forward(Ca40_He4_to_Ti44)    = rate.forward(Ca40_He4_to_Ti44) * sc1a;
 
     /*
     the publication, timmes, woosley & hoffman apjs, 129, 377
@@ -427,7 +423,7 @@ void screen_iso7(const Real btemp, const Real bden,
     if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
 
        t992  = tf.t972 * tf.t9;
-       t9i92 = 1.0e0_rt/t992;
+       t9i92 = 1.0e0_rt / t992;
 
        yeff_ca40   = t9i92 * std::exp(239.42_rt*tf.t9i - 74.741_rt);
        yeff_ca40dt = -yeff_ca40*(239.42_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
@@ -437,20 +433,20 @@ void screen_iso7(const Real btemp, const Real bden,
 
        denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
-       rate(Si28_7He4_to_Ni56_forward)     = yeff_ca40*denom*rate(Ca40_He4_to_Ti44_forward);
-       dratedt(Si28_7He4_to_Ni56_forward)  = (yeff_ca40dt*rate(Ca40_He4_to_Ti44_forward)
-                                              + yeff_ca40*dratedt(Ca40_He4_to_Ti44_forward))*denom*1.0e-9_rt;
+       rate.forward(Si28_7He4_to_Ni56)     = yeff_ca40 * denom * rate.forward(Ca40_He4_to_Ti44);
+       dratedt.forward(Si28_7He4_to_Ni56)  = (yeff_ca40dt * rate.forward(Ca40_He4_to_Ti44) +
+                                              yeff_ca40 * dratedt.forward(Ca40_He4_to_Ti44)) * denom * 1.0e-9_rt;
 
        if (denom != 0.0_rt) {
 
-          zz     = 1.0e0_rt/denom;
-          rate(Si28_7He4_to_Ni56_reverse) = amrex::min(1.0e10_rt,yeff_ti44*rate(Ca40_He4_to_Ti44_reverse)*zz);
+          zz     = 1.0e0_rt / denom;
+          rate.reverse(Si28_7He4_to_Ni56) = amrex::min(1.0e10_rt, yeff_ti44 * rate.reverse(Ca40_He4_to_Ti44) * zz);
 
-          if (rate(Si28_7He4_to_Ni56_reverse) == 1.0e10_rt) {
-             dratedt(Si28_7He4_to_Ni56_reverse)  = 0.0e0_rt;
+          if (rate.reverse(Si28_7He4_to_Ni56) == 1.0e10_rt) {
+             dratedt.reverse(Si28_7He4_to_Ni56)  = 0.0e0_rt;
           } else {
-             dratedt(Si28_7He4_to_Ni56_reverse)  = (yeff_ti44dt*rate(Ca40_He4_to_Ti44_reverse)
-                                                    + yeff_ti44*dratedt(Ca40_He4_to_Ti44_reverse))*zz*1.0e-9_rt;
+             dratedt.reverse(Si28_7He4_to_Ni56)  = (yeff_ti44dt * rate.reverse(Ca40_He4_to_Ti44) +
+                                                    yeff_ti44 * dratedt.reverse(Ca40_He4_to_Ti44)) * zz * 1.0e-9_rt;
           }
 
        }
@@ -462,7 +458,7 @@ void screen_iso7(const Real btemp, const Real bden,
 
 // RHS version (single rate group)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates(burn_t const& state, rate_t& rr)
+void evaluate_rates(burn_t const& state, rate_fr_t& rate)
 {
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
@@ -471,7 +467,7 @@ void evaluate_rates(burn_t const& state, rate_t& rr)
     // A useful cleanup would be to rewrite iso7tab, iso7rat,
     // and screen_iso7 so that there are versions that do not
     // evaluate the derivatives.
-    Array1D<Real, 1, Rates::NumRates> dratedt;
+    rate_fr_t dratedt;
     Array2D<Real, 1, NumSpec, 1, Rates::NumRates> dratedY;
 
     // Get the data from the state
@@ -484,21 +480,20 @@ void evaluate_rates(burn_t const& state, rate_t& rr)
 
     // Get the raw reaction rates
     if (use_tables)
-        iso7tab(temp, rho, rr.rates, dratedt);
+        iso7tab(temp, rho, rate, dratedt);
     else
-        iso7rat(temp, rho, rr.rates, dratedt);
+        iso7rat(temp, rho, rate, dratedt);
 
     // Do the screening (depends on composition)
-    screen_iso7(temp, rho, y, rr.rates, dratedt, dratedY);
+    screen_iso7(temp, rho, y, rate, dratedt, dratedY);
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rates(burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
+void get_rates(burn_t const& state, rate_fr_t& rate, rate_fr_t& dratedt)
 {
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
-    Array1D<Real, 1, Rates::NumRates> rate, dratedt;
     Array2D<Real, 1, NumSpec, 1, Rates::NumRates> dratedY;
 
     // Get the data from the state
@@ -516,25 +511,13 @@ void get_rates(burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 
     // Do the screening here because the corrections depend on the composition
     screen_iso7(temp, rho, y, rate, dratedt, dratedY);
-
-    // Save the rate data, for the Jacobian later if we need it.
-    for (int i = 1; i <= Rates::NumRates; ++i) {
-        rr(1).rates(i) = rate(i);
-        rr(2).rates(i) = dratedt(i);
-    }
-
-    for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= Rates::NumRates; ++i) {
-            rr(j+2).rates(i) = dratedY(j, i);
-        }
-    }
 }
 
 
 template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
-                        burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups> const& rr,
+                        burn_t const& state, rate_fr_t rate,
                         MatrixType& jac)
 {
 
@@ -543,7 +526,7 @@ void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
     using namespace Species;
     using namespace Rates;
 
-    auto spec_jac = RHS::species_jac(state, rr(1));
+    auto spec_jac = RHS::species_jac(state, rate);
 
     for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
         for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
@@ -580,7 +563,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     // Evaluate the rates
 
-    rate_t rr;
+    rate_fr_t rr;
     evaluate_rates(state, rr);
 
     // Call the RHS to get dydt
@@ -603,7 +586,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_jac(burn_t& state, MatrixType& jac)
 {
 
-    Array1D<rate_t, 1, Rates::NumGroups> rr;
+    rate_fr_t rate, dratedt;
 
     bool deriva;
 
@@ -614,7 +597,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     jac.zero();
 
-    get_rates(state, rr);
+    get_rates(state, rate, dratedt);
 
     // Get the data from the state
 
@@ -628,7 +611,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     // Species Jacobian elements with respect to other species
 
-    dfdy_isotopes_iso7(y, state, rr, jac);
+    dfdy_isotopes_iso7(y, state, rate, jac);
 
     // Energy generation rate Jacobian elements with respect to species
 
@@ -650,9 +633,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // calling the RHS using d(rate) / dT and then transform them
     // to our energy integration variable.
 
-    const int index_rate = 2;
-
-    Array1D<Real, 1, NumSpec> yderivs = RHS::species_rhs(state, rr(index_rate));
+    Array1D<Real, 1, NumSpec> yderivs = RHS::species_rhs(state, dratedt);
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
