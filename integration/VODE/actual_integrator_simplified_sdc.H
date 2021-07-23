@@ -60,10 +60,7 @@ void actual_integrator (burn_t& state, Real dt)
 #if defined(SDC_EVOLVE_ENERGY)
     Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
 
-    vode_state.atol(SEDEN+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
     vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
-
-    vode_state.rtol(SEDEN+1) = rtol_enuc * sdc_tol_fac; 
     vode_state.rtol(SEINT+1) = rtol_enuc * sdc_tol_fac;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -104,6 +101,19 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_to_burn(vode_state.t, vode_state, state);
 
+    // we only evolved (rho e), not (rho E), so we need to update the
+    // total energy now to ensure we are conservative
+
+    Real rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+
+    state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
+
+    // also momentum
+
+    state.y[SMX] += state.time * state.ydot_a[SMX];
+    state.y[SMY] += state.time * state.ydot_a[SMY];
+    state.y[SMZ] += state.time * state.ydot_a[SMZ];
+
     // normalize the abundances on exit.  We'll assume that the driver
     // calling this is making use of the conserved state (state.y[]),
     // so that is what will be normalized.
@@ -119,8 +129,8 @@ void actual_integrator (burn_t& state, Real dt)
     }
 
 #if defined(SDC_EVOLVE_ENERGY)
-    if (vode_state.y(SEINT+1) < 0.0_rt || vode_state.y(SEDEN+1) < 0.0_rt) {
-      state.success = false;
+    if (vode_state.y(SEINT+1) < 0.0_rt) {
+        state.success = false;
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
