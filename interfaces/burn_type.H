@@ -42,17 +42,17 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 // integrate rho*X, internal energy, total energy
 // carry momentum as an unevolved variable
 
-const int SEDEN = 0;
-const int SEINT = 1;
-const int SFS   = 2;
+const int SEINT = 0;
+const int SFS   = 1;
 // the following are not evolved
 const int SFX   = SFS + NumSpec;
 const int SRHO  = SFX + NumAux; // this is SFS + NumSpec if NumAux = 0;
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
 const int SMZ   = SRHO + 3;
+const int SEDEN = SMZ+1;
 
-const int SVAR  = SMZ+1;
+const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -113,18 +113,14 @@ struct burn_t
   Real rho_orig;
 
 #if defined(SDC_EVOLVE_ENERGY)
-  Real umx_orig;
-  Real umy_orig;
-  Real umz_orig;
+  Real rhoe_orig;
 #endif
 
   // ydot_a are the advective terms that will modify the state y due
   // to hydrodynamics over the timestep.
   Real ydot_a[SVAR];
 
-#if defined(SDC_EVOLVE_ENERGY)
-  bool T_from_eden;
-#elif defined(SDC_EVOLVE_ENTHALPY)
+#if defined(SDC_EVOLVE_ENTHALPY)
   // Pressure in case we wish to use it for EOS calls
   Real p0;
 #endif
