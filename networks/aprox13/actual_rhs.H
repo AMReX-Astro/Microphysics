@@ -165,19 +165,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (irmgap):
+        case (Mg24_He4_to_Al27_P_forward):
             dtab = bden;
             break;
 
-        case (iralpa):
+        case (Mg24_He4_to_Al27_P_reverse):
             dtab = bden;
             break;
 
-        case (iralpg):
+        case (Al27_P_to_Si28_forward):
             dtab = bden;
             break;
 
-        case (irsigp):
+        case (Al27_P_to_Si28_reverse):
             dtab = 1.0e0_rt;
             break;
 
@@ -189,19 +189,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (irppa):
+        case (Si28_He4_to_P31_P_reverse):
             dtab = bden;
             break;
 
-        case (irsiap):
+        case (Si28_He4_to_P31_P_forward):
             dtab = bden;
             break;
 
-        case (irppg):
+        case (P31_P_to_S32_forward):
             dtab = bden;
             break;
 
-        case (irsgp):
+        case (P31_P_to_S32_reverse):
             dtab = 1.0e0_rt;
             break;
 
@@ -213,19 +213,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (irsap):
+        case (S32_He4_to_Cl35_P_forward):
             dtab = bden;
             break;
 
-        case (irclpa):
+        case (S32_He4_to_Cl35_P_reverse):
             dtab = bden;
             break;
 
-        case (irclpg):
+        case (Cl35_P_to_Ar36_forward):
             dtab = bden;
             break;
 
-        case (irargp):
+        case (Cl35_P_to_Ar36_reverse):
             dtab = 1.0e0_rt;
             break;
 
@@ -237,19 +237,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (irarap):
+        case (Ar36_He4_to_K39_P_forward):
             dtab = bden;
             break;
 
-        case (irkpa):
+        case (Ar36_He4_to_K39_P_reverse):
             dtab = bden;
             break;
 
-        case (irkpg):
+        case (K39_P_to_Ca40_forward):
             dtab = bden;
             break;
 
-        case (ircagp):
+        case (K39_P_to_Ca40_reverse):
             dtab = 1.0e0_rt;
             break;
 
@@ -261,19 +261,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (ircaap):
+        case (Ca40_He4_to_Sc43_P_forward):
             dtab = bden;
             break;
 
-        case (irscpa):
+        case (Ca40_He4_to_Sc43_P_reverse):
             dtab = bden;
             break;
 
-        case (irscpg):
+        case (Sc43_P_to_Ti44_forward):
             dtab = bden;
             break;
 
-        case (irtigp):
+        case (Sc43_P_to_Ti44_reverse):
             dtab = 1.0e0_rt;
             break;
 
@@ -285,19 +285,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (irtiap):
+        case (Ti44_He4_to_V47_P_forward):
             dtab = bden;
             break;
 
-        case (irvpa):
+        case (Ti44_He4_to_V47_P_reverse):
             dtab = bden;
             break;
 
-        case (irvpg):
+        case (V47_P_to_Cr48_forward):
             dtab = bden;
             break;
 
-        case (ircrgp):
+        case (V47_P_to_Cr48_reverse):
             dtab = 1.0e0_rt;
             break;
 
@@ -309,19 +309,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (ircrap):
+        case (Cr48_He4_to_Mn51_P_forward):
             dtab = bden;
             break;
 
-        case (irmnpa):
+        case (Cr48_He4_to_Mn51_P_reverse):
             dtab = bden;
             break;
 
-        case (irmnpg):
+        case (Mn51_P_to_Fe52_forward):
             dtab = bden;
             break;
 
-        case (irfegp):
+        case (Mn51_P_to_Fe52_reverse):
             dtab = 1.0e0_rt;
             break;
 
@@ -333,19 +333,19 @@ void aprox13tab(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
             dtab = 1.0e0_rt;
             break;
 
-        case (irfeap):
+        case (Fe52_He4_to_Co55_P_forward):
             dtab = bden;
             break;
 
-        case (ircopa):
+        case (Fe52_He4_to_Co55_P_reverse):
             dtab = bden;
             break;
 
-        case (ircopg):
+        case (Co55_P_to_Ni56_forward):
             dtab = bden;
             break;
 
-        case (irnigp):
+        case (Co55_P_to_Ni56_reverse):
             dtab = 1.0e0_rt;
             break;
         }
@@ -427,13 +427,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // mg24(a,p)al27
     rate_mg24ap(tf,bden,
-                rr(1).rates(irmgap),rr(2).rates(irmgap),
-                rr(1).rates(iralpa),rr(2).rates(iralpa));
+                rr(1).rates(Mg24_He4_to_Al27_P_forward),rr(2).rates(Mg24_He4_to_Al27_P_forward),
+                rr(1).rates(Mg24_He4_to_Al27_P_reverse),rr(2).rates(Mg24_He4_to_Al27_P_reverse));
 
     // al27(p,g)si28
     rate_al27pg(tf,bden,
-                rr(1).rates(iralpg),rr(2).rates(iralpg),
-                rr(1).rates(irsigp),rr(2).rates(irsigp));
+                rr(1).rates(Al27_P_to_Si28_forward),rr(2).rates(Al27_P_to_Si28_forward),
+                rr(1).rates(Al27_P_to_Si28_reverse),rr(2).rates(Al27_P_to_Si28_reverse));
 
     // si28(a,g)s32
     rate_si28ag(tf,bden,
@@ -442,13 +442,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // si28(a,p)p31
     rate_si28ap(tf,bden,
-                rr(1).rates(irsiap),rr(2).rates(irsiap),
-                rr(1).rates(irppa),rr(2).rates(irppa));
+                rr(1).rates(Si28_He4_to_P31_P_forward),rr(2).rates(Si28_He4_to_P31_P_forward),
+                rr(1).rates(Si28_He4_to_P31_P_reverse),rr(2).rates(Si28_He4_to_P31_P_reverse));
 
     // p31(p,g)s32
     rate_p31pg(tf,bden,
-               rr(1).rates(irppg),rr(2).rates(irppg),
-               rr(1).rates(irsgp),rr(2).rates(irsgp));
+               rr(1).rates(P31_P_to_S32_forward),rr(2).rates(P31_P_to_S32_forward),
+               rr(1).rates(P31_P_to_S32_reverse),rr(2).rates(P31_P_to_S32_reverse));
 
     // s32(a,g)ar36
     rate_s32ag(tf,bden,
@@ -457,13 +457,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // s32(a,p)cl35
     rate_s32ap(tf,bden,
-               rr(1).rates(irsap),rr(2).rates(irsap),
-               rr(1).rates(irclpa),rr(2).rates(irclpa));
+               rr(1).rates(S32_He4_to_Cl35_P_forward),rr(2).rates(S32_He4_to_Cl35_P_forward),
+               rr(1).rates(S32_He4_to_Cl35_P_reverse),rr(2).rates(S32_He4_to_Cl35_P_reverse));
 
     // cl35(p,g)ar36
     rate_cl35pg(tf,bden,
-                rr(1).rates(irclpg),rr(2).rates(irclpg),
-                rr(1).rates(irargp),rr(2).rates(irargp));
+                rr(1).rates(Cl35_P_to_Ar36_forward),rr(2).rates(Cl35_P_to_Ar36_forward),
+                rr(1).rates(Cl35_P_to_Ar36_reverse),rr(2).rates(Cl35_P_to_Ar36_reverse));
 
     // ar36(a,g)ca40
     rate_ar36ag(tf,bden,
@@ -472,13 +472,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ar36(a,p)k39
     rate_ar36ap(tf,bden,
-                rr(1).rates(irarap),rr(2).rates(irarap),
-                rr(1).rates(irkpa),rr(2).rates(irkpa));
+                rr(1).rates(Ar36_He4_to_K39_P_forward),rr(2).rates(Ar36_He4_to_K39_P_forward),
+                rr(1).rates(Ar36_He4_to_K39_P_reverse),rr(2).rates(Ar36_He4_to_K39_P_reverse));
 
     // k39(p,g)ca40
     rate_k39pg(tf,bden,
-               rr(1).rates(irkpg),rr(2).rates(irkpg),
-               rr(1).rates(ircagp),rr(2).rates(ircagp));
+               rr(1).rates(K39_P_to_Ca40_forward),rr(2).rates(K39_P_to_Ca40_forward),
+               rr(1).rates(K39_P_to_Ca40_reverse),rr(2).rates(K39_P_to_Ca40_reverse));
 
     // ca40(a,g)ti44
     rate_ca40ag(tf,bden,
@@ -487,13 +487,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ca40(a,p)sc43
     rate_ca40ap(tf,bden,
-                rr(1).rates(ircaap),rr(2).rates(ircaap),
-                rr(1).rates(irscpa),rr(2).rates(irscpa));
+                rr(1).rates(Ca40_He4_to_Sc43_P_forward),rr(2).rates(Ca40_He4_to_Sc43_P_forward),
+                rr(1).rates(Ca40_He4_to_Sc43_P_reverse),rr(2).rates(Ca40_He4_to_Sc43_P_reverse));
 
     // sc43(p,g)ti44
     rate_sc43pg(tf,bden,
-                rr(1).rates(irscpg),rr(2).rates(irscpg),
-                rr(1).rates(irtigp),rr(2).rates(irtigp));
+                rr(1).rates(Sc43_P_to_Ti44_forward),rr(2).rates(Sc43_P_to_Ti44_forward),
+                rr(1).rates(Sc43_P_to_Ti44_reverse),rr(2).rates(Sc43_P_to_Ti44_reverse));
 
     // ti44(a,g)cr48
     rate_ti44ag(tf,bden,
@@ -502,13 +502,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // ti44(a,p)v47
     rate_ti44ap(tf,bden,
-                rr(1).rates(irtiap),rr(2).rates(irtiap), 
-                rr(1).rates(irvpa),rr(2).rates(irvpa));
+                rr(1).rates(Ti44_He4_to_V47_P_forward),rr(2).rates(Ti44_He4_to_V47_P_forward),
+                rr(1).rates(Ti44_He4_to_V47_P_reverse),rr(2).rates(Ti44_He4_to_V47_P_reverse));
 
     // v47(p,g)cr48
     rate_v47pg(tf,bden,
-               rr(1).rates(irvpg),rr(2).rates(irvpg), 
-               rr(1).rates(ircrgp),rr(2).rates(ircrgp));
+               rr(1).rates(V47_P_to_Cr48_forward),rr(2).rates(V47_P_to_Cr48_forward),
+               rr(1).rates(V47_P_to_Cr48_reverse),rr(2).rates(V47_P_to_Cr48_reverse));
 
     // cr48(a,g)fe52
     rate_cr48ag(tf,bden,
@@ -517,13 +517,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // cr48(a,p)mn51
     rate_cr48ap(tf,bden,
-                rr(1).rates(ircrap),rr(2).rates(ircrap),
-                rr(1).rates(irmnpa),rr(2).rates(irmnpa));
+                rr(1).rates(Cr48_He4_to_Mn51_P_forward),rr(2).rates(Cr48_He4_to_Mn51_P_forward),
+                rr(1).rates(Cr48_He4_to_Mn51_P_reverse),rr(2).rates(Cr48_He4_to_Mn51_P_reverse));
 
     // mn51(p,g)fe52
     rate_mn51pg(tf,bden,
-                rr(1).rates(irmnpg),rr(2).rates(irmnpg),
-                rr(1).rates(irfegp),rr(2).rates(irfegp));
+                rr(1).rates(Mn51_P_to_Fe52_forward),rr(2).rates(Mn51_P_to_Fe52_forward),
+                rr(1).rates(Mn51_P_to_Fe52_reverse),rr(2).rates(Mn51_P_to_Fe52_reverse));
 
     // fe52(a,g)ni56
     rate_fe52ag(tf,bden,
@@ -532,13 +532,13 @@ void aprox13rat(const Real btemp, const Real bden, Array1D<rate_t, 1, Rates::Num
 
     // fe52(a,p)co55
     rate_fe52ap(tf,bden,
-                rr(1).rates(irfeap),rr(2).rates(irfeap),
-                rr(1).rates(ircopa),rr(2).rates(ircopa));
+                rr(1).rates(Fe52_He4_to_Co55_P_forward),rr(2).rates(Fe52_He4_to_Co55_P_forward),
+                rr(1).rates(Fe52_He4_to_Co55_P_reverse),rr(2).rates(Fe52_He4_to_Co55_P_reverse));
 
     // co55(p,g)ni56
     rate_co55pg(tf,bden,
-                rr(1).rates(ircopg),rr(2).rates(ircopg),
-                rr(1).rates(irnigp),rr(2).rates(irnigp));
+                rr(1).rates(Co55_P_to_Ni56_forward),rr(2).rates(Co55_P_to_Ni56_forward),
+                rr(1).rates(Co55_P_to_Ni56_reverse),rr(2).rates(Co55_P_to_Ni56_reverse));
 }
 
 
@@ -724,13 +724,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // mg24(a,p)al27
-    ratraw = rr(1).rates(irmgap);
-    rr(1).rates(irmgap) = ratraw * sc1a;
-    rr(2).rates(irmgap) = rr(2).rates(irmgap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mg24_He4_to_Al27_P_forward);
+    rr(1).rates(Mg24_He4_to_Al27_P_forward) = ratraw * sc1a;
+    rr(2).rates(Mg24_He4_to_Al27_P_forward) = rr(2).rates(Mg24_He4_to_Al27_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(iralpa);
-    rr(1).rates(iralpa) = ratraw * sc1a;
-    rr(2).rates(iralpa) = rr(2).rates(iralpa)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mg24_He4_to_Al27_P_reverse);
+    rr(1).rates(Mg24_He4_to_Al27_P_reverse) = ratraw * sc1a;
+    rr(2).rates(Mg24_He4_to_Al27_P_reverse) = rr(2).rates(Mg24_He4_to_Al27_P_reverse)*sc1a + ratraw*sc1adt;
 
     jscr++;
     screen5(state,jscr,
@@ -738,13 +738,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             sc1a,sc1adt,sc1add);
 
     // al27(p,g)si28
-    ratraw = rr(1).rates(iralpg);
-    rr(1).rates(iralpg) = ratraw * sc1a;
-    rr(2).rates(iralpg) = rr(2).rates(iralpg)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Al27_P_to_Si28_forward);
+    rr(1).rates(Al27_P_to_Si28_forward) = ratraw * sc1a;
+    rr(2).rates(Al27_P_to_Si28_forward) = rr(2).rates(Al27_P_to_Si28_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irsigp);
-    rr(1).rates(irsigp) = ratraw * sc1a;
-    rr(2).rates(irsigp) = rr(2).rates(irsigp)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Al27_P_to_Si28_reverse);
+    rr(1).rates(Al27_P_to_Si28_reverse) = ratraw * sc1a;
+    rr(2).rates(Al27_P_to_Si28_reverse) = rr(2).rates(Al27_P_to_Si28_reverse)*sc1a + ratraw*sc1adt;
 
 
     // si28 to s32
@@ -765,13 +765,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // si28(a,p)p31
-    ratraw = rr(1).rates(irsiap);
-    rr(1).rates(irsiap) = ratraw * sc1a;
-    rr(2).rates(irsiap) = rr(2).rates(irsiap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Si28_He4_to_P31_P_forward);
+    rr(1).rates(Si28_He4_to_P31_P_forward) = ratraw * sc1a;
+    rr(2).rates(Si28_He4_to_P31_P_forward) = rr(2).rates(Si28_He4_to_P31_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irppa);
-    rr(1).rates(irppa)  = ratraw * sc1a;
-    rr(2).rates(irppa)  = rr(2).rates(irppa)*sc1a  + ratraw*sc1adt;
+    ratraw = rr(1).rates(Si28_He4_to_P31_P_reverse);
+    rr(1).rates(Si28_He4_to_P31_P_reverse)  = ratraw * sc1a;
+    rr(2).rates(Si28_He4_to_P31_P_reverse)  = rr(2).rates(Si28_He4_to_P31_P_reverse)*sc1a  + ratraw*sc1adt;
 
 
     jscr++;
@@ -780,13 +780,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             sc1a,sc1adt,sc1add);
 
     // p31(p,g)s32
-    ratraw = rr(1).rates(irppg);
-    rr(1).rates(irppg)  = ratraw * sc1a;
-    rr(2).rates(irppg)  = rr(2).rates(irppg)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(P31_P_to_S32_forward);
+    rr(1).rates(P31_P_to_S32_forward)  = ratraw * sc1a;
+    rr(2).rates(P31_P_to_S32_forward)  = rr(2).rates(P31_P_to_S32_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irsgp);
-    rr(1).rates(irsgp)  = ratraw * sc1a;
-    rr(2).rates(irsgp)  = rr(2).rates(irsgp)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(P31_P_to_S32_reverse);
+    rr(1).rates(P31_P_to_S32_reverse)  = ratraw * sc1a;
+    rr(2).rates(P31_P_to_S32_reverse)  = rr(2).rates(P31_P_to_S32_reverse)*sc1a + ratraw*sc1adt;
 
 
     // s32 to ar36
@@ -806,13 +806,13 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(S32_He4_to_Ar36_reverse)  = rr(2).rates(S32_He4_to_Ar36_reverse)*sc1a + ratraw*sc1adt;
 
     // s32(a,p)cl35
-    ratraw = rr(1).rates(irsap);
-    rr(1).rates(irsap)  = ratraw * sc1a;
-    rr(2).rates(irsap)  = rr(2).rates(irsap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(S32_He4_to_Cl35_P_forward);
+    rr(1).rates(S32_He4_to_Cl35_P_forward)  = ratraw * sc1a;
+    rr(2).rates(S32_He4_to_Cl35_P_forward)  = rr(2).rates(S32_He4_to_Cl35_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irclpa);
-    rr(1).rates(irclpa) = ratraw * sc1a;
-    rr(2).rates(irclpa) = rr(2).rates(irclpa)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(S32_He4_to_Cl35_P_reverse);
+    rr(1).rates(S32_He4_to_Cl35_P_reverse) = ratraw * sc1a;
+    rr(2).rates(S32_He4_to_Cl35_P_reverse) = rr(2).rates(S32_He4_to_Cl35_P_reverse)*sc1a + ratraw*sc1adt;
 
 
     jscr++;
@@ -821,13 +821,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             sc1a,sc1adt,sc1add);
 
     // cl35(p,g)ar36
-    ratraw = rr(1).rates(irclpg);
-    rr(1).rates(irclpg) = ratraw * sc1a;
-    rr(2).rates(irclpg) = rr(2).rates(irclpg)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cl35_P_to_Ar36_forward);
+    rr(1).rates(Cl35_P_to_Ar36_forward) = ratraw * sc1a;
+    rr(2).rates(Cl35_P_to_Ar36_forward) = rr(2).rates(Cl35_P_to_Ar36_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irargp);
-    rr(1).rates(irargp) = ratraw * sc1a;
-    rr(2).rates(irargp) = rr(2).rates(irargp)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cl35_P_to_Ar36_reverse);
+    rr(1).rates(Cl35_P_to_Ar36_reverse) = ratraw * sc1a;
+    rr(2).rates(Cl35_P_to_Ar36_reverse) = rr(2).rates(Cl35_P_to_Ar36_reverse)*sc1a + ratraw*sc1adt;
 
 
     // ar36 to ca40
@@ -848,13 +848,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ar36(a,p)k39
-    ratraw = rr(1).rates(irarap);
-    rr(1).rates(irarap) = ratraw * sc1a;
-    rr(2).rates(irarap) = rr(2).rates(irarap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ar36_He4_to_K39_P_forward);
+    rr(1).rates(Ar36_He4_to_K39_P_forward) = ratraw * sc1a;
+    rr(2).rates(Ar36_He4_to_K39_P_forward) = rr(2).rates(Ar36_He4_to_K39_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irkpa);
-    rr(1).rates(irkpa) = ratraw * sc1a;
-    rr(2).rates(irkpa) = rr(2).rates(irkpa)*sc1a  + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ar36_He4_to_K39_P_reverse);
+    rr(1).rates(Ar36_He4_to_K39_P_reverse) = ratraw * sc1a;
+    rr(2).rates(Ar36_He4_to_K39_P_reverse) = rr(2).rates(Ar36_He4_to_K39_P_reverse)*sc1a  + ratraw*sc1adt;
 
 
     jscr++;
@@ -863,13 +863,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             sc1a,sc1adt,sc1add);
 
     // k39(p,g)ca40
-    ratraw = rr(1).rates(irkpg);
-    rr(1).rates(irkpg) = ratraw * sc1a;
-    rr(2).rates(irkpg) = rr(2).rates(irkpg)*sc1a  + ratraw*sc1adt;
+    ratraw = rr(1).rates(K39_P_to_Ca40_forward);
+    rr(1).rates(K39_P_to_Ca40_forward) = ratraw * sc1a;
+    rr(2).rates(K39_P_to_Ca40_forward) = rr(2).rates(K39_P_to_Ca40_forward)*sc1a  + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(ircagp);
-    rr(1).rates(ircagp) = ratraw * sc1a;
-    rr(2).rates(ircagp) = rr(2).rates(ircagp)*sc1a  + ratraw*sc1adt;
+    ratraw = rr(1).rates(K39_P_to_Ca40_reverse);
+    rr(1).rates(K39_P_to_Ca40_reverse) = ratraw * sc1a;
+    rr(2).rates(K39_P_to_Ca40_reverse) = rr(2).rates(K39_P_to_Ca40_reverse)*sc1a  + ratraw*sc1adt;
 
 
     // ca40 to ti44
@@ -890,13 +890,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ca40(a,p)sc43
-    ratraw = rr(1).rates(ircaap);
-    rr(1).rates(ircaap) = ratraw * sc1a;
-    rr(2).rates(ircaap) = rr(2).rates(ircaap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ca40_He4_to_Sc43_P_forward);
+    rr(1).rates(Ca40_He4_to_Sc43_P_forward) = ratraw * sc1a;
+    rr(2).rates(Ca40_He4_to_Sc43_P_forward) = rr(2).rates(Ca40_He4_to_Sc43_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irscpa);
-    rr(1).rates(irscpa) = ratraw * sc1a;
-    rr(2).rates(irscpa) = rr(2).rates(irscpa)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ca40_He4_to_Sc43_P_reverse);
+    rr(1).rates(Ca40_He4_to_Sc43_P_reverse) = ratraw * sc1a;
+    rr(2).rates(Ca40_He4_to_Sc43_P_reverse) = rr(2).rates(Ca40_He4_to_Sc43_P_reverse)*sc1a + ratraw*sc1adt;
 
 
     jscr++;
@@ -905,13 +905,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             sc1a,sc1adt,sc1add);
 
     // sc43(p,g)ti44
-    ratraw = rr(1).rates(irscpg);
-    rr(1).rates(irscpg) = ratraw * sc1a;
-    rr(2).rates(irscpg) = rr(2).rates(irscpg)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Sc43_P_to_Ti44_forward);
+    rr(1).rates(Sc43_P_to_Ti44_forward) = ratraw * sc1a;
+    rr(2).rates(Sc43_P_to_Ti44_forward) = rr(2).rates(Sc43_P_to_Ti44_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irtigp);
-    rr(1).rates(irtigp) = ratraw * sc1a;
-    rr(2).rates(irtigp) = rr(2).rates(irtigp)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Sc43_P_to_Ti44_reverse);
+    rr(1).rates(Sc43_P_to_Ti44_reverse) = ratraw * sc1a;
+    rr(2).rates(Sc43_P_to_Ti44_reverse) = rr(2).rates(Sc43_P_to_Ti44_reverse)*sc1a + ratraw*sc1adt;
 
 
     // ti44 to cr48
@@ -931,13 +931,13 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Ti44_He4_to_Cr48_reverse) = rr(2).rates(Ti44_He4_to_Cr48_reverse)*sc1a + ratraw*sc1adt;
 
     // ti44(a,p)v47
-    ratraw = rr(1).rates(irtiap);
-    rr(1).rates(irtiap) = ratraw * sc1a;
-    rr(2).rates(irtiap) = rr(2).rates(irtiap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ti44_He4_to_V47_P_forward);
+    rr(1).rates(Ti44_He4_to_V47_P_forward) = ratraw * sc1a;
+    rr(2).rates(Ti44_He4_to_V47_P_forward) = rr(2).rates(Ti44_He4_to_V47_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irvpa);
-    rr(1).rates(irvpa) = ratraw * sc1a;
-    rr(2).rates(irvpa) = rr(2).rates(irvpa)*sc1a  + ratraw*sc1adt;
+    ratraw = rr(1).rates(Ti44_He4_to_V47_P_reverse);
+    rr(1).rates(Ti44_He4_to_V47_P_reverse) = ratraw * sc1a;
+    rr(2).rates(Ti44_He4_to_V47_P_reverse) = rr(2).rates(Ti44_He4_to_V47_P_reverse)*sc1a  + ratraw*sc1adt;
 
 
     jscr++;
@@ -946,13 +946,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             sc1a,sc1adt,sc1add);
 
     // v47(p,g)cr48
-    ratraw = rr(1).rates(irvpg);
-    rr(1).rates(irvpg) = ratraw * sc1a;
-    rr(2).rates(irvpg) = rr(2).rates(irvpg)*sc1a  + ratraw*sc1adt;
+    ratraw = rr(1).rates(V47_P_to_Cr48_forward);
+    rr(1).rates(V47_P_to_Cr48_forward) = ratraw * sc1a;
+    rr(2).rates(V47_P_to_Cr48_forward) = rr(2).rates(V47_P_to_Cr48_forward)*sc1a  + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(ircrgp);
-    rr(1).rates(ircrgp)  = ratraw * sc1a;
-    rr(2).rates(ircrgp)  = rr(2).rates(ircrgp)*sc1a  + ratraw*sc1adt;
+    ratraw = rr(1).rates(V47_P_to_Cr48_reverse);
+    rr(1).rates(V47_P_to_Cr48_reverse)  = ratraw * sc1a;
+    rr(2).rates(V47_P_to_Cr48_reverse)  = rr(2).rates(V47_P_to_Cr48_reverse)*sc1a  + ratraw*sc1adt;
 
 
     // cr48 to fe52
@@ -973,13 +973,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // cr48(a,p)mn51
-    ratraw = rr(1).rates(ircrap);
-    rr(1).rates(ircrap) = ratraw * sc1a;
-    rr(2).rates(ircrap) = rr(2).rates(ircrap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cr48_He4_to_Mn51_P_forward);
+    rr(1).rates(Cr48_He4_to_Mn51_P_forward) = ratraw * sc1a;
+    rr(2).rates(Cr48_He4_to_Mn51_P_forward) = rr(2).rates(Cr48_He4_to_Mn51_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irmnpa);
-    rr(1).rates(irmnpa) = ratraw * sc1a;
-    rr(2).rates(irmnpa) = rr(2).rates(irmnpa)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Cr48_He4_to_Mn51_P_reverse);
+    rr(1).rates(Cr48_He4_to_Mn51_P_reverse) = ratraw * sc1a;
+    rr(2).rates(Cr48_He4_to_Mn51_P_reverse) = rr(2).rates(Cr48_He4_to_Mn51_P_reverse)*sc1a + ratraw*sc1adt;
 
 
     jscr++;
@@ -988,13 +988,13 @@ void screen_aprox13(const Real btemp, const Real bden,
             sc1a,sc1adt,sc1add);
 
     // mn51(p,g)fe52
-    ratraw = rr(1).rates(irmnpg);
-    rr(1).rates(irmnpg) = ratraw * sc1a;
-    rr(2).rates(irmnpg) = rr(2).rates(irmnpg)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mn51_P_to_Fe52_forward);
+    rr(1).rates(Mn51_P_to_Fe52_forward) = ratraw * sc1a;
+    rr(2).rates(Mn51_P_to_Fe52_forward) = rr(2).rates(Mn51_P_to_Fe52_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irfegp);
-    rr(1).rates(irfegp) = ratraw * sc1a;
-    rr(2).rates(irfegp) = rr(2).rates(irfegp)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Mn51_P_to_Fe52_reverse);
+    rr(1).rates(Mn51_P_to_Fe52_reverse) = ratraw * sc1a;
+    rr(2).rates(Mn51_P_to_Fe52_reverse) = rr(2).rates(Mn51_P_to_Fe52_reverse)*sc1a + ratraw*sc1adt;
 
 
     // fe52 to ni56
@@ -1015,13 +1015,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // fe52(a,p)co55
-    ratraw = rr(1).rates(irfeap);
-    rr(1).rates(irfeap) = ratraw * sc1a;
-    rr(2).rates(irfeap) = rr(2).rates(irfeap)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Fe52_He4_to_Co55_P_forward);
+    rr(1).rates(Fe52_He4_to_Co55_P_forward) = ratraw * sc1a;
+    rr(2).rates(Fe52_He4_to_Co55_P_forward) = rr(2).rates(Fe52_He4_to_Co55_P_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(ircopa);
-    rr(1).rates(ircopa) = ratraw * sc1a;
-    rr(2).rates(ircopa) = rr(2).rates(ircopa)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Fe52_He4_to_Co55_P_reverse);
+    rr(1).rates(Fe52_He4_to_Co55_P_reverse) = ratraw * sc1a;
+    rr(2).rates(Fe52_He4_to_Co55_P_reverse) = rr(2).rates(Fe52_He4_to_Co55_P_reverse)*sc1a + ratraw*sc1adt;
 
 
     jscr++;
@@ -1031,13 +1031,13 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // co55(p,g)ni56
-    ratraw = rr(1).rates(ircopg);
-    rr(1).rates(ircopg) = ratraw * sc1a;
-    rr(2).rates(ircopg) = rr(2).rates(ircopg)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Co55_P_to_Ni56_forward);
+    rr(1).rates(Co55_P_to_Ni56_forward) = ratraw * sc1a;
+    rr(2).rates(Co55_P_to_Ni56_forward) = rr(2).rates(Co55_P_to_Ni56_forward)*sc1a + ratraw*sc1adt;
 
-    ratraw = rr(1).rates(irnigp);
-    rr(1).rates(irnigp) = ratraw * sc1a;
-    rr(2).rates(irnigp) = rr(2).rates(irnigp)*sc1a + ratraw*sc1adt;
+    ratraw = rr(1).rates(Co55_P_to_Ni56_reverse);
+    rr(1).rates(Co55_P_to_Ni56_reverse) = ratraw * sc1a;
+    rr(2).rates(Co55_P_to_Ni56_reverse) = rr(2).rates(Co55_P_to_Ni56_reverse)*sc1a + ratraw*sc1adt;
 
 
     // now form those lovely dummy proton link rates
@@ -1045,41 +1045,41 @@ void screen_aprox13(const Real btemp, const Real bden,
     // mg24(a,p)27al(p,g)28si
     Real rate_irr1    = 0.0e0_rt;
     Real dratedt_irr1 = 0.0e0_rt;
-    denom    = rr(1).rates(iralpa) + rr(1).rates(iralpg);
-    denomdt  = rr(2).rates(iralpa) + rr(2).rates(iralpg);
+    denom    = rr(1).rates(Mg24_He4_to_Al27_P_reverse) + rr(1).rates(Al27_P_to_Si28_forward);
+    denomdt  = rr(2).rates(Mg24_He4_to_Al27_P_reverse) + rr(2).rates(Al27_P_to_Si28_forward);
 
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rate_irr1    = rr(1).rates(iralpa)*zz;
-       dratedt_irr1 = (rr(2).rates(iralpa) - rate_irr1*denomdt)*zz;
+       rate_irr1    = rr(1).rates(Mg24_He4_to_Al27_P_reverse)*zz;
+       dratedt_irr1 = (rr(2).rates(Mg24_He4_to_Al27_P_reverse) - rate_irr1*denomdt)*zz;
     }
 
     // add to the effective Mg24 <-> Si28 rates
 
-    rr(1).rates(Mg24_He4_to_Si28_forward) += rr(1).rates(irmgap) * (1.0_rt - rate_irr1);
-    rr(2).rates(Mg24_He4_to_Si28_forward) += rr(2).rates(irmgap) * (1.0_rt - rate_irr1) - rr(1).rates(irmgap) * dratedt_irr1;
+    rr(1).rates(Mg24_He4_to_Si28_forward) += rr(1).rates(Mg24_He4_to_Al27_P_forward) * (1.0_rt - rate_irr1);
+    rr(2).rates(Mg24_He4_to_Si28_forward) += rr(2).rates(Mg24_He4_to_Al27_P_forward) * (1.0_rt - rate_irr1) - rr(1).rates(Mg24_He4_to_Al27_P_forward) * dratedt_irr1;
 
-    rr(1).rates(Mg24_He4_to_Si28_reverse) += rr(1).rates(irsigp) * rate_irr1;
-    rr(2).rates(Mg24_He4_to_Si28_reverse) += rr(2).rates(irsigp) * rate_irr1 + rr(1).rates(irsigp) * dratedt_irr1;
+    rr(1).rates(Mg24_He4_to_Si28_reverse) += rr(1).rates(Al27_P_to_Si28_reverse) * rate_irr1;
+    rr(2).rates(Mg24_He4_to_Si28_reverse) += rr(2).rates(Al27_P_to_Si28_reverse) * rate_irr1 + rr(1).rates(Al27_P_to_Si28_reverse) * dratedt_irr1;
 
     // si28(a,p)p31(p,g)s32
     Real rate_irs1  = 0.0e0_rt;
     Real dratedt_irs1  = 0.0e0_rt;
-    denom    = rr(1).rates(irppa) + rr(1).rates(irppg);
-    denomdt  = rr(2).rates(irppa) + rr(2).rates(irppg);
+    denom    = rr(1).rates(Si28_He4_to_P31_P_reverse) + rr(1).rates(P31_P_to_S32_forward);
+    denomdt  = rr(2).rates(Si28_He4_to_P31_P_reverse) + rr(2).rates(P31_P_to_S32_forward);
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rate_irs1 = rr(1).rates(irppa)*zz;
-       dratedt_irs1 = (rr(2).rates(irppa) - rate_irs1*denomdt)*zz;
+       rate_irs1 = rr(1).rates(Si28_He4_to_P31_P_reverse)*zz;
+       dratedt_irs1 = (rr(2).rates(Si28_He4_to_P31_P_reverse) - rate_irs1*denomdt)*zz;
     }
 
     // add to the effective Si28 <-> S32 rates
 
-    rr(1).rates(Si28_He4_to_S32_forward) += rr(1).rates(irsiap) * (1.0_rt - rate_irs1);
-    rr(2).rates(Si28_He4_to_S32_forward) += rr(2).rates(irsiap) * (1.0_rt - rate_irs1) - rr(1).rates(irsiap) * dratedt_irs1;
+    rr(1).rates(Si28_He4_to_S32_forward) += rr(1).rates(Si28_He4_to_P31_P_forward) * (1.0_rt - rate_irs1);
+    rr(2).rates(Si28_He4_to_S32_forward) += rr(2).rates(Si28_He4_to_P31_P_forward) * (1.0_rt - rate_irs1) - rr(1).rates(Si28_He4_to_P31_P_forward) * dratedt_irs1;
 
-    rr(1).rates(Si28_He4_to_S32_reverse) += rr(1).rates(irsgp) * rate_irs1;
-    rr(2).rates(Si28_He4_to_S32_reverse) += rr(2).rates(irsgp) * rate_irs1 + rr(1).rates(irsgp) * dratedt_irs1;
+    rr(1).rates(Si28_He4_to_S32_reverse) += rr(1).rates(P31_P_to_S32_reverse) * rate_irs1;
+    rr(2).rates(Si28_He4_to_S32_reverse) += rr(2).rates(P31_P_to_S32_reverse) * rate_irs1 + rr(1).rates(P31_P_to_S32_reverse) * dratedt_irs1;
 
     // Branching ratios for O16 + O16:
     // 0.56: O16 + O16 -> Si28 + He4
@@ -1095,116 +1095,116 @@ void screen_aprox13(const Real btemp, const Real bden,
     // s32(a,p)cl35(p,g)ar36
     Real rate_irt1  = 0.0e0_rt;
     Real dratedt_irt1  = 0.0e0_rt;
-    denom    = rr(1).rates(irclpa) + rr(1).rates(irclpg);
-    denomdt  = rr(2).rates(irclpa) + rr(2).rates(irclpg);
+    denom    = rr(1).rates(S32_He4_to_Cl35_P_reverse) + rr(1).rates(Cl35_P_to_Ar36_forward);
+    denomdt  = rr(2).rates(S32_He4_to_Cl35_P_reverse) + rr(2).rates(Cl35_P_to_Ar36_forward);
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rate_irt1 = rr(1).rates(irclpa)*zz;
-       dratedt_irt1 = (rr(2).rates(irclpa) - rate_irt1*denomdt)*zz;
+       rate_irt1 = rr(1).rates(S32_He4_to_Cl35_P_reverse)*zz;
+       dratedt_irt1 = (rr(2).rates(S32_He4_to_Cl35_P_reverse) - rate_irt1*denomdt)*zz;
     }
 
     // add to the effective S32 <-> Ar36 rates
 
-    rr(1).rates(S32_He4_to_Ar36_forward) += rr(1).rates(irsap) * (1.0_rt - rate_irt1);
-    rr(2).rates(S32_He4_to_Ar36_forward) += rr(2).rates(irsap) * (1.0_rt - rate_irt1) - rr(1).rates(irsap) * dratedt_irt1;
+    rr(1).rates(S32_He4_to_Ar36_forward) += rr(1).rates(S32_He4_to_Cl35_P_forward) * (1.0_rt - rate_irt1);
+    rr(2).rates(S32_He4_to_Ar36_forward) += rr(2).rates(S32_He4_to_Cl35_P_forward) * (1.0_rt - rate_irt1) - rr(1).rates(S32_He4_to_Cl35_P_forward) * dratedt_irt1;
 
-    rr(1).rates(S32_He4_to_Ar36_reverse) += rr(1).rates(irargp) * rate_irt1;
-    rr(2).rates(S32_He4_to_Ar36_reverse) += rr(2).rates(irargp) * rate_irt1 + rr(1).rates(irargp) * dratedt_irt1;
+    rr(1).rates(S32_He4_to_Ar36_reverse) += rr(1).rates(Cl35_P_to_Ar36_reverse) * rate_irt1;
+    rr(2).rates(S32_He4_to_Ar36_reverse) += rr(2).rates(Cl35_P_to_Ar36_reverse) * rate_irt1 + rr(1).rates(Cl35_P_to_Ar36_reverse) * dratedt_irt1;
 
     // ar36(a,p)k39(p,g)ca40
     Real rate_iru1  = 0.0e0_rt;
     Real dratedt_iru1  = 0.0e0_rt;
-    denom    = rr(1).rates(irkpa) + rr(1).rates(irkpg);
-    denomdt  = rr(2).rates(irkpa) + rr(2).rates(irkpg);
+    denom    = rr(1).rates(Ar36_He4_to_K39_P_reverse) + rr(1).rates(K39_P_to_Ca40_forward);
+    denomdt  = rr(2).rates(Ar36_He4_to_K39_P_reverse) + rr(2).rates(K39_P_to_Ca40_forward);
     if (denom > 1.0e-30_rt) {
        zz   = 1.0e0_rt/denom;
-       rate_iru1   = rr(1).rates(irkpa)*zz;
-       dratedt_iru1 = (rr(2).rates(irkpa) - rate_iru1*denomdt)*zz;
+       rate_iru1   = rr(1).rates(Ar36_He4_to_K39_P_reverse)*zz;
+       dratedt_iru1 = (rr(2).rates(Ar36_He4_to_K39_P_reverse) - rate_iru1*denomdt)*zz;
     }
 
     // add to the effective Ar36 <-> Ca40 rates
 
-    rr(1).rates(Ar36_He4_to_Ca40_forward) += rr(1).rates(irarap) * (1.0_rt - rate_iru1);
-    rr(2).rates(Ar36_He4_to_Ca40_forward) += rr(2).rates(irarap) * (1.0_rt - rate_iru1) - rr(1).rates(irarap) * dratedt_iru1;
+    rr(1).rates(Ar36_He4_to_Ca40_forward) += rr(1).rates(Ar36_He4_to_K39_P_forward) * (1.0_rt - rate_iru1);
+    rr(2).rates(Ar36_He4_to_Ca40_forward) += rr(2).rates(Ar36_He4_to_K39_P_forward) * (1.0_rt - rate_iru1) - rr(1).rates(Ar36_He4_to_K39_P_forward) * dratedt_iru1;
 
-    rr(1).rates(Ar36_He4_to_Ca40_reverse) += rr(1).rates(ircagp) * rate_iru1;
-    rr(2).rates(Ar36_He4_to_Ca40_reverse) += rr(2).rates(ircagp) * rate_iru1 + rr(1).rates(ircagp) * dratedt_iru1;
+    rr(1).rates(Ar36_He4_to_Ca40_reverse) += rr(1).rates(K39_P_to_Ca40_reverse) * rate_iru1;
+    rr(2).rates(Ar36_He4_to_Ca40_reverse) += rr(2).rates(K39_P_to_Ca40_reverse) * rate_iru1 + rr(1).rates(K39_P_to_Ca40_reverse) * dratedt_iru1;
 
     // ca40(a,p)sc43(p,g)ti44
     Real rate_irv1  = 0.0e0_rt;
     Real dratedt_irv1  = 0.0e0_rt;
-    denom    = rr(1).rates(irscpa) + rr(1).rates(irscpg);
-    denomdt  = rr(2).rates(irscpa) + rr(2).rates(irscpg);
+    denom    = rr(1).rates(Ca40_He4_to_Sc43_P_reverse) + rr(1).rates(Sc43_P_to_Ti44_forward);
+    denomdt  = rr(2).rates(Ca40_He4_to_Sc43_P_reverse) + rr(2).rates(Sc43_P_to_Ti44_forward);
     if (denom > 1.0e-30_rt) {
        zz  = 1.0e0_rt/denom;
-       rate_irv1 = rr(1).rates(irscpa)*zz;
-       dratedt_irv1 = (rr(2).rates(irscpa) - rate_irv1*denomdt)*zz;
+       rate_irv1 = rr(1).rates(Ca40_He4_to_Sc43_P_reverse)*zz;
+       dratedt_irv1 = (rr(2).rates(Ca40_He4_to_Sc43_P_reverse) - rate_irv1*denomdt)*zz;
     }
 
     // add to the effective Ca40 <-> Ti44 rates
 
-    rr(1).rates(Ca40_He4_to_Ti44_forward) += rr(1).rates(ircaap) * (1.0_rt - rate_irv1);
-    rr(2).rates(Ca40_He4_to_Ti44_forward) += rr(2).rates(ircaap) * (1.0_rt - rate_irv1) - rr(1).rates(ircaap) * dratedt_irv1;
+    rr(1).rates(Ca40_He4_to_Ti44_forward) += rr(1).rates(Ca40_He4_to_Sc43_P_forward) * (1.0_rt - rate_irv1);
+    rr(2).rates(Ca40_He4_to_Ti44_forward) += rr(2).rates(Ca40_He4_to_Sc43_P_forward) * (1.0_rt - rate_irv1) - rr(1).rates(Ca40_He4_to_Sc43_P_forward) * dratedt_irv1;
 
-    rr(1).rates(Ca40_He4_to_Ti44_reverse) += rr(1).rates(irtigp) * rate_irv1;
-    rr(2).rates(Ca40_He4_to_Ti44_reverse) += rr(2).rates(irtigp) * rate_irv1 + rr(1).rates(irtigp) * dratedt_irv1;
+    rr(1).rates(Ca40_He4_to_Ti44_reverse) += rr(1).rates(Sc43_P_to_Ti44_reverse) * rate_irv1;
+    rr(2).rates(Ca40_He4_to_Ti44_reverse) += rr(2).rates(Sc43_P_to_Ti44_reverse) * rate_irv1 + rr(1).rates(Sc43_P_to_Ti44_reverse) * dratedt_irv1;
 
     // ti44(a,p)v47(p,g)cr48
     Real rate_irw1 = 0.0e0_rt;
     Real dratedt_irw1 = 0.0e0_rt;
-    denom    = rr(1).rates(irvpa) + rr(1).rates(irvpg);
-    denomdt  = rr(2).rates(irvpa) + rr(2).rates(irvpg);
+    denom    = rr(1).rates(Ti44_He4_to_V47_P_reverse) + rr(1).rates(V47_P_to_Cr48_forward);
+    denomdt  = rr(2).rates(Ti44_He4_to_V47_P_reverse) + rr(2).rates(V47_P_to_Cr48_forward);
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rate_irw1 = rr(1).rates(irvpa)*zz;
-       dratedt_irw1 = (rr(2).rates(irvpa) - rate_irw1*denomdt)*zz;
+       rate_irw1 = rr(1).rates(Ti44_He4_to_V47_P_reverse)*zz;
+       dratedt_irw1 = (rr(2).rates(Ti44_He4_to_V47_P_reverse) - rate_irw1*denomdt)*zz;
     }
 
     // add to the effective Ti44 <-> Cr48 rates
 
-    rr(1).rates(Ti44_He4_to_Cr48_forward) += rr(1).rates(irtiap) * (1.0_rt - rate_irw1);
-    rr(2).rates(Ti44_He4_to_Cr48_forward) += rr(2).rates(irtiap) * (1.0_rt - rate_irw1) - rr(1).rates(irtiap) * dratedt_irw1;
+    rr(1).rates(Ti44_He4_to_Cr48_forward) += rr(1).rates(Ti44_He4_to_V47_P_forward) * (1.0_rt - rate_irw1);
+    rr(2).rates(Ti44_He4_to_Cr48_forward) += rr(2).rates(Ti44_He4_to_V47_P_forward) * (1.0_rt - rate_irw1) - rr(1).rates(Ti44_He4_to_V47_P_forward) * dratedt_irw1;
 
-    rr(1).rates(Ti44_He4_to_Cr48_reverse) += rr(1).rates(ircrgp) * rate_irw1;
-    rr(2).rates(Ti44_He4_to_Cr48_reverse) += rr(2).rates(ircrgp) * rate_irw1 + rr(1).rates(ircrgp) * dratedt_irw1;
+    rr(1).rates(Ti44_He4_to_Cr48_reverse) += rr(1).rates(V47_P_to_Cr48_reverse) * rate_irw1;
+    rr(2).rates(Ti44_He4_to_Cr48_reverse) += rr(2).rates(V47_P_to_Cr48_reverse) * rate_irw1 + rr(1).rates(V47_P_to_Cr48_reverse) * dratedt_irw1;
 
     // cr48(a,p)mn51(p,g)fe52
     Real rate_irx1 = 0.0e0_rt;
     Real dratedt_irx1 = 0.0e0_rt;
-    denom    = rr(1).rates(irmnpa) + rr(1).rates(irmnpg);
-    denomdt  = rr(2).rates(irmnpa) + rr(2).rates(irmnpg);
+    denom    = rr(1).rates(Cr48_He4_to_Mn51_P_reverse) + rr(1).rates(Mn51_P_to_Fe52_forward);
+    denomdt  = rr(2).rates(Cr48_He4_to_Mn51_P_reverse) + rr(2).rates(Mn51_P_to_Fe52_forward);
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rate_irx1 = rr(1).rates(irmnpa)*zz;
-       dratedt_irx1 = (rr(2).rates(irmnpa) - rate_irx1*denomdt)*zz;
+       rate_irx1 = rr(1).rates(Cr48_He4_to_Mn51_P_reverse)*zz;
+       dratedt_irx1 = (rr(2).rates(Cr48_He4_to_Mn51_P_reverse) - rate_irx1*denomdt)*zz;
     }
 
     // add to the effective Cr48 <-> Fe52 rates
 
-    rr(1).rates(Cr48_He4_to_Fe52_forward) += rr(1).rates(ircrap) * (1.0_rt - rate_irx1);
-    rr(2).rates(Cr48_He4_to_Fe52_forward) += rr(2).rates(ircrap) * (1.0_rt - rate_irx1) - rr(1).rates(ircrap) * dratedt_irx1;
+    rr(1).rates(Cr48_He4_to_Fe52_forward) += rr(1).rates(Cr48_He4_to_Mn51_P_forward) * (1.0_rt - rate_irx1);
+    rr(2).rates(Cr48_He4_to_Fe52_forward) += rr(2).rates(Cr48_He4_to_Mn51_P_forward) * (1.0_rt - rate_irx1) - rr(1).rates(Cr48_He4_to_Mn51_P_forward) * dratedt_irx1;
 
-    rr(1).rates(Cr48_He4_to_Fe52_reverse) += rr(1).rates(irfegp) * rate_irx1;
-    rr(2).rates(Cr48_He4_to_Fe52_reverse) += rr(2).rates(irfegp) * rate_irx1 + rr(1).rates(irfegp) * dratedt_irx1;
+    rr(1).rates(Cr48_He4_to_Fe52_reverse) += rr(1).rates(Mn51_P_to_Fe52_reverse) * rate_irx1;
+    rr(2).rates(Cr48_He4_to_Fe52_reverse) += rr(2).rates(Mn51_P_to_Fe52_reverse) * rate_irx1 + rr(1).rates(Mn51_P_to_Fe52_reverse) * dratedt_irx1;
 
     // fe52(a,p)co55(p,g)ni56
     Real rate_iry1 = 0.0e0_rt;
     Real dratedt_iry1 = 0.0e0_rt;
-    denom    = rr(1).rates(ircopa) + rr(1).rates(ircopg);
-    denomdt  = rr(2).rates(ircopa) + rr(2).rates(ircopg);
+    denom    = rr(1).rates(Fe52_He4_to_Co55_P_reverse) + rr(1).rates(Co55_P_to_Ni56_forward);
+    denomdt  = rr(2).rates(Fe52_He4_to_Co55_P_reverse) + rr(2).rates(Co55_P_to_Ni56_forward);
     if (denom > 1.0e-30_rt) {
        zz = 1.0e0_rt/denom;
-       rate_iry1 = rr(1).rates(ircopa)*zz;
-       dratedt_iry1 = (rr(2).rates(ircopa) - rate_iry1*denomdt)*zz;
+       rate_iry1 = rr(1).rates(Fe52_He4_to_Co55_P_reverse)*zz;
+       dratedt_iry1 = (rr(2).rates(Fe52_He4_to_Co55_P_reverse) - rate_iry1*denomdt)*zz;
     }
 
     // add to the effective Fe52 <-> Ni56 rates
 
-    rr(1).rates(Fe52_He4_to_Ni56_forward) += rr(1).rates(irfeap) * (1.0_rt - rate_iry1);
-    rr(2).rates(Fe52_He4_to_Ni56_forward) += rr(2).rates(irfeap) * (1.0_rt - rate_iry1) - rr(1).rates(irfeap) * dratedt_iry1;
+    rr(1).rates(Fe52_He4_to_Ni56_forward) += rr(1).rates(Fe52_He4_to_Co55_P_forward) * (1.0_rt - rate_iry1);
+    rr(2).rates(Fe52_He4_to_Ni56_forward) += rr(2).rates(Fe52_He4_to_Co55_P_forward) * (1.0_rt - rate_iry1) - rr(1).rates(Fe52_He4_to_Co55_P_forward) * dratedt_iry1;
 
-    rr(1).rates(Fe52_He4_to_Ni56_reverse) += rr(1).rates(irnigp) * rate_iry1;
-    rr(2).rates(Fe52_He4_to_Ni56_reverse) += rr(2).rates(irnigp) * rate_iry1 + rr(1).rates(irnigp) * dratedt_iry1;
+    rr(1).rates(Fe52_He4_to_Ni56_reverse) += rr(1).rates(Co55_P_to_Ni56_reverse) * rate_iry1;
+    rr(2).rates(Fe52_He4_to_Ni56_reverse) += rr(2).rates(Co55_P_to_Ni56_reverse) * rate_iry1 + rr(1).rates(Co55_P_to_Ni56_reverse) * dratedt_iry1;
 
 }
 
