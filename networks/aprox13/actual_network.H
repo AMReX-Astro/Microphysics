@@ -110,7 +110,23 @@ namespace Rates {
         Ti44_He4_to_Cr48,
         Cr48_He4_to_Fe52,
         Fe52_He4_to_Ni56,
-        NumRatesFR=Fe52_He4_to_Ni56
+        Mg24_He4_to_Al27_P,
+        Al27_P_to_Si28,
+        Si28_He4_to_P31_P,
+        P31_P_to_S32,
+        S32_He4_to_Cl35_P,
+        Cl35_P_to_Ar36,
+        Ar36_He4_to_K39_P,
+        K39_P_to_Ca40,
+        Ca40_He4_to_Sc43_P,
+        Sc43_P_to_Ti44,
+        Ti44_He4_to_V47_P,
+        V47_P_to_Cr48,
+        Cr48_He4_to_Mn51_P,
+        Mn51_P_to_Fe52,
+        Fe52_He4_to_Co55_P,
+        Co55_P_to_Ni56,
+        NumRatesFR=Co55_P_to_Ni56
     };
 
     const int NumGroups = 2;
