@@ -104,7 +104,10 @@ void actual_integrator (burn_t& state, Real dt)
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative
 
-    Real rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+    Real rho_Sdot = 0.0_rt;
+    if (state.time > 0) {
+        rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+    }
 
     state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
 
