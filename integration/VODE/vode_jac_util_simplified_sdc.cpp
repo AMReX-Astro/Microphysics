@@ -21,24 +21,6 @@ void jac_to_vode(const Real time, burn_t& state,
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    // e row
-    eos_re_t eos_state;
-    eos_state.rho = state.rho;
-    eos_state.T = 1.e4_rt;   // initial guess
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = vode_state.y(SFS+1+n) / state.rho;
-    }
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(eos_state);
-#endif
-
-    eos_state.e = vode_state.y(SEINT+1) / state.rho;
-
-    eos(eos_input_re, eos_state);
-
-    const eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
-
-
     // The system we integrate has the form (rho X_k, rho E, rho e)
 
     // dR/dw has the form:
@@ -62,7 +44,7 @@ void jac_to_vode(const Real time, burn_t& state,
         // first the species derivatives
 
         for (int n = 1; n <= NumSpec; n++) {
-            jac(SFS+m, SFS+n) = jac_react(m, n) - jac_react(m, net_ienuc) * eos_xderivs.dedX[n-1];
+            jac(SFS+m, SFS+n) = jac_react(m, n);
         }
 
         // now the energy derivatives
@@ -73,7 +55,7 @@ void jac_to_vode(const Real time, burn_t& state,
     // now the energy rows
 
     for (int n = 1; n <= NumSpec; n++) {
-        jac(SEINT+1, SFS+n) = jac_react(net_ienuc, n) - jac_react(net_ienuc, net_ienuc) * eos_xderivs.dedX[n-1];
+        jac(SEINT+1, SFS+n) = jac_react(net_ienuc, n);
     }
 
     jac(SEINT+1, SEINT+1) = jac_react(net_ienuc, net_ienuc);
