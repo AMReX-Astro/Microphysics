@@ -63,9 +63,6 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
                 burn_state.y[SMY] * burn_state.y[SMY] +
                 burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
 
-    // get T from total energy
-    burn_state.T_from_eden = true;
-
 #elif defined(SDC_EVOLVE_ENTHALPY)
     burn_state.y[SENTH] = burn_state.rho * eos_state.h;
 
