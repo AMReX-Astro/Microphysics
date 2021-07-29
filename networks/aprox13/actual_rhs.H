@@ -599,12 +599,18 @@ void screen_aprox13(const Real btemp, const Real bden,
     // first the always fun triple alpha and its inverse
     jscr = 0;
     screen5(state,jscr,
-            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
     jscr++;
     screen5(state,jscr,
-            zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
+            4.0_rt,
+            8.0_rt,
             sc2a,sc2adt,sc2add);
 
     sc3a   = sc1a * sc2a;
@@ -622,7 +628,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // c12(a,g)o16
     jscr++;
     screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
+            NetworkProperties::zion(C12),
+            NetworkProperties::aion(C12),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
     ratraw = rr(1).rates(C12_He4_to_O16_forward);
@@ -636,7 +645,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // c12 + c12
     jscr++;
     screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
+            NetworkProperties::zion(C12),
+            NetworkProperties::aion(C12),
+            NetworkProperties::zion(C12),
+            NetworkProperties::aion(C12),
             sc1a,sc1adt,sc1add);
 
     ratraw = rr(1).rates(C12_C12_to_Ne20_He4_forward);
@@ -646,7 +658,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // c12 + o16
     jscr++;
     screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1], 
+            NetworkProperties::zion(C12),
+            NetworkProperties::aion(C12),
+            NetworkProperties::zion(O16),
+            NetworkProperties::aion(O16),
             sc1a,sc1adt,sc1add);
 
     ratraw = rr(1).rates(C12_O16_to_Mg24_He4_forward);
@@ -664,7 +679,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // o16 + o16
     jscr++;
     screen5(state,jscr,
-            zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
+            NetworkProperties::zion(O16),
+            NetworkProperties::aion(O16),
+            NetworkProperties::zion(O16),
+            NetworkProperties::aion(O16),
             sc1a,sc1adt,sc1add);
 
     ratraw = rr(1).rates(O16_O16_to_Si28_He4_forward);
@@ -677,7 +695,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // o16 to ne20
     jscr++;
     screen5(state,jscr,
-            zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
+            NetworkProperties::zion(O16),
+            NetworkProperties::aion(O16),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -693,7 +714,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // ne20 to mg24
     jscr++;
     screen5(state,jscr,
-            zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1],
+            NetworkProperties::zion(Ne20),
+            NetworkProperties::aion(Ne20),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -709,7 +733,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // mg24 to si28
     jscr++;
     screen5(state,jscr,
-            zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1],
+            NetworkProperties::zion(Mg24),
+            NetworkProperties::aion(Mg24),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -734,7 +761,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            13.0_rt, 27.0_rt, 1.0_rt, 1.0_rt,
+            13.0_rt,
+            27.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
     // al27(p,g)si28
@@ -750,7 +780,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // si28 to s32
     jscr++;
     screen5(state,jscr,
-            zion[Si28-1], aion[Si28-1], zion[He4-1], aion[He4-1],
+            NetworkProperties::zion(Si28),
+            NetworkProperties::aion(Si28),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -776,7 +809,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            15.0_rt, 31.0_rt, 1.0_rt, 1.0_rt,
+            15.0_rt,
+            31.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
     // p31(p,g)s32
@@ -792,7 +828,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // s32 to ar36
     jscr++;
     screen5(state,jscr,
-            zion[S32-1], aion[S32-1], zion[He4-1], aion[He4-1], 
+            NetworkProperties::zion(S32),
+            NetworkProperties::aion(S32),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -817,7 +856,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            17.0_rt, 35.0_rt, 1.0_rt, 1.0_rt,
+            17.0_rt,
+            35.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
     // cl35(p,g)ar36
@@ -833,7 +875,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // ar36 to ca40
     jscr++;
     screen5(state,jscr,
-            zion[Ar36-1], aion[Ar36-1], zion[He4-1], aion[He4-1], 
+            NetworkProperties::zion(Ar36),
+            NetworkProperties::aion(Ar36),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -859,7 +904,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            19.0_rt, 39.0_rt, 1.0_rt, 1.0_rt,
+            19.0_rt,
+            39.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
     // k39(p,g)ca40
@@ -875,7 +923,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // ca40 to ti44
     jscr++;
     screen5(state,jscr,
-            zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1], 
+            NetworkProperties::zion(Ca40),
+            NetworkProperties::aion(Ca40),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -901,7 +952,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            21.0_rt, 43.0_rt, 1.0_rt, 1.0_rt,
+            21.0_rt,
+            43.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
     // sc43(p,g)ti44
@@ -917,7 +971,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // ti44 to cr48
     jscr++;
     screen5(state,jscr,
-            zion[Ti44-1], aion[Ti44-1], zion[He4-1], aion[He4-1], 
+            NetworkProperties::zion(Ti44),
+            NetworkProperties::aion(Ti44),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -942,7 +999,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            23.0_rt, 47.0_rt, 1.0_rt, 1.0_rt,
+            23.0_rt,
+            47.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
     // v47(p,g)cr48
@@ -958,7 +1018,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // cr48 to fe52
     jscr++;
     screen5(state,jscr,
-            zion[Cr48-1], aion[Cr48-1], zion[He4-1], aion[He4-1], 
+            NetworkProperties::zion(Cr48),
+            NetworkProperties::aion(Cr48),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -984,7 +1047,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            25.0_rt, 51.0_rt, 1.0_rt, 1.0_rt,
+            25.0_rt,
+            51.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
     // mn51(p,g)fe52
@@ -1000,7 +1066,10 @@ void screen_aprox13(const Real btemp, const Real bden,
     // fe52 to ni56
     jscr++;
     screen5(state,jscr,
-            zion[Fe52-1], aion[Fe52-1], zion[He4-1], aion[He4-1], 
+            NetworkProperties::zion(Fe52),
+            NetworkProperties::aion(Fe52),
+            NetworkProperties::zion(He4),
+            NetworkProperties::aion(He4),
             sc1a,sc1adt,sc1add);
 
 
@@ -1026,7 +1095,10 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     jscr++;
     screen5(state,jscr,
-            27.0_rt, 55.0_rt, 1.0_rt, 1.0_rt,
+            27.0_rt,
+            55.0_rt,
+            1.0_rt,
+            1.0_rt,
             sc1a,sc1adt,sc1add);
 
 
@@ -1384,53 +1456,149 @@ void set_up_screening_factors()
     // rates in actual_rhs.H (yes, it's ugly)
     int jscr = 0;
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], 4.0e0_rt, 8.0e0_rt);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4),
+                         4.0e0_rt,
+                         8.0e0_rt);
 
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(C12),
+                         NetworkProperties::aion(C12),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(C12),
+                         NetworkProperties::aion(C12),
+                         NetworkProperties::zion(C12),
+                         NetworkProperties::aion(C12));
 
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(C12),
+                         NetworkProperties::aion(C12),
+                         NetworkProperties::zion(O16),
+                         NetworkProperties::aion(O16));
 
-    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(O16),
+                         NetworkProperties::aion(O16),
+                         NetworkProperties::zion(O16),
+                         NetworkProperties::aion(O16));
 
-    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(O16),
+                         NetworkProperties::aion(O16),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Ne20),
+                         NetworkProperties::aion(Ne20),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Mg24),
+                         NetworkProperties::aion(Mg24),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 13.0e0_rt, 27.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         13.0e0_rt,
+                         27.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
-    add_screening_factor(jscr++, zion[Si28-1], aion[Si28-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Si28),
+                         NetworkProperties::aion(Si28),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 15.0e0_rt, 31.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         15.0e0_rt,
+                         31.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
-    add_screening_factor(jscr++, zion[S32-1], aion[S32-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(S32),
+                         NetworkProperties::aion(S32),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 17.0e0_rt, 35.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         17.0e0_rt,
+                         35.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
-    add_screening_factor(jscr++, zion[Ar36-1], aion[Ar36-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Ar36),
+                         NetworkProperties::aion(Ar36),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 19.0e0_rt, 39.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         19.0e0_rt,
+                         39.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
-    add_screening_factor(jscr++, zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Ca40),
+                         NetworkProperties::aion(Ca40),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 21.0e0_rt, 43.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         21.0e0_rt,
+                         43.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
-    add_screening_factor(jscr++, zion[Ti44-1], aion[Ti44-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Ti44),
+                         NetworkProperties::aion(Ti44),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 23.0e0_rt, 47.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         23.0e0_rt,
+                         47.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
-    add_screening_factor(jscr++, zion[Cr48-1], aion[Cr48-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Cr48),
+                         NetworkProperties::aion(Cr48),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 25.0e0_rt, 51.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         25.0e0_rt,
+                         51.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
-    add_screening_factor(jscr++, zion[Fe52-1], aion[Fe52-1], zion[He4-1], aion[He4-1]);
+    add_screening_factor(jscr++,
+                         NetworkProperties::zion(Fe52),
+                         NetworkProperties::aion(Fe52),
+                         NetworkProperties::zion(He4),
+                         NetworkProperties::aion(He4));
 
-    add_screening_factor(jscr++, 27.0e0_rt, 55.0e0_rt, 1.0e0_rt, 1.0e0_rt);
+    add_screening_factor(jscr++,
+                         27.0e0_rt,
+                         55.0e0_rt,
+                         1.0e0_rt,
+                         1.0e0_rt);
 
 }
 
