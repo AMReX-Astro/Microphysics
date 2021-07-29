@@ -88,6 +88,11 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     fill_unevolved_variables(vode_state.tn, state, vode_state);
 
+    // ensure that the mass fractions are valid -- only vode_state is
+    // updated here
+
+    clean_state(vode_state.tn, state, vode_state);
+
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state
 
