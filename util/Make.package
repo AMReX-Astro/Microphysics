@@ -8,3 +8,6 @@ ifeq ($(USE_REACT),TRUE)
   CEXE_headers += esum.H
   CEXE_headers += linpack.H
 endif
+
+INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/util/gcem/include
+CEXE_headers += gcem.hpp
