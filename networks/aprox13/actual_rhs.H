@@ -585,7 +585,6 @@ void screen_aprox13(const Real btemp, const Real bden,
     right hand sides and jacobian matrix elements
     */
 
-    int jscr;
     Real sc1a,sc1adt,sc2a,sc2adt,sc3a,sc3adt;
     Real sc1add,sc2add;
     Real denom,denomdt,zz;
@@ -597,15 +596,23 @@ void screen_aprox13(const Real btemp, const Real bden,
     fill_plasma_state(state, btemp, bden, y);
 
     // first the always fun triple alpha and its inverse
-    jscr = 0;
-    screen5(state,jscr,
-            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
 
-    jscr++;
-    screen5(state,jscr,
-            zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
-            sc2a,sc2adt,sc2add);
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
+
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4),
+                                                                                 4.0_rt,
+                                                                                 8.0_rt);
+
+        screen5(state, scn_fac, sc2a, sc2adt, sc2add);
+    }
 
     sc3a   = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
@@ -620,10 +627,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
     // c12 to o16
     // c12(a,g)o16
-    jscr++;
-    screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(C12),
+                                                                                 NetworkProperties::aion(C12),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     ratraw = rr(1).rates(C12_He4_to_O16_forward);
     rr(1).rates(C12_He4_to_O16_forward)  = ratraw * sc1a;
@@ -634,20 +645,28 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(C12_He4_to_O16_reverse)  = rr(2).rates(C12_He4_to_O16_reverse)*sc1a + ratraw*sc1adt;
 
     // c12 + c12
-    jscr++;
-    screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(C12),
+                                                                                 NetworkProperties::aion(C12),
+                                                                                 NetworkProperties::zion(C12),
+                                                                                 NetworkProperties::aion(C12));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     ratraw = rr(1).rates(C12_C12_to_Ne20_He4_forward);
     rr(1).rates(C12_C12_to_Ne20_He4_forward) = ratraw * sc1a;
     rr(2).rates(C12_C12_to_Ne20_He4_forward) = rr(2).rates(C12_C12_to_Ne20_He4_forward)*sc1a + ratraw*sc1adt;
 
     // c12 + o16
-    jscr++;
-    screen5(state,jscr,
-            zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1], 
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(C12),
+                                                                                 NetworkProperties::aion(C12),
+                                                                                 NetworkProperties::zion(O16),
+                                                                                 NetworkProperties::aion(O16));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     ratraw = rr(1).rates(C12_O16_to_Mg24_He4_forward);
     rr(1).rates(C12_O16_to_Mg24_He4_forward) = ratraw * sc1a;
@@ -662,10 +681,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(C12_O16_to_Si28_forward) = rr(2).rates(C12_O16_to_Mg24_He4_forward);
 
     // o16 + o16
-    jscr++;
-    screen5(state,jscr,
-            zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(O16),
+                                                                                 NetworkProperties::aion(O16),
+                                                                                 NetworkProperties::zion(O16),
+                                                                                 NetworkProperties::aion(O16));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     ratraw = rr(1).rates(O16_O16_to_Si28_He4_forward);
     rr(1).rates(O16_O16_to_Si28_He4_forward) = ratraw * sc1a;
@@ -675,10 +698,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     Real O16_O16_dratedt = rr(2).rates(O16_O16_to_Si28_He4_forward);
 
     // o16 to ne20
-    jscr++;
-    screen5(state,jscr,
-            zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(O16),
+                                                                                 NetworkProperties::aion(O16),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // o16(a,g)ne20
@@ -691,10 +718,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(O16_He4_to_Ne20_reverse) = rr(2).rates(O16_He4_to_Ne20_reverse)*sc1a + ratraw*sc1adt;
 
     // ne20 to mg24
-    jscr++;
-    screen5(state,jscr,
-            zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Ne20),
+                                                                                 NetworkProperties::aion(Ne20),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // ne20(a,g)mg24
@@ -707,10 +738,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Ne20_He4_to_Mg24_reverse) = rr(2).rates(Ne20_He4_to_Mg24_reverse)*sc1a + ratraw*sc1adt;
 
     // mg24 to si28
-    jscr++;
-    screen5(state,jscr,
-            zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Mg24),
+                                                                                 NetworkProperties::aion(Mg24),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // mg24(a,g)si28
@@ -732,10 +767,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(1).rates(Mg24_He4_to_Al27_P_reverse) = ratraw * sc1a;
     rr(2).rates(Mg24_He4_to_Al27_P_reverse) = rr(2).rates(Mg24_He4_to_Al27_P_reverse)*sc1a + ratraw*sc1adt;
 
-    jscr++;
-    screen5(state,jscr,
-            13.0_rt, 27.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(13.0_rt,
+                                                                                 27.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     // al27(p,g)si28
     ratraw = rr(1).rates(Al27_P_to_Si28_forward);
@@ -748,10 +787,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // si28 to s32
-    jscr++;
-    screen5(state,jscr,
-            zion[Si28-1], aion[Si28-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Si28),
+                                                                                 NetworkProperties::aion(Si28),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // si28(a,g)s32
@@ -774,10 +817,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Si28_He4_to_P31_P_reverse)  = rr(2).rates(Si28_He4_to_P31_P_reverse)*sc1a  + ratraw*sc1adt;
 
 
-    jscr++;
-    screen5(state,jscr,
-            15.0_rt, 31.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(15.0_rt,
+                                                                                 31.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     // p31(p,g)s32
     ratraw = rr(1).rates(P31_P_to_S32_forward);
@@ -790,10 +837,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // s32 to ar36
-    jscr++;
-    screen5(state,jscr,
-            zion[S32-1], aion[S32-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(S32),
+                                                                                 NetworkProperties::aion(S32),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // s32(a,g)ar36
@@ -815,10 +866,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(S32_He4_to_Cl35_P_reverse) = rr(2).rates(S32_He4_to_Cl35_P_reverse)*sc1a + ratraw*sc1adt;
 
 
-    jscr++;
-    screen5(state,jscr,
-            17.0_rt, 35.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(17.0_rt,
+                                                                                 35.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     // cl35(p,g)ar36
     ratraw = rr(1).rates(Cl35_P_to_Ar36_forward);
@@ -831,10 +886,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ar36 to ca40
-    jscr++;
-    screen5(state,jscr,
-            zion[Ar36-1], aion[Ar36-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Ar36),
+                                                                                 NetworkProperties::aion(Ar36),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // ar36(a,g)ca40
@@ -857,10 +916,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Ar36_He4_to_K39_P_reverse) = rr(2).rates(Ar36_He4_to_K39_P_reverse)*sc1a  + ratraw*sc1adt;
 
 
-    jscr++;
-    screen5(state,jscr,
-            19.0_rt, 39.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(19.0_rt,
+                                                                                 39.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     // k39(p,g)ca40
     ratraw = rr(1).rates(K39_P_to_Ca40_forward);
@@ -873,10 +936,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ca40 to ti44
-    jscr++;
-    screen5(state,jscr,
-            zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Ca40),
+                                                                                 NetworkProperties::aion(Ca40),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // ca40(a,g)ti44
@@ -899,10 +966,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Ca40_He4_to_Sc43_P_reverse) = rr(2).rates(Ca40_He4_to_Sc43_P_reverse)*sc1a + ratraw*sc1adt;
 
 
-    jscr++;
-    screen5(state,jscr,
-            21.0_rt, 43.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(21.0_rt,
+                                                                                 43.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     // sc43(p,g)ti44
     ratraw = rr(1).rates(Sc43_P_to_Ti44_forward);
@@ -915,10 +986,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // ti44 to cr48
-    jscr++;
-    screen5(state,jscr,
-            zion[Ti44-1], aion[Ti44-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Ti44),
+                                                                                 NetworkProperties::aion(Ti44),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // ti44(a,g)cr48
@@ -940,10 +1015,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Ti44_He4_to_V47_P_reverse) = rr(2).rates(Ti44_He4_to_V47_P_reverse)*sc1a  + ratraw*sc1adt;
 
 
-    jscr++;
-    screen5(state,jscr,
-            23.0_rt, 47.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(23.0_rt,
+                                                                                 47.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     // v47(p,g)cr48
     ratraw = rr(1).rates(V47_P_to_Cr48_forward);
@@ -956,10 +1035,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // cr48 to fe52
-    jscr++;
-    screen5(state,jscr,
-            zion[Cr48-1], aion[Cr48-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Cr48),
+                                                                                 NetworkProperties::aion(Cr48),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // cr48(a,g)fe52
@@ -982,10 +1065,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Cr48_He4_to_Mn51_P_reverse) = rr(2).rates(Cr48_He4_to_Mn51_P_reverse)*sc1a + ratraw*sc1adt;
 
 
-    jscr++;
-    screen5(state,jscr,
-            25.0_rt, 51.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(25.0_rt,
+                                                                                 51.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
     // mn51(p,g)fe52
     ratraw = rr(1).rates(Mn51_P_to_Fe52_forward);
@@ -998,10 +1085,14 @@ void screen_aprox13(const Real btemp, const Real bden,
 
 
     // fe52 to ni56
-    jscr++;
-    screen5(state,jscr,
-            zion[Fe52-1], aion[Fe52-1], zion[He4-1], aion[He4-1], 
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(NetworkProperties::zion(Fe52),
+                                                                                 NetworkProperties::aion(Fe52),
+                                                                                 NetworkProperties::zion(He4),
+                                                                                 NetworkProperties::aion(He4));
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // fe52(a,g)ni56
@@ -1024,10 +1115,14 @@ void screen_aprox13(const Real btemp, const Real bden,
     rr(2).rates(Fe52_He4_to_Co55_P_reverse) = rr(2).rates(Fe52_He4_to_Co55_P_reverse)*sc1a + ratraw*sc1adt;
 
 
-    jscr++;
-    screen5(state,jscr,
-            27.0_rt, 55.0_rt, 1.0_rt, 1.0_rt,
-            sc1a,sc1adt,sc1add);
+    {
+        constexpr scrn::screen_factors_t scn_fac = scrn::calculate_screen_factor(27.0_rt,
+                                                                                 55.0_rt,
+                                                                                 1.0_rt,
+                                                                                 1.0_rt);
+
+        screen5(state, scn_fac, sc1a, sc1adt, sc1add);
+    }
 
 
     // co55(p,g)ni56
@@ -1371,67 +1466,4 @@ void actual_jac(burn_t& state, MatrixType& jac)
     jac_e_T -= dsneutdt;
     jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
-
-
-AMREX_INLINE
-void set_up_screening_factors()
-{
-    // Compute and store the more expensive screening factors
-
-    using namespace Species;
-
-    // note: we need to set these up in the same order that we evaluate the
-    // rates in actual_rhs.H (yes, it's ugly)
-    int jscr = 0;
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], 4.0e0_rt, 8.0e0_rt);
-
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
-
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1]);
-
-    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1]);
-
-    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 13.0e0_rt, 27.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-    add_screening_factor(jscr++, zion[Si28-1], aion[Si28-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 15.0e0_rt, 31.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-    add_screening_factor(jscr++, zion[S32-1], aion[S32-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 17.0e0_rt, 35.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-    add_screening_factor(jscr++, zion[Ar36-1], aion[Ar36-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 19.0e0_rt, 39.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-    add_screening_factor(jscr++, zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 21.0e0_rt, 43.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-    add_screening_factor(jscr++, zion[Ti44-1], aion[Ti44-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 23.0e0_rt, 47.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-    add_screening_factor(jscr++, zion[Cr48-1], aion[Cr48-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 25.0e0_rt, 51.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-    add_screening_factor(jscr++, zion[Fe52-1], aion[Fe52-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, 27.0e0_rt, 55.0e0_rt, 1.0e0_rt, 1.0e0_rt);
-
-}
-
 #endif
