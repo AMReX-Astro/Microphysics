@@ -78,53 +78,64 @@ init_t setup_composition(const int nz) {
 
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-void get_xn(const int k, const init_t cd, Real *xn_zone) {
+void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition = 0) {
 
     for (int n = 0; n < NumSpec; n++) {
         xn_zone[n] = 0.0_rt;
     }
 
-    if (k < cd.n1) {
-        if (cd.nprim >= 2) xn_zone[cd.is2] = cd.Xp_min/2;
-        if (cd.nprim >= 3) xn_zone[cd.is3] = cd.Xp_min/2;
+    if (uniform_composition) {
 
-        Real dX = (cd.Xp_max - cd.Xp_min) /
-            amrex::max((cd.n1 - 1), 1);
-        xn_zone[cd.is1] = cd.Xp_min + k * dX;
-
-    } else if (cd.nprim >= 2 && k < cd.n1 + cd.n2) {
-        xn_zone[cd.is1] = cd.Xp_min/2;
-        if (cd.nprim >= 3) {
-            xn_zone[cd.is3] = cd.Xp_min/2;
-        }
-        Real dX = (cd.Xp_max - cd.Xp_min) /
-            amrex::max((cd.n2 - 1), 1);
-        xn_zone[cd.is2] = cd.Xp_min + (k - cd.n1) * dX;
-
-    } else {
-        xn_zone[cd.is1] = cd.Xp_min/2;
-        xn_zone[cd.is2] = cd.Xp_min/2;
-
-        Real dX = (cd.Xp_max - cd.Xp_min) /
-            amrex::max((cd.n3 - 1), 1);
-        xn_zone[cd.is3] = cd.Xp_min + (k - (cd.n1 + cd.n2)) * dX;
-
-    }
-
-    Real excess = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        excess += xn_zone[n];
-    }
-    excess = 1.0_rt - excess;
-
-    for (int n = 0; n < NumSpec; n++) {
-        if (n == cd.is1 ||
-            (n == cd.is2 && cd.nprim >= 2) ||
-            (n == cd.is3 && cd.nprim >= 3)) {
-            continue;
+        for (int n = 0; n < NumSpec; ++n) {
+            xn_zone[n] = 1.0_rt / NumSpec;
         }
 
-        xn_zone[n] = excess / (NumSpec - cd.nprim);
+    }
+    else {
+
+        if (k < cd.n1) {
+            if (cd.nprim >= 2) xn_zone[cd.is2] = cd.Xp_min/2;
+            if (cd.nprim >= 3) xn_zone[cd.is3] = cd.Xp_min/2;
+
+            Real dX = (cd.Xp_max - cd.Xp_min) /
+                amrex::max((cd.n1 - 1), 1);
+            xn_zone[cd.is1] = cd.Xp_min + k * dX;
+
+        } else if (cd.nprim >= 2 && k < cd.n1 + cd.n2) {
+            xn_zone[cd.is1] = cd.Xp_min/2;
+            if (cd.nprim >= 3) {
+                xn_zone[cd.is3] = cd.Xp_min/2;
+            }
+            Real dX = (cd.Xp_max - cd.Xp_min) /
+                amrex::max((cd.n2 - 1), 1);
+            xn_zone[cd.is2] = cd.Xp_min + (k - cd.n1) * dX;
+
+        } else {
+            xn_zone[cd.is1] = cd.Xp_min/2;
+            xn_zone[cd.is2] = cd.Xp_min/2;
+
+            Real dX = (cd.Xp_max - cd.Xp_min) /
+                amrex::max((cd.n3 - 1), 1);
+            xn_zone[cd.is3] = cd.Xp_min + (k - (cd.n1 + cd.n2)) * dX;
+
+        }
+
+        Real excess = 0.0_rt;
+        for (int n = 0; n < NumSpec; n++) {
+            excess += xn_zone[n];
+        }
+        excess = 1.0_rt - excess;
+
+        for (int n = 0; n < NumSpec; n++) {
+            if (n == cd.is1 ||
+                (n == cd.is2 && cd.nprim >= 2) ||
+                (n == cd.is3 && cd.nprim >= 3)) {
+                continue;
+            }
+
+            xn_zone[n] = excess / (NumSpec - cd.nprim);
+        }
+
     }
 
 
