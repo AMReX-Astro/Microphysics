@@ -136,11 +136,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // apply fudge factor:
 
     if (react_boost > 0.0_rt) {
-        for (int j = 1; j <= neqs; ++j) {
-            for (int i = 1; i <= neqs; ++i) {
-                jac_react.mul(i, j, react_boost);
-            }
-        }
+        jac_react.mul(react_boost);
     }
 
     // convert to the system we are using
