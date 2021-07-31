@@ -40,7 +40,11 @@ void main_main ()
 
     std::string prefix = "plt";
 
+#ifdef AMREX_USE_GPU
+    IntVect tile_size(1024, 1024, 1024);
+#else
     IntVect tile_size(1024, 8, 8);
+#endif
 
     // inputs parameters
     {
