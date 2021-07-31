@@ -28,12 +28,14 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 {
 
+    // we already come in with a cleaned state, and density updated to
+    // the current time
 
-    for (int i = 1; i <= neqs; i++) {
-        for (int j = 1; j <= neqs; j++) {
-            jac(i,j) = 0.0_rt;
-        }
-    }
+    //for (int i = 1; i <= neqs; i++) {
+    //    for (int j = 1; j <= neqs; j++) {
+    //        jac(i,j) = 0.0_rt;
+    //    }
+    //}
 
     YdotNetArray1D ydotp;
     YdotNetArray1D ydotm;
@@ -86,6 +88,15 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
         state_delp.xn[n-1] += dy;
 
+        // we just changed X, so for constant e the temperature must change
+
+#ifdef NSE_THERMO
+        // make the aux data consistent with the state X's
+        set_nse_aux_from_X(state_delp);
+#endif
+
+        eos(eos_input_re, state_delp);
+
         actual_rhs(state_delp, ydotp);
 
         // We integrate X, so convert from the Y we got back from the RHS
@@ -108,6 +119,11 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     Real dy = amrex::max(std::sqrt(U) * std::abs(state.e), r0 * w);
 
     state_delp.e += dy;
+
+#ifdef NSE_THERMO
+    // make the aux data consistent with the state X's
+    set_nse_aux_from_X(state_delp);
+#endif
 
     eos(eos_input_re, state_delp);
 
