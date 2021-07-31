@@ -26,6 +26,19 @@ template<int species>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real species_rhs_n (const burn_t& state, rate_fr_t const& rr);
 
+template<int spec1, int spec2, int j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Real jac_term (const burn_t& state, rate_fr_t const& rr);
+
+template<int spec1, int spec2, int N>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Array1D<Real, 1, N>
+make_Jac_Array1D (const burn_t& state, rate_fr_t const& rr);
+
+template<int n>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real species_jac_n (const burn_t& state, rate_fr_t const& rr);
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr);
 
@@ -124,6 +137,25 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs_impl (const burn_t& state, rate_fr_t const& rr, std::integer_sequence<int, species...>)
 {
     return {{RHS::species_rhs_n<species + 1>(state, rr)...}};
+}
+
+// Implicitly construct an Array1D by expanding the integer sequence.
+// Note that the integer sequence is zero-indexed but the terms are
+// one-indexed.
+template<int spec1, int spec2, int... j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Array1D<Real, 1, sizeof...(j)>
+make_Jac_Array1D_impl (const burn_t& state, rate_fr_t const& rr, std::integer_sequence<int, j...>)
+{
+    return {{RHS::jac_term<spec1, spec2, j+1>(state, rr)...}};
+}
+
+// Implicitly construct an Array2D by expanding the integer sequence.
+template<int... j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac_impl (const burn_t& state, rate_fr_t const& rr, std::integer_sequence<int, j...>)
+{
+    return {{RHS::species_jac_n<j>(state, rr)...}};
 }
 
 } // namespace RHS_impl
@@ -349,6 +381,204 @@ Real ener_rhs (const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
     return dedt;
 }
 
+// Calculate the j'th Jacobian term for d(f(species1)) / d(species2).
+//
+// This follows the same scheme as the RHS. The forward term only
+// has a contribution if the species we're taking the derivative
+// with respect to (spec2) is one of (A, B, C). For the species
+// that is spec2, we take the derivative by multiplying by the
+// current exponent and then decrementing the exponent in the
+// term. The same is done for the reverse term, which only has a
+// contribution if spec2 is one of (D, E, F).
+template<int spec1, int spec2, int j>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Real jac_term (const burn_t& state, rate_fr_t const& rr)
+{
+    constexpr int rate = RHS_impl::rhs_term_impl<spec1, j>(std::make_integer_sequence<int, Rates::NumRates>{});
+
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    Real forward_term = 0.0_rt;
+
+    if constexpr (spec2 == rhs_data.species_A || spec2 == rhs_data.species_B || spec2 == rhs_data.species_C) {
+
+        forward_term = rr.forward_rates(rate);
+
+        if constexpr (rhs_data.species_A >= 0) {
+            Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
+
+            constexpr int exponent = rhs_data.exponent_A;
+
+            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+
+            int exp = exponent;
+
+            if constexpr (spec2 == rhs_data.species_A) {
+                forward_term *= exp;
+                --exp;
+            }
+
+            forward_term *= std::pow(Y_A, exp) /
+                            static_cast<Real>(identical_particle_factor);
+        }
+
+        if constexpr (rhs_data.species_B >= 0) {
+            Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
+
+            constexpr int exponent = rhs_data.exponent_B;
+
+            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+
+            int exp = exponent;
+
+            if constexpr (spec2 == rhs_data.species_B) {
+                forward_term *= exp;
+                --exp;
+            }
+
+            forward_term *= std::pow(Y_B, exp) /
+                            static_cast<Real>(identical_particle_factor);
+        }
+
+        if constexpr (rhs_data.species_C >= 0) {
+            Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
+
+            constexpr int exponent = rhs_data.exponent_C;
+
+            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+
+            int exp = exponent;
+
+            if constexpr (spec2 == rhs_data.species_C) {
+                forward_term *= exp;
+                --exp;
+            }
+
+            forward_term *= std::pow(Y_C, exp) /
+                            static_cast<Real>(identical_particle_factor);
+        }
+
+    }
+
+    Real reverse_term = 0.0_rt;
+
+    if constexpr (spec2 == rhs_data.species_D || spec2 == rhs_data.species_E || spec2 == rhs_data.species_F) {
+
+        reverse_term = rr.reverse_rates(rate);
+
+        if constexpr (rhs_data.species_D >= 0) {
+            Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
+
+            constexpr int exponent = rhs_data.exponent_D;
+
+            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+
+            int exp = exponent;
+
+            if constexpr (spec2 == rhs_data.species_D) {
+                reverse_term *= exp;
+                --exp;
+            }
+
+            reverse_term *= std::pow(Y_D, exp) /
+                            static_cast<Real>(identical_particle_factor);
+        }
+
+        if constexpr (rhs_data.species_E >= 0) {
+            Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
+
+            constexpr int exponent = rhs_data.exponent_E;
+
+            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+
+            int exp = exponent;
+
+            if constexpr (spec2 == rhs_data.species_E) {
+                reverse_term *= exp;
+                --exp;
+            }
+
+            reverse_term *= std::pow(Y_E, exp) /
+                            static_cast<Real>(identical_particle_factor);
+        }
+
+        if constexpr (rhs_data.species_F >= 0) {
+            Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
+
+            constexpr int exponent = rhs_data.exponent_F;
+
+            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+
+            int exp = exponent;
+
+            if constexpr (spec2 == rhs_data.species_F) {
+                reverse_term *= exp;
+                --exp;
+            }
+
+            reverse_term *= std::pow(Y_F, exp) /
+                            static_cast<Real>(identical_particle_factor);
+        }
+
+    }
+
+    // Now compute the total contribution to this species.
+
+    Real term = 0.0_rt;
+
+    if constexpr (rhs_data.species_A == spec1) {
+        term = rhs_data.number_A * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_B == spec1) {
+        term = rhs_data.number_B * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_C == spec1) {
+        term = rhs_data.number_C * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_D == spec1) {
+        term = rhs_data.number_D * (forward_term - reverse_term);
+    }
+    if constexpr (rhs_data.species_E == spec1) {
+        term = rhs_data.number_E * (forward_term - reverse_term);
+    }
+    if constexpr (rhs_data.species_F == spec1) {
+        term = rhs_data.number_F * (forward_term - reverse_term);
+    }
+
+    return term;
+}
+
+// Calculate the set of Jacobian terms.
+template<int spec1, int spec2, int N>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Array1D<Real, 1, N>
+make_Jac_Array1D (const burn_t& state, rate_fr_t const& rr)
+{
+    return RHS_impl::make_Jac_Array1D_impl<spec1, spec2>(state, rr, std::make_integer_sequence<int, N>{});
+}
+
+// Calculate a Jacobian element by constructing the array of terms
+// and then summing them up.
+template<int n>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real species_jac_n (const burn_t& state, rate_fr_t const& rr)
+{
+    // Convert the linear index n (which starts from 0) into a (spec1, spec2)
+    // pair.
+
+    constexpr int spec1 = n % NumSpec + 1;
+    constexpr int spec2 = n / NumSpec + 1;
+
+    constexpr int nrhs = num_rhs<spec1>();
+    Array1D<Real, 1, nrhs> a = make_Jac_Array1D<spec1, spec2, nrhs>(state, rr);
+
+    Real sum = 0.0_rt;
+    for (int j = 1; j <= nrhs; ++j) {
+        sum += a(j);
+    }
+    return sum;
+}
+
 // Calculate the Jacobian terms that are derivatives of one species
 // with respect to another.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -362,169 +592,7 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t c
         rr_fr.reverse_rates(j) = rr.rates(2 * j);
     }
 
-    Array2D<Real, 1, NumSpec, 1, NumSpec> jac{};
-
-    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
-
-        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
-
-            // d(spec1) / d(spec2)
-
-            for (int rate = 1; rate <= Rates::NumRatesFR; ++rate) {
-                rhs_t rhs_data = RHS::rhs_data(rate);
-
-                // Compute the forward term. It only has a contribution if
-                // the species we're taking the derivative with respect to
-                // (spec2) is one of (A, B, C). For the species that is spec2,
-                // we take the derivative by multiplying by the current exponent
-                // and then decrementing the exponent in the term.
-
-                Real forward_term = 0.0_rt;
-
-                if (spec2 == rhs_data.species_A || spec2 == rhs_data.species_B || spec2 == rhs_data.species_C) {
-
-                    forward_term = rr_fr.forward_rates(rate);
-
-                    if (rhs_data.species_A >= 0) {
-                        Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
-
-                        int exponent = rhs_data.exponent_A;
-
-                        int identical_particle_factor = RHS_impl::factorial(exponent);
-
-                        if (spec2 == rhs_data.species_A) {
-                            forward_term *= exponent;
-                            --exponent;
-                        }
-
-                        forward_term *= std::pow(Y_A, exponent) /
-                                        static_cast<Real>(identical_particle_factor);
-                    }
-
-                    if (rhs_data.species_B >= 0) {
-                        Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
-
-                        int exponent = rhs_data.exponent_B;
-
-                        int identical_particle_factor = RHS_impl::factorial(exponent);
-
-                        if (spec2 == rhs_data.species_B) {
-                            forward_term *= exponent;
-                            --exponent;
-                        }
-
-                        forward_term *= std::pow(Y_B, exponent) /
-                                        static_cast<Real>(identical_particle_factor);
-                    }
-
-                    if (rhs_data.species_C >= 0) {
-                        Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
-
-                        int exponent = rhs_data.exponent_C;
-
-                        int identical_particle_factor = RHS_impl::factorial(exponent);
-
-                        if (spec2 == rhs_data.species_C) {
-                            forward_term *= exponent;
-                            --exponent;
-                        }
-                        forward_term *= std::pow(Y_C, exponent) /
-                                        static_cast<Real>(identical_particle_factor);
-                    }
-
-                }
-
-                // Do the same for the reverse term, which only has a contribution
-                // if spec2 is one of (D, E, F).
-
-                Real reverse_term = 0.0_rt;
-
-                if (spec2 == rhs_data.species_D || spec2 == rhs_data.species_E || spec2 == rhs_data.species_F) {
-
-                    reverse_term = rr_fr.reverse_rates(rate);
-
-                    if (rhs_data.species_D >= 0) {
-                        Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
-
-                        int exponent = rhs_data.exponent_D;
-
-                        int identical_particle_factor = RHS_impl::factorial(exponent);
-
-                        if (spec2 == rhs_data.species_D) {
-                            reverse_term *= exponent;
-                            --exponent;
-                        }
-
-                        reverse_term *= std::pow(Y_D, exponent) /
-                                        static_cast<Real>(identical_particle_factor);
-                    }
-
-                    if (rhs_data.species_E >= 0) {
-                        Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
-
-                        int exponent = rhs_data.exponent_E;
-
-                        int identical_particle_factor = RHS_impl::factorial(exponent);
-
-                        if (spec2 == rhs_data.species_E) {
-                            reverse_term *= exponent;
-                            --exponent;
-                        }
-
-                        reverse_term *= std::pow(Y_E, exponent) /
-                                        static_cast<Real>(identical_particle_factor);
-                    }
-
-                    if (rhs_data.species_F >= 0) {
-                        Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
-
-                        int exponent = rhs_data.exponent_F;
-
-                        int identical_particle_factor = RHS_impl::factorial(exponent);
-
-                        if (spec2 == rhs_data.species_F) {
-                            reverse_term *= exponent;
-                            --exponent;
-                        }
-
-                        reverse_term *= std::pow(Y_F, exponent) /
-                                        static_cast<Real>(identical_particle_factor);
-                    }
-
-                }
-
-                // Now compute the total contribution to this species.
-
-                Real term = 0.0_rt;
-
-                if (rhs_data.species_A == spec1) {
-                    term = rhs_data.number_A * (reverse_term - forward_term);
-                }
-                if (rhs_data.species_B == spec1) {
-                    term = rhs_data.number_B * (reverse_term - forward_term);
-                }
-                if (rhs_data.species_C == spec1) {
-                    term = rhs_data.number_C * (reverse_term - forward_term);
-                }
-                if (rhs_data.species_D == spec1) {
-                    term = rhs_data.number_D * (forward_term - reverse_term);
-                }
-                if (rhs_data.species_E == spec1) {
-                    term = rhs_data.number_E * (forward_term - reverse_term);
-                }
-                if (rhs_data.species_F == spec1) {
-                    term = rhs_data.number_F * (forward_term - reverse_term);
-                }
-
-                jac(spec1, spec2) += term;
-
-            }
-
-        }
-
-    }
-
-    return jac;
+    return RHS_impl::species_jac_impl(state, rr_fr, std::make_integer_sequence<int, NumSpec * NumSpec>{});
 }
 
 
