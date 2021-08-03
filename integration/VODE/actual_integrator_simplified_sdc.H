@@ -179,17 +179,37 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << "ERROR: integration failed in net" << std::endl;
             std::cout << "istate = " << istate << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
-            std::cout << "dens = " << state.rho << std::endl;
+            std::cout << "dens start = " << eos_state.rho << std::endl;
             std::cout << "temp start = " << eos_state.T << std::endl;
             std::cout << "xn start = ";
             for (int n = 0; n < NumSpec; ++n) {
                 std::cout << eos_state.xn[n] << " ";
             }
             std::cout << std::endl;
+#ifdef NSE_THERMO
+            std::cout << "aux start = ";
+            for (int n = 0; n < NumAux; ++n) {
+                std::cout << eos_state.aux[n] << " ";
+            }
+            std::cout << std::endl;
+#endif
             std::cout << "temp current = " << state.T << std::endl;
+            std::cout << "dens current = " << state.rho << std::endl;
             std::cout << "xn current = ";
             for (int n = 0; n < NumSpec; ++n) {
                 std::cout << state.xn[n] << " ";
+            }
+            std::cout << std::endl;
+#ifdef NSE_THERMO
+            std::cout << "aux current = ";
+            for (int n = 0; n < NumAux; ++n) {
+                std::cout << state.aux[n] << " ";
+            }
+            std::cout << std::endl;
+#endif
+            std::cout << "advective terms = ";
+            for (int n = 0; n < SVAR; n++) {
+                std::cout << state.ydot_a[n] << " ";
             }
             std::cout << std::endl;
 #endif
