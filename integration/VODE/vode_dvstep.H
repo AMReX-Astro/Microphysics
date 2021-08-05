@@ -254,11 +254,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             // this doesn't seem to work well with SDC
 
-            //if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
-            //    (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-            //     std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
-            //    valid_update = false;
-            //}
+            if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
+                (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+                valid_update = false;
+            }
 
 #if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
