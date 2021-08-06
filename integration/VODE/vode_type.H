@@ -53,6 +53,10 @@ const int VODE_LMAX = VODE_MAXORD + 1;
 // How many timesteps should pass before refreshing the Jacobian
 const int max_steps_between_jacobian_evals = 50;
 
+#ifdef NSE_THERMO
+const int MIN_NSE_BAILOUT_STEPS = 10;
+#endif
+
 // Type dvode_t contains the integration solution and control variables
 struct dvode_t
 {

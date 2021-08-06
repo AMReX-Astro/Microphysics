@@ -224,18 +224,24 @@ int dvode (burn_t& state, dvode_t& vstate)
        // if so, bail out we rely on the state being consistent after
        // the call to dvstep, even if the step failed.
 
-       // first we need to make the burn_t in sync
+       // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
+       // from hitting this right at the start when VODE might do so
+       // wild exploration.
+
+       if (vstate.NST > MIN_NSE_BAILOUT_STEPS) {
+           // first we need to make the burn_t in sync
 
 #ifdef STRANG
-       update_thermodynamics(state, vstate);
+           update_thermodynamics(state, vstate);
 #endif
 #ifdef SIMPLIFIED_SDC
-       vode_to_burn(vstate.tn, vstate, state);
+           vode_to_burn(vstate.tn, vstate, state);
 #endif
 
-       if (in_nse(state)) {
-           istate = -100;
-           return istate;
+           if (in_nse(state)) {
+               istate = -100;
+               return istate;
+           }
        }
 #endif
 
