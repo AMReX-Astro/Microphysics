@@ -125,6 +125,19 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
     state_delp.T += dy;
 
+    if (state_delp.T <= EOSData::mintemp || state_delp.T >= MAX_TEMP) {
+
+        for (int i = 1; i <= neqs; i++) {
+            for (int j = 1; j <= neqs; j++) {
+                jac(i,j) = 0.0_rt;
+            }
+        }
+
+        return;
+
+    }
+
+
 #ifdef NSE_THERMO
     // make the aux data consistent with the state X's
     set_nse_aux_from_X(state_delp);
