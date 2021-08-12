@@ -10,7 +10,7 @@
 
 extern "C" void
 fortran_to_cxx_actual_rhs(Real rho, Real T, Real e, const Real* xn,
-                          Real abar, Real zbar, Real y_e, Real eta,
+                          Real abar, Real zbar, Real y_e, Real eta, Real cv,
 #if NAUX_NET > 0
                           const Real* aux,
 #endif
@@ -35,6 +35,7 @@ actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     fortran_to_cxx_actual_rhs(state.rho, state.T, state.e, state.xn,
                               state.abar, state.zbar, state.y_e, state.eta,
+                              state.cv,
 #if NAUX_NET > 0
                               state.aux,
 #endif
