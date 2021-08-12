@@ -226,7 +226,7 @@ void actual_integrator (burn_t& state, Real dt)
 #endif
         } else {
 #ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration" << std::endl;
+            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps)" << std::endl;
 #endif
         }
     }
