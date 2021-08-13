@@ -250,8 +250,6 @@ void burn_cell_c()
 #endif
 
 #if defined(SDC_EVOLVE_ENERGY)
-    std::cout << "density set" << std::endl;
-
     burn_state.y[SRHO] = density;
 
     // we will pick velocities to be 10% of the sound speed
