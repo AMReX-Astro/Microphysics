@@ -38,5 +38,39 @@ X19           real       0.0d0
 X20           real       0.0d0
 X21           real       0.0d0
 
+Aux1          real       0.0d0
+Aux2          real       0.0d0
+Aux3          real       0.0d0
+
+
+Adv_rho           real       0.0d0
+Adv_rhoe          real       0.0d0
+
+Adv_X1            real       0.0d0
+Adv_X2            real       0.0d0
+Adv_X3            real       0.0d0
+Adv_X4            real       0.0d0
+Adv_X5            real       0.0d0
+Adv_X6            real       0.0d0
+Adv_X7            real       0.0d0
+Adv_X8            real       0.0d0
+Adv_X9            real       0.0d0
+Adv_X10           real       0.0d0
+Adv_X11           real       0.0d0
+Adv_X12           real       0.0d0
+Adv_X13           real       0.0d0
+Adv_X14           real       0.0d0
+Adv_X15           real       0.0d0
+Adv_X16           real       0.0d0
+Adv_X17           real       0.0d0
+Adv_X18           real       0.0d0
+Adv_X19           real       0.0d0
+Adv_X20           real       0.0d0
+Adv_X21           real       0.0d0
+
+Adv_Aux1          real       0.0d0
+Adv_Aux2          real       0.0d0
+Adv_Aux3          real       0.0d0
+
 
 

@@ -89,6 +89,128 @@ void burn_cell_c()
 
     }
 
+
+#ifdef NSE_THERMO
+    Real auxdata[NumAux] = {-1.0};
+
+    // Make sure user set all the mass fractions to values in the interval [0, 1]
+    for (int n = 1; n <= NumAux; ++n) {
+        switch (n) {
+
+        case 1:
+            auxdata[n-1] = Aux1;
+            break;
+        case 2:
+            auxdata[n-1] = Aux2;
+            break;
+        case 3:
+            auxdata[n-1] = Aux3;
+            break;
+
+        }
+
+    }
+#endif
+
+
+    Real adv_species[NumSpec] = {0.0};
+
+    // Make sure user set all the mass fractions to values in the interval [0, 1]
+    for (int n = 1; n <= NumSpec; ++n) {
+        switch (n) {
+
+        case 1:
+            adv_species[n-1] = Adv_X1;
+            break;
+        case 2:
+            adv_species[n-1] = Adv_X2;
+            break;
+        case 3:
+            adv_species[n-1] = Adv_X3;
+            break;
+        case 4:
+            adv_species[n-1] = Adv_X4;
+            break;
+        case 5:
+            adv_species[n-1] = Adv_X5;
+            break;
+        case 6:
+            adv_species[n-1] = Adv_X6;
+            break;
+        case 7:
+            adv_species[n-1] = Adv_X7;
+            break;
+        case 8:
+            adv_species[n-1] = Adv_X8;
+            break;
+        case 9:
+            adv_species[n-1] = Adv_X9;
+            break;
+        case 10:
+            adv_species[n-1] = Adv_X10;
+            break;
+        case 11:
+            adv_species[n-1] = Adv_X11;
+            break;
+        case 12:
+            adv_species[n-1] = Adv_X12;
+            break;
+        case 13:
+            adv_species[n-1] = Adv_X13;
+            break;
+        case 14:
+            adv_species[n-1] = Adv_X14;
+            break;
+        case 15:
+            adv_species[n-1] = Adv_X15;
+            break;
+        case 16:
+            adv_species[n-1] = Adv_X16;
+            break;
+        case 17:
+            adv_species[n-1] = Adv_X17;
+            break;
+        case 18:
+            adv_species[n-1] = Adv_X18;
+            break;
+        case 19:
+            adv_species[n-1] = Adv_X19;
+            break;
+        case 20:
+            adv_species[n-1] = Adv_X20;
+            break;
+        case 21:
+            adv_species[n-1] = Adv_X21;
+            break;
+
+        }
+
+    }
+
+
+#ifdef NSE_THERMO
+    Real adv_aux[NumAux] = {0.0};
+
+    // Make sure user set all the mass fractions to values in the interval [0, 1]
+    for (int n = 1; n <= NumAux; ++n) {
+        switch (n) {
+
+        case 1:
+            adv_aux[n-1] = Adv_Aux1;
+            break;
+        case 2:
+            adv_aux[n-1] = Adv_Aux2;
+            break;
+        case 3:
+            adv_aux[n-1] = Adv_Aux3;
+            break;
+
+        }
+
+    }
+#endif
+
+
     // Echo initial conditions at burn and fill burn state input
 
     std::cout << "Maximum Time (s): " << tmax << std::endl;
