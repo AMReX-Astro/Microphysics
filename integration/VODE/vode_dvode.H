@@ -233,15 +233,23 @@ int dvode (burn_t& state, dvode_t& vstate)
 
 #ifdef STRANG
            update_thermodynamics(state, vstate);
-#endif
-#ifdef SIMPLIFIED_SDC
-           vode_to_burn(vstate.tn, vstate, state);
-#endif
-
            if (in_nse(state)) {
                istate = -100;
                return istate;
            }
+
+#endif
+#ifdef SIMPLIFIED_SDC
+           burn_t burn_state_temp = state;
+           vode_to_burn(vstate.tn, vstate, burn_state_temp);
+
+           if (in_nse(burn_state_temp)) {
+               istate = -100;
+               return istate;
+           }
+
+#endif
+
        }
 #endif
 

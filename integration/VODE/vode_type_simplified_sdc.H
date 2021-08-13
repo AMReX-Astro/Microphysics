@@ -18,7 +18,7 @@
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
+void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vode_state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -77,10 +77,10 @@ void sdc_burn_to_eos (const burn_t& state, T& eos_state)
 
 #if NAUX_NET > 0
     // aux
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
-    }
-    //set_nse_aux_from_X(eos_state);
+    //for (int n = 0; n < NumAux; n++) {
+    //    eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
+    //}
+    set_nse_aux_from_X(eos_state);
 #endif
 
     // we don't bother filling the other fields, since the EOS call
@@ -223,7 +223,7 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
+void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
 {
 
     // this makes burn_t represent the current integration state.  The
