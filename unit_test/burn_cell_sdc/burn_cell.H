@@ -319,6 +319,7 @@ void burn_cell_c()
     // output the data in columns, one line per timestep
 
     state_over_time << std::setw(10) << "# Time";
+    state_over_time << std::setw(12) << "Density";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
 	std::string element = short_spec_names_cxx[x];
@@ -374,39 +375,15 @@ void burn_cell_c()
         t += dt;
 
 	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << burn_state.T; 
+	state_over_time << std::setw(12) << burn_state.T;
+	state_over_time << std::setw(12) << burn_state.rho;
 	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(12) << burn_state.xn[x]; 
+	     state_over_time << std::setw(12) << burn_state.y[SFS+x] / burn_state.rho; 
 	}
 	state_over_time << std::endl;
     }
     state_over_time.close();
 
-    // output diagnostics to the terminal
-
-    std::cout << "------------------------------------" << std::endl;
     std::cout << "successful? " << burn_state.success << std::endl;
-    std::cout << " - Hnuc = " << (burn_state.e - state_in.e) / tmax << std::endl;
-    std::cout << " - added e = " << burn_state.e - state_in.e << std::endl;
-    std::cout << " - final T = " << burn_state.T << std::endl;
-
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "e initial = " << state_in.e << std::endl;
-    std::cout << "e final =   " << burn_state.e << std::endl;
-
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "new mass fractions: " << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << burn_state.xn[n] << std::endl;
-    }
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "species creation rates: " << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
-                  << (burn_state.xn[n] - state_in.xn[n]) / tmax << std::endl;
-    }
 
 }
