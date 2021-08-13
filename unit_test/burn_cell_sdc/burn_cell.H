@@ -383,5 +383,5 @@ void burn_cell_c()
     state_over_time.close();
 
     std::cout << "successful? " << burn_state.success << std::endl;
-
+    std::cout << "number of RHS evals: " << burn_state.n_rhs << std::endl;
 }
