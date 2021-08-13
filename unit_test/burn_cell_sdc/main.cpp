@@ -24,8 +24,6 @@ int main(int argc, char *argv[]) {
 
   ppa.query("probin_file", probin_file);
 
-  std::cout << "probin = " << probin_file << std::endl;
-
   const int probin_file_length = probin_file.length();
   Vector<int> probin_file_name(probin_file_length);
 

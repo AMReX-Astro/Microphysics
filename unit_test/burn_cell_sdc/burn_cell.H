@@ -9,8 +9,6 @@
 void burn_cell_c()
 {
 
-    burn_t state;
-
     Real massfractions[NumSpec] = {-1.0};
 
     // Make sure user set all the mass fractions to values in the interval [0, 1]
@@ -220,24 +218,85 @@ void burn_cell_c()
         std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;
     }
 
-    state.T = temperature;
-    state.rho = density;
-    for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] = massfractions[n];
+    // load the state -- we need to create the conserved quantities.
+    // Since momentum and total energy don't matter, we'll assume that
+    // the velocity is zero and just zero out their advective terms
+
+    burn_t burn_state;
+
+    eos_t eos_state;
+    eos_state.rho = density;
+    eos_state.T = temperature;
+    for (int n = 0; n < NumSpec; n++) {
+      eos_state.xn[n] = massfractions[n];
+    }
+#ifdef NSE_THERMO
+    set_nse_aux_from_X(eos_state);
+#endif
+
+    eos(eos_input_rt, eos_state);
+
+    burn_state.rho = eos_state.rho;
+    burn_state.T = eos_state.T;
+
+    for (int n = 0; n < NumSpec; n++) {
+      burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
     }
 
-    // normalize -- just in case
+#if NAUX_NET > 0
+    for (int n = 0; n < NumAux; n++) {
+        burn_state.y[SFX+n] = burn_state.rho * eos_state.aux[n];
+    }
+#endif
 
-    normalize_abundances_burn(state);
+#if defined(SDC_EVOLVE_ENERGY)
+    std::cout << "density set" << std::endl;
+
+    burn_state.y[SRHO] = density;
+
+    // we will pick velocities to be 10% of the sound speed
+    burn_state.y[SMX] = 0.0;
+    burn_state.y[SMY] = 0.0;
+    burn_state.y[SMZ] = 0.0;
+
+    burn_state.y[SEINT] = burn_state.y[SRHO] * eos_state.e;
+    burn_state.y[SEDEN] = burn_state.y[SEINT];
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    burn_state.y[SENTH] = burn_state.rho * eos_state.h;
+
+    burn_state.p0 = eos_state.p;
+#endif
+
+#if defined(SDC_EVOLVE_ENERGY)
+    Real rhoe_old = burn_state.y[SEINT];
+#elif defined (SDC_EVOLVE_ENTHALPY)
+    Real rhoh_old = burn_state.y[SENTH];
+#endif
+
+    // now initialize the advective terms -- the only ones that are
+    // actually used during the integration are for rho, (rho X), and
+    // (rho e)
+
+    for (int n = 0; n < NumSpec; n++) {
+        burn_state.ydot_a[SFS+n] = adv_species[n];
+    }
+
+    // these need to be initialized 
+
+    burn_state.sdc_iter = 1;
+    burn_state.num_sdc_iters = 1;
+
+    for (int n = 0; n < NumSpec; ++n) {
+        burn_state.xn[n] = massfractions[n];
+    }
+
+    burn_state.e = eos_state.e;
+
 
     // output initial burn type data
     Real time = 0.0_rt;
 
-    // call the EOS to set initial e -- it actually doesn't matter to
-    // the burn but we need to keep track of e to get a valid
-    // temperature for the burn if we substep
-
-    eos(eos_input_rt, state);
 
     std::ofstream state_over_time("state_over_time.txt");
 
@@ -255,7 +314,7 @@ void burn_cell_c()
     // save the initial state -- we'll use this to determine
     // how much things changed over the entire burn
 
-    burn_t state_in = state;
+    burn_t state_in = burn_state;
 
     // output the data in columns, one line per timestep
 
@@ -270,9 +329,9 @@ void burn_cell_c()
     Real t = 0.0;
 
     state_over_time << std::setw(10) << t;
-    state_over_time << std::setw(12) << state.T; 
+    state_over_time << std::setw(12) << burn_state.T; 
     for (int x = 0; x < NumSpec; ++x){
-        state_over_time << std::setw(12) << state.xn[x]; 
+        state_over_time << std::setw(12) << burn_state.xn[x]; 
     }
     state_over_time << std::endl;
 
@@ -280,7 +339,7 @@ void burn_cell_c()
     // store the initial internal energy -- we'll update this after
     // each substep
 
-    Real energy_initial = state.e;
+    Real energy_initial = burn_state.e;
 
     // loop over steps, burn, and output the current state
 
@@ -297,27 +356,27 @@ void burn_cell_c()
 
         Real dt = tend - t;
 
-    	burner(state, dt);
+    	burner(burn_state, dt);
 
-        // state.e represents the change in energy over the burn (for
+        // burn_state.e represents the change in energy over the burn (for
         // just this sybcycle), so turn it back into a physical energy
 
-        state.e += energy_initial;
+        burn_state.e += energy_initial;
 
         // reset the initial energy for the next subcycle
 
-        energy_initial = state.e;
+        energy_initial = burn_state.e;
 
         // get the updated T
 
-        eos(eos_input_re, state);
+        eos(eos_input_re, burn_state);
 
         t += dt;
 
 	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << state.T; 
+	state_over_time << std::setw(12) << burn_state.T; 
 	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(12) << state.xn[x]; 
+	     state_over_time << std::setw(12) << burn_state.xn[x]; 
 	}
 	state_over_time << std::endl;
     }
@@ -326,28 +385,28 @@ void burn_cell_c()
     // output diagnostics to the terminal
 
     std::cout << "------------------------------------" << std::endl;
-    std::cout << "successful? " << state.success << std::endl;
-    std::cout << " - Hnuc = " << (state.e - state_in.e) / tmax << std::endl;
-    std::cout << " - added e = " << state.e - state_in.e << std::endl;
-    std::cout << " - final T = " << state.T << std::endl;
+    std::cout << "successful? " << burn_state.success << std::endl;
+    std::cout << " - Hnuc = " << (burn_state.e - state_in.e) / tmax << std::endl;
+    std::cout << " - added e = " << burn_state.e - state_in.e << std::endl;
+    std::cout << " - final T = " << burn_state.T << std::endl;
 
 
     std::cout << "------------------------------------" << std::endl;
     std::cout << "e initial = " << state_in.e << std::endl;
-    std::cout << "e final =   " << state.e << std::endl;
+    std::cout << "e final =   " << burn_state.e << std::endl;
 
 
     std::cout << "------------------------------------" << std::endl;
     std::cout << "new mass fractions: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::cout << state.xn[n] << std::endl;
+        std::cout << burn_state.xn[n] << std::endl;
     }
 
     std::cout << "------------------------------------" << std::endl;
     std::cout << "species creation rates: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
-                  << (state.xn[n] - state_in.xn[n]) / tmax << std::endl;
+                  << (burn_state.xn[n] - state_in.xn[n]) / tmax << std::endl;
     }
 
 }
