@@ -276,6 +276,9 @@ void burn_cell_c()
     // actually used during the integration are for rho, (rho X), and
     // (rho e)
 
+    burn_state.ydot_a[SRHO] = Adv_rho;
+    burn_state.ydot_a[SEINT] = Adv_rhoe;
+
     for (int n = 0; n < NumSpec; n++) {
         burn_state.ydot_a[SFS+n] = adv_species[n];
     }
@@ -341,6 +344,8 @@ void burn_cell_c()
     Real energy_initial = burn_state.e;
 
     // loop over steps, burn, and output the current state
+
+    std::cout << burn_state << std::endl;
 
     for (int n = 0; n < nsteps; n++){
 
