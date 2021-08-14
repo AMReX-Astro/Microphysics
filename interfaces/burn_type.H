@@ -197,7 +197,7 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << std::endl;
 
   o << "ydot_a[SRHO] = " << burn_state.ydot_a[SRHO] << std::endl;
-  o << "ydot_a[SEINT = " << burn_state.ydot_a[SEINT] << std::endl;
+  o << "ydot_a[SEINT] = " << burn_state.ydot_a[SEINT] << std::endl;
   o << "ydot_a[SFS:] = ";
   for (int n = 0; n < NumSpec; n++) {
       o << burn_state.ydot_a[SFS+n] << " ";
