@@ -292,6 +292,9 @@ void burn_cell_c()
         burn_state.xn[n] = massfractions[n];
     }
 
+#ifdef NSE_THERMO
+    set_nse_aux_from_X(burn_state);
+#endif
     burn_state.e = eos_state.e;
 
 
@@ -359,6 +362,8 @@ void burn_cell_c()
         }
 
         Real dt = tend - t;
+
+        std::cout << "burning for dt = " << dt << std::endl;
 
     	burner(burn_state, dt);
 
