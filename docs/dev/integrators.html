@@ -387,8 +387,8 @@ Jacobian is used. This is set with the runtime parameter
 here are specific to that integrator.</p>
 </div>
 <p>The righthand side implementation of the network has the interface:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span> <span class="n">AMREX_FORCE_INLINE</span>
-<span class="kt">void</span> <span class="n">actual_rhs</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span> <span class="n">state</span><span class="p">,</span> <span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">neqs</span><span class="o">&gt;&amp;</span> <span class="n">ydot</span><span class="p">)</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">actual_rhs</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -398,9 +398,9 @@ indexing for <code class="docutils literal notranslate"><span class="pre">ydot</
 Fortran and C++ networks.</p>
 </div>
 <p>The Jacobian has the form:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">MatrixType</span><span class="o">&gt;</span>
-<span class="n">AMREX_GPU_HOST_DEVICE</span> <span class="n">AMREX_FORCE_INLINE</span>
-<span class="kt">void</span> <span class="n">actual_jac</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span> <span class="n">state</span><span class="p">,</span> <span class="n">MatrixType</span><span class="o">&amp;</span> <span class="n">jac</span><span class="p">)</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">MatrixType</span><span class="o">&gt;</span><span class="w"></span>
+<span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">actual_jac</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">MatrixType</span><span class="o">&amp;</span><span class="w"> </span><span class="n">jac</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Here, <code class="docutils literal notranslate"><span class="pre">MatrixType</span></code> is either a <code class="docutils literal notranslate"><span class="pre">SparseMatrix</span></code> type or a
@@ -462,8 +462,8 @@ function, <code class="docutils literal notranslate"><span class="pre">temperatu
 filled and simply fills <code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">ydot(net_itemp)</span></code> according to
 the prescription below.</p>
 <p>The C++ implementation is in <code class="docutils literal notranslate"><span class="pre">integration/utils/temperature_integration.H</span></code>:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span> <span class="n">AMREX_FORCE_INLINE</span>
-<span class="kt">void</span> <span class="n">temperature_rhs</span> <span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span> <span class="n">state</span><span class="p">,</span> <span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">neqs</span><span class="o">&gt;&amp;</span> <span class="n">ydot</span><span class="p">)</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">temperature_rhs</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>We need the specific heat, <span class="math notranslate nohighlight">\(c_x\)</span>. Note that because we are evaluating
@@ -709,8 +709,8 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 <p>The main entry point for C++ is <code class="docutils literal notranslate"><span class="pre">burner()</span></code> in
 <code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code>
 routine, which at the moment is only provided by VODE.</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span> <span class="n">AMREX_FORCE_INLINE</span>
-<span class="kt">void</span> <span class="n">burner</span> <span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span> <span class="n">state</span><span class="p">,</span> <span class="n">Real</span> <span class="n">dt</span><span class="p">)</span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">burner</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 <p>The basic flow of the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code> routine mirrors the Fortran one.</p>
