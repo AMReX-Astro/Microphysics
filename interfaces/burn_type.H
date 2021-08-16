@@ -169,7 +169,7 @@ struct burn_t
 inline
 std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 {
-  o << std::setprecision(16);
+  o << std::setprecision(12);
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";

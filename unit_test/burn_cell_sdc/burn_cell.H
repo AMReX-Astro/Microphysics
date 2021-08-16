@@ -295,6 +295,7 @@ void burn_cell_c()
 #ifdef NSE_THERMO
     set_nse_aux_from_X(burn_state);
 #endif
+
     burn_state.e = eos_state.e;
 
 
