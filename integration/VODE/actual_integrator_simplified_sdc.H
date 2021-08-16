@@ -39,18 +39,26 @@ void actual_integrator (burn_t& state, Real dt)
     // initialize the EOS state using the conserved state that was
     // passed in
 
+    // this takes rho and X_k from state.y[] and T as simply state.T
+    // if we are doing NSE, it will find an aux consistent with the input X
+
     sdc_burn_to_eos(state, eos_state);
 
     eos(eos_input_rt, eos_state);
 
+    // copy all the thermodynamic info from eos_state.  Note: this
+    // does not update state.y[]
+
     eos_to_burn(eos_state, state);
 
     // Fill in the initial integration state.
+    // this also sets rho_orig and rhoe_orig
 
     burn_to_vode(state, vode_state);
 
 
     // Set the tolerances.
+    // recall that we are integrating (rho X) and (rho e)
 
     Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
 
