@@ -18,7 +18,7 @@
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
+void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vode_state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -223,7 +223,7 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
+void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
 {
 
     // this makes burn_t represent the current integration state.  The
