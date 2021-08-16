@@ -193,8 +193,8 @@ void actual_integrator (burn_t& state, Real dt)
             }
             std::cout << std::endl;
 #endif
-            std::cout << "temp current = " << state.T << std::endl;
             std::cout << "dens current = " << state.rho << std::endl;
+            std::cout << "temp current = " << state.T << std::endl;
             std::cout << "xn current = ";
             for (int n = 0; n < NumSpec; ++n) {
                 std::cout << state.xn[n] << " ";
@@ -207,11 +207,22 @@ void actual_integrator (burn_t& state, Real dt)
             }
             std::cout << std::endl;
 #endif
-            std::cout << "advective terms = ";
-            for (int n = 0; n < SVAR; n++) {
-                std::cout << state.ydot_a[n] << " ";
+#if defined(SDC_EVOLVE_ENERGY)
+            std::cout << "A(rho) = " << state.ydot_a[SRHO] << std::endl;
+#endif
+            std::cout << "A(rho e) = " << state.ydot_a[SEINT] << std::endl;
+            std::cout << "A(rho X_k) = ";
+            for (int n = 0; n < NumSpec; n++) {
+                std::cout << state.ydot_a[SFS+n] << " ";
             }
             std::cout << std::endl;
+#ifdef NSE_THERMO
+            std::cout << "A(rho aux_k) = ";
+            for (int n = 0; n < NumAux; n++) {
+                std::cout << state.ydot_a[SFX+n] << " ";
+            }
+            std::cout << std::endl;
+#endif
 #endif
         } else {
 #ifndef AMREX_USE_GPU
