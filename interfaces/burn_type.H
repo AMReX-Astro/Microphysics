@@ -1,6 +1,8 @@
 #ifndef _burn_type_H_
 #define _burn_type_H_
 
+#include <iomanip>
+
 #include <AMReX_REAL.H>
 
 #include <network.H>
