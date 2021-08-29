@@ -178,6 +178,7 @@ void actual_integrator (burn_t& state, Real dt)
 #ifndef AMREX_USE_GPU
             std::cout << "ERROR: integration failed in net" << std::endl;
             std::cout << "istate = " << istate << std::endl;
+            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
             std::cout << "dens start = " << eos_state.rho << std::endl;
             std::cout << "temp start = " << eos_state.T << std::endl;
@@ -226,7 +227,7 @@ void actual_integrator (burn_t& state, Real dt)
 #endif
         } else {
 #ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps)" << std::endl;
+            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
         }
     }

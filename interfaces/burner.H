@@ -58,6 +58,10 @@ void burner (burn_t& state, Real dt)
 
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
 
+#ifndef AMREX_USE_GPU
+            std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+#endif
+
             // This will append to state.e the amount additional
             // energy released from adjusting to the new NSE state
 #ifdef SIMPLIFIED_SDC
