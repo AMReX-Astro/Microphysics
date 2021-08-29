@@ -49,13 +49,15 @@ void burner (burn_t& state, Real dt)
         // aux data, T, and e represent the result from the incomplete
         // burn.
 
+        // replace dt with just the remaining integration time
+        // left after the failure
+        Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
+
         // we use a relaxed NSE criteria now to catch states that are
         // right on the edge of being in NSE
 
-        if (in_nse(state, true) && state.success == false) {
-            // replace dt with just the remaining integration time
-            // left after the failure
-            Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
+        if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
+
             // This will append to state.e the amount additional
             // energy released from adjusting to the new NSE state
 #ifdef SIMPLIFIED_SDC
