@@ -53,9 +53,12 @@ void burner (burn_t& state, Real dt)
         // right on the edge of being in NSE
 
         if (in_nse(state, true) && state.success == false) {
+#ifdef SIMPLIFIED_SDC
 #ifndef AMREX_USE_GPU
             std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-#endif 
+#endif
+#endif
+
             // replace dt with just the remaining integration time
             // left after the failure
             Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
