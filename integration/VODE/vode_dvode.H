@@ -240,6 +240,7 @@ int dvode (burn_t& state, dvode_t& vstate)
 
            if (in_nse(state)) {
                istate = -100;
+               vstate.t = vstate.tn;
                return istate;
            }
        }
