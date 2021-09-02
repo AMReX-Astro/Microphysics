@@ -15,8 +15,8 @@ struct rate_t
 struct rate_fr_t
 {
     // the forward and reverse rate data
-    amrex::Array1D<amrex::Real, 1, Rates::NumRates / 2> forward_rates;
-    amrex::Array1D<amrex::Real, 1, Rates::NumRates / 2> reverse_rates;
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates / 2> forward;
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates / 2> reverse;
 };
 
 #endif
