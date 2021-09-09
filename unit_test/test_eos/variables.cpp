@@ -1,5 +1,6 @@
 #include <variables.H>
 #include <network.H>
+#include <eos_query.H>
 
 plot_t init_variables() {
 
@@ -25,11 +26,33 @@ plot_t init_variables() {
 
   p.icv = p.next_index(1);
   p.icp = p.next_index(1);
-  p.ine = p.next_index(1);
-  p.inp = p.next_index(1);
-  p.ieta = p.next_index(1);
-  p.ipele = p.next_index(1);
-  p.ippos = p.next_index(1);
+
+  if (is_filled_eos("xne")) {
+      p.ine = p.next_index(1);
+  } else {
+      p.ine = -1;
+  }
+  if (is_filled_eos("xnp")) {
+      p.inp = p.next_index(1);
+  } else {
+      p.inp = -1;
+  }
+  if (is_filled_eos("eta")) {
+      p.ieta = p.next_index(1);
+  } else {
+      p.ieta = -1;
+  }
+  if (is_filled_eos("pele")) {
+      p.ipele = p.next_index(1);
+  } else {
+      p.ipele = -1;
+  }
+  if (is_filled_eos("ppos")) {
+      p.ippos = p.next_index(1);
+  } else {
+      p.ippos = -1;
+  }
+
   p.imu = p.next_index(1);
   p.imue = p.next_index(1);
   p.iye = p.next_index(1);

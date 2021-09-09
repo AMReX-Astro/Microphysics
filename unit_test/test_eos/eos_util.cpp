@@ -9,6 +9,7 @@
 #include <variables.H>
 #include <network.H>
 #include <eos.H>
+#include <eos_query.H>
 
 #include <cmath>
 
@@ -65,11 +66,22 @@ void eos_test_C(const Box& bx,
 
     sp(i, j, k, vars.icv) = eos_state.cv;
     sp(i, j, k, vars.icp) = eos_state.cp;
-    sp(i, j, k, vars.ine) = eos_state.xne;
-    sp(i, j, k, vars.inp) = eos_state.xnp;
-    sp(i, j, k, vars.ieta) = eos_state.eta;
-    sp(i, j, k, vars.ipele) = eos_state.pele;
-    sp(i, j, k, vars.ippos) = eos_state.ppos;
+
+    if (vars.ine >= 0) {
+        sp(i, j, k, vars.ine) = eos_state.xne;
+    }
+    if (vars.inp >= 0) {
+        sp(i, j, k, vars.inp) = eos_state.xnp;
+    }
+    if (vars.ieta >= 0) {
+        sp(i, j, k, vars.ieta) = eos_state.eta;
+    }
+    if (vars.ipele >= 0) {
+        sp(i, j, k, vars.ipele) = eos_state.pele;
+    }
+    if (vars.ippos >= 0) {
+        sp(i, j, k, vars.ippos) = eos_state.ppos;
+    }
     sp(i, j, k, vars.imu) = eos_state.mu;
     sp(i, j, k, vars.imue) = eos_state.mu_e;
     sp(i, j, k, vars.idpdt) = eos_state.dpdT;
