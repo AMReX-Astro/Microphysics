@@ -4,7 +4,9 @@
 #include <AMReX.H>
 #include <network.H>
 
-struct eos_t {
+struct eos_base_t {};
+
+struct eos_t:eos_base_t {
     amrex::Real rho;
     amrex::Real T;
     amrex::Real p;
@@ -52,7 +54,7 @@ struct eos_t {
     amrex::Real conductivity;
 };
 
-struct eos_re_t {
+struct eos_re_t:eos_base_t {
     amrex::Real rho;
     amrex::Real T;
     amrex::Real e;
@@ -79,7 +81,7 @@ struct eos_re_t {
 #endif
 };
 
-struct eos_rep_t {
+struct eos_rep_t:eos_base_t {
     amrex::Real rho;
     amrex::Real T;
     amrex::Real e;
@@ -182,24 +184,34 @@ template <typename T>
 struct has_conductivity<T, typename std::enable_if<(sizeof(((T*)0)->conductivity) > 0)>::type>
     : std::true_type {};
 
+template <typename T, typename Enable = void>
+struct has_base_variables
+    : std::false_type {};
+
+template <typename T>
+struct has_base_variables<T, typename std::enable_if<(sizeof(((T*)0)->rho) > 0)>::type>
+    : std::true_type {};
+
 template <typename T>
 inline
-std::ostream& operator<< (std::ostream& o, T const& eos_state)
+std::ostream& print_state (std::ostream& o, T const& eos_state)
 {
-    o << "rho = " << eos_state.rho << std::endl;
-    o << "T =   " << eos_state.T << std::endl;
-    o << "xn = ";
-    for (int n = 0; n < NumSpec; ++n) {
-        o << eos_state.xn[n] << " ";
-    }
-    o << std::endl;
+    if constexpr (has_base_variables<T>::value) {
+        o << "rho = " << eos_state.rho << std::endl;
+        o << "T =   " << eos_state.T << std::endl;
+        o << "xn = ";
+        for (int n = 0; n < NumSpec; ++n) {
+            o << eos_state.xn[n] << " ";
+        }
+        o << std::endl;
 #if NAUX_NET > 0
-    o << "aux = ";
-    for (int n = 0; n < NumAux; ++n) {
-        o << eos_state.aux[n] << " ";
-    }
-    o << std::endl;
+        o << "aux = ";
+        for (int n = 0; n < NumAux; ++n) {
+            o << eos_state.aux[n] << " ";
+        }
+        o << std::endl;
 #endif
+    }
     if constexpr (has_pressure<T>::value) {
         o << "p = " << eos_state.p << std::endl;
     }
@@ -234,7 +246,9 @@ std::ostream& operator<< (std::ostream& o, T const& eos_state)
         o << "dpdr_e = " << eos_state.dpdr_e  << std::endl;
     }
 
-    o << "cv = " << eos_state.cv << std::endl;
+    if constexpr (has_base_variables<T>::value) {
+        o << "cv = " << eos_state.cv << std::endl;
+    }
     if constexpr (has_pressure<T>::value) {
         o << "cp = " << eos_state.cp << std::endl;
     }
@@ -249,16 +263,20 @@ std::ostream& operator<< (std::ostream& o, T const& eos_state)
         o << "pele = " << eos_state.pele << std::endl;
         o << "ppos = " << eos_state.ppos << std::endl;
     }
-    o << "mu = " << eos_state.mu << std::endl;
-    o << "mu_e = " << eos_state.mu_e << std::endl;
-    o << "y_e = " << eos_state.y_e << std::endl;
+    if constexpr (has_base_variables<T>::value) {
+        o << "mu = " << eos_state.mu << std::endl;
+        o << "mu_e = " << eos_state.mu_e << std::endl;
+        o << "y_e = " << eos_state.y_e << std::endl;
+    }
     if constexpr (has_pressure<T>::value) {
         o << "gam1 = " << eos_state.gam1 << std::endl;
         o << "cs = " << eos_state.cs << std::endl;
     }
 
-    o << "abar = " << eos_state.abar << std::endl;
-    o << "zbar = " << eos_state.zbar << std::endl;
+    if constexpr (has_base_variables<T>::value) {
+        o << "abar = " << eos_state.abar << std::endl;
+        o << "zbar = " << eos_state.zbar << std::endl;
+    }
 
 #ifdef EXTRA_THERMO
     if constexpr (has_pressure<T>::value) {
@@ -276,6 +294,12 @@ std::ostream& operator<< (std::ostream& o, T const& eos_state)
     }
 
     return o;
+}
+
+inline
+std::ostream& operator<< (std::ostream& o, eos_base_t const& eos_state)
+{
+    return print_state(o, eos_state);
 }
 
 enum eos_input_t {eos_input_rt = 0,
