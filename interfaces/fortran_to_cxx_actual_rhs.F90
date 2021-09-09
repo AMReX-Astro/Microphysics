@@ -10,7 +10,7 @@ module fortran_to_cxx_actual_rhs_module
 
 contains
 
-  subroutine fortran_to_cxx_actual_rhs(rho, T, e, xn, abar, zbar, y_e, eta, cv, &
+  subroutine fortran_to_cxx_actual_rhs(rho, T, e, xn, abar, zbar, y_e, eta, &
 #if NAUX_NET > 0
                                        aux, &
 #endif
@@ -20,7 +20,7 @@ contains
 
     implicit none
 
-    real(rt), intent(in), value :: rho, T, e, abar, zbar, y_e, eta, cv
+    real(rt), intent(in), value :: rho, T, e, abar, zbar, y_e, eta
     real(rt), intent(in) :: xn(nspec)
 #if NAUX_NET > 0
     real(rt), intent(in) :: aux(naux)
@@ -36,7 +36,6 @@ contains
     state % zbar = zbar
     state % y_e = y_e
     state % eta = eta
-    state % cv = cv
     state % xn(:) = xn(:)
 #if NAUX_NET > 0
     state % aux(:) = aux(:)
