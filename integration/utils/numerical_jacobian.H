@@ -16,7 +16,11 @@
 /// in terms of X.
 ///
 /// Note: even for the various flavors of SDC, this is the form we
-/// want (we call this dR/dw), and we will convert to 
+/// want (we call this dR/dw)
+///
+/// Even though we have e as an independent variable, we will
+/// difference in terms of X and T and then convert the Jacobian
+/// elements to be in terms of X and e
 
 struct jac_info_t {
     Real h;
@@ -28,15 +32,20 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 {
 
+    // we already come in with a cleaned state, and density updated to
+    // the current time
 
-    for (int i = 1; i <= neqs; i++) {
-        for (int j = 1; j <= neqs; j++) {
-            jac(i,j) = 0.0_rt;
-        }
-    }
+    //for (int i = 1; i <= neqs; i++) {
+    //    for (int j = 1; j <= neqs; j++) {
+    //        jac(i,j) = 0.0_rt;
+    //    }
+    //}
 
     YdotNetArray1D ydotp;
     YdotNetArray1D ydotm;
+
+    // note: we assume that coming into the numerical jacobian that
+    // state is thermodynamically consistent (T matches e)
 
     burn_t state_delp = state;
 
@@ -57,6 +66,10 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
         w = 1.0_rt / (rtol_spec * std::abs(state.xn[i-1]) + atol_spec);
         fac += (ydotm(i) * w) * (ydotm(i) * w);
     }
+
+    // even though we difference wrt T below, for |f|, we want to use
+    // energy to get the units correct
+
     w = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_enuc);
     fac += (ydotm(net_ienuc) * w) * (ydotm(net_ienuc) * w);
     fac = std::sqrt(fac / neqs);
@@ -70,7 +83,8 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
     // now we compute the Jacobian elements
 
-    // species derivatives
+    // species derivatives -- we will difference here at constant T,
+    // rho, and below we will convert these to be at constant e, rho
 
     for (int n = 1; n <= NumSpec; n++) {
         // perturb species -- we send in X, but ydot is in terms
@@ -94,6 +108,8 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
             ydotp(q) *= aion[q-1];
         }
 
+        // now fill in all of the rows for this column X_n
+
         for (int m = 1; m <= neqs; m++) {
             jac(m, n) = (ydotp(m) - ydotm(m)) / dy;
         }
@@ -101,15 +117,33 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
         state_delp.xn[n-1] = yj;
     }
 
-    // e derivative
+    // T derivative
 
-    w = rtol_enuc * std::abs(state.e) + atol_enuc;
+    w = rtol_enuc * std::abs(state.T) + atol_enuc;
 
-    Real dy = amrex::max(std::sqrt(U) * std::abs(state.e), r0 * w);
+    Real dy = amrex::max(std::sqrt(U) * std::abs(state.T), r0 * w);
 
-    state_delp.e += dy;
+    state_delp.T += dy;
 
-    eos(eos_input_re, state_delp);
+    if (state_delp.T <= EOSData::mintemp || state_delp.T >= MAX_TEMP) {
+
+        for (int i = 1; i <= neqs; i++) {
+            for (int j = 1; j <= neqs; j++) {
+                jac(i,j) = 0.0_rt;
+            }
+        }
+
+        return;
+
+    }
+
+
+#ifdef NSE_THERMO
+    // make the aux data consistent with the state X's
+    set_nse_aux_from_X(state_delp);
+#endif
+
+    eos(eos_input_rt, state_delp);
 
     actual_rhs(state_delp, ydotp);
 
@@ -117,9 +151,45 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
         ydotp(q) *= aion[q-1];
     }
 
+    // first fill just the last column with dy/dT
+
     for (int m = 1; m <= neqs; m++) {
         jac(m, net_ienuc) = (ydotp(m) - ydotm(m)) / dy;
     }
+
+    // back to the original state, get the thermodynamics -- in particular, we need c_v and e_X
+
+    eos_re_t eos_state;
+    eos_state.rho = state.rho;
+    eos_state.T = state.T;
+    eos_state.e = state.e;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.xn[n];
+    }
+#ifdef NSE_THERMO
+    // make the aux data consistent with the state X's
+    set_nse_aux_from_X(eos_state);
+#endif
+
+    eos(eos_input_re, eos_state);
+
+    eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+
+    // now correct the energy column
+
+    for (int m = 1; m <= neqs; m++) {
+        jac(m, net_ienuc) *= 1.0_rt / eos_state.cv;
+    }
+
+    // now correct the species derivatives
+    // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
+
+    for (int n = 1; n <= NumSpec; n++) {
+        for (int m = 1; m <= neqs; m++) {
+            jac(m, n) -= eos_xderivs.dedX[n-1] * jac(m, net_ienuc);
+        }
+    }
+
 
 }
 #endif

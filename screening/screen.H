@@ -7,7 +7,7 @@
 #include <AMReX_Vector.H>
 #include <AMReX_REAL.H>
 #include <network_properties.H>
-#include <gcem.hpp>
+#include <microphysics_math.H>
 #include <cmath>
 
 using namespace amrex;

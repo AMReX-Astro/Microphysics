@@ -1,3 +1,27 @@
+# 21.09
+
+  * Added a new nova network (nova2) with pp and (hot-)CNO and some
+    breakout reactions (#751)
+
+  * Some fixes to the NSE bailout in aprox19 (#739, #753, #755) and
+    the relaxation check on the NSE critera (#754)
+
+  * Added a new unit test for single-zone SDC (burn_cell_sdc) (#744)
+
+# 21.08
+
+  * test_react can now be run with a uniform composition to test GPU
+    performance (#734)
+
+  * the numerical Jacobian now uses a more robust one-sided difference
+    algorithm (#660, #728)
+
+  * for simplified SDC, we now only integrate (rho X, rho e), and no longer
+    integrate (rho E) (#710, #712, #717)
+
+  * for the NSE bailout, we can now relax the conditions needed to enter
+    NSE after a failed burn (#702)
+
 # 21.07
 
    * The C++ networks now implement abort_on_failure functionality
