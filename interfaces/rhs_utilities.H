@@ -419,7 +419,7 @@ constexpr Real jac_term (const burn_t& state, rate_fr_t const& rr)
 
     if constexpr (spec2 == rhs_data.species_A || spec2 == rhs_data.species_B || spec2 == rhs_data.species_C) {
 
-        forward_term = rr.forward_rates(rate);
+        forward_term = rr.forward(rate);
 
         if constexpr (rhs_data.species_A >= 0) {
             Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
@@ -481,7 +481,7 @@ constexpr Real jac_term (const burn_t& state, rate_fr_t const& rr)
 
     if constexpr (spec2 == rhs_data.species_D || spec2 == rhs_data.species_E || spec2 == rhs_data.species_F) {
 
-        reverse_term = rr.reverse_rates(rate);
+        reverse_term = rr.reverse(rate);
 
         if constexpr (rhs_data.species_D >= 0) {
             Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
@@ -605,8 +605,8 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t c
 
     // Convert old-style rates to new-style
     for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr_fr.forward_rates(j) = rr.rates(2 * j - 1);
-        rr_fr.reverse_rates(j) = rr.rates(2 * j);
+        rr_fr.forward(j) = rr.rates(2 * j - 1);
+        rr_fr.reverse(j) = rr.rates(2 * j);
     }
 
     return RHS_impl::species_jac_impl(state, rr_fr, std::make_integer_sequence<int, NumSpec * NumSpec>{});
