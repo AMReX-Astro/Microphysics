@@ -65,4 +65,32 @@ namespace Species {
      @@SPECIES_ENUM@@
    };
 }
+
+namespace NetworkProperties {
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE constexpr amrex::Real aion (int spec)
+   {
+       using namespace Species;
+
+       amrex::Real a = -1.0;
+
+       switch (spec) {
+           @@AION_CONSTEXPR@@
+       }
+
+       return a;
+   }
+
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE constexpr amrex::Real zion (int spec)
+   {
+       using namespace Species;
+
+       amrex::Real z = -1.0;
+
+       switch (spec) {
+           @@ZION_CONSTEXPR@@
+       }
+
+       return z;
+   }
+}
 #endif

@@ -1,6 +1,8 @@
 #ifndef _burn_type_H_
 #define _burn_type_H_
 
+#include <iomanip>
+
 #include <AMReX_REAL.H>
 
 #include <network.H>
@@ -42,17 +44,17 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 // integrate rho*X, internal energy, total energy
 // carry momentum as an unevolved variable
 
-const int SEDEN = 0;
-const int SEINT = 1;
-const int SFS   = 2;
+const int SEINT = 0;
+const int SFS   = 1;
 // the following are not evolved
 const int SFX   = SFS + NumSpec;
 const int SRHO  = SFX + NumAux; // this is SFS + NumSpec if NumAux = 0;
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
 const int SMZ   = SRHO + 3;
+const int SEDEN = SMZ+1;
 
-const int SVAR  = SMZ+1;
+const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -113,18 +115,14 @@ struct burn_t
   Real rho_orig;
 
 #if defined(SDC_EVOLVE_ENERGY)
-  Real umx_orig;
-  Real umy_orig;
-  Real umz_orig;
+  Real rhoe_orig;
 #endif
 
   // ydot_a are the advective terms that will modify the state y due
   // to hydrodynamics over the timestep.
   Real ydot_a[SVAR];
 
-#if defined(SDC_EVOLVE_ENERGY)
-  bool T_from_eden;
-#elif defined(SDC_EVOLVE_ENTHALPY)
+#if defined(SDC_EVOLVE_ENTHALPY)
   // Pressure in case we wish to use it for EOS calls
   Real p0;
 #endif
@@ -173,6 +171,7 @@ struct burn_t
 inline
 std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 {
+  o << std::setprecision(12);
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";
@@ -189,15 +188,21 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 #endif
 
 #ifdef SIMPLIFIED_SDC
-  o << "y = ";
-  for (int n = 0; n < SVAR; n++) {
-      o << burn_state.y[n] << " ";
+#if defined(SDC_EVOLVE_ENERGY)
+  o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
+#endif
+  o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
+  o << "y[SFS:] = ";
+  for (int n = 0; n < NumSpec; n++) {
+      o << burn_state.y[SFS+n] << " ";
   }
   o << std::endl;
 
-  o << "ydot_a = ";
-  for (int n = 0; n < SVAR; n++) {
-      o << burn_state.ydot_a[n] << " ";
+  o << "ydot_a[SRHO] = " << burn_state.ydot_a[SRHO] << std::endl;
+  o << "ydot_a[SEINT] = " << burn_state.ydot_a[SEINT] << std::endl;
+  o << "ydot_a[SFS:] = ";
+  for (int n = 0; n < NumSpec; n++) {
+      o << burn_state.ydot_a[SFS+n] << " ";
   }
   o << std::endl;
 #endif

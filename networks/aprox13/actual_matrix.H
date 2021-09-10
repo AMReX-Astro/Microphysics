@@ -42,7 +42,7 @@ struct SparseMatrix
                 return 11;
             else if (j==Ni56)
                 return 12;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 13;
         } else if (i==C12) {
             if (j==He4)
@@ -51,7 +51,7 @@ struct SparseMatrix
                 return 15;
             else if (j==O16)
                 return 16;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 17;
         } else if (i==O16) {
             if (j==He4)
@@ -62,7 +62,7 @@ struct SparseMatrix
                 return 20;
             else if (j==Ne20)
                 return 21;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 22;
         } else if (i==Ne20) {
             if (j==He4)
@@ -75,7 +75,7 @@ struct SparseMatrix
                 return 26;
             else if (j==Mg24)
                 return 27;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 28;
         } else if (i==Mg24) {
             if (j==He4)
@@ -90,7 +90,7 @@ struct SparseMatrix
                 return 33;
             else if (j==Si28)
                 return 34;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 35;
         } else if (i==Si28) {
             if (j==He4)
@@ -105,7 +105,7 @@ struct SparseMatrix
                 return 40;
             else if (j==S32)
                 return 41;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 42;
         } else if (i==S32) {
             if (j==He4)
@@ -118,7 +118,7 @@ struct SparseMatrix
                 return 46;
             else if (j==Ar36)
                 return 47;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 48;
         } else if (i==Ar36) {
             if (j==He4)
@@ -129,7 +129,7 @@ struct SparseMatrix
                 return 51;
             else if (j==Ca40)
                 return 52;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 53;
         } else if (i==Ca40) {
             if (j==He4)
@@ -140,7 +140,7 @@ struct SparseMatrix
                 return 56;
             else if (j==Ti44)
                 return 57;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 58;
         } else if (i==Ti44) {
             if (j==He4)
@@ -151,7 +151,7 @@ struct SparseMatrix
                 return 61;
             else if (j==Cr48)
                 return 62;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 63;
         } else if (i==Cr48) {
             if (j==He4)
@@ -162,7 +162,7 @@ struct SparseMatrix
                 return 66;
             else if (j==Fe52)
                 return 67;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 68;
         } else if (i==Fe52) {
             if (j==He4)
@@ -173,7 +173,7 @@ struct SparseMatrix
                 return 71;
             else if (j==Ni56)
                 return 72;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 73;
         } else if (i==Ni56) {
             if (j==He4)
@@ -182,9 +182,9 @@ struct SparseMatrix
                 return 75;
             else if (j==Ni56)
                 return 76;
-            else if (j==net_itemp)
+            else if (j==net_ienuc)
                 return 77;
-        } else if (i==net_itemp) {
+        } else if (i==net_ienuc) {
             if (j==He4)
                 return 78;
             else if (j==C12)
@@ -211,39 +211,8 @@ struct SparseMatrix
                 return 89;
             else if (j==Ni56)
                 return 90;
-            else if (j==net_itemp)
-                return 91;
-        } else if (i==net_ienuc) {
-            if (j==He4)
-                return 92;
-            else if (j==C12)
-                return 93;
-            else if (j==O16)
-                return 94;
-            else if (j==Ne20)
-                return 95;
-            else if (j==Mg24)
-                return 96;
-            else if (j==Si28)
-                return 97;
-            else if (j==S32)
-                return 98;
-            else if (j==Ar36)
-                return 99;
-            else if (j==Ca40)
-                return 100;
-            else if (j==Ti44)
-                return 101;
-            else if (j==Cr48)
-                return 102;
-            else if (j==Fe52)
-                return 103;
-            else if (j==Ni56)
-                return 104;
-            else if (j==net_itemp)
-                return 105;
             else if (j==net_ienuc)
-                return 106;
+                return 91;
         }
 
         // If we got here, then out-of-bounds
@@ -254,13 +223,13 @@ struct SparseMatrix
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     void zero () noexcept {
-        for (int i = 0; i < 107; ++i)
+        for (int i = 0; i < 92; ++i)
             arr[i] = 0.0_rt;
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     void mul (const Real x) noexcept {
-        for (int i = 0; i < 107; ++i)
+        for (int i = 0; i < 92; ++i)
             arr[i] *= x;
     }
 
@@ -268,7 +237,7 @@ struct SparseMatrix
     void mul (const int i, const int j, const Real x) noexcept {
         const int k = SparseMatrix::flatten(i,j);
         // Don't do asserts here because we just skip invalid indices
-        if (k >= 0 && k < 107) {
+        if (k >= 0 && k < 92) {
             arr[k] *= x;
         }
     }
@@ -277,7 +246,7 @@ struct SparseMatrix
     void set (const int i, const int j, const Real x) noexcept {
         const int k = SparseMatrix::flatten(i,j);
         // Don't do asserts here because we just skip invalid indices
-        if (k >= 0 && k < 107) {
+        if (k >= 0 && k < 92) {
             arr[k] = x;
         }
     }
@@ -286,7 +255,7 @@ struct SparseMatrix
     Real get (const int i, const int j) noexcept {
         const int k = SparseMatrix::flatten(i,j);
         // Don't do asserts here because we return 0 for invalid indices
-        if (k >= 0 && k < 107) {
+        if (k >= 0 && k < 92) {
             return arr[k];
         } else {
             return 0.0_rt;
@@ -297,14 +266,14 @@ struct SparseMatrix
     void add (const int i, const int j, const Real x) noexcept {
         const int k = SparseMatrix::flatten(i,j);
         // Don't do asserts here because we just skip invalid indices
-        if (k >= 0 && k < 107) {
+        if (k >= 0 && k < 92) {
             arr[k] += x;
         }
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     void add_identity () noexcept {
-        for (int i = 1; i <= 15; ++i) {
+        for (int i = 1; i <= 14; ++i) {
             const int k = SparseMatrix::flatten(i,i);
             arr[k] += 1.0_rt;
         }
@@ -313,30 +282,30 @@ struct SparseMatrix
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     const Real& operator() (const int i, const int j) const noexcept {
         const int k = SparseMatrix::flatten(i,j);
-        AMREX_ASSERT(k >= 0 && k < 107);
+        AMREX_ASSERT(k >= 0 && k < 92);
         return arr[k];
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     Real& operator() (const int i, const int j) noexcept {
         const int k = SparseMatrix::flatten(i,j);
-        AMREX_ASSERT(k >= 0 && k < 107);
+        AMREX_ASSERT(k >= 0 && k < 92);
         return arr[k];
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     void operator= (const SparseMatrix& other) noexcept {
-        for (int i = 0; i < 107; ++i)
+        for (int i = 0; i < 92; ++i)
             arr[i] = other.arr[i];
     }
 
-    Real arr[107];
+    Real arr[92];
 };
 
 template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_solve(MatrixType const& A,
-                  Array1D<Real, 1, 15>& b)
+                  Array1D<Real, 1, 14>& b)
 {
     const Real scratch_0 = 1.0/A(1,1);
     const Real scratch_1 = b(1)*scratch_0;
@@ -608,20 +577,8 @@ void actual_solve(MatrixType const& A,
     const Real scratch_267 = -scratch_126*scratch_149 + scratch_148;
     const Real scratch_268 = -scratch_126*scratch_173 + scratch_172 - scratch_174*scratch_267;
     const Real scratch_269 = -scratch_149*scratch_174 + scratch_173;
-    const Real scratch_270 = -A(15,1)*scratch_3 + A(15,2);
-    const Real scratch_271 = -A(15,1)*scratch_2 + A(15,3) - scratch_270*scratch_5;
-    const Real scratch_272 = -A(15,1)*scratch_12 + A(15,4) + scratch_14*scratch_270 - scratch_15*scratch_271;
-    const Real scratch_273 = -A(15,1)*scratch_23 + A(15,5) + scratch_24*scratch_270 - scratch_25*scratch_271 - scratch_26*scratch_272;
-    const Real scratch_274 = -A(15,1)*scratch_34 + A(15,6) + scratch_270*scratch_35 - scratch_271*scratch_36 - scratch_272*scratch_37 - scratch_273*scratch_38;
-    const Real scratch_275 = -A(15,1)*scratch_47 + A(15,7) + scratch_270*scratch_48 - scratch_271*scratch_49 - scratch_272*scratch_50 - scratch_273*scratch_51 - scratch_274*scratch_52;
-    const Real scratch_276 = -A(15,1)*scratch_62 + A(15,8) + scratch_270*scratch_63 - scratch_271*scratch_64 - scratch_272*scratch_65 - scratch_273*scratch_66 - scratch_274*scratch_67 - scratch_275*scratch_69;
-    const Real scratch_277 = -A(15,1)*scratch_78 + A(15,9) + scratch_270*scratch_79 - scratch_271*scratch_80 - scratch_272*scratch_81 - scratch_273*scratch_82 - scratch_274*scratch_83 - scratch_275*scratch_85 - scratch_276*scratch_86;
-    const Real scratch_278 = A(15,10) - A(15,1)*scratch_96 - scratch_100*scratch_273 - scratch_101*scratch_274 - scratch_103*scratch_275 - scratch_104*scratch_276 - scratch_105*scratch_277 + scratch_270*scratch_97 - scratch_271*scratch_98 - scratch_272*scratch_99;
-    const Real scratch_279 = A(15,11) - A(15,1)*scratch_116 + scratch_117*scratch_270 - scratch_118*scratch_271 - scratch_119*scratch_272 - scratch_120*scratch_273 - scratch_121*scratch_274 - scratch_123*scratch_275 - scratch_124*scratch_276 - scratch_125*scratch_277 - scratch_126*scratch_278;
-    const Real scratch_280 = A(15,12) - A(15,1)*scratch_138 + scratch_139*scratch_270 - scratch_140*scratch_271 - scratch_141*scratch_272 - scratch_142*scratch_273 - scratch_143*scratch_274 - scratch_145*scratch_275 - scratch_146*scratch_276 - scratch_147*scratch_277 - scratch_148*scratch_278 - scratch_149*scratch_279;
-    const Real scratch_281 = A(15,13) - A(15,1)*scratch_162 + scratch_163*scratch_270 - scratch_164*scratch_271 - scratch_165*scratch_272 - scratch_166*scratch_273 - scratch_167*scratch_274 - scratch_169*scratch_275 - scratch_170*scratch_276 - scratch_171*scratch_277 - scratch_172*scratch_278 - scratch_173*scratch_279 - scratch_174*scratch_280;
 
-    Array1D<Real, 1, 15> x;
+    Array1D<Real, 1, 14> x;
 
     x(1) = scratch_1 - scratch_106*scratch_115 - scratch_11*scratch_7 - scratch_127*scratch_137 - scratch_150*scratch_161 - scratch_175*scratch_187 - scratch_18*scratch_22 - scratch_214*(-scratch_106*scratch_198 - scratch_127*scratch_199 - scratch_150*scratch_200 - scratch_175*scratch_201 - scratch_18*scratch_191 + scratch_188 - scratch_190*scratch_7 - scratch_192*scratch_28 - scratch_193*scratch_40 - scratch_194 - scratch_195*scratch_54 - scratch_196*scratch_70 - scratch_197*scratch_87) - scratch_28*scratch_33 - scratch_40*scratch_46 - scratch_54*scratch_61 - scratch_60 - scratch_70*scratch_77 - scratch_87*scratch_95;
     x(2) = scratch_10 - scratch_11*scratch_5 - scratch_115*scratch_221 - scratch_137*scratch_222 - scratch_161*scratch_223 - scratch_187*scratch_224 - scratch_214*(scratch_189 - scratch_190*scratch_5 - scratch_191*scratch_215 - scratch_192*scratch_216 - scratch_193*scratch_217 - scratch_195*scratch_218 - scratch_196*scratch_219 - scratch_197*scratch_220 - scratch_198*scratch_221 - scratch_199*scratch_222 - scratch_200*scratch_223 - scratch_201*scratch_224) - scratch_215*scratch_22 - scratch_216*scratch_33 - scratch_217*scratch_46 - scratch_218*scratch_61 - scratch_219*scratch_77 - scratch_220*scratch_95;
@@ -637,9 +594,8 @@ void actual_solve(MatrixType const& A,
     x(12) = scratch_161 - scratch_174*scratch_187 - scratch_214*(-scratch_174*scratch_201 + scratch_200);
     x(13) = scratch_187 - scratch_201*scratch_214;
     x(14) = scratch_214;
-    x(15) = (-A(15,1)*scratch_1 + b(15) - scratch_10*scratch_270 - scratch_11*scratch_271 - scratch_115*scratch_278 - scratch_137*scratch_279 - scratch_161*scratch_280 - scratch_187*scratch_281 - scratch_214*(A(15,14) - A(15,1)*scratch_188 - scratch_189*scratch_270 - scratch_190*scratch_271 - scratch_191*scratch_272 - scratch_192*scratch_273 - scratch_193*scratch_274 - scratch_195*scratch_275 - scratch_196*scratch_276 - scratch_197*scratch_277 - scratch_198*scratch_278 - scratch_199*scratch_279 - scratch_200*scratch_280 - scratch_201*scratch_281) - scratch_22*scratch_272 - scratch_273*scratch_33 - scratch_274*scratch_46 - scratch_275*scratch_61 - scratch_276*scratch_77 - scratch_277*scratch_95)/A(15,15);
 
-    for (int i = 1; i <= 15; ++i) {
+    for (int i = 1; i <= 14; ++i) {
         b(i) = x(i);
     }
 

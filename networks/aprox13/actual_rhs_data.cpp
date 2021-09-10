@@ -13,8 +13,6 @@ void actual_rhs_init()
 
     screening_init();
 
-    set_up_screening_factors();
-
     if (use_tables)
     {
         amrex::Print() << "\nInitializing aprox13 rate table\n";

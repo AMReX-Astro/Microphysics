@@ -18,7 +18,7 @@
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
+void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vode_state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -39,10 +39,6 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
 
     // for consistency
     state.rho = state.y[SRHO];
-
-    state.y[SMX] = state.umx_orig + state.ydot_a[SMX] * time;
-    state.y[SMY] = state.umy_orig + state.ydot_a[SMY] * time;
-    state.y[SMZ] = state.umz_orig + state.ydot_a[SMZ] * time;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -207,14 +203,12 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
         vode_state.y(n+1) = state.y[n];
     }
 
-    // store the original rho and rho U
+    // store the original rho and rho e
 #if defined(SDC_EVOLVE_ENERGY)
 
     state.rho_orig = state.y[SRHO];
 
-    state.umx_orig = state.y[SMX];
-    state.umy_orig = state.y[SMY];
-    state.umz_orig = state.y[SMZ];
+    state.rhoe_orig = state.y[SEINT];
 
 #else
 
@@ -229,7 +223,7 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
+void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
 {
 
     // this makes burn_t represent the current integration state.  The
@@ -269,17 +263,11 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     }
 #endif
 
-
 #if defined(SDC_EVOLVE_ENERGY)
 
-    if (state.T_from_eden) {
-        eos_state.e = (vode_state.y(SEDEN+1) -
-                       0.5_rt * rhoInv * (state.y[SMX] * state.y[SMX] +
-                                          state.y[SMY] * state.y[SMY] +
-                                          state.y[SMZ] * state.y[SMZ])) * rhoInv;
-    } else {
-        eos_state.e = vode_state.y(SEINT+1) * rhoInv;
-    }
+    // set internal energy for EOS call
+
+    eos_state.e = vode_state.y(SEINT+1) * rhoInv;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -346,7 +334,6 @@ void rhs_to_vode(const Real time, burn_t& state,
 #if defined(SDC_EVOLVE_ENERGY)
 
     ydot(SEINT+1) += state.rho * ydot_react(net_ienuc);
-    ydot(SEDEN+1) += state.rho * ydot_react(net_ienuc);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 

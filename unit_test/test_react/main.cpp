@@ -40,7 +40,11 @@ void main_main ()
 
     std::string prefix = "plt";
 
+#ifdef AMREX_USE_GPU
+    IntVect tile_size(1024, 1024, 1024);
+#else
     IntVect tile_size(1024, 8, 8);
+#endif
 
     // inputs parameters
     {
@@ -164,7 +168,7 @@ void main_main ()
                 std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
 
             Real xn[NumSpec];
-            get_xn(k, comp_data, xn);
+            get_xn(k, comp_data, xn, uniform_xn);
 
             for (int n = 0; n < NumSpec; n++) {
                 state_arr(i, j, k, vars.ispec_old+n) =
