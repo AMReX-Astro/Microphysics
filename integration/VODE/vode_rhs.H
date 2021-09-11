@@ -127,11 +127,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     // apply fudge factor:
     if (react_boost > 0.0_rt) {
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
-                pd.mul(i, j, react_boost);
-            }
-        }
+        pd.mul(react_boost);
     }
 
     // Allow temperature and energy integration to be disabled.
