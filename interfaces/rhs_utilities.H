@@ -210,14 +210,14 @@ constexpr int density_exponent_reverse ()
 
     int exponent = 0;
 
-    if constexpr (rhs_data.species_C >= 0) {
-        exponent += rhs_data.exponent_C;
-    }
     if constexpr (rhs_data.species_D >= 0) {
         exponent += rhs_data.exponent_D;
     }
     if constexpr (rhs_data.species_E >= 0) {
         exponent += rhs_data.exponent_E;
+    }
+    if constexpr (rhs_data.species_F >= 0) {
+        exponent += rhs_data.exponent_F;
     }
 
     if (exponent > 0) {
