@@ -226,9 +226,10 @@ int dvode (burn_t& state, dvode_t& vstate)
 
        // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
        // from hitting this right at the start when VODE might do so
-       // wild exploration.
+       // wild exploration.  Also ensure we are not working > tmax,
+       // so we don't need to worry about extrapolating back in time.
 
-       if (vstate.NST > MIN_NSE_BAILOUT_STEPS) {
+       if (vstate.NST > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
            // first we need to make the burn_t in sync
 
 #ifdef STRANG
