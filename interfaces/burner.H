@@ -2,12 +2,7 @@
 #define _burner_H_
 
 #include <burn_type.H>
-#ifdef SIMPLIFIED_SDC
-#include <integrator_sdc.H>
-#endif
-#ifdef STRANG
 #include <integrator.H>
-#endif
 
 #include <ArrayUtilities.H>
 
