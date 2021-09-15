@@ -85,53 +85,82 @@ void iso7tab(const Real btemp, const Real bden,
         Real forward_dtab = 0.0_rt;
         Real reverse_dtab = 0.0_rt;
 
+        int forward_exponent, reverse_exponent;
+
         // Set the density dependence
 
         switch (rateindex) {
 
         case (C12_He4_to_O16):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<C12_He4_to_O16>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_He4_to_O16>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (He4_He4_He4_to_C12):
-            forward_dtab = bden * bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<He4_He4_He4_to_C12>();
+            reverse_exponent = RHS::density_exponent_reverse<He4_He4_He4_to_C12>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (C12_C12_to_Ne20_He4):
-            forward_dtab = bden;
-            reverse_dtab = bden; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<C12_C12_to_Ne20_He4>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_C12_to_Ne20_He4>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (C12_O16_to_Mg24_He4):
-            forward_dtab = bden;
-            reverse_dtab = bden; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<C12_O16_to_Mg24_He4>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_O16_to_Mg24_He4>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (C12_O16_to_Si28):
-            forward_dtab = bden;
-            reverse_dtab = 1.0_rt; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<C12_O16_to_Si28>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_O16_to_Si28>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (O16_O16_to_Si28_He4):
-            forward_dtab = bden;
-            reverse_dtab = bden; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<O16_O16_to_Si28_He4>();
+            reverse_exponent = RHS::density_exponent_reverse<O16_O16_to_Si28_He4>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (O16_He4_to_Ne20):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<O16_He4_to_Ne20>();
+            reverse_exponent = RHS::density_exponent_reverse<O16_He4_to_Ne20>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (Ne20_He4_to_Mg24):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<Ne20_He4_to_Mg24>();
+            reverse_exponent = RHS::density_exponent_reverse<Ne20_He4_to_Mg24>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (Mg24_He4_to_Si28):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<Mg24_He4_to_Si28>();
+            reverse_exponent = RHS::density_exponent_reverse<Mg24_He4_to_Si28>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (Ca40_He4_to_Ti44):
