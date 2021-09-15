@@ -15,6 +15,7 @@
 using namespace amrex;
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void do_eos_eval (T& eos_state, const plot_t vars,
                   Array4<Real> const sp,
                   int i, int j, int k)
