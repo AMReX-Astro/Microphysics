@@ -1,35 +1,17 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Equations of State &mdash; StarKiller Microphysics  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
@@ -37,40 +19,21 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Reaction Networks" href="networks.html" />
     <link rel="prev" title="C-burn-simple" href="runtime_parameters.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
-
-          
             <a href="index.html" class="icon icon-home"> StarKiller Microphysics
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,22 +41,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
     <div class="branch">
         Branch: <a href="../eos.html">main</a> | <a href="./eos.html">development</a>
     </div>
 
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">StarKiller basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
@@ -127,71 +79,30 @@
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">StarKiller Microphysics</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Equations of State</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/eos.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   
 <style>
 /* CSS overrides for sphinx_rtd_theme */
@@ -216,18 +127,18 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="equations-of-state">
+<section id="equations-of-state">
 <h1>Equations of State<a class="headerlink" href="#equations-of-state" title="Permalink to this headline">¶</a></h1>
 <p>In this chapter on equations of state, we list the EOS routines
 available for your use, and then we describe the correct structure of
 an EOS module in case you want to build your own.</p>
-<div class="section" id="available-equations-of-state">
+<section id="available-equations-of-state">
 <h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Permalink to this headline">¶</a></h2>
 <p>The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
 thermodynamic data (including all derivatives) in the <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>
 type.</p>
-<div class="section" id="gamma-law">
+<section id="gamma-law">
 <h3>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> represents a gamma law gas, with
 equation of state:</p>
@@ -255,8 +166,8 @@ the version shipped with MAESTRO, but more general than the
 <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> EOS provided with CASTRO. CASTRO’s default EOS only
 fills the thermodynamic information in <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> that is required
 by the hydrodynamics module in CASTRO.</p>
-</div>
-<div class="section" id="polytrope">
+</section>
+<section id="polytrope">
 <h3>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">polytrope</span></code> represents a polytropic fluid, with equation of
 state:</p>
@@ -286,8 +197,8 @@ fully-degenerate electron gas.</p>
 electron gas.</p>
 </li>
 </ul>
-</div>
-<div class="section" id="ztwd">
+</section>
+<section id="ztwd">
 <h3>ztwd<a class="headerlink" href="#ztwd" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ztwd</span></code> is the zero-temperature degenerate electron equation
 of state of Chandrasekhar (1935), which is designed to describe
@@ -310,8 +221,8 @@ relationship to the specific enthalpy:</p>
 solution for the density in terms of the pressure, if we call the EOS
 with pressure as a primary input then we do Newton-Raphson iteration
 to find the density that matches this pressure.</p>
-</div>
-<div class="section" id="multigamma">
+</section>
+<section id="multigamma">
 <h3>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">multigamma</span></code> is an ideal gas equation of state where each
 species can have a different value of <span class="math notranslate nohighlight">\(\gamma\)</span>. This mainly affects
@@ -356,8 +267,8 @@ Here, <code class="docutils literal notranslate"><span class="pre">X</span></cod
 <code class="docutils literal notranslate"><span class="pre">c</span></code>, allowing us to specify custom <span class="math notranslate nohighlight">\(\gamma_i\)</span> for up to three
 different species.</p></li>
 </ul>
-</div>
-<div class="section" id="helmholtz">
+</section>
+<section id="helmholtz">
 <h3>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
@@ -379,8 +290,8 @@ energy conservation. This is controlled through the
 namelist in your probin file.</p>
 <p>We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.</p>
-</div>
-<div class="section" id="stellarcollapse">
+</section>
+<section id="stellarcollapse">
 <h3>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this headline">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">stellarcollapse</span></code> is the equation of state module provided
 on <a class="reference external" href="http://stellarcollapse.org">http://stellarcollapse.org</a>. It is designed
@@ -388,15 +299,15 @@ to be used for core-collapse supernovae and is compatible with a
 large number of equations of state that are designed to describe
 matter near nuclear density. You will need to download an
 appropriate interpolation table from that site to use this.</p>
-</div>
-</div>
-<div class="section" id="interface-and-modes">
+</section>
+</section>
+<section id="interface-and-modes">
 <h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="initialization-and-cutoff-values">
+</section>
+<section id="initialization-and-cutoff-values">
 <h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Permalink to this headline">¶</a></h2>
-</div>
-<div class="section" id="input-validation">
+</section>
+<section id="input-validation">
 <h2>Input Validation<a class="headerlink" href="#input-validation" title="Permalink to this headline">¶</a></h2>
 <p>The EOS will make sure that the inputs are within an acceptable range,
 (e.g., <code class="docutils literal notranslate"><span class="pre">small_temp</span></code> <span class="math notranslate nohighlight">\(&lt; T &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">maxT</span></code>). If they are not, then it
@@ -406,8 +317,8 @@ resets them silently—no error is thrown.</p>
 max ( <code class="docutils literal notranslate"><span class="pre">small_temp</span></code>, T ).</p>
 <p>User’s are encourage to do their own validation of inputs before calling
 the EOS.</p>
-</div>
-<div class="section" id="eos-structure">
+</section>
+<section id="eos-structure">
 <h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Permalink to this headline">¶</a></h2>
 <p>Each EOS should have two main routines by which it interfaces to the
 rest of CASTRO. At the beginning of the simulation,
@@ -418,55 +329,38 @@ main EOS module of the code calling these routines. This would be the
 appropriate time for, say, loading an interpolation table into memory.</p>
 <p>The main evaluation routine is called <code class="docutils literal notranslate"><span class="pre">actual_eos</span></code>. It should
 accept an eos_input and an eos_t state; see Section <a class="reference internal" href="data_structures.html#data-structures"><span class="std std-ref">Data Structures</span></a>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="networks.html" class="btn btn-neutral float-right" title="Reaction Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="runtime_parameters.html" class="btn btn-neutral float-left" title="C-burn-simple" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="networks.html" class="btn btn-neutral float-right" title="Reaction Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018, StarKiller Development Team.
-
-    </p>
+    <p>&#169; Copyright 2018, StarKiller Development Team.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
 
 </body>

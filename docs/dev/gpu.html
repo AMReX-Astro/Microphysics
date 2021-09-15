@@ -1,74 +1,37 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>GPUs &mdash; StarKiller Microphysics  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Unit Tests" href="unit_tests.html" />
     <link rel="prev" title="C++ interfaces" href="cxx.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
-
-          
             <a href="index.html" class="icon icon-home"> StarKiller Microphysics
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -76,22 +39,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
     <div class="branch">
         Branch: <a href="../gpu.html">main</a> | <a href="./gpu.html">development</a>
     </div>
 
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">StarKiller basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
@@ -133,71 +85,30 @@
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">StarKiller Microphysics</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>GPUs</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/gpu.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   
 <style>
 /* CSS overrides for sphinx_rtd_theme */
@@ -222,9 +133,9 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="gpus">
+<section id="gpus">
 <h1>GPUs<a class="headerlink" href="#gpus" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="general-ideas">
+<section id="general-ideas">
 <h2>General Ideas<a class="headerlink" href="#general-ideas" title="Permalink to this headline">¶</a></h2>
 <p>The current strategy for StarKiller Microphysics is to use CUDA
 Fortran for all microphysics routines necessary to evaluate the EOS
@@ -236,15 +147,15 @@ variables from the derived types in <code class="docutils literal notranslate"><
 initial conditions from the grid. These interface types are passed to
 the microphysics routines by each thread and the desired results are
 saved back to the grid.</p>
-</div>
-<div class="section" id="reaction-network-integration">
+</section>
+<section id="reaction-network-integration">
 <h2>Reaction Network Integration<a class="headerlink" href="#reaction-network-integration" title="Permalink to this headline">¶</a></h2>
 <p>There are currently two ways to integrate reaction networks using
 GPUs: CUDA Fortran VODE and CUDA C++ VODE.</p>
 <p>We recommend using CUDA C++ VODE for the networks in Microphysics for
 production simulations, as we are transitioning to supporting only the C++
 versions of Microphysics routines.</p>
-<div class="section" id="vode-cuda-fortran-vode">
+<section id="vode-cuda-fortran-vode">
 <h3>VODE - CUDA Fortran VODE<a class="headerlink" href="#vode-cuda-fortran-vode" title="Permalink to this headline">¶</a></h3>
 <p>This integrator is located in <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE</span></code> and
 follows the paradigm described above where it is designed to be called
@@ -264,7 +175,7 @@ explicit Adams-Moulton integration, as we use only the implicit BDF
 method provided by VODE for reaction networks. This code has been
 tested against the original <code class="docutils literal notranslate"><span class="pre">dvode</span></code> integrator in
 <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE</span></code> and yields the same results.</p>
-<div class="section" id="standalone-test">
+<section id="standalone-test">
 <h4>Standalone Test<a class="headerlink" href="#standalone-test" title="Permalink to this headline">¶</a></h4>
 <p>There is a standalone test problem for the CUDA Fortran VODE
 integrator that integrates a grid of cells, with the original VODE
@@ -272,8 +183,8 @@ test problem in each cell.</p>
 <p>To run this problem, see the test setup in
 <code class="docutils literal notranslate"><span class="pre">Microphysics/integration/VODE/cuVODE/test</span></code> and the Readme file
 located there.</p>
-</div>
-<div class="section" id="reaction-network-test">
+</section>
+<section id="reaction-network-test">
 <h4>Reaction Network Test<a class="headerlink" href="#reaction-network-test" title="Permalink to this headline">¶</a></h4>
 <p>There is also a test setup that exercises this integrator (as well as
 other integrators in Microphysics) on our reaction networks while
@@ -281,18 +192,18 @@ optionally calling the EOS in the right hand side evaluation. This
 test thus closely emulates the environment of a production simulation.</p>
 <p>To run this test, see the setup in <code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_react</span></code>
 and the included Readme file.</p>
-</div>
-</div>
-</div>
-<div class="section" id="common-compiler-errors">
+</section>
+</section>
+</section>
+<section id="common-compiler-errors">
 <h2>Common Compiler Errors<a class="headerlink" href="#common-compiler-errors" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="pgi-openacc">
+<section id="pgi-openacc">
 <h3>PGI - OpenACC<a class="headerlink" href="#pgi-openacc" title="Permalink to this headline">¶</a></h3>
 <p>To get more detailed about what kernels are launching, do:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">PGI_ACC_NOTIFY</span><span class="o">=</span><span class="mi">1</span>
 </pre></div>
 </div>
-<div class="section" id="compilation-errors">
+<section id="compilation-errors">
 <h4>Compilation errors<a class="headerlink" href="#compilation-errors" title="Permalink to this headline">¶</a></h4>
 <ul>
 <li><p><em>Multiple exit statements</em></p>
@@ -326,8 +237,8 @@ of a Fortran 90 module. In this case, even if that routine already has</p>
 <p>(e.g., for the Fortran routine dgesl).</p>
 </li>
 </ul>
-</div>
-<div class="section" id="runtime-errors">
+</section>
+<section id="runtime-errors">
 <h4>Runtime errors<a class="headerlink" href="#runtime-errors" title="Permalink to this headline">¶</a></h4>
 <ul>
 <li><p><em>Multi-d array copies</em></p>
@@ -350,66 +261,49 @@ rows.</p>
 sometimes it seems, generated some NaNs.</p>
 </li>
 </ul>
-</div>
-</div>
-</div>
-<div class="section" id="debugging">
+</section>
+</section>
+</section>
+<section id="debugging">
 <h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="cuda-gdb">
+<section id="cuda-gdb">
 <h3>cuda-gdb<a class="headerlink" href="#cuda-gdb" title="Permalink to this headline">¶</a></h3>
 <p>Basic debugging can be done using cuda-gdb. This will work just
 like gdb and can give you the name of a routine where a crash
 occurred, but generally doesn’t produce line numbers.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="unit_tests.html" class="btn btn-neutral float-right" title="Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="cxx.html" class="btn btn-neutral float-left" title="C++ interfaces" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="unit_tests.html" class="btn btn-neutral float-right" title="Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018, StarKiller Development Team.
-
-    </p>
+    <p>&#169; Copyright 2018, StarKiller Development Team.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
 
 </body>
