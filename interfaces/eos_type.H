@@ -185,6 +185,14 @@ struct has_conductivity<T, typename std::enable_if<(sizeof(((T*)0)->conductivity
     : std::true_type {};
 
 template <typename T, typename Enable = void>
+struct has_extra_thermo
+    : std::false_type {};
+
+template <typename T>
+struct has_extra_thermo<T, typename std::enable_if<(sizeof(((T*)0)->dpdA) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
 struct has_base_variables
     : std::false_type {};
 
@@ -278,16 +286,16 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "zbar = " << eos_state.zbar << std::endl;
     }
 
-#ifdef EXTRA_THERMO
-    if constexpr (has_pressure<T>::value) {
-        o << "dpdA = " << eos_state.dpdA << std::endl;
-        o << "dpdZ = " << eos_state.dpdZ << std::endl;
+    if constexpr (has_extra_thermo<T>::value) {
+        if constexpr (has_pressure<T>::value) {
+            o << "dpdA = " << eos_state.dpdA << std::endl;
+            o << "dpdZ = " << eos_state.dpdZ << std::endl;
+        }
+        if constexpr (has_energy<T>::value) {
+            o << "dedA = " << eos_state.dedA << std::endl;
+            o << "dedZ = " << eos_state.dedZ << std::endl;
+        }
     }
-    if constexpr (has_energy<T>::value) {
-        o << "dedA = " << eos_state.dedA << std::endl;
-        o << "dedZ = " << eos_state.dedZ << std::endl;
-    }
-#endif
 
     if constexpr (has_conductivity<T>::value) {
         o << "conductivity = " << eos_state.conductivity << std::endl;

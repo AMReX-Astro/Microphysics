@@ -53,7 +53,10 @@ void eos_test_C(const Box& bx,
     // call the EOS using rho, T
     eos(eos_input_rt, eos_state);
 
-    eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+    eos_xderivs_t eos_xderivs;
+    if constexpr (has_extra_thermo<eos_t>::value) {
+        eos_xderivs = composition_derivatives(eos_state);
+    }
 
     eos_t eos_state_reference;
     eos_state_reference = eos_state;
@@ -80,19 +83,23 @@ void eos_test_C(const Box& bx,
     sp(i, j, k, vars.idhdr) = eos_state.dhdr;
     sp(i, j, k, vars.idsdt) = eos_state.dsdT;
     sp(i, j, k, vars.idsdr) = eos_state.dsdr;
-    for (int n = 0; n < NumSpec; n++) {
-      sp(i, j, k, vars.idpdx + n) = eos_xderivs.dpdX[n];
-      sp(i, j, k, vars.idedx + n) = eos_xderivs.dedX[n];
-      sp(i, j, k, vars.idhdx + n) = eos_xderivs.dhdX[n];
+    if constexpr (has_extra_thermo<eos_t>::value) {
+        for (int n = 0; n < NumSpec; n++) {
+          sp(i, j, k, vars.idpdx + n) = eos_xderivs.dpdX[n];
+          sp(i, j, k, vars.idedx + n) = eos_xderivs.dedX[n];
+          sp(i, j, k, vars.idhdx + n) = eos_xderivs.dhdX[n];
+        }
     }
     sp(i, j, k, vars.igam1) = eos_state.gam1;
     sp(i, j, k, vars.ics) = eos_state.cs;
     sp(i, j, k, vars.iabar) = eos_state.abar;
     sp(i, j, k, vars.izbar) = eos_state.zbar;
-    sp(i, j, k, vars.idpda) = eos_state.dpdA;
-    sp(i, j, k, vars.idpdz) = eos_state.dpdZ;
-    sp(i, j, k, vars.ideda) = eos_state.dedA;
-    sp(i, j, k, vars.idedz) = eos_state.dedZ;
+    if constexpr (has_extra_thermo<eos_t>::value) {
+        sp(i, j, k, vars.idpda) = eos_state.dpdA;
+        sp(i, j, k, vars.idpdz) = eos_state.dpdZ;
+        sp(i, j, k, vars.ideda) = eos_state.dedA;
+        sp(i, j, k, vars.idedz) = eos_state.dedZ;
+    }
     sp(i, j, k, vars.idpde) = eos_state.dpde;
     sp(i, j, k, vars.idpdre) = eos_state.dpdr_e;
 

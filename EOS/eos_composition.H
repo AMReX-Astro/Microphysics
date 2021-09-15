@@ -56,8 +56,7 @@ void composition (T& state)
 #endif
 }
 
-#ifdef EXTRA_THERMO
-template <typename T>
+template <typename T, typename std::enable_if<has_extra_thermo<T>::value>::type>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 eos_xderivs_t composition_derivatives (const T& state)
 {
@@ -89,7 +88,6 @@ eos_xderivs_t composition_derivatives (const T& state)
 
   return state_xderivs;
 }
-#endif
 
 
 #endif
