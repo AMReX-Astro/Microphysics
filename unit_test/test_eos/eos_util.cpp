@@ -14,35 +14,11 @@
 
 using namespace amrex;
 
-void eos_test_C(const Box& bx,
-                const Real dlogrho, const Real dlogT, const Real dmetal,
-                const plot_t vars,
-                Array4<Real> const sp) {
-
-  const int ih1 = network_spec_index("hydrogen-1");
-  const int ihe4 = network_spec_index("helium-4");
-
-
-  AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-  {
-
-    // set the composition -- approximately solar
-    Real metalicity = 0.0 + static_cast<Real> (k) * dmetal;
-
-    eos_t eos_state;
-
-    for (int n = 0; n < NumSpec; n++) {
-      eos_state.xn[n] = metalicity/(NumSpec - 2);
-    }
-    eos_state.xn[ih1] = 0.75 - 0.5*metalicity;
-    eos_state.xn[ihe4] = 0.25 - 0.5*metalicity;
-
-    Real temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
-    eos_state.T = temp_zone;
-
-    Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
-    eos_state.rho = dens_zone;
-
+template<typename T>
+void do_eos_eval (T& eos_state, const plot_t vars,
+                  Array4<Real> const sp,
+                  int i, int j, int k)
+{
     // store default state
     sp(i, j, k, vars.irho) = eos_state.rho;
     sp(i, j, k, vars.itemp) = eos_state.T;
@@ -50,15 +26,18 @@ void eos_test_C(const Box& bx,
       sp(i, j, k, vars.ispec+n) = eos_state.xn[n];
     }
 
+    Real temp_zone = eos_state.T;
+    Real dens_zone = eos_state.rho;
+
     // call the EOS using rho, T
     eos(eos_input_rt, eos_state);
 
     eos_xderivs_t eos_xderivs;
-    if constexpr (has_extra_thermo<eos_t>::value) {
+    if constexpr (has_extra_thermo<T>::value) {
         eos_xderivs = composition_derivatives(eos_state);
     }
 
-    eos_t eos_state_reference;
+    T eos_state_reference;
     eos_state_reference = eos_state;
 
     sp(i, j, k, vars.ih) = eos_state.h;
@@ -83,7 +62,7 @@ void eos_test_C(const Box& bx,
     sp(i, j, k, vars.idhdr) = eos_state.dhdr;
     sp(i, j, k, vars.idsdt) = eos_state.dsdT;
     sp(i, j, k, vars.idsdr) = eos_state.dsdr;
-    if constexpr (has_extra_thermo<eos_t>::value) {
+    if constexpr (has_extra_thermo<T>::value) {
         for (int n = 0; n < NumSpec; n++) {
           sp(i, j, k, vars.idpdx + n) = eos_xderivs.dpdX[n];
           sp(i, j, k, vars.idedx + n) = eos_xderivs.dedX[n];
@@ -94,7 +73,7 @@ void eos_test_C(const Box& bx,
     sp(i, j, k, vars.ics) = eos_state.cs;
     sp(i, j, k, vars.iabar) = eos_state.abar;
     sp(i, j, k, vars.izbar) = eos_state.zbar;
-    if constexpr (has_extra_thermo<eos_t>::value) {
+    if constexpr (has_extra_thermo<T>::value) {
         sp(i, j, k, vars.idpda) = eos_state.dpdA;
         sp(i, j, k, vars.idpdz) = eos_state.dpdZ;
         sp(i, j, k, vars.ideda) = eos_state.dedA;
@@ -218,6 +197,37 @@ void eos_test_C(const Box& bx,
 
       eos_state = eos_state_reference;
     }
+}
+
+void eos_test_C(const Box& bx,
+                const Real dlogrho, const Real dlogT, const Real dmetal,
+                const plot_t vars,
+                Array4<Real> const sp) {
+
+  const int ih1 = network_spec_index("hydrogen-1");
+  const int ihe4 = network_spec_index("helium-4");
+
+  AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+  {
+
+    // set the composition -- approximately solar
+    Real metalicity = 0.0 + static_cast<Real> (k) * dmetal;
+
+    eos_t eos_state;
+
+    for (int n = 0; n < NumSpec; n++) {
+      eos_state.xn[n] = metalicity/(NumSpec - 2);
+    }
+    eos_state.xn[ih1] = 0.75 - 0.5*metalicity;
+    eos_state.xn[ihe4] = 0.25 - 0.5*metalicity;
+
+    Real temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
+    eos_state.T = temp_zone;
+
+    Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
+    eos_state.rho = dens_zone;
+
+    do_eos_eval(eos_state, vars, sp, i, j, k);
 
   });
 }
