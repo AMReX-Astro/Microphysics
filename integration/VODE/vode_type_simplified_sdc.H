@@ -297,15 +297,15 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
 
 #endif
 
+    // fill the rest of the burn_t state
+
+    eos_to_burn(eos_state, state);
+
     // override T if we are fixing it (e.g. due to
     // drive_initial_convection)
     if (state.T_fixed > 0.0_rt) {
         state.T = state.T_fixed;
     }
-
-    // fill the rest of the burn_t state
-
-    eos_to_burn(eos_state, state);
 
 }
 
