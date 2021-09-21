@@ -16,7 +16,7 @@ jobs:
           git clone https://github.com/AMReX-Codes/amrex.git
           cd amrex
           git checkout development
-          echo 'AMREX_HOME=$(pwd)' >> $GITHUB_ENV
+          echo 'AMREX_HOME=$GITHUB_WORKSPACE/external/' >> $GITHUB_ENV
           echo $AMREX_HOME
           if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
           cd ../..
