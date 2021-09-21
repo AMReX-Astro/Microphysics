@@ -49,7 +49,7 @@ def run(SHAs=None, make_options=''):
     GITHUB_WORKSPACE = os.environ.get('GITHUB_WORKSPACE')
 
     for network in networks:
-        make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE USE_NETWORK={network}'
+        make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR={network}'
 
         print(f'make command = {make_command}')
 
