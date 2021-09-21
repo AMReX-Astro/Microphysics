@@ -28,8 +28,4 @@ jobs:
 
       - name: Compile problems
         run: |
-          cd unit_test/burn_cell
-          make -j 2 
-          cd ../test_eos
-          make -j 2
-          
+          python3 run_on_changed_files.py ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
