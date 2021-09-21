@@ -66,7 +66,7 @@ def run(SHAs=None, make_options=''):
                 raise Exception('make encountered an error')
 
     # compile test_eos as well
-    make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE
+    make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE'
 
     with cd(f'unit_test/test_eos'):
         print(f'making unit_test/test_eos')
