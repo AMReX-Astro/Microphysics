@@ -28,4 +28,4 @@ jobs:
 
       - name: Compile problems
         run: |
-          python3 run_on_changed_files.py ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
+          python3 find_changed_files.py ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
