@@ -4,8 +4,18 @@ ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
     F90EXE_sources += actual_rhs.F90
   endif
 endif
+
 CEXE_headers += network_properties.H
 
+ifeq ($(USE_REACT),TRUE)
+  ifeq ($(USE_CXX_REACTIONS),TRUE)
+    CEXE_sources += actual_network_data.cpp
+    CEXE_headers += actual_network.H
+
+    CEXE_sources += actual_rhs_data.cpp
+    CEXE_headers += actual_rhs.H
+  endif
+endif
 
 $(NETWORK_OUTPUT_PATH)/actual_network.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
