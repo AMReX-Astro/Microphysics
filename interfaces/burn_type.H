@@ -134,6 +134,11 @@ struct burn_t
   int sdc_iter;
   int num_sdc_iters;
 
+  // for drive_initial_convection, we will fix T during the
+  // integration to a passed in value.  We will interpret a positive
+  // T_fixed as setting this feature.
+  Real T_fixed;
+
 #endif
 
   // all coupling types need the specific heats to transform the
