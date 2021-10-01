@@ -12,10 +12,9 @@
 #include <fundamental_constants.H>
 #include <extern_parameters.H>
 #include <cmath>
+#include <actual_eos_data.H>
 
 const std::string eos_name = "multigamma";
-
-inline AMREX_GPU_MANAGED amrex::Real gammas[NumSpec];
 
 inline
 void actual_eos_init ()
