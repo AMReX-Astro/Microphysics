@@ -1,35 +1,17 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Integrating a Network &mdash; StarKiller Microphysics  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
@@ -37,40 +19,21 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
-
-    
+    <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="NSE" href="nse.html" />
     <link rel="prev" title="Reaction Networks" href="networks.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
-
-          
             <a href="index.html" class="icon icon-home"> StarKiller Microphysics
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -78,22 +41,11 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
     <div class="branch">
         Branch: <a href="./integrators.html">main</a> | <a href="./dev/integrators.html">development</a>
     </div>
 
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">StarKiller basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
@@ -145,71 +97,30 @@
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">StarKiller Microphysics</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Integrating a Network</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="_sources/integrators.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   
 <style>
 /* CSS overrides for sphinx_rtd_theme */
@@ -234,9 +145,9 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="integrating-a-network">
+<section id="integrating-a-network">
 <h1>Integrating a Network<a class="headerlink" href="#integrating-a-network" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="reaction-ode-system">
+<section id="reaction-ode-system">
 <h2>Reaction ODE System<a class="headerlink" href="#reaction-ode-system" title="Permalink to this headline">¶</a></h2>
 <p>The equations we integrate to do a nuclear burn are:</p>
 <div class="math notranslate nohighlight" id="equation-eq-spec-integrate">
@@ -278,8 +189,8 @@ new network that defines the RHS in whatever way you like.</p>
 setting the <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> runtime parameter.  This will simply
 multiply the righthand sides of each species evolution equation (and
 appropriate Jacobian terms) by the specified constant amount.</p>
-</div>
-<div class="section" id="interfaces">
+</section>
+<section id="interfaces">
 <h2>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this headline">¶</a></h2>
 <p>There are both C++ and Fortran interfaces to all of the networks and
 integrators.  For the most part, they implement similar data
@@ -293,7 +204,7 @@ righthand side and Jacobians in terms of molar fractions.  The StarKiller
 routines will internally convert to mass fractions as needed for the
 integrators.</p>
 </div>
-<div class="section" id="fortran">
+<section id="fortran">
 <h3>Fortran<a class="headerlink" href="#fortran" title="Permalink to this headline">¶</a></h3>
 <p>The righthand side of the network is implemented by
 <code class="docutils literal notranslate"><span class="pre">actual_rhs()</span></code> in <code class="docutils literal notranslate"><span class="pre">actual_rhs.f90</span></code>, and appears as</p>
@@ -378,8 +289,8 @@ this is just a diagnostic variable.</p>
 Jacobian is used. This is set with the runtime parameter
 <code class="docutils literal notranslate"><span class="pre">jacobian</span></code> = 2, and implemented in
 <code class="docutils literal notranslate"><span class="pre">integration/numerical_jacobian.f90</span></code> using finite-differences.</p>
-</div>
-<div class="section" id="c">
+</section>
+<section id="c">
 <h3>C++<a class="headerlink" href="#c" title="Permalink to this headline">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -408,11 +319,11 @@ Fortran and C++ networks.</p>
 This allows a network to use either sparse or dense linear algebra.
 In the case of dense linear algebra, <code class="docutils literal notranslate"><span class="pre">RArray2D</span></code> is essentially a 2-d
 array indexed from <code class="docutils literal notranslate"><span class="pre">1</span></code> to <code class="docutils literal notranslate"><span class="pre">VODE_NEQS</span></code> in each dimension.</p>
-</div>
-</div>
-<div class="section" id="thermodynamics-and-t-evolution">
+</section>
+</section>
+<section id="thermodynamics-and-t-evolution">
 <h2>Thermodynamics and <span class="math notranslate nohighlight">\(T\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-t-evolution" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="eos-calls">
+<section id="eos-calls">
 <h3>EOS Calls<a class="headerlink" href="#eos-calls" title="Permalink to this headline">¶</a></h3>
 <p>The evolution of the thermodynamic quantities (like specific heats and
 other partial derivatives) can be frozen during the integration to
@@ -445,8 +356,8 @@ thermodynamic variables. Note that this is fully independent of
 <code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code>.</p>
 </li>
 </ul>
-</div>
-<div class="section" id="t-evolution">
+</section>
+<section id="t-evolution">
 <h3><span class="math notranslate nohighlight">\(T\)</span> Evolution<a class="headerlink" href="#t-evolution" title="Permalink to this headline">¶</a></h3>
 <p>A network is free to write their own righthand side for the
 temperature evolution equation in its <code class="docutils literal notranslate"><span class="pre">actual_rhs()</span></code> routine.
@@ -496,9 +407,9 @@ called. This represents a middle ground between fully on and fully
 off.</p>
 <p>Note: if <code class="docutils literal notranslate"><span class="pre">state</span> <span class="pre">%</span> <span class="pre">self_heat</span> <span class="pre">=</span> <span class="pre">F</span></code> (Fortran) or <code class="docutils literal notranslate"><span class="pre">state.self_heat</span> <span class="pre">=</span>
 <span class="pre">false</span></code> (C++), then we do not evolve temperature.</p>
-</div>
-</div>
-<div class="section" id="energy-integration">
+</section>
+</section>
+<section id="energy-integration">
 <h2>Energy Integration<a class="headerlink" href="#energy-integration" title="Permalink to this headline">¶</a></h2>
 <p>The last equation in our system is the nuclear energy release,
 <span class="math notranslate nohighlight">\(\edot\)</span>. Because of the operator-split approach to this ODE system,
@@ -520,8 +431,8 @@ internal energy, including the nuclear energy generation release.</p>
 <p>Upon exit, we subtract off this initial offset, so <code class="docutils literal notranslate"><span class="pre">%</span> <span class="pre">e</span></code> in
 the returned <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type from the <code class="docutils literal notranslate"><span class="pre">actual_integrator</span></code>
 call represents the energy <em>release</em> during the burn.</p>
-</div>
-<div class="section" id="renormalization">
+</section>
+<section id="renormalization">
 <h2>Renormalization<a class="headerlink" href="#renormalization" title="Permalink to this headline">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code> parameter controls whether we
 renormalize the abundances so that the mass fractions sum to one
@@ -532,8 +443,8 @@ convergence because it interferes with the integration
 scheme. Regardless of whether you enable this, we will always ensure
 that the mass fractions stay positive and larger than some floor
 <code class="docutils literal notranslate"><span class="pre">small_x</span></code>.</p>
-</div>
-<div class="section" id="stiff-ode-solvers">
+</section>
+<section id="stiff-ode-solvers">
 <span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Permalink to this headline">¶</a></h2>
 <p>We use high-order implicit ODE solvers for integrating the reaction
 system.  There are several options for integrators. Each should be capable of
@@ -559,7 +470,7 @@ robust and has both Fortran and C++ implementations.</p>
 <p>In the implementation details shown below, we write the flow in
 terms of the VODE solver routine names.</p>
 </div>
-<div class="section" id="tolerances">
+<section id="tolerances">
 <h3>Tolerances<a class="headerlink" href="#tolerances" title="Permalink to this headline">¶</a></h3>
 <p>Tolerances dictate how accurate the ODE solver must be while solving
 equations during a simulation.  Typically, the smaller the tolerance
@@ -581,11 +492,13 @@ because their relative error values are fairly large.
 However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
 and not so low that it takes incredible amounts of computer time,
 so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
-<div class="figure align-default" id="id9">
+<figure class="align-default" id="id9">
 <span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
-<p class="caption"><span class="caption-number">Fig. 2 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
 to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id9" title="Permalink to this image">¶</a></p>
-</div>
+</figcaption>
+</figure>
 <p>The integration tolerances for the burn are controlled by
 <code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code> and  <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>,
 which are the relative error tolerances for
@@ -597,10 +510,10 @@ sections below for integrator-specific information.</p>
 <p>The absolute error tolerances are set by default
 to <span class="math notranslate nohighlight">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math notranslate nohighlight">\(10^{-6}\)</span>
 is used for the temperature and energy.</p>
-</div>
-<div class="section" id="fortran-interfaces">
+</section>
+<section id="fortran-interfaces">
 <h3>Fortran interfaces<a class="headerlink" href="#fortran-interfaces" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="integrator">
+<section id="integrator">
 <h4><code class="docutils literal notranslate"><span class="pre">integrator</span></code><a class="headerlink" href="#integrator" title="Permalink to this headline">¶</a></h4>
 <p>The entry point to the integrator is <code class="docutils literal notranslate"><span class="pre">integrator()</span></code> in
 <code class="docutils literal notranslate"><span class="pre">integration/integrator.F90</span></code>.  This does some setup and then calls
@@ -646,8 +559,8 @@ energy release as <code class="docutils literal notranslate"><span class="pre">s
 <li><p>Convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type (by <code class="docutils literal notranslate"><span class="pre">calling</span> <span class="pre">vode_to_burn</span></code>).</p></li>
 <li><p>normalize the abundances so they sum to 1</p></li>
 </ol>
-</div>
-<div class="section" id="righthand-side-wrapper">
+</section>
+<section id="righthand-side-wrapper">
 <h4>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this headline">¶</a></h4>
 <p>Each integrator does their own thing to construct the solution,
 but they will all need to assess the RHS in <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>,
@@ -678,8 +591,8 @@ or if the <code class="docutils literal notranslate"><span class="pre">dT_crit</
 <li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0.</p></li>
 <li><p>convert back to the integrator’s internal representation by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
-</div>
-<div class="section" id="jacobian-wrapper">
+</section>
+<section id="jacobian-wrapper">
 <h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Permalink to this headline">¶</a></h4>
 <p>Similar to the RHS, the Jacobian wrapper is handled in the same
 <code class="docutils literal notranslate"><span class="pre">vode_rhs.f90</span></code>.
@@ -700,11 +613,11 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 <li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0.</p></li>
 <li><p>convert back to the integrator’s internal representation by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
-</div>
-</div>
-<div class="section" id="c-interfaces">
+</section>
+</section>
+<section id="c-interfaces">
 <h3>C++ interfaces<a class="headerlink" href="#c-interfaces" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="burner">
+<section id="burner">
 <h4><code class="docutils literal notranslate"><span class="pre">burner</span></code><a class="headerlink" href="#burner" title="Permalink to this headline">¶</a></h4>
 <p>The main entry point for C++ is <code class="docutils literal notranslate"><span class="pre">burner()</span></code> in
 <code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code>
@@ -747,8 +660,8 @@ in the <code class="docutils literal notranslate"><span class="pre">dvode_t</spa
 <li><p>convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code></p></li>
 <li><p>normalize the abundances so they sum to 1.</p></li>
 </ol>
-</div>
-<div class="section" id="id5">
+</section>
+<section id="id5">
 <h4>Righthand side wrapper<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
 <ol class="arabic simple">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> on the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
@@ -762,8 +675,8 @@ those quantities.</p></li>
 <li><p>apply any boosting if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0</p></li>
 <li><p>convert back to the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
-</div>
-<div class="section" id="id6">
+</section>
+<section id="id6">
 <h4>Jacobian wrapper<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -779,13 +692,13 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 <li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0</p></li>
 <li><p>call <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code> to update the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
 </ol>
-</div>
-</div>
-<div class="section" id="retries">
+</section>
+</section>
+<section id="retries">
 <h3>Retries<a class="headerlink" href="#retries" title="Permalink to this headline">¶</a></h3>
-</div>
-</div>
-<div class="section" id="overriding-parameter-defaults-on-a-network-by-network-basis">
+</section>
+</section>
+<section id="overriding-parameter-defaults-on-a-network-by-network-basis">
 <h2>Overriding Parameter Defaults on a Network-by-Network Basis<a class="headerlink" href="#overriding-parameter-defaults-on-a-network-by-network-basis" title="Permalink to this headline">¶</a></h2>
 <p>Any network can override or add to any of the existing runtime
 parameters by creating a <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> file in the network directory
@@ -816,55 +729,38 @@ data-structure of the integrator, but the basic procedure is the
 same.</p>
 </dd>
 </dl>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="nse.html" class="btn btn-neutral float-right" title="NSE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="networks.html" class="btn btn-neutral float-left" title="Reaction Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nse.html" class="btn btn-neutral float-right" title="NSE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2018, StarKiller Development Team.
-
-    </p>
+    <p>&#169; Copyright 2018, StarKiller Development Team.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-    
+  </script>  
 
 
 </body>
