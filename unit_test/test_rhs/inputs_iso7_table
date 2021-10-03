@@ -13,4 +13,4 @@ unit_test.primary_species_1 = helium-4
 unit_test.primary_species_2 = silicon-28
 
 
-
+network.use_tables = 1
