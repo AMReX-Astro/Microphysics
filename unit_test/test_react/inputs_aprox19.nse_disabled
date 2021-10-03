@@ -2,8 +2,6 @@ n_cell = 16
 
 prefix = react_aprox19_
 
-amr.probin_file = probin
-
 unit_test.dens_min = 1.e5
 unit_test.dens_max = 5.e8
 unit_test.temp_min = 5.e7
