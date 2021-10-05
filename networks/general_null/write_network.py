@@ -10,6 +10,7 @@ class Species:
         self.short_name = ""
         self.A = -1
         self.Z = -1
+        self.is_extra = 0
 
     def __str__(self):
         return "species {}, (A,Z) = {},{}".format(self.name, self.A, self.Z)
@@ -61,7 +62,7 @@ def get_object_index(objs, name):
     return index
 
 
-def parse_net_file(species, aux_vars, net_file, defines):
+def parse_net_file(species, extra_species, aux_vars, net_file, defines):
     """parse_net_file read all the species listed in a given network
     inputs file and adds the valid species to the species list
 
@@ -95,6 +96,9 @@ def parse_net_file(species, aux_vars, net_file, defines):
         objs = species
         if isinstance(net_obj, AuxVar):
             objs = aux_vars
+        if isinstance(net_obj, Species):
+            if net_obj.is_extra == 1:
+                objs = extra_species
 
         # check to see if this species/auxvar is defined in the current list
         index = get_object_index(objs, net_obj.name)
@@ -113,7 +117,9 @@ def parse_net_file(species, aux_vars, net_file, defines):
 def parse_network_object(fields, defines):
     """parse the fields in a line of the network file for either species
     or auxiliary variables.  Aux variables are prefixed by '__aux_' in
-    the network file
+    the network file. Extra species (that do not participate in the actual
+    RHS, but are used for constructing intermediate rates) are prefix by
+    '__extra_' in the network file.
 
     """
 
@@ -167,7 +173,11 @@ def parse_network_object(fields, defines):
     else:
         ret = Species()
 
-        ret.name = fields[0]
+        if fields[0].startswith("__extra_"):
+            ret.name = fields[0][8:]
+            ret.is_extra = 1
+        else:
+            ret.name = fields[0]
         ret.short_name = fields[1]
         ret.A = float(fields[2])
         ret.Z = float(fields[3])
@@ -196,13 +206,14 @@ def write_network(network_template, header_template,
     """
 
     species = []
+    extra_species = []
     aux_vars = []
 
 
     #-------------------------------------------------------------------------
     # read the species defined in the net_file
     #-------------------------------------------------------------------------
-    err = parse_net_file(species, aux_vars, net_file, defines)
+    err = parse_net_file(species, extra_species, aux_vars, net_file, defines)
 
     if err:
         abort(network_file)
@@ -259,6 +270,9 @@ def write_network(network_template, header_template,
                 if keyword == "NSPEC":
                     fout.write(line.replace("@@NSPEC@@", str(len(species))))
 
+                if keyword == "NEXTRASPEC":
+                    fout.write(line.replace("@@NEXTRASPEC@@", str(len(extra_species))))
+
                 elif keyword == "NAUX":
                     fout.write(line.replace("@@NAUX@@", str(len(aux_vars))))
 
@@ -271,6 +285,11 @@ def write_network(network_template, header_template,
                         for n, spec in enumerate(species):
                             fout.write("{}\"{}\",   // {} \n".format(indent, spec.name, n))
 
+                elif keyword == "EXTRA_SPEC_NAMES":
+                    if lang == "C++":
+                        for n, spec in enumerate(extra_species):
+                            fout.write("{}\"{}\",   // {} \n".format(indent, spec.name, n))
+
                 elif keyword == "SHORT_SPEC_NAMES":
                     if lang == "Fortran":
                         for n, spec in enumerate(species):
@@ -278,6 +297,11 @@ def write_network(network_template, header_template,
 
                     elif lang == "C++":
                         for n, spec in enumerate(species):
+                            fout.write("{}\"{}\",   // {} \n".format(indent, spec.short_name, n))
+
+                elif keyword == "EXTRA_SHORT_SPEC_NAMES":
+                    if lang == "C++":
+                        for n, spec in enumerate(extra_species):
                             fout.write("{}\"{}\",   // {} \n".format(indent, spec.short_name, n))
 
                 elif keyword == "AION":
@@ -289,10 +313,25 @@ def write_network(network_template, header_template,
                         for n, spec in enumerate(species):
                             fout.write("{}{},   // {} \n".format(indent, spec.A, n))
 
+                elif keyword == "EXTRA_AION":
+                    if lang == "C++":
+                        for n, spec in enumerate(extra_species):
+                            fout.write("{}{},   // {} \n".format(indent, spec.A, n))
+
                 elif keyword == "AION_CONSTEXPR":
                     if lang == "C++":
                         fout.write("\n")
                         for n, spec in enumerate(species):
+                            fout.write("{}case {}:   // {}\n".format(indent, spec.short_name.capitalize(), n))
+                            fout.write("{}{{\n".format(indent))
+                            fout.write("{}    a = {};\n".format(indent, spec.A))
+                            fout.write("{}    break;\n".format(indent))
+                            fout.write("{}}}\n\n".format(indent))
+
+                elif keyword == "EXTRA_AION_CONSTEXPR":
+                    if lang == "C++":
+                        fout.write("\n")
+                        for n, spec in enumerate(extra_species):
                             fout.write("{}case {}:   // {}\n".format(indent, spec.short_name.capitalize(), n))
                             fout.write("{}{{\n".format(indent))
                             fout.write("{}    a = {};\n".format(indent, spec.A))
@@ -308,6 +347,11 @@ def write_network(network_template, header_template,
                         for n, spec in enumerate(species):
                             fout.write("{}1.0/{},   // {} \n".format(indent, spec.A, n))
 
+                elif keyword == "EXTRA_AION_INV":
+                    if lang == "C++":
+                        for n, spec in enumerate(extra_species):
+                            fout.write("{}1.0/{},   // {} \n".format(indent, spec.A, n))
+
                 elif keyword == "ZION":
                     if lang == "Fortran":
                         for n, spec in enumerate(species):
@@ -317,10 +361,25 @@ def write_network(network_template, header_template,
                         for n, spec in enumerate(species):
                             fout.write("{}{},   // {}\n".format(indent, spec.Z, n))
 
+                elif keyword == "EXTRA_ZION":
+                    if lang == "C++":
+                        for n, spec in enumerate(extra_species):
+                            fout.write("{}{},   // {}\n".format(indent, spec.Z, n))
+
                 elif keyword == "ZION_CONSTEXPR":
                     if lang == "C++":
                         fout.write("\n")
                         for n, spec in enumerate(species):
+                            fout.write("{}case {}:   // {}\n".format(indent, spec.short_name.capitalize(), n))
+                            fout.write("{}{{\n".format(indent))
+                            fout.write("{}    z = {};\n".format(indent, spec.Z))
+                            fout.write("{}    break;\n".format(indent))
+                            fout.write("{}}}\n\n".format(indent))
+
+                elif keyword == "EXTRA_ZION_CONSTEXPR":
+                    if lang == "C++":
+                        fout.write("\n")
+                        for n, spec in enumerate(extra_species):
                             fout.write("{}case {}:   // {}\n".format(indent, spec.short_name.capitalize(), n))
                             fout.write("{}{{\n".format(indent))
                             fout.write("{}    z = {};\n".format(indent, spec.Z))
@@ -359,6 +418,18 @@ def write_network(network_template, header_template,
                             else:
                                 fout.write("{}{},\n".format(indent, spec.short_name.capitalize()))
                         fout.write("{}NumberSpecies={}\n".format(indent, species[-1].short_name.capitalize()))
+
+                elif keyword == "EXTRA_SPECIES_ENUM":
+                    if lang == "C++":
+                        for n, spec in enumerate(extra_species):
+                            if n == 0:
+                                fout.write("{}{}=1,\n".format(indent, spec.short_name.capitalize()))
+                            else:
+                                fout.write("{}{},\n".format(indent, spec.short_name.capitalize()))
+                        if len(extra_species) > 0:
+                            fout.write("{}NumberExtraSpecies={}\n".format(indent, extra_species[-1].short_name.capitalize()))
+                        else:
+                            fout.write("\n")
 
                 elif keyword == "AUXZERO_ENUM":
                     if lang == "C++":
