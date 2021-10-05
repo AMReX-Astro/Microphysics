@@ -205,6 +205,60 @@ constexpr int num_rhs ()
     return RHS_impl::num_rhs_impl<species>(std::make_integer_sequence<int, Rates::NumRates>{});
 }
 
+// Calculate the density dependence term for tabulated rates. The RHS has a term
+// that goes as rho**(exp_A + exp_B + exp_C) / rho (the denominator is because the
+// LHS is X, not rho * X).
+template<int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int density_exponent_forward ()
+{
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    int exponent = 0;
+
+    if constexpr (rhs_data.species_A >= 0) {
+        exponent += rhs_data.exponent_A;
+    }
+    if constexpr (rhs_data.species_B >= 0) {
+        exponent += rhs_data.exponent_B;
+    }
+    if constexpr (rhs_data.species_C >= 0) {
+        exponent += rhs_data.exponent_C;
+    }
+
+    if (exponent > 0) {
+        exponent -= 1;
+    }
+
+    return exponent;
+}
+
+// Same as the above but for the reverse reaction.
+template <int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int density_exponent_reverse ()
+{
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    int exponent = 0;
+
+    if constexpr (rhs_data.species_D >= 0) {
+        exponent += rhs_data.exponent_D;
+    }
+    if constexpr (rhs_data.species_E >= 0) {
+        exponent += rhs_data.exponent_E;
+    }
+    if constexpr (rhs_data.species_F >= 0) {
+        exponent += rhs_data.exponent_F;
+    }
+
+    if (exponent > 0) {
+        exponent -= 1;
+    }
+
+    return exponent;
+}
+
 // Calculate the j'th RHS term for a given species.
 //
 // The general form of a reaction is

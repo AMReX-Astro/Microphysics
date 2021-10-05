@@ -23,7 +23,7 @@ using namespace amrex;
 #include <unit_test_F.H>
 
 #include <react_zones.H>
-#include <integrator_sdc.H>
+#include <integrator.H>
 
 int main (int argc, char* argv[])
 {

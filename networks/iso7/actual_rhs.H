@@ -85,53 +85,82 @@ void iso7tab(const Real btemp, const Real bden,
         Real forward_dtab = 0.0_rt;
         Real reverse_dtab = 0.0_rt;
 
+        int forward_exponent, reverse_exponent;
+
         // Set the density dependence
 
         switch (rateindex) {
 
         case (C12_He4_to_O16):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<C12_He4_to_O16>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_He4_to_O16>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (He4_He4_He4_to_C12):
-            forward_dtab = bden * bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<He4_He4_He4_to_C12>();
+            reverse_exponent = RHS::density_exponent_reverse<He4_He4_He4_to_C12>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (C12_C12_to_Ne20_He4):
-            forward_dtab = bden;
-            reverse_dtab = bden; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<C12_C12_to_Ne20_He4>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_C12_to_Ne20_He4>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (C12_O16_to_Mg24_He4):
-            forward_dtab = bden;
-            reverse_dtab = bden; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<C12_O16_to_Mg24_He4>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_O16_to_Mg24_He4>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (C12_O16_to_Si28):
-            forward_dtab = bden;
-            reverse_dtab = 1.0_rt; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<C12_O16_to_Si28>();
+            reverse_exponent = RHS::density_exponent_reverse<C12_O16_to_Si28>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (O16_O16_to_Si28_He4):
-            forward_dtab = bden;
-            reverse_dtab = bden; // rate is zero in this net
+            forward_exponent = RHS::density_exponent_forward<O16_O16_to_Si28_He4>();
+            reverse_exponent = RHS::density_exponent_reverse<O16_O16_to_Si28_He4>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent); // rate is zero in this net
             break;
 
         case (O16_He4_to_Ne20):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<O16_He4_to_Ne20>();
+            reverse_exponent = RHS::density_exponent_reverse<O16_He4_to_Ne20>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (Ne20_He4_to_Mg24):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<Ne20_He4_to_Mg24>();
+            reverse_exponent = RHS::density_exponent_reverse<Ne20_He4_to_Mg24>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (Mg24_He4_to_Si28):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_exponent = RHS::density_exponent_forward<Mg24_He4_to_Si28>();
+            reverse_exponent = RHS::density_exponent_reverse<Mg24_He4_to_Si28>();
+
+            forward_dtab = std::pow(bden, forward_exponent);
+            reverse_dtab = std::pow(bden, reverse_exponent);
             break;
 
         case (Ca40_He4_to_Ti44):
@@ -198,45 +227,111 @@ void iso7rat(const Real btemp, const Real bden,
     // get the temperature factors
     tf_t tf = get_tfactors(btemp);
 
+    Real density_term_forward, density_term_reverse;
+
     // c12(a,g)o16
-    rate_c12ag(tf, bden,
+    rate_c12ag(tf, 1.0_rt,
                rate.forward(C12_He4_to_O16), dratedt.forward(C12_He4_to_O16),
                rate.reverse(C12_He4_to_O16), dratedt.reverse(C12_He4_to_O16));
 
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<C12_He4_to_O16>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<C12_He4_to_O16>());
+
+    rate.forward(C12_He4_to_O16) *= density_term_forward;
+    dratedt.forward(C12_He4_to_O16) *= density_term_forward;
+    rate.reverse(C12_He4_to_O16) *= density_term_reverse;
+    dratedt.reverse(C12_He4_to_O16) *= density_term_reverse;
+
     // triple alpha to c12
-    rate_triplealf(tf, bden,
+    rate_triplealf(tf, 1.0_rt,
                    rate.forward(He4_He4_He4_to_C12), dratedt.forward(He4_He4_He4_to_C12),
                    rate.reverse(He4_He4_He4_to_C12), dratedt.reverse(He4_He4_He4_to_C12));
 
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<He4_He4_He4_to_C12>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<He4_He4_He4_to_C12>());
+
+    rate.forward(He4_He4_He4_to_C12) *= density_term_forward;
+    dratedt.forward(He4_He4_He4_to_C12) *= density_term_forward;
+    rate.reverse(He4_He4_He4_to_C12) *= density_term_reverse;
+    dratedt.reverse(He4_He4_He4_to_C12) *= density_term_reverse;
+
     // c12 + c12
-    rate_c12c12(tf, bden,
+    rate_c12c12(tf, 1.0_rt,
                 rate.forward(C12_C12_to_Ne20_He4), dratedt.forward(C12_C12_to_Ne20_He4),
                 rate.reverse(C12_C12_to_Ne20_He4), dratedt.reverse(C12_C12_to_Ne20_He4));
 
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<C12_C12_to_Ne20_He4>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<C12_C12_to_Ne20_He4>());
+
+    rate.forward(C12_C12_to_Ne20_He4) *= density_term_forward;
+    dratedt.forward(C12_C12_to_Ne20_He4) *= density_term_forward;
+    rate.reverse(C12_C12_to_Ne20_He4) *= density_term_reverse;
+    dratedt.reverse(C12_C12_to_Ne20_He4) *= density_term_reverse;
+
     // c12 + o16
-    rate_c12o16(tf, bden,
+    rate_c12o16(tf, 1.0_rt,
                 rate.forward(C12_O16_to_Mg24_He4), dratedt.forward(C12_O16_to_Mg24_He4),
                 rate.reverse(C12_O16_to_Mg24_He4), dratedt.reverse(C12_O16_to_Mg24_He4));
 
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<C12_O16_to_Mg24_He4>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<C12_O16_to_Mg24_He4>());
+
+    rate.forward(C12_O16_to_Mg24_He4) *= density_term_forward;
+    dratedt.forward(C12_O16_to_Mg24_He4) *= density_term_forward;
+    rate.reverse(C12_O16_to_Mg24_He4) *= density_term_reverse;
+    dratedt.reverse(C12_O16_to_Mg24_He4) *= density_term_reverse;
+
     // 16o + 16o
-    rate_o16o16(tf, bden,
+    rate_o16o16(tf, 1.0_rt,
                 rate.forward(O16_O16_to_Si28_He4), dratedt.forward(O16_O16_to_Si28_He4),
                 rate.reverse(O16_O16_to_Si28_He4), dratedt.reverse(O16_O16_to_Si28_He4));
 
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<O16_O16_to_Si28_He4>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<O16_O16_to_Si28_He4>());
+
+    rate.forward(O16_O16_to_Si28_He4) *= density_term_forward;
+    dratedt.forward(O16_O16_to_Si28_He4) *= density_term_forward;
+    rate.reverse(O16_O16_to_Si28_He4) *= density_term_reverse;
+    dratedt.reverse(O16_O16_to_Si28_He4) *= density_term_reverse;
+
     // o16(a,g)ne20
-    rate_o16ag(tf, bden,
+    rate_o16ag(tf, 1.0_rt,
                rate.forward(O16_He4_to_Ne20), dratedt.forward(O16_He4_to_Ne20),
                rate.reverse(O16_He4_to_Ne20), dratedt.reverse(O16_He4_to_Ne20));
 
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<O16_He4_to_Ne20>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<O16_He4_to_Ne20>());
+
+    rate.forward(O16_He4_to_Ne20) *= density_term_forward;
+    dratedt.forward(O16_He4_to_Ne20) *= density_term_forward;
+    rate.reverse(O16_He4_to_Ne20) *= density_term_reverse;
+    dratedt.reverse(O16_He4_to_Ne20) *= density_term_reverse;
+
     // ne20(a,g)mg24
-    rate_ne20ag(tf, bden,
+    rate_ne20ag(tf, 1.0_rt,
                 rate.forward(Ne20_He4_to_Mg24), dratedt.forward(Ne20_He4_to_Mg24),
                 rate.reverse(Ne20_He4_to_Mg24), dratedt.reverse(Ne20_He4_to_Mg24));
 
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<Ne20_He4_to_Mg24>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<Ne20_He4_to_Mg24>());
+
+    rate.forward(Ne20_He4_to_Mg24) *= density_term_forward;
+    dratedt.forward(Ne20_He4_to_Mg24) *= density_term_forward;
+    rate.reverse(Ne20_He4_to_Mg24) *= density_term_reverse;
+    dratedt.reverse(Ne20_He4_to_Mg24) *= density_term_reverse;
+
     // mg24(a,g)si28
-    rate_mg24ag(tf, bden,
+    rate_mg24ag(tf, 1.0_rt,
                 rate.forward(Mg24_He4_to_Si28), dratedt.forward(Mg24_He4_to_Si28),
                 rate.reverse(Mg24_He4_to_Si28), dratedt.reverse(Mg24_He4_to_Si28));
+
+    density_term_forward = std::pow(bden, RHS::density_exponent_forward<Mg24_He4_to_Si28>());
+    density_term_reverse = std::pow(bden, RHS::density_exponent_reverse<Mg24_He4_to_Si28>());
+
+    rate.forward(Mg24_He4_to_Si28) *= density_term_forward;
+    dratedt.forward(Mg24_He4_to_Si28) *= density_term_forward;
+    rate.reverse(Mg24_He4_to_Si28) *= density_term_reverse;
+    dratedt.reverse(Mg24_He4_to_Si28) *= density_term_reverse;
 
     // ca40(a,g)ti44
     rate_ca40ag(tf, bden,
