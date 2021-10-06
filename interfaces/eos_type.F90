@@ -59,29 +59,6 @@ module eos_type_module
   real(rt), allocatable :: minh
   real(rt), allocatable :: maxh
 
-  !$acc declare &
-  !$acc create(mintemp, maxtemp, mindens, maxdens, minx, maxx, minye, maxye) &
-  !$acc create(mine, maxe, minp, maxp, mins, maxs, minh, maxh)
-
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: mintemp
-  attributes(managed) :: maxtemp
-  attributes(managed) :: mindens
-  attributes(managed) :: maxdens
-  attributes(managed) :: minx
-  attributes(managed) :: maxx
-  attributes(managed) :: minye
-  attributes(managed) :: maxye
-  attributes(managed) :: mine
-  attributes(managed) :: maxe
-  attributes(managed) :: minp
-  attributes(managed) :: maxp
-  attributes(managed) :: mins
-  attributes(managed) :: maxs
-  attributes(managed) :: minh
-  attributes(managed) :: maxh
-#endif
-
   ! A generic structure holding thermodynamic quantities and their derivatives,
   ! plus some other quantities of interest.
 
@@ -181,8 +158,6 @@ contains
 
     type(eos_t) :: to_eos, from_eos
 
-    !$gpu
-
     to_eos % rho = from_eos % rho
     to_eos % T = from_eos % T
     to_eos % p = from_eos % p
@@ -245,8 +220,6 @@ contains
 
     type (eos_t), intent(inout) :: state
 
-    !$gpu
-
     state % xn = max(small_x, min(ONE, state % xn))
 
     state % xn = state % xn / sum(state % xn)
@@ -261,8 +234,6 @@ contains
     implicit none
 
     type (eos_t), intent(inout) :: state
-
-    !$gpu
 
     state % T = min(maxtemp, max(mintemp, state % T))
     state % rho = min(maxdens, max(mindens, state % rho))
@@ -289,13 +260,9 @@ contains
 
   subroutine eos_get_small_temp(small_temp_out) bind(C, name="eos_get_small_temp")
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(out) :: small_temp_out
-
-    !$gpu
 
     small_temp_out = mintemp
 
@@ -305,13 +272,9 @@ contains
 
   subroutine eos_get_small_dens(small_dens_out) bind(C, name="eos_get_small_dens")
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(out) :: small_dens_out
-
-    !$gpu
 
     small_dens_out = mindens
 
@@ -321,13 +284,9 @@ contains
 
   subroutine eos_get_max_temp(max_temp_out)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(out) :: max_temp_out
-
-    !$gpu
 
     max_temp_out = maxtemp
 
@@ -337,13 +296,9 @@ contains
 
   subroutine eos_get_max_dens(max_dens_out)
 
-    !$acc routine seq
-
     implicit none
 
     real(rt), intent(out) :: max_dens_out
-
-    !$gpu
 
     max_dens_out = maxdens
 
@@ -358,8 +313,6 @@ contains
 
     integer, intent(in) :: input, ivar
     logical :: has
-
-    !$gpu
 
     has = .false.
     
@@ -425,11 +378,7 @@ contains
 
     case default
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-       stop
-#else
        call amrex_error("EOS: invalid independent variable")
-#endif
 
     end select
 

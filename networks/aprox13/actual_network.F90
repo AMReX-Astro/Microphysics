@@ -21,10 +21,6 @@ module actual_network
 
   real(rt)        , allocatable :: bion(:), mion(:)
 
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: bion, mion
-#endif
-
   character (len=32), parameter :: network_name = "aprox13"
 
   ! Some fundamental physical constants
@@ -43,8 +39,6 @@ module actual_network
   ! Conversion factor for the nuclear energy generation rate.
 
   real(rt)        , parameter :: enuc_conv2 = -avo*c_light*c_light
-
-  !$acc declare create(aion, zion, nion, bion, mion)
 
   ! Rates data
 
@@ -125,10 +119,6 @@ module actual_network
   ! Shape of Jacobian in Compressed Sparse Row format
   integer, parameter   :: NETWORK_SPARSE_JAC_NNZ = 107
   integer, allocatable :: csr_jac_col_index(:), csr_jac_row_count(:)
-
-#if defined(AMREX_USE_CUDA) && defined(AMREX_USE_GPU_PRAGMA)
-  attributes(managed) :: csr_jac_col_index, csr_jac_row_count
-#endif
 #endif
 
 contains
@@ -158,8 +148,6 @@ contains
 
     ! Set the mass
     mion(:) = nion(:) * mn + zion(:) * (mp + me) - bion(:) * mev2gr
-
-    !$acc update device(aion, zion, nion, bion, mion)
 
     ratenames(ir3a)   = 'r3a  '
     ratenames(irg3a)  = 'rg3a '

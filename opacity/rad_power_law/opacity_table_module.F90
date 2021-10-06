@@ -40,8 +40,6 @@ contains
 
     real(rt) :: teff, nup_kpp, nup_kpr, nup_kps, ks
 
-    !$gpu
-
     nup_kpp = nu**kappa_p_exp_p
     nup_kpr = nu**kappa_r_exp_p
     nup_kps = nu**scatter_exp_p
@@ -58,7 +56,6 @@ contains
        end if
 #endif
        kp = const_kappa_p * (rho**kappa_p_exp_m) * (teff**(-kappa_p_exp_n)) * nup_kpp
-       kp = max(kp, kappa_floor)
     end if
 
     if (get_Rosseland_mean) then
@@ -87,8 +84,6 @@ contains
     logical,  intent(in   ) :: comp_ab, comp_sc, ldummy
     real(rt), intent(in   ) :: rho, rdummy, temp, nu
     real(rt), intent(inout) :: ab, sc, delta, eta
-
-    !$gpu
 
     ab = 0.d0
     sc = 0.d0

@@ -13,6 +13,9 @@
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
 #endif
+#ifdef NSE_THERMO
+#include <nse.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int dvode (burn_t& state, dvode_t& vstate)
@@ -180,6 +183,7 @@ int dvode (burn_t& state, dvode_t& vstate)
 
        int kflag = dvstep(state, vstate);
 
+
        // Branch on KFLAG. KFLAG can be 0, -1, or -2.
 
        if (kflag == -1) {
@@ -214,6 +218,35 @@ int dvode (burn_t& state, dvode_t& vstate)
            return istate;
 
        }
+
+#ifdef NSE_THERMO
+       // check if, during the course of integration, we hit NSE, and
+       // if so, bail out we rely on the state being consistent after
+       // the call to dvstep, even if the step failed.
+
+       // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
+       // from hitting this right at the start when VODE might do so
+       // wild exploration.  Also ensure we are not working > tmax,
+       // so we don't need to worry about extrapolating back in time.
+
+       if (vstate.NST > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
+           // first we need to make the burn_t in sync
+
+#ifdef STRANG
+           update_thermodynamics(state, vstate);
+#endif
+#ifdef SIMPLIFIED_SDC
+           vode_to_burn(vstate.tn, vstate, state);
+#endif
+
+           if (in_nse(state)) {
+               istate = -100;
+               vstate.t = vstate.tn;
+               return istate;
+           }
+       }
+#endif
+
 
        // Otherwise, we've had a successful return from the integrator (kflag = 0).
        // Test for our stopping condition.

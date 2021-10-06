@@ -29,8 +29,6 @@ contains
     real(rt)         :: xfueltmp
     real(rt)         :: dens, temp, rate, y(nspec)
 
-    !$gpu
-
     ydot = ZERO
 
     xfueltmp = max(state % xn(ifuel_), ZERO)
@@ -70,8 +68,6 @@ contains
     type (burn_t), intent(in) :: state
     real(rt)        , intent(inout) :: jac(njrows, njcols)
 
-    !$gpu
-
     jac(:,:) = ZERO
 
   end subroutine actual_jac
@@ -87,8 +83,6 @@ contains
     implicit none
 
     real(rt)         :: dydt(nspec), enuc
-
-    !$gpu
 
     ! This is basically e = m c**2
 

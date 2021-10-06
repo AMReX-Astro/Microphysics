@@ -1,0 +1,59 @@
+
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+unit_test.tmax = 0.00159393349
+unit_test.nsteps = 1
+
+unit_test.density = 10401431.73
+unit_test.temperature = 3341630190
+
+unit_test.X1 = 1.000000065e-30
+unit_test.X2 = 1.54177989e-15
+unit_test.X3 = 1.479545232e-05
+unit_test.X4 = 7.261406208e-07
+unit_test.X5 = 1.22387355e-21
+unit_test.X6 = 4.377578785e-05
+unit_test.X7 = 1.443776137e-08
+unit_test.X8 = 2.451915546e-06
+unit_test.X9 = 0.07145976437
+unit_test.X10 = 0.04604485728
+unit_test.X11 = 0.009705192069
+unit_test.X12 = 0.008119185656
+unit_test.X13 = 9.75929e-06
+unit_test.X14 = 0.001088471818
+unit_test.X15 = 0.005605354314
+unit_test.X16 = 0.5778938814
+unit_test.X17 = 0.2800052354
+unit_test.X18 = 2.337699362e-11
+unit_test.X19 = 6.534650153e-06
+
+
+unit_test.Adv_rho = -22291648.91
+unit_test.Adv_rhoe = -8.133430393e+24
+unit_test.Adv_X1 = -3.811874806e-24
+unit_test.Adv_X2 = 7.060981868e-07
+unit_test.Adv_X3 = -1196.417734
+unit_test.Adv_X4 = 365.0844044
+unit_test.Adv_X5 = -8.076653644e-12
+unit_test.Adv_X6 = 30387.13382
+unit_test.Adv_X7 = 9.321854156
+unit_test.Adv_X8 = 978.9658416
+unit_test.Adv_X9 = 27704370.13
+unit_test.Adv_X10 = 17734748.28
+unit_test.Adv_X11 = 3665980.768
+unit_test.Adv_X12 = 3427828.306
+unit_test.Adv_X13 = 2558.630108
+unit_test.Adv_X14 = -200945.1842
+unit_test.Adv_X15 = -523860.6429
+unit_test.Adv_X16 = -37653909.62
+unit_test.Adv_X17 = -36478261.12
+unit_test.Adv_X18 = 0.004751096435
+unit_test.Adv_X19 = -702.5507917 
+
+integrator.jacobian = 3
+
+integrator.rtol_spec = 1.0e-5
+integrator.rtol_enuc = 1.0e-5
+integrator.atol_spec = 1.0e-5
+integrator.atol_enuc = 1.0e-5

@@ -41,6 +41,8 @@ contains
     state % aux(:) = aux(:)
 #endif
 
+    state % self_heat = .true.
+
     call actual_rhs(state, ydot)
 
   end subroutine fortran_to_cxx_actual_rhs
@@ -77,6 +79,8 @@ contains
 #if NAUX_NET > 0
     state % aux(:) = aux(:)
 #endif
+
+    state % self_heat = .true.
 
     call actual_jac(state, jac)
 

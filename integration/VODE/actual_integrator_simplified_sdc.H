@@ -60,10 +60,7 @@ void actual_integrator (burn_t& state, Real dt)
 #if defined(SDC_EVOLVE_ENERGY)
     Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
 
-    vode_state.atol(SEDEN+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
     vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
-
-    vode_state.rtol(SEDEN+1) = rtol_enuc * sdc_tol_fac; 
     vode_state.rtol(SEINT+1) = rtol_enuc * sdc_tol_fac;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -100,8 +97,25 @@ void actual_integrator (burn_t& state, Real dt)
     state.n_jac = vode_state.NJE;
 
     // Copy the integration data back to the burn state.
+    // This will also update the aux state from X if we are using NSE
 
     vode_to_burn(vode_state.t, vode_state, state);
+
+    // we only evolved (rho e), not (rho E), so we need to update the
+    // total energy now to ensure we are conservative
+
+    Real rho_Sdot = 0.0_rt;
+    if (state.time > 0) {
+        rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+    }
+
+    state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
+
+    // also momentum
+
+    state.y[SMX] += state.time * state.ydot_a[SMX];
+    state.y[SMY] += state.time * state.ydot_a[SMY];
+    state.y[SMZ] += state.time * state.ydot_a[SMZ];
 
     // normalize the abundances on exit.  We'll assume that the driver
     // calling this is making use of the conserved state (state.y[]),
@@ -118,8 +132,8 @@ void actual_integrator (burn_t& state, Real dt)
     }
 
 #if defined(SDC_EVOLVE_ENERGY)
-    if (vode_state.y(SEINT+1) < 0.0_rt || vode_state.y(SEDEN+1) < 0.0_rt) {
-      state.success = false;
+    if (vode_state.y(SEINT+1) < 0.0_rt) {
+        state.success = false;
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
@@ -160,24 +174,62 @@ void actual_integrator (burn_t& state, Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
-        std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "istate = " << istate << std::endl;
-        std::cout << "time = " << vode_state.t << std::endl;
-        std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << eos_state.T << std::endl;
-        std::cout << "xn start = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << eos_state.xn[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "temp current = " << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << state.xn[n] << " ";
-        }
-        std::cout << std::endl;
+        if (istate != -100) {
+#ifndef AMREX_USE_GPU
+            std::cout << "ERROR: integration failed in net" << std::endl;
+            std::cout << "istate = " << istate << std::endl;
+            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "time = " << vode_state.t << std::endl;
+            std::cout << "dens start = " << eos_state.rho << std::endl;
+            std::cout << "temp start = " << eos_state.T << std::endl;
+            std::cout << "xn start = ";
+            for (int n = 0; n < NumSpec; ++n) {
+                std::cout << eos_state.xn[n] << " ";
+            }
+            std::cout << std::endl;
+#ifdef NSE_THERMO
+            std::cout << "aux start = ";
+            for (int n = 0; n < NumAux; ++n) {
+                std::cout << eos_state.aux[n] << " ";
+            }
+            std::cout << std::endl;
 #endif
+            std::cout << "dens current = " << state.rho << std::endl;
+            std::cout << "temp current = " << state.T << std::endl;
+            std::cout << "xn current = ";
+            for (int n = 0; n < NumSpec; ++n) {
+                std::cout << state.xn[n] << " ";
+            }
+            std::cout << std::endl;
+#ifdef NSE_THERMO
+            std::cout << "aux current = ";
+            for (int n = 0; n < NumAux; ++n) {
+                std::cout << state.aux[n] << " ";
+            }
+            std::cout << std::endl;
+#endif
+#if defined(SDC_EVOLVE_ENERGY)
+            std::cout << "A(rho) = " << state.ydot_a[SRHO] << std::endl;
+#endif
+            std::cout << "A(rho e) = " << state.ydot_a[SEINT] << std::endl;
+            std::cout << "A(rho X_k) = ";
+            for (int n = 0; n < NumSpec; n++) {
+                std::cout << state.ydot_a[SFS+n] << " ";
+            }
+            std::cout << std::endl;
+#ifdef NSE_THERMO
+            std::cout << "A(rho aux_k) = ";
+            for (int n = 0; n < NumAux; n++) {
+                std::cout << state.ydot_a[SFX+n] << " ";
+            }
+            std::cout << std::endl;
+#endif
+#endif
+        } else {
+#ifndef AMREX_USE_GPU
+            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+#endif
+        }
     }
 
 }

@@ -17,6 +17,10 @@
 
 constexpr int NumSpec = @@NSPEC@@;
 
+#define NUM_EXTRA_SPECIES @@NEXTRASPEC@@
+
+constexpr int NumSpecExtra = NUM_EXTRA_SPECIES;
+
 // filled via the preprocessor by including NAUX_NETWORK
 constexpr int NumAux = NAUX_NET;
 
@@ -26,21 +30,51 @@ static AMREX_GPU_MANAGED amrex::Real aion[NumSpec] MICROPHYSICS_UNUSED = {
    @@AION@@
   };
 
+#if NUM_EXTRA_SPECIES > 0
+static AMREX_GPU_MANAGED amrex::Real extra_aion[NumSpecExtra] MICROPHYSICS_UNUSED = {
+   @@EXTRA_AION@@
+  };
+#endif
+
 static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpec] MICROPHYSICS_UNUSED = {
    @@AION_INV@@
   };
+
+#if NUM_EXTRA_SPECIES > 0
+static AMREX_GPU_MANAGED amrex::Real extra_aion_inv[NumSpecExtra] MICROPHYSICS_UNUSED = {
+   @@EXTRA_AION_INV@@
+  };
+#endif
 
 static AMREX_GPU_MANAGED amrex::Real zion[NumSpec] MICROPHYSICS_UNUSED = {
    @@ZION@@
   };
 
+#if NUM_EXTRA_SPECIES > 0
+static AMREX_GPU_MANAGED amrex::Real extra_zion[NumSpecExtra] MICROPHYSICS_UNUSED = {
+   @@EXTRA_ZION@@
+  };
+#endif
+
 static const std::vector<std::string> short_spec_names_cxx MICROPHYSICS_UNUSED = {
    @@SHORT_SPEC_NAMES@@
   };
 
+#if NUM_EXTRA_SPECIES > 0
+static const std::vector<std::string> extra_short_spec_names_cxx MICROPHYSICS_UNUSED = {
+   @@EXTRA_SHORT_SPEC_NAMES@@
+  };
+#endif
+
 static const std::vector<std::string> spec_names_cxx MICROPHYSICS_UNUSED = {
    @@SPEC_NAMES@@
   };
+
+#if NUM_EXTRA_SPECIES > 0
+static const std::vector<std::string> extra_spec_names_cxx MICROPHYSICS_UNUSED = {
+   @@EXTRA_SPEC_NAMES@@
+  };
+#endif
 
 #if NAUX_NET > 0
 static const std::vector<std::string> short_aux_names_cxx MICROPHYSICS_UNUSED = {
@@ -64,5 +98,71 @@ namespace Species {
    enum NetworkSpecies {
      @@SPECIES_ENUM@@
    };
+}
+
+namespace ExtraSpecies {
+#if NUM_EXTRA_SPECIES > 0
+   enum NetworkExtraSpecies {
+     @@EXTRA_SPECIES_ENUM@@
+   };
+#endif
+}
+
+namespace NetworkProperties {
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE constexpr amrex::Real aion (int spec)
+   {
+       using namespace Species;
+
+       amrex::Real a = -1.0;
+
+       switch (spec) {
+           @@AION_CONSTEXPR@@
+       }
+
+       return a;
+   }
+
+#if NUM_EXTRA_SPECIES > 0
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE constexpr amrex::Real extra_aion (int spec)
+   {
+       using namespace ExtraSpecies;
+
+       amrex::Real a = -1.0;
+
+       switch (spec) {
+           @@EXTRA_AION_CONSTEXPR@@
+       }
+
+       return a;
+   }
+#endif
+
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE constexpr amrex::Real zion (int spec)
+   {
+       using namespace Species;
+
+       amrex::Real z = -1.0;
+
+       switch (spec) {
+           @@ZION_CONSTEXPR@@
+       }
+
+       return z;
+   }
+
+#if NUM_EXTRA_SPECIES > 0
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE constexpr amrex::Real extra_zion (int spec)
+   {
+       using namespace ExtraSpecies;
+
+       amrex::Real z = -1.0;
+
+       switch (spec) {
+           @@EXTRA_ZION_CONSTEXPR@@
+       }
+
+       return z;
+   }
+#endif
 }
 #endif

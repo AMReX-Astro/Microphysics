@@ -20,21 +20,21 @@ subroutine runtime_init(probin)
   implicit none
 
 #else
-subroutine runtime_init(name,namlen)
+subroutine runtime_init(name,namlen) bind(C, name="runtime_init")
 
   use extern_probin_module
 
   implicit none
 
-  integer :: namlen
-  integer :: name(namlen)
+  integer, intent(in) :: namlen
+  integer, intent(in) :: name(namlen)
 #endif
 
   integer :: un, i, status
 
   integer, parameter :: maxlen = 256
   character (len=maxlen) :: probin
-
+  logical :: probin_exists
 
   @@namelist@@
 
@@ -55,28 +55,29 @@ subroutine runtime_init(name,namlen)
      probin(i:i) = char(name(i))
   end do
 
+  inquire(file=probin(1:namlen), exist=probin_exists)
 
-  ! read in the namelist
-  open (newunit=un, file=probin(1:namlen), form='formatted', status='old')
+  if (probin_exists) then
+     ! read in the namelist
+     open (newunit=un, file=probin(1:namlen), form='formatted', status='old')
 #else
-  ! read in the namelist
-  open (newunit=un, file=trim(probin), form='formatted', status='old')
+     ! read in the namelist
+     open (newunit=un, file=trim(probin), form='formatted', status='old')
 #endif
-  read (unit=un, nml=extern, iostat=status)
+     read (unit=un, nml=extern, iostat=status)
 
-  if (status < 0) then
-     ! the namelist does not exist, so we just go with the defaults
-     continue
+     if (status < 0) then
+        ! the namelist does not exist, so we just go with the defaults
+        continue
 
-  else if (status > 0) then
-     ! some problem in the namelist
-#ifndef AMREX_USE_CUDA 
-     print *, 'ERROR: problem in the extern namelist'
-#endif
-     stop
-  endif
+     else if (status > 0) then
+        ! some problem in the namelist
+        print *, 'ERROR: problem in the extern namelist'
+        stop
+     endif
 
-  close (unit=un)
+     close (unit=un)
+  end if
 
 end subroutine runtime_init
 
@@ -94,40 +95,6 @@ subroutine update_fortran_extern_after_cxx() bind(C, name="update_fortran_extern
   @@fortran_parmparse_overrides@@
 
 end subroutine update_fortran_extern_after_cxx
-
-subroutine runtime_pretty_print(name, namlen) bind(C, name="runtime_pretty_print")
-
-  use amrex_constants_module
-  use extern_probin_module
-
-  implicit none
-
-  integer :: unit, i
-
-  integer :: namlen
-  integer :: name(namlen)
-
-  logical :: ltest
-
-  integer, parameter :: maxlen = 256
-  character (len=maxlen) :: probin
-
-  if (namlen > maxlen) then
-     print *, "probin file name too long"
-  endif
-
-  do i = 1, namlen
-     probin(i:i) = char(name(i))
-  end do
-
-  ! open the job info file in Fortran
-  open(newunit=unit, file=probin(1:namlen), status="old", position="append")
-
-  @@printing@@
-
-  close(unit=unit)
-
-end subroutine runtime_pretty_print
 
 module extern_f90_to_cxx
 

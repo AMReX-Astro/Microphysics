@@ -18,7 +18,7 @@
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_state)
+void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vode_state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -39,10 +39,6 @@ void fill_unevolved_variables(const Real time, burn_t& state, dvode_t& vode_stat
 
     // for consistency
     state.rho = state.y[SRHO];
-
-    state.y[SMX] = state.umx_orig + state.ydot_a[SMX] * time;
-    state.y[SMY] = state.umy_orig + state.ydot_a[SMY] * time;
-    state.y[SMZ] = state.umz_orig + state.ydot_a[SMZ] * time;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -152,6 +148,23 @@ void renormalize_species(burn_t& state)
         state.y[SFS+n] /= rhoX_sum;
     }
 
+#ifdef NSE_THERMO
+    // make the aux data consistent with the vode_state X's
+
+    eos_re_t eos_state;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.y[SFS+n] / state.y[SRHO];
+    }
+
+    set_nse_aux_from_X(eos_state);
+
+    // also store it in the burn_t state
+
+    for (int n = 0; n < NumAux; n++) {
+        state.y[SFX+n] = state.y[SRHO] * eos_state.aux[n];
+    }
+#endif
+
 #endif
 
 }
@@ -159,14 +172,6 @@ void renormalize_species(burn_t& state)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
 {
-
-    // This routine makes the state we are integrating in vode_state
-    // consistent We will need to use some of the unevolved data from
-    // state, but only vode_state is updated here
-
-    // update rho, rho*u, etc.
-
-    fill_unevolved_variables(time, state, vode_state);
 
     // Ensure that mass fractions always stay positive.
 
@@ -183,40 +188,6 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
         renormalize_species(time, state, vode_state);
     }
 
-#ifdef SDC_EVOLVE_ENERGY
-
-    // Ensure that internal energy never goes above the maximum limit
-    // provided by the EOS. Same for the internal energy implied by the
-    // total energy (which we get by subtracting kinetic energy).
-
-    eos_re_t eos_state;
-    eos_state.rho = state.y[SRHO];
-    eos_state.T = MAX_TEMP;
-    for (int n = 0; n < NumSpec; n++) {
-        // vode_state.y uses 1-based indexing
-        eos_state.xn[n] = vode_state.y(SFS+1+n) / state.rho;
-    }
-#ifdef NSE_THERMO
-    // make the aux data here to be consistent with the renormalized
-    // abundances
-    set_nse_aux_from_X(eos_state);
-#endif
-
-    eos(eos_input_rt, eos_state);
-
-    Real max_e = eos_state.e;
-
-    vode_state.y(SEINT+1) = amrex::min(state.rho * max_e, vode_state.y(SEINT+1));
-
-    Real ke = vode_state.y(SEDEN+1) -
-        0.5_rt * (state.y[SMX] * state.y[SMX] +
-                  state.y[SMY] * state.y[SMY] +
-                  state.y[SMZ] * state.y[SMZ]) / state.rho;
-
-    vode_state.y(SEDEN+1) = amrex::min(state.rho * max_e + ke, vode_state.y(SEDEN+1));
-
-#endif
-
 }
 
 
@@ -232,14 +203,12 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
         vode_state.y(n+1) = state.y[n];
     }
 
-    // store the original rho and rho U
+    // store the original rho and rho e
 #if defined(SDC_EVOLVE_ENERGY)
 
     state.rho_orig = state.y[SRHO];
 
-    state.umx_orig = state.y[SMX];
-    state.umy_orig = state.y[SMY];
-    state.umz_orig = state.y[SMZ];
+    state.rhoe_orig = state.y[SEINT];
 
 #else
 
@@ -254,7 +223,7 @@ void burn_to_vode(burn_t& state, dvode_t& vode_state)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
+void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
 {
 
     // this makes burn_t represent the current integration state.  The
@@ -268,9 +237,9 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     }
 
     // update rho, rho*u, ... in the burn_t state
+    // this may be redundant, but better to be safe
 
     fill_unevolved_variables(time, state, vode_state);
-
 
     Real rhoInv = 1.0_rt / state.rho;
 
@@ -294,17 +263,11 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
     }
 #endif
 
-
 #if defined(SDC_EVOLVE_ENERGY)
 
-    if (state.T_from_eden) {
-        eos_state.e = (vode_state.y(SEDEN+1) -
-                       0.5_rt * rhoInv * (state.y[SMX] * state.y[SMX] +
-                                          state.y[SMY] * state.y[SMY] +
-                                          state.y[SMZ] * state.y[SMZ])) * rhoInv;
-    } else {
-        eos_state.e = vode_state.y(SEINT+1) * rhoInv;
-    }
+    // set internal energy for EOS call
+
+    eos_state.e = vode_state.y(SEINT+1) * rhoInv;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
@@ -317,15 +280,7 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
 #endif
 
-    // Give the temperature an initial guess -- use the geometric mean
-    // of the minimum and maximum temperatures.
-
-    // TODO: we should just change this to use state.T
-
-    Real min_temp = EOSData::mintemp;
-    Real max_temp = EOSData::maxtemp;
-
-    eos_state.T = std::sqrt(min_temp * max_temp);
+    eos_state.T = state.T;  // initial guess
 
 #if defined(SDC_EVOLVE_ENERGY)
     eos(eos_input_re, eos_state);
@@ -346,6 +301,12 @@ void vode_to_burn(const Real time, dvode_t& vode_state, burn_t& state)
 
     eos_to_burn(eos_state, state);
 
+    // override T if we are fixing it (e.g. due to
+    // drive_initial_convection)
+    if (state.T_fixed > 0.0_rt) {
+        state.T = state.T_fixed;
+    }
+
 }
 
 
@@ -355,8 +316,6 @@ void rhs_to_vode(const Real time, burn_t& state,
                  RArray1D& ydot)
 {
 
-
-    fill_unevolved_variables(time, state, vode_state);
 
     // ydot_react has just the contribution to the RHS from the
     // reaction network.  Note that these are in terms of dY/dt
@@ -379,7 +338,6 @@ void rhs_to_vode(const Real time, burn_t& state,
 #if defined(SDC_EVOLVE_ENERGY)
 
     ydot(SEINT+1) += state.rho * ydot_react(net_ienuc);
-    ydot(SEDEN+1) += state.rho * ydot_react(net_ienuc);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
