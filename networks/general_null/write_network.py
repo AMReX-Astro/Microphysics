@@ -413,8 +413,6 @@ def write_network(network_template, header_template,
                                                                               extra_species[-1].short_name.capitalize(),
                                                                               species[-1].short_name.capitalize()))
                             fout.write("{}NumberTotalSpecies={}\n".format(indent, extra_species[-1].short_name.capitalize()))
-                        else:
-                            fout.write("\n")
 
                 elif keyword == "AUXZERO_ENUM":
                     if lang == "C++":
