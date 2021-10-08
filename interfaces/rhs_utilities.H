@@ -159,7 +159,19 @@ constexpr int is_rate_used ()
         rhs_data.species_D == species ||
         rhs_data.species_E == species ||
         rhs_data.species_F == species) {
-        return 1;
+        // Exclude intermediate rates that don't appear in the RHS.
+        // We can identify these by the presence of an "extra" species
+        // whose numerical ID is > NumSpec.
+        if (rhs_data.species_A > NumSpec ||
+            rhs_data.species_B > NumSpec ||
+            rhs_data.species_C > NumSpec ||
+            rhs_data.species_D > NumSpec ||
+            rhs_data.species_E > NumSpec ||
+            rhs_data.species_F > NumSpec) {
+            return 0;
+        } else {
+            return 1;
+        }
     } else {
         return 0;
     }

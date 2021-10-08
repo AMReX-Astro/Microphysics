@@ -164,8 +164,8 @@ void iso7tab(const Real btemp, const Real bden,
             break;
 
         case (Ca40_He4_to_Ti44):
-            forward_dtab = bden;
-            reverse_dtab = 1.0e0_rt;
+            forward_dtab = RHS::density_exponent_forward<Ca40_He4_to_Ti44>();
+            reverse_dtab = RHS::density_exponent_reverse<Ca40_He4_to_Ti44>();
             break;
 
         case (Si28_7He4_to_Ni56):
