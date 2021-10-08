@@ -465,6 +465,16 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_
             for (int rate = 1; rate <= Rates::NumRatesFR; ++rate) {
                 rhs_t rhs_data = RHS::rhs_data(rate);
 
+                // Skip this rate if it is an intermediate rate involving "extra" species.
+                if (rhs_data.species_A > NumSpec ||
+                    rhs_data.species_B > NumSpec ||
+                    rhs_data.species_C > NumSpec ||
+                    rhs_data.species_D > NumSpec ||
+                    rhs_data.species_E > NumSpec ||
+                    rhs_data.species_F > NumSpec) {
+                    continue;
+                }
+
                 // Compute the forward term. It only has a contribution if
                 // the species we're taking the derivative with respect to
                 // (spec2) is one of (A, B, C). For the species that is spec2,
