@@ -122,10 +122,16 @@ void burn_cell_c()
     // we will divide the total integration time into nsteps that are
     // logarithmically spaced
 
-    Real dlogt = 0.0_rt;
-
     if (tfirst == 0.0_rt) {
-        dlogt = std::log10(tmax) / nsteps;
+        if (nsteps == 1) {
+            tfirst = tmax;
+        } else {
+            tfirst = tmax / nsteps;
+        }
+    }
+    Real dlogt = 0.0_rt;
+    if (nsteps == 1) {
+        dlogt = (std::log10(tmax) - std::log10(tfirst));
     } else {
         dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
     }
@@ -166,13 +172,7 @@ void burn_cell_c()
 
         // compute the time we wish to integrate to
 
-        Real tend;
-        if (tfirst == 0.0_rt) {
-            tend = std::pow(10.0_rt, dlogt * (n + 1));
-        } else {
-            tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
-        }
-
+        Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
         Real dt = tend - t;
 
     	burner(state, dt);
