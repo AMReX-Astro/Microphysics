@@ -113,7 +113,7 @@ void pres_iter (Real pres, Real& dens, Real B)
         }
     }
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (iter == max_iter) {
         amrex::Error("EOS: pres_iter failed to converge.");
     }
