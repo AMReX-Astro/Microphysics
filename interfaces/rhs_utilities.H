@@ -293,10 +293,12 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr)
     // For every species, loop over all rates, and if that rate involves
     // the given species, add its contribution to the RHS.
 
-    RHS_impl::rhs_for<1, NumSpec+1>([&] (auto species)
+    RHS_impl::rhs_for<1, NumSpec+1>([&] (auto n1)
     {
-        RHS_impl::rhs_for<1, Rates::NumRates+1>([&] (auto rate)
+        constexpr int species = n1;
+        RHS_impl::rhs_for<1, Rates::NumRates+1>([&] (auto n2)
         {
+            constexpr int rate = n2;
             if constexpr (is_rate_used<species, rate>()) {
                 spec_rhs(species) += RHS::rhs_term<species, rate>(state, rr);
             }
