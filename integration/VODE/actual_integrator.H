@@ -116,7 +116,7 @@ void actual_integrator (burn_t& state, Real dt)
         }
     }
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
