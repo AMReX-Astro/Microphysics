@@ -6,6 +6,19 @@
 
 #include <ArrayUtilities.H>
 
+namespace linpack_impl {
+    // Implementation of "constexpr for" based on
+    // https://artificial-mind.net/blog/2020/10/31/constexpr-for
+    template<auto I, auto N, class F>
+    constexpr void linalg_for (F&& f)
+    {
+        if constexpr (I < N) {
+            f(std::integral_constant<decltype(I), I>());
+            linalg_for<I+1, N>(f);
+        }
+    }
+}
+
 template <int num_eqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
@@ -14,12 +27,13 @@ void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
     auto const& pivot = reinterpret_cast<Array1D<int, 0, num_eqs-1>&>(pivot1);
     auto& b = reinterpret_cast<Array1D<Real, 0, num_eqs-1>&>(b1);
 
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = num_eqs - 1;
 
     // solve a * x = b
     // first solve l * y = b
-    if (nm1 >= 1) {
-        for (int k = 0; k < nm1; ++k) {
+    if constexpr (nm1 >= 1) {
+        linpack_impl::linalg_for<0, nm1>([&] (auto k)
+        {
             int l = pivot(k) - 1;
             Real t = b(l);
             if (l != k) {
@@ -27,23 +41,24 @@ void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
                 b(k) = t;
             }
 
-            for (int j = k+1; j < num_eqs; ++j) {
+            linpack_impl::linalg_for<k+1, num_eqs>([&] (auto j)
+            {
                 b(j) += t * a(j,k);
-            }
-        }
+            });
+        });
     }
 
     // now solve u * x = y
-    for (int kb = 0; kb < num_eqs; ++kb) {
-
-        int k = num_eqs - kb - 1;
+    linpack_impl::linalg_for<0, num_eqs>([&] (auto kb)
+    {
+        constexpr int k = num_eqs - kb - 1;
         b(k) = b(k) / a(k,k);
         Real t = -b(k);
-        for (int j = 0; j < k; ++j) {
+        linpack_impl::linalg_for<0, k>([&] (auto j)
+        {
             b(j) += t * a(j,k);
-        }
-    }
-
+        });
+    });
 }
 
 
@@ -63,23 +78,24 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
     // gaussian elimination with partial pivoting
 
     info = 0;
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = num_eqs - 1;
 
     Real t;
 
-    if (nm1 >= 1) {
+    if constexpr (nm1 >= 1) {
 
-        for (int k = 0; k < nm1; ++k) {
-
+        linpack_impl::linalg_for<0, nm1>([&] (auto k)
+        {
             // find l = pivot index
             int l = k;
             Real dmax = std::abs(a(k,k));
-            for (int i = k+1; i < num_eqs; ++i) {
+            linpack_impl::linalg_for<k+1, num_eqs>([&] (auto i)
+            {
                 if (std::abs(a(i,k)) > dmax) {
                     l = i;
                     dmax = std::abs(a(i,k));
                 }
-            }
+            });
 
             pivot(k) = l + 1;
 
@@ -95,21 +111,26 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 
                 // compute multipliers
                 t = -1.0e0_rt / a(k,k);
-                for (int j = k+1; j < num_eqs; ++j) {
+                linpack_impl::linalg_for<k+1, num_eqs>([&] (auto j)
+                {
                     a(j,k) *= t;
-                }
+                });
+
+                constexpr int start = k+1;
 
                 // row elimination with column indexing
-                for (int j = k+1; j < num_eqs; ++j) {
+                linpack_impl::linalg_for<start, num_eqs>([&] (auto j)
+                {
                     t = a(l,j);
                     if (l != k) {
                         a(l,j) = a(k,j);
                         a(k,j) = t;
                     }
-                    for (int i = k+1; i < num_eqs; ++i) {
+                    linpack_impl::linalg_for<start, num_eqs>([&] (auto i)
+                    {
                         a(i,j) += t * a(i,k);
-                    }
-                }
+                    });
+                });
             }
             else {
 
@@ -117,7 +138,7 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 
             }
 
-        }
+        });
 
     }
 
@@ -126,7 +147,6 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
     if (a(num_eqs-1,num_eqs-1) == 0.0e0_rt) {
         info = num_eqs;
     }
-
 }
 
 #endif
