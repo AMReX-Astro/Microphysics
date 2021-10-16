@@ -46,6 +46,17 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t c
 
 namespace RHS_impl {
 
+// Implementation of "constexpr for" based on
+// https://artificial-mind.net/blog/2020/10/31/constexpr-for
+template<auto I, auto N, class F>
+constexpr void rhs_for (F&& f)
+{
+    if constexpr (I < N) {
+        f(std::integral_constant<decltype(I), I>());
+        rhs_for<I+1, N>(f);
+    }
+}
+
 // Calculate an integer factorial.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int factorial (int n)
@@ -55,17 +66,6 @@ constexpr int factorial (int n)
     }
     else {
         return n * factorial(n - 1);
-    }
-}
-
-// Implementation of "constexpr for" based on
-// https://artificial-mind.net/blog/2020/10/31/constexpr-for
-template<auto I, auto N, class F>
-constexpr void rhs_for (F&& f)
-{
-    if constexpr (I < N) {
-        f(std::integral_constant<decltype(I), I>());
-        rhs_for<I+1, N>(f);
     }
 }
 
@@ -153,6 +153,121 @@ constexpr int density_exponent_reverse ()
     return exponent;
 }
 
+// Calculate the RHS term for a given species and rate.
+//
+// The general form of a reaction is
+// n_a A + n_b B + n_c C <-> n_d D + n_e E + n_f F
+// for species A, B, C, D, E, and F, where n_a particles of A,
+// n_b particles of B, and n_C particles of C are consumed in
+// the forward reaction and produced in the reverse reaction.
+//
+// For a given species, such as species A, the forward reaction
+// term is of the form
+// -n_A * Y(A)**a * Y(B)**b * Y(C)**c * forward_rate,
+// and the reverse reaction term is of the form
+//  n_A * Y(D)**d * Y(E)**e * Y(F)**f * reverse_rate.
+// Here a, b, and c are reaction-specific exponents which usually,
+// but not always, are equal to n_a, n_b, and n_c respectively.
+//
+// For example, in C12 + He4 <-> O16, species A is C12, species B
+// is He4, species D is O16 (the other species are unused). Then
+// n_a = n_b = n_d = 1, and a = b = d = 1. In the triple alpha forward
+// reaction we have A = He4, D = C12, n_a = 3, a = 3, and n_d = 1.
+//
+// We assume the reaction rates do not include the identical particle
+// factor, so we account for that here by dividing the rate by n!
+// Note that we use the exponent to determine this factorial term, not
+// the number consumed, because there are some reactions with special handling
+// like the Si28 + 7 * He4 <-> Ni56 reaction in iso7, where the number
+// of He4 consumed is not directly related to the actual reaction rate.
+// In every other case than that, the exponent should be equal to the
+// number consumed/produced, so there would be no difference.
+//
+// If a given reaction uses fewer than three species, we infer
+// this by calling its index -1 and then not accessing it
+// in the multiplication.
+template<int species, int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
+{
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    // First, compute the Y * rate component of both the forward and
+    // reverse reactions, which is the same regardless of which species
+    // we're producing or consuming.
+
+    Real forward_term = rr.forward(rate);
+
+    if constexpr (rhs_data.species_A >= 0) {
+        Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_A);
+        forward_term *= std::pow(Y_A, rhs_data.exponent_A) /
+                        static_cast<Real>(identical_particle_factor);
+    }
+
+    if constexpr (rhs_data.species_B >= 0) {
+        Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_B);
+        forward_term *= std::pow(Y_B, rhs_data.exponent_B) /
+                        static_cast<Real>(identical_particle_factor);
+    }
+
+    if constexpr (rhs_data.species_C >= 0) {
+        Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_C);
+        forward_term *= std::pow(Y_C, rhs_data.exponent_C) /
+                        static_cast<Real>(identical_particle_factor);
+    }
+
+    Real reverse_term = rr.reverse(rate);
+
+    if constexpr (rhs_data.species_D >= 0) {
+        Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_D);
+        reverse_term *= std::pow(Y_D, rhs_data.exponent_D) /
+                        static_cast<Real>(identical_particle_factor);
+    }
+
+    if constexpr (rhs_data.species_E >= 0) {
+        Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_E);
+        reverse_term *= std::pow(Y_E, rhs_data.exponent_E) /
+                        static_cast<Real>(identical_particle_factor);
+    }
+
+    if constexpr (rhs_data.species_F >= 0) {
+        Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_F);
+        reverse_term *= std::pow(Y_F, rhs_data.exponent_F) /
+                        static_cast<Real>(identical_particle_factor);
+    }
+
+    // Now compute the total contribution to this species.
+
+    Real term = 0.0_rt;
+
+    if constexpr (rhs_data.species_A == species) {
+        term = rhs_data.number_A * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_B == species) {
+        term = rhs_data.number_B * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_C == species) {
+        term = rhs_data.number_C * (reverse_term - forward_term);
+    }
+    if constexpr (rhs_data.species_D == species) {
+        term = rhs_data.number_D * (forward_term - reverse_term);
+    }
+    if constexpr (rhs_data.species_E == species) {
+        term = rhs_data.number_E * (forward_term - reverse_term);
+    }
+    if constexpr (rhs_data.species_F == species) {
+        term = rhs_data.number_F * (forward_term - reverse_term);
+    }
+
+    return term;
+}
+
 // Calculate the array of RHS terms over all species.
 // Legacy interface using old-style rate array.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -182,118 +297,9 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr)
     {
         RHS_impl::rhs_for<1, Rates::NumRates+1>([&] (auto rate)
         {
-            if constexpr (!is_rate_used<species, rate>()) {
-                return;
+            if constexpr (is_rate_used<species, rate>()) {
+                spec_rhs(species) += RHS::rhs_term<species, rate>(state, rr);
             }
-
-            // The general form of a reaction is
-            // n_a A + n_b B + n_c C <-> n_d D + n_e E + n_f F
-            // for species A, B, C, D, E, and F, where n_a particles of A,
-            // n_b particles of B, and n_C particles of C are consumed in
-            // the forward reaction and produced in the reverse reaction.
-            //
-            // For a given species, such as species A, the forward reaction
-            // term is of the form
-            // -n_A * Y(A)**a * Y(B)**b * Y(C)**c * forward_rate,
-            // and the reverse reaction term is of the form
-            //  n_A * Y(D)**d * Y(E)**e * Y(F)**f * reverse_rate.
-            // Here a, b, and c are reaction-specific exponents which usually,
-            // but not always, are equal to n_a, n_b, and n_c respectively.
-            //
-            // For example, in C12 + He4 <-> O16, species A is C12, species B
-            // is He4, species D is O16 (the other species are unused). Then
-            // n_a = n_b = n_d = 1, and a = b = d = 1. In the triple alpha forward
-            // reaction we have A = He4, D = C12, n_a = 3, a = 3, and n_d = 1.
-            //
-            // We assume the reaction rates do not include the identical particle
-            // factor, so we account for that here by dividing the rate by n!
-            // Note that we use the exponent to determine this factorial term, not
-            // the number consumed, because there are some reactions with special handling
-            // like the Si28 + 7 * He4 <-> Ni56 reaction in iso7, where the number
-            // of He4 consumed is not directly related to the actual reaction rate.
-            // In every other case than that, the exponent should be equal to the
-            // number consumed/produced, so there would be no difference.
-            //
-            // If a given reaction uses fewer than three species, we infer
-            // this by calling its index -1 and then not accessing it
-            // in the multiplication.
-
-            constexpr rhs_t rhs_data = RHS::rhs_data(rate);
-
-            // First, compute the Y * rate component of both the forward and
-            // reverse reactions, which is the same regardless of which species
-            // we're producing or consuming.
-
-            Real forward_term = rr.forward(rate);
-
-            if constexpr (rhs_data.species_A >= 0) {
-                Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
-                constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_A);
-                forward_term *= std::pow(Y_A, rhs_data.exponent_A) /
-                    static_cast<Real>(identical_particle_factor);
-            }
-
-            if constexpr (rhs_data.species_B >= 0) {
-                Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
-                constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_B);
-                forward_term *= std::pow(Y_B, rhs_data.exponent_B) /
-                    static_cast<Real>(identical_particle_factor);
-            }
-
-            if constexpr (rhs_data.species_C >= 0) {
-                Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
-                constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_C);
-                forward_term *= std::pow(Y_C, rhs_data.exponent_C) /
-                    static_cast<Real>(identical_particle_factor);
-            }
-
-            Real reverse_term = rr.reverse(rate);
-
-            if constexpr (rhs_data.species_D >= 0) {
-                Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
-                constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_D);
-                reverse_term *= std::pow(Y_D, rhs_data.exponent_D) /
-                    static_cast<Real>(identical_particle_factor);
-            }
-
-            if constexpr (rhs_data.species_E >= 0) {
-                Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
-                constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_E);
-                reverse_term *= std::pow(Y_E, rhs_data.exponent_E) /
-                    static_cast<Real>(identical_particle_factor);
-            }
-
-            if constexpr (rhs_data.species_F >= 0) {
-                Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
-                constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_F);
-                reverse_term *= std::pow(Y_F, rhs_data.exponent_F) /
-                    static_cast<Real>(identical_particle_factor);
-            }
-
-            // Now compute the total contribution to this species.
-
-            Real term = 0.0_rt;
-
-            if constexpr (rhs_data.species_A == species) {
-                term = rhs_data.number_A * (reverse_term - forward_term);
-            }
-            if constexpr (rhs_data.species_B == species) {
-                term = rhs_data.number_B * (reverse_term - forward_term);
-            }
-            if constexpr (rhs_data.species_C == species) {
-                term = rhs_data.number_C * (reverse_term - forward_term);
-            }
-            if constexpr (rhs_data.species_D == species) {
-                term = rhs_data.number_D * (forward_term - reverse_term);
-            }
-            if constexpr (rhs_data.species_E == species) {
-                term = rhs_data.number_E * (forward_term - reverse_term);
-            }
-            if constexpr (rhs_data.species_F == species) {
-                term = rhs_data.number_F * (forward_term - reverse_term);
-            }
-
-            spec_rhs(species) += term;
         });
     });
 
