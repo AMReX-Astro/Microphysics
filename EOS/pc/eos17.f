@@ -106,60 +106,61 @@
 * In practice, however, one usually needs to link subroutines from this
 * file to another (external) code, therefore the MAIN program is
 * normally commented-out.
-C%C      implicit double precision (A-H), double precision (O-Z)
-C%C      parameter(MAXY=10,UN_T6=.3157746,EPS=1.d-7)
-C%C      dimension AY(MAXY),AZion(MAXY),ACMI(MAXY)
-C%C      write(*,'('' Introduce the chemical composition (up to'',I3,
-C%C     *  '' ion species):''/
-C%C     *  '' charge number Z_i, atomic weight A_i,'',
-C%C     *  '' partial number density x_i, derivatives d x_i / d ln T'',
-C%C     *  '' and d x_i / d ln rho''/
-C%C     /   '' (non-positive Z, A, or x=1 terminates the input)'')') MAXY
-C%C      NMIX=0
-C%C    3 continue
-C%C      XSUM=0.
-C%C      do IX=1,MAXY
-C%C         write(*,'(''Z, A ('',I2,''): ''$)') IX
-C%C         read*,AZion(IX),ACMI(IX)
-C%C        if (AZion(IX).le.0..or.ACMI(IX).le.0.) goto 2
-C%C         write(*,'(''x ('',I2,''): ''$)') IX
-C%C         read*,AY(IX)
-C%C         XSUM=XSUM+AY(IX)
-C%C        if (AY(IX).le.0.) goto 2
-C%C         NMIX=IX
-C%C        if (dabs(XSUM-1.d0).lt.EPS) goto 2
-C%C      enddo
-C%C    2 continue
-C%C      if (NMIX.eq.0) then
-C%C      print*,'There must be at least one set of positive (x,Z,A).'
-C%C        goto 3
-C%C      endif
-C%C      write(*,114)
-C%C      do IX=1,NMIX
-C%C         write(*,113) IX,AZion(IX),ACMI(IX),AY(IX)
-C%C      enddo
-C%C    9 continue
-C%C      write(*,'('' Input T (K) (<0 to stop): ''$)')
-C%C      read*,T
-C%C      if (T.le.0.) stop
-C%C   10 continue
-C%C      write(*,'('' Input RHO [g/cc] (<0 to new T): ''$)')
-C%C      read*,RHO
-C%C      if (RHO.le.0.) goto 9
-C%C      RHOlg=dlog10(RHO)
-C%C      Tlg=dlog10(T)
-C%C      T6=10.d0**(Tlg-6.d0)
-C%C      RHO=10.d0**RHOlg
-C%C      write(*,112)
-C%C    1 continue
-C%C      TEMP=T6/UN_T6 ! T [au]
-C%C      call MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP, ! input
-C%C     *   PRADnkT, ! additional output - radiative pressure
-C%C     *   DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, ! output param.
-C%C     *   PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
-C%C      Tnk=8.31447d13/CMImean*RHO*T6 ! n_i kT [erg/cc]
-C%C      P=PnkT*Tnk/1.d12 ! P [Mbar]
-C%C      TEGRAD=CHIT/(CHIT**2+CHIR*CV/PnkT) ! from Maxwell relat.
+      program main
+      implicit double precision (A-H), double precision (O-Z)
+      parameter(MAXY=10,UN_T6=.3157746,EPS=1.d-7)
+      dimension AY(MAXY),AZion(MAXY),ACMI(MAXY)
+      write(*,'('' Introduce the chemical composition (up to'',I3,
+     *  '' ion species):''/
+     *  '' charge number Z_i, atomic weight A_i,'',
+     *  '' partial number density x_i, derivatives d x_i / d ln T'',
+     *  '' and d x_i / d ln rho''/
+     /   '' (non-positive Z, A, or x=1 terminates the input)'')') MAXY
+      NMIX=0
+    3 continue
+      XSUM=0.
+      do IX=1,MAXY
+         write(*,'(''Z, A ('',I2,''): ''$)') IX
+         read*,AZion(IX),ACMI(IX)
+        if (AZion(IX).le.0..or.ACMI(IX).le.0.) goto 2
+         write(*,'(''x ('',I2,''): ''$)') IX
+         read*,AY(IX)
+         XSUM=XSUM+AY(IX)
+        if (AY(IX).le.0.) goto 2
+         NMIX=IX
+        if (dabs(XSUM-1.d0).lt.EPS) goto 2
+      enddo
+    2 continue
+      if (NMIX.eq.0) then
+      print*,'There must be at least one set of positive (x,Z,A).'
+        goto 3
+      endif
+      write(*,114)
+      do IX=1,NMIX
+         write(*,113) IX,AZion(IX),ACMI(IX),AY(IX)
+      enddo
+    9 continue
+      write(*,'('' Input T (K) (<0 to stop): ''$)')
+      read*,T
+      if (T.le.0.) stop
+   10 continue
+      write(*,'('' Input RHO [g/cc] (<0 to new T): ''$)')
+      read*,RHO
+      if (RHO.le.0.) goto 9
+      RHOlg=dlog10(RHO)
+      Tlg=dlog10(T)
+      T6=10.d0**(Tlg-6.d0)
+      RHO=10.d0**RHOlg
+      write(*,112)
+    1 continue
+      TEMP=T6/UN_T6 ! T [au]
+      call MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP, ! input
+     *   PRADnkT, ! additional output - radiative pressure
+     *   DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, ! output param.
+     *   PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
+      Tnk=8.31447d13/CMImean*RHO*T6 ! n_i kT [erg/cc]
+      P=PnkT*Tnk/1.d12 ! P [Mbar]
+      TEGRAD=CHIT/(CHIT**2+CHIR*CV/PnkT) ! from Maxwell relat.
 *   --------------------   OUTPUT   --------------------------------   *
 * Here in the output we have:
 * RHO - mass density in g/cc
@@ -174,17 +175,17 @@ C%C      TEGRAD=CHIT/(CHIT**2+CHIR*CV/PnkT) ! from Maxwell relat.
 * TPT=T_p/T, where T_p is the ion plasma temperature
 * CHI - electron chemical potential, divided by kT
 * LIQSOL = 0 in the liquid state, = 1 in the solid state
-C%C      write(*,111) RHO,T6,P,PnkT,CV,CHIT,CHIR,UNkT,SNk,GAMI,TPT,CHI,
-C%C     *  LIQSOL
-C%C      goto 10
-C%C  112 format(/
-C%C     *  ' rho [g/cc]     T6 [K]      P [Mbar]   P/(n_i kT)  Cv/(N k)',
-C%C     *  '     chi_T       chi_r      U/(N k T)    S/(N k)    Gamma_i',
-C%C     *  '      T_p/T    chi_e liq/sol')
-C%C  111 format(1P,12E12.3,I2)
-C%C  113 format(I3,2F8.3,1PE12.4)
-C%C  114 format('       Z      CMI        x_j')
-C%C      end
+      write(*,111) RHO,T6,P,PnkT,CV,CHIT,CHIR,UNkT,SNk,GAMI,TPT,CHI,
+     *  LIQSOL
+      goto 10
+  112 format(/
+     *  ' rho [g/cc]     T6 [K]      P [Mbar]   P/(n_i kT)  Cv/(N k)',
+     *  '     chi_T       chi_r      U/(N k T)    S/(N k)    Gamma_i',
+     *  '      T_p/T    chi_e liq/sol')
+  111 format(1P,12E12.3,I2)
+  113 format(I3,2F8.3,1PE12.4)
+  114 format('       Z      CMI        x_j')
+      end program main
       
       subroutine MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP,PRADnkT,
      *   DENS,Zmean,CMImean,Z2mean,GAMImean,CHI,TPT,LIQSOL,
