@@ -130,10 +130,10 @@
       T6=10.d0**(Tlg-6.d0)
       RHO=10.d0**RHOlg
       TEMP=T6/UN_T6 ! T [au]
-      call MELANGE9(AY,AZion,ACMI,RHO,TEMP, ! input
-     *   PRADnkT, ! additional output - radiative pressure
-     *   DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, ! output param.
-     *   PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
+      call MELANGE9(AY,AZion,ACMI,RHO,TEMP, & ! input
+        PRADnkT, & ! additional output - radiative pressure
+        DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, & ! output param.
+        PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
       Tnk=8.31447d13/CMImean*RHO*T6 ! n_i kT [erg/cc]
       P=PnkT*Tnk/1.d12 ! P [Mbar]
       TEGRAD=CHIT/(CHIT**2+CHIR*CV/PnkT) ! from Maxwell relat.
@@ -220,9 +220,9 @@
       print *, "SUCCESS"
       end program main
       
-      subroutine MELANGE9(AY,AZion,ACMI,RHO,TEMP,PRADnkT,
-     *   DENS,Zmean,CMImean,Z2mean,GAMImean,CHI,TPT,LIQSOL,
-     *   PnkT,UNkT,SNk,CV,CHIR,CHIT)
+      subroutine MELANGE9(AY,AZion,ACMI,RHO,TEMP,PRADnkT, &
+          DENS,Zmean,CMImean,Z2mean,GAMImean,CHI,TPT,LIQSOL, &
+          PnkT,UNkT,SNk,CV,CHIR,CHIT)
 !                                                       Version 18.04.20
 ! Difference from v.10.12.14: included switch-off of WK correction
 ! Stems from MELANGE8 v.26.12.09.
@@ -297,7 +297,10 @@
       double precision :: PDT1, PDT2, PDTMIX, PEid, PMIX, PRESS, PRESSE
       double precision :: PRESSI, PRESSRAD, PRI, RS, RSI, RZ, SC1, SC2
       double precision :: SEid, Stot, TPT2
-      if (RHO.lt.1.e-19.or.RHO.gt.1.e15) stop'MELANGE: RHO out of range'
+      if (RHO.lt.1.e-19.or.RHO.gt.1.e15) then
+         print *, 'MELANGE: RHO out of range'
+         stop
+      end if
       ! Calculation of average values:
       Zmean=0.
       Z2mean=0.
@@ -323,9 +326,9 @@
       DENS=RHO/11.20587*Zmean/CMImean ! number density of electrons [au]
       call CHEMFIT(DENS,TEMP,CHI)
       ! NB: CHI can be used as true input instead of RHO or DENS
-      call ELECT11(TEMP,CHI,
-     *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
-     *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
+      call ELECT11(TEMP,CHI, &
+       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
       ! NB: at this point DENS is redefined (the difference can be ~0.1%)
       DTE=DENS*TEMP
       PRESSE=PEid*DTE ! P_e [a.u.]
@@ -359,9 +362,9 @@
          GAMI=Zion**C53*GAME ! Gamma_i for given ion species
          DNI=DENSI*AY(IX) ! number density of ions of given type
          PRI=DNI*TEMP ! = ideal-ions partial pressure (normalization)
-         call EOSFI8(LIQSOL,CMI,Zion,RS,GAMI,
-     *     FC1,UC1,PC1,SC1,CV1,PDT1,PDR1,
-     *     FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
+         call EOSFI8(LIQSOL,CMI,Zion,RS,GAMI, &
+          FC1,UC1,PC1,SC1,CV1,PDT1,PDR1, &
+          FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
          ! First-order TD functions:
          UINT=UINT+UC2*PRI ! internal energy density (e+i+Coul.)
          Stot=Stot+DNI*(SC2-dlog(AY(IX))) !entropy per unit volume[a.u.]
@@ -392,8 +395,8 @@
       endif
       ! Corrections to the linear mixing rule:
       if (LIQSOL.eq.0) then ! liquid phase
-         call CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321,
-     *     FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
+         call CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
+          FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
       else ! solid phase (only Madelung contribution) [22.12.12]
          FMIX=0.
         do I=1,NMIX
@@ -435,9 +438,9 @@
       return
       end
 
-      subroutine EOSFI8(LIQSOL,CMI,Zion,RS,GAMI,
-     *  FC1,UC1,PC1,SC1,CV1,PDT1,PDR1,
-     *  FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
+      subroutine EOSFI8(LIQSOL,CMI,Zion,RS,GAMI, &
+          FC1,UC1,PC1,SC1,CV1,PDT1,PDR1, &
+          FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
 !                                                       Version 16.09.08
 !                 call FHARM8 has been replaced by call FHARM12 27.04.12
 !                           Wigner-Kirkwood correction excluded 20.05.13
@@ -465,11 +468,26 @@
       save
       parameter(C53=5.d0/3.d0,C76=7.d0/6.d0) ! TINY excl.10.12.14
       parameter (AUM=1822.888d0) ! a.m.u/m_e
-      if (LIQSOL.ne.1.and.LIQSOL.ne.0) stop'EOSFI8: invalid LIQSOL'
-      if (CMI.le..1) stop'EOSFI8: too small CMI'
-      if (Zion.le..1) stop'EOSFI8: too small Zion'
-      if (RS.le..0) stop'EOSFI8: invalid RS'
-      if (GAMI.le..0) stop'EOSFI8: invalid GAMI'
+      if (LIQSOL.ne.1.and.LIQSOL.ne.0) then
+         print *, 'EOSFI8: invalid LIQSOL'
+         stop
+      end if
+      if (CMI.le..1) then
+         print *, 'EOSFI8: too small CMI'
+         stop
+      end if
+      if (Zion.le..1) then
+         print *, 'EOSFI8: too small Zion'
+         stop
+      end if
+      if (RS.le..0) then
+         print *, 'EOSFI8: invalid RS'
+         stop
+      end if
+      if (GAMI.le..0) then
+         print *, 'EOSFI8: invalid GAMI'
+         stop
+      end if
       GAME=GAMI/Zion**C53
       call EXCOR7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC) ! "ee"("xc")
 ! Calculate "ii" part:
@@ -479,8 +497,8 @@
 ! 1.3235=1+0.5*ln(6/pi); FidION = F_{id.ion gas}/(N_i kT), but without
 ! the term x_i ln x_i = -S_{mix}/(N_i k).
       if (LIQSOL.eq.0) then               ! liquid
-         call FITION9(GAMI,
-     *     FION,UION,PION,CVii,PDTii,PDRii)
+         call FITION9(GAMI, &
+          FION,UION,PION,CVii,PDTii,PDRii)
          FItot=FION+FidION
          UItot=UION+1.5
          PItot=PION+1.d0
@@ -489,8 +507,8 @@
          PDTi=PDTii+1.d0
          PDRi=PDRii+1.d0
       else                                  ! solid
-         call FHARM12(GAMI,TPT,
-     *     Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm) ! harm."ii"
+         call FHARM12(GAMI,TPT, &
+          Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm) ! harm."ii"
          call ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah) ! anharm.
          FItot=Fharm+Fah
          FION=FItot-FidION
@@ -508,11 +526,11 @@
       endif
 ! Calculate "ie" part:
       if (LIQSOL.eq.1) then
-         call FSCRsol8(RS,GAMI,Zion,TPT,
-     *     FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
+         call FSCRsol8(RS,GAMI,Zion,TPT, &
+          FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
       else
-         call FSCRliq8(RS,GAME,Zion,
-     *     FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR)
+         call FSCRliq8(RS,GAME,Zion, &
+          FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR)
          S_SCR=USCR-FSCR
       endif
 ! Total excess quantities ("ii"+"ie"+"ee", per ion):
@@ -557,28 +575,28 @@
 !   Parameters adjusted to Caillol (1999).
       implicit double precision (A-H),double precision (O-Z)
       save
-      parameter (A1=-.907347d0,A2=.62849d0,C1=.004500d0,G1=170.0,
-     *  C2=-8.4d-5,G2=.0037,SQ32=.8660254038d0) ! SQ32=sqrt(3)/2
+      parameter (A1=-.907347d0,A2=.62849d0,C1=.004500d0,G1=170.0, &
+       C2=-8.4d-5,G2=.0037,SQ32=.8660254038d0) ! SQ32=sqrt(3)/2
       A3=-SQ32-A1/dsqrt(A2)
-      F0=A1*(dsqrt(GAMI*(A2+GAMI))-
-     -     A2*dlog(dsqrt(GAMI/A2)+dsqrt(1.+GAMI/A2)))+
-     +     2.*A3*(dsqrt(GAMI)-datan(dsqrt(GAMI)))
+      F0=A1*(dsqrt(GAMI*(A2+GAMI))- &
+          A2*dlog(dsqrt(GAMI/A2)+dsqrt(1.+GAMI/A2)))+ &
+          2.*A3*(dsqrt(GAMI)-datan(dsqrt(GAMI)))
       U0=dsqrt(GAMI)**3*(A1/dsqrt(A2+GAMI)+A3/(1.d0+GAMI))
 !   This is the zeroth approximation. Correction:
       UION=U0+C1*GAMI**2/(G1+GAMI)+C2*GAMI**2/(G2+GAMI**2)
-      FION=F0+C1*(GAMI-G1*dlog(1.d0+GAMI/G1))+
-     +   C2/2.*dlog(1.d0+GAMI**2/G2)
-      CVii=-0.5*dsqrt(GAMI)**3*(A1*A2/dsqrt(A2+GAMI)**3+
-     +  A3*(1.d0-GAMI)/(1.d0+GAMI)**2) -
-     -  GAMI**2*(C1*G1/(G1+GAMI)**2+C2*(G2-GAMI**2)/(G2+GAMI**2)**2)
+      FION=F0+C1*(GAMI-G1*dlog(1.d0+GAMI/G1))+ &
+        C2/2.*dlog(1.d0+GAMI**2/G2)
+      CVii=-0.5*dsqrt(GAMI)**3*(A1*A2/dsqrt(A2+GAMI)**3+ &
+       A3*(1.d0-GAMI)/(1.d0+GAMI)**2) - &
+       GAMI**2*(C1*G1/(G1+GAMI)**2+C2*(G2-GAMI**2)/(G2+GAMI**2)**2)
       PION=UION/3.
       PDRii=(4.*UION-CVii)/9. ! p_{ii} + d p_{ii} / d ln\rho
       PDTii=CVii/3. ! p_{ii} + d p_{ii} / d ln T
       return
       end
 
-      subroutine FSCRliq8(RS,GAME,Zion,
-     *     FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR) ! fit to the el.-ion scr.
+      subroutine FSCRliq8(RS,GAME,Zion, &
+          FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR) ! fit to the el.-ion scr.
 !                                                       Version 11.09.08
 !                                                       cleaned 16.06.09
 ! Stems from FSCRliq7 v. 09.06.07. Included a check for RS=0.
@@ -592,7 +610,10 @@
       implicit double precision(A-H),double precision(O-Z)
       save
       parameter(XRS=.0140047,TINY=1.d-19)
-      if (RS.lt.0.) stop'FSCRliq8: RS < 0'
+      if (RS.lt.0.) then
+         print *, 'FSCRliq8: RS < 0'
+         stop
+      end if
       if (RS.lt.TINY) then
          FSCR=0.
          USCR=0.
@@ -662,22 +683,22 @@
       H1=H1U/H1D
       H1X=.4*X/H1U-(Q1+2.*Q2*X)/H1D
       H1DX=H1*H1X
-      H1DXX=H1DX*H1X+
-     +  H1*(.4/H1U-(.4*X/H1U)**2-2.*Q2/H1D+((Q1+2.*Q2*X)/H1D)**2)
+      H1DXX=H1DX*H1X+ &
+       H1*(.4/H1U-(.4*X/H1U)**2-2.*Q2/H1D+((Q1+2.*Q2*X)/H1D)**2)
       UP=CDH*SQG+P01*CTF*TX*COR0*H1
       UPDX=P01*CTF*TX*(COR0DX*H1+COR0*H1DX)
       UPDG=.5*CDH/SQG+P01*CTF*(TXDG*COR0+TX*COR0DG)*H1
       UPDXX=P01*CTF*TX*(COR0DXX*H1+2.*COR0DX*H1DX+COR0*H1DXX)
-      UPDGG=-.25*CDH/(SQG*GAME)+
-     +  P01*CTF*(TXDGG*COR0+2.*TXDG*COR0DG+TX*COR0DGG)*H1
-      UPDXG=P01*CTF*(TXDG*(COR0DX*H1+COR0*H1DX)+
-     +  TX*(COR0DXG*H1+COR0DG*H1DX))
+      UPDGG=-.25*CDH/(SQG*GAME)+ &
+       P01*CTF*(TXDGG*COR0+2.*TXDG*COR0DG+TX*COR0DGG)*H1
+      UPDXG=P01*CTF*(TXDG*(COR0DX*H1+COR0*H1DX)+ &
+       TX*(COR0DXG*H1+COR0DG*H1DX))
       DN1=P03*SQG+P01/RS*TX*COR1
       DN1DX=P01*TX*(COR1/XRS+COR1DX/RS)
       DN1DG=.5*P03/SQG+P01/RS*(TXDG*COR1+TX*COR1DG)
       DN1DXX=P01*TX/XRS*(2.*COR1DX+X*COR1DXX)
-      DN1DGG=-.25*P03/(GAME*SQG)+
-     +  P01/RS*(TXDGG*COR1+2.*TXDG*COR1DG+TX*COR1DGG)
+      DN1DGG=-.25*P03/(GAME*SQG)+ &
+       P01/RS*(TXDGG*COR1+2.*TXDG*COR1DG+TX*COR1DGG)
       DN1DXG=P01*(TXDG*(COR1/XRS+COR1DX/RS)+TX*(COR1DG/XRS+COR1DXG/RS))
       DN=1.+DN1/RELE
       DNDX=DN1DX/RELE-X*DN1/RELE**3
@@ -687,8 +708,8 @@
       DNDXG=DN1DXG/RELE-X*DN1DG/RELE**3
       FSCR=-UP/DN*GAME
       FX=(UP*DNDX/DN-UPDX)/DN
-      FXDG=((UPDG*DNDX+UPDX*DNDG+UP*DNDXG-2.*UP*DNDX*DNDG/DN)/DN-
-     -  UPDXG)/DN
+      FXDG=((UPDG*DNDX+UPDX*DNDG+UP*DNDXG-2.*UP*DNDX*DNDG/DN)/DN- &
+       UPDXG)/DN
       FDX=FX*GAME
       FG=(UP*DNDG/DN-UPDG)/DN
       FDG=FG*GAME-UP/DN
@@ -705,8 +726,8 @@
       end
 
 ! ==============   SUBROUTINES FOR THE SOLID STATE   ================= !
-      subroutine FSCRsol8(RS,GAMI,ZNUCL,TPT,
-     *     FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
+      subroutine FSCRsol8(RS,GAMI,ZNUCL,TPT, &
+          FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
 !                                                       Version 28.05.08
 !                    undefined zero variable Q1DXG is wiped out 21.06.10
 !                                 accuracy-loss safeguard added 10.08.16
@@ -726,7 +747,10 @@
       dimension AP(4) ! parameters of the fit
       parameter (C13=1.d0/3.d0,ENAT=2.7182818285d0,TINY=1.d-19)
       data AP/1.1866,.684,17.9,41.5/,PX/.205/ ! for bcc lattice
-      if (RS.lt.0.) stop'FSCRliq8: RS < 0'
+      if (RS.lt.0.) then
+         print *, 'FSCRliq8: RS < 0'
+         stop
+      end if
       if (RS.lt.TINY) then
          FSCR=0.
          USCR=0.
@@ -745,8 +769,8 @@
       XSR=.0140047/RS ! relativity parameter
       Z13=Zion**C13
       P1=.00352*(1.-AP(1)/Zion**.267+.27/Zion)
-      P2=1.d0+2.25/Z13*
-     *(1.+AP(2)*Zion**5+.222*Zion**6)/(1.+.222*Zion**6)
+      P2=1.d0+2.25/Z13* &
+      (1.+AP(2)*Zion**5+.222*Zion**6)/(1.+.222*Zion**6)
       ZLN=dlog(Zion)
       Finf=sqrt(P2/XSR**2+1.)*Z13**2*P1 ! The TF limit
       FinfX=-P2/((P2+XSR**2)*XSR)
@@ -797,15 +821,15 @@
          SUPDX=SUP*SUPX
          SUPG=.5d0*(SUPADG/SUPA-SUPBDG/SUPB)
          SUPDG=SUP*SUPG
-         SUPDXX=SUPDX*SUPX+
-     +     SUP*.5d0*(SUPADXX/SUPA-(SUPADX/SUPA)**2-
-     -             SUPBDXX/SUPB+(SUPBDX/SUPB)**2)
-         SUPDGG=SUPDG*SUPG+
-     +     SUP*.5d0*(SUPADGG/SUPA-(SUPADG/SUPA)**2-
-     -             SUPBDGG/SUPB+(SUPBDG/SUPB)**2)
-         SUPDXG=SUPDX*SUPG+
-     +     SUP*.5d0*((SUPADXG-SUPADX*SUPADG/SUPA)/SUPA-
-     -             (SUPBDXG-SUPBDX*SUPBDG/SUPB)/SUPB)
+         SUPDXX=SUPDX*SUPX+ &
+          SUP*.5d0*(SUPADXX/SUPA-(SUPADX/SUPA)**2- &
+                  SUPBDXX/SUPB+(SUPBDX/SUPB)**2)
+         SUPDGG=SUPDG*SUPG+ &
+          SUP*.5d0*(SUPADGG/SUPA-(SUPADG/SUPA)**2- &
+                  SUPBDGG/SUPB+(SUPBDG/SUPB)**2)
+         SUPDXG=SUPDX*SUPG+ &
+          SUP*.5d0*((SUPADXG-SUPADX*SUPADG/SUPA)/SUPA- &
+                  (SUPBDXG-SUPBDX*SUPBDG/SUPB)/SUPB)
       else
          SUP=PX*TPT
          SUPDX=.5d0*PX*TPT/XSR
@@ -825,8 +849,8 @@
       W=1.d0+Q1/GR3
       WDX=Q1DX/GR3-Q1*GR3DX/GR3**2
       WDG=-Q1*GR3DG/GR3**2
-      WDXX=Q1DXX/GR3-
-     -   (2.d0*Q1DX*GR3DX+Q1*(GR3DXX-2.d0*GR3DX**2/GR3))/GR3**2
+      WDXX=Q1DXX/GR3- &
+        (2.d0*Q1DX*GR3DX+Q1*(GR3DXX-2.d0*GR3DX**2/GR3))/GR3**2
       WDGG=Q1*(2.d0*GR3DG**2/GR3-GR3DGG)/GR3**2
       WDXG=-(Q1DX*GR3DG+Q1*(GR3DXG-2.d0*GR3DX*GR3DG/GR3))/GR3**2
       FSCR=-GAMI*Finf*W
@@ -841,8 +865,8 @@
       CVSCR=-GAMI**2*FDGG
       PSCR=(XSR*FDX+GAMI*FDG)/3.d0
       PDTSCR=GAMI**2*(XSR*Finf*(FinfX*WDG+WDXG)-FDGG)/3.d0
-      PDRSCR=(12.d0*PSCR+XSR**2*FDXX+2.d0*XSR*GAMI*FDXG+
-     +  GAMI**2*FDGG)/9.d0
+      PDRSCR=(12.d0*PSCR+XSR**2*FDXX+2.d0*XSR*GAMI*FDXG+ &
+       GAMI**2*FDGG)/9.d0
       return
       end
 
@@ -881,8 +905,8 @@
          Uah=Uah+(ACN*(1.+2.*TK2/CN))*SUPGN
          PN=AA(N)/3.+TK2*AA(N)/CN
          Pah=Pah+PN*SUPGN
-         CVah=CVah+((CN+1.)*AA(N)+(4.-2./CN)*AA(N)*TK2+
-     +     4.*AA(N)*CK**2/CN*TPT4)*SUPGN
+         CVah=CVah+((CN+1.)*AA(N)+(4.-2./CN)*AA(N)*TK2+ &
+           4.*AA(N)*CK**2/CN*TPT4)*SUPGN
          PDTah=PDTah+(PN*(1.+CN+2.*TK2)-2./CN*AA(N)*TK2)*SUPGN
          PDRah=PDRah+(PN*(1.-CN/3.-TK2)+AA(N)/CN*TK2)*SUPGN
       enddo
@@ -893,8 +917,8 @@
       return
       end
 
-      subroutine FHARM12(GAMI,TPT,
-     *   Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
+      subroutine FHARM12(GAMI,TPT, &
+        Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
 ! Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
 ! 
 !                                                       Version 27.04.12
@@ -977,7 +1001,8 @@
          C9=.00492387d0
          C11=.00437506d0
       else
-         stop'HLfit: unknown lattice type'
+         print *, 'HLfit: unknown lattice type'
+         stop
       endif
       if (eta.gt.1./EPS) then ! asymptote of Eq.(13) of BPY'01
          U=3./(C11*eta**3)
@@ -985,7 +1010,10 @@
          CV=4.*U
         goto 50
       elseif (eta.lt.EPS) then ! Eq.(17) of BPY'01
-        if (eta.lt.TINY) stop'HLfit: eta is too small'
+        if (eta.lt.TINY) then
+           print *, 'HLfit: eta is too small'
+           stop
+        end if
          F=3.*dlog(eta)+CLM-1.5*U1*eta+eta**2/24. 
          U=3.-1.5*U1*eta+eta**2/12.
          CV=3.-eta**2/12.
@@ -1001,42 +1029,42 @@
       B9=A6*C9
       B11=A8*C11
       UP=1.+A1*eta+A2*eta2+A3*eta3+A4*eta4+A6*eta6+A8*eta8
-      DN=B0+B2*eta2+B4*eta4+B5*eta5+B6*eta6+
-     +  B7*eta7+eta8*(B9*eta+B11*eta3)
+      DN=B0+B2*eta2+B4*eta4+B5*eta5+B6*eta6+ &
+       B7*eta7+eta8*(B9*eta+B11*eta3)
       EA=dexp(-ALPHA*eta)
       EB=dexp(-BETA*eta)
       EG=dexp(-GAMMA*eta)
       F=dlog(1.d0-EA)+dlog(1.d0-EB)+dlog(1.-EG)-UP/DN ! F_{thermal}/NT
-      UP1=A1+
-     + 2.*A2*eta+3.*A3*eta2+4.*A4*eta3+6.*A6*eta5+8.*A8*eta7
+      UP1=A1+ &
+      2.*A2*eta+3.*A3*eta2+4.*A4*eta3+6.*A6*eta5+8.*A8*eta7
       UP2=2.*A2+6.*A3*eta+12.*A4*eta2+30.*A6*eta4+56.*A8*eta6
       UP3=6.*A3+24.*A4*eta+120.*A6*eta3+336*A8*eta5
-      DN1=2.*B2*eta+4.*B4*eta3+5.*B5*eta4+6.*B6*eta5+
-     +  7.*B7*eta6+eta8*(9.*B9+11.*B11*eta2)
-      DN2=2.*B2+12.*B4*eta2+20.*B5*eta3+30.*B6*eta4+
-     +  42.*B7*eta5+72.*B9*eta7+110.*B11*eta8*eta
-      DN3=24.*B4*eta+60.*B5*eta2+120.*B6*eta3+
-     +  210.*B7*eta4+504.*B9*eta6+990.*B11*eta8
-      DF1=ALPHA*EA/(1.d0-EA)+BETA*EB/(1.d0-EB)+GAMMA*EG/(1.d0-EG)-
-     -  (UP1*DN-DN1*UP)/DN**2 ! int.en./NT/eta = df/d\eta
-      DF2=ALPHA**2*EA/(1.d0-EA)**2+BETA**2*EB/(1.d0-EB)**2+
-     +  GAMMA**2*EG/(1.d0-EG)**2+
-     +  ((UP2*DN-DN2*UP)*DN-2.*(UP1*DN-DN1*UP)*DN1)/DN**3 ! -d2f/d\eta^2
+      DN1=2.*B2*eta+4.*B4*eta3+5.*B5*eta4+6.*B6*eta5+ &
+       7.*B7*eta6+eta8*(9.*B9+11.*B11*eta2)
+      DN2=2.*B2+12.*B4*eta2+20.*B5*eta3+30.*B6*eta4+ &
+       42.*B7*eta5+72.*B9*eta7+110.*B11*eta8*eta
+      DN3=24.*B4*eta+60.*B5*eta2+120.*B6*eta3+ &
+       210.*B7*eta4+504.*B9*eta6+990.*B11*eta8
+      DF1=ALPHA*EA/(1.d0-EA)+BETA*EB/(1.d0-EB)+GAMMA*EG/(1.d0-EG)- &
+       (UP1*DN-DN1*UP)/DN**2 ! int.en./NT/eta = df/d\eta
+      DF2=ALPHA**2*EA/(1.d0-EA)**2+BETA**2*EB/(1.d0-EB)**2+ &
+       GAMMA**2*EG/(1.d0-EG)**2+ &
+       ((UP2*DN-DN2*UP)*DN-2.*(UP1*DN-DN1*UP)*DN1)/DN**3 ! -d2f/d\eta^2
       U=DF1*eta
       CV=DF2*eta2
-      DF3=-ALPHA**3*EA/(1.d0-EA)**3*(1.+EA)-
-     -  BETA**3*EB/(1.d0-EB)**3*(1.+EB)-
-     -  GAMMA**3*EG/(1.d0-EG)**3*(1.+EG)+
-     +  UP3/DN-(3.*UP2*DN1+3.*UP1*DN2+UP*DN3)/DN**2+
-     +  6.*DN1*(UP1*DN1+UP*DN2)/DN**3-6.*UP*DN1**3/DN**4 ! -d3f/d\eta^3
+      DF3=-ALPHA**3*EA/(1.d0-EA)**3*(1.+EA)- &
+       BETA**3*EB/(1.d0-EB)**3*(1.+EB)- &
+       GAMMA**3*EG/(1.d0-EG)**3*(1.+EG)+ &
+       UP3/DN-(3.*UP2*DN1+3.*UP1*DN2+UP*DN3)/DN**2+ &
+       6.*DN1*(UP1*DN1+UP*DN2)/DN**3-6.*UP*DN1**3/DN**4 ! -d3f/d\eta^3
       CW=-2.*CV-eta3*DF3
    50 continue
       S=U-F
       return
       end
 
-      subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321,
-     *  FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
+      subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
+       FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
 !                                                       Version 02.07.09
 ! Correction to the linear mixing rule for moderate to small Gamma
 ! Input: RS=r_s (if RS=0, then OCP, otherwise EIP)
@@ -1091,9 +1119,9 @@
       end
 
 ! ===================  IDEAL ELECTRON GAS  =========================== !
-      subroutine ELECT11(TEMP,CHI,
-     *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
-     *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
+      subroutine ELECT11(TEMP,CHI, &
+       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
 !                                                       Version 17.11.11
 !                 safeguard against huge (-CHI) values is added 27.05.17
 ! ELECT9 v.04.03.09 + smooth match of two fits at chi >> 1 + add.outputs
@@ -1120,24 +1148,27 @@
       parameter (CHI2=28.d0,XMAX=20.d0)
       parameter (DCHI2=CHI2-1.d0)
       parameter (XSCAL2=XMAX/DCHI2)
-      if (CHI.lt.-1.d2) stop'ELECT11: too large negative CHI' ! 27.05.17
+      if (CHI.lt.-1.d2) then
+         print *, 'ELECT11: too large negative CHI' ! 27.05.17
+         stop
+      end if
       X2=(CHI-CHI2)*XSCAL2
       if (X2.lt.-XMAX) then
-         call ELECT11a(TEMP,CHI,
-     *     DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
-     *     DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
+         call ELECT11a(TEMP,CHI, &
+          DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+          DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
       elseif (X2.gt.XMAX) then
-         call ELECT11b(TEMP,CHI,
-     *     DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
-     *     DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
+         call ELECT11b(TEMP,CHI, &
+          DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+          DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
       else
          call FERMI10(X2,XMAX,FP,FM)
-         call ELECT11a(TEMP,CHI,
-     *     DENSa,FEida,PEida,UEida,SEida,CVEa,CHITEa,CHIREa,
-     *     DlnDHa,DlnDTa,DlnDHHa,DlnDTTa,DlnDHTa)
-         call ELECT11b(TEMP,CHI,
-     *     DENSb,FEidb,PEidb,UEidb,SEidb,CVEb,CHITEb,CHIREb,
-     *     DlnDHb,DlnDTb,DlnDHHb,DlnDTTb,DlnDHTb)
+         call ELECT11a(TEMP,CHI, &
+          DENSa,FEida,PEida,UEida,SEida,CVEa,CHITEa,CHIREa, &
+          DlnDHa,DlnDTa,DlnDHHa,DlnDTTa,DlnDHTa)
+         call ELECT11b(TEMP,CHI, &
+          DENSb,FEidb,PEidb,UEidb,SEidb,CVEb,CHITEb,CHIREb, &
+          DlnDHb,DlnDTb,DlnDHHb,DlnDTTb,DlnDHTb)
          DENS=DENSa*FP+DENSb*FM
          FEid=FEida*FP+FEidb*FM
          PEid=PEida*FP+PEidb*FM
@@ -1155,9 +1186,9 @@
       return
       end
 
-      subroutine ELECT11a(TEMP,CHI,
-     *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
-     *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
+      subroutine ELECT11a(TEMP,CHI, &
+       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
 !                                                       Version 16.11.11
 ! This is THE FIRST PART of ELECT9 v.04.03.09.
       implicit double precision (A-H), double precision (O-Z)
@@ -1165,11 +1196,11 @@
       parameter (BOHR=137.036,PI=3.141592653d0)
       parameter (PI2=PI**2,BOHR2=BOHR**2,BOHR3=BOHR2*BOHR) !cleaned 15/6
       TEMR=TEMP/BOHR2 ! T in rel.units (=T/mc^2)
-      call BLIN9(TEMR,CHI,
-     *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *  W0XXX,W0XTT,W0XXT)
+      call BLIN9(TEMR,CHI, &
+       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+       W0XXX,W0XTT,W0XXT)
       TPI=TEMR*dsqrt(2.d0*TEMR)/PI2 ! common pre-factor
       DENR=TPI*(W1*TEMR+W0)
       PR=TEMR*TPI/3.*(W2*TEMR+2.*W1)
@@ -1187,8 +1218,8 @@
 ! derivatives over chi at constant T and second derivatives:
       dndH=TPI*(W0DX+TEMR*W1DX) ! (d n_e/d\chi)_T
       dndHH=TPI*(W0DXX+TEMR*W1DXX) ! (d^2 n_e/d\chi)_T
-      dndTT=TPI*(.75*W0/TEMR**2+3.*W0DT/TEMR+W0DTT+
-     +  3.75*W1/TEMR+5.*W1DT+TEMR*W1DTT)
+      dndTT=TPI*(.75*W0/TEMR**2+3.*W0DT/TEMR+W0DTT+ &
+       3.75*W1/TEMR+5.*W1DT+TEMR*W1DTT)
       dndHT=TPI*(1.5*W0DX/TEMR+W0DXT+2.5*W1DX+TEMR*W1DXT)
       DlnDH=dndH/DENR ! (d ln n_e/d\chi)_T
       DlnDT=dndT*TEMR/DENR ! (d ln n_e/d ln T)_\chi
@@ -1203,9 +1234,9 @@
       return
       end
 
-      subroutine ELECT11b(TEMP,CHI,
-     *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
-     *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
+      subroutine ELECT11b(TEMP,CHI, &
+       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
 !                                                       Version 17.11.11
 ! Stems from ELECT9b v.19.01.10, Diff. - additional output.
 ! Sommerfeld expansion at very large CHI.
@@ -1215,8 +1246,8 @@
       parameter (PI2=PI**2,BOHR2=BOHR**2,BOHR3=BOHR2*BOHR) !cleaned 15/6
       TEMR=TEMP/BOHR2 ! T in rel.units (=T/mc^2)
       EF=CHI*TEMR ! Fermi energy in mc^2 - zeroth aprox. = CMU1
-      DeltaEF=PI2*TEMR**2/6.d0*(1.d0+2.d0*EF*(2.d0+EF))/
-     /  (EF*(1.d0+EF)*(2.d0+EF)) ! corr. [p.125, equiv.Eq.(6) of PC'10]
+      DeltaEF=PI2*TEMR**2/6.d0*(1.d0+2.d0*EF*(2.d0+EF))/ &
+       (EF*(1.d0+EF)*(2.d0+EF)) ! corr. [p.125, equiv.Eq.(6) of PC'10]
       EF=EF+DeltaEF ! corrected Fermi energy (14.02.09)
       G=1.d0+EF ! electron Lorentz-factor
       if (EF.gt.1.d-5) then ! relativistic expansion (Yak.&Shal.'89)
@@ -1244,16 +1275,16 @@
       DENS=DENR*BOHR3 ! conversion to a.u.(=\Bohr_radius^{-3})
 ! derivatives over chi at constant T and T at constant chi:
       TPI=TEMR*dsqrt(2.d0*TEMR)/PI2 ! common pre-factor
-      call SOMMERF(TEMR,CHI,
-     *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *  W0XXX,W0XTT,W0XXT)
+      call SOMMERF(TEMR,CHI, &
+       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+       W0XXX,W0XTT,W0XXT)
       dndH=TPI*(W0DX+TEMR*W1DX) ! (d n_e/d\chi)_T
       dndT=TPI*(1.5*W0/TEMR+2.5*W1+W0DT+TEMR*W1DT) ! (d n_e/dT)_\chi
       dndHH=TPI*(W0DXX+TEMR*W1DXX) ! (d^2 n_e/d\chi)_T
-      dndTT=TPI*(.75*W0/TEMR**2+3.*W0DT/TEMR+W0DTT+
-     +  3.75*W1/TEMR+5.*W1DT+TEMR*W1DTT)
+      dndTT=TPI*(.75*W0/TEMR**2+3.*W0DT/TEMR+W0DTT+ &
+       3.75*W1/TEMR+5.*W1DT+TEMR*W1DTT)
       dndHT=TPI*(1.5*W0DX/TEMR+W0DXT+2.5*W1DX+TEMR*W1DXT)
       DlnDH=dndH/DENR ! (d ln n_e/d\chi)_T
       DlnDT=dndT*TEMR/DENR ! (d ln n_e/d ln T)_\chi
@@ -1274,11 +1305,11 @@
       return
       end
 
-      subroutine SOMMERF(TEMR,CHI,
-     *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *  W0XXX,W0XTT,W0XXT)
+      subroutine SOMMERF(TEMR,CHI, &
+       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+       W0XXX,W0XTT,W0XXT)
 !                                                       Version 17.11.11
 ! Sommerfeld expansion for the Fermi-Dirac integrals
 ! Input: TEMR=T/mc^2; CHI=(\mu-mc^2)/T
@@ -1292,16 +1323,22 @@
       save
       parameter(PI=3.141592653d0)
       parameter(PI2=PI**2)
-      if (CHI.lt..5d0) stop'SOMMERF: non-degenerate (small CHI)'
-      if (TEMR.le.0.d0) stop'SOMMERF: T < 0'
+      if (CHI.lt..5d0) then
+         print *, 'SOMMERF: non-degenerate (small CHI)'
+         stop
+      end if
+      if (TEMR.le.0.d0) then
+         print *, 'SOMMERF: T < 0'
+         stop
+      end if
       CMU1=CHI*TEMR ! chemical potential in rel.units
       CMU=1.d0+CMU1
-      call SUBFERMJ(CMU1,
-     *  CJ00,CJ10,CJ20,
-     *  CJ01,CJ11,CJ21,
-     *  CJ02,CJ12,CJ22,
-     *  CJ03,CJ13,CJ23,
-     *  CJ04,CJ14,CJ24,CJ05)
+      call SUBFERMJ(CMU1, &
+       CJ00,CJ10,CJ20, &
+       CJ01,CJ11,CJ21, &
+       CJ02,CJ12,CJ22, &
+       CJ03,CJ13,CJ23, &
+       CJ04,CJ14,CJ24,CJ05)
       PIT26=(PI*TEMR)**2/6.d0
       CN0=dsqrt(.5d0/TEMR)/TEMR
       CN1=CN0/TEMR
@@ -1321,32 +1358,35 @@
       W0DXT=CN0*(CMU1*CJ02-.5d0*CJ01+PIT26*(CMU1*CJ04+1.5d0*CJ03))
       W1DXT=CN1*(CMU1*CJ12-1.5d0*CJ11+PIT26*(CMU1*CJ14+.5d0*CJ13))
       W2DXT=CN2*(CMU1*CJ22-2.5d0*CJ21+PIT26*(CMU1*CJ24-.5d0*CJ23))
-      W0DTT=CN2*(3.75d0*CJ00-3.d0*CMU1*CJ01+CMU1**2*CJ02+
-     +  PIT26*(-.25d0*CJ02+CMU1*CJ03+CMU1**2*CJ04))
-      W1DTT=CN2/TEMR*(8.75d0*CJ10-5.d0*CMU1*CJ11+CMU1**2*CJ12+
-     +  PIT26*(.75d0*CJ12-CMU1*CJ13+CMU1**2*CJ14))
-      W2DTT=CN2/TEMR**2*(15.75d0*CJ20-7.d0*CMU1*CJ21+CMU1**2*CJ22+
-     +  PIT26*(3.75d0*CJ22-3.d0*CMU1*CJ23+CMU1**2*CJ24))
+      W0DTT=CN2*(3.75d0*CJ00-3.d0*CMU1*CJ01+CMU1**2*CJ02+ &
+       PIT26*(-.25d0*CJ02+CMU1*CJ03+CMU1**2*CJ04))
+      W1DTT=CN2/TEMR*(8.75d0*CJ10-5.d0*CMU1*CJ11+CMU1**2*CJ12+ &
+       PIT26*(.75d0*CJ12-CMU1*CJ13+CMU1**2*CJ14))
+      W2DTT=CN2/TEMR**2*(15.75d0*CJ20-7.d0*CMU1*CJ21+CMU1**2*CJ22+ &
+       PIT26*(3.75d0*CJ22-3.d0*CMU1*CJ23+CMU1**2*CJ24))
       W0XXX=CN0*TEMR**3*(CJ03+PIT26*CJ05)
       W0XXT=CN0*TEMR*(CMU1*CJ03+.5d0*CJ02+PIT26*(CMU1*CJ05+2.5d0*CJ04))
-      W0XTT=CN1*(.75d0*CJ01-CMU1*CJ02+CMU1**2*CJ03+
-     +  PIT26*(.75d0*CJ03+3.d0*CMU1*CJ04+CMU1**2*CJ05))
+      W0XTT=CN1*(.75d0*CJ01-CMU1*CJ02+CMU1**2*CJ03+ &
+       PIT26*(.75d0*CJ03+3.d0*CMU1*CJ04+CMU1**2*CJ05))
       return
       end
 
-      subroutine SUBFERMJ(CMU1,
-     *  CJ00,CJ10,CJ20,
-     *  CJ01,CJ11,CJ21,
-     *  CJ02,CJ12,CJ22,
-     *  CJ03,CJ13,CJ23,
-     *  CJ04,CJ14,CJ24,CJ05)
+      subroutine SUBFERMJ(CMU1, &
+       CJ00,CJ10,CJ20, &
+       CJ01,CJ11,CJ21, &
+       CJ02,CJ12,CJ22, &
+       CJ03,CJ13,CJ23, &
+       CJ04,CJ14,CJ24,CJ05)
 !                                                       Version 17.11.11
 !                                                     corrected 04.03.21
 ! Supplement to SOMMERF
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(EPS=1.d-4) ! inserted 04.03.21
-      if (CMU1.le.0.d0) stop'SUBFERMJ: small CHI'
+      if (CMU1.le.0.d0) then
+         print *, 'SUBFERMJ: small CHI'
+         stop
+      end if
       CMU=1.d0+CMU1
       X0=dsqrt(CMU1*(2.d0+CMU1))
       X3=X0**3
@@ -1386,7 +1426,10 @@
 !         FM = 1-f(x)
       implicit double precision (A-H), double precision (O-Z)
       save
-      if (XMAX.lt.3.d0) stop'FERMI10: XMAX'
+      if (XMAX.lt.3.d0) then
+         print *, 'FERMI10: XMAX'
+         stop
+      end if
       if (X.gt.XMAX) then
          FP=0.d0
          FM=1.d0
@@ -1451,8 +1494,8 @@
       A=.610887*A0/A1*T1 ! HF fit of Perrot and Dharma-wardana
       AH=A0DH/A0-A1DH/A1+T1DH/T1
       ADH=A*AH
-      ADHH=ADH*AH+A*(A0DHH/A0-(A0DH/A0)**2-A1DHH/A1+(A1DH/A1)**2+
-     +  T1DHH/T1-(T1DH/T1)**2)
+      ADHH=ADH*AH+A*(A0DHH/A0-(A0DH/A0)**2-A1DHH/A1+(A1DH/A1)**2+ &
+       T1DHH/T1-(T1DH/T1)**2)
       B0=.341308+12.070873d0*THETA2+1.148889d0*THETA4
       B0DH=24.141746d0*THETA+4.595556d0*THETA3
       B0DHH=24.141746d0+13.786668d0*THETA2
@@ -1462,8 +1505,8 @@
       B=SQTH*T2*B0/B1
       BH=.5/THETA+T2DH/T2+B0DH/B0-B1DH/B1
       BDH=B*BH
-      BDHH=BDH*BH+B*(-.5/THETA2+T2DHH/T2-(T2DH/T2)**2+
-     +  B0DHH/B0-(B0DH/B0)**2-B1DHH/B1+(B1DH/B1)**2)
+      BDHH=BDH*BH+B*(-.5/THETA2+T2DHH/T2-(T2DH/T2)**2+ &
+       B0DHH/B0-(B0DH/B0)**2-B1DHH/B1+(B1DH/B1)**2)
       D0=.614925+16.996055d0*THETA2+1.489056*THETA4
       D0DH=33.99211d0*THETA+5.956224d0*THETA3
       D0DHH=33.99211d0+17.868672d0*THETA2
@@ -1473,8 +1516,8 @@
       D=SQTH*T2*D0/D1
       DH=.5/THETA+T2DH/T2+D0DH/D0-D1DH/D1
       DDH=D*DH
-      DDHH=DDH*DH+D*(-.5/THETA2+T2DHH/T2-(T2DH/T2)**2+
-     +  D0DHH/D0-(D0DH/D0)**2-D1DHH/D1+(D1DH/D1)**2)
+      DDHH=DDH*DH+D*(-.5/THETA2+T2DHH/T2-(T2DH/T2)**2+ &
+       D0DHH/D0-(D0DH/D0)**2-D1DHH/D1+(D1DH/D1)**2)
       E0=.539409+2.522206*THETA2+.178484*THETA4
       E0DH=5.044412*THETA+.713936*THETA3
       E0DHH=5.044412+2.141808*THETA2
@@ -1484,13 +1527,13 @@
       E=THETA*T1*E0/E1
       EH=1./THETA+T1DH/T1+E0DH/E0-E1DH/E1
       EDH=E*EH
-      EDHH=EDH*EH+E*(T1DHH/T1-(T1DH/T1)**2+E0DHH/E0-(E0DH/E0)**2-
-     -  E1DHH/E1+(E1DH/E1)**2-1./THETA2)
+      EDHH=EDH*EH+E*(T1DHH/T1-(T1DH/T1)**2+E0DHH/E0-(E0DH/E0)**2- &
+       E1DHH/E1+(E1DH/E1)**2-1./THETA2)
       EXP1TH=dexp(-1./THETA)
       C=(.872496+.025248*EXP1TH)*E
       CDH=.025248*EXP1TH/THETA2*E+C*EDH/E
-      CDHH=.025248*EXP1TH/THETA2*(EDH+(1.-2.*THETA)/THETA2*E)+
-     +  CDH*EDH/E+C*EDHH/E-C*(EDH/E)**2
+      CDHH=.025248*EXP1TH/THETA2*(EDH+(1.-2.*THETA)/THETA2*E)+ &
+       CDH*EDH/E+C*EDHH/E-C*(EDH/E)**2
       DISCR=dsqrt(4.*E-D**2)
       DIDH=.5/DISCR*(4.*EDH-2.*D*DDH)
       DIDHH=(-((2.*EDH-D*DDH)/DISCR)**2+2.*EDHH-DDH**2-D*DDHH)/DISCR
@@ -1502,8 +1545,8 @@
       S1DHG=S1DG*(CDH/C-EDH/E)
       B2=B-C*D/E
       B2DH=BDH-(CDH*D+C*DDH)/E+C*D*EDH/E**2
-      B2DHH=BDHH-(CDHH*D+2.*CDH*DDH+C*DDHH)/E+
-     +  (2.*(CDH*D+C*DDH-C*D*EDH/E)*EDH+C*D*EDHH)/E**2
+      B2DHH=BDHH-(CDHH*D+2.*CDH*DDH+C*DDHH)/E+ &
+       (2.*(CDH*D+C*DDH-C*D*EDH/E)*EDH+C*D*EDHH)/E**2
       SQGE=dsqrt(GAME)
       S2=-2./E*B2*SQGE
       S2H=B2DH/B2-EDH/E
@@ -1523,21 +1566,21 @@
       B3DHH=ADHH-CDHH/E+(2.*CDH*EDH+C*EDHH)/E**2-2.*C*EDH**2/E**3
       C3=(D/E*B2-B3)/E ! =D*B2/E**2-B3/E
       C3DH=(DDH*B2+D*B2DH+B3*EDH)/E**2-2.*D*B2*EDH/E**3-B3DH/E
-      C3DHH=(-B3DHH+
-     +  (DDHH*B2+2.*DDH*B2DH+D*B2DHH+B3DH*EDH+B3*EDHH+B3DH*EDH)/E-
-     -  2.*((DDH*B2+D*B2DH+B3*EDH+DDH*B2+D*B2DH)*EDH+D*B2*EDHH)/E**2+
-     +  6.*D*B2*EDH**2/E**3)/E
+      C3DHH=(-B3DHH+ &
+       (DDHH*B2+2.*DDH*B2DH+D*B2DHH+B3DH*EDH+B3*EDHH+B3DH*EDH)/E- &
+       2.*((DDH*B2+D*B2DH+B3*EDH+DDH*B2+D*B2DH)*EDH+D*B2*EDHH)/E**2+ &
+       6.*D*B2*EDH**2/E**3)/E
       S3=C3*dlog(R3)
       S3DH=S3*C3DH/C3+C3*R3DH/R3
-      S3DHH=(S3DH*C3DH+S3*C3DHH)/C3-S3*(C3DH/C3)**2+
-     +  (C3DH*R3DH+C3*R3DHH)/R3-C3*(R3DH/R3)**2
+      S3DHH=(S3DH*C3DH+S3*C3DHH)/C3-S3*(C3DH/C3)**2+ &
+       (C3DH*R3DH+C3*R3DHH)/R3-C3*(R3DH/R3)**2
       S3DG=C3*R3DG/R3
       S3DGG=C3*(R3DGG/R3-(R3DG/R3)**2)
       S3DHG=(C3DH*R3DG+C3*R3DHG)/R3-C3*R3DG*R3DH/R3**2
       B4=2.-D**2/E
       B4DH=EDH*(D/E)**2-2.*D*DDH/E
-      B4DHH=EDHH*(D/E)**2+2.*EDH*(D/E)**2*(DDH/D-EDH/E)-
-     -  2.*(DDH**2+D*DDHH)/E+2.*D*DDH*EDH/E**2
+      B4DHH=EDHH*(D/E)**2+2.*EDH*(D/E)**2*(DDH/D-EDH/E)- &
+       2.*(DDH**2+D*DDHH)/E+2.*D*DDH*EDH/E**2
       C4=2.*E*SQGE+D
       C4DH=2.*EDH*SQGE+DDH
       C4DHH=2.*EDHH*SQGE+DDHH
@@ -1547,8 +1590,8 @@
       S4A=2./E/DISCR
       S4AH=EDH/E+DIDH/DISCR
       S4ADH=-S4A*S4AH
-      S4ADHH=-S4ADH*S4AH-
-     -  S4A*(EDHH/E-(EDH/E)**2+DIDHH/DISCR-(DIDH/DISCR)**2)
+      S4ADHH=-S4ADH*S4AH- &
+       S4A*(EDHH/E-(EDH/E)**2+DIDHH/DISCR-(DIDH/DISCR)**2)
       S4B=D*B3+B4*B2
       S4BDH=DDH*B3+D*B3DH+B4DH*B2+B4*B2DH
       S4BDHH=DDHH*B3+2.*DDH*B3DH+D*B3DHH+B4DHH*B2+2.*B4DH*B2DH+B4*B2DHH
@@ -1558,17 +1601,17 @@
       UP2=DDH*DISCR-D*DIDH
       DN2=DISCR**2+D**2
       S4CDH=UP1/DN1-UP2/DN2
-      S4CDHH=(C4DHH*DISCR-C4*DIDHH)/DN1-
-     -  UP1*2.*(DISCR*DIDH+C4*C4DH)/DN1**2-
-     -  (DDHH*DISCR-D*DIDHH)/DN2+UP2*2.*(DISCR*DIDH+D*DDH)/DN2**2
+      S4CDHH=(C4DHH*DISCR-C4*DIDHH)/DN1- &
+       UP1*2.*(DISCR*DIDH+C4*C4DH)/DN1**2- &
+       (DDHH*DISCR-D*DIDHH)/DN2+UP2*2.*(DISCR*DIDH+D*DDH)/DN2**2
       S4CDG=C4DG*DISCR/DN1
       S4CDGG=C4DGG*DISCR/DN1-2.*C4*DISCR*(C4DG/DN1)**2
-      S4CDHG=(C4DHG*DISCR+C4DG*DIDH-
-     -  C4DG*DISCR/DN1*2.*(DISCR*DIDH+C4*C4DH))/DN1
+      S4CDHG=(C4DHG*DISCR+C4DG*DIDH- &
+       C4DG*DISCR/DN1*2.*(DISCR*DIDH+C4*C4DH))/DN1
       S4=S4A*S4B*S4C
       S4DH=S4ADH*S4B*S4C+S4A*S4BDH*S4C+S4A*S4B*S4CDH
-      S4DHH=S4ADHH*S4B*S4C+S4A*S4BDHH*S4C+S4A*S4B*S4CDHH+
-     +  2.*(S4ADH*S4BDH*S4C+S4ADH*S4B*S4CDH+S4A*S4BDH*S4CDH)
+      S4DHH=S4ADHH*S4B*S4C+S4A*S4BDHH*S4C+S4A*S4B*S4CDHH+ &
+       2.*(S4ADH*S4BDH*S4C+S4ADH*S4B*S4CDH+S4A*S4BDH*S4CDH)
       S4DG=S4A*S4B*S4CDG
       S4DGG=S4A*S4B*S4CDGG
       S4DHG=S4A*S4B*S4CDHG+S4CDG*(S4ADH*S4B+S4A*S4BDH)
@@ -1580,16 +1623,16 @@
       FXCDHG=S1DHG+S2DHG+S3DHG+S4DHG
       PXC=(GAME*FXCDG-2.*THETA*FXCDH)/3.
       UXC=GAME*FXCDG-THETA*FXCDH
-      SXC=(GAME*S2DG-S2+GAME*S3DG-S3+S4A*S4B*(GAME*S4CDG-S4C))-
-     -  THETA*FXCDH
+      SXC=(GAME*S2DG-S2+GAME*S3DG-S3+S4A*S4B*(GAME*S4CDG-S4C))- &
+       THETA*FXCDH
       if (dabs(SXC).lt.EPS*dabs(THETA*FXCDH)) SXC=0. ! accuracy loss
       CVXC=2.*THETA*(GAME*FXCDHG-FXCDH)-THETA**2*FXCDHH-GAME**2*FXCDGG
       if (dabs(CVXC).lt.EPS*dabs(GAME**2*FXCDGG)) CVXC=0. ! accuracy
       PDLH=THETA*(GAME*FXCDHG-2.*FXCDH-2.*THETA*FXCDHH)/3.
       PDLG=GAME*(FXCDG+GAME*FXCDGG-2.*THETA*FXCDHG)/3.
       PDRXC=PXC+(PDLG-2.*PDLH)/3.
-      PDTXC=GAME*(THETA*FXCDHG-GAME*FXCDGG/3.)-
-     -  THETA*(FXCDH/.75+THETA*FXCDHH/1.5)
+      PDTXC=GAME*(THETA*FXCDHG-GAME*FXCDGG/3.)- &
+       THETA*(FXCDH/.75+THETA*FXCDHH/1.5)
       return
       end
 
@@ -1607,44 +1650,50 @@
 !       for XDFF: 4.7e-5, 4.8e-5, 2.3e-6, 1.5e-6
       implicit double precision (A-H), double precision (O-Z)
       save
-      dimension A(0:5,0:3),B(0:6,0:3),C(0:6,0:3),D(0:6,0:3),
-     *  LA(0:3),LB(0:3),LD(0:3)
-      data A/-1.570044577033d4,1.001958278442d4,-2.805343454951d3,
-     *            4.121170498099d2,-3.174780572961d1,1.d0, ! X_{-1/2}
-     *    1.999266880833d4,5.702479099336d3,6.610132843877d2,
-     *            3.818838129486d1,1.d0,0., ! X_{1/2}
-     *    1.715627994191d2,1.125926232897d2,2.056296753055d1,1.d0,0.,0.,
-     *    2.138969250409d2,3.539903493971d1,1.d0,0.,0.,0./, ! X_{5/2}
-     *  B/-2.782831558471d4,2.886114034012d4,-1.274243093149d4,
-     *            3.063252215963d3,-4.225615045074d2,3.168918168284d1,
-     *            -1.008561571363d0, ! X_{-1/2}
-     *    1.771804140488d4,-2.014785161019d3,9.130355392717d1,
-     *            -1.670718177489d0,0.,0.,0., ! X_{1/2}
-     *    2.280653583157d2,1.193456203021d2,1.16774311354d1,
-     *            -3.226808804038d-1,3.519268762788d-3,0.,0., ! X_{3/2}
-     *    7.10854551271d2,9.873746988121d1,1.067755522895d0,
-     *            -1.182798726503d-2,0.,0.,0./, ! X_{5/2}
-     *  C/2.206779160034d-8,-1.437701234283d-6,6.103116850636d-5,
-     *     -1.169411057416d-3,1.814141021608d-2,-9.588603457639d-2,1.d0,
-     *  -1.277060388085d-2,7.187946804945d-2,-4.262314235106d-1,
-     *      4.997559426872d-1,-1.285579118012d0,-3.930805454272d-1,1.d0,
-     *  -6.321828169799d-3,-2.183147266896d-2,-1.05756279932d-1,
-     *       -4.657944387545d-1,-5.951932864088d-1,3.6844711771d-1,1.d0,
-     *  -3.312041011227d-2,1.315763372315d-1,-4.820942898296d-1,
-     *       5.099038074944d-1,5.49561349863d-1,-1.498867562255d0,1.d0/,
-     *  D/8.827116613576d-8,-5.750804196059d-6,2.429627688357d-4,
-     *       -4.601959491394d-3,6.932122275919d-2,-3.217372489776d-1,
-     *       3.124344749296d0, ! X_{-1/2}
-     *    -9.745794806288d-3,5.485432756838d-2,-3.29946624326d-1,
-     *       4.077841975923d-1,-1.145531476975d0,-6.067091689181d-2,0.,
-     *    -4.381942605018d-3,-1.5132365041d-2,-7.850001283886d-2,
-     *     -3.407561772612d-1,-5.074812565486d-1,-1.387107009074d-1,0.,
-     *    -2.315515517515d-2,9.198776585252d-2,-3.835879295548d-1,
-     *       5.415026856351d-1,-3.847241692193d-1,3.739781456585d-2,
-     *       -3.008504449098d-2/, ! X_{5/2}
-     *  LA/5,4,3,2/,LB/6,3,4,3/,LD/6,5,5,6/
-      if (N.lt.0.or.N.gt.3) stop'FERINV7: Invalid subscript'
-      if (F.le.0.) stop'FERINV7: Non-positive argument'
+      dimension A(0:5,0:3),B(0:6,0:3),C(0:6,0:3),D(0:6,0:3), &
+       LA(0:3),LB(0:3),LD(0:3)
+      data A/-1.570044577033d4,1.001958278442d4,-2.805343454951d3, &
+        4.121170498099d2,-3.174780572961d1,1.d0, & ! X_{-1/2}
+        1.999266880833d4,5.702479099336d3,6.610132843877d2, &
+        3.818838129486d1,1.d0,0., & ! X_{1/2}
+        1.715627994191d2,1.125926232897d2,2.056296753055d1,1.d0,0.,0., &
+        2.138969250409d2,3.539903493971d1,1.d0,0.,0.,0./, & ! X_{5/2}
+      B/-2.782831558471d4,2.886114034012d4,-1.274243093149d4, &
+                 3.063252215963d3,-4.225615045074d2,3.168918168284d1, &
+                 -1.008561571363d0, & ! X_{-1/2}
+         1.771804140488d4,-2.014785161019d3,9.130355392717d1, &
+                -1.670718177489d0,0.,0.,0., & ! X_{1/2}
+         2.280653583157d2,1.193456203021d2,1.16774311354d1, &
+                 -3.226808804038d-1,3.519268762788d-3,0.,0., & ! X_{3/2}
+         7.10854551271d2,9.873746988121d1,1.067755522895d0, &
+                 -1.182798726503d-2,0.,0.,0./, & ! X_{5/2}
+       C/2.206779160034d-8,-1.437701234283d-6,6.103116850636d-5, &
+         -1.169411057416d-3,1.814141021608d-2,-9.588603457639d-2,1.d0, &
+       -1.277060388085d-2,7.187946804945d-2,-4.262314235106d-1, &
+          4.997559426872d-1,-1.285579118012d0,-3.930805454272d-1,1.d0, &
+       -6.321828169799d-3,-2.183147266896d-2,-1.05756279932d-1, &
+           -4.657944387545d-1,-5.951932864088d-1,3.6844711771d-1,1.d0, &
+       -3.312041011227d-2,1.315763372315d-1,-4.820942898296d-1, &
+           5.099038074944d-1,5.49561349863d-1,-1.498867562255d0,1.d0/, &
+       D/8.827116613576d-8,-5.750804196059d-6,2.429627688357d-4, &
+            -4.601959491394d-3,6.932122275919d-2,-3.217372489776d-1,&
+            3.124344749296d0, & ! X_{-1/2}
+         -9.745794806288d-3,5.485432756838d-2,-3.29946624326d-1, &
+            4.077841975923d-1,-1.145531476975d0,-6.067091689181d-2,0., &
+         -4.381942605018d-3,-1.5132365041d-2,-7.850001283886d-2, &
+          -3.407561772612d-1,-5.074812565486d-1,-1.387107009074d-1,0., &
+         -2.315515517515d-2,9.198776585252d-2,-3.835879295548d-1, &
+            5.415026856351d-1,-3.847241692193d-1,3.739781456585d-2, &
+            -3.008504449098d-2/, & ! X_{5/2}
+       LA/5,4,3,2/,LB/6,3,4,3/,LD/6,5,5,6/
+      if (N.lt.0.or.N.gt.3) then
+         print *, 'FERINV7: Invalid subscript'
+         stop
+      end if
+      if (F.le.0.) then
+         print *, 'FERINV7: Non-positive argument'
+         stop
+      end if
       if (F.lt.4.) then
          T=F
          UP=0.
@@ -1689,8 +1738,8 @@
          enddo
          R=UP/DOWN
          R1=(UP1-UP*DOWN1/DOWN)/DOWN ! dR/dt
-         R2=(UP2-(2.*UP1*DOWN1+UP*DOWN2)/DOWN+2.*UP*(DOWN1/DOWN)**2)/
-     /     DOWN
+         R2=(UP2-(2.*UP1*DOWN1+UP*DOWN2)/DOWN+2.*UP*(DOWN1/DOWN)**2)/ &
+          DOWN
          X=R/T
          RT=(R1-R/T)/T
          XDF=T1*RT
@@ -1699,11 +1748,11 @@
       return
       end
 
-      subroutine BLIN9(TEMP,CHI,
-     *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *  W0XXX,W0XTT,W0XXT)
+      subroutine BLIN9(TEMP,CHI, &
+       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+       W0XXX,W0XTT,W0XXT)
 !                                                       Version 21.01.10
 ! Stems from BLIN8 v.24.12.08
 ! Difference - smooth matching of different CHI ranges
@@ -1721,36 +1770,36 @@
       X1=(CHI-CHI1)*XSCAL1
       X2=(CHI-CHI2)*XSCAL2
       if (X1.lt.-XMAX) then
-         call BLIN9a(TEMP,CHI,
-     *     W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *     W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *     W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *     W0XXX,W0XTT,W0XXT)
+         call BLIN9a(TEMP,CHI, &
+          W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+          W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+          W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+          W0XXX,W0XTT,W0XXT)
       elseif (X2.lt.XMAX) then ! match two fits
         if (X1.lt.XMAX) then ! match fits "a" and "b"
            call FERMI10(X1,XMAX,FP,FM)
-           call BLIN9a(TEMP,CHI,
-     *       W0a,W0DXa,W0DTa,W0DXXa,W0DTTa,W0DXTa,
-     *       W1a,W1DXa,W1DTa,W1DXXa,W1DTTa,W1DXTa,
-     *       W2a,W2DXa,W2DTa,W2DXXa,W2DTTa,W2DXTa,
-     *       W0XXXa,W0XTTa,W0XXTa)
-           call BLIN9b(TEMP,CHI,
-     *       W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb,
-     *       W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb,
-     *       W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb,
-     *       W0XXXb,W0XTTb,W0XXTb)
+           call BLIN9a(TEMP,CHI, &
+            W0a,W0DXa,W0DTa,W0DXXa,W0DTTa,W0DXTa, &
+            W1a,W1DXa,W1DTa,W1DXXa,W1DTTa,W1DXTa, &
+            W2a,W2DXa,W2DTa,W2DXXa,W2DTTa,W2DXTa, &
+            W0XXXa,W0XTTa,W0XXTa)
+           call BLIN9b(TEMP,CHI, &
+            W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
+            W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
+            W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
+            W0XXXb,W0XTTb,W0XXTb)
         else ! match fits "b" and "c"
            call FERMI10(X2,XMAX,FP,FM)
-           call BLIN9b(TEMP,CHI,
-     *       W0a,W0DXa,W0DTa,W0DXXa,W0DTTa,W0DXTa,
-     *       W1a,W1DXa,W1DTa,W1DXXa,W1DTTa,W1DXTa,
-     *       W2a,W2DXa,W2DTa,W2DXXa,W2DTTa,W2DXTa,
-     *       W0XXXa,W0XTTa,W0XXTa)
-           call BLIN9c(TEMP,CHI,
-     *       W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb,
-     *       W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb,
-     *       W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb,
-     *       W0XXXb,W0XTTb,W0XXTb)
+           call BLIN9b(TEMP,CHI, &
+            W0a,W0DXa,W0DTa,W0DXXa,W0DTTa,W0DXTa, &
+            W1a,W1DXa,W1DTa,W1DXXa,W1DTTa,W1DXTa, &
+            W2a,W2DXa,W2DTa,W2DXXa,W2DTTa,W2DXTa, &
+            W0XXXa,W0XTTa,W0XXTa)
+           call BLIN9c(TEMP,CHI, &
+            W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
+            W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
+            W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
+            W0XXXb,W0XTTb,W0XXTb)
         endif
          W0=W0a*FP+W0b*FM
          W0DX=W0DXa*FP+W0DXb*FM !! +(W0a-W0b)*F1
@@ -1774,37 +1823,37 @@
          W2DTT=W2DTTa*FP+W2DTTb*FM
          W2DXT=W2DXTa*FP+W2DXTb*FM !! 
       else
-         call BLIN9c(TEMP,CHI,
-     *     W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *     W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *     W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *     W0XXX,W0XTT,W0XXT)
+         call BLIN9c(TEMP,CHI, &
+          W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+          W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+          W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+          W0XXX,W0XTT,W0XXT)
       endif
       return
       end
 
-      subroutine BLIN9a(TEMP,CHI,
-     *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *  W0XXX,W0XTT,W0XXT)
+      subroutine BLIN9a(TEMP,CHI, &
+       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+       W0XXX,W0XTT,W0XXT)
 !                                                       Version 19.01.10
 ! First part of BILN9: small CHI. Stems from BLIN9 v.24.12.08
       implicit double precision (A-H), double precision (O-Z)
       save
       dimension AC(5,0:2),AU(5,0:2),AA(5,0:2)
-      data AC/.37045057 d0, .41258437 d0,
-     &        9.777982 d-2, 5.3734153 d-3, 3.8746281 d-5, ! c_i^0
-     &        .39603109 d0, .69468795 d0, 
-     &        .22322760 d0, 1.5262934 d-2, 1.3081939 d-4, ! c_i^1
-     &        .76934619 d0, 1.7891437 d0, 
-     &        .70754974 d0, 5.6755672 d-2, 5.5571480 d-4/ ! c_i^2
-      data AU/.43139881 d0, 1.7597537 d0, 
-     &        4.1044654 d0, 7.7467038 d0, 13.457678 d0, ! \chi_i^0
-     &        .81763176 d0, 2.4723339 d0, 
-     &        5.1160061 d0, 9.0441465 d0, 15.049882 d0, ! \chi_i^1
-     &        1.2558461 d0, 3.2070406 d0, 
-     &        6.1239082 d0, 10.316126 d0, 16.597079 d0/ ! \chi_i^2
+      data AC/.37045057d0, .41258437d0, &
+             9.777982d-2, 5.3734153d-3, 3.8746281d-5, & ! c_i^0
+             .39603109d0, .69468795d0, &
+             .22322760d0, 1.5262934d-2, 1.3081939d-4, & ! c_i^1
+             .76934619d0, 1.7891437d0, &
+             .70754974d0, 5.6755672d-2, 5.5571480d-4/ ! c_i^2
+      data AU/.43139881d0, 1.7597537d0, &
+             4.1044654d0, 7.7467038d0, 13.457678d0, & ! \chi_i^0
+             .81763176d0, 2.4723339d0, &
+             5.1160061d0, 9.0441465d0, 15.049882d0, & ! \chi_i^1
+             1.2558461d0, 3.2070406d0, &
+             6.1239082d0, 10.316126d0, 16.597079d0/ ! \chi_i^2
       data KRUN/0/
       KRUN=KRUN+1
       if (KRUN.eq.1) then ! initialize
@@ -1834,8 +1883,8 @@
              WDXX=WDXX+AC(I,K)*SQ*(ECHI-AA(I,K))/DN**3
              WDTT=WDTT-AC(I,K)*AU(I,K)**2/(DN*SQ**3)
              WDXT=WDXT+AC(I,K)*AU(I,K)/(SQ*DN**2)
-             WDXXX=WDXXX+AC(I,K)*SQ*
-     *         (ECHI**2-4.*ECHI*AA(I,K)+AA(I,K)**2)/DN**4
+             WDXXX=WDXXX+AC(I,K)*SQ* &
+              (ECHI**2-4.*ECHI*AA(I,K)+AA(I,K)**2)/DN**4
              WDXTT=WDXTT-AC(I,K)*AU(I,K)**2/(DN**2*SQ**3)
              WDXXT=WDXXT+AC(I,K)*AU(I,K)*(ECHI-AA(I,K))/(SQ*DN**3)
           enddo
@@ -1876,11 +1925,11 @@
       return
       end
 
-      subroutine BLIN9b(TEMP,CHI,
-     *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *  W0XXX,W0XTT,W0XXT)
+      subroutine BLIN9b(TEMP,CHI, &
+       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+       W0XXX,W0XTT,W0XXT)
 !                                                       Version 19.01.10
 !                                              Small syntax fix 15.03.13
 ! Second part of BILN9: intermediate CHI. Stems from BLIN8 v.24.12.08
@@ -1888,15 +1937,18 @@
       save
       dimension AX(5),AXI(5),AH(5),AV(5)
       parameter (EPS=1.d-3)
-      data AX/7.265351 d-2, .2694608 d0, 
-     &        .533122 d0, .7868801 d0, .9569313 d0/ ! x_i
-      data AXI/.26356032 d0, 1.4134031 d0, 
-     &         3.5964258 d0, 7.0858100 d0, 12.640801 d0/ ! \xi_i
-      data AH/3.818735 d-2, .1256732 d0, 
-     &        .1986308 d0, .1976334 d0, .1065420 d0/ ! H_i
-      data AV/.29505869 d0, .32064856 d0, 7.3915570 d-2, 
-     &        3.6087389 d-3, 2.3369894 d-5/ ! \bar{V}_i
-      if (CHI.lt.EPS) stop'BLIN9b: CHI is too small'
+      data AX/7.265351d-2, .2694608d0, &
+             .533122d0, .7868801d0, .9569313d0/ ! x_i
+      data AXI/.26356032d0, 1.4134031d0, &
+              3.5964258d0, 7.0858100d0, 12.640801d0/ ! \xi_i
+      data AH/3.818735d-2, .1256732d0, &
+             .1986308d0, .1976334d0, .1065420d0/ ! H_i
+      data AV/.29505869d0, .32064856d0, 7.3915570d-2, &
+             3.6087389d-3, 2.3369894d-5/ ! \bar{V}_i
+      if (CHI.lt.EPS) then
+         print *, 'BLIN9b: CHI is too small'
+         stop
+      end if
         do K=0,2
            W=0.
            WDX=0.
@@ -1923,12 +1975,12 @@
                HDTT=-H*HT**2
                HTX=1./CHI-.5*AX(I)*TEMP/D
                HDXT=HDX*HT+HDT*HTX
-               HDXXT=HDXX*HT+HDX*HT*HTX+HDXT*HTX+
-     +           HDT*(.25*(AX(I)*TEMP/D)**2-1./CHI**2)
-               HDXTT=HDXT*HT-HDX*.125*(AX(I)*CHI/D)**2+HDTT*HTX+
-     +           HDT*.5*AX(I)*(TEMP*.5*AX(I)*CHI/D**2-1./D)
-               HXXX=(2*K+3)/CHI**3+.125*(AX(I)*TEMP/D)**3-
-     -           ECHI*(1.d0-ECHI)*(CE/DE)**3
+               HDXXT=HDXX*HT+HDX*HT*HTX+HDXT*HTX+ &
+                HDT*(.25*(AX(I)*TEMP/D)**2-1./CHI**2)
+               HDXTT=HDXT*HT-HDX*.125*(AX(I)*CHI/D)**2+HDTT*HTX+ &
+                HDT*.5*AX(I)*(TEMP*.5*AX(I)*CHI/D**2-1./D)
+               HXXX=(2*K+3)/CHI**3+.125*(AX(I)*TEMP/D)**3- &
+                ECHI*(1.d0-ECHI)*(CE/DE)**3
                HDXXX=HDXX*HX-2.*HDX*HXX+H*HXXX
                XICHI=AXI(I)+CHI
                DXI=1.d0+XICHI*TEMP/2.
@@ -1939,15 +1991,15 @@
                VDT=V*VT
                VXX=(K+.5)/XICHI**2+.125*(TEMP/DXI)**2
                VDXX=VDX*VX-V*VXX
-               VDXXX=VDXX*VX-2.*VDX*VXX+
-     +           V*((2*K+1)/XICHI**3+.125*(TEMP/DXI)**3)
+               VDXXX=VDXX*VX-2.*VDX*VXX+ &
+                V*((2*K+1)/XICHI**3+.125*(TEMP/DXI)**3)
                VXXT=(1.-.5*TEMP*XICHI/DXI)/DXI
                VDTT=-V*VT**2
                VXT=1./XICHI-.5*TEMP/DXI
                VDXT=VDT*VXT+VDX*VT
                VDXXT=VDXT*VX+VDX*.25*VXXT-VDT*VXX-V*.25*TEMP/DXI*VXXT
-               VDXTT=VDTT*VXT-VDT*.5*VXXT+VDXT*VT-
-     -           VDX*.125*(XICHI/DXI)**2
+               VDXTT=VDTT*VXT-VDT*.5*VXXT+VDXT*VT- &
+                VDX*.125*(XICHI/DXI)**2
                W=W+AH(I)*AX(I)**K*H+AV(I)*V
                WDX=WDX+AH(I)*AX(I)**K*HDX+AV(I)*VDX
                WDT=WDT+AH(I)*AX(I)**K*HDT+AV(I)*VDT
@@ -1987,18 +2039,18 @@
       return
       end
 
-      subroutine BLIN9c(TEMP,CHI,
-     *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
-     *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
-     *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
-     *  W0XXX,W0XTT,W0XXT)
+      subroutine BLIN9c(TEMP,CHI, &
+       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+       W0XXX,W0XTT,W0XXT)
 !                                                       Version 19.01.10
 ! Third part of BILN9: large CHI. Stems from BLIN8 v.24.12.08
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter (PI=3.141592653d0,PI26=PI*PI/6.)
-      dimension AM(0:2),AMDX(0:2),AMDT(0:2),
-     *  AMDXX(0:2),AMDTT(0:2),AMDXT(0:2)
+      dimension AM(0:2),AMDX(0:2),AMDT(0:2), &
+       AMDXX(0:2),AMDTT(0:2),AMDXT(0:2)
       if (CHI*TEMP.lt..1) then
         do K=0,2
            W=0.
@@ -2013,15 +2065,15 @@
           do J=0,4 ! for nonrel.Fermi integrals from k+1/2 to k+4.5
              CNU=K+J+.5 ! nonrelativistic Fermi integral index \nu
              CHINU=CHI**(K+J)*dsqrt(CHI) ! \chi^\nu
-             F=CHINU*(CHI/(CNU+1.)+PI26*CNU/CHI+ ! nonrel.Fermi
-     +         .7*PI26**2*CNU*(CNU-1.)*(CNU-2.)/CHI**3)
-             FDX=CHINU*(1.+PI26*CNU*(CNU-1.)/CHI**2+
-     +         .7*PI26**2*CNU*(CNU-1.)*(CNU-2.)*(CNU-3.)/CHI**4)
-             FDXX=CHINU/CHI*CNU*(1.+PI26*(CNU-1.)*(CNU-2.)/CHI**2+
-     +         .7*PI26**2*(CNU-1.)*(CNU-2.)*(CNU-3.)*(CNU-4.)/CHI**4)
-             FDXXX=CHINU/CHI**2*CNU*(CNU-1.)*
-     *         (1.+PI26*(CNU-2.)*(CNU-3.)/CHI**2+
-     +         .7*PI26**2*(CNU-2.)*(CNU-3.)*(CNU-4.)*(CNU-5.)/CHI**4)
+             F=CHINU*(CHI/(CNU+1.)+PI26*CNU/CHI+ & ! nonrel.Fermi
+              .7*PI26**2*CNU*(CNU-1.)*(CNU-2.)/CHI**3)
+             FDX=CHINU*(1.+PI26*CNU*(CNU-1.)/CHI**2+ &
+              .7*PI26**2*CNU*(CNU-1.)*(CNU-2.)*(CNU-3.)/CHI**4)
+             FDXX=CHINU/CHI*CNU*(1.+PI26*(CNU-1.)*(CNU-2.)/CHI**2+ &
+              .7*PI26**2*(CNU-1.)*(CNU-2.)*(CNU-3.)*(CNU-4.)/CHI**4)
+             FDXXX=CHINU/CHI**2*CNU*(CNU-1.)* &
+              (1.+PI26*(CNU-2.)*(CNU-3.)/CHI**2+ &
+              .7*PI26**2*(CNU-2.)*(CNU-3.)*(CNU-4.)*(CNU-5.)/CHI**4)
             if (J.eq.0) then
                W=F
                WDX=FDX
@@ -2111,8 +2163,8 @@
            AMDXX(K)=AMDX(K)*FMX+AM(K)*FMXX
            FMTT=2.d0*FMT2**2-FMT1**2
            AMDTT(K)=AMDT(K)*FMT+AM(K)*FMTT
-           AMDXT(K)=AMDX(K)*FMT+AM(K)*(CKM*(1.d0-CKM*CHI*TEMP)-
-     -       .25d0/D+.125d0*CHI*TEMP/D**2)
+           AMDXT(K)=AMDX(K)*FMT+AM(K)*(CKM*(1.d0-CKM*CHI*TEMP)- &
+            .25d0/D+.125d0*CHI*TEMP/D**2)
           if (K.eq.0) then
              FMXXX=(2*K-1)/CHI**3+2.d0*FMX1**3-8.d0*FMX2**3
              AMDXXX=AMDXX(K)*FMX+2.d0*AMDX(K)*FMXX+AM(K)*FMXXX
@@ -2142,25 +2194,25 @@
            ASQ3=A*SQ2T**3
            ASQ3DX=ADX*SQ2T**3
            FJ0DX=.5d0*(R+XT1*RDX)-ADX/ASQ3
-           FJ0DT=.5d0*(XT1*RDT-R/TEMP**2)-ADT/ASQ3+
-     +       .75d0/(TEMP**2*SQ2T)*Aln
+           FJ0DT=.5d0*(XT1*RDT-R/TEMP**2)-ADT/ASQ3+ &
+            .75d0/(TEMP**2*SQ2T)*Aln
            FJ0DXX=RDX+.5d0*XT1*RDXX+(ADX/A)**2/SQ2T**3-ADXX/ASQ3
-           FJ0DTT=R/TEMP**3-RDT/TEMP**2+.5d0*XT1*RDTT+
-     +       3.d0/(ASQ3*TEMP)*ADT+
-     +     (ADT/A)**2/SQ2T**3-ADTT/ASQ3-1.875d0/(TEMP**3*SQ2T)*Aln
+           FJ0DTT=R/TEMP**3-RDT/TEMP**2+.5d0*XT1*RDTT+ &
+            3.d0/(ASQ3*TEMP)*ADT+ &
+          (ADT/A)**2/SQ2T**3-ADTT/ASQ3-1.875d0/(TEMP**3*SQ2T)*Aln
            BXT=1.5d0/TEMP*ADX+ADX*ADT/A-ADXT
-           BXXT=1.5d0/TEMP*ADXX+(ADXX*ADT+ADX*ADXT)/A-
-     -       (ADX/A)**2*ADT-ADXXT
+           BXXT=1.5d0/TEMP*ADXX+(ADXX*ADT+ADX*ADXT)/A- &
+            (ADX/A)**2*ADT-ADXXT
            FJ0DXT=.5d0*(RDT-RDX/TEMP**2+XT1*RDXT)+BXT/ASQ3
-           FJ0XXX=RDXX*1.5d0+.5d0*XT1*RDXXX+
-     +      (2.d0*ADX*(ADXX/A-(ADX/A)**2)-
-     -      SQ2T*RDXXX+ADXX/ASQ3*ASQ3DX)/ASQ3
-           FJ0XTT=RDX/TEMP**3-RDXT/TEMP**2+.5d0*(RDTT+XT1*RDXTT)+
-     +      3.d0/TEMP*(ADXT-ADT/ASQ3*ASQ3DX)/ASQ3+
-     +      (2.d0*ADT*(ADXT/A-ADT*ADX/A**2)-
-     -      ADXTT+ADTT*ASQ3DX/ASQ3)/ASQ3-1.875d0/(TEMP**3*SQ2T)*ADX/A
-           FJ0XXT=.5d0*(RDXT-RDXX/TEMP**2+RDXT+XT1*RDXXT)+
-     +      (BXXT-BXT*ASQ3DX/ASQ3)/ASQ3
+           FJ0XXX=RDXX*1.5d0+.5d0*XT1*RDXXX+ &
+           (2.d0*ADX*(ADXX/A-(ADX/A)**2)- &
+           SQ2T*RDXXX+ADXX/ASQ3*ASQ3DX)/ASQ3
+           FJ0XTT=RDX/TEMP**3-RDXT/TEMP**2+.5d0*(RDTT+XT1*RDXTT)+ &
+           3.d0/TEMP*(ADXT-ADT/ASQ3*ASQ3DX)/ASQ3+ &
+           (2.d0*ADT*(ADXT/A-ADT*ADX/A**2)- &
+           ADXTT+ADTT*ASQ3DX/ASQ3)/ASQ3-1.875d0/(TEMP**3*SQ2T)*ADX/A
+           FJ0XXT=.5d0*(RDXT-RDXX/TEMP**2+RDXT+XT1*RDXXT)+ &
+           (BXXT-BXT*ASQ3DX/ASQ3)/ASQ3
          W0=FJ0+PI26*AM(0)
          W0DX=FJ0DX+PI26*AMDX(0)
          W0DT=FJ0DT+PI26*AMDT(0)
@@ -2185,12 +2237,12 @@
            FJ2=(.5d0*CHI*R**3-1.25d0*FJ1)/TEMP
            FJ2DX=(.5d0*R**3+1.5d0*CHI*R**2*RDX-1.25d0*FJ1DX)/TEMP
            FJ2DT=(1.5d0*CHI*R**2*RDT-1.25d0*FJ1DT-FJ2)/TEMP
-           FJ2DXX=(3.d0*R*RDX*(R+CHI*RDX)+1.5d0*CHI*R**2*RDXX-
-     -       1.25d0*FJ1DXX)/TEMP
-          FJ2DTT=(3.d0*CHI*R*(RDT**2+.5d0*R*RDTT)-
-     -      1.25d0*FJ1DTT-2.d0*FJ2DT)/TEMP
-           FJ2DXT=(1.5d0*R*RDT*(R+2.d0*CHI*RDX)+1.5d0*CHI*R**2*RDXT-
-     -       1.25d0*FJ1DXT-FJ2DX)/TEMP
+           FJ2DXX=(3.d0*R*RDX*(R+CHI*RDX)+1.5d0*CHI*R**2*RDXX- &
+            1.25d0*FJ1DXX)/TEMP
+          FJ2DTT=(3.d0*CHI*R*(RDT**2+.5d0*R*RDTT)- &
+           1.25d0*FJ1DTT-2.d0*FJ2DT)/TEMP
+           FJ2DXT=(1.5d0*R*RDT*(R+2.d0*CHI*RDX)+1.5d0*CHI*R**2*RDXT- &
+            1.25d0*FJ1DXT-FJ2DX)/TEMP
          W2=FJ2+PI26*AM(2)
          W2DX=FJ2DX+PI26*AMDX(2)
          W2DT=FJ2DT+PI26*AMDT(2)
@@ -2215,8 +2267,8 @@
       return
       end
 
-      subroutine CHEMFIT7(DENR,TEMR,CHI,CMU1,KDERIV,
-     *  CMUDENR,CMUDT,CMUDTT)
+      subroutine CHEMFIT7(DENR,TEMR,CHI,CMU1,KDERIV, &
+       CMUDENR,CMUDT,CMUDTT)
 !                                                       Version 29.08.15
 ! Fit to the chemical potential of free electron gas described in:
 !     G.Chabrier & A.Y.Potekhin, Phys.Rev.E 58, 4941 (1998)
@@ -2231,8 +2283,8 @@
 ! CMUDENR,CMUDT, and CMUDTT =0 on output, if KREDIV=0
       implicit double precision (A-H), double precision (O-Z)
       save
-      parameter (C13=1.d0/3.d0,PARA=1.612d0,PARB=6.192d0,PARC=.0944d0,
-     *  PARF=5.535d0,PARG=.698d0)
+      parameter (C13=1.d0/3.d0,PARA=1.612d0,PARB=6.192d0,PARC=.0944d0, &
+       PARF=5.535d0,PARG=.698d0)
       parameter(XEPST=228.d0) ! the largest argument of e^{-X}
       PF0=(29.6088132d0*DENR)**C13 ! Classical Fermi momentum
       if (PF0.gt.1.d-4) then
@@ -2261,8 +2313,8 @@
       CT=1.d0+G/H
       F=2.d0*C13/THETA32
       call FERINV7(F,1,X,XDF,XDFF)
-      CHI=X ! non-relativistic result
-     -  -    1.5d0*dlog(CT) ! Relativistic fit
+      CHI=X & ! non-relativistic result
+       -    1.5d0*dlog(CT) ! Relativistic fit
       CMU1=TEMR*CHI ! Fit to chemical potential w/o mc^2
       if (KDERIV.eq.0) then ! DISMISS DERIVATIVES
          CMUDENR=0.
@@ -2288,8 +2340,8 @@
       Q2DD=30.d0/(THETA52*THETA) ! d^2 q_2 / d \theta^2
       U3D=-2.d0*T1**2
       D3D=PARF*PARG*THETAG/THETA+PARB*T1**2*THETAC*(PARC/THETA-2.d0)
-      D3DD=PARF*PARG*(PARG-1.d0)*THETAG/THETA**2+
-     +PARB*T1**2*THETAC*(PARC*(PARC-1.d0)/THETA**2-4.d0*PARC/THETA+4.d0)
+      D3DD=PARF*PARG*(PARG-1.d0)*THETAG/THETA**2+ &
+      PARB*T1**2*THETAC*(PARC*(PARC-1.d0)/THETA**2-4.d0*PARC/THETA+4.d0)
       Q3D=(D3D*U3/D3-U3D)/D3
       Q3DD=(2.d0*U3D+(2.d0*U3D*D3D+U3*D3DD)/D3-2.d0*U3*(D3D/D3)**2)/D3
       GDY=TEMR*(Q1D*SQT+(Q2D*Q3+Q2*Q3D)*TEMR) ! dG/d\theta
@@ -2299,8 +2351,8 @@
       GDYT=1.5d0*Q1D*SQT+2.d0*(Q2D*Q3+Q2*Q3D)*TEMR
       HDY=(-.5d0/THETA**2+Q2D+.5d0*(Q2D-Q2/THETA)/THETA*TEMR)*TEMR
       HDT=(.5d0+Q2*TEMR)/THETA+Q2
-      HDYY=TEMR/THETA**3+Q2DD*TEMR+
-     +  TEMR**2*(.5d0*Q2DD-Q2D/THETA+Q2/THETA**2)/THETA
+      HDYY=TEMR/THETA**3+Q2DD*TEMR+ &
+       TEMR**2*(.5d0*Q2DD-Q2D/THETA+Q2/THETA**2)/THETA
       HDTT=Q2/THETA
       HDYT=Q2D*(1.d0+TEMR/THETA)-(.5d0+Q2*TEMR)/THETA**2
       CTY=GDY/G-HDY/H
@@ -2318,7 +2370,7 @@
       CHIDYT=1.5d0*(CTDY*CTDT/CT**2-CTDYT/CT)
       CMUDENR=-(THETA*PF0)**2/(3.d0*DENR*(1.d0+TF))*CHIDY
       CMUDT=CHI+THETA*CHIDY+TEMR*CHIDT
-      CMUDTT=2.d0*(CHIDY/TF+CHIDT+THETA*CHIDYT)+
-     +  THETA/TF*CHIDYY+TEMR*CHIDTT
+      CMUDTT=2.d0*(CHIDY/TF+CHIDT+THETA*CHIDYT)+ &
+       THETA/TF*CHIDYY+TEMR*CHIDTT
       return
       end
