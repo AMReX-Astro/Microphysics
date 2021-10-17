@@ -154,70 +154,58 @@
 
       dx = abs(P - 986087830999.01904d0)
       if (dx / P > 1.d-15) then
-         print *, "P IS WRONG", dx / P
-         return
+         print *, "P DIFF", dx / P
       end if
 
       dx = abs(PnkT - 16.129464056742833d0)
       if (dx / PnkT > 1.d-15) then
-         print *, "PnkT IS WRONG", dx / PnkT
-         return
+         print *, "PnkT DIFF", dx / PnkT
       end if
 
       dx = abs(CV - 8.5451229292858866d0)
       if (dx / CV > 1.d-15) then
-         print *, "CV IS WRONG", dx / CV
-         return
+         print *, "CV DIFF", dx / CV
       end if
 
       dx = abs(CHIT - 0.24165606904443493d0)
       if (dx / CHIT > 1.d-15) then
-         print *, "CHIT IS WRONG", dx / CHIT
-         return
+         print *, "CHIT DIFF", dx / CHIT
       end if
 
       dx = abs(CHIR - 1.3370085960654023d0)
       if (dx / CHIR > 1.d-15) then
-         print *, "CHIR IS WRONG", dx / CHIR
-         return
+         print *, "CHIR DIFF", dx / CHIR
       end if
 
       dx = abs(UNkT - 30.712489657322770d0)
       if (dx / UNkT > 1.d-15) then
-         print *, "UNkT IS WRONG", dx / UNkT
-         return
+         print *, "UNkT DIFF", dx / UNkT
       end if
 
       dx = abs(SNk - 23.797925638433309d0)
       if (dx / SNk > 1.d-15) then
-         print *, "SNk IS WRONG", dx / SNk
-         return
+         print *, "SNk DIFF", dx / SNk
       end if
 
       dx = abs(GAMI - 0.96111630472601972d0)
       if (dx / GAMI > 1.d-15) then
-         print *, "GAMI IS WRONG", dx / GAMI
-         return
+         print *, "GAMI DIFF", dx / GAMI
       end if
 
       dx = abs(TPT - 1.2400526419152945d-002)
       if (dx / TPT > 1.d-15) then
-         print *, "TPT IS WRONG", dx / TPT
-         return
+         print *, "TPT DIFF", dx / TPT
       end if
 
       dx = abs(CHI - 5.5745494145734744d0)
       if (dx / CHI > 1.d-15) then
-         print *, "CHI IS WRONG", dx / CHI
-         return
+         print *, "CHI DIFF", dx / CHI
       end if
 
       if (LIQSOL /= 0) then
-         print *, "LIQSOL IS WRONG", LIQSOL
-         return
+         print *, "LIQSOL DIFF", LIQSOL
       end if
 
-      print *, "SUCCESS"
       end program main
       
       subroutine MELANGE9(AY,AZion,ACMI,RHO,TEMP,PRADnkT, &
