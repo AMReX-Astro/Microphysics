@@ -265,6 +265,7 @@
 !         CHIT = (d ln P / d ln T)_V ("\chi_T")
       implicit double precision (A-H), double precision (O-Z)
       save
+      double precision, parameter :: CWK = 1.d0 ! Turn on Wigner corrections
       double precision, parameter :: TINY = 1.d-7
       integer, parameter :: NMIX = 2
       double precision :: AY(NMIX), AZion(NMIX), ACMI(NMIX)
@@ -276,18 +277,6 @@
       double precision, parameter :: RSIMELT=140. ! ion density parameter of quantum melting
       double precision, parameter :: RAD=2.554d-7 ! Radiation constant (=4\sigma/c) (in a.u.)
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) stop'MELANGE: RHO out of range'
-      CWK=1.d0
-      Y=0.
-      do IX=1,NMIX
-         Y=Y+AY(IX)
-      enddo
-      if (dabs(Y-1.d0).gt.TINY) then
-        do IX=1,NMIX
-           AY(IX)=AY(IX)/Y
-        enddo
-         print*,'MELANGE9: partial densities (and derivatives)',
-     *    ' are rescaled by factor',1./Y
-      endif
 ! Sort the elements in ascending order in Z_j:
       KSORT=0
       do I=2,NMIX
