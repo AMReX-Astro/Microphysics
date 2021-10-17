@@ -107,19 +107,20 @@
 * file to another (external) code, therefore the MAIN program is
 * normally commented-out.
       program main
-      implicit double precision (A-H), double precision (O-Z)
-      parameter(MAXY=2,UN_T6=.3157746,EPS=1.d-7)
-      dimension AY(MAXY),AZion(MAXY),ACMI(MAXY)
-      NMIX=0
-      XSUM=0.
+      implicit none
+      double precision, parameter :: UN_T6 = .3157746
+      double precision :: AY(2), AZion(2), ACMI(2)
+      double precision :: RHO, RHOlg, T, Tlg, T6, Tnk, TEMP, DENS
+      double precision :: Zmean, CMImean, Z2mean, GAMI, P
+      double precision :: CHI, TPT, TEGRAD, PRADnkT
+      double precision :: PnkT, UNkT, SNk, CV, CHIR, CHIT
+      integer :: LIQSOL
       AZion(1) = 6.0d0
       AZion(2) = 8.0d0
       ACMI(1) = 12.0d0
       ACMI(2) = 16.0d0
       AY(1) = 0.6d0
       AY(2) = 0.4d0
-      XSUM = 1.0d0
-      NMIX = 2
       T = 1.d9
       RHO = 1.d7
       RHOlg=dlog10(RHO)
@@ -128,7 +129,7 @@
       RHO=10.d0**RHOlg
       write(*,112)
       TEMP=T6/UN_T6 ! T [au]
-      call MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP, ! input
+      call MELANGE9(2,AY,AZion,ACMI,RHO,TEMP, ! input
      *   PRADnkT, ! additional output - radiative pressure
      *   DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, ! output param.
      *   PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
