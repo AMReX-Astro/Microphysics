@@ -108,51 +108,25 @@
 * normally commented-out.
       program main
       implicit double precision (A-H), double precision (O-Z)
-      parameter(MAXY=10,UN_T6=.3157746,EPS=1.d-7)
+      parameter(MAXY=2,UN_T6=.3157746,EPS=1.d-7)
       dimension AY(MAXY),AZion(MAXY),ACMI(MAXY)
-      write(*,'('' Introduce the chemical composition (up to'',I3,
-     *  '' ion species):''/
-     *  '' charge number Z_i, atomic weight A_i,'',
-     *  '' partial number density x_i, derivatives d x_i / d ln T'',
-     *  '' and d x_i / d ln rho''/
-     /   '' (non-positive Z, A, or x=1 terminates the input)'')') MAXY
       NMIX=0
-    3 continue
       XSUM=0.
-      do IX=1,MAXY
-         write(*,'(''Z, A ('',I2,''): ''$)') IX
-         read*,AZion(IX),ACMI(IX)
-        if (AZion(IX).le.0..or.ACMI(IX).le.0.) goto 2
-         write(*,'(''x ('',I2,''): ''$)') IX
-         read*,AY(IX)
-         XSUM=XSUM+AY(IX)
-        if (AY(IX).le.0.) goto 2
-         NMIX=IX
-        if (dabs(XSUM-1.d0).lt.EPS) goto 2
-      enddo
-    2 continue
-      if (NMIX.eq.0) then
-      print*,'There must be at least one set of positive (x,Z,A).'
-        goto 3
-      endif
-      write(*,114)
-      do IX=1,NMIX
-         write(*,113) IX,AZion(IX),ACMI(IX),AY(IX)
-      enddo
-    9 continue
-      write(*,'('' Input T (K) (<0 to stop): ''$)')
-      read*,T
-      if (T.le.0.) stop
-   10 continue
-      write(*,'('' Input RHO [g/cc] (<0 to new T): ''$)')
-      read*,RHO
-      if (RHO.le.0.) goto 9
+      AZion(1) = 6.0d0
+      AZion(2) = 8.0d0
+      ACMI(1) = 12.0d0
+      ACMI(2) = 16.0d0
+      AY(1) = 0.6d0
+      AY(2) = 0.4d0
+      XSUM = 1.0d0
+      NMIX = 2
+      T = 1.d9
+      RHO = 1.d7
       RHOlg=dlog10(RHO)
       Tlg=dlog10(T)
       T6=10.d0**(Tlg-6.d0)
       RHO=10.d0**RHOlg
       write(*,112)
-    1 continue
       TEMP=T6/UN_T6 ! T [au]
       call MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP, ! input
      *   PRADnkT, ! additional output - radiative pressure
@@ -177,14 +151,11 @@
 * LIQSOL = 0 in the liquid state, = 1 in the solid state
       write(*,111) RHO,T6,P,PnkT,CV,CHIT,CHIR,UNkT,SNk,GAMI,TPT,CHI,
      *  LIQSOL
-      goto 10
   112 format(/
      *  ' rho [g/cc]     T6 [K]      P [Mbar]   P/(n_i kT)  Cv/(N k)',
      *  '     chi_T       chi_r      U/(N k T)    S/(N k)    Gamma_i',
      *  '      T_p/T    chi_e liq/sol')
   111 format(1P,12E12.3,I2)
-  113 format(I3,2F8.3,1PE12.4)
-  114 format('       Z      CMI        x_j')
       end program main
       
       subroutine MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP,PRADnkT,
