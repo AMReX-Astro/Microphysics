@@ -268,7 +268,6 @@
 ! (0) Photons:
       UINTRAD=RAD*TEMP**4
       PRESSRAD=UINTRAD/3.
-C      CVRAD=4.*UINTRAD/TEMP
 ! (1) ideal electron gas (including relativity and degeneracy)  -----  *
       DENS=RHO/11.20587*Zmean/CMImean ! number density of electrons [au]
       call CHEMFIT(DENS,TEMP,CHI)
@@ -375,17 +374,13 @@ C      CVRAD=4.*UINTRAD/TEMP
       PDLR=PDLR+PRESSI*PDRMIX
 ! First-order:
       PRADnkT=PRESSRAD/PRESSI ! radiative pressure / n_i k T
-C      CVtot=CVtot+CVRAD
-C      Stot=Stot+CVRAD/3.
       PnkT=PRESS/PRESSI ! P / n_i k T
       UNkT=UINT/PRESSI ! U / N_i k T
-C      UNkT=UNkT+UINTRAD/PRESSI
       SNk=Stot/DENSI ! S / N_i k
 ! Second-order:
       CV=CVtot/DENSI ! C_V per ion
       CHIR=PDLR/PRESS ! d ln P / d ln\rho
       CHIT=PDLT/PRESS ! d ln P / d ln T
-C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       return
       end
 
@@ -680,7 +675,6 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       dimension AP(4) ! parameters of the fit
       parameter (C13=1.d0/3.d0,ENAT=2.7182818285d0,TINY=1.d-19)
       data AP/1.1866,.684,17.9,41.5/,PX/.205/ ! for bcc lattice
-cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       if (RS.lt.0.) stop'FSCRliq8: RS < 0'
       if (RS.lt.TINY) then
          FSCR=0.
@@ -1258,7 +1252,6 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
      *  CJ03,CJ13,CJ23,
      *  CJ04,CJ14,CJ24,CJ05)
       PIT26=(PI*TEMR)**2/6.d0
-CCC      PITAU4=PIT26**2*0.7d0
       CN0=dsqrt(.5d0/TEMR)/TEMR
       CN1=CN0/TEMR
       CN2=CN1/TEMR
@@ -1269,7 +1262,6 @@ CCC      PITAU4=PIT26**2*0.7d0
       W1DX=CN0*(CJ11+PIT26*CJ13)
       W2DX=CN1*(CJ21+PIT26*CJ23)
       W0DT=CN1*(CMU1*CJ01-1.5d0*CJ00+PIT26*(CMU1*CJ03+.5d0*CJ02))
-CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
       W1DT=CN2*(CMU1*CJ11-2.5d0*CJ10+PIT26*(CMU1*CJ13-.5d0*CJ12))
       W2DT=CN2/TEMR*(CMU1*CJ21-3.5d0*CJ20+PIT26*(CMU1*CJ23-1.5d0*CJ22))
       W0DXX=CN0*TEMR**2*(CJ02+PIT26*CJ04)
