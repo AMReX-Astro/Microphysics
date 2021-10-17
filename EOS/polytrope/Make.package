@@ -3,4 +3,7 @@ ifeq ($(USE_FORT_MICROPHYSICS),TRUE)
 endif
 ifeq ($(USE_CXX_EOS),TRUE)
   CEXE_headers += actual_eos.H
+  CEXE_headers += actual_eos_data.H
+
+  CEXE_sources += actual_eos_data.cpp
 endif
