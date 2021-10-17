@@ -48,6 +48,20 @@ namespace RHS_impl {
 
 // Implementation of "constexpr for" based on
 // https://artificial-mind.net/blog/2020/10/31/constexpr-for
+//
+// Approximates what one would get from a compile-time
+// unrolling of the loop
+// for (int i = 0; i < N; ++i) {
+//    f(i);
+// }
+//
+// The mechanism is recursive, we evaluate f(i) at the current
+// i and then call the for loop at i+1. f() is a lambda function
+// that provides the body of the loop and takes only an integer
+// i as its argument. It is assumed that at the loop call site
+// the lambda is declared [&] so that it can operate on whatever
+// data it needs.
+
 template<auto I, auto N, class F>
 constexpr void rhs_for (F&& f)
 {
