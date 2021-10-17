@@ -249,10 +249,6 @@ extern "C"
         //        XMAX - max|X| where it is assumed that 0 < f(x) < 1.
         // Output: FP = f(x)
         //         FM = 1-f(x)
-        if (XMAX < 3.0_rt) {
-            printf("FERMI10: XMAX\n");
-            exit(1);
-        }
         if (X > XMAX) {
             FP = 0.0_rt;
             FM = 1.0_rt;
