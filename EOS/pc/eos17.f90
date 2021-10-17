@@ -1242,6 +1242,14 @@
       parameter (CHI2=28.d0,XMAX=20.d0)
       parameter (DCHI2=CHI2-1.d0)
       parameter (XSCAL2=XMAX/DCHI2)
+      interface
+         subroutine fermi10(X,XMAX,FP,FM) bind(C, name="fermi10")
+           implicit none
+           double precision, intent(in), value :: X, XMAX
+           double precision, intent(inout) :: FP, FM
+         end subroutine fermi10
+      end interface
+
       if (CHI.lt.-1.d2) then
          print *, 'ELECT11: too large negative CHI' ! 27.05.17
          stop
@@ -1511,32 +1519,6 @@
       return
       end
 
-      subroutine FERMI10(X,XMAX,FP,FM)
-!                                                       Version 20.01.10
-! Fermi distribution function and its 3 derivatives
-! Input: X - argument f(x)
-!        XMAX - max|X| where it is assumed that 0 < f(x) < 1.
-! Output: FP = f(x)
-!         FM = 1-f(x)
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      if (XMAX.lt.3.d0) then
-         print *, 'FERMI10: XMAX'
-         stop
-      end if
-      if (X.gt.XMAX) then
-         FP=0.d0
-         FM=1.d0
-      elseif (X.lt.-XMAX) then
-         FP=1.d0
-         FM=0.d0
-      else
-         FP=1.d0/(dexp(X)+1.d0)
-         FM=1.d0-FP
-      endif
-      return
-      end
-
 ! ==============  ELECTRON EXCHANGE AND CORRELATION   ================ !
       subroutine EXCOR7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC)
 !                                                       Version 09.06.07
@@ -1763,6 +1745,13 @@
                 W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
                 W0XXX,W0XTT,W0XXT
          end subroutine blin9a
+      end interface
+      interface
+         subroutine fermi10(X,XMAX,FP,FM) bind(C, name="fermi10")
+           implicit none
+           double precision, intent(in), value :: X, XMAX
+           double precision, intent(inout) :: FP, FM
+         end subroutine fermi10
       end interface
 
       X1=(CHI-CHI1)*XSCAL1

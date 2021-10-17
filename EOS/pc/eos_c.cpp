@@ -141,14 +141,14 @@ extern "C"
             - 1.5_rt * std::log(CT); // Relativistic fit
     }
 
-    void blin9a(double TEMP, double CHI,
-                double& W0, double& W0DX, double& W0DT, double& W0DXX,
-                double& W0DTT, double& W0DXT,
-                double& W1, double& W1DX, double& W1DT, double& W1DXX,
-                double& W1DTT, double& W1DXT,
-                double& W2, double& W2DX, double& W2DT, double& W2DXX,
-                double& W2DTT, double& W2DXT,
-                double& W0XXX, double& W0XTT, double& W0XXT)
+    void blin9a (double TEMP, double CHI,
+                 double& W0, double& W0DX, double& W0DT, double& W0DXX,
+                 double& W0DTT, double& W0DXT,
+                 double& W1, double& W1DX, double& W1DT, double& W1DXX,
+                 double& W1DTT, double& W1DXT,
+                 double& W2, double& W2DX, double& W2DT, double& W2DXX,
+                 double& W2DTT, double& W2DXT,
+                 double& W0XXX, double& W0XTT, double& W0XXT)
     {
         // Version 19.01.10
         // First part of blin9: small CHI. Stems from blin9 v.24.12.08
@@ -241,4 +241,29 @@ extern "C"
         }
     }
 
+    void fermi10 (double X, double XMAX, double& FP, double& FM)
+    {
+        // Version 20.01.10
+        // Fermi distribution function and its 3 derivatives
+        // Input: X - argument f(x)
+        //        XMAX - max|X| where it is assumed that 0 < f(x) < 1.
+        // Output: FP = f(x)
+        //         FM = 1-f(x)
+        if (XMAX < 3.0_rt) {
+            printf("FERMI10: XMAX\n");
+            exit(1);
+        }
+        if (X > XMAX) {
+            FP = 0.0_rt;
+            FM = 1.0_rt;
+        }
+        else if (X < -XMAX) {
+            FP = 1.0_rt;
+            FM = 0.0_rt;
+        }
+        else {
+            FP = 1.0 / (std::exp(X) + 1.0_rt);
+            FM = 1.0 - FP;
+        }
+    }
 }
