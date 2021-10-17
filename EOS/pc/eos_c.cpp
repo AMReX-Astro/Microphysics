@@ -22,21 +22,15 @@ inline namespace literals {
 
 extern "C"
 {
-    // Inverse Fermi integrals with q=1/2
-    void ferinv7 (Real F,
-                  Real& X,
-                  Real& XDF,
-                  Real& XDFF)
+    // Inverse Fermi integral with q=1/2
+    void ferinv7 (Real F, Real& X)
     {
         // Version 24.05.07
         // X_q(f)=F^{-1}_q(f) : H.M.Antia 93 ApJS 84, 101
-        // Input: F - argument
-        // Output: X=X_q, XDF=dX/df, XDFF=d^2 X / df^2
+        // Input: F
+        // Output: X = X_q
         // Relative error:
         //        for X:    4.2e-9
-        // jump at f=4:
-        //        for XDF:  5.4e-7
-        //        for XDFF: 4.8e-5
 
         const Real A[6] = { 1.999266880833e4_rt,  5.702479099336e3_rt,  6.610132843877e2_rt,
                             3.818838129486e1_rt,  1.0_rt,               0.0_rt};
@@ -56,77 +50,34 @@ extern "C"
         const int N = 1;
 
         if (F <= 0.0_rt) {
-            printf("FERINV7: Non-positive argument\n");
+            printf("ferinv7: Non-positive argument\n");
             exit(1);
         }
         if (F < 4.0_rt) {
             Real T = F;
             Real UP = 0.0_rt;
-            Real UP1 = 0.0_rt;
-            Real UP2 = 0.0_rt;
             Real DOWN = 0.0_rt;
-            Real DOWN1 = 0.0_rt;
-            Real DOWN2 = 0.0_rt;
             for (int i = LA; i >= 0; --i) {
                 UP = UP * T + A[i];
-                if (i >= 1) {
-                    UP1 = UP1 * T + A[i] * i;
-                }
-                if (i >= 2) {
-                    UP2 = UP2 * T + A[i] * i * (i-1);
-                }
             }
             for (int i = LB; i >= 0; --i) {
                 DOWN = DOWN * T + B[i];
-                if (i >= 1) {
-                    DOWN1 = DOWN1 * T + B[i] * i;
-                }
-                if (i >= 2) {
-                    DOWN2 = DOWN2 * T + B[i] * i * (i-1);
-                }
             }
             X = std::log(T * UP / DOWN);
-            XDF = 1.0_rt / T + UP1 / UP - DOWN1 / DOWN;
-            XDFF = -1.0_rt / (T * T) + UP2 / UP - (UP1 / UP) * (UP1 / UP) -
-                DOWN2 / DOWN + (DOWN1 / DOWN) * (DOWN1 / DOWN);
         }
         else {
             Real P = -1.0_rt / (0.5_rt + (Real) N); // = -1/(1+\nu) = power index
             Real T = std::pow(F, P); // t  - argument of the rational fraction
-            Real T1 = P * T / F; // dt/df
-            Real T2 = P * (P - 1.0_rt) * T / (F * F); // d^2 t / df^2
             Real UP = 0.0_rt;
-            Real UP1 = 0.0_rt;
-            Real UP2 = 0.0_rt;
             Real DOWN = 0.0_rt;
-            Real DOWN1 = 0.0_rt;
-            Real DOWN2 = 0.0_rt;
             for (int i = 6; i >= 0; --i) {
                 UP = UP * T + C[i];
-                if (i >= 1) {
-                    UP1 = UP1 * T + C[i] * i;
-                }
-                if (i >= 2) {
-                    UP2 = UP2 * T + C[i] * i * (i-1);
-                }
             }
             for (int i = LD; i >= 0; --i) {
                 DOWN = DOWN * T + D[i];
-                if (i >= 1) {
-                    DOWN1 = DOWN1 * T + D[i] * i;
-                }
-                if (i >= 2) {
-                    DOWN2 = DOWN2 * T + D[i] * i * (i-1);
-                }
             }
             Real R = UP / DOWN;
-            Real R1 = (UP1 - UP * DOWN1 / DOWN) / DOWN; // dR/dt
-            Real R2 = (UP2 - (2.0_rt * UP1 * DOWN1 + UP * DOWN2) / DOWN +
-                       2.0_rt * UP * (DOWN1 / DOWN) * (DOWN1 / DOWN)) / DOWN;
-            X = R/T;
-            Real RT = (R1 - R / T) / T;
-            XDF = T1 * RT;
-            XDFF = T2 * RT + T1 * T1 * (R2 - 2.0_rt * RT) / T;
+            X = R / T;
         }
     }
 
@@ -184,8 +135,8 @@ extern "C"
         Real H = (1.0_rt + 0.5 * TEMR / THETA) * (1.0_rt + Q2 * TEMR);
         Real CT = 1.0_rt + G / H;
         Real F = 2.0_rt * C13 / THETA32;
-        Real X, XDF, XDFF;
-        ferinv7(F, X, XDF, XDFF);
+        Real X;
+        ferinv7(F, X);
         CHI = X                      // Non-relativistic result
             - 1.5_rt * std::log(CT); // Relativistic fit
     }
