@@ -277,27 +277,6 @@
       double precision, parameter :: RSIMELT=140. ! ion density parameter of quantum melting
       double precision, parameter :: RAD=2.554d-7 ! Radiation constant (=4\sigma/c) (in a.u.)
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) stop'MELANGE: RHO out of range'
-! Sort the elements in ascending order in Z_j:
-      KSORT=0
-      do I=2,NMIX
-         J=I
-         Z=AZion(J)
-         CMI=ACMI(J)
-         Y=AY(J)
-    1   if (J.le.1.or.AZion(J-1).le.Z) goto 2
-           AZion(J)=AZion(J-1)
-           ACMI(J)=ACMI(J-1)
-           AY(J)=AY(J-1)
-           J=J-1
-           KSORT=1
-        goto 1
-    2    AZion(J)=Z
-         ACMI(J)=CMI
-         AY(J)=Y
-      enddo
-      if (KSORT.eq.1) write(*,'('' Ions are resorted as follows:''/
-     *  '' i    Z_i       A_i       x_i''/(0P,I3,'':'',1P,3E10.3))')
-     *  (J,AZion(J),ACMI(J),AY(J),J=1,NMIX)
 ! Calculation of average values:
       Zmean=0.
       Z2mean=0.
