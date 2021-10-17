@@ -241,7 +241,131 @@ extern "C"
         }
     }
 
-    void fermi10 (double X, double XMAX, double& FP, double& FM)
+    void blin9b(Real TEMP, Real CHI,
+                Real& W0, Real& W0DX, Real& W0DT, Real& W0DXX,
+                Real& W0DTT, Real& W0DXT,
+                Real& W1, Real& W1DX, Real& W1DT, Real& W1DXX,
+                Real& W1DTT, Real& W1DXT,
+                Real& W2, Real& W2DX, Real& W2DT, Real& W2DXX,
+                Real& W2DTT, Real& W2DXT,
+                Real& W0XXX, Real& W0XTT, Real& W0XXT)
+    {
+        // Version 19.01.10
+        // Small syntax fix 15.03.13
+        // Second part of BILN9: intermediate CHI. Stems from BLIN8 v.24.12.08
+        const Real EPS = 1.e-3;
+
+        const Real AX[5]  = {7.265351e-2_rt,  0.2694608_rt,
+                             0.533122_rt,     0.7868801_rt,    0.9569313_rt}; // x_i
+        const Real AXI[5] = {0.26356032_rt,   1.4134031_rt,
+                             3.59642580_rt,   7.0858100_rt,   12.640801_rt}; // \xi_i
+        const Real AH[5]  = {3.818735e-2_rt,  0.1256732_rt,
+                             0.1986308_rt,    0.1976334_rt,    0.1065420_rt}; // H_i
+        const Real AV[5]  = {0.29505869_rt,   0.32064856_rt,
+                             7.3915570e-2_rt, 3.6087389e-3_rt, 2.3369894e-5_rt}; // \bar{V}_i
+
+        if (CHI < EPS) {
+            printf("BLIN9b: CHI is too small\n");
+            exit(1);
+        }
+
+        for (int k = 0; k <= 2; ++k) {
+            Real W = 0.0;
+            Real WDX = 0.0;
+            Real WDT = 0.0;
+            Real WDXX = 0.0;
+            Real WDTT = 0.0;
+            Real WDXT = 0.0;
+            Real WDXXX = 0.0;
+            Real WDXTT = 0.0;
+            Real WDXXT = 0.0;
+            Real SQCHI = std::sqrt(CHI);
+
+            for (int i = 0; i <= 4; ++i) {
+                Real CE = AX[i] - 1.0_rt;
+                Real ECHI = std::exp(CE * CHI);
+                Real DE = 1.0_rt + ECHI;
+                Real D = 1.0_rt + AX[i] * CHI * TEMP / 2.0_rt;
+                Real H = std::pow(CHI, k + 1) * SQCHI * std::sqrt(D) / DE;
+                Real HX = (k + 1.5_rt) / CHI + 0.25_rt * AX[i] * TEMP / D - ECHI * CE / DE;
+                Real HDX = H * HX;
+                Real HXX = (k + 1.5_rt) / (CHI * CHI) + 0.125_rt * (AX[i] * TEMP / D) * (AX[i] * TEMP / D) +
+                           ECHI * (CE / DE) * (CE / DE);
+                Real HDXX = HDX * HX - H * HXX;
+                Real HT = 0.25_rt * AX[i] * CHI / D;
+                Real HDT = H * HT;
+                Real HDTT = -H * HT * HT;
+                Real HTX = 1.0_rt / CHI - 0.5_rt * AX[i] * TEMP / D;
+                Real HDXT = HDX * HT + HDT * HTX;
+                Real HDXXT = HDXX * HT + HDX * HT * HTX + HDXT * HTX +
+                             HDT * (0.25_rt * (AX[i] * TEMP / D) * (AX[i] * TEMP / D) -
+                                    1.0_rt / (CHI * CHI));
+                Real HDXTT = HDXT * HT - HDX * 0.125_rt * (AX[i] * CHI / D) * (AX[i] * CHI / D) + HDTT * HTX +
+                             HDT * 0.5_rt * AX[i] * (TEMP * 0.5_rt * AX[i] * CHI / (D * D) - 1.0_rt / D);
+                Real HXXX = (2 * k + 3) / (CHI * CHI * CHI) + 0.125_rt * (AX[i] * TEMP / D) * (AX[i] * TEMP / D) *
+                            (AX[i] * TEMP / D) - ECHI * (1.0_rt - ECHI) * (CE / DE) * (CE / DE) * (CE / DE);
+                Real HDXXX = HDXX * HX - 2.0_rt * HDX * HXX + H * HXXX;
+                Real XICHI = AXI[i] + CHI;
+                Real DXI = 1.0_rt + XICHI * TEMP / 2.0_rt;
+                Real V = std::pow(XICHI, k) * std::sqrt(XICHI * DXI);
+                Real VX= (k + 0.5_rt) / XICHI + 0.25_rt * TEMP / DXI;
+                Real VDX = V * VX;
+                Real VT = 0.25_rt * XICHI / DXI;
+                Real VDT = V * VT;
+                Real VXX = (k + 0.5_rt) / (XICHI * XICHI) + 0.125_rt * (TEMP / DXI) * (TEMP / DXI);
+                Real VDXX = VDX * VX - V * VXX;
+                Real VDXXX = VDXX * VX - 2.0_rt * VDX * VXX +
+                             V * ((2 * k + 1) / (XICHI * XICHI * XICHI) +
+                                  0.125_rt * (TEMP / DXI) * (TEMP / DXI) * (TEMP / DXI));
+                Real VXXT = (1.0_rt - 0.5_rt * TEMP * XICHI / DXI) / DXI;
+                Real VDTT = -V * VT * VT;
+                Real VXT = 1.0_rt / XICHI - 0.5_rt * TEMP / DXI;
+                Real VDXT = VDT * VXT + VDX * VT;
+                Real VDXXT = VDXT * VX + VDX * 0.25_rt * VXXT - VDT * VXX - V * 0.25_rt * TEMP / DXI * VXXT;
+                Real VDXTT = VDTT * VXT - VDT * 0.5_rt * VXXT + VDXT * VT -
+                             VDX * 0.125_rt * (XICHI / DXI) * (XICHI / DXI);
+                W = W + AH[i] * std::pow(AX[i], k) * H + AV[i] * V;
+                WDX = WDX + AH[i] * std::pow(AX[i], k) * HDX + AV[i] * VDX;
+                WDT = WDT + AH[i] * std::pow(AX[i], k) * HDT + AV[i] * VDT;
+                WDXX = WDXX + AH[i] * std::pow(AX[i], k) * HDXX + AV[i] * VDXX;
+                WDTT = WDTT + AH[i] * std::pow(AX[i], k) * HDTT + AV[i] * VDTT;
+                WDXT = WDXT + AH[i] * std::pow(AX[i], k) * HDXT + AV[i] * VDXT;
+                WDXXX = WDXXX + AH[i] * std::pow(AX[i], k) * HDXXX + AV[i] * VDXXX;
+                WDXTT = WDXTT + AH[i] * std::pow(AX[i], k) * HDXTT + AV[i] * VDXTT;
+                WDXXT = WDXXT + AH[i] * std::pow(AX[i], k) * HDXXT + AV[i] * VDXXT;
+            }
+
+            if (k == 0) {
+                W0 = W;
+                W0DX = WDX;
+                W0DT = WDT;
+                W0DXX = WDXX;
+                W0DTT = WDTT;
+                W0DXT = WDXT;
+                W0XXX = WDXXX;
+                W0XTT = WDXTT;
+                W0XXT = WDXXT;
+            }
+            else if (k == 1) {
+                W1 = W;
+                W1DX = WDX;
+                W1DT = WDT;
+                W1DXX = WDXX;
+                W1DTT = WDTT;
+                W1DXT = WDXT;
+            }
+            else {
+                W2 = W;
+                W2DX = WDX;
+                W2DT = WDT;
+                W2DXX = WDXX;
+                W2DTT = WDTT;
+                W2DXT = WDXT;
+            }
+        }
+    }
+
+    void fermi10 (Real X, Real XMAX, Real& FP, Real& FM)
     {
         // Version 20.01.10
         // Fermi distribution function and its 3 derivatives

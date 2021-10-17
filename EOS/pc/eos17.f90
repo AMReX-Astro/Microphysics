@@ -1747,6 +1747,20 @@
          end subroutine blin9a
       end interface
       interface
+         subroutine blin9b(TEMP,CHI, &
+              W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
+              W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
+              W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
+              W0XXXb,W0XTTb,W0XXTb) bind(C, name="blin9b")
+           implicit none
+           double precision, intent(in), value :: TEMP, CHI
+           double precision :: W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
+                W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
+                W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
+                W0XXXb,W0XTTb,W0XXTb
+         end subroutine blin9b
+      end interface
+      interface
          subroutine fermi10(X,XMAX,FP,FM) bind(C, name="fermi10")
            implicit none
            double precision, intent(in), value :: X, XMAX
@@ -1816,120 +1830,6 @@
           W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
           W0XXX,W0XTT,W0XXT)
       endif
-      return
-      end
-
-      subroutine BLIN9b(TEMP,CHI, &
-       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-       W0XXX,W0XTT,W0XXT)
-!                                                       Version 19.01.10
-!                                              Small syntax fix 15.03.13
-! Second part of BILN9: intermediate CHI. Stems from BLIN8 v.24.12.08
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      dimension AX(5),AXI(5),AH(5),AV(5)
-      parameter (EPS=1.d-3)
-      data AX/7.265351d-2, .2694608d0, &
-             .533122d0, .7868801d0, .9569313d0/ ! x_i
-      data AXI/.26356032d0, 1.4134031d0, &
-              3.5964258d0, 7.0858100d0, 12.640801d0/ ! \xi_i
-      data AH/3.818735d-2, .1256732d0, &
-             .1986308d0, .1976334d0, .1065420d0/ ! H_i
-      data AV/.29505869d0, .32064856d0, 7.3915570d-2, &
-             3.6087389d-3, 2.3369894d-5/ ! \bar{V}_i
-      if (CHI.lt.EPS) then
-         print *, 'BLIN9b: CHI is too small'
-         stop
-      end if
-        do K=0,2
-           W=0.
-           WDX=0.
-           WDT=0.
-           WDXX=0.
-           WDTT=0.
-           WDXT=0.
-           WDXXX=0.
-           WDXTT=0.
-           WDXXT=0.
-             SQCHI=dsqrt(CHI)
-            do I=1,5
-               CE=AX(I)-1.d0
-               ECHI=dexp(CE*CHI)
-               DE=1.d0+ECHI
-               D=1.d0+AX(I)*CHI*TEMP/2.
-               H=CHI**(K+1)*SQCHI*dsqrt(D)/DE
-               HX=(K+1.5)/CHI+.25*AX(I)*TEMP/D-ECHI*CE/DE
-               HDX=H*HX
-               HXX=(K+1.5)/CHI**2+.125*(AX(I)*TEMP/D)**2+ECHI*(CE/DE)**2
-               HDXX=HDX*HX-H*HXX
-               HT=.25*AX(I)*CHI/D
-               HDT=H*HT
-               HDTT=-H*HT**2
-               HTX=1./CHI-.5*AX(I)*TEMP/D
-               HDXT=HDX*HT+HDT*HTX
-               HDXXT=HDXX*HT+HDX*HT*HTX+HDXT*HTX+ &
-                HDT*(.25*(AX(I)*TEMP/D)**2-1./CHI**2)
-               HDXTT=HDXT*HT-HDX*.125*(AX(I)*CHI/D)**2+HDTT*HTX+ &
-                HDT*.5*AX(I)*(TEMP*.5*AX(I)*CHI/D**2-1./D)
-               HXXX=(2*K+3)/CHI**3+.125*(AX(I)*TEMP/D)**3- &
-                ECHI*(1.d0-ECHI)*(CE/DE)**3
-               HDXXX=HDXX*HX-2.*HDX*HXX+H*HXXX
-               XICHI=AXI(I)+CHI
-               DXI=1.d0+XICHI*TEMP/2.
-               V=XICHI**K*dsqrt(XICHI*DXI)
-               VX=(K+.5)/XICHI+.25*TEMP/DXI
-               VDX=V*VX
-               VT=.25*XICHI/DXI
-               VDT=V*VT
-               VXX=(K+.5)/XICHI**2+.125*(TEMP/DXI)**2
-               VDXX=VDX*VX-V*VXX
-               VDXXX=VDXX*VX-2.*VDX*VXX+ &
-                V*((2*K+1)/XICHI**3+.125*(TEMP/DXI)**3)
-               VXXT=(1.-.5*TEMP*XICHI/DXI)/DXI
-               VDTT=-V*VT**2
-               VXT=1./XICHI-.5*TEMP/DXI
-               VDXT=VDT*VXT+VDX*VT
-               VDXXT=VDXT*VX+VDX*.25*VXXT-VDT*VXX-V*.25*TEMP/DXI*VXXT
-               VDXTT=VDTT*VXT-VDT*.5*VXXT+VDXT*VT- &
-                VDX*.125*(XICHI/DXI)**2
-               W=W+AH(I)*AX(I)**K*H+AV(I)*V
-               WDX=WDX+AH(I)*AX(I)**K*HDX+AV(I)*VDX
-               WDT=WDT+AH(I)*AX(I)**K*HDT+AV(I)*VDT
-               WDXX=WDXX+AH(I)*AX(I)**K*HDXX+AV(I)*VDXX
-               WDTT=WDTT+AH(I)*AX(I)**K*HDTT+AV(I)*VDTT
-               WDXT=WDXT+AH(I)*AX(I)**K*HDXT+AV(I)*VDXT
-               WDXXX=WDXXX+AH(I)*AX(I)**K*HDXXX+AV(I)*VDXXX
-               WDXTT=WDXTT+AH(I)*AX(I)**K*HDXTT+AV(I)*VDXTT
-               WDXXT=WDXXT+AH(I)*AX(I)**K*HDXXT+AV(I)*VDXXT
-            enddo
-          if (K.eq.0) then
-             W0=W
-             W0DX=WDX
-             W0DT=WDT
-             W0DXX=WDXX
-             W0DTT=WDTT
-             W0DXT=WDXT
-             W0XXX=WDXXX
-             W0XTT=WDXTT
-             W0XXT=WDXXT
-          elseif (K.eq.1) then
-             W1=W
-             W1DX=WDX
-             W1DT=WDT
-             W1DXX=WDXX
-             W1DTT=WDTT
-             W1DXT=WDXT
-          else
-             W2=W
-             W2DX=WDX
-             W2DT=WDT
-             W2DXX=WDXX
-             W2DTT=WDTT
-             W2DXT=WDXT
-          endif
-        enddo ! next K
       return
       end
 
