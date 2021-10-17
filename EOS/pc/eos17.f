@@ -277,7 +277,7 @@
       double precision, parameter :: RSIMELT=140. ! ion density parameter of quantum melting
       double precision, parameter :: RAD=2.554d-7 ! Radiation constant (=4\sigma/c) (in a.u.)
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) stop'MELANGE: RHO out of range'
-! Calculation of average values:
+      ! Calculation of average values:
       Zmean=0.
       Z2mean=0.
       Z52=0.
@@ -295,21 +295,21 @@
          Z321=Z321+AY(IX)*AZion(IX)*dsqrt(AZion(IX)+1.d0)**3 ! 26.12.09
          CMImean=CMImean+AY(IX)*ACMI(IX)
       enddo
-! (0) Photons:
+      ! (0) Photons:
       UINTRAD=RAD*TEMP**4
       PRESSRAD=UINTRAD/3.
-! (1) ideal electron gas (including relativity and degeneracy)  -----  *
+      ! (1) ideal electron gas (including relativity and degeneracy)
       DENS=RHO/11.20587*Zmean/CMImean ! number density of electrons [au]
       call CHEMFIT(DENS,TEMP,CHI)
-! NB: CHI can be used as true input instead of RHO or DENS
+      ! NB: CHI can be used as true input instead of RHO or DENS
       call ELECT11(TEMP,CHI,
      *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
      *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-! NB: at this point DENS is redefined (the difference can be ~0.1%)
+      ! NB: at this point DENS is redefined (the difference can be ~0.1%)
       DTE=DENS*TEMP
       PRESSE=PEid*DTE ! P_e [a.u.]
       UINTE=UEid*DTE ! U_e / V [a.u.]
-! (2) non-ideal Coulomb EIP  ----------------------------------------  *
+      ! (2) non-ideal Coulomb EIP
       RS=(.75d0/PI/DENS)**C13 ! r_s - electron density parameter
       RSI=RS*CMImean*Z73*AUM ! R_S - ion density parameter
       GAME=1.d0/RS/TEMP ! electron Coulomb parameter Gamma_e
@@ -319,7 +319,7 @@
       else
          LIQSOL=1 ! solid regime
       endif
-! Calculate partial thermodynamic quantities and combine them together:
+      ! Calculate partial thermodynamic quantities and combine them together:
       UINT=UINTE
       PRESS=PRESSE
       CVtot=CVE*DENS
@@ -330,7 +330,7 @@
       PRESSI=DENSI*TEMP ! ideal-ions total pressure (normalization)
       TPT2=0.
       CTP=4.d0*PI/AUM/TEMP**2 ! common coefficient for TPT2.10.12.14
-! Add Coulomb+xc nonideal contributions, and ideal free energy:
+      ! Add Coulomb+xc nonideal contributions, and ideal free energy:
       do IX=1,NMIX
         if (AY(IX).lt.TINY) goto 10 ! skip this species
          Zion=AZion(IX)
@@ -341,20 +341,20 @@
          call EOSFI8(LIQSOL,CMI,Zion,RS,GAMI,
      *     FC1,UC1,PC1,SC1,CV1,PDT1,PDR1,
      *     FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
-! First-order TD functions:
+         ! First-order TD functions:
          UINT=UINT+UC2*PRI ! internal energy density (e+i+Coul.)
          Stot=Stot+DNI*(SC2-dlog(AY(IX))) !entropy per unit volume[a.u.]
          PRESS=PRESS+PC2*PRI ! pressure (e+i+Coul.) [a.u.]
-! Second-order functions (they take into account compositional changes):
+         ! Second-order functions (they take into account compositional changes):
          CVtot=CVtot+DNI*CV2 ! C_V (e+i+Coul.)/ V (optim.10.12.14)
          PDLT=PDLT+PRI*PDT2 ! d P / d ln T
          PDLR=PDLR+PRI*PDR2 ! d P / d ln\rho
          TPT2=TPT2+CTP*DNI/ACMI(IX)*AZion(IX)**2 ! opt.10.12.14
    10   continue
       enddo ! next IX
-! Wigner-Kirkwood perturbative correction for liquid:
+      ! Wigner-Kirkwood perturbative correction for liquid:
       TPT=dsqrt(TPT2) ! effective T_p/T - ion quantum parameter
-! (in the case of a mixture, this estimate is crude)
+      ! (in the case of a mixture, this estimate is crude)
       if (LIQSOL.eq.0) then
          FWK=TPT2/24.d0*CWK ! Wigner-Kirkwood (quantum diffr.) term
         if (FWK.gt..7.and.CWK.gt.0.) then
@@ -369,7 +369,7 @@
          PDLT=PDLT-FWK*PRESSI
          PDLR=PDLR+UWK*PRESSI
       endif
-! Corrections to the linear mixing rule:
+      ! Corrections to the linear mixing rule:
       if (LIQSOL.eq.0) then ! liquid phase
          call CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321,
      *     FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
@@ -402,12 +402,12 @@
       CVtot=CVtot+DENSI*CVMIX
       PDLT=PDLT+PRESSI*PDTMIX
       PDLR=PDLR+PRESSI*PDRMIX
-! First-order:
+      ! First-order:
       PRADnkT=PRESSRAD/PRESSI ! radiative pressure / n_i k T
       PnkT=PRESS/PRESSI ! P / n_i k T
       UNkT=UINT/PRESSI ! U / N_i k T
       SNk=Stot/DENSI ! S / N_i k
-! Second-order:
+      ! Second-order:
       CV=CVtot/DENSI ! C_V per ion
       CHIR=PDLR/PRESS ! d ln P / d ln\rho
       CHIT=PDLT/PRESS ! d ln P / d ln T
