@@ -29,8 +29,7 @@ void actual_rhs_init();
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void aprox19rat (Real btemp, Real bden,
                  Array1D<Real, 1, NumRates>& ratraw,
-                 Array1D<Real, 1, NumRates>& dratrawdt,
-                 Array1D<Real, 1, NumRates>& dratrawdd)
+                 Array1D<Real, 1, NumRates>& dratrawdt)
 {
     // this routine generates unscreened
     // nuclear reaction rates for the aprox19 network.
@@ -41,7 +40,6 @@ void aprox19rat (Real btemp, Real bden,
     for (int i = 1; i <= NumRates; ++i) {
         ratraw(i) = 0.0_rt;
         dratrawdt(i) = 0.0_rt;
-        dratrawdd(i) = 0.0_rt;
     }
 
     if (btemp < 1.0e6_rt) return;
@@ -86,16 +84,13 @@ void aprox19rat (Real btemp, Real bden,
 
     tot            = ff1 + ff2;
     dtotdt         = dff1dt + dff2dt;
-//    dtotdd         = dff1dd + dff2dd;
     invtot         = 1.0e0_rt/tot;
 
     ratraw(ifa)    = ff2 * invtot;
     dratrawdt(ifa) = dff2dt * invtot - ff2 * invtot*invtot * dtotdt;
-//    dratrawdd(ifa) = dff2dd * invtot - ff2 * invtot*invtot * dtotdd;
 
     ratraw(ifg)    = 1.0e0_rt - ratraw(ifa);
     dratrawdt(ifg) = -dratrawdt(ifa);
-//    dratrawdd(ifg) = -dratrawdd(ifa);
 
     // o16(p,g)f17
     rate_o16pg(tf, bden, ratraw(iropg), dratrawdt(iropg), rrate, drratedt);
@@ -212,8 +207,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void weak_aprox19 (Array1D<Real, 1, NumSpec> const& y,
                    const burn_t& state,
                    Array1D<Real, 1, NumRates>& ratraw,
-                   Array1D<Real, 1, NumRates>& dratrawdt,
-                   Array1D<Real, 1, NumRates>& dratrawdd)
+                   Array1D<Real, 1, NumRates>& dratrawdt)
 {
     using namespace Species;
 
@@ -222,13 +216,10 @@ void weak_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     // initialize
     ratraw(irpen)       = 0.0e0_rt;
     dratrawdt(irpen)    = 0.0e0_rt;
-    //dratrawdd(irpen)   = 0.0e0_rt;
     ratraw(irnep)       = 0.0e0_rt;
     dratrawdt(irnep)    = 0.0e0_rt;
-    //dratrawdd(irnep)   = 0.0e0_rt;
     ratraw(irn56ec)     = 0.0e0_rt;
     dratrawdt(irn56ec)  = 0.0e0_rt;
-    //dratrawdd(irn56ec) = 0.0e0_rt;
 
     if (state.T < 1.0e6_rt || state.rho < 1.0e-9_rt) return;
 
@@ -245,10 +236,8 @@ void screen_aprox19 (Real btemp, Real bden,
                      Array1D<Real, 1, NumSpec> const& y,
                      Array1D<Real, 1, NumRates> const& ratraw,
                      Array1D<Real, 1, NumRates> const& dratrawdt,
-                     Array1D<Real, 1, NumRates> const& dratrawdd,
                      Array1D<Real, 1, NumRates>& ratdum,
-                     Array1D<Real, 1, NumRates>& dratdumdt,
-                     Array1D<Real, 1, NumRates>& dratdumdd)
+                     Array1D<Real, 1, NumRates>& dratdumdt)
 {
     using namespace Species;
 
@@ -259,7 +248,6 @@ void screen_aprox19 (Real btemp, Real bden,
 
     Real sc1a, sc1adt, sc1add, sc2a, sc2adt, sc2add;
     Real sc3a, sc3adt, denom, denomdt, xx, zz;
-    //Real sc3add, denomdd;
 
     plasma_state_t state;
 
@@ -267,7 +255,6 @@ void screen_aprox19 (Real btemp, Real bden,
     for (int i = 1; i <= NumRates; ++i) {
        ratdum(i)     = ratraw(i);
        dratdumdt(i)  = dratrawdt(i);
-       dratdumdd(i)  = dratrawdd(i);
     }
 
     // Set up the state data, which is the same for all screening factors.
@@ -287,15 +274,12 @@ void screen_aprox19 (Real btemp, Real bden,
 
     sc3a   = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
-    //sc3add = sc1add*sc2a + sc1a*sc2add;
 
     ratdum(He4_He4_He4_to_C12_forward)    = ratraw(He4_He4_He4_to_C12_forward) * sc3a;
     dratdumdt(He4_He4_He4_to_C12_forward) = dratrawdt(He4_He4_He4_to_C12_forward)*sc3a + ratraw(He4_He4_He4_to_C12_forward)*sc3adt;
-    //dratdumdd(He4_He4_He4_to_C12_forward) = dratrawdd(He4_He4_He4_to_C12_forward)*sc3a + ratraw(He4_He4_He4_to_C12_forward)*sc3add;
 
     ratdum(He4_He4_He4_to_C12_reverse)    = ratraw(He4_He4_He4_to_C12_reverse) * sc3a;
     dratdumdt(He4_He4_He4_to_C12_reverse) = dratrawdt(He4_He4_He4_to_C12_reverse)*sc3a + ratraw(He4_He4_He4_to_C12_reverse)*sc3adt;
-    //dratdumdd(He4_He4_He4_to_C12_reverse) = dratrawdd(He4_He4_He4_to_C12_reverse)*sc3a + ratraw(He4_He4_He4_to_C12_reverse)*sc3add;
 
     // Identical particle factor (He4 + He4 + He4)
 
@@ -312,11 +296,9 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(C12_He4_to_O16_forward)     = ratraw(C12_He4_to_O16_forward) * sc1a;
     dratdumdt(C12_He4_to_O16_forward)  = dratrawdt(C12_He4_to_O16_forward)*sc1a + ratraw(C12_He4_to_O16_forward)*sc1adt;
-    //dratdumdd(C12_He4_to_O16_forward)  = dratrawdd(C12_He4_to_O16_forward)*sc1a + ratraw(C12_He4_to_O16_forward)*sc1add;;
 
     ratdum(C12_He4_to_O16_reverse)     = ratraw(C12_He4_to_O16_reverse) * sc1a;
     dratdumdt(C12_He4_to_O16_reverse)  = dratrawdt(C12_He4_to_O16_reverse)*sc1a + ratraw(C12_He4_to_O16_reverse)*sc1adt;
-    //dratdumdd(C12_He4_to_O16_reverse)  = dratrawdd(C12_He4_to_O16_reverse)*sc1a + ratraw(C12_He4_to_O16_reverse)*sc1add;;
 
 
     
@@ -329,7 +311,6 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(C12_C12_to_Ne20_He4_forward)    = ratraw(C12_C12_to_Ne20_He4_forward) * sc1a;
     dratdumdt(C12_C12_to_Ne20_He4_forward) = dratrawdt(C12_C12_to_Ne20_He4_forward)*sc1a + ratraw(C12_C12_to_Ne20_He4_forward)*sc1adt;
-    //dratdumdd(C12_C12_to_Ne20_He4_forward) = dratrawdd(C12_C12_to_Ne20_He4_forward)*sc1a + ratraw(C12_C12_to_Ne20_He4_forward)*sc1add;;
 
     // Identical particle factor (C12 + C12)
 
@@ -346,7 +327,6 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(C12_O16_to_Mg24_He4_forward)    = ratraw(C12_O16_to_Mg24_He4_forward) * sc1a;
     dratdumdt(C12_O16_to_Mg24_He4_forward) = dratrawdt(C12_O16_to_Mg24_He4_forward)*sc1a + ratraw(C12_O16_to_Mg24_He4_forward)*sc1adt;
-    //dratdumdd(C12_O16_to_Mg24_He4_forward) = dratrawdd(C12_O16_to_Mg24_He4_forward)*sc1a + ratraw(C12_O16_to_Mg24_He4_forward)*sc1add;;
 
     // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
 
@@ -366,7 +346,6 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(O16_O16_to_Si28_He4_forward)    = ratraw(O16_O16_to_Si28_He4_forward) * sc1a;
     dratdumdt(O16_O16_to_Si28_He4_forward) = dratrawdt(O16_O16_to_Si28_He4_forward)*sc1a + ratraw(O16_O16_to_Si28_He4_forward)*sc1adt;
-    //dratdumdd(O16_O16_to_Si28_He4_forward) = dratrawdd(O16_O16_to_Si28_He4_forward)*sc1a + ratraw(O16_O16_to_Si28_He4_forward)*sc1add;;
 
     // Identical particle factor (O16 + O16)
 
@@ -388,11 +367,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // o16(a,g)ne20
     ratdum(O16_He4_to_Ne20_forward)    = ratraw(O16_He4_to_Ne20_forward) * sc1a;
     dratdumdt(O16_He4_to_Ne20_forward) = dratrawdt(O16_He4_to_Ne20_forward)*sc1a + ratraw(O16_He4_to_Ne20_forward)*sc1adt;
-    //dratdumdd(O16_He4_to_Ne20_forward) = dratrawdd(O16_He4_to_Ne20_forward)*sc1a + ratraw(O16_He4_to_Ne20_forward)*sc1add;;
 
     ratdum(O16_He4_to_Ne20_reverse)    = ratraw(O16_He4_to_Ne20_reverse) * sc1a;
     dratdumdt(O16_He4_to_Ne20_reverse) = dratrawdt(O16_He4_to_Ne20_reverse)*sc1a + ratraw(O16_He4_to_Ne20_reverse)*sc1adt;
-    //dratdumdd(O16_He4_to_Ne20_reverse) = dratrawdd(O16_He4_to_Ne20_reverse)*sc1a + ratraw(O16_He4_to_Ne20_reverse)*sc1add;;
 
 
 
@@ -406,11 +383,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // ne20(a,g)mg24
     ratdum(Ne20_He4_to_Mg24_forward)    = ratraw(Ne20_He4_to_Mg24_forward) * sc1a;
     dratdumdt(Ne20_He4_to_Mg24_forward) = dratrawdt(Ne20_He4_to_Mg24_forward)*sc1a + ratraw(Ne20_He4_to_Mg24_forward)*sc1adt;
-    //dratdumdd(Ne20_He4_to_Mg24_forward) = dratrawdd(Ne20_He4_to_Mg24_forward)*sc1a + ratraw(Ne20_He4_to_Mg24_forward)*sc1add;;
 
     ratdum(Ne20_He4_to_Mg24_reverse)    = ratraw(Ne20_He4_to_Mg24_reverse) * sc1a;
     dratdumdt(Ne20_He4_to_Mg24_reverse) = dratrawdt(Ne20_He4_to_Mg24_reverse)*sc1a + ratraw(Ne20_He4_to_Mg24_reverse)*sc1adt;
-    //dratdumdd(Ne20_He4_to_Mg24_reverse) = dratrawdd(Ne20_He4_to_Mg24_reverse)*sc1a + ratraw(Ne20_He4_to_Mg24_reverse)*sc1add;;
 
 
 
@@ -424,22 +399,18 @@ void screen_aprox19 (Real btemp, Real bden,
     // mg24(a,g)si28
     ratdum(Mg24_He4_to_Si28_forward)    = ratraw(Mg24_He4_to_Si28_forward) * sc1a;
     dratdumdt(Mg24_He4_to_Si28_forward) = dratrawdt(Mg24_He4_to_Si28_forward)*sc1a + ratraw(Mg24_He4_to_Si28_forward)*sc1adt;
-    //dratdumdd(Mg24_He4_to_Si28_forward) = dratrawdd(Mg24_He4_to_Si28_forward)*sc1a + ratraw(Mg24_He4_to_Si28_forward)*sc1add;
 
     ratdum(Mg24_He4_to_Si28_reverse)    = ratraw(Mg24_He4_to_Si28_reverse) * sc1a;
     dratdumdt(Mg24_He4_to_Si28_reverse) = dratrawdt(Mg24_He4_to_Si28_reverse)*sc1a + ratraw(Mg24_He4_to_Si28_reverse)*sc1adt;
-    //dratdumdd(Mg24_He4_to_Si28_reverse) = dratrawdd(Mg24_He4_to_Si28_reverse)*sc1a + ratraw(Mg24_He4_to_Si28_reverse)*sc1add;
 
 
 
     // mg24(a,p)al27
     ratdum(irmgap)    = ratraw(irmgap) * sc1a;
     dratdumdt(irmgap) = dratrawdt(irmgap)*sc1a + ratraw(irmgap)*sc1adt;
-    //dratdumdd(irmgap) = dratrawdd(irmgap)*sc1a + ratraw(irmgap)*sc1add;
 
     ratdum(iralpa)    = ratraw(iralpa) * sc1a;
     dratdumdt(iralpa) = dratrawdt(iralpa)*sc1a + ratraw(iralpa)*sc1adt;
-    //dratdumdd(iralpa) = dratrawdd(iralpa)*sc1a + ratraw(iralpa)*sc1add;
 
 
 
@@ -451,11 +422,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // al27(p,g)si28
     ratdum(iralpg)    = ratraw(iralpg) * sc1a;
     dratdumdt(iralpg) = dratrawdt(iralpg)*sc1a + ratraw(iralpg)*sc1adt;
-    //dratdumdd(iralpg) = dratrawdd(iralpg)*sc1a + ratraw(iralpg)*sc1add;
 
     ratdum(irsigp)    = ratraw(irsigp) * sc1a;
     dratdumdt(irsigp) = dratrawdt(irsigp)*sc1a + ratraw(irsigp)*sc1adt;
-    //dratdumdd(irsigp) = dratrawdd(irsigp)*sc1a + ratraw(irsigp)*sc1add;
 
 
 
@@ -469,22 +438,18 @@ void screen_aprox19 (Real btemp, Real bden,
     // si28(a,g)s32
     ratdum(Si28_He4_to_S32_forward)    = ratraw(Si28_He4_to_S32_forward) * sc1a;
     dratdumdt(Si28_He4_to_S32_forward) = dratrawdt(Si28_He4_to_S32_forward)*sc1a + ratraw(Si28_He4_to_S32_forward)*sc1adt;
-    //dratdumdd(Si28_He4_to_S32_forward) = dratrawdd(Si28_He4_to_S32_forward)*sc1a + ratraw(Si28_He4_to_S32_forward)*sc1add;
 
     ratdum(Si28_He4_to_S32_reverse)    = ratraw(Si28_He4_to_S32_reverse) * sc1a;
     dratdumdt(Si28_He4_to_S32_reverse) = dratrawdt(Si28_He4_to_S32_reverse)*sc1a + ratraw(Si28_He4_to_S32_reverse)*sc1adt;
-    //dratdumdd(Si28_He4_to_S32_reverse) = dratrawdd(Si28_He4_to_S32_reverse)*sc1a + ratraw(Si28_He4_to_S32_reverse)*sc1add;
 
 
 
     // si28(a,p)p31
     ratdum(irsiap)    = ratraw(irsiap) * sc1a;
     dratdumdt(irsiap) = dratrawdt(irsiap)*sc1a + ratraw(irsiap)*sc1adt;
-    //dratdumdd(irsiap) = dratrawdd(irsiap)*sc1a + ratraw(irsiap)*sc1add;
 
     ratdum(irppa)     = ratraw(irppa) * sc1a;
     dratdumdt(irppa)  = dratrawdt(irppa)*sc1a  + ratraw(irppa)*sc1adt;
-    //dratdumdd(irppa)  = dratrawdd(irppa)*sc1a  + ratraw(irppa)*sc1add;
 
 
     jscr++;
@@ -495,11 +460,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // p31(p,g)s32
     ratdum(irppg)     = ratraw(irppg) * sc1a;
     dratdumdt(irppg)  = dratrawdt(irppg)*sc1a + ratraw(irppg)*sc1adt;
-    //dratdumdd(irppg)  = dratrawdd(irppg)*sc1a + ratraw(irppg)*sc1add;
 
     ratdum(irsgp)     = ratraw(irsgp) * sc1a;
     dratdumdt(irsgp)  = dratrawdt(irsgp)*sc1a + ratraw(irsgp)*sc1adt;
-    //dratdumdd(irsgp)  = dratrawdd(irsgp)*sc1a + ratraw(irsgp)*sc1add;
 
 
 
@@ -513,21 +476,17 @@ void screen_aprox19 (Real btemp, Real bden,
     // s32(a,g)ar36
     ratdum(S32_He4_to_Ar36_forward)     = ratraw(S32_He4_to_Ar36_forward) * sc1a;
     dratdumdt(S32_He4_to_Ar36_forward)  = dratrawdt(S32_He4_to_Ar36_forward)*sc1a + ratraw(S32_He4_to_Ar36_forward)*sc1adt;
-    //dratdumdd(S32_He4_to_Ar36_forward)  = dratrawdd(S32_He4_to_Ar36_forward)*sc1a + ratraw(S32_He4_to_Ar36_forward)*sc1add;
 
     ratdum(S32_He4_to_Ar36_reverse)     = ratraw(S32_He4_to_Ar36_reverse) * sc1a;
     dratdumdt(S32_He4_to_Ar36_reverse)  = dratrawdt(S32_He4_to_Ar36_reverse)*sc1a + ratraw(S32_He4_to_Ar36_reverse)*sc1adt;
-    //dratdumdd(S32_He4_to_Ar36_reverse)  = dratrawdd(S32_He4_to_Ar36_reverse)*sc1a + ratraw(S32_He4_to_Ar36_reverse)*sc1add;
 
 
     // s32(a,p)cl35
     ratdum(irsap)     = ratraw(irsap) * sc1a;
     dratdumdt(irsap)  = dratrawdt(irsap)*sc1a + ratraw(irsap)*sc1adt;
-    //dratdumdd(irsap)  = dratrawdd(irsap)*sc1a + ratraw(irsap)*sc1add;
 
     ratdum(irclpa)    = ratraw(irclpa) * sc1a;
     dratdumdt(irclpa) = dratrawdt(irclpa)*sc1a + ratraw(irclpa)*sc1adt;
-    //dratdumdd(irclpa) = dratrawdd(irclpa)*sc1a + ratraw(irclpa)*sc1add;
 
 
 
@@ -539,11 +498,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // cl35(p,g)ar36
     ratdum(irclpg)    = ratraw(irclpg) * sc1a;
     dratdumdt(irclpg) = dratrawdt(irclpg)*sc1a + ratraw(irclpg)*sc1adt;
-    //dratdumdd(irclpg) = dratrawdd(irclpg)*sc1a + ratraw(irclpg)*sc1add;
 
     ratdum(irargp)    = ratraw(irargp) * sc1a;
     dratdumdt(irargp) = dratrawdt(irargp)*sc1a + ratraw(irargp)*sc1adt;
-    //dratdumdd(irargp) = dratrawdd(irargp)*sc1a + ratraw(irargp)*sc1add;
 
 
 
@@ -558,22 +515,18 @@ void screen_aprox19 (Real btemp, Real bden,
     // ar36(a,g)ca40
     ratdum(Ar36_He4_to_Ca40_forward)    = ratraw(Ar36_He4_to_Ca40_forward) * sc1a;
     dratdumdt(Ar36_He4_to_Ca40_forward) = dratrawdt(Ar36_He4_to_Ca40_forward)*sc1a + ratraw(Ar36_He4_to_Ca40_forward)*sc1adt;
-    //dratdumdd(Ar36_He4_to_Ca40_forward) = dratrawdd(Ar36_He4_to_Ca40_forward)*sc1a + ratraw(Ar36_He4_to_Ca40_forward)*sc1add;
 
     ratdum(Ar36_He4_to_Ca40_reverse)    = ratraw(Ar36_He4_to_Ca40_reverse) * sc1a;
     dratdumdt(Ar36_He4_to_Ca40_reverse) = dratrawdt(Ar36_He4_to_Ca40_reverse)*sc1a + ratraw(Ar36_He4_to_Ca40_reverse)*sc1adt;
-    //dratdumdd(Ar36_He4_to_Ca40_reverse) = dratrawdd(Ar36_He4_to_Ca40_reverse)*sc1a + ratraw(Ar36_He4_to_Ca40_reverse)*sc1add;
 
 
 
     // ar36(a,p)k39
     ratdum(irarap)    = ratraw(irarap) * sc1a;
     dratdumdt(irarap) = dratrawdt(irarap)*sc1a + ratraw(irarap)*sc1adt;
-    //dratdumdd(irarap) = dratrawdd(irarap)*sc1a + ratraw(irarap)*sc1add;
 
     ratdum(irkpa)     = ratraw(irkpa) * sc1a;
     dratdumdt(irkpa)  = dratrawdt(irkpa)*sc1a  + ratraw(irkpa)*sc1adt;
-    //dratdumdd(irkpa)  = dratrawdd(irkpa)*sc1a  + ratraw(irkpa)*sc1add;
 
 
 
@@ -585,11 +538,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // k39(p,g)ca40
     ratdum(irkpg)     = ratraw(irkpg) * sc1a;
     dratdumdt(irkpg)  = dratrawdt(irkpg)*sc1a  + ratraw(irkpg)*sc1adt;
-    //dratdumdd(irkpg)  = dratrawdd(irkpg)*sc1a  + ratraw(irkpg)*sc1add;
 
     ratdum(ircagp)     = ratraw(ircagp) * sc1a;
     dratdumdt(ircagp)  = dratrawdt(ircagp)*sc1a  + ratraw(ircagp)*sc1adt;
-    //dratdumdd(ircagp)  = dratrawdd(ircagp)*sc1a  + ratraw(ircagp)*sc1add;
 
 
 
@@ -603,22 +554,18 @@ void screen_aprox19 (Real btemp, Real bden,
     // ca40(a,g)ti44
     ratdum(Ca40_He4_to_Ti44_forward)    = ratraw(Ca40_He4_to_Ti44_forward) * sc1a;
     dratdumdt(Ca40_He4_to_Ti44_forward) = dratrawdt(Ca40_He4_to_Ti44_forward)*sc1a + ratraw(Ca40_He4_to_Ti44_forward)*sc1adt;
-    //dratdumdd(Ca40_He4_to_Ti44_forward) = dratrawdd(Ca40_He4_to_Ti44_forward)*sc1a + ratraw(Ca40_He4_to_Ti44_forward)*sc1add;
 
     ratdum(Ca40_He4_to_Ti44_reverse)    = ratraw(Ca40_He4_to_Ti44_reverse) * sc1a;
     dratdumdt(Ca40_He4_to_Ti44_reverse) = dratrawdt(Ca40_He4_to_Ti44_reverse)*sc1a + ratraw(Ca40_He4_to_Ti44_reverse)*sc1adt;
-    //dratdumdd(Ca40_He4_to_Ti44_reverse) = dratrawdd(Ca40_He4_to_Ti44_reverse)*sc1a + ratraw(Ca40_He4_to_Ti44_reverse)*sc1add;
 
 
 
     // ca40(a,p)sc43
     ratdum(ircaap)    = ratraw(ircaap) * sc1a;
     dratdumdt(ircaap) = dratrawdt(ircaap)*sc1a + ratraw(ircaap)*sc1adt;
-    //dratdumdd(ircaap) = dratrawdd(ircaap)*sc1a + ratraw(ircaap)*sc1add;
 
     ratdum(irscpa)    = ratraw(irscpa) * sc1a;
     dratdumdt(irscpa) = dratrawdt(irscpa)*sc1a + ratraw(irscpa)*sc1adt;
-    //dratdumdd(irscpa) = dratrawdd(irscpa)*sc1a + ratraw(irscpa)*sc1add;
 
 
 
@@ -630,11 +577,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // sc43(p,g)ti44
     ratdum(irscpg)    = ratraw(irscpg) * sc1a;
     dratdumdt(irscpg) = dratrawdt(irscpg)*sc1a + ratraw(irscpg)*sc1adt;
-    //dratdumdd(irscpg) = dratrawdd(irscpg)*sc1a + ratraw(irscpg)*sc1add;
 
     ratdum(irtigp)    = ratraw(irtigp) * sc1a;
     dratdumdt(irtigp) = dratrawdt(irtigp)*sc1a + ratraw(irtigp)*sc1adt;
-    //dratdumdd(irtigp) = dratrawdd(irtigp)*sc1a + ratraw(irtigp)*sc1add;
 
 
 
@@ -648,21 +593,17 @@ void screen_aprox19 (Real btemp, Real bden,
     // ti44(a,g)cr48
     ratdum(Ti44_He4_to_Cr48_forward)    = ratraw(Ti44_He4_to_Cr48_forward) * sc1a;
     dratdumdt(Ti44_He4_to_Cr48_forward) = dratrawdt(Ti44_He4_to_Cr48_forward)*sc1a + ratraw(Ti44_He4_to_Cr48_forward)*sc1adt;
-    //dratdumdd(Ti44_He4_to_Cr48_forward) = dratrawdd(Ti44_He4_to_Cr48_forward)*sc1a + ratraw(Ti44_He4_to_Cr48_forward)*sc1add;
 
     ratdum(Ti44_He4_to_Cr48_reverse)    = ratraw(Ti44_He4_to_Cr48_reverse) * sc1a;
     dratdumdt(Ti44_He4_to_Cr48_reverse) = dratrawdt(Ti44_He4_to_Cr48_reverse)*sc1a + ratraw(Ti44_He4_to_Cr48_reverse)*sc1adt;
-    //dratdumdd(Ti44_He4_to_Cr48_reverse) = dratrawdd(Ti44_He4_to_Cr48_reverse)*sc1a + ratraw(Ti44_He4_to_Cr48_reverse)*sc1add;
 
 
     // ti44(a,p)v47
     ratdum(irtiap)    = ratraw(irtiap) * sc1a;
     dratdumdt(irtiap) = dratrawdt(irtiap)*sc1a + ratraw(irtiap)*sc1adt;
-    //dratdumdd(irtiap) = dratrawdd(irtiap)*sc1a + ratraw(irtiap)*sc1add;
 
     ratdum(irvpa)     = ratraw(irvpa) * sc1a;
     dratdumdt(irvpa)  = dratrawdt(irvpa)*sc1a  + ratraw(irvpa)*sc1adt;
-    //dratdumdd(irvpa)  = dratrawdd(irvpa)*sc1a  + ratraw(irvpa)*sc1add;
 
 
 
@@ -674,11 +615,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // v47(p,g)cr48
     ratdum(irvpg)     = ratraw(irvpg) * sc1a;
     dratdumdt(irvpg)  = dratrawdt(irvpg)*sc1a  + ratraw(irvpg)*sc1adt;
-    //dratdumdd(irvpg)  = dratrawdd(irvpg)*sc1a  + ratraw(irvpg)*sc1add;
 
     ratdum(ircrgp)     = ratraw(ircrgp) * sc1a;
     dratdumdt(ircrgp)  = dratrawdt(ircrgp)*sc1a  + ratraw(ircrgp)*sc1adt;
-    //dratdumdd(ircrgp)  = dratrawdd(ircrgp)*sc1a  + ratraw(ircrgp)*sc1add;
 
 
 
@@ -692,22 +631,18 @@ void screen_aprox19 (Real btemp, Real bden,
     // cr48(a,g)fe52
     ratdum(Cr48_He4_to_Fe52_forward)    = ratraw(Cr48_He4_to_Fe52_forward) * sc1a;
     dratdumdt(Cr48_He4_to_Fe52_forward) = dratrawdt(Cr48_He4_to_Fe52_forward)*sc1a + ratraw(Cr48_He4_to_Fe52_forward)*sc1adt;
-    //dratdumdd(Cr48_He4_to_Fe52_forward) = dratrawdd(Cr48_He4_to_Fe52_forward)*sc1a + ratraw(Cr48_He4_to_Fe52_forward)*sc1add;
 
     ratdum(Cr48_He4_to_Fe52_reverse)    = ratraw(Cr48_He4_to_Fe52_reverse) * sc1a;
     dratdumdt(Cr48_He4_to_Fe52_reverse) = dratrawdt(Cr48_He4_to_Fe52_reverse)*sc1a + ratraw(Cr48_He4_to_Fe52_reverse)*sc1adt;
-    //dratdumdd(Cr48_He4_to_Fe52_reverse) = dratrawdd(Cr48_He4_to_Fe52_reverse)*sc1a + ratraw(Cr48_He4_to_Fe52_reverse)*sc1add;
 
 
 
     // cr48(a,p)mn51
     ratdum(ircrap)    = ratraw(ircrap) * sc1a;
     dratdumdt(ircrap) = dratrawdt(ircrap)*sc1a + ratraw(ircrap)*sc1adt;
-    //dratdumdd(ircrap) = dratrawdd(ircrap)*sc1a + ratraw(ircrap)*sc1add;
 
     ratdum(irmnpa)    = ratraw(irmnpa) * sc1a;
     dratdumdt(irmnpa) = dratrawdt(irmnpa)*sc1a + ratraw(irmnpa)*sc1adt;
-    //dratdumdd(irmnpa) = dratrawdd(irmnpa)*sc1a + ratraw(irmnpa)*sc1add;
 
 
 
@@ -719,11 +654,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // mn51(p,g)fe52
     ratdum(irmnpg)    = ratraw(irmnpg) * sc1a;
     dratdumdt(irmnpg) = dratrawdt(irmnpg)*sc1a + ratraw(irmnpg)*sc1adt;
-    //dratdumdd(irmnpg) = dratrawdd(irmnpg)*sc1a + ratraw(irmnpg)*sc1add;
 
     ratdum(irfegp)    = ratraw(irfegp) * sc1a;
     dratdumdt(irfegp) = dratrawdt(irfegp)*sc1a + ratraw(irfegp)*sc1adt;
-    //dratdumdd(irfegp) = dratrawdd(irfegp)*sc1a + ratraw(irfegp)*sc1add;
 
 
 
@@ -737,22 +670,18 @@ void screen_aprox19 (Real btemp, Real bden,
     // fe52(a,g)ni56
     ratdum(Fe52_He4_to_Ni56_forward)    = ratraw(Fe52_He4_to_Ni56_forward) * sc1a;
     dratdumdt(Fe52_He4_to_Ni56_forward) = dratrawdt(Fe52_He4_to_Ni56_forward)*sc1a + ratraw(Fe52_He4_to_Ni56_forward)*sc1adt;
-    //dratdumdd(Fe52_He4_to_Ni56_forward) = dratrawdd(Fe52_He4_to_Ni56_forward)*sc1a + ratraw(Fe52_He4_to_Ni56_forward)*sc1add;
 
     ratdum(Fe52_He4_to_Ni56_reverse)    = ratraw(Fe52_He4_to_Ni56_reverse) * sc1a;
     dratdumdt(Fe52_He4_to_Ni56_reverse) = dratrawdt(Fe52_He4_to_Ni56_reverse)*sc1a + ratraw(Fe52_He4_to_Ni56_reverse)*sc1adt;
-    //dratdumdd(Fe52_He4_to_Ni56_reverse) = dratrawdd(Fe52_He4_to_Ni56_reverse)*sc1a + ratraw(Fe52_He4_to_Ni56_reverse)*sc1add;
 
 
 
     // fe52(a,p)co55
     ratdum(irfeap) = ratraw(irfeap) * sc1a;
     dratdumdt(irfeap) = dratrawdt(irfeap)*sc1a + ratraw(irfeap)*sc1adt;
-    //dratdumdd(irfeap) = dratrawdd(irfeap)*sc1a + ratraw(irfeap)*sc1add;
 
     ratdum(ircopa)    = ratraw(ircopa) * sc1a;
     dratdumdt(ircopa) = dratrawdt(ircopa)*sc1a + ratraw(ircopa)*sc1adt;
-    //dratdumdd(ircopa) = dratrawdd(ircopa)*sc1a + ratraw(ircopa)*sc1add;
 
 
     jscr++;
@@ -764,11 +693,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // co55(p,g)ni56
     ratdum(ircopg)    = ratraw(ircopg) * sc1a;
     dratdumdt(ircopg) = dratrawdt(ircopg)*sc1a + ratraw(ircopg)*sc1adt;
-    //dratdumdd(ircopg) = dratrawdd(ircopg)*sc1a + ratraw(ircopg)*sc1add;
 
     ratdum(irnigp)    = ratraw(irnigp) * sc1a;
     dratdumdt(irnigp) = dratrawdt(irnigp)*sc1a + ratraw(irnigp)*sc1adt;
-    //dratdumdd(irnigp) = dratrawdd(irnigp)*sc1a + ratraw(irnigp)*sc1add;
 
 
 
@@ -780,11 +707,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // fe54(p,g)co55
     ratdum(irfepg)    = ratraw(irfepg) * sc1a;
     dratdumdt(irfepg) = dratrawdt(irfepg)*sc1a + ratraw(irfepg)*sc1adt;
-    //dratdumdd(irfepg) = dratrawdd(irfepg)*sc1a + ratraw(irfepg)*sc1add;
 
     ratdum(ircogp)    = ratraw(ircogp) * sc1a;
     dratdumdt(ircogp) = dratrawdt(ircogp)*sc1a + ratraw(ircogp)*sc1adt;
-    //dratdumdd(ircogp) = dratrawdd(ircogp)*sc1a + ratraw(ircogp)*sc1add;
 
 
 
@@ -799,11 +724,9 @@ void screen_aprox19 (Real btemp, Real bden,
     // d(p,g)he3
     ratdum(irdpg)    = ratraw(irdpg) * sc1a;
     dratdumdt(irdpg) = dratrawdt(irdpg)*sc1a + ratraw(irdpg)*sc1adt;
-    //dratdumdd(irdpg) = dratrawdd(irdpg)*sc1a + ratraw(irdpg)*sc1add;
 
     ratdum(irhegp)    = ratraw(irhegp) * sc1a;
     dratdumdt(irhegp) = dratrawdt(irhegp)*sc1a + ratraw(irhegp)*sc1adt;
-    //dratdumdd(irhegp) = dratrawdd(irhegp)*sc1a + ratraw(irhegp)*sc1add;
 
 
     // pp
@@ -814,7 +737,6 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(irpp)    = ratraw(irpp) * sc1a;
     dratdumdt(irpp) = dratrawdt(irpp)*sc1a + ratraw(irpp)*sc1adt;
-    //dratdumdd(irpp) = dratrawdd(irpp)*sc1a + ratraw(irpp)*sc1add;
 
     // Identical particle factor (H1 + H1)
 
@@ -833,7 +755,6 @@ void screen_aprox19 (Real btemp, Real bden,
     // he3(he3,2p)he4
     ratdum(ir33)    = ratraw(ir33) * sc1a;
     dratdumdt(ir33) = dratrawdt(ir33)*sc1a + ratraw(ir33)*sc1adt;
-    //dratdumdd(ir33) = dratrawdd(ir33)*sc1a + ratraw(ir33)*sc1add;
 
     // Identical particle factor (He3 + He3)
 
@@ -852,8 +773,6 @@ void screen_aprox19 (Real btemp, Real bden,
     ratdum(irhe3ag)    = ratraw(irhe3ag) * sc1a;
     dratdumdt(irhe3ag) = dratrawdt(irhe3ag)*sc1a
          + ratraw(irhe3ag)*sc1adt;
-//    dratdumdd(irhe3ag) = dratrawdd(irhe3ag)*sc1a
-//         + ratraw(irhe3ag)*sc1add;
 
 
 
@@ -867,7 +786,6 @@ void screen_aprox19 (Real btemp, Real bden,
     // c12(p,g)13n
     ratdum(ircpg)    = ratraw(ircpg) * sc1a;
     dratdumdt(ircpg) = dratrawdt(ircpg)*sc1a + ratraw(ircpg)*sc1adt;
-    //dratdumdd(ircpg) = dratrawdd(ircpg)*sc1a + ratraw(ircpg)*sc1add;
 
 
     jscr++;
@@ -878,7 +796,6 @@ void screen_aprox19 (Real btemp, Real bden,
     // n14(p,g)o15
     ratdum(irnpg)    = ratraw(irnpg) * sc1a;
     dratdumdt(irnpg) = dratrawdt(irnpg)*sc1a + ratraw(irnpg)*sc1adt;
-    //dratdumdd(irnpg) = dratrawdd(irnpg)*sc1a + ratraw(irnpg)*sc1add;
 
 
 
@@ -891,7 +808,6 @@ void screen_aprox19 (Real btemp, Real bden,
     // o16(p,g)f17
     ratdum(iropg)    = ratraw(iropg) * sc1a;
     dratdumdt(iropg) = dratrawdt(iropg)*sc1a+ratraw(iropg)*sc1adt;
-    //dratdumdd(iropg) = dratrawdd(iropg)*sc1a+ratraw(iropg)*sc1add;
 
 
     jscr++;
@@ -902,7 +818,6 @@ void screen_aprox19 (Real btemp, Real bden,
     // n14(a,g)f18
     ratdum(irnag)    = ratraw(irnag) * sc1a;
     dratdumdt(irnag) = dratrawdt(irnag)*sc1a + ratraw(irnag)*sc1adt;
-    //dratdumdd(irnag) = dratrawdd(irnag)*sc1a + ratraw(irnag)*sc1add;
 
 
 
@@ -911,15 +826,12 @@ void screen_aprox19 (Real btemp, Real bden,
     // mg24(a,p)27al(p,g)28si
     ratdum(irr1)     = 0.0_rt;
     dratdumdt(irr1)  = 0.0_rt;
-    //dratdumdd(irr1)  = 0.0_rt;
     denom    = ratdum(iralpa) + ratdum(iralpg);
     denomdt  = dratdumdt(iralpa) + dratdumdt(iralpg);
-    //denomdd  = dratdumdd(iralpa) + dratdumdd(iralpg);
     if (denom > 1.0e-50_rt) {
        zz = 1.0e0_rt/denom;
        ratdum(irr1)    = ratdum(iralpa)*zz;
        dratdumdt(irr1) = (dratdumdt(iralpa) - ratdum(irr1)*denomdt)*zz;
-       //dratdumdd(irr1) = (dratdumdd(iralpa) - ratdum(irr1)*denomdd)*zz;
     }
 
     // add to the effective Mg24 <-> Si28 rates
@@ -934,15 +846,12 @@ void screen_aprox19 (Real btemp, Real bden,
     // si28(a,p)p31(p,g)s32
     ratdum(irs1)     = 0.0_rt;
     dratdumdt(irs1)  = 0.0_rt;
-    //dratdumdd(irs1)  = 0.0_rt;
     denom    = ratdum(irppa) + ratdum(irppg);
     denomdt  = dratdumdt(irppa) + dratdumdt(irppg);
-    //denomdd  = dratdumdd(irppa) + dratdumdd(irppg);
     if (denom > 1.0e-50_rt) {
        zz = 1.0e0_rt/denom;
        ratdum(irs1)    = ratdum(irppa)*zz;
        dratdumdt(irs1) = (dratdumdt(irppa) - ratdum(irs1)*denomdt)*zz;
-       //dratdumdd(irs1) = (dratdumdd(irppa) - ratdum(irs1)*denomdd)*zz;
     }
 
     // add to the effective Si28 <-> S32 rates
@@ -967,15 +876,12 @@ void screen_aprox19 (Real btemp, Real bden,
     // s32(a,p)cl35(p,g)ar36
     ratdum(irt1)     = 0.0_rt;
     dratdumdt(irt1)  = 0.0_rt;
-    //dratdumdd(irt1)  = 0.0_rt;
     denom    = ratdum(irclpa) + ratdum(irclpg);
     denomdt  = dratdumdt(irclpa) + dratdumdt(irclpg);
-    //denomdd  = dratdumdd(irclpa) + dratdumdd(irclpg);
     if (denom > 1.0e-50_rt) {
        zz = 1.0e0_rt/denom;
        ratdum(irt1)    = ratdum(irclpa)*zz;
        dratdumdt(irt1) = (dratdumdt(irclpa) - ratdum(irt1)*denomdt)*zz;
-       //dratdumdd(irt1) = (dratdumdd(irclpa) - ratdum(irt1)*denomdd)*zz;
     }
 
     // add to the effective S32 <-> Ar36 rates
@@ -989,15 +895,12 @@ void screen_aprox19 (Real btemp, Real bden,
     // ar36(a,p)k39(p,g)ca40
     ratdum(iru1)     = 0.0_rt;
     dratdumdt(iru1)  = 0.0_rt;
-    //dratdumdd(iru1)  = 0.0_rt;
     denom    = ratdum(irkpa) + ratdum(irkpg);
     denomdt  = dratdumdt(irkpa) + dratdumdt(irkpg);
-    //denomdd  = dratdumdd(irkpa) + dratdumdd(irkpg);
     if (denom > 1.0e-50_rt) {
         zz   = 1.0e0_rt/denom;
        ratdum(iru1)   = ratdum(irkpa)*zz;
        dratdumdt(iru1) = (dratdumdt(irkpa) - ratdum(iru1)*denomdt)*zz;
-       //dratdumdd(iru1) = (dratdumdd(irkpa) - ratdum(iru1)*denomdd)*zz;
     }
 
     // add to the effective Ar36 <-> Ca40 rates
@@ -1011,15 +914,12 @@ void screen_aprox19 (Real btemp, Real bden,
     // ca40(a,p)sc43(p,g)ti44
     ratdum(irv1)     = 0.0_rt;
     dratdumdt(irv1)  = 0.0_rt;
-    //dratdumdd(irv1)  = 0.0_rt;
     denom    = ratdum(irscpa) + ratdum(irscpg);
     denomdt  = dratdumdt(irscpa) + dratdumdt(irscpg);
-    //denomdd  = dratdumdd(irscpa) + dratdumdd(irscpg);
     if (denom > 1.0e-50_rt) {
        zz  = 1.0e0_rt/denom;
        ratdum(irv1)    = ratdum(irscpa)*zz;
        dratdumdt(irv1) = (dratdumdt(irscpa) - ratdum(irv1)*denomdt)*zz;
-       //dratdumdd(irv1) = (dratdumdd(irscpa) - ratdum(irv1)*denomdd)*zz;
     }
 
     // add to the effective Ca40 <-> Ti44 rates
@@ -1033,15 +933,12 @@ void screen_aprox19 (Real btemp, Real bden,
     // ti44(a,p)v47(p,g)cr48
     ratdum(irw1)    = 0.0_rt;
     dratdumdt(irw1) = 0.0_rt;
-    //dratdumdd(irw1) = 0.0_rt;
     denom    = ratdum(irvpa) + ratdum(irvpg);
     denomdt  = dratdumdt(irvpa) + dratdumdt(irvpg);
-    //denomdd  = dratdumdd(irvpa) + dratdumdd(irvpg);
     if (denom > 1.0e-50_rt) {
        zz = 1.0e0_rt/denom;
        ratdum(irw1)    = ratdum(irvpa)*zz;
        dratdumdt(irw1) = (dratdumdt(irvpa) - ratdum(irw1)*denomdt)*zz;
-       //dratdumdd(irw1) = (dratdumdd(irvpa) - ratdum(irw1)*denomdd)*zz;
     }
 
     // add to the effective Ti44 <-> Cr48 rates
@@ -1055,15 +952,12 @@ void screen_aprox19 (Real btemp, Real bden,
     // cr48(a,p)mn51(p,g)fe52
     ratdum(irx1)    = 0.0_rt;
     dratdumdt(irx1) = 0.0_rt;
-    //dratdumdd(irx1) = 0.0_rt;
     denom    = ratdum(irmnpa) + ratdum(irmnpg);
     denomdt  = dratdumdt(irmnpa) + dratdumdt(irmnpg);
-    //denomdd  = dratdumdd(irmnpa) + dratdumdd(irmnpg);
     if (denom > 1.0e-50_rt) {
        zz = 1.0e0_rt/denom;
        ratdum(irx1)    = ratdum(irmnpa)*zz;
        dratdumdt(irx1) = (dratdumdt(irmnpa) - ratdum(irx1)*denomdt)*zz;
-       //dratdumdd(irx1) = (dratdumdd(irmnpa) - ratdum(irx1)*denomdd)*zz;
     }
 
     // add to the effective Cr48 <-> Fe52 rates
@@ -1079,25 +973,20 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(ir1f54) = 0.0_rt;
     dratdumdt(ir1f54)  = 0.0_rt;
-    //dratdumdd(ir1f54)  = 0.0_rt;
     ratdum(ir2f54) = 0.0_rt;
     dratdumdt(ir2f54)  = 0.0_rt;
-    //dratdumdd(ir2f54)  = 0.0_rt;
 
     denom   = ratdum(ir53gn) + y(N)*ratdum(ir53ng);
     denomdt = dratdumdt(ir53gn) + y(N)*dratdumdt(ir53ng);
-    //denomdd = dratdumdd(ir53gn) + y(N)*dratdumdd(ir53ng);
 
     if (denom > 1.0e-50_rt && btemp > 1.5e9_rt) {
        zz      = 1.0e0_rt/denom;
 
        ratdum(ir1f54)     = ratdum(ir54gn)*ratdum(ir53gn)*zz;
        dratdumdt(ir1f54)  = dratdumdt(ir54gn)*ratdum(ir53gn)*zz + ratdum(ir54gn)*dratdumdt(ir53gn)*zz - ratdum(ir1f54)*zz*denomdt;
-       //dratdumdd(ir1f54)  = dratdumdd(ir54gn)*ratdum(ir53gn)*zz + ratdum(ir54gn)*dratdumdd(ir53gn)*zz - ratdum(ir1f54)*zz*denomdd;
 
        ratdum(ir2f54)     = ratdum(ir52ng)*ratdum(ir53ng)*zz;
        dratdumdt(ir2f54)  = dratdumdt(ir52ng)*ratdum(ir53ng)*zz + ratdum(ir52ng)*dratdumdt(ir53ng)*zz - ratdum(ir2f54)*zz*denomdt;
-       //dratdumdd(ir2f54)  = dratdumdd(ir52ng)*ratdum(ir53ng)*zz + ratdum(ir52ng)*dratdumdd(ir53ng)*zz - ratdum(ir2f54)*zz*denomdd;
     }
 
 
@@ -1107,67 +996,48 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(ir3f54) = 0.0_rt;
     dratdumdt(ir3f54) = 0.0_rt;
-    //dratdumdd(ir3f54) = 0.0_rt;
     ratdum(ir4f54) = 0.0_rt;
     dratdumdt(ir4f54) = 0.0_rt;
-    //dratdumdd(ir4f54) = 0.0_rt;
     ratdum(ir5f54) = 0.0_rt;
     dratdumdt(ir5f54) = 0.0_rt;
-    //dratdumdd(ir5f54) = 0.0_rt;
     ratdum(ir6f54) = 0.0_rt;
     dratdumdt(ir6f54) = 0.0_rt;
-    //dratdumdd(ir6f54) = 0.0_rt;
     ratdum(ir7f54) = 0.0_rt;
     dratdumdt(ir7f54) = 0.0_rt;
-    //dratdumdd(ir7f54) = 0.0_rt;
     ratdum(ir8f54) = 0.0_rt;
     dratdumdt(ir8f54) = 0.0_rt;
-    //dratdumdd(ir8f54) = 0.0_rt;
 
     denom   = ratdum(ircogp) + y(P)*(ratdum(ircopg) + ratdum(ircopa));
 
     if (denom > 1.0e-50_rt && btemp > 1.5e9_rt) {
 
         denomdt = dratdumdt(ircogp) + y(P)*(dratdumdt(ircopg) + dratdumdt(ircopa));
-        //denomdd = dratdumdd(ircogp) + y(P)*(dratdumdd(ircopg) + dratdumdd(ircopa));
 
         zz      = 1.0e0_rt/denom;
 
         ratdum(ir3f54)     = ratdum(irfepg) * ratdum(ircopg) * zz;
         dratdumdt(ir3f54)  = dratdumdt(irfepg) * ratdum(ircopg) * zz
             + ratdum(irfepg) * dratdumdt(ircopg) * zz - ratdum(ir3f54)*zz*denomdt;
-       //dratdumdd(ir3f54)  = dratdumdd(irfepg) * ratdum(ircopg) * zz
-       //                    + ratdum(irfepg) * dratdumdd(ircopg) * zz - ratdum(ir3f54)*zz*denomdd;
 
        ratdum(ir4f54)     = ratdum(irnigp) * ratdum(ircogp) * zz;
        dratdumdt(ir4f54)  = dratdumdt(irnigp) * ratdum(ircogp) * zz
                           + ratdum(irnigp) * dratdumdt(ircogp) * zz - ratdum(ir4f54)*zz*denomdt;
-       //dratdumdd(ir4f54)  = dratdumdd(irnigp) * ratdum(ircogp) * zz
-       //                    + ratdum(irnigp) * dratdumdd(ircogp) * zz  - ratdum(ir4f54)*zz*denomdd;
 
        ratdum(ir5f54)     = ratdum(irfepg) * ratdum(ircopa) * zz;
        dratdumdt(ir5f54)  = dratdumdt(irfepg) * ratdum(ircopa) * zz
                           + ratdum(irfepg) * dratdumdt(ircopa) * zz - ratdum(ir5f54) * zz * denomdt;
-       //dratdumdd(ir5f54)  = dratdumdd(irfepg) * ratdum(ircopa) * zz
-       //                    + ratdum(irfepg) * dratdumdd(ircopa) * zz - ratdum(ir5f54) * zz * denomdd;
 
        ratdum(ir6f54)     = ratdum(irfeap) * ratdum(ircogp) * zz;
        dratdumdt(ir6f54)  = dratdumdt(irfeap) * ratdum(ircogp) * zz
                           + ratdum(irfeap) * dratdumdt(ircogp) * zz - ratdum(ir6f54) * zz * denomdt;
-       //dratdumdd(ir6f54)  = dratdumdd(irfeap) * ratdum(ircogp) * zz
-       //                    + ratdum(irfeap) * dratdumdd(ircogp) * zz - ratdum(ir6f54) * zz * denomdd;
 
        ratdum(ir7f54)     = ratdum(irfeap) * ratdum(ircopg) * zz;
        dratdumdt(ir7f54)  = dratdumdt(irfeap) * ratdum(ircopg) * zz
                           + ratdum(irfeap) * dratdumdt(ircopg) * zz - ratdum(ir7f54) * zz * denomdt;
-       //dratdumdd(ir7f54)  = dratdumdd(irfeap) * ratdum(ircopg) * zz
-       //                   + ratdum(irfeap) * dratdumdd(ircopg) * zz - ratdum(ir7f54) * zz * denomdd;
 
        ratdum(ir8f54)     = ratdum(irnigp) * ratdum(ircopa) * zz;
        dratdumdt(ir8f54)  = dratdumdt(irnigp) * ratdum(ircopa) * zz
                           + ratdum(irnigp) * dratdumdt(ircopa) * zz - ratdum(ir8f54) * zz * denomdt;
-       //dratdumdd(ir8f54)  = dratdumdd(irnigp) * ratdum(ircopa) * zz
-       //                   + ratdum(irnigp) * dratdumdd(ircopa) * zz - ratdum(ir8f54) * zz * denomdd;
     }
 
 
@@ -1177,10 +1047,8 @@ void screen_aprox19 (Real btemp, Real bden,
 
     ratdum(iralf1)     = 0.0_rt;
     dratdumdt(iralf1)  = 0.0_rt;
-    //dratdumdd(iralf1)  = 0.0_rt;
     ratdum(iralf2)     = 0.0_rt;
     dratdumdt(iralf2)  = 0.0_rt;
-    //dratdumdd(iralf2)  = 0.0_rt;
 
     denom  = ratdum(irhegp)*ratdum(irdgn) + y(N)*ratdum(irheng)*ratdum(irdgn) + y(N)*y(P)*ratdum(irheng)*ratdum(irdpg);
 
@@ -1190,10 +1058,6 @@ void screen_aprox19 (Real btemp, Real bden,
             +  y(N) * (dratdumdt(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdt(irdgn))
             +  y(N)*y(P) * (dratdumdt(irheng)*ratdum(irdpg) + ratdum(irheng)*dratdumdt(irdpg));
 
-       //denomdd  = dratdumdd(irhegp)*ratdum(irdgn) + ratdum(irhegp)*dratdumdd(irdgn)
-       //     +  y(N) * (dratdumdd(irheng)*ratdum(irdgn) + ratdum(irheng)*dratdumdd(irdgn));
-       //     +  y(N)*y(P) * (dratdumdd(irheng)*ratdum(irdpg) + ratdum(irheng)*dratdumdd(irdpg));
-
        zz = 1.0e0_rt/denom;
 
        ratdum(iralf1)     = ratdum(irhegn) * ratdum(irhegp) * ratdum(irdgn) * zz;
@@ -1201,21 +1065,12 @@ void screen_aprox19 (Real btemp, Real bden,
             + ratdum(irhegn)*dratdumdt(irhegp)*ratdum(irdgn)*zz
             + ratdum(irhegn)*ratdum(irhegp)*dratdumdt(irdgn)*zz
             - ratdum(iralf1)*zz*denomdt;
-       //dratdumdd(iralf1)  = dratdumdd(irhegn) * ratdum(irhegp) * ratdum(irdgn) * zz
-       //     + ratdum(irhegn)*dratdumdd(irhegp)*ratdum(irdgn)*zz
-       //     + ratdum(irhegn)*ratdum(irhegp)*dratdumdd(irdgn)*zz
-       //     - ratdum(iralf1)*zz*denomdt;
-
 
        ratdum(iralf2)     = ratdum(irheng)*ratdum(irdpg) * ratdum(irhng)*zz;
        dratdumdt(iralf2)  = dratdumdt(irheng)*ratdum(irdpg) * ratdum(irhng) * zz
             + ratdum(irheng)*dratdumdt(irdpg)*ratdum(irhng)*zz
             + ratdum(irheng)*ratdum(irdpg)*dratdumdt(irhng)*zz
             - ratdum(iralf2)*zz*denomdt;
-       //dratdumdd(iralf2)  = dratdumdd(irheng)*ratdum(irdpg) * ratdum(irhng)*zz
-       //     + ratdum(irheng)*dratdumdd(irdpg)*ratdum(irhng)*zz
-       //     + ratdum(irheng)*ratdum(irdpg)*dratdumdd(irhng)*zz
-       //     - ratdum(iralf2)*zz*denomdd;
     }
 
 
@@ -1228,7 +1083,6 @@ void screen_aprox19 (Real btemp, Real bden,
        ratdum(irhe3ag)  = amrex::min(ratdum(irhe3ag),xx);
        if (ratdum(irhe3ag) == xx) {
           dratdumdt(irhe3ag)  = 0.0_rt;
-          //dratdumdd(irhe3ag)  = 0.0_rt;
        }
     }
 
@@ -1240,14 +1094,12 @@ void screen_aprox19 (Real btemp, Real bden,
        ratdum(irnpg) = amrex::min(ratdum(irnpg),xx);
        if (ratdum(irnpg) == xx) {
            dratdumdt(irnpg)  = 0.0_rt;
-           //dratdumdd(irnpg)  = 0.0_rt;
        }
 
        xx = 0.0105e0_rt/y(H1);
        ratdum(iropg) = amrex::min(ratdum(iropg),xx);
        if (ratdum(iropg) == xx) {
            dratdumdt(iropg)  = 0.0_rt;
-           //dratdumdd(iropg)  = 0.0_rt;
        }
     }
 }
@@ -1256,8 +1108,8 @@ void screen_aprox19 (Real btemp, Real bden,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void evaluate_rates (burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
-    Array1D<Real, 1, NumRates> ratraw, dratrawdt, dratrawdd;
-    Array1D<Real, 1, NumRates> ratdum, dratdumdt, dratdumdd;
+    Array1D<Real, 1, NumRates> ratraw, dratrawdt;
+    Array1D<Real, 1, NumRates> ratdum, dratdumdt;
 
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
@@ -1273,17 +1125,17 @@ void evaluate_rates (burn_t const& state, Array1D<rate_t, 1, Rates::NumGroups>& 
 
     // Get the raw reaction rates
 
-    aprox19rat(temp, rho, ratraw, dratrawdt, dratrawdd);
+    aprox19rat(temp, rho, ratraw, dratrawdt);
 
     // Weak screening rates
 
-    weak_aprox19(y, state, ratraw, dratrawdt, dratrawdd);
+    weak_aprox19(y, state, ratraw, dratrawdt);
 
     // Do the screening here because the corrections depend on the composition
 
     screen_aprox19(temp, rho, y,
-                   ratraw, dratrawdt, dratrawdd, 
-                   ratdum, dratdumdt, dratdumdd);
+                   ratraw, dratrawdt,
+                   ratdum, dratdumdt);
 
     // Save the rate data
 
