@@ -113,4 +113,64 @@ extern "C"
             XDFF = T2 * RT + T1 * T1 * (R2 - 2.0 * RT) / T;
         }
     }
+
+    void chemfit (double DENS, double TEMP, double& CHI)
+    {
+        // Version 29.08.15
+        // Fit to the chemical potential of free electron gas described in:
+        //     G.Chabrier & A.Y.Potekhin, Phys.Rev.E 58, 4941 (1998)
+        // Stems from CHEMFIT v.10.10.96. The main difference - derivatives.
+        // Input:  DENS - electron density [a.u.=6.7483346e24 cm^{-3}],
+        // TEMP - temperature [a.u.=2Ryd=3.1577e5 K]
+        // Output: CHI = CMU1 / TEMR, where CMU1 = \mu-1 - chem.pot.w/o rest-energy
+
+        const double C13 = 1.0 / 3.0;
+        const double PARA = 1.612;
+        const double PARB = 6.192;
+        const double PARC = 0.0944;
+        const double PARF = 5.535;
+        const double PARG = 0.698;
+        const double XEPST = 228.0; // the largest argument of e^{-X}
+
+        double DENR = DENS / 2.5733806e6; // n_e in rel.un.=\lambda_{Compton}^{-3}
+        double TEMR = TEMP / 1.8778865e4; // T in rel.un.=(mc^2/k)=5.93e9 K
+
+        double PF0 = std::pow(29.6088132 * DENR, C13); // Classical Fermi momentum
+        double TF;
+        if (PF0 > 1.e-4) {
+            TF = std::sqrt(1.0 + PF0 * PF0) - 1.0; // Fermi temperature
+        }
+        else {
+            TF = 0.50 * PF0 * PF0;
+        }
+
+        double THETA = TEMR / TF;
+        double THETA32 = THETA * std::sqrt(THETA);
+        double Q2 = 12.0 + 8.0 / THETA32;
+        double T1 = 0.0;
+        if (THETA < XEPST) {
+            T1 = std::exp(-THETA);
+        }
+        double U3 = T1 * T1 + PARA;
+        double THETAC = std::pow(THETA, PARC);
+        double THETAG = std::pow(THETA, PARG);
+        double D3 = PARB * THETAC * T1 * T1 + PARF * THETAG;
+        double Q3 = 1.365568127 - U3 / D3; // 1.365...=2/\pi^{1/3}
+        double Q1;
+        if (THETA > 1.e-5) {
+            Q1 = 1.5 * T1 / (1.0 - T1);
+        }
+        else {
+            Q1 = 1.5 / THETA;
+        }
+        double SQT = std::sqrt(TEMR);
+        double G = (1.0 + Q2 * TEMR * Q3 + Q1 * SQT) * TEMR;
+        double H = (1.0 + 0.5 * TEMR / THETA) * (1.0 + Q2 * TEMR);
+        double CT = 1.0 + G / H;
+        double F = 2.0 * C13 / THETA32;
+        double X, XDF, XDFF;
+        ferinv7(F, X, XDF, XDFF);
+        CHI = X                    // Non-relativistic result
+            - 1.50 * std::log(CT); // Relativistic fit
+    }
 }

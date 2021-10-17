@@ -285,6 +285,13 @@
       double precision :: PDT1, PDT2, PDTMIX, PEid, PMIX, PRESS, PRESSE
       double precision :: PRESSI, PRESSRAD, PRI, RS, RSI, RZ, SC1, SC2
       double precision :: SEid, Stot, TPT2
+      interface
+         subroutine chemfit(dens, temp, chi) bind(C, name='chemfit')
+           implicit none
+           double precision, intent(in), value :: dens, temp
+           double precision, intent(inout) :: chi
+         end subroutine chemfit
+      end interface
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) then
          print *, 'MELANGE: RHO out of range'
          stop
@@ -2131,154 +2138,5 @@
          W2DTT=FJ2DTT+PI26*AMDTT(2)
          W2DXT=FJ2DXT+PI26*AMDXT(2)
       endif
-      return
-      end
-
-      subroutine CHEMFIT(DENS,TEMP,CHI)
-!                                                       Version 07.06.07
-! This is merely an interface to CHEMFIT7 for compatibility purposes.
-! Input:  DENS - electron density [a.u.=6.7483346e24 cm^{-3}],
-! TEMP - temperature [a.u.=2Ryd=3.1577e5 K]
-! Output: CHI=\mu/TEMP, where \mu - electron chem.pot.w/o rest-energy
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      DENR=DENS/2.5733806d6 ! n_e in rel.un.=\lambda_{Compton}^{-3}
-      TEMR=TEMP/1.8778865d4 ! T in rel.un.=(mc^2/k)=5.93e9 K
-      call CHEMFIT7(DENR,TEMR,CHI,CMU1,0,CMUDENR,CMUDT,CMUDTT)
-      return
-      end
-
-      subroutine CHEMFIT7(DENR,TEMR,CHI,CMU1,KDERIV, &
-       CMUDENR,CMUDT,CMUDTT)
-!                                                       Version 29.08.15
-! Fit to the chemical potential of free electron gas described in:
-!     G.Chabrier & A.Y.Potekhin, Phys.Rev.E 58, 4941 (1998)
-! Stems from CHEMFIT v.10.10.96. The main difference - derivatives.
-!  All quantities are by default in relativistic units
-! Input:  DENR - electron density, TEMR - temperature
-!         KDERIV=0 if the derivatives are not required
-! Output: CHI=CMU1/TEMR, where CMU1 = \mu-1 - chem.pot.w/o rest-energy
-!         CMUDENR = (d\mu/d n_e)_T
-!         CMUDT = (d\mu/dT)_V
-!         CMUDTT = (d^2\mu/dT^2)_V
-! CMUDENR,CMUDT, and CMUDTT =0 on output, if KREDIV=0
-        use iso_c_binding
-        implicit none
-
-        interface
-           subroutine ferinv7(F, X, XDF, XDFF) bind(C, name='ferinv7')
-             implicit none
-             double precision, intent(in), value :: F
-             double precision, intent(inout) :: X, XDF, XDFF
-           end subroutine ferinv7
-        end interface
-
-        double precision, intent(in) :: DENR, TEMR
-        integer, intent(in) :: KDERIV
-        double precision, intent(inout) :: CHI, CMU1, CMUDENR, CMUDT, CMUDTT
-      save
-      double precision, parameter :: C13 = 1.d0 / 3.d0
-      double precision, parameter :: PARA = 1.612d0
-      double precision, parameter :: PARB = 6.192d0
-      double precision, parameter :: PARC = .0944d0
-      double precision, parameter :: PARF=5.535d0
-      double precision, parameter :: PARG=.698d0
-      double precision, parameter :: XEPST = 228.d0 ! the largest argument of e^{-X}
-
-      double precision :: PF0, TF, THETA, THETA32, Q2, T1
-      double precision :: U3, THETAC, THETAG, D3, Q3, Q1
-      double precision :: SQT, G, U3D, Q1D, Q3D, THETA52
-      double precision :: Q3DD, Q2DD, Q1DD, Q2D, HDYY, HDYT
-      double precision :: HDY, HDT, HDTT, GH, H, GDYY, GDY, GDT
-      double precision :: GDYT, GDTT, F, D3DD, D3D, CTT, CTY
-      double precision :: CDTYY, CTDYY, CTDYT, CTDY, CTDTT, CTDT
-      double precision :: CT, CHIDYY, CHIDYT, CHIDY, CHIDT, CHIDTT
-      double precision :: X, XDF, XDFF
-      PF0=(29.6088132d0*DENR)**C13 ! Classical Fermi momentum
-      if (PF0.gt.1.d-4) then
-         TF=dsqrt(1.d0+PF0**2)-1.d0 ! Fermi temperature
-      else
-         TF=.5d0*PF0**2
-      endif
-      THETA=TEMR/TF
-      THETA32=THETA*dsqrt(THETA)
-      Q2=12.d0+8.d0/THETA32
-      T1=0.
-      if (THETA.lt.XEPST) T1=dexp(-THETA)
-      U3=T1**2+PARA
-      THETAC=THETA**PARC
-      THETAG=THETA**PARG
-      D3=PARB*THETAC*T1**2+PARF*THETAG
-      Q3=1.365568127d0-U3/D3 ! 1.365...=2/\pi^{1/3}
-      if (THETA.gt.1.d-5) then 
-         Q1=1.5d0*T1/(1.d0-T1)
-      else
-         Q1=1.5d0/THETA
-      endif
-      SQT=dsqrt(TEMR)
-      G=(1.d0+Q2*TEMR*Q3+Q1*SQT)*TEMR
-      H=(1.d0+.5d0*TEMR/THETA)*(1.d0+Q2*TEMR)
-      CT=1.d0+G/H
-      F=2.d0*C13/THETA32
-      call ferinv7(F, X, XDF, XDFF)
-      CHI=X & ! non-relativistic result
-       -    1.5d0*dlog(CT) ! Relativistic fit
-      CMU1=TEMR*CHI ! Fit to chemical potential w/o mc^2
-      if (KDERIV.eq.0) then ! DISMISS DERIVATIVES
-         CMUDENR=0.
-         CMUDT=0.
-         CMUDTT=0.
-         return
-      endif
-! CALCULATE DERIVATIVES:
-! 1: derivatives of CHI over THETA and T
-! (a): Non-relativistic result:
-      THETA52=THETA32*THETA
-      CHIDY=-XDF/THETA52 ! d\chi/d\theta
-      CHIDYY=(XDFF/THETA**4-2.5d0*CHIDY)/THETA ! d^2\chi/d\theta^2
-! (b): Relativistic corrections:
-      if (THETA.gt.1.d-5) then 
-         Q1D=-Q1/(1.d0-T1)
-         Q1DD=-Q1D*(1.d0+T1)/(1.d0-T1)
-      else
-         Q1D=-1.5d0/THETA**2
-         Q1DD=-2.d0*Q1D/THETA ! sign corrected 08.08.11
-      endif
-      Q2D=-12.d0/THETA52 ! d q_2 / d \theta
-      Q2DD=30.d0/(THETA52*THETA) ! d^2 q_2 / d \theta^2
-      U3D=-2.d0*T1**2
-      D3D=PARF*PARG*THETAG/THETA+PARB*T1**2*THETAC*(PARC/THETA-2.d0)
-      D3DD=PARF*PARG*(PARG-1.d0)*THETAG/THETA**2+ &
-      PARB*T1**2*THETAC*(PARC*(PARC-1.d0)/THETA**2-4.d0*PARC/THETA+4.d0)
-      Q3D=(D3D*U3/D3-U3D)/D3
-      Q3DD=(2.d0*U3D+(2.d0*U3D*D3D+U3*D3DD)/D3-2.d0*U3*(D3D/D3)**2)/D3
-      GDY=TEMR*(Q1D*SQT+(Q2D*Q3+Q2*Q3D)*TEMR) ! dG/d\theta
-      GDT=1.d0+1.5d0*Q1*SQT+2.d0*Q2*Q3*TEMR
-      GDYY=TEMR*(Q1DD*SQT+(Q2DD*Q3+2.d0*Q2D*Q3D+Q2*Q3DD)*TEMR)
-      GDTT=.75d0*Q1/SQT+2.d0*Q2*Q3
-      GDYT=1.5d0*Q1D*SQT+2.d0*(Q2D*Q3+Q2*Q3D)*TEMR
-      HDY=(-.5d0/THETA**2+Q2D+.5d0*(Q2D-Q2/THETA)/THETA*TEMR)*TEMR
-      HDT=(.5d0+Q2*TEMR)/THETA+Q2
-      HDYY=TEMR/THETA**3+Q2DD*TEMR+ &
-       TEMR**2*(.5d0*Q2DD-Q2D/THETA+Q2/THETA**2)/THETA
-      HDTT=Q2/THETA
-      HDYT=Q2D*(1.d0+TEMR/THETA)-(.5d0+Q2*TEMR)/THETA**2
-      CTY=GDY/G-HDY/H
-      CTT=GDT/G-HDT/H
-      GH=G/H
-      CTDY=GH*CTY
-      CTDT=GH*CTT
-      CTDYY=CTDY*CTY+GH*(GDYY/G-(GDY/G)**2-HDYY/H+(HDY/H)**2)
-      CTDTT=CTDT*CTT+GH*(GDTT/G-(GDT/G)**2-HDTT/H+(HDT/H)**2)
-      CTDYT=CTDT*CTY+GH*(GDYT/G-GDY*GDT/G**2-HDYT/H+HDY*HDT/H**2)
-      CHIDY=CHIDY-1.5d0*CTDY/CT
-      CHIDT=-1.5d0*CTDT/CT
-      CHIDYY=CHIDYY+1.5d0*((CTDY/CT)**2-CTDYY/CT)
-      CHIDTT=1.5d0*((CTDT/CT)**2-CTDTT/CT)
-      CHIDYT=1.5d0*(CTDY*CTDT/CT**2-CTDYT/CT)
-      CMUDENR=-(THETA*PF0)**2/(3.d0*DENR*(1.d0+TF))*CHIDY
-      CMUDT=CHI+THETA*CHIDY+TEMR*CHIDT
-      CMUDTT=2.d0*(CHIDY/TF+CHIDT+THETA*CHIDYT)+ &
-       THETA/TF*CHIDYY+TEMR*CHIDTT
       return
       end
