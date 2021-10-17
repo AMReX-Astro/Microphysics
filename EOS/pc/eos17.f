@@ -1,111 +1,111 @@
-** Equation of state for fully ionized electron-ion plasmas (EOS EIP)
-* A.Y.Potekhin & G.Chabrier, Contrib. Plasma Phys., 50 (2010) 82, 
-*       and references therein
-* Please communicate comments/suggestions to Alexander Potekhin:
-*                                            palex@astro.ioffe.ru
-* Previously distributed versions (obsolete):
-*   eos2000, eos2002, eos2004, eos2006, eos2007, eos2009, eos10, eos11,
-*     eos13, and eos14.
-* Last update: 04.03.21. All updates since 2008 are listed below.
-**   L I S T   O F   S U B R O U T I N E S :
-*  MAIN (normally commented-out) - example driving routine.
-*  MELANGE9 - for arbitrary ionic mixture, renders total (ion+electron)
-*          pressure, internal energy, entropy, heat capacity (all
-*          normalized to the ionic ideal-gas values), logarithmic
-*          derivatives of pressure over temperature and density.
-*  EOSFI8 - nonideal (ion-ion + ion-electron + electron-electron)
-*          contributions to the free and internal energies, pressure,
-*          entropy, heat capacity, derivatives of pressure over
-*          logarithm of temperature and over logarithm of density (all
-*          normalized to the ionic ideal-gas values) for one ionic
-*          component in a mixture.
-*  FITION9 - ion-ion interaction contributions to the free and internal
-*          energies, pressure, entropy, heat capacity, derivatives of
-*          pressure over logarithms of temperature and density.
-*  FSCRliq8 - ion-electron (screening) contributions to the free and
-*          internal energies, pressure, entropy, heat capacity,
-*          derivatives of pressure over logarithms of temperature and
-*          density in the liquid phase for one ionic component in a
-*          mixture.
-*  FSCRsol8 - ion-electron (screening) contributions to the free and
-*          internal energies, pressure, entropy, heat capacity,
-*          derivatives of pressure over logarithms of temperature and
-*          density for monoionic solid.
-*  FHARM12 - harmonic (including static-lattice and zero-point)
-*          contributions to the free and internal energies, pressure,
-*          entropy, heat capacity, derivatives of pressure over
-*          logarithms of temperature and density for solid OCP.
-*  HLfit12 - the same as FHARM12, but only for thermal contributions
-*  ANHARM8 - anharmonic contributions to the free and internal energies,
-*          pressure, entropy, heat capacity, derivatives of pressure
-*          over logarithms of temperature and density for solid OCP.
-*  CORMIX - correction to the linear mixing rule for the Coulomb
-*          contributions to the thermodynamic functions in the liquid.
-*  ELECT11 - for an ideal electron gas of arbitrary degeneracy and
-*          relativity at given temperature and electron chemical
-*          potential, renders number density (in atomic units), free
-*          energy, pressure, internal energy, entropy, heat capacity 
-*          (normalized to the electron ideal-gas values), logarithmic
-*          derivatives of pressure over temperature and density.
-*  EXCOR7 - electron-electron (exchange-correlation) contributions to
-*          the free and internal energies, pressure, entropy, heat
-*          capacity, derivatives of pressure over logarithm of
-*          temperature and over logarithm of density (all normalized
-*          to the classical electron ideal-gas values).
-*  FERINV7 - inverse non-relativistic Fermi integrals of orders -1/2,
-*          1/2, 3/2, 5/2, and their first and second derivatives.
-*  BLIN9 - relativistic Fermi-Dirac integrals of orders 1/2, 3/2, 5/2,
-*          and their first, second, and some third derivatives.
-*  CHEMFIT7 - electron chemical potential at given density and
-*          temperature, and its first derivatives over density and
-*          temperature and the second derivative over temperature.
-**   I M P R O V E M E N T S   S I N C E   2 0 0 8 :
-*  FHARM8 uses a fit HLfit8 to the thermal free energy of the harmonic
-*   Coulomb lattice, which is more accurate than its predecessor FHARM7.
-*   Resulting corrections amount up to 20% for the ion heat capacity.
-*   Accordingly, S/R D3fit and FthCHA7 deleted (not used anymore).
-*  BLIN7 upgraded to BLIN8:
-*      - cleaned (a never-reached if-else branch deleted);
-*      - Sommerfeld (high-\chi) expansion improved;
-*      - some third derivatives added.
-*  CORMIX added (and MELANGE7 upgraded to MELANGE8 accordingly).
-*  ANHARM7 upgraded to ANHARM8, more consistent with Wigner-Kirkwood.
-*  Since the T- and rho-dependences of individual Z values in a mixture
-*    are not considered, the corresponding inputs (AYLR, AYLT) are
-*    excluded from MELANGE8 (and EOSFI7 changed to EOSFI8 accordingly).
-*  ELECT7 upgraded to ELECT9 (high-degeneracy behaviour is improved)
-**   P O S T - P U B L I C A T I O N    (2 0 1 0 +)   IMPROVEMENTS :
-*  ELECT9 upgraded (smooth match of two fits at chi >> 1)
-*  BLIN8 replaced by BLIN9 - smooth fit interfaces at chi=0.6 and 14.
-*  MELANGE8 replaced by MELANGE9 - slightly modified input/output
-* 08.08.11 - corrected mistake (unlikely to have an effect) in CHEMFIT7
-* 16.11.11 - ELECT9 upgraded to ELECT11 (additional output)
-* 20.04.12 - FHARM8 and HLfit8 upgraded to FHARM12 and HLfit12:
-*   output of HLfit12 does not include zero-point vibr., but provides U1
-* 22.12.12 - MELANGE9 now includes a correction to the linear mixing
-*   rule (LMR) for the Madelung energy in the random bcc multi-ion
-*   lattice.
-* 14.05.13 - an accidental error in programming the newly introduced
-*   correction to the LMR is fixed.
-* 20.05.13 - calculation of the Wigner-Kirkwood quantum diffraction term
-*   for the liquid plasma is moved from EOSFI8 into MELANGE9.
-* 10.12.14 - slight cleaning of the text (no effect on the results)
-* 28.05.15 - an accidental error in Wigner-Kirkwood entropy correction
-*   is fixed (it was in the line "Stot=Stot+FWK*DENSI" since 20.05.13)
-* 29.08.15 - eliminated underflow of exp(-THETA) in CHEMFIT7
-* 10.08.16 - modified criteria to avoid accuracy loss (round-off errors)
-* 07.02.17 - included possibility to switch off the WK (Wigner) terms
-* 27.05.17 - safeguard against Zion < 1 is added in FSCRsol8;
-*   safeguard against huge (-CHI) values is added in ELECT11.
-* 27.01.19 - safeguard against X1=0 in CORMIX.
-* 18.04.20 - corrected Wigner-Kirkwood term for heat capacity.
-* 04.03.21 - corrected SUBFERMJ: defined parameter EPS (was undefined).
-************************************************************************
-*                           MAIN program:               Version 02.06.09
-* This driving routine allows one to compile and run this code "as is".
-* In practice, however, one usually needs to link subroutines from this
-* file to another (external) code, therefore the MAIN program is
-* normally commented-out.
+!! Equation of state for fully ionized electron-ion plasmas (EOS EIP)
+! A.Y.Potekhin & G.Chabrier, Contrib. Plasma Phys., 50 (2010) 82, 
+!       and references therein
+! Please communicate comments/suggestions to Alexander Potekhin:
+!                                            palex@astro.ioffe.ru
+! Previously distributed versions (obsolete):
+!   eos2000, eos2002, eos2004, eos2006, eos2007, eos2009, eos10, eos11,
+!     eos13, and eos14.
+! Last update: 04.03.21. All updates since 2008 are listed below.
+!!   L I S T   O F   S U B R O U T I N E S :
+!  MAIN (normally commented-out) - example driving routine.
+!  MELANGE9 - for arbitrary ionic mixture, renders total (ion+electron)
+!          pressure, internal energy, entropy, heat capacity (all
+!          normalized to the ionic ideal-gas values), logarithmic
+!          derivatives of pressure over temperature and density.
+!  EOSFI8 - nonideal (ion-ion + ion-electron + electron-electron)
+!          contributions to the free and internal energies, pressure,
+!          entropy, heat capacity, derivatives of pressure over
+!          logarithm of temperature and over logarithm of density (all
+!          normalized to the ionic ideal-gas values) for one ionic
+!          component in a mixture.
+!  FITION9 - ion-ion interaction contributions to the free and internal
+!          energies, pressure, entropy, heat capacity, derivatives of
+!          pressure over logarithms of temperature and density.
+!  FSCRliq8 - ion-electron (screening) contributions to the free and
+!          internal energies, pressure, entropy, heat capacity,
+!          derivatives of pressure over logarithms of temperature and
+!          density in the liquid phase for one ionic component in a
+!          mixture.
+!  FSCRsol8 - ion-electron (screening) contributions to the free and
+!          internal energies, pressure, entropy, heat capacity,
+!          derivatives of pressure over logarithms of temperature and
+!          density for monoionic solid.
+!  FHARM12 - harmonic (including static-lattice and zero-point)
+!          contributions to the free and internal energies, pressure,
+!          entropy, heat capacity, derivatives of pressure over
+!          logarithms of temperature and density for solid OCP.
+!  HLfit12 - the same as FHARM12, but only for thermal contributions
+!  ANHARM8 - anharmonic contributions to the free and internal energies,
+!          pressure, entropy, heat capacity, derivatives of pressure
+!          over logarithms of temperature and density for solid OCP.
+!  CORMIX - correction to the linear mixing rule for the Coulomb
+!          contributions to the thermodynamic functions in the liquid.
+!  ELECT11 - for an ideal electron gas of arbitrary degeneracy and
+!          relativity at given temperature and electron chemical
+!          potential, renders number density (in atomic units), free
+!          energy, pressure, internal energy, entropy, heat capacity 
+!          (normalized to the electron ideal-gas values), logarithmic
+!          derivatives of pressure over temperature and density.
+!  EXCOR7 - electron-electron (exchange-correlation) contributions to
+!          the free and internal energies, pressure, entropy, heat
+!          capacity, derivatives of pressure over logarithm of
+!          temperature and over logarithm of density (all normalized
+!          to the classical electron ideal-gas values).
+!  FERINV7 - inverse non-relativistic Fermi integrals of orders -1/2,
+!          1/2, 3/2, 5/2, and their first and second derivatives.
+!  BLIN9 - relativistic Fermi-Dirac integrals of orders 1/2, 3/2, 5/2,
+!          and their first, second, and some third derivatives.
+!  CHEMFIT7 - electron chemical potential at given density and
+!          temperature, and its first derivatives over density and
+!          temperature and the second derivative over temperature.
+!!   I M P R O V E M E N T S   S I N C E   2 0 0 8 :
+!  FHARM8 uses a fit HLfit8 to the thermal free energy of the harmonic
+!   Coulomb lattice, which is more accurate than its predecessor FHARM7.
+!   Resulting corrections amount up to 20% for the ion heat capacity.
+!   Accordingly, S/R D3fit and FthCHA7 deleted (not used anymore).
+!  BLIN7 upgraded to BLIN8:
+!      - cleaned (a never-reached if-else branch deleted);
+!      - Sommerfeld (high-\chi) expansion improved;
+!      - some third derivatives added.
+!  CORMIX added (and MELANGE7 upgraded to MELANGE8 accordingly).
+!  ANHARM7 upgraded to ANHARM8, more consistent with Wigner-Kirkwood.
+!  Since the T- and rho-dependences of individual Z values in a mixture
+!    are not considered, the corresponding inputs (AYLR, AYLT) are
+!    excluded from MELANGE8 (and EOSFI7 changed to EOSFI8 accordingly).
+!  ELECT7 upgraded to ELECT9 (high-degeneracy behaviour is improved)
+!!   P O S T - P U B L I C A T I O N    (2 0 1 0 +)   IMPROVEMENTS :
+!  ELECT9 upgraded (smooth match of two fits at chi >> 1)
+!  BLIN8 replaced by BLIN9 - smooth fit interfaces at chi=0.6 and 14.
+!  MELANGE8 replaced by MELANGE9 - slightly modified input/output
+! 08.08.11 - corrected mistake (unlikely to have an effect) in CHEMFIT7
+! 16.11.11 - ELECT9 upgraded to ELECT11 (additional output)
+! 20.04.12 - FHARM8 and HLfit8 upgraded to FHARM12 and HLfit12:
+!   output of HLfit12 does not include zero-point vibr., but provides U1
+! 22.12.12 - MELANGE9 now includes a correction to the linear mixing
+!   rule (LMR) for the Madelung energy in the random bcc multi-ion
+!   lattice.
+! 14.05.13 - an accidental error in programming the newly introduced
+!   correction to the LMR is fixed.
+! 20.05.13 - calculation of the Wigner-Kirkwood quantum diffraction term
+!   for the liquid plasma is moved from EOSFI8 into MELANGE9.
+! 10.12.14 - slight cleaning of the text (no effect on the results)
+! 28.05.15 - an accidental error in Wigner-Kirkwood entropy correction
+!   is fixed (it was in the line "Stot=Stot+FWK*DENSI" since 20.05.13)
+! 29.08.15 - eliminated underflow of exp(-THETA) in CHEMFIT7
+! 10.08.16 - modified criteria to avoid accuracy loss (round-off errors)
+! 07.02.17 - included possibility to switch off the WK (Wigner) terms
+! 27.05.17 - safeguard against Zion < 1 is added in FSCRsol8;
+!   safeguard against huge (-CHI) values is added in ELECT11.
+! 27.01.19 - safeguard against X1=0 in CORMIX.
+! 18.04.20 - corrected Wigner-Kirkwood term for heat capacity.
+! 04.03.21 - corrected SUBFERMJ: defined parameter EPS (was undefined).
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!                           MAIN program:               Version 02.06.09
+! This driving routine allows one to compile and run this code "as is".
+! In practice, however, one usually needs to link subroutines from this
+! file to another (external) code, therefore the MAIN program is
+! normally commented-out.
       program main
       implicit none
       double precision, parameter :: UN_T6 = .3157746
@@ -136,20 +136,20 @@
       Tnk=8.31447d13/CMImean*RHO*T6 ! n_i kT [erg/cc]
       P=PnkT*Tnk/1.d12 ! P [Mbar]
       TEGRAD=CHIT/(CHIT**2+CHIR*CV/PnkT) ! from Maxwell relat.
-*   --------------------   OUTPUT   --------------------------------   *
-* Here in the output we have:
-* RHO - mass density in g/cc
-* P - total pressure in Mbar (i.e. in 1.e12 dyn/cm^2)
-* PnkT=P/nkT, where n is the number density of ions, T temperature
-* CV - heat capacity at constant volume, divided by number of ions, /k
-* CHIT - logarithmic derivative of pressure \chi_T
-* CHIR - logarithmic derivative of pressure \chi_\rho
-* UNkT - internal energy divided by NkT, N being the number of ions
-* SNk - entropy divided by number of ions, /k
-* GAMI - ionic Coulomb coupling parameter
-* TPT=T_p/T, where T_p is the ion plasma temperature
-* CHI - electron chemical potential, divided by kT
-* LIQSOL = 0 in the liquid state, = 1 in the solid state
+!   --------------------   OUTPUT   --------------------------------   *
+! Here in the output we have:
+! RHO - mass density in g/cc
+! P - total pressure in Mbar (i.e. in 1.e12 dyn/cm^2)
+! PnkT=P/nkT, where n is the number density of ions, T temperature
+! CV - heat capacity at constant volume, divided by number of ions, /k
+! CHIT - logarithmic derivative of pressure \chi_T
+! CHIR - logarithmic derivative of pressure \chi_\rho
+! UNkT - internal energy divided by NkT, N being the number of ions
+! SNk - entropy divided by number of ions, /k
+! GAMI - ionic Coulomb coupling parameter
+! TPT=T_p/T, where T_p is the ion plasma temperature
+! CHI - electron chemical potential, divided by kT
+! LIQSOL = 0 in the liquid state, = 1 in the solid state
       write(*,111) RHO,T6,P,PnkT,CV,CHIT,CHIR,UNkT,SNk,GAMI,TPT,CHI,
      *  LIQSOL
   112 format(/
@@ -162,47 +162,47 @@
       subroutine MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP,PRADnkT,
      *   DENS,Zmean,CMImean,Z2mean,GAMImean,CHI,TPT,LIQSOL,
      *   PnkT,UNkT,SNk,CV,CHIR,CHIT)
-*                                                       Version 18.04.20
-* Difference from v.10.12.14: included switch-off of WK correction
-* Stems from MELANGE8 v.26.12.09.
-* Difference: output PRADnkT instead of input KRAD
-* + EOS of fully ionized electron-ion plasma mixture.     
-* Limitations:
-* (a) inapplicable in the regimes of
-*      (1) bound-state formation,
-*      (2) quantum liquid,
-*      (3) presence of positrons;
-* (b) for the case of a composition gradually depending on RHO or TEMP,
-*  second-order functions (CV,CHIR,CHIT in output) should not be trusted
-* Choice of the liquid or solid regime - criterion GAMI [because the
-*     choice based on comparison of total (non-OCP) free energies can be
-*     sometimes dangerous because of the fit uncertainties ("Local field
-*     correction" in solid and quantum effects in liquid are unknown)].
-* Input: NMIX - number of different elements;
-*        AY - their partial number densities,
-*        AZion and ACMI - their charge and mass numbers,
-*        RHO - total mass density [g/cc]
-*        TEMP - temperature [in a.u.=2Ryd=3.1577e5 K].
-* NB: instead of RHO, a true input is CHI, defined below
-*     Hence, disagreement between RHO and DENS is the fit error (<0.4%)
-* Output:
-*         AY - rescaled so that to sum up to 1 and resorted (by AZion)
-*         AZion - resorted in ascending order
-*         ACMI - resorted in agreement with AZion
-*         DENS - electron number density [in a.u.=6.7483346e24 cm^{-3}]
-*         Zmean=<Z>, CMImean=<A> - mean ion charge and mass numbers,
-*         Z2mean=<Z^2> - mean-square ion charge number
-*         GAMImean - effective ion-ion Coulomb coupling constant
-*         CHI = mu_e/kT, where mu_e is the electron chem.potential
-*         TPT - effective ionic quantum parameter (T_p/T)
-*         LIQSOL=0/1 for liquid/solid
-*         SNk - dimensionless entropy per 1 ion
-*         UNkT - internal energy per kT per ion
-*         PnkT - pressure / n_i kT, where n_i is the ion number density
-*         PRADnkT - radiative pressure / n_i kT
-*         CV - heat capacity per ion, div. by Boltzmann const.
-*         CHIR - inverse compressibility -(d ln P / d ln V)_T ("\chi_r")
-*         CHIT = (d ln P / d ln T)_V ("\chi_T")
+!                                                       Version 18.04.20
+! Difference from v.10.12.14: included switch-off of WK correction
+! Stems from MELANGE8 v.26.12.09.
+! Difference: output PRADnkT instead of input KRAD
+! + EOS of fully ionized electron-ion plasma mixture.     
+! Limitations:
+! (a) inapplicable in the regimes of
+!      (1) bound-state formation,
+!      (2) quantum liquid,
+!      (3) presence of positrons;
+! (b) for the case of a composition gradually depending on RHO or TEMP,
+!  second-order functions (CV,CHIR,CHIT in output) should not be trusted
+! Choice of the liquid or solid regime - criterion GAMI [because the
+!     choice based on comparison of total (non-OCP) free energies can be
+!     sometimes dangerous because of the fit uncertainties ("Local field
+!     correction" in solid and quantum effects in liquid are unknown)].
+! Input: NMIX - number of different elements;
+!        AY - their partial number densities,
+!        AZion and ACMI - their charge and mass numbers,
+!        RHO - total mass density [g/cc]
+!        TEMP - temperature [in a.u.=2Ryd=3.1577e5 K].
+! NB: instead of RHO, a true input is CHI, defined below
+!     Hence, disagreement between RHO and DENS is the fit error (<0.4%)
+! Output:
+!         AY - rescaled so that to sum up to 1 and resorted (by AZion)
+!         AZion - resorted in ascending order
+!         ACMI - resorted in agreement with AZion
+!         DENS - electron number density [in a.u.=6.7483346e24 cm^{-3}]
+!         Zmean=<Z>, CMImean=<A> - mean ion charge and mass numbers,
+!         Z2mean=<Z^2> - mean-square ion charge number
+!         GAMImean - effective ion-ion Coulomb coupling constant
+!         CHI = mu_e/kT, where mu_e is the electron chem.potential
+!         TPT - effective ionic quantum parameter (T_p/T)
+!         LIQSOL=0/1 for liquid/solid
+!         SNk - dimensionless entropy per 1 ion
+!         UNkT - internal energy per kT per ion
+!         PnkT - pressure / n_i kT, where n_i is the ion number density
+!         PRADnkT - radiative pressure / n_i kT
+!         CV - heat capacity per ion, div. by Boltzmann const.
+!         CHIR - inverse compressibility -(d ln P / d ln V)_T ("\chi_r")
+!         CHIT = (d ln P / d ln T)_V ("\chi_T")
       implicit double precision (A-H), double precision (O-Z)
       character CHWK
       save
@@ -226,7 +226,7 @@
          print*,'MELANGE9: partial densities (and derivatives)',
      *    ' are rescaled by factor',1./Y
       endif
-* Sort the elements in ascending order in Z_j:
+! Sort the elements in ascending order in Z_j:
       KSORT=0
       do I=2,NMIX
          J=I
@@ -247,7 +247,7 @@
       if (KSORT.eq.1) write(*,'('' Ions are resorted as follows:''/
      *  '' i    Z_i       A_i       x_i''/(0P,I3,'':'',1P,3E10.3))')
      *  (J,AZion(J),ACMI(J),AY(J),J=1,NMIX)
-* Calculation of average values:
+! Calculation of average values:
       Zmean=0.
       Z2mean=0.
       Z52=0.
@@ -265,22 +265,22 @@
          Z321=Z321+AY(IX)*AZion(IX)*dsqrt(AZion(IX)+1.d0)**3 ! 26.12.09
          CMImean=CMImean+AY(IX)*ACMI(IX)
       enddo
-* (0) Photons:
+! (0) Photons:
       UINTRAD=RAD*TEMP**4
       PRESSRAD=UINTRAD/3.
 C      CVRAD=4.*UINTRAD/TEMP
-* (1) ideal electron gas (including relativity and degeneracy)  -----  *
+! (1) ideal electron gas (including relativity and degeneracy)  -----  *
       DENS=RHO/11.20587*Zmean/CMImean ! number density of electrons [au]
       call CHEMFIT(DENS,TEMP,CHI)
-* NB: CHI can be used as true input instead of RHO or DENS
+! NB: CHI can be used as true input instead of RHO or DENS
       call ELECT11(TEMP,CHI,
      *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
      *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-* NB: at this point DENS is redefined (the difference can be ~0.1%)
+! NB: at this point DENS is redefined (the difference can be ~0.1%)
       DTE=DENS*TEMP
       PRESSE=PEid*DTE ! P_e [a.u.]
       UINTE=UEid*DTE ! U_e / V [a.u.]
-* (2) non-ideal Coulomb EIP  ----------------------------------------  *
+! (2) non-ideal Coulomb EIP  ----------------------------------------  *
       RS=(.75d0/PI/DENS)**C13 ! r_s - electron density parameter
       RSI=RS*CMImean*Z73*AUM ! R_S - ion density parameter
       GAME=1.d0/RS/TEMP ! electron Coulomb parameter Gamma_e
@@ -290,7 +290,7 @@ C      CVRAD=4.*UINTRAD/TEMP
       else
          LIQSOL=1 ! solid regime
       endif
-* Calculate partial thermodynamic quantities and combine them together:
+! Calculate partial thermodynamic quantities and combine them together:
       UINT=UINTE
       PRESS=PRESSE
       CVtot=CVE*DENS
@@ -301,7 +301,7 @@ C      CVRAD=4.*UINTRAD/TEMP
       PRESSI=DENSI*TEMP ! ideal-ions total pressure (normalization)
       TPT2=0.
       CTP=4.d0*PI/AUM/TEMP**2 ! common coefficient for TPT2.10.12.14
-* Add Coulomb+xc nonideal contributions, and ideal free energy:
+! Add Coulomb+xc nonideal contributions, and ideal free energy:
       do IX=1,NMIX
         if (AY(IX).lt.TINY) goto 10 ! skip this species
          Zion=AZion(IX)
@@ -312,20 +312,20 @@ C      CVRAD=4.*UINTRAD/TEMP
          call EOSFI8(LIQSOL,CMI,Zion,RS,GAMI,
      *     FC1,UC1,PC1,SC1,CV1,PDT1,PDR1,
      *     FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
-* First-order TD functions:
+! First-order TD functions:
          UINT=UINT+UC2*PRI ! internal energy density (e+i+Coul.)
          Stot=Stot+DNI*(SC2-dlog(AY(IX))) !entropy per unit volume[a.u.]
          PRESS=PRESS+PC2*PRI ! pressure (e+i+Coul.) [a.u.]
-* Second-order functions (they take into account compositional changes):
+! Second-order functions (they take into account compositional changes):
          CVtot=CVtot+DNI*CV2 ! C_V (e+i+Coul.)/ V (optim.10.12.14)
          PDLT=PDLT+PRI*PDT2 ! d P / d ln T
          PDLR=PDLR+PRI*PDR2 ! d P / d ln\rho
          TPT2=TPT2+CTP*DNI/ACMI(IX)*AZion(IX)**2 ! opt.10.12.14
    10   continue
       enddo ! next IX
-* Wigner-Kirkwood perturbative correction for liquid:
+! Wigner-Kirkwood perturbative correction for liquid:
       TPT=dsqrt(TPT2) ! effective T_p/T - ion quantum parameter
-* (in the case of a mixture, this estimate is crude)
+! (in the case of a mixture, this estimate is crude)
       if (LIQSOL.eq.0) then
          FWK=TPT2/24.d0*CWK ! Wigner-Kirkwood (quantum diffr.) term
         if (FWK.gt..7.and.CWK.gt.0.) then
@@ -340,7 +340,7 @@ C      CVRAD=4.*UINTRAD/TEMP
          PDLT=PDLT-FWK*PRESSI
          PDLR=PDLR+UWK*PRESSI
       endif
-* Corrections to the linear mixing rule:
+! Corrections to the linear mixing rule:
       if (LIQSOL.eq.0) then ! liquid phase
          call CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321,
      *     FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
@@ -373,7 +373,7 @@ C      CVRAD=4.*UINTRAD/TEMP
       CVtot=CVtot+DENSI*CVMIX
       PDLT=PDLT+PRESSI*PDTMIX
       PDLR=PDLR+PRESSI*PDRMIX
-* First-order:
+! First-order:
       PRADnkT=PRESSRAD/PRESSI ! radiative pressure / n_i k T
 C      CVtot=CVtot+CVRAD
 C      Stot=Stot+CVRAD/3.
@@ -381,7 +381,7 @@ C      Stot=Stot+CVRAD/3.
       UNkT=UINT/PRESSI ! U / N_i k T
 C      UNkT=UNkT+UINTRAD/PRESSI
       SNk=Stot/DENSI ! S / N_i k
-* Second-order:
+! Second-order:
       CV=CVtot/DENSI ! C_V per ion
       CHIR=PDLR/PRESS ! d ln P / d ln\rho
       CHIT=PDLT/PRESS ! d ln P / d ln T
@@ -392,29 +392,29 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       subroutine EOSFI8(LIQSOL,CMI,Zion,RS,GAMI,
      *  FC1,UC1,PC1,SC1,CV1,PDT1,PDR1,
      *  FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
-*                                                       Version 16.09.08
-*                 call FHARM8 has been replaced by call FHARM12 27.04.12
-*                           Wigner-Kirkwood correction excluded 20.05.13
-*                                               slight cleaning 10.12.14
-* Non-ideal parts of thermodynamic functions in the fully ionized plasma
-* Stems from EOSFI5 and EOSFI05 v.04.10.05
-* Input: LIQSOL=0/1(liquid/solid), 
-*        Zion,CMI - ion charge and mass numbers,
-*        RS=r_s (electronic density parameter),
-*        GAMI=Gamma_i (ion coupling),
-* Output: FC1 and UC1 - non-ideal "ii+ie+ee" contribution to the 
-*         free and internal energies (per ion per kT),
-*         PC1 - analogous contribution to pressure divided by (n_i kT),
-*         CV1 - "ii+ie+ee" heat capacity per ion [units of k]
-*         PDT1=(1/n_i kT)*(d P_C/d ln T)_V
-*         PDR1=(1/n_i kT)*(d P_C/d ln\rho)_T
-* FC2,UC2,PC2,SC2,CV2 - analogous to FC1,UC1,PC1,SC1,CV1, but including
-* the part corresponding to the ideal ion gas. This is useful for 
-* preventing accuracy loss in some cases (e.g., when SC2 << SC1).
-* FC2 does not take into account the entropy of mixing S_{mix}: in a
-* mixture, S_{mix}/(N_i k) has to be added externally (see MELANGE9).
-* FC2 does not take into account the ion spin degeneracy either.
-* When needed, the spin term must be added to the entropy externally.
+!                                                       Version 16.09.08
+!                 call FHARM8 has been replaced by call FHARM12 27.04.12
+!                           Wigner-Kirkwood correction excluded 20.05.13
+!                                               slight cleaning 10.12.14
+! Non-ideal parts of thermodynamic functions in the fully ionized plasma
+! Stems from EOSFI5 and EOSFI05 v.04.10.05
+! Input: LIQSOL=0/1(liquid/solid), 
+!        Zion,CMI - ion charge and mass numbers,
+!        RS=r_s (electronic density parameter),
+!        GAMI=Gamma_i (ion coupling),
+! Output: FC1 and UC1 - non-ideal "ii+ie+ee" contribution to the 
+!         free and internal energies (per ion per kT),
+!         PC1 - analogous contribution to pressure divided by (n_i kT),
+!         CV1 - "ii+ie+ee" heat capacity per ion [units of k]
+!         PDT1=(1/n_i kT)*(d P_C/d ln T)_V
+!         PDR1=(1/n_i kT)*(d P_C/d ln\rho)_T
+! FC2,UC2,PC2,SC2,CV2 - analogous to FC1,UC1,PC1,SC1,CV1, but including
+! the part corresponding to the ideal ion gas. This is useful for 
+! preventing accuracy loss in some cases (e.g., when SC2 << SC1).
+! FC2 does not take into account the entropy of mixing S_{mix}: in a
+! mixture, S_{mix}/(N_i k) has to be added externally (see MELANGE9).
+! FC2 does not take into account the ion spin degeneracy either.
+! When needed, the spin term must be added to the entropy externally.
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(C53=5.d0/3.d0,C76=7.d0/6.d0) ! TINY excl.10.12.14
@@ -426,12 +426,12 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       if (GAMI.le..0) stop'EOSFI8: invalid GAMI'
       GAME=GAMI/Zion**C53
       call EXCOR7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC) ! "ee"("xc")
-* Calculate "ii" part:
+! Calculate "ii" part:
       COTPT=dsqrt(3.d0/AUM/CMI)/Zion**C76 ! auxiliary coefficient
       TPT=GAMI/dsqrt(RS)*COTPT            ! = T_p/T in the OCP
       FidION=1.5*dlog(TPT**2/GAMI)-1.323515
-* 1.3235=1+0.5*ln(6/pi); FidION = F_{id.ion gas}/(N_i kT), but without
-* the term x_i ln x_i = -S_{mix}/(N_i k).
+! 1.3235=1+0.5*ln(6/pi); FidION = F_{id.ion gas}/(N_i kT), but without
+! the term x_i ln x_i = -S_{mix}/(N_i k).
       if (LIQSOL.eq.0) then               ! liquid
          call FITION9(GAMI,
      *     FION,UION,PION,CVii,PDTii,PDRii)
@@ -460,7 +460,7 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
          SCItot=Sharm+Uah-Fah
          CVii=CVItot-1.5d0 ! minus 1.5=ideal-gas
       endif
-* Calculate "ie" part:
+! Calculate "ie" part:
       if (LIQSOL.eq.1) then
          call FSCRsol8(RS,GAMI,Zion,TPT,
      *     FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
@@ -469,7 +469,7 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
      *     FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR)
          S_SCR=USCR-FSCR
       endif
-* Total excess quantities ("ii"+"ie"+"ee", per ion):
+! Total excess quantities ("ii"+"ie"+"ee", per ion):
       FC0=FSCR+Zion*FXC
       UC0=USCR+Zion*UXC
       PC0=PSCR+Zion*PXC
@@ -484,7 +484,7 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       CV1=CVii+CV0
       PDT1=PDTii+PDT0
       PDR1=PDRii+PDR0
-* Total excess + ideal-ion quantities
+! Total excess + ideal-ion quantities
       FC2=FItot+FC0
       UC2=UItot+UC0
       PC2=PItot+PC0
@@ -495,20 +495,20 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       return
       end
 
-* ==================  ELECTRON-ION COULOMB LIQUID  =================== *
+! ==================  ELECTRON-ION COULOMB LIQUID  =================== !
       subroutine FITION9(GAMI,FION,UION,PION,CVii,PDTii,PDRii)
-*                                                       Version 11.09.08
-* Dummy argument Zion is deleted in 2009.
-* Non-ideal contributions to thermodynamic functions of classical OCP.
-*   Stems from FITION00 v.24.05.00.
-* Input: GAMI - ion coupling parameter
-* Output: FION - ii free energy / N_i kT
-*         UION - ii internal energy / N_i kT
-*         PION - ii pressure / n_i kT
-*         CVii - ii heat capacity / N_i k
-*         PDTii = PION + d(PION)/d ln T = (1/N_i kT)*(d P_{ii}/d ln T)
-*         PDRii = PION + d(PION)/d ln\rho
-*   Parameters adjusted to Caillol (1999).
+!                                                       Version 11.09.08
+! Dummy argument Zion is deleted in 2009.
+! Non-ideal contributions to thermodynamic functions of classical OCP.
+!   Stems from FITION00 v.24.05.00.
+! Input: GAMI - ion coupling parameter
+! Output: FION - ii free energy / N_i kT
+!         UION - ii internal energy / N_i kT
+!         PION - ii pressure / n_i kT
+!         CVii - ii heat capacity / N_i k
+!         PDTii = PION + d(PION)/d ln T = (1/N_i kT)*(d P_{ii}/d ln T)
+!         PDRii = PION + d(PION)/d ln\rho
+!   Parameters adjusted to Caillol (1999).
       implicit double precision (A-H),double precision (O-Z)
       save
       parameter (A1=-.907347d0,A2=.62849d0,C1=.004500d0,G1=170.0,
@@ -518,7 +518,7 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
      -     A2*dlog(dsqrt(GAMI/A2)+dsqrt(1.+GAMI/A2)))+
      +     2.*A3*(dsqrt(GAMI)-datan(dsqrt(GAMI)))
       U0=dsqrt(GAMI)**3*(A1/dsqrt(A2+GAMI)+A3/(1.d0+GAMI))
-*   This is the zeroth approximation. Correction:
+!   This is the zeroth approximation. Correction:
       UION=U0+C1*GAMI**2/(G1+GAMI)+C2*GAMI**2/(G2+GAMI**2)
       FION=F0+C1*(GAMI-G1*dlog(1.d0+GAMI/G1))+
      +   C2/2.*dlog(1.d0+GAMI**2/G2)
@@ -533,16 +533,16 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
 
       subroutine FSCRliq8(RS,GAME,Zion,
      *     FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR) ! fit to the el.-ion scr.
-*                                                       Version 11.09.08
-*                                                       cleaned 16.06.09
-* Stems from FSCRliq7 v. 09.06.07. Included a check for RS=0.
-*   INPUT: RS - density parameter, GAME - electron Coulomb parameter,
-*          Zion - ion charge number,
-*   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
-*           USCR - internal energy per kT per 1 ion (screen.contrib.)
-*           PSCR - pressure divided by (n_i kT) (screen.contrib.)
-*           CVSCR - heat capacity per 1 ion (screen.contrib.)
-*           PDTSCR,PDRSCR = PSCR + d PSCR / d ln(T,\rho)
+!                                                       Version 11.09.08
+!                                                       cleaned 16.06.09
+! Stems from FSCRliq7 v. 09.06.07. Included a check for RS=0.
+!   INPUT: RS - density parameter, GAME - electron Coulomb parameter,
+!          Zion - ion charge number,
+!   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
+!           USCR - internal energy per kT per 1 ion (screen.contrib.)
+!           PSCR - pressure divided by (n_i kT) (screen.contrib.)
+!           CVSCR - heat capacity per 1 ion (screen.contrib.)
+!           PDTSCR,PDRSCR = PSCR + d PSCR / d ln(T,\rho)
       implicit double precision(A-H),double precision(O-Z)
       save
       parameter(XRS=.0140047,TINY=1.d-19)
@@ -567,7 +567,7 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       Z13=exp(ZLN/3.) ! Zion**(1./3.)
       X=XRS/RS ! relativity parameter
       CTF=Zion**2*.2513*(Z13-1.+.2/sqrt(Z13))
-* Thomas-Fermi constant; .2513=(18/175)(12/\pi)^{2/3}
+! Thomas-Fermi constant; .2513=(18/175)(12/\pi)^{2/3}
       P01=1.11*exp(.475*ZLN)
       P03=0.2+0.078*ZLN**2
       PTX=1.16+.08*ZLN
@@ -607,7 +607,7 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       COR0DXX=(U0DXX-(2.*U0DX*D0DX+U0*D0DXX)/D0+2.*(D0DX/D0)**2)/D0
       COR0DGG=(U0DGG-2.*U0DG*D0DG/D0+2.*U0*(D0DG/D0)**2)/D0
       COR0DXG=(U0DXG-(U0DX*D0DG+U0DG*D0DX)/D0+2.*U0*D0DX*D0DG/D0**2)/D0
-* Relativism:
+! Relativism:
       RELE=dsqrt(1.d0+X**2)
       Q1=.18/dsqrt(dsqrt(Zion))
       Q2=.2+.37/dsqrt(Zion)
@@ -658,23 +658,23 @@ C      CHIT=CHIT+4.*PRESSRAD/PRESS ! d ln P / d ln T
       return
       end
 
-* ==============   SUBROUTINES FOR THE SOLID STATE   ================= *
+! ==============   SUBROUTINES FOR THE SOLID STATE   ================= !
       subroutine FSCRsol8(RS,GAMI,ZNUCL,TPT,
      *     FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
-*                                                       Version 28.05.08
-*                    undefined zero variable Q1DXG is wiped out 21.06.10
-*                                 accuracy-loss safeguard added 10.08.16
-*                              safequard against Zion < 1 added 27.05.17
-* Fit to the el.-ion screening in bcc or fcc Coulomb solid
-* Stems from FSCRsol8 v.09.06.07. Included a check for RS=0.
-*   INPUT: RS - el. density parameter, GAMI - ion coupling parameter,
-*          ZNUCL - ion charge, TPT=T_p/T - ion quantum parameter
-*   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
-*           USCR - internal energy per kT per 1 ion (screen.contrib.)
-*           PSCR - pressure divided by (n_i kT) (screen.contrib.)
-*           S_SCR - screening entropy contribution / (N_i k)
-*           CVSCR - heat capacity per 1 ion (screen.contrib.)
-*           PDTSCR,PDRSCR = PSCR + d PSCR / d ln(T,\rho)
+!                                                       Version 28.05.08
+!                    undefined zero variable Q1DXG is wiped out 21.06.10
+!                                 accuracy-loss safeguard added 10.08.16
+!                              safequard against Zion < 1 added 27.05.17
+! Fit to the el.-ion screening in bcc or fcc Coulomb solid
+! Stems from FSCRsol8 v.09.06.07. Included a check for RS=0.
+!   INPUT: RS - el. density parameter, GAMI - ion coupling parameter,
+!          ZNUCL - ion charge, TPT=T_p/T - ion quantum parameter
+!   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
+!           USCR - internal energy per kT per 1 ion (screen.contrib.)
+!           PSCR - pressure divided by (n_i kT) (screen.contrib.)
+!           S_SCR - screening entropy contribution / (N_i k)
+!           CVSCR - heat capacity per 1 ion (screen.contrib.)
+!           PDTSCR,PDRSCR = PSCR + d PSCR / d ln(T,\rho)
       implicit double precision(A-H),double precision(O-Z)
       save
       dimension AP(4) ! parameters of the fit
@@ -717,7 +717,7 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       Q1XDX=Q1X/XSR+4.*XSR**2*((R2/Q1D)**2-(AP(3)/Q1U)**2)
       Q1DX=Q1*Q1X
       Q1DXX=Q1DX*Q1X+Q1*Q1XDX
-* New quantum factor, in order to suppress CVSCR at TPT >> 1
+! New quantum factor, in order to suppress CVSCR at TPT >> 1
       if (TPT.lt.6./PX) then
          Y0=(PX*TPT)**2
          Y0DX=Y0/XSR
@@ -802,13 +802,13 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       end
 
       subroutine ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah)
-* ANHARMONIC free energy                                Version 27.07.07
-*                                                       cleaned 16.06.09
-* Stems from ANHARM8b. Difference: AC=0., B1=.12 (.1217 - over accuracy)
-* Input: GAMI - ionic Gamma, TPT=Tp/T - ionic quantum parameter
-* Output: anharm.free en. Fah=F_{AH}/(N_i kT), internal energy Uah,
-*   pressure Pah=P_{AH}/(n_i kT), specific heat CVah = C_{V,AH}/(N_i k),
-*   PDTah = Pah + d Pah / d ln T, PDRah = Pah + d Pah / d ln\rho
+! ANHARMONIC free energy                                Version 27.07.07
+!                                                       cleaned 16.06.09
+! Stems from ANHARM8b. Difference: AC=0., B1=.12 (.1217 - over accuracy)
+! Input: GAMI - ionic Gamma, TPT=Tp/T - ionic quantum parameter
+! Output: anharm.free en. Fah=F_{AH}/(N_i kT), internal energy Uah,
+!   pressure Pah=P_{AH}/(n_i kT), specific heat CVah = C_{V,AH}/(N_i k),
+!   PDTah = Pah + d Pah / d ln T, PDRah = Pah + d Pah / d ln\rho
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(NM=3)
@@ -850,15 +850,15 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
 
       subroutine FHARM12(GAMI,TPT,
      *   Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
-* Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
-* 
-*                                                       Version 27.04.12
-* Stems from FHARM8 v.15.02.08
-* Replaced HLfit8 with HLfit12: rearranged output.
-* Input: GAMI - ionic Gamma, TPT=T_{p,i}/T
-* Output: Fharm=F/(N_i T), Uharm=U/(N_i T), Pharm=P/(n_i T),
-* CVth=C_V/N_i, Sharm=S/N_i
-* PDTharm = Pharm + d Pharm / d ln T, PDRharm = Pharm + d Pharm/d ln\rho
+! Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
+! 
+!                                                       Version 27.04.12
+! Stems from FHARM8 v.15.02.08
+! Replaced HLfit8 with HLfit12: rearranged output.
+! Input: GAMI - ionic Gamma, TPT=T_{p,i}/T
+! Output: Fharm=F/(N_i T), Uharm=U/(N_i T), Pharm=P/(n_i T),
+! CVth=C_V/N_i, Sharm=S/N_i
+! PDTharm = Pharm + d Pharm / d ln T, PDRharm = Pharm + d Pharm/d ln\rho
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(CM=.895929256d0) ! Madelung
@@ -876,18 +876,18 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       end
 
       subroutine HLfit12(eta,F,U,CV,S,U1,CW,LATTICE)
-*                                                       Version 24.04.12
-* Stems from HLfit8 v.03.12.08;
-*   differences: E0 excluded from  U and F;
-*   U1 and d(CV)/d\ln(T) are added on the output.
-* Fit to thermal part of the thermodynamic functions.
-* Baiko, Potekhin, & Yakovlev (2001).
-* Zero-point lattice quantum energy 1.5u_1\eta EXCLUDED (unlike HLfit8).
-* Input: eta=Tp/T, LATTICE=1 for bcc, 2 for fcc
-* Output: F and U (normalized to NkT) - due to phonon excitations,
-*   CV and S (normalized to Nk) in the HL model,
-*   U1 - the 1st phonon moment,
-*   CW=d(CV)/d\ln(T)
+!                                                       Version 24.04.12
+! Stems from HLfit8 v.03.12.08;
+!   differences: E0 excluded from  U and F;
+!   U1 and d(CV)/d\ln(T) are added on the output.
+! Fit to thermal part of the thermodynamic functions.
+! Baiko, Potekhin, & Yakovlev (2001).
+! Zero-point lattice quantum energy 1.5u_1\eta EXCLUDED (unlike HLfit8).
+! Input: eta=Tp/T, LATTICE=1 for bcc, 2 for fcc
+! Output: F and U (normalized to NkT) - due to phonon excitations,
+!   CV and S (normalized to Nk) in the HL model,
+!   U1 - the 1st phonon moment,
+!   CW=d(CV)/d\ln(T)
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(EPS=1.d-5,TINY=1.d-99)
@@ -992,20 +992,20 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
 
       subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321,
      *  FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
-*                                                       Version 02.07.09
-* Correction to the linear mixing rule for moderate to small Gamma
-* Input: RS=r_s (if RS=0, then OCP, otherwise EIP)
-*        GAME=\Gamma_e
-*        Zmean=<Z> (average Z of all ions, without electrons)
-*        Z2mean=<Z^2>, Z52=<Z^2.5>, Z53=<Z^{5/3}>, Z321=<Z(Z+1)^1.5>
-* Output: FMIX=\Delta f - corr.to the reduced free energy f=F/N_{ion}kT
-*         UMIX=\Delta u - corr.to the reduced internal energy u
-*         PMIX=\Delta u - corr.to the reduced pressure P=P/n_{ion}kT
-*         CVMIX=\Delta c - corr.to the reduced heat capacity c_V
-*         PDTMIX=(1/n_{ion}kT)d\Delta P / d ln T
-*               = \Delta p +  d \Delta p / d ln T
-*         PDRMIX=(1/n_{ion}kT)d\Delta P / d ln n_e
-* (composition is assumed fixed: Zmean,Z2mean,Z52,Z53=constant)
+!                                                       Version 02.07.09
+! Correction to the linear mixing rule for moderate to small Gamma
+! Input: RS=r_s (if RS=0, then OCP, otherwise EIP)
+!        GAME=\Gamma_e
+!        Zmean=<Z> (average Z of all ions, without electrons)
+!        Z2mean=<Z^2>, Z52=<Z^2.5>, Z53=<Z^{5/3}>, Z321=<Z(Z+1)^1.5>
+! Output: FMIX=\Delta f - corr.to the reduced free energy f=F/N_{ion}kT
+!         UMIX=\Delta u - corr.to the reduced internal energy u
+!         PMIX=\Delta u - corr.to the reduced pressure P=P/n_{ion}kT
+!         CVMIX=\Delta c - corr.to the reduced heat capacity c_V
+!         PDTMIX=(1/n_{ion}kT)d\Delta P / d ln T
+!               = \Delta p +  d \Delta p / d ln T
+!         PDRMIX=(1/n_{ion}kT)d\Delta P / d ln n_e
+! (composition is assumed fixed: Zmean,Z2mean,Z52,Z53=constant)
       implicit double precision (A-H), double precision (O-Z)
       parameter (TINY=1.d-9)
       GAMImean=GAME*Z53
@@ -1045,31 +1045,31 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       return
       end
 
-* ===================  IDEAL ELECTRON GAS  =========================== *
+! ===================  IDEAL ELECTRON GAS  =========================== !
       subroutine ELECT11(TEMP,CHI,
      *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
      *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-*                                                       Version 17.11.11
-*                 safeguard against huge (-CHI) values is added 27.05.17
-* ELECT9 v.04.03.09 + smooth match of two fits at chi >> 1 + add.outputs
-* Compared to ELECTRON v.06.07.00, this S/R is completely rewritten: 
-*        numerical differentiation is avoided now.
-* Compared to ELECT7 v.06.06.07,
-*    - call BLIN7 is changed to call BLIN9,
-*    - Sommerfeld expansion is used at chi >~ 28 i.o. 1.e4
-*    - Sommerfeld expansion is corrected: introduced DeltaEF, D1 and D2.
-* Ideal electron-gas EOS.
-* Input: TEMP - T [a.u.], CHI=\mu/T
-* Output: DENS - electron number density n_e [a.u.],
-*         FEid - free energy / N_e kT, UEid - internal energy / N_e kT,
-*         PEid - pressure (P_e) / n_e kT, SEid - entropy / N_e k,
-*         CVE - heat capacity / N_e k,
-*         CHITE=(d ln P_e/d ln T)_V, CHIRE=(d ln P_e/d ln n_e)_T
-*         DlnDH=(d ln n_e/d CHI)_T = (T/n_e) (d n_e/d\mu)_T
-*         DlnDT=(d ln n_e/d ln T)_CHI
-*         DlnDHH=(d^2 ln n_e/d CHI^2)_T
-*         DlnDTT=(d^2 ln n_e/d (ln T)^2)_CHI
-*         DlnDHT=d^2 ln n_e/d (ln T) d CHI
+!                                                       Version 17.11.11
+!                 safeguard against huge (-CHI) values is added 27.05.17
+! ELECT9 v.04.03.09 + smooth match of two fits at chi >> 1 + add.outputs
+! Compared to ELECTRON v.06.07.00, this S/R is completely rewritten: 
+!        numerical differentiation is avoided now.
+! Compared to ELECT7 v.06.06.07,
+!    - call BLIN7 is changed to call BLIN9,
+!    - Sommerfeld expansion is used at chi >~ 28 i.o. 1.e4
+!    - Sommerfeld expansion is corrected: introduced DeltaEF, D1 and D2.
+! Ideal electron-gas EOS.
+! Input: TEMP - T [a.u.], CHI=\mu/T
+! Output: DENS - electron number density n_e [a.u.],
+!         FEid - free energy / N_e kT, UEid - internal energy / N_e kT,
+!         PEid - pressure (P_e) / n_e kT, SEid - entropy / N_e k,
+!         CVE - heat capacity / N_e k,
+!         CHITE=(d ln P_e/d ln T)_V, CHIRE=(d ln P_e/d ln n_e)_T
+!         DlnDH=(d ln n_e/d CHI)_T = (T/n_e) (d n_e/d\mu)_T
+!         DlnDT=(d ln n_e/d ln T)_CHI
+!         DlnDHH=(d^2 ln n_e/d CHI^2)_T
+!         DlnDTT=(d^2 ln n_e/d (ln T)^2)_CHI
+!         DlnDHT=d^2 ln n_e/d (ln T) d CHI
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter (CHI2=28.d0,XMAX=20.d0)
@@ -1113,8 +1113,8 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       subroutine ELECT11a(TEMP,CHI,
      *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
      *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-*                                                       Version 16.11.11
-* This is THE FIRST PART of ELECT9 v.04.03.09.
+!                                                       Version 16.11.11
+! This is THE FIRST PART of ELECT9 v.04.03.09.
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter (BOHR=137.036,PI=3.141592653d0)
@@ -1129,17 +1129,17 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       DENR=TPI*(W1*TEMR+W0)
       PR=TEMR*TPI/3.*(W2*TEMR+2.*W1)
       U=TEMR*TPI*(W2*TEMR+W1)
-* (these are density, pressure, and internal energy in the rel.units)
+! (these are density, pressure, and internal energy in the rel.units)
       PEid=PR/(DENR*TEMR)
       UEid=U/(DENR*TEMR)
       FEid=CHI-PEid
       DENS=DENR*BOHR3 ! converts from rel.units to a.u.
       SEid=UEid-FEid
-* derivatives over T at constant chi:
+! derivatives over T at constant chi:
       dndT=TPI*(1.5*W0/TEMR+2.5*W1+W0DT+TEMR*W1DT) ! (d n_e/dT)_\chi
       dPdT=TPI/3.*(5.*W1+2.*TEMR*W1DT+3.5*TEMR*W2+TEMR**2*W2DT)!dP/dT
       dUdT=TPI*(2.5*W1+TEMR*W1DT+3.5*TEMR*W2+TEMR**2*W2DT)!dU/dT_\chi
-* derivatives over chi at constant T and second derivatives:
+! derivatives over chi at constant T and second derivatives:
       dndH=TPI*(W0DX+TEMR*W1DX) ! (d n_e/d\chi)_T
       dndHH=TPI*(W0DXX+TEMR*W1DXX) ! (d^2 n_e/d\chi)_T
       dndTT=TPI*(.75*W0/TEMR**2+3.*W0DT/TEMR+W0DTT+
@@ -1161,9 +1161,9 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       subroutine ELECT11b(TEMP,CHI,
      *  DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE,
      *  DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-*                                                       Version 17.11.11
-* Stems from ELECT9b v.19.01.10, Diff. - additional output.
-* Sommerfeld expansion at very large CHI.
+!                                                       Version 17.11.11
+! Stems from ELECT9b v.19.01.10, Diff. - additional output.
+! Sommerfeld expansion at very large CHI.
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter (BOHR=137.036,PI=3.141592653d0)
@@ -1197,7 +1197,7 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       CHITE=2.d0*DP/P
       DENR=PF**3/3.d0/PI2 ! n_e [rel.un.=\Compton^{-3}]
       DENS=DENR*BOHR3 ! conversion to a.u.(=\Bohr_radius^{-3})
-* derivatives over chi at constant T and T at constant chi:
+! derivatives over chi at constant T and T at constant chi:
       TPI=TEMR*dsqrt(2.d0*TEMR)/PI2 ! common pre-factor
       call SOMMERF(TEMR,CHI,
      *  W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT,
@@ -1220,7 +1220,7 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
       UEid=U/DT
       FEid=F/DT
       SEid=S/DT
-* Empirical corrections of 16.02.09:
+! Empirical corrections of 16.02.09:
       D1=DeltaEF/EF
       D2=D1*(4.d0-2.d0*(PF/G))
       CVE=CVE/(1.d0+D2)
@@ -1234,15 +1234,15 @@ cc      data AP/1.1857,.663,17.1,40./,PX/.212/ ! for fcc lattice
      *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
      *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
      *  W0XXX,W0XTT,W0XXT)
-*                                                       Version 17.11.11
-* Sommerfeld expansion for the Fermi-Dirac integrals
-* Input: TEMR=T/mc^2; CHI=(\mu-mc^2)/T
-* Output: Wk - Fermi-Dirac integral of the order k+1/2
-*         WkDX=dWk/dCHI, WkDT = dWk/dT, WkDXX=d^2 Wk / d CHI^2,
-*         WkDTT=d^2 Wk / d T^2, WkDXT=d^2 Wk /dCHIdT,
-*         W0XXX=d^3 W0 / d CHI^3, W0XTT=d^3 W0 /(d CHI d^2 T),
-*         W0XXT=d^3 W0 /dCHI^2 dT
-* [Draft source: yellow book pages 124-127]
+!                                                       Version 17.11.11
+! Sommerfeld expansion for the Fermi-Dirac integrals
+! Input: TEMR=T/mc^2; CHI=(\mu-mc^2)/T
+! Output: Wk - Fermi-Dirac integral of the order k+1/2
+!         WkDX=dWk/dCHI, WkDT = dWk/dT, WkDXX=d^2 Wk / d CHI^2,
+!         WkDTT=d^2 Wk / d T^2, WkDXT=d^2 Wk /dCHIdT,
+!         W0XXX=d^3 W0 / d CHI^3, W0XTT=d^3 W0 /(d CHI d^2 T),
+!         W0XXT=d^3 W0 /dCHI^2 dT
+! [Draft source: yellow book pages 124-127]
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(PI=3.141592653d0)
@@ -1297,9 +1297,9 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
      *  CJ02,CJ12,CJ22,
      *  CJ03,CJ13,CJ23,
      *  CJ04,CJ14,CJ24,CJ05)
-*                                                       Version 17.11.11
-*                                                     corrected 04.03.21
-* Supplement to SOMMERF
+!                                                       Version 17.11.11
+!                                                     corrected 04.03.21
+! Supplement to SOMMERF
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(EPS=1.d-4) ! inserted 04.03.21
@@ -1335,12 +1335,12 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
       end
 
       subroutine FERMI10(X,XMAX,FP,FM)
-*                                                       Version 20.01.10
-* Fermi distribution function and its 3 derivatives
-* Input: X - argument f(x)
-*        XMAX - max|X| where it is assumed that 0 < f(x) < 1.
-* Output: FP = f(x)
-*         FM = 1-f(x)
+!                                                       Version 20.01.10
+! Fermi distribution function and its 3 derivatives
+! Input: X - argument f(x)
+!        XMAX - max|X| where it is assumed that 0 < f(x) < 1.
+! Output: FP = f(x)
+!         FM = 1-f(x)
       implicit double precision (A-H), double precision (O-Z)
       save
       if (XMAX.lt.3.d0) stop'FERMI10: XMAX'
@@ -1357,21 +1357,21 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
       return
       end
 
-* ==============  ELECTRON EXCHANGE AND CORRELATION   ================ *
+! ==============  ELECTRON EXCHANGE AND CORRELATION   ================ !
       subroutine EXCOR7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC)
-*                                                       Version 09.06.07
-*                             Accuracy-loss cut-off modified on 10.08.16
-* Exchange-correlation contribution for the electron gas
-* Stems from TANAKA1 v.03.03.96. Added derivatives.
-* Input: RS - electron density parameter =electron-sphere radius in a.u.
-*        GAME - electron Coulomb coupling parameter
-* Output: FXC - excess free energy of e-liquid per kT per one electron
-*             according to Tanaka & Ichimaru 85-87 and Ichimaru 93
-*         UXC - internal energy contr.[per 1 electron, kT]
-*         PXC - pressure contribution divided by (n_e kT)
-*         CVXC - heat capacity divided by N_e k
-*         SXC - entropy divided by N_e k
-*         PDTXC,PDRXC = PXC + d PXC / d ln(T,\rho)
+!                                                       Version 09.06.07
+!                             Accuracy-loss cut-off modified on 10.08.16
+! Exchange-correlation contribution for the electron gas
+! Stems from TANAKA1 v.03.03.96. Added derivatives.
+! Input: RS - electron density parameter =electron-sphere radius in a.u.
+!        GAME - electron Coulomb coupling parameter
+! Output: FXC - excess free energy of e-liquid per kT per one electron
+!             according to Tanaka & Ichimaru 85-87 and Ichimaru 93
+!         UXC - internal energy contr.[per 1 electron, kT]
+!         PXC - pressure contribution divided by (n_e kT)
+!         CVXC - heat capacity divided by N_e k
+!         SXC - entropy divided by N_e k
+!         PDTXC,PDRXC = PXC + d PXC / d ln(T,\rho)
       implicit double precision(A-H),double precision(O-Z)
       save
       parameter(EPS=1.d-8) ! 10.08.16
@@ -1550,18 +1550,18 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
       return
       end
 
-* ======================  AUXILIARY SUBROUTINES   ==================== *
+! ======================  AUXILIARY SUBROUTINES   ==================== !
       subroutine FERINV7(F,N,X,XDF,XDFF) ! Inverse Fermi intergals
-*                                                       Version 24.05.07
-* X_q(f)=F^{-1}_q(f) : H.M.Antia 93 ApJS 84, 101
-* q=N-1/2=-1/2,1/2,3/2,5/2 (N=0,1,2,3)
-* Input: F - argument, N=q+1/2
-* Output: X=X_q, XDF=dX/df, XDFF=d^2 X / df^2
-* Relative error: N = 0     1      2      3
-*        for X:    3.e-9, 4.2e-9, 2.3e-9, 6.2e-9
-* jump at f=4:
-*         for XDF: 6.e-7, 5.4e-7, 9.6e-8, 3.1e-7
-*       for XDFF: 4.7e-5, 4.8e-5, 2.3e-6, 1.5e-6
+!                                                       Version 24.05.07
+! X_q(f)=F^{-1}_q(f) : H.M.Antia 93 ApJS 84, 101
+! q=N-1/2=-1/2,1/2,3/2,5/2 (N=0,1,2,3)
+! Input: F - argument, N=q+1/2
+! Output: X=X_q, XDF=dX/df, XDFF=d^2 X / df^2
+! Relative error: N = 0     1      2      3
+!        for X:    3.e-9, 4.2e-9, 2.3e-9, 6.2e-9
+! jump at f=4:
+!         for XDF: 6.e-7, 5.4e-7, 9.6e-8, 3.1e-7
+!       for XDFF: 4.7e-5, 4.8e-5, 2.3e-6, 1.5e-6
       implicit double precision (A-H), double precision (O-Z)
       save
       dimension A(0:5,0:3),B(0:6,0:3),C(0:6,0:3),D(0:6,0:3),
@@ -1661,15 +1661,15 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
      *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
      *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
      *  W0XXX,W0XTT,W0XXT)
-*                                                       Version 21.01.10
-* Stems from BLIN8 v.24.12.08
-* Difference - smooth matching of different CHI ranges
-* Input: TEMP=T/mc^2; CHI=(\mu-mc^2)/T
-* Output: Wk - Fermi-Dirac integral of the order k+1/2
-*         WkDX=dWk/dCHI, WkDT = dWk/dT, WkDXX=d^2 Wk / d CHI^2,
-*         WkDTT=d^2 Wk / d T^2, WkDXT=d^2 Wk /dCHIdT,
-*         W0XXX=d^3 W0 / d CHI^3, W0XTT=d^3 W0 /(d CHI d^2 T),
-*         W0XXT=d^3 W0 /dCHI^2 dT
+!                                                       Version 21.01.10
+! Stems from BLIN8 v.24.12.08
+! Difference - smooth matching of different CHI ranges
+! Input: TEMP=T/mc^2; CHI=(\mu-mc^2)/T
+! Output: Wk - Fermi-Dirac integral of the order k+1/2
+!         WkDX=dWk/dCHI, WkDT = dWk/dT, WkDXX=d^2 Wk / d CHI^2,
+!         WkDTT=d^2 Wk / d T^2, WkDXT=d^2 Wk /dCHIdT,
+!         W0XXX=d^3 W0 / d CHI^3, W0XTT=d^3 W0 /(d CHI d^2 T),
+!         W0XXT=d^3 W0 /dCHI^2 dT
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter (CHI1=0.6d0,CHI2=14.d0,XMAX=30.d0)
@@ -1745,8 +1745,8 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
      *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
      *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
      *  W0XXX,W0XTT,W0XXT)
-*                                                       Version 19.01.10
-* First part of BILN9: small CHI. Stems from BLIN9 v.24.12.08
+!                                                       Version 19.01.10
+! First part of BILN9: small CHI. Stems from BLIN9 v.24.12.08
       implicit double precision (A-H), double precision (O-Z)
       save
       dimension AC(5,0:2),AU(5,0:2),AA(5,0:2)
@@ -1838,9 +1838,9 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
      *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
      *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
      *  W0XXX,W0XTT,W0XXT)
-*                                                       Version 19.01.10
-*                                              Small syntax fix 15.03.13
-* Second part of BILN9: intermediate CHI. Stems from BLIN8 v.24.12.08
+!                                                       Version 19.01.10
+!                                              Small syntax fix 15.03.13
+! Second part of BILN9: intermediate CHI. Stems from BLIN8 v.24.12.08
       implicit double precision (A-H), double precision (O-Z)
       save
       dimension AX(5),AXI(5),AH(5),AV(5)
@@ -1949,8 +1949,8 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
      *  W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT,
      *  W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT,
      *  W0XXX,W0XTT,W0XXT)
-*                                                       Version 19.01.10
-* Third part of BILN9: large CHI. Stems from BLIN8 v.24.12.08
+!                                                       Version 19.01.10
+! Third part of BILN9: large CHI. Stems from BLIN8 v.24.12.08
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter (PI=3.141592653d0,PI26=PI*PI/6.)
@@ -2034,7 +2034,7 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
              W2DXT=WDXT
           endif
         enddo ! next K
-*   ----------------------------------------------------------------   *
+!   ----------------------------------------------------------------   !
       else ! CHI > 14, CHI*TEMP > 0.1: general high-\chi expansion
          D=1.d0+CHI*TEMP/2.d0
          R=dsqrt(CHI*D)
@@ -2159,11 +2159,11 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
       end
 
       subroutine CHEMFIT(DENS,TEMP,CHI)
-*                                                       Version 07.06.07
-* This is merely an interface to CHEMFIT7 for compatibility purposes.
-* Input:  DENS - electron density [a.u.=6.7483346e24 cm^{-3}],
-* TEMP - temperature [a.u.=2Ryd=3.1577e5 K]
-* Output: CHI=\mu/TEMP, where \mu - electron chem.pot.w/o rest-energy
+!                                                       Version 07.06.07
+! This is merely an interface to CHEMFIT7 for compatibility purposes.
+! Input:  DENS - electron density [a.u.=6.7483346e24 cm^{-3}],
+! TEMP - temperature [a.u.=2Ryd=3.1577e5 K]
+! Output: CHI=\mu/TEMP, where \mu - electron chem.pot.w/o rest-energy
       implicit double precision (A-H), double precision (O-Z)
       save
       DENR=DENS/2.5733806d6 ! n_e in rel.un.=\lambda_{Compton}^{-3}
@@ -2174,18 +2174,18 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
 
       subroutine CHEMFIT7(DENR,TEMR,CHI,CMU1,KDERIV,
      *  CMUDENR,CMUDT,CMUDTT)
-*                                                       Version 29.08.15
-* Fit to the chemical potential of free electron gas described in:
-*     G.Chabrier & A.Y.Potekhin, Phys.Rev.E 58, 4941 (1998)
-* Stems from CHEMFIT v.10.10.96. The main difference - derivatives.
-*  All quantities are by default in relativistic units
-* Input:  DENR - electron density, TEMR - temperature
-*         KDERIV=0 if the derivatives are not required
-* Output: CHI=CMU1/TEMR, where CMU1 = \mu-1 - chem.pot.w/o rest-energy
-*         CMUDENR = (d\mu/d n_e)_T
-*         CMUDT = (d\mu/dT)_V
-*         CMUDTT = (d^2\mu/dT^2)_V
-* CMUDENR,CMUDT, and CMUDTT =0 on output, if KREDIV=0
+!                                                       Version 29.08.15
+! Fit to the chemical potential of free electron gas described in:
+!     G.Chabrier & A.Y.Potekhin, Phys.Rev.E 58, 4941 (1998)
+! Stems from CHEMFIT v.10.10.96. The main difference - derivatives.
+!  All quantities are by default in relativistic units
+! Input:  DENR - electron density, TEMR - temperature
+!         KDERIV=0 if the derivatives are not required
+! Output: CHI=CMU1/TEMR, where CMU1 = \mu-1 - chem.pot.w/o rest-energy
+!         CMUDENR = (d\mu/d n_e)_T
+!         CMUDT = (d\mu/dT)_V
+!         CMUDTT = (d^2\mu/dT^2)_V
+! CMUDENR,CMUDT, and CMUDTT =0 on output, if KREDIV=0
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter (C13=1.d0/3.d0,PARA=1.612d0,PARB=6.192d0,PARC=.0944d0,
@@ -2227,13 +2227,13 @@ CCC     +  CN1*PITAU4*(CMU1*CJ05+2.5d0*CJ04)
          CMUDTT=0.
          return
       endif
-* CALCULATE DERIVATIVES:
-* 1: derivatives of CHI over THETA and T
-* (a): Non-relativistic result:
+! CALCULATE DERIVATIVES:
+! 1: derivatives of CHI over THETA and T
+! (a): Non-relativistic result:
       THETA52=THETA32*THETA
       CHIDY=-XDF/THETA52 ! d\chi/d\theta
       CHIDYY=(XDFF/THETA**4-2.5d0*CHIDY)/THETA ! d^2\chi/d\theta^2
-* (b): Relativistic corrections:
+! (b): Relativistic corrections:
       if (THETA.gt.1.d-5) then 
          Q1D=-Q1/(1.d0-T1)
          Q1DD=-Q1D*(1.d0+T1)/(1.d0-T1)
