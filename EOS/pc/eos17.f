@@ -116,6 +116,7 @@
       double precision :: CHI, TPT, TEGRAD, PRADnkT
       double precision :: PnkT, UNkT, SNk, CV, CHIR, CHIT
       integer :: LIQSOL
+      double precision :: dx
       AZion(1) = 6.0d0
       AZion(2) = 8.0d0
       ACMI(1) = 12.0d0
@@ -128,7 +129,6 @@
       Tlg=dlog10(T)
       T6=10.d0**(Tlg-6.d0)
       RHO=10.d0**RHOlg
-      write(*,112)
       TEMP=T6/UN_T6 ! T [au]
       call MELANGE9(AY,AZion,ACMI,RHO,TEMP, ! input
      *   PRADnkT, ! additional output - radiative pressure
@@ -151,13 +151,73 @@
 ! TPT=T_p/T, where T_p is the ion plasma temperature
 ! CHI - electron chemical potential, divided by kT
 ! LIQSOL = 0 in the liquid state, = 1 in the solid state
-      write(*,111) RHO,T6,P,PnkT,CV,CHIT,CHIR,UNkT,SNk,GAMI,TPT,CHI,
-     *  LIQSOL
-  112 format(/
-     *  ' rho [g/cc]     T6 [K]      P [Mbar]   P/(n_i kT)  Cv/(N k)',
-     *  '     chi_T       chi_r      U/(N k T)    S/(N k)    Gamma_i',
-     *  '      T_p/T    chi_e liq/sol')
-  111 format(1P,12E12.3,I2)
+
+      dx = abs(P - 986087830999.01904d0)
+      if (dx / P > 1.d-15) then
+         print *, "P IS WRONG", dx / P
+         return
+      end if
+
+      dx = abs(PnkT - 16.129464056742833d0)
+      if (dx / PnkT > 1.d-15) then
+         print *, "PnkT IS WRONG", dx / PnkT
+         return
+      end if
+
+      dx = abs(CV - 8.5451229292858866d0)
+      if (dx / CV > 1.d-15) then
+         print *, "CV IS WRONG", dx / CV
+         return
+      end if
+
+      dx = abs(CHIT - 0.24165606904443493d0)
+      if (dx / CHIT > 1.d-15) then
+         print *, "CHIT IS WRONG", dx / CHIT
+         return
+      end if
+
+      dx = abs(CHIR - 1.3370085960654023d0)
+      if (dx / CHIR > 1.d-15) then
+         print *, "CHIR IS WRONG", dx / CHIR
+         return
+      end if
+
+      dx = abs(UNkT - 30.712489657322770d0)
+      if (dx / UNkT > 1.d-15) then
+         print *, "UNkT IS WRONG", dx / UNkT
+         return
+      end if
+
+      dx = abs(SNk - 23.797925638433309d0)
+      if (dx / SNk > 1.d-15) then
+         print *, "SNk IS WRONG", dx / SNk
+         return
+      end if
+
+      dx = abs(GAMI - 0.96111630472601972d0)
+      if (dx / GAMI > 1.d-15) then
+         print *, "GAMI IS WRONG", dx / GAMI
+         return
+      end if
+
+      dx = abs(TPT - 1.2400526419152945d-002)
+      if (dx / TPT > 1.d-15) then
+         print *, "TPT IS WRONG", dx / TPT
+         return
+      end if
+
+      dx = abs(CHI - 5.5745494145734744d0)
+      if (dx / CHI > 1.d-15) then
+         print *, "CHI IS WRONG", dx / CHI
+         return
+      end if
+
+      if (LIQSOL /= 0) then
+         print *, "LIQSOL IS WRONG", LIQSOL
+         return
+      end if
+
+      print *, "SUCCESS"
       end program main
       
       subroutine MELANGE9(AY,AZion,ACMI,RHO,TEMP,PRADnkT,
