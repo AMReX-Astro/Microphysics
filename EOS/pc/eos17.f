@@ -263,12 +263,21 @@
 !         CV - heat capacity per ion, div. by Boltzmann const.
 !         CHIR - inverse compressibility -(d ln P / d ln V)_T ("\chi_r")
 !         CHIT = (d ln P / d ln T)_V ("\chi_T")
-      implicit double precision (A-H), double precision (O-Z)
+      !implicit double precision (A-H), double precision (O-Z)
+      implicit none
       save
+      integer, parameter :: NMIX = 2
+
+      double precision, intent(in) :: RHO, TEMP
+      double precision, intent(in) :: AY(NMIX), AZion(NMIX), ACMI(NMIX)
+      double precision, intent(inout) :: DENS, Zmean, Z2mean, GAMImean
+      double precision, intent(inout) :: CHI, TPT
+      integer, intent(inout) :: LIQSOL
+      double precision, intent(inout) :: SNk, UnkT, PnkT, PRADnkT
+      double precision, intent(inout) :: CV, CHIR, CHIT
+
       double precision, parameter :: CWK = 1.d0 ! Turn on Wigner corrections
       double precision, parameter :: TINY = 1.d-7
-      integer, parameter :: NMIX = 2
-      double precision :: AY(NMIX), AZion(NMIX), ACMI(NMIX)
       double precision, parameter :: PI = 3.141592653d0
       double precision, parameter :: C53 = 5.d0/3.d0
       double precision, parameter :: C13 = 1.d0/3.d0
@@ -276,6 +285,18 @@
       double precision, parameter :: GAMIMELT=175. ! OCP value of Gamma_i for melting
       double precision, parameter :: RSIMELT=140. ! ion density parameter of quantum melting
       double precision, parameter :: RAD=2.554d-7 ! Radiation constant (=4\sigma/c) (in a.u.)
+      double precision :: Z52, Z53, Z73, Z321, CMImean, CMI
+      double precision :: Zion, Z13, X, X1, X2
+      double precision :: UWK, UINTRAD, UMIX, UINTE, UINT, UEid, UC2,UC1
+      double precision :: CHIRE, CHITE, CTP, CV1, CV2, CVE, CVMIX, CVtot
+      double precision :: DeltaG, DENSI, DNI, DTE, FC1, FC2, FEid, FMIX
+      double precision :: DlnDH, DlnDT, DlnDHH, DlnDHT, DlnDTT
+      double precision :: FWK, GAME, GAMI
+      integer :: i, ix, j
+      double precision :: PC1, PC2, PDLR, PDLT, PDR1, PDR2, PDRMIX
+      double precision :: PDT1, PDT2, PDTMIX, PEid, PMIX, PRESS, PRESSE
+      double precision :: PRESSI, PRESSRAD, PRI, RS, RSI, RZ, SC1, SC2
+      double precision :: SEid, Stot, TPT2
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) stop'MELANGE: RHO out of range'
       ! Calculation of average values:
       Zmean=0.
