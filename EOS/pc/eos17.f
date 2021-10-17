@@ -109,7 +109,8 @@
       program main
       implicit none
       double precision, parameter :: UN_T6 = .3157746
-      double precision :: AY(2), AZion(2), ACMI(2)
+      integer, parameter :: NMIX = 2
+      double precision :: AY(NMIX), AZion(NMIX), ACMI(NMIX)
       double precision :: RHO, RHOlg, T, Tlg, T6, Tnk, TEMP, DENS
       double precision :: Zmean, CMImean, Z2mean, GAMI, P
       double precision :: CHI, TPT, TEGRAD, PRADnkT
@@ -129,7 +130,7 @@
       RHO=10.d0**RHOlg
       write(*,112)
       TEMP=T6/UN_T6 ! T [au]
-      call MELANGE9(2,AY,AZion,ACMI,RHO,TEMP, ! input
+      call MELANGE9(AY,AZion,ACMI,RHO,TEMP, ! input
      *   PRADnkT, ! additional output - radiative pressure
      *   DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, ! output param.
      *   PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
@@ -159,7 +160,7 @@
   111 format(1P,12E12.3,I2)
       end program main
       
-      subroutine MELANGE9(NMIX,AY,AZion,ACMI,RHO,TEMP,PRADnkT,
+      subroutine MELANGE9(AY,AZion,ACMI,RHO,TEMP,PRADnkT,
      *   DENS,Zmean,CMImean,Z2mean,GAMImean,CHI,TPT,LIQSOL,
      *   PnkT,UNkT,SNk,CV,CHIR,CHIT)
 !                                                       Version 18.04.20
@@ -178,8 +179,7 @@
 !     choice based on comparison of total (non-OCP) free energies can be
 !     sometimes dangerous because of the fit uncertainties ("Local field
 !     correction" in solid and quantum effects in liquid are unknown)].
-! Input: NMIX - number of different elements;
-!        AY - their partial number densities,
+! Input: AY - their partial number densities,
 !        AZion and ACMI - their charge and mass numbers,
 !        RHO - total mass density [g/cc]
 !        TEMP - temperature [in a.u.=2Ryd=3.1577e5 K].
@@ -204,15 +204,17 @@
 !         CHIR - inverse compressibility -(d ln P / d ln V)_T ("\chi_r")
 !         CHIT = (d ln P / d ln T)_V ("\chi_T")
       implicit double precision (A-H), double precision (O-Z)
-      character CHWK
       save
-      parameter(TINY=1.d-7)
-      dimension AY(*),AZion(*),ACMI(*)
-      parameter (PI=3.141592653d0,C53=5.d0/3.d0,C13=1.d0/3.d0,
-     *   AUM=1822.888d0, ! a.m.u./m_e
-     *   GAMIMELT=175., ! OCP value of Gamma_i for melting
-     *   RSIMELT=140., ! ion density parameter of quantum melting
-     *   RAD=2.554d-7) ! Radiation constant (=4\sigma/c) (in a.u.)
+      double precision, parameter :: TINY = 1.d-7
+      integer, parameter :: NMIX = 2
+      double precision :: AY(NMIX), AZion(NMIX), ACMI(NMIX)
+      double precision, parameter :: PI = 3.141592653d0
+      double precision, parameter :: C53 = 5.d0/3.d0
+      double precision, parameter :: C13 = 1.d0/3.d0
+      double precision, parameter :: AUM=1822.888d0      ! a.m.u./m_e
+      double precision, parameter :: GAMIMELT=175. ! OCP value of Gamma_i for melting
+      double precision, parameter :: RSIMELT=140. ! ion density parameter of quantum melting
+      double precision, parameter :: RAD=2.554d-7 ! Radiation constant (=4\sigma/c) (in a.u.)
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) stop'MELANGE: RHO out of range'
       CWK=1.d0
       Y=0.
