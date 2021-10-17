@@ -241,15 +241,8 @@
      *   GAMIMELT=175., ! OCP value of Gamma_i for melting
      *   RSIMELT=140., ! ion density parameter of quantum melting
      *   RAD=2.554d-7) ! Radiation constant (=4\sigma/c) (in a.u.)
-      data KRUN/0/
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) stop'MELANGE: RHO out of range'
-      if (KRUN.ne.12345) then
-         write(*,'('' To include Wigner corrections? (N/Y) ''$)')
-         read(*,'(A)') CHWK
-         CWK=0.
-        if (CHWK.eq.'y'.or.CHWK.eq.'Y') CWK=1.d0
-         KRUN=12345
-      endif
+      CWK=1.d0
       Y=0.
       do IX=1,NMIX
          Y=Y+AY(IX)
