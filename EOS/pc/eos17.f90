@@ -356,7 +356,7 @@
       CTP=4.d0*PI/AUM/TEMP**2 ! common coefficient for TPT2.10.12.14
       ! Add Coulomb+xc nonideal contributions, and ideal free energy:
       do IX=1,NMIX
-        if (AY(IX).lt.TINY) goto 10 ! skip this species
+        if (AY(IX).ge.TINY) then
          Zion=AZion(IX)
          CMI=ACMI(IX)
          GAMI=Zion**C53*GAME ! Gamma_i for given ion species
@@ -374,7 +374,7 @@
          PDLT=PDLT+PRI*PDT2 ! d P / d ln T
          PDLR=PDLR+PRI*PDR2 ! d P / d ln\rho
          TPT2=TPT2+CTP*DNI/ACMI(IX)*AZion(IX)**2 ! opt.10.12.14
-   10   continue
+       end if
       enddo ! next IX
       ! Wigner-Kirkwood perturbative correction for liquid:
       TPT=dsqrt(TPT2) ! effective T_p/T - ion quantum parameter
@@ -404,14 +404,17 @@
              RZ=AZion(J)/AZion(I)
              X2=AY(J)/(AY(I)+AY(J))
              X1=dim(1.d0,X2)
-            if (X1.lt.TINY) goto 11 ! 27.01.19
-            if (X2.lt.TINY) goto 11
+             if (X1.lt.TINY) then
+                cycle ! 27.01.19
+             end if
+             if (X2.lt.TINY) then
+                cycle
+             end if
              X=X2/RZ+(1.d0-1.d0/RZ)*X2**RZ
              GAMI=AZion(I)**C53*GAME ! Gamma_i corrected 14.05.13
              DeltaG=.012*(1.d0-1.d0/RZ**2)*(X1+X2*RZ**C53)
              DeltaG=DeltaG*X/X2*dim(1.d0,X)/X1
              FMIX=FMIX+AY(I)*AY(J)*GAMI*DeltaG
-   11       continue
           enddo
         enddo
          UMIX=FMIX
@@ -1008,7 +1011,8 @@
          U=3./(C11*eta**3)
          F=-U/3.
          CV=4.*U
-        goto 50
+         S=U-F
+         return
       elseif (eta.lt.EPS) then ! Eq.(17) of BPY'01
         if (eta.lt.TINY) then
            print *, 'HLfit: eta is too small'
@@ -1017,7 +1021,8 @@
          F=3.*dlog(eta)+CLM-1.5*U1*eta+eta**2/24. 
          U=3.-1.5*U1*eta+eta**2/12.
          CV=3.-eta**2/12.
-         goto 50
+         S=U-F
+         return
       endif
       eta2=eta**2
       eta3=eta2*eta
@@ -1058,7 +1063,6 @@
        UP3/DN-(3.*UP2*DN1+3.*UP1*DN2+UP*DN3)/DN**2+ &
        6.*DN1*(UP1*DN1+UP*DN2)/DN**3-6.*UP*DN1**3/DN**4 ! -d3f/d\eta^3
       CW=-2.*CV-eta3*DF3
-   50 continue
       S=U-F
       return
       end
