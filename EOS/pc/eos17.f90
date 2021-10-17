@@ -1640,127 +1640,6 @@
       return
       end
 
-! ======================  AUXILIARY SUBROUTINES   ==================== !
-      subroutine FERINV7(F,N,X,XDF,XDFF) ! Inverse Fermi intergals
-!                                                       Version 24.05.07
-! X_q(f)=F^{-1}_q(f) : H.M.Antia 93 ApJS 84, 101
-! q=N-1/2=-1/2,1/2,3/2,5/2 (N=0,1,2,3)
-! Input: F - argument, N=q+1/2
-! Output: X=X_q, XDF=dX/df, XDFF=d^2 X / df^2
-! Relative error: N = 0     1      2      3
-!        for X:    3.e-9, 4.2e-9, 2.3e-9, 6.2e-9
-! jump at f=4:
-!         for XDF: 6.e-7, 5.4e-7, 9.6e-8, 3.1e-7
-!       for XDFF: 4.7e-5, 4.8e-5, 2.3e-6, 1.5e-6
-        !implicit double precision (A-H), double precision (O-Z)
-        implicit none
-        double precision, intent(in) :: F
-        integer, intent(in) :: N
-        double precision, intent(inout) :: X, XDF, XDFF
-        save
-        double precision :: UP, UP1, UP2, T, T1, T2, R, R1, R2
-        double precision :: P, RT, DOWN, DOWN1, DOWN2
-        integer :: i
-      double precision :: A(0:5,0:3)
-      double precision :: B(0:6,0:3)
-      double precision :: C(0:6,0:3)
-      double precision :: D(0:6,0:3)
-      integer :: LA(0:3), LB(0:3), LD(0:3)
-      data A/-1.570044577033d4,1.001958278442d4,-2.805343454951d3, &
-        4.121170498099d2,-3.174780572961d1,1.d0, & ! X_{-1/2}
-        1.999266880833d4,5.702479099336d3,6.610132843877d2, &
-        3.818838129486d1,1.d0,0., & ! X_{1/2}
-        1.715627994191d2,1.125926232897d2,2.056296753055d1,1.d0,0.,0., &
-        2.138969250409d2,3.539903493971d1,1.d0,0.,0.,0./, & ! X_{5/2}
-      B/-2.782831558471d4,2.886114034012d4,-1.274243093149d4, &
-                 3.063252215963d3,-4.225615045074d2,3.168918168284d1, &
-                 -1.008561571363d0, & ! X_{-1/2}
-         1.771804140488d4,-2.014785161019d3,9.130355392717d1, &
-                -1.670718177489d0,0.,0.,0., & ! X_{1/2}
-         2.280653583157d2,1.193456203021d2,1.16774311354d1, &
-                 -3.226808804038d-1,3.519268762788d-3,0.,0., & ! X_{3/2}
-         7.10854551271d2,9.873746988121d1,1.067755522895d0, &
-                 -1.182798726503d-2,0.,0.,0./, & ! X_{5/2}
-       C/2.206779160034d-8,-1.437701234283d-6,6.103116850636d-5, &
-         -1.169411057416d-3,1.814141021608d-2,-9.588603457639d-2,1.d0, &
-       -1.277060388085d-2,7.187946804945d-2,-4.262314235106d-1, &
-          4.997559426872d-1,-1.285579118012d0,-3.930805454272d-1,1.d0, &
-       -6.321828169799d-3,-2.183147266896d-2,-1.05756279932d-1, &
-           -4.657944387545d-1,-5.951932864088d-1,3.6844711771d-1,1.d0, &
-       -3.312041011227d-2,1.315763372315d-1,-4.820942898296d-1, &
-           5.099038074944d-1,5.49561349863d-1,-1.498867562255d0,1.d0/, &
-       D/8.827116613576d-8,-5.750804196059d-6,2.429627688357d-4, &
-            -4.601959491394d-3,6.932122275919d-2,-3.217372489776d-1,&
-            3.124344749296d0, & ! X_{-1/2}
-         -9.745794806288d-3,5.485432756838d-2,-3.29946624326d-1, &
-            4.077841975923d-1,-1.145531476975d0,-6.067091689181d-2,0., &
-         -4.381942605018d-3,-1.5132365041d-2,-7.850001283886d-2, &
-          -3.407561772612d-1,-5.074812565486d-1,-1.387107009074d-1,0., &
-         -2.315515517515d-2,9.198776585252d-2,-3.835879295548d-1, &
-            5.415026856351d-1,-3.847241692193d-1,3.739781456585d-2, &
-            -3.008504449098d-2/, & ! X_{5/2}
-       LA/5,4,3,2/,LB/6,3,4,3/,LD/6,5,5,6/
-      if (N.lt.0.or.N.gt.3) then
-         print *, 'FERINV7: Invalid subscript'
-         stop
-      end if
-      if (F.le.0.) then
-         print *, 'FERINV7: Non-positive argument'
-         stop
-      end if
-      if (F.lt.4.) then
-         T=F
-         UP=0.
-         UP1=0.
-         UP2=0.
-         DOWN=0.
-         DOWN1=0.
-         DOWN2=0.
-         do I=LA(N),0,-1
-            UP=UP*T+A(I,N)
-           if (I.ge.1) UP1=UP1*T+A(I,N)*I
-           if (I.ge.2) UP2=UP2*T+A(I,N)*I*(I-1)
-         enddo
-         do I=LB(N),0,-1
-            DOWN=DOWN*T+B(I,N)
-           if (I.ge.1) DOWN1=DOWN1*T+B(I,N)*I
-           if (I.ge.2) DOWN2=DOWN2*T+B(I,N)*I*(I-1)
-         enddo
-         X=dlog(T*UP/DOWN)
-         XDF=1.d0/T+UP1/UP-DOWN1/DOWN
-         XDFF=-1.d0/T**2+UP2/UP-(UP1/UP)**2-DOWN2/DOWN+(DOWN1/DOWN)**2
-      else
-         P=-1./(.5+N) ! = -1/(1+\nu) = power index
-         T=F**P ! t - argument of the rational fraction
-         T1=P*T/F ! dt/df
-         T2=P*(P-1.)*T/F**2 ! d^2 t / df^2
-         UP=0.
-         UP1=0.
-         UP2=0.
-         DOWN=0.
-         DOWN1=0.
-         DOWN2=0.
-         do I=6,0,-1
-            UP=UP*T+C(I,N)
-           if (I.ge.1) UP1=UP1*T+C(I,N)*I
-           if (I.ge.2) UP2=UP2*T+C(I,N)*I*(I-1)
-         enddo
-         do I=LD(N),0,-1
-            DOWN=DOWN*T+D(I,N)
-           if (I.ge.1) DOWN1=DOWN1*T+D(I,N)*I
-           if (I.ge.2) DOWN2=DOWN2*T+D(I,N)*I*(I-1)
-         enddo
-         R=UP/DOWN
-         R1=(UP1-UP*DOWN1/DOWN)/DOWN ! dR/dt
-         R2=(UP2-(2.*UP1*DOWN1+UP*DOWN2)/DOWN+2.*UP*(DOWN1/DOWN)**2)/ &
-          DOWN
-         X=R/T
-         RT=(R1-R/T)/T
-         XDF=T1*RT
-         XDFF=T2*RT+T1**2*(R2-2.*RT)/T
-      endif
-      return
-      end
 
       subroutine BLIN9(TEMP,CHI, &
        W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
@@ -2295,7 +2174,18 @@
 !         CMUDT = (d\mu/dT)_V
 !         CMUDTT = (d^2\mu/dT^2)_V
 ! CMUDENR,CMUDT, and CMUDTT =0 on output, if KREDIV=0
+        use iso_c_binding
         implicit none
+
+        interface
+           subroutine ferinv7(F, N, X, XDF, XDFF) bind(C, name='ferinv7')
+             implicit none
+             double precision, intent(in), value :: F
+             integer, intent(in), value :: N
+             double precision, intent(inout) :: X, XDF, XDFF
+           end subroutine ferinv7
+        end interface
+
         double precision, intent(in) :: DENR, TEMR
         integer, intent(in) :: KDERIV
         double precision, intent(inout) :: CHI, CMU1, CMUDENR, CMUDT, CMUDTT
@@ -2343,7 +2233,7 @@
       H=(1.d0+.5d0*TEMR/THETA)*(1.d0+Q2*TEMR)
       CT=1.d0+G/H
       F=2.d0*C13/THETA32
-      call FERINV7(F,1,X,XDF,XDFF)
+      call ferinv7(F, 1, X, XDF, XDFF)
       CHI=X & ! non-relativistic result
        -    1.5d0*dlog(CT) ! Relativistic fit
       CMU1=TEMR*CHI ! Fit to chemical potential w/o mc^2
