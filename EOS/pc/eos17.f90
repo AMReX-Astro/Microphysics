@@ -1750,6 +1750,21 @@
       parameter (CHI1=0.6d0,CHI2=14.d0,XMAX=30.d0)
       parameter (DCHI1=.1d0,DCHI2=CHI2-CHI1-DCHI1)
       parameter (XSCAL1=XMAX/DCHI1,XSCAL2=XMAX/DCHI2)
+      interface
+         subroutine blin9a(TEMP,CHI, &
+          W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+          W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+          W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+          W0XXX,W0XTT,W0XXT) bind(C, name="blin9a")
+           implicit none
+           double precision, intent(in), value :: TEMP, CHI
+           double precision :: W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+                W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+                W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+                W0XXX,W0XTT,W0XXT
+         end subroutine blin9a
+      end interface
+
       X1=(CHI-CHI1)*XSCAL1
       X2=(CHI-CHI2)*XSCAL2
       if (X1.lt.-XMAX) then
@@ -1812,99 +1827,6 @@
           W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
           W0XXX,W0XTT,W0XXT)
       endif
-      return
-      end
-
-      subroutine BLIN9a(TEMP,CHI, &
-       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-       W0XXX,W0XTT,W0XXT)
-!                                                       Version 19.01.10
-! First part of BILN9: small CHI. Stems from BLIN9 v.24.12.08
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      dimension AC(5,0:2),AU(5,0:2),AA(5,0:2)
-      data AC/.37045057d0, .41258437d0, &
-             9.777982d-2, 5.3734153d-3, 3.8746281d-5, & ! c_i^0
-             .39603109d0, .69468795d0, &
-             .22322760d0, 1.5262934d-2, 1.3081939d-4, & ! c_i^1
-             .76934619d0, 1.7891437d0, &
-             .70754974d0, 5.6755672d-2, 5.5571480d-4/ ! c_i^2
-      data AU/.43139881d0, 1.7597537d0, &
-             4.1044654d0, 7.7467038d0, 13.457678d0, & ! \chi_i^0
-             .81763176d0, 2.4723339d0, &
-             5.1160061d0, 9.0441465d0, 15.049882d0, & ! \chi_i^1
-             1.2558461d0, 3.2070406d0, &
-             6.1239082d0, 10.316126d0, 16.597079d0/ ! \chi_i^2
-      data KRUN/0/
-      KRUN=KRUN+1
-      if (KRUN.eq.1) then ! initialize
-        do J=0,2
-        do I=1,5
-           AA(I,J)=dexp(-AU(I,J))
-        enddo
-        enddo
-      endif
-        do K=0,2
-           W=0.
-           WDX=0.
-           WDT=0.
-           WDXX=0.
-           WDTT=0.
-           WDXT=0.
-           WDXXX=0.
-           WDXTT=0.
-           WDXXT=0.
-           ECHI=dexp(-CHI)
-          do I=1,5
-             SQ=dsqrt(1.d0+AU(I,K)*TEMP/2.)
-             DN=AA(I,K)+ECHI ! e^{-\chi_i}+e^{-\chi})
-             W=W+AC(I,K)*SQ/DN
-             WDX=WDX+AC(I,K)*SQ/DN**2
-             WDT=WDT+AC(I,K)*AU(I,K)/(SQ*DN)
-             WDXX=WDXX+AC(I,K)*SQ*(ECHI-AA(I,K))/DN**3
-             WDTT=WDTT-AC(I,K)*AU(I,K)**2/(DN*SQ**3)
-             WDXT=WDXT+AC(I,K)*AU(I,K)/(SQ*DN**2)
-             WDXXX=WDXXX+AC(I,K)*SQ* &
-              (ECHI**2-4.*ECHI*AA(I,K)+AA(I,K)**2)/DN**4
-             WDXTT=WDXTT-AC(I,K)*AU(I,K)**2/(DN**2*SQ**3)
-             WDXXT=WDXXT+AC(I,K)*AU(I,K)*(ECHI-AA(I,K))/(SQ*DN**3)
-          enddo
-           WDX=WDX*ECHI
-           WDT=WDT/4.
-           WDXX=WDXX*ECHI
-           WDTT=WDTT/16.
-           WDXT=WDXT/4.*ECHI
-           WDXXX=WDXXX*ECHI
-           WDXTT=WDXTT*ECHI/16.
-           WDXXT=WDXXT/4.*ECHI
-          if (K.eq.0) then
-             W0=W
-             W0DX=WDX
-             W0DT=WDT
-             W0DXX=WDXX
-             W0DTT=WDTT
-             W0DXT=WDXT
-             W0XXX=WDXXX
-             W0XTT=WDXTT
-             W0XXT=WDXXT
-          elseif (K.eq.1) then
-             W1=W
-             W1DX=WDX
-             W1DT=WDT
-             W1DXX=WDXX
-             W1DTT=WDTT
-             W1DXT=WDXT
-          else
-             W2=W
-             W2DX=WDX
-             W2DT=WDT
-             W2DXX=WDXX
-             W2DTT=WDTT
-             W2DXT=WDXT
-          endif
-        enddo ! next K
       return
       end
 
