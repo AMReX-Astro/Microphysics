@@ -5,3 +5,5 @@ test: eos17.f90 eos_c.cpp
 run:
 	./test
 
+clean:
+	rm -f *.o ./test
