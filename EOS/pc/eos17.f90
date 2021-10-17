@@ -1652,10 +1652,20 @@
 ! jump at f=4:
 !         for XDF: 6.e-7, 5.4e-7, 9.6e-8, 3.1e-7
 !       for XDFF: 4.7e-5, 4.8e-5, 2.3e-6, 1.5e-6
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      dimension A(0:5,0:3),B(0:6,0:3),C(0:6,0:3),D(0:6,0:3), &
-       LA(0:3),LB(0:3),LD(0:3)
+        !implicit double precision (A-H), double precision (O-Z)
+        implicit none
+        double precision, intent(in) :: F
+        integer, intent(in) :: N
+        double precision, intent(inout) :: X, XDF, XDFF
+        save
+        double precision :: UP, UP1, UP2, T, T1, T2, R, R1, R2
+        double precision :: P, RT, DOWN, DOWN1, DOWN2
+        integer :: i
+      double precision :: A(0:5,0:3)
+      double precision :: B(0:6,0:3)
+      double precision :: C(0:6,0:3)
+      double precision :: D(0:6,0:3)
+      integer :: LA(0:3), LB(0:3), LD(0:3)
       data A/-1.570044577033d4,1.001958278442d4,-2.805343454951d3, &
         4.121170498099d2,-3.174780572961d1,1.d0, & ! X_{-1/2}
         1.999266880833d4,5.702479099336d3,6.610132843877d2, &
