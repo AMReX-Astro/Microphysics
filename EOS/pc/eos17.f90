@@ -2166,10 +2166,9 @@
         implicit none
 
         interface
-           subroutine ferinv7(F, N, X, XDF, XDFF) bind(C, name='ferinv7')
+           subroutine ferinv7(F, X, XDF, XDFF) bind(C, name='ferinv7')
              implicit none
              double precision, intent(in), value :: F
-             integer, intent(in), value :: N
              double precision, intent(inout) :: X, XDF, XDFF
            end subroutine ferinv7
         end interface
@@ -2221,7 +2220,7 @@
       H=(1.d0+.5d0*TEMR/THETA)*(1.d0+Q2*TEMR)
       CT=1.d0+G/H
       F=2.d0*C13/THETA32
-      call ferinv7(F, 1, X, XDF, XDFF)
+      call ferinv7(F, X, XDF, XDFF)
       CHI=X & ! non-relativistic result
        -    1.5d0*dlog(CT) ! Relativistic fit
       CMU1=TEMR*CHI ! Fit to chemical potential w/o mc^2
