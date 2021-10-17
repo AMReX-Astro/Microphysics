@@ -2285,11 +2285,28 @@
 !         CMUDT = (d\mu/dT)_V
 !         CMUDTT = (d^2\mu/dT^2)_V
 ! CMUDENR,CMUDT, and CMUDTT =0 on output, if KREDIV=0
-      implicit double precision (A-H), double precision (O-Z)
+        implicit none
+        double precision, intent(in) :: DENR, TEMR
+        integer, intent(in) :: KDERIV
+        double precision, intent(inout) :: CHI, CMU1, CMUDENR, CMUDT, CMUDTT
       save
-      parameter (C13=1.d0/3.d0,PARA=1.612d0,PARB=6.192d0,PARC=.0944d0, &
-       PARF=5.535d0,PARG=.698d0)
-      parameter(XEPST=228.d0) ! the largest argument of e^{-X}
+      double precision, parameter :: C13 = 1.d0 / 3.d0
+      double precision, parameter :: PARA = 1.612d0
+      double precision, parameter :: PARB = 6.192d0
+      double precision, parameter :: PARC = .0944d0
+      double precision, parameter :: PARF=5.535d0
+      double precision, parameter :: PARG=.698d0
+      double precision, parameter :: XEPST = 228.d0 ! the largest argument of e^{-X}
+
+      double precision :: PF0, TF, THETA, THETA32, Q2, T1
+      double precision :: U3, THETAC, THETAG, D3, Q3, Q1
+      double precision :: SQT, G, U3D, Q1D, Q3D, THETA52
+      double precision :: Q3DD, Q2DD, Q1DD, Q2D, HDYY, HDYT
+      double precision :: HDY, HDT, HDTT, GH, H, GDYY, GDY, GDT
+      double precision :: GDYT, GDTT, F, D3DD, D3D, CTT, CTY
+      double precision :: CDTYY, CTDYY, CTDYT, CTDY, CTDTT, CTDT
+      double precision :: CT, CHIDYY, CHIDYT, CHIDY, CHIDT, CHIDTT
+      double precision :: X, XDF, XDFF
       PF0=(29.6088132d0*DENR)**C13 ! Classical Fermi momentum
       if (PF0.gt.1.d-4) then
          TF=dsqrt(1.d0+PF0**2)-1.d0 ! Fermi temperature
