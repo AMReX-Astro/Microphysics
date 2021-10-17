@@ -83,7 +83,7 @@ extern "C"
              printf("FERINV7: Non-positive argument\n");
              exit(1);
          }
-         if (F < 4) {
+         if (F < 4.0) {
              double T = F;
              double UP = 0.0;
              double UP1 = 0.0;
