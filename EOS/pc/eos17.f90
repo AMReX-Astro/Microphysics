@@ -116,95 +116,137 @@
       double precision :: CHI, TPT, TEGRAD, PRADnkT
       double precision :: PnkT, UNkT, SNk, CV, CHIR, CHIT
       integer :: LIQSOL
-      double precision :: dx
+      double precision :: x, T_arr(2)
+      integer :: i
       AZion(1) = 6.0d0
       AZion(2) = 8.0d0
       ACMI(1) = 12.0d0
       ACMI(2) = 16.0d0
       AY(1) = 0.6d0
       AY(2) = 0.4d0
-      T = 1.d9
-      RHO = 1.d7
-      RHOlg=dlog10(RHO)
-      Tlg=dlog10(T)
-      T6=10.d0**(Tlg-6.d0)
-      RHO=10.d0**RHOlg
-      TEMP=T6/UN_T6 ! T [au]
-      call MELANGE9(AY,AZion,ACMI,RHO,TEMP, & ! input
-        PRADnkT, & ! additional output - radiative pressure
-        DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, & ! output param.
-        PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
-      Tnk=8.31447d13/CMImean*RHO*T6 ! n_i kT [erg/cc]
-      P=PnkT*Tnk/1.d12 ! P [Mbar]
-      TEGRAD=CHIT/(CHIT**2+CHIR*CV/PnkT) ! from Maxwell relat.
-!   --------------------   OUTPUT   --------------------------------   *
-! Here in the output we have:
-! RHO - mass density in g/cc
-! P - total pressure in Mbar (i.e. in 1.e12 dyn/cm^2)
-! PnkT=P/nkT, where n is the number density of ions, T temperature
-! CV - heat capacity at constant volume, divided by number of ions, /k
-! CHIT - logarithmic derivative of pressure \chi_T
-! CHIR - logarithmic derivative of pressure \chi_\rho
-! UNkT - internal energy divided by NkT, N being the number of ions
-! SNk - entropy divided by number of ions, /k
-! GAMI - ionic Coulomb coupling parameter
-! TPT=T_p/T, where T_p is the ion plasma temperature
-! CHI - electron chemical potential, divided by kT
-! LIQSOL = 0 in the liquid state, = 1 in the solid state
+      T_arr(1) = 1.d9
+      T_arr(2) = 5.d9
 
-      dx = abs(P - 986087830999.01904d0)
-      if (dx / P > 1.d-15) then
-         print *, "P DIFF", dx / P
-      end if
+      do i = 1, 2
+         print *, "iter ", i
+         T = T_arr(i)
+         RHO = 1.d7
+         RHOlg=dlog10(RHO)
+         Tlg=dlog10(T)
+         T6=10.d0**(Tlg-6.d0)
+         RHO=10.d0**RHOlg
+         TEMP=T6/UN_T6 ! T [au]
+         call MELANGE9(AY,AZion,ACMI,RHO,TEMP, & ! input
+              PRADnkT, & ! additional output - radiative pressure
+              DENS,Zmean,CMImean,Z2mean,GAMI,CHI,TPT,LIQSOL, & ! output param.
+              PnkT,UNkT,SNk,CV,CHIR,CHIT) ! output dimensionless TD functions
+         Tnk=8.31447d13/CMImean*RHO*T6 ! n_i kT [erg/cc]
+         P=PnkT*Tnk/1.d12 ! P [Mbar]
+         TEGRAD=CHIT/(CHIT**2+CHIR*CV/PnkT) ! from Maxwell relat.
+         !   --------------------   OUTPUT   --------------------------------   *
+         ! Here in the output we have:
+         ! RHO - mass density in g/cc
+         ! P - total pressure in Mbar (i.e. in 1.e12 dyn/cm^2)
+         ! PnkT=P/nkT, where n is the number density of ions, T temperature
+         ! CV - heat capacity at constant volume, divided by number of ions, /k
+         ! CHIT - logarithmic derivative of pressure \chi_T
+         ! CHIR - logarithmic derivative of pressure \chi_\rho
+         ! UNkT - internal energy divided by NkT, N being the number of ions
+         ! SNk - entropy divided by number of ions, /k
+         ! GAMI - ionic Coulomb coupling parameter
+         ! TPT=T_p/T, where T_p is the ion plasma temperature
+         ! CHI - electron chemical potential, divided by kT
+         ! LIQSOL = 0 in the liquid state, = 1 in the solid state
 
-      dx = abs(PnkT - 16.129464056742833d0)
-      if (dx / PnkT > 1.d-15) then
-         print *, "PnkT DIFF", dx / PnkT
-      end if
+         if (i == 1) then
+            x = 986087830999.01904d0
+         else if (i == 2) then
+            x = 2495983700684.0181d0
+         end if
 
-      dx = abs(CV - 8.5451229292858866d0)
-      if (dx / CV > 1.d-15) then
-         print *, "CV DIFF", dx / CV
-      end if
+         print *, "P DIFF", abs(x - P) / P
 
-      dx = abs(CHIT - 0.24165606904443493d0)
-      if (dx / CHIT > 1.d-15) then
-         print *, "CHIT DIFF", dx / CHIT
-      end if
+         if (i == 1) then
+            x = 16.129464056742833d0
+         else if (i == 2) then
+            x = 8.1653739394820484d0
+         end if
 
-      dx = abs(CHIR - 1.3370085960654023d0)
-      if (dx / CHIR > 1.d-15) then
-         print *, "CHIR DIFF", dx / CHIR
-      end if
+         print *, "PnkT DIFF", abs(x - PnkT) / PnkT
 
-      dx = abs(UNkT - 30.712489657322770d0)
-      if (dx / UNkT > 1.d-15) then
-         print *, "UNkT DIFF", dx / UNkT
-      end if
+         if (i == 1) then
+            x = 8.5451229292858866d0
+         else if (i == 2) then
+            x = 18.539323243568369d0
+         end if
 
-      dx = abs(SNk - 23.797925638433309d0)
-      if (dx / SNk > 1.d-15) then
-         print *, "SNk DIFF", dx / SNk
-      end if
+         print *, "CV DIFF", abs(x - CV) / CV
 
-      dx = abs(GAMI - 0.96111630472601972d0)
-      if (dx / GAMI > 1.d-15) then
-         print *, "GAMI DIFF", dx / GAMI
-      end if
+         if (i == 1) then
+            x = 0.24165606904443493d0
+         else if (i == 2) then
+            x = 0.88747950206022497d0
+         end if
 
-      dx = abs(TPT - 1.2400526419152945d-002)
-      if (dx / TPT > 1.d-15) then
-         print *, "TPT DIFF", dx / TPT
-      end if
+         print *, "CHIT DIFF", abs(x - CHIT) / CHIT
 
-      dx = abs(CHI - 5.5745494145734744d0)
-      if (dx / CHI > 1.d-15) then
-         print *, "CHI DIFF", dx / CHI
-      end if
+         if (i == 1) then
+            x = 1.3370085960654023d0
+         else if (i == 2) then
+            x = 1.0433031714423413d0
+         end if
 
-      if (LIQSOL /= 0) then
-         print *, "LIQSOL DIFF", LIQSOL
-      end if
+         print *, "CHIR DIFF", abs(x - CHIR) / CHIR
+
+         if (i == 1) then
+            x = 30.712489657322770d0
+         else if (i == 2) then
+            x = 18.110542903803580d0
+         end if
+
+         print *, "UNkT DIFF", abs(x - UNkT) / UNkT
+
+         if (i == 1) then
+            x = 23.797925638433309d0
+         else if (i == 2) then
+            x = 45.817442265862802d0
+         end if
+
+         print *, "SNk DIFF", abs(x - SNk) / SNk
+
+         if (i == 1) then
+            x = 0.96111630472601972d0
+         else if (i == 2) then
+            x = 0.19172836887561015d0
+         end if
+
+         print *, "GAMI DIFF", abs(x - GAMI) / GAMI
+
+         if (i == 1) then
+            x = 1.2400526419152945d-2
+         else if (i == 2) then
+            x = 2.4705336474828152d-3
+         end if
+
+         print *, "TPT DIFF", abs(x - TPT) / TPT
+
+         if (i == 1) then
+            x = 5.5745494145734744d0
+         else if (i == 2) then
+            x = -0.43436266588208006d0
+         end if
+
+         print *, "CHI DIFF", abs(x - CHI) / CHI
+
+         if (i == 1) then
+            x = 0
+         else if (i == 2) then
+            x = 0
+         end if
+
+         print *, "LIQSOL DIFF", abs(x - LIQSOL)
+
+      end do
 
       end program main
       
