@@ -116,7 +116,7 @@
       double precision :: CHI, TPT, TEGRAD, PRADnkT
       double precision :: PnkT, UNkT, SNk, CV, CHIR, CHIT
       integer :: LIQSOL
-      double precision :: x, T_arr(3), rho_arr(2)
+      double precision :: x, diff, max_diff, T_arr(3), rho_arr(2)
       integer :: i, j
       AZion(1) = 6.0d0
       AZion(2) = 8.0d0
@@ -129,6 +129,8 @@
       T_arr(3) = 1.d6
       rho_arr(1) = 1.d7
       rho_arr(2) = 5.d9
+
+      max_diff = 0.0d0
 
       do j = 1, 1
          do i = 1, 3
@@ -170,17 +172,21 @@
                x = 826241619577.72607d0
             end if
 
-            print *, "P DIFF", abs(x - P) / P
+            diff = abs(x - P) / P
+            max_diff = max(diff, max_diff)
+            print *, "P DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 16.129464056742833d0
             else if (i == 2 .and. j == 1) then
                x = 8.1653739394820484d0
-            else if (i == 3 .and. j == 2) then
+            else if (i == 3 .and. j == 1) then
                x = 13514.855458323951d0
             end if
 
-            print *, "PnkT DIFF", abs(x - PnkT) / PnkT
+            diff = abs(x - PnkT) / PnkT
+            max_diff = max(diff, max_diff)
+            print *, "PnkT DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 8.5451229292858866d0
@@ -190,7 +196,9 @@
                x = 0.73822827392302692d0
             end if
 
-            print *, "CV DIFF", abs(x - CV) / CV
+            diff = abs(x - CV) / CV
+            max_diff = max(diff, max_diff)
+            print *, "CV DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 0.24165606904443493d0
@@ -200,7 +208,9 @@
                x = 2.7120648074179433d-5
             end if
 
-            print *, "CHIT DIFF", abs(x - CHIT) / CHIT
+            diff = abs(x - CHIT) / CHIT
+            max_diff = max(diff, max_diff)
+            print *, "CHIT DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 1.3370085960654023d0
@@ -210,7 +220,9 @@
                x = 1.4524787201645497d0
             end if
 
-            print *, "CHIR DIFF", abs(x - CHIR) / CHIR
+            diff = abs(x - CHIR) / CHIR
+            max_diff = max(diff, max_diff)
+            print *, "CHIR DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 30.712489657322770d0
@@ -220,7 +232,9 @@
                x = 25265.106328521317d0
             end if
 
-            print *, "UNkT DIFF", abs(x - UNkT) / UNkT
+            diff = abs(x - UNkT) / UNkT
+            max_diff = max(diff, max_diff)
+            print *, "UNkT DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 23.797925638433309d0
@@ -230,7 +244,9 @@
                x = 1.0215909624032917d0
             end if
 
-            print *, "SNk DIFF", abs(x - SNk) / SNk
+            diff = abs(x - SNk) / SNk
+            max_diff = max(diff, max_diff)
+            print *, "SNk DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 0.96111630472601972d0
@@ -240,7 +256,9 @@
                x = 960.24524371490861d0
             end if
 
-            print *, "GAMI DIFF", abs(x - GAMI) / GAMI
+            diff = abs(x - GAMI) / GAMI
+            max_diff = max(diff, max_diff)
+            print *, "GAMI DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 1.2400526419152945d-2
@@ -250,7 +268,9 @@
                x = 12.383672318439324d0
             end if
 
-            print *, "TPT DIFF", abs(x - TPT) / TPT
+            diff = abs(x - TPT) / TPT
+            max_diff = max(diff, max_diff)
+            print *, "TPT DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 5.5745494145734744d0
@@ -260,7 +280,9 @@
                x = 5894.2025691009021d0
             end if
 
-            print *, "CHI DIFF", abs(x - CHI) / CHI
+            diff = abs(x - CHI) / CHI
+            max_diff = max(diff, max_diff)
+            print *, "CHI DIFF", diff
 
             if (i == 1 .and. j == 1) then
                x = 0
@@ -270,10 +292,14 @@
                x = 1
             end if
 
-            print *, "LIQSOL DIFF", abs(x - LIQSOL)
+            diff = abs(x - LIQSOL)
+            max_diff = max(diff, max_diff)
+            print *, "LIQSOL DIFF", diff
 
          end do
       end do
+
+      print *, "max diff = ", max_diff
 
       end program main
       
