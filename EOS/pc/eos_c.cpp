@@ -141,37 +141,37 @@ extern "C"
             - 1.5_rt * std::log(CT); // Relativistic fit
     }
 
-    void blin9a (double TEMP, double CHI,
-                 double& W0, double& W0DX, double& W0DT, double& W0DXX,
-                 double& W0DTT, double& W0DXT,
-                 double& W1, double& W1DX, double& W1DT, double& W1DXX,
-                 double& W1DTT, double& W1DXT,
-                 double& W2, double& W2DX, double& W2DT, double& W2DXX,
-                 double& W2DTT, double& W2DXT,
-                 double& W0XXX, double& W0XTT, double& W0XXT)
+    void blin9a (Real TEMP, Real CHI,
+                 Real& W0, Real& W0DX, Real& W0DT, Real& W0DXX,
+                 Real& W0DTT, Real& W0DXT,
+                 Real& W1, Real& W1DX, Real& W1DT, Real& W1DXX,
+                 Real& W1DTT, Real& W1DXT,
+                 Real& W2, Real& W2DX, Real& W2DT, Real& W2DXX,
+                 Real& W2DTT, Real& W2DXT,
+                 Real& W0XXX, Real& W0XTT, Real& W0XXT)
     {
         // Version 19.01.10
         // First part of blin9: small CHI. Stems from blin9 v.24.12.08
-        const double AC[3][5] = {{0.37045057_rt,  0.41258437_rt,
-                                  9.777982e-2_rt, 5.3734153e-3_rt, 3.8746281e-5_rt},  // c_i^0
-                                 {0.39603109_rt,  0.69468795_rt,
-                                  0.22322760_rt,  1.5262934e-2_rt, 1.3081939e-4_rt},  // c_i^1
-                                 {0.76934619_rt,  1.7891437_rt,
-                                  0.70754974_rt,  5.6755672e-2_rt, 5.5571480e-4_rt}}; // c_i^2
+        const Real AC[3][5] = {{0.37045057_rt,  0.41258437_rt,
+                                9.777982e-2_rt, 5.3734153e-3_rt, 3.8746281e-5_rt},  // c_i^0
+                               {0.39603109_rt,  0.69468795_rt,
+                                0.22322760_rt,  1.5262934e-2_rt, 1.3081939e-4_rt},  // c_i^1
+                               {0.76934619_rt,  1.7891437_rt,
+                                0.70754974_rt,  5.6755672e-2_rt, 5.5571480e-4_rt}}; // c_i^2
 
-        const double AU[3][5] = {{0.43139881_rt,  1.7597537_rt,
-                                  4.10446540_rt,  7.7467038_rt, 13.457678_rt},  // \chi_i^0
-                                 {0.81763176_rt,  2.4723339_rt,
-                                  5.11600610_rt,  9.0441465_rt, 15.049882_rt},  // \chi_i^1
-                                 {1.25584610_rt,  3.2070406_rt,
-                                  6.12390820_rt, 10.3161260_rt, 16.597079_rt}}; // \chi_i^2
+        const Real AU[3][5] = {{0.43139881_rt,  1.7597537_rt,
+                                4.10446540_rt,  7.7467038_rt, 13.457678_rt},  // \chi_i^0
+                               {0.81763176_rt,  2.4723339_rt,
+                                5.11600610_rt,  9.0441465_rt, 15.049882_rt},  // \chi_i^1
+                               {1.25584610_rt,  3.2070406_rt,
+                                6.12390820_rt, 10.3161260_rt, 16.597079_rt}}; // \chi_i^2
 
-        const double AA[3][5] = {{std::exp(-AU[0][0]), std::exp(-AU[0][1]),
-                                  std::exp(-AU[0][2]), std::exp(-AU[0][3]), std::exp(-AU[0][4])},  // \chi_i^0
-                                 {std::exp(-AU[1][0]), std::exp(-AU[1][1]),
-                                  std::exp(-AU[1][2]), std::exp(-AU[1][3]), std::exp(-AU[1][4])},  // \chi_i^1
-                                 {std::exp(-AU[2][0]), std::exp(-AU[2][1]),
-                                  std::exp(-AU[2][2]), std::exp(-AU[2][3]), std::exp(-AU[2][4])}}; // \chi_i^2
+        const Real AA[3][5] = {{std::exp(-AU[0][0]), std::exp(-AU[0][1]),
+                                std::exp(-AU[0][2]), std::exp(-AU[0][3]), std::exp(-AU[0][4])},  // \chi_i^0
+                               {std::exp(-AU[1][0]), std::exp(-AU[1][1]),
+                                std::exp(-AU[1][2]), std::exp(-AU[1][3]), std::exp(-AU[1][4])},  // \chi_i^1
+                               {std::exp(-AU[2][0]), std::exp(-AU[2][1]),
+                                std::exp(-AU[2][2]), std::exp(-AU[2][3]), std::exp(-AU[2][4])}}; // \chi_i^2
 
         for (int k = 0; k <= 2; ++k) {
             Real W = 0.0;
