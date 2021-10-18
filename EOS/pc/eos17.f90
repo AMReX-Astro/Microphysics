@@ -1447,6 +1447,23 @@
       save
       parameter(PI=3.141592653d0)
       parameter(PI2=PI**2)
+      interface
+         subroutine subfermj(CMU1, &
+                CJ00,CJ10,CJ20, &
+                CJ01,CJ11,CJ21, &
+                CJ02,CJ12,CJ22, &
+                CJ03,CJ13,CJ23, &
+                CJ04,CJ14,CJ24,CJ05) bind(C, name="subfermj")
+           implicit none
+           double precision, intent(in), value :: CMU1
+           double precision :: CJ00,CJ10,CJ20, &
+                CJ01,CJ11,CJ21, &
+                CJ02,CJ12,CJ22, &
+                CJ03,CJ13,CJ23, &
+                CJ04,CJ14,CJ24,CJ05
+         end subroutine subfermj
+      end interface
+
       if (CHI.lt..5d0) then
          print *, 'SOMMERF: non-degenerate (small CHI)'
          stop
@@ -1492,51 +1509,5 @@
       W0XXT=CN0*TEMR*(CMU1*CJ03+.5d0*CJ02+PIT26*(CMU1*CJ05+2.5d0*CJ04))
       W0XTT=CN1*(.75d0*CJ01-CMU1*CJ02+CMU1**2*CJ03+ &
        PIT26*(.75d0*CJ03+3.d0*CMU1*CJ04+CMU1**2*CJ05))
-      return
-      end
-
-      subroutine SUBFERMJ(CMU1, &
-       CJ00,CJ10,CJ20, &
-       CJ01,CJ11,CJ21, &
-       CJ02,CJ12,CJ22, &
-       CJ03,CJ13,CJ23, &
-       CJ04,CJ14,CJ24,CJ05)
-!                                                       Version 17.11.11
-!                                                     corrected 04.03.21
-! Supplement to SOMMERF
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(EPS=1.d-4) ! inserted 04.03.21
-      if (CMU1.le.0.d0) then
-         print *, 'SUBFERMJ: small CHI'
-         stop
-      end if
-      CMU=1.d0+CMU1
-      X0=dsqrt(CMU1*(2.d0+CMU1))
-      X3=X0**3
-      X5=X0**5
-      if (X0.lt.EPS) then
-         CJ00=X3/3.d0
-         CJ10=.1d0*X5
-         CJ20=X0**7/28.d0
-      else
-         CL=dlog(X0+CMU)
-         CJ00=.5d0*(X0*CMU-CL) ! J_{1/2}^0
-         CJ10=X3/3.d0-CJ00 ! J_{3/2}^0
-         CJ20=(.75d0*CMU-2.d0)/3.d0*X3+1.25d0*CJ00 ! J_{5/2}^0
-      endif
-      CJ01=X0 ! J_{1/2}^1
-      CJ11=CJ01*CMU1 ! J_{3/2}^1
-      CJ21=CJ11*CMU1 ! J_{5/2}^1
-      CJ02=CMU/X0 ! J_{1/2}^2
-      CJ12=CMU1/X0*(3.d0+2.d0*CMU1) ! J_{3/2}^2
-      CJ22=CMU1**2/X0*(5.d0+3.d0*CMU1) ! J_{5/2}^2
-      CJ03=-1.d0/X3 ! J_{1/2}^3
-      CJ13=CMU1/X3*(2.d0*CMU1**2+6.d0*CMU1+3.d0)
-      CJ23=CMU1**2/X3*(6.d0*CMU1**2+2.d1*CMU1+1.5d1)
-      CJ04=3.d0*CMU/X5
-      CJ14=-3.d0*CMU1/X5
-      CJ24=CMU1**2/X5*(6.d0*CMU1**3+3.d1*CMU1**2+45.d0*CMU1+15.d0)
-      CJ05=(-12.d0*CMU1**2-24.d0*CMU1-15.d0)/(X5*X0**2)
       return
       end

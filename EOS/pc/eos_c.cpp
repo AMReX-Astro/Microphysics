@@ -967,4 +967,53 @@ extern "C"
         PDTXC = GAME * (THETA * FXCDHG - GAME * FXCDGG / 3.0_rt) -
                 THETA * (FXCDH / 0.75_rt + THETA * FXCDHH / 1.5_rt);
     }
+
+    void subfermj (Real CMU1,
+                   Real& CJ00, Real& CJ10, Real& CJ20,
+                   Real& CJ01, Real& CJ11, Real& CJ21,
+                   Real& CJ02, Real& CJ12, Real& CJ22,
+                   Real& CJ03, Real& CJ13, Real& CJ23,
+                   Real& CJ04, Real& CJ14, Real& CJ24, Real& CJ05)
+    {
+        // Version 17.11.11
+        // corrected 04.03.21
+        // Supplement to SOMMERF
+        const Real EPS = 1.e-4_rt; // inserted 04.03.21
+        if (CMU1 <= 0.0_rt) {
+            printf("SUBFERMJ: small CHI\n");
+            exit(1);
+        }
+
+        Real CMU = 1.0_rt + CMU1;
+        Real X0 = std::sqrt(CMU1 * (2.0_rt + CMU1));
+        Real X3 = X0 * X0 * X0;
+        Real X5 = X3 * X0 * X0;
+        Real X7 = X5 * X0 * X0;
+        if (X0 < EPS) {
+            CJ00 = X3 / 3.0_rt;
+            CJ10 = 0.1_rt * X5;
+            CJ20 = X7 / 28.0_rt;
+        }
+        else {
+            Real CL = std::log(X0 + CMU);
+            CJ00 = 0.5_rt * (X0 * CMU - CL); // J_{1/2}^0
+            CJ10 = X3 / 3.0_rt - CJ00; // J_{3/2}^0
+            CJ20 = (0.75_rt * CMU - 2.0_rt) / 3.0_rt * X3 + 1.25_rt * CJ00; // J_{5/2}^0
+        }
+
+        CJ01 = X0; // J_{1/2}^1
+        CJ11 = CJ01 * CMU1; // J_{3/2}^1
+        CJ21 = CJ11 * CMU1; // J_{5/2}^1
+        Real RCJ02 = CMU / X0; // J_{1/2}^2
+        CJ12 = CMU1 / X0 * (3.0_rt + 2.0_rt * CMU1); // J_{3/2}^2
+        CJ22 = CMU1 * CMU1 / X0 * (5.0_rt + 3.0_rt * CMU1); // J_{5/2}^2
+        CJ03 = -1.0_rt / X3; // J_{1/2}^3
+        CJ13 = CMU1 / X3 * (2.0_rt * CMU1 * CMU1 + 6.0_rt * CMU1 + 3.0_rt);
+        CJ23 = CMU1 * CMU1 / X3 * (6.0_rt * CMU1 * CMU1 + 2.0e1_rt * CMU1 + 1.5e1_rt);
+        CJ04 = 3.0_rt * CMU / X5;
+        CJ14 = -3.0_rt * CMU1 / X5;
+        CJ24 = CMU1 * CMU1 / X5 * (6.0_rt * CMU1 * CMU1 * CMU1 + 3.0e1_rt * CMU1 * CMU1 +
+                                   45.0_rt * CMU1 + 15.0_rt);
+        CJ05 = (-12.0_rt * CMU1 * CMU1 - 24.0_rt * CMU1 - 15.0_rt) / (X7);
+    }
 }
