@@ -394,6 +394,12 @@
            double precision :: DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
                 DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT
          end subroutine elect11
+         subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
+              FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX) bind(C, name="cormix")
+           implicit none
+           double precision, value :: RS,GAME,Zmean,Z2mean,Z52,Z53,Z321
+           double precision :: FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX
+         end subroutine CORMIX
       end interface
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) then
          print *, 'MELANGE: RHO out of range'
@@ -878,60 +884,5 @@
       Pharm=U0/3.d0+Uth/2.d0
       PDTharm=.5d0*CVth
       PDRharm=U0/2.25d0+.75d0*Uth-.25d0*CVth
-      return
-      end
-
-      subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
-       FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
-!                                                       Version 02.07.09
-! Correction to the linear mixing rule for moderate to small Gamma
-! Input: RS=r_s (if RS=0, then OCP, otherwise EIP)
-!        GAME=\Gamma_e
-!        Zmean=<Z> (average Z of all ions, without electrons)
-!        Z2mean=<Z^2>, Z52=<Z^2.5>, Z53=<Z^{5/3}>, Z321=<Z(Z+1)^1.5>
-! Output: FMIX=\Delta f - corr.to the reduced free energy f=F/N_{ion}kT
-!         UMIX=\Delta u - corr.to the reduced internal energy u
-!         PMIX=\Delta u - corr.to the reduced pressure P=P/n_{ion}kT
-!         CVMIX=\Delta c - corr.to the reduced heat capacity c_V
-!         PDTMIX=(1/n_{ion}kT)d\Delta P / d ln T
-!               = \Delta p +  d \Delta p / d ln T
-!         PDRMIX=(1/n_{ion}kT)d\Delta P / d ln n_e
-! (composition is assumed fixed: Zmean,Z2mean,Z52,Z53=constant)
-      implicit double precision (A-H), double precision (O-Z)
-      parameter (TINY=1.d-9)
-      GAMImean=GAME*Z53
-      if (RS.lt.TINY) then ! OCP
-         Dif0=Z52-dsqrt(Z2mean**3/Zmean)
-      else
-         Dif0=Z321-dsqrt((Z2mean+Zmean)**3/Zmean)
-      endif
-      DifR=Dif0/Z52
-      DifFDH=Dif0*GAME*sqrt(GAME/3.) ! F_DH - F_LM(DH)
-      D=Z2mean/Zmean**2
-      if (dabs(D-1.d0).lt.TINY) then ! no correction
-         FMIX=0.
-         UMIX=0.
-         PMIX=0.
-         CVMIX=0.
-         PDTMIX=0.
-         PDRMIX=0.
-         return
-      endif
-      P3=D**(-0.2)
-      D0=(2.6*DifR+14.*DifR**3)/(1.d0-P3)
-      GP=D0*GAMImean**P3
-      FMIX0=DifFDH/(1.+GP)
-      Q=D**2*.0117
-      R=1.5/P3-1.
-      GQ=Q*GP
-      FMIX=FMIX0/(1.+GQ)**R
-      G=1.5-P3*GP/(1.+GP)-R*P3*GQ/(1.+GQ)
-      UMIX=FMIX*G
-      PMIX=UMIX/3.d0
-      GDG=-P3**2*(GP/(1.d0+GP)**2+R*GQ/(1.d0+GQ)**2) ! d G /d ln Gamma
-      UDG=UMIX*G+FMIX*GDG ! d u_mix /d ln Gamma
-      CVMIX=UMIX-UDG
-      PDTMIX=PMIX-UDG/3.
-      PDRMIX=PMIX+UDG/9.
       return
       end

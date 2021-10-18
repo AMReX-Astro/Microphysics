@@ -1704,61 +1704,65 @@ extern "C"
       PDRharm = U0 / 2.25d0 + .75d0 * Uth - .25d0 * CVth
       return
       end
+    */
 
+    void cormix (Real RS, Real GAME, Real Zmean, Real Z2mean, Real Z52, Real Z53, Real Z321,
+                 Real& FMIX, Real& UMIX, Real& PMIX, Real& CVMIX, Real& PDTMIX, Real& PDRMIX)
+    {
+        // Version 02.07.09
+        // Correction to the linear mixing rule for moderate to small Gamma
+        // Input: RS = r_s (if RS = 0, then OCP, otherwise EIP)
+        //        GAME = \Gamma_e
+        //        Zmean = <Z> (average Z of all ions, without electrons)
+        //        Z2mean = <Z^2>, Z52 = <Z^2.5>, Z53 = <Z^{5/3}>, Z321 = <Z(Z + 1)^1.5>
+        // Output: FMIX = \Delta f - corr.to the reduced free energy f = F/N_{ion}kT
+        //         UMIX = \Delta u - corr.to the reduced internal energy u
+        //         PMIX = \Delta u - corr.to the reduced pressure P = P/n_{ion}kT
+        //         CVMIX = \Delta c - corr.to the reduced heat capacity c_V
+        //         PDTMIX = (1/n_{ion}kT)d\Delta P / d ln T
+        //                =  \Delta p  +   d \Delta p / d ln T
+        //         PDRMIX = (1/n_{ion}kT)d\Delta P / d ln n_e
+        // (composition is assumed fixed: Zmean,Z2mean,Z52,Z53 = constant)
 
-      subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
-       FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
-//                                                       Version 02.07.09
-// Correction to the linear mixing rule for moderate to small Gamma
-// Input: RS = r_s (if RS = 0, then OCP, otherwise EIP)
-//        GAME = \Gamma_e
-//        Zmean = <Z> (average Z of all ions, without electrons)
-//        Z2mean = <Z^2>, Z52 = <Z^2.5>, Z53 = <Z^{5/3}>, Z321 = <Z(Z + 1)^1.5>
-// Output: FMIX = \Delta f - corr.to the reduced free energy f = F/N_{ion}kT
-//         UMIX = \Delta u - corr.to the reduced internal energy u
-//         PMIX = \Delta u - corr.to the reduced pressure P = P/n_{ion}kT
-//         CVMIX = \Delta c - corr.to the reduced heat capacity c_V
-//         PDTMIX = (1/n_{ion}kT)d\Delta P / d ln T
-//                =  \Delta p  +   d \Delta p / d ln T
-//         PDRMIX = (1/n_{ion}kT)d\Delta P / d ln n_e
-// (composition is assumed fixed: Zmean,Z2mean,Z52,Z53 = constant)
-      implicit double precision (A-H), double precision (O-Z)
-      parameter (TINY = 1.d-9)
-      GAMImean = GAME * Z53
-      if (RS < TINY) { // OCP
-         Dif0 = Z52 - std::sqrt(Z2mean * Z2mean * Z2mean / Zmean)
-      else
-         Dif0 = Z321 - std::sqrt(std::pow(Z2mean + Zmean, 3) / Zmean)
-      endif
-      DifR = Dif0 / Z52
-      DifFDH = Dif0 * GAME * std::sqrt(GAME / 3.0_rt) // F_DH - F_LM(DH)
-      D = Z2mean / (Zmean * Zmean)
-      if (std::abs(D - 1.0_rt) < TINY) { // no correction
-         FMIX = 0.
-         UMIX = 0.
-         PMIX = 0.
-         CVMIX = 0.
-         PDTMIX = 0.
-         PDRMIX = 0.
-         return
-      endif
-      P3 = std::pow(D, -0.2_rt)
-      D0 = (2.6 * DifR + 14. * DifR * DifR * DifR) / (1.0_rt - P3)
-      GP = D0 * std::pow(GAMImean, P3)
-      FMIX0 = DifFDH / (1.0_rt + GP)
-      Q = D * D * .0117
-      R = 1.5 / P3 - 1.0_rt
-      GQ = Q * GP
-      FMIX = FMIX0 / std::pow(1.0_rt + GQ, R)
-      G = 1.5 - P3 * GP / (1.0_rt + GP) - R * P3 * GQ / (1.0_rt + GQ)
-      UMIX = FMIX * G
-      PMIX = UMIX / 3.0_rt
-      GDG = -P3 * P3 * (GP / ((1.0_rt + GP) * (1.0_rt + GP)) + R * GQ / ((1.0_rt + GQ) * (1.0_rt + GQ)) // d G /d ln Gamma
-      UDG = UMIX * G + FMIX * GDG // d u_mix /d ln Gamma
-      CVMIX = UMIX - UDG
-      PDTMIX = PMIX - UDG / 3.0_rt
-      PDRMIX = PMIX + UDG / 9.
-      return
-      end
-*/
+        const Real TINY = 1.e-9_rt;
+        Real GAMImean = GAME * Z53;
+
+        Real Dif0;
+        if (RS < TINY) { // OCP
+            Dif0 = Z52 - std::sqrt(Z2mean * Z2mean * Z2mean / Zmean);
+        }
+        else {
+            Dif0 = Z321 - std::sqrt(std::pow(Z2mean + Zmean, 3) / Zmean);
+        }
+
+        Real DifR = Dif0 / Z52;
+        Real DifFDH = Dif0 * GAME * std::sqrt(GAME / 3.0_rt); // F_DH - F_LM(DH)
+        Real D = Z2mean / (Zmean * Zmean);
+        if (std::abs(D - 1.0_rt) < TINY) { // no correction
+            FMIX = 0.0_rt;
+            UMIX = 0.0_rt;
+            PMIX = 0.0_rt;
+            CVMIX = 0.0_rt;
+            PDTMIX = 0.0_rt;
+            PDRMIX = 0.0_rt;
+            return;
+        }
+
+        Real P3 = std::pow(D, -0.2_rt);
+        Real D0 = (2.6_rt * DifR + 14.0_rt * DifR * DifR * DifR) / (1.0_rt - P3);
+        Real GP = D0 * std::pow(GAMImean, P3);
+        Real FMIX0 = DifFDH / (1.0_rt + GP);
+        Real Q = D * D * 0.0117_rt;
+        Real R = 1.5_rt / P3 - 1.0_rt;
+        Real GQ = Q * GP;
+        FMIX = FMIX0 / std::pow(1.0_rt + GQ, R);
+        Real G = 1.5_rt - P3 * GP / (1.0_rt + GP) - R * P3 * GQ / (1.0_rt + GQ);
+        UMIX = FMIX * G;
+        PMIX = UMIX / 3.0_rt;
+        Real GDG = -P3 * P3 * (GP / ((1.0_rt + GP) * (1.0_rt + GP)) + R * GQ / ((1.0_rt + GQ) * (1.0_rt + GQ))); // d G /d ln Gamma
+        Real UDG = UMIX * G + FMIX * GDG; // d u_mix /d ln Gamma
+        CVMIX = UMIX - UDG;
+        PDTMIX = PMIX - UDG / 3.0_rt;
+        PDRMIX = PMIX + UDG / 9.0_rt;
+    }
 }
