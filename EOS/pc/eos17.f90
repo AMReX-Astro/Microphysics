@@ -581,6 +581,11 @@
            double precision, intent(in), value :: RS, GAMI, Zion, TPT
            double precision :: FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR
          end subroutine fscrsol8
+         subroutine anharm8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah) bind(C, name="anharm8")
+           implicit none
+           double precision, intent(in), value :: GAMI,TPT
+           double precision :: Fah,Uah,Pah,CVah,PDTah,PDRah
+         end subroutine anharm8
       end interface
 
       if (LIQSOL.ne.1.and.LIQSOL.ne.0) then
@@ -841,53 +846,6 @@
       end
 
 ! ==============   SUBROUTINES FOR THE SOLID STATE   ================= !
-      subroutine ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah)
-! ANHARMONIC free energy                                Version 27.07.07
-!                                                       cleaned 16.06.09
-! Stems from ANHARM8b. Difference: AC=0., B1=.12 (.1217 - over accuracy)
-! Input: GAMI - ionic Gamma, TPT=Tp/T - ionic quantum parameter
-! Output: anharm.free en. Fah=F_{AH}/(N_i kT), internal energy Uah,
-!   pressure Pah=P_{AH}/(n_i kT), specific heat CVah = C_{V,AH}/(N_i k),
-!   PDTah = Pah + d Pah / d ln T, PDRah = Pah + d Pah / d ln\rho
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(NM=3)
-      dimension AA(NM)
-      data AA/10.9,247.,1.765d5/ ! Farouki & Hamaguchi'93
-      data B1/.12/ ! coeff.at \eta^2/\Gamma at T=0
-      CK=B1/AA(1) ! fit coefficient
-      TPT2=TPT**2
-      TPT4=TPT2**2
-      TQ=B1*TPT2/GAMI ! quantum dependence
-      TK2=CK*TPT2
-      SUP=dexp(-TK2) ! suppress.factor of class.anharmonicity
-      Fah=0.
-      Uah=0.
-      Pah=0.
-      CVah=0.
-      PDTah=0.
-      PDRah=0.
-      SUPGN=SUP
-      do N=1,NM
-         CN=N
-         SUPGN=SUPGN/GAMI ! SUP/Gamma^n
-         ACN=AA(N)
-         Fah=Fah-ACN/CN*SUPGN
-         Uah=Uah+(ACN*(1.+2.*TK2/CN))*SUPGN
-         PN=AA(N)/3.+TK2*AA(N)/CN
-         Pah=Pah+PN*SUPGN
-         CVah=CVah+((CN+1.)*AA(N)+(4.-2./CN)*AA(N)*TK2+ &
-           4.*AA(N)*CK**2/CN*TPT4)*SUPGN
-         PDTah=PDTah+(PN*(1.+CN+2.*TK2)-2./CN*AA(N)*TK2)*SUPGN
-         PDRah=PDRah+(PN*(1.-CN/3.-TK2)+AA(N)/CN*TK2)*SUPGN
-      enddo
-      Fah=Fah-TQ
-      Uah=Uah-TQ
-      Pah=Pah-TQ/1.5
-      PDRah=PDRah-TQ/4.5
-      return
-      end
-
       subroutine FHARM12(GAMI,TPT, &
         Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
 ! Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice

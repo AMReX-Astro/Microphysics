@@ -1492,54 +1492,59 @@ extern "C"
                   GAMI * GAMI * FDGG) / 9.0_rt;
     }
 
-    /*
-    subroutine ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah)
-// ANHARMONIC free energy                                Version 27.07.07
-//                                                       cleaned 16.06.09
-// Stems from ANHARM8b. Difference: AC = 0., B1 = .12 (.1217 - over accuracy)
-// Input: GAMI - ionic Gamma, TPT = Tp/T - ionic quantum parameter
-// Output: anharm.free en. Fah = F_{AH}/(N_i kT), internal energy Uah,
-//   pressure Pah = P_{AH}/(n_i kT), specific heat CVah  =  C_{V,AH}/(N_i k),
-//   PDTah  =  Pah  +  d Pah / d ln T, PDRah  =  Pah  +  d Pah / d ln\rho
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(NM = 3)
-      dimension AA(NM)
-      data AA/10.9,247.,1.765d5/ // Farouki & Hamaguchi'93
-      data B1/.12/ // coeff.at \eta^2/\Gamma at T = 0
-      CK = B1 / AA[0] // fit coefficient
-      TPT2 = TPT * TPT
-      TPT4 = TPT2 * TPT2
-      TQ = B1 * TPT2 / GAMI // quantum dependence
-      TK2 = CK * TPT2
-      SUP = std::exp(-TK2) // suppress.factor of class.anharmonicity
-      Fah = 0.
-      Uah = 0.
-      Pah = 0.
-      CVah = 0.
-      PDTah = 0.
-      PDRah = 0.
-      SUPGN = SUP
-      do N = 1,NM
-         CN = N
-         SUPGN = SUPGN / GAMI // SUP/Gamma^n
-         ACN = AA(N)
-         Fah = Fah - ACN / CN * SUPGN
-         Uah = Uah + (ACN * (1.0_rt + 2.0_rt * TK2 / CN)) * SUPGN
-         PN = AA(N) / 3.0_rt + TK2 * AA(N) / CN
-         Pah = Pah + PN * SUPGN
-         CVah = CVah + ((CN + 1.0_rt) * AA(N) + (4.0_rt - 2.0_rt / CN) * AA(N) * TK2 +  &
-           4.0_rt * AA(N) * CK * CK / CN * TPT4) * SUPGN
-         PDTah = PDTah + (PN * (1.0_rt + CN + 2.0_rt * TK2) - 2.0_rt / CN * AA(N) * TK2) * SUPGN
-         PDRah = PDRah + (PN * (1.0_rt - CN / 3.0_rt - TK2) + AA(N) / CN * TK2) * SUPGN
-      enddo
-      Fah = Fah - TQ
-      Uah = Uah - TQ
-      Pah = Pah - TQ / 1.5
-      PDRah = PDRah - TQ / 4.5
-      return
-      end
+    void anharm8 (double GAMI, double TPT,
+                  double& Fah, double& Uah, double& Pah,
+                  double& CVah, double& PDTah, double& PDRah)
+    {
+        // ANHARMONIC free energy
+        // Version 27.07.07
+        // cleaned 16.06.09
+        // Stems from ANHARM8b. Difference: AC = 0., B1 = .12 (.1217 - over accuracy)
+        // Input: GAMI - ionic Gamma, TPT = Tp/T - ionic quantum parameter
+        // Output: anharm.free en. Fah = F_{AH}/(N_i kT), internal energy Uah,
+        //   pressure Pah = P_{AH}/(n_i kT), specific heat CVah  =  C_{V,AH}/(N_i k),
+        //   PDTah  =  Pah  +  d Pah / d ln T, PDRah  =  Pah  +  d Pah / d ln\rho
 
+        const int NM = 3;
+        const Real AA[NM] = {10.9_rt, 247.0_rt, 1.765e5_rt}; // Farouki & Hamaguchi'93
+        const Real B1 = 0.12_rt; // coeff.at \eta^2/\Gamma at T = 0
+
+        Real CK = B1 / AA[0]; // fit coefficient
+        Real TPT2 = TPT * TPT;
+        Real TPT4 = TPT2 * TPT2;
+        Real TQ = B1 * TPT2 / GAMI; // quantum dependence
+        Real TK2 = CK * TPT2;
+        Real SUP = std::exp(-TK2); // suppress.factor of class.anharmonicity
+
+        Fah = 0.0_rt;
+        Uah = 0.0_rt;
+        Pah = 0.0_rt;
+        CVah = 0.0_rt;
+        PDTah = 0.0_rt;
+        PDRah = 0.0_rt;
+
+        Real SUPGN = SUP;
+        for (int N = 1; N <= NM; ++N) {
+            Real CN = (Real) N;
+            SUPGN = SUPGN / GAMI; // SUP/Gamma^n
+            Real ACN = AA[N-1];
+            Fah = Fah - ACN / CN * SUPGN;
+            Uah = Uah + (ACN * (1.0_rt + 2.0_rt * TK2 / CN)) * SUPGN;
+            Real PN = AA[N-1] / 3.0_rt + TK2 * AA[N-1] / CN;
+            Pah = Pah + PN * SUPGN;
+            CVah = CVah + ((CN + 1.0_rt) * AA[N-1] + (4.0_rt - 2.0_rt / CN) * AA[N-1] * TK2 +
+                           4.0_rt * AA[N-1] * CK * CK / CN * TPT4) * SUPGN;
+            PDTah = PDTah + (PN * (1.0_rt + CN + 2.0_rt * TK2) - 2.0_rt / CN * AA[N-1] * TK2) * SUPGN;
+            PDRah = PDRah + (PN * (1.0_rt - CN / 3.0_rt - TK2) + AA[N-1] / CN * TK2) * SUPGN;
+        }
+
+        Fah = Fah - TQ;
+        Uah = Uah - TQ;
+        Pah = Pah - TQ / 1.5_rt;
+        PDRah = PDRah - TQ / 4.5_rt;
+    }
+
+    /*
       subroutine FHARM12(GAMI,TPT, &
         Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
 // Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
