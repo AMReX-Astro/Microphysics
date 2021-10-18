@@ -1016,4 +1016,81 @@ extern "C"
                                    45.0_rt * CMU1 + 15.0_rt);
         CJ05 = (-12.0_rt * CMU1 * CMU1 - 24.0_rt * CMU1 - 15.0_rt) / (X7);
     }
+
+    void sommerf (Real TEMR, Real CHI,
+                  Real& W0, Real& W0DX, Real& W0DT, Real& W0DXX, Real& W0DTT, Real& W0DXT,
+                  Real& W1, Real& W1DX, Real& W1DT, Real& W1DXX, Real& W1DTT, Real& W1DXT,
+                  Real& W2, Real& W2DX, Real& W2DT, Real& W2DXX, Real& W2DTT, Real& W2DXT,
+                  Real& W0XXX, Real& W0XTT, Real& W0XXT)
+    {
+        // Version 17.11.11
+        // Sommerfeld expansion for the Fermi-Dirac integrals
+        // Input: TEMR=T/mc^2; CHI=(\mu-mc^2)/T
+        // Output: Wk - Fermi-Dirac integral of the order k+1/2
+        //         WkDX=dWk/dCHI, WkDT = dWk/dT, WkDXX=d^2 Wk / d CHI^2,
+        //         WkDTT=d^2 Wk / d T^2, WkDXT=d^2 Wk /dCHIdT,
+        //         W0XXX=d^3 W0 / d CHI^3, W0XTT=d^3 W0 /(d CHI d^2 T),
+        //         W0XXT=d^3 W0 /dCHI^2 dT
+        // [Draft source: yellow book pages 124-127]
+
+        const Real PI = 3.141592653_rt;
+        const Real PI2 = PI * PI;
+
+        if (CHI < 0.5_rt) {
+            printf("SOMMERF: non-degenerate (small CHI)\n");
+            exit(1);
+        }
+
+        if (TEMR <= 0.0_rt) {
+            printf("SOMMERF: T < 0\n");
+            exit(1);
+        }
+
+        Real CMU1 = CHI * TEMR; // chemical potential in rel.units
+        Real CMU = 1.0_rt + CMU1;
+
+        Real CJ00, CJ10, CJ20;
+        Real CJ01, CJ11, CJ21;
+        Real CJ02, CJ12, CJ22;
+        Real CJ03, CJ13, CJ23;
+        Real CJ04, CJ14, CJ24;
+        Real CJ05;
+
+        subfermj(CMU1,
+                 CJ00, CJ10, CJ20,
+                 CJ01, CJ11, CJ21,
+                 CJ02, CJ12, CJ22,
+                 CJ03, CJ13, CJ23,
+                 CJ04, CJ14, CJ24, CJ05);
+
+        Real PIT26 = (PI * TEMR)*(PI * TEMR) / 6.0_rt;
+        Real CN0 = std::sqrt(0.5_rt / TEMR) / TEMR;
+        Real CN1 = CN0 / TEMR;
+        Real CN2 = CN1 / TEMR;
+        W0 = CN0 * (CJ00 + PIT26 * CJ02); // + CN0 * PITAU4 * CJ04
+        W1 = CN1 * (CJ10 + PIT26 * CJ12); // + CN1 * PITAU4 * CJ14
+        W2 = CN2 * (CJ20 + PIT26 * CJ22); // + CN2 * PITAU4 * CJ24
+        W0DX = CN0 * TEMR * (CJ01 + PIT26 * CJ03); //  + CN0 * PITAU4 * CJ05
+        W1DX = CN0 * (CJ11 + PIT26 * CJ13);
+        W2DX = CN1 * (CJ21 + PIT26 * CJ23);
+        W0DT = CN1 * (CMU1 * CJ01 - 1.5_rt * CJ00 + PIT26 * (CMU1 * CJ03 + 0.5_rt * CJ02));
+        W1DT = CN2 * (CMU1 * CJ11 - 2.5_rt * CJ10 + PIT26 * (CMU1 * CJ13 - 0.5_rt * CJ12));
+        W2DT = CN2 / TEMR * (CMU1 * CJ21 - 3.5_rt * CJ20 + PIT26 * (CMU1 * CJ23 - 1.5_rt * CJ22));
+        W0DXX = CN0 * TEMR * TEMR * (CJ02 + PIT26 * CJ04);
+        W1DXX = CN0 * TEMR * (CJ12 + PIT26 * CJ14);
+        W2DXX = CN0 * (CJ22 + PIT26 * CJ24);
+        W0DXT = CN0 * (CMU1 * CJ02 - 0.5_rt * CJ01 + PIT26 * (CMU1 * CJ04 + 1.5_rt * CJ03));
+        W1DXT = CN1 * (CMU1 * CJ12 - 1.5_rt * CJ11 + PIT26 * (CMU1 * CJ14 + 0.5_rt * CJ13));
+        W2DXT = CN2 * (CMU1 * CJ22 - 2.5_rt * CJ21 + PIT26 * (CMU1 * CJ24 - 0.5_rt * CJ23));
+        W0DTT = CN2 * (3.75_rt * CJ00 - 3.0_rt * CMU1 * CJ01 + CMU1 * CMU1 * CJ02 +
+                       PIT26 * (-0.25_rt * CJ02 + CMU1 * CJ03 + CMU1 * CMU1 * CJ04));
+        W1DTT = CN2 / TEMR * (8.75_rt * CJ10 - 5.0_rt * CMU1 * CJ11 + CMU1 * CMU1 * CJ12 +
+                              PIT26 * (0.75_rt * CJ12 - CMU1 * CJ13 + CMU1 * CMU1 * CJ14));
+        W2DTT = CN2 / TEMR * TEMR * (15.75_rt * CJ20 - 7.0_rt * CMU1 * CJ21 + CMU1 * CMU1 * CJ22 +
+                                     PIT26 * (3.75_rt * CJ22 - 3.0_rt * CMU1 * CJ23 + CMU1 * CMU1 * CJ24));
+        W0XXX = CN0 * TEMR * TEMR * TEMR * (CJ03 + PIT26 * CJ05);
+        W0XXT = CN0 * TEMR * (CMU1 * CJ03 + 0.5_rt * CJ02 + PIT26 * (CMU1 * CJ05 + 2.5_rt * CJ04));
+        W0XTT = CN1 * (0.75_rt * CJ01 - CMU1 * CJ02 + CMU1 * CMU1 * CJ03 +
+                       PIT26 * (0.75_rt * CJ03 + 3.0_rt * CMU1 * CJ04 + CMU1 * CMU1 * CJ05));
+    }
 }

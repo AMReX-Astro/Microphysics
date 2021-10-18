@@ -1368,6 +1368,21 @@
       save
       parameter (BOHR=137.036,PI=3.141592653d0)
       parameter (PI2=PI**2,BOHR2=BOHR**2,BOHR3=BOHR2*BOHR) !cleaned 15/6
+      interface
+         subroutine sommerf(TEMR,CHI, &
+              W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+              W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+              W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+              W0XXX,W0XTT,W0XXT) bind(C, name="sommerf")
+           implicit none
+           double precision, intent(in), value :: TEMR, CHI
+           double precision :: W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+                W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+                W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+                W0XXX,W0XTT,W0XXT
+         end subroutine sommerf
+      end interface
+
       TEMR=TEMP/BOHR2 ! T in rel.units (=T/mc^2)
       EF=CHI*TEMR ! Fermi energy in mc^2 - zeroth aprox. = CMU1
       DeltaEF=PI2*TEMR**2/6.d0*(1.d0+2.d0*EF*(2.d0+EF))/ &
@@ -1426,88 +1441,5 @@
       CVE=CVE/(1.d0+D2)
       SEid=SEid/(1.d0+D1)
       CHITE=CHITE/(1.d0+D2)
-      return
-      end
-
-      subroutine SOMMERF(TEMR,CHI, &
-       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-       W0XXX,W0XTT,W0XXT)
-!                                                       Version 17.11.11
-! Sommerfeld expansion for the Fermi-Dirac integrals
-! Input: TEMR=T/mc^2; CHI=(\mu-mc^2)/T
-! Output: Wk - Fermi-Dirac integral of the order k+1/2
-!         WkDX=dWk/dCHI, WkDT = dWk/dT, WkDXX=d^2 Wk / d CHI^2,
-!         WkDTT=d^2 Wk / d T^2, WkDXT=d^2 Wk /dCHIdT,
-!         W0XXX=d^3 W0 / d CHI^3, W0XTT=d^3 W0 /(d CHI d^2 T),
-!         W0XXT=d^3 W0 /dCHI^2 dT
-! [Draft source: yellow book pages 124-127]
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(PI=3.141592653d0)
-      parameter(PI2=PI**2)
-      interface
-         subroutine subfermj(CMU1, &
-                CJ00,CJ10,CJ20, &
-                CJ01,CJ11,CJ21, &
-                CJ02,CJ12,CJ22, &
-                CJ03,CJ13,CJ23, &
-                CJ04,CJ14,CJ24,CJ05) bind(C, name="subfermj")
-           implicit none
-           double precision, intent(in), value :: CMU1
-           double precision :: CJ00,CJ10,CJ20, &
-                CJ01,CJ11,CJ21, &
-                CJ02,CJ12,CJ22, &
-                CJ03,CJ13,CJ23, &
-                CJ04,CJ14,CJ24,CJ05
-         end subroutine subfermj
-      end interface
-
-      if (CHI.lt..5d0) then
-         print *, 'SOMMERF: non-degenerate (small CHI)'
-         stop
-      end if
-      if (TEMR.le.0.d0) then
-         print *, 'SOMMERF: T < 0'
-         stop
-      end if
-      CMU1=CHI*TEMR ! chemical potential in rel.units
-      CMU=1.d0+CMU1
-      call SUBFERMJ(CMU1, &
-       CJ00,CJ10,CJ20, &
-       CJ01,CJ11,CJ21, &
-       CJ02,CJ12,CJ22, &
-       CJ03,CJ13,CJ23, &
-       CJ04,CJ14,CJ24,CJ05)
-      PIT26=(PI*TEMR)**2/6.d0
-      CN0=dsqrt(.5d0/TEMR)/TEMR
-      CN1=CN0/TEMR
-      CN2=CN1/TEMR
-      W0=CN0*(CJ00+PIT26*CJ02) ! +CN0*PITAU4*CJ04
-      W1=CN1*(CJ10+PIT26*CJ12) ! +CN1*PITAU4*CJ14
-      W2=CN2*(CJ20+PIT26*CJ22) ! +CN2*PITAU4*CJ24
-      W0DX=CN0*TEMR*(CJ01+PIT26*CJ03) ! +CN0*PITAU4*CJ05
-      W1DX=CN0*(CJ11+PIT26*CJ13)
-      W2DX=CN1*(CJ21+PIT26*CJ23)
-      W0DT=CN1*(CMU1*CJ01-1.5d0*CJ00+PIT26*(CMU1*CJ03+.5d0*CJ02))
-      W1DT=CN2*(CMU1*CJ11-2.5d0*CJ10+PIT26*(CMU1*CJ13-.5d0*CJ12))
-      W2DT=CN2/TEMR*(CMU1*CJ21-3.5d0*CJ20+PIT26*(CMU1*CJ23-1.5d0*CJ22))
-      W0DXX=CN0*TEMR**2*(CJ02+PIT26*CJ04)
-      W1DXX=CN0*TEMR*(CJ12+PIT26*CJ14)
-      W2DXX=CN0*(CJ22+PIT26*CJ24)
-      W0DXT=CN0*(CMU1*CJ02-.5d0*CJ01+PIT26*(CMU1*CJ04+1.5d0*CJ03))
-      W1DXT=CN1*(CMU1*CJ12-1.5d0*CJ11+PIT26*(CMU1*CJ14+.5d0*CJ13))
-      W2DXT=CN2*(CMU1*CJ22-2.5d0*CJ21+PIT26*(CMU1*CJ24-.5d0*CJ23))
-      W0DTT=CN2*(3.75d0*CJ00-3.d0*CMU1*CJ01+CMU1**2*CJ02+ &
-       PIT26*(-.25d0*CJ02+CMU1*CJ03+CMU1**2*CJ04))
-      W1DTT=CN2/TEMR*(8.75d0*CJ10-5.d0*CMU1*CJ11+CMU1**2*CJ12+ &
-       PIT26*(.75d0*CJ12-CMU1*CJ13+CMU1**2*CJ14))
-      W2DTT=CN2/TEMR**2*(15.75d0*CJ20-7.d0*CMU1*CJ21+CMU1**2*CJ22+ &
-       PIT26*(3.75d0*CJ22-3.d0*CMU1*CJ23+CMU1**2*CJ24))
-      W0XXX=CN0*TEMR**3*(CJ03+PIT26*CJ05)
-      W0XXT=CN0*TEMR*(CMU1*CJ03+.5d0*CJ02+PIT26*(CMU1*CJ05+2.5d0*CJ04))
-      W0XTT=CN1*(.75d0*CJ01-CMU1*CJ02+CMU1**2*CJ03+ &
-       PIT26*(.75d0*CJ03+3.d0*CMU1*CJ04+CMU1**2*CJ05))
       return
       end
