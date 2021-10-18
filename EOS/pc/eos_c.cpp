@@ -1331,4 +1331,415 @@ extern "C"
             DlnDTT = DlnDTTa * FP + DlnDTTb * FM;
         }
     }
+
+    void fscrsol8 (Real RS, Real GAMI, Real ZNUCL, Real TPT,
+                   Real& FSCR, Real& USCR, Real& PSCR, Real& S_SCR,
+                   Real& CVSCR, Real& PDTSCR, Real& PDRSCR)
+    {
+        // Version 28.05.08
+        // undefined zero variable Q1DXG is wiped out 21.06.10
+        // accuracy-loss safeguard added 10.08.16
+        // safequard against Zion < 1 added 27.05.17
+        // Fit to the el.-ion screening in bcc or fcc Coulomb solid
+        // Stems from FSCRsol8 v.09.06.07. Included a check for RS = 0.
+        //   INPUT: RS - el. density parameter, GAMI - ion coupling parameter,
+        //          ZNUCL - ion charge, TPT = T_p/T - ion quantum parameter
+        //   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
+        //           USCR - internal energy per kT per 1 ion (screen.contrib.)
+        //           PSCR - pressure divided by (n_i kT) (screen.contrib.)
+        //           S_SCR - screening entropy contribution / (N_i k)
+        //           CVSCR - heat capacity per 1 ion (screen.contrib.)
+        //           PDTSCR,PDRSCR  =  PSCR + d PSCR / d ln(T,\rho)
+
+        const Real C13 = 1.0_rt / 3.0_rt;
+        const Real ENAT = 2.7182818285_rt;
+        const Real TINY = 1.e-19_rt;
+
+        const Real AP[4] = {1.1866_rt, 0.684_rt, 17.9_rt, 41.5_rt};
+        const Real PX = 0.205_rt; // for bcc lattice
+
+        if (RS < 0.0_rt) {
+            printf("FSCRliq8: RS < 0\n");
+            exit(1);
+        }
+
+        if (RS < TINY) {
+            FSCR = 0.0_rt;
+            USCR = 0.0_rt;
+            PSCR = 0.0_rt;
+            S_SCR = 0.0_rt;
+            CVSCR = 0.0_rt;
+            PDTSCR = 0.0_rt;
+            PDRSCR = 0.0_rt;
+            return;
+        }
+
+        Real Zion = ZNUCL;
+        if (Zion < 1.0_rt) { // 27.05.17
+            Zion = 1.0_rt;
+        }
+
+        Real XSR = 0.0140047_rt / RS; // relativity parameter
+        Real Z13 = std::pow(Zion, C13);
+        Real P1 = 0.00352_rt * (1.0_rt - AP[0] / std::pow(Zion, 0.267_rt) + 0.27_rt / Zion);
+        Real P2 = 1.0_rt + 2.25_rt / Z13 *
+                  (1.0_rt + AP[1] * (Zion * Zion * Zion * Zion * Zion) +
+                   0.222_rt * (Zion * Zion * Zion * Zion * Zion * Zion)) /
+                  (1.0_rt + .222 * Zion * Zion * Zion * Zion * Zion * Zion);
+        Real ZLN = std::log(Zion);
+        Real Finf = std::sqrt(P2 / (XSR * XSR) + 1.0_rt) * Z13 * Z13 * P1; // The TF limit
+        Real FinfX = -P2 / ((P2 + XSR * XSR) * XSR);
+        Real FinfDX = Finf * FinfX;
+        Real FinfDXX = FinfDX * FinfX - FinfDX * (P2 + 3.0_rt * XSR * XSR) / ((P2 + XSR * XSR) * XSR);
+        Real R1 = AP[3] / (1.0_rt + ZLN);
+        Real R2 = 0.395_rt * ZLN + .347 / Zion / std::sqrt(Zion);
+        Real R3 = 1.0_rt / (1.0_rt + ZLN * std::sqrt(ZLN) * 0.01_rt + 0.097_rt / (Zion * Zion));
+        Real Q1U = R1 + AP[2] * XSR * XSR;
+        Real Q1D = 1.0_rt + R2 * XSR * XSR;
+        Real Q1 = Q1U / Q1D;
+        Real Q1X = 2.0_rt * XSR * (AP[2] / Q1U - R2 / Q1D);
+        Real Q1XDX = Q1X / XSR + 4.0_rt * XSR * XSR * ((R2 / Q1D) * (R2 / Q1D) - (AP[2] / Q1U) * (AP[2] / Q1U));
+        Real Q1DX = Q1 * Q1X;
+        Real Q1DXX = Q1DX * Q1X + Q1 * Q1XDX;
+
+        Real SUP, SUPDX, SUPDG, SUPDXX, SUPDGG, SUPDXG;
+
+        // New quantum factor, in order to suppress CVSCR at TPT >> 1
+        if (TPT < 6.0_rt / PX) {
+            Real Y0 = (PX * TPT) * (PX * TPT);
+            Real Y0DX = Y0 / XSR;
+            Real Y0DG = 2.0_rt * Y0 / GAMI;
+            Real Y0DXX = 0.0_rt;
+            Real Y0DGG = Y0DG / GAMI;
+            Real Y0DXG = Y0DG / XSR;
+            Real Y1 = std::exp(Y0);
+            Real Y1DX = Y1 * Y0DX;
+            Real Y1DG = Y1 * Y0DG;
+            Real Y1DXX = Y1 * (Y0DX * Y0DX + Y0DXX);
+            Real Y1DGG = Y1 * (Y0DG * Y0DG + Y0DGG);
+            Real Y1DXG = Y1 * (Y0DX * Y0DG + Y0DXG);
+            Real SA = 1.0_rt + Y1;
+            Real SUPA = std::log(SA);
+            Real SUPADX = Y1DX / SA;
+            Real SUPADG = Y1DG / SA;
+            Real SUPADXX = (Y1DXX - Y1DX * Y1DX / SA) / SA;
+            Real SUPADGG = (Y1DGG - Y1DG * Y1DG / SA) / SA;
+            Real SUPADXG = (Y1DXG - Y1DX * Y1DG / SA) / SA;
+            Real EM2 = ENAT - 2.0_rt;
+            Real SB = ENAT - EM2 / Y1;
+            Real SUPB = std::log(SB);
+            Real EM2Y1 = EM2 / (Y1 * Y1 * SB);
+            Real SUPBDX = EM2Y1 * Y1DX;
+            Real SUPBDG = EM2Y1 * Y1DG;
+            Real SUPBDXX = EM2Y1 * (Y1DXX - 2.0_rt * Y1DX * Y1DX / Y1 - Y1DX * SUPBDX);
+            Real SUPBDGG = EM2Y1 * (Y1DGG - 2.0_rt * Y1DG * Y1DG / Y1 - Y1DG * SUPBDG);
+            Real SUPBDXG = EM2Y1 * (Y1DXG - 2.0_rt * Y1DX * Y1DG / Y1 - Y1DG * SUPBDX);
+
+            SUP = std::sqrt(SUPA / SUPB);
+            Real SUPX = 0.5_rt * (SUPADX / SUPA - SUPBDX / SUPB);
+            SUPDX = SUP * SUPX;
+            Real SUPG = 0.5_rt * (SUPADG / SUPA - SUPBDG / SUPB);
+            SUPDG = SUP * SUPG;
+            SUPDXX = SUPDX * SUPX +
+                     SUP * 0.5_rt * (SUPADXX / SUPA - (SUPADX / SUPA) * (SUPADX / SUPA) -
+                                     SUPBDXX / SUPB + (SUPBDX / SUPB) * (SUPBDX / SUPB));
+            SUPDGG = SUPDG * SUPG +
+                     SUP * 0.5_rt * (SUPADGG / SUPA - (SUPADG / SUPA) * (SUPADG / SUPA) -
+                                     SUPBDGG / SUPB + (SUPBDG / SUPB) * (SUPBDG / SUPB));
+            SUPDXG = SUPDX * SUPG +
+                     SUP * 0.5_rt * ((SUPADXG - SUPADX * SUPADG / SUPA) / SUPA -
+                                     (SUPBDXG - SUPBDX * SUPBDG / SUPB) / SUPB);
+        }
+        else {
+            SUP = PX * TPT;
+            SUPDX = 0.5_rt * PX * TPT / XSR;
+            SUPDG = PX * TPT / GAMI;
+            SUPDXX =  - 0.5_rt * SUPDX / XSR;
+            SUPDGG = 0.0_rt;
+            SUPDXG = SUPDX / GAMI;
+        }
+
+        Real GR3 = std::pow(GAMI / SUP, R3);
+        Real GR3X = -R3 * SUPDX / SUP;
+        Real GR3DX = GR3 * GR3X;
+        Real GR3DXX = GR3DX * GR3X - R3 * GR3 * (SUPDXX / SUP - (SUPDX / SUP) * (SUPDX / SUP));
+        Real GR3G = R3 * (1.0_rt / GAMI - SUPDG / SUP);
+        Real GR3DG = GR3 * GR3G;
+        Real GR3DGG = GR3DG * GR3G + GR3 * R3 * ((SUPDG / SUP) * (SUPDG / SUP) - SUPDGG / SUP - 1.0_rt / (GAMI * GAMI));
+        Real GR3DXG = GR3DG * GR3X + GR3 * R3 * (SUPDX * SUPDG / (SUP * SUP) - SUPDXG / SUP);
+        Real W = 1.0_rt + Q1 / GR3;
+        Real WDX = Q1DX / GR3 - Q1 * GR3DX / (GR3 * GR3);
+        Real WDG = -Q1 * GR3DG / (GR3 * GR3);
+        Real WDXX = Q1DXX / GR3 -
+                    (2.0_rt * Q1DX * GR3DX + Q1 * (GR3DXX - 2.0_rt * GR3DX * GR3DX / GR3)) / (GR3 * GR3);
+        Real WDGG = Q1 * (2.0_rt * GR3DG * GR3DG / GR3 - GR3DGG) / (GR3 * GR3);
+        Real WDXG = -(Q1DX * GR3DG + Q1 * (GR3DXG - 2.0_rt * GR3DX * GR3DG / GR3)) / (GR3 * GR3);
+        FSCR = -GAMI * Finf * W;
+        Real FDX = -GAMI * (FinfDX * W + Finf * WDX);
+        Real FDXX = -GAMI * (FinfDXX * W + 2.0_rt * FinfDX * WDX + Finf * WDXX);
+        Real FDG = -Finf * W - GAMI * Finf * WDG;
+        Real FDGG = -2.0_rt * Finf * WDG - GAMI * Finf * WDGG;
+        if (std::abs(FDGG) < TINY) {
+            FDGG = 0.0_rt; // 10.08.16: roundoff err.safeguard
+        }
+        Real FDXG = -FinfDX * W - Finf * WDX - GAMI * (FinfDX * WDG + Finf * WDXG);
+        S_SCR = -GAMI * GAMI * Finf * WDG;
+        USCR = S_SCR + FSCR;
+        CVSCR = -GAMI * GAMI * FDGG;
+        PSCR = (XSR * FDX + GAMI * FDG) / 3.0_rt;
+        PDTSCR = GAMI * GAMI * (XSR * Finf * (FinfX * WDG + WDXG) - FDGG) / 3.0_rt;
+        PDRSCR = (12.0_rt * PSCR + XSR * XSR * FDXX + 2.0_rt * XSR * GAMI * FDXG +
+                  GAMI * GAMI * FDGG) / 9.0_rt;
+    }
+
+    /*
+    subroutine ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah)
+// ANHARMONIC free energy                                Version 27.07.07
+//                                                       cleaned 16.06.09
+// Stems from ANHARM8b. Difference: AC = 0., B1 = .12 (.1217 - over accuracy)
+// Input: GAMI - ionic Gamma, TPT = Tp/T - ionic quantum parameter
+// Output: anharm.free en. Fah = F_{AH}/(N_i kT), internal energy Uah,
+//   pressure Pah = P_{AH}/(n_i kT), specific heat CVah  =  C_{V,AH}/(N_i k),
+//   PDTah  =  Pah  +  d Pah / d ln T, PDRah  =  Pah  +  d Pah / d ln\rho
+      implicit double precision (A-H), double precision (O-Z)
+      save
+      parameter(NM = 3)
+      dimension AA(NM)
+      data AA/10.9,247.,1.765d5/ // Farouki & Hamaguchi'93
+      data B1/.12/ // coeff.at \eta^2/\Gamma at T = 0
+      CK = B1 / AA[0] // fit coefficient
+      TPT2 = TPT * TPT
+      TPT4 = TPT2 * TPT2
+      TQ = B1 * TPT2 / GAMI // quantum dependence
+      TK2 = CK * TPT2
+      SUP = std::exp(-TK2) // suppress.factor of class.anharmonicity
+      Fah = 0.
+      Uah = 0.
+      Pah = 0.
+      CVah = 0.
+      PDTah = 0.
+      PDRah = 0.
+      SUPGN = SUP
+      do N = 1,NM
+         CN = N
+         SUPGN = SUPGN / GAMI // SUP/Gamma^n
+         ACN = AA(N)
+         Fah = Fah - ACN / CN * SUPGN
+         Uah = Uah + (ACN * (1.0_rt + 2.0_rt * TK2 / CN)) * SUPGN
+         PN = AA(N) / 3.0_rt + TK2 * AA(N) / CN
+         Pah = Pah + PN * SUPGN
+         CVah = CVah + ((CN + 1.0_rt) * AA(N) + (4.0_rt - 2.0_rt / CN) * AA(N) * TK2 +  &
+           4.0_rt * AA(N) * CK * CK / CN * TPT4) * SUPGN
+         PDTah = PDTah + (PN * (1.0_rt + CN + 2.0_rt * TK2) - 2.0_rt / CN * AA(N) * TK2) * SUPGN
+         PDRah = PDRah + (PN * (1.0_rt - CN / 3.0_rt - TK2) + AA(N) / CN * TK2) * SUPGN
+      enddo
+      Fah = Fah - TQ
+      Uah = Uah - TQ
+      Pah = Pah - TQ / 1.5
+      PDRah = PDRah - TQ / 4.5
+      return
+      end
+
+      subroutine FHARM12(GAMI,TPT, &
+        Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
+// Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
+//
+//                                                       Version 27.04.12
+// Stems from FHARM8 v.15.02.08
+// Replaced HLfit8 with HLfit12: rearranged output.
+// Input: GAMI - ionic Gamma, TPT = T_{p,i}/T
+// Output: Fharm = F/(N_i T), Uharm = U/(N_i T), Pharm = P/(n_i T),
+// CVth = C_V/N_i, Sharm = S/N_i
+// PDTharm  =  Pharm  +  d Pharm / d ln T, PDRharm  =  Pharm  +  d Pharm/d ln\rho
+      implicit double precision (A-H), double precision (O-Z)
+      save
+      parameter(CM = .895929256d0) // Madelung
+      call HLfit12(TPT,F,U,CVth,Sth,U1,CW,1)
+      U0 = -CM * GAMI // perfect lattice
+      E0 = 1.5d0 * U1 * TPT // zero-point energy
+      Uth = U + E0
+      Fth = F + E0
+      Uharm = U0 + Uth
+      Fharm = U0 + Fth
+      Pharm = U0 / 3.0_rt + Uth / 2.0_rt
+      PDTharm = 0.5_rt * CVth
+      PDRharm = U0 / 2.25d0 + .75d0 * Uth - .25d0 * CVth
+      return
+      end
+
+      subroutine HLfit12(eta,F,U,CV,S,U1,CW,LATTICE)
+//                                                       Version 24.04.12
+// Stems from HLfit8 v.03.12.08;
+//   differences: E0 excluded from  U and F;
+//   U1 and d(CV)/d\ln(T) are added on the output.
+// Fit to thermal part of the thermodynamic functions.
+// Baiko, Potekhin, & Yakovlev (2001).
+// Zero-point lattice quantum energy 1.5u_1\eta EXCLUDED (unlike HLfit8).
+// Input: eta = Tp/T, LATTICE = 1 for bcc, 2 for fcc
+// Output: F and U (normalized to NkT) - due to phonon excitations,
+//   CV and S (normalized to Nk) in the HL model,
+//   U1 - the 1st phonon moment,
+//   CW = d(CV)/d\ln(T)
+      implicit double precision (A-H), double precision (O-Z)
+      save
+      parameter(EPS = 1.d-5,TINY = 1.d-99)
+      if (LATTICE.eq.1) { // bcc lattice
+         CLM = -2.49389d0 // 3 * ln<\omega/\omega_p>
+         U1 = .5113875d0
+         ALPHA = .265764d0
+         BETA = .334547d0
+         GAMMA = .932446d0
+         A1 = .1839d0
+         A2 = .593586d0
+         A3 = .0054814d0
+         A4 = 5.01813d-4
+         A6 = 3.9247d-7
+         A8 = 5.8356d-11
+         B0 = 261.66d0
+         B2 = 7.07997d0
+         B4 = .0409484d0
+         B5 = .000397355d0
+         B6 = 5.11148d-5
+         B7 = 2.19749d-6
+         C9 = .004757014d0
+         C11 = .0047770935d0
+      elseif (LATTICE.eq.2) { // fcc lattice
+         CLM = -2.45373d0
+         U1 = .513194d0
+         ALPHA = .257591d0
+         BETA = .365284d0
+         GAMMA = .9167070d0
+         A1 = .0
+         A2 = .532535d0
+         A3 = .0
+         A4 = 3.76545d-4
+         A6 = 2.63013d-7
+         A8 = 6.6318d-11
+         B0 = 303.20d0
+         B2 = 7.7255d0
+         B4 = .0439597d0
+         B5 = .000114295d0
+         B6 = 5.63434d-5
+         B7 = 1.36488d-6
+         C9 = .00492387d0
+         C11 = .00437506d0
+      else
+         print  * , 'HLfit: unknown lattice type'
+         stop
+      endif
+      if (eta.gt.1.0_rt / EPS) { // asymptote of Eq.(13) of BPY'01
+         U = 3.0_rt / (C11 * eta * eta * eta)
+         F = -U / 3.0_rt
+         CV = 4.0_rt * U
+         S = U - F
+         return
+      elseif (eta < EPS) { // Eq.(17) of BPY'01
+        if (eta < TINY) {
+           print  * , 'HLfit: eta is too small'
+           stop
+        end if
+         F = 3.0_rt * std::log(eta) + CLM - 1.5 * U1 * eta + eta * eta / 24.
+         U = 3.0_rt - 1.5 * U1 * eta + eta * eta / 12.
+         CV = 3.0_rt - eta * eta / 12.
+         S = U - F
+         return
+      endif
+      eta2 = eta * eta
+      eta3 = eta2 * eta
+      eta4 = eta3 * eta
+      eta5 = eta4 * eta
+      eta6 = eta5 * eta
+      eta7 = eta6 * eta
+      eta8 = eta7 * eta
+      B9 = A6 * C9
+      B11 = A8 * C11
+      UP = 1.0_rt + A1 * eta + A2 * eta2 + A3 * eta3 + A4 * eta4 + A6 * eta6 + A8 * eta8
+      DN = B0 + B2 * eta2 + B4 * eta4 + B5 * eta5 + B6 * eta6 +  &
+       B7 * eta7 + eta8 * (B9 * eta + B11 * eta3)
+      EA = std::exp(-ALPHA * eta)
+      EB = std::exp(-BETA * eta)
+      EG = std::exp(-GAMMA * eta)
+      F = std::log(1.0_rt - EA) + std::log(1.0_rt - EB) + std::log(1.0_rt - EG) - UP / DN // F_{thermal}/NT
+      UP1 = A1 +  &
+      2.0_rt * A2 * eta + 3.0_rt * A3 * eta2 + 4.0_rt * A4 * eta3 + 6.0_rt * A6 * eta5 + 8. * A8 * eta7
+      UP2 = 2.0_rt * A2 + 6.0_rt * A3 * eta + 12. * A4 * eta2 + 30. * A6 * eta4 + 56.0_rt * A8 * eta6
+      UP3 = 6.0_rt * A3 + 24. * A4 * eta + 120. * A6 * eta3 + 336 * A8 * eta5
+      DN1 = 2.0_rt * B2 * eta + 4.0_rt * B4 * eta3 + 5. * B5 * eta4 + 6.0_rt * B6 * eta5 +  &
+       7. * B7 * eta6 + eta8 * (9. * B9 + 11. * B11 * eta2)
+      DN2 = 2.0_rt * B2 + 12. * B4 * eta2 + 20. * B5 * eta3 + 30. * B6 * eta4 +  &
+       42. * B7 * eta5 + 72. * B9 * eta7 + 110. * B11 * eta8 * eta
+      DN3 = 24. * B4 * eta + 60. * B5 * eta2 + 120. * B6 * eta3 +  &
+       210. * B7 * eta4 + 504. * B9 * eta6 + 990. * B11 * eta8
+      DF1 = ALPHA * EA / (1.0_rt - EA) + BETA * EB / (1.0_rt - EB) + GAMMA * EG / (1.0_rt - EG) -  &
+       (UP1 * DN - DN1 * UP) / (DN * DN) // int.en./NT/eta  =  df/d\eta
+      DF2 = ALPHA * ALPHA * EA / ((1.0_rt - EA) * (1.0_rt - EA) + BETA * BETA * EB / ((1.0_rt - EB) * (1.0_rt - EB) +  &
+       GAMMA * GAMMA * EG / ((1.0_rt - EG) * (1.0_rt - EG) +  &
+       ((UP2 * DN - DN2 * UP) * DN - 2.0_rt * (UP1 * DN - DN1 * UP) * DN1) / (DN * DN * DN) // -d2f/d\eta^2
+      U = DF1 * eta
+      CV = DF2 * eta2
+      DF3 = -ALPHA * ALPHA * ALPHA * EA / std::pow(1.0_rt - EA, 3) * (1.0_rt + EA) -  &
+       BETA * BETA * BETA * EB / std::pow(1.0_rt - EB, 3) * (1.0_rt + EB) -  &
+       GAMMA * GAMMA * GAMMA * EG / std::pow(1.0_rt - EG, 3) * (1.0_rt + EG) +  &
+       UP3 / DN - (3.0_rt * UP2 * DN1 + 3.0_rt * UP1 * DN2 + UP * DN3) / (DN * DN) +  &
+       6.0_rt * DN1 * (UP1 * DN1 + UP * DN2) / (DN * DN * DN) - 6.0_rt * UP * DN1 * DN1 * DN1 / (DN * DN * DN * DN) // -d3f/d\eta^3
+      CW = -2.0_rt * CV - eta3 * DF3
+      S = U - F
+      return
+      end
+
+      subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
+       FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
+//                                                       Version 02.07.09
+// Correction to the linear mixing rule for moderate to small Gamma
+// Input: RS = r_s (if RS = 0, then OCP, otherwise EIP)
+//        GAME = \Gamma_e
+//        Zmean = <Z> (average Z of all ions, without electrons)
+//        Z2mean = <Z^2>, Z52 = <Z^2.5>, Z53 = <Z^{5/3}>, Z321 = <Z(Z + 1)^1.5>
+// Output: FMIX = \Delta f - corr.to the reduced free energy f = F/N_{ion}kT
+//         UMIX = \Delta u - corr.to the reduced internal energy u
+//         PMIX = \Delta u - corr.to the reduced pressure P = P/n_{ion}kT
+//         CVMIX = \Delta c - corr.to the reduced heat capacity c_V
+//         PDTMIX = (1/n_{ion}kT)d\Delta P / d ln T
+//                =  \Delta p  +   d \Delta p / d ln T
+//         PDRMIX = (1/n_{ion}kT)d\Delta P / d ln n_e
+// (composition is assumed fixed: Zmean,Z2mean,Z52,Z53 = constant)
+      implicit double precision (A-H), double precision (O-Z)
+      parameter (TINY = 1.d-9)
+      GAMImean = GAME * Z53
+      if (RS < TINY) { // OCP
+         Dif0 = Z52 - std::sqrt(Z2mean * Z2mean * Z2mean / Zmean)
+      else
+         Dif0 = Z321 - std::sqrt(std::pow(Z2mean + Zmean, 3) / Zmean)
+      endif
+      DifR = Dif0 / Z52
+      DifFDH = Dif0 * GAME * std::sqrt(GAME / 3.0_rt) // F_DH - F_LM(DH)
+      D = Z2mean / (Zmean * Zmean)
+      if (std::abs(D - 1.0_rt) < TINY) { // no correction
+         FMIX = 0.
+         UMIX = 0.
+         PMIX = 0.
+         CVMIX = 0.
+         PDTMIX = 0.
+         PDRMIX = 0.
+         return
+      endif
+      P3 = std::pow(D, -0.2_rt)
+      D0 = (2.6 * DifR + 14. * DifR * DifR * DifR) / (1.0_rt - P3)
+      GP = D0 * std::pow(GAMImean, P3)
+      FMIX0 = DifFDH / (1.0_rt + GP)
+      Q = D * D * .0117
+      R = 1.5 / P3 - 1.0_rt
+      GQ = Q * GP
+      FMIX = FMIX0 / std::pow(1.0_rt + GQ, R)
+      G = 1.5 - P3 * GP / (1.0_rt + GP) - R * P3 * GQ / (1.0_rt + GQ)
+      UMIX = FMIX * G
+      PMIX = UMIX / 3.0_rt
+      GDG = -P3 * P3 * (GP / ((1.0_rt + GP) * (1.0_rt + GP)) + R * GQ / ((1.0_rt + GQ) * (1.0_rt + GQ)) // d G /d ln Gamma
+      UDG = UMIX * G + FMIX * GDG // d u_mix /d ln Gamma
+      CVMIX = UMIX - UDG
+      PDTMIX = PMIX - UDG / 3.0_rt
+      PDRMIX = PMIX + UDG / 9.
+      return
+      end
+*/
 }

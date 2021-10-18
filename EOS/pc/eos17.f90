@@ -575,6 +575,12 @@
            double precision, intent(in), value :: RS, GAME
            double precision :: FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC
          end subroutine excor7
+         subroutine fscrsol8(RS,GAMI,Zion,TPT, &
+              FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR) bind(C, name="fscrsol8")
+           implicit none
+           double precision, intent(in), value :: RS, GAMI, Zion, TPT
+           double precision :: FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR
+         end subroutine fscrsol8
       end interface
 
       if (LIQSOL.ne.1.and.LIQSOL.ne.0) then
@@ -835,150 +841,6 @@
       end
 
 ! ==============   SUBROUTINES FOR THE SOLID STATE   ================= !
-      subroutine FSCRsol8(RS,GAMI,ZNUCL,TPT, &
-          FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
-!                                                       Version 28.05.08
-!                    undefined zero variable Q1DXG is wiped out 21.06.10
-!                                 accuracy-loss safeguard added 10.08.16
-!                              safequard against Zion < 1 added 27.05.17
-! Fit to the el.-ion screening in bcc or fcc Coulomb solid
-! Stems from FSCRsol8 v.09.06.07. Included a check for RS=0.
-!   INPUT: RS - el. density parameter, GAMI - ion coupling parameter,
-!          ZNUCL - ion charge, TPT=T_p/T - ion quantum parameter
-!   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
-!           USCR - internal energy per kT per 1 ion (screen.contrib.)
-!           PSCR - pressure divided by (n_i kT) (screen.contrib.)
-!           S_SCR - screening entropy contribution / (N_i k)
-!           CVSCR - heat capacity per 1 ion (screen.contrib.)
-!           PDTSCR,PDRSCR = PSCR + d PSCR / d ln(T,\rho)
-      implicit double precision(A-H),double precision(O-Z)
-      save
-      dimension AP(4) ! parameters of the fit
-      parameter (C13=1.d0/3.d0,ENAT=2.7182818285d0,TINY=1.d-19)
-      data AP/1.1866,.684,17.9,41.5/,PX/.205/ ! for bcc lattice
-      if (RS.lt.0.) then
-         print *, 'FSCRliq8: RS < 0'
-         stop
-      end if
-      if (RS.lt.TINY) then
-         FSCR=0.
-         USCR=0.
-         PSCR=0.
-         S_SCR=0.
-         CVSCR=0.
-         PDTSCR=0.
-         PDRSCR=0.
-         return
-      endif
-      Zion=ZNUCL
-      if (Zion.lt.1.d0) then ! 27.05.17
-         print*,'FSCRsol8 WARNING: Z =',Zion,' < 1.'
-         Zion=1.d0
-      endif
-      XSR=.0140047/RS ! relativity parameter
-      Z13=Zion**C13
-      P1=.00352*(1.-AP(1)/Zion**.267+.27/Zion)
-      P2=1.d0+2.25/Z13* &
-      (1.+AP(2)*Zion**5+.222*Zion**6)/(1.+.222*Zion**6)
-      ZLN=dlog(Zion)
-      Finf=sqrt(P2/XSR**2+1.)*Z13**2*P1 ! The TF limit
-      FinfX=-P2/((P2+XSR**2)*XSR)
-      FinfDX=Finf*FinfX
-      FinfDXX=FinfDX*FinfX-FinfDX*(P2+3.*XSR**2)/((P2+XSR**2)*XSR)
-      R1=AP(4)/(1.+ZLN)
-      R2=.395*ZLN+.347/Zion/sqrt(Zion)
-      R3=1.d0/(1.d0+ZLN*sqrt(ZLN)*.01+.097/Zion**2)
-      Q1U=R1+AP(3)*XSR**2
-      Q1D=1.d0+R2*XSR**2
-      Q1=Q1U/Q1D
-      Q1X=2.*XSR*(AP(3)/Q1U-R2/Q1D)
-      Q1XDX=Q1X/XSR+4.*XSR**2*((R2/Q1D)**2-(AP(3)/Q1U)**2)
-      Q1DX=Q1*Q1X
-      Q1DXX=Q1DX*Q1X+Q1*Q1XDX
-! New quantum factor, in order to suppress CVSCR at TPT >> 1
-      if (TPT.lt.6./PX) then
-         Y0=(PX*TPT)**2
-         Y0DX=Y0/XSR
-         Y0DG=2.*Y0/GAMI
-         Y0DXX=0.
-         Y0DGG=Y0DG/GAMI
-         Y0DXG=Y0DG/XSR
-         Y1=dexp(Y0)
-         Y1DX=Y1*Y0DX
-         Y1DG=Y1*Y0DG
-         Y1DXX=Y1*(Y0DX**2+Y0DXX)
-         Y1DGG=Y1*(Y0DG**2+Y0DGG)
-         Y1DXG=Y1*(Y0DX*Y0DG+Y0DXG)
-         SA=1.d0+Y1
-         SUPA=dlog(SA)
-         SUPADX=Y1DX/SA
-         SUPADG=Y1DG/SA
-         SUPADXX=(Y1DXX-Y1DX**2/SA)/SA
-         SUPADGG=(Y1DGG-Y1DG**2/SA)/SA
-         SUPADXG=(Y1DXG-Y1DX*Y1DG/SA)/SA
-         EM2=ENAT-2.d0
-         SB=ENAT-EM2/Y1
-         SUPB=dlog(SB)
-         EM2Y1=EM2/(Y1**2*SB)
-         SUPBDX=EM2Y1*Y1DX
-         SUPBDG=EM2Y1*Y1DG
-         SUPBDXX=EM2Y1*(Y1DXX-2.d0*Y1DX**2/Y1-Y1DX*SUPBDX)
-         SUPBDGG=EM2Y1*(Y1DGG-2.d0*Y1DG**2/Y1-Y1DG*SUPBDG)
-         SUPBDXG=EM2Y1*(Y1DXG-2.d0*Y1DX*Y1DG/Y1-Y1DG*SUPBDX)
-         SUP=dsqrt(SUPA/SUPB)
-         SUPX=.5d0*(SUPADX/SUPA-SUPBDX/SUPB)
-         SUPDX=SUP*SUPX
-         SUPG=.5d0*(SUPADG/SUPA-SUPBDG/SUPB)
-         SUPDG=SUP*SUPG
-         SUPDXX=SUPDX*SUPX+ &
-          SUP*.5d0*(SUPADXX/SUPA-(SUPADX/SUPA)**2- &
-                  SUPBDXX/SUPB+(SUPBDX/SUPB)**2)
-         SUPDGG=SUPDG*SUPG+ &
-          SUP*.5d0*(SUPADGG/SUPA-(SUPADG/SUPA)**2- &
-                  SUPBDGG/SUPB+(SUPBDG/SUPB)**2)
-         SUPDXG=SUPDX*SUPG+ &
-          SUP*.5d0*((SUPADXG-SUPADX*SUPADG/SUPA)/SUPA- &
-                  (SUPBDXG-SUPBDX*SUPBDG/SUPB)/SUPB)
-      else
-         SUP=PX*TPT
-         SUPDX=.5d0*PX*TPT/XSR
-         SUPDG=PX*TPT/GAMI
-         SUPDXX=-.5d0*SUPDX/XSR
-         SUPDGG=0.
-         SUPDXG=SUPDX/GAMI
-      endif
-      GR3=(GAMI/SUP)**R3
-      GR3X=-R3*SUPDX/SUP
-      GR3DX=GR3*GR3X
-      GR3DXX=GR3DX*GR3X-R3*GR3*(SUPDXX/SUP-(SUPDX/SUP)**2)
-      GR3G=R3*(1.d0/GAMI-SUPDG/SUP)
-      GR3DG=GR3*GR3G
-      GR3DGG=GR3DG*GR3G+GR3*R3*((SUPDG/SUP)**2-SUPDGG/SUP-1.d0/GAMI**2)
-      GR3DXG=GR3DG*GR3X+GR3*R3*(SUPDX*SUPDG/SUP**2-SUPDXG/SUP)
-      W=1.d0+Q1/GR3
-      WDX=Q1DX/GR3-Q1*GR3DX/GR3**2
-      WDG=-Q1*GR3DG/GR3**2
-      WDXX=Q1DXX/GR3- &
-        (2.d0*Q1DX*GR3DX+Q1*(GR3DXX-2.d0*GR3DX**2/GR3))/GR3**2
-      WDGG=Q1*(2.d0*GR3DG**2/GR3-GR3DGG)/GR3**2
-      WDXG=-(Q1DX*GR3DG+Q1*(GR3DXG-2.d0*GR3DX*GR3DG/GR3))/GR3**2
-      FSCR=-GAMI*Finf*W
-      FDX=-GAMI*(FinfDX*W+Finf*WDX)
-      FDXX=-GAMI*(FinfDXX*W+2.d0*FinfDX*WDX+Finf*WDXX)
-      FDG=-Finf*W-GAMI*Finf*WDG
-      FDGG=-2.d0*Finf*WDG-GAMI*Finf*WDGG
-      if (dabs(FDGG).lt.TINY) FDGG=0. ! 10.08.16: roundoff err.safeguard
-      FDXG=-FinfDX*W-Finf*WDX-GAMI*(FinfDX*WDG+Finf*WDXG)
-      S_SCR=-GAMI**2*Finf*WDG
-      USCR=S_SCR+FSCR
-      CVSCR=-GAMI**2*FDGG
-      PSCR=(XSR*FDX+GAMI*FDG)/3.d0
-      PDTSCR=GAMI**2*(XSR*Finf*(FinfX*WDG+WDXG)-FDGG)/3.d0
-      PDRSCR=(12.d0*PSCR+XSR**2*FDXX+2.d0*XSR*GAMI*FDXG+ &
-       GAMI**2*FDGG)/9.d0
-      return
-      end
-
       subroutine ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah)
 ! ANHARMONIC free energy                                Version 27.07.07
 !                                                       cleaned 16.06.09
