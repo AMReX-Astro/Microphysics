@@ -1544,6 +1544,139 @@ extern "C"
         PDRah = PDRah - TQ / 4.5_rt;
     }
 
+    void hlfit12 (Real eta,
+                  Real& F, Real& U, Real& CV, Real& S,
+                  Real& U1, Real& CW, int LATTICE)
+    {
+        // Version 24.04.12
+        // Stems from HLfit8 v.03.12.08;
+        //   differences: E0 excluded from  U and F;
+        //   U1 and d(CV)/d\ln(T) are added on the output.
+        // Fit to thermal part of the thermodynamic functions.
+        // Baiko, Potekhin, & Yakovlev (2001).
+        // Zero-point lattice quantum energy 1.5u_1\eta EXCLUDED (unlike HLfit8).
+        // Input: eta = Tp/T, LATTICE = 1 for bcc, 2 for fcc
+        // Output: F and U (normalized to NkT) - due to phonon excitations,
+        //   CV and S (normalized to Nk) in the HL model,
+        //   U1 - the 1st phonon moment,
+        //   CW = d(CV)/d\ln(T)
+
+        const Real EPS = 1.e-5_rt;
+        const Real TINY = 1.e-99_rt;
+
+        Real CLM, ALPHA, BETA, GAMMA;
+        Real A1, A2, A3, A4, A6, A8;
+        Real B0, B2, B4, B5, B6, B7, C9, C11;
+
+        if (LATTICE == 1) { // bcc lattice
+            CLM = -2.49389_rt; // 3 * ln<\omega/\omega_p>
+            U1 = 0.5113875_rt;
+            ALPHA = 0.265764_rt;
+            BETA = 0.334547_rt;
+            GAMMA = 0.932446_rt;
+            A1 = 0.1839_rt;
+            A2 = 0.593586_rt;
+            A3 = 0.0054814_rt;
+            A4 = 5.01813e-4_rt;
+            A6 = 3.9247e-7_rt;
+            A8 = 5.8356e-11_rt;
+            B0 = 261.66_rt;
+            B2 = 7.07997_rt;
+            B4 = 0.0409484_rt;
+            B5 = 0.000397355_rt;
+            B6 = 5.11148e-5_rt;
+            B7 = 2.19749e-6_rt;
+            C9 = 0.004757014_rt;
+            C11 = 0.0047770935_rt;
+        }
+        else if (LATTICE == 2) { // fcc lattice
+            CLM = -2.45373_rt;
+            U1 = 0.513194_rt;
+            ALPHA = 0.257591_rt;
+            BETA = 0.365284_rt;
+            GAMMA = 0.9167070_rt;
+            A1 = 0.0_rt;
+            A2 = 0.532535_rt;
+            A3 = 0.0_rt;
+            A4 = 3.76545e-4_rt;
+            A6 = 2.63013e-7_rt;
+            A8 = 6.6318e-11_rt;
+            B0 = 303.20_rt;
+            B2 = 7.7255_rt;
+            B4 = 0.0439597_rt;
+            B5 = 0.000114295_rt;
+            B6 = 5.63434e-5_rt;
+            B7 = 1.36488e-6_rt;
+            C9 = 0.00492387_rt;
+            C11 = 0.00437506_rt;
+        }
+        else {
+            printf("HLfit: unknown lattice type\n");
+            exit(1);
+        }
+
+        if (eta > 1.0_rt / EPS) { // asymptote of Eq.(13) of BPY'01
+            U = 3.0_rt / (C11 * eta * eta * eta);
+            F = -U / 3.0_rt;
+            CV = 4.0_rt * U;
+            S = U - F;
+            return;
+        }
+        else if (eta < EPS) { // Eq.(17) of BPY'01
+            if (eta < TINY) {
+                printf("HLfit: eta is too small\n");
+                exit(1);
+            }
+            F = 3.0_rt * std::log(eta) + CLM - 1.5_rt * U1 * eta + eta * eta / 24.0_rt;
+            U = 3.0_rt - 1.5_rt * U1 * eta + eta * eta / 12.0_rt;
+            CV = 3.0_rt - eta * eta / 12.0_rt;
+            S = U - F;
+            return;
+        }
+
+        Real eta2 = eta * eta;
+        Real eta3 = eta2 * eta;
+        Real eta4 = eta3 * eta;
+        Real eta5 = eta4 * eta;
+        Real eta6 = eta5 * eta;
+        Real eta7 = eta6 * eta;
+        Real eta8 = eta7 * eta;
+        Real B9 = A6 * C9;
+        Real B11 = A8 * C11;
+        Real UP = 1.0_rt + A1 * eta + A2 * eta2 + A3 * eta3 + A4 * eta4 + A6 * eta6 + A8 * eta8;
+        Real DN = B0 + B2 * eta2 + B4 * eta4 + B5 * eta5 + B6 * eta6 +
+                  B7 * eta7 + eta8 * (B9 * eta + B11 * eta3);
+        Real EA = std::exp(-ALPHA * eta);
+        Real EB = std::exp(-BETA * eta);
+        Real EG = std::exp(-GAMMA * eta);
+        F = std::log(1.0_rt - EA) + std::log(1.0_rt - EB) + std::log(1.0_rt - EG) - UP / DN; // F_{thermal}/NT
+        Real UP1 = A1 + 2.0_rt * A2 * eta + 3.0_rt * A3 * eta2 + 4.0_rt * A4 * eta3 +
+                   6.0_rt * A6 * eta5 + 8. * A8 * eta7;
+        Real UP2 = 2.0_rt * A2 + 6.0_rt * A3 * eta + 12.0_rt * A4 * eta2 + 30.0_rt * A6 * eta4 + 56.0_rt * A8 * eta6;
+        Real UP3 = 6.0_rt * A3 + 24.0_rt * A4 * eta + 120.0_rt * A6 * eta3 + 336.0_rt * A8 * eta5;
+        Real DN1 = 2.0_rt * B2 * eta + 4.0_rt * B4 * eta3 + 5.0_rt * B5 * eta4 + 6.0_rt * B6 * eta5 +
+                   7.0_rt * B7 * eta6 + eta8 * (9.0_rt * B9 + 11.0_rt * B11 * eta2);
+        Real DN2 = 2.0_rt * B2 + 12.0_rt * B4 * eta2 + 20. * B5 * eta3 + 30.0_rt * B6 * eta4 +
+                   42.0_rt * B7 * eta5 + 72.0_rt * B9 * eta7 + 110.0_rt * B11 * eta8 * eta;
+        Real DN3 = 24.0_rt * B4 * eta + 60.0_rt * B5 * eta2 + 120.0_rt * B6 * eta3 +
+                   210.0_rt * B7 * eta4 + 504.0_rt * B9 * eta6 + 990.0_rt * B11 * eta8;
+        Real DF1 = ALPHA * EA / (1.0_rt - EA) + BETA * EB / (1.0_rt - EB) + GAMMA * EG / (1.0_rt - EG) -
+                   (UP1 * DN - DN1 * UP) / (DN * DN); // int.en./NT/eta  =  df/d\eta
+        Real DF2 = ALPHA * ALPHA * EA / ((1.0_rt - EA) * (1.0_rt - EA)) + BETA * BETA * EB /
+                   ((1.0_rt - EB) * (1.0_rt - EB)) + GAMMA * GAMMA * EG / ((1.0_rt - EG) * (1.0_rt - EG)) +
+                   ((UP2 * DN - DN2 * UP) * DN - 2.0_rt * (UP1 * DN - DN1 * UP) * DN1) / (DN * DN * DN); // -d2f/d\eta^2
+        U = DF1 * eta;
+        CV = DF2 * eta2;
+        Real DF3 = -ALPHA * ALPHA * ALPHA * EA / std::pow(1.0_rt - EA, 3) * (1.0_rt + EA) -
+                   BETA * BETA * BETA * EB / std::pow(1.0_rt - EB, 3) * (1.0_rt + EB) -
+                   GAMMA * GAMMA * GAMMA * EG / std::pow(1.0_rt - EG, 3) * (1.0_rt + EG) +
+                   UP3 / DN - (3.0_rt * UP2 * DN1 + 3.0_rt * UP1 * DN2 + UP * DN3) / (DN * DN) +
+                   6.0_rt * DN1 * (UP1 * DN1 + UP * DN2) / (DN * DN * DN) -
+                   6.0_rt * UP * DN1 * DN1 * DN1 / (DN * DN * DN * DN); // -d3f/d\eta^3
+        CW = -2.0_rt * CV - eta3 * DF3;
+        S = U - F;
+    }
+
     /*
       subroutine FHARM12(GAMI,TPT, &
         Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
@@ -1572,125 +1705,6 @@ extern "C"
       return
       end
 
-      subroutine HLfit12(eta,F,U,CV,S,U1,CW,LATTICE)
-//                                                       Version 24.04.12
-// Stems from HLfit8 v.03.12.08;
-//   differences: E0 excluded from  U and F;
-//   U1 and d(CV)/d\ln(T) are added on the output.
-// Fit to thermal part of the thermodynamic functions.
-// Baiko, Potekhin, & Yakovlev (2001).
-// Zero-point lattice quantum energy 1.5u_1\eta EXCLUDED (unlike HLfit8).
-// Input: eta = Tp/T, LATTICE = 1 for bcc, 2 for fcc
-// Output: F and U (normalized to NkT) - due to phonon excitations,
-//   CV and S (normalized to Nk) in the HL model,
-//   U1 - the 1st phonon moment,
-//   CW = d(CV)/d\ln(T)
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(EPS = 1.d-5,TINY = 1.d-99)
-      if (LATTICE.eq.1) { // bcc lattice
-         CLM = -2.49389d0 // 3 * ln<\omega/\omega_p>
-         U1 = .5113875d0
-         ALPHA = .265764d0
-         BETA = .334547d0
-         GAMMA = .932446d0
-         A1 = .1839d0
-         A2 = .593586d0
-         A3 = .0054814d0
-         A4 = 5.01813d-4
-         A6 = 3.9247d-7
-         A8 = 5.8356d-11
-         B0 = 261.66d0
-         B2 = 7.07997d0
-         B4 = .0409484d0
-         B5 = .000397355d0
-         B6 = 5.11148d-5
-         B7 = 2.19749d-6
-         C9 = .004757014d0
-         C11 = .0047770935d0
-      elseif (LATTICE.eq.2) { // fcc lattice
-         CLM = -2.45373d0
-         U1 = .513194d0
-         ALPHA = .257591d0
-         BETA = .365284d0
-         GAMMA = .9167070d0
-         A1 = .0
-         A2 = .532535d0
-         A3 = .0
-         A4 = 3.76545d-4
-         A6 = 2.63013d-7
-         A8 = 6.6318d-11
-         B0 = 303.20d0
-         B2 = 7.7255d0
-         B4 = .0439597d0
-         B5 = .000114295d0
-         B6 = 5.63434d-5
-         B7 = 1.36488d-6
-         C9 = .00492387d0
-         C11 = .00437506d0
-      else
-         print  * , 'HLfit: unknown lattice type'
-         stop
-      endif
-      if (eta.gt.1.0_rt / EPS) { // asymptote of Eq.(13) of BPY'01
-         U = 3.0_rt / (C11 * eta * eta * eta)
-         F = -U / 3.0_rt
-         CV = 4.0_rt * U
-         S = U - F
-         return
-      elseif (eta < EPS) { // Eq.(17) of BPY'01
-        if (eta < TINY) {
-           print  * , 'HLfit: eta is too small'
-           stop
-        end if
-         F = 3.0_rt * std::log(eta) + CLM - 1.5 * U1 * eta + eta * eta / 24.
-         U = 3.0_rt - 1.5 * U1 * eta + eta * eta / 12.
-         CV = 3.0_rt - eta * eta / 12.
-         S = U - F
-         return
-      endif
-      eta2 = eta * eta
-      eta3 = eta2 * eta
-      eta4 = eta3 * eta
-      eta5 = eta4 * eta
-      eta6 = eta5 * eta
-      eta7 = eta6 * eta
-      eta8 = eta7 * eta
-      B9 = A6 * C9
-      B11 = A8 * C11
-      UP = 1.0_rt + A1 * eta + A2 * eta2 + A3 * eta3 + A4 * eta4 + A6 * eta6 + A8 * eta8
-      DN = B0 + B2 * eta2 + B4 * eta4 + B5 * eta5 + B6 * eta6 +  &
-       B7 * eta7 + eta8 * (B9 * eta + B11 * eta3)
-      EA = std::exp(-ALPHA * eta)
-      EB = std::exp(-BETA * eta)
-      EG = std::exp(-GAMMA * eta)
-      F = std::log(1.0_rt - EA) + std::log(1.0_rt - EB) + std::log(1.0_rt - EG) - UP / DN // F_{thermal}/NT
-      UP1 = A1 +  &
-      2.0_rt * A2 * eta + 3.0_rt * A3 * eta2 + 4.0_rt * A4 * eta3 + 6.0_rt * A6 * eta5 + 8. * A8 * eta7
-      UP2 = 2.0_rt * A2 + 6.0_rt * A3 * eta + 12. * A4 * eta2 + 30. * A6 * eta4 + 56.0_rt * A8 * eta6
-      UP3 = 6.0_rt * A3 + 24. * A4 * eta + 120. * A6 * eta3 + 336 * A8 * eta5
-      DN1 = 2.0_rt * B2 * eta + 4.0_rt * B4 * eta3 + 5. * B5 * eta4 + 6.0_rt * B6 * eta5 +  &
-       7. * B7 * eta6 + eta8 * (9. * B9 + 11. * B11 * eta2)
-      DN2 = 2.0_rt * B2 + 12. * B4 * eta2 + 20. * B5 * eta3 + 30. * B6 * eta4 +  &
-       42. * B7 * eta5 + 72. * B9 * eta7 + 110. * B11 * eta8 * eta
-      DN3 = 24. * B4 * eta + 60. * B5 * eta2 + 120. * B6 * eta3 +  &
-       210. * B7 * eta4 + 504. * B9 * eta6 + 990. * B11 * eta8
-      DF1 = ALPHA * EA / (1.0_rt - EA) + BETA * EB / (1.0_rt - EB) + GAMMA * EG / (1.0_rt - EG) -  &
-       (UP1 * DN - DN1 * UP) / (DN * DN) // int.en./NT/eta  =  df/d\eta
-      DF2 = ALPHA * ALPHA * EA / ((1.0_rt - EA) * (1.0_rt - EA) + BETA * BETA * EB / ((1.0_rt - EB) * (1.0_rt - EB) +  &
-       GAMMA * GAMMA * EG / ((1.0_rt - EG) * (1.0_rt - EG) +  &
-       ((UP2 * DN - DN2 * UP) * DN - 2.0_rt * (UP1 * DN - DN1 * UP) * DN1) / (DN * DN * DN) // -d2f/d\eta^2
-      U = DF1 * eta
-      CV = DF2 * eta2
-      DF3 = -ALPHA * ALPHA * ALPHA * EA / std::pow(1.0_rt - EA, 3) * (1.0_rt + EA) -  &
-       BETA * BETA * BETA * EB / std::pow(1.0_rt - EB, 3) * (1.0_rt + EB) -  &
-       GAMMA * GAMMA * GAMMA * EG / std::pow(1.0_rt - EG, 3) * (1.0_rt + EG) +  &
-       UP3 / DN - (3.0_rt * UP2 * DN1 + 3.0_rt * UP1 * DN2 + UP * DN3) / (DN * DN) +  &
-       6.0_rt * DN1 * (UP1 * DN1 + UP * DN2) / (DN * DN * DN) - 6.0_rt * UP * DN1 * DN1 * DN1 / (DN * DN * DN * DN) // -d3f/d\eta^3
-      CW = -2.0_rt * CV - eta3 * DF3
-      S = U - F
-      return
-      end
 
       subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
        FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)

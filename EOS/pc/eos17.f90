@@ -860,6 +860,14 @@
       implicit double precision (A-H), double precision (O-Z)
       save
       parameter(CM=.895929256d0) ! Madelung
+      interface
+         subroutine hlfit12(TPT,F,U,CVth,Sth,U1,CW,LATTICE) bind(C, name="hlfit12")
+           implicit none
+           double precision, intent(in), value :: TPT
+           integer, intent(in), value :: LATTICE
+           double precision :: F,U,CVth,Sth,U1,CW
+         end subroutine hlfit12
+      end interface
       call HLfit12(TPT,F,U,CVth,Sth,U1,CW,1)
       U0=-CM*GAMI ! perfect lattice
       E0=1.5d0*U1*TPT ! zero-point energy
@@ -870,126 +878,6 @@
       Pharm=U0/3.d0+Uth/2.d0
       PDTharm=.5d0*CVth
       PDRharm=U0/2.25d0+.75d0*Uth-.25d0*CVth
-      return
-      end
-
-      subroutine HLfit12(eta,F,U,CV,S,U1,CW,LATTICE)
-!                                                       Version 24.04.12
-! Stems from HLfit8 v.03.12.08;
-!   differences: E0 excluded from  U and F;
-!   U1 and d(CV)/d\ln(T) are added on the output.
-! Fit to thermal part of the thermodynamic functions.
-! Baiko, Potekhin, & Yakovlev (2001).
-! Zero-point lattice quantum energy 1.5u_1\eta EXCLUDED (unlike HLfit8).
-! Input: eta=Tp/T, LATTICE=1 for bcc, 2 for fcc
-! Output: F and U (normalized to NkT) - due to phonon excitations,
-!   CV and S (normalized to Nk) in the HL model,
-!   U1 - the 1st phonon moment,
-!   CW=d(CV)/d\ln(T)
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(EPS=1.d-5,TINY=1.d-99)
-      if (LATTICE.eq.1) then ! bcc lattice
-         CLM=-2.49389d0 ! 3*ln<\omega/\omega_p>
-         U1=.5113875d0
-         ALPHA=.265764d0
-         BETA=.334547d0
-         GAMMA=.932446d0
-         A1=.1839d0
-         A2=.593586d0
-         A3=.0054814d0
-         A4=5.01813d-4
-         A6=3.9247d-7
-         A8=5.8356d-11
-         B0=261.66d0
-         B2=7.07997d0
-         B4=.0409484d0
-         B5=.000397355d0
-         B6=5.11148d-5
-         B7=2.19749d-6
-         C9=.004757014d0
-         C11=.0047770935d0
-      elseif (LATTICE.eq.2) then ! fcc lattice
-         CLM=-2.45373d0
-         U1=.513194d0
-         ALPHA=.257591d0
-         BETA=.365284d0
-         GAMMA=.9167070d0
-         A1=.0
-         A2=.532535d0
-         A3=.0
-         A4=3.76545d-4
-         A6=2.63013d-7
-         A8=6.6318d-11
-         B0=303.20d0
-         B2=7.7255d0
-         B4=.0439597d0
-         B5=.000114295d0
-         B6=5.63434d-5
-         B7=1.36488d-6
-         C9=.00492387d0
-         C11=.00437506d0
-      else
-         print *, 'HLfit: unknown lattice type'
-         stop
-      endif
-      if (eta.gt.1./EPS) then ! asymptote of Eq.(13) of BPY'01
-         U=3./(C11*eta**3)
-         F=-U/3.
-         CV=4.*U
-         S=U-F
-         return
-      elseif (eta.lt.EPS) then ! Eq.(17) of BPY'01
-        if (eta.lt.TINY) then
-           print *, 'HLfit: eta is too small'
-           stop
-        end if
-         F=3.*dlog(eta)+CLM-1.5*U1*eta+eta**2/24. 
-         U=3.-1.5*U1*eta+eta**2/12.
-         CV=3.-eta**2/12.
-         S=U-F
-         return
-      endif
-      eta2=eta**2
-      eta3=eta2*eta
-      eta4=eta3*eta
-      eta5=eta4*eta
-      eta6=eta5*eta
-      eta7=eta6*eta
-      eta8=eta7*eta
-      B9=A6*C9
-      B11=A8*C11
-      UP=1.+A1*eta+A2*eta2+A3*eta3+A4*eta4+A6*eta6+A8*eta8
-      DN=B0+B2*eta2+B4*eta4+B5*eta5+B6*eta6+ &
-       B7*eta7+eta8*(B9*eta+B11*eta3)
-      EA=dexp(-ALPHA*eta)
-      EB=dexp(-BETA*eta)
-      EG=dexp(-GAMMA*eta)
-      F=dlog(1.d0-EA)+dlog(1.d0-EB)+dlog(1.-EG)-UP/DN ! F_{thermal}/NT
-      UP1=A1+ &
-      2.*A2*eta+3.*A3*eta2+4.*A4*eta3+6.*A6*eta5+8.*A8*eta7
-      UP2=2.*A2+6.*A3*eta+12.*A4*eta2+30.*A6*eta4+56.*A8*eta6
-      UP3=6.*A3+24.*A4*eta+120.*A6*eta3+336*A8*eta5
-      DN1=2.*B2*eta+4.*B4*eta3+5.*B5*eta4+6.*B6*eta5+ &
-       7.*B7*eta6+eta8*(9.*B9+11.*B11*eta2)
-      DN2=2.*B2+12.*B4*eta2+20.*B5*eta3+30.*B6*eta4+ &
-       42.*B7*eta5+72.*B9*eta7+110.*B11*eta8*eta
-      DN3=24.*B4*eta+60.*B5*eta2+120.*B6*eta3+ &
-       210.*B7*eta4+504.*B9*eta6+990.*B11*eta8
-      DF1=ALPHA*EA/(1.d0-EA)+BETA*EB/(1.d0-EB)+GAMMA*EG/(1.d0-EG)- &
-       (UP1*DN-DN1*UP)/DN**2 ! int.en./NT/eta = df/d\eta
-      DF2=ALPHA**2*EA/(1.d0-EA)**2+BETA**2*EB/(1.d0-EB)**2+ &
-       GAMMA**2*EG/(1.d0-EG)**2+ &
-       ((UP2*DN-DN2*UP)*DN-2.*(UP1*DN-DN1*UP)*DN1)/DN**3 ! -d2f/d\eta^2
-      U=DF1*eta
-      CV=DF2*eta2
-      DF3=-ALPHA**3*EA/(1.d0-EA)**3*(1.+EA)- &
-       BETA**3*EB/(1.d0-EB)**3*(1.+EB)- &
-       GAMMA**3*EG/(1.d0-EG)**3*(1.+EG)+ &
-       UP3/DN-(3.*UP2*DN1+3.*UP1*DN2+UP*DN3)/DN**2+ &
-       6.*DN1*(UP1*DN1+UP*DN2)/DN**3-6.*UP*DN1**3/DN**4 ! -d3f/d\eta^3
-      CW=-2.*CV-eta3*DF3
-      S=U-F
       return
       end
 
