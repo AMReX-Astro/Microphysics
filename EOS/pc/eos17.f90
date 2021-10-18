@@ -1256,6 +1256,14 @@
            double precision, intent(in), value :: X, XMAX
            double precision, intent(inout) :: FP, FM
          end subroutine fermi10
+         subroutine elect11a(TEMP,CHI, &
+              DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+              DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT) bind(C, name="elect11a")
+           implicit none
+           double precision, intent(in), value:: TEMP,CHI
+           double precision :: DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+                DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT
+         end subroutine elect11a
          subroutine elect11b(TEMP,CHI, &
               DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
               DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT) bind(C, name="elect11b")
@@ -1301,67 +1309,5 @@
          DlnDHT=DlnDHTa*FP+DlnDHTb*FM
          DlnDTT=DlnDTTa*FP+DlnDTTb*FM
       endif
-      return
-      end
-
-      subroutine ELECT11a(TEMP,CHI, &
-       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-!                                                       Version 16.11.11
-! This is THE FIRST PART of ELECT9 v.04.03.09.
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter (BOHR=137.036,PI=3.141592653d0)
-      parameter (PI2=PI**2,BOHR2=BOHR**2,BOHR3=BOHR2*BOHR) !cleaned 15/6
-      interface
-         subroutine blin9(TEMR,CHI, &
-              W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-              W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-              W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-              W0XXX,W0XTT,W0XXT) bind(C, name="blin9")
-           implicit none
-           double precision, intent(in), value :: TEMR, CHI
-           double precision :: W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-                W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-                W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-                W0XXX,W0XTT,W0XXT
-         end subroutine blin9
-      end interface
-      TEMR=TEMP/BOHR2 ! T in rel.units (=T/mc^2)
-      call BLIN9(TEMR,CHI, &
-       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-       W0XXX,W0XTT,W0XXT)
-      TPI=TEMR*dsqrt(2.d0*TEMR)/PI2 ! common pre-factor
-      DENR=TPI*(W1*TEMR+W0)
-      PR=TEMR*TPI/3.*(W2*TEMR+2.*W1)
-      U=TEMR*TPI*(W2*TEMR+W1)
-! (these are density, pressure, and internal energy in the rel.units)
-      PEid=PR/(DENR*TEMR)
-      UEid=U/(DENR*TEMR)
-      FEid=CHI-PEid
-      DENS=DENR*BOHR3 ! converts from rel.units to a.u.
-      SEid=UEid-FEid
-! derivatives over T at constant chi:
-      dndT=TPI*(1.5*W0/TEMR+2.5*W1+W0DT+TEMR*W1DT) ! (d n_e/dT)_\chi
-      dPdT=TPI/3.*(5.*W1+2.*TEMR*W1DT+3.5*TEMR*W2+TEMR**2*W2DT)!dP/dT
-      dUdT=TPI*(2.5*W1+TEMR*W1DT+3.5*TEMR*W2+TEMR**2*W2DT)!dU/dT_\chi
-! derivatives over chi at constant T and second derivatives:
-      dndH=TPI*(W0DX+TEMR*W1DX) ! (d n_e/d\chi)_T
-      dndHH=TPI*(W0DXX+TEMR*W1DXX) ! (d^2 n_e/d\chi)_T
-      dndTT=TPI*(.75*W0/TEMR**2+3.*W0DT/TEMR+W0DTT+ &
-       3.75*W1/TEMR+5.*W1DT+TEMR*W1DTT)
-      dndHT=TPI*(1.5*W0DX/TEMR+W0DXT+2.5*W1DX+TEMR*W1DXT)
-      DlnDH=dndH/DENR ! (d ln n_e/d\chi)_T
-      DlnDT=dndT*TEMR/DENR ! (d ln n_e/d ln T)_\chi
-      DlnDHH=dndHH/DENR-DlnDH**2 ! (d^2 ln n_e/d\chi^2)_T
-      DlnDTT=TEMR**2/DENR*dndTT+DlnDT-DlnDT**2 ! d^2 ln n_e/d ln T^2
-      DlnDHT=TEMR/DENR*(dndHT-dndT*DlnDH) ! d^2 ln n_e/d\chi d ln T
-      dPdH=TPI/3.*TEMR*(2.*W1DX+TEMR*W2DX) ! (d P_e/d\chi)_T
-      dUdH=TPI*TEMR*(W1DX+TEMR*W2DX) ! (d U_e/d\chi)_T
-      CVE=(dUdT-dUdH*dndT/dndH)/DENR
-      CHITE=TEMR/PR*(dPdT-dPdH*dndT/dndH)
-      CHIRE=DENR/PR*dPdH/dndH ! (dndH*TEMR*PEid) ! DENS/PRE*dPdH/dndH
       return
       end
