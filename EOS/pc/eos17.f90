@@ -1297,6 +1297,20 @@
       save
       parameter (BOHR=137.036,PI=3.141592653d0)
       parameter (PI2=PI**2,BOHR2=BOHR**2,BOHR3=BOHR2*BOHR) !cleaned 15/6
+      interface
+         subroutine blin9(TEMR,CHI, &
+              W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+              W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+              W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+              W0XXX,W0XTT,W0XXT) bind(C, name="blin9")
+           implicit none
+           double precision, intent(in), value :: TEMR, CHI
+           double precision :: W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
+                W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
+                W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
+                W0XXX,W0XTT,W0XXT
+         end subroutine blin9
+      end interface
       TEMR=TEMP/BOHR2 ! T in rel.units (=T/mc^2)
       call BLIN9(TEMR,CHI, &
        W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
@@ -1713,135 +1727,3 @@
       end
 
 
-      subroutine BLIN9(TEMP,CHI, &
-       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-       W0XXX,W0XTT,W0XXT)
-!                                                       Version 21.01.10
-! Stems from BLIN8 v.24.12.08
-! Difference - smooth matching of different CHI ranges
-! Input: TEMP=T/mc^2; CHI=(\mu-mc^2)/T
-! Output: Wk - Fermi-Dirac integral of the order k+1/2
-!         WkDX=dWk/dCHI, WkDT = dWk/dT, WkDXX=d^2 Wk / d CHI^2,
-!         WkDTT=d^2 Wk / d T^2, WkDXT=d^2 Wk /dCHIdT,
-!         W0XXX=d^3 W0 / d CHI^3, W0XTT=d^3 W0 /(d CHI d^2 T),
-!         W0XXT=d^3 W0 /dCHI^2 dT
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter (CHI1=0.6d0,CHI2=14.d0,XMAX=30.d0)
-      parameter (DCHI1=.1d0,DCHI2=CHI2-CHI1-DCHI1)
-      parameter (XSCAL1=XMAX/DCHI1,XSCAL2=XMAX/DCHI2)
-      interface
-         subroutine blin9a(TEMP,CHI, &
-          W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-          W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-          W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-          W0XXX,W0XTT,W0XXT) bind(C, name="blin9a")
-           implicit none
-           double precision, intent(in), value :: TEMP, CHI
-           double precision :: W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-                W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-                W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-                W0XXX,W0XTT,W0XXT
-         end subroutine blin9a
-      end interface
-      interface
-         subroutine blin9b(TEMP,CHI, &
-              W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
-              W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
-              W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
-              W0XXXb,W0XTTb,W0XXTb) bind(C, name="blin9b")
-           implicit none
-           double precision, intent(in), value :: TEMP, CHI
-           double precision :: W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
-                W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
-                W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
-                W0XXXb,W0XTTb,W0XXTb
-         end subroutine blin9b
-      end interface
-      interface
-         subroutine blin9c(TEMP,CHI, &
-            W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
-            W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
-            W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
-            W0XXXb,W0XTTb,W0XXTb) bind(C, name="blin9c")
-           double precision, intent(in), value :: TEMP, CHI
-           double precision :: W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
-                W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
-                W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
-                W0XXXb,W0XTTb,W0XXTb
-         end subroutine blin9c
-      end interface
-      interface
-         subroutine fermi10(X,XMAX,FP,FM) bind(C, name="fermi10")
-           implicit none
-           double precision, intent(in), value :: X, XMAX
-           double precision, intent(inout) :: FP, FM
-         end subroutine fermi10
-      end interface
-
-      X1=(CHI-CHI1)*XSCAL1
-      X2=(CHI-CHI2)*XSCAL2
-      if (X1.lt.-XMAX) then
-         call BLIN9a(TEMP,CHI, &
-          W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-          W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-          W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-          W0XXX,W0XTT,W0XXT)
-      elseif (X2.lt.XMAX) then ! match two fits
-        if (X1.lt.XMAX) then ! match fits "a" and "b"
-           call FERMI10(X1,XMAX,FP,FM)
-           call BLIN9a(TEMP,CHI, &
-            W0a,W0DXa,W0DTa,W0DXXa,W0DTTa,W0DXTa, &
-            W1a,W1DXa,W1DTa,W1DXXa,W1DTTa,W1DXTa, &
-            W2a,W2DXa,W2DTa,W2DXXa,W2DTTa,W2DXTa, &
-            W0XXXa,W0XTTa,W0XXTa)
-           call BLIN9b(TEMP,CHI, &
-            W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
-            W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
-            W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
-            W0XXXb,W0XTTb,W0XXTb)
-        else ! match fits "b" and "c"
-           call FERMI10(X2,XMAX,FP,FM)
-           call BLIN9b(TEMP,CHI, &
-            W0a,W0DXa,W0DTa,W0DXXa,W0DTTa,W0DXTa, &
-            W1a,W1DXa,W1DTa,W1DXXa,W1DTTa,W1DXTa, &
-            W2a,W2DXa,W2DTa,W2DXXa,W2DTTa,W2DXTa, &
-            W0XXXa,W0XTTa,W0XXTa)
-           call BLIN9c(TEMP,CHI, &
-            W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
-            W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
-            W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
-            W0XXXb,W0XTTb,W0XXTb)
-        endif
-         W0=W0a*FP+W0b*FM
-         W0DX=W0DXa*FP+W0DXb*FM !! +(W0a-W0b)*F1
-         W0DT=W0DTa*FP+W0DTb*FM
-         W0DXX=W0DXXa*FP+W0DXXb*FM !! +2.d0*(W0DXa-W0DXb)*F1+(W0a-W0b)*F2
-         W0DTT=W0DTTa*FP+W0DTTb*FM
-         W0DXT=W0DXTa*FP+W0DXTb*FM !! +(W0DTa-W0DTb)*F1
-         W0XXX=W0XXXa*FP+W0XXXb*FM !! +3.d0*(W0DXXa-W0DXXb)*F1+3.d0*(W0DXa-W0DXb)*F2+(W0a-W0b)*F3
-         W0XTT=W0XTTa*FP+W0XTTb*FM !! +(W0DTTa-W0DTTb)*F1
-         W0XXT=W0XXTa*FP+W0XXTb*FM !! +2.d0*(W0DXTa-W0DXTb)*F1+(W0DTa-W0DTb)*F2
-         W1=W1a*FP+W1b*FM
-         W1DX=W1DXa*FP+W1DXb*FM !! +(W1a-W1b)*F1
-         W1DT=W1DTa*FP+W1DTb*FM
-         W1DXX=W1DXXa*FP+W1DXXb*FM !! +2.d0*(W1DXa-W1DXb)*F1+(W1a-W1b)*F2
-         W1DTT=W1DTTa*FP+W1DTTb*FM
-         W1DXT=W1DXTa*FP+W1DXTb*FM !! +(W1DTa-W1DTb)*F1
-         W2=W2a*FP+W2b*FM
-         W2DX=W2DXa*FP+W2DXb*FM !! +(W2a-W2b)*F1
-         W2DT=W2DTa*FP+W2DTb*FM
-         W2DXX=W2DXXa*FP+W2DXXb*FM !! +2.d0*(W2DXa-W2DXb)*F1+(W2a-W2b)*F2
-         W2DTT=W2DTTa*FP+W2DTTb*FM
-         W2DXT=W2DXTa*FP+W2DXTb*FM !! 
-      else
-         call BLIN9c(TEMP,CHI, &
-          W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-          W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-          W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-          W0XXX,W0XTT,W0XXT)
-      endif
-      return
-      end
