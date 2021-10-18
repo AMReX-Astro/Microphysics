@@ -1093,4 +1093,96 @@ extern "C"
         W0XTT = CN1 * (0.75_rt * CJ01 - CMU1 * CJ02 + CMU1 * CMU1 * CJ03 +
                        PIT26 * (0.75_rt * CJ03 + 3.0_rt * CMU1 * CJ04 + CMU1 * CMU1 * CJ05));
     }
+
+    void elect11b(Real TEMP, Real CHI,
+                  Real& DENS, Real& FEid, Real& PEid, Real& UEid,
+                  Real& SEid, Real& CVE, Real& CHITE, Real& CHIRE,
+                  Real& DlnDH, Real& DlnDT, Real& DlnDHH,
+                  Real& DlnDTT, Real& DlnDHT)
+    {
+        // Version 17.11.11
+        // Stems from ELECT9b v.19.01.10, Diff. - additional output.
+        // Sommerfeld expansion at very large CHI.
+
+        const Real BOHR = 137.036_rt;
+        const Real PI = 3.141592653_rt;
+        const Real PI2 = PI * PI;
+        const Real BOHR2 = BOHR * BOHR;
+        const Real BOHR3 = BOHR2 * BOHR; // cleaned 15/6
+
+        Real TEMR = TEMP / BOHR2; // T in rel.units ( = T/mc^2)
+        Real EF = CHI * TEMR; // Fermi energy in mc^2 - zeroth aprox.  =  CMU1
+        Real DeltaEF = PI2 * TEMR * TEMR / 6.0_rt * (1.0_rt + 2.0_rt * EF * (2.0_rt + EF)) /
+                       (EF * (1.0_rt + EF) * (2.0_rt + EF)); // corr. [p.125, equiv.Eq.(6) of PC'10]
+        EF = EF + DeltaEF; // corrected Fermi energy (14.02.09)
+        Real G = 1.0_rt + EF; // electron Lorentz-factor
+
+        Real PF, F, DF, P, DP;
+
+        if (EF > 1.e-5_rt) { // relativistic expansion (Yak.&Shal.'89)
+            PF = std::sqrt(G * G - 1.0_rt); // Fermi momentum [rel.un. = mc]
+            F = (PF * (1.0_rt + 2.0_rt * PF * PF) * G - PF * PF * PF / .375_rt - std::log(PF + G)) / 8.0_rt / PI2; // F/V
+            DF = -TEMR * TEMR * PF * G / 6.0_rt; // thermal correction to F/V
+            P = (PF * G * (PF * PF / 1.5_rt - 1.0_rt) + std::log(PF + G)) / 8.0_rt / PI2; // P(T = 0)
+            DP = TEMR * TEMR * PF * (PF * PF + 2.0_rt) / G / 18.0_rt; // thermal correction to P
+            CVE = PI2 * TEMR * G / (PF * PF);
+        }
+        else { // nonrelativistic limit
+            PF = std::sqrt(2.0_rt * EF);
+            F = (PF * PF * PF * PF * PF) * 0.1_rt / PI2;
+            DF = -TEMR * TEMR * PF / 6.0_rt;
+            P = F / 1.5_rt;
+            DP = TEMR * TEMR * PF / 9.0_rt;
+            CVE = PI2 * TEMR / EF / 2.0_rt;
+        }
+
+        F = F + DF;
+        P = P + DP;
+        Real S = -2.0_rt * DF; // entropy per unit volume [rel.un.]
+        Real U = F + S;
+        CHIRE = (PF * PF * PF * PF * PF) / (9.0_rt * PI2 * P * G);
+        CHITE = 2.0_rt * DP / P;
+        Real DENR = PF * PF * PF / 3.0_rt / PI2; // n_e [rel.un. = \Compton^{-3}]
+        DENS = DENR * BOHR3; // conversion to a.u.( = \Bohr_radius^{-3})
+
+        // derivatives over chi at constant T and T at constant chi:
+        Real TPI = TEMR * std::sqrt(2.0_rt * TEMR) / PI2; // common pre-factor
+
+        Real W0, W0DX, W0DT, W0DXX, W0DTT, W0DXT;
+        Real W1, W1DX, W1DT, W1DXX, W1DTT, W1DXT;
+        Real W2, W2DX, W2DT, W2DXX, W2DTT, W2DXT;
+        Real W0XXX, W0XTT, W0XXT;
+
+        sommerf(TEMR, CHI,
+                W0, W0DX, W0DT, W0DXX, W0DTT, W0DXT,
+                W1, W1DX, W1DT, W1DXX, W1DTT, W1DXT,
+                W2, W2DX, W2DT, W2DXX, W2DTT, W2DXT,
+                W0XXX, W0XTT, W0XXT);
+
+        Real dndH = TPI * (W0DX + TEMR * W1DX); // (d n_e/d\chi)_T
+        Real dndT = TPI * (1.5_rt * W0 / TEMR + 2.5 * W1 + W0DT + TEMR * W1DT); // (d n_e/dT)_\chi
+        Real dndHH = TPI * (W0DXX + TEMR * W1DXX); // (d^2 n_e/d\chi)_T
+        Real dndTT = TPI * (0.75_rt * W0 / TEMR * TEMR + 3. * W0DT / TEMR + W0DTT +
+                            3.75 * W1 / TEMR + 5. * W1DT + TEMR * W1DTT);
+        Real dndHT = TPI * (1.5_rt * W0DX / TEMR + W0DXT + 2.5 * W1DX + TEMR * W1DXT);
+
+        DlnDH = dndH / DENR; // (d ln n_e/d\chi)_T
+        DlnDT = dndT * TEMR / DENR; // (d ln n_e/d ln T)_\chi
+        DlnDHH = dndHH / DENR - DlnDH * DlnDH; // (d^2 ln n_e/d\chi^2)_T
+        DlnDTT = TEMR * TEMR / DENR * dndTT + DlnDT - DlnDT * DlnDT; // d^2 ln n_e/d ln T^2
+        DlnDHT = TEMR / DENR * (dndHT - dndT * DlnDH); // d^2 ln n_e/d\chi d ln T
+
+        Real DT = DENR * TEMR;
+        PEid = P / DT;
+        UEid = U / DT;
+        FEid = F / DT;
+        SEid = S / DT;
+
+        // Empirical corrections of 16.02.09:
+        Real D1 = DeltaEF / EF;
+        Real D2 = D1 * (4.0_rt - 2.0_rt * (PF / G));
+        CVE = CVE / (1.0_rt + D2);
+        SEid = SEid / (1.0_rt + D1);
+        CHITE = CHITE / (1.0_rt + D2);
+    }
 }

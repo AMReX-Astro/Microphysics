@@ -1256,6 +1256,14 @@
            double precision, intent(in), value :: X, XMAX
            double precision, intent(inout) :: FP, FM
          end subroutine fermi10
+         subroutine elect11b(TEMP,CHI, &
+              DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+              DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT) bind(C, name="elect11b")
+           implicit none
+           double precision, intent(in), value:: TEMP,CHI
+           double precision :: DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+                DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT
+         end subroutine elect11b
       end interface
 
       if (CHI.lt.-1.d2) then
@@ -1355,91 +1363,5 @@
       CVE=(dUdT-dUdH*dndT/dndH)/DENR
       CHITE=TEMR/PR*(dPdT-dPdH*dndT/dndH)
       CHIRE=DENR/PR*dPdH/dndH ! (dndH*TEMR*PEid) ! DENS/PRE*dPdH/dndH
-      return
-      end
-
-      subroutine ELECT11b(TEMP,CHI, &
-       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-!                                                       Version 17.11.11
-! Stems from ELECT9b v.19.01.10, Diff. - additional output.
-! Sommerfeld expansion at very large CHI.
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter (BOHR=137.036,PI=3.141592653d0)
-      parameter (PI2=PI**2,BOHR2=BOHR**2,BOHR3=BOHR2*BOHR) !cleaned 15/6
-      interface
-         subroutine sommerf(TEMR,CHI, &
-              W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-              W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-              W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-              W0XXX,W0XTT,W0XXT) bind(C, name="sommerf")
-           implicit none
-           double precision, intent(in), value :: TEMR, CHI
-           double precision :: W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-                W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-                W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-                W0XXX,W0XTT,W0XXT
-         end subroutine sommerf
-      end interface
-
-      TEMR=TEMP/BOHR2 ! T in rel.units (=T/mc^2)
-      EF=CHI*TEMR ! Fermi energy in mc^2 - zeroth aprox. = CMU1
-      DeltaEF=PI2*TEMR**2/6.d0*(1.d0+2.d0*EF*(2.d0+EF))/ &
-       (EF*(1.d0+EF)*(2.d0+EF)) ! corr. [p.125, equiv.Eq.(6) of PC'10]
-      EF=EF+DeltaEF ! corrected Fermi energy (14.02.09)
-      G=1.d0+EF ! electron Lorentz-factor
-      if (EF.gt.1.d-5) then ! relativistic expansion (Yak.&Shal.'89)
-        PF=dsqrt(G**2-1.d0) ! Fermi momentum [rel.un.=mc]
-        F=(PF*(1.+2.d0*PF**2)*G-PF**3/.375d0-dlog(PF+G))/8.d0/PI2!F/V
-        DF=-TEMR**2*PF*G/6.d0 ! thermal correction to F/V
-        P=(PF*G*(PF**2/1.5d0-1.d0)+dlog(PF+G))/8.d0/PI2 ! P(T=0)
-        DP=TEMR**2*PF*(PF**2+2.d0)/G/18.d0 ! thermal correction to P
-        CVE=PI2*TEMR*G/PF**2
-      else ! nonrelativistic limit
-        PF=dsqrt(2.d0*EF)
-        F=PF**5*0.1d0/PI2
-        DF=-TEMR**2*PF/6.d0
-        P=F/1.5d0
-        DP=TEMR**2*PF/9.d0
-        CVE=PI2*TEMR/EF/2.d0
-      endif
-      F=F+DF
-      P=P+DP
-      S=-2.d0*DF ! entropy per unit volume [rel.un.]
-      U=F+S
-      CHIRE=PF**5/(9.d0*PI2*P*G)
-      CHITE=2.d0*DP/P
-      DENR=PF**3/3.d0/PI2 ! n_e [rel.un.=\Compton^{-3}]
-      DENS=DENR*BOHR3 ! conversion to a.u.(=\Bohr_radius^{-3})
-! derivatives over chi at constant T and T at constant chi:
-      TPI=TEMR*dsqrt(2.d0*TEMR)/PI2 ! common pre-factor
-      call SOMMERF(TEMR,CHI, &
-       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-       W0XXX,W0XTT,W0XXT)
-      dndH=TPI*(W0DX+TEMR*W1DX) ! (d n_e/d\chi)_T
-      dndT=TPI*(1.5*W0/TEMR+2.5*W1+W0DT+TEMR*W1DT) ! (d n_e/dT)_\chi
-      dndHH=TPI*(W0DXX+TEMR*W1DXX) ! (d^2 n_e/d\chi)_T
-      dndTT=TPI*(.75*W0/TEMR**2+3.*W0DT/TEMR+W0DTT+ &
-       3.75*W1/TEMR+5.*W1DT+TEMR*W1DTT)
-      dndHT=TPI*(1.5*W0DX/TEMR+W0DXT+2.5*W1DX+TEMR*W1DXT)
-      DlnDH=dndH/DENR ! (d ln n_e/d\chi)_T
-      DlnDT=dndT*TEMR/DENR ! (d ln n_e/d ln T)_\chi
-      DlnDHH=dndHH/DENR-DlnDH**2 ! (d^2 ln n_e/d\chi^2)_T
-      DlnDTT=TEMR**2/DENR*dndTT+DlnDT-DlnDT**2 ! d^2 ln n_e/d ln T^2
-      DlnDHT=TEMR/DENR*(dndHT-dndT*DlnDH) ! d^2 ln n_e/d\chi d ln T
-      DT=DENR*TEMR
-      PEid=P/DT
-      UEid=U/DT
-      FEid=F/DT
-      SEid=S/DT
-! Empirical corrections of 16.02.09:
-      D1=DeltaEF/EF
-      D2=D1*(4.d0-2.d0*(PF/G))
-      CVE=CVE/(1.d0+D2)
-      SEid=SEid/(1.d0+D1)
-      CHITE=CHITE/(1.d0+D2)
       return
       end
