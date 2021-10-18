@@ -746,4 +746,225 @@ extern "C"
 
         }
     }
+
+    void excor7 (double RS, double GAME,
+                 double& FXC, double& UXC, double& PXC,
+                 double& CVXC, double& SXC, double& PDTXC,
+                 double& PDRXC)
+    {
+        // Version 09.06.07
+        // Accuracy-loss cut-off modified on 10.08.16
+        // Exchange-correlation contribution for the electron gas
+        // Stems from TANAKA1 v.03.03.96. Added derivatives.
+        // Input: RS - electron density parameter =electron-sphere radius in a.u.
+        //        GAME - electron Coulomb coupling parameter
+        // Output: FXC - excess free energy of e-liquid per kT per one electron
+        //               according to Tanaka & Ichimaru 85-87 and Ichimaru 93
+        //         UXC - internal energy contr.[per 1 electron, kT]
+        //         PXC - pressure contribution divided by (n_e kT)
+        //         CVXC - heat capacity divided by N_e k
+        //         SXC - entropy divided by N_e k
+        //         PDTXC,PDRXC = PXC + d PXC / d ln(T,\rho)
+        const Real EPS = 1.e-8_rt; // 10.08.16
+
+        Real THETA = 0.543_rt * RS / GAME; // non-relativistic degeneracy parameter
+        Real SQTH = std::sqrt(THETA);
+        Real THETA2 = THETA * THETA;
+        Real THETA3 = THETA2 * THETA;
+        Real THETA4 = THETA3 * THETA;
+
+        Real T1, T1DH, T1DHH, T2, T2DH, T2DHH;
+
+        if (THETA > .005_rt) {
+            Real CHT1 = std::cosh(1.0_rt / THETA);
+            Real SHT1 = std::sinh(1.0_rt / THETA);
+            Real CHT2 = std::cosh(1.0_rt / SQTH);
+            Real SHT2 = std::sinh(1.0_rt / SQTH);
+            T1 = SHT1 / CHT1; // tanh(1.0_rt / THETA)
+            T2 = SHT2 / CHT2; // tanh(1.0_rt / sqrt(THETA))
+            T1DH = -1.0_rt / ((THETA * CHT1) * (THETA * CHT1)); // d T1 / d\theta
+            T1DHH = 2.0_rt / ((THETA * CHT1) * (THETA * CHT1) * (THETA * CHT1)) *
+                    (CHT1 - SHT1 / THETA);
+            T2DH =  -0.5_rt * SQTH / ((THETA * CHT2) * (THETA * CHT2));
+            T2DHH = (0.75_rt * SQTH * CHT2 - 0.5_rt * SHT2) /
+                    ((THETA * CHT2) * (THETA * CHT2) * (THETA * CHT2));
+        }
+        else {
+            T1 = 1.0_rt;
+            T2 = 1.0_rt;
+            T1DH = 0.0_rt;
+            T2DH = 0.0_rt;
+            T1DHH = 0.0_rt;
+            T2DHH = 0.0_rt;
+        }
+
+        Real A0 = 0.75_rt + 3.04363_rt * THETA2 - 0.09227_rt * THETA3 + 1.7035_rt * THETA4;
+        Real A0DH = 6.08726_rt * THETA - 0.27681_rt * THETA2 + 6.814_rt * THETA3;
+        Real A0DHH = 6.08726_rt - 0.55362_rt * THETA + 20.442_rt * THETA2;
+        Real A1 = 1.0_rt + 8.31051_rt * THETA2 + 5.1105_rt * THETA4;
+        Real A1DH = 16.62102_rt * THETA + 20.442_rt * THETA3;
+        Real A1DHH = 16.62102_rt + 61.326_rt * THETA2;
+        Real A = 0.610887_rt * A0 / A1 * T1; // HF fit of Perrot and Dharma - wardana
+        Real AH = A0DH / A0 - A1DH / A1 + T1DH / T1;
+        Real ADH = A * AH;
+        Real ADHH = ADH * AH + A * (A0DHH / A0 - (A0DH / A0) * (A0DH / A0) -
+                                    A1DHH / A1 + (A1DH / A1) * (A1DH / A1) +
+                                    T1DHH / T1 - (T1DH / T1) * (T1DH / T1));
+        Real B0 = 0.341308_rt + 12.070873_rt * THETA2 + 1.148889_rt * THETA4;
+        Real B0DH = 24.141746_rt * THETA + 4.595556_rt * THETA3;
+        Real B0DHH = 24.141746_rt + 13.786668_rt * THETA2;
+        Real B1 = 1.0_rt + 10.495346_rt * THETA2 + 1.326623 * THETA4;
+        Real B1DH = 20.990692_rt * THETA + 5.306492 * THETA3;
+        Real B1DHH = 20.990692_rt + 15.919476_rt * THETA2;
+        Real B = SQTH * T2 * B0 / B1;
+        Real BH = 0.5_rt / THETA + T2DH / T2 + B0DH / B0 - B1DH / B1;
+        Real BDH = B * BH;
+        Real BDHH = BDH * BH + B * (-0.5_rt / THETA2 + T2DHH / T2 - (T2DH / T2) * (T2DH / T2) +
+                                    B0DHH / B0 - (B0DH / B0) * (B0DH / B0) - B1DHH / B1 +
+                                    (B1DH / B1) * (B1DH / B1));
+        Real D0 = 0.614925_rt + 16.996055_rt * THETA2 + 1.489056_rt * THETA4;
+        Real D0DH = 33.99211_rt * THETA + 5.956224_rt * THETA3;
+        Real D0DHH = 33.99211_rt + 17.868672_rt * THETA2;
+        Real D1 = 1.0_rt + 10.10935_rt * THETA2 + 1.22184_rt * THETA4;
+        Real D1DH = 20.2187_rt * THETA + 4.88736_rt * THETA3;
+        Real D1DHH = 20.2187_rt + 14.66208_rt * THETA2;
+        Real D = SQTH * T2 * D0 / D1;
+        Real DH = 0.5_rt / THETA + T2DH / T2 + D0DH / D0 - D1DH / D1;
+        Real DDH = D * DH;
+        Real DDHH = DDH * DH + D * (-0.5_rt / THETA2 + T2DHH / T2 - (T2DH / T2) * (T2DH / T2) +
+                                    D0DHH / D0 - (D0DH / D0) * (D0DH / D0) - D1DHH / D1 +
+                                    (D1DH / D1) * (D1DH / D1));
+        Real E0 = 0.539409_rt + 2.522206_rt * THETA2 + 0.178484_rt * THETA4;
+        Real E0DH = 5.044412_rt * THETA + 0.713936_rt * THETA3;
+        Real E0DHH = 5.044412_rt + 2.141808_rt * THETA2;
+        Real E1 = 1.0_rt + 2.555501_rt * THETA2 + 0.146319_rt * THETA4;
+        Real E1DH = 5.111002_rt * THETA + 0.585276_rt * THETA3;
+        Real E1DHH = 5.111002_rt + 1.755828_rt * THETA2;
+        Real E = THETA * T1 * E0 / E1;
+        Real EH = 1.0_rt / THETA + T1DH / T1 + E0DH / E0 - E1DH / E1;
+        Real EDH = E * EH;
+        Real EDHH = EDH * EH + E * (T1DHH / T1 - (T1DH / T1) * (T1DH / T1) + E0DHH / E0 -
+                                    (E0DH / E0) * (E0DH / E0) -
+                                    E1DHH / E1 + (E1DH / E1) * (E1DH / E1) - 1.0_rt / THETA2);
+        Real EXP1TH = std::exp(-1.0_rt / THETA);
+        Real C = (0.872496_rt + 0.025248_rt * EXP1TH) * E;
+        Real CDH = 0.025248_rt * EXP1TH / THETA2 * E + C * EDH / E;
+        Real CDHH = 0.025248_rt * EXP1TH / THETA2 * (EDH + (1.0_rt - 2.0_rt * THETA) / THETA2 * E) +
+                    CDH * EDH / E + C * EDHH / E - C * (EDH / E) * (EDH / E);
+        Real DISCR = std::sqrt(4.0_rt * E - D * D);
+        Real DIDH = 0.5_rt / DISCR * (4.0_rt * EDH - 2.0_rt * D * DDH);
+        Real DIDHH = (-std::pow((2.0_rt * EDH - D * DDH) / DISCR, 2) + 2.0_rt * EDHH -
+                      DDH * DDH - D * DDHH) / DISCR;
+        Real S1 = -C / E * GAME;
+        Real S1H = CDH / C - EDH / E;
+        Real S1DH = S1 * S1H;
+        Real S1DHH = S1DH * S1H + S1 * (CDHH / C - (CDH / C) * (CDH / C) -
+                                        EDHH / E + (EDH / E) * (EDH / E));
+        Real S1DG = -C / E; // = > S1DGG = 0
+        Real S1DHG = S1DG * (CDH / C - EDH / E);
+        Real B2 = B - C * D / E;
+        Real B2DH = BDH - (CDH * D + C * DDH) / E + C * D * EDH / (E * E);
+        Real B2DHH = BDHH - (CDHH * D + 2.0_rt * CDH * DDH + C * DDHH) / E +
+                     (2.0_rt * (CDH * D + C * DDH - C * D * EDH / E) * EDH +
+                      C * D * EDHH) / (E * E);
+        Real SQGE = std::sqrt(GAME);
+        Real S2 = -2.0_rt / E * B2 * SQGE;
+        Real S2H = B2DH / B2 - EDH / E;
+        Real S2DH = S2 * S2H;
+        Real S2DHH = S2DH * S2H + S2 * (B2DHH / B2 - (B2DH / B2) * (B2DH / B2) -
+                                        EDHH / E + (EDH / E) * (EDH / E));
+        Real S2DG = 0.5_rt * S2 / GAME;
+        Real S2DGG = -0.5_rt * S2DG / GAME;
+        Real S2DHG = 0.5_rt * S2DH / GAME;
+        Real R3 = E * GAME + D * SQGE + 1.0_rt;
+        Real R3DH = EDH * GAME + DDH * SQGE;
+        Real R3DHH = EDHH * GAME + DDHH * SQGE;
+        Real R3DG = E + 0.5_rt * D / SQGE;
+        Real R3DGG = -0.25_rt * D / (GAME * SQGE);
+        Real R3DHG = EDH + 0.5_rt * DDH / SQGE;
+        Real B3 = A - C / E;
+        Real B3DH = ADH - CDH / E + C * EDH / (E * E);
+        Real B3DHH = ADHH - CDHH / E + (2.0_rt * CDH * EDH + C * EDHH) / (E * E) -
+                     2.0_rt * C * EDH * EDH / (E * E * E);
+        Real C3 = (D / E * B2 - B3) / E; // = D * B2 / (E * E) - B3 / E;
+        Real C3DH = (DDH * B2 + D * B2DH + B3 * EDH) / (E * E) -
+                    2.0_rt * D * B2 * EDH / (E * E * E) - B3DH / E;
+        Real C3DHH = (-B3DHH +
+                      (DDHH * B2 + 2.0_rt * DDH * B2DH + D * B2DHH +
+                       B3DH * EDH + B3 * EDHH + B3DH * EDH) / E -
+                      2.0_rt * ((DDH * B2 + D * B2DH + B3 * EDH + DDH * B2 + D * B2DH) * EDH +
+                                D * B2 * EDHH) / (E * E) +
+                      6.0_rt * D * B2 * EDH * EDH / (E * E * E)) / E;
+        Real S3 = C3 * std::log(R3);
+        Real S3DH = S3 * C3DH / C3 + C3 * R3DH / R3;
+        Real S3DHH = (S3DH * C3DH + S3 * C3DHH) / C3 - S3 * (C3DH / C3) * (C3DH / C3) +
+                     (C3DH * R3DH + C3 * R3DHH) / R3 - C3 * (R3DH / R3) * (R3DH / R3);
+        Real S3DG = C3 * R3DG / R3;
+        Real S3DGG = C3 * (R3DGG / R3 - (R3DG / R3) * (R3DG / R3));
+        Real S3DHG = (C3DH * R3DG + C3 * R3DHG) / R3 - C3 * R3DG * R3DH / (R3 * R3);
+        Real B4 = 2.0_rt - D * D / E;
+        Real B4DH = EDH * (D / E) * (D / E) - 2.0_rt * D * DDH / E;
+        Real B4DHH = EDHH * (D / E) * (D / E) + 2.0_rt * EDH * (D / E) * (D / E) * (DDH / D - EDH / E) -
+                     2.0_rt * (DDH * DDH + D * DDHH) / E + 2.0_rt * D * DDH * EDH / (E * E);
+        Real C4 = 2.0_rt * E * SQGE + D;
+        Real C4DH = 2.0_rt * EDH * SQGE + DDH;
+        Real C4DHH = 2.0_rt * EDHH * SQGE + DDHH;
+        Real C4DG = E / SQGE;
+        Real C4DGG = -0.5_rt * E / (GAME * SQGE);
+        Real C4DHG = EDH / SQGE;
+        Real S4A = 2.0_rt / E / DISCR;
+        Real S4AH = EDH / E + DIDH / DISCR;
+        Real S4ADH = -S4A * S4AH;
+        Real S4ADHH = -S4ADH * S4AH -
+                       S4A * (EDHH / E - (EDH / E) * (EDH / E) + DIDHH / DISCR -
+                              (DIDH / DISCR) * (DIDH / DISCR));
+        Real S4B = D * B3 + B4 * B2;
+        Real S4BDH = DDH * B3 + D * B3DH + B4DH * B2 + B4 * B2DH;
+        Real S4BDHH = DDHH * B3 + 2.0_rt * DDH * B3DH + D * B3DHH + B4DHH * B2 +
+                      2.0_rt * B4DH * B2DH + B4 * B2DHH;
+        Real S4C = std::atan(C4 / DISCR) - std::atan(D / DISCR);
+        Real UP1 = C4DH * DISCR - C4 * DIDH;
+        Real DN1 = DISCR * DISCR + C4 * C4;
+        Real UP2 = DDH * DISCR - D * DIDH;
+        Real DN2 = DISCR * DISCR + D * D;
+        Real S4CDH = UP1 / DN1 - UP2 / DN2;
+        Real S4CDHH = (C4DHH * DISCR - C4 * DIDHH) / DN1 -
+                      UP1 * 2.0_rt * (DISCR * DIDH + C4 * C4DH) / (DN1 * DN1) -
+                      (DDHH * DISCR - D * DIDHH) / DN2 + UP2 * 2.0_rt *
+                      (DISCR * DIDH + D * DDH) / (DN2 * DN2);
+        Real S4CDG = C4DG * DISCR / DN1;
+        Real S4CDGG = C4DGG * DISCR / DN1 - 2.0_rt * C4 * DISCR * (C4DG / DN1) * (C4DG / DN1);
+        Real S4CDHG = (C4DHG * DISCR + C4DG * DIDH -
+                       C4DG * DISCR / DN1 * 2.0_rt * (DISCR * DIDH + C4 * C4DH)) / DN1;
+        Real S4 = S4A * S4B * S4C;
+        Real S4DH = S4ADH * S4B * S4C + S4A * S4BDH * S4C + S4A * S4B * S4CDH;
+        Real S4DHH = S4ADHH * S4B * S4C + S4A * S4BDHH * S4C + S4A * S4B * S4CDHH +
+                     2.0_rt * (S4ADH * S4BDH * S4C + S4ADH * S4B * S4CDH + S4A * S4BDH * S4CDH);
+        Real S4DG = S4A * S4B * S4CDG;
+        Real S4DGG = S4A * S4B * S4CDGG;
+        Real S4DHG = S4A * S4B * S4CDHG + S4CDG * (S4ADH * S4B + S4A * S4BDH);
+
+        FXC = S1 + S2 + S3 + S4;
+        Real FXCDH = S1DH + S2DH + S3DH + S4DH;
+        Real FXCDG = S1DG + S2DG + S3DG + S4DG;
+        Real FXCDHH = S1DHH + S2DHH + S3DHH + S4DHH;
+        Real FXCDGG = S2DGG + S3DGG + S4DGG;
+        Real FXCDHG = S1DHG + S2DHG + S3DHG + S4DHG;
+        PXC = (GAME * FXCDG - 2.0_rt * THETA * FXCDH) / 3.0_rt;
+        UXC = GAME * FXCDG - THETA * FXCDH;
+        SXC = (GAME * S2DG - S2 + GAME * S3DG - S3 + S4A * S4B * (GAME * S4CDG - S4C)) -
+              THETA * FXCDH;
+        if (std::abs(SXC) < EPS * std::abs(THETA * FXCDH)) {
+            SXC = 0.0_rt; // accuracy loss
+        }
+        CVXC = 2.0_rt * THETA * (GAME * FXCDHG - FXCDH) - THETA * THETA * FXCDHH - GAME * GAME * FXCDGG;
+        if (std::abs(CVXC) < EPS * std::abs(GAME * GAME * FXCDGG)) {
+            CVXC = 0.0_rt; // accuracy
+        }
+        Real PDLH = THETA * (GAME * FXCDHG - 2.0_rt * FXCDH - 2.0_rt * THETA * FXCDHH) / 3.0_rt;
+        Real PDLG = GAME * (FXCDG + GAME * FXCDGG - 2.0_rt * THETA * FXCDHG) / 3.0_rt;
+        PDRXC = PXC + (PDLG - 2.0_rt * PDLH) / 3.0_rt;
+        PDTXC = GAME * (THETA * FXCDHG - GAME * FXCDGG / 3.0_rt) -
+                THETA * (FXCDH / 0.75_rt + THETA * FXCDHH / 1.5_rt);
+    }
 }
