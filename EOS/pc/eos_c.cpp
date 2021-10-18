@@ -1248,4 +1248,87 @@ extern "C"
         CHITE = TEMR / PR * (dPdT - dPdH * dndT / dndH);
         CHIRE = DENR / PR * dPdH / dndH; // (dndH * TEMR * PEid) // DENS / PRE * dPdH / dndH
     }
+
+    void elect11 (double TEMP, double CHI,
+                  Real& DENS, Real& FEid, Real& PEid, Real& UEid,
+                  Real& SEid, Real& CVE, Real& CHITE, Real& CHIRE,
+                  Real& DlnDH, Real& DlnDT, Real& DlnDHH, Real& DlnDTT,
+                  Real& DlnDHT)
+    {
+        // Version 17.11.11
+        // safeguard against huge (-CHI) values is added 27.05.17
+        // ELECT9 v.04.03.09 + smooth match of two fits at chi >> 1 + add.outputs
+        // Compared to ELECTRON v.06.07.00, this S/R is completely rewritten:
+        //        numerical differentiation is avoided now.
+        // Compared to ELECT7 v.06.06.07,
+        //    - call BLIN7 is changed to call BLIN9,
+        //    - Sommerfeld expansion is used at chi >~ 28 i.o. 1.e4
+        //    - Sommerfeld expansion is corrected: introduced DeltaEF, D1 and D2.
+        // Ideal electron-gas EOS.
+        // Input: TEMP - T [a.u.], CHI=\mu/T
+        // Output: DENS - electron number density n_e [a.u.],
+        //         FEid - free energy / N_e kT, UEid - internal energy / N_e kT,
+        //         PEid - pressure (P_e) / n_e kT, SEid - entropy / N_e k,
+        //         CVE - heat capacity / N_e k,
+        //         CHITE=(d ln P_e/d ln T)_V, CHIRE=(d ln P_e/d ln n_e)_T
+        //         DlnDH=(d ln n_e/d CHI)_T = (T/n_e) (d n_e/d\mu)_T
+        //         DlnDT=(d ln n_e/d ln T)_CHI
+        //         DlnDHH=(d^2 ln n_e/d CHI^2)_T
+        //         DlnDTT=(d^2 ln n_e/d (ln T)^2)_CHI
+        //         DlnDHT=d^2 ln n_e/d (ln T) d CHI
+
+        const Real CHI2 = 28.0_rt;
+        const Real XMAX = 20.0_rt;
+        const Real DCHI2 = CHI2 - 1.0_rt;
+        const Real XSCAL2 = XMAX / DCHI2;
+
+        if (CHI < -1.e2_rt) {
+            printf("ELECT11: too large negative CHI\n"); // 27.05.17
+            exit(1);
+        }
+
+        Real X2 = (CHI - CHI2) * XSCAL2;
+        if (X2 < -XMAX) {
+            elect11a(TEMP, CHI,
+                     DENS, FEid, PEid, UEid, SEid, CVE, CHITE, CHIRE,
+                     DlnDH, DlnDT, DlnDHH, DlnDTT, DlnDHT);
+        }
+        else if (X2 > XMAX) {
+            elect11b(TEMP, CHI,
+                     DENS, FEid, PEid, UEid, SEid, CVE, CHITE, CHIRE,
+                     DlnDH, DlnDT, DlnDHH, DlnDTT, DlnDHT);
+        }
+        else {
+            Real FP, FM;
+            fermi10(X2, XMAX, FP, FM);
+
+            Real DENSa, FEida, PEida, UEida, SEida, CVEa, CHITEa, CHIREa;
+            Real DlnDHa, DlnDTa, DlnDHHa, DlnDTTa, DlnDHTa;
+
+            elect11a(TEMP, CHI,
+                     DENSa, FEida, PEida, UEida, SEida, CVEa, CHITEa, CHIREa,
+                     DlnDHa, DlnDTa, DlnDHHa, DlnDTTa, DlnDHTa);
+
+            Real DENSb, FEidb, PEidb, UEidb, SEidb, CVEb, CHITEb, CHIREb;
+            Real DlnDHb, DlnDTb, DlnDHHb, DlnDTTb, DlnDHTb;
+
+            elect11b(TEMP, CHI,
+                     DENSb, FEidb, PEidb, UEidb, SEidb, CVEb, CHITEb, CHIREb,
+                     DlnDHb, DlnDTb, DlnDHHb, DlnDTTb, DlnDHTb);
+
+            DENS = DENSa * FP + DENSb * FM;
+            FEid = FEida * FP + FEidb * FM;
+            PEid = PEida * FP + PEidb * FM;
+            UEid = UEida * FP + UEidb * FM;
+            SEid = SEida * FP + SEidb * FM;
+            CVE = CVEa * FP + CVEb * FM;
+            CHITE = CHITEa * FP + CHITEb * FM;
+            CHIRE = CHIREa * FP + CHIREb * FM;
+            DlnDH = DlnDHa * FP + DlnDHb * FM;
+            DlnDT = DlnDTa * FP + DlnDTb * FM;
+            DlnDHH = DlnDHHa * FP + DlnDHHb * FM;
+            DlnDHT = DlnDHTa * FP + DlnDHTb * FM;
+            DlnDTT = DlnDTTa * FP + DlnDTTb * FM;
+        }
+    }
 }

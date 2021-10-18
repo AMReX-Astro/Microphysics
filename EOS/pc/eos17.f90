@@ -386,6 +386,14 @@
            double precision, intent(in), value :: dens, temp
            double precision, intent(inout) :: chi
          end subroutine chemfit
+         subroutine elect11(TEMP,CHI, &
+              DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+              DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT) bind(C, name="elect11")
+           implicit none
+           double precision, intent(in), value :: TEMP,CHI
+           double precision :: DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+                DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT
+         end subroutine elect11
       end interface
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) then
          print *, 'MELANGE: RHO out of range'
@@ -1217,97 +1225,5 @@
       CVMIX=UMIX-UDG
       PDTMIX=PMIX-UDG/3.
       PDRMIX=PMIX+UDG/9.
-      return
-      end
-
-! ===================  IDEAL ELECTRON GAS  =========================== !
-      subroutine ELECT11(TEMP,CHI, &
-       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-!                                                       Version 17.11.11
-!                 safeguard against huge (-CHI) values is added 27.05.17
-! ELECT9 v.04.03.09 + smooth match of two fits at chi >> 1 + add.outputs
-! Compared to ELECTRON v.06.07.00, this S/R is completely rewritten: 
-!        numerical differentiation is avoided now.
-! Compared to ELECT7 v.06.06.07,
-!    - call BLIN7 is changed to call BLIN9,
-!    - Sommerfeld expansion is used at chi >~ 28 i.o. 1.e4
-!    - Sommerfeld expansion is corrected: introduced DeltaEF, D1 and D2.
-! Ideal electron-gas EOS.
-! Input: TEMP - T [a.u.], CHI=\mu/T
-! Output: DENS - electron number density n_e [a.u.],
-!         FEid - free energy / N_e kT, UEid - internal energy / N_e kT,
-!         PEid - pressure (P_e) / n_e kT, SEid - entropy / N_e k,
-!         CVE - heat capacity / N_e k,
-!         CHITE=(d ln P_e/d ln T)_V, CHIRE=(d ln P_e/d ln n_e)_T
-!         DlnDH=(d ln n_e/d CHI)_T = (T/n_e) (d n_e/d\mu)_T
-!         DlnDT=(d ln n_e/d ln T)_CHI
-!         DlnDHH=(d^2 ln n_e/d CHI^2)_T
-!         DlnDTT=(d^2 ln n_e/d (ln T)^2)_CHI
-!         DlnDHT=d^2 ln n_e/d (ln T) d CHI
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter (CHI2=28.d0,XMAX=20.d0)
-      parameter (DCHI2=CHI2-1.d0)
-      parameter (XSCAL2=XMAX/DCHI2)
-      interface
-         subroutine fermi10(X,XMAX,FP,FM) bind(C, name="fermi10")
-           implicit none
-           double precision, intent(in), value :: X, XMAX
-           double precision, intent(inout) :: FP, FM
-         end subroutine fermi10
-         subroutine elect11a(TEMP,CHI, &
-              DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-              DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT) bind(C, name="elect11a")
-           implicit none
-           double precision, intent(in), value:: TEMP,CHI
-           double precision :: DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-                DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT
-         end subroutine elect11a
-         subroutine elect11b(TEMP,CHI, &
-              DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-              DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT) bind(C, name="elect11b")
-           implicit none
-           double precision, intent(in), value:: TEMP,CHI
-           double precision :: DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-                DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT
-         end subroutine elect11b
-      end interface
-
-      if (CHI.lt.-1.d2) then
-         print *, 'ELECT11: too large negative CHI' ! 27.05.17
-         stop
-      end if
-      X2=(CHI-CHI2)*XSCAL2
-      if (X2.lt.-XMAX) then
-         call ELECT11a(TEMP,CHI, &
-          DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-          DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-      elseif (X2.gt.XMAX) then
-         call ELECT11b(TEMP,CHI, &
-          DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
-          DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
-      else
-         call FERMI10(X2,XMAX,FP,FM)
-         call ELECT11a(TEMP,CHI, &
-          DENSa,FEida,PEida,UEida,SEida,CVEa,CHITEa,CHIREa, &
-          DlnDHa,DlnDTa,DlnDHHa,DlnDTTa,DlnDHTa)
-         call ELECT11b(TEMP,CHI, &
-          DENSb,FEidb,PEidb,UEidb,SEidb,CVEb,CHITEb,CHIREb, &
-          DlnDHb,DlnDTb,DlnDHHb,DlnDTTb,DlnDHTb)
-         DENS=DENSa*FP+DENSb*FM
-         FEid=FEida*FP+FEidb*FM
-         PEid=PEida*FP+PEidb*FM
-         UEid=UEida*FP+UEidb*FM
-         SEid=SEida*FP+SEidb*FM
-         CVE=CVEa*FP+CVEb*FM
-         CHITE=CHITEa*FP+CHITEb*FM
-         CHIRE=CHIREa*FP+CHIREb*FM
-         DlnDH=DlnDHa*FP+DlnDHb*FM
-         DlnDT=DlnDTa*FP+DlnDTb*FM
-         DlnDHH=DlnDHHa*FP+DlnDHHb*FM
-         DlnDHT=DlnDHTa*FP+DlnDHTb*FM
-         DlnDTT=DlnDTTa*FP+DlnDTTb*FM
-      endif
       return
       end
