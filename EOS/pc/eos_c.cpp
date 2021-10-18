@@ -365,6 +365,251 @@ extern "C"
         }
     }
 
+    void blin9c (Real TEMP, Real CHI,
+                 Real& W0, Real& W0DX, Real& W0DT, Real& W0DXX, Real& W0DTT, Real& W0DXT,
+                 Real& W1, Real& W1DX, Real& W1DT, Real& W1DXX, Real& W1DTT, Real& W1DXT,
+                 Real& W2, Real& W2DX, Real& W2DT, Real& W2DXX, Real& W2DTT, Real& W2DXT,
+                 Real& W0XXX, Real& W0XTT, Real& W0XXT)
+    {
+        // Version 19.01.10
+        // Third part of BILN9: large CHI. Stems from BLIN8 v.24.12.08
+        const Real PI = 3.141592653_rt;
+        const Real PI26 = PI * PI / 6.0;
+
+        Real AM[3], AMDX[3], AMDT[3], AMDXX[3], AMDTT[3], AMDXT[3];
+
+        if (CHI * TEMP < 0.1_rt) {
+
+            for (int k = 0; k <= 2; ++k) {
+                Real W = 0.0_rt;
+                Real WDX = 0.0_rt;
+                Real WDT = 0.0_rt;
+                Real WDXX = 0.0_rt;
+                Real WDTT = 0.0_rt;
+                Real WDXT = 0.0_rt;
+                Real WDXXX = 0.0_rt;
+                Real WDXTT = 0.0_rt;
+                Real WDXXT = 0.0_rt;
+
+                Real C;
+
+                for (int j = 0; j <= 4; ++j) { // for nonrel.Fermi integrals from k+1/2 to k+4.5
+                    Real CNU = k + j + 0.5_rt; // nonrelativistic Fermi integral index \nu
+                    Real CHINU = std::pow(CHI, k + j) * std::sqrt(CHI); // \chi^\nu
+                    Real F = CHINU * (CHI / (CNU + 1.0_rt) + PI26 * CNU / CHI + // nonrel.Fermi
+                                      0.7_rt * PI26 * PI26 * CNU * (CNU - 1.0_rt) *
+                                      (CNU - 2.0_rt) / (CHI * CHI * CHI));
+                    Real FDX = CHINU * (1.0_rt + PI26 * CNU * (CNU - 1.0_rt) / (CHI * CHI) +
+                                        0.7_rt * PI26 * PI26 * CNU * (CNU - 1.0_rt) * (CNU - 2.0_rt)
+                                        * (CNU - 3.0_rt) / (CHI * CHI * CHI * CHI));
+                    Real FDXX = CHINU / CHI * CNU *
+                                (1.0_rt + PI26 * (CNU - 1.0_rt) *
+                                 (CNU - 2.0_rt) / (CHI * CHI) +
+                                 0.7_rt * PI26 * PI26 * (CNU - 1.0_rt) * (CNU - 2.0_rt) *
+                                 (CNU - 3.0_rt) * (CNU - 4.0_rt) / (CHI * CHI * CHI * CHI));
+                    Real FDXXX = CHINU / (CHI * CHI) * CNU * (CNU - 1.0_rt) *
+                                 (1.0_rt + PI26 * (CNU - 2.0_rt) * (CNU - 3.0_rt) / (CHI * CHI) +
+                                  0.7_rt * PI26 * PI26 * (CNU - 2.0_rt) * (CNU - 3.0_rt) *
+                                  (CNU - 4.0_rt) * (CNU - 5.0_rt) / (CHI * CHI * CHI * CHI));
+
+                    if (j == 0) {
+                        W = F;
+                        WDX = FDX;
+                        WDXX = FDXX;
+                        WDXXX = FDXXX;
+                    }
+                    else if (j == 1) {
+                        C = 0.25_rt * TEMP;
+                        W = W + C * F; // Fermi-Dirac, expressed through Fermi
+                        WDX = WDX + C * FDX;
+                        WDXX = WDXX + C * FDXX;
+                        WDT = F / 4.0_rt;
+                        WDXT = FDX / 4.0_rt;
+                        WDTT = 0.0_rt;
+                        WDXXX = WDXXX + C * FDXXX;
+                        WDXXT = FDXX / 4.0_rt;
+                        WDXTT = 0.0_rt;
+                    }
+                    else {
+                        C = -C / j * (2 * j - 3) / 4.0_rt * TEMP;
+                        W = W + C * F;
+                        WDX = WDX + C * FDX;
+                        WDT = WDT + C * j / TEMP * F;
+                        WDXX = WDXX + C * FDXX;
+                        WDTT = WDTT + C * j * (j - 1) / (TEMP * TEMP) * F;
+                        WDXT = WDXT + C * j / TEMP * FDX;
+                        WDXXX = WDXXX + C * FDXXX;
+                        WDXTT = WDXTT + C * j * (j - 1) / (TEMP * TEMP) * FDX;
+                        WDXXT = WDXXT + C * j / TEMP * FDXX;
+                    }
+                }
+
+                if (k == 0) {
+                    W0 = W;
+                    W0DX = WDX;
+                    W0DT = WDT;
+                    W0DXX = WDXX;
+                    W0DTT = WDTT;
+                    W0DXT = WDXT;
+                    W0XXX = WDXXX;
+                    W0XTT = WDXTT;
+                    W0XXT = WDXXT;
+                }
+                else if (k == 1) {
+                    W1 = W;
+                    W1DX = WDX;
+                    W1DT = WDT;
+                    W1DXX = WDXX;
+                    W1DTT = WDTT;
+                    W1DXT = WDXT;
+                }
+                else {
+                    W2 = W;
+                    W2DX = WDX;
+                    W2DT = WDT;
+                    W2DXX = WDXX;
+                    W2DTT = WDTT;
+                    W2DXT = WDXT;
+                }
+            }
+
+        }
+        else { // CHI > 14, CHI * TEMP > 0.1: general high-\chi expansion
+
+            Real D = 1.0_rt + CHI * TEMP / 2.0_rt;
+            Real R = std::sqrt(CHI * D);
+            Real RX = 0.5_rt / CHI + 0.25_rt * TEMP / D;
+            Real RDX = R * RX;
+            Real RDT = 0.25_rt * CHI * CHI / R;
+            Real RXX = -0.5_rt / (CHI * CHI) - 0.125_rt * (TEMP / D) * (TEMP / D);
+            Real RDXX = RDX * RX + R * RXX;
+            Real RDTT = -0.25_rt * RDT * CHI / D;
+            Real RXT = 0.25_rt / D - 0.125_rt * CHI * TEMP / (D * D);
+            Real RDXT = RDT * RX + R * RXT;
+            Real RXXX = 1.0_rt / (CHI * CHI * CHI) + 0.125_rt * (TEMP / D) * (TEMP / D) * (TEMP / D);
+            Real RDXXX = RDXX * RX + 2.0_rt * RDX * RXX + R * RXXX;
+            Real RXTT = -0.25_rt / (D * D) * CHI + 0.125_rt * CHI * CHI * TEMP / (D * D * D);
+            Real RDXTT = RDTT * RX + 2.0_rt * RDT * RXT + R * RXTT;
+            Real RXXT = -RXT * TEMP / D;
+            Real RDXXT = RDXT * RX + RDX * RXT + RDT * RXX + R * RXXT;
+
+            Real AMDXXX, AMDXTT, AMDXXT;
+
+            for (int k = 0; k <= 2; ++k) {
+                Real DM = k + 0.5_rt + (k + 1.0_rt) * CHI * TEMP / 2.0_rt;
+                AM[k] = std::pow(CHI, k) * DM / R;
+                Real FMX1 = 0.5_rt * (k + 1.0_rt) * TEMP / DM;
+                Real FMX2 = 0.25_rt * TEMP / D;
+                Real FMX = (k - 0.5_rt) / CHI + FMX1 - FMX2;
+                AMDX[k] = AM[k] * FMX;
+                Real CkM = 0.5_rt * (k + 1.0_rt) / DM;
+                Real FMT1 = CkM * CHI;
+                Real FMT2 = 0.25_rt * CHI / D;
+                Real FMT = FMT1 - FMT2;
+                AMDT[k] = AM[k] * FMT;
+                Real FMXX = -(k - 0.5_rt) / (CHI * CHI) - FMX1 * FMX1 + 2.0_rt * FMX2 * FMX2;
+                AMDXX[k] = AMDX[k] * FMX + AM[k] * FMXX;
+                Real FMTT = 2.0_rt * FMT2 * FMT2 - FMT1 * FMT1;
+                AMDTT[k] = AMDT[k] * FMT + AM[k] * FMTT;
+                AMDXT[k] = AMDX[k] * FMT + AM[k] * (CkM * (1.0_rt - CkM * CHI * TEMP) -
+                                                    0.25_rt / D + 0.125_rt * CHI * TEMP / (D * D));
+
+                if (k == 0) {
+                    Real FMXXX = (2 * k - 1) / (CHI * CHI * CHI) + 2.0_rt * FMX1 * FMX1 * FMX1 -
+                                 8.0_rt * FMX2 * FMX2 * FMX2;
+                    AMDXXX = AMDXX[k] * FMX + 2.0_rt * AMDX[k] * FMXX + AM[k] * FMXXX;
+                    Real FMT1DX = CkM - TEMP * CHI * CkM * CkM;
+                    Real FMT2DX = (0.25_rt - CHI * TEMP * 0.125_rt / D) / D;
+                    Real FMXT = FMT1DX - FMT2DX;
+                    Real FMTTX = 4.0_rt * FMT2 * FMT2DX - 2.0_rt * FMT1 * FMT1DX;
+                    AMDXTT = AMDXT[k] * FMT + AMDT[k] * FMXT + AMDX[k] * FMTT + AM[k] * FMTTX;
+                    Real FMX1DT = CkM - CHI * TEMP * CkM * CkM;
+                    Real FMX2DT = 0.25_rt / D * (1.0_rt - 0.5_rt * CHI * TEMP / D);
+                    Real FMXXT = 4.0_rt * FMX2 * FMX2DT - 2.0_rt * FMX1 * FMX1DT;
+                    AMDXXT = AMDXT[k] * FMX + AMDX[k] * FMXT + AMDT[k] * FMXX + AM[k] * FMXXT;
+                }
+            }
+
+            Real SQ2T = std::sqrt(2.0_rt * TEMP);
+            Real A = 1.0_rt + CHI * TEMP + SQ2T * R;
+            Real ADX = TEMP + SQ2T * RDX;
+            Real ADT = CHI + R / SQ2T + SQ2T * RDT;
+            Real ADXX = SQ2T * RDXX;
+            Real ADTT = -R / (SQ2T * SQ2T * SQ2T) + 2.0_rt / SQ2T * RDT + SQ2T * RDTT;
+            Real ADXT = 1.0_rt + RDX / SQ2T + SQ2T * RDXT;
+            Real ADXTT = -RDX / (SQ2T * SQ2T * SQ2T) + 2.0_rt / SQ2T * RDXT + SQ2T * RDXTT;
+            Real ADXXT = RDXX / SQ2T + SQ2T * RDXXT;
+            Real XT1 = CHI + 1.0_rt / TEMP;
+            Real Aln = std::log(A);
+            Real FJ0 = 0.5_rt * XT1 * R - Aln / (SQ2T * SQ2T * SQ2T);
+            Real ASQ3 = A * SQ2T * SQ2T * SQ2T;
+            Real ASQ3DX = ADX * SQ2T * SQ2T * SQ2T;
+            Real FJ0DX = 0.5_rt * (R + XT1 * RDX) - ADX / ASQ3;
+            Real FJ0DT = 0.5_rt * (XT1 * RDT - R / (TEMP * TEMP)) - ADT / ASQ3 +
+                         0.75_rt / (TEMP * TEMP * SQ2T) * Aln;
+            Real FJ0DXX = RDX + 0.5_rt * XT1 * RDXX + (ADX / A) * (ADX / A) / (SQ2T * SQ2T * SQ2T) - ADXX / ASQ3;
+            Real FJ0DTT = R / (TEMP * TEMP * TEMP) - RDT / (TEMP * TEMP) + 0.5_rt * XT1 * RDTT +
+                          3.0_rt / (ASQ3 * TEMP) * ADT +
+                          (ADT / A) * (ADT / A) / (SQ2T * SQ2T * SQ2T) - ADTT / ASQ3 -
+                          1.875_rt / (TEMP * TEMP * TEMP * SQ2T) * Aln;
+            Real BXT = 1.5_rt / TEMP * ADX + ADX * ADT / A - ADXT;
+            Real BXXT = 1.5_rt / TEMP * ADXX + (ADXX * ADT + ADX * ADXT) / A -
+                        (ADX / A) * (ADX / A) * ADT - ADXXT;
+            Real FJ0DXT = 0.5_rt * (RDT - RDX / (TEMP * TEMP) + XT1 * RDXT) + BXT / ASQ3;
+            Real FJ0XXX = RDXX * 1.5_rt + 0.5_rt * XT1 * RDXXX +
+                          (2.0_rt * ADX * (ADXX / A - (ADX / A) * (ADX / A)) -
+                          SQ2T * RDXXX + ADXX / ASQ3 * ASQ3DX) / ASQ3;
+            Real FJ0XTT = RDX / (TEMP * TEMP * TEMP) - RDXT / (TEMP * TEMP) + 0.5_rt * (RDTT + XT1 * RDXTT) +
+                          3.0_rt / TEMP * (ADXT - ADT / ASQ3 * ASQ3DX) / ASQ3 +
+                          (2.0_rt * ADT * (ADXT / A - ADT * ADX / (A * A)) -
+                           ADXTT + ADTT * ASQ3DX / ASQ3) / ASQ3 - 1.875_rt / (TEMP * TEMP * TEMP * SQ2T) * ADX / A;
+            Real FJ0XXT = 0.5_rt * (RDXT - RDXX / (TEMP * TEMP) + RDXT + XT1 * RDXXT) +
+                          (BXXT - BXT * ASQ3DX / ASQ3) / ASQ3;
+
+            W0 = FJ0 + PI26 * AM[0];
+            W0DX = FJ0DX + PI26 * AMDX[0];
+            W0DT = FJ0DT + PI26 * AMDT[0];
+            W0DXX = FJ0DXX + PI26 * AMDXX[0];
+            W0DTT = FJ0DTT + PI26 * AMDTT[0];
+            W0DXT = FJ0DXT + PI26 * AMDXT[0];
+            W0XXX = FJ0XXX + PI26 * AMDXXX;
+            W0XTT = FJ0XTT + PI26 * AMDXTT;
+            W0XXT = FJ0XXT + PI26 * AMDXXT;
+
+            Real FJ1 = (R * R * R / 1.5_rt - FJ0) / TEMP;
+            Real FJ1DX = (2.0_rt * R * R * RDX - FJ0DX) / TEMP;
+            Real FJ1DT = (2.0_rt * R * R * RDT - FJ0DT - FJ1) / TEMP;
+            Real FJ1DXX = (4.0_rt * R * RDX * RDX + 2.0_rt * R * R * RDXX - FJ0DXX) / TEMP;
+            Real FJ1DTT = (4.0_rt * R * RDT * RDX + 2.0_rt * R * R * RDTT - FJ0DTT - 2.0_rt * FJ1DT) / TEMP;
+            Real FJ1DXT = (4.0_rt * R * RDX * RDT + 2.0_rt * R * R * RDXT - FJ0DXT - FJ1DX) / TEMP;
+
+            W1 = FJ1 + PI26 * AM[1];
+            W1DX = FJ1DX + PI26 * AMDX[1];
+            W1DT = FJ1DT + PI26 * AMDT[1];
+            W1DXX = FJ1DXX + PI26 * AMDXX[1];
+            W1DTT = FJ1DTT + PI26 * AMDTT[1];
+            W1DXT = FJ1DXT + PI26 * AMDXT[1];
+
+            Real FJ2 = (0.5_rt * CHI * R * R * R - 1.25_rt * FJ1) / TEMP;
+            Real FJ2DX = (0.5_rt * R * R * R + 1.5_rt * CHI * R * R * RDX - 1.25_rt * FJ1DX) / TEMP;
+            Real FJ2DT = (1.5_rt * CHI * R * R * RDT - 1.25_rt * FJ1DT - FJ2) / TEMP;
+            Real FJ2DXX = (3.0_rt * R * RDX * (R + CHI * RDX) + 1.5_rt * CHI * R * R * RDXX -
+                          1.25_rt * FJ1DXX) / TEMP;
+            Real FJ2DTT = (3.0_rt * CHI * R * (RDT * RDT + 0.5_rt * R * RDTT) -
+                          1.25_rt * FJ1DTT - 2.0_rt * FJ2DT) / TEMP;
+            Real FJ2DXT = (1.5_rt * R * RDT * (R + 2.0_rt * CHI * RDX) + 1.5_rt * CHI * R * R * RDXT -
+                           1.25_rt * FJ1DXT - FJ2DX) / TEMP;
+
+            W2 = FJ2 + PI26 * AM[2];
+            W2DX = FJ2DX + PI26 * AMDX[2];
+            W2DT = FJ2DT + PI26 * AMDT[2];
+            W2DXX = FJ2DXX + PI26 * AMDXX[2];
+            W2DTT = FJ2DTT + PI26 * AMDTT[2];
+            W2DXT = FJ2DXT + PI26 * AMDXT[2];
+        }
+
+    }
+
     void fermi10 (Real X, Real XMAX, Real& FP, Real& FM)
     {
         // Version 20.01.10

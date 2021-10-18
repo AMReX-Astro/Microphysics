@@ -1761,6 +1761,19 @@
          end subroutine blin9b
       end interface
       interface
+         subroutine blin9c(TEMP,CHI, &
+            W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
+            W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
+            W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
+            W0XXXb,W0XTTb,W0XXTb) bind(C, name="blin9c")
+           double precision, intent(in), value :: TEMP, CHI
+           double precision :: W0b,W0DXb,W0DTb,W0DXXb,W0DTTb,W0DXTb, &
+                W1b,W1DXb,W1DTb,W1DXXb,W1DTTb,W1DXTb, &
+                W2b,W2DXb,W2DTb,W2DXXb,W2DTTb,W2DXTb, &
+                W0XXXb,W0XTTb,W0XXTb
+         end subroutine blin9c
+      end interface
+      interface
          subroutine fermi10(X,XMAX,FP,FM) bind(C, name="fermi10")
            implicit none
            double precision, intent(in), value :: X, XMAX
@@ -1829,220 +1842,6 @@
           W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
           W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
           W0XXX,W0XTT,W0XXT)
-      endif
-      return
-      end
-
-      subroutine BLIN9c(TEMP,CHI, &
-       W0,W0DX,W0DT,W0DXX,W0DTT,W0DXT, &
-       W1,W1DX,W1DT,W1DXX,W1DTT,W1DXT, &
-       W2,W2DX,W2DT,W2DXX,W2DTT,W2DXT, &
-       W0XXX,W0XTT,W0XXT)
-!                                                       Version 19.01.10
-! Third part of BILN9: large CHI. Stems from BLIN8 v.24.12.08
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter (PI=3.141592653d0,PI26=PI*PI/6.)
-      dimension AM(0:2),AMDX(0:2),AMDT(0:2), &
-       AMDXX(0:2),AMDTT(0:2),AMDXT(0:2)
-      if (CHI*TEMP.lt..1) then
-        do K=0,2
-           W=0.
-           WDX=0.
-           WDT=0.
-           WDXX=0.
-           WDTT=0.
-           WDXT=0.
-           WDXXX=0.
-           WDXTT=0.
-           WDXXT=0.
-          do J=0,4 ! for nonrel.Fermi integrals from k+1/2 to k+4.5
-             CNU=K+J+.5 ! nonrelativistic Fermi integral index \nu
-             CHINU=CHI**(K+J)*dsqrt(CHI) ! \chi^\nu
-             F=CHINU*(CHI/(CNU+1.)+PI26*CNU/CHI+ & ! nonrel.Fermi
-              .7*PI26**2*CNU*(CNU-1.)*(CNU-2.)/CHI**3)
-             FDX=CHINU*(1.+PI26*CNU*(CNU-1.)/CHI**2+ &
-              .7*PI26**2*CNU*(CNU-1.)*(CNU-2.)*(CNU-3.)/CHI**4)
-             FDXX=CHINU/CHI*CNU*(1.+PI26*(CNU-1.)*(CNU-2.)/CHI**2+ &
-              .7*PI26**2*(CNU-1.)*(CNU-2.)*(CNU-3.)*(CNU-4.)/CHI**4)
-             FDXXX=CHINU/CHI**2*CNU*(CNU-1.)* &
-              (1.+PI26*(CNU-2.)*(CNU-3.)/CHI**2+ &
-              .7*PI26**2*(CNU-2.)*(CNU-3.)*(CNU-4.)*(CNU-5.)/CHI**4)
-            if (J.eq.0) then
-               W=F
-               WDX=FDX
-               WDXX=FDXX
-               WDXXX=FDXXX
-            elseif (J.eq.1) then
-               C=.25*TEMP
-               W=W+C*F ! Fermi-Dirac, expressed through Fermi
-               WDX=WDX+C*FDX
-               WDXX=WDXX+C*FDXX
-               WDT=F/4.
-               WDXT=FDX/4.
-               WDTT=0.
-               WDXXX=WDXXX+C*FDXXX
-               WDXXT=FDXX/4.
-               WDXTT=0.
-            else
-               C=-C/J*(2*J-3)/4.*TEMP
-               W=W+C*F
-               WDX=WDX+C*FDX
-               WDT=WDT+C*J/TEMP*F
-               WDXX=WDXX+C*FDXX
-               WDTT=WDTT+C*J*(J-1)/TEMP**2*F
-               WDXT=WDXT+C*J/TEMP*FDX
-               WDXXX=WDXXX+C*FDXXX
-               WDXTT=WDXTT+C*J*(J-1)/TEMP**2*FDX
-               WDXXT=WDXXT+C*J/TEMP*FDXX
-            endif
-          enddo ! next J
-          if (K.eq.0) then
-             W0=W
-             W0DX=WDX
-             W0DT=WDT
-             W0DXX=WDXX
-             W0DTT=WDTT
-             W0DXT=WDXT
-             W0XXX=WDXXX
-             W0XTT=WDXTT
-             W0XXT=WDXXT
-          elseif (K.eq.1) then
-             W1=W
-             W1DX=WDX
-             W1DT=WDT
-             W1DXX=WDXX
-             W1DTT=WDTT
-             W1DXT=WDXT
-          else
-             W2=W
-             W2DX=WDX
-             W2DT=WDT
-             W2DXX=WDXX
-             W2DTT=WDTT
-             W2DXT=WDXT
-          endif
-        enddo ! next K
-!   ----------------------------------------------------------------   !
-      else ! CHI > 14, CHI*TEMP > 0.1: general high-\chi expansion
-         D=1.d0+CHI*TEMP/2.d0
-         R=dsqrt(CHI*D)
-         RX=.5d0/CHI+.25d0*TEMP/D
-         RDX=R*RX
-         RDT=.25d0*CHI**2/R
-         RXX=-.5d0/CHI**2-.125d0*(TEMP/D)**2
-         RDXX=RDX*RX+R*RXX
-         RDTT=-.25d0*RDT*CHI/D
-         RXT=.25d0/D-.125d0*CHI*TEMP/D**2
-         RDXT=RDT*RX+R*RXT
-         RXXX=1.d0/CHI**3+.125d0*(TEMP/D)**3
-         RDXXX=RDXX*RX+2.d0*RDX*RXX+R*RXXX
-         RXTT=-.25d0/D**2*CHI+.125d0*CHI**2*TEMP/D**3
-         RDXTT=RDTT*RX+2.d0*RDT*RXT+R*RXTT
-         RXXT=-RXT*TEMP/D
-         RDXXT=RDXT*RX+RDX*RXT+RDT*RXX+R*RXXT
-        do K=0,2
-           DM=K+.5d0+(K+1.d0)*CHI*TEMP/2.d0
-           AM(K)=CHI**K*DM/R
-           FMX1=.5d0*(K+1.)*TEMP/DM
-           FMX2=.25d0*TEMP/D
-           FMX=(K-.5d0)/CHI+FMX1-FMX2
-           AMDX(K)=AM(K)*FMX
-           CKM=.5d0*(K+1.d0)/DM
-           FMT1=CKM*CHI
-           FMT2=.25d0*CHI/D
-           FMT=FMT1-FMT2
-           AMDT(K)=AM(K)*FMT
-           FMXX=-(K-.5d0)/CHI**2-FMX1**2+2.d0*FMX2**2
-           AMDXX(K)=AMDX(K)*FMX+AM(K)*FMXX
-           FMTT=2.d0*FMT2**2-FMT1**2
-           AMDTT(K)=AMDT(K)*FMT+AM(K)*FMTT
-           AMDXT(K)=AMDX(K)*FMT+AM(K)*(CKM*(1.d0-CKM*CHI*TEMP)- &
-            .25d0/D+.125d0*CHI*TEMP/D**2)
-          if (K.eq.0) then
-             FMXXX=(2*K-1)/CHI**3+2.d0*FMX1**3-8.d0*FMX2**3
-             AMDXXX=AMDXX(K)*FMX+2.d0*AMDX(K)*FMXX+AM(K)*FMXXX
-             FMT1DX=CKM-TEMP*CHI*CKM**2
-             FMT2DX=(.25d0-CHI*TEMP*.125d0/D)/D
-             FMXT=FMT1DX-FMT2DX
-             FMTTX=4.d0*FMT2*FMT2DX-2.d0*FMT1*FMT1DX
-             AMDXTT=AMDXT(K)*FMT+AMDT(K)*FMXT+AMDX(K)*FMTT+AM(K)*FMTTX
-             FMX1DT=CKM-CHI*TEMP*CKM**2
-             FMX2DT=.25d0/D*(1.d0-.5d0*CHI*TEMP/D)
-             FMXXT=4.d0*FMX2*FMX2DT-2.d0*FMX1*FMX1DT
-             AMDXXT=AMDXT(K)*FMX+AMDX(K)*FMXT+AMDT(K)*FMXX+AM(K)*FMXXT
-          endif
-        enddo
-         SQ2T=dsqrt(2.d0*TEMP)
-           A=1.d0+CHI*TEMP+SQ2T*R
-           ADX=TEMP+SQ2T*RDX
-           ADT=CHI+R/SQ2T+SQ2T*RDT
-           ADXX=SQ2T*RDXX
-           ADTT=-R/SQ2T**3+2.d0/SQ2T*RDT+SQ2T*RDTT
-           ADXT=1.d0+RDX/SQ2T+SQ2T*RDXT
-           ADXTT=-RDX/SQ2T**3+2.d0/SQ2T*RDXT+SQ2T*RDXTT
-           ADXXT=RDXX/SQ2T+SQ2T*RDXXT
-           XT1=CHI+1.d0/TEMP
-           Aln=dlog(A)
-           FJ0=.5d0*XT1*R-Aln/SQ2T**3
-           ASQ3=A*SQ2T**3
-           ASQ3DX=ADX*SQ2T**3
-           FJ0DX=.5d0*(R+XT1*RDX)-ADX/ASQ3
-           FJ0DT=.5d0*(XT1*RDT-R/TEMP**2)-ADT/ASQ3+ &
-            .75d0/(TEMP**2*SQ2T)*Aln
-           FJ0DXX=RDX+.5d0*XT1*RDXX+(ADX/A)**2/SQ2T**3-ADXX/ASQ3
-           FJ0DTT=R/TEMP**3-RDT/TEMP**2+.5d0*XT1*RDTT+ &
-            3.d0/(ASQ3*TEMP)*ADT+ &
-          (ADT/A)**2/SQ2T**3-ADTT/ASQ3-1.875d0/(TEMP**3*SQ2T)*Aln
-           BXT=1.5d0/TEMP*ADX+ADX*ADT/A-ADXT
-           BXXT=1.5d0/TEMP*ADXX+(ADXX*ADT+ADX*ADXT)/A- &
-            (ADX/A)**2*ADT-ADXXT
-           FJ0DXT=.5d0*(RDT-RDX/TEMP**2+XT1*RDXT)+BXT/ASQ3
-           FJ0XXX=RDXX*1.5d0+.5d0*XT1*RDXXX+ &
-           (2.d0*ADX*(ADXX/A-(ADX/A)**2)- &
-           SQ2T*RDXXX+ADXX/ASQ3*ASQ3DX)/ASQ3
-           FJ0XTT=RDX/TEMP**3-RDXT/TEMP**2+.5d0*(RDTT+XT1*RDXTT)+ &
-           3.d0/TEMP*(ADXT-ADT/ASQ3*ASQ3DX)/ASQ3+ &
-           (2.d0*ADT*(ADXT/A-ADT*ADX/A**2)- &
-           ADXTT+ADTT*ASQ3DX/ASQ3)/ASQ3-1.875d0/(TEMP**3*SQ2T)*ADX/A
-           FJ0XXT=.5d0*(RDXT-RDXX/TEMP**2+RDXT+XT1*RDXXT)+ &
-           (BXXT-BXT*ASQ3DX/ASQ3)/ASQ3
-         W0=FJ0+PI26*AM(0)
-         W0DX=FJ0DX+PI26*AMDX(0)
-         W0DT=FJ0DT+PI26*AMDT(0)
-         W0DXX=FJ0DXX+PI26*AMDXX(0)
-         W0DTT=FJ0DTT+PI26*AMDTT(0)
-         W0DXT=FJ0DXT+PI26*AMDXT(0)
-         W0XXX=FJ0XXX+PI26*AMDXXX
-         W0XTT=FJ0XTT+PI26*AMDXTT
-         W0XXT=FJ0XXT+PI26*AMDXXT
-           FJ1=(R**3/1.5d0-FJ0)/TEMP
-           FJ1DX=(2.d0*R**2*RDX-FJ0DX)/TEMP
-           FJ1DT=(2.d0*R**2*RDT-FJ0DT-FJ1)/TEMP
-           FJ1DXX=(4.d0*R*RDX**2+2.d0*R**2*RDXX-FJ0DXX)/TEMP
-           FJ1DTT=(4.d0*R*RDT**2+2.d0*R**2*RDTT-FJ0DTT-2.d0*FJ1DT)/TEMP
-           FJ1DXT=(4.d0*R*RDX*RDT+2.d0*R**2*RDXT-FJ0DXT-FJ1DX)/TEMP
-         W1=FJ1+PI26*AM(1)
-         W1DX=FJ1DX+PI26*AMDX(1)
-         W1DT=FJ1DT+PI26*AMDT(1)
-         W1DXX=FJ1DXX+PI26*AMDXX(1)
-         W1DTT=FJ1DTT+PI26*AMDTT(1)
-         W1DXT=FJ1DXT+PI26*AMDXT(1)
-           FJ2=(.5d0*CHI*R**3-1.25d0*FJ1)/TEMP
-           FJ2DX=(.5d0*R**3+1.5d0*CHI*R**2*RDX-1.25d0*FJ1DX)/TEMP
-           FJ2DT=(1.5d0*CHI*R**2*RDT-1.25d0*FJ1DT-FJ2)/TEMP
-           FJ2DXX=(3.d0*R*RDX*(R+CHI*RDX)+1.5d0*CHI*R**2*RDXX- &
-            1.25d0*FJ1DXX)/TEMP
-          FJ2DTT=(3.d0*CHI*R*(RDT**2+.5d0*R*RDTT)- &
-           1.25d0*FJ1DTT-2.d0*FJ2DT)/TEMP
-           FJ2DXT=(1.5d0*R*RDT*(R+2.d0*CHI*RDX)+1.5d0*CHI*R**2*RDXT- &
-            1.25d0*FJ1DXT-FJ2DX)/TEMP
-         W2=FJ2+PI26*AM(2)
-         W2DX=FJ2DX+PI26*AMDX(2)
-         W2DT=FJ2DT+PI26*AMDT(2)
-         W2DXX=FJ2DXX+PI26*AMDXX(2)
-         W2DTT=FJ2DTT+PI26*AMDTT(2)
-         W2DXT=FJ2DXT+PI26*AMDXT(2)
       endif
       return
       end
