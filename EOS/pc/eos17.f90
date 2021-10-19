@@ -604,6 +604,12 @@
            double precision, value :: RS, GAME, Zion
            double precision :: FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR
          end subroutine fscrliq8
+         subroutine fition9(GAMI, &
+              FION,UION,PION,CVii,PDTii,PDRii) bind(C, name="fition9")
+           implicit none
+           double precision, value :: GAMI
+           double precision :: FION,UION,PION,CVii,PDTii,PDRii
+         end subroutine fition9
       end interface
 
       if (LIQSOL.ne.1.and.LIQSOL.ne.0) then
@@ -694,41 +700,5 @@
       CV2=CVItot+CV0
       PDT2=PDTi+PDT0
       PDR2=PDRi+PDR0
-      return
-      end
-
-! ==================  ELECTRON-ION COULOMB LIQUID  =================== !
-      subroutine FITION9(GAMI,FION,UION,PION,CVii,PDTii,PDRii)
-!                                                       Version 11.09.08
-! Dummy argument Zion is deleted in 2009.
-! Non-ideal contributions to thermodynamic functions of classical OCP.
-!   Stems from FITION00 v.24.05.00.
-! Input: GAMI - ion coupling parameter
-! Output: FION - ii free energy / N_i kT
-!         UION - ii internal energy / N_i kT
-!         PION - ii pressure / n_i kT
-!         CVii - ii heat capacity / N_i k
-!         PDTii = PION + d(PION)/d ln T = (1/N_i kT)*(d P_{ii}/d ln T)
-!         PDRii = PION + d(PION)/d ln\rho
-!   Parameters adjusted to Caillol (1999).
-      implicit double precision (A-H),double precision (O-Z)
-      save
-      parameter (A1=-.907347d0,A2=.62849d0,C1=.004500d0,G1=170.0, &
-       C2=-8.4d-5,G2=.0037,SQ32=.8660254038d0) ! SQ32=sqrt(3)/2
-      A3=-SQ32-A1/dsqrt(A2)
-      F0=A1*(dsqrt(GAMI*(A2+GAMI))- &
-          A2*dlog(dsqrt(GAMI/A2)+dsqrt(1.+GAMI/A2)))+ &
-          2.*A3*(dsqrt(GAMI)-datan(dsqrt(GAMI)))
-      U0=dsqrt(GAMI)**3*(A1/dsqrt(A2+GAMI)+A3/(1.d0+GAMI))
-!   This is the zeroth approximation. Correction:
-      UION=U0+C1*GAMI**2/(G1+GAMI)+C2*GAMI**2/(G2+GAMI**2)
-      FION=F0+C1*(GAMI-G1*dlog(1.d0+GAMI/G1))+ &
-        C2/2.*dlog(1.d0+GAMI**2/G2)
-      CVii=-0.5*dsqrt(GAMI)**3*(A1*A2/dsqrt(A2+GAMI)**3+ &
-       A3*(1.d0-GAMI)/(1.d0+GAMI)**2) - &
-       GAMI**2*(C1*G1/(G1+GAMI)**2+C2*(G2-GAMI**2)/(G2+GAMI**2)**2)
-      PION=UION/3.
-      PDRii=(4.*UION-CVii)/9. ! p_{ii} + d p_{ii} / d ln\rho
-      PDTii=CVii/3. ! p_{ii} + d p_{ii} / d ln T
       return
       end

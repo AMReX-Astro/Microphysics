@@ -1902,6 +1902,47 @@ extern "C"
         PDRSCR = (12.0_rt * PSCR + X * X * FDXX + 2.0_rt * X * GAME * FDXG + GAME * GAME * FDGG) / 9.0_rt;
     }
 
+    void fition9 (Real GAMI, Real& FION, Real& UION, Real& PION,
+                  Real& CVii, Real& PDTii, Real& PDRii)
+    {
+        // Version 11.09.08
+        // Dummy argument Zion is deleted in 2009.
+        // Non - ideal contributions to thermodynamic functions of classical OCP.
+        //   Stems from FITION00 v.24.05.00.
+        // Input: GAMI  -  ion coupling parameter
+        // Output: FION  -  ii free energy  /  N_i kT
+        //         UION  -  ii internal energy  /  N_i kT
+        //         PION  -  ii pressure  /  n_i kT
+        //         CVii  -  ii heat capacity  /  N_i k
+        //         PDTii  =  PION  +  d(PION) / d ln T  =  (1 / N_i kT) * (d P_{ii} / d ln T)
+        //         PDRii  =  PION  +  d(PION) / d ln\rho
+        //   Parameters adjusted to Caillol (1999).
+
+        const Real A1 = -0.907347_rt;
+        const Real A2 = 0.62849_rt;
+        const Real C1 = 0.004500_rt;
+        const Real G1 = 170.0_rt;
+        const Real C2 = -8.4e-5_rt;
+        const Real G2 = 0.0037_rt;
+        const Real SQ32 = 0.8660254038_rt; // SQ32 = sqrt(3) / 2
+        Real A3 = -SQ32 - A1 / std::sqrt(A2);
+        Real F0 = A1 * (std::sqrt(GAMI * (A2 + GAMI)) -
+                        A2 * std::log(std::sqrt(GAMI / A2) + std::sqrt(1.0_rt + GAMI / A2))) +
+                  2.0_rt * A3 * (std::sqrt(GAMI) - std::atan(std::sqrt(GAMI)));
+        Real U0 = std::pow(GAMI, 1.5_rt) * (A1 / std::sqrt(A2 + GAMI) + A3 / (1.0_rt + GAMI));
+        //   This is the zeroth approximation. Correction:
+        UION = U0 + C1 * GAMI * GAMI / (G1 + GAMI) + C2 * GAMI * GAMI / (G2 + GAMI * GAMI);
+        FION = F0 + C1 * (GAMI - G1 * std::log(1.0_rt + GAMI / G1)) +
+               C2 / 2.0_rt * std::log(1.0_rt + GAMI * GAMI / G2);
+        CVii = -0.5_rt * std::pow(GAMI, 1.5_rt) * (A1 * A2 / std::pow(A2 + GAMI, 1.5_rt) +
+               A3 * (1.0_rt - GAMI) / ((1.0_rt + GAMI) * (1.0_rt + GAMI))) -
+               GAMI * GAMI * (C1 * G1 / ((G1 + GAMI) * (G1 + GAMI)) +
+                              C2 * (G2 - GAMI * GAMI) / ((G2 + GAMI * GAMI) * (G2 + GAMI * GAMI)));
+        PION = UION / 3.0_rt;
+        PDRii = (4.0_rt * UION - CVii) / 9.0_rt; // p_{ii}  +  d p_{ii}  /  d ln\rho
+        PDTii = CVii / 3.0_rt; // p_{ii}  +  d p_{ii}  /  d ln T
+    }
+
  /*           
       subroutine MELANGE9(AY,AZion,ACMI,RHO,TEMP,PRADnkT, &
           DENS,Zmean,CMImean,Z2mean,GAMImean,CHI,TPT,LIQSOL, &
@@ -2290,41 +2331,6 @@ extern "C"
       PDR2 = PDRi + PDR0
       return
       end
+*/
 
-//  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =   ELECTRON - ION COULOMB LIQUID   =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  //
-      subroutine FITION9(GAMI,FION,UION,PION,CVii,PDTii,PDRii)
-//                                                       Version 11.09.08
-// Dummy argument Zion is deleted in 2009.
-// Non - ideal contributions to thermodynamic functions of classical OCP.
-//   Stems from FITION00 v.24.05.00.
-// Input: GAMI  -  ion coupling parameter
-// Output: FION  -  ii free energy  /  N_i kT
-//         UION  -  ii internal energy  /  N_i kT
-//         PION  -  ii pressure  /  n_i kT
-//         CVii  -  ii heat capacity  /  N_i k
-//         PDTii  =  PION  +  d(PION) / d ln T  =  (1 / N_i kT) * (d P_{ii} / d ln T)
-//         PDRii  =  PION  +  d(PION) / d ln\rho
-//   Parameters adjusted to Caillol (1999).
-      implicit double precision (A - H),double precision (O - Z)
-      save
-      parameter (A1 =  - .907347d0,A2 = .62849d0,C1 = .004500d0,G1 = 170.0, &
-       C2 =  - 8.4d - 5,G2 = .0037,SQ32 = .8660254038d0) // SQ32 = std::sqrt(3) / 2
-      A3 =  - SQ32 - A1 / std::sqrt(A2)
-      F0 = A1 * (std::sqrt(GAMI * (A2 + GAMI)) -  &
-          A2 * std::log(std::sqrt(GAMI / A2) + std::sqrt(1.0_rt + GAMI / A2))) +  &
-          2.0_rt * A3 * (std::sqrt(GAMI) - datan(std::sqrt(GAMI)))
-      U0 = std::pow(GAMI, 1.5_rt) * (A1 / std::sqrt(A2 + GAMI) + A3 / (1.0_rt + GAMI))
-//   This is the zeroth approximation. Correction:
-      UION = U0 + C1 * GAMI * GAMI / (G1 + GAMI) + C2 * GAMI * GAMI / (G2 + GAMI * GAMI)
-      FION = F0 + C1 * (GAMI - G1 * std::log(1.0_rt + GAMI / G1)) +  &
-        C2 / 2.0_rt * std::log(1.0_rt + GAMI * GAMI / G2)
-      CVii =  - 0.5 * std::pow(GAMI, 1.5_rt) * (A1 * A2 / std::pow(A2 + GAMI, 1.5_rt) +  &
-       A3 * (1.0_rt - GAMI) / (1.0_rt + GAMI) * (1.0_rt + GAMI))  -  &
-       GAMI * GAMI * (C1 * G1 / (G1 + GAMI) * (G1 + GAMI) + C2 * (G2 - GAMI * GAMI) / ((G2 + GAMI * GAMI) * (G2 + GAMI * GAMI));
-      PION = UION / 3.0_rt
-      PDRii = (4. * UION - CVii) / 9. // p_{ii}  +  d p_{ii}  /  d ln\rho
-      PDTii = CVii / 3.0_rt // p_{ii}  +  d p_{ii}  /  d ln T
-      return
-      end
- */
 }
