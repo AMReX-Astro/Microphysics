@@ -2261,23 +2261,23 @@ extern "C"
         }
 
         // Calculation of average values:
-        Real Zmean = 0.0_rt;
-        Real Z2mean = 0.0_rt;
+        Real zbar = 0.0_rt;
+        Real z2bar = 0.0_rt;
         Real Z52 = 0.0_rt;
         Real Z53 = 0.0_rt;
         Real Z73 = 0.0_rt;
         Real Z321 = 0.0_rt; // corr.26.12.09
-        Real CMImean = 0.0_rt;
+        Real abar = 0.0_rt;
 
         for (int i = 0; i < NumSpec; ++i) {
-            Zmean = Zmean + AY[i] * AZion[i];
-            Z2mean = Z2mean + AY[i] * AZion[i] * AZion[i];
+            zbar = zbar + AY[i] * AZion[i];
+            z2bar = z2bar + AY[i] * AZion[i] * AZion[i];
             Real Z13 = std::pow(AZion[i], C13);
             Z53 = Z53 + AY[i] * std::pow(Z13, 5);
             Z73 = Z73 + AY[i] * std::pow(Z13, 7);
             Z52 = Z52 + AY[i] * std::pow(AZion[i], 2.5_rt);
             Z321 = Z321 + AY[i] * AZion[i] * std::pow(AZion[i] + 1.0_rt, 1.5_rt); // 26.12.09
-            CMImean = CMImean + AY[i] * ACMI[i];
+            abar = abar + AY[i] * ACMI[i];
         }
 
         // (0) Photons:
@@ -2285,7 +2285,7 @@ extern "C"
         Real PRESSRAD = UINTRAD / 3.0_rt;
 
         // (1) ideal electron gas (including relativity and degeneracy)
-        DENS = RHO / 11.20587 * Zmean / CMImean; // number density of electrons [au]
+        DENS = RHO / 11.20587 * zbar / abar; // number density of electrons [au]
         chemfit(DENS, TEMP, CHI);
 
         // NB: CHI can be used as true input instead of RHO or DENS
@@ -2302,7 +2302,7 @@ extern "C"
 
         // (2) non - ideal Coulomb EIP
         Real RS = std::pow(0.75_rt / PI / DENS, C13); // r_s - electron density parameter
-        Real RSI = RS * CMImean * Z73 * AUM; // R_S - ion density parameter
+        Real RSI = RS * abar * Z73 * AUM; // R_S - ion density parameter
         Real GAME = 1.0_rt / RS / TEMP; // electron Coulomb parameter Gamma_e
         GAMImean = Z53 * GAME; // effective Gamma_i - ion Coulomb parameter
 
@@ -2320,7 +2320,7 @@ extern "C"
         Real Stot = SEid * DENS;
         Real PDLT = PRESSE * CHITE; // d P_e[a.u.]  /  d ln T
         Real PDLR = PRESSE * CHIRE; // d P_e[a.u.]  /  d ln\rho
-        Real DENSI = DENS / Zmean; // number density of all ions
+        Real DENSI = DENS / zbar; // number density of all ions
         Real PRESSI = DENSI * TEMP; // ideal - ions total pressure (normalization)
         Real TPT2 = 0.0_rt;
         Real CTP = 4.0_rt * PI / AUM / (TEMP * TEMP); // common coefficient for TPT2.10.12.14
@@ -2371,7 +2371,7 @@ extern "C"
         // Corrections to the linear mixing rule:
         Real FMIX, UMIX, PMIX, CVMIX, PDTMIX, PDRMIX;
         if (LIQSOL == 0) { // liquid phase
-            cormix(RS, GAME, Zmean, Z2mean, Z52, Z53, Z321,
+            cormix(RS, GAME, zbar, z2bar, Z52, Z53, Z321,
                    FMIX, UMIX, PMIX, CVMIX, PDTMIX, PDRMIX);
         }
         else { // solid phase (only Madelung contribution) [22.12.12]
@@ -2423,7 +2423,7 @@ extern "C"
         CHIT = PDLT / PRESS; // d ln P / d ln T
 
         // Convert to CGS
-        Real Tnk = 8.31447e13_rt / CMImean * RHO * T6; // n_i kT [erg/cc]
+        Real Tnk = 8.31447e13_rt / abar * RHO * T6; // n_i kT [erg/cc]
         P = PnkT * Tnk;
     }
 
