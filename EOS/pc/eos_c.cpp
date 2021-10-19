@@ -2198,7 +2198,7 @@ extern "C"
     void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
                    Real& PRADnkT, Real& DENS,
                    Real& GAMImean, Real& CHI, Real& TPT, int& LIQSOL,
-                   Real& P, Real& U, Real& SNk, Real& CV, Real& CHIR, Real& CHIT)
+                   Real& P, Real& U, Real& S, Real& CV, Real& CHIR, Real& CHIT)
     {
         // Version 18.04.20
         // Difference from v.10.12.14: included switch - off of WK correction
@@ -2231,7 +2231,7 @@ extern "C"
         //         CHI  =  mu_e / kT, where mu_e is the electron chem.potential
         //         TPT  -  effective ionic quantum parameter (T_p / T)
         //         LIQSOL = 0 / 1 for liquid / solid
-        //         SNk  -  dimensionless entropy per 1 ion
+        //         S  -  entropy
         //         U  -  internal energy
         //         P  -  pressure
         //         PRADnkT  -  radiative pressure  /  n_i kT
@@ -2415,7 +2415,7 @@ extern "C"
         PRADnkT = PRESSRAD / PRESSI; // radiative pressure / n_i k T
         Real PnkT = PRESS / PRESSI; // P / n_i k T
         Real UNkT = UINT / PRESSI; // U / N_i k T
-        SNk = Stot / DENSI; // S / N_i k
+        Real SNk = Stot / DENSI; // S / N_i k
 
         // Second - order:
         CV = CVtot / DENSI; // C_V per ion
@@ -2430,6 +2430,7 @@ extern "C"
 
         P = PnkT * Tnk;
         U = UNkT * N * k_B * T;
+        S = SNk * N * k_B;
     }
 
 }
@@ -2441,7 +2442,7 @@ int main() {
     Real RHO, RHOlg, T, Tlg, T6, Tnk, TEMP, DENS;
     Real GAMI;
     Real CHI, TPT, TEGRAD, PRADnkT;
-    Real P, UNkT, SNk, CV, CHIR, CHIT;
+    Real P, U, S, CV, CHIR, CHIT;
     int LIQSOL;
     Real T_arr[3], rho_arr[2];
 
@@ -2470,7 +2471,7 @@ int main() {
             melange9(AY, AZion, ACMI, RHO, T, // input
                      PRADnkT, // additional output - radiative pressure
                      DENS, GAMI, CHI, TPT, LIQSOL, // output param.
-                     P, UNkT, SNk, CV, CHIR, CHIT); // output dimensionless TD functions
+                     P, U, S, CV, CHIR, CHIT); // output dimensionless TD functions
 
             //   --------------------   OUTPUT   --------------------------------   
             // Here in the output we have:
