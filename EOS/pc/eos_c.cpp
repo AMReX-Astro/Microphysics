@@ -1955,7 +1955,7 @@ extern "C"
         // slight cleaning 10.12.14
         // Non - ideal parts of thermodynamic functions in the fully ionized plasma
         // Stems from EOSFI5 and EOSFI05 v.04.10.05
-        // Input: LIQSOL = 0 / 1(liquid / solid), 
+        // Input: LIQSOL = 0 / 1(liquid / solid),
         //        Zion,CMI  -  ion charge and mass numbers,
         //        RS = r_s (electronic density parameter),
         //        GAMI = Gamma_i (ion coupling),
@@ -1966,7 +1966,7 @@ extern "C"
         //         PDT1 = (1 / n_i kT) * (d P_C / d ln T)_V
         //         PDR1 = (1 / n_i kT) * (d P_C / d ln\rho)_T
         // FC2,UC2,PC2,SC2,CV2  -  analogous to FC1,UC1,PC1,SC1,CV1, but including
-        // the part corresponding to the ideal ion gas. This is useful for 
+        // the part corresponding to the ideal ion gas. This is useful for
         // preventing accuracy loss in some cases (e.g., when SC2 << SC1).
         // FC2 does not take into account the entropy of mixing S_{mix}: in a
         // mixture, S_{mix} / (N_i k) has to be added externally (see MELANGE9).
@@ -2094,7 +2094,7 @@ extern "C"
         // Difference from v.10.12.14: included switch - off of WK correction
         // Stems from MELANGE8 v.26.12.09.
         // Difference: output PRADnkT instead of input KRAD
-        //  +  EOS of fully ionized electron - ion plasma mixture.     
+        //  +  EOS of fully ionized electron - ion plasma mixture.
         // Limitations:
         // (a) inapplicable in the regimes of
         //      (1) bound - state formation,
