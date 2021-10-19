@@ -400,6 +400,15 @@
            double precision, value :: RS,GAME,Zmean,Z2mean,Z52,Z53,Z321
            double precision :: FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX
          end subroutine CORMIX
+         subroutine EOSFI8(LIQSOL,CMI,Zion,RS,GAMI, &
+              FC1,UC1,PC1,SC1,CV1,PDT1,PDR1, &
+              FC2,UC2,PC2,SC2,CV2,PDT2,PDR2) bind(C, name="eosfi8")
+           implicit none
+           integer, value :: LIQSOL
+           double precision, value :: CMI,Zion,RS,GAMI
+           double precision :: FC1,UC1,PC1,SC1,CV1,PDT1,PDR1, &
+                FC2,UC2,PC2,SC2,CV2,PDT2,PDR2
+         end subroutine EOSFI8
       end interface
       if (RHO.lt.1.e-19.or.RHO.gt.1.e15) then
          print *, 'MELANGE: RHO out of range'
@@ -542,163 +551,5 @@
       CV=CVtot/DENSI ! C_V per ion
       CHIR=PDLR/PRESS ! d ln P / d ln\rho
       CHIT=PDLT/PRESS ! d ln P / d ln T
-      return
-      end
-
-      subroutine EOSFI8(LIQSOL,CMI,Zion,RS,GAMI, &
-          FC1,UC1,PC1,SC1,CV1,PDT1,PDR1, &
-          FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
-!                                                       Version 16.09.08
-!                 call FHARM8 has been replaced by call FHARM12 27.04.12
-!                           Wigner-Kirkwood correction excluded 20.05.13
-!                                               slight cleaning 10.12.14
-! Non-ideal parts of thermodynamic functions in the fully ionized plasma
-! Stems from EOSFI5 and EOSFI05 v.04.10.05
-! Input: LIQSOL=0/1(liquid/solid), 
-!        Zion,CMI - ion charge and mass numbers,
-!        RS=r_s (electronic density parameter),
-!        GAMI=Gamma_i (ion coupling),
-! Output: FC1 and UC1 - non-ideal "ii+ie+ee" contribution to the 
-!         free and internal energies (per ion per kT),
-!         PC1 - analogous contribution to pressure divided by (n_i kT),
-!         CV1 - "ii+ie+ee" heat capacity per ion [units of k]
-!         PDT1=(1/n_i kT)*(d P_C/d ln T)_V
-!         PDR1=(1/n_i kT)*(d P_C/d ln\rho)_T
-! FC2,UC2,PC2,SC2,CV2 - analogous to FC1,UC1,PC1,SC1,CV1, but including
-! the part corresponding to the ideal ion gas. This is useful for 
-! preventing accuracy loss in some cases (e.g., when SC2 << SC1).
-! FC2 does not take into account the entropy of mixing S_{mix}: in a
-! mixture, S_{mix}/(N_i k) has to be added externally (see MELANGE9).
-! FC2 does not take into account the ion spin degeneracy either.
-! When needed, the spin term must be added to the entropy externally.
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(C53=5.d0/3.d0,C76=7.d0/6.d0) ! TINY excl.10.12.14
-      parameter (AUM=1822.888d0) ! a.m.u/m_e
-      interface
-         subroutine excor7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC) bind(C, name="excor7")
-           implicit none
-           double precision, intent(in), value :: RS, GAME
-           double precision :: FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC
-         end subroutine excor7
-         subroutine fscrsol8(RS,GAMI,Zion,TPT, &
-              FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR) bind(C, name="fscrsol8")
-           implicit none
-           double precision, intent(in), value :: RS, GAMI, Zion, TPT
-           double precision :: FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR
-         end subroutine fscrsol8
-         subroutine anharm8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah) bind(C, name="anharm8")
-           implicit none
-           double precision, intent(in), value :: GAMI,TPT
-           double precision :: Fah,Uah,Pah,CVah,PDTah,PDRah
-         end subroutine anharm8
-         subroutine fharm12(GAMI,TPT, &
-              Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm) bind(C, name="fharm12")
-           implicit none
-           double precision, intent(in), value :: GAMI,TPT
-           double precision :: Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm
-         end subroutine fharm12
-         subroutine fscrliq8(RS,GAME,Zion, &
-              FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR) bind(C, name="fscrliq8")
-           implicit none
-           double precision, value :: RS, GAME, Zion
-           double precision :: FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR
-         end subroutine fscrliq8
-         subroutine fition9(GAMI, &
-              FION,UION,PION,CVii,PDTii,PDRii) bind(C, name="fition9")
-           implicit none
-           double precision, value :: GAMI
-           double precision :: FION,UION,PION,CVii,PDTii,PDRii
-         end subroutine fition9
-      end interface
-
-      if (LIQSOL.ne.1.and.LIQSOL.ne.0) then
-         print *, 'EOSFI8: invalid LIQSOL'
-         stop
-      end if
-      if (CMI.le..1) then
-         print *, 'EOSFI8: too small CMI'
-         stop
-      end if
-      if (Zion.le..1) then
-         print *, 'EOSFI8: too small Zion'
-         stop
-      end if
-      if (RS.le..0) then
-         print *, 'EOSFI8: invalid RS'
-         stop
-      end if
-      if (GAMI.le..0) then
-         print *, 'EOSFI8: invalid GAMI'
-         stop
-      end if
-      GAME=GAMI/Zion**C53
-      call EXCOR7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC) ! "ee"("xc")
-! Calculate "ii" part:
-      COTPT=dsqrt(3.d0/AUM/CMI)/Zion**C76 ! auxiliary coefficient
-      TPT=GAMI/dsqrt(RS)*COTPT            ! = T_p/T in the OCP
-      FidION=1.5*dlog(TPT**2/GAMI)-1.323515
-! 1.3235=1+0.5*ln(6/pi); FidION = F_{id.ion gas}/(N_i kT), but without
-! the term x_i ln x_i = -S_{mix}/(N_i k).
-      if (LIQSOL.eq.0) then               ! liquid
-         call FITION9(GAMI, &
-          FION,UION,PION,CVii,PDTii,PDRii)
-         FItot=FION+FidION
-         UItot=UION+1.5
-         PItot=PION+1.d0
-         CVItot=CVii+1.5d0
-         SCItot=UItot-FItot
-         PDTi=PDTii+1.d0
-         PDRi=PDRii+1.d0
-      else                                  ! solid
-         call FHARM12(GAMI,TPT, &
-          Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm) ! harm."ii"
-         call ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah) ! anharm.
-         FItot=Fharm+Fah
-         FION=FItot-FidION
-         UItot=Uharm+Uah
-         UION=UItot-1.5d0 ! minus 1.5=ideal-gas, in order to get "ii"
-         PItot=Pharm+Pah
-         PION=PItot-1.d0 ! minus 1=ideal-gas
-         PDTi=PDTharm+PDTah
-         PDRi=PDRharm+PDRah
-         PDTii=PDTi-1.d0 ! minus 1=ideal-gas
-         PDRii=PDRi-1.d0 ! minus 1=ideal-gas
-         CVItot=CVharm+CVah
-         SCItot=Sharm+Uah-Fah
-         CVii=CVItot-1.5d0 ! minus 1.5=ideal-gas
-      endif
-! Calculate "ie" part:
-      if (LIQSOL.eq.1) then
-         call FSCRsol8(RS,GAMI,Zion,TPT, &
-          FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
-      else
-         call FSCRliq8(RS,GAME,Zion, &
-          FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR)
-         S_SCR=USCR-FSCR
-      endif
-! Total excess quantities ("ii"+"ie"+"ee", per ion):
-      FC0=FSCR+Zion*FXC
-      UC0=USCR+Zion*UXC
-      PC0=PSCR+Zion*PXC
-      SC0=S_SCR+Zion*SXC
-      CV0=CVSCR+Zion*CVXC
-      PDT0=PDTSCR+Zion*PDTXC
-      PDR0=PDRSCR+Zion*PDRXC
-      FC1=FION+FC0
-      UC1=UION+UC0
-      PC1=PION+PC0
-      SC1=(UION-FION)+SC0
-      CV1=CVii+CV0
-      PDT1=PDTii+PDT0
-      PDR1=PDRii+PDR0
-! Total excess + ideal-ion quantities
-      FC2=FItot+FC0
-      UC2=UItot+UC0
-      PC2=PItot+PC0
-      SC2=SCItot+SC0
-      CV2=CVItot+CV0
-      PDT2=PDTi+PDT0
-      PDR2=PDRi+PDR0
       return
       end
