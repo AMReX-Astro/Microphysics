@@ -2196,7 +2196,7 @@ extern "C"
     }
 
     void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
-                   Real& PRADnkT, Real& DENS, Real& Zmean, Real& CMImean, Real& Z2mean,
+                   Real& PRADnkT, Real& DENS,
                    Real& GAMImean, Real& CHI, Real& TPT, int& LIQSOL,
                    Real& P, Real& UNkT, Real& SNk, Real& CV, Real& CHIR, Real& CHIT)
     {
@@ -2227,8 +2227,6 @@ extern "C"
         //         AZion  -  resorted in ascending order
         //         ACMI  -  resorted in agreement with AZion
         //         DENS  -  electron number density [in a.u. = 6.7483346e24 cm^{ - 3}]
-        //         Zmean = <Z>, CMImean = <A>  -  mean ion charge and mass numbers,
-        //         Z2mean = <Z^2>  -  mean - square ion charge number
         //         GAMImean  -  effective ion - ion Coulomb coupling constant
         //         CHI  =  mu_e / kT, where mu_e is the electron chem.potential
         //         TPT  -  effective ionic quantum parameter (T_p / T)
@@ -2263,13 +2261,13 @@ extern "C"
         }
 
         // Calculation of average values:
-        Zmean = 0.0_rt;
-        Z2mean = 0.0_rt;
+        Real Zmean = 0.0_rt;
+        Real Z2mean = 0.0_rt;
         Real Z52 = 0.0_rt;
         Real Z53 = 0.0_rt;
         Real Z73 = 0.0_rt;
         Real Z321 = 0.0_rt; // corr.26.12.09
-        CMImean = 0.0_rt;
+        Real CMImean = 0.0_rt;
 
         for (int i = 0; i < NumSpec; ++i) {
             Zmean = Zmean + AY[i] * AZion[i];
@@ -2436,7 +2434,7 @@ int main() {
     const Real UN_T6 = 0.3157746_rt;
     Real AY[NumSpec], AZion[NumSpec], ACMI[NumSpec];
     Real RHO, RHOlg, T, Tlg, T6, Tnk, TEMP, DENS;
-    Real Zmean, CMImean, Z2mean, GAMI;
+    Real GAMI;
     Real CHI, TPT, TEGRAD, PRADnkT;
     Real P, UNkT, SNk, CV, CHIR, CHIT;
     int LIQSOL;
@@ -2466,10 +2464,9 @@ int main() {
 
             melange9(AY, AZion, ACMI, RHO, T, // input
                      PRADnkT, // additional output - radiative pressure
-                     DENS, Zmean, CMImean, Z2mean, GAMI, CHI, TPT, LIQSOL, // output param.
+                     DENS, GAMI, CHI, TPT, LIQSOL, // output param.
                      P, UNkT, SNk, CV, CHIR, CHIT); // output dimensionless TD functions
 
-            Tnk = 8.31447e13_rt / CMImean * RHO * T6; // n_i kT [erg/cc]
             //   --------------------   OUTPUT   --------------------------------   
             // Here in the output we have:
             // RHO - mass density in g/cc
