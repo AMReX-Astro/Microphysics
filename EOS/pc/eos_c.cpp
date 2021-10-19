@@ -21,6 +21,116 @@ inline namespace literals {
     }
 }
 
+
+// Equation of state for fully ionized electron-ion plasmas (EOS EIP)
+// A.Y.Potekhin & G.Chabrier, Contrib. Plasma Phys., 50 (2010) 82, 
+//       and references therein
+// Please communicate comments/suggestions to Alexander Potekhin:
+//                                            palex@astro.ioffe.ru
+// Previously distributed versions (obsolete):
+//   eos2000, eos2002, eos2004, eos2006, eos2007, eos2009, eos10, eos11,
+//     eos13, and eos14.
+// Last update: 04.03.21. All updates since 2008 are listed below.
+////   L I S T   O F   S U B R O U T I N E S :
+//  MAIN (normally commented-out) - example driving routine.
+//  MELANGE9 - for arbitrary ionic mixture, renders total (ion+electron)
+//          pressure, internal energy, entropy, heat capacity (all
+//          normalized to the ionic ideal-gas values), logarithmic
+//          derivatives of pressure over temperature and density.
+//  EOSFI8 - nonideal (ion-ion + ion-electron + electron-electron)
+//          contributions to the free and internal energies, pressure,
+//          entropy, heat capacity, derivatives of pressure over
+//          logarithm of temperature and over logarithm of density (all
+//          normalized to the ionic ideal-gas values) for one ionic
+//          component in a mixture.
+//  FITION9 - ion-ion interaction contributions to the free and internal
+//          energies, pressure, entropy, heat capacity, derivatives of
+//          pressure over logarithms of temperature and density.
+//  FSCRliq8 - ion-electron (screening) contributions to the free and
+//          internal energies, pressure, entropy, heat capacity,
+//          derivatives of pressure over logarithms of temperature and
+//          density in the liquid phase for one ionic component in a
+//          mixture.
+//  FSCRsol8 - ion-electron (screening) contributions to the free and
+//          internal energies, pressure, entropy, heat capacity,
+//          derivatives of pressure over logarithms of temperature and
+//          density for monoionic solid.
+//  FHARM12 - harmonic (including static-lattice and zero-point)
+//          contributions to the free and internal energies, pressure,
+//          entropy, heat capacity, derivatives of pressure over
+//          logarithms of temperature and density for solid OCP.
+//  HLfit12 - the same as FHARM12, but only for thermal contributions
+//  ANHARM8 - anharmonic contributions to the free and internal energies,
+//          pressure, entropy, heat capacity, derivatives of pressure
+//          over logarithms of temperature and density for solid OCP.
+//  CORMIX - correction to the linear mixing rule for the Coulomb
+//          contributions to the thermodynamic functions in the liquid.
+//  ELECT11 - for an ideal electron gas of arbitrary degeneracy and
+//          relativity at given temperature and electron chemical
+//          potential, renders number density (in atomic units), free
+//          energy, pressure, internal energy, entropy, heat capacity 
+//          (normalized to the electron ideal-gas values), logarithmic
+//          derivatives of pressure over temperature and density.
+//  EXCOR7 - electron-electron (exchange-correlation) contributions to
+//          the free and internal energies, pressure, entropy, heat
+//          capacity, derivatives of pressure over logarithm of
+//          temperature and over logarithm of density (all normalized
+//          to the classical electron ideal-gas values).
+//  FERINV7 - inverse non-relativistic Fermi integrals of orders -1/2,
+//          1/2, 3/2, 5/2, and their first and second derivatives.
+//  BLIN9 - relativistic Fermi-Dirac integrals of orders 1/2, 3/2, 5/2,
+//          and their first, second, and some third derivatives.
+//  CHEMFIT7 - electron chemical potential at given density and
+//          temperature, and its first derivatives over density and
+//          temperature and the second derivative over temperature.
+////   I M P R O V E M E N T S   S I N C E   2 0 0 8 :
+//  FHARM8 uses a fit HLfit8 to the thermal free energy of the harmonic
+//   Coulomb lattice, which is more accurate than its predecessor FHARM7.
+//   Resulting corrections amount up to 20% for the ion heat capacity.
+//   Accordingly, S/R D3fit and FthCHA7 deleted (not used anymore).
+//  BLIN7 upgraded to BLIN8:
+//      - cleaned (a never-reached if-else branch deleted);
+//      - Sommerfeld (high-\chi) expansion improved;
+//      - some third derivatives added.
+//  CORMIX added (and MELANGE7 upgraded to MELANGE8 accordingly).
+//  ANHARM7 upgraded to ANHARM8, more consistent with Wigner-Kirkwood.
+//  Since the T- and rho-dependences of individual Z values in a mixture
+//    are not considered, the corresponding inputs (AYLR, AYLT) are
+//    excluded from MELANGE8 (and EOSFI7 changed to EOSFI8 accordingly).
+//  ELECT7 upgraded to ELECT9 (high-degeneracy behaviour is improved)
+////   P O S T - P U B L I C A T I O N    (2 0 1 0 +)   IMPROVEMENTS :
+//  ELECT9 upgraded (smooth match of two fits at chi >> 1)
+//  BLIN8 replaced by BLIN9 - smooth fit interfaces at chi=0.6 and 14.
+//  MELANGE8 replaced by MELANGE9 - slightly modified input/output
+// 08.08.11 - corrected mistake (unlikely to have an effect) in CHEMFIT7
+// 16.11.11 - ELECT9 upgraded to ELECT11 (additional output)
+// 20.04.12 - FHARM8 and HLfit8 upgraded to FHARM12 and HLfit12:
+//   output of HLfit12 does not include zero-point vibr., but provides U1
+// 22.12.12 - MELANGE9 now includes a correction to the linear mixing
+//   rule (LMR) for the Madelung energy in the random bcc multi-ion
+//   lattice.
+// 14.05.13 - an accidental error in programming the newly introduced
+//   correction to the LMR is fixed.
+// 20.05.13 - calculation of the Wigner-Kirkwood quantum diffraction term
+//   for the liquid plasma is moved from EOSFI8 into MELANGE9.
+// 10.12.14 - slight cleaning of the text (no effect on the results)
+// 28.05.15 - an accidental error in Wigner-Kirkwood entropy correction
+//   is fixed (it was in the line "Stot=Stot+FWK*DENSI" since 20.05.13)
+// 29.08.15 - eliminated underflow of exp(-THETA) in CHEMFIT7
+// 10.08.16 - modified criteria to avoid accuracy loss (round-off errors)
+// 07.02.17 - included possibility to switch off the WK (Wigner) terms
+// 27.05.17 - safeguard against Zion < 1 is added in FSCRsol8;
+//   safeguard against huge (-CHI) values is added in ELECT11.
+// 27.01.19 - safeguard against X1=0 in CORMIX.
+// 18.04.20 - corrected Wigner-Kirkwood term for heat capacity.
+// 04.03.21 - corrected SUBFERMJ: defined parameter EPS (was undefined).
+////////////////////////////////////////////////////////////////////////
+//                           MAIN program:               Version 02.06.09
+// This driving routine allows one to compile and run this code "as is".
+// In practice, however, one usually needs to link subroutines from this
+// file to another (external) code, therefore the MAIN program is
+// normally commented-out.
+
 extern "C"
 {
     // Inverse Fermi integral with q=1/2
@@ -2308,4 +2418,224 @@ extern "C"
         CHIR = PDLR / PRESS; // d ln P / d ln\rho
         CHIT = PDLT / PRESS; // d ln P / d ln T
     }
+
+}
+
+int main() {
+
+    const Real UN_T6 = 0.3157746_rt;
+    Real AY[NumSpec], AZion[NumSpec], ACMI[NumSpec];
+    Real RHO, RHOlg, T, Tlg, T6, Tnk, TEMP, DENS;
+    Real Zmean, CMImean, Z2mean, GAMI, P;
+    Real CHI, TPT, TEGRAD, PRADnkT;
+    Real PnkT, UNkT, SNk, CV, CHIR, CHIT;
+    int LIQSOL;
+    Real x, diff, max_diff, T_arr[3], rho_arr[2];
+
+    AZion[0] = 6.0_rt;
+    AZion[1] = 8.0_rt;
+    ACMI[0] = 12.0_rt;
+    ACMI[1] = 16.0_rt;
+    AY[0] = 0.6_rt;
+    AY[1] = 0.4_rt;
+    T_arr[0] = 1.e9_rt;
+    T_arr[1] = 5.e9_rt;
+    T_arr[2] = 1.e6_rt;
+    rho_arr[0] = 1.e7_rt;
+    rho_arr[1] = 5.e9_rt;
+
+    max_diff = 0.0_rt;
+
+    for (int j = 0; j <= 0; ++j) {
+        for (int i = 0; i < 3; ++i) {
+            std::cout << "iter " << i << " " << j << std::endl;
+            T = T_arr[i];
+            RHO = rho_arr[j];
+            RHOlg = std::log10(RHO);
+            Tlg = std::log10(T);
+            T6 = std::pow(10.0_rt, Tlg - 6.0_rt);
+            RHO = std::pow(10.0_rt, RHOlg);
+            TEMP = T6 / UN_T6; // T [au]
+
+            melange9(AY, AZion, ACMI, RHO, TEMP, // input
+                     PRADnkT, // additional output - radiative pressure
+                     DENS, Zmean, CMImean, Z2mean, GAMI, CHI, TPT, LIQSOL, // output param.
+                     PnkT, UNkT, SNk, CV, CHIR, CHIT); // output dimensionless TD functions
+
+            Tnk = 8.31447e13_rt / CMImean * RHO * T6; // n_i kT [erg/cc]
+            P = PnkT * Tnk / 1.e12_rt; // P [Mbar]
+            TEGRAD = CHIT / (CHIT * CHIT + CHIR * CV / PnkT); // from Maxwell relat.
+            //   --------------------   OUTPUT   --------------------------------   
+            // Here in the output we have:
+            // RHO - mass density in g/cc
+            // P - total pressure in Mbar (i.e. in 1.e12 dyn/cm^2)
+            // PnkT=P/nkT, where n is the number density of ions, T temperature
+            // CV - heat capacity at constant volume, divided by number of ions, /k
+            // CHIT - logarithmic derivative of pressure \chi_T
+            // CHIR - logarithmic derivative of pressure \chi_\rho
+            // UNkT - internal energy divided by NkT, N being the number of ions
+            // SNk - entropy divided by number of ions, /k
+            // GAMI - ionic Coulomb coupling parameter
+            // TPT=T_p/T, where T_p is the ion plasma temperature
+            // CHI - electron chemical potential, divided by kT
+            // LIQSOL = 0 in the liquid state, = 1 in the solid state
+
+            if (i == 0 && j == 0) {
+                x = 986087830999.01904_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 2495983700684.0181_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 826241619577.72607_rt;
+            }
+
+            diff = std::abs(x - P) / P;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "P DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+               x = 16.129464056742833_rt;
+            }
+            else if (i == 1 && j == 0) {
+               x = 8.1653739394820484_rt;
+            }
+            else if (i == 2 && j == 0) {
+               x = 13514.855458323951_rt;
+            }
+
+            diff = std::abs(x - PnkT) / PnkT;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "PnkT DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 8.5451229292858866_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 18.539323243568369_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 0.73822827392302692_rt;
+            }
+
+            diff = std::abs(x - CV) / CV;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "CV DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 0.24165606904443493_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 0.88747950206022497_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 2.7120648074179433e-5_rt;
+            }
+
+            diff = std::abs(x - CHIT) / CHIT;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "CHIT DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 1.3370085960654023_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 1.0433031714423413_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 1.4524787201645497_rt;
+            }
+
+            diff = std::abs(x - CHIR) / CHIR;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "CHIR DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 30.712489657322770_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 18.110542903803580_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 25265.106328521317_rt;
+            }
+
+            diff = std::abs(x - UNkT) / UNkT;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "UNkT DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 23.797925638433309_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 45.817442265862802_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 1.0215909624032917_rt;
+            }
+
+            diff = std::abs(x - SNk) / SNk;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "SNk DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 0.96111630472601972_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 0.19172836887561015_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 960.24524371490861_rt;
+            }
+
+            diff = std::abs(x - GAMI) / GAMI;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "GAMI DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 1.2400526419152945e-2_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = 2.4705336474828152e-3_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 12.383672318439324_rt;
+            }
+
+            diff = std::abs(x - TPT) / TPT;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "TPT DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 5.5745494145734744_rt;
+            }
+            else if (i == 1 && j == 0) {
+                x = -0.43436266588208006_rt;
+            }
+            else if (i == 2 && j == 0) {
+                x = 5894.2025691009021_rt;
+            }
+
+            diff = std::abs(x - CHI) / CHI;
+            max_diff = std::max(diff, max_diff);
+            std::cout << "CHI DIFF " << diff << std::endl;
+
+            if (i == 0 && j == 0) {
+                x = 0;
+            }
+            else if (i == 1 && j == 0) {
+                x = 0;
+            }
+            else if (i == 2 && j == 0) {
+                x = 1;
+            }
+
+            diff = std::abs(x - LIQSOL);
+            max_diff = std::max(diff, max_diff);
+            std::cout << "LIQSOL DIFF " << diff << std::endl;
+
+        }
+    }
+
+    std::cout << "max diff = " << max_diff << std::endl;
 }
