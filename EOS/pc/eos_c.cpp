@@ -2195,7 +2195,7 @@ extern "C"
         PDR2 = PDRi + PDR0;
     }
 
-    void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real TEMP,
+    void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
                    Real& PRADnkT, Real& DENS, Real& Zmean, Real& CMImean, Real& Z2mean,
                    Real& GAMImean, Real& CHI, Real& TPT, int& LIQSOL,
                    Real& PnkT, Real& UNkT, Real& SNk, Real& CV, Real& CHIR, Real& CHIT)
@@ -2219,7 +2219,7 @@ extern "C"
         // Input: AY  -  their partial number densities,
         //        AZion and ACMI  -  their charge and mass numbers,
         //        RHO  -  total mass density [g / cc]
-        //        TEMP  -  temperature [in a.u. = 2Ryd = 3.1577e5 K].
+        //        TEMP  -  temperature
         // NB: instead of RHO, a true input is CHI, defined below
         //     Hence, disagreement between RHO and DENS is the fit error (<0.4%)
         // Output:
@@ -2240,6 +2240,12 @@ extern "C"
         //         CV  -  heat capacity per ion, div. by Boltzmann const.
         //         CHIR  -  inverse compressibility  - (d ln P  /  d ln V)_T ("\chi_r")
         //         CHIT  =  (d ln P  /  d ln T)_V ("\chi_T")
+
+        // Convert temperature to a.u. = 2Ryd = 3.1577e5 K.
+        const Real UN_T6 = 0.3157746_rt;
+        Real Tlg = std::log10(T);
+        Real T6 = std::pow(10.0_rt, Tlg - 6.0_rt);
+        Real TEMP = T6 / UN_T6; // T [au]
 
         const Real CWK = 1.0_rt; // Turn on Wigner corrections
         const Real TINY = 1.e-7_rt;
@@ -2454,7 +2460,7 @@ int main() {
             RHO = std::pow(10.0_rt, RHOlg);
             TEMP = T6 / UN_T6; // T [au]
 
-            melange9(AY, AZion, ACMI, RHO, TEMP, // input
+            melange9(AY, AZion, ACMI, RHO, T, // input
                      PRADnkT, // additional output - radiative pressure
                      DENS, Zmean, CMImean, Z2mean, GAMI, CHI, TPT, LIQSOL, // output param.
                      PnkT, UNkT, SNk, CV, CHIR, CHIT); // output dimensionless TD functions
