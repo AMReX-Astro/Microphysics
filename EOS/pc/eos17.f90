@@ -598,6 +598,12 @@
            double precision, intent(in), value :: GAMI,TPT
            double precision :: Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm
          end subroutine fharm12
+         subroutine fscrliq8(RS,GAME,Zion, &
+              FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR) bind(C, name="fscrliq8")
+           implicit none
+           double precision, value :: RS, GAME, Zion
+           double precision :: FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR
+         end subroutine fscrliq8
       end interface
 
       if (LIQSOL.ne.1.and.LIQSOL.ne.0) then
@@ -724,135 +730,5 @@
       PION=UION/3.
       PDRii=(4.*UION-CVii)/9. ! p_{ii} + d p_{ii} / d ln\rho
       PDTii=CVii/3. ! p_{ii} + d p_{ii} / d ln T
-      return
-      end
-
-      subroutine FSCRliq8(RS,GAME,Zion, &
-          FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR) ! fit to the el.-ion scr.
-!                                                       Version 11.09.08
-!                                                       cleaned 16.06.09
-! Stems from FSCRliq7 v. 09.06.07. Included a check for RS=0.
-!   INPUT: RS - density parameter, GAME - electron Coulomb parameter,
-!          Zion - ion charge number,
-!   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
-!           USCR - internal energy per kT per 1 ion (screen.contrib.)
-!           PSCR - pressure divided by (n_i kT) (screen.contrib.)
-!           CVSCR - heat capacity per 1 ion (screen.contrib.)
-!           PDTSCR,PDRSCR = PSCR + d PSCR / d ln(T,\rho)
-      implicit double precision(A-H),double precision(O-Z)
-      save
-      parameter(XRS=.0140047,TINY=1.d-19)
-      if (RS.lt.0.) then
-         print *, 'FSCRliq8: RS < 0'
-         stop
-      end if
-      if (RS.lt.TINY) then
-         FSCR=0.
-         USCR=0.
-         PSCR=0.
-         CVSCR=0.
-         PDTSCR=0.
-         PDRSCR=0.
-         return
-      endif
-      SQG=sqrt(GAME)
-      SQR=sqrt(RS)
-      SQZ1=dsqrt(1.+Zion)
-      SQZ=dsqrt(Zion)
-      CDH0=Zion/1.73205 ! 1.73205=sqrt(3.)
-      CDH=CDH0*(SQZ1**3-SQZ**3-1.)
-      SQG=sqrt(GAME)
-      ZLN=dlog(Zion)
-      Z13=exp(ZLN/3.) ! Zion**(1./3.)
-      X=XRS/RS ! relativity parameter
-      CTF=Zion**2*.2513*(Z13-1.+.2/sqrt(Z13))
-! Thomas-Fermi constant; .2513=(18/175)(12/\pi)^{2/3}
-      P01=1.11*exp(.475*ZLN)
-      P03=0.2+0.078*ZLN**2
-      PTX=1.16+.08*ZLN
-      TX=GAME**PTX
-      TXDG=PTX*TX/GAME
-      TXDGG=(PTX-1.)*TXDG/GAME
-      TY1=1./(1.d-3*Zion**2+2.*GAME)
-      TY1DG=-2.*TY1**2
-      TY1DGG=-4.*TY1*TY1DG
-      TY2=1.+6.*RS**2
-      TY2DX=-12.*RS**2/X
-      TY2DXX=-3.*TY2DX/X
-      TY=RS**3/TY2*(1.+TY1)
-      TYX=3./X+TY2DX/TY2
-      TYDX=-TY*TYX
-      TYDG=RS**3*TY1DG/TY2
-      P1=(Zion-1.)/9.
-      COR1=1.+P1*TY
-      COR1DX=P1*TYDX
-      COR1DG=P1*TYDG
-      COR1DXX=P1*(TY*(3./X**2+(TY2DX/TY2)**2-TY2DXX/TY2)-TYDX*TYX)
-      COR1DGG=P1*RS**3*TY1DGG/TY2
-      COR1DXG=-P1*TYDG*TYX
-      U0=.78*sqrt(GAME/Zion)*RS**3
-      U0DX=-3.*U0/X
-      U0DG=.5*U0/GAME
-      U0DXX=-4.*U0DX/X
-      U0DGG=-.5*U0DG/GAME
-      U0DXG=-3.*U0DG/X
-      D0DG=Zion**3
-      D0=GAME*D0DG+21.*RS**3
-      D0DX=-63.*RS**3/X
-      D0DXX=252.*RS**3/X**2
-      COR0=1.+U0/D0
-      COR0DX=(U0DX-U0*D0DX/D0)/D0
-      COR0DG=(U0DG-U0*D0DG/D0)/D0
-      COR0DXX=(U0DXX-(2.*U0DX*D0DX+U0*D0DXX)/D0+2.*(D0DX/D0)**2)/D0
-      COR0DGG=(U0DGG-2.*U0DG*D0DG/D0+2.*U0*(D0DG/D0)**2)/D0
-      COR0DXG=(U0DXG-(U0DX*D0DG+U0DG*D0DX)/D0+2.*U0*D0DX*D0DG/D0**2)/D0
-! Relativism:
-      RELE=dsqrt(1.d0+X**2)
-      Q1=.18/dsqrt(dsqrt(Zion))
-      Q2=.2+.37/dsqrt(Zion)
-      H1U=1.+X**2/5.
-      H1D=1.+Q1*X+Q2*X**2
-      H1=H1U/H1D
-      H1X=.4*X/H1U-(Q1+2.*Q2*X)/H1D
-      H1DX=H1*H1X
-      H1DXX=H1DX*H1X+ &
-       H1*(.4/H1U-(.4*X/H1U)**2-2.*Q2/H1D+((Q1+2.*Q2*X)/H1D)**2)
-      UP=CDH*SQG+P01*CTF*TX*COR0*H1
-      UPDX=P01*CTF*TX*(COR0DX*H1+COR0*H1DX)
-      UPDG=.5*CDH/SQG+P01*CTF*(TXDG*COR0+TX*COR0DG)*H1
-      UPDXX=P01*CTF*TX*(COR0DXX*H1+2.*COR0DX*H1DX+COR0*H1DXX)
-      UPDGG=-.25*CDH/(SQG*GAME)+ &
-       P01*CTF*(TXDGG*COR0+2.*TXDG*COR0DG+TX*COR0DGG)*H1
-      UPDXG=P01*CTF*(TXDG*(COR0DX*H1+COR0*H1DX)+ &
-       TX*(COR0DXG*H1+COR0DG*H1DX))
-      DN1=P03*SQG+P01/RS*TX*COR1
-      DN1DX=P01*TX*(COR1/XRS+COR1DX/RS)
-      DN1DG=.5*P03/SQG+P01/RS*(TXDG*COR1+TX*COR1DG)
-      DN1DXX=P01*TX/XRS*(2.*COR1DX+X*COR1DXX)
-      DN1DGG=-.25*P03/(GAME*SQG)+ &
-       P01/RS*(TXDGG*COR1+2.*TXDG*COR1DG+TX*COR1DGG)
-      DN1DXG=P01*(TXDG*(COR1/XRS+COR1DX/RS)+TX*(COR1DG/XRS+COR1DXG/RS))
-      DN=1.+DN1/RELE
-      DNDX=DN1DX/RELE-X*DN1/RELE**3
-      DNDXX=(DN1DXX-((2.*X*DN1DX+DN1)-3.*X**2*DN1/RELE**2)/RELE**2)/RELE
-      DNDG=DN1DG/RELE
-      DNDGG=DN1DGG/RELE
-      DNDXG=DN1DXG/RELE-X*DN1DG/RELE**3
-      FSCR=-UP/DN*GAME
-      FX=(UP*DNDX/DN-UPDX)/DN
-      FXDG=((UPDG*DNDX+UPDX*DNDG+UP*DNDXG-2.*UP*DNDX*DNDG/DN)/DN- &
-       UPDXG)/DN
-      FDX=FX*GAME
-      FG=(UP*DNDG/DN-UPDG)/DN
-      FDG=FG*GAME-UP/DN
-      FDGDH=SQG*DNDG/DN**2 ! d FDG / d CDH
-      FDXX=((UP*DNDXX+2.*(UPDX*DNDX-UP*DNDX**2/DN))/DN-UPDXX)/DN*GAME
-      FDGG=2.*FG+GAME*((2.*DNDG*(UPDG-UP*DNDG/DN)+UP*DNDGG)/DN-UPDGG)/DN
-      FDXG=FX+GAME*FXDG
-      USCR=GAME*FDG
-      CVSCR=-GAME**2*FDGG
-      PSCR=(X*FDX+GAME*FDG)/3.
-      PDTSCR=-GAME**2*(X*FXDG+FDGG)/3.
-      PDRSCR=(12.*PSCR+X**2*FDXX+2.*X*GAME*FDXG+GAME**2*FDGG)/9.
       return
       end

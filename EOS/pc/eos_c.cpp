@@ -1766,4 +1766,565 @@ extern "C"
         PDTMIX = PMIX - UDG / 3.0_rt;
         PDRMIX = PMIX + UDG / 9.0_rt;
     }
+
+    void fscrliq8 (Real RS, Real GAME, Real Zion,
+                   Real& FSCR, Real& USCR, Real& PSCR,
+                   Real& CVSCR, Real& PDTSCR, Real& PDRSCR)
+    {
+        // fit to the el.-ion scr.
+        // Version 11.09.08
+        // cleaned 16.06.09
+        // Stems from FSCRliq7 v. 09.06.07. Included a check for RS=0.
+        //   INPUT: RS - density parameter, GAME - electron Coulomb parameter,
+        //          Zion - ion charge number,
+        //   OUTPUT: FSCR - screening (e-i) free energy per kT per 1 ion,
+        //           USCR - internal energy per kT per 1 ion (screen.contrib.)
+        //           PSCR - pressure divided by (n_i kT) (screen.contrib.)
+        //           CVSCR - heat capacity per 1 ion (screen.contrib.)
+        //           PDTSCR,PDRSCR = PSCR + d PSCR / d ln(T,\rho)
+
+        const Real XRS = 0.0140047_rt;
+        const Real TINY = 1.e-19_rt;
+
+        if (RS < 0.0_rt) {
+            printf("FSCRliq8: RS < 0\n");
+            exit(1);
+        }
+
+        if (RS < TINY) {
+            FSCR = 0.0_rt;
+            USCR = 0.0_rt;
+            PSCR = 0.0_rt;
+            CVSCR = 0.0_rt;
+            PDTSCR = 0.0_rt;
+            PDRSCR = 0.0_rt;
+            return;
+        }
+
+        Real SQG = std::sqrt(GAME);
+        Real SQR = std::sqrt(RS);
+        Real SQZ1 = std::sqrt(1.0_rt + Zion);
+        Real SQZ = std::sqrt(Zion);
+        Real CDH0 = Zion / 1.73205_rt; // 1.73205 = std::sqrt(3.0_rt)
+        Real CDH = CDH0 * (SQZ1 * SQZ1 * SQZ1 - SQZ * SQZ * SQZ - 1.0_rt);
+        Real ZLN = std::log(Zion);
+        Real Z13 = std::exp(ZLN / 3.0_rt); // Zion**(1.0_rt / 3.0_rt)
+        Real X = XRS / RS; // relativity parameter
+        Real CTF = Zion * Zion * 0.2513_rt * (Z13 - 1.0_rt + 0.2_rt / std::sqrt(Z13));
+        // Thomas - Fermi constant; .2513 = (18 / 175)(12 / \pi)^{2 / 3}
+        Real P01 = 1.11_rt * std::exp(0.475_rt * ZLN);
+        Real P03 = 0.2_rt + 0.078_rt * ZLN * ZLN;
+        Real PTX = 1.16_rt + 0.08_rt * ZLN;
+        Real TX = std::pow(GAME, PTX);
+        Real TXDG = PTX * TX / GAME;
+        Real TXDGG = (PTX - 1.0_rt) * TXDG / GAME;
+        Real TY1 = 1.0_rt / (1.e-3_rt * Zion * Zion + 2.0_rt * GAME);
+        Real TY1DG = -2.0_rt * TY1 * TY1;
+        Real TY1DGG = -4.0_rt * TY1 * TY1DG;
+        Real TY2 = 1.0_rt + 6.0_rt * RS * RS;
+        Real TY2DX = -12.0_rt * RS * RS / X;
+        Real TY2DXX = -3.0_rt * TY2DX / X;
+        Real TY = RS * RS * RS / TY2 * (1.0_rt + TY1);
+        Real TYX = 3.0_rt / X + TY2DX / TY2;
+        Real TYDX = -TY * TYX;
+        Real TYDG = RS * RS * RS * TY1DG / TY2;
+        Real P1 = (Zion - 1.0_rt) / 9.0_rt;
+        Real COR1 = 1.0_rt + P1 * TY;
+        Real COR1DX = P1 * TYDX;
+        Real COR1DG = P1 * TYDG;
+        Real COR1DXX = P1 * (TY * (3.0_rt / (X * X) + (TY2DX / TY2) * (TY2DX / TY2) - TY2DXX / TY2) - TYDX * TYX);
+        Real COR1DGG = P1 * RS * RS * RS * TY1DGG / TY2;
+        Real COR1DXG = -P1 * TYDG * TYX;
+        Real U0 = 0.78_rt * std::sqrt(GAME / Zion) * RS * RS * RS;
+        Real U0DX = -3.0_rt * U0 / X;
+        Real U0DG = 0.5_rt * U0 / GAME;
+        Real U0DXX = -4.0_rt * U0DX / X;
+        Real U0DGG = -0.5_rt * U0DG / GAME;
+        Real U0DXG = -3.0_rt * U0DG / X;
+        Real D0DG = Zion * Zion * Zion;
+        Real D0 = GAME * D0DG + 21.0_rt * RS * RS * RS;
+        Real D0DX = -63.0_rt * RS * RS * RS / X;
+        Real D0DXX = 252.0_rt * RS * RS * RS / (X * X);
+        Real COR0 = 1.0_rt + U0 / D0;
+        Real COR0DX = (U0DX - U0 * D0DX / D0) / D0;
+        Real COR0DG = (U0DG - U0 * D0DG / D0) / D0;
+        Real COR0DXX = (U0DXX - (2.0_rt * U0DX * D0DX + U0 * D0DXX) / D0 + 2.0_rt * (D0DX / D0) * (D0DX / D0)) / D0;
+        Real COR0DGG = (U0DGG - 2.0_rt * U0DG * D0DG / D0 + 2.0_rt * U0 * (D0DG / D0) * (D0DG / D0)) / D0;
+        Real COR0DXG = (U0DXG - (U0DX * D0DG + U0DG * D0DX) / D0 + 2.0_rt * U0 * D0DX * D0DG / (D0 * D0)) / D0;
+        // Relativism:
+        Real RELE = std::sqrt(1.0_rt + X * X);
+        Real Q1 = 0.18_rt / std::sqrt(std::sqrt(Zion));
+        Real Q2 = 0.2_rt + 0.37_rt / std::sqrt(Zion);
+        Real H1U = 1.0_rt + X * X / 5.0_rt;
+        Real H1D = 1.0_rt + Q1 * X + Q2 * X * X;
+        Real H1 = H1U / H1D;
+        Real H1X = 0.4_rt * X / H1U - (Q1 + 2.0_rt * Q2 * X) / H1D;
+        Real H1DX = H1 * H1X;
+        Real H1DXX = H1DX * H1X +
+                     H1 * (0.4_rt / H1U - (0.4_rt * X / H1U) * (0.4_rt * X / H1U) - 2.0_rt * Q2 / H1D +
+                           std::pow((Q1 + 2.0_rt * Q2 * X) / H1D, 2.0_rt));
+        Real UP = CDH * SQG + P01 * CTF * TX * COR0 * H1;
+        Real UPDX = P01 * CTF * TX * (COR0DX * H1 + COR0 * H1DX);
+        Real UPDG = 0.5_rt * CDH / SQG + P01 * CTF * (TXDG * COR0 + TX * COR0DG) * H1;
+        Real UPDXX = P01 * CTF * TX * (COR0DXX * H1 + 2.0_rt * COR0DX * H1DX + COR0 * H1DXX);
+        Real UPDGG = -0.25_rt * CDH / (SQG * GAME) +
+                     P01 * CTF * (TXDGG * COR0 + 2.0_rt * TXDG * COR0DG + TX * COR0DGG) * H1;
+        Real UPDXG = P01 * CTF * (TXDG * (COR0DX * H1 + COR0 * H1DX) +
+                                  TX * (COR0DXG * H1 + COR0DG * H1DX));
+        Real DN1 = P03 * SQG + P01 / RS * TX * COR1;
+        Real DN1DX = P01 * TX * (COR1 / XRS + COR1DX / RS);
+        Real DN1DG = 0.5_rt * P03 / SQG + P01 / RS * (TXDG * COR1 + TX * COR1DG);
+        Real DN1DXX = P01 * TX / XRS * (2.0_rt * COR1DX + X * COR1DXX);
+        Real DN1DGG = -0.25_rt * P03 / (GAME * SQG) +
+                      P01 / RS * (TXDGG * COR1 + 2.0_rt * TXDG * COR1DG + TX * COR1DGG);
+        Real DN1DXG = P01 * (TXDG * (COR1 / XRS + COR1DX / RS) + TX * (COR1DG / XRS + COR1DXG / RS));
+        Real DN = 1.0_rt + DN1 / RELE;
+        Real DNDX = DN1DX / RELE - X * DN1 / (RELE * RELE * RELE);
+        Real DNDXX = (DN1DXX - ((2.0_rt * X * DN1DX + DN1) - 3.0_rt * X * X * DN1 / (RELE * RELE)) / (RELE * RELE)) / RELE;
+        Real DNDG = DN1DG / RELE;
+        Real DNDGG = DN1DGG / RELE;
+        Real DNDXG = DN1DXG / RELE - X * DN1DG / (RELE * RELE * RELE);
+        FSCR = -UP / DN * GAME;
+        Real FX = (UP * DNDX / DN - UPDX) / DN;
+        Real FXDG = ((UPDG * DNDX + UPDX * DNDG + UP * DNDXG - 2.0_rt * UP * DNDX * DNDG / DN) / DN -
+                     UPDXG) / DN;
+        Real FDX = FX * GAME;
+        Real FG = (UP * DNDG / DN - UPDG) / DN;
+        Real FDG = FG * GAME - UP / DN;
+        Real FDGDH = SQG * DNDG / (DN * DN); // d FDG / d CDH
+        Real FDXX = ((UP * DNDXX + 2.0_rt * (UPDX * DNDX - UP * DNDX * DNDX / DN)) / DN - UPDXX) / DN * GAME;
+        Real FDGG = 2.0_rt * FG + GAME * ((2.0_rt * DNDG * (UPDG - UP * DNDG / DN) + UP * DNDGG) / DN - UPDGG) / DN;
+        Real FDXG = FX + GAME * FXDG;
+        USCR = GAME * FDG;
+        CVSCR = -GAME * GAME * FDGG;
+        PSCR = (X * FDX + GAME * FDG) / 3.0_rt;
+        PDTSCR = -GAME * GAME * (X * FXDG + FDGG) / 3.0_rt;
+        PDRSCR = (12.0_rt * PSCR + X * X * FDXX + 2.0_rt * X * GAME * FDXG + GAME * GAME * FDGG) / 9.0_rt;
+    }
+
+ /*           
+      subroutine MELANGE9(AY,AZion,ACMI,RHO,TEMP,PRADnkT, &
+          DENS,Zmean,CMImean,Z2mean,GAMImean,CHI,TPT,LIQSOL, &
+          PnkT,UNkT,SNk,CV,CHIR,CHIT)
+//                                                       Version 18.04.20
+// Difference from v.10.12.14: included switch - off of WK correction
+// Stems from MELANGE8 v.26.12.09.
+// Difference: output PRADnkT instead of input KRAD
+//  +  EOS of fully ionized electron - ion plasma mixture.     
+// Limitations:
+// (a) inapplicable in the regimes of
+//      (1) bound - state formation,
+//      (2) quantum liquid,
+//      (3) presence of positrons;
+// (b) for the case of a composition gradually depending on RHO or TEMP,
+//  second - order functions (CV,CHIR,CHIT in output) should not be trusted
+// Choice of the liquid or solid regime  -  criterion GAMI [because the
+//     choice based on comparison of total (non - OCP) free energies can be
+//     sometimes dangerous because of the fit uncertainties ("Local field
+//     correction" in solid and quantum effects in liquid are unknown)].
+// Input: AY  -  their partial number densities,
+//        AZion and ACMI  -  their charge and mass numbers,
+//        RHO  -  total mass density [g / cc]
+//        TEMP  -  temperature [in a.u. = 2Ryd = 3.1577e5 K].
+// NB: instead of RHO, a true input is CHI, defined below
+//     Hence, disagreement between RHO and DENS is the fit error (<0.4%)
+// Output:
+//         AY  -  rescaled so that to sum up to 1 and resorted (by AZion)
+//         AZion  -  resorted in ascending order
+//         ACMI  -  resorted in agreement with AZion
+//         DENS  -  electron number density [in a.u. = 6.7483346e24 cm^{ - 3}]
+//         Zmean = <Z>, CMImean = <A>  -  mean ion charge and mass numbers,
+//         Z2mean = <Z^2>  -  mean - square ion charge number
+//         GAMImean  -  effective ion - ion Coulomb coupling constant
+//         CHI  =  mu_e / kT, where mu_e is the electron chem.potential
+//         TPT  -  effective ionic quantum parameter (T_p / T)
+//         LIQSOL = 0 / 1 for liquid / solid
+//         SNk  -  dimensionless entropy per 1 ion
+//         UNkT  -  internal energy per kT per ion
+//         PnkT  -  pressure  /  n_i kT, where n_i is the ion number density
+//         PRADnkT  -  radiative pressure  /  n_i kT
+//         CV  -  heat capacity per ion, div. by Boltzmann const.
+//         CHIR  -  inverse compressibility  - (d ln P  /  d ln V)_T ("\chi_r")
+//         CHIT  =  (d ln P  /  d ln T)_V ("\chi_T")
+      //implicit double precision (A - H), double precision (O - Z)
+      implicit none
+      save
+      integer, parameter :: NMIX  =  2
+
+      double precision, intent(in) :: RHO, TEMP
+      double precision, intent(in) :: AY(NMIX), AZion(NMIX), ACMI(NMIX)
+      double precision, intent(inout) :: DENS, Zmean, Z2mean, GAMImean
+      double precision, intent(inout) :: CHI, TPT
+      integer, intent(inout) :: LIQSOL
+      double precision, intent(inout) :: SNk, UnkT, PnkT, PRADnkT
+      double precision, intent(inout) :: CV, CHIR, CHIT
+
+      double precision, parameter :: CWK  =  1.0_rt // Turn on Wigner corrections
+      double precision, parameter :: TINY  =  1.d - 7
+      double precision, parameter :: PI  =  3.141592653d0
+      double precision, parameter :: C53  =  5.d0 / 3.d0
+      double precision, parameter :: C13  =  1.0_rt / 3.d0
+      double precision, parameter :: AUM = 1822.888d0      // a.m.u. / m_e
+      double precision, parameter :: GAMIMELT = 175. // OCP value of Gamma_i for melting
+      double precision, parameter :: RSIMELT = 140. // ion density parameter of quantum melting
+      double precision, parameter :: RAD = 2.554d - 7 // Radiation constant ( = 4\sigma / c) (in a.u.)
+      double precision :: Z52, Z53, Z73, Z321, CMImean, CMI
+      double precision :: Zion, Z13, X, X1, X2
+      double precision :: UWK, UINTRAD, UMIX, UINTE, UINT, UEid, UC2,UC1
+      double precision :: CHIRE, CHITE, CTP, CV1, CV2, CVE, CVMIX, CVtot
+      double precision :: DeltaG, DENSI, DNI, DTE, FC1, FC2, FEid, FMIX
+      double precision :: DlnDH, DlnDT, DlnDHH, DlnDHT, DlnDTT
+      double precision :: FWK, GAME, GAMI
+      integer :: i, ix, j
+      double precision :: PC1, PC2, PDLR, PDLT, PDR1, PDR2, PDRMIX
+      double precision :: PDT1, PDT2, PDTMIX, PEid, PMIX, PRESS, PRESSE
+      double precision :: PRESSI, PRESSRAD, PRI, RS, RSI, RZ, SC1, SC2
+      double precision :: SEid, Stot, TPT2
+      interface
+         subroutine chemfit(dens, temp, chi) bind(C, name = 'chemfit')
+           implicit none
+           double precision, intent(in), value :: dens, temp
+           double precision, intent(inout) :: chi
+         end subroutine chemfit
+         subroutine elect11(TEMP,CHI, &
+              DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+              DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT) bind(C, name = "elect11")
+           implicit none
+           double precision, intent(in), value :: TEMP,CHI
+           double precision :: DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+                DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT
+         end subroutine elect11
+         subroutine CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
+              FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX) bind(C, name = "cormix")
+           implicit none
+           double precision, value :: RS,GAME,Zmean,Z2mean,Z52,Z53,Z321
+           double precision :: FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX
+         end subroutine CORMIX
+      end interface
+      if (RHO.lt.1.e - 19.or.RHO.gt.1.e15) then
+         print  * , 'MELANGE: RHO out of range'
+         stop
+      end if
+      // Calculation of average values:
+      Zmean = 0.0_rt
+      Z2mean = 0.0_rt
+      Z52 = 0.0_rt
+      Z53 = 0.0_rt
+      Z73 = 0.0_rt
+      Z321 = 0.0_rt // corr.26.12.09
+      CMImean = 0.0_rt
+      do IX = 1,NMIX
+         Zmean = Zmean + AY(IX) * AZion(IX)
+         Z2mean = Z2mean + AY(IX) * AZion(IX) * AZion(IX)
+         Z13 = std::pow(AZion(IX), C13)
+         Z53 = Z53 + AY(IX) * std::pow(Z13, 5) 
+         Z73 = Z73 + AY(IX) * std::pow(Z13, 7)
+         Z52 = Z52 + AY(IX) * std::pow(AZion(IX), 2.5_rt)
+         Z321 = Z321 + AY(IX) * AZion(IX) * std::pow(AZion(IX) + 1.0_rt, 1.5_rt) // 26.12.09
+         CMImean = CMImean + AY(IX) * ACMI(IX)
+      enddo
+      // (0) Photons:
+      UINTRAD = RAD * TEMP * TEMP * TEMP * TEMP
+      PRESSRAD = UINTRAD / 3.0_rt
+      // (1) ideal electron gas (including relativity and degeneracy)
+      DENS = RHO / 11.20587 * Zmean / CMImean // number density of electrons [au]
+      call CHEMFIT(DENS,TEMP,CHI)
+      // NB: CHI can be used as true input instead of RHO or DENS
+      call ELECT11(TEMP,CHI, &
+       DENS,FEid,PEid,UEid,SEid,CVE,CHITE,CHIRE, &
+       DlnDH,DlnDT,DlnDHH,DlnDTT,DlnDHT)
+      // NB: at this point DENS is redefined (the difference can be ~0.1%)
+      DTE = DENS * TEMP
+      PRESSE = PEid * DTE // P_e [a.u.]
+      UINTE = UEid * DTE // U_e  /  V [a.u.]
+      // (2) non - ideal Coulomb EIP
+      RS = std::pow(0.75_rt / PI / DENS, C13); // r_s  -  electron density parameter
+      RSI = RS * CMImean * Z73 * AUM // R_S  -  ion density parameter
+      GAME = 1.0_rt / RS / TEMP // electron Coulomb parameter Gamma_e
+      GAMImean = Z53 * GAME   // effective Gamma_i  -  ion Coulomb parameter
+      if (GAMImean.lt.GAMIMELT.or.RSI.lt.RSIMELT) then
+         LIQSOL = 0 // liquid regime
+      else
+         LIQSOL = 1 // solid regime
+      endif
+      // Calculate partial thermodynamic quantities and combine them together:
+      UINT = UINTE
+      PRESS = PRESSE
+      CVtot = CVE * DENS
+      Stot = SEid * DENS
+      PDLT = PRESSE * CHITE // d P_e[a.u.]  /  d ln T
+      PDLR = PRESSE * CHIRE // d P_e[a.u.]  /  d ln\rho
+      DENSI = DENS / Zmean // number density of all ions
+      PRESSI = DENSI * TEMP // ideal - ions total pressure (normalization)
+      TPT2 = 0.0_rt
+      CTP = 4.d0 * PI / AUM / (TEMP * TEMP); // common coefficient for TPT2.10.12.14
+      // Add Coulomb + xc nonideal contributions, and ideal free energy:
+      do IX = 1,NMIX
+        if (AY(IX).ge.TINY) then
+         Zion = AZion(IX)
+         CMI = ACMI(IX)
+         GAMI = std::pow(Zion, C53) * GAME // Gamma_i for given ion species
+         DNI = DENSI * AY(IX) // number density of ions of given type
+         PRI = DNI * TEMP //  =  ideal - ions partial pressure (normalization)
+         call EOSFI8(LIQSOL,CMI,Zion,RS,GAMI, &
+          FC1,UC1,PC1,SC1,CV1,PDT1,PDR1, &
+          FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
+         // First - order TD functions:
+         UINT = UINT + UC2 * PRI // internal energy density (e + i + Coul.)
+         Stot = Stot + DNI * (SC2 - std::log(AY(IX))) //entropy per unit volume[a.u.]
+         PRESS = PRESS + PC2 * PRI // pressure (e + i + Coul.) [a.u.]
+         // Second - order functions (they take into account compositional changes):
+         CVtot = CVtot + DNI * CV2 // C_V (e + i + Coul.) /  V (optim.10.12.14)
+         PDLT = PDLT + PRI * PDT2 // d P  /  d ln T
+         PDLR = PDLR + PRI * PDR2 // d P  /  d ln\rho
+         TPT2 = TPT2 + CTP * DNI / ACMI(IX) * AZion(IX) * AZion(IX) // opt.10.12.14
+       end if
+      enddo // next IX
+      // Wigner - Kirkwood perturbative correction for liquid:
+      TPT = std::sqrt(TPT2) // effective T_p / T  -  ion quantum parameter
+      // (in the case of a mixture, this estimate is crude)
+      if (LIQSOL.eq.0) then
+         FWK = TPT2 / 24.d0 * CWK // Wigner - Kirkwood (quantum diffr.) term
+        if (FWK.gt..7.and.CWK.gt.0.0_rt) then
+           print * ,'MELANGE9: strong quantum effects in liquid//'
+           read( * ,'(A)')
+        endif
+         UWK = 2.d0 * FWK
+         UINT = UINT + UWK * PRESSI
+         Stot = Stot + FWK * DENSI // corrected 28.05.15
+         PRESS = PRESS + FWK * PRESSI
+         CVtot = CVtot - UWK * DENSI // corrected 18.04.20
+         PDLT = PDLT - FWK * PRESSI
+         PDLR = PDLR + UWK * PRESSI
+      endif
+      // Corrections to the linear mixing rule:
+      if (LIQSOL.eq.0) then // liquid phase
+         call CORMIX(RS,GAME,Zmean,Z2mean,Z52,Z53,Z321, &
+          FMIX,UMIX,PMIX,CVMIX,PDTMIX,PDRMIX)
+      else // solid phase (only Madelung contribution) [22.12.12]
+         FMIX = 0.0_rt
+        do I = 1,NMIX
+          do J = I + 1,NMIX
+             RZ = AZion(J) / AZion(I)
+             X2 = AY(J) / (AY(I) + AY(J))
+             X1 = dim(1.0_rt,X2)
+             if (X1.lt.TINY) then
+                cycle // 27.01.19
+             end if
+             if (X2.lt.TINY) then
+                cycle
+             end if
+             X = X2 / RZ + (1.0_rt - 1.0_rt / RZ) * std::pow(X2, RZ)
+             GAMI = std::pow(AZion(I), C53) * GAME // Gamma_i corrected 14.05.13
+             DeltaG = .012 * (1.0_rt - 1.0_rt / (RZ * RZ)) * (X1 + X2 * std::pow(RZ, C53))
+             DeltaG = DeltaG * X / X2 * dim(1.0_rt,X) / X1
+             FMIX = FMIX + AY(I) * AY(J) * GAMI * DeltaG
+          enddo
+        enddo
+         UMIX = FMIX
+         PMIX = FMIX / 3.d0
+         CVMIX = 0.0_rt
+         PDTMIX = 0.0_rt
+         PDRMIX = FMIX / 2.25d0
+      endif
+      UINT = UINT + UMIX * PRESSI
+      Stot = Stot + DENSI * (UMIX - FMIX)
+      PRESS = PRESS + PMIX * PRESSI
+      CVtot = CVtot + DENSI * CVMIX
+      PDLT = PDLT + PRESSI * PDTMIX
+      PDLR = PDLR + PRESSI * PDRMIX
+      // First - order:
+      PRADnkT = PRESSRAD / PRESSI // radiative pressure  /  n_i k T
+      PnkT = PRESS / PRESSI // P  /  n_i k T
+      UNkT = UINT / PRESSI // U  /  N_i k T
+      SNk = Stot / DENSI // S  /  N_i k
+      // Second - order:
+      CV = CVtot / DENSI // C_V per ion
+      CHIR = PDLR / PRESS // d ln P  /  d ln\rho
+      CHIT = PDLT / PRESS // d ln P  /  d ln T
+      return
+      end
+
+      subroutine EOSFI8(LIQSOL,CMI,Zion,RS,GAMI, &
+          FC1,UC1,PC1,SC1,CV1,PDT1,PDR1, &
+          FC2,UC2,PC2,SC2,CV2,PDT2,PDR2)
+//                                                       Version 16.09.08
+//                 call FHARM8 has been replaced by call FHARM12 27.04.12
+//                           Wigner - Kirkwood correction excluded 20.05.13
+//                                               slight cleaning 10.12.14
+// Non - ideal parts of thermodynamic functions in the fully ionized plasma
+// Stems from EOSFI5 and EOSFI05 v.04.10.05
+// Input: LIQSOL = 0 / 1(liquid / solid), 
+//        Zion,CMI  -  ion charge and mass numbers,
+//        RS = r_s (electronic density parameter),
+//        GAMI = Gamma_i (ion coupling),
+// Output: FC1 and UC1  -  non - ideal "ii + ie + ee" contribution to the 
+//         free and internal energies (per ion per kT),
+//         PC1  -  analogous contribution to pressure divided by (n_i kT),
+//         CV1  -  "ii + ie + ee" heat capacity per ion [units of k]
+//         PDT1 = (1 / n_i kT) * (d P_C / d ln T)_V
+//         PDR1 = (1 / n_i kT) * (d P_C / d ln\rho)_T
+// FC2,UC2,PC2,SC2,CV2  -  analogous to FC1,UC1,PC1,SC1,CV1, but including
+// the part corresponding to the ideal ion gas. This is useful for 
+// preventing accuracy loss in some cases (e.g., when SC2 << SC1).
+// FC2 does not take into account the entropy of mixing S_{mix}: in a
+// mixture, S_{mix} / (N_i k) has to be added externally (see MELANGE9).
+// FC2 does not take into account the ion spin degeneracy either.
+// When needed, the spin term must be added to the entropy externally.
+      implicit double precision (A - H), double precision (O - Z)
+      save
+      parameter(C53 = 5.d0 / 3.d0,C76 = 7.d0 / 6.d0) // TINY excl.10.12.14
+      parameter (AUM = 1822.888d0) // a.m.u / m_e
+      interface
+         subroutine excor7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC) bind(C, name = "excor7")
+           implicit none
+           double precision, intent(in), value :: RS, GAME
+           double precision :: FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC
+         end subroutine excor7
+         subroutine fscrsol8(RS,GAMI,Zion,TPT, &
+              FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR) bind(C, name = "fscrsol8")
+           implicit none
+           double precision, intent(in), value :: RS, GAMI, Zion, TPT
+           double precision :: FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR
+         end subroutine fscrsol8
+         subroutine anharm8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah) bind(C, name = "anharm8")
+           implicit none
+           double precision, intent(in), value :: GAMI,TPT
+           double precision :: Fah,Uah,Pah,CVah,PDTah,PDRah
+         end subroutine anharm8
+         subroutine fharm12(GAMI,TPT, &
+              Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm) bind(C, name = "fharm12")
+           implicit none
+           double precision, intent(in), value :: GAMI,TPT
+           double precision :: Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm
+         end subroutine fharm12
+      end interface
+
+      if (LIQSOL.ne.1.0_rtand.LIQSOL.ne.0) then
+         print  * , 'EOSFI8: invalid LIQSOL'
+         stop
+      end if
+      if (CMI.le..1) then
+         print  * , 'EOSFI8: too small CMI'
+         stop
+      end if
+      if (Zion.le..1) then
+         print  * , 'EOSFI8: too small Zion'
+         stop
+      end if
+      if (RS.le..0) then
+         print  * , 'EOSFI8: invalid RS'
+         stop
+      end if
+      if (GAMI.le..0) then
+         print  * , 'EOSFI8: invalid GAMI'
+         stop
+      end if
+      GAME = GAMI / std::pow(Zion, C53);
+      call EXCOR7(RS,GAME,FXC,UXC,PXC,CVXC,SXC,PDTXC,PDRXC) // "ee"("xc")
+// Calculate "ii" part:
+      COTPT = std::sqrt(3.d0 / AUM / CMI) / std::pow(Zion, C76); // auxiliary coefficient
+      TPT = GAMI / std::sqrt(RS) * COTPT            //  =  T_p / T in the OCP
+      FidION = 1.5 * std::log(TPT * TPT / GAMI) - 1.323515
+// 1.3235 = 1 + 0.5 * ln(6 / pi); FidION  =  F_{id.ion gas} / (N_i kT), but without
+// the term x_i ln x_i  =   - S_{mix} / (N_i k).
+      if (LIQSOL.eq.0) then               // liquid
+         call FITION9(GAMI, &
+          FION,UION,PION,CVii,PDTii,PDRii)
+         FItot = FION + FidION
+         UItot = UION + 1.5
+         PItot = PION + 1.0_rt
+         CVItot = CVii + 1.5d0
+         SCItot = UItot - FItot
+         PDTi = PDTii + 1.0_rt
+         PDRi = PDRii + 1.0_rt
+      else                                  // solid
+         call FHARM12(GAMI,TPT, &
+          Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm) // harm."ii"
+         call ANHARM8(GAMI,TPT,Fah,Uah,Pah,CVah,PDTah,PDRah) // anharm.
+         FItot = Fharm + Fah
+         FION = FItot - FidION
+         UItot = Uharm + Uah
+         UION = UItot - 1.5d0 // minus 1.5 = ideal - gas, in order to get "ii"
+         PItot = Pharm + Pah
+         PION = PItot - 1.0_rt // minus 1 = ideal - gas
+         PDTi = PDTharm + PDTah
+         PDRi = PDRharm + PDRah
+         PDTii = PDTi - 1.0_rt // minus 1 = ideal - gas
+         PDRii = PDRi - 1.0_rt // minus 1 = ideal - gas
+         CVItot = CVharm + CVah
+         SCItot = Sharm + Uah - Fah
+         CVii = CVItot - 1.5d0 // minus 1.5 = ideal - gas
+      endif
+// Calculate "ie" part:
+      if (LIQSOL.eq.1) then
+         call FSCRsol8(RS,GAMI,Zion,TPT, &
+          FSCR,USCR,PSCR,S_SCR,CVSCR,PDTSCR,PDRSCR)
+      else
+         call FSCRliq8(RS,GAME,Zion, &
+          FSCR,USCR,PSCR,CVSCR,PDTSCR,PDRSCR)
+         S_SCR = USCR - FSCR
+      endif
+// Total excess quantities ("ii" + "ie" + "ee", per ion):
+      FC0 = FSCR + Zion * FXC
+      UC0 = USCR + Zion * UXC
+      PC0 = PSCR + Zion * PXC
+      SC0 = S_SCR + Zion * SXC
+      CV0 = CVSCR + Zion * CVXC
+      PDT0 = PDTSCR + Zion * PDTXC
+      PDR0 = PDRSCR + Zion * PDRXC
+      FC1 = FION + FC0
+      UC1 = UION + UC0
+      PC1 = PION + PC0
+      SC1 = (UION - FION) + SC0
+      CV1 = CVii + CV0
+      PDT1 = PDTii + PDT0
+      PDR1 = PDRii + PDR0
+// Total excess  +  ideal - ion quantities
+      FC2 = FItot + FC0
+      UC2 = UItot + UC0
+      PC2 = PItot + PC0
+      SC2 = SCItot + SC0
+      CV2 = CVItot + CV0
+      PDT2 = PDTi + PDT0
+      PDR2 = PDRi + PDR0
+      return
+      end
+
+//  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =   ELECTRON - ION COULOMB LIQUID   =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  =  //
+      subroutine FITION9(GAMI,FION,UION,PION,CVii,PDTii,PDRii)
+//                                                       Version 11.09.08
+// Dummy argument Zion is deleted in 2009.
+// Non - ideal contributions to thermodynamic functions of classical OCP.
+//   Stems from FITION00 v.24.05.00.
+// Input: GAMI  -  ion coupling parameter
+// Output: FION  -  ii free energy  /  N_i kT
+//         UION  -  ii internal energy  /  N_i kT
+//         PION  -  ii pressure  /  n_i kT
+//         CVii  -  ii heat capacity  /  N_i k
+//         PDTii  =  PION  +  d(PION) / d ln T  =  (1 / N_i kT) * (d P_{ii} / d ln T)
+//         PDRii  =  PION  +  d(PION) / d ln\rho
+//   Parameters adjusted to Caillol (1999).
+      implicit double precision (A - H),double precision (O - Z)
+      save
+      parameter (A1 =  - .907347d0,A2 = .62849d0,C1 = .004500d0,G1 = 170.0, &
+       C2 =  - 8.4d - 5,G2 = .0037,SQ32 = .8660254038d0) // SQ32 = std::sqrt(3) / 2
+      A3 =  - SQ32 - A1 / std::sqrt(A2)
+      F0 = A1 * (std::sqrt(GAMI * (A2 + GAMI)) -  &
+          A2 * std::log(std::sqrt(GAMI / A2) + std::sqrt(1.0_rt + GAMI / A2))) +  &
+          2.0_rt * A3 * (std::sqrt(GAMI) - datan(std::sqrt(GAMI)))
+      U0 = std::pow(GAMI, 1.5_rt) * (A1 / std::sqrt(A2 + GAMI) + A3 / (1.0_rt + GAMI))
+//   This is the zeroth approximation. Correction:
+      UION = U0 + C1 * GAMI * GAMI / (G1 + GAMI) + C2 * GAMI * GAMI / (G2 + GAMI * GAMI)
+      FION = F0 + C1 * (GAMI - G1 * std::log(1.0_rt + GAMI / G1)) +  &
+        C2 / 2.0_rt * std::log(1.0_rt + GAMI * GAMI / G2)
+      CVii =  - 0.5 * std::pow(GAMI, 1.5_rt) * (A1 * A2 / std::pow(A2 + GAMI, 1.5_rt) +  &
+       A3 * (1.0_rt - GAMI) / (1.0_rt + GAMI) * (1.0_rt + GAMI))  -  &
+       GAMI * GAMI * (C1 * G1 / (G1 + GAMI) * (G1 + GAMI) + C2 * (G2 - GAMI * GAMI) / ((G2 + GAMI * GAMI) * (G2 + GAMI * GAMI));
+      PION = UION / 3.0_rt
+      PDRii = (4. * UION - CVii) / 9. // p_{ii}  +  d p_{ii}  /  d ln\rho
+      PDTii = CVii / 3.0_rt // p_{ii}  +  d p_{ii}  /  d ln T
+      return
+      end
+ */
 }
