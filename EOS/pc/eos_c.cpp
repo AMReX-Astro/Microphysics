@@ -2198,7 +2198,7 @@ extern "C"
     void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
                    Real& PRADnkT, Real& DENS, Real& Zmean, Real& CMImean, Real& Z2mean,
                    Real& GAMImean, Real& CHI, Real& TPT, int& LIQSOL,
-                   Real& PnkT, Real& UNkT, Real& SNk, Real& CV, Real& CHIR, Real& CHIT)
+                   Real& P, Real& UNkT, Real& SNk, Real& CV, Real& CHIR, Real& CHIT)
     {
         // Version 18.04.20
         // Difference from v.10.12.14: included switch - off of WK correction
@@ -2415,7 +2415,7 @@ extern "C"
 
         // First - order:
         PRADnkT = PRESSRAD / PRESSI; // radiative pressure / n_i k T
-        PnkT = PRESS / PRESSI; // P / n_i k T
+        Real PnkT = PRESS / PRESSI; // P / n_i k T
         UNkT = UINT / PRESSI; // U / N_i k T
         SNk = Stot / DENSI; // S / N_i k
 
@@ -2423,6 +2423,10 @@ extern "C"
         CV = CVtot / DENSI; // C_V per ion
         CHIR = PDLR / PRESS; // d ln P / d ln\rho
         CHIT = PDLT / PRESS; // d ln P / d ln T
+
+        // Convert to CGS
+        Real Tnk = 8.31447e13_rt / CMImean * RHO * T6; // n_i kT [erg/cc]
+        P = PnkT * Tnk;
     }
 
 }
@@ -2432,9 +2436,9 @@ int main() {
     const Real UN_T6 = 0.3157746_rt;
     Real AY[NumSpec], AZion[NumSpec], ACMI[NumSpec];
     Real RHO, RHOlg, T, Tlg, T6, Tnk, TEMP, DENS;
-    Real Zmean, CMImean, Z2mean, GAMI, P;
+    Real Zmean, CMImean, Z2mean, GAMI;
     Real CHI, TPT, TEGRAD, PRADnkT;
-    Real PnkT, UNkT, SNk, CV, CHIR, CHIT;
+    Real P, UNkT, SNk, CV, CHIR, CHIT;
     int LIQSOL;
     Real T_arr[3], rho_arr[2];
 
@@ -2463,11 +2467,9 @@ int main() {
             melange9(AY, AZion, ACMI, RHO, T, // input
                      PRADnkT, // additional output - radiative pressure
                      DENS, Zmean, CMImean, Z2mean, GAMI, CHI, TPT, LIQSOL, // output param.
-                     PnkT, UNkT, SNk, CV, CHIR, CHIT); // output dimensionless TD functions
+                     P, UNkT, SNk, CV, CHIR, CHIT); // output dimensionless TD functions
 
             Tnk = 8.31447e13_rt / CMImean * RHO * T6; // n_i kT [erg/cc]
-            P = PnkT * Tnk / 1.e12_rt; // P [Mbar]
-            TEGRAD = CHIT / (CHIT * CHIT + CHIR * CV / PnkT); // from Maxwell relat.
             //   --------------------   OUTPUT   --------------------------------   
             // Here in the output we have:
             // RHO - mass density in g/cc
