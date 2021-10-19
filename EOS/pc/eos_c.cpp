@@ -2198,7 +2198,7 @@ extern "C"
     void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
                    Real& PRADnkT, Real& DENS,
                    Real& GAMImean, Real& CHI, Real& TPT, int& LIQSOL,
-                   Real& P, Real& UNkT, Real& SNk, Real& CV, Real& CHIR, Real& CHIT)
+                   Real& P, Real& U, Real& SNk, Real& CV, Real& CHIR, Real& CHIT)
     {
         // Version 18.04.20
         // Difference from v.10.12.14: included switch - off of WK correction
@@ -2232,8 +2232,8 @@ extern "C"
         //         TPT  -  effective ionic quantum parameter (T_p / T)
         //         LIQSOL = 0 / 1 for liquid / solid
         //         SNk  -  dimensionless entropy per 1 ion
-        //         UNkT  -  internal energy per kT per ion
-        //         PnkT  -  pressure  /  n_i kT, where n_i is the ion number density
+        //         U  -  internal energy
+        //         P  -  pressure
         //         PRADnkT  -  radiative pressure  /  n_i kT
         //         CV  -  heat capacity per ion, div. by Boltzmann const.
         //         CHIR  -  inverse compressibility  - (d ln P  /  d ln V)_T ("\chi_r")
@@ -2414,7 +2414,7 @@ extern "C"
         // First - order:
         PRADnkT = PRESSRAD / PRESSI; // radiative pressure / n_i k T
         Real PnkT = PRESS / PRESSI; // P / n_i k T
-        UNkT = UINT / PRESSI; // U / N_i k T
+        Real UNkT = UINT / PRESSI; // U / N_i k T
         SNk = Stot / DENSI; // S / N_i k
 
         // Second - order:
@@ -2424,7 +2424,12 @@ extern "C"
 
         // Convert to CGS
         Real Tnk = 8.31447e13_rt / abar * RHO * T6; // n_i kT [erg/cc]
+        Real avo_eos = 6.0221417930e23_rt;
+        Real N = avo_eos / abar;
+        Real k_B = 1.3806488e-16_rt;
+
         P = PnkT * Tnk;
+        U = UNkT * N * k_B * T;
     }
 
 }
