@@ -592,6 +592,12 @@
            double precision, intent(in), value :: GAMI,TPT
            double precision :: Fah,Uah,Pah,CVah,PDTah,PDRah
          end subroutine anharm8
+         subroutine fharm12(GAMI,TPT, &
+              Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm) bind(C, name="fharm12")
+           implicit none
+           double precision, intent(in), value :: GAMI,TPT
+           double precision :: Fharm,Uharm,Pharm,CVharm,Sharm,PDTharm,PDRharm
+         end subroutine fharm12
       end interface
 
       if (LIQSOL.ne.1.and.LIQSOL.ne.0) then
@@ -848,41 +854,5 @@
       PSCR=(X*FDX+GAME*FDG)/3.
       PDTSCR=-GAME**2*(X*FXDG+FDGG)/3.
       PDRSCR=(12.*PSCR+X**2*FDXX+2.*X*GAME*FDXG+GAME**2*FDGG)/9.
-      return
-      end
-
-! ==============   SUBROUTINES FOR THE SOLID STATE   ================= !
-      subroutine FHARM12(GAMI,TPT, &
-        Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
-! Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
-! 
-!                                                       Version 27.04.12
-! Stems from FHARM8 v.15.02.08
-! Replaced HLfit8 with HLfit12: rearranged output.
-! Input: GAMI - ionic Gamma, TPT=T_{p,i}/T
-! Output: Fharm=F/(N_i T), Uharm=U/(N_i T), Pharm=P/(n_i T),
-! CVth=C_V/N_i, Sharm=S/N_i
-! PDTharm = Pharm + d Pharm / d ln T, PDRharm = Pharm + d Pharm/d ln\rho
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(CM=.895929256d0) ! Madelung
-      interface
-         subroutine hlfit12(TPT,F,U,CVth,Sth,U1,CW,LATTICE) bind(C, name="hlfit12")
-           implicit none
-           double precision, intent(in), value :: TPT
-           integer, intent(in), value :: LATTICE
-           double precision :: F,U,CVth,Sth,U1,CW
-         end subroutine hlfit12
-      end interface
-      call HLfit12(TPT,F,U,CVth,Sth,U1,CW,1)
-      U0=-CM*GAMI ! perfect lattice
-      E0=1.5d0*U1*TPT ! zero-point energy
-      Uth=U+E0
-      Fth=F+E0
-      Uharm=U0+Uth
-      Fharm=U0+Fth
-      Pharm=U0/3.d0+Uth/2.d0
-      PDTharm=.5d0*CVth
-      PDRharm=U0/2.25d0+.75d0*Uth-.25d0*CVth
       return
       end

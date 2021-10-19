@@ -1677,34 +1677,35 @@ extern "C"
         S = U - F;
     }
 
-    /*
-      subroutine FHARM12(GAMI,TPT, &
-        Fharm,Uharm,Pharm,CVth,Sth,PDTharm,PDRharm)
-// Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
-//
-//                                                       Version 27.04.12
-// Stems from FHARM8 v.15.02.08
-// Replaced HLfit8 with HLfit12: rearranged output.
-// Input: GAMI - ionic Gamma, TPT = T_{p,i}/T
-// Output: Fharm = F/(N_i T), Uharm = U/(N_i T), Pharm = P/(n_i T),
-// CVth = C_V/N_i, Sharm = S/N_i
-// PDTharm  =  Pharm  +  d Pharm / d ln T, PDRharm  =  Pharm  +  d Pharm/d ln\rho
-      implicit double precision (A-H), double precision (O-Z)
-      save
-      parameter(CM = .895929256d0) // Madelung
-      call HLfit12(TPT,F,U,CVth,Sth,U1,CW,1)
-      U0 = -CM * GAMI // perfect lattice
-      E0 = 1.5d0 * U1 * TPT // zero-point energy
-      Uth = U + E0
-      Fth = F + E0
-      Uharm = U0 + Uth
-      Fharm = U0 + Fth
-      Pharm = U0 / 3.0_rt + Uth / 2.0_rt
-      PDTharm = 0.5_rt * CVth
-      PDRharm = U0 / 2.25d0 + .75d0 * Uth - .25d0 * CVth
-      return
-      end
-    */
+    void fharm12(Real GAMI, Real TPT,
+                 Real& Fharm, Real& Uharm, Real& Pharm, Real& CVth,
+                 Real& Sth, Real& PDTharm, Real& PDRharm)
+    {
+        // Thermodynamic functions of a harmonic crystal, incl.stat.Coul.lattice
+        //
+        // Version 27.04.12
+        // Stems from FHARM8 v.15.02.08
+        // Replaced HLfit8 with HLfit12: rearranged output.
+        // Input: GAMI - ionic Gamma, TPT = T_{p,i}/T
+        // Output: Fharm = F/(N_i T), Uharm = U/(N_i T), Pharm = P/(n_i T),
+        // CVth = C_V/N_i, Sharm = S/N_i
+        // PDTharm  =  Pharm  +  d Pharm / d ln T, PDRharm  =  Pharm  +  d Pharm/d ln\rho
+
+        const Real CM = 0.895929256_rt; // Madelung
+
+        Real F, U, U1, CW;
+        hlfit12(TPT, F, U, CVth, Sth, U1, CW, 1);
+
+        Real U0 = -CM * GAMI; // perfect lattice
+        Real E0 = 1.5_rt * U1 * TPT; // zero-point energy
+        Real Uth = U + E0;
+        Real Fth = F + E0;
+        Uharm = U0 + Uth;
+        Fharm = U0 + Fth;
+        Pharm = U0 / 3.0_rt + Uth / 2.0_rt;
+        PDTharm = 0.5_rt * CVth;
+        PDRharm = U0 / 2.25_rt + 0.75_rt * Uth - 0.25_rt * CVth;
+    }
 
     void cormix (Real RS, Real GAME, Real Zmean, Real Z2mean, Real Z52, Real Z53, Real Z321,
                  Real& FMIX, Real& UMIX, Real& PMIX, Real& CVMIX, Real& PDTMIX, Real& PDRMIX)
