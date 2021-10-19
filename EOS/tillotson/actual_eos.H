@@ -162,6 +162,10 @@ void actual_eos (I input, T& state)
 
     state.dedT = eos_c_v;
 
+    // de/drho is not relevant for this EOS
+
+    state.dedr = 0.0_rt;
+
     // Usual formula for enthalpy
 
     if constexpr (has_enthalpy<T>::value) {

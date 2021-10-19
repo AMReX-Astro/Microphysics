@@ -199,7 +199,7 @@ struct dvode_t
     RArray1D acor;
 };
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
 AMREX_FORCE_INLINE
 void print_state(dvode_t& dvode_state)
 {
