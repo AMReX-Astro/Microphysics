@@ -2430,7 +2430,7 @@ int main() {
     Real CHI, TPT, TEGRAD, PRADnkT;
     Real PnkT, UNkT, SNk, CV, CHIR, CHIT;
     int LIQSOL;
-    Real x, diff, max_diff, T_arr[3], rho_arr[2];
+    Real T_arr[3], rho_arr[2];
 
     AZion[0] = 6.0_rt;
     AZion[1] = 8.0_rt;
@@ -2444,11 +2444,8 @@ int main() {
     rho_arr[0] = 1.e7_rt;
     rho_arr[1] = 5.e9_rt;
 
-    max_diff = 0.0_rt;
-
     for (int j = 0; j <= 0; ++j) {
         for (int i = 0; i < 3; ++i) {
-            std::cout << "iter " << i << " " << j << std::endl;
             T = T_arr[i];
             RHO = rho_arr[j];
             RHOlg = std::log10(RHO);
@@ -2480,162 +2477,6 @@ int main() {
             // CHI - electron chemical potential, divided by kT
             // LIQSOL = 0 in the liquid state, = 1 in the solid state
 
-            if (i == 0 && j == 0) {
-                x = 986087830999.01904_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 2495983700684.0181_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 826241619577.72607_rt;
-            }
-
-            diff = std::abs(x - P) / P;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "P DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-               x = 16.129464056742833_rt;
-            }
-            else if (i == 1 && j == 0) {
-               x = 8.1653739394820484_rt;
-            }
-            else if (i == 2 && j == 0) {
-               x = 13514.855458323951_rt;
-            }
-
-            diff = std::abs(x - PnkT) / PnkT;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "PnkT DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 8.5451229292858866_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 18.539323243568369_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 0.73822827392302692_rt;
-            }
-
-            diff = std::abs(x - CV) / CV;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "CV DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 0.24165606904443493_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 0.88747950206022497_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 2.7120648074179433e-5_rt;
-            }
-
-            diff = std::abs(x - CHIT) / CHIT;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "CHIT DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 1.3370085960654023_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 1.0433031714423413_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 1.4524787201645497_rt;
-            }
-
-            diff = std::abs(x - CHIR) / CHIR;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "CHIR DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 30.712489657322770_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 18.110542903803580_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 25265.106328521317_rt;
-            }
-
-            diff = std::abs(x - UNkT) / UNkT;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "UNkT DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 23.797925638433309_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 45.817442265862802_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 1.0215909624032917_rt;
-            }
-
-            diff = std::abs(x - SNk) / SNk;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "SNk DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 0.96111630472601972_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 0.19172836887561015_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 960.24524371490861_rt;
-            }
-
-            diff = std::abs(x - GAMI) / GAMI;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "GAMI DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 1.2400526419152945e-2_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = 2.4705336474828152e-3_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 12.383672318439324_rt;
-            }
-
-            diff = std::abs(x - TPT) / TPT;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "TPT DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 5.5745494145734744_rt;
-            }
-            else if (i == 1 && j == 0) {
-                x = -0.43436266588208006_rt;
-            }
-            else if (i == 2 && j == 0) {
-                x = 5894.2025691009021_rt;
-            }
-
-            diff = std::abs(x - CHI) / CHI;
-            max_diff = std::max(diff, max_diff);
-            std::cout << "CHI DIFF " << diff << std::endl;
-
-            if (i == 0 && j == 0) {
-                x = 0;
-            }
-            else if (i == 1 && j == 0) {
-                x = 0;
-            }
-            else if (i == 2 && j == 0) {
-                x = 1;
-            }
-
-            diff = std::abs(x - LIQSOL);
-            max_diff = std::max(diff, max_diff);
-            std::cout << "LIQSOL DIFF " << diff << std::endl;
-
         }
     }
-
-    std::cout << "max diff = " << max_diff << std::endl;
 }
