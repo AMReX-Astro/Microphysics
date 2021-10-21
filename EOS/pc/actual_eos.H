@@ -2267,21 +2267,23 @@ void melange9 (eos_t& state)
     }
 
     // Calculation of average values:
-    Real zbar = state.zbar;
+    Real zbar = 0.0_rt; // Note that this is not the same as state.zbar
     Real z2bar = 0.0_rt;
     Real Z52 = 0.0_rt;
     Real Z53 = 0.0_rt;
     Real Z73 = 0.0_rt;
     Real Z321 = 0.0_rt; // corr.26.12.09
-    Real abar = state.abar;
+    Real abar = 0.0_rt; // Note that this is not the same as state.abar
 
     for (int i = 0; i < NumSpec; ++i) {
+        zbar = zbar + state.xn[i] * zion[i];
         z2bar = z2bar + state.xn[i] * zion[i] * zion[i];
         Real Z13 = std::pow(zion[i], C13);
         Z53 = Z53 + state.xn[i] * std::pow(Z13, 5);
         Z73 = Z73 + state.xn[i] * std::pow(Z13, 7);
         Z52 = Z52 + state.xn[i] * std::pow(zion[i], 2.5_rt);
         Z321 = Z321 + state.xn[i] * zion[i] * std::pow(zion[i] + 1.0_rt, 1.5_rt); // 26.12.09
+        abar = abar + state.xn[i] * aion[i];
     }
 
     // (0) Photons:
