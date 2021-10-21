@@ -1,0 +1,45 @@
+#ifndef actual_network_H
+#define actual_network_H
+
+#include <AMReX_REAL.H>
+#include <AMReX_Array.H>
+
+#include <fundamental_constants.H>
+#include <network_properties.H>
+
+using namespace amrex;
+
+void actual_network_init();
+
+const std::string network_name = "ignition_simple";
+
+namespace network
+{
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+}
+
+namespace Rates
+{
+
+    enum NetworkRates
+    {
+        k_he4_he4_he4__c12   = 1,
+        k_he4_c12__o16   = 2,
+        NumRates = k_he_c12__o16
+    };
+
+    // For each rate, we need: rate, drate/dT, screening, dscreening/dT
+
+    const int NumGroups = 4;
+
+    // number of reaclib rates
+    const int NrateReaclib = 2;
+    const int NumReaclibSets = 5;
+
+    // number of tabular rates
+    const int NratTabular = 0;
+
+
+}
+#endif
