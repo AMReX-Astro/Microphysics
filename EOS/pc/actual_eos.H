@@ -10,6 +10,7 @@
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 
+#include <eos_type.H>
 #include <extern_parameters.H>
 
 // Equation of state for fully ionized electron-ion plasmas (EOS EIP)
@@ -2201,10 +2202,7 @@ void eosfi8(int LIQSOL, Real CMI, Real Zion, Real RS, Real GAMI,
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
-               Real& DENS,
-               Real& GAMImean, Real& CHI, Real& TPT, int& LIQSOL,
-               Real& P, Real& U, Real& S, Real& CV, Real& CHIR, Real& CHIT)
+void melange9 (eos_t& state)
 {
     // Version 18.04.20
     // Difference from v.10.12.14: included switch - off of WK correction
@@ -2244,6 +2242,9 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
     //         CHIR  -  inverse compressibility  - (d ln P  /  d ln V)_T ("\chi_r")
     //         CHIT  =  (d ln P  /  d ln T)_V ("\chi_T")
 
+    Real RHO = state.rho;
+    Real T = state.T;
+
     // Convert temperature to a.u. = 2Ryd = 3.1577e5 K.
     const Real UN_T6 = 0.3157746_rt;
     Real Tlg = std::log10(T);
@@ -2266,23 +2267,21 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
     }
 
     // Calculation of average values:
-    Real zbar = 0.0_rt;
+    Real zbar = state.zbar;
     Real z2bar = 0.0_rt;
     Real Z52 = 0.0_rt;
     Real Z53 = 0.0_rt;
     Real Z73 = 0.0_rt;
     Real Z321 = 0.0_rt; // corr.26.12.09
-    Real abar = 0.0_rt;
+    Real abar = state.abar;
 
     for (int i = 0; i < NumSpec; ++i) {
-        zbar = zbar + AY[i] * AZion[i];
-        z2bar = z2bar + AY[i] * AZion[i] * AZion[i];
-        Real Z13 = std::pow(AZion[i], C13);
-        Z53 = Z53 + AY[i] * std::pow(Z13, 5);
-        Z73 = Z73 + AY[i] * std::pow(Z13, 7);
-        Z52 = Z52 + AY[i] * std::pow(AZion[i], 2.5_rt);
-        Z321 = Z321 + AY[i] * AZion[i] * std::pow(AZion[i] + 1.0_rt, 1.5_rt); // 26.12.09
-        abar = abar + AY[i] * ACMI[i];
+        z2bar = z2bar + state.xn[i] * zion[i] * zion[i];
+        Real Z13 = std::pow(zion[i], C13);
+        Z53 = Z53 + state.xn[i] * std::pow(Z13, 5);
+        Z73 = Z73 + state.xn[i] * std::pow(Z13, 7);
+        Z52 = Z52 + state.xn[i] * std::pow(zion[i], 2.5_rt);
+        Z321 = Z321 + state.xn[i] * zion[i] * std::pow(zion[i] + 1.0_rt, 1.5_rt); // 26.12.09
     }
 
     // (0) Photons:
@@ -2290,7 +2289,8 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
     Real PRESSRAD = UINTRAD / 3.0_rt;
 
     // (1) ideal electron gas (including relativity and degeneracy)
-    DENS = RHO / 11.20587 * zbar / abar; // number density of electrons [au]
+    Real DENS = RHO / 11.20587 * zbar / abar; // number density of electrons [au]
+    Real CHI;
     chemfit(DENS, TEMP, CHI);
 
     // NB: CHI can be used as true input instead of RHO or DENS
@@ -2309,8 +2309,9 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
     Real RS = std::pow(0.75_rt / PI / DENS, C13); // r_s - electron density parameter
     Real RSI = RS * abar * Z73 * AUM; // R_S - ion density parameter
     Real GAME = 1.0_rt / RS / TEMP; // electron Coulomb parameter Gamma_e
-    GAMImean = Z53 * GAME; // effective Gamma_i - ion Coulomb parameter
+    Real GAMImean = Z53 * GAME; // effective Gamma_i - ion Coulomb parameter
 
+    Real LIQSOL;
     if (GAMImean < GAMIMELT || RSI < RSIMELT) {
         LIQSOL = 0; // liquid regime
     }
@@ -2332,11 +2333,13 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
 
     // Add Coulomb + xc nonideal contributions, and ideal free energy:
     for (int i = 0; i < NumSpec; ++i) {
-        if (AY[i] >= TINY) {
-            Real Zion = AZion[i];
-            Real CMI = ACMI[i];
+        // Only include species with non-negligible mass number
+        // and Z >= 1 (to exclude e.g. free neutron species).
+        if (state.xn[i] >= TINY && zion[i] >= 1.0_rt) {
+            Real Zion = zion[i];
+            Real CMI = aion[i];
             Real GAMI = std::pow(Zion, C53) * GAME; // Gamma_i for given ion species
-            Real DNI = DENSI * AY[i]; // number density of ions of given type
+            Real DNI = DENSI * state.xn[i]; // number density of ions of given type
             Real PRI = DNI * TEMP; //  =  ideal - ions partial pressure (normalization)
 
             Real FC1, UC1, PC1, SC1, CV1, PDT1, PDR1;
@@ -2348,19 +2351,19 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
 
             // First - order TD functions:
             UINT = UINT + UC2 * PRI; // internal energy density (e + i + Coul.)
-            Stot = Stot + DNI * (SC2 - std::log(AY[i])); //entropy per unit volume[a.u.]
+            Stot = Stot + DNI * (SC2 - std::log(state.xn[i])); //entropy per unit volume[a.u.]
             PRESS = PRESS + PC2 * PRI; // pressure (e + i + Coul.) [a.u.]
 
             // Second - order functions (they take into account compositional changes):
             CVtot = CVtot + DNI * CV2; // C_V (e + i + Coul.) /  V (optim.10.12.14)
             PDLT = PDLT + PRI * PDT2; // d P  /  d ln T
             PDLR = PDLR + PRI * PDR2; // d P  /  d ln\rho
-            TPT2 = TPT2 + CTP * DNI / ACMI[i] * AZion[i] * AZion[i]; // opt.10.12.14
+            TPT2 = TPT2 + CTP * DNI / aion[i] * zion[i] * zion[i]; // opt.10.12.14
         }
     }
 
     // Wigner - Kirkwood perturbative correction for liquid:
-    TPT = std::sqrt(TPT2); // effective T_p / T  -  ion quantum parameter
+    Real TPT = std::sqrt(TPT2); // effective T_p / T  -  ion quantum parameter
     // (in the case of a mixture, this estimate is crude)
     if (LIQSOL == 0) {
         Real FWK = TPT2 / 24.0_rt * CWK; // Wigner - Kirkwood (quantum diffr.) term
@@ -2383,8 +2386,8 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
         FMIX = 0.0_rt;
         for (int i = 0; i < NumSpec; ++i) {
             for (int j = i+1; j < NumSpec; ++j) {
-                Real RZ = AZion[j] / AZion[i];
-                Real X2 = AY[j] / (AY[i] + AY[j]);
+                Real RZ = zion[j] / zion[i];
+                Real X2 = state.xn[j] / (state.xn[i] + state.xn[j]);
                 Real X1 = std::max(0.0, 1.0_rt - X2);
 
                 if (X1 < TINY) {
@@ -2395,10 +2398,10 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
                 }
 
                 Real X = X2 / RZ + (1.0_rt - 1.0_rt / RZ) * std::pow(X2, RZ);
-                Real GAMI = std::pow(AZion[i], C53) * GAME; // Gamma_i corrected 14.05.13
+                Real GAMI = std::pow(zion[i], C53) * GAME; // Gamma_i corrected 14.05.13
                 Real DeltaG = 0.012_rt * (1.0_rt - 1.0_rt / (RZ * RZ)) * (X1 + X2 * std::pow(RZ, C53));
                 DeltaG = DeltaG * X / X2 * std::max(0.0_rt, 1.0_rt - X) / X1;
-                FMIX = FMIX + AY[i] * AY[j] * GAMI * DeltaG;
+                FMIX = FMIX + state.xn[i] * state.xn[j] * GAMI * DeltaG;
             }
         }
 
@@ -2423,9 +2426,9 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
     Real SNk = Stot / DENSI; // S / N_i k
 
     // Second - order:
-    CV = CVtot / DENSI; // C_V per ion
-    CHIR = PDLR / PRESS; // d ln P / d ln\rho
-    CHIT = PDLT / PRESS; // d ln P / d ln T
+    Real CV = CVtot / DENSI; // C_V per ion
+    Real CHIR = PDLR / PRESS; // d ln P / d ln\rho
+    Real CHIT = PDLT / PRESS; // d ln P / d ln T
 
     // Convert to CGS
     Real Tnk = 8.31447e13_rt / abar * RHO * T6; // n_i kT [erg/cc]
@@ -2433,9 +2436,9 @@ void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
     Real N = avo_eos / abar;
     Real k_B = 1.3806488e-16_rt;
 
-    P = PnkT * Tnk;
-    U = UNkT * N * k_B * T;
-    S = SNk * N * k_B;
+    state.p = PnkT * Tnk;
+    state.e = UNkT * N * k_B * T;
+    state.s = SNk * N * k_B;
 }
 
 template <typename I, typename T>
@@ -2443,11 +2446,18 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
     static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+
+    if (input == eos_input_rt) {
+        melange9(state);
+    }
 }
 
 AMREX_INLINE
 void actual_eos_init ()
 {
+    // TODO:
+    // - Verify that zion is sorted in increasing order
+    // - Set mintemp, mindens, etc.
 }
 
 AMREX_INLINE
