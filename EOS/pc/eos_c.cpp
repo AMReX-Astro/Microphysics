@@ -2196,7 +2196,7 @@ extern "C"
     }
 
     void melange9 (Real* AY, Real* AZion, Real* ACMI, Real RHO, Real T,
-                   Real& PRADnkT, Real& DENS,
+                   Real& DENS,
                    Real& GAMImean, Real& CHI, Real& TPT, int& LIQSOL,
                    Real& P, Real& U, Real& S, Real& CV, Real& CHIR, Real& CHIT)
     {
@@ -2234,7 +2234,6 @@ extern "C"
         //         S  -  entropy
         //         U  -  internal energy
         //         P  -  pressure
-        //         PRADnkT  -  radiative pressure  /  n_i kT
         //         CV  -  heat capacity per ion, div. by Boltzmann const.
         //         CHIR  -  inverse compressibility  - (d ln P  /  d ln V)_T ("\chi_r")
         //         CHIT  =  (d ln P  /  d ln T)_V ("\chi_T")
@@ -2412,7 +2411,7 @@ extern "C"
         PDLR = PDLR + PRESSI * PDRMIX;
 
         // First - order:
-        PRADnkT = PRESSRAD / PRESSI; // radiative pressure / n_i k T
+        Real PRADnkT = PRESSRAD / PRESSI; // radiative pressure / n_i k T
         Real PnkT = PRESS / PRESSI; // P / n_i k T
         Real UNkT = UINT / PRESSI; // U / N_i k T
         Real SNk = Stot / DENSI; // S / N_i k
@@ -2441,7 +2440,7 @@ int main() {
     Real AY[NumSpec], AZion[NumSpec], ACMI[NumSpec];
     Real RHO, RHOlg, T, Tlg, T6, Tnk, TEMP, DENS;
     Real GAMI;
-    Real CHI, TPT, TEGRAD, PRADnkT;
+    Real CHI, TPT;
     Real P, U, S, CV, CHIR, CHIT;
     int LIQSOL;
     Real T_arr[3], rho_arr[2];
@@ -2469,7 +2468,6 @@ int main() {
             TEMP = T6 / UN_T6; // T [au]
 
             melange9(AY, AZion, ACMI, RHO, T, // input
-                     PRADnkT, // additional output - radiative pressure
                      DENS, GAMI, CHI, TPT, LIQSOL, // output param.
                      P, U, S, CV, CHIR, CHIT); // output dimensionless TD functions
 
