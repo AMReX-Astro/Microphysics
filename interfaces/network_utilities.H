@@ -24,6 +24,9 @@ struct rhs_t {
     int exponent_D;
     int exponent_E;
     int exponent_F;
+
+    amrex::Real forward_branching_ratio;
+    amrex::Real reverse_branching_ratio;
 };
 
 // Form a unique numerical identifier from a given

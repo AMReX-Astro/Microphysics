@@ -96,6 +96,9 @@ namespace RHS {
         data.exponent_E = 0;
         data.exponent_F = 0;
 
+        data.forward_branching_ratio = 1.0_rt;
+        data.reverse_branching_ratio = 1.0_rt;
+
         switch (rate) {
 
         case He4_He4_He4_to_C12:
@@ -152,6 +155,9 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
             data.exponent_E = 1;
+
+            // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
+            data.forward_branching_ratio = 0.5_rt;
             break;
 
         case C12_O16_to_Si28:
@@ -166,6 +172,9 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+
+            // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
+            data.forward_branching_ratio = 0.5_rt;
             break;
 
         case O16_O16_to_Si28_He4:

@@ -153,6 +153,10 @@ void iso7rat(const Real btemp, const Real bden,
                 r.forward(C12_O16_to_Mg24_He4), drdt.forward(C12_O16_to_Mg24_He4),
                 r.reverse(C12_O16_to_Mg24_He4), drdt.reverse(C12_O16_to_Mg24_He4));
 
+    rate_c12o16(tf, 1.0_rt,
+                r.forward(C12_O16_to_Si28), drdt.forward(C12_O16_to_Si28),
+                r.reverse(C12_O16_to_Si28), drdt.reverse(C12_O16_to_Si28));
+
     // 16o + 16o
     rate_o16o16(tf, 1.0_rt,
                 r.forward(O16_O16_to_Si28_He4), drdt.forward(O16_O16_to_Si28_He4),
@@ -214,7 +218,7 @@ void set_iso7rat()
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
                  Array1D<Real, 1, NumSpec> const& y,
-                 rate_fr_t& rate, rate_fr_t& dratedt)
+                 rate_fr_t& r, rate_fr_t& drdt)
 {
     using namespace Species;
     using namespace Rates;
@@ -255,8 +259,8 @@ void screen_iso7(const Real btemp, const Real bden,
     sc3a   = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
 
-    dratedt.forward(He4_He4_He4_to_C12) = dratedt.forward(He4_He4_He4_to_C12) * sc3a + rate.forward(He4_He4_He4_to_C12) * sc3adt;
-    rate.forward(He4_He4_He4_to_C12)    = rate.forward(He4_He4_He4_to_C12) * sc3a;
+    drdt.forward(He4_He4_He4_to_C12) = drdt.forward(He4_He4_He4_to_C12) * sc3a + r.forward(He4_He4_He4_to_C12) * sc3adt;
+    r.forward(He4_He4_He4_to_C12)    = r.forward(He4_He4_He4_to_C12) * sc3a;
 
     // c12 to o16
     jscr++;
@@ -264,8 +268,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(C12_He4_to_O16)  = dratedt.forward(C12_He4_to_O16) * sc1a + rate.forward(C12_He4_to_O16) * sc1adt;
-    rate.forward(C12_He4_to_O16)     = rate.forward(C12_He4_to_O16) * sc1a;
+    drdt.forward(C12_He4_to_O16)  = drdt.forward(C12_He4_to_O16) * sc1a + r.forward(C12_He4_to_O16) * sc1adt;
+    r.forward(C12_He4_to_O16)     = r.forward(C12_He4_to_O16) * sc1a;
 
     // c12 + c12
     jscr++;
@@ -273,8 +277,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(C12_C12_to_Ne20_He4) = dratedt.forward(C12_C12_to_Ne20_He4) * sc1a + rate.forward(C12_C12_to_Ne20_He4) * sc1adt;
-    rate.forward(C12_C12_to_Ne20_He4)    = rate.forward(C12_C12_to_Ne20_He4) * sc1a;
+    drdt.forward(C12_C12_to_Ne20_He4) = drdt.forward(C12_C12_to_Ne20_He4) * sc1a + r.forward(C12_C12_to_Ne20_He4) * sc1adt;
+    r.forward(C12_C12_to_Ne20_He4)    = r.forward(C12_C12_to_Ne20_He4) * sc1a;
 
     // c12 + o16
     jscr++;
@@ -282,16 +286,11 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(C12_O16_to_Mg24_He4) = dratedt.forward(C12_O16_to_Mg24_He4) * sc1a + rate.forward(C12_O16_to_Mg24_He4) * sc1adt;
-    rate.forward(C12_O16_to_Mg24_He4)    = rate.forward(C12_O16_to_Mg24_He4) * sc1a;
+    drdt.forward(C12_O16_to_Mg24_He4) = drdt.forward(C12_O16_to_Mg24_He4) * sc1a + r.forward(C12_O16_to_Mg24_He4) * sc1adt;
+    r.forward(C12_O16_to_Mg24_He4)    = r.forward(C12_O16_to_Mg24_He4) * sc1a;
 
-    // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
-
-    rate.forward(C12_O16_to_Mg24_He4) *= 0.5;
-    dratedt.forward(C12_O16_to_Mg24_He4) *= 0.5;
-
-    rate.forward(C12_O16_to_Si28) = rate.forward(C12_O16_to_Mg24_He4);
-    dratedt.forward(C12_O16_to_Si28) = dratedt.forward(C12_O16_to_Mg24_He4);
+    drdt.forward(C12_O16_to_Si28) = drdt.forward(C12_O16_to_Si28) * sc1a + r.forward(C12_O16_to_Si28) * sc1adt;
+    r.forward(C12_O16_to_Si28)    = r.forward(C12_O16_to_Si28) * sc1a;
 
     // o16 + o16
     jscr++;
@@ -299,8 +298,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(O16_O16_to_Si28_He4) = dratedt.forward(O16_O16_to_Si28_He4) * sc1a + rate.forward(O16_O16_to_Si28_He4) * sc1adt;
-    rate.forward(O16_O16_to_Si28_He4)    = rate.forward(O16_O16_to_Si28_He4) * sc1a;
+    drdt.forward(O16_O16_to_Si28_He4) = drdt.forward(O16_O16_to_Si28_He4) * sc1a + r.forward(O16_O16_to_Si28_He4) * sc1adt;
+    r.forward(O16_O16_to_Si28_He4)    = r.forward(O16_O16_to_Si28_He4) * sc1a;
 
     // o16 to ne20
     jscr++;
@@ -308,8 +307,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(O16_He4_to_Ne20) = dratedt.forward(O16_He4_to_Ne20) * sc1a + rate.forward(O16_He4_to_Ne20) * sc1adt;
-    rate.forward(O16_He4_to_Ne20)    = rate.forward(O16_He4_to_Ne20) * sc1a;
+    drdt.forward(O16_He4_to_Ne20) = drdt.forward(O16_He4_to_Ne20) * sc1a + r.forward(O16_He4_to_Ne20) * sc1adt;
+    r.forward(O16_He4_to_Ne20)    = r.forward(O16_He4_to_Ne20) * sc1a;
 
     // ne20 to mg24
     jscr++;
@@ -317,8 +316,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(Ne20_He4_to_Mg24) = dratedt.forward(Ne20_He4_to_Mg24) * sc1a + rate.forward(Ne20_He4_to_Mg24) * sc1adt;
-    rate.forward(Ne20_He4_to_Mg24)    = rate.forward(Ne20_He4_to_Mg24) * sc1a;
+    drdt.forward(Ne20_He4_to_Mg24) = drdt.forward(Ne20_He4_to_Mg24) * sc1a + r.forward(Ne20_He4_to_Mg24) * sc1adt;
+    r.forward(Ne20_He4_to_Mg24)    = r.forward(Ne20_He4_to_Mg24) * sc1a;
 
     // mg24 to si28
     jscr++;
@@ -326,8 +325,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(Mg24_He4_to_Si28) = dratedt.forward(Mg24_He4_to_Si28) * sc1a + rate.forward(Mg24_He4_to_Si28) * sc1adt;
-    rate.forward(Mg24_He4_to_Si28)    = rate.forward(Mg24_He4_to_Si28) * sc1a;
+    drdt.forward(Mg24_He4_to_Si28) = drdt.forward(Mg24_He4_to_Si28) * sc1a + r.forward(Mg24_He4_to_Si28) * sc1adt;
+    r.forward(Mg24_He4_to_Si28)    = r.forward(Mg24_He4_to_Si28) * sc1a;
 
     // ca40 to ti44
     jscr++;
@@ -335,8 +334,8 @@ void screen_iso7(const Real btemp, const Real bden,
             zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1],
             sc1a,sc1adt,sc1add);
 
-    dratedt.forward(Ca40_He4_to_Ti44) = dratedt.forward(Ca40_He4_to_Ti44) * sc1a + rate.forward(Ca40_He4_to_Ti44) * sc1adt;
-    rate.forward(Ca40_He4_to_Ti44)    = rate.forward(Ca40_He4_to_Ti44) * sc1a;
+    drdt.forward(Ca40_He4_to_Ti44) = drdt.forward(Ca40_He4_to_Ti44) * sc1a + r.forward(Ca40_He4_to_Ti44) * sc1adt;
+    r.forward(Ca40_He4_to_Ti44)    = r.forward(Ca40_He4_to_Ti44) * sc1a;
 
     /*
     the publication, timmes, woosley & hoffman apjs, 129, 377
@@ -359,25 +358,38 @@ void screen_iso7(const Real btemp, const Real bden,
 
        denom     = std::pow(bden * y(He4), 3.0e0_rt);
 
-       rate.forward(Si28_7He4_to_Ni56)     = yeff_ca40 * denom * rate.forward(Ca40_He4_to_Ti44);
-       dratedt.forward(Si28_7He4_to_Ni56)  = (yeff_ca40dt * rate.forward(Ca40_He4_to_Ti44) +
-                                              yeff_ca40 * dratedt.forward(Ca40_He4_to_Ti44)) * denom * 1.0e-9_rt;
+       r.forward(Si28_7He4_to_Ni56)     = yeff_ca40 * denom * r.forward(Ca40_He4_to_Ti44);
+       drdt.forward(Si28_7He4_to_Ni56)  = (yeff_ca40dt * r.forward(Ca40_He4_to_Ti44) +
+                                              yeff_ca40 * drdt.forward(Ca40_He4_to_Ti44)) * denom * 1.0e-9_rt;
 
        if (denom != 0.0_rt) {
 
           zz     = 1.0e0_rt / denom;
-          rate.reverse(Si28_7He4_to_Ni56) = amrex::min(1.0e10_rt, yeff_ti44 * rate.reverse(Ca40_He4_to_Ti44) * zz);
+          r.reverse(Si28_7He4_to_Ni56) = amrex::min(1.0e10_rt, yeff_ti44 * r.reverse(Ca40_He4_to_Ti44) * zz);
 
-          if (rate.reverse(Si28_7He4_to_Ni56) == 1.0e10_rt) {
-             dratedt.reverse(Si28_7He4_to_Ni56)  = 0.0e0_rt;
+          if (r.reverse(Si28_7He4_to_Ni56) == 1.0e10_rt) {
+             drdt.reverse(Si28_7He4_to_Ni56)  = 0.0e0_rt;
           } else {
-             dratedt.reverse(Si28_7He4_to_Ni56)  = (yeff_ti44dt * rate.reverse(Ca40_He4_to_Ti44) +
-                                                    yeff_ti44 * dratedt.reverse(Ca40_He4_to_Ti44)) * zz * 1.0e-9_rt;
+             drdt.reverse(Si28_7He4_to_Ni56)  = (yeff_ti44dt * r.reverse(Ca40_He4_to_Ti44) +
+                                                    yeff_ti44 * drdt.reverse(Ca40_He4_to_Ti44)) * zz * 1.0e-9_rt;
           }
 
        }
 
     }
+
+    RHS::constexpr_for<1, NumRates+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+        r.forward(rate) *= rhs_data.forward_branching_ratio;
+        r.reverse(rate) *= rhs_data.reverse_branching_ratio;
+
+        drdt.forward(rate) *= rhs_data.forward_branching_ratio;
+        drdt.reverse(rate) *= rhs_data.reverse_branching_ratio;
+    });
 }
 
 
