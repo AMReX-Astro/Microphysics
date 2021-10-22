@@ -44,36 +44,46 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     plasma_state_t pstate;
     fill_plasma_state(pstate, state.T, state.rho, Y);
 
-//////
+    for (int i = 1; i < NrateReaclib; ++i) {
+        Real rate;
+        Real drate_dt;
+        call reaclib_evaluate(pstate, state.T, i, rate, drate_dt);
+        rate_eval.unscreened_rates(i_rate, i) = rate;
+        rate_eval.unscreened_rates(i_drate_dt, i) = drate_dt;
+    }
 
-    do i = 1, nrat_reaclib
-       call reaclib_evaluate(pstate, state % T, i, rate, drate_dt)
-       rate_eval % unscreened_rates(i_rate, i) = rate
-       rate_eval % unscreened_rates(i_drate_dt, i) = drate_dt
-    end do
+    // Evaluate screening factors
 
-    ! Evaluate screening factors
-    if (screen_reaclib) then
+    Real sc1a, sc1adt, sc1add;
+    Real sc2a, sc2adt, sc2add;
 
-      call screen5(pstate, 1, scor, dscor_dt, dscor_dd)
+    screen5(pstate, 0,
+            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
+            scor, dscor_dt, dscor_dd);
 
-      call screen5(pstate, 2, scor2, dscor2_dt, dscor2_dd)
-      rate_eval % unscreened_rates(i_scor,1) = scor * scor2
-      rate_eval % unscreened_rates(i_dscor_dt,1) = scor * dscor2_dt + dscor_dt * scor2
+    screen5(pstate, 1
+            zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
+            scor2, dscor2_dt, dscor2_dd);
 
-
-      call screen5(pstate, 3, scor, dscor_dt, dscor_dd)
-      rate_eval % unscreened_rates(i_scor,2) = scor
-      rate_eval % unscreened_rates(i_dscor_dt,2) = dscor_dt
-
-    end if
+    rate_eval.unscreened_rates(i_scor,1) = scor * scor2;
+    rate_eval.unscreened_rates(i_dscor_dt,1) = scor * dscor2_dt + dscor_dt * scor2;
 
 
-    ! Compute screened rates
-    rate_eval % screened_rates = rate_eval % unscreened_rates(i_rate, :) * &
-                                 rate_eval % unscreened_rates(i_scor, :)
+    screen5(pstate, 2,
+            zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1],
+            scor, dscor_dt, dscor_dd);
 
-  end subroutine evaluate_rates
+    rate_eval.unscreened_rates(i_scor,2) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,2) = dscor_dt;
+
+
+    // Compute screened rates
+
+    for (int i = 1; i < NrateReaclib; ++i) {
+        rate_eval.screened_rates(i) = rate_eval.unscreened_rates(i_rate, i) *
+                                      rate_eval % unscreened_rates(i_scor, i);
+    }
+}
 
 
   subroutine actual_rhs(state, ydot)
