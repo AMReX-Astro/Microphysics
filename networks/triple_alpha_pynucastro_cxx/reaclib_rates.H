@@ -62,7 +62,7 @@ void net_screening_init() {
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void reaclib_evaluate(plasma_t& pstate, const Real temp, const int iwhich,
+void reaclib_evaluate(plasma_state_t& pstate, const Real temp, const int iwhich,
                       Real& rate, Real& drate_dt) {
 
     // iwhich is the rate to evaluate
