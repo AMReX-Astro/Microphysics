@@ -42,7 +42,7 @@ namespace RateTable
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void iso7tab(const Real btemp, const Real bden,
-             rate_fr_t& rate, rate_fr_t& dratedt)
+             rate_fr_t& r, rate_fr_t& drdt)
 {
     using namespace RateTable;
     using namespace Rates;
@@ -81,20 +81,7 @@ void iso7tab(const Real btemp, const Real bden,
 
     RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
     {
-        constexpr int rateindex = n;
-
-        Real forward_dtab = 0.0_rt;
-        Real reverse_dtab = 0.0_rt;
-
-        int forward_exponent, reverse_exponent;
-
-        // Set the density dependence
-
-        forward_exponent = RHS::density_exponent_forward<rateindex>();
-        reverse_exponent = RHS::density_exponent_reverse<rateindex>();
-
-        forward_dtab = std::pow(bden, forward_exponent);
-        reverse_dtab = std::pow(bden, reverse_exponent);
+        constexpr int rate = n;
 
         // The rate array is flattened and for each reaction should contain the
         // forward rate and then the backward rate. So for any given rate index
@@ -102,25 +89,25 @@ void iso7tab(const Real btemp, const Real bden,
         // scheme used by the rate array (whereas at every index the table has both
         // the forward and reverse terms).
 
-        rate.forward(rateindex) = (alfa * rattab(rateindex, 1, iat  ) +
-                                   beta * rattab(rateindex, 1, iat+1) +
-                                   gama * rattab(rateindex, 1, iat+2) +
-                                   delt * rattab(rateindex, 1, iat+3)) * forward_dtab;
+        r.forward(rate) = (alfa * rattab(rate, 1, iat  ) +
+                           beta * rattab(rate, 1, iat+1) +
+                           gama * rattab(rate, 1, iat+2) +
+                           delt * rattab(rate, 1, iat+3));
 
-        rate.reverse(rateindex) = (alfa * rattab(rateindex, 2, iat  ) +
-                                   beta * rattab(rateindex, 2, iat+1) +
-                                   gama * rattab(rateindex, 2, iat+2) +
-                                   delt * rattab(rateindex, 2, iat+3)) * reverse_dtab;
+        r.reverse(rate) = (alfa * rattab(rate, 2, iat  ) +
+                           beta * rattab(rate, 2, iat+1) +
+                           gama * rattab(rate, 2, iat+2) +
+                           delt * rattab(rate, 2, iat+3));
 
-        dratedt.forward(rateindex) = (alfa * drattabdt(rateindex, 1, iat  ) +
-                                      beta * drattabdt(rateindex, 1, iat+1) +
-                                      gama * drattabdt(rateindex, 1, iat+2) +
-                                      delt * drattabdt(rateindex, 1, iat+3)) * forward_dtab;
+        drdt.forward(rate) = (alfa * drattabdt(rate, 1, iat  ) +
+                              beta * drattabdt(rate, 1, iat+1) +
+                              gama * drattabdt(rate, 1, iat+2) +
+                              delt * drattabdt(rate, 1, iat+3));
 
-        dratedt.reverse(rateindex) = (alfa * drattabdt(rateindex, 2, iat  ) +
-                                      beta * drattabdt(rateindex, 2, iat+1) +
-                                      gama * drattabdt(rateindex, 2, iat+2) +
-                                      delt * drattabdt(rateindex, 2, iat+3)) * reverse_dtab;
+        drdt.reverse(rate) = (alfa * drattabdt(rate, 2, iat  ) +
+                              beta * drattabdt(rate, 2, iat+1) +
+                              gama * drattabdt(rate, 2, iat+2) +
+                              delt * drattabdt(rate, 2, iat+3));
     });
 }
 
@@ -190,24 +177,6 @@ void iso7rat(const Real btemp, const Real bden,
     rate_ca40ag(tf, 1.0_rt,
                 r.forward(Ca40_He4_to_Ti44), drdt.forward(Ca40_He4_to_Ti44),
                 r.reverse(Ca40_He4_to_Ti44), drdt.reverse(Ca40_He4_to_Ti44));
-
-    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        // Set the density dependence
-
-        int forward_exponent = RHS::density_exponent_forward<rate>();
-        int reverse_exponent = RHS::density_exponent_reverse<rate>();
-
-        Real density_term_forward = std::pow(bden, forward_exponent);
-        Real density_term_reverse = std::pow(bden, reverse_exponent);
-
-        r.forward(rate) *= density_term_forward;
-        drdt.forward(rate) *= density_term_forward;
-        r.reverse(rate) *= density_term_reverse;
-        drdt.reverse(rate) *= density_term_reverse;
-    });
 }
 
 
@@ -245,8 +214,7 @@ void set_iso7rat()
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void screen_iso7(const Real btemp, const Real bden,
                  Array1D<Real, 1, NumSpec> const& y,
-                 rate_fr_t& rate, rate_fr_t& dratedt,
-                 Array2D<Real, 1, NumSpec, 1, Rates::NumRates>& dratedY)
+                 rate_fr_t& rate, rate_fr_t& dratedt)
 {
     using namespace Species;
     using namespace Rates;
@@ -265,13 +233,6 @@ void screen_iso7(const Real btemp, const Real bden,
     Real denom,denomdt,denomdd,xx,zz;
 
     plasma_state_t pstate;
-
-    // initialize
-    for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= Rates::NumRates; ++i) {
-            dratedY(j, i) = 0.0_rt;
-        }
-    }
 
     // get the temperature factors
     tf_t tf = get_tfactors(btemp);
@@ -423,7 +384,7 @@ void screen_iso7(const Real btemp, const Real bden,
 
 // RHS version (single rate group)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates(burn_t const& state, rate_fr_t& rate)
+void evaluate_rates(burn_t const& state, rate_fr_t& r)
 {
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
@@ -432,8 +393,7 @@ void evaluate_rates(burn_t const& state, rate_fr_t& rate)
     // A useful cleanup would be to rewrite iso7tab, iso7rat,
     // and screen_iso7 so that there are versions that do not
     // evaluate the derivatives.
-    rate_fr_t dratedt;
-    Array2D<Real, 1, NumSpec, 1, Rates::NumRates> dratedY;
+    rate_fr_t drdt;
 
     // Get the data from the state
     rho  = state.rho;
@@ -445,21 +405,38 @@ void evaluate_rates(burn_t const& state, rate_fr_t& rate)
 
     // Get the raw reaction rates
     if (use_tables)
-        iso7tab(temp, rho, rate, dratedt);
+        iso7tab(temp, rho, r, drdt);
     else
-        iso7rat(temp, rho, rate, dratedt);
+        iso7rat(temp, rho, r, drdt);
+
+    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        // Set the density dependence
+
+        int forward_exponent = RHS::density_exponent_forward<rate>();
+        int reverse_exponent = RHS::density_exponent_reverse<rate>();
+
+        Real density_term_forward = std::pow(rho, forward_exponent);
+        Real density_term_reverse = std::pow(rho, reverse_exponent);
+
+        r.forward(rate) *= density_term_forward;
+        drdt.forward(rate) *= density_term_forward;
+        r.reverse(rate) *= density_term_reverse;
+        drdt.reverse(rate) *= density_term_reverse;
+    });
 
     // Do the screening (depends on composition)
-    screen_iso7(temp, rho, y, rate, dratedt, dratedY);
+    screen_iso7(temp, rho, y, r, drdt);
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rates(burn_t const& state, rate_fr_t& rate, rate_fr_t& dratedt)
+void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 {
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
-    Array2D<Real, 1, NumSpec, 1, Rates::NumRates> dratedY;
 
     // Get the data from the state
     rho  = state.rho;
@@ -470,12 +447,30 @@ void get_rates(burn_t const& state, rate_fr_t& rate, rate_fr_t& dratedt)
 
     // Get the raw reaction rates
     if (use_tables)
-        iso7tab(temp, rho, rate, dratedt);
+        iso7tab(temp, rho, r, drdt);
     else
-        iso7rat(temp, rho, rate, dratedt);
+        iso7rat(temp, rho, r, drdt);
+
+    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        // Set the density dependence
+
+        int forward_exponent = RHS::density_exponent_forward<rate>();
+        int reverse_exponent = RHS::density_exponent_reverse<rate>();
+
+        Real density_term_forward = std::pow(rho, forward_exponent);
+        Real density_term_reverse = std::pow(rho, reverse_exponent);
+
+        r.forward(rate) *= density_term_forward;
+        drdt.forward(rate) *= density_term_forward;
+        r.reverse(rate) *= density_term_reverse;
+        drdt.reverse(rate) *= density_term_reverse;
+    });
 
     // Do the screening here because the corrections depend on the composition
-    screen_iso7(temp, rho, y, rate, dratedt, dratedY);
+    screen_iso7(temp, rho, y, r, drdt);
 }
 
 
