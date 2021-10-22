@@ -224,6 +224,20 @@ namespace RHS {
             data.exponent_D = 1;
             break;
 
+        case Ca40_He4_to_Ti44:
+            data.species_A = Ca40;
+            data.species_B = He4;
+            data.species_D = Ti44;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
         case Si28_7He4_to_Ni56:
             data.species_A = Si28;
             data.species_B = He4;
