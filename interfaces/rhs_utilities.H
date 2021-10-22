@@ -563,7 +563,7 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_
             RHS_impl::rhs_for<1, Rates::NumRates+1>([&] (auto n3)
             {
                 constexpr int rate = n3;
-                if constexpr (is_rate_used<spec1, rate>() || is_rate_used<spec2, rate>()) {
+                if constexpr (is_rate_used<spec1, rate>()) {
                     spec_jac(spec1, spec2) += RHS::jac_term<spec1, spec2, rate>(state, rr);
                 }
             });
