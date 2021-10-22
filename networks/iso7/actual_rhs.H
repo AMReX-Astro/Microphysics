@@ -172,9 +172,8 @@ void iso7tab(const Real btemp, const Real bden,
             break;
 
         case (Si28_7He4_to_Ni56):
-            // This reaction is evaluated in the screening routine
-            forward_dtab = 0.0e0_rt;
-            reverse_dtab = 0.0e0_rt;
+            forward_dtab = RHS::density_exponent_forward<Si28_7He4_to_Ni56>();
+            reverse_dtab = RHS::density_exponent_reverse<Si28_7He4_to_Ni56>();
             break;
 
         }
