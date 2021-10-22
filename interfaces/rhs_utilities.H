@@ -551,8 +551,8 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_
 {
     Array2D<Real, 1, NumSpec, 1, NumSpec> spec_jac = {0.0};
 
-    // For every species, loop over all rates, and if that rate involves
-    // the given species, add its contribution to the RHS.
+    // For every spec1 and spec2 pair, loop over all rates, and if that rate
+    // involves spec1, add its contribution to the Jacobian.
 
     RHS_impl::rhs_for<1, NumSpec+1>([&] (auto n1)
     {
