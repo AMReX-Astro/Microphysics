@@ -41,31 +41,6 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t c
 
 namespace RHS_impl {
 
-// Implementation of "constexpr for" based on
-// https://artificial-mind.net/blog/2020/10/31/constexpr-for
-//
-// Approximates what one would get from a compile-time
-// unrolling of the loop
-// for (int i = 0; i < N; ++i) {
-//    f(i);
-// }
-//
-// The mechanism is recursive, we evaluate f(i) at the current
-// i and then call the for loop at i+1. f() is a lambda function
-// that provides the body of the loop and takes only an integer
-// i as its argument. It is assumed that at the loop call site
-// the lambda is declared [&] so that it can operate on whatever
-// data it needs.
-
-template<auto I, auto N, class F>
-constexpr void rhs_for (F&& f)
-{
-    if constexpr (I < N) {
-        f(std::integral_constant<decltype(I), I>());
-        rhs_for<I+1, N>(f);
-    }
-}
-
 // Calculate an integer factorial.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int factorial (int n)
@@ -84,6 +59,31 @@ constexpr int factorial (int n)
 
 namespace RHS
 {
+
+// Implementation of "constexpr for" based on
+// https://artificial-mind.net/blog/2020/10/31/constexpr-for
+//
+// Approximates what one would get from a compile-time
+// unrolling of the loop
+// for (int i = 0; i < N; ++i) {
+//    f(i);
+// }
+//
+// The mechanism is recursive, we evaluate f(i) at the current
+// i and then call the for loop at i+1. f() is a lambda function
+// that provides the body of the loop and takes only an integer
+// i as its argument. It is assumed that at the loop call site
+// the lambda is declared [&] so that it can operate on whatever
+// data it needs.
+
+template<auto I, auto N, class F>
+constexpr void constexpr_for (F&& f)
+{
+    if constexpr (I < N) {
+        f(std::integral_constant<decltype(I), I>());
+        constexpr_for<I+1, N>(f);
+    }
+}
 
 // Determine if a rate is used in the RHS for a given species
 // by seeing if its prefactor is nonzero.
@@ -314,10 +314,10 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr)
     // For every species, loop over all rates, and if that rate involves
     // the given species, add its contribution to the RHS.
 
-    RHS_impl::rhs_for<1, NumSpec+1>([&] (auto n1)
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int species = n1;
-        RHS_impl::rhs_for<1, Rates::NumRates+1>([&] (auto n2)
+        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
         {
             constexpr int rate = n2;
             if constexpr (is_rate_used<species, rate>()) {
@@ -554,13 +554,13 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_
     // For every spec1 and spec2 pair, loop over all rates, and if that rate
     // involves spec1, add its contribution to the Jacobian.
 
-    RHS_impl::rhs_for<1, NumSpec+1>([&] (auto n1)
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int spec1 = n1;
-        RHS_impl::rhs_for<1, NumSpec+1>([&] (auto n2)
+        RHS::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int spec2 = n2;
-            RHS_impl::rhs_for<1, Rates::NumRates+1>([&] (auto n3)
+            RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
             {
                 constexpr int rate = n3;
                 if constexpr (is_rate_used<spec1, rate>()) {
