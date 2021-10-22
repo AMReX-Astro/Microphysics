@@ -1362,6 +1362,11 @@ void actual_eos_init ()
         std::ifstream table;
         table.open("helm_table.dat");
 
+        if (!table.is_open()) {
+            // the table was not present or we could not open it; abort
+            amrex::Error("helm_table.dat could not be opened");
+        }
+
         std::string line;
 
         // read in the free energy table
