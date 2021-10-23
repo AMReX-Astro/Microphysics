@@ -1,7 +1,11 @@
 #ifdef REACTIONS
 #ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 #endif
 #endif
 

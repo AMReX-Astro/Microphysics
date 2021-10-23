@@ -4,7 +4,11 @@
 #include <network.H>
 #ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 #else
 #include <fortran_to_cxx_actual_rhs.H>
 #endif
@@ -61,7 +65,11 @@ void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydo
 
     // Call the specific network routine to get the RHS.
 
+#ifdef NEW_NETWORK_IMPLEMENTATION
+    RHS::rhs(state, ydot);
+#else
     actual_rhs(state, ydot);
+#endif
 
     // We integrate X, not Y
 
@@ -115,7 +123,11 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     vode_to_burn(vode_state, state);
 
+#ifdef NEW_NETWORK_IMPLEMENTATION
+    RHS::jac(state, pd);
+#else
     actual_jac(state, pd);
+#endif
 
     // We integrate X, not Y
     for (int j = 1; j <= NumSpec; ++j) {

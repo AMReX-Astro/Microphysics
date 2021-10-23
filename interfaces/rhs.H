@@ -775,35 +775,33 @@ void rhs_init ()
     if (use_tables)
     {
         amrex::Print() << std::endl << " Initializing rate table" << std::endl;
-        RHS::tabulate_rates();
+        tabulate_rates();
     }
 }
 
-} // namespace RHS
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     // Evaluate the rates
 
-    RHS::rate_t r, drdt;
-    RHS::get_rates(state, r, drdt);
+    rate_t r, drdt;
+    get_rates(state, r, drdt);
 
     // For every species, loop over all rates, and if that rate involves
     // the given species, add its contribution to the RHS.
 
-    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int species = n1;
 
         ydot(species) = 0.0;
 
-        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
         {
             constexpr int rate = n2;
 
-            if constexpr (RHS::is_rate_used<species, rate>()) {
-                ydot(species) += RHS::rhs_term<species, rate>(state, r);
+            if constexpr (is_rate_used<species, rate>()) {
+                ydot(species) += rhs_term<species, rate>(state, r);
             }
         });
     });
@@ -815,22 +813,22 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ydot(net_ienuc) = -sneut;
 
-    RHS::constexpr_for<1, NumSpec+1>([&] (auto n)
+    constexpr_for<1, NumSpec+1>([&] (auto n)
     {
         constexpr int species = n;
 
-        ydot(net_ienuc) += RHS::ener_gener_rate<species>(ydot(species));
+        ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
     });
 }
 
 // Analytical Jacobian
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
+void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 {
     Real rho, temp, abar, zbar;
 
-    RHS::rate_t r, drdt;
-    RHS::get_rates(state, r, drdt);
+    rate_t r, drdt;
+    get_rates(state, r, drdt);
 
     // Account for the thermal neutrino losses
 
@@ -840,22 +838,22 @@ void actual_jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     // Species Jacobian elements with respect to other species
 
-    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int spec1 = n1;
 
-        RHS::constexpr_for<1, NumSpec+1>([&] (auto n2)
+        constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int spec2 = n2;
 
             jac(spec1, spec2) = 0.0;
 
-            RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
+            constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
             {
                 constexpr int rate = n3;
 
-                if constexpr (RHS::is_rate_used<spec1, rate>()) {
-                    jac(spec1, spec2) += RHS::jac_term<spec1, spec2, rate>(state, r);
+                if constexpr (is_rate_used<spec1, rate>()) {
+                    jac(spec1, spec2) += jac_term<spec1, spec2, rate>(state, r);
                 }
             });
         });
@@ -863,18 +861,18 @@ void actual_jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     // Energy generation rate Jacobian elements with respect to species
 
-    RHS::constexpr_for<1, NumSpec+1>([&] (auto j)
+    constexpr_for<1, NumSpec+1>([&] (auto j)
     {
         constexpr int species = j;
 
         Real b1 = (-abar * abar * snuda + (NetworkProperties::zion(species) - zbar) * abar * snudz);
         jac(net_ienuc, species) = -b1;
 
-        RHS::constexpr_for<1, NumSpec+1>([&] (auto i)
+        constexpr_for<1, NumSpec+1>([&] (auto i)
         {
             constexpr int s = i;
 
-            jac(net_ienuc, species) += RHS::ener_gener_rate<s>(jac(s, species));
+            jac(net_ienuc, species) += ener_gener_rate<s>(jac(s, species));
         });
     });
 
@@ -884,27 +882,29 @@ void actual_jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     Real jac_e_T = -dsneutdt;
 
-    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int species = n1;
 
         Real dydt = 0.0;
 
-        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
         {
             constexpr int rate = n2;
 
-            if constexpr (RHS::is_rate_used<species, rate>()) {
-                dydt += RHS::rhs_term<species, rate>(state, drdt);
+            if constexpr (is_rate_used<species, rate>()) {
+                dydt += rhs_term<species, rate>(state, drdt);
             }
         });
 
         jac(species, net_ienuc) = temperature_to_energy_jacobian(state, dydt);
 
-        jac_e_T += RHS::ener_gener_rate<species>(dydt);
+        jac_e_T += ener_gener_rate<species>(dydt);
     });
 
     jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
+
+} // namespace RHS
 
 #endif
