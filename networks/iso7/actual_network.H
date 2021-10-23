@@ -102,6 +102,9 @@ namespace RHS {
         data.forward_branching_ratio = 1.0_rt;
         data.reverse_branching_ratio = 1.0_rt;
 
+        data.additional_reaction_1 = -1;
+        data.additional_reaction_2 = -1;
+
         switch (rate) {
 
         case He4_He4_He4_to_C12:
@@ -262,6 +265,8 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+
+            data.additional_reaction_1 = Ca40_He4_to_Ti44;
             break;
 
         }
@@ -304,6 +309,48 @@ namespace RHS {
         }
         else if constexpr (rate == Ca40_He4_to_Ti44) {
             rate_ca40ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+    }
+
+    template<int rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    void postprocess_rate (const Real& rho, const tf_t& tf,
+                           const Array1D<Real, 1, NumSpec>& y,
+                           Real& fr, Real& frdt, Real& rr, Real& rrdt,
+                           Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
+                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt)
+    {
+        using namespace Species;
+        using namespace Rates;
+
+        if constexpr (rate == Si28_7He4_to_Ni56) {
+            // first rate corresponds to Ca40_He4_to_Ti44
+
+            if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
+
+                Real t992  = tf.t972 * tf.t9;
+                Real t9i92 = 1.0e0_rt / t992;
+
+                Real yeff_ca40   = t9i92 * std::exp(239.42_rt*tf.t9i - 74.741_rt);
+                Real yeff_ca40dt = -yeff_ca40*(239.42_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
+
+                Real yeff_ti44   = t992  * std::exp(-274.12_rt*tf.t9i + 74.914_rt);
+                Real yeff_ti44dt = yeff_ti44*(274.12_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
+
+                Real denom = std::pow(rho * y(He4), 3.0e0_rt);
+
+                fr   = yeff_ca40 * denom * fr1;
+                frdt = (yeff_ca40dt * fr1 + yeff_ca40 * fr1dt) * denom * 1.0e-9_rt;
+
+                Real zz = 1.0e0_rt / denom;
+                rr = amrex::min(1.0e10_rt, yeff_ti44 * rr1 * zz);
+
+                if (rr == 1.0e10_rt) {
+                    rrdt = 0.0e0_rt;
+                } else {
+                    rrdt  = (yeff_ti44dt * rr1 + yeff_ti44 * rr1dt) * zz * 1.0e-9_rt;
+                }
+            }
         }
     }
 }

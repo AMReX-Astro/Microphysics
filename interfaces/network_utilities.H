@@ -27,6 +27,9 @@ struct rhs_t {
 
     amrex::Real forward_branching_ratio;
     amrex::Real reverse_branching_ratio;
+
+    int additional_reaction_1;
+    int additional_reaction_2;
 };
 
 // Form a unique numerical identifier from a given

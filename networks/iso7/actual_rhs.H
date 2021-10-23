@@ -76,20 +76,14 @@ void set_iso7rat()
 
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void construct_rate (const Real& rho, const Real& temp, const Array1D<Real, 1, NumSpec>& y,
-                     const tf_t& tf, const plasma_state_t& pstate,
+void construct_rate (const Real& rho, const tf_t& tf, const Array1D<Real, 1, NumSpec>& y,
+                     const plasma_state_t& pstate,
                      const Real& alfa, const Real& beta, const Real& gama, const Real& delt, const int& iat,
                      Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
     using namespace Species;
     using namespace Rates;
     using namespace RateTable;
-
-    fr = 0.0_rt;
-    frdt = 0.0_rt;
-
-    rr = 0.0_rt;
-    rrdt = 0.0_rt;
 
     if (use_tables) {
         fr = (alfa * rattab(rate, 1, iat  ) +
@@ -259,52 +253,74 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 
         constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
+        // If this is an intermediate reaction for another reaction,
+        // skip it now. We recognize intermediate reactions because
+        // at least one of the species will not be a "real" species.
+
+        if constexpr (rhs_data.species_A > NumSpec ||
+                      rhs_data.species_B > NumSpec ||
+                      rhs_data.species_C > NumSpec ||
+                      rhs_data.species_D > NumSpec ||
+                      rhs_data.species_E > NumSpec ||
+                      rhs_data.species_F > NumSpec) {
+            return;
+        }
+
         // Construct the (screened and density-scaled) rate.
 
-        construct_rate<rate>(rho, temp, y, tf, pstate,
+        Real fr = 0.0, frdt = 0.0, rr = 0.0, rrdt = 0.0;
+
+        construct_rate<rate>(rho, tf, y, pstate,
                              alfa, beta, gama, delt, iat,
-                             r.forward(rate), drdt.forward(rate),
-                             r.reverse(rate), drdt.reverse(rate));
+                             fr, frdt, rr, rrdt);
 
-        // Handle any rate postprocessing.
+        // Construct all intermediate rates needed to augment this reaction.
+        // To keep the problem bounded we assume that there are no more than
+        // two intermediate reactions needed, however it is straightforward
+        // to add more as needed (or to generalize this into a loop over all
+        // rates if really needed). If any are present, postprocess the rate
+        // using the additional terms.
 
-        if constexpr (rate == Si28_7He4_to_Ni56) {
-            if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
+        Real fr1 = 0.0, fr1dt = 0.0, rr1 = 0.0, rr1dt = 0.0;
+        Real fr2 = 0.0, fr2dt = 0.0, rr2 = 0.0, rr2dt = 0.0;
 
-                Real t992  = tf.t972 * tf.t9;
-                Real t9i92 = 1.0e0_rt / t992;
+        constexpr int rate1 = rhs_data.additional_reaction_1;
+        constexpr int rate2 = rhs_data.additional_reaction_2;
 
-                Real yeff_ca40   = t9i92 * std::exp(239.42_rt*tf.t9i - 74.741_rt);
-                Real yeff_ca40dt = -yeff_ca40*(239.42_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
-
-                Real yeff_ti44   = t992  * std::exp(-274.12_rt*tf.t9i + 74.914_rt);
-                Real yeff_ti44dt = yeff_ti44*(274.12_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
-
-                Real denom     = std::pow(rho * y(He4), 3.0e0_rt);
-
-                r.forward(rate)     = yeff_ca40 * denom * r.forward(Ca40_He4_to_Ti44);
-                drdt.forward(rate)  = (yeff_ca40dt * r.forward(Ca40_He4_to_Ti44) +
-                                       yeff_ca40 * drdt.forward(Ca40_He4_to_Ti44)) * denom * 1.0e-9_rt;
-
-                Real zz     = 1.0e0_rt / denom;
-                r.reverse(rate) = amrex::min(1.0e10_rt, yeff_ti44 * r.reverse(Ca40_He4_to_Ti44) * zz);
-
-                if (r.reverse(rate) == 1.0e10_rt) {
-                    drdt.reverse(rate)  = 0.0e0_rt;
-                } else {
-                    drdt.reverse(rate)  = (yeff_ti44dt * r.reverse(Ca40_He4_to_Ti44) +
-                                           yeff_ti44 * drdt.reverse(Ca40_He4_to_Ti44)) * zz * 1.0e-9_rt;
-                }
+        if constexpr (rate1 >= 0 || rate2 >= 0) {
+            if constexpr (rate1 >= 0) {
+                construct_rate<rate1>(rho, tf, y, pstate,
+                                      alfa, beta, gama, delt, iat,
+                                      fr1, fr1dt, rr1, rr1dt);
             }
+
+            if constexpr (rate2 >= 0) {
+                construct_rate<rate1>(rho, tf, y, pstate,
+                                      alfa, beta, gama, delt, iat,
+                                      fr2, fr2dt, rr2, rr2dt);
+            }
+
+            RHS::postprocess_rate<rate>(rho, tf, y,
+                                        fr, frdt, rr, rrdt,
+                                        fr1, fr1dt, rr1, rr1dt,
+                                        fr2, fr2dt, rr2, rr2dt);
         }
 
         // Handle any branching ratios.
 
-        r.forward(rate) *= rhs_data.forward_branching_ratio;
-        r.reverse(rate) *= rhs_data.reverse_branching_ratio;
+        fr *= rhs_data.forward_branching_ratio;
+        rr *= rhs_data.reverse_branching_ratio;
 
-        drdt.forward(rate) *= rhs_data.forward_branching_ratio;
-        drdt.reverse(rate) *= rhs_data.reverse_branching_ratio;
+        frdt *= rhs_data.forward_branching_ratio;
+        rrdt *= rhs_data.reverse_branching_ratio;
+
+        // Store the final rate.
+
+        r.forward(rate) = fr;
+        drdt.forward(rate) = frdt;
+
+        r.reverse(rate) = rr;
+        drdt.reverse(rate) = rrdt;
     });
 }
 
