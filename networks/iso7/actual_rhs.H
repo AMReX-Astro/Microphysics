@@ -39,78 +39,6 @@ namespace RateTable
     extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
 }
 
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void iso7tab(const Real btemp, const Real bden,
-             rate_fr_t& r, rate_fr_t& drdt)
-{
-    using namespace RateTable;
-    using namespace Rates;
-
-    constexpr int mp = 4;
-
-    int iat;
-    Real x, x1, x2, x3, x4;
-    Real a, b, c, d, e, f, g, h, p, q;
-    Real alfa, beta, gama, delt;
-
-    // hash locate
-    iat = static_cast<int>((std::log10(btemp) - tab_tlo)/tab_tstp) + 1;
-    iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
-
-    // setup the lagrange interpolation coefficients for a cubic
-    x  = btemp;
-    x1 = ttab(iat);
-    x2 = ttab(iat+1);
-    x3 = ttab(iat+2);
-    x4 = ttab(iat+3);
-    a  = x - x1;
-    b  = x - x2;
-    c  = x - x3;
-    d  = x - x4;
-    e  = x1 - x2;
-    f  = x1 - x3;
-    g  = x1 - x4;
-    h  = x2 - x3;
-    p  = x2 - x4;
-    q  = x3 - x4;
-    alfa =  b*c*d/(e*f*g);
-    beta = -a*c*d/(e*h*p);
-    gama =  a*b*d/(f*h*q);
-    delt = -a*b*c/(g*p*q);
-
-    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        // The rate array is flattened and for each reaction should contain the
-        // forward rate and then the backward rate. So for any given rate index
-        // we need to fill in 2 * index - 1 and 2 * index in the legacy flattened
-        // scheme used by the rate array (whereas at every index the table has both
-        // the forward and reverse terms).
-
-        r.forward(rate) = (alfa * rattab(rate, 1, iat  ) +
-                           beta * rattab(rate, 1, iat+1) +
-                           gama * rattab(rate, 1, iat+2) +
-                           delt * rattab(rate, 1, iat+3));
-
-        r.reverse(rate) = (alfa * rattab(rate, 2, iat  ) +
-                           beta * rattab(rate, 2, iat+1) +
-                           gama * rattab(rate, 2, iat+2) +
-                           delt * rattab(rate, 2, iat+3));
-
-        drdt.forward(rate) = (alfa * drattabdt(rate, 1, iat  ) +
-                              beta * drattabdt(rate, 1, iat+1) +
-                              gama * drattabdt(rate, 1, iat+2) +
-                              delt * drattabdt(rate, 1, iat+3));
-
-        drdt.reverse(rate) = (alfa * drattabdt(rate, 2, iat  ) +
-                              beta * drattabdt(rate, 2, iat+1) +
-                              gama * drattabdt(rate, 2, iat+2) +
-                              delt * drattabdt(rate, 2, iat+3));
-    });
-}
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void set_iso7rat()
 {
@@ -151,6 +79,7 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 {
     using namespace Species;
     using namespace Rates;
+    using namespace RateTable;
 
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
@@ -170,9 +99,36 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
     // Get the temperature factors
     tf_t tf = get_tfactors(temp);
 
-    // Get the raw reaction rates
-    if (use_tables)
-        iso7tab(temp, rho, r, drdt);
+    Real alfa, beta, gama, delt;
+    int iat;
+
+    if (use_tables) {
+        // hash locate
+        constexpr int mp = 4;
+        iat = static_cast<int>((std::log10(temp) - tab_tlo) / tab_tstp) + 1;
+        iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+
+        // setup the lagrange interpolation coefficients for a cubic
+        Real x  = temp;
+        Real x1 = ttab(iat);
+        Real x2 = ttab(iat+1);
+        Real x3 = ttab(iat+2);
+        Real x4 = ttab(iat+3);
+        Real a  = x - x1;
+        Real b  = x - x2;
+        Real c  = x - x3;
+        Real d  = x - x4;
+        Real e  = x1 - x2;
+        Real f  = x1 - x3;
+        Real g  = x1 - x4;
+        Real h  = x2 - x3;
+        Real p  = x2 - x4;
+        Real q  = x3 - x4;
+        alfa =  b * c * d / (e * f * g);
+        beta = -a * c * d / (e * h * p);
+        gama =  a * b * d / (f * h * q);
+        delt = -a * b * c / (g * p * q);
+    }
 
     RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
     {
@@ -181,6 +137,25 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
         constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
         if (use_tables) {
+            r.forward(rate) = (alfa * rattab(rate, 1, iat  ) +
+                               beta * rattab(rate, 1, iat+1) +
+                               gama * rattab(rate, 1, iat+2) +
+                               delt * rattab(rate, 1, iat+3));
+
+            r.reverse(rate) = (alfa * rattab(rate, 2, iat  ) +
+                               beta * rattab(rate, 2, iat+1) +
+                               gama * rattab(rate, 2, iat+2) +
+                               delt * rattab(rate, 2, iat+3));
+
+            drdt.forward(rate) = (alfa * drattabdt(rate, 1, iat  ) +
+                                  beta * drattabdt(rate, 1, iat+1) +
+                                  gama * drattabdt(rate, 1, iat+2) +
+                                  delt * drattabdt(rate, 1, iat+3));
+
+            drdt.reverse(rate) = (alfa * drattabdt(rate, 2, iat  ) +
+                                  beta * drattabdt(rate, 2, iat+1) +
+                                  gama * drattabdt(rate, 2, iat+2) +
+                                  delt * drattabdt(rate, 2, iat+3));
         }
         else {
             Real fr = 0.0_rt;
