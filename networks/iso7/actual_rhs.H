@@ -25,31 +25,16 @@ using namespace ArrayUtil;
 
 void actual_rhs_init();
 
-namespace RateTable
-{
-    constexpr Real tab_tlo = 6.0e0_rt;
-    constexpr Real tab_thi = 10.0e0_rt;
-    constexpr int tab_per_decade = 2000;
-    constexpr int nrattab = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
-    constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
-    constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
-
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRatesFR, 1, 2, 1, nrattab> rattab;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRatesFR, 1, 2, 1, nrattab> drattabdt;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
-}
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void set_iso7rat()
 {
     using namespace Rates;
-    using namespace RateTable;
 
-    for (int i = 1; i <= tab_imax; ++i) {
-        Real temp = tab_tlo + static_cast<Real>(i-1) * tab_tstp;
+    for (int i = 1; i <= RHS::tab_imax; ++i) {
+        Real temp = RHS::tab_tlo + static_cast<Real>(i-1) * RHS::tab_tstp;
         temp = std::pow(10.0e0_rt, temp);
 
-        ttab(i) = temp;
+        RHS::ttab(i) = temp;
 
         // Get the temperature factors
         tf_t tf = get_tfactors(temp);
@@ -64,12 +49,12 @@ void set_iso7rat()
             Real rr = 0.0_rt;
             Real rrdt = 0.0_rt;
 
-            RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
+            RHS::evaluate_analytical_rate<rate>(tf, fr, frdt, rr, rrdt);
 
-            rattab(rate, 1, i)    = fr;
-            rattab(rate, 2, i)    = rr;
-            drattabdt(rate, 1, i) = frdt;
-            drattabdt(rate, 2, i) = rrdt;
+            RHS::rattab(rate, 1, i)    = fr;
+            RHS::rattab(rate, 2, i)    = rr;
+            RHS::drattabdt(rate, 1, i) = frdt;
+            RHS::drattabdt(rate, 2, i) = rrdt;
        });
     }
 }
@@ -83,31 +68,12 @@ void construct_rate (const Real& rho, const tf_t& tf, const Array1D<Real, 1, Num
 {
     using namespace Species;
     using namespace Rates;
-    using namespace RateTable;
 
     if (use_tables) {
-        fr = (alfa * rattab(rate, 1, iat  ) +
-              beta * rattab(rate, 1, iat+1) +
-              gama * rattab(rate, 1, iat+2) +
-              delt * rattab(rate, 1, iat+3));
-
-        rr = (alfa * rattab(rate, 2, iat  ) +
-              beta * rattab(rate, 2, iat+1) +
-              gama * rattab(rate, 2, iat+2) +
-              delt * rattab(rate, 2, iat+3));
-
-        frdt = (alfa * drattabdt(rate, 1, iat  ) +
-                beta * drattabdt(rate, 1, iat+1) +
-                gama * drattabdt(rate, 1, iat+2) +
-                delt * drattabdt(rate, 1, iat+3));
-
-        rrdt = (alfa * drattabdt(rate, 2, iat  ) +
-                beta * drattabdt(rate, 2, iat+1) +
-                gama * drattabdt(rate, 2, iat+2) +
-                delt * drattabdt(rate, 2, iat+3));
+        RHS::evaluate_tabulated_rate<rate>(alfa, beta, gama, delt, iat, fr, frdt, rr, rrdt);
     }
     else {
-        RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
+        RHS::evaluate_analytical_rate<rate>(tf, fr, frdt, rr, rrdt);
     }
 
     // Set the density dependence
@@ -122,7 +88,6 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 {
     using namespace Species;
     using namespace Rates;
-    using namespace RateTable;
 
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
@@ -148,15 +113,15 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
     if (use_tables) {
         // hash locate
         constexpr int mp = 4;
-        iat = static_cast<int>((std::log10(temp) - tab_tlo) / tab_tstp) + 1;
-        iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+        iat = static_cast<int>((std::log10(temp) - RHS::tab_tlo) / RHS::tab_tstp) + 1;
+        iat = amrex::max(1, amrex::min(iat - 1, RHS::tab_imax - mp + 1));
 
         // setup the lagrange interpolation coefficients for a cubic
         Real x  = temp;
-        Real x1 = ttab(iat);
-        Real x2 = ttab(iat+1);
-        Real x3 = ttab(iat+2);
-        Real x4 = ttab(iat+3);
+        Real x1 = RHS::ttab(iat);
+        Real x2 = RHS::ttab(iat+1);
+        Real x3 = RHS::ttab(iat+2);
+        Real x4 = RHS::ttab(iat+3);
         Real a  = x - x1;
         Real b  = x - x2;
         Real c  = x - x3;

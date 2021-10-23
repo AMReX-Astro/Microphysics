@@ -3,11 +3,25 @@
 
 #include <network_utilities.H>
 #include <actual_network.H>
+#include <rate_type.H>
+#include <burn_type.H>
+#include <screen.H>
+#include <sneut5.H>
 
 // Forward declarations
 
 namespace RHS
 {
+constexpr Real tab_tlo = 6.0e0_rt;
+constexpr Real tab_thi = 10.0e0_rt;
+constexpr int tab_per_decade = 2000;
+constexpr int nrattab = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
+constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
+constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
+
+extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRatesFR, 1, 2, 1, nrattab> rattab;
+extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRatesFR, 1, 2, 1, nrattab> drattabdt;
+extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
 
 template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -260,6 +274,32 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         frdt = frdt * sc + fr * scdt;
         fr   = fr * sc;
     }
+}
+
+template<int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void evaluate_tabulated_rate (Real alfa, Real beta, Real gama, Real delt, int iat,
+                              Real& fr, Real& frdt, Real& rr, Real& rrdt)
+{
+    fr = (alfa * rattab(rate, 1, iat  ) +
+          beta * rattab(rate, 1, iat+1) +
+          gama * rattab(rate, 1, iat+2) +
+          delt * rattab(rate, 1, iat+3));
+
+    rr = (alfa * rattab(rate, 2, iat  ) +
+          beta * rattab(rate, 2, iat+1) +
+          gama * rattab(rate, 2, iat+2) +
+          delt * rattab(rate, 2, iat+3));
+
+    frdt = (alfa * drattabdt(rate, 1, iat  ) +
+            beta * drattabdt(rate, 1, iat+1) +
+            gama * drattabdt(rate, 1, iat+2) +
+            delt * drattabdt(rate, 1, iat+3));
+
+    rrdt = (alfa * drattabdt(rate, 2, iat  ) +
+            beta * drattabdt(rate, 2, iat+1) +
+            gama * drattabdt(rate, 2, iat+2) +
+            delt * drattabdt(rate, 2, iat+3));
 }
 
 // Calculate the RHS term for a given species and rate.

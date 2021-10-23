@@ -276,7 +276,7 @@ namespace RHS {
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_rate (const tf_t& tf, Real& fr, Real& frdt, Real& rr, Real& rrdt)
+    void evaluate_analytical_rate (const tf_t& tf, Real& fr, Real& frdt, Real& rr, Real& rrdt)
     {
         using namespace Rates;
 
