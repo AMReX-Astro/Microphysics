@@ -422,21 +422,30 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // calling the RHS using d(rate) / dT and then transform them
     // to our energy integration variable.
 
-    Array1D<Real, 1, NumSpec> yderivs = RHS::species_rhs(state, drdt);
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
-    }
-
     Real jac_e_T = 0.0;
-    RHS::constexpr_for<1, NumSpec+1>([&] (auto n)
-    {
-        constexpr int spec = n;
-        jac_e_T += ener_gener_rate<spec>(yderivs(spec));
-    });
-    jac_e_T -= dsneutdt;
-    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    {
+        constexpr int species = n1;
+
+        Real dydt = 0.0;
+
+        RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n2)
+        {
+            constexpr int rate = n2;
+            if constexpr (RHS::is_rate_used<species, rate>()) {
+                dydt += RHS::rhs_term<species, rate>(state, drdt);
+            }
+        });
+
+        jac(species, net_ienuc) = temperature_to_energy_jacobian(state, dydt);
+
+        jac_e_T += ener_gener_rate<species>(dydt);
+    });
+
+    jac_e_T -= dsneutdt;
+
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
 
 #endif
