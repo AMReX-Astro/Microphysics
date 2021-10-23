@@ -245,97 +245,77 @@ void screen_iso7(const Real btemp, const Real bden,
 
     fill_plasma_state(pstate, btemp, bden, y);
 
-    // first the always fun triple alpha and its inverse
-    jscr = 0;
-    screen5(pstate,jscr,
-            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+    RHS::constexpr_for<1, NumRates+1>([&] (auto n)
+    {
+        constexpr int rate = n;
 
-    jscr++;
-    screen5(pstate,jscr,
-            zion[He4-1], aion[He4-1], zion[Be8-1], aion[Be8-1],
-            sc2a,sc2adt,sc2add);
+        constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
-    sc3a   = sc1a * sc2a;
-    sc3adt = sc1adt*sc2a + sc1a*sc2adt;
+        // The screening behavior depends on the type of reaction. We provide screening
+        // here for the reaction classes we know about, and any other reactions are unscreened.
 
-    drdt.forward(He4_He4_He4_to_C12) = drdt.forward(He4_He4_He4_to_C12) * sc3a + r.forward(He4_He4_He4_to_C12) * sc3adt;
-    r.forward(He4_He4_He4_to_C12)    = r.forward(He4_He4_He4_to_C12) * sc3a;
+        if constexpr (rhs_data.number_A == 1 && rhs_data.number_B == 1 && rhs_data.number_C == 0) {
+            // Forward reaction is A + B, screen using these two species
 
-    // c12 to o16
-    jscr++;
-    screen5(pstate,jscr,
-            zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+            constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+            constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
 
-    drdt.forward(C12_He4_to_O16)  = drdt.forward(C12_He4_to_O16) * sc1a + r.forward(C12_He4_to_O16) * sc1adt;
-    r.forward(C12_He4_to_O16)     = r.forward(C12_He4_to_O16) * sc1a;
+            constexpr Real Z2 = NetworkProperties::zion(rhs_data.species_B);
+            constexpr Real A2 = NetworkProperties::aion(rhs_data.species_B);
 
-    // c12 + c12
-    jscr++;
-    screen5(pstate,jscr,
-            zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
-            sc1a,sc1adt,sc1add);
+            constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
 
-    drdt.forward(C12_C12_to_Ne20_He4) = drdt.forward(C12_C12_to_Ne20_He4) * sc1a + r.forward(C12_C12_to_Ne20_He4) * sc1adt;
-    r.forward(C12_C12_to_Ne20_He4)    = r.forward(C12_C12_to_Ne20_He4) * sc1a;
+            Real sc, scdt;
+            actual_screen5(pstate, scn_fac, sc, scdt);
 
-    // c12 + o16
-    jscr++;
-    screen5(pstate,jscr,
-            zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1],
-            sc1a,sc1adt,sc1add);
+            drdt.forward(rate) = drdt.forward(rate) * sc + r.forward(rate) * scdt;
+            r.forward(rate)    = r.forward(rate) * sc;
+        }
 
-    drdt.forward(C12_O16_to_Mg24_He4) = drdt.forward(C12_O16_to_Mg24_He4) * sc1a + r.forward(C12_O16_to_Mg24_He4) * sc1adt;
-    r.forward(C12_O16_to_Mg24_He4)    = r.forward(C12_O16_to_Mg24_He4) * sc1a;
+        if constexpr (rhs_data.number_A == 2 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+            // Forward reaction is A + A, screen using just this species
 
-    drdt.forward(C12_O16_to_Si28) = drdt.forward(C12_O16_to_Si28) * sc1a + r.forward(C12_O16_to_Si28) * sc1adt;
-    r.forward(C12_O16_to_Si28)    = r.forward(C12_O16_to_Si28) * sc1a;
+            constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+            constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
 
-    // o16 + o16
-    jscr++;
-    screen5(pstate,jscr,
-            zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1],
-            sc1a,sc1adt,sc1add);
+            constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
 
-    drdt.forward(O16_O16_to_Si28_He4) = drdt.forward(O16_O16_to_Si28_He4) * sc1a + r.forward(O16_O16_to_Si28_He4) * sc1adt;
-    r.forward(O16_O16_to_Si28_He4)    = r.forward(O16_O16_to_Si28_He4) * sc1a;
+            Real sc, scdt;
+            actual_screen5(pstate, scn_fac, sc, scdt);
 
-    // o16 to ne20
-    jscr++;
-    screen5(pstate,jscr,
-            zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+            drdt.forward(rate) = drdt.forward(rate) * sc + r.forward(rate) * scdt;
+            r.forward(rate)    = r.forward(rate) * sc;
+        }
 
-    drdt.forward(O16_He4_to_Ne20) = drdt.forward(O16_He4_to_Ne20) * sc1a + r.forward(O16_He4_to_Ne20) * sc1adt;
-    r.forward(O16_He4_to_Ne20)    = r.forward(O16_He4_to_Ne20) * sc1a;
+        if constexpr (rhs_data.number_A == 3 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+            // Forward reaction is triple alpha or an equivalent, screen using A + A
+            // and then A + X where X has twice the number of protons and neutrons.
 
-    // ne20 to mg24
-    jscr++;
-    screen5(pstate,jscr,
-            zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+            constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+            constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
 
-    drdt.forward(Ne20_He4_to_Mg24) = drdt.forward(Ne20_He4_to_Mg24) * sc1a + r.forward(Ne20_He4_to_Mg24) * sc1adt;
-    r.forward(Ne20_He4_to_Mg24)    = r.forward(Ne20_He4_to_Mg24) * sc1a;
+            constexpr auto scn_fac1 = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
 
-    // mg24 to si28
-    jscr++;
-    screen5(pstate,jscr,
-            zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+            Real sc1, sc1dt;
+            actual_screen5(pstate, scn_fac1, sc1, sc1dt);
 
-    drdt.forward(Mg24_He4_to_Si28) = drdt.forward(Mg24_He4_to_Si28) * sc1a + r.forward(Mg24_He4_to_Si28) * sc1adt;
-    r.forward(Mg24_He4_to_Si28)    = r.forward(Mg24_He4_to_Si28) * sc1a;
+            constexpr Real Z2 = 2.0_rt * Z1;
+            constexpr Real A2 = 2.0_rt * A1;
 
-    // ca40 to ti44
-    jscr++;
-    screen5(pstate,jscr,
-            zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1],
-            sc1a,sc1adt,sc1add);
+            constexpr auto scn_fac2 = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
 
-    drdt.forward(Ca40_He4_to_Ti44) = drdt.forward(Ca40_He4_to_Ti44) * sc1a + r.forward(Ca40_He4_to_Ti44) * sc1adt;
-    r.forward(Ca40_He4_to_Ti44)    = r.forward(Ca40_He4_to_Ti44) * sc1a;
+            Real sc2, sc2dt;
+            actual_screen5(pstate, scn_fac2, sc2, sc2dt);
+
+            // Compute combined screening factor
+
+            Real sc = sc1 * sc2;
+            Real scdt = sc1dt * sc2 + sc1 * sc2dt;
+
+            drdt.forward(rate) = drdt.forward(rate) * sc + r.forward(rate) * scdt;
+            r.forward(rate)    = r.forward(rate) * sc;
+        }
+    });
 
     /*
     the publication, timmes, woosley & hoffman apjs, 129, 377
