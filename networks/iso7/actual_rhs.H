@@ -403,17 +403,16 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     RHS::constexpr_for<1, NumSpec+1>([&] (auto j)
     {
-        constexpr int spec2 = j;
-        jac(net_ienuc, spec2) = 0.0;
+        constexpr int species = j;
+
+        Real b1 = (-abar * abar * snuda + (NetworkProperties::zion(species) - zbar) * abar * snudz);
+        jac(net_ienuc, species) = -b1;
 
         RHS::constexpr_for<1, NumSpec+1>([&] (auto i)
         {
-            constexpr int spec1 = i;
-            jac(net_ienuc, spec2) += ener_gener_rate<spec1>(jac(spec1, spec2));
+            constexpr int s = i;
+            jac(net_ienuc, species) += ener_gener_rate<s>(jac(s, species));
         });
-
-        Real b1 = (-abar * abar * snuda + (NetworkProperties::zion(spec2) - zbar) * abar * snudz);
-        jac(net_ienuc, spec2) - b1;
     });
 
     // Evaluate the Jacobian elements with respect to energy by
