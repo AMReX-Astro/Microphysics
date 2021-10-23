@@ -133,54 +133,53 @@ void iso7rat(const Real btemp, const Real bden,
     // get the temperature factors
     tf_t tf = get_tfactors(btemp);
 
-    // c12(a,g)o16
-    rate_c12ag(tf, 1.0_rt,
-               r.forward(C12_He4_to_O16), drdt.forward(C12_He4_to_O16),
-               r.reverse(C12_He4_to_O16), drdt.reverse(C12_He4_to_O16));
+    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
+    {
+        constexpr int rate = n;
 
-    // triple alpha to c12
-    rate_triplealf(tf, 1.0_rt,
-                   r.forward(He4_He4_He4_to_C12), drdt.forward(He4_He4_He4_to_C12),
-                   r.reverse(He4_He4_He4_to_C12), drdt.reverse(He4_He4_He4_to_C12));
+        Real fr = 0.0_rt;
+        Real frdt = 0.0_rt;
 
-    // c12 + c12
-    rate_c12c12(tf, 1.0_rt,
-                r.forward(C12_C12_to_Ne20_He4), drdt.forward(C12_C12_to_Ne20_He4),
-                r.reverse(C12_C12_to_Ne20_He4), drdt.reverse(C12_C12_to_Ne20_He4));
+        Real rr = 0.0_rt;
+        Real rrdt = 0.0_rt;
 
-    // c12 + o16
-    rate_c12o16(tf, 1.0_rt,
-                r.forward(C12_O16_to_Mg24_He4), drdt.forward(C12_O16_to_Mg24_He4),
-                r.reverse(C12_O16_to_Mg24_He4), drdt.reverse(C12_O16_to_Mg24_He4));
+        if constexpr (rate == C12_He4_to_O16) {
+            rate_c12ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == He4_He4_He4_to_C12) {
+            rate_triplealf(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_C12_to_Ne20_He4) {
+            rate_c12c12(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Mg24_He4) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Si28) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_O16_to_Si28_He4) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_He4_to_Ne20) {
+            rate_o16ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ne20_He4_to_Mg24) {
+            rate_ne20ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Mg24_He4_to_Si28) {
+            rate_mg24ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ca40_He4_to_Ti44) {
+            rate_ca40ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
 
-    rate_c12o16(tf, 1.0_rt,
-                r.forward(C12_O16_to_Si28), drdt.forward(C12_O16_to_Si28),
-                r.reverse(C12_O16_to_Si28), drdt.reverse(C12_O16_to_Si28));
+        r.forward(rate) = fr;
+        drdt.forward(rate) = frdt,
 
-    // 16o + 16o
-    rate_o16o16(tf, 1.0_rt,
-                r.forward(O16_O16_to_Si28_He4), drdt.forward(O16_O16_to_Si28_He4),
-                r.reverse(O16_O16_to_Si28_He4), drdt.reverse(O16_O16_to_Si28_He4));
-
-    // o16(a,g)ne20
-    rate_o16ag(tf, 1.0_rt,
-               r.forward(O16_He4_to_Ne20), drdt.forward(O16_He4_to_Ne20),
-               r.reverse(O16_He4_to_Ne20), drdt.reverse(O16_He4_to_Ne20));
-
-    // ne20(a,g)mg24
-    rate_ne20ag(tf, 1.0_rt,
-                r.forward(Ne20_He4_to_Mg24), drdt.forward(Ne20_He4_to_Mg24),
-                r.reverse(Ne20_He4_to_Mg24), drdt.reverse(Ne20_He4_to_Mg24));
-
-    // mg24(a,g)si28
-    rate_mg24ag(tf, 1.0_rt,
-                r.forward(Mg24_He4_to_Si28), drdt.forward(Mg24_He4_to_Si28),
-                r.reverse(Mg24_He4_to_Si28), drdt.reverse(Mg24_He4_to_Si28));
-
-    // ca40(a,g)ti44
-    rate_ca40ag(tf, 1.0_rt,
-                r.forward(Ca40_He4_to_Ti44), drdt.forward(Ca40_He4_to_Ti44),
-                r.reverse(Ca40_He4_to_Ti44), drdt.reverse(Ca40_He4_to_Ti44));
+        r.reverse(rate) = rr;
+        drdt.reverse(rate) = rrdt;
+    });
 }
 
 
