@@ -375,12 +375,8 @@ void actual_jac(burn_t& state, MatrixType& jac)
 {
     rate_fr_t r, drdt;
 
-    bool deriva;
-
     Real b1, sneut, dsneutdt, dsneutdd, snuda, snudz;
-
     Real rho, temp, abar, zbar;
-    Array1D<Real, 1, NumSpec> y;
 
     jac.zero();
 
@@ -392,9 +388,6 @@ void actual_jac(burn_t& state, MatrixType& jac)
     temp = state.T;
     abar = state.abar;
     zbar = state.zbar;
-
-    for (int i = 1; i <= NumSpec; ++i)
-        y(i) = state.xn[i-1] * aion_inv[i-1];
 
     // Species Jacobian elements with respect to other species
 
