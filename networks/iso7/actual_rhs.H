@@ -297,15 +297,8 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
             drdt.forward(rate) = drdt.forward(rate) * sc + r.forward(rate) * scdt;
             r.forward(rate)    = r.forward(rate) * sc;
         }
-    });
 
-    // Handle any branching ratios.
-
-    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+        // Handle any branching ratios.
 
         r.forward(rate) *= rhs_data.forward_branching_ratio;
         r.reverse(rate) *= rhs_data.reverse_branching_ratio;
