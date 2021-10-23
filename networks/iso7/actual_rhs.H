@@ -373,8 +373,7 @@ template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_jac(burn_t& state, MatrixType& jac)
 {
-
-    rate_fr_t rate, dratedt;
+    rate_fr_t r, drdt;
 
     bool deriva;
 
@@ -385,7 +384,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     jac.zero();
 
-    get_rates(state, rate, dratedt);
+    get_rates(state, r, drdt);
 
     // Get the data from the state
 
@@ -399,13 +398,21 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     // Species Jacobian elements with respect to other species
 
-    auto spec_jac = RHS::species_jac(state, rate);
-
-    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
-        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
-            jac(spec1, spec2) = spec_jac(spec1, spec2);
-        }
-    }
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    {
+        constexpr int spec1 = n1;
+        RHS::constexpr_for<1, NumSpec+1>([&] (auto n2)
+        {
+            constexpr int spec2 = n2;
+            RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n3)
+            {
+                constexpr int rate = n3;
+                if constexpr (RHS::is_rate_used<spec1, rate>()) {
+                    jac(spec1, spec2) += RHS::jac_term<spec1, spec2, rate>(state, r);
+                }
+            });
+        });
+    });
 
     // Energy generation rate Jacobian elements with respect to species
 
@@ -427,7 +434,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
     // calling the RHS using d(rate) / dT and then transform them
     // to our energy integration variable.
 
-    Array1D<Real, 1, NumSpec> yderivs = RHS::species_rhs(state, dratedt);
+    Array1D<Real, 1, NumSpec> yderivs = RHS::species_rhs(state, drdt);
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
