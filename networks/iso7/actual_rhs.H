@@ -499,28 +499,4 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
 }
 
-
-AMREX_INLINE
-void set_up_screening_factors()
-{
-    // Compute and store the more expensive screening factors
-
-    using namespace Species;
-
-    // note: we need to set these up in the same order that we evaluate the
-    // rates in actual_rhs.H (yes, it's ugly)
-    int jscr = 0;
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Be8-1], aion[Be8-1]);
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1]);
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1]);
-    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1]);
-    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1]);
-    add_screening_factor(jscr++, zion[Ne20-1], aion[Ne20-1], zion[He4-1], aion[He4-1]);
-    add_screening_factor(jscr++, zion[Mg24-1], aion[Mg24-1], zion[He4-1], aion[He4-1]);
-    add_screening_factor(jscr++, zion[Ca40-1], aion[Ca40-1], zion[He4-1], aion[He4-1]);
-
-}
-
 #endif
