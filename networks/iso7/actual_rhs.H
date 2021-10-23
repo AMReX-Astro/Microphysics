@@ -324,27 +324,15 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
     });
 }
 
-template<class T>
+template<int spec>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void ener_gener_rate(T const& dydt, Real& enuc)
+Real ener_gener_rate (Real const& dydt)
 {
-
     using namespace network;
 
-    // Computes the instantaneous energy generation rate
-
-    Real Xdot = 0.0_rt;
-
-    // Sum the mass fraction time derivatives
-    for (int i = 1; i <= NumSpec; ++i) {
-        Xdot += dydt(i) * mion(i);
-    }
-
     // This is basically e = m c**2
-    enuc = Xdot * C::Legacy::enuc_conv2;
-
+    return dydt * mion(spec) * C::Legacy::enuc_conv2;
 }
-
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
@@ -409,10 +397,17 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     // Energy generation rate Jacobian elements with respect to species
 
-    for (int j = 1; j <= NumSpec; ++j) {
-        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
-        ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
-    }
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto j)
+    {
+        constexpr int spec2 = j;
+        jac(net_ienuc, spec2) = 0.0;
+
+        RHS::constexpr_for<1, NumSpec+1>([&] (auto i)
+        {
+            constexpr int spec1 = i;
+            jac(net_ienuc, j) += ener_gener_rate<spec1>(jac(spec1, j));
+        });
+    });
 
     // Account for the thermal neutrino losses
 
@@ -433,8 +428,12 @@ void actual_jac(burn_t& state, MatrixType& jac)
         jac(i, net_ienuc) = temperature_to_energy_jacobian(state, yderivs(i));
     }
 
-    Real jac_e_T;
-    ener_gener_rate(yderivs, jac_e_T);
+    Real jac_e_T = 0.0;
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n)
+    {
+        constexpr int spec = n;
+        jac_e_T += ener_gener_rate<spec>(yderivs(spec));
+    });
     jac_e_T -= dsneutdt;
     jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 
