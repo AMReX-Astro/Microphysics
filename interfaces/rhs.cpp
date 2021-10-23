@@ -1,4 +1,4 @@
-#include <rhs_utilities.H>
+#include <rhs.H>
 
 AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRates, 1, 2, 1, RHS::nrattab> RHS::rattab;
 AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRates, 1, 2, 1, RHS::nrattab> RHS::drattabdt;

@@ -23,8 +23,8 @@ endif
 CEXE_headers += network.H
 CEXE_headers += network_utilities.H
 ifeq ($(USE_CXX_REACTIONS),TRUE)
-  CEXE_headers += rhs_utilities.H
-  CEXE_sources += rhs_utilities.cpp
+  CEXE_headers += rhs.H
+  CEXE_sources += rhs.cpp
   CEXE_sources += network_initialization.cpp
   CEXE_headers += fortran_to_cxx_actual_rhs.H
   ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
