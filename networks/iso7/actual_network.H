@@ -7,6 +7,8 @@
 
 using namespace amrex;
 
+#define NEW_NETWORK_IMPLEMENTATION
+
 #include <fundamental_constants.H>
 #include <network_properties.H>
 #include <network_utilities.H>

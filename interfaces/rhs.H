@@ -1,6 +1,10 @@
 #ifndef rhs_utilities_H
 #define rhs_utilities_H
 
+#include <AMReX.H>
+#include <AMReX_REAL.H>
+#include <AMReX_Print.H>
+
 #include <network_utilities.H>
 #include <actual_network.H>
 #include <burn_type.H>
@@ -761,6 +765,18 @@ Real ener_gener_rate (Real const& dydt)
 
     // This is basically e = m c**2
     return dydt * mion(spec) * C::Legacy::enuc_conv2;
+}
+
+AMREX_INLINE
+void rhs_init ()
+{
+    rates_init();
+
+    if (use_tables)
+    {
+        amrex::Print() << std::endl << " Initializing rate table" << std::endl;
+        RHS::tabulate_rates();
+    }
 }
 
 } // namespace RHS
