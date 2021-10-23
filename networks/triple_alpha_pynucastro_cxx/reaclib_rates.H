@@ -51,6 +51,7 @@ void init_reaclib() {
     }
 
     table.close();
+
 }
 
 AMREX_INLINE
