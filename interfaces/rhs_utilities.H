@@ -12,6 +12,7 @@
 
 namespace RHS
 {
+
 constexpr Real tab_tlo = 6.0e0_rt;
 constexpr Real tab_thi = 10.0e0_rt;
 constexpr int tab_per_decade = 2000;
@@ -273,6 +274,40 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
 
         frdt = frdt * sc + fr * scdt;
         fr   = fr * sc;
+    }
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void tabulate_rates ()
+{
+    using namespace Rates;
+
+    for (int i = 1; i <= tab_imax; ++i) {
+        Real temp = tab_tlo + static_cast<Real>(i-1) * tab_tstp;
+        temp = std::pow(10.0e0_rt, temp);
+
+        ttab(i) = temp;
+
+        // Get the temperature factors
+        tf_t tf = get_tfactors(temp);
+
+        constexpr_for<1, NumRatesFR+1>([&] (auto n)
+        {
+            constexpr int rate = n;
+
+            Real fr = 0.0_rt;
+            Real frdt = 0.0_rt;
+
+            Real rr = 0.0_rt;
+            Real rrdt = 0.0_rt;
+
+            evaluate_analytical_rate<rate>(tf, fr, frdt, rr, rrdt);
+
+            rattab(rate, 1, i)    = fr;
+            rattab(rate, 2, i)    = rr;
+            drattabdt(rate, 1, i) = frdt;
+            drattabdt(rate, 2, i) = rrdt;
+       });
     }
 }
 

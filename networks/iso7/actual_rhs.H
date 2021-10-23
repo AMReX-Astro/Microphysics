@@ -25,40 +25,6 @@ using namespace ArrayUtil;
 
 void actual_rhs_init();
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void set_iso7rat()
-{
-    using namespace Rates;
-
-    for (int i = 1; i <= RHS::tab_imax; ++i) {
-        Real temp = RHS::tab_tlo + static_cast<Real>(i-1) * RHS::tab_tstp;
-        temp = std::pow(10.0e0_rt, temp);
-
-        RHS::ttab(i) = temp;
-
-        // Get the temperature factors
-        tf_t tf = get_tfactors(temp);
-
-        RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
-        {
-            constexpr int rate = n;
-
-            Real fr = 0.0_rt;
-            Real frdt = 0.0_rt;
-
-            Real rr = 0.0_rt;
-            Real rrdt = 0.0_rt;
-
-            RHS::evaluate_analytical_rate<rate>(tf, fr, frdt, rr, rrdt);
-
-            RHS::rattab(rate, 1, i)    = fr;
-            RHS::rattab(rate, 2, i)    = rr;
-            RHS::drattabdt(rate, 1, i) = frdt;
-            RHS::drattabdt(rate, 2, i) = rrdt;
-       });
-    }
-}
-
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void construct_rate (const Real& rho, const tf_t& tf, const Array1D<Real, 1, NumSpec>& y,

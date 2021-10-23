@@ -9,6 +9,6 @@ void actual_rhs_init()
     if (use_tables)
     {
         amrex::Print() << "\nInitializing iso7 rate table\n";
-        set_iso7rat();
+        RHS::tabulate_rates();
     }
 }
