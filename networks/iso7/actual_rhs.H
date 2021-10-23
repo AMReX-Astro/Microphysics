@@ -74,6 +74,129 @@ void set_iso7rat()
     }
 }
 
+template<int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void construct_rate (const Real& rho, const Real& temp, const Array1D<Real, 1, NumSpec>& y,
+                     const tf_t& tf, const plasma_state_t& pstate,
+                     const Real& alfa, const Real& beta, const Real& gama, const Real& delt, const int& iat,
+                     Real& fr, Real& frdt, Real& rr, Real& rrdt)
+{
+    using namespace Species;
+    using namespace Rates;
+    using namespace RateTable;
+
+    fr = 0.0_rt;
+    frdt = 0.0_rt;
+
+    rr = 0.0_rt;
+    rrdt = 0.0_rt;
+
+    if (use_tables) {
+        fr = (alfa * rattab(rate, 1, iat  ) +
+              beta * rattab(rate, 1, iat+1) +
+              gama * rattab(rate, 1, iat+2) +
+              delt * rattab(rate, 1, iat+3));
+
+        rr = (alfa * rattab(rate, 2, iat  ) +
+              beta * rattab(rate, 2, iat+1) +
+              gama * rattab(rate, 2, iat+2) +
+              delt * rattab(rate, 2, iat+3));
+
+        frdt = (alfa * drattabdt(rate, 1, iat  ) +
+                beta * drattabdt(rate, 1, iat+1) +
+                gama * drattabdt(rate, 1, iat+2) +
+                delt * drattabdt(rate, 1, iat+3));
+
+        rrdt = (alfa * drattabdt(rate, 2, iat  ) +
+                beta * drattabdt(rate, 2, iat+1) +
+                gama * drattabdt(rate, 2, iat+2) +
+                delt * drattabdt(rate, 2, iat+3));
+    }
+    else {
+        RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
+    }
+
+    // Set the density dependence
+
+    int forward_exponent = RHS::density_exponent_forward<rate>();
+    int reverse_exponent = RHS::density_exponent_reverse<rate>();
+
+    Real density_term_forward = std::pow(rho, forward_exponent);
+    Real density_term_reverse = std::pow(rho, reverse_exponent);
+
+    fr *= density_term_forward;
+    frdt *= density_term_forward;
+    rr *= density_term_reverse;
+    rrdt *= density_term_reverse;
+
+    // The screening behavior depends on the type of reaction. We provide screening
+    // here for the reaction classes we know about, and any other reactions are unscreened.
+
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    if constexpr (rhs_data.number_A == 1 && rhs_data.number_B == 1 && rhs_data.number_C == 0) {
+        // Forward reaction is A + B, screen using these two species
+
+        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+
+        constexpr Real Z2 = NetworkProperties::zion(rhs_data.species_B);
+        constexpr Real A2 = NetworkProperties::aion(rhs_data.species_B);
+
+        constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
+
+        Real sc, scdt;
+        actual_screen5(pstate, scn_fac, sc, scdt);
+
+        frdt = frdt * sc + fr * scdt;
+        fr   = fr * sc;
+    }
+
+    if constexpr (rhs_data.number_A == 2 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+        // Forward reaction is A + A, screen using just this species
+
+        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+
+        constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
+
+        Real sc, scdt;
+        actual_screen5(pstate, scn_fac, sc, scdt);
+
+        frdt = frdt * sc + fr * scdt;
+        fr   = fr * sc;
+    }
+
+    if constexpr (rhs_data.number_A == 3 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+        // Forward reaction is triple alpha or an equivalent, screen using A + A
+        // and then A + X where X has twice the number of protons and neutrons.
+
+        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+
+        constexpr auto scn_fac1 = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
+
+        Real sc1, sc1dt;
+        actual_screen5(pstate, scn_fac1, sc1, sc1dt);
+
+        constexpr Real Z2 = 2.0_rt * Z1;
+        constexpr Real A2 = 2.0_rt * A1;
+
+        constexpr auto scn_fac2 = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
+
+        Real sc2, sc2dt;
+        actual_screen5(pstate, scn_fac2, sc2, sc2dt);
+
+        // Compute combined screening factor
+
+        Real sc = sc1 * sc2;
+        Real scdt = sc1dt * sc2 + sc1 * sc2dt;
+
+        frdt = frdt * sc + fr * scdt;
+        fr   = fr * sc;
+    }
+}
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 {
@@ -136,120 +259,12 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 
         constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
-        if (use_tables) {
-            r.forward(rate) = (alfa * rattab(rate, 1, iat  ) +
-                               beta * rattab(rate, 1, iat+1) +
-                               gama * rattab(rate, 1, iat+2) +
-                               delt * rattab(rate, 1, iat+3));
+        // Construct the (screened and density-scaled) rate.
 
-            r.reverse(rate) = (alfa * rattab(rate, 2, iat  ) +
-                               beta * rattab(rate, 2, iat+1) +
-                               gama * rattab(rate, 2, iat+2) +
-                               delt * rattab(rate, 2, iat+3));
-
-            drdt.forward(rate) = (alfa * drattabdt(rate, 1, iat  ) +
-                                  beta * drattabdt(rate, 1, iat+1) +
-                                  gama * drattabdt(rate, 1, iat+2) +
-                                  delt * drattabdt(rate, 1, iat+3));
-
-            drdt.reverse(rate) = (alfa * drattabdt(rate, 2, iat  ) +
-                                  beta * drattabdt(rate, 2, iat+1) +
-                                  gama * drattabdt(rate, 2, iat+2) +
-                                  delt * drattabdt(rate, 2, iat+3));
-        }
-        else {
-            Real fr = 0.0_rt;
-            Real frdt = 0.0_rt;
-
-            Real rr = 0.0_rt;
-            Real rrdt = 0.0_rt;
-
-            RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
-
-            r.forward(rate) = fr;
-            drdt.forward(rate) = frdt;
-
-            r.reverse(rate) = rr;
-            drdt.reverse(rate) = rrdt;
-        }
-
-        // Set the density dependence
-
-        int forward_exponent = RHS::density_exponent_forward<rate>();
-        int reverse_exponent = RHS::density_exponent_reverse<rate>();
-
-        Real density_term_forward = std::pow(rho, forward_exponent);
-        Real density_term_reverse = std::pow(rho, reverse_exponent);
-
-        r.forward(rate) *= density_term_forward;
-        drdt.forward(rate) *= density_term_forward;
-        r.reverse(rate) *= density_term_reverse;
-        drdt.reverse(rate) *= density_term_reverse;
-
-        // The screening behavior depends on the type of reaction. We provide screening
-        // here for the reaction classes we know about, and any other reactions are unscreened.
-
-        if constexpr (rhs_data.number_A == 1 && rhs_data.number_B == 1 && rhs_data.number_C == 0) {
-            // Forward reaction is A + B, screen using these two species
-
-            constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
-            constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
-
-            constexpr Real Z2 = NetworkProperties::zion(rhs_data.species_B);
-            constexpr Real A2 = NetworkProperties::aion(rhs_data.species_B);
-
-            constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
-
-            Real sc, scdt;
-            actual_screen5(pstate, scn_fac, sc, scdt);
-
-            drdt.forward(rate) = drdt.forward(rate) * sc + r.forward(rate) * scdt;
-            r.forward(rate)    = r.forward(rate) * sc;
-        }
-
-        if constexpr (rhs_data.number_A == 2 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
-            // Forward reaction is A + A, screen using just this species
-
-            constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
-            constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
-
-            constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
-
-            Real sc, scdt;
-            actual_screen5(pstate, scn_fac, sc, scdt);
-
-            drdt.forward(rate) = drdt.forward(rate) * sc + r.forward(rate) * scdt;
-            r.forward(rate)    = r.forward(rate) * sc;
-        }
-
-        if constexpr (rhs_data.number_A == 3 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
-            // Forward reaction is triple alpha or an equivalent, screen using A + A
-            // and then A + X where X has twice the number of protons and neutrons.
-
-            constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
-            constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
-
-            constexpr auto scn_fac1 = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
-
-            Real sc1, sc1dt;
-            actual_screen5(pstate, scn_fac1, sc1, sc1dt);
-
-            constexpr Real Z2 = 2.0_rt * Z1;
-            constexpr Real A2 = 2.0_rt * A1;
-
-            constexpr auto scn_fac2 = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
-
-            Real sc2, sc2dt;
-            actual_screen5(pstate, scn_fac2, sc2, sc2dt);
-
-            // Compute combined screening factor
-
-            Real sc = sc1 * sc2;
-            Real scdt = sc1dt * sc2 + sc1 * sc2dt;
-
-            drdt.forward(rate) = drdt.forward(rate) * sc + r.forward(rate) * scdt;
-            r.forward(rate)    = r.forward(rate) * sc;
-        }
+        construct_rate<rate>(rho, temp, y, tf, pstate,
+                             alfa, beta, gama, delt, iat,
+                             r.forward(rate), drdt.forward(rate),
+                             r.reverse(rate), drdt.reverse(rate));
 
         // Handle any rate postprocessing.
 
