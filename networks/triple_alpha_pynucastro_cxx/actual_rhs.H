@@ -10,12 +10,13 @@
 #include <jacobian_utilities.H>
 #include <screen.H>
 #include <sneut5.H>
+#include <reaclib_rates.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
 
-using namespace species;
-
+using namespace Species;
+using namespace Rates;
 
 struct rate_eval_t {
     Array2D<Real, 1, NumGroups, 1, NumRates> unscreened_rates;
@@ -42,7 +43,7 @@ void ener_gener_rate(const Array1D<Real, 1, neqs>& dydt, Real& enuc)
     enuc = 0.0_rt;
 
     for (int n = 1; n <= NumSpec; ++n) {
-        enuc += dydt(n) * mion(n);
+        enuc += dydt(n) * network::mion(n);
     }
 
     enuc *= enuc_conv2;
@@ -69,21 +70,21 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     for (int i = 1; i < NrateReaclib; ++i) {
         Real rate;
         Real drate_dt;
-        call reaclib_evaluate(pstate, state.T, i, rate, drate_dt);
+        reaclib_evaluate(pstate, state.T, i, rate, drate_dt);
         rate_eval.unscreened_rates(i_rate, i) = rate;
         rate_eval.unscreened_rates(i_drate_dt, i) = drate_dt;
     }
 
     // Evaluate screening factors
 
-    Real sc1a, sc1adt, sc1add;
-    Real sc2a, sc2adt, sc2add;
+    Real scor, dscor_dt, dscor_dd;
+    Real scor2, dscor2_dt, dscor2_dd;
 
     screen5(pstate, 0,
             zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
             scor, dscor_dt, dscor_dd);
 
-    screen5(pstate, 1
+    screen5(pstate, 1,
             zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
             scor2, dscor2_dt, dscor2_dd);
 

@@ -26,7 +26,7 @@ namespace Rates
     {
         k_he4_he4_he4__c12   = 1,
         k_he4_c12__o16   = 2,
-        NumRates = k_he_c12__o16
+        NumRates = k_he4_c12__o16
     };
 
     // For each rate, we need: rate, drate/dT, screening, dscreening/dT
