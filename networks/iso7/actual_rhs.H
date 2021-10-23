@@ -280,19 +280,6 @@ void screen_iso7(const Real btemp, const Real bden,
             r.forward(rate)    = r.forward(rate) * sc;
         }
     });
-
-    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        constexpr rhs_t rhs_data = RHS::rhs_data(rate);
-
-        r.forward(rate) *= rhs_data.forward_branching_ratio;
-        r.reverse(rate) *= rhs_data.reverse_branching_ratio;
-
-        drdt.forward(rate) *= rhs_data.forward_branching_ratio;
-        drdt.reverse(rate) *= rhs_data.reverse_branching_ratio;
-    });
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -337,6 +324,21 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 
     // Do the screening here because the corrections depend on the composition
     screen_iso7(temp, rho, y, r, drdt);
+
+    // Handle any branching ratios.
+
+    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+        r.forward(rate) *= rhs_data.forward_branching_ratio;
+        r.reverse(rate) *= rhs_data.reverse_branching_ratio;
+
+        drdt.forward(rate) *= rhs_data.forward_branching_ratio;
+        drdt.reverse(rate) *= rhs_data.reverse_branching_ratio;
+    });
 
     // get the temperature factors
     tf_t tf = get_tfactors(temp);
