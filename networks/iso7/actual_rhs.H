@@ -342,58 +342,6 @@ void screen_iso7(const Real btemp, const Real bden,
     });
 }
 
-
-
-// RHS version (single rate group)
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates(burn_t const& state, rate_fr_t& r)
-{
-    Real rho, temp;
-    Array1D<Real, 1, NumSpec> y;
-
-    // Temporary arrays for storing unused derivatives.
-    // A useful cleanup would be to rewrite iso7tab, iso7rat,
-    // and screen_iso7 so that there are versions that do not
-    // evaluate the derivatives.
-    rate_fr_t drdt;
-
-    // Get the data from the state
-    rho  = state.rho;
-    temp = state.T;
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        y(i) = state.xn[i-1] * aion_inv[i-1];
-    }
-
-    // Get the raw reaction rates
-    if (use_tables)
-        iso7tab(temp, rho, r, drdt);
-    else
-        iso7rat(temp, rho, r, drdt);
-
-    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        // Set the density dependence
-
-        int forward_exponent = RHS::density_exponent_forward<rate>();
-        int reverse_exponent = RHS::density_exponent_reverse<rate>();
-
-        Real density_term_forward = std::pow(rho, forward_exponent);
-        Real density_term_reverse = std::pow(rho, reverse_exponent);
-
-        r.forward(rate) *= density_term_forward;
-        drdt.forward(rate) *= density_term_forward;
-        r.reverse(rate) *= density_term_reverse;
-        drdt.reverse(rate) *= density_term_reverse;
-    });
-
-    // Do the screening (depends on composition)
-    screen_iso7(temp, rho, y, r, drdt);
-}
-
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 {
@@ -485,12 +433,12 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     // Evaluate the rates
 
-    rate_fr_t rr;
-    evaluate_rates(state, rr);
+    rate_fr_t r, drdt;
+    get_rates(state, r, drdt);
 
     // Call the RHS to get dydt
 
-    Array1D<Real, 1, NumSpec> spec_rhs = RHS::species_rhs(state, rr);
+    Array1D<Real, 1, NumSpec> spec_rhs = RHS::species_rhs(state, r);
 
     for (int n = 1; n <= NumSpec; ++n) {
         ydot(n) = spec_rhs(n);
