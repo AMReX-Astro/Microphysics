@@ -112,16 +112,7 @@ void construct_rate (const Real& rho, const tf_t& tf, const Array1D<Real, 1, Num
 
     // Set the density dependence
 
-    int forward_exponent = RHS::density_exponent_forward<rate>();
-    int reverse_exponent = RHS::density_exponent_reverse<rate>();
-
-    Real density_term_forward = std::pow(rho, forward_exponent);
-    Real density_term_reverse = std::pow(rho, reverse_exponent);
-
-    fr *= density_term_forward;
-    frdt *= density_term_forward;
-    rr *= density_term_reverse;
-    rrdt *= density_term_reverse;
+    RHS::apply_density_scaling<rate>(rho, fr, frdt, rr, rrdt);
 
     // The screening behavior depends on the type of reaction. We provide screening
     // here for the reaction classes we know about, and any other reactions are unscreened.

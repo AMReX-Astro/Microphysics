@@ -174,6 +174,22 @@ constexpr int density_exponent_reverse ()
     return exponent;
 }
 
+template<int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_density_scaling (const Real& rho, Real& fr, Real& frdt, Real& rr, Real& rrdt)
+{
+    constexpr int forward_exponent = RHS::density_exponent_forward<rate>();
+    constexpr int reverse_exponent = RHS::density_exponent_reverse<rate>();
+
+    Real density_term_forward = std::pow(rho, forward_exponent);
+    Real density_term_reverse = std::pow(rho, reverse_exponent);
+
+    fr *= density_term_forward;
+    frdt *= density_term_forward;
+    rr *= density_term_reverse;
+    rrdt *= density_term_reverse;
+}
+
 // Calculate the RHS term for a given species and rate.
 //
 // The general form of a reaction is
