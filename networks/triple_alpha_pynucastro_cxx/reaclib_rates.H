@@ -1,6 +1,11 @@
 #ifndef REACLIB_RATES_H
 #define REACLIB_RATES_H
 
+#include <actual_network.H>
+
+using namespace reaclib_rates;
+using namespace Rates;
+
 AMREX_INLINE
 void init_reaclib() {
 
@@ -10,7 +15,7 @@ void init_reaclib() {
     table.open("reaclib_rate_metadata.dat");
 
     std::string secret_code_file;
-    std::getline(table, secret_code_file)
+    std::getline(table, secret_code_file);
 
     if (secret_code_file != secret_code_reference) {
         amrex::Error("invalid reaclib_rate_metadata.dat");
@@ -69,12 +74,13 @@ void reaclib_evaluate(plasma_state_t& pstate, const Real temp, const int iwhich,
     // we then return the rate and its temperature derivative
 
     Real ri = 0.0e0_rt;
-    Real rate = 0.0e0_rt;
-    Real drate_dt = 0.0e0_rt;
     Real irate = 0.0e0_rt;
     Real dirate_dt = 0.0e0_rt;
 
     Real T9 = temp/1.0e9_rt;
+
+    rate = 0.0e0_rt;
+    drate_dt = 0.0e0_rt;
 
     // Get the number of additional Reaclib sets for this rate
     // Total number of Reaclib sets for this rate is m + 1
@@ -89,8 +95,8 @@ void reaclib_evaluate(plasma_state_t& pstate, const Real temp, const int iwhich,
 
         for (int j = 2; j <= 6; ++j) {
             Real T9_exp = (2.0e0_rt * static_cast<Real>(j-1) - 5.0e0_rt) / 3.0e0_rt;
-            lnirate += reaclib_rates::ctemp_rate(j, istart+i) * T9**T9_exp;
-            dlnirate_dt += T9_exp * reaclib_rates::ctemp_rate(j, istart+i) * T9**(T9_exp-1.0e0_rt);
+            lnirate += reaclib_rates::ctemp_rate(j, istart+i) * std::pow(T9, T9_exp);
+            dlnirate_dt += T9_exp * reaclib_rates::ctemp_rate(j, istart+i) * std::pow(T9, T9_exp-1.0e0_rt);
         }
 
         // If the rate will be in the approx. interval [0.0, 1.0E-100], replace by 0.0
@@ -99,7 +105,7 @@ void reaclib_evaluate(plasma_state_t& pstate, const Real temp, const int iwhich,
         // And avoids SIGFPE in CVODE due to tiny rates.
 
         lnirate = amrex::max(lnirate, -230.0e0_rt);
-        irate = std::(lnirate);
+        irate = std::exp(lnirate);
         rate += irate;
         dirate_dt = irate * dlnirate_dt / 1.0e9_rt;
         drate_dt += dirate_dt;

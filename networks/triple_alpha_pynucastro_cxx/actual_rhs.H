@@ -104,8 +104,30 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     for (int i = 1; i < NrateReaclib; ++i) {
         rate_eval.screened_rates(i) = rate_eval.unscreened_rates(i_rate, i) *
-                                      rate_eval % unscreened_rates(i_scor, i);
+                                      rate_eval. unscreened_rates(i_scor, i);
     }
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rhs_nuc(const burn_t& state,
+             Array1D<Real, 1, neqs>& ydot_nuc,
+             const Array1D<Real, 1, NumSpec>& Y,
+             const Array1D<Real, 1, NumRates>& screened_rates) {
+
+    using namespace Rates;
+
+    ydot_nuc(He4) = 
+        -screened_rates(k_he4_c12__o16) * Y(C12) * Y(He4) * state.rho 
+        - 0.5e0_rt * screened_rates(k_he4_he4_he4__c12) * std::pow(Y(He4), 3) * std::pow(state.rho, 2);
+
+    ydot_nuc(C12) =
+        -screened_rates(k_he4_c12__o16) * Y(C12) * Y(He4) * state.rho +
+        0.16666666666666667e0_rt * screened_rates(k_he4_he4_he4__c12) * std::pow(Y(He4), 3) *
+        std::pow(state.rho, 2);
+
+    ydot_nuc(O16) =
+      screened_rates(k_he4_c12__o16) * Y(C12) * Y(He4) * state.rho;
+
 }
 
 
@@ -133,13 +155,14 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // ion binding energy contributions
 
+    Real enuc;
     ener_gener_rate(ydot, enuc);
 
     // include reaction neutrino losses (non-thermal)
 
     // Get the thermal neutrino losses
 
-    Real sneut, dsneutdt, dsneutdd, snude, snudz;
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
 
     sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
@@ -150,104 +173,9 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs_nuc(const burn_t& state,
-             Array1D<Real, 1, neqs>& ydot_nuc,
-             const Array1D<Real, 1, NumSpec>& Y,
-             const Array1D<Real, 1, NumRates>& screened_rates) {
-
-    using namespace Rates;
-
-    ydot_nuc(He41) = (
-        -screened_rates(k_he4_c12__o16) * Y(C12) * Y(He4) * state.rho 
-        - 0.5e0_rt * screened_rates(k_he4_he4_he4__c12) * std::pow(Y(He4), 3) * std::pow(state.rho, 2)
-        )
-
-    ydot_nuc(C12) = (
-        -screened_rates(k_he4_c12__o16) * Y(C12) * Y(He4) * state.rho +
-        0.16666666666666667e0_rt * screened_rates(k_he4_he4_he4__c12) * std::pow(Y(He4), 3) *
-        std::pow(state.rho, 2)
-        )
-
-    ydot_nuc(jo16) = ( &
-      screened_rates(k_he4_c12__o16)*Y(jc12)*Y(jhe4)*state % rho &
-       )
-
-}
-
 template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_jac(const burn_t& state, MatrixType& jac)
-{
-
-    // Set molar abundances
-    Array1D<Real, 1, NumSpec> Y;
-    for (int i = 1; i <= NumSpec; ++i) {
-        Y(i) = state.xn[i-1] * aion_inv[i-1];
-    }
-
-
-    jac.zero();
-
-    rate_eval_t rate_eval;
-
-    evaluate_rates(state, rate_eval);
-
-    // Species Jacobian elements with respect to other species
-
-    jac_nuc(state, jac, Y, rate_eval.screened_rates);
-
-    // Energy generation rate Jacobian elements with respect to species
-
-    for (int j = 1; j <= NumSpec; ++j) {
-        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
-        ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
-    }
-
-    // Account for the thermal neutrino losses
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    for (int j = 1; j <= NumSpec; ++j) {
-       b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
-       jac.add(net_ienuc, j, -b1);
-    }
-
-
-    // Evaluate the Jacobian elements with respect to energy by
-    // calling the RHS using d(rate) / dT and then transform them
-    // to our energy integration variable.
-
-    Array1D<Real, 1, NumRates>  dscreened_rates_dT;
-    Array1D<Real, 1, neqs>  yderivs;
-
-    for (int i = 1; i <= NumRates; ++i) {
-        dscreened_rates_dT(i) = rate_eval.unscreened_rates(i_rate, i) *
-                                rate_eval.unscreened_rates(i_dscor_dt, i) +
-                                rate_eval.unscreened_rates(i_drate_dt, i) *
-                                rate_eval.unscreened_rates(i_scor, i);
-    }
-
-    rhs_nuc(state, yderivs, Y, dscreened_rates_dT);
-
-    for (int k = 1; k <= NumSpec; k++) {
-        jac.set(k, net_ienuc, temperature_to_energy_jacobian(state, yderivs(k)));
-    }
-
-
-    // finally, d(de/dt)/de
-
-    Real jac_e_T;
-    ener_gener_rate(yderivs, jac_e_T);
-    jac_e_T -= dsneutdt;
-    jac.set(net_ienuc, net_ienuc, temperature_to_energy_jacobian(state, jac_e_T));
-
-}
-
-template<class MatrixType>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs_nuc(const burn_t& state,
+void jac_nuc(const burn_t& state,
              MatrixType& jac,
              const Array1D<Real, 1, NumSpec>& Y,
              const Array1D<Real, 1, NumRates>& screened_rates)
@@ -290,6 +218,78 @@ void rhs_nuc(const burn_t& state,
 }
 
 
+
+template<class MatrixType>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_jac(const burn_t& state, MatrixType& jac)
+{
+
+    // Set molar abundances
+    Array1D<Real, 1, NumSpec> Y;
+    for (int i = 1; i <= NumSpec; ++i) {
+        Y(i) = state.xn[i-1] * aion_inv[i-1];
+    }
+
+
+    jac.zero();
+
+    rate_eval_t rate_eval;
+
+    evaluate_rates(state, rate_eval);
+
+    // Species Jacobian elements with respect to other species
+
+    jac_nuc(state, jac, Y, rate_eval.screened_rates);
+
+    // Energy generation rate Jacobian elements with respect to species
+
+    for (int j = 1; j <= NumSpec; ++j) {
+        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
+        ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
+    }
+
+    // Account for the thermal neutrino losses
+
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    for (int j = 1; j <= NumSpec; ++j) {
+       Real b1 = (-state.abar * state.abar * snuda + (zion[j-1] - state.zbar) * state.abar * snudz);
+       jac.add(net_ienuc, j, -b1);
+    }
+
+
+    // Evaluate the Jacobian elements with respect to energy by
+    // calling the RHS using d(rate) / dT and then transform them
+    // to our energy integration variable.
+
+    Array1D<Real, 1, NumRates>  dscreened_rates_dT;
+    Array1D<Real, 1, neqs>  yderivs;
+
+    for (int i = 1; i <= NumRates; ++i) {
+        dscreened_rates_dT(i) = rate_eval.unscreened_rates(i_rate, i) *
+                                rate_eval.unscreened_rates(i_dscor_dt, i) +
+                                rate_eval.unscreened_rates(i_drate_dt, i) *
+                                rate_eval.unscreened_rates(i_scor, i);
+    }
+
+    rhs_nuc(state, yderivs, Y, dscreened_rates_dT);
+
+    for (int k = 1; k <= NumSpec; k++) {
+        jac.set(k, net_ienuc, temperature_to_energy_jacobian(state, yderivs(k)));
+    }
+
+
+    // finally, d(de/dt)/de
+
+    Real jac_e_T;
+    ener_gener_rate(yderivs, jac_e_T);
+    jac_e_T -= dsneutdt;
+    jac.set(net_ienuc, net_ienuc, temperature_to_energy_jacobian(state, jac_e_T));
+
+}
+
+
 AMREX_INLINE
 void actual_rhs_init () {
 
@@ -297,7 +297,7 @@ void actual_rhs_init () {
 
     screening_init();
 
-    set_up_screening_factors();
+    net_screening_init();
 
 }
 

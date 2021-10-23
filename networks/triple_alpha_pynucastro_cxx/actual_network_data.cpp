@@ -21,7 +21,7 @@ namespace reaclib_rates
 
     // Reaction multiplicities-1 (how many rates contribute - 1)
 
-    AMREX_GPU_MANAGED amrex::Array1D<int< 1, NrateReaclib> rate_extra_mult;
+    AMREX_GPU_MANAGED amrex::Array1D<int,  1, NrateReaclib> rate_extra_mult;
 
 }
 
