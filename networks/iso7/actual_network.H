@@ -5,11 +5,14 @@
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
 
+using namespace amrex;
+
 #include <fundamental_constants.H>
 #include <network_properties.H>
 #include <network_utilities.H>
-
-using namespace amrex;
+#include <extern_parameters.H>
+#include <tfactors.H>
+#include <aprox_rates.H>
 
 void actual_network_init();
 
@@ -266,6 +269,43 @@ namespace RHS {
         return data;
     }
 
+    template<int rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    void evaluate_rate (const tf_t& tf, Real& fr, Real& frdt, Real& rr, Real& rrdt)
+    {
+        using namespace Rates;
+
+        if constexpr (rate == C12_He4_to_O16) {
+            rate_c12ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == He4_He4_He4_to_C12) {
+            rate_triplealf(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_C12_to_Ne20_He4) {
+            rate_c12c12(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Mg24_He4) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Si28) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_O16_to_Si28_He4) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_He4_to_Ne20) {
+            rate_o16ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ne20_He4_to_Mg24) {
+            rate_ne20ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Mg24_He4_to_Si28) {
+            rate_mg24ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ca40_He4_to_Ti44) {
+            rate_ca40ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+    }
 }
 
 #endif

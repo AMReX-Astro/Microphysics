@@ -143,36 +143,7 @@ void iso7rat(const Real btemp, const Real bden,
         Real rr = 0.0_rt;
         Real rrdt = 0.0_rt;
 
-        if constexpr (rate == C12_He4_to_O16) {
-            rate_c12ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == He4_He4_He4_to_C12) {
-            rate_triplealf(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == C12_C12_to_Ne20_He4) {
-            rate_c12c12(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == C12_O16_to_Mg24_He4) {
-            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == C12_O16_to_Si28) {
-            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == O16_O16_to_Si28_He4) {
-            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == O16_He4_to_Ne20) {
-            rate_o16ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == Ne20_He4_to_Mg24) {
-            rate_ne20ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == Mg24_He4_to_Si28) {
-            rate_mg24ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == Ca40_He4_to_Ti44) {
-            rate_ca40ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
+        RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
 
         r.forward(rate) = fr;
         drdt.forward(rate) = frdt,
