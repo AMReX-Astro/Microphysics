@@ -14,6 +14,8 @@
 using namespace amrex;
 using namespace ArrayUtil;
 
+using namespace species;
+
 
 struct rate_eval_t {
     Array2D<Real, 1, NumGroups, 1, NumRates> unscreened_rates;
@@ -153,7 +155,6 @@ void rhs_nuc(const burn_t& state,
              const Array1D<Real, 1, NumSpec>& Y,
              const Array1D<Real, 1, NumRates>& screened_rates) {
 
-    using namespace Species;
     using namespace Rates;
 
     ydot_nuc(He41) = (
@@ -195,8 +196,27 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 
     jac_nuc(state, jac, Y, rate_eval.screened_rates);
 
-    // Evaluate the species Jacobian elements with respect to temperature by
-    // calling the RHS using the temperature derivative of the screened rate
+    // Energy generation rate Jacobian elements with respect to species
+
+    for (int j = 1; j <= NumSpec; ++j) {
+        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
+        ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
+    }
+
+    // Account for the thermal neutrino losses
+
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    for (int j = 1; j <= NumSpec; ++j) {
+       b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
+       jac.add(net_ienuc, j, -b1);
+    }
+
+
+    // Evaluate the Jacobian elements with respect to energy by
+    // calling the RHS using d(rate) / dT and then transform them
+    // to our energy integration variable.
 
     Array1D<Real, 1, NumRates>  dscreened_rates_dT;
     Array1D<Real, 1, neqs>  yderivs;
@@ -214,31 +234,13 @@ void actual_jac(const burn_t& state, MatrixType& jac)
         jac.set(k, net_ienuc, temperature_to_energy_jacobian(state, yderivs(k)));
     }
 
-    // Energy generation rate Jacobian elements with respect to species
 
-    for (int j = 1; j <= NumSpec; ++j) {
-        auto jac_slice_2 = [&](int i) -> Real { return jac.get(i, j); };
-        ener_gener_rate(jac_slice_2, jac(net_ienuc,j));
-    }
+    // finally, d(de/dt)/de
 
-    do j = 1, nspec
-       do k = 1, nspec
-          call get_jac_entry(jac, k, j, yderivs(k))
-       enddo
-       call ener_gener_rate(yderivs, scratch)
-       call set_jac_entry(jac, net_ienuc, j, scratch)
-    enddo
-
-    // Account for the thermal neutrino losses
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    for (int j = 1; j <= NumSpec; ++j) {
-       b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
-       jac.add(net_ienuc, j, -b1);
-    }
-
+    Real jac_e_T;
+    ener_gener_rate(yderivs, jac_e_T);
+    jac_e_T -= dsneutdt;
+    jac.set(net_ienuc, net_ienuc, temperature_to_energy_jacobian(state, jac_e_T));
 
 }
 
