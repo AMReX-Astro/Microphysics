@@ -111,76 +111,38 @@ void iso7tab(const Real btemp, const Real bden,
     });
 }
 
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void iso7rat(const Real btemp, const Real bden,
-             rate_fr_t& r, rate_fr_t& drdt)
-{
-    using namespace Rates;
-
-    // this routine generates unscreened
-    // nuclear reaction rates for the iso7 network.
-
-     for (int i = 1; i <= Rates::NumRatesFR; ++i) {
-       r.forward(i) = 0.0_rt;
-       r.reverse(i) = 0.0_rt;
-       drdt.forward(i) = 0.0_rt;
-       drdt.reverse(i) = 0.0_rt;
-    }
-
-    if (btemp < 1.0e6_rt) return;
-
-    // get the temperature factors
-    tf_t tf = get_tfactors(btemp);
-
-    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        Real fr = 0.0_rt;
-        Real frdt = 0.0_rt;
-
-        Real rr = 0.0_rt;
-        Real rrdt = 0.0_rt;
-
-        RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
-
-        r.forward(rate) = fr;
-        drdt.forward(rate) = frdt,
-
-        r.reverse(rate) = rr;
-        drdt.reverse(rate) = rrdt;
-    });
-}
-
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void set_iso7rat()
 {
+    using namespace Rates;
     using namespace RateTable;
 
-    Real btemp;
-    Real bden = 1.0e0_rt;
-    rate_fr_t rate;
-    rate_fr_t dratedt;
-
     for (int i = 1; i <= tab_imax; ++i) {
+        Real temp = tab_tlo + static_cast<Real>(i-1) * tab_tstp;
+        temp = std::pow(10.0e0_rt, temp);
 
-       btemp = tab_tlo + static_cast<Real>(i-1) * tab_tstp;
-       btemp = std::pow(10.0e0_rt, btemp);
+        ttab(i) = temp;
 
-       iso7rat(btemp, bden, rate, dratedt);
+        // Get the temperature factors
+        tf_t tf = get_tfactors(temp);
 
-       ttab(i) = btemp;
+        RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
+        {
+            constexpr int rate = n;
 
-       for (int j = 1; j <= Rates::NumRatesFR; ++j) {
+            Real fr = 0.0_rt;
+            Real frdt = 0.0_rt;
 
-           rattab(j, 1, i)    = rate.forward(j);
-           rattab(j, 2, i)    = rate.reverse(j);
-           drattabdt(j, 1, i) = dratedt.forward(j);
-           drattabdt(j, 2, i) = dratedt.reverse(j);
+            Real rr = 0.0_rt;
+            Real rrdt = 0.0_rt;
 
-       }
+            RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
+
+            rattab(rate, 1, i)    = fr;
+            rattab(rate, 2, i)    = rr;
+            drattabdt(rate, 1, i) = frdt;
+            drattabdt(rate, 2, i) = rrdt;
+       });
     }
 }
 
@@ -211,14 +173,30 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
     // Get the raw reaction rates
     if (use_tables)
         iso7tab(temp, rho, r, drdt);
-    else
-        iso7rat(temp, rho, r, drdt);
 
     RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
     {
         constexpr int rate = n;
 
         constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+        if (use_tables) {
+        }
+        else {
+            Real fr = 0.0_rt;
+            Real frdt = 0.0_rt;
+
+            Real rr = 0.0_rt;
+            Real rrdt = 0.0_rt;
+
+            RHS::evaluate_rate<rate>(tf, fr, frdt, rr, rrdt);
+
+            r.forward(rate) = fr;
+            drdt.forward(rate) = frdt;
+
+            r.reverse(rate) = rr;
+            drdt.reverse(rate) = rrdt;
+        }
 
         // Set the density dependence
 
