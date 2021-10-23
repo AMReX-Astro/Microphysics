@@ -184,36 +184,54 @@ void set_iso7rat()
     }
 }
 
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void screen_iso7(const Real btemp, const Real bden,
-                 Array1D<Real, 1, NumSpec> const& y,
-                 rate_fr_t& r, rate_fr_t& drdt)
+void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 {
     using namespace Species;
     using namespace Rates;
 
-    /*
-    this routine computes the screening factors
-    and applies them to the raw reaction rates,
-    producing the final reaction rates used by the
-    right hand sides and jacobian matrix elements
-    */
+    Real rho, temp;
+    Array1D<Real, 1, NumSpec> y;
 
-    plasma_state_t pstate;
+    // Get the data from the state
+    rho  = state.rho;
+    temp = state.T;
 
-    // get the temperature factors
-    tf_t tf = get_tfactors(btemp);
+    for (int i = 1; i <= NumSpec; ++i)
+        y(i) = state.xn[i-1] * aion_inv[i-1];
+
 
     // Set up the state data, which is the same for all screening factors.
+    plasma_state_t pstate;
+    fill_plasma_state(pstate, temp, rho, y);
 
-    fill_plasma_state(pstate, btemp, bden, y);
+    // Get the temperature factors
+    tf_t tf = get_tfactors(temp);
 
-    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
+    // Get the raw reaction rates
+    if (use_tables)
+        iso7tab(temp, rho, r, drdt);
+    else
+        iso7rat(temp, rho, r, drdt);
+
+    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
     {
         constexpr int rate = n;
 
         constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+        // Set the density dependence
+
+        int forward_exponent = RHS::density_exponent_forward<rate>();
+        int reverse_exponent = RHS::density_exponent_reverse<rate>();
+
+        Real density_term_forward = std::pow(rho, forward_exponent);
+        Real density_term_reverse = std::pow(rho, reverse_exponent);
+
+        r.forward(rate) *= density_term_forward;
+        drdt.forward(rate) *= density_term_forward;
+        r.reverse(rate) *= density_term_reverse;
+        drdt.reverse(rate) *= density_term_reverse;
 
         // The screening behavior depends on the type of reaction. We provide screening
         // here for the reaction classes we know about, and any other reactions are unscreened.
@@ -280,50 +298,6 @@ void screen_iso7(const Real btemp, const Real bden,
             r.forward(rate)    = r.forward(rate) * sc;
         }
     });
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
-{
-    using namespace Species;
-    using namespace Rates;
-
-    Real rho, temp;
-    Array1D<Real, 1, NumSpec> y;
-
-    // Get the data from the state
-    rho  = state.rho;
-    temp = state.T;
-
-    for (int i = 1; i <= NumSpec; ++i)
-        y(i) = state.xn[i-1] * aion_inv[i-1];
-
-    // Get the raw reaction rates
-    if (use_tables)
-        iso7tab(temp, rho, r, drdt);
-    else
-        iso7rat(temp, rho, r, drdt);
-
-    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        // Set the density dependence
-
-        int forward_exponent = RHS::density_exponent_forward<rate>();
-        int reverse_exponent = RHS::density_exponent_reverse<rate>();
-
-        Real density_term_forward = std::pow(rho, forward_exponent);
-        Real density_term_reverse = std::pow(rho, reverse_exponent);
-
-        r.forward(rate) *= density_term_forward;
-        drdt.forward(rate) *= density_term_forward;
-        r.reverse(rate) *= density_term_reverse;
-        drdt.reverse(rate) *= density_term_reverse;
-    });
-
-    // Do the screening here because the corrections depend on the composition
-    screen_iso7(temp, rho, y, r, drdt);
 
     // Handle any branching ratios.
 
@@ -339,9 +313,6 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
         drdt.forward(rate) *= rhs_data.forward_branching_ratio;
         drdt.reverse(rate) *= rhs_data.reverse_branching_ratio;
     });
-
-    // get the temperature factors
-    tf_t tf = get_tfactors(temp);
 
     /*
     the publication, timmes, woosley & hoffman apjs, 129, 377
