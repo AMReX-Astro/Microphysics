@@ -245,7 +245,7 @@ void screen_iso7(const Real btemp, const Real bden,
 
     fill_plasma_state(pstate, btemp, bden, y);
 
-    RHS::constexpr_for<1, NumRates+1>([&] (auto n)
+    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
     {
         constexpr int rate = n;
 
@@ -358,7 +358,7 @@ void screen_iso7(const Real btemp, const Real bden,
 
     }
 
-    RHS::constexpr_for<1, NumRates+1>([&] (auto n)
+    RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
     {
         constexpr int rate = n;
 

@@ -317,7 +317,7 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr)
     RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int species = n1;
-        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n2)
         {
             constexpr int rate = n2;
             if constexpr (is_rate_used<species, rate>()) {
@@ -560,7 +560,7 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_
         RHS::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int spec2 = n2;
-            RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
+            RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n3)
             {
                 constexpr int rate = n3;
                 if constexpr (is_rate_used<spec1, rate>()) {
