@@ -1,6 +1,9 @@
 #ifndef REACLIB_RATES_H
 #define REACLIB_RATES_H
 
+#include <AMReX.H>
+#include <AMReX_Print.H>
+
 #include <actual_network.H>
 
 using namespace reaclib_rates;
@@ -10,6 +13,8 @@ AMREX_INLINE
 void init_reaclib() {
 
     const std::string secret_code_reference = "AW9W99Z45J7OLLKYSELR8HZNG6PHELAI";
+
+    amrex::Print() << "reading in reaclib rates..." << std::endl;
 
     std::ifstream table;
     table.open("reaclib_rate_metadata.dat");

@@ -31,14 +31,22 @@ const int i_scor        = 3;
 const int i_dscor_dt    = 4;
 
 
-
+template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void ener_gener_rate(const Array1D<Real, 1, neqs>& dydt, Real& enuc)
+void ener_gener_rate(T const& dydt, Real& enuc)
 {
 
     // Computes the instantaneous energy generation rate (from the nuclei)
 
     // This is basically e = m c**2
+
+    std::ostringstream ss;
+    ss << "dydt = ";
+    for (int n = 1; n <= NumSpec; ++n) {
+        ss << dydt(n) << " ";
+    }
+    ss << "\n";
+    BL_BACKTRACE_PUSH(ss.str());
 
     enuc = 0.0_rt;
 
@@ -46,7 +54,7 @@ void ener_gener_rate(const Array1D<Real, 1, neqs>& dydt, Real& enuc)
         enuc += dydt(n) * network::mion(n);
     }
 
-    enuc *= enuc_conv2;
+    enuc *= C::Legacy::enuc_conv2;
 }
 
 
@@ -67,7 +75,7 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     plasma_state_t pstate;
     fill_plasma_state(pstate, state.T, state.rho, Y);
 
-    for (int i = 1; i < NrateReaclib; ++i) {
+    for (int i = 1; i <= NrateReaclib; ++i) {
         Real rate;
         Real drate_dt;
         reaclib_evaluate(pstate, state.T, i, rate, drate_dt);
@@ -102,7 +110,7 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     // Compute screened rates
 
-    for (int i = 1; i < NrateReaclib; ++i) {
+    for (int i = 1; i <= NrateReaclib; ++i) {
         rate_eval.screened_rates(i) = rate_eval.unscreened_rates(i_rate, i) *
                                       rate_eval. unscreened_rates(i_scor, i);
     }
