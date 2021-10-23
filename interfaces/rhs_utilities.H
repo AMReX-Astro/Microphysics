@@ -6,6 +6,7 @@
 #include <burn_type.H>
 #include <screen.H>
 #include <sneut5.H>
+#include <jacobian_utilities.H>
 
 // Forward declarations
 
@@ -30,50 +31,23 @@ struct rate_t
     amrex::Array1D<amrex::Real, 1, Rates::NumRates> reverse;
 };
 
-template<int species, int rate>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr int is_rate_used ();
-
-template<int species, int j>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (const burn_t& state, rate_t const& rr);
-
-template<int spec1, int spec2, int j>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real jac_term (const burn_t& state, rate_t const& rr);
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr);
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t const& rr);
-
-} // namespace RHS
-
-
-
 // Internal implementation functions
 
 namespace RHS_impl {
 
-// Calculate an integer factorial.
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr int factorial (int n)
-{
-    if (n <= 1) {
-        return 1;
+    // Calculate an integer factorial.
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr int factorial (int n)
+    {
+        if (n <= 1) {
+            return 1;
+        }
+        else {
+            return n * factorial(n - 1);
+        }
     }
-    else {
-        return n * factorial(n - 1);
-    }
-}
 
 } // namespace RHS_impl
-
-
-
-namespace RHS
-{
 
 // Implementation of "constexpr for" based on
 // https://artificial-mind.net/blog/2020/10/31/constexpr-for
@@ -106,26 +80,26 @@ template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int is_rate_used ()
 {
-    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+    constexpr rhs_t data = rhs_data(rate);
 
     static_assert(species >= 1 && species <= NumSpec);
     static_assert(rate >= 1 && rate <= Rates::NumRates);
 
-    if (rhs_data.species_A == species ||
-        rhs_data.species_B == species ||
-        rhs_data.species_C == species ||
-        rhs_data.species_D == species ||
-        rhs_data.species_E == species ||
-        rhs_data.species_F == species) {
+    if (data.species_A == species ||
+        data.species_B == species ||
+        data.species_C == species ||
+        data.species_D == species ||
+        data.species_E == species ||
+        data.species_F == species) {
         // Exclude intermediate rates that don't appear in the RHS.
         // We can identify these by the presence of an "extra" species
         // whose numerical ID is > NumSpec.
-        if (rhs_data.species_A > NumSpec ||
-            rhs_data.species_B > NumSpec ||
-            rhs_data.species_C > NumSpec ||
-            rhs_data.species_D > NumSpec ||
-            rhs_data.species_E > NumSpec ||
-            rhs_data.species_F > NumSpec) {
+        if (data.species_A > NumSpec ||
+            data.species_B > NumSpec ||
+            data.species_C > NumSpec ||
+            data.species_D > NumSpec ||
+            data.species_E > NumSpec ||
+            data.species_F > NumSpec) {
             return 0;
         } else {
             return 1;
@@ -142,18 +116,18 @@ template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int density_exponent_forward ()
 {
-    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+    constexpr rhs_t data = rhs_data(rate);
 
     int exponent = 0;
 
-    if constexpr (rhs_data.species_A >= 0) {
-        exponent += rhs_data.exponent_A;
+    if constexpr (data.species_A >= 0) {
+        exponent += data.exponent_A;
     }
-    if constexpr (rhs_data.species_B >= 0) {
-        exponent += rhs_data.exponent_B;
+    if constexpr (data.species_B >= 0) {
+        exponent += data.exponent_B;
     }
-    if constexpr (rhs_data.species_C >= 0) {
-        exponent += rhs_data.exponent_C;
+    if constexpr (data.species_C >= 0) {
+        exponent += data.exponent_C;
     }
 
     if (exponent > 0) {
@@ -168,18 +142,18 @@ template <int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int density_exponent_reverse ()
 {
-    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+    constexpr rhs_t data = rhs_data(rate);
 
     int exponent = 0;
 
-    if constexpr (rhs_data.species_D >= 0) {
-        exponent += rhs_data.exponent_D;
+    if constexpr (data.species_D >= 0) {
+        exponent += data.exponent_D;
     }
-    if constexpr (rhs_data.species_E >= 0) {
-        exponent += rhs_data.exponent_E;
+    if constexpr (data.species_E >= 0) {
+        exponent += data.exponent_E;
     }
-    if constexpr (rhs_data.species_F >= 0) {
-        exponent += rhs_data.exponent_F;
+    if constexpr (data.species_F >= 0) {
+        exponent += data.exponent_F;
     }
 
     if (exponent > 0) {
@@ -193,8 +167,8 @@ template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_density_scaling (const Real& rho, Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
-    constexpr int forward_exponent = RHS::density_exponent_forward<rate>();
-    constexpr int reverse_exponent = RHS::density_exponent_reverse<rate>();
+    constexpr int forward_exponent = density_exponent_forward<rate>();
+    constexpr int reverse_exponent = density_exponent_reverse<rate>();
 
     Real density_term_forward = std::pow(rho, forward_exponent);
     Real density_term_reverse = std::pow(rho, reverse_exponent);
@@ -212,16 +186,16 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
     // The screening behavior depends on the type of reaction. We provide screening
     // here for the reaction classes we know about, and any other reactions are unscreened.
 
-    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+    constexpr rhs_t data = rhs_data(rate);
 
-    if constexpr (rhs_data.number_A == 1 && rhs_data.number_B == 1 && rhs_data.number_C == 0) {
+    if constexpr (data.number_A == 1 && data.number_B == 1 && data.number_C == 0) {
         // Forward reaction is A + B, screen using these two species
 
-        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
-        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+        constexpr Real Z1 = NetworkProperties::zion(data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(data.species_A);
 
-        constexpr Real Z2 = NetworkProperties::zion(rhs_data.species_B);
-        constexpr Real A2 = NetworkProperties::aion(rhs_data.species_B);
+        constexpr Real Z2 = NetworkProperties::zion(data.species_B);
+        constexpr Real A2 = NetworkProperties::aion(data.species_B);
 
         constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
 
@@ -232,11 +206,11 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         fr   = fr * sc;
     }
 
-    if constexpr (rhs_data.number_A == 2 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+    if constexpr (data.number_A == 2 && data.number_B == 0 && data.number_C == 0) {
         // Forward reaction is A + A, screen using just this species
 
-        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
-        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+        constexpr Real Z1 = NetworkProperties::zion(data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(data.species_A);
 
         constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
 
@@ -247,12 +221,12 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         fr   = fr * sc;
     }
 
-    if constexpr (rhs_data.number_A == 3 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+    if constexpr (data.number_A == 3 && data.number_B == 0 && data.number_C == 0) {
         // Forward reaction is triple alpha or an equivalent, screen using A + A
         // and then A + X where X has twice the number of protons and neutrons.
 
-        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
-        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+        constexpr Real Z1 = NetworkProperties::zion(data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(data.species_A);
 
         constexpr auto scn_fac1 = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
 
@@ -374,7 +348,7 @@ template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
 {
-    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+    constexpr rhs_t data = rhs_data(rate);
 
     // First, compute the Y * rate component of both the forward and
     // reverse reactions, which is the same regardless of which species
@@ -382,47 +356,47 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
 
     Real forward_term = rr.forward(rate);
 
-    if constexpr (rhs_data.species_A >= 0) {
-        Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_A);
-        forward_term *= std::pow(Y_A, rhs_data.exponent_A) /
+    if constexpr (data.species_A >= 0) {
+        Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_A);
+        forward_term *= std::pow(Y_A, data.exponent_A) /
                         static_cast<Real>(identical_particle_factor);
     }
 
-    if constexpr (rhs_data.species_B >= 0) {
-        Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_B);
-        forward_term *= std::pow(Y_B, rhs_data.exponent_B) /
+    if constexpr (data.species_B >= 0) {
+        Real Y_B = state.xn[data.species_B-1] * aion_inv[data.species_B-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_B);
+        forward_term *= std::pow(Y_B, data.exponent_B) /
                         static_cast<Real>(identical_particle_factor);
     }
 
-    if constexpr (rhs_data.species_C >= 0) {
-        Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_C);
-        forward_term *= std::pow(Y_C, rhs_data.exponent_C) /
+    if constexpr (data.species_C >= 0) {
+        Real Y_C = state.xn[data.species_C-1] * aion_inv[data.species_C-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_C);
+        forward_term *= std::pow(Y_C, data.exponent_C) /
                         static_cast<Real>(identical_particle_factor);
     }
 
     Real reverse_term = rr.reverse(rate);
 
-    if constexpr (rhs_data.species_D >= 0) {
-        Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_D);
-        reverse_term *= std::pow(Y_D, rhs_data.exponent_D) /
+    if constexpr (data.species_D >= 0) {
+        Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_D);
+        reverse_term *= std::pow(Y_D, data.exponent_D) /
                         static_cast<Real>(identical_particle_factor);
     }
 
-    if constexpr (rhs_data.species_E >= 0) {
-        Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_E);
-        reverse_term *= std::pow(Y_E, rhs_data.exponent_E) /
+    if constexpr (data.species_E >= 0) {
+        Real Y_E = state.xn[data.species_E-1] * aion_inv[data.species_E-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_E);
+        reverse_term *= std::pow(Y_E, data.exponent_E) /
                         static_cast<Real>(identical_particle_factor);
     }
 
-    if constexpr (rhs_data.species_F >= 0) {
-        Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(rhs_data.exponent_F);
-        reverse_term *= std::pow(Y_F, rhs_data.exponent_F) /
+    if constexpr (data.species_F >= 0) {
+        Real Y_F = state.xn[data.species_F-1] * aion_inv[data.species_F-1];
+        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_F);
+        reverse_term *= std::pow(Y_F, data.exponent_F) /
                         static_cast<Real>(identical_particle_factor);
     }
 
@@ -430,23 +404,23 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
 
     Real term = 0.0_rt;
 
-    if constexpr (rhs_data.species_A == species) {
-        term = rhs_data.number_A * (reverse_term - forward_term);
+    if constexpr (data.species_A == species) {
+        term = data.number_A * (reverse_term - forward_term);
     }
-    if constexpr (rhs_data.species_B == species) {
-        term = rhs_data.number_B * (reverse_term - forward_term);
+    if constexpr (data.species_B == species) {
+        term = data.number_B * (reverse_term - forward_term);
     }
-    if constexpr (rhs_data.species_C == species) {
-        term = rhs_data.number_C * (reverse_term - forward_term);
+    if constexpr (data.species_C == species) {
+        term = data.number_C * (reverse_term - forward_term);
     }
-    if constexpr (rhs_data.species_D == species) {
-        term = rhs_data.number_D * (forward_term - reverse_term);
+    if constexpr (data.species_D == species) {
+        term = data.number_D * (forward_term - reverse_term);
     }
-    if constexpr (rhs_data.species_E == species) {
-        term = rhs_data.number_E * (forward_term - reverse_term);
+    if constexpr (data.species_E == species) {
+        term = data.number_E * (forward_term - reverse_term);
     }
-    if constexpr (rhs_data.species_F == species) {
-        term = rhs_data.number_F * (forward_term - reverse_term);
+    if constexpr (data.species_F == species) {
+        term = data.number_F * (forward_term - reverse_term);
     }
 
     return term;
@@ -465,18 +439,18 @@ template<int spec1, int spec2, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 {
-    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+    constexpr rhs_t data = rhs_data(rate);
 
     Real forward_term = 0.0_rt;
 
-    if constexpr (spec2 == rhs_data.species_A || spec2 == rhs_data.species_B || spec2 == rhs_data.species_C) {
+    if constexpr (spec2 == data.species_A || spec2 == data.species_B || spec2 == data.species_C) {
 
         forward_term = rr.forward(rate);
 
-        if constexpr (rhs_data.species_A >= 0) {
-            Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
+        if constexpr (data.species_A >= 0) {
+            Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
 
-            constexpr int exponent = rhs_data.exponent_A;
+            constexpr int exponent = data.exponent_A;
 
             constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
 
@@ -488,7 +462,7 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 
             int exp = exponent;
 
-            if constexpr (spec2 == rhs_data.species_A) {
+            if constexpr (spec2 == data.species_A) {
                 forward_term *= exp;
                 --exp;
             }
@@ -497,16 +471,16 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
                             static_cast<Real>(identical_particle_factor);
         }
 
-        if constexpr (rhs_data.species_B >= 0) {
-            Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
+        if constexpr (data.species_B >= 0) {
+            Real Y_B = state.xn[data.species_B-1] * aion_inv[data.species_B-1];
 
-            constexpr int exponent = rhs_data.exponent_B;
+            constexpr int exponent = data.exponent_B;
 
             constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
 
             int exp = exponent;
 
-            if constexpr (spec2 == rhs_data.species_B) {
+            if constexpr (spec2 == data.species_B) {
                 forward_term *= exp;
                 --exp;
             }
@@ -515,16 +489,16 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
                             static_cast<Real>(identical_particle_factor);
         }
 
-        if constexpr (rhs_data.species_C >= 0) {
-            Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
+        if constexpr (data.species_C >= 0) {
+            Real Y_C = state.xn[data.species_C-1] * aion_inv[data.species_C-1];
 
-            constexpr int exponent = rhs_data.exponent_C;
+            constexpr int exponent = data.exponent_C;
 
             constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
 
             int exp = exponent;
 
-            if constexpr (spec2 == rhs_data.species_C) {
+            if constexpr (spec2 == data.species_C) {
                 forward_term *= exp;
                 --exp;
             }
@@ -537,20 +511,20 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 
     Real reverse_term = 0.0_rt;
 
-    if constexpr (spec2 == rhs_data.species_D || spec2 == rhs_data.species_E || spec2 == rhs_data.species_F) {
+    if constexpr (spec2 == data.species_D || spec2 == data.species_E || spec2 == data.species_F) {
 
         reverse_term = rr.reverse(rate);
 
-        if constexpr (rhs_data.species_D >= 0) {
-            Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
+        if constexpr (data.species_D >= 0) {
+            Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
 
-            constexpr int exponent = rhs_data.exponent_D;
+            constexpr int exponent = data.exponent_D;
 
             constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
 
             int exp = exponent;
 
-            if constexpr (spec2 == rhs_data.species_D) {
+            if constexpr (spec2 == data.species_D) {
                 reverse_term *= exp;
                 --exp;
             }
@@ -559,16 +533,16 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
                             static_cast<Real>(identical_particle_factor);
         }
 
-        if constexpr (rhs_data.species_E >= 0) {
-            Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
+        if constexpr (data.species_E >= 0) {
+            Real Y_E = state.xn[data.species_E-1] * aion_inv[data.species_E-1];
 
-            constexpr int exponent = rhs_data.exponent_E;
+            constexpr int exponent = data.exponent_E;
 
             constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
 
             int exp = exponent;
 
-            if constexpr (spec2 == rhs_data.species_E) {
+            if constexpr (spec2 == data.species_E) {
                 reverse_term *= exp;
                 --exp;
             }
@@ -577,16 +551,16 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
                             static_cast<Real>(identical_particle_factor);
         }
 
-        if constexpr (rhs_data.species_F >= 0) {
-            Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
+        if constexpr (data.species_F >= 0) {
+            Real Y_F = state.xn[data.species_F-1] * aion_inv[data.species_F-1];
 
-            constexpr int exponent = rhs_data.exponent_F;
+            constexpr int exponent = data.exponent_F;
 
             constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
 
             int exp = exponent;
 
-            if constexpr (spec2 == rhs_data.species_F) {
+            if constexpr (spec2 == data.species_F) {
                 reverse_term *= exp;
                 --exp;
             }
@@ -601,274 +575,320 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 
     Real term = 0.0_rt;
 
-    if constexpr (rhs_data.species_A == spec1) {
-        term = rhs_data.number_A * (reverse_term - forward_term);
+    if constexpr (data.species_A == spec1) {
+        term = data.number_A * (reverse_term - forward_term);
     }
-    if constexpr (rhs_data.species_B == spec1) {
-        term = rhs_data.number_B * (reverse_term - forward_term);
+    if constexpr (data.species_B == spec1) {
+        term = data.number_B * (reverse_term - forward_term);
     }
-    if constexpr (rhs_data.species_C == spec1) {
-        term = rhs_data.number_C * (reverse_term - forward_term);
+    if constexpr (data.species_C == spec1) {
+        term = data.number_C * (reverse_term - forward_term);
     }
-    if constexpr (rhs_data.species_D == spec1) {
-        term = rhs_data.number_D * (forward_term - reverse_term);
+    if constexpr (data.species_D == spec1) {
+        term = data.number_D * (forward_term - reverse_term);
     }
-    if constexpr (rhs_data.species_E == spec1) {
-        term = rhs_data.number_E * (forward_term - reverse_term);
+    if constexpr (data.species_E == spec1) {
+        term = data.number_E * (forward_term - reverse_term);
     }
-    if constexpr (rhs_data.species_F == spec1) {
-        term = rhs_data.number_F * (forward_term - reverse_term);
+    if constexpr (data.species_F == spec1) {
+        term = data.number_F * (forward_term - reverse_term);
     }
 
     return term;
 }
 
-// Calculate the Jacobian terms that are derivatives of one species
-// with respect to another.
+template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t const& rr)
+void construct_rate (const Real& rho, const tf_t& tf, const Array1D<Real, 1, NumSpec>& y,
+                     const plasma_state_t& pstate,
+                     const Real& alfa, const Real& beta, const Real& gama, const Real& delt, const int& iat,
+                     Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
-    Array2D<Real, 1, NumSpec, 1, NumSpec> spec_jac = {0.0};
+    using namespace Species;
+    using namespace Rates;
 
-    // For every spec1 and spec2 pair, loop over all rates, and if that rate
-    // involves spec1, add its contribution to the Jacobian.
+    if (use_tables) {
+        evaluate_tabulated_rate<rate>(alfa, beta, gama, delt, iat, fr, frdt, rr, rrdt);
+    }
+    else {
+        evaluate_analytical_rate<rate>(tf, fr, frdt, rr, rrdt);
+    }
+
+    // Set the density dependence
+
+    apply_density_scaling<rate>(rho, fr, frdt, rr, rrdt);
+
+    apply_screening<rate>(pstate, fr, frdt, rr, rrdt);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void get_rates(burn_t const& state, rate_t& r, rate_t& drdt)
+{
+    using namespace Species;
+    using namespace Rates;
+
+    Real rho, temp;
+    Array1D<Real, 1, NumSpec> y;
+
+    // Get the data from the state
+    rho  = state.rho;
+    temp = state.T;
+
+    for (int i = 1; i <= NumSpec; ++i)
+        y(i) = state.xn[i-1] * aion_inv[i-1];
+
+
+    // Set up the state data, which is the same for all screening factors.
+    plasma_state_t pstate;
+    fill_plasma_state(pstate, temp, rho, y);
+
+    // Get the temperature factors
+    tf_t tf = get_tfactors(temp);
+
+    Real alfa, beta, gama, delt;
+    int iat;
+
+    if (use_tables) {
+        // hash locate
+        constexpr int mp = 4;
+        iat = static_cast<int>((std::log10(temp) - tab_tlo) / tab_tstp) + 1;
+        iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+
+        // setup the lagrange interpolation coefficients for a cubic
+        Real x  = temp;
+        Real x1 = ttab(iat);
+        Real x2 = ttab(iat+1);
+        Real x3 = ttab(iat+2);
+        Real x4 = ttab(iat+3);
+        Real a  = x - x1;
+        Real b  = x - x2;
+        Real c  = x - x3;
+        Real d  = x - x4;
+        Real e  = x1 - x2;
+        Real f  = x1 - x3;
+        Real g  = x1 - x4;
+        Real h  = x2 - x3;
+        Real p  = x2 - x4;
+        Real q  = x3 - x4;
+        alfa =  b * c * d / (e * f * g);
+        beta = -a * c * d / (e * h * p);
+        gama =  a * b * d / (f * h * q);
+        delt = -a * b * c / (g * p * q);
+    }
+
+    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        constexpr rhs_t data = rhs_data(rate);
+
+        // If this is an intermediate reaction for another reaction,
+        // skip it now. We recognize intermediate reactions because
+        // at least one of the species will not be a "real" species.
+
+        if constexpr (data.species_A > NumSpec ||
+                      data.species_B > NumSpec ||
+                      data.species_C > NumSpec ||
+                      data.species_D > NumSpec ||
+                      data.species_E > NumSpec ||
+                      data.species_F > NumSpec) {
+            return;
+        }
+
+        // Construct the (screened and density-scaled) rate.
+
+        Real fr = 0.0, frdt = 0.0, rr = 0.0, rrdt = 0.0;
+
+        construct_rate<rate>(rho, tf, y, pstate,
+                             alfa, beta, gama, delt, iat,
+                             fr, frdt, rr, rrdt);
+
+        // Construct all intermediate rates needed to augment this reaction.
+        // To keep the problem bounded we assume that there are no more than
+        // two intermediate reactions needed, however it is straightforward
+        // to add more as needed (or to generalize this into a loop over all
+        // rates if really needed). If any are present, postprocess the rate
+        // using the additional terms.
+
+        Real fr1 = 0.0, fr1dt = 0.0, rr1 = 0.0, rr1dt = 0.0;
+        Real fr2 = 0.0, fr2dt = 0.0, rr2 = 0.0, rr2dt = 0.0;
+
+        constexpr int rate1 = data.additional_reaction_1;
+        constexpr int rate2 = data.additional_reaction_2;
+
+        if constexpr (rate1 >= 0 || rate2 >= 0) {
+            if constexpr (rate1 >= 0) {
+                construct_rate<rate1>(rho, tf, y, pstate,
+                                      alfa, beta, gama, delt, iat,
+                                      fr1, fr1dt, rr1, rr1dt);
+            }
+
+            if constexpr (rate2 >= 0) {
+                construct_rate<rate1>(rho, tf, y, pstate,
+                                      alfa, beta, gama, delt, iat,
+                                      fr2, fr2dt, rr2, rr2dt);
+            }
+
+            postprocess_rate<rate>(rho, tf, y,
+                                        fr, frdt, rr, rrdt,
+                                        fr1, fr1dt, rr1, rr1dt,
+                                        fr2, fr2dt, rr2, rr2dt);
+        }
+
+        // Handle any branching ratios.
+
+        fr *= data.forward_branching_ratio;
+        rr *= data.reverse_branching_ratio;
+
+        frdt *= data.forward_branching_ratio;
+        rrdt *= data.reverse_branching_ratio;
+
+        // Store the final rate.
+
+        r.forward(rate) = fr;
+        drdt.forward(rate) = frdt;
+
+        r.reverse(rate) = rr;
+        drdt.reverse(rate) = rrdt;
+    });
+}
+
+template<int spec>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real ener_gener_rate (Real const& dydt)
+{
+    using namespace network;
+
+    // This is basically e = m c**2
+    return dydt * mion(spec) * C::Legacy::enuc_conv2;
+}
+
+} // namespace RHS
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+{
+    // Evaluate the rates
+
+    RHS::rate_t r, drdt;
+    RHS::get_rates(state, r, drdt);
+
+    // For every species, loop over all rates, and if that rate involves
+    // the given species, add its contribution to the RHS.
+
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    {
+        constexpr int species = n1;
+
+        ydot(species) = 0.0;
+
+        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        {
+            constexpr int rate = n2;
+
+            if constexpr (RHS::is_rate_used<species, rate>()) {
+                ydot(species) += RHS::rhs_term<species, rate>(state, r);
+            }
+        });
+    });
+
+    // Instantaneous energy generation rate
+
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    ydot(net_ienuc) = -sneut;
+
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n)
+    {
+        constexpr int species = n;
+
+        ydot(net_ienuc) += RHS::ener_gener_rate<species>(ydot(species));
+    });
+}
+
+// Analytical Jacobian
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
+{
+    Real rho, temp, abar, zbar;
+
+    RHS::rate_t r, drdt;
+    RHS::get_rates(state, r, drdt);
+
+    // Account for the thermal neutrino losses
+
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar,
+           sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    // Species Jacobian elements with respect to other species
 
     RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int spec1 = n1;
+
         RHS::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int spec2 = n2;
+
+            jac(spec1, spec2) = 0.0;
+
             RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
             {
                 constexpr int rate = n3;
-                if constexpr (is_rate_used<spec1, rate>()) {
-                    spec_jac(spec1, spec2) += RHS::jac_term<spec1, spec2, rate>(state, rr);
+
+                if constexpr (RHS::is_rate_used<spec1, rate>()) {
+                    jac(spec1, spec2) += RHS::jac_term<spec1, spec2, rate>(state, r);
                 }
             });
         });
     });
 
-    return spec_jac;
-}
+    // Energy generation rate Jacobian elements with respect to species
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, 6> equilibrium_state (const rhs_t& rhs_data, const burn_t& state,
-                                       Real forward_rate, Real reverse_rate)
-{
-    int n_A = rhs_data.number_A;
-    int n_B = rhs_data.number_B;
-    int n_C = rhs_data.number_C;
-    int n_D = rhs_data.number_D;
-    int n_E = rhs_data.number_E;
-    int n_F = rhs_data.number_F;
-
-    int e_A = rhs_data.exponent_A;
-    int e_B = rhs_data.exponent_B;
-    int e_C = rhs_data.exponent_C;
-    int e_D = rhs_data.exponent_D;
-    int e_E = rhs_data.exponent_E;
-    int e_F = rhs_data.exponent_F;
-
-    Real Y_A = 0.0_rt;
-    if (rhs_data.species_A >= 0) {
-        Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
-    }
-
-    Real Y_B = 0.0_rt;
-    if (rhs_data.species_B >= 0) {
-        Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
-    }
-
-    Real Y_C = 0.0_rt;
-    if (rhs_data.species_C >= 0) {
-        Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
-    }
-
-    Real Y_D = 0.0_rt;
-    if (rhs_data.species_D >= 0) {
-        Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
-    }
-
-    Real Y_E = 0.0_rt;
-    if (rhs_data.species_E >= 0) {
-        Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
-    }
-
-    Real Y_F = 0.0_rt;
-    if (rhs_data.species_F >= 0) {
-        Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
-    }
-
-    Real k_f = forward_rate;
-    Real k_r = reverse_rate;
-
-    Real Y_A_eq = 0.0_rt;
-    Real Y_B_eq = 0.0_rt;
-    Real Y_C_eq = 0.0_rt;
-    Real Y_D_eq = 0.0_rt;
-    Real Y_E_eq = 0.0_rt;
-    Real Y_F_eq = 0.0_rt;
-
-    // The general form of our reactions has forward reactions of the form:
-    // N * (Y_A**e_A * Y_B**e_B * Y_C**e_C * k_f)
-    // and reverse reactions of the form:
-    // N * (Y_D**e_D * Y_B**e_E * Y_F**e_F * k_r)
-    // where N is the number of particles consumed/produced, Y is the molar
-    // fraction, and e is an integer exponent coefficient, k_f is the forward
-    // rate, and k_r is the reverse rate.
-    //
-    // If the reaction is in equilibrium, we will satisfy
-    // Y_A**e_A * Y_B**e_B * Y_C**e_C * k_f = Y_D**e_D * Y_B**e_E * Y_F**e_F * k_r
-    // We expect that often this relation will not be satisfied exactly,
-    // but sufficiently close that we will likely achieve equilibrium soon.
-    //
-    // So, given a state and a set of rates, we want to determine the corresponding
-    // equilibrium solution. This involves solving the t -> infinity limit of the ODE.
-    // For certain common values of the exponents this solution is easy to write down
-    // analytically. We will solve for these cases specifically and ignore other cases.
-
-    if (e_A == 1 && e_B == 1 && e_C == 0 && e_D == 1 && e_E == 0 && e_F == 0 &&
-        n_A == 1 && n_B == 1 && n_C == 0 && n_D == 1 && n_E == 0 && n_F == 0)
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto j)
     {
-        // This reaction looks like
-        // A + B --> D
-        // and the corresponding ODE for species A is
-        // dY_A / dt = -k_f * Y_A * Y_B + k_r * Y_D
-        //
-        // The conserved scalars are
-        // c_1 = Y_A - Y_B
-        // c_2 = Y_A + Y_D
-        //
-        // The species A ODE in terms of only Y_A is
-        // dY_A / dt = a * Y_A**2 + b * Y_A + c
-        // where
-        // a = -k_f
-        // b = c_1 * k_f - k_r
-        // c = k_r * c_2
-        //
-        // The equilibrium solution for species A is
-        // Y_A_eq = (-1 / 2a) * (b + sqrt(b * b - 4 * a * c))
-        //
-        // The equilibrium solutions for the other species are
-        // Y_B_eq = Y_A_eq - c_1
-        // Y_D_eq = c_2 - Y_A_eq
+        constexpr int species = j;
 
-        Real c_1 = Y_A - Y_B;
-        Real c_2 = Y_A + Y_D;
+        Real b1 = (-abar * abar * snuda + (NetworkProperties::zion(species) - zbar) * abar * snudz);
+        jac(net_ienuc, species) = -b1;
 
-        Real a = -k_f;
-        Real b = c_1 * k_f - k_r;
-        Real c = k_r * c_2;
+        RHS::constexpr_for<1, NumSpec+1>([&] (auto i)
+        {
+            constexpr int s = i;
 
-        Y_A_eq = (-0.5_rt / a) * (b + std::sqrt(b * b - 4.0_rt * a * c));
-        Y_B_eq = Y_A_eq - c_1;
-        Y_D_eq = c_2 - Y_A_eq;
-    }
+            jac(net_ienuc, species) += RHS::ener_gener_rate<s>(jac(s, species));
+        });
+    });
 
-    Real X_A_eq = 0.0_rt;
-    if (rhs_data.species_A >= 0) {
-        X_A_eq = Y_A_eq * aion[rhs_data.species_A-1];
-    }
+    // Evaluate the Jacobian elements with respect to energy by
+    // calling the RHS using d(rate) / dT and then transform them
+    // to our energy integration variable.
 
-    Real X_B_eq = 0.0_rt;
-    if (rhs_data.species_B >= 0) {
-        X_B_eq = Y_B_eq * aion[rhs_data.species_B-1];
-    }
+    Real jac_e_T = -dsneutdt;
 
-    Real X_C_eq = 0.0_rt;
-    if (rhs_data.species_C >= 0) {
-        X_C_eq = Y_C_eq * aion[rhs_data.species_C-1];
-    }
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    {
+        constexpr int species = n1;
 
-    Real X_D_eq = 0.0_rt;
-    if (rhs_data.species_D >= 0) {
-        X_D_eq = Y_D_eq * aion[rhs_data.species_D-1];
-    }
+        Real dydt = 0.0;
 
-    Real X_E_eq = 0.0_rt;
-    if (rhs_data.species_E >= 0) {
-        X_E_eq = Y_E_eq * aion[rhs_data.species_E-1];
-    }
+        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        {
+            constexpr int rate = n2;
 
-    Real X_F_eq = 0.0_rt;
-    if (rhs_data.species_F >= 0) {
-        X_F_eq = Y_F_eq * aion[rhs_data.species_F-1];
-    }
+            if constexpr (RHS::is_rate_used<species, rate>()) {
+                dydt += RHS::rhs_term<species, rate>(state, drdt);
+            }
+        });
 
-    Array1D<Real, 1, 6> eq_state = {X_A_eq, X_B_eq, X_C_eq, X_D_eq, X_E_eq, X_F_eq};
+        jac(species, net_ienuc) = temperature_to_energy_jacobian(state, dydt);
 
-    return eq_state;
+        jac_e_T += RHS::ener_gener_rate<species>(dydt);
+    });
+
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool is_reaction_in_equilibrium (const rhs_t& rhs_data, const burn_t& state,
-                                 const Array1D<Real, 1, 6>& equilibrium_state)
-{
-    // Check whether all species are within a given certain tolerance of the
-    // corresponding equilibrium mass fractions.
-
-    const Real equilibrium_tolerance = 0.005_rt;
-
-    bool equilibrium = true;
-
-    if (rhs_data.species_A >= 0) {
-        Real X = state.xn[rhs_data.species_A - 1];
-        Real X_eq = equilibrium_state(1);
-
-        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
-            equilibrium = false;
-        }
-    }
-
-    if (rhs_data.species_B >= 0) {
-        Real X = state.xn[rhs_data.species_B - 1];
-        Real X_eq = equilibrium_state(2);
-
-        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
-            equilibrium = false;
-        }
-    }
-
-    if (rhs_data.species_C >= 0) {
-        Real X = state.xn[rhs_data.species_C - 1];
-        Real X_eq = equilibrium_state(3);
-
-        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
-            equilibrium = false;
-        }
-    }
-
-    if (rhs_data.species_D >= 0) {
-        Real X = state.xn[rhs_data.species_D - 1];
-        Real X_eq = equilibrium_state(4);
-
-        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
-            equilibrium = false;
-        }
-    }
-
-    if (rhs_data.species_E >= 0) {
-        Real X = state.xn[rhs_data.species_E - 1];
-        Real X_eq = equilibrium_state(5);
-
-        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
-            equilibrium = false;
-        }
-    }
-
-    if (rhs_data.species_F >= 0) {
-        Real X = state.xn[rhs_data.species_F - 1];
-        Real X_eq = equilibrium_state(6);
-
-        if (std::abs(X - X_eq) > equilibrium_tolerance * X || X < atol_spec) {
-            equilibrium = false;
-        }
-    }
-
-    return equilibrium;
-}
-
-} // namespace RHS
 
 #endif
