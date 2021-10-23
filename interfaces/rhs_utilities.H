@@ -452,30 +452,6 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
     return term;
 }
 
-// Calculate the array of RHS terms over all species.
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
-{
-    Array1D<Real, 1, NumSpec> spec_rhs = {0.0};
-
-    // For every species, loop over all rates, and if that rate involves
-    // the given species, add its contribution to the RHS.
-
-    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
-    {
-        constexpr int species = n1;
-        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
-        {
-            constexpr int rate = n2;
-            if constexpr (is_rate_used<species, rate>()) {
-                spec_rhs(species) += RHS::rhs_term<species, rate>(state, rr);
-            }
-        });
-    });
-
-    return spec_rhs;
-}
-
 // Calculate the j'th Jacobian term for d(f(species1)) / d(species2).
 //
 // This follows the same scheme as the RHS. The forward term only

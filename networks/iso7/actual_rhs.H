@@ -198,13 +198,24 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
     RHS::rate_t r, drdt;
     get_rates(state, r, drdt);
 
-    // Call the RHS to get dydt
+    // For every species, loop over all rates, and if that rate involves
+    // the given species, add its contribution to the RHS.
 
-    Array1D<Real, 1, NumSpec> spec_rhs = RHS::species_rhs(state, r);
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
+    {
+        constexpr int species = n1;
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        ydot(n) = spec_rhs(n);
-    }
+        ydot(species) = 0.0;
+
+        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        {
+            constexpr int rate = n2;
+
+            if constexpr (RHS::is_rate_used<species, rate>()) {
+                ydot(species) += RHS::rhs_term<species, rate>(state, r);
+            }
+        });
+    });
 
     // Instantaneous energy generation rate
 
@@ -216,7 +227,8 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
     RHS::constexpr_for<1, NumSpec+1>([&] (auto n)
     {
         constexpr int species = n;
-        ydot(net_ienuc) += ener_gener_rate<species>(ydot(n));
+
+        ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
     });
 }
 
