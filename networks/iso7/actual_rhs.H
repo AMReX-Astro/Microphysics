@@ -383,29 +383,6 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
     screen_iso7(temp, rho, y, r, drdt);
 }
 
-
-template<class MatrixType>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dfdy_isotopes_iso7(Array1D<Real, 1, NumSpec> const& y,
-                        burn_t const& state, rate_fr_t rate,
-                        MatrixType& jac)
-{
-
-    // this routine sets up the dense iso7 jacobian for the isotopes
-
-    using namespace Species;
-    using namespace Rates;
-
-    auto spec_jac = RHS::species_jac(state, rate);
-
-    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
-        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
-            jac(spec1, spec2) = spec_jac(spec1, spec2);
-        }
-    }
-
-}
-
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate(T const& dydt, Real& enuc)
@@ -481,7 +458,13 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     // Species Jacobian elements with respect to other species
 
-    dfdy_isotopes_iso7(y, state, rate, jac);
+    auto spec_jac = RHS::species_jac(state, rate);
+
+    for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
+        for (int spec2 = 1; spec2 <= NumSpec; ++spec2) {
+            jac(spec1, spec2) = spec_jac(spec1, spec2);
+        }
+    }
 
     // Energy generation rate Jacobian elements with respect to species
 
