@@ -190,6 +190,78 @@ void apply_density_scaling (const Real& rho, Real& fr, Real& frdt, Real& rr, Rea
     rrdt *= density_term_reverse;
 }
 
+template<int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& rr, Real& rrdt)
+{
+    // The screening behavior depends on the type of reaction. We provide screening
+    // here for the reaction classes we know about, and any other reactions are unscreened.
+
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    if constexpr (rhs_data.number_A == 1 && rhs_data.number_B == 1 && rhs_data.number_C == 0) {
+        // Forward reaction is A + B, screen using these two species
+
+        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+
+        constexpr Real Z2 = NetworkProperties::zion(rhs_data.species_B);
+        constexpr Real A2 = NetworkProperties::aion(rhs_data.species_B);
+
+        constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
+
+        Real sc, scdt;
+        actual_screen5(pstate, scn_fac, sc, scdt);
+
+        frdt = frdt * sc + fr * scdt;
+        fr   = fr * sc;
+    }
+
+    if constexpr (rhs_data.number_A == 2 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+        // Forward reaction is A + A, screen using just this species
+
+        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+
+        constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
+
+        Real sc, scdt;
+        actual_screen5(pstate, scn_fac, sc, scdt);
+
+        frdt = frdt * sc + fr * scdt;
+        fr   = fr * sc;
+    }
+
+    if constexpr (rhs_data.number_A == 3 && rhs_data.number_B == 0 && rhs_data.number_C == 0) {
+        // Forward reaction is triple alpha or an equivalent, screen using A + A
+        // and then A + X where X has twice the number of protons and neutrons.
+
+        constexpr Real Z1 = NetworkProperties::zion(rhs_data.species_A);
+        constexpr Real A1 = NetworkProperties::aion(rhs_data.species_A);
+
+        constexpr auto scn_fac1 = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
+
+        Real sc1, sc1dt;
+        actual_screen5(pstate, scn_fac1, sc1, sc1dt);
+
+        constexpr Real Z2 = 2.0_rt * Z1;
+        constexpr Real A2 = 2.0_rt * A1;
+
+        constexpr auto scn_fac2 = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
+
+        Real sc2, sc2dt;
+        actual_screen5(pstate, scn_fac2, sc2, sc2dt);
+
+        // Compute combined screening factor
+
+        Real sc = sc1 * sc2;
+        Real scdt = sc1dt * sc2 + sc1 * sc2dt;
+
+        frdt = frdt * sc + fr * scdt;
+        fr   = fr * sc;
+    }
+}
+
 // Calculate the RHS term for a given species and rate.
 //
 // The general form of a reaction is
