@@ -476,34 +476,6 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
     return spec_rhs;
 }
 
-// Calculate the energy generation rate, including neutrino losses.
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real ener_rhs (const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
-{
-    using namespace network;
-
-    Real Xdot = 0.0_rt;
-
-    // Sum the mass fraction time derivatives
-
-    for (int i = 1; i <= NumSpec; ++i) {
-        Xdot += dydt(i) * mion(i);
-    }
-
-    // This is basically e = m c**2
-
-    Real dedt = Xdot * C::Legacy::enuc_conv2;
-
-    // Get the neutrino losses
-
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    dedt -= sneut;
-
-    return dedt;
-}
-
 // Calculate the j'th Jacobian term for d(f(species1)) / d(species2).
 //
 // This follows the same scheme as the RHS. The forward term only

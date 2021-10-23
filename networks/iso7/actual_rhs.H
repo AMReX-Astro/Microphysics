@@ -208,7 +208,16 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Instantaneous energy generation rate
 
-    ydot(net_ienuc) = RHS::ener_rhs(state, spec_rhs);
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
+    ydot(net_ienuc) = -sneut;
+
+    RHS::constexpr_for<1, NumSpec+1>([&] (auto n)
+    {
+        constexpr int species = n;
+        ydot(net_ienuc) += ener_gener_rate<species>(ydot(n));
+    });
 }
 
 
