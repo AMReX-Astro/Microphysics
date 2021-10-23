@@ -377,6 +377,10 @@ void actual_jac(burn_t& state, MatrixType& jac)
     abar = state.abar;
     zbar = state.zbar;
 
+    // Account for the thermal neutrino losses
+
+    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+
     // Species Jacobian elements with respect to other species
 
     RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
@@ -405,24 +409,18 @@ void actual_jac(burn_t& state, MatrixType& jac)
         RHS::constexpr_for<1, NumSpec+1>([&] (auto i)
         {
             constexpr int spec1 = i;
-            jac(net_ienuc, j) += ener_gener_rate<spec1>(jac(spec1, j));
+            jac(net_ienuc, spec2) += ener_gener_rate<spec1>(jac(spec1, spec2));
         });
+
+        Real b1 = (-abar * abar * snuda + (NetworkProperties::zion(spec2) - zbar) * abar * snudz);
+        jac(net_ienuc, spec2) - b1;
     });
-
-    // Account for the thermal neutrino losses
-
-    sneut5(temp, rho, abar, zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-
-    for (int j = 1; j <= NumSpec; ++j) {
-       b1 = (-abar * abar * snuda + (zion[j-1] - zbar) * abar * snudz);
-       jac.add(net_ienuc, j, -b1);
-    }
 
     // Evaluate the Jacobian elements with respect to energy by
     // calling the RHS using d(rate) / dT and then transform them
     // to our energy integration variable.
 
-    Real jac_e_T = 0.0;
+    Real jac_e_T = -dsneutdt;
 
     RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
@@ -442,8 +440,6 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
         jac_e_T += ener_gener_rate<species>(dydt);
     });
-
-    jac_e_T -= dsneutdt;
 
     jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
