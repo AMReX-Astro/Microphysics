@@ -200,12 +200,6 @@ void screen_iso7(const Real btemp, const Real bden,
     right hand sides and jacobian matrix elements
     */
 
-    int jscr;
-    Real sc1a,sc1adt,sc1add,sc2a,sc2adt,sc2add;
-    Real sc3a,sc3adt,sc3add,abar,zbar,ye,z2bar;
-    Real t992,t9i92,yeff_ca40,yeff_ca40dt,yeff_ti44,yeff_ti44dt;
-    Real denom,denomdt,denomdd,xx,zz;
-
     plasma_state_t pstate;
 
     // get the temperature factors
@@ -287,47 +281,6 @@ void screen_iso7(const Real btemp, const Real bden,
         }
     });
 
-    /*
-    the publication, timmes, woosley & hoffman apjs, 129, 377
-    has a typo on page 393, where its says "y(C12)+y(O16) .gt. 0.004"
-    it should be less than or equal to, since the idea is this piece
-    gets activated during silicon buring, after all the c + o from
-    oxygen burning is gone.
-    */
-
-    if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
-
-       t992  = tf.t972 * tf.t9;
-       t9i92 = 1.0e0_rt / t992;
-
-       yeff_ca40   = t9i92 * std::exp(239.42_rt*tf.t9i - 74.741_rt);
-       yeff_ca40dt = -yeff_ca40*(239.42_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
-
-       yeff_ti44   = t992  * std::exp(-274.12_rt*tf.t9i + 74.914_rt);
-       yeff_ti44dt = yeff_ti44*(274.12_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
-
-       denom     = std::pow(bden * y(He4), 3.0e0_rt);
-
-       r.forward(Si28_7He4_to_Ni56)     = yeff_ca40 * denom * r.forward(Ca40_He4_to_Ti44);
-       drdt.forward(Si28_7He4_to_Ni56)  = (yeff_ca40dt * r.forward(Ca40_He4_to_Ti44) +
-                                              yeff_ca40 * drdt.forward(Ca40_He4_to_Ti44)) * denom * 1.0e-9_rt;
-
-       if (denom != 0.0_rt) {
-
-          zz     = 1.0e0_rt / denom;
-          r.reverse(Si28_7He4_to_Ni56) = amrex::min(1.0e10_rt, yeff_ti44 * r.reverse(Ca40_He4_to_Ti44) * zz);
-
-          if (r.reverse(Si28_7He4_to_Ni56) == 1.0e10_rt) {
-             drdt.reverse(Si28_7He4_to_Ni56)  = 0.0e0_rt;
-          } else {
-             drdt.reverse(Si28_7He4_to_Ni56)  = (yeff_ti44dt * r.reverse(Ca40_He4_to_Ti44) +
-                                                    yeff_ti44 * drdt.reverse(Ca40_He4_to_Ti44)) * zz * 1.0e-9_rt;
-          }
-
-       }
-
-    }
-
     RHS::constexpr_for<1, NumRatesFR+1>([&] (auto n)
     {
         constexpr int rate = n;
@@ -345,6 +298,9 @@ void screen_iso7(const Real btemp, const Real bden,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 {
+    using namespace Species;
+    using namespace Rates;
+
     Real rho, temp;
     Array1D<Real, 1, NumSpec> y;
 
@@ -381,6 +337,51 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
 
     // Do the screening here because the corrections depend on the composition
     screen_iso7(temp, rho, y, r, drdt);
+
+    // get the temperature factors
+    tf_t tf = get_tfactors(temp);
+
+    /*
+    the publication, timmes, woosley & hoffman apjs, 129, 377
+    has a typo on page 393, where its says "y(C12)+y(O16) .gt. 0.004"
+    it should be less than or equal to, since the idea is this piece
+    gets activated during silicon buring, after all the c + o from
+    oxygen burning is gone.
+    */
+
+    if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
+
+       Real t992  = tf.t972 * tf.t9;
+       Real t9i92 = 1.0e0_rt / t992;
+
+       Real yeff_ca40   = t9i92 * std::exp(239.42_rt*tf.t9i - 74.741_rt);
+       Real yeff_ca40dt = -yeff_ca40*(239.42_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
+
+       Real yeff_ti44   = t992  * std::exp(-274.12_rt*tf.t9i + 74.914_rt);
+       Real yeff_ti44dt = yeff_ti44*(274.12_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
+
+       Real denom     = std::pow(rho * y(He4), 3.0e0_rt);
+
+       r.forward(Si28_7He4_to_Ni56)     = yeff_ca40 * denom * r.forward(Ca40_He4_to_Ti44);
+       drdt.forward(Si28_7He4_to_Ni56)  = (yeff_ca40dt * r.forward(Ca40_He4_to_Ti44) +
+                                              yeff_ca40 * drdt.forward(Ca40_He4_to_Ti44)) * denom * 1.0e-9_rt;
+
+       if (denom != 0.0_rt) {
+
+          Real zz     = 1.0e0_rt / denom;
+          r.reverse(Si28_7He4_to_Ni56) = amrex::min(1.0e10_rt, yeff_ti44 * r.reverse(Ca40_He4_to_Ti44) * zz);
+
+          if (r.reverse(Si28_7He4_to_Ni56) == 1.0e10_rt) {
+             drdt.reverse(Si28_7He4_to_Ni56)  = 0.0e0_rt;
+          } else {
+             drdt.reverse(Si28_7He4_to_Ni56)  = (yeff_ti44dt * r.reverse(Ca40_He4_to_Ti44) +
+                                                    yeff_ti44 * drdt.reverse(Ca40_He4_to_Ti44)) * zz * 1.0e-9_rt;
+          }
+
+       }
+
+    }
+
 }
 
 template<class T>
