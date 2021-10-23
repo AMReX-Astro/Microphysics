@@ -26,7 +26,7 @@ namespace network
 }
 
 namespace Rates {
-    enum NetworkRatesFR {
+    enum NetworkRates {
         C12_He4_to_O16 = 1,
         He4_He4_He4_to_C12,
         C12_C12_to_Ne20_He4,
@@ -38,34 +38,8 @@ namespace Rates {
         Mg24_He4_to_Si28,
         Ca40_He4_to_Ti44,
         Si28_7He4_to_Ni56,
-        NumRatesFR = Si28_7He4_to_Ni56
+        NumRates = Si28_7He4_to_Ni56
     };
-
-    enum NetworkRates {C12_He4_to_O16_forward = 1,
-                       C12_He4_to_O16_reverse,
-                       He4_He4_He4_to_C12_forward,
-                       He4_He4_He4_to_C12_reverse,
-                       C12_C12_to_Ne20_He4_forward,
-                       C12_C12_to_Ne20_He4_reverse,
-                       C12_O16_to_Mg24_He4_forward,
-                       C12_O16_to_Mg24_He4_reverse,
-                       C12_O16_to_Si28_forward,
-                       C12_O16_to_Si28_reverse,
-                       O16_O16_to_Si28_He4_forward,
-                       O16_O16_to_Si28_He4_reverse,
-                       O16_He4_to_Ne20_forward,
-                       O16_He4_to_Ne20_reverse,
-                       Ne20_He4_to_Mg24_forward,
-                       Ne20_He4_to_Mg24_reverse,
-                       Mg24_He4_to_Si28_forward,
-                       Mg24_He4_to_Si28_reverse,
-                       Ca40_He4_to_Ti44_forward,
-                       Ca40_He4_to_Ti44_reverse,
-                       Si28_7He4_to_Ni56_forward,
-                       Si28_7He4_to_Ni56_reverse,
-                       NumRates = Si28_7He4_to_Ni56_reverse};
-
-    const int NumGroups = 2 + NumSpec;
 }
 
 namespace RHS {

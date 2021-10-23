@@ -3,7 +3,6 @@
 
 #include <network_utilities.H>
 #include <actual_network.H>
-#include <rate_type.H>
 #include <burn_type.H>
 #include <screen.H>
 #include <sneut5.H>
@@ -20,9 +19,16 @@ constexpr int nrattab = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1
 constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
 constexpr Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
 
-extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRatesFR, 1, 2, 1, nrattab> rattab;
-extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRatesFR, 1, 2, 1, nrattab> drattabdt;
+extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRates, 1, 2, 1, nrattab> rattab;
+extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRates, 1, 2, 1, nrattab> drattabdt;
 extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
+
+struct rate_t
+{
+    // the forward and reverse rate data
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates> forward;
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates> reverse;
+};
 
 template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -30,20 +36,14 @@ constexpr int is_rate_used ();
 
 template<int species, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr);
+constexpr Real rhs_term (const burn_t& state, rate_t const& rr);
 
 template<int spec1, int spec2, int j>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real jac_term (const burn_t& state, rate_fr_t const& rr);
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr);
+constexpr Real jac_term (const burn_t& state, rate_t const& rr);
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr);
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_t const& rr);
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t const& rr);
@@ -291,7 +291,7 @@ void tabulate_rates ()
         // Get the temperature factors
         tf_t tf = get_tfactors(temp);
 
-        constexpr_for<1, NumRatesFR+1>([&] (auto n)
+        constexpr_for<1, NumRates+1>([&] (auto n)
         {
             constexpr int rate = n;
 
@@ -372,7 +372,7 @@ void evaluate_tabulated_rate (Real alfa, Real beta, Real gama, Real delt, int ia
 // in the multiplication.
 template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
+constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
 {
     constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
@@ -453,24 +453,8 @@ constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
 }
 
 // Calculate the array of RHS terms over all species.
-// Legacy interface using old-style rate array.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
-{
-    rate_fr_t rr_fr;
-
-    // Convert old-style rates to new-style
-    for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr_fr.forward(j) = rr.rates(2 * j - 1);
-        rr_fr.reverse(j) = rr.rates(2 * j);
-    }
-
-    return species_rhs(state, rr_fr);
-}
-
-// Calculate the array of RHS terms over all species.
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr)
 {
     Array1D<Real, 1, NumSpec> spec_rhs = {0.0};
 
@@ -480,7 +464,7 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr)
     RHS::constexpr_for<1, NumSpec+1>([&] (auto n1)
     {
         constexpr int species = n1;
-        RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n2)
+        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
         {
             constexpr int rate = n2;
             if constexpr (is_rate_used<species, rate>()) {
@@ -531,7 +515,7 @@ Real ener_rhs (const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
 // contribution if spec2 is one of (D, E, F).
 template<int spec1, int spec2, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real jac_term (const burn_t& state, rate_fr_t const& rr)
+constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 {
     constexpr rhs_t rhs_data = RHS::rhs_data(rate);
 
@@ -696,22 +680,6 @@ constexpr Real jac_term (const burn_t& state, rate_fr_t const& rr)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t const& rr)
 {
-    rate_fr_t rr_fr;
-
-    // Convert old-style rates to new-style
-    for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr_fr.forward(j) = rr.rates(2 * j - 1);
-        rr_fr.reverse(j) = rr.rates(2 * j);
-    }
-
-    return RHS::species_jac(state, rr_fr);
-}
-
-// Calculate the Jacobian terms that are derivatives of one species
-// with respect to another.
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_t const& rr)
-{
     Array2D<Real, 1, NumSpec, 1, NumSpec> spec_jac = {0.0};
 
     // For every spec1 and spec2 pair, loop over all rates, and if that rate
@@ -723,7 +691,7 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_
         RHS::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int spec2 = n2;
-            RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n3)
+            RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
             {
                 constexpr int rate = n3;
                 if constexpr (is_rate_used<spec1, rate>()) {

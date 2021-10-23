@@ -12,7 +12,6 @@
 #include <actual_network.H>
 #include <burn_type.H>
 #include <tfactors.H>
-#include <rate_type.H>
 #include <screen.H>
 #include <sneut5.H>
 #include <aprox_rates.H>
@@ -50,7 +49,7 @@ void construct_rate (const Real& rho, const tf_t& tf, const Array1D<Real, 1, Num
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
+void get_rates(burn_t const& state, RHS::rate_t& r, RHS::rate_t& drdt)
 {
     using namespace Species;
     using namespace Rates;
@@ -104,7 +103,7 @@ void get_rates(burn_t const& state, rate_fr_t& r, rate_fr_t& drdt)
         delt = -a * b * c / (g * p * q);
     }
 
-    RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n)
+    RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
     {
         constexpr int rate = n;
 
@@ -196,7 +195,7 @@ void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     // Evaluate the rates
 
-    rate_fr_t r, drdt;
+    RHS::rate_t r, drdt;
     get_rates(state, r, drdt);
 
     // Call the RHS to get dydt
@@ -218,7 +217,7 @@ template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_jac(burn_t& state, MatrixType& jac)
 {
-    rate_fr_t r, drdt;
+    RHS::rate_t r, drdt;
 
     Real b1, sneut, dsneutdt, dsneutdd, snuda, snudz;
     Real rho, temp, abar, zbar;
@@ -246,7 +245,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
         RHS::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int spec2 = n2;
-            RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n3)
+            RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
             {
                 constexpr int rate = n3;
                 if constexpr (RHS::is_rate_used<spec1, rate>()) {
@@ -284,7 +283,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
         Real dydt = 0.0;
 
-        RHS::constexpr_for<1, Rates::NumRatesFR+1>([&] (auto n2)
+        RHS::constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
         {
             constexpr int rate = n2;
             if constexpr (RHS::is_rate_used<species, rate>()) {
