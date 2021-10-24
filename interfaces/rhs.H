@@ -881,12 +881,13 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     sneut5(state.T, state.rho, state.abar, state.zbar,
            sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    // Energy generation rate Jacobian elements with respect to species
+    jac(net_ienuc, net_ienuc) = -dsneutdt;
 
     constexpr_for<1, NumSpec+1>([&] (auto j)
     {
         constexpr int species = j;
 
+        // Energy generation rate Jacobian elements with respect to species.
         Real b1 = (-state.abar * state.abar * snuda + (NetworkProperties::zion(species) - state.zbar) * state.abar * snudz);
         jac(net_ienuc, species) = -b1;
 
@@ -896,17 +897,12 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
             jac(net_ienuc, species) += ener_gener_rate<s>(jac(s, species));
         });
-    });
 
-    // Convert from d/dT to d/de.
-    jac(net_ienuc, net_ienuc) = -dsneutdt;
+        // Convert previously computed terms from d/dT to d/de.
+        jac(species, net_ienuc) = temperature_to_energy_jacobian(state, jac(species, net_ienuc));
 
-    constexpr_for<1, NumSpec+1>([&] (auto n)
-    {
-        constexpr int species = n;
-
-        jac(n, net_ienuc) = temperature_to_energy_jacobian(state, jac(n, net_ienuc));
-        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(jac(n, net_ienuc));
+        // Compute df(e) / de term.
+        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(jac(species, net_ienuc));
     });
 }
 
