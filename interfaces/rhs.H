@@ -35,6 +35,12 @@ struct rate_t
     amrex::Array1D<amrex::Real, 1, Rates::NumRates> reverse;
 };
 
+struct rate_tab_t
+{
+    Real alfa, beta, gama, delt;
+    int iat;
+};
+
 // Internal implementation functions
 
 namespace RHS_impl {
@@ -291,28 +297,27 @@ void tabulate_rates ()
 
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_tabulated_rate (Real alfa, Real beta, Real gama, Real delt, int iat,
-                              Real& fr, Real& frdt, Real& rr, Real& rrdt)
+void evaluate_tabulated_rate (const rate_tab_t& tab, Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
-    fr = (alfa * rattab(rate, 1, iat  ) +
-          beta * rattab(rate, 1, iat+1) +
-          gama * rattab(rate, 1, iat+2) +
-          delt * rattab(rate, 1, iat+3));
+    fr = (tab.alfa * rattab(rate, 1, tab.iat  ) +
+          tab.beta * rattab(rate, 1, tab.iat+1) +
+          tab.gama * rattab(rate, 1, tab.iat+2) +
+          tab.delt * rattab(rate, 1, tab.iat+3));
 
-    rr = (alfa * rattab(rate, 2, iat  ) +
-          beta * rattab(rate, 2, iat+1) +
-          gama * rattab(rate, 2, iat+2) +
-          delt * rattab(rate, 2, iat+3));
+    rr = (tab.alfa * rattab(rate, 2, tab.iat  ) +
+          tab.beta * rattab(rate, 2, tab.iat+1) +
+          tab.gama * rattab(rate, 2, tab.iat+2) +
+          tab.delt * rattab(rate, 2, tab.iat+3));
 
-    frdt = (alfa * drattabdt(rate, 1, iat  ) +
-            beta * drattabdt(rate, 1, iat+1) +
-            gama * drattabdt(rate, 1, iat+2) +
-            delt * drattabdt(rate, 1, iat+3));
+    frdt = (tab.alfa * drattabdt(rate, 1, tab.iat  ) +
+            tab.beta * drattabdt(rate, 1, tab.iat+1) +
+            tab.gama * drattabdt(rate, 1, tab.iat+2) +
+            tab.delt * drattabdt(rate, 1, tab.iat+3));
 
-    rrdt = (alfa * drattabdt(rate, 2, iat  ) +
-            beta * drattabdt(rate, 2, iat+1) +
-            gama * drattabdt(rate, 2, iat+2) +
-            delt * drattabdt(rate, 2, iat+3));
+    rrdt = (tab.alfa * drattabdt(rate, 2, tab.iat  ) +
+            tab.beta * drattabdt(rate, 2, tab.iat+1) +
+            tab.gama * drattabdt(rate, 2, tab.iat+2) +
+            tab.delt * drattabdt(rate, 2, tab.iat+3));
 }
 
 // Calculate the RHS term for a given species and rate.
@@ -603,16 +608,15 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void construct_rate (const Real& rho, const tf_t& tf, const Array1D<Real, 1, NumSpec>& y,
-                     const plasma_state_t& pstate,
-                     const Real& alfa, const Real& beta, const Real& gama, const Real& delt, const int& iat,
+void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
+                     const Array1D<Real, 1, NumSpec>& y, const plasma_state_t& pstate,
                      Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
     using namespace Species;
     using namespace Rates;
 
     if (use_tables) {
-        evaluate_tabulated_rate<rate>(alfa, beta, gama, delt, iat, fr, frdt, rr, rrdt);
+        evaluate_tabulated_rate<rate>(tab, fr, frdt, rr, rrdt);
     }
     else {
         evaluate_analytical_rate<rate>(tf, fr, frdt, rr, rrdt);
@@ -649,21 +653,20 @@ void get_rates(burn_t const& state, rate_t& r, rate_t& drdt)
     // Get the temperature factors
     tf_t tf = get_tfactors(temp);
 
-    Real alfa, beta, gama, delt;
-    int iat;
+    rate_tab_t tab;
 
     if (use_tables) {
         // hash locate
         constexpr int mp = 4;
-        iat = static_cast<int>((std::log10(temp) - tab_tlo) / tab_tstp) + 1;
-        iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+        tab.iat = static_cast<int>((std::log10(temp) - tab_tlo) / tab_tstp) + 1;
+        tab.iat = amrex::max(1, amrex::min(tab.iat - 1, tab_imax - mp + 1));
 
         // setup the lagrange interpolation coefficients for a cubic
         Real x  = temp;
-        Real x1 = ttab(iat);
-        Real x2 = ttab(iat+1);
-        Real x3 = ttab(iat+2);
-        Real x4 = ttab(iat+3);
+        Real x1 = ttab(tab.iat);
+        Real x2 = ttab(tab.iat+1);
+        Real x3 = ttab(tab.iat+2);
+        Real x4 = ttab(tab.iat+3);
         Real a  = x - x1;
         Real b  = x - x2;
         Real c  = x - x3;
@@ -674,10 +677,10 @@ void get_rates(burn_t const& state, rate_t& r, rate_t& drdt)
         Real h  = x2 - x3;
         Real p  = x2 - x4;
         Real q  = x3 - x4;
-        alfa =  b * c * d / (e * f * g);
-        beta = -a * c * d / (e * h * p);
-        gama =  a * b * d / (f * h * q);
-        delt = -a * b * c / (g * p * q);
+        tab.alfa =  b * c * d / (e * f * g);
+        tab.beta = -a * c * d / (e * h * p);
+        tab.gama =  a * b * d / (f * h * q);
+        tab.delt = -a * b * c / (g * p * q);
     }
 
     constexpr_for<1, Rates::NumRates+1>([&] (auto n)
@@ -703,8 +706,7 @@ void get_rates(burn_t const& state, rate_t& r, rate_t& drdt)
 
         Real fr = 0.0, frdt = 0.0, rr = 0.0, rrdt = 0.0;
 
-        construct_rate<rate>(rho, tf, y, pstate,
-                             alfa, beta, gama, delt, iat,
+        construct_rate<rate>(rho, tf, tab, y, pstate,
                              fr, frdt, rr, rrdt);
 
         // Construct all intermediate rates needed to augment this reaction.
@@ -722,14 +724,12 @@ void get_rates(burn_t const& state, rate_t& r, rate_t& drdt)
 
         if constexpr (rate1 >= 0 || rate2 >= 0) {
             if constexpr (rate1 >= 0) {
-                construct_rate<rate1>(rho, tf, y, pstate,
-                                      alfa, beta, gama, delt, iat,
+                construct_rate<rate1>(rho, tf, tab, y, pstate,
                                       fr1, fr1dt, rr1, rr1dt);
             }
 
             if constexpr (rate2 >= 0) {
-                construct_rate<rate1>(rho, tf, y, pstate,
-                                      alfa, beta, gama, delt, iat,
+                construct_rate<rate1>(rho, tf, tab, y, pstate,
                                       fr2, fr2dt, rr2, rr2dt);
             }
 
