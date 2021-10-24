@@ -39,7 +39,38 @@ struct rate_tab_t
 {
     Real alfa, beta, gama, delt;
     int iat;
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    void initialize (Real temp) {
+        // hash locate
+        constexpr int mp = 4;
+        iat = static_cast<int>((std::log10(temp) - tab_tlo) / tab_tstp) + 1;
+        iat = amrex::max(1, amrex::min(iat - 1, tab_imax - mp + 1));
+
+        // setup the lagrange interpolation coefficients for a cubic
+        Real x  = temp;
+        Real x1 = ttab(iat);
+        Real x2 = ttab(iat+1);
+        Real x3 = ttab(iat+2);
+        Real x4 = ttab(iat+3);
+        Real a  = x - x1;
+        Real b  = x - x2;
+        Real c  = x - x3;
+        Real d  = x - x4;
+        Real e  = x1 - x2;
+        Real f  = x1 - x3;
+        Real g  = x1 - x4;
+        Real h  = x2 - x3;
+        Real p  = x2 - x4;
+        Real q  = x3 - x4;
+        alfa =  b * c * d / (e * f * g);
+        beta = -a * c * d / (e * h * p);
+        gama =  a * b * d / (f * h * q);
+        delt = -a * b * c / (g * p * q);
+    }
 };
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 
 // Internal implementation functions
 
@@ -656,31 +687,7 @@ void get_rates(burn_t const& state, rate_t& r, rate_t& drdt)
     rate_tab_t tab;
 
     if (use_tables) {
-        // hash locate
-        constexpr int mp = 4;
-        tab.iat = static_cast<int>((std::log10(temp) - tab_tlo) / tab_tstp) + 1;
-        tab.iat = amrex::max(1, amrex::min(tab.iat - 1, tab_imax - mp + 1));
-
-        // setup the lagrange interpolation coefficients for a cubic
-        Real x  = temp;
-        Real x1 = ttab(tab.iat);
-        Real x2 = ttab(tab.iat+1);
-        Real x3 = ttab(tab.iat+2);
-        Real x4 = ttab(tab.iat+3);
-        Real a  = x - x1;
-        Real b  = x - x2;
-        Real c  = x - x3;
-        Real d  = x - x4;
-        Real e  = x1 - x2;
-        Real f  = x1 - x3;
-        Real g  = x1 - x4;
-        Real h  = x2 - x3;
-        Real p  = x2 - x4;
-        Real q  = x3 - x4;
-        tab.alfa =  b * c * d / (e * f * g);
-        tab.beta = -a * c * d / (e * h * p);
-        tab.gama =  a * b * d / (f * h * q);
-        tab.delt = -a * b * c / (g * p * q);
+        tab.initialize(temp);
     }
 
     constexpr_for<1, Rates::NumRates+1>([&] (auto n)
