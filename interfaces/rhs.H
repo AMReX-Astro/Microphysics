@@ -834,11 +834,6 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         tab.initialize(state.T);
     }
 
-    // Evaluate the neutrino cooling.
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(state.T, state.rho, state.abar, state.zbar,
-           sneut, dsneutdt, dsneutdd, snuda, snudz);
-
     // Initialize the Jacobian terms.
     for (int i = 1; i <= neqs; ++i) {
         for (int j = 1; j <= neqs; ++j) {
@@ -870,6 +865,11 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
             });
         });
     });
+
+    // Evaluate the neutrino cooling.
+    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    sneut5(state.T, state.rho, state.abar, state.zbar,
+           sneut, dsneutdt, dsneutdd, snuda, snudz);
 
     // Energy generation rate Jacobian elements with respect to species
 
