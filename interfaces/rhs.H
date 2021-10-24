@@ -17,6 +17,7 @@
 namespace RHS
 {
 
+// Rate tabulation data.
 constexpr Real tab_tlo = 6.0e0_rt;
 constexpr Real tab_thi = 10.0e0_rt;
 constexpr int tab_per_decade = 2000;
@@ -28,13 +29,7 @@ extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRates, 1, 2, 1, nrattab> rat
 extern AMREX_GPU_MANAGED Array3D<Real, 1, Rates::NumRates, 1, 2, 1, nrattab> drattabdt;
 extern AMREX_GPU_MANAGED Array1D<Real, 1, nrattab> ttab;
 
-struct rate_t
-{
-    // the forward and reverse rate data
-    amrex::Array1D<amrex::Real, 1, Rates::NumRates> forward;
-    amrex::Array1D<amrex::Real, 1, Rates::NumRates> reverse;
-};
-
+// A struct that contains the terms needed to evaluate a tabulated rate.
 struct rate_tab_t
 {
     Real alfa, beta, gama, delt;
@@ -70,25 +65,17 @@ struct rate_tab_t
     }
 };
 
+// Calculate an integer factorial.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-
-// Internal implementation functions
-
-namespace RHS_impl {
-
-    // Calculate an integer factorial.
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr int factorial (int n)
-    {
-        if (n <= 1) {
-            return 1;
-        }
-        else {
-            return n * factorial(n - 1);
-        }
+constexpr int factorial (int n)
+{
+    if (n <= 1) {
+        return 1;
     }
-
-} // namespace RHS_impl
+    else {
+        return n * factorial(n - 1);
+    }
+}
 
 // Implementation of "constexpr for" based on
 // https://artificial-mind.net/blog/2020/10/31/constexpr-for
@@ -107,6 +94,7 @@ namespace RHS_impl {
 // data it needs.
 
 template<auto I, auto N, class F>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr void constexpr_for (F&& f)
 {
     if constexpr (I < N) {
@@ -204,6 +192,7 @@ constexpr int density_exponent_reverse ()
     return exponent;
 }
 
+// Scale a rate using the density terms.
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_density_scaling (const Real& rho, Real& fr, Real& frdt, Real& rr, Real& rrdt)
@@ -220,6 +209,7 @@ void apply_density_scaling (const Real& rho, Real& fr, Real& frdt, Real& rr, Rea
     rrdt *= density_term_reverse;
 }
 
+// Apply the screening term to a given rate.
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& rr, Real& rrdt)
@@ -292,7 +282,9 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
     }
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
+// Do the initial tabulation of rates. We loop over various
+// temperatures and evaluate all the rates at each temperature.
+AMREX_INLINE
 void tabulate_rates ()
 {
     using namespace Rates;
@@ -326,6 +318,7 @@ void tabulate_rates ()
     }
 }
 
+// Evaluate a rate using the rate tables.
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void evaluate_tabulated_rate (const rate_tab_t& tab, Real& fr, Real& frdt, Real& rr, Real& rrdt)
