@@ -386,7 +386,7 @@ void evaluate_tabulated_rate (const rate_tab_t& tab, Real& fr, Real& frdt, Real&
 // in the multiplication.
 template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
+constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
 {
     constexpr rhs_t data = rhs_data(rate);
 
@@ -394,7 +394,7 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
     // reverse reactions, which is the same regardless of which species
     // we're producing or consuming.
 
-    Real forward_term = rr.forward(rate);
+    Real forward_term = fr;
 
     if constexpr (data.species_A >= 0) {
         Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
@@ -417,7 +417,7 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
                         static_cast<Real>(identical_particle_factor);
     }
 
-    Real reverse_term = rr.reverse(rate);
+    Real reverse_term = rr;
 
     if constexpr (data.species_D >= 0) {
         Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
@@ -477,7 +477,7 @@ constexpr Real rhs_term (const burn_t& state, rate_t const& rr)
 // contribution if spec2 is one of (D, E, F).
 template<int spec1, int spec2, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real jac_term (const burn_t& state, rate_t const& rr)
+constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 {
     constexpr rhs_t data = rhs_data(rate);
 
@@ -485,7 +485,7 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 
     if constexpr (spec2 == data.species_A || spec2 == data.species_B || spec2 == data.species_C) {
 
-        forward_term = rr.forward(rate);
+        forward_term = fr;
 
         if constexpr (data.species_A >= 0) {
             Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
@@ -553,7 +553,7 @@ constexpr Real jac_term (const burn_t& state, rate_t const& rr)
 
     if constexpr (spec2 == data.species_D || spec2 == data.species_E || spec2 == data.species_F) {
 
-        reverse_term = rr.reverse(rate);
+        reverse_term = rr;
 
         if constexpr (data.species_D >= 0) {
             Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
@@ -660,108 +660,64 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
     apply_screening<rate>(pstate, fr, frdt, rr, rrdt);
 }
 
+template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rates(burn_t const& state, rate_t& r, rate_t& drdt)
+void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
+               const Array1D<Real, 1, NumSpec>& y, const plasma_state_t& pstate,
+               Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
     using namespace Species;
     using namespace Rates;
 
-    Real rho, temp;
-    Array1D<Real, 1, NumSpec> y;
+    fr = 0.0;
+    frdt = 0.0;
+    rr = 0.0;
+    rrdt = 0.0;
 
-    // Get the data from the state
-    rho  = state.rho;
-    temp = state.T;
+    constexpr rhs_t data = rhs_data(rate);
 
-    for (int i = 1; i <= NumSpec; ++i)
-        y(i) = state.xn[i-1] * aion_inv[i-1];
+    // Construct the (screened and density-scaled) rate.
 
+    construct_rate<rate>(rho, tf, tab, y, pstate,
+                         fr, frdt, rr, rrdt);
 
-    // Set up the state data, which is the same for all screening factors.
-    plasma_state_t pstate;
-    fill_plasma_state(pstate, temp, rho, y);
+    // Construct all intermediate rates needed to augment this reaction.
+    // To keep the problem bounded we assume that there are no more than
+    // two intermediate reactions needed, however it is straightforward
+    // to add more as needed (or to generalize this into a loop over all
+    // rates if really needed). If any are present, postprocess the rate
+    // using the additional terms.
 
-    // Get the temperature factors
-    tf_t tf = get_tfactors(temp);
+    Real fr1, fr1dt, rr1, rr1dt;
+    Real fr2, fr2dt, rr2, rr2dt;
 
-    rate_tab_t tab;
+    constexpr int rate1 = data.additional_reaction_1;
+    constexpr int rate2 = data.additional_reaction_2;
 
-    if (use_tables) {
-        tab.initialize(temp);
+    if constexpr (rate1 >= 0 || rate2 >= 0) {
+        if constexpr (rate1 >= 0) {
+            construct_rate<rate1>(rho, tf, tab, y, pstate,
+                                  fr1, fr1dt, rr1, rr1dt);
+        }
+
+        if constexpr (rate2 >= 0) {
+            construct_rate<rate1>(rho, tf, tab, y, pstate,
+                                  fr2, fr2dt, rr2, rr2dt);
+        }
+
+        postprocess_rate<rate>(rho, tf, y,
+                               fr, frdt, rr, rrdt,
+                               fr1, fr1dt, rr1, rr1dt,
+                               fr2, fr2dt, rr2, rr2dt);
     }
 
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
-    {
-        constexpr int rate = n;
+    // Handle any branching ratios.
 
-        constexpr rhs_t data = rhs_data(rate);
+    fr *= data.forward_branching_ratio;
+    rr *= data.reverse_branching_ratio;
 
-        // If this is an intermediate reaction for another reaction,
-        // skip it now. We recognize intermediate reactions because
-        // at least one of the species will not be a "real" species.
-
-        if constexpr (data.species_A > NumSpec ||
-                      data.species_B > NumSpec ||
-                      data.species_C > NumSpec ||
-                      data.species_D > NumSpec ||
-                      data.species_E > NumSpec ||
-                      data.species_F > NumSpec) {
-            return;
-        }
-
-        // Construct the (screened and density-scaled) rate.
-
-        Real fr = 0.0, frdt = 0.0, rr = 0.0, rrdt = 0.0;
-
-        construct_rate<rate>(rho, tf, tab, y, pstate,
-                             fr, frdt, rr, rrdt);
-
-        // Construct all intermediate rates needed to augment this reaction.
-        // To keep the problem bounded we assume that there are no more than
-        // two intermediate reactions needed, however it is straightforward
-        // to add more as needed (or to generalize this into a loop over all
-        // rates if really needed). If any are present, postprocess the rate
-        // using the additional terms.
-
-        Real fr1 = 0.0, fr1dt = 0.0, rr1 = 0.0, rr1dt = 0.0;
-        Real fr2 = 0.0, fr2dt = 0.0, rr2 = 0.0, rr2dt = 0.0;
-
-        constexpr int rate1 = data.additional_reaction_1;
-        constexpr int rate2 = data.additional_reaction_2;
-
-        if constexpr (rate1 >= 0 || rate2 >= 0) {
-            if constexpr (rate1 >= 0) {
-                construct_rate<rate1>(rho, tf, tab, y, pstate,
-                                      fr1, fr1dt, rr1, rr1dt);
-            }
-
-            if constexpr (rate2 >= 0) {
-                construct_rate<rate1>(rho, tf, tab, y, pstate,
-                                      fr2, fr2dt, rr2, rr2dt);
-            }
-
-            postprocess_rate<rate>(rho, tf, y,
-                                        fr, frdt, rr, rrdt,
-                                        fr1, fr1dt, rr1, rr1dt,
-                                        fr2, fr2dt, rr2, rr2dt);
-        }
-
-        // Handle any branching ratios.
-
-        fr *= data.forward_branching_ratio;
-        rr *= data.reverse_branching_ratio;
-
-        frdt *= data.forward_branching_ratio;
-        rrdt *= data.reverse_branching_ratio;
-
-        // Store the final rate.
-
-        r.forward(rate) = fr;
-        drdt.forward(rate) = frdt;
-
-        r.reverse(rate) = rr;
-        drdt.reverse(rate) = rrdt;
-    });
+    frdt *= data.forward_branching_ratio;
+    rrdt *= data.reverse_branching_ratio;
 }
 
 template<int spec>
@@ -789,10 +745,22 @@ void rhs_init ()
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
-    // Evaluate the rates
+    // Convert X to Y.
+    Array1D<Real, 1, NumSpec> y;
+    for (int n = 1; n <= NumSpec; ++n) {
+        y(n) = state.xn[n-1] * aion_inv[n-1];
+    }
 
-    rate_t r, drdt;
-    get_rates(state, r, drdt);
+    // Set up the state data, which is the same for all screening factors.
+    plasma_state_t pstate;
+    fill_plasma_state(pstate, state.T, state.rho, y);
+
+    // Initialize the rate temperature term.
+    tf_t tf = get_tfactors(state.T);
+    rate_tab_t tab;
+    if (use_tables) {
+        tab.initialize(state.T);
+    }
 
     // For every species, loop over all rates, and if that rate involves
     // the given species, add its contribution to the RHS.
@@ -808,7 +776,10 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
             constexpr int rate = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                ydot(species) += rhs_term<species, rate>(state, r);
+                Real fr, frdt, rr, rrdt;
+                get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
+
+                ydot(species) += rhs_term<species, rate>(state, fr, rr);
             }
         });
     });
@@ -832,13 +803,24 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 {
-    Real rho, temp, abar, zbar;
+    // Convert X to Y.
+    Array1D<Real, 1, NumSpec> y;
+    for (int n = 1; n <= NumSpec; ++n) {
+        y(n) = state.xn[n-1] * aion_inv[n-1];
+    }
 
-    rate_t r, drdt;
-    get_rates(state, r, drdt);
+    // Set up the state data, which is the same for all screening factors.
+    plasma_state_t pstate;
+    fill_plasma_state(pstate, state.T, state.rho, y);
+
+    // Initialize the rate temperature term.
+    tf_t tf = get_tfactors(state.T);
+    rate_tab_t tab;
+    if (use_tables) {
+        tab.initialize(state.T);
+    }
 
     // Account for the thermal neutrino losses
-
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(state.T, state.rho, state.abar, state.zbar,
            sneut, dsneutdt, dsneutdd, snuda, snudz);
@@ -860,7 +842,10 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
                 constexpr int rate = n3;
 
                 if constexpr (is_rate_used<spec1, rate>()) {
-                    jac(spec1, spec2) += jac_term<spec1, spec2, rate>(state, r);
+                    Real fr, frdt, rr, rrdt;
+                    get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
+
+                    jac(spec1, spec2) += jac_term<spec1, spec2, rate>(state, fr, rr);
                 }
             });
         });
@@ -872,7 +857,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     {
         constexpr int species = j;
 
-        Real b1 = (-abar * abar * snuda + (NetworkProperties::zion(species) - zbar) * abar * snudz);
+        Real b1 = (-state.abar * state.abar * snuda + (NetworkProperties::zion(species) - state.zbar) * state.abar * snudz);
         jac(net_ienuc, species) = -b1;
 
         constexpr_for<1, NumSpec+1>([&] (auto i)
@@ -900,7 +885,10 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
             constexpr int rate = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                dydt += rhs_term<species, rate>(state, drdt);
+                Real fr, frdt, rr, rrdt;
+                get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
+
+                dydt += rhs_term<species, rate>(state, frdt, rrdt);
             }
         });
 

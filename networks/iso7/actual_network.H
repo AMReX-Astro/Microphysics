@@ -305,26 +305,26 @@ namespace RHS {
             if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
 
                 Real t992  = tf.t972 * tf.t9;
-                Real t9i92 = 1.0e0_rt / t992;
+                Real t9i92 = 1.0_rt / t992;
 
-                Real yeff_ca40   = t9i92 * std::exp(239.42_rt*tf.t9i - 74.741_rt);
-                Real yeff_ca40dt = -yeff_ca40*(239.42_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
+                Real yeff_ca40   = t9i92 * std::exp(239.42_rt * tf.t9i - 74.741_rt);
+                Real yeff_ca40dt = -yeff_ca40 * (239.42_rt * tf.t9i2 + 4.5_rt * tf.t9i);
 
-                Real yeff_ti44   = t992  * std::exp(-274.12_rt*tf.t9i + 74.914_rt);
-                Real yeff_ti44dt = yeff_ti44*(274.12_rt*tf.t9i2 + 4.5e0_rt*tf.t9i);
+                Real yeff_ti44   = t992  * std::exp(-274.12_rt * tf.t9i + 74.914_rt);
+                Real yeff_ti44dt = yeff_ti44*(274.12_rt * tf.t9i2 + 4.5_rt * tf.t9i);
 
-                Real denom = std::pow(rho * y(He4), 3.0e0_rt);
+                Real denom = std::pow(rho * y(He4), 3.0_rt);
 
                 fr   = yeff_ca40 * denom * fr1;
                 frdt = (yeff_ca40dt * fr1 + yeff_ca40 * fr1dt) * denom * 1.0e-9_rt;
 
-                Real zz = 1.0e0_rt / denom;
+                Real zz = 1.0_rt / denom;
                 rr = amrex::min(1.0e10_rt, yeff_ti44 * rr1 * zz);
 
                 if (rr == 1.0e10_rt) {
-                    rrdt = 0.0e0_rt;
+                    rrdt = 0.0_rt;
                 } else {
-                    rrdt  = (yeff_ti44dt * rr1 + yeff_ti44 * rr1dt) * zz * 1.0e-9_rt;
+                    rrdt = (yeff_ti44dt * rr1 + yeff_ti44 * rr1dt) * zz * 1.0e-9_rt;
                 }
             }
         }
