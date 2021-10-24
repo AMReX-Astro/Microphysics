@@ -841,9 +841,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         }
     }
 
-    // Species Jacobian elements with respect to other species.
-    // Loop over rates and add the term to the Jacobian if the
-    // rate involves both species in this Jacobian term.
+    // Loop over rates and compute Jacobian terms.
     constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
         constexpr int rate = n1;
@@ -851,6 +849,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         Real fr, frdt, rr, rrdt;
         get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
 
+        // Species Jacobian elements with respect to other species.
         constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int spec1 = n2;
@@ -863,6 +862,17 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
                     jac(spec1, spec2) += jac_term<spec1, spec2, rate>(state, fr, rr);
                 }
             });
+        });
+
+        // Evaluate the Jacobian elements with respect to temperature.
+        // We'll convert them from d/dT to d/de later.
+        constexpr_for<1, NumSpec+1>([&] (auto n2)
+        {
+            constexpr int species = n2;
+
+            if constexpr (is_rate_used<species, rate>()) {
+                jac(species, net_ienuc) += rhs_term<species, rate>(state, frdt, rrdt);
+            }
         });
     });
 
@@ -885,26 +895,6 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
             constexpr int s = i;
 
             jac(net_ienuc, species) += ener_gener_rate<s>(jac(s, species));
-        });
-    });
-
-    // Evaluate the Jacobian elements with respect to energy by
-    // calling the RHS using d(rate) / dT and then transform them
-    // to our energy integration variable.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
-    {
-        constexpr int rate = n1;
-
-        Real fr, frdt, rr, rrdt;
-        get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
-
-        constexpr_for<1, NumSpec+1>([&] (auto n2)
-        {
-            constexpr int species = n2;
-
-            if constexpr (is_rate_used<species, rate>()) {
-                jac(species, net_ienuc) += rhs_term<species, rate>(state, frdt, rrdt);
-            }
         });
     });
 
