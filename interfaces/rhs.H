@@ -391,21 +391,21 @@ constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
 
     if constexpr (data.species_A >= 0) {
         Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_A);
+        constexpr int identical_particle_factor = factorial(data.exponent_A);
         forward_term *= std::pow(Y_A, data.exponent_A) /
                         static_cast<Real>(identical_particle_factor);
     }
 
     if constexpr (data.species_B >= 0) {
         Real Y_B = state.xn[data.species_B-1] * aion_inv[data.species_B-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_B);
+        constexpr int identical_particle_factor = factorial(data.exponent_B);
         forward_term *= std::pow(Y_B, data.exponent_B) /
                         static_cast<Real>(identical_particle_factor);
     }
 
     if constexpr (data.species_C >= 0) {
         Real Y_C = state.xn[data.species_C-1] * aion_inv[data.species_C-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_C);
+        constexpr int identical_particle_factor = factorial(data.exponent_C);
         forward_term *= std::pow(Y_C, data.exponent_C) /
                         static_cast<Real>(identical_particle_factor);
     }
@@ -414,21 +414,21 @@ constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
 
     if constexpr (data.species_D >= 0) {
         Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_D);
+        constexpr int identical_particle_factor = factorial(data.exponent_D);
         reverse_term *= std::pow(Y_D, data.exponent_D) /
                         static_cast<Real>(identical_particle_factor);
     }
 
     if constexpr (data.species_E >= 0) {
         Real Y_E = state.xn[data.species_E-1] * aion_inv[data.species_E-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_E);
+        constexpr int identical_particle_factor = factorial(data.exponent_E);
         reverse_term *= std::pow(Y_E, data.exponent_E) /
                         static_cast<Real>(identical_particle_factor);
     }
 
     if constexpr (data.species_F >= 0) {
         Real Y_F = state.xn[data.species_F-1] * aion_inv[data.species_F-1];
-        constexpr int identical_particle_factor = RHS_impl::factorial(data.exponent_F);
+        constexpr int identical_particle_factor = factorial(data.exponent_F);
         reverse_term *= std::pow(Y_F, data.exponent_F) /
                         static_cast<Real>(identical_particle_factor);
     }
@@ -485,7 +485,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_A;
 
-            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+            constexpr int identical_particle_factor = factorial(exponent);
 
             // Compute the forward term. It only has a contribution if
             // the species we're taking the derivative with respect to
@@ -509,7 +509,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_B;
 
-            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+            constexpr int identical_particle_factor = factorial(exponent);
 
             int exp = exponent;
 
@@ -527,7 +527,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_C;
 
-            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+            constexpr int identical_particle_factor = factorial(exponent);
 
             int exp = exponent;
 
@@ -553,7 +553,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_D;
 
-            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+            constexpr int identical_particle_factor = factorial(exponent);
 
             int exp = exponent;
 
@@ -571,7 +571,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_E;
 
-            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+            constexpr int identical_particle_factor = factorial(exponent);
 
             int exp = exponent;
 
@@ -589,7 +589,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_F;
 
-            constexpr int identical_particle_factor = RHS_impl::factorial(exponent);
+            constexpr int identical_particle_factor = factorial(exponent);
 
             int exp = exponent;
 
