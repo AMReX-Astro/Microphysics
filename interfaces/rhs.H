@@ -226,7 +226,9 @@ void dgesl (RArray2D& a1, RArray1D& b1)
         Real t = b(k);
         constexpr_for<k+1, neqs>([&] (auto j)
         {
-            b(j) += t * a(j,k);
+            if (is_jacobian_term_used<j, k>()) {
+                b(j) += t * a(j,k);
+            }
         });
     });
 
@@ -239,7 +241,9 @@ void dgesl (RArray2D& a1, RArray1D& b1)
 
         constexpr_for<0, k>([&] (auto j)
         {
-            b(j) += t * a(j,k);
+            if (is_jacobian_term_used<j, k>()) {
+                b(j) += t * a(j,k);
+            }
         });
     });
 }
@@ -257,7 +261,9 @@ void dgefa (RArray2D& a1)
         Real t = -1.0_rt / a(k,k);
         constexpr_for<k+1, neqs>([&] (auto j)
         {
-            a(j,k) *= t;
+            if (is_jacobian_term_used<j, k>()) {
+                a(j,k) *= t;
+            }
         });
 
         // row elimination with column indexing
@@ -266,7 +272,9 @@ void dgefa (RArray2D& a1)
             t = a(k,j);
             constexpr_for<k+1, neqs>([&] (auto i)
             {
-                a(i,j) += t * a(i,k);
+                if constexpr (is_jacobian_term_used<i, k>()) {
+                    a(i,j) += t * a(i,k);
+                }
             });
         });
     });
