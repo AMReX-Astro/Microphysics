@@ -170,7 +170,8 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
     int IER;
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    RHS::dgefa(vstate.jac, pivot, IER);
+    RHS::dgefa(vstate.jac);
+    IER = 0;
 #else
     dgefa<VODE_NEQS>(vstate.jac, pivot, IER);
 #endif

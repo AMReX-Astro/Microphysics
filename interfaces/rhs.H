@@ -139,128 +139,137 @@ constexpr int is_rate_used ()
     }
 }
 
+template<int n1, int n2>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int is_jacobian_term_used ()
+{
+    // If either term is a non-species component, assume it is used.
+    if (n1 > NumSpec || n2 > NumSpec) {
+        return 1;
+    }
+
+    int term_is_used = 0;
+
+    // Loop through all rates and see if any rate touches both species.
+    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+        constexpr int spec1 = n1;
+        constexpr int spec2 = n2;
+
+        constexpr rhs_t data = rhs_data(rate);
+
+        int is_spec_1_used = 0;
+
+        if (data.species_A == spec1 ||
+            data.species_B == spec1 ||
+            data.species_C == spec1 ||
+            data.species_D == spec1 ||
+            data.species_E == spec1 ||
+            data.species_F == spec1) {
+            // Exclude intermediate rates that don't appear in the RHS.
+            // We can identify these by the presence of an "extra" species
+            // whose numerical ID is > NumSpec.
+            if (data.species_A <= NumSpec ||
+                data.species_B <= NumSpec ||
+                data.species_C <= NumSpec ||
+                data.species_D <= NumSpec ||
+                data.species_E <= NumSpec ||
+                data.species_F <= NumSpec) {
+                is_spec_1_used = 1;
+            }
+        }
+
+        int is_spec_2_used = 0;
+
+        if (data.species_A == spec2 ||
+            data.species_B == spec2 ||
+            data.species_C == spec2 ||
+            data.species_D == spec2 ||
+            data.species_E == spec2 ||
+            data.species_F == spec2) {
+            // Exclude intermediate rates that don't appear in the RHS.
+            // We can identify these by the presence of an "extra" species
+            // whose numerical ID is > NumSpec.
+            if (data.species_A <= NumSpec ||
+                data.species_B <= NumSpec ||
+                data.species_C <= NumSpec ||
+                data.species_D <= NumSpec ||
+                data.species_E <= NumSpec ||
+                data.species_F <= NumSpec) {
+                is_spec_2_used = 1;
+            }
+        }
+
+        if (is_spec_1_used || is_spec_2_used) {
+            term_is_used = 1;
+        }
+    });
+
+    return term_is_used;
+}
+
 typedef amrex::Array1D<int, 1, neqs> IArray1D;
 typedef amrex::Array1D<Real, 1, neqs> RArray1D;
 typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> RArray2D;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
+void dgesl (RArray2D& a1, RArray1D& b1)
 {
     auto const& a = reinterpret_cast<Array2D<Real, 0, neqs-1, 0, neqs-1>&>(a1);
-    auto const& pivot = reinterpret_cast<Array1D<int, 0, neqs-1>&>(pivot1);
     auto& b = reinterpret_cast<Array1D<Real, 0, neqs-1>&>(b1);
-
-    constexpr int nm1 = neqs - 1;
 
     // solve a * x = b
     // first solve l * y = b
-    if (nm1 >= 1) {
-        constexpr_for<0, nm1>([&] (auto k)
+    constexpr_for<0, neqs-1>([&] (auto k)
+    {
+        Real t = b(k);
+        constexpr_for<k+1, neqs>([&] (auto j)
         {
-            int l = pivot(k) - 1;
-            Real t = b(l);
-            if (l != k) {
-                b(l) = b(k);
-                b(k) = t;
-            }
-
-            constexpr_for<k+1, neqs>([&] (auto j)
-            {
-                b(j) += t * a(j,k);
-            });
+            b(j) += t * a(j,k);
         });
-    }
+    });
 
     // now solve u * x = y
     constexpr_for<0, neqs>([&] (auto kb)
     {
-        int k = neqs - kb - 1;
+        constexpr int k = neqs - kb - 1;
         b(k) = b(k) / a(k,k);
         Real t = -b(k);
-        for (int j = 0; j < k; ++j) {
+
+        constexpr_for<0, k>([&] (auto j)
+        {
             b(j) += t * a(j,k);
-        }
+        });
     });
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
+void dgefa (RArray2D& a1)
 {
     auto& a = reinterpret_cast<Array2D<Real, 0, neqs-1, 0, neqs-1>&>(a1);
-    auto& pivot = reinterpret_cast<Array1D<int, 0, neqs-1>&>(pivot1);
 
-    // dgefa factors a matrix by gaussian elimination.
-    // a is returned in the form a = l * u where
-    // l is a product of permutation and unit lower
-    // triangular matrices and u is upper triangular.
+    // LU factorization in-place without pivoting.
 
-    // gaussian elimination with partial pivoting
+    constexpr_for<0, neqs-1>([&] (auto k)
+    {
+        // compute multipliers
+        Real t = -1.0_rt / a(k,k);
+        constexpr_for<k+1, neqs>([&] (auto j)
+        {
+            a(j,k) *= t;
+        });
 
-    info = 0;
-    constexpr int nm1 = neqs - 1;
-
-    Real t;
-
-    if (nm1 >= 1) {
-
-        for (int k = 0; k < nm1; ++k) {
-
-            // find l = pivot index
-            int l = k;
-            Real dmax = std::abs(a(k,k));
-            for (int i = k+1; i < neqs; ++i) {
-                if (std::abs(a(i,k)) > dmax) {
-                    l = i;
-                    dmax = std::abs(a(i,k));
-                }
-            }
-
-            pivot(k) = l + 1;
-
-            // zero pivot implies this column already triangularized
-            if (a(l,k) != 0.0e0_rt) {
-
-                // interchange if necessary
-                if (l != k) {
-                    t = a(l,k);
-                    a(l,k) = a(k,k);
-                    a(k,k) = t;
-                }
-
-                // compute multipliers
-                t = -1.0e0_rt / a(k,k);
-                for (int j = k+1; j < neqs; ++j) {
-                    a(j,k) *= t;
-                }
-
-                // row elimination with column indexing
-                for (int j = k+1; j < neqs; ++j) {
-                    t = a(l,j);
-                    if (l != k) {
-                        a(l,j) = a(k,j);
-                        a(k,j) = t;
-                    }
-                    for (int i = k+1; i < neqs; ++i) {
-                        a(i,j) += t * a(i,k);
-                    }
-                }
-            }
-            else {
-
-                info = k+1;
-
-            }
-
-        }
-
-    }
-
-    pivot(neqs-1) = neqs;
-
-    if (a(neqs-1,neqs-1) == 0.0e0_rt) {
-        info = neqs;
-    }
-
+        // row elimination with column indexing
+        constexpr_for<k+1, neqs>([&] (auto j)
+        {
+            t = a(k,j);
+            constexpr_for<k+1, neqs>([&] (auto i)
+            {
+                a(i,j) += t * a(i,k);
+            });
+        });
+    });
 }
 
 // Calculate the density dependence term for tabulated rates. The RHS has a term
