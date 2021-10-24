@@ -798,11 +798,11 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         });
     });
 
-    // Instantaneous energy generation rate
-
+    // Evaluate the neutrino cooling.
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 
+    // Compute the energy RHS term.
     ydot(net_ienuc) = -sneut;
 
     constexpr_for<1, NumSpec+1>([&] (auto n)
@@ -834,7 +834,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         tab.initialize(state.T);
     }
 
-    // Account for the thermal neutrino losses.
+    // Evaluate the neutrino cooling.
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(state.T, state.rho, state.abar, state.zbar,
            sneut, dsneutdt, dsneutdd, snuda, snudz);
@@ -910,6 +910,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     // Convert from d/dT to d/de.
     jac(net_ienuc, net_ienuc) = -dsneutdt;
+
     constexpr_for<1, NumSpec+1>([&] (auto n)
     {
         constexpr int species = n;
