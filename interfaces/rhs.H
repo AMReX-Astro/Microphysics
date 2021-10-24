@@ -221,11 +221,15 @@ void dgesl (RArray2D& a1, RArray1D& b1)
 
     // solve a * x = b
     // first solve l * y = b
-    constexpr_for<0, neqs-1>([&] (auto k)
+    constexpr_for<0, neqs-1>([&] (auto n1)
     {
+        constexpr int k = n1;
+
         Real t = b(k);
-        constexpr_for<k+1, neqs>([&] (auto j)
+        constexpr_for<k+1, neqs>([&] (auto n2)
         {
+            constexpr int j = n2;
+
             if (is_jacobian_term_used<j, k>()) {
                 b(j) += t * a(j,k);
             }
@@ -236,6 +240,7 @@ void dgesl (RArray2D& a1, RArray1D& b1)
     constexpr_for<0, neqs>([&] (auto kb)
     {
         constexpr int k = neqs - kb - 1;
+
         b(k) = b(k) / a(k,k);
         Real t = -b(k);
 
@@ -255,23 +260,31 @@ void dgefa (RArray2D& a1)
 
     // LU factorization in-place without pivoting.
 
-    constexpr_for<0, neqs-1>([&] (auto k)
+    constexpr_for<0, neqs-1>([&] (auto n1)
     {
+        constexpr int k = n1;
+
         // compute multipliers
         Real t = -1.0_rt / a(k,k);
-        constexpr_for<k+1, neqs>([&] (auto j)
+        constexpr_for<k+1, neqs>([&] (auto n2)
         {
+            constexpr int j = n2;
+
             if (is_jacobian_term_used<j, k>()) {
                 a(j,k) *= t;
             }
         });
 
         // row elimination with column indexing
-        constexpr_for<k+1, neqs>([&] (auto j)
+        constexpr_for<k+1, neqs>([&] (auto n2)
         {
+            constexpr int j = n2;
+
             t = a(k,j);
-            constexpr_for<k+1, neqs>([&] (auto i)
+            constexpr_for<k+1, neqs>([&] (auto n3)
             {
+                constexpr int i = n3;
+
                 if constexpr (is_jacobian_term_used<i, k>()) {
                     a(i,j) += t * a(i,k);
                 }
