@@ -28,6 +28,9 @@ struct rhs_t {
     amrex::Real forward_branching_ratio;
     amrex::Real reverse_branching_ratio;
 
+    int screen_forward_reaction;
+    int screen_reverse_reaction;
+
     int additional_reaction_1;
     int additional_reaction_2;
 };

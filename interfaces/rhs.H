@@ -390,8 +390,15 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         Real sc, scdt;
         actual_screen5(pstate, scn_fac, sc, scdt);
 
-        frdt = frdt * sc + fr * scdt;
-        fr   = fr * sc;
+        if constexpr (data.screen_forward_reaction == 1) {
+            frdt = frdt * sc + fr * scdt;
+            fr   = fr * sc;
+        }
+
+        if constexpr (data.screen_reverse_reaction == 1) {
+            rrdt = rrdt * sc + rr * scdt;
+            rr   = rr * sc;
+        }
     }
 
     if constexpr (data.number_A == 2 && data.number_B == 0 && data.number_C == 0) {
@@ -405,8 +412,15 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         Real sc, scdt;
         actual_screen5(pstate, scn_fac, sc, scdt);
 
-        frdt = frdt * sc + fr * scdt;
-        fr   = fr * sc;
+        if constexpr (data.screen_forward_reaction == 1) {
+            frdt = frdt * sc + fr * scdt;
+            fr   = fr * sc;
+        }
+
+        if constexpr (data.screen_reverse_reaction == 1) {
+            rrdt = rrdt * sc + rr * scdt;
+            rr   = rr * sc;
+        }
     }
 
     if constexpr (data.number_A == 3 && data.number_B == 0 && data.number_C == 0) {
@@ -434,8 +448,15 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         Real sc = sc1 * sc2;
         Real scdt = sc1dt * sc2 + sc1 * sc2dt;
 
-        frdt = frdt * sc + fr * scdt;
-        fr   = fr * sc;
+        if constexpr (data.screen_forward_reaction == 1) {
+            frdt = frdt * sc + fr * scdt;
+            fr   = fr * sc;
+        }
+
+        if constexpr (data.screen_reverse_reaction == 1) {
+            rrdt = rrdt * sc + rr * scdt;
+            rr   = rr * sc;
+        }
     }
 }
 

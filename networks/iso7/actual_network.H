@@ -78,6 +78,9 @@ namespace RHS {
         data.forward_branching_ratio = 1.0_rt;
         data.reverse_branching_ratio = 1.0_rt;
 
+        data.screen_forward_reaction = 1;
+        data.screen_reverse_reaction = 0; // For consistency with original iso7
+
         data.additional_reaction_1 = -1;
         data.additional_reaction_2 = -1;
 

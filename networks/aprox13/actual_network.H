@@ -100,6 +100,9 @@ namespace RHS {
         data.forward_branching_ratio = 1.0;
         data.reverse_branching_ratio = 1.0;
 
+        data.screen_forward_reaction = 1;
+        data.screen_reverse_reaction = 1;
+
         data.additional_reaction_1 = -1;
         data.additional_reaction_2 = -1;
 
