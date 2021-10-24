@@ -908,16 +908,15 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         });
     });
 
-    // Convert from d/dT to d/de, and along the way sum up the df(e) / de term.
-    Real jac_e_T = -dsneutdt;
-    constexpr_for<1, NumSpec+1>([&] (auto n) {
+    // Convert from d/dT to d/de.
+    jac(net_ienuc, net_ienuc) = -dsneutdt;
+    constexpr_for<1, NumSpec+1>([&] (auto n)
+    {
         constexpr int species = n;
 
-        jac_e_T += ener_gener_rate<species>(jac(n, net_ienuc));
         jac(n, net_ienuc) = temperature_to_energy_jacobian(state, jac(n, net_ienuc));
+        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(jac(n, net_ienuc));
     });
-
-    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
 }
 
 } // namespace RHS
