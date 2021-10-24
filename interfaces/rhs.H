@@ -848,18 +848,17 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
     // rates if really needed). If any are present, postprocess the rate
     // using the additional terms.
 
-    Real fr1, fr1dt, rr1, rr1dt;
-    Real fr2, fr2dt, rr2, rr2dt;
-
     constexpr int rate1 = data.additional_reaction_1;
     constexpr int rate2 = data.additional_reaction_2;
 
     if constexpr (rate1 >= 0 || rate2 >= 0) {
+        Real fr1, fr1dt, rr1, rr1dt;
         if constexpr (rate1 >= 0) {
             construct_rate<rate1>(rho, tf, tab, y, pstate,
                                   fr1, fr1dt, rr1, rr1dt);
         }
 
+        Real fr2, fr2dt, rr2, rr2dt;
         if constexpr (rate2 >= 0) {
             construct_rate<rate1>(rho, tf, tab, y, pstate,
                                   fr2, fr2dt, rr2, rr2dt);
@@ -1004,9 +1003,8 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
             constexpr_for<1, NumSpec+1>([&] (auto n3)
             {
-                constexpr int spec2 = n3;
-
                 if constexpr (is_rate_used<spec1, rate>()) {
+                    constexpr int spec2 = n3;
                     jac(spec1, spec2) += jac_term<spec1, spec2, rate>(state, fr, rr);
                 }
             });
