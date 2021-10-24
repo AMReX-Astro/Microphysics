@@ -1,13 +1,13 @@
 #ifndef _actual_network_H_
 #define _actual_network_H_
 
+#define NEW_NETWORK_IMPLEMENTATION
+
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
 
 using namespace amrex;
-
-#define NEW_NETWORK_IMPLEMENTATION
 
 #include <fundamental_constants.H>
 #include <network_properties.H>

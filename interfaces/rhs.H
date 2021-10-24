@@ -1,8 +1,6 @@
 #ifndef rhs_utilities_H
 #define rhs_utilities_H
 
-#ifdef NEW_NETWORK_IMPLEMENTATION
-
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 #include <AMReX_Print.H>
@@ -14,6 +12,8 @@
 #include <screen.H>
 #include <sneut5.H>
 #include <jacobian_utilities.H>
+
+#ifdef NEW_NETWORK_IMPLEMENTATION
 
 // Forward declarations
 
