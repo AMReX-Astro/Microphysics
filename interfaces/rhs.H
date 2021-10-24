@@ -862,7 +862,7 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
 
         Real fr2, fr2dt, rr2, rr2dt;
         if constexpr (rate2 >= 0) {
-            construct_rate<rate1>(rho, tf, tab, y, pstate,
+            construct_rate<rate2>(rho, tf, tab, y, pstate,
                                   fr2, fr2dt, rr2, rr2dt);
         }
 
