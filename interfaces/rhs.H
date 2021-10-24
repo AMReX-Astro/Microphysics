@@ -676,6 +676,18 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
 
     constexpr rhs_t data = rhs_data(rate);
 
+    // We can skip this step if this is an intermediate rate
+    // (that is, involves at least one "extra" species).
+
+    if constexpr (data.species_A > NumSpec ||
+                  data.species_B > NumSpec ||
+                  data.species_C > NumSpec ||
+                  data.species_D > NumSpec ||
+                  data.species_E > NumSpec ||
+                  data.species_F > NumSpec) {
+        return;
+    }
+
     // Construct the (screened and density-scaled) rate.
 
     construct_rate<rate>(rho, tf, tab, y, pstate,
@@ -762,23 +774,25 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         tab.initialize(state.T);
     }
 
-    // For every species, loop over all rates, and if that rate involves
-    // the given species, add its contribution to the RHS.
+    // Initialize the RHS terms.
+    for (int n = 1; n <= NumSpec; ++n) {
+        ydot(n) = 0.0;
+    }
 
-    constexpr_for<1, NumSpec+1>([&] (auto n1)
+    // Loop over all rates, and then loop over all species, and if the
+    // rate affects that given species, add its contribution to the RHS.
+    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
-        constexpr int species = n1;
+        constexpr int rate = n1;
 
-        ydot(species) = 0.0;
+        Real fr, frdt, rr, rrdt;
+        get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
 
-        constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
-            constexpr int rate = n2;
+            constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                Real fr, frdt, rr, rrdt;
-                get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
-
                 ydot(species) += rhs_term<species, rate>(state, fr, rr);
             }
         });
@@ -820,31 +834,37 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         tab.initialize(state.T);
     }
 
-    // Account for the thermal neutrino losses
+    // Account for the thermal neutrino losses.
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(state.T, state.rho, state.abar, state.zbar,
            sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    // Species Jacobian elements with respect to other species
+    // Initialize the Jacobian terms.
+    for (int i = 1; i <= neqs; ++i) {
+        for (int j = 1; j <= neqs; ++j) {
+            jac(i,j) = 0.0;
+        }
+    }
 
-    constexpr_for<1, NumSpec+1>([&] (auto n1)
+    // Species Jacobian elements with respect to other species.
+    // Loop over rates and add the term to the Jacobian if the
+    // rate involves both species in this Jacobian term.
+    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
-        constexpr int spec1 = n1;
+        constexpr int rate = n1;
+
+        Real fr, frdt, rr, rrdt;
+        get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
 
         constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
-            constexpr int spec2 = n2;
+            constexpr int spec1 = n2;
 
-            jac(spec1, spec2) = 0.0;
-
-            constexpr_for<1, Rates::NumRates+1>([&] (auto n3)
+            constexpr_for<1, NumSpec+1>([&] (auto n3)
             {
-                constexpr int rate = n3;
+                constexpr int spec2 = n3;
 
                 if constexpr (is_rate_used<spec1, rate>()) {
-                    Real fr, frdt, rr, rrdt;
-                    get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
-
                     jac(spec1, spec2) += jac_term<spec1, spec2, rate>(state, fr, rr);
                 }
             });
@@ -871,30 +891,30 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     // Evaluate the Jacobian elements with respect to energy by
     // calling the RHS using d(rate) / dT and then transform them
     // to our energy integration variable.
-
-    Real jac_e_T = -dsneutdt;
-
-    constexpr_for<1, NumSpec+1>([&] (auto n1)
+    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
-        constexpr int species = n1;
+        constexpr int rate = n1;
 
-        Real dydt = 0.0;
+        Real fr, frdt, rr, rrdt;
+        get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
 
-        constexpr_for<1, Rates::NumRates+1>([&] (auto n2)
+        constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
-            constexpr int rate = n2;
+            constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                Real fr, frdt, rr, rrdt;
-                get_rate<rate>(state.rho, tf, tab, y, pstate, fr, frdt, rr, rrdt);
-
-                dydt += rhs_term<species, rate>(state, frdt, rrdt);
+                jac(species, net_ienuc) += rhs_term<species, rate>(state, frdt, rrdt);
             }
         });
+    });
 
-        jac(species, net_ienuc) = temperature_to_energy_jacobian(state, dydt);
+    // Convert from d/dT to d/de, and along the way sum up the df(e) / de term.
+    Real jac_e_T = -dsneutdt;
+    constexpr_for<1, NumSpec+1>([&] (auto n) {
+        constexpr int species = n;
 
-        jac_e_T += ener_gener_rate<species>(dydt);
+        jac_e_T += ener_gener_rate<species>(jac(n, net_ienuc));
+        jac(n, net_ienuc) = temperature_to_energy_jacobian(state, jac(n, net_ienuc));
     });
 
     jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_e_T);
