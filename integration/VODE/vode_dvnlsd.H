@@ -117,7 +117,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             actual_solve(vstate.jac, vstate.y);
 #else
 #ifdef NEW_NETWORK_IMPLEMENTATION
-            RHS::dgesl<VODE_NEQS>(vstate.jac, pivot, vstate.y);
+            RHS::dgesl(vstate.jac, pivot, vstate.y);
 #else
             dgesl<VODE_NEQS>(vstate.jac, pivot, vstate.y);
 #endif

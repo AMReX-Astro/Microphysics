@@ -143,20 +143,20 @@ typedef amrex::Array1D<int, 1, neqs> IArray1D;
 typedef amrex::Array1D<Real, 1, neqs> RArray1D;
 typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> RArray2D;
 
-template <int num_eqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
 {
-    auto const& a = reinterpret_cast<Array2D<Real, 0, num_eqs-1, 0, num_eqs-1>&>(a1);
-    auto const& pivot = reinterpret_cast<Array1D<int, 0, num_eqs-1>&>(pivot1);
-    auto& b = reinterpret_cast<Array1D<Real, 0, num_eqs-1>&>(b1);
+    auto const& a = reinterpret_cast<Array2D<Real, 0, neqs-1, 0, neqs-1>&>(a1);
+    auto const& pivot = reinterpret_cast<Array1D<int, 0, neqs-1>&>(pivot1);
+    auto& b = reinterpret_cast<Array1D<Real, 0, neqs-1>&>(b1);
 
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = neqs - 1;
 
     // solve a * x = b
     // first solve l * y = b
     if (nm1 >= 1) {
-        for (int k = 0; k < nm1; ++k) {
+        constexpr_for<0, nm1>([&] (auto k)
+        {
             int l = pivot(k) - 1;
             Real t = b(l);
             if (l != k) {
@@ -164,31 +164,30 @@ void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
                 b(k) = t;
             }
 
-            for (int j = k+1; j < num_eqs; ++j) {
+            constexpr_for<k+1, neqs>([&] (auto j)
+            {
                 b(j) += t * a(j,k);
-            }
-        }
+            });
+        });
     }
 
     // now solve u * x = y
-    for (int kb = 0; kb < num_eqs; ++kb) {
-
-        int k = num_eqs - kb - 1;
+    constexpr_for<0, neqs>([&] (auto kb)
+    {
+        int k = neqs - kb - 1;
         b(k) = b(k) / a(k,k);
         Real t = -b(k);
         for (int j = 0; j < k; ++j) {
             b(j) += t * a(j,k);
         }
-    }
-
+    });
 }
 
-template <int num_eqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 {
-    auto& a = reinterpret_cast<Array2D<Real, 0, num_eqs-1, 0, num_eqs-1>&>(a1);
-    auto& pivot = reinterpret_cast<Array1D<int, 0, num_eqs-1>&>(pivot1);
+    auto& a = reinterpret_cast<Array2D<Real, 0, neqs-1, 0, neqs-1>&>(a1);
+    auto& pivot = reinterpret_cast<Array1D<int, 0, neqs-1>&>(pivot1);
 
     // dgefa factors a matrix by gaussian elimination.
     // a is returned in the form a = l * u where
@@ -198,7 +197,7 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
     // gaussian elimination with partial pivoting
 
     info = 0;
-    int nm1 = num_eqs - 1;
+    constexpr int nm1 = neqs - 1;
 
     Real t;
 
@@ -209,7 +208,7 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
             // find l = pivot index
             int l = k;
             Real dmax = std::abs(a(k,k));
-            for (int i = k+1; i < num_eqs; ++i) {
+            for (int i = k+1; i < neqs; ++i) {
                 if (std::abs(a(i,k)) > dmax) {
                     l = i;
                     dmax = std::abs(a(i,k));
@@ -230,18 +229,18 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 
                 // compute multipliers
                 t = -1.0e0_rt / a(k,k);
-                for (int j = k+1; j < num_eqs; ++j) {
+                for (int j = k+1; j < neqs; ++j) {
                     a(j,k) *= t;
                 }
 
                 // row elimination with column indexing
-                for (int j = k+1; j < num_eqs; ++j) {
+                for (int j = k+1; j < neqs; ++j) {
                     t = a(l,j);
                     if (l != k) {
                         a(l,j) = a(k,j);
                         a(k,j) = t;
                     }
-                    for (int i = k+1; i < num_eqs; ++i) {
+                    for (int i = k+1; i < neqs; ++i) {
                         a(i,j) += t * a(i,k);
                     }
                 }
@@ -256,10 +255,10 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 
     }
 
-    pivot(num_eqs-1) = num_eqs;
+    pivot(neqs-1) = neqs;
 
-    if (a(num_eqs-1,num_eqs-1) == 0.0e0_rt) {
-        info = num_eqs;
+    if (a(neqs-1,neqs-1) == 0.0e0_rt) {
+        info = neqs;
     }
 
 }
