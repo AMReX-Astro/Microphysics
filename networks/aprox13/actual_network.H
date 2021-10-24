@@ -772,13 +772,13 @@ namespace RHS {
             if (denom > 1.0e-30_rt) {
                 Real zz = 1.0_rt / denom;
                 rate_ir    = rr1 * zz;
-                dratedt_ir = (rr2dt - rate_ir * denomdt) * zz;
+                dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
             }
 
             fr += fr1 * (1.0_rt - rate_ir);
             frdt += fr1dt * (1.0_rt - rate_ir) - fr1 * dratedt_ir;
 
-            rr += rr1 * rate_ir;
+            rr += rr2 * rate_ir;
             rrdt += rr2dt * rate_ir + rr2 * dratedt_ir;
         }
     }
