@@ -1,6 +1,8 @@
 #ifndef rhs_utilities_H
 #define rhs_utilities_H
 
+#ifdef NEW_NETWORK_IMPLEMENTATION
+
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 #include <AMReX_Print.H>
@@ -1053,5 +1055,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 }
 
 } // namespace RHS
+
+#endif // NEW_NETWORK_IMPLEMENTATION
 
 #endif
