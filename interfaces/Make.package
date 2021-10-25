@@ -21,7 +21,7 @@ ifeq ($(USE_CXX_EOS),TRUE)
 endif
 
 CEXE_headers += network.H
-CEXE_headers += network_utilities.H
+CEXE_headers += rhs_type.H
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   CEXE_headers += rhs_utilities.H
   CEXE_sources += network_initialization.cpp

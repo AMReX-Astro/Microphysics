@@ -1,7 +1,10 @@
-#ifndef network_utilities_H
-#define network_utilities_H
+#ifndef rhs_type_H
+#define rhs_type_H
 
 #include <AMReX_REAL.H>
+
+namespace RHS
+{
 
 struct rhs_t {
     int species_A;
@@ -36,19 +39,6 @@ struct rhs_t {
     int additional_reaction_3;
 };
 
-// Form a unique numerical identifier from a given
-// (species, rate) combination.
-template<int num_rates>
-constexpr int rhs_rate (int species, int rate)
-{
-    return rate + (species - 1) * num_rates;
-}
-
-// Same as above but for (species1, species2, rate).
-template<int num_species, int num_rates>
-constexpr int jac_rate (int species1, int species2, int rate)
-{
-    return rate + (species2 - 1) * num_rates + (species1 - 1) * num_species * num_rates;
-}
+} // namespace RHS
 
 #endif

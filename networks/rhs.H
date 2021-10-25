@@ -6,7 +6,7 @@
 #include <AMReX_Print.H>
 
 #include <ArrayUtilities.H>
-#include <network_utilities.H>
+#include <rhs_type.H>
 #include <actual_network.H>
 #include <burn_type.H>
 #include <screen.H>

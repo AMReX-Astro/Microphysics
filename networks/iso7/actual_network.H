@@ -11,7 +11,7 @@ using namespace amrex;
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
-#include <network_utilities.H>
+#include <rhs_type.H>
 #include <extern_parameters.H>
 #include <tfactors.H>
 #include <aprox_rates.H>
@@ -334,6 +334,7 @@ namespace RHS {
             }
         }
     }
-}
+
+} // namespace RHS
 
 #endif
