@@ -1070,7 +1070,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     sneut5(state.T, state.rho, state.abar, state.zbar,
            sneut, dsneutdt, dsneutdd, snuda, snudz);
 
-    jac(net_ienuc, net_ienuc) = -dsneutdt;
+    jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(state, dsneutdt);
 
     constexpr_for<1, NumSpec+1>([&] (auto j)
     {
