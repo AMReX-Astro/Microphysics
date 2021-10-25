@@ -298,7 +298,8 @@ namespace RHS {
                            const Array1D<Real, 1, NumSpec>& y,
                            Real& fr, Real& frdt, Real& rr, Real& rrdt,
                            Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
-                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt)
+                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
+                           Real& fr3, Real& fr3dt, Real& rr3, Real& rr3dt)
     {
         using namespace Species;
         using namespace Rates;
