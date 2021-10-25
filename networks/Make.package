@@ -29,6 +29,9 @@ ifeq ($(USE_REACT), TRUE)
   endif
   CEXE_headers += rate_type.H
 
+  CEXE_headers += rhs.H
+  CEXE_sources += rhs.cpp
+
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
   include $(MICROPHYSICS_HOME)/integration/Make.package
