@@ -33,6 +33,7 @@ struct rhs_t {
 
     int additional_reaction_1;
     int additional_reaction_2;
+    int additional_reaction_3;
 };
 
 // Form a unique numerical identifier from a given

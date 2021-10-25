@@ -83,6 +83,7 @@ namespace RHS {
 
         data.additional_reaction_1 = -1;
         data.additional_reaction_2 = -1;
+        data.additional_reaction_3 = -1;
 
         switch (rate) {
 

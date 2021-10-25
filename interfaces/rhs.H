@@ -460,6 +460,20 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
     }
 }
 
+// Apply the branching ratios to a given rate.
+template<int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_branching (Real& fr, Real& frdt, Real& rr, Real& rrdt)
+{
+    constexpr rhs_t data = rhs_data(rate);
+
+    fr *= data.forward_branching_ratio;
+    rr *= data.reverse_branching_ratio;
+
+    frdt *= data.forward_branching_ratio;
+    rrdt *= data.reverse_branching_ratio;
+}
+
 // Do the initial tabulation of rates. We loop over various
 // temperatures and evaluate all the rates at each temperature.
 AMREX_INLINE
@@ -828,7 +842,13 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
 
     apply_density_scaling<rate>(rho, fr, frdt, rr, rrdt);
 
+    // Screen
+
     apply_screening<rate>(pstate, fr, frdt, rr, rrdt);
+
+    // Branching ratios
+
+    apply_branching<rate>(fr, frdt, rr, rrdt);
 }
 
 template<int rate>
@@ -866,15 +886,16 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
 
     // Construct all intermediate rates needed to augment this reaction.
     // To keep the problem bounded we assume that there are no more than
-    // two intermediate reactions needed, however it is straightforward
+    // three intermediate reactions needed, however it is straightforward
     // to add more as needed (or to generalize this into a loop over all
     // rates if really needed). If any are present, postprocess the rate
     // using the additional terms.
 
     constexpr int rate1 = data.additional_reaction_1;
     constexpr int rate2 = data.additional_reaction_2;
+    constexpr int rate3 = data.additional_reaction_3;
 
-    if constexpr (rate1 >= 0 || rate2 >= 0) {
+    if constexpr (rate1 >= 0 || rate2 >= 0 || rate3 >= 0) {
         Real fr1, fr1dt, rr1, rr1dt;
         if constexpr (rate1 >= 0) {
             construct_rate<rate1>(rho, tf, tab, y, pstate,
@@ -887,19 +908,18 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
                                   fr2, fr2dt, rr2, rr2dt);
         }
 
+        Real fr3, fr3dt, rr3, rr3dt;
+        if constexpr (rate3 >= 0) {
+            construct_rate<rate3>(rho, tf, tab, y, pstate,
+                                  fr3, fr3dt, rr3, rr3dt);
+        }
+
         postprocess_rate<rate>(rho, tf, y,
                                fr, frdt, rr, rrdt,
                                fr1, fr1dt, rr1, rr1dt,
-                               fr2, fr2dt, rr2, rr2dt);
+                               fr2, fr2dt, rr2, rr2dt,
+                               fr3, fr3dt, rr3, rr3dt);
     }
-
-    // Handle any branching ratios.
-
-    fr *= data.forward_branching_ratio;
-    rr *= data.reverse_branching_ratio;
-
-    frdt *= data.forward_branching_ratio;
-    rrdt *= data.reverse_branching_ratio;
 }
 
 template<int spec>

@@ -105,6 +105,7 @@ namespace RHS {
 
         data.additional_reaction_1 = -1;
         data.additional_reaction_2 = -1;
+        data.additional_reaction_3 = -1;
 
         switch (rate) {
 
@@ -196,6 +197,10 @@ namespace RHS {
             data.exponent_E = 1;
 
             data.forward_branching_ratio = 0.56_rt;
+
+            data.additional_reaction_1 = Si28_He4_to_P31_P;
+            data.additional_reaction_2 = P31_P_to_S32;
+            data.additional_reaction_3 = O16_O16_to_P31_P;
             break;
 
         case O16_O16_to_P31_P:
@@ -225,6 +230,10 @@ namespace RHS {
             data.exponent_D = 1;
 
             data.forward_branching_ratio = 0.10_rt;
+
+            data.additional_reaction_1 = Si28_He4_to_P31_P;
+            data.additional_reaction_2 = P31_P_to_S32;
+            data.additional_reaction_3 = O16_O16_to_P31_P;
             break;
 
         case O16_He4_to_Ne20:
@@ -760,7 +769,8 @@ namespace RHS {
                            const Array1D<Real, 1, NumSpec>& y,
                            Real& fr, Real& frdt, Real& rr, Real& rrdt,
                            Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
-                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt)
+                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
+                           Real& fr3, Real& fr3dt, Real& rr3, Real& rr3dt)
     {
         using namespace Species;
         using namespace Rates;
@@ -800,6 +810,44 @@ namespace RHS {
 
             rr += rr2 * rate_ir;
             rrdt += rr2dt * rate_ir + rr2 * dratedt_ir;
+        }
+
+        // The O16+O16->Si28+He4 reaction has an additional contribution from the O16+O16->P31+P
+        // reaction followed by the reverse Si28+He4<->P31+P reaction.
+        if constexpr (rate == O16_O16_to_Si28_He4)
+        {
+            Real rate_ir    = 0.0e0_rt;
+            Real dratedt_ir = 0.0e0_rt;
+            Real denom      = rr1 + fr2;
+            Real denomdt    = rr1dt + fr2dt;
+
+            if (denom > 1.0e-30_rt) {
+                Real zz = 1.0_rt / denom;
+                rate_ir    = rr1 * zz;
+                dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
+            }
+
+            fr += fr3 * rate_ir;
+            frdt += fr3dt * rate_ir + fr3 * dratedt_ir;
+        }
+
+        // The O16+O16->S32 reaction has an additional contribution from the O16+O16->P31+P
+        // reaction followed by the forward P31+P<->S32 reaction.
+        if constexpr (rate == O16_O16_to_S32)
+        {
+            Real rate_ir    = 0.0e0_rt;
+            Real dratedt_ir = 0.0e0_rt;
+            Real denom      = rr1 + fr2;
+            Real denomdt    = rr1dt + fr2dt;
+
+            if (denom > 1.0e-30_rt) {
+                Real zz = 1.0_rt / denom;
+                rate_ir    = rr1 * zz;
+                dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
+            }
+
+            fr += fr3 * (1.0_rt - rate_ir);
+            frdt += fr3dt * (1.0_rt - rate_ir) - fr3 * dratedt_ir;
         }
     }
 
