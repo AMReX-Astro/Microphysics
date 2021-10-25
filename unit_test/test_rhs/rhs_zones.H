@@ -13,9 +13,6 @@
 #include <extern_parameters.H>
 #include <ArrayUtilities.H>
 #include <variables.H>
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
 
 #ifndef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <fortran_to_cxx_actual_rhs.H>
@@ -51,11 +48,7 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t p)
 
     Array1D<Real, 1, neqs> ydot;
 
-#ifdef NETWORK_SOLVER
-    SparseMatrix jac;
-#else
     ArrayUtil::MathArray2D<1, neqs, 1, neqs> jac;
-#endif
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
     RHS::rhs(burn_state, ydot);

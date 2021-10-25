@@ -166,7 +166,6 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
     vstate.jac.mul(con);
     vstate.jac.add_identity();
 
-#ifndef NETWORK_SOLVER
     int IER;
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -179,7 +178,6 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
     if (IER != 0) {
         IERPJ = 1;
     }
-#endif
 
 }
 

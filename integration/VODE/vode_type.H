@@ -7,10 +7,6 @@
 #include <ArrayUtilities.H>
 #include <network.H>
 
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
-
 #ifdef STRANG
 const int VODE_NEQS = NumSpec + 1;
 #endif
@@ -164,26 +160,12 @@ struct dvode_t
     // Integration array
     RArray1D y;
 
-#ifdef NETWORK_SOLVER
-
-    // Jacobian
-    SparseMatrix jac;
-
-#ifdef ALLOW_JACOBIAN_CACHING
-    // Saved Jacobian
-    SparseMatrix jac_save;
-#endif
-
-#else
-
     // Jacobian
     RArray2D jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     RArray2D jac_save;
-#endif
-
 #endif
 
     // the Nordsieck history array
