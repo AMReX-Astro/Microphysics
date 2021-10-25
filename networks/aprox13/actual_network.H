@@ -668,6 +668,12 @@ namespace RHS {
         else if constexpr (rate == O16_O16_to_Si28_He4) {
             rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
+        else if constexpr (rate == O16_O16_to_P31_P) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_O16_to_S32) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
         else if constexpr (rate == O16_He4_to_Ne20) {
             rate_o16ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
