@@ -594,6 +594,20 @@ namespace RHS {
             data.exponent_E = 1;
             break;
 
+        case Mn51_P_to_Fe52:
+            data.species_A = Mn51;
+            data.species_B = P;
+            data.species_D = Fe52;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
         case Fe52_He4_to_Co55_P:
             data.species_A = Fe52;
             data.species_B = He4;
