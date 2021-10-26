@@ -1,14 +1,20 @@
 #ifndef actual_network_H
 #define actual_network_H
 
+#define NEW_NETWORK_IMPLEMENTATION
+
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
 
+using namespace amrex;
+
 #include <fundamental_constants.H>
 #include <network_properties.H>
-
-using namespace amrex;
+#include <rhs_type.H>
+#include <extern_parameters.H>
+#include <tfactors.H>
+#include <aprox_rates.H>
 
 void actual_network_init();
 
@@ -47,118 +53,852 @@ namespace table
 
 
 namespace Rates {
-    enum NetworkRates {
-                        He4_He4_He4_to_C12_forward = 1,
-                        He4_He4_He4_to_C12_reverse,
-                        C12_He4_to_O16_forward,
-                        C12_He4_to_O16_reverse,
-                        C12_C12_to_Ne20_He4_forward,
-                        C12_C12_to_Ne20_He4_reverse,
-                        C12_O16_to_Mg24_He4_forward,
-                        C12_O16_to_Mg24_He4_reverse,
-                        C12_O16_to_Si28_forward,
-                        C12_O16_to_Si28_reverse,
-                        O16_O16_to_Si28_He4_forward,
-                        O16_O16_to_Si28_He4_reverse,
-                        O16_O16_to_S32_forward,
-                        O16_O16_to_S32_reverse,
-                        O16_He4_to_Ne20_forward,
-                        O16_He4_to_Ne20_reverse,
-                        Ne20_He4_to_Mg24_forward,
-                        Ne20_He4_to_Mg24_reverse,
-                        Mg24_He4_to_Si28_forward,
-                        Mg24_He4_to_Si28_reverse,
-                        irmgap,
-                        iralpa,
-                        iralpg,
-                        irsigp,
-                        Si28_He4_to_S32_forward,
-                        Si28_He4_to_S32_reverse,
-                        irsiap,
-                        irppa,
-                        irppg,
-                        irsgp,
-                        S32_He4_to_Ar36_forward,
-                        S32_He4_to_Ar36_reverse,
-                        irsap,
-                        irclpa,
-                        irclpg,
-                        irargp,
-                        Ar36_He4_to_Ca40_forward,
-                        Ar36_He4_to_Ca40_reverse,
-                        irarap,
-                        irkpa,
-                        irkpg,
-                        ircagp,
-                        Ca40_He4_to_Ti44_forward,
-                        Ca40_He4_to_Ti44_reverse,
-                        ircaap,
-                        irscpa,
-                        irscpg,
-                        irtigp,
-                        Ti44_He4_to_Cr48_forward,
-                        Ti44_He4_to_Cr48_reverse,
-                        irtiap,
-                        irvpa,
-                        irvpg,
-                        ircrgp,
-                        Cr48_He4_to_Fe52_forward,
-                        Cr48_He4_to_Fe52_reverse,
-                        ircrap,
-                        irmnpa,
-                        irmnpg,
-                        irfegp,
-                        Fe52_He4_to_Ni56_forward,
-                        Fe52_He4_to_Ni56_reverse,
-                        irfeap,
-                        ircopa,
-                        ircopg,
-                        irnigp,
-                        ir52ng,
-                        ir53gn,
-                        ir53ng,
-                        ir54gn,
-                        irfepg,
-                        ircogp,
-                        irheng,
-                        irhegn,
-                        irhng,
-                        irdgn,
-                        irdpg,
-                        irhegp,
-                        irpen,
-                        irnep,
-                        irn56ec,
-                        irpp,
-                        ir33,
-                        irhe3ag,
-                        ircpg,
-                        irnpg,
-                        ifa,
-                        ifg,
-                        iropg,
-                        irnag,
-                        irr1,
-                        irs1,
-                        irt1,
-                        iru1,
-                        irv1,
-                        irw1,
-                        irx1,
-                        ir1f54,
-                        ir2f54,
-                        ir3f54,
-                        ir4f54,
-                        ir5f54,
-                        ir6f54,
-                        ir7f54,
-                        ir8f54,
-                        iralf1,
-                        iralf2,
-                        NumRates = iralf2
-                      };
-
-    const int NumGroups = 2;
+        enum NetworkRates {
+        He4_He4_He4_to_C12 = 1,
+        C12_He4_to_O16,
+        C12_C12_to_Ne20_He4,
+        C12_O16_to_Mg24_He4,
+        C12_O16_to_Si28,
+        O16_O16_to_Si28_He4,
+        O16_O16_to_P31_P,
+        O16_O16_to_S32,
+        O16_He4_to_Ne20,
+        Ne20_He4_to_Mg24,
+        Mg24_He4_to_Si28,
+        Si28_He4_to_S32,
+        S32_He4_to_Ar36,
+        Ar36_He4_to_Ca40,
+        Ca40_He4_to_Ti44,
+        Ti44_He4_to_Cr48,
+        Cr48_He4_to_Fe52,
+        Fe52_He4_to_Ni56,
+        Mg24_He4_to_Al27_P,
+        Al27_P_to_Si28,
+        Si28_He4_to_P31_P,
+        P31_P_to_S32,
+        S32_He4_to_Cl35_P,
+        Cl35_P_to_Ar36,
+        Ar36_He4_to_K39_P,
+        K39_P_to_Ca40,
+        Ca40_He4_to_Sc43_P,
+        Sc43_P_to_Ti44,
+        Ti44_He4_to_V47_P,
+        V47_P_to_Cr48,
+        Cr48_He4_to_Mn51_P,
+        Mn51_P_to_Fe52,
+        Fe52_He4_to_Co55_P,
+        Co55_P_to_Ni56,
+        Fe52_N_to_Fe53,
+        Fe53_N_to_Fe54,
+        Fe54_N_to_Co55,
+        He3_N_to_He4,
+        P_N_to_H2,
+        H2_P_to_He3,
+        P_to_N,
+        Ni56_to_Fe54,
+        P_P_to_H2,
+        He3_He3_to_He4_2P,
+        He4_He4_to_Be7,
+        C12_P_to_N13,
+        N14_P_to_O16,
+        N15_P_to_O16,
+        N15_P_to_C12_He4,
+        O16_P_to_F17,
+        N14_He4_to_F18,
+        Fe52_2N_to_Fe54,
+        Fe52_He4_to_Fe54_2P,
+        Fe54_2P_to_Ni56,
+        Fe54_P_to_Co55,
+        P_P_N_N_to_He4,
+        NumRates=P_P_N_N_to_He4
+    };
 }
+
+namespace RHS {
+    
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr rhs_t rhs_data (int rate)
+    {
+        using namespace Species;
+        using namespace Rates;
+
+        rhs_t data{};
+
+        data.species_A = -1;
+        data.species_B = -1;
+        data.species_C = -1;
+        data.species_D = -1;
+        data.species_E = -1;
+        data.species_F = -1;
+
+        data.number_A = 0;
+        data.number_B = 0;
+        data.number_C = 0;
+        data.number_D = 0;
+        data.number_E = 0;
+        data.number_F = 0;
+
+        data.exponent_A = 0;
+        data.exponent_B = 0;
+        data.exponent_C = 0;
+        data.exponent_D = 0;
+        data.exponent_E = 0;
+        data.exponent_F = 0;
+
+        data.forward_branching_ratio = 1.0;
+        data.reverse_branching_ratio = 1.0;
+
+        data.screen_forward_reaction = 1;
+        data.screen_reverse_reaction = 1;
+
+        data.additional_reaction_1 = -1;
+        data.additional_reaction_2 = -1;
+        data.additional_reaction_3 = -1;
+
+        switch (rate) {
+
+        case He4_He4_He4_to_C12:
+            data.species_A = He4;
+            data.species_D = C12;
+
+            data.number_A = 3;
+            data.number_D = 1;
+
+            data.exponent_A = 3;
+            data.exponent_D = 1;
+            break;
+
+        case C12_He4_to_O16:
+            data.species_A = C12;
+            data.species_B = He4;
+            data.species_D = O16;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case C12_C12_to_Ne20_He4:
+            data.species_A = C12;
+            data.species_D = Ne20;
+            data.species_E = He4;
+
+            data.number_A = 2;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 2;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case C12_O16_to_Mg24_He4:
+            data.species_A = C12;
+            data.species_B = O16;
+            data.species_D = Mg24;
+            data.species_E = He4;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.forward_branching_ratio = 0.5_rt;
+            break;
+
+        case C12_O16_to_Si28:
+            data.species_A = C12;
+            data.species_B = O16;
+            data.species_D = Si28;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.forward_branching_ratio = 0.5_rt;
+            break;
+
+        case O16_O16_to_Si28_He4:
+            data.species_A = O16;
+            data.species_D = Si28;
+            data.species_E = He4;
+
+            data.number_A = 2;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 2;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.forward_branching_ratio = 0.56_rt;
+
+            data.additional_reaction_1 = Si28_He4_to_P31_P;
+            data.additional_reaction_2 = P31_P_to_S32;
+            data.additional_reaction_3 = O16_O16_to_P31_P;
+            break;
+
+        case O16_O16_to_P31_P:
+            data.species_A = O16;
+            data.species_D = P31;
+            data.species_E = P;
+
+            data.number_A = 2;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 2;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.forward_branching_ratio = 0.34_rt;
+            break;
+
+        case O16_O16_to_S32:
+            data.species_A = O16;
+            data.species_D = S32;
+
+            data.number_A = 2;
+            data.number_D = 1;
+
+            data.exponent_A = 2;
+            data.exponent_D = 1;
+
+            data.forward_branching_ratio = 0.10_rt;
+
+            data.additional_reaction_1 = Si28_He4_to_P31_P;
+            data.additional_reaction_2 = P31_P_to_S32;
+            data.additional_reaction_3 = O16_O16_to_P31_P;
+            break;
+
+        case O16_He4_to_Ne20:
+            data.species_A = O16;
+            data.species_B = He4;
+            data.species_D = Ne20;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Ne20_He4_to_Mg24:
+            data.species_A = Ne20;
+            data.species_B = He4;
+            data.species_D = Mg24;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Mg24_He4_to_Si28:
+            data.species_A = Mg24;
+            data.species_B = He4;
+            data.species_D = Si28;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Mg24_He4_to_Al27_P;
+            data.additional_reaction_2 = Al27_P_to_Si28;
+            break;
+
+        case Si28_He4_to_S32:
+            data.species_A = Si28;
+            data.species_B = He4;
+            data.species_D = S32;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Si28_He4_to_P31_P;
+            data.additional_reaction_2 = P31_P_to_S32;
+            break;
+
+        case S32_He4_to_Ar36:
+            data.species_A = S32;
+            data.species_B = He4;
+            data.species_D = Ar36;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = S32_He4_to_Cl35_P;
+            data.additional_reaction_2 = Cl35_P_to_Ar36;
+            break;
+
+        case Ar36_He4_to_Ca40:
+            data.species_A = Ar36;
+            data.species_B = He4;
+            data.species_D = Ca40;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Ar36_He4_to_K39_P;
+            data.additional_reaction_2 = K39_P_to_Ca40;
+            break;
+
+        case Ca40_He4_to_Ti44:
+            data.species_A = Ca40;
+            data.species_B = He4;
+            data.species_D = Ti44;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Ca40_He4_to_Sc43_P;
+            data.additional_reaction_2 = Sc43_P_to_Ti44;
+            break;
+
+        case Ti44_He4_to_Cr48:
+            data.species_A = Ti44;
+            data.species_B = He4;
+            data.species_D = Cr48;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Ti44_He4_to_V47_P;
+            data.additional_reaction_2 = V47_P_to_Cr48;
+            break;
+
+        case Cr48_He4_to_Fe52:
+            data.species_A = Cr48;
+            data.species_B = He4;
+            data.species_D = Fe52;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Cr48_He4_to_Mn51_P;
+            data.additional_reaction_2 = Mn51_P_to_Fe52;
+            break;
+
+        case Fe52_He4_to_Ni56:
+            data.species_A = Fe52;
+            data.species_B = He4;
+            data.species_D = Ni56;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Fe52_He4_to_Co55_P;
+            data.additional_reaction_2 = Co55_P_to_Ni56;
+            break;
+
+        case Mg24_He4_to_Al27_P:
+            data.species_A = Mg24;
+            data.species_B = He4;
+            data.species_D = Al27;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case Al27_P_to_Si28:
+            data.species_A = Al27;
+            data.species_B = P;
+            data.species_D = Si28;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Si28_He4_to_P31_P:
+            data.species_A = Si28;
+            data.species_B = He4;
+            data.species_D = P31;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case P31_P_to_S32:
+            data.species_A = P31;
+            data.species_B = P;
+            data.species_D = S32;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case S32_He4_to_Cl35_P:
+            data.species_A = S32;
+            data.species_B = He4;
+            data.species_D = Cl35;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case Cl35_P_to_Ar36:
+            data.species_A = Cl35;
+            data.species_B = P;
+            data.species_D = Ar36;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Ar36_He4_to_K39_P:
+            data.species_A = Ar36;
+            data.species_B = He4;
+            data.species_D = K39;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case K39_P_to_Ca40:
+            data.species_A = K39;
+            data.species_B = P;
+            data.species_D = Ca40;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Ca40_He4_to_Sc43_P:
+            data.species_A = Ca40;
+            data.species_B = He4;
+            data.species_D = Sc43;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case Sc43_P_to_Ti44:
+            data.species_A = Sc43;
+            data.species_B = P;
+            data.species_D = Ti44;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Ti44_He4_to_V47_P:
+            data.species_A = Ti44;
+            data.species_B = He4;
+            data.species_D = V47;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case V47_P_to_Cr48:
+            data.species_A = V47;
+            data.species_B = P;
+            data.species_D = Cr48;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Cr48_He4_to_Mn51_P:
+            data.species_A = Cr48;
+            data.species_B = He4;
+            data.species_D = Mn51;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case Mn51_P_to_Fe52:
+            data.species_A = Mn51;
+            data.species_B = P;
+            data.species_D = Fe52;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Fe52_He4_to_Co55_P:
+            data.species_A = Fe52;
+            data.species_B = He4;
+            data.species_D = Co55;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case Co55_P_to_Ni56:
+            data.species_A = Co55;
+            data.species_B = P;
+            data.species_D = Ni56;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        }
+
+        return data;
+    }
+
+    template<int rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    void evaluate_analytical_rate (const tf_t& tf, Real& fr, Real& frdt, Real& rr, Real& rrdt)
+    {
+        using namespace Rates;
+
+        if constexpr (rate == C12_He4_to_O16) {
+            rate_c12ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == He4_He4_He4_to_C12) {
+            rate_triplealf(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_C12_to_Ne20_He4) {
+            rate_c12c12(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Mg24_He4) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Si28) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_O16_to_Si28_He4) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_O16_to_P31_P) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_O16_to_S32) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_He4_to_Ne20) {
+            rate_o16ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ne20_He4_to_Mg24) {
+            rate_ne20ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Mg24_He4_to_Si28) {
+            rate_mg24ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Si28_He4_to_S32) {
+            rate_si28ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == S32_He4_to_Ar36) {
+            rate_s32ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ar36_He4_to_Ca40) {
+            rate_ar36ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ca40_He4_to_Ti44) {
+            rate_ca40ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ti44_He4_to_Cr48) {
+            rate_ti44ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Cr48_He4_to_Fe52) {
+            rate_cr48ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Fe52_He4_to_Ni56) {
+            rate_fe52ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Mg24_He4_to_Al27_P) {
+            rate_mg24ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Al27_P_to_Si28) {
+            rate_al27pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Si28_He4_to_P31_P) {
+            rate_si28ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == P31_P_to_S32) {
+            rate_p31pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == S32_He4_to_Cl35_P) {
+            rate_s32ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Cl35_P_to_Ar36) {
+            rate_cl35pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ar36_He4_to_K39_P) {
+            rate_ar36ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == K39_P_to_Ca40) {
+            rate_k39pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ca40_He4_to_Sc43_P) {
+            rate_ca40ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Sc43_P_to_Ti44) {
+            rate_sc43pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ti44_He4_to_V47_P) {
+            rate_ti44ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == V47_P_to_Cr48) {
+            rate_v47pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Cr48_He4_to_Mn51_P) {
+            rate_cr48ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Mn51_P_to_Fe52) {
+            rate_mn51pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Fe52_He4_to_Co55_P) {
+            rate_fe52ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Co55_P_to_Ni56) {
+            rate_co55pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+    }
+
+    template<int rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    void postprocess_rate (const Real& rho, const tf_t& tf,
+                           const Array1D<Real, 1, NumSpec>& y,
+                           Real& fr, Real& frdt, Real& rr, Real& rrdt,
+                           Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
+                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
+                           Real& fr3, Real& fr3dt, Real& rr3, Real& rr3dt)
+    {
+        using namespace Species;
+        using namespace Rates;
+
+        // Each of the following reactions has both an (a,g) path and an
+        // equilibrium sequence using (a,p),(p,g). The first path has already
+        // been handled and we need to add the second now. For example, for
+        // reaction Mg24_He4_to_Si28, the first additional rate is Mg24_He4_to_Al27_P
+        // and the second is Al27_P_to_Si28. The algorithm is that we compute
+        // the effective equilibrium ratio of the forward and reverse rates for
+        // the equilibrium sequence and then add the corresponding fraction of
+        // those equilibrium chains to the forward and reverse terms for the
+        // main alpha chain term.
+
+        if constexpr (rate == Mg24_He4_to_Si28 ||
+                      rate == Si28_He4_to_S32 ||
+                      rate == S32_He4_to_Ar36 ||
+                      rate == Ar36_He4_to_Ca40 ||
+                      rate == Ca40_He4_to_Ti44 ||
+                      rate == Ti44_He4_to_Cr48 ||
+                      rate == Cr48_He4_to_Fe52 ||
+                      rate == Fe52_He4_to_Ni56)
+        {
+            Real rate_ir    = 0.0e0_rt;
+            Real dratedt_ir = 0.0e0_rt;
+            Real denom      = rr1 + fr2;
+            Real denomdt    = rr1dt + fr2dt;
+
+            if (denom > 1.0e-30_rt) {
+                Real zz = 1.0_rt / denom;
+                rate_ir    = rr1 * zz;
+                dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
+            }
+
+            fr += fr1 * (1.0_rt - rate_ir);
+            frdt += fr1dt * (1.0_rt - rate_ir) - fr1 * dratedt_ir;
+
+            rr += rr2 * rate_ir;
+            rrdt += rr2dt * rate_ir + rr2 * dratedt_ir;
+        }
+
+        // The O16+O16->Si28+He4 reaction has an additional contribution from the O16+O16->P31+P
+        // reaction followed by the reverse Si28+He4<->P31+P reaction.
+        if constexpr (rate == O16_O16_to_Si28_He4)
+        {
+            Real rate_ir    = 0.0e0_rt;
+            Real dratedt_ir = 0.0e0_rt;
+            Real denom      = rr1 + fr2;
+            Real denomdt    = rr1dt + fr2dt;
+
+            if (denom > 1.0e-30_rt) {
+                Real zz = 1.0_rt / denom;
+                rate_ir    = rr1 * zz;
+                dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
+            }
+
+            fr += fr3 * rate_ir;
+            frdt += fr3dt * rate_ir + fr3 * dratedt_ir;
+        }
+
+        // The O16+O16->S32 reaction has an additional contribution from the O16+O16->P31+P
+        // reaction followed by the forward P31+P<->S32 reaction.
+        if constexpr (rate == O16_O16_to_S32)
+        {
+            Real rate_ir    = 0.0e0_rt;
+            Real dratedt_ir = 0.0e0_rt;
+            Real denom      = rr1 + fr2;
+            Real denomdt    = rr1dt + fr2dt;
+
+            if (denom > 1.0e-30_rt) {
+                Real zz = 1.0_rt / denom;
+                rate_ir    = rr1 * zz;
+                dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
+            }
+
+            fr += fr3 * (1.0_rt - rate_ir);
+            frdt += fr3dt * (1.0_rt - rate_ir) - fr3 * dratedt_ir;
+        }
+    }
+
+} // namespace RHS
 
 #endif
