@@ -50,7 +50,7 @@ ifneq "$(NET_TABLES)" ""
 endif
 
 nettables:
-	echo linking network data files...
+	@echo linking network data files...
 	$(foreach t, $(NET_TABLES), $(shell if [ ! -f `basename $t` ]; then ln -s $(t) . ; fi))
 
 # Pynucastro networks read rate data from an external file
