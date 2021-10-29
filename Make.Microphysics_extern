@@ -42,14 +42,16 @@ ifndef GENERAL_NET_INPUTS
    endif
 endif
 
-# URCA network has tables
-ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
-  all: urcatables
+# electron capture tables
+NET_TABLES = $(wildcard $(NETWORK_PATH)/*_betadecay.dat) $(wildcard $(NETWORK_PATH)/*_electroncapture.dat)
+
+ifneq "$(NET_TABLES)" ""
+  all: nettables
 endif
 
-urcatables:
-	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
-	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
+nettables:
+	@echo linking network data files...
+	$(foreach t, $(NET_TABLES), $(shell if [ ! -f `basename $t` ]; then ln -s $(t) . ; fi))
 
 # Pynucastro networks read rate data from an external file
 PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
