@@ -888,38 +888,39 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab,
     // To keep the problem bounded we assume that there are no more than
     // three intermediate reactions needed, however it is straightforward
     // to add more as needed (or to generalize this into a loop over all
-    // rates if really needed). If any are present, postprocess the rate
-    // using the additional terms.
+    // rates if really needed).
 
     constexpr int rate1 = data.additional_reaction_1;
     constexpr int rate2 = data.additional_reaction_2;
     constexpr int rate3 = data.additional_reaction_3;
 
-    if constexpr (rate1 >= 0 || rate2 >= 0 || rate3 >= 0) {
-        Real fr1, fr1dt, rr1, rr1dt;
-        if constexpr (rate1 >= 0) {
-            construct_rate<rate1>(rho, tf, tab, y, pstate,
-                                  fr1, fr1dt, rr1, rr1dt);
-        }
+    Real fr1, fr1dt, rr1, rr1dt;
+    Real fr2, fr2dt, rr2, rr2dt;
+    Real fr3, fr3dt, rr3, rr3dt;
 
-        Real fr2, fr2dt, rr2, rr2dt;
-        if constexpr (rate2 >= 0) {
-            construct_rate<rate2>(rho, tf, tab, y, pstate,
-                                  fr2, fr2dt, rr2, rr2dt);
-        }
-
-        Real fr3, fr3dt, rr3, rr3dt;
-        if constexpr (rate3 >= 0) {
-            construct_rate<rate3>(rho, tf, tab, y, pstate,
-                                  fr3, fr3dt, rr3, rr3dt);
-        }
-
-        postprocess_rate<rate>(rho, tf, y,
-                               fr, frdt, rr, rrdt,
-                               fr1, fr1dt, rr1, rr1dt,
-                               fr2, fr2dt, rr2, rr2dt,
-                               fr3, fr3dt, rr3, rr3dt);
+    if constexpr (rate1 >= 0) {
+        construct_rate<rate1>(rho, tf, tab, y, pstate,
+                              fr1, fr1dt, rr1, rr1dt);
     }
+
+    if constexpr (rate2 >= 0) {
+        construct_rate<rate2>(rho, tf, tab, y, pstate,
+                              fr2, fr2dt, rr2, rr2dt);
+    }
+
+    if constexpr (rate3 >= 0) {
+        construct_rate<rate3>(rho, tf, tab, y, pstate,
+                              fr3, fr3dt, rr3, rr3dt);
+    }
+
+    // Perform rate postprocessing, using additional reactions as inputs.
+    // If there is no postprocessing for this rate, this will be a no-op.
+
+    postprocess_rate<rate>(rho, tf, y,
+                           fr, frdt, rr, rrdt,
+                           fr1, fr1dt, rr1, rr1dt,
+                           fr2, fr2dt, rr2, rr2dt,
+                           fr3, fr3dt, rr3, rr3dt);
 }
 
 template<int spec>
