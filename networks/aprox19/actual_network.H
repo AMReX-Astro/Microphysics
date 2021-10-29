@@ -102,7 +102,10 @@ namespace Rates {
         C12_H1_to_N13,
         C12_2H1_to_N14,
         N14_H1_to_O15,
+        N15_H1_to_O16,
+        N15_H1_to_C12_He4,
         N14_2H1_to_O16,
+        N14_2H1_to_C12_He4,
         N15_P_to_O16,
         N15_P_to_C12_He4,
         O16_H1_to_F17,
@@ -282,6 +285,43 @@ namespace RHS {
             data.exponent_D = 1;
             break;
 
+        case N15_H1_to_O16:
+            // ifg in the original aprox19
+            data.species_A = N15;
+            data.species_B = H1;
+            data.species_D = O16;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            break;
+
+        case N15_H1_to_C12_He4:
+            // ifa in the original aprox19
+            data.species_A = N15;
+            data.species_B = H1;
+            data.species_D = C12;
+            data.species_E = He4;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.screen_forward_reaction = 0;
+            break;
+
         case N14_2H1_to_O16:
             // Represents N14(p,g)O15(e+nu)N15(p,g)O16
             data.species_A = N14;
@@ -297,6 +337,30 @@ namespace RHS {
             data.exponent_D = 1;
 
             data.additional_reaction_1 = N14_H1_to_O15;
+            data.additional_reaction_2 = N15_H1_to_O16;
+            data.additional_reaction_3 = N15_H1_to_C12_He4;
+            break;
+
+        case N14_2H1_to_C12_He4:
+            // Represents N14(p,g)O15(e+nu)N15(p,a)C12
+            data.species_A = N14;
+            data.species_B = H1;
+            data.species_D = C12;
+            data.species_E = He4;
+
+            data.number_A = 1;
+            data.number_B = 2;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.additional_reaction_1 = N14_H1_to_O15;
+            data.additional_reaction_2 = N15_H1_to_O16;
+            data.additional_reaction_3 = N15_H1_to_C12_He4;
             break;
 
         case N14_He4_to_F18:
@@ -865,6 +929,12 @@ namespace RHS {
         else if constexpr (rate == N14_H1_to_O15) {
             rate_n14pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
+        else if constexpr (rate == N15_H1_to_O16) {
+            rate_n15pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == N15_H1_to_C12_He4) {
+            rate_n15pa(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
         else if constexpr (rate == N14_He4_to_F18) {
             rate_n14ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
@@ -1055,18 +1125,56 @@ namespace RHS {
 
         if constexpr (rate == N14_2H1_to_O16)
         {
-            fr = fr1;
-            frdt = fr1dt;
+            // Rate 1: N14_H1_to_O15
 
             // Beta limit
 
             if (y(H1) > 1.0e-30_rt) {
                 Real xx = 5.68e-3_rt / (y(H1) * 1.57_rt);
-                fr = amrex::min(fr, xx);
-                if (fr == xx) {
-                    frdt = 0.0_rt;
+                fr1 = amrex::min(fr1, xx);
+                if (fr1 == xx) {
+                    fr1dt = 0.0_rt;
                 }
             }
+
+            // Rate 2: O15_H1_to_O16
+            // Rate 3: O15_H1_to_C12_He4
+
+            Real tot = fr2 + fr3;
+            Real invtot = 1.0_rt / tot;
+
+            fr = fr1 * (fr2 * invtot);
+
+            Real dtotdt = fr2dt + fr3dt;
+
+            frdt = fr1 * (fr2dt * invtot - fr2 * invtot * invtot * dtotdt);
+        }
+
+        if constexpr (rate == N14_2H1_to_C12_He4)
+        {
+            // Rate 1: N14_H1_to_O15
+
+            // Beta limit
+
+            if (y(H1) > 1.0e-30_rt) {
+                Real xx = 5.68e-3_rt / (y(H1) * 1.57_rt);
+                fr1 = amrex::min(fr1, xx);
+                if (fr1 == xx) {
+                    fr1dt = 0.0_rt;
+                }
+            }
+
+            // Rate 2: O15_H1_to_O16
+            // Rate 3: O15_H1_to_C12_He4
+
+            Real tot = fr2 + fr3;
+            Real invtot = 1.0_rt / tot;
+
+            fr = fr1 * (fr3 * invtot);
+
+            Real dtotdt = fr2dt + fr3dt;
+
+            frdt = fr1 * (fr3dt * invtot - fr3 * invtot * invtot * dtotdt);
         }
 
         if constexpr (rate == N14_He4_to_Ne20)
@@ -1082,16 +1190,16 @@ namespace RHS {
 
         if constexpr (rate == O16_2H1_to_N14_He4)
         {
-            fr = fr1;
-            frdt = fr1dt;
-
             // Beta limit
 
             Real xx = 0.0105_rt / y(H1);
-            fr = amrex::min(fr, xx);
-            if (fr == xx) {
-                frdt = 0.0_rt;
+            fr1 = amrex::min(fr1, xx);
+            if (fr1 == xx) {
+                fr1dt = 0.0_rt;
             }
+
+            fr = fr1;
+            frdt = fr1dt;
         }
     }
 
