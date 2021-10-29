@@ -53,7 +53,7 @@ namespace table
 
 
 namespace Rates {
-        enum NetworkRates {
+    enum NetworkRates {
         He4_He4_He4_to_C12 = 1,
         C12_He4_to_O16,
         C12_C12_to_Ne20_He4,
@@ -99,12 +99,16 @@ namespace Rates {
         P_P_to_H2,
         He3_He3_to_He4_2P,
         He4_He4_to_Be7,
-        C12_P_to_N13,
-        N14_P_to_O16,
+        C12_H1_to_N13,
+        C12_2H1_to_N14,
+        N14_H1_to_O15,
+        N14_2H1_to_O16,
         N15_P_to_O16,
         N15_P_to_C12_He4,
-        O16_P_to_F17,
+        O16_H1_to_F17,
+        O16_2H1_to_N14_He4,
         N14_He4_to_F18,
+        N14_He4_to_Ne20,
         Fe52_2N_to_Fe54,
         Fe52_He4_to_Fe54_2P,
         Fe54_2P_to_Ni56,
@@ -168,6 +172,38 @@ namespace RHS {
             data.exponent_D = 1;
             break;
 
+        case C12_H1_to_N13:
+            // ircpg in the original aprox19
+            data.species_A = C12;
+            data.species_B = H1;
+            data.species_D = N13;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case C12_2H1_to_N14:
+            // Represents C12(p,g)N13(e+nu)C13(p,g)N14
+            data.species_A = C12;
+            data.species_B = H1;
+            data.species_D = N14;
+
+            data.number_A = 1;
+            data.number_B = 2;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = C12_H1_to_N13;
+            break;
+
         case C12_He4_to_O16:
             data.species_A = C12;
             data.species_B = He4;
@@ -229,6 +265,107 @@ namespace RHS {
             data.exponent_D = 1;
 
             data.forward_branching_ratio = 0.5_rt;
+            break;
+
+        case N14_H1_to_O15:
+            // irnpg in the original aprox19
+            data.species_A = N14;
+            data.species_B = H1;
+            data.species_D = O15;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case N14_2H1_to_O16:
+            // Represents N14(p,g)O15(e+nu)N15(p,g)O16
+            data.species_A = N14;
+            data.species_B = H1;
+            data.species_D = O16;
+
+            data.number_A = 1;
+            data.number_B = 2;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = N14_H1_to_O15;
+            break;
+
+        case N14_He4_to_F18:
+            // irnag in the original aprox19
+            // Represents N14 + He4 -> F18
+            data.species_A = N14;
+            data.species_B = He4;
+            data.species_D = F18;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case N14_He4_to_Ne20:
+            // Represents N14 + 1.5 He4 -> Ne20
+            // or, equivalently, 2 N14 + 3 He4 -> 2 Ne20
+            data.species_A = N14;
+            data.species_B = He4;
+            data.species_D = Ne20;
+
+            data.number_A = 2;
+            data.number_B = 3;
+            data.number_D = 2;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = N14_He4_to_F18;
+            break;
+
+        case O16_H1_to_F17:
+            // iropg in the original aprox19
+            data.species_A = O16;
+            data.species_B = H1;
+            data.species_D = F17;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case O16_2H1_to_N14_He4:
+            // Represents O16(p,g)F17(e+nu)O17(p,a)N14
+            data.species_A = O16;
+            data.species_B = H1;
+            data.species_D = N14;
+            data.species_E = He4;
+
+            data.number_A = 1;
+            data.number_B = 2;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.additional_reaction_1 = O16_H1_to_F17;
             break;
 
         case O16_O16_to_Si28_He4:
@@ -713,6 +850,9 @@ namespace RHS {
         else if constexpr (rate == He4_He4_He4_to_C12) {
             rate_triplealf(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
+        else if constexpr (rate == C12_H1_to_N13) {
+            rate_c12pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
         else if constexpr (rate == C12_C12_to_Ne20_He4) {
             rate_c12c12(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
@@ -721,6 +861,15 @@ namespace RHS {
         }
         else if constexpr (rate == C12_O16_to_Si28) {
             rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == N14_H1_to_O15) {
+            rate_n14pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == N14_He4_to_F18) {
+            rate_n14ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_H1_to_F17) {
+            rate_o16pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
         else if constexpr (rate == O16_O16_to_Si28_He4) {
             rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
@@ -896,6 +1045,53 @@ namespace RHS {
 
             fr += fr3 * (1.0_rt - rate_ir);
             frdt += fr3dt * (1.0_rt - rate_ir) - fr3 * dratedt_ir;
+        }
+
+        if constexpr (rate == C12_2H1_to_N14)
+        {
+            fr = fr1;
+            frdt = fr1dt;
+        }
+
+        if constexpr (rate == N14_2H1_to_O16)
+        {
+            fr = fr1;
+            frdt = fr1dt;
+
+            // Beta limit
+
+            if (y(H1) > 1.0e-30_rt) {
+                Real xx = 5.68e-3_rt / (y(H1) * 1.57_rt);
+                fr = amrex::min(fr, xx);
+                if (fr == xx) {
+                    frdt = 0.0_rt;
+                }
+            }
+        }
+
+        if constexpr (rate == N14_He4_to_Ne20)
+        {
+            // We doubled the number of nucleons per reaction
+            // in defining the reaction so that the number of reactants
+            // on each side would be integers, so to compensate,
+            // we'll halve the rate.
+
+            fr = fr1 * 0.5_rt;
+            frdt = fr1dt * 0.5_rt;
+        }
+
+        if constexpr (rate == O16_2H1_to_N14_He4)
+        {
+            fr = fr1;
+            frdt = fr1dt;
+
+            // Beta limit
+
+            Real xx = 0.0105_rt / y(H1);
+            fr = amrex::min(fr, xx);
+            if (fr == xx) {
+                frdt = 0.0_rt;
+            }
         }
     }
 
