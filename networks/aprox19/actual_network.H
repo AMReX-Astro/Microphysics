@@ -90,7 +90,6 @@ namespace Rates {
         Co55_P_to_Ni56,
         Fe52_N_to_Fe53,
         Fe53_N_to_Fe54,
-        Fe54_N_to_Co55,
         He3_N_to_He4,
         P_N_to_H2,
         H2_P_to_He3,
@@ -647,6 +646,7 @@ namespace RHS {
 
             data.additional_reaction_1 = Fe52_He4_to_Co55_P;
             data.additional_reaction_2 = Co55_P_to_Ni56;
+            data.additional_reaction_3 = Fe54_P_to_Co55;
             break;
 
         case Mg24_He4_to_Al27_P:
@@ -897,6 +897,92 @@ namespace RHS {
             data.exponent_D = 1;
             break;
 
+        case Fe52_N_to_Fe53:
+            data.species_A = Fe52;
+            data.species_B = N;
+            data.species_D = Fe53;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+            break;
+
+        case Fe53_N_to_Fe54:
+            data.species_A = Fe53;
+            data.species_B = N;
+            data.species_D = Fe54;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+            break;
+
+        case Fe52_2N_to_Fe54:
+            data.species_A = Fe52;
+            data.species_B = N;
+            data.species_D = Fe54;
+
+            data.number_A = 1;
+            data.number_B = 2;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.additional_reaction_1 = Fe52_N_to_Fe53;
+            data.additional_reaction_2 = Fe53_N_to_Fe54;
+            break;
+
+        case Fe54_P_to_Co55:
+            data.species_A = Fe54;
+            data.species_B = P;
+            data.species_D = Co55;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Fe54_2P_to_Ni56:
+            data.species_A = Fe54;
+            data.species_B = P;
+            data.species_D = Ni56;
+
+            data.number_A = 1;
+            data.number_B = 2;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.additional_reaction_1 = Fe54_P_to_Co55;
+            data.additional_reaction_2 = Co55_P_to_Ni56;
+            data.additional_reaction_3 = Fe52_He4_to_Co55_P;
+            break;
+
         }
 
         return data;
@@ -1028,6 +1114,15 @@ namespace RHS {
         else if constexpr (rate == Co55_P_to_Ni56) {
             rate_co55pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
+        else if constexpr (rate == Fe52_N_to_Fe53) {
+            rate_fe52ng(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Fe53_N_to_Fe54) {
+            rate_fe53ng(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Fe54_P_to_Co55) {
+            rate_fe54pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
     }
 
     template<int rate>
@@ -1058,8 +1153,7 @@ namespace RHS {
                       rate == Ar36_He4_to_Ca40 ||
                       rate == Ca40_He4_to_Ti44 ||
                       rate == Ti44_He4_to_Cr48 ||
-                      rate == Cr48_He4_to_Fe52 ||
-                      rate == Fe52_He4_to_Ni56)
+                      rate == Cr48_He4_to_Fe52)
         {
             Real rate_ir    = 0.0e0_rt;
             Real dratedt_ir = 0.0e0_rt;
@@ -1200,6 +1294,104 @@ namespace RHS {
 
             fr = fr1;
             frdt = fr1dt;
+        }
+
+        if constexpr (rate == Fe52_2N_to_Fe54)
+        {
+            // In the original aprox19:
+            // Rate 1 == Fe52_N_to_Fe53 == ir52ng (forward), ir53gn (reverse)
+            // Rate 2 == Fe53_N_to_Fe54 == ir53ng (forward), ir54gn (reverse)
+
+            Real denom   = rr1 + y(N) * fr2;
+            Real denomdt = rr1dt + y(N) * fr2dt;
+
+            if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
+                Real zz = 1.0_rt / denom;
+
+                // ir2f54 in the original aprox19
+                fr = fr1 * fr2 * zz;
+                frdt = fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr * zz * denomdt;
+
+                // ir1f54 in the original aprox19
+                rr = rr2 * rr1 * zz;
+                rrdt = rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
+            }
+        }
+
+        if constexpr (rate == Fe54_2P_to_Ni56)
+        {
+            // In the original aprox19:
+            // Rate 1 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
+            // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
+            // Rate 3 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
+
+            Real denom = rr1 + y(P) * (fr2 + rr3);
+
+            if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
+                Real denomdt = rr1dt + y(P) * (fr2dt + rr3dt);
+
+                Real zz = 1.0_rt / denom;
+
+                // ir3f54 in the original aprox19
+                fr = fr1 * fr2 * zz;
+                frdt = fr1dt * fr2 * zz + fr2 * fr1dt * zz - fr * zz * denomdt;
+
+                // ir4f54 in the original aprox19
+                rr = rr2 * rr1 * zz;
+                rrdt = rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
+            }
+        }
+
+        if constexpr (rate == Fe52_He4_to_Fe54_2P)
+        {
+            // In the original aprox19:
+            // Rate 1 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
+            // Rate 2 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
+            // Rate 3 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
+
+            Real denom = rr2 + y(P) * (fr3 + rr1);
+
+            if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
+                Real denomdt = rr2dt + y(P) * (fr3dt + rr1dt);
+
+                Real zz = 1.0_rt / denom;
+
+                // ir6f54 in the original aprox19
+                fr = fr1 * rr2 * zz;
+                frdt = fr1dt * rr2 * zz + fr1 * rr2dt * zz - fr * zz * denomdt;
+
+                // ir5f54 in the original aprox19
+                rr = fr2 * rr1 * zz;
+                rrdt = fr2dt * rr1 * zz + fr2 * rr1dt * zz - rr * zz * denomdt;
+            }
+        }
+
+        if constexpr (rate == Fe52_He4_to_Ni56)
+        {
+            // In the original aprox19:
+            // Rate 1 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
+            // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
+            // Rate 3 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
+
+            Real denom = rr3 + y(P) * (fr2 + rr1);
+
+            if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
+                Real denomdt = rr3dt + y(P) * (fr2dt + rr1dt);
+
+                Real zz = 1.0_rt / denom;
+
+                // Note that in these reactions we're adding to fr and rr
+                // since this reaction already has a contribution from the
+                // direct alpha capture sequence Fe52(a,g)Ni56.
+
+                // ir7f54 in the original aprox19
+                fr += fr1 * fr2 * zz;
+                frdt += fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr * zz * denomdt;
+
+                // ir8f54 in the original aprox19
+                rr += rr2 * rr1 * zz;
+                rrdt += rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
+            }
         }
     }
 
