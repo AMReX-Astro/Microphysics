@@ -943,7 +943,7 @@ namespace RHS {
             data.number_D = 1;
 
             data.exponent_A = 1;
-            data.exponent_B = 1;
+            data.exponent_B = 2;
             data.exponent_D = 1;
 
             data.screen_forward_reaction = 0;
@@ -967,6 +967,30 @@ namespace RHS {
             data.exponent_D = 1;
             break;
 
+        case Fe52_He4_to_Fe54_2P:
+            data.species_A = Fe52;
+            data.species_B = He4;
+            data.species_D = Fe54;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 2;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 2;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.additional_reaction_1 = Fe52_He4_to_Co55_P;
+            data.additional_reaction_2 = Fe54_P_to_Co55;
+            data.additional_reaction_3 = Co55_P_to_Ni56;
+            break;
+
         case Fe54_2P_to_Ni56:
             data.species_A = Fe54;
             data.species_B = P;
@@ -977,8 +1001,11 @@ namespace RHS {
             data.number_D = 1;
 
             data.exponent_A = 1;
-            data.exponent_B = 1;
+            data.exponent_B = 2;
             data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
 
             data.additional_reaction_1 = Fe54_P_to_Co55;
             data.additional_reaction_2 = Co55_P_to_Ni56;
@@ -996,6 +1023,9 @@ namespace RHS {
             data.exponent_D = 1;
 
             data.rate_can_be_tabulated = 0;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
             break;
         }
 
@@ -1406,11 +1436,11 @@ namespace RHS {
                 // direct alpha capture sequence Fe52(a,g)Ni56.
 
                 // ir7f54 in the original aprox19
-                fr += fr1 * fr2 * zz;
+                fr += y(P) * fr1 * fr2 * zz;
                 frdt += fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr * zz * denomdt;
 
                 // ir8f54 in the original aprox19
-                rr += rr2 * rr1 * zz;
+                rr += y(P) * rr2 * rr1 * zz;
                 rrdt += rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
             }
         }
