@@ -1705,12 +1705,16 @@ namespace RHS {
                 // direct alpha capture sequence Fe52(a,g)Ni56.
 
                 // ir7f54 in the original aprox19
-                fr += y(P) * fr1 * fr2 * zz;
-                frdt += fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr * zz * denomdt;
+                Real fr_add = fr1 * fr2 * zz;
+                Real frdt_add = fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr_add * zz * denomdt;
+                fr += y(P) * fr_add;
+                frdt += y(P) * frdt_add;
 
                 // ir8f54 in the original aprox19
-                rr += y(P) * rr2 * rr1 * zz;
-                rrdt += rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
+                Real rr_add = rr2 * rr1 * zz;
+                Real rrdt_add = rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr_add * zz * denomdt; 
+                rr += y(P) * rr_add;
+                rrdt += y(P) * rrdt_add;
             }
         }
 
