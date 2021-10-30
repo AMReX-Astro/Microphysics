@@ -204,6 +204,23 @@ namespace RHS {
             data.rate_can_be_tabulated = 0;
             break;
 
+        case P_to_N:
+            // irpen and irnep in the original aprox19
+            data.species_A = P;
+            data.species_D = N;
+
+            data.number_A = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
+            break;
+
         case P_N_to_H2:
             // irhng and irdgn in the original aprox19
             // Represents p(n,g)H2
@@ -1223,6 +1240,12 @@ namespace RHS {
             if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
                 Real tmp1, tmp2, tmp3;
                 ecapnuc(eta, tf.temp, fr, tmp1, tmp2, tmp3);
+            }
+        }
+        else if constexpr (rate == P_to_N) {
+            if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
+                Real tmp1, tmp2;
+                ecapnuc(eta, tf.temp, fr, rr, tmp1, tmp2);
             }
         }
         else if constexpr (rate == P_N_to_H2) {
