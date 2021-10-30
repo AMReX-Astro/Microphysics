@@ -676,22 +676,22 @@ constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
     Real term = 0.0_rt;
 
     if constexpr (data.species_A == species) {
-        term = data.number_A * (reverse_term - forward_term);
+        term += data.number_A * (reverse_term - forward_term);
     }
     if constexpr (data.species_B == species) {
-        term = data.number_B * (reverse_term - forward_term);
+        term += data.number_B * (reverse_term - forward_term);
     }
     if constexpr (data.species_C == species) {
-        term = data.number_C * (reverse_term - forward_term);
+        term += data.number_C * (reverse_term - forward_term);
     }
     if constexpr (data.species_D == species) {
-        term = data.number_D * (forward_term - reverse_term);
+        term += data.number_D * (forward_term - reverse_term);
     }
     if constexpr (data.species_E == species) {
-        term = data.number_E * (forward_term - reverse_term);
+        term += data.number_E * (forward_term - reverse_term);
     }
     if constexpr (data.species_F == species) {
-        term = data.number_F * (forward_term - reverse_term);
+        term += data.number_F * (forward_term - reverse_term);
     }
 
     return term;

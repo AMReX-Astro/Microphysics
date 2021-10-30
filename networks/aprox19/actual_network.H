@@ -56,6 +56,11 @@ namespace Rates {
     enum NetworkRates {
         H1_H1_to_He3 = 1,
         H1_H1_H1_to_He3,
+        P_to_N,
+        P_N_to_H2,
+        P_P_N_N_to_He4,
+        H2_P_to_He3,
+        He3_N_to_He4,
         He3_He3_to_He4_2H1,
         He3_He4_H1_to_2He4,
         He4_He4_He4_to_C12,
@@ -94,10 +99,6 @@ namespace Rates {
         Co55_P_to_Ni56,
         Fe52_N_to_Fe53,
         Fe53_N_to_Fe54,
-        He3_N_to_He4,
-        P_N_to_H2,
-        H2_P_to_He3,
-        P_to_N,
         Ni56_to_Fe54,
         He3_He3_to_He4_2P,
         He4_He4_to_Be7,
@@ -118,8 +119,7 @@ namespace Rates {
         Fe52_He4_to_Fe54_2P,
         Fe54_2P_to_Ni56,
         Fe54_P_to_Co55,
-        P_P_N_N_to_He4,
-        NumRates=P_P_N_N_to_He4
+        NumRates=Fe54_P_to_Co55
     };
 }
 
@@ -202,6 +202,99 @@ namespace RHS {
             data.exponent_D = 1;
 
             data.rate_can_be_tabulated = 0;
+            break;
+
+        case P_N_to_H2:
+            // irhng and irdgn in the original aprox19
+            // Represents p(n,g)H2
+            // In this network this is entirely an intermediate
+            // reaction and does not directly enter into the RHS
+            // for P or N. We handle this by setting the
+            // number of species consumed and produced to zero.
+            data.species_A = P;
+            data.species_B = N;
+            data.species_D = H2;
+
+            data.number_A = 0;
+            data.number_B = 0;
+            data.number_D = 0;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+            break;
+
+        case P_P_N_N_to_He4:
+            // iralf1 and iralf2 in the original aprox19
+            // Represents p(n,g)H2(n,g)H3(p,g)He4 and p(n,g)H2(p,g)He3(n,g)He4
+            data.species_A = P;
+            data.species_B = N;
+            data.species_D = He4;
+
+            data.number_A = 2;
+            data.number_B = 2;
+            data.number_D = 1;
+
+            data.exponent_A = 2;
+            data.exponent_B = 2;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.apply_identical_particle_factor = 0;
+
+            data.additional_reaction_1 = P_N_to_H2;
+            data.additional_reaction_2 = H2_P_to_He3;
+            data.additional_reaction_3 = He3_N_to_He4;
+            break;
+
+        case H2_P_to_He3:
+            // irdpg and irhegp in the original aprox19
+            // Represents H2(p,g)He3
+            // In this network this is entirely an intermediate
+            // reaction and does not directly enter into the RHS
+            // for P or He3. We handle this by setting the
+            // number of species consumed and produced to zero.
+            data.species_A = H2;
+            data.species_B = P;
+            data.species_D = He3;
+
+            data.number_A = 0;
+            data.number_B = 0;
+            data.number_D = 0;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case He3_N_to_He4:
+            // irheng and irhegn in the original aprox19
+            // Represents He3(n,g)He4
+            // In this network this is entirely an intermediate
+            // reaction and does not directly enter into the RHS
+            // for He3, N, or He4. We handle this by setting the
+            // number of species consumed and produced to zero.
+            data.species_A = He3;
+            data.species_B = N;
+            data.species_D = He4;
+
+            data.number_A = 0;
+            data.number_B = 0;
+            data.number_D = 0;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
             break;
 
         case He3_He3_to_He4_2H1:
@@ -1132,6 +1225,15 @@ namespace RHS {
                 ecapnuc(eta, tf.temp, fr, tmp1, tmp2, tmp3);
             }
         }
+        else if constexpr (rate == P_N_to_H2) {
+            rate_png(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == H2_P_to_He3) {
+            rate_dpg(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == He3_N_to_He4) {
+            rate_he3ng(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
         else if constexpr (rate == He3_He3_to_He4_2H1) {
             Real tmp1, tmp2;
             rate_he3he3(tf, 1.0_rt, fr, frdt, tmp1, tmp2);
@@ -1288,6 +1390,38 @@ namespace RHS {
     {
         using namespace Species;
         using namespace Rates;
+
+        if constexpr (rate == P_P_N_N_to_He4)
+        {
+            // In the original aprox19:
+            // Rate 1 == P_N_to_H2 == irhng (forward), irdgn (reverse)
+            // Rate 2 == H2_P_to_He3 == irdpg (forward), irhegp (reverse)
+            // Rate 3 == He3_N_to_He4 == irheng (forward), irhegn (reverse)
+
+            Real denom = rr2 * rr1 + y(N) * fr3 * rr1 + y(N) * y(P) * fr3 * fr2;
+
+            if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
+                Real denomdt = rr2dt * rr1 + rr2 * rr1dt +
+                               y(N) * (fr3dt * rr1 + fr3 * rr1dt) +
+                               y(N) * y(P) * (fr3dt * fr2 + fr3 * fr2dt);
+
+                Real zz = 1.0_rt / denom;
+
+                // iralf1 in the original aprox19
+                rr = rr3 * rr2 * rr1 * zz;
+                rrdt = rr3dt * rr2 * rr1 * zz +
+                       rr3 * rr2dt * rr1 * zz +
+                       rr3 * rr2 * rr1dt * zz -
+                       rr * zz * denomdt;
+
+                // iralf2 in the original aprox19
+                fr = fr3 * fr2 * fr1 * zz;
+                frdt = fr3dt * fr2 * fr1 * zz +
+                       fr3 * fr2dt * fr1 * zz +
+                       fr3 * fr2 * fr1dt * zz -
+                       fr * zz * denomdt;
+            }
+        }
 
         // Beta limit He3 + He4 by the B8 decay half-life
 
