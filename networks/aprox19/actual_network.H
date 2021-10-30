@@ -154,6 +154,8 @@ namespace RHS {
         data.forward_branching_ratio = 1.0;
         data.reverse_branching_ratio = 1.0;
 
+        data.apply_identical_particle_factor = 1;
+
         data.rate_can_be_tabulated = 1;
 
         data.screen_forward_reaction = 1;
@@ -949,6 +951,8 @@ namespace RHS {
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
 
+            data.apply_identical_particle_factor = 0;
+
             data.additional_reaction_1 = Fe52_N_to_Fe53;
             data.additional_reaction_2 = Fe53_N_to_Fe54;
             break;
@@ -986,6 +990,8 @@ namespace RHS {
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
 
+            data.apply_identical_particle_factor = 0;
+
             data.additional_reaction_1 = Fe52_He4_to_Co55_P;
             data.additional_reaction_2 = Fe54_P_to_Co55;
             data.additional_reaction_3 = Co55_P_to_Ni56;
@@ -1006,6 +1012,8 @@ namespace RHS {
 
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
+
+            data.apply_identical_particle_factor = 0;
 
             data.additional_reaction_1 = Fe54_P_to_Co55;
             data.additional_reaction_2 = Co55_P_to_Ni56;

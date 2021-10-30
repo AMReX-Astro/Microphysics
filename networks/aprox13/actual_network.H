@@ -100,6 +100,8 @@ namespace RHS {
         data.forward_branching_ratio = 1.0;
         data.reverse_branching_ratio = 1.0;
 
+        data.apply_identical_particle_factor = 1;
+
         data.rate_can_be_tabulated = 1;
 
         data.screen_forward_reaction = 1;

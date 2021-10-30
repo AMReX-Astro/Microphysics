@@ -31,6 +31,8 @@ struct rhs_t {
     amrex::Real forward_branching_ratio;
     amrex::Real reverse_branching_ratio;
 
+    int apply_identical_particle_factor;
+
     int rate_can_be_tabulated;
 
     int screen_forward_reaction;
