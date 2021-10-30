@@ -376,7 +376,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
 
     constexpr rhs_t data = rhs_data(rate);
 
-    if constexpr (data.number_A == 1 && data.number_B == 1 && data.number_C == 0) {
+    if constexpr (data.exponent_A == 1 && data.exponent_B == 1 && data.exponent_C == 0) {
         // Forward reaction is A + B, screen using these two species
 
         constexpr Real Z1 = NetworkProperties::zion(data.species_A);
@@ -401,7 +401,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         }
     }
 
-    if constexpr (data.number_A == 2 && data.number_B == 0 && data.number_C == 0) {
+    if constexpr (data.exponent_A == 2 && data.exponent_B == 0 && data.exponent_C == 0) {
         // Forward reaction is A + A, screen using just this species
 
         constexpr Real Z1 = NetworkProperties::zion(data.species_A);
@@ -423,7 +423,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         }
     }
 
-    if constexpr (data.number_A == 3 && data.number_B == 0 && data.number_C == 0) {
+    if constexpr (data.exponent_A == 3 && data.exponent_B == 0 && data.exponent_C == 0) {
         // Forward reaction is triple alpha or an equivalent, screen using A + A
         // and then A + X where X has twice the number of protons and neutrons.
 
@@ -493,6 +493,7 @@ void tabulate_rates ()
         // Arbitrary density, y, and y_e values (should be unused)
         const Real rho = 0.0_rt;
         const Real y_e = 0.0_rt;
+        const Real eta = 0.0_rt;
         Array1D<Real, 1, NumSpec> y = {0.0_rt};
 
         constexpr_for<1, NumRates+1>([&] (auto n)
@@ -508,7 +509,7 @@ void tabulate_rates ()
             constexpr rhs_t data = RHS::rhs_data(rate);
 
             if (data.rate_can_be_tabulated) {
-                evaluate_analytical_rate<rate>(rho, tf, y_e, y, fr, frdt, rr, rrdt);
+                evaluate_analytical_rate<rate>(rho, tf, y_e, eta, y, fr, frdt, rr, rrdt);
             }
 
             rattab(rate, 1, i)    = fr;
@@ -523,7 +524,7 @@ void tabulate_rates ()
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void evaluate_tabulated_rate (const Real& rho, const rate_tab_t& tab, const Real& y_e,
-                              const Array1D<Real, 1, NumSpec>& y,
+                              const Real& eta, const Array1D<Real, 1, NumSpec>& y,
                               Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
     fr = (tab.alfa * rattab(rate, 1, tab.iat  ) +
@@ -895,7 +896,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, const Real& y_e,
-                     const Array1D<Real, 1, NumSpec>& y, const plasma_state_t& pstate,
+                     const Real& eta, const Array1D<Real, 1, NumSpec>& y, const plasma_state_t& pstate,
                      Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
     using namespace Species;
@@ -904,10 +905,10 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, con
     constexpr rhs_t data = RHS::rhs_data(rate);
 
     if (use_tables && data.rate_can_be_tabulated) {
-        evaluate_tabulated_rate<rate>(rho, tab, y_e, y, fr, frdt, rr, rrdt);
+        evaluate_tabulated_rate<rate>(rho, tab, y_e, eta, y, fr, frdt, rr, rrdt);
     }
     else {
-        evaluate_analytical_rate<rate>(rho, tf, y_e, y, fr, frdt, rr, rrdt);
+        evaluate_analytical_rate<rate>(rho, tf, y_e, eta, y, fr, frdt, rr, rrdt);
     }
 
     // Set the density dependence
@@ -926,7 +927,7 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, con
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, const Real& y_e,
-               const Array1D<Real, 1, NumSpec>& y, const plasma_state_t& pstate,
+               const Real& eta, const Array1D<Real, 1, NumSpec>& y, const plasma_state_t& pstate,
                Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
     using namespace Species;
@@ -953,7 +954,7 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, const Rea
 
     // Construct the (screened and density-scaled) rate.
 
-    construct_rate<rate>(rho, tf, tab, y_e, y, pstate,
+    construct_rate<rate>(rho, tf, tab, y_e, eta, y, pstate,
                          fr, frdt, rr, rrdt);
 
     // Construct all intermediate rates needed to augment this reaction.
@@ -971,24 +972,24 @@ void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, const Rea
     Real fr3, fr3dt, rr3, rr3dt;
 
     if constexpr (rate1 >= 0) {
-        construct_rate<rate1>(rho, tf, tab, y_e, y, pstate,
+        construct_rate<rate1>(rho, tf, tab, y_e, eta, y, pstate,
                               fr1, fr1dt, rr1, rr1dt);
     }
 
     if constexpr (rate2 >= 0) {
-        construct_rate<rate2>(rho, tf, tab, y_e, y, pstate,
+        construct_rate<rate2>(rho, tf, tab, y_e, eta, y, pstate,
                               fr2, fr2dt, rr2, rr2dt);
     }
 
     if constexpr (rate3 >= 0) {
-        construct_rate<rate3>(rho, tf, tab, y_e, y, pstate,
+        construct_rate<rate3>(rho, tf, tab, y_e, eta, y, pstate,
                               fr3, fr3dt, rr3, rr3dt);
     }
 
     // Perform rate postprocessing, using additional reactions as inputs.
     // If there is no postprocessing for this rate, this will be a no-op.
 
-    postprocess_rate<rate>(rho, tf, y_e, y,
+    postprocess_rate<rate>(rho, tf, y_e, eta, y,
                            fr, frdt, rr, rrdt,
                            fr1, fr1dt, rr1, rr1dt,
                            fr2, fr2dt, rr2, rr2dt,
@@ -1049,7 +1050,7 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         constexpr int rate = n1;
 
         Real fr, frdt, rr, rrdt;
-        get_rate<rate>(state.rho, tf, tab, state.y_e, y, pstate, fr, frdt, rr, rrdt);
+        get_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
 
         constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
@@ -1110,7 +1111,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         constexpr int rate = n1;
 
         Real fr, frdt, rr, rrdt;
-        get_rate<rate>(state.rho, tf, tab, state.y_e, y, pstate, fr, frdt, rr, rrdt);
+        get_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
 
         // Species Jacobian elements with respect to other species.
         constexpr_for<1, NumSpec+1>([&] (auto n2)

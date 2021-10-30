@@ -54,7 +54,11 @@ namespace table
 
 namespace Rates {
     enum NetworkRates {
-        He4_He4_He4_to_C12 = 1,
+        H1_H1_to_He3 = 1,
+        H1_H1_H1_to_He3,
+        He3_He3_to_He4_2H1,
+        He3_He4_H1_to_2He4,
+        He4_He4_He4_to_C12,
         C12_He4_to_O16,
         C12_C12_to_Ne20_He4,
         C12_O16_to_Mg24_He4,
@@ -95,7 +99,6 @@ namespace Rates {
         H2_P_to_He3,
         P_to_N,
         Ni56_to_Fe54,
-        P_P_to_H2,
         He3_He3_to_He4_2P,
         He4_He4_to_Be7,
         C12_H1_to_N13,
@@ -166,6 +169,76 @@ namespace RHS {
         data.additional_reaction_3 = -1;
 
         switch (rate) {
+
+        case H1_H1_to_He3:
+            // irpp in the original aprox19
+            // Represents the standard proton-proton chain,
+            // H1(H1,e+nu)H2(H1,g)He3
+            data.species_A = H1;
+            data.species_D = He3;
+
+            data.number_A = 3;
+            data.number_D = 1;
+
+            data.exponent_A = 2;
+            data.exponent_D = 1;
+            break;
+
+        case H1_H1_H1_to_He3:
+            // Represents H1(e+H1)H2(H1,g)He3
+            // This is a variant of the above reaction; the end
+            // result is still three protons to He3, but because
+            // the proton is first converted to a neutron, the
+            // identical particle factor would not apply. In the
+            // original aprox19, this is one of the two reactions
+            // that uses the electron capture rate irpen.
+            data.species_A = H1;
+            data.species_D = He3;
+
+            data.number_A = 3;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+            break;
+
+        case He3_He3_to_He4_2H1:
+            // ir33 in the original aprox19
+            data.species_A = He3;
+            data.species_D = He4;
+            data.species_E = H1;
+
+            data.number_A = 2;
+            data.number_D = 1;
+            data.number_E = 2;
+
+            data.exponent_A = 2;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case He3_He4_H1_to_2He4:
+            // irhe3ag in the original aprox19
+            // Represents He3(a,g)Be7(p,g)B8(e+nu)Be8(2a)
+            data.species_A = He3;
+            data.species_B = He4;
+            data.species_C = H1;
+            data.species_D = He4;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_C = 1;
+            data.number_D = 2;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_C = 0;
+            data.exponent_D = 1;
+
+            data.apply_identical_particle_factor = 0;
+            break;
 
         case He4_He4_He4_to_C12:
             data.species_A = He4;
@@ -1043,13 +1116,31 @@ namespace RHS {
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void evaluate_analytical_rate (const Real& rho, const tf_t& tf, const Real& y_e,
-                                   const Array1D<Real, 1, NumSpec>& y,
+                                   const Real& eta, const Array1D<Real, 1, NumSpec>& y,
                                    Real& fr, Real& frdt, Real& rr, Real& rrdt)
     {
         using namespace Species;
         using namespace Rates;
 
-        if constexpr (rate == C12_He4_to_O16) {
+        if constexpr (rate == H1_H1_to_He3) {
+            Real tmp1, tmp2;
+            rate_pp(tf, 1.0_rt, fr, frdt, tmp1, tmp2);
+        }
+        else if constexpr (rate == H1_H1_H1_to_He3) {
+            if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
+                Real tmp1, tmp2, tmp3;
+                ecapnuc(eta, tf.temp, fr, tmp1, tmp2, tmp3);
+            }
+        }
+        else if constexpr (rate == He3_He3_to_He4_2H1) {
+            Real tmp1, tmp2;
+            rate_he3he3(tf, 1.0_rt, fr, frdt, tmp1, tmp2);
+        }
+        else if constexpr (rate == He3_He4_H1_to_2He4) {
+            Real tmp1, tmp2;
+            rate_he3he4(tf, 1.0_rt, fr, frdt, tmp1, tmp2);
+        }
+        else if constexpr (rate == C12_He4_to_O16) {
             rate_c12ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
         else if constexpr (rate == He4_He4_He4_to_C12) {
@@ -1179,15 +1270,17 @@ namespace RHS {
             rate_fe54pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
         else if constexpr (rate == Ni56_to_Fe54) {
-            Real tmp;
-            langanke(tf.temp, rho, y(Ni56), y_e, fr, tmp);
+            if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
+                Real tmp;
+                langanke(tf.temp, rho, y(Ni56), y_e, fr, tmp);
+            }
         }
     }
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void postprocess_rate (const Real& rho, const tf_t& tf, const Real& y_e,
-                           const Array1D<Real, 1, NumSpec>& y,
+                           const Real& eta, const Array1D<Real, 1, NumSpec>& y,
                            Real& fr, Real& frdt, Real& rr, Real& rrdt,
                            Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
                            Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
@@ -1195,6 +1288,17 @@ namespace RHS {
     {
         using namespace Species;
         using namespace Rates;
+
+        // Beta limit He3 + He4 by the B8 decay half-life
+
+        if constexpr (rate == He3_He4_H1_to_2He4)
+        {
+            Real xx = 0.896_rt / y(He4);
+            fr = amrex::min(fr, xx);
+            if (fr == xx) {
+                frdt = 0.0_rt;
+            }
+        }
 
         // Each of the following reactions has both an (a,g) path and an
         // equilibrium sequence using (a,p),(p,g). The first path has already

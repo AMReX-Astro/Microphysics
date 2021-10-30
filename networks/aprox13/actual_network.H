@@ -660,7 +660,7 @@ namespace RHS {
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void evaluate_analytical_rate (const Real& rho, const tf_t& tf, const Real& y_e,
-                                   const Array1D<Real, 1, NumSpec>& y,
+                                   const Real& eta, const Array1D<Real, 1, NumSpec>& y,
                                    Real& fr, Real& frdt, Real& rr, Real& rrdt)
     {
         using namespace Species;
@@ -773,7 +773,7 @@ namespace RHS {
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void postprocess_rate (const Real& rho, const tf_t& tf, const Real& y_e,
-                           const Array1D<Real, 1, NumSpec>& y,
+                           const Real& eta, const Array1D<Real, 1, NumSpec>& y,
                            Real& fr, Real& frdt, Real& rr, Real& rrdt,
                            Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
                            Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
