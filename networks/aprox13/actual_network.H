@@ -100,6 +100,8 @@ namespace RHS {
         data.forward_branching_ratio = 1.0;
         data.reverse_branching_ratio = 1.0;
 
+        data.rate_can_be_tabulated = 1;
+
         data.screen_forward_reaction = 1;
         data.screen_reverse_reaction = 1;
 
@@ -655,8 +657,11 @@ namespace RHS {
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const tf_t& tf, Real& fr, Real& frdt, Real& rr, Real& rrdt)
+    void evaluate_analytical_rate (const Real& rho, const tf_t& tf, const Real& y_e,
+                                   const Array1D<Real, 1, NumSpec>& y,
+                                   Real& fr, Real& frdt, Real& rr, Real& rrdt)
     {
+        using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == C12_He4_to_O16) {
@@ -765,7 +770,7 @@ namespace RHS {
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const Real& rho, const tf_t& tf,
+    void postprocess_rate (const Real& rho, const tf_t& tf, const Real& y_e,
                            const Array1D<Real, 1, NumSpec>& y,
                            Real& fr, Real& frdt, Real& rr, Real& rrdt,
                            Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,

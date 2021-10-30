@@ -154,6 +154,8 @@ namespace RHS {
         data.forward_branching_ratio = 1.0;
         data.reverse_branching_ratio = 1.0;
 
+        data.rate_can_be_tabulated = 1;
+
         data.screen_forward_reaction = 1;
         data.screen_reverse_reaction = 1;
 
@@ -983,6 +985,18 @@ namespace RHS {
             data.additional_reaction_3 = Fe52_He4_to_Co55_P;
             break;
 
+        case Ni56_to_Fe54:
+            data.species_A = Ni56;
+            data.species_D = Fe54;
+
+            data.number_A = 54;
+            data.number_D = 56;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+            break;
         }
 
         return data;
@@ -990,8 +1004,11 @@ namespace RHS {
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const tf_t& tf, Real& fr, Real& frdt, Real& rr, Real& rrdt)
+    void evaluate_analytical_rate (const Real& rho, const tf_t& tf, const Real& y_e,
+                                   const Array1D<Real, 1, NumSpec>& y,
+                                   Real& fr, Real& frdt, Real& rr, Real& rrdt)
     {
+        using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == C12_He4_to_O16) {
@@ -1123,11 +1140,15 @@ namespace RHS {
         else if constexpr (rate == Fe54_P_to_Co55) {
             rate_fe54pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
+        else if constexpr (rate == Ni56_to_Fe54) {
+            Real tmp;
+            langanke(tf.temp, rho, y(Ni56), y_e, fr, tmp);
+        }
     }
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const Real& rho, const tf_t& tf,
+    void postprocess_rate (const Real& rho, const tf_t& tf, const Real& y_e,
                            const Array1D<Real, 1, NumSpec>& y,
                            Real& fr, Real& frdt, Real& rr, Real& rrdt,
                            Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
@@ -1392,6 +1413,18 @@ namespace RHS {
                 rr += rr2 * rr1 * zz;
                 rrdt += rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
             }
+        }
+
+        if constexpr (rate == Ni56_to_Fe54)
+        {
+            // We scaled the number of nucleons per reaction
+            // in defining the reaction so that the number of reactants
+            // on each side would be integers while still conserving mass,
+            // so to compensate, we scale the rate by 1/54. This serves
+            // the equivalent role to the c54 constant in the original aprox19.
+
+            fr *= 1.0_rt / 54.0_rt;
+            frdt *= 1.0_rt / 54.0_rt;
         }
     }
 
