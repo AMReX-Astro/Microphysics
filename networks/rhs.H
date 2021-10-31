@@ -357,8 +357,32 @@ void apply_density_scaling (const Real& rho, Real& fr, Real& frdt, Real& rr, Rea
     constexpr int forward_exponent = density_exponent_forward<rate>();
     constexpr int reverse_exponent = density_exponent_reverse<rate>();
 
-    Real density_term_forward = std::pow(rho, forward_exponent);
-    Real density_term_reverse = std::pow(rho, reverse_exponent);
+    static_assert(forward_exponent <= 3);
+    static_assert(reverse_exponent <= 3);
+
+    // We know the exponent is an integer so we can construct the density term explicitly.
+    Real density_term_forward = 1.0;
+    Real density_term_reverse = 1.0;
+
+    if constexpr (forward_exponent == 1) {
+        density_term_forward = rho;
+    }
+    else if constexpr (forward_exponent == 2) {
+        density_term_forward = rho * rho;
+    }
+    else if constexpr (forward_exponent == 3) {
+        density_term_forward = rho * rho * rho;
+    }
+
+    if constexpr (reverse_exponent == 1) {
+        density_term_reverse = rho;
+    }
+    else if constexpr (reverse_exponent == 2) {
+        density_term_reverse = rho * rho;
+    }
+    else if constexpr (reverse_exponent == 3) {
+        density_term_reverse = rho * rho * rho;
+    }
 
     fr *= density_term_forward;
     frdt *= density_term_forward;
@@ -375,6 +399,10 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
     // here for the reaction classes we know about, and any other reactions are unscreened.
 
     constexpr rhs_t data = rhs_data(rate);
+
+    if constexpr (data.screen_forward_reaction == 0 && data.screen_reverse_reaction == 0) {
+        return;
+    }
 
     if constexpr (data.exponent_A == 1 && data.exponent_B == 1 && data.exponent_C == 0) {
         // Forward reaction is A + B, screen using these two species
@@ -508,7 +536,7 @@ void tabulate_rates ()
 
             constexpr rhs_t data = RHS::rhs_data(rate);
 
-            if (data.rate_can_be_tabulated) {
+            if constexpr (data.rate_can_be_tabulated) {
                 evaluate_analytical_rate<rate>(rho, tf, y_e, eta, y, fr, frdt, rr, rrdt);
             }
 
