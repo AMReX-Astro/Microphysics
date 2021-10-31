@@ -831,21 +831,32 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
             // we take the derivative by multiplying by the current exponent
             // and then decrementing the exponent in the term.
 
-            int exp = exponent;
+            constexpr int exp = (spec2 == data.species_A) ? exponent - 1 : exponent;
+
+            static_assert(exp <= 3);
+
+            Real df = 1.0;
+
+            if constexpr (exp == 1) {
+                df = Y_A;
+            }
+            else if constexpr (exp == 2) {
+                df = Y_A * Y_A;
+            }
+            else if constexpr (exp == 3) {
+                df = Y_A * Y_A * Y_A;
+            }
 
             if constexpr (spec2 == data.species_A) {
-                forward_term *= exp;
-                --exp;
+                df *= exponent;
             }
 
             if constexpr (data.apply_identical_particle_factor) {
                 constexpr int identical_particle_factor = factorial(exponent);
-                forward_term *= std::pow(Y_A, exp) /
-                                static_cast<Real>(identical_particle_factor);
+                df *= 1.0_rt / static_cast<Real>(identical_particle_factor);
             }
-            else {
-                forward_term *= std::pow(Y_A, exp);
-            }
+
+            forward_term *= df;
         }
 
         if constexpr (data.species_B >= 0) {
@@ -853,21 +864,32 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_B;
 
-            int exp = exponent;
+            constexpr int exp = (spec2 == data.species_B) ? exponent - 1 : exponent;
+
+            static_assert(exp <= 3);
+
+            Real df = 1.0;
+
+            if constexpr (exp == 1) {
+                df = Y_B;
+            }
+            else if constexpr (exp == 2) {
+                df = Y_B * Y_B;
+            }
+            else if constexpr (exp == 3) {
+                df = Y_B * Y_B * Y_B;
+            }
 
             if constexpr (spec2 == data.species_B) {
-                forward_term *= exp;
-                --exp;
+                df *= exponent;
             }
 
             if constexpr (data.apply_identical_particle_factor) {
                 constexpr int identical_particle_factor = factorial(exponent);
-                forward_term *= std::pow(Y_B, exp) /
-                                static_cast<Real>(identical_particle_factor);
+                df *= 1.0_rt / static_cast<Real>(identical_particle_factor);
             }
-            else {
-                forward_term *= std::pow(Y_B, exp);
-            }
+
+            forward_term *= df;
         }
 
         if constexpr (data.species_C >= 0) {
@@ -875,22 +897,32 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_C;
 
-            int exp = exponent;
+            constexpr int exp = (spec2 == data.species_C) ? exponent - 1 : exponent;
 
-            if constexpr (spec2 == data.species_C) {
-                forward_term *= exp;
-                --exp;
+            static_assert(exp <= 3);
+
+            Real df = 1.0;
+
+            if constexpr (exp == 1) {
+                df = Y_C;
+            }
+            else if constexpr (exp == 2) {
+                df = Y_C * Y_C;
+            }
+            else if constexpr (exp == 3) {
+                df = Y_C * Y_C * Y_C;
             }
 
+            if constexpr (spec2 == data.species_C) {
+                df *= exponent;
+            }
 
             if constexpr (data.apply_identical_particle_factor) {
                 constexpr int identical_particle_factor = factorial(exponent);
-                forward_term *= std::pow(Y_C, exp) /
-                                static_cast<Real>(identical_particle_factor);
+                df *= 1.0_rt / static_cast<Real>(identical_particle_factor);
             }
-            else {
-                forward_term *= std::pow(Y_C, exp);
-            }
+
+            forward_term *= df;
         }
 
     }
@@ -906,21 +938,32 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_D;
 
-            int exp = exponent;
+            constexpr int exp = (spec2 == data.species_D) ? exponent - 1 : exponent;
+
+            static_assert(exp <= 3);
+
+            Real dr = 1.0;
+
+            if constexpr (exp == 1) {
+                dr = Y_D;
+            }
+            else if constexpr (exp == 2) {
+                dr = Y_D * Y_D;
+            }
+            else if constexpr (exp == 3) {
+                dr = Y_D * Y_D * Y_D;
+            }
 
             if constexpr (spec2 == data.species_D) {
-                reverse_term *= exp;
-                --exp;
+                dr *= exponent;
             }
 
             if constexpr (data.apply_identical_particle_factor) {
                 constexpr int identical_particle_factor = factorial(exponent);
-                reverse_term *= std::pow(Y_D, exp) /
-                                static_cast<Real>(identical_particle_factor);
+                dr *= 1.0_rt / static_cast<Real>(identical_particle_factor);
             }
-            else {
-                reverse_term *= std::pow(Y_D, exp);
-            }
+
+            reverse_term *= dr;
         }
 
         if constexpr (data.species_E >= 0) {
@@ -928,21 +971,32 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_E;
 
-            int exp = exponent;
+            constexpr int exp = (spec2 == data.species_E) ? exponent - 1 : exponent;
+
+            static_assert(exp <= 3);
+
+            Real dr = 1.0;
+
+            if constexpr (exp == 1) {
+                dr = Y_E;
+            }
+            else if constexpr (exp == 2) {
+                dr = Y_E * Y_E;
+            }
+            else if constexpr (exp == 3) {
+                dr = Y_E * Y_E * Y_E;
+            }
 
             if constexpr (spec2 == data.species_E) {
-                reverse_term *= exp;
-                --exp;
+                dr *= exponent;
             }
 
             if constexpr (data.apply_identical_particle_factor) {
                 constexpr int identical_particle_factor = factorial(exponent);
-                reverse_term *= std::pow(Y_E, exp) /
-                                static_cast<Real>(identical_particle_factor);
+                dr *= 1.0_rt / static_cast<Real>(identical_particle_factor);
             }
-            else {
-                reverse_term *= std::pow(Y_E, exp);
-            }
+
+            reverse_term *= dr;
         }
 
         if constexpr (data.species_F >= 0) {
@@ -950,21 +1004,32 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
             constexpr int exponent = data.exponent_F;
 
-            int exp = exponent;
+            constexpr int exp = (spec2 == data.species_F) ? exponent - 1 : exponent;
+
+            static_assert(exp <= 3);
+
+            Real dr = 1.0;
+
+            if constexpr (exp == 1) {
+                dr = Y_F;
+            }
+            else if constexpr (exp == 2) {
+                dr = Y_F * Y_F;
+            }
+            else if constexpr (exp == 3) {
+                dr = Y_F * Y_F * Y_F;
+            }
 
             if constexpr (spec2 == data.species_F) {
-                reverse_term *= exp;
-                --exp;
+                dr *= exponent;
             }
 
             if constexpr (data.apply_identical_particle_factor) {
                 constexpr int identical_particle_factor = factorial(exponent);
-                reverse_term *= std::pow(Y_F, exp) /
-                                static_cast<Real>(identical_particle_factor);
+                dr *= 1.0_rt / static_cast<Real>(identical_particle_factor);
             }
-            else {
-                reverse_term *= std::pow(Y_F, exp);
-            }
+
+            reverse_term *= dr;
         }
 
     }
