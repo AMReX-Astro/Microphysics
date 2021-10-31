@@ -627,56 +627,128 @@ constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
 
     if constexpr (data.species_A >= 0) {
         Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
+
+        static_assert(data.exponent_A <= 3);
+
+        Real df = 1.0;
+
+        if constexpr (data.exponent_A == 1) {
+            df = Y_A;
+        }
+        else if constexpr (data.exponent_A == 2) {
+            df = Y_A * Y_A;
+        }
+        else if constexpr (data.exponent_A == 3) {
+            df = Y_A * Y_A * Y_A;
+        }
+
         if constexpr (data.apply_identical_particle_factor) {
             constexpr int identical_particle_factor = factorial(data.exponent_A);
-            forward_term *= std::pow(Y_A, data.exponent_A) /
-                            static_cast<Real>(identical_particle_factor);
+            df *= 1.0_rt / static_cast<Real>(identical_particle_factor);
         }
-        else {
-            forward_term *= std::pow(Y_A, data.exponent_A);
-        }
+
+        forward_term *= df;
     }
 
     if constexpr (data.species_B >= 0) {
         Real Y_B = state.xn[data.species_B-1] * aion_inv[data.species_B-1];
+
+        static_assert(data.exponent_B <= 3);
+
+        Real df = 1.0;
+
+        if constexpr (data.exponent_B == 1) {
+            df = Y_B;
+        }
+        else if constexpr (data.exponent_B == 2) {
+            df = Y_B * Y_B;
+        }
+        else if constexpr (data.exponent_B == 3) {
+            df = Y_B * Y_B * Y_B;
+        }
+
         if constexpr (data.apply_identical_particle_factor) {
             constexpr int identical_particle_factor = factorial(data.exponent_B);
-            forward_term *= std::pow(Y_B, data.exponent_B) /
-                            static_cast<Real>(identical_particle_factor);
+            df *= 1.0_rt / static_cast<Real>(identical_particle_factor);
         }
-        else {
-            forward_term *= std::pow(Y_B, data.exponent_B);
-        }
+
+        forward_term *= df;
     }
 
     if constexpr (data.species_C >= 0) {
         Real Y_C = state.xn[data.species_C-1] * aion_inv[data.species_C-1];
+
+        static_assert(data.exponent_C <= 3);
+
+        Real df = 1.0;
+
+        if constexpr (data.exponent_C == 1) {
+            df = Y_C;
+        }
+        else if constexpr (data.exponent_C == 2) {
+            df = Y_C * Y_C;
+        }
+        else if constexpr (data.exponent_C == 3) {
+            df = Y_C * Y_C * Y_C;
+        }
+
         if constexpr (data.apply_identical_particle_factor) {
             constexpr int identical_particle_factor = factorial(data.exponent_C);
-            forward_term *= std::pow(Y_C, data.exponent_C) /
-                            static_cast<Real>(identical_particle_factor);
+            df *= 1.0_rt / static_cast<Real>(identical_particle_factor);
         }
-        else {
-            forward_term *= std::pow(Y_C, data.exponent_C);
-        }
+
+        forward_term *= df;
     }
 
     Real reverse_term = rr;
 
     if constexpr (data.species_D >= 0) {
         Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
+
+        static_assert(data.exponent_D <= 3);
+
+        Real dr = 1.0;
+
+        if constexpr (data.exponent_D == 1) {
+            dr = Y_D;
+        }
+        else if constexpr (data.exponent_D == 2) {
+            dr = Y_D * Y_D;
+        }
+        else if constexpr (data.exponent_D == 3) {
+            dr = Y_D * Y_D * Y_D;
+        }
+
         if constexpr (data.apply_identical_particle_factor) {
             constexpr int identical_particle_factor = factorial(data.exponent_D);
-            reverse_term *= std::pow(Y_D, data.exponent_D) /
-                            static_cast<Real>(identical_particle_factor);
+            dr *= 1.0_rt / static_cast<Real>(identical_particle_factor);
         }
-        else {
-            reverse_term *= std::pow(Y_D, data.exponent_D);
-        }
+
+        reverse_term *= dr;
     }
 
     if constexpr (data.species_E >= 0) {
         Real Y_E = state.xn[data.species_E-1] * aion_inv[data.species_E-1];
+
+        Real dr = 1.0;
+
+        if constexpr (data.exponent_E == 1) {
+            dr = Y_E;
+        }
+        else if constexpr (data.exponent_E == 2) {
+            dr = Y_E * Y_E;
+        }
+        else if constexpr (data.exponent_E == 3) {
+            dr = Y_E * Y_E * Y_E;
+        }
+
+        if constexpr (data.apply_identical_particle_factor) {
+            constexpr int identical_particle_factor = factorial(data.exponent_E);
+            dr *= 1.0_rt / static_cast<Real>(identical_particle_factor);
+        }
+
+        reverse_term *= dr;
+
         if constexpr (data.apply_identical_particle_factor) {
             constexpr int identical_particle_factor = factorial(data.exponent_E);
             reverse_term *= std::pow(Y_E, data.exponent_E) /
@@ -689,14 +761,25 @@ constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
 
     if constexpr (data.species_F >= 0) {
         Real Y_F = state.xn[data.species_F-1] * aion_inv[data.species_F-1];
+
+        Real dr = 1.0;
+
+        if constexpr (data.exponent_F == 1) {
+            dr = Y_F;
+        }
+        else if constexpr (data.exponent_F == 2) {
+            dr = Y_F * Y_F;
+        }
+        else if constexpr (data.exponent_F == 3) {
+            dr = Y_F * Y_F * Y_F;
+        }
+
         if constexpr (data.apply_identical_particle_factor) {
             constexpr int identical_particle_factor = factorial(data.exponent_F);
-            reverse_term *= std::pow(Y_F, data.exponent_F) /
-                            static_cast<Real>(identical_particle_factor);
+            dr *= 1.0_rt / static_cast<Real>(identical_particle_factor);
         }
-        else {
-            reverse_term *= std::pow(Y_F, data.exponent_F);
-        }
+
+        reverse_term *= dr;
     }
 
     // Now compute the total contribution to this species.
