@@ -101,7 +101,6 @@ namespace Rates {
         Fe53_N_to_Fe54,
         Ni56_to_Fe54,
         He3_He3_to_He4_2P,
-        He4_He4_to_Be7,
         C12_H1_to_N13,
         C12_2H1_to_N14,
         N14_H1_to_O15,
@@ -109,8 +108,6 @@ namespace Rates {
         N15_H1_to_C12_He4,
         N14_2H1_to_O16,
         N14_2H1_to_C12_He4,
-        N15_P_to_O16,
-        N15_P_to_C12_He4,
         O16_H1_to_F17,
         O16_2H1_to_N14_He4,
         N14_He4_to_F18,
@@ -169,40 +166,6 @@ namespace RHS {
         data.additional_reaction_3 = -1;
 
         switch (rate) {
-
-        case H1_H1_to_He3:
-            // irpp in the original aprox19
-            // Represents the standard proton-proton chain,
-            // H1(H1,e+nu)H2(H1,g)He3
-            data.species_A = H1;
-            data.species_D = He3;
-
-            data.number_A = 3;
-            data.number_D = 1;
-
-            data.exponent_A = 2;
-            data.exponent_D = 1;
-            break;
-
-        case H1_H1_H1_to_He3:
-            // Represents H1(e+H1)H2(H1,g)He3
-            // This is a variant of the above reaction; the end
-            // result is still three protons to He3, but because
-            // the proton is first converted to a neutron, the
-            // identical particle factor would not apply. In the
-            // original aprox19, this is one of the two reactions
-            // that uses the electron capture rate irpen.
-            data.species_A = H1;
-            data.species_D = He3;
-
-            data.number_A = 3;
-            data.number_D = 1;
-
-            data.exponent_A = 1;
-            data.exponent_D = 1;
-
-            data.rate_can_be_tabulated = 0;
-            break;
 
         case P_to_N:
             // irpen and irnep in the original aprox19
@@ -269,6 +232,45 @@ namespace RHS {
             data.additional_reaction_1 = P_N_to_H2;
             data.additional_reaction_2 = H2_P_to_He3;
             data.additional_reaction_3 = He3_N_to_He4;
+            break;
+
+        case H1_H1_to_He3:
+            // irpp in the original aprox19
+            // Represents the standard proton-proton chain,
+            // H1(H1,e+nu)H2(H1,g)He3
+            data.species_A = H1;
+            data.species_D = He3;
+
+            data.number_A = 3;
+            data.number_D = 1;
+
+            data.exponent_A = 2;
+            data.exponent_D = 1;
+            break;
+
+        case H1_H1_H1_to_He3:
+            // Represents H1(e+H1)H2(H1,g)He3
+            // This is a variant of the above reaction; the end
+            // result is still three protons to He3, but because
+            // the proton is first converted to a neutron, the
+            // identical particle factor would not apply. In the
+            // original aprox19, this is one of the two reactions
+            // that uses the electron capture rate irpen.
+            data.species_A = H1;
+            data.species_D = He3;
+
+            data.number_A = 3;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.additional_reaction_1 = P_to_N;
             break;
 
         case H2_P_to_He3:
@@ -390,6 +392,11 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
 
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
+
             data.additional_reaction_1 = C12_H1_to_N13;
             break;
 
@@ -486,6 +493,7 @@ namespace RHS {
             data.exponent_D = 1;
 
             data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
             break;
 
         case N15_H1_to_C12_He4:
@@ -506,6 +514,7 @@ namespace RHS {
             data.exponent_E = 1;
 
             data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
             break;
 
         case N14_2H1_to_O16:
@@ -521,6 +530,11 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
 
             data.additional_reaction_1 = N14_H1_to_O15;
             data.additional_reaction_2 = N15_H1_to_O16;
@@ -543,6 +557,11 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
             data.exponent_E = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
 
             data.additional_reaction_1 = N14_H1_to_O15;
             data.additional_reaction_2 = N15_H1_to_O16;
@@ -580,6 +599,11 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
 
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
+
             data.additional_reaction_1 = N14_He4_to_F18;
             break;
 
@@ -615,6 +639,11 @@ namespace RHS {
             data.exponent_D = 1;
             data.exponent_E = 1;
 
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
+
             data.additional_reaction_1 = O16_H1_to_F17;
             break;
 
@@ -631,7 +660,10 @@ namespace RHS {
             data.exponent_D = 1;
             data.exponent_E = 1;
 
-            data.forward_branching_ratio = 0.56_rt;
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
 
             data.additional_reaction_1 = Si28_He4_to_P31_P;
             data.additional_reaction_2 = P31_P_to_S32;
@@ -650,8 +682,6 @@ namespace RHS {
             data.exponent_A = 2;
             data.exponent_D = 1;
             data.exponent_E = 1;
-
-            data.forward_branching_ratio = 0.34_rt;
             break;
 
         case O16_O16_to_S32:
@@ -664,7 +694,10 @@ namespace RHS {
             data.exponent_A = 2;
             data.exponent_D = 1;
 
-            data.forward_branching_ratio = 0.10_rt;
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
 
             data.additional_reaction_1 = Si28_He4_to_P31_P;
             data.additional_reaction_2 = P31_P_to_S32;
@@ -1236,12 +1269,6 @@ namespace RHS {
             Real tmp1, tmp2;
             rate_pp(tf, 1.0_rt, fr, frdt, tmp1, tmp2);
         }
-        else if constexpr (rate == H1_H1_H1_to_He3) {
-            if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
-                Real tmp1, tmp2, tmp3;
-                ecapnuc(eta, tf.temp, fr, tmp1, tmp2, tmp3);
-            }
-        }
         else if constexpr (rate == P_to_N) {
             if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
                 Real tmp1, tmp2;
@@ -1298,13 +1325,7 @@ namespace RHS {
         else if constexpr (rate == O16_H1_to_F17) {
             rate_o16pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
-        else if constexpr (rate == O16_O16_to_Si28_He4) {
-            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
         else if constexpr (rate == O16_O16_to_P31_P) {
-            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
-        else if constexpr (rate == O16_O16_to_S32) {
             rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
@@ -1398,6 +1419,14 @@ namespace RHS {
             if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
                 Real tmp;
                 langanke(tf.temp, rho, y(Ni56), y_e, fr, tmp);
+
+                // We scaled the number of nucleons per reaction
+                // in defining the reaction so that the number of reactants
+                // on each side would be integers while still conserving mass,
+                // so to compensate, we scale the rate by 1/54. This serves
+                // the equivalent role to the c54 constant in the original aprox19.
+
+                fr *= 1.0_rt / 54.0_rt;
             }
         }
     }
@@ -1444,6 +1473,12 @@ namespace RHS {
                        fr3 * fr2 * fr1dt * zz -
                        fr * zz * denomdt;
             }
+        }
+
+        // Set this equal to the p+e->n rate.
+
+        if constexpr (rate == H1_H1_H1_to_He3) {
+            fr = fr1;
         }
 
         // Beta limit He3 + He4 by the B8 decay half-life
@@ -1508,8 +1543,8 @@ namespace RHS {
                 dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
             }
 
-            fr += fr3 * rate_ir;
-            frdt += fr3dt * rate_ir + fr3 * dratedt_ir;
+            fr = 0.56_rt * fr3 + 0.34_rt * fr3 * rate_ir;
+            frdt = 0.56_rt * fr3dt + 0.34_rt * fr3dt * rate_ir + 0.34_rt * fr3 * dratedt_ir;
         }
 
         // The O16+O16->S32 reaction has an additional contribution from the O16+O16->P31+P
@@ -1527,8 +1562,8 @@ namespace RHS {
                 dratedt_ir = (rr1dt - rate_ir * denomdt) * zz;
             }
 
-            fr += fr3 * (1.0_rt - rate_ir);
-            frdt += fr3dt * (1.0_rt - rate_ir) - fr3 * dratedt_ir;
+            fr = 0.1_rt * fr3 + 0.34_rt * fr3 * (1.0_rt - rate_ir);
+            frdt = 0.1_rt * fr3dt + 0.34_rt * fr3dt * (1.0_rt - rate_ir) - 0.34_rt * fr3 * dratedt_ir;
         }
 
         if constexpr (rate == C12_2H1_to_N14)
@@ -1716,18 +1751,6 @@ namespace RHS {
                 rr += y(P) * rr_add;
                 rrdt += y(P) * rrdt_add;
             }
-        }
-
-        if constexpr (rate == Ni56_to_Fe54)
-        {
-            // We scaled the number of nucleons per reaction
-            // in defining the reaction so that the number of reactants
-            // on each side would be integers while still conserving mass,
-            // so to compensate, we scale the rate by 1/54. This serves
-            // the equivalent role to the c54 constant in the original aprox19.
-
-            fr *= 1.0_rt / 54.0_rt;
-            frdt *= 1.0_rt / 54.0_rt;
         }
     }
 

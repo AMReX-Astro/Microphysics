@@ -141,6 +141,122 @@ constexpr int is_rate_used ()
     }
 }
 
+// Determine the index of a given intermediate reaction. We use the
+// order of the original rate definitions
+    
+// Counts up the number of intermediate reactions. An intermediate
+// reaction is defined as any reaction which contributes to the
+// construction of some other reaction. Note that an intermediate
+// reaction may directly contribute to the RHS itself in addition
+// to being used in other reactions.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int num_intermediate_reactions ()
+{
+    int rate_is_intermediate[Rates::NumRates] = {0};
+
+    // Loop through rates and increment the counter for any additional
+    // reactions used by that rate. We do this as a first step to keep
+    // the algorithm linear in the number of rates.
+    for (int rate = 1; rate <= Rates::NumRates; ++rate) {
+        rhs_t data = RHS::rhs_data(rate);
+
+        if (data.additional_reaction_1 >= 1) {
+            rate_is_intermediate[data.additional_reaction_1 - 1] += 1;
+        }
+
+        if (data.additional_reaction_2 >= 1) {
+            rate_is_intermediate[data.additional_reaction_2 - 1] += 1;
+        }
+
+        if (data.additional_reaction_3 >= 1) {
+            rate_is_intermediate[data.additional_reaction_3 - 1] += 1;
+        }
+    }
+
+    // Now count up all intermediate rates.
+    int count = 0;
+
+    for (int rate = 1; rate <= Rates::NumRates; ++rate) {
+        if (rate_is_intermediate[rate - 1] > 0) {
+            ++count;
+        }
+    }
+
+    return count;
+}
+
+// Locate an intermediate rate in the intermediate rates array.
+template<int num_intermediate_rates>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int
+locate_intermediate_rate_index (int intermediate_rate)
+{
+    int indices[num_intermediate_rates] = {0};
+
+    // We loop through all rates and add their intermediate
+    // rates to the temporary storage array, skipping ones
+    // that have already been added.
+    for (int rate = 1; rate <= Rates::NumRates; ++rate) {
+        rhs_t data = RHS::rhs_data(rate);
+
+        if (data.additional_reaction_1 >= 1) {
+            for (int n = 1; n <= num_intermediate_rates; ++n) {
+                if (indices[n-1] == data.additional_reaction_1) {
+                    // This rate has already been counted, so we're done.
+                    break;
+                }
+                else if (indices[n-1] == 0) {
+                    // This slot has not been filled yet, so opportunistically fill it.
+                    indices[n-1] = data.additional_reaction_1;
+                    break;
+                }
+            }
+        }
+
+        if (data.additional_reaction_2 >= 1) {
+            for (int n = 1; n <= num_intermediate_rates; ++n) {
+                if (indices[n-1] == data.additional_reaction_2) {
+                    // This rate has already been counted, so we're done.
+                    break;
+                }
+                else if (indices[n-1] == 0) {
+                    // This slot has not been filled yet, so opportunistically fill it.
+                    indices[n-1] = data.additional_reaction_2;
+                    break;
+                }
+            }
+        }
+
+        if (data.additional_reaction_3 >= 1) {
+            for (int n = 1; n <= num_intermediate_rates; ++n) {
+                if (indices[n-1] == data.additional_reaction_3) {
+                    // This rate has already been counted, so we're done.
+                    break;
+                }
+                else if (indices[n-1] == 0) {
+                    // This slot has not been filled yet, so opportunistically fill it.
+                    indices[n-1] = data.additional_reaction_3;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Finally, loop through this array and return the index corresponding
+    // to the requested rate.
+
+    for (int n = 1; n <= num_intermediate_rates; ++n) {
+        if (indices[n-1] == intermediate_rate) {
+            return n;
+        }
+    }
+
+    // If we did not match any intermediate rates, that means we are dealing with
+    // a reaction that is only used once; return a negative number to indicate no match.
+
+    return -1;
+}
+
 template<int n1, int n2>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int is_jacobian_term_used ()
@@ -1069,6 +1185,11 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, con
     using namespace Species;
     using namespace Rates;
 
+    fr = 0.0;
+    frdt = 0.0;
+    rr = 0.0;
+    rrdt = 0.0;
+
     constexpr rhs_t data = RHS::rhs_data(rate);
 
     if (use_tables && data.rate_can_be_tabulated) {
@@ -1091,76 +1212,54 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, con
     apply_branching<rate>(fr, frdt, rr, rrdt);
 }
 
-template<int rate>
+template<int rate, int array_size>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, const Real& y_e,
-               const Real& eta, const Array1D<Real, 1, NumSpec>& y, const plasma_state_t& pstate,
-               Real& fr, Real& frdt, Real& rr, Real& rrdt)
+void fill_additional_rates (Array1D<Real, 1, array_size> intermediate_fr,
+                            Array1D<Real, 1, array_size> intermediate_frdt,
+                            Array1D<Real, 1, array_size> intermediate_rr,
+                            Array1D<Real, 1, array_size> intermediate_rrdt,
+                            Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
+                            Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
+                            Real& fr3, Real& fr3dt, Real& rr3, Real& rr3dt)
 {
-    using namespace Species;
-    using namespace Rates;
-
-    fr = 0.0;
-    frdt = 0.0;
-    rr = 0.0;
-    rrdt = 0.0;
-
-    constexpr rhs_t data = rhs_data(rate);
-
-    // We can skip this step if this is an intermediate rate
-    // (that is, involves at least one "extra" species).
-
-    if constexpr (data.species_A > NumSpec ||
-                  data.species_B > NumSpec ||
-                  data.species_C > NumSpec ||
-                  data.species_D > NumSpec ||
-                  data.species_E > NumSpec ||
-                  data.species_F > NumSpec) {
-        return;
-    }
-
-    // Construct the (screened and density-scaled) rate.
-
-    construct_rate<rate>(rho, tf, tab, y_e, eta, y, pstate,
-                         fr, frdt, rr, rrdt);
-
-    // Construct all intermediate rates needed to augment this reaction.
-    // To keep the problem bounded we assume that there are no more than
-    // three intermediate reactions needed, however it is straightforward
-    // to add more as needed (or to generalize this into a loop over all
-    // rates if really needed).
+    constexpr rhs_t data = RHS::rhs_data(rate);
 
     constexpr int rate1 = data.additional_reaction_1;
     constexpr int rate2 = data.additional_reaction_2;
     constexpr int rate3 = data.additional_reaction_3;
 
-    Real fr1, fr1dt, rr1, rr1dt;
-    Real fr2, fr2dt, rr2, rr2dt;
-    Real fr3, fr3dt, rr3, rr3dt;
-
     if constexpr (rate1 >= 0) {
-        construct_rate<rate1>(rho, tf, tab, y_e, eta, y, pstate,
-                              fr1, fr1dt, rr1, rr1dt);
+        constexpr int index = locate_intermediate_rate_index<array_size>(rate1);
+
+        if constexpr (index >= 1) {
+            fr1 = intermediate_fr(index);
+            fr1dt = intermediate_frdt(index);
+            rr1 = intermediate_rr(index);
+            rr1dt = intermediate_rrdt(index);
+        }
     }
 
     if constexpr (rate2 >= 0) {
-        construct_rate<rate2>(rho, tf, tab, y_e, eta, y, pstate,
-                              fr2, fr2dt, rr2, rr2dt);
+        constexpr int index = locate_intermediate_rate_index<array_size>(rate2);
+
+        if constexpr (index >= 1) {
+            fr2 = intermediate_fr(index);
+            fr2dt = intermediate_frdt(index);
+            rr2 = intermediate_rr(index);
+            rr2dt = intermediate_rrdt(index);
+        }
     }
 
     if constexpr (rate3 >= 0) {
-        construct_rate<rate3>(rho, tf, tab, y_e, eta, y, pstate,
-                              fr3, fr3dt, rr3, rr3dt);
+        constexpr int index = locate_intermediate_rate_index<array_size>(rate3);
+
+        if constexpr (index >= 1) {
+            fr3 = intermediate_fr(index);
+            fr3dt = intermediate_frdt(index);
+            rr3 = intermediate_rr(index);
+            rr3dt = intermediate_rrdt(index);
+        }
     }
-
-    // Perform rate postprocessing, using additional reactions as inputs.
-    // If there is no postprocessing for this rate, this will be a no-op.
-
-    postprocess_rate<rate>(rho, tf, y_e, eta, y,
-                           fr, frdt, rr, rrdt,
-                           fr1, fr1dt, rr1, rr1dt,
-                           fr2, fr2dt, rr2, rr2dt,
-                           fr3, fr3dt, rr3, rr3dt);
 }
 
 template<int spec>
@@ -1210,6 +1309,34 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         ydot(n) = 0.0;
     }
 
+    // Count up number of intermediate rates (rates that are used in any other reaction).
+    constexpr int num_intermediate = num_intermediate_reactions();
+
+    // We cannot have a zero-sized array, so just set the array size to 1 in that case.
+    constexpr int intermediate_array_size = num_intermediate > 0 ? num_intermediate : 1;
+
+    // Define forward and reverse (and d/dT) rate arrays.
+    Array1D<Real, 1, intermediate_array_size> intermediate_fr;
+    Array1D<Real, 1, intermediate_array_size> intermediate_frdt;
+    Array1D<Real, 1, intermediate_array_size> intermediate_rr;
+    Array1D<Real, 1, intermediate_array_size> intermediate_rrdt;
+
+    // Fill all intermediate rates first.
+    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+
+        if constexpr (index >= 1) {
+            construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate,
+                                 intermediate_fr(index),
+                                 intermediate_frdt(index),
+                                 intermediate_rr(index),
+                                 intermediate_rrdt(index));
+         }
+    });
+
     // Loop over all rates, and then loop over all species, and if the
     // rate affects that given species, add its contribution to the RHS.
     constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
@@ -1217,7 +1344,45 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         constexpr int rate = n1;
 
         Real fr, frdt, rr, rrdt;
-        get_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
+
+        // We only need to compute the rate at this point if it's not intermediate. If it
+        // is intermediate, retrieve it from the cached array.
+
+        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+        if constexpr (index < 0) {
+            construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
+        }
+        else {
+            fr = intermediate_fr(index);
+            frdt = intermediate_frdt(index);
+            rr = intermediate_rr(index);
+            rrdt = intermediate_rrdt(index);
+        }
+
+        // Locate all intermediate rates needed to augment this reaction.
+        // To keep the problem bounded we assume that there are no more than
+        // three intermediate reactions needed.
+
+        Real fr1, fr1dt, rr1, rr1dt;
+        Real fr2, fr2dt, rr2, rr2dt;
+        Real fr3, fr3dt, rr3, rr3dt;
+
+        fill_additional_rates<rate, intermediate_array_size>(intermediate_fr,
+                                                             intermediate_frdt,
+                                                             intermediate_rr,
+                                                             intermediate_rrdt,
+                                                             fr1, fr1dt, rr1, rr1dt,
+                                                             fr2, fr2dt, rr2, rr2dt,
+                                                             fr3, fr3dt, rr3, rr3dt);
+
+        // Perform rate postprocessing, using additional reactions as inputs.
+        // If there is no postprocessing for this rate, this will be a no-op.
+
+        postprocess_rate<rate>(state.rho, tf, state.y_e, state.eta, y,
+                               fr, frdt, rr, rrdt,
+                               fr1, fr1dt, rr1, rr1dt,
+                               fr2, fr2dt, rr2, rr2dt,
+                               fr3, fr3dt, rr3, rr3dt);
 
         constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
@@ -1272,13 +1437,79 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         }
     }
 
+    // Count up number of intermediate rates (rates that are used in any other reaction).
+    constexpr int num_intermediate = num_intermediate_reactions();
+
+    // We cannot have a zero-sized array, so just set the array size to 1 in that case.
+    constexpr int intermediate_array_size = num_intermediate > 0 ? num_intermediate : 1;
+
+    // Define forward and reverse (and d/dT) rate arrays.
+    Array1D<Real, 1, intermediate_array_size> intermediate_fr;
+    Array1D<Real, 1, intermediate_array_size> intermediate_frdt;
+    Array1D<Real, 1, intermediate_array_size> intermediate_rr;
+    Array1D<Real, 1, intermediate_array_size> intermediate_rrdt;
+
+    Real fr1, fr1dt, rr1, rr1dt;
+    Real fr2, fr2dt, rr2, rr2dt;
+    Real fr3, fr3dt, rr3, rr3dt;
+
+    // Fill all intermediate rates first.
+    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+
+        if constexpr (index >= 1) {
+            construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate,
+                                 intermediate_fr(index),
+                                 intermediate_frdt(index),
+                                 intermediate_rr(index),
+                                 intermediate_rrdt(index));
+         }
+    });
+
     // Loop over rates and compute Jacobian terms.
     constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
         constexpr int rate = n1;
 
         Real fr, frdt, rr, rrdt;
-        get_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
+
+        // We only need to compute the rate at this point if it's not intermediate. If it
+        // is intermediate, retrieve it from the cached array.
+
+        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+        if constexpr (index < 0) {
+            construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
+        }
+        else {
+            fr = intermediate_fr(index);
+            frdt = intermediate_frdt(index);
+            rr = intermediate_rr(index);
+            rrdt = intermediate_rrdt(index);
+        }
+
+        // Locate all intermediate rates needed to augment this reaction.
+        // To keep the problem bounded we assume that there are no more than
+        // three intermediate reactions needed.
+
+        fill_additional_rates<rate, intermediate_array_size>(intermediate_fr,
+                                                             intermediate_frdt,
+                                                             intermediate_rr,
+                                                             intermediate_rrdt,
+                                                             fr1, fr1dt, rr1, rr1dt,
+                                                             fr2, fr2dt, rr2, rr2dt,
+                                                             fr3, fr3dt, rr3, rr3dt);
+
+        // Perform rate postprocessing, using additional reactions as inputs.
+        // If there is no postprocessing for this rate, this will be a no-op.
+
+        postprocess_rate<rate>(state.rho, tf, state.y_e, state.eta, y,
+                               fr, frdt, rr, rrdt,
+                               fr1, fr1dt, rr1, rr1dt,
+                               fr2, fr2dt, rr2, rr2dt,
+                               fr3, fr3dt, rr3, rr3dt);
 
         // Species Jacobian elements with respect to other species.
         constexpr_for<1, NumSpec+1>([&] (auto n2)
