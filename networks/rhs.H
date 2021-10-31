@@ -748,15 +748,6 @@ constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
         }
 
         reverse_term *= dr;
-
-        if constexpr (data.apply_identical_particle_factor) {
-            constexpr int identical_particle_factor = factorial(data.exponent_E);
-            reverse_term *= std::pow(Y_E, data.exponent_E) /
-                            static_cast<Real>(identical_particle_factor);
-        }
-        else {
-            reverse_term *= std::pow(Y_E, data.exponent_E);
-        }
     }
 
     if constexpr (data.species_F >= 0) {
