@@ -186,12 +186,13 @@ constexpr int num_intermediate_reactions ()
 }
 
 // Locate an intermediate rate in the intermediate rates array.
-template<int num_intermediate_rates>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 constexpr int
 locate_intermediate_rate_index (int intermediate_rate)
 {
-    int indices[num_intermediate_rates] = {0};
+    constexpr int num_intermediate = num_intermediate_reactions();
+
+    int indices[num_intermediate] = {0};
 
     // We loop through all rates and add their intermediate
     // rates to the temporary storage array, skipping ones
@@ -200,7 +201,7 @@ locate_intermediate_rate_index (int intermediate_rate)
         rhs_t data = RHS::rhs_data(rate);
 
         if (data.additional_reaction_1 >= 1) {
-            for (int n = 1; n <= num_intermediate_rates; ++n) {
+            for (int n = 1; n <= num_intermediate; ++n) {
                 if (indices[n-1] == data.additional_reaction_1) {
                     // This rate has already been counted, so we're done.
                     break;
@@ -214,7 +215,7 @@ locate_intermediate_rate_index (int intermediate_rate)
         }
 
         if (data.additional_reaction_2 >= 1) {
-            for (int n = 1; n <= num_intermediate_rates; ++n) {
+            for (int n = 1; n <= num_intermediate; ++n) {
                 if (indices[n-1] == data.additional_reaction_2) {
                     // This rate has already been counted, so we're done.
                     break;
@@ -228,7 +229,7 @@ locate_intermediate_rate_index (int intermediate_rate)
         }
 
         if (data.additional_reaction_3 >= 1) {
-            for (int n = 1; n <= num_intermediate_rates; ++n) {
+            for (int n = 1; n <= num_intermediate; ++n) {
                 if (indices[n-1] == data.additional_reaction_3) {
                     // This rate has already been counted, so we're done.
                     break;
@@ -245,7 +246,7 @@ locate_intermediate_rate_index (int intermediate_rate)
     // Finally, loop through this array and return the index corresponding
     // to the requested rate.
 
-    for (int n = 1; n <= num_intermediate_rates; ++n) {
+    for (int n = 1; n <= num_intermediate; ++n) {
         if (indices[n-1] == intermediate_rate) {
             return n;
         }
@@ -1226,12 +1227,10 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, con
     apply_branching<rate>(fr, frdt, rr, rrdt);
 }
 
-template<int rate, int array_size>
+template<int rate, class Arr>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_additional_rates (Array1D<Real, 1, array_size> intermediate_fr,
-                            Array1D<Real, 1, array_size> intermediate_frdt,
-                            Array1D<Real, 1, array_size> intermediate_rr,
-                            Array1D<Real, 1, array_size> intermediate_rrdt,
+void fill_additional_rates (Arr intermediate_fr, Arr intermediate_frdt,
+                            Arr intermediate_rr, Arr intermediate_rrdt,
                             Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
                             Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
                             Real& fr3, Real& fr3dt, Real& rr3, Real& rr3dt)
@@ -1242,37 +1241,39 @@ void fill_additional_rates (Array1D<Real, 1, array_size> intermediate_fr,
     constexpr int rate2 = data.additional_reaction_2;
     constexpr int rate3 = data.additional_reaction_3;
 
-    if constexpr (rate1 >= 0) {
-        constexpr int index = locate_intermediate_rate_index<array_size>(rate1);
+    constexpr int num_intermediate = num_intermediate_reactions();
 
-        if constexpr (index >= 1) {
-            fr1 = intermediate_fr(index);
-            fr1dt = intermediate_frdt(index);
-            rr1 = intermediate_rr(index);
-            rr1dt = intermediate_rrdt(index);
-        }
+    if constexpr (rate1 >= 0) {
+        constexpr int index = locate_intermediate_rate_index(rate1);
+
+        static_assert(index >= 1 && index <= num_intermediate);
+
+        fr1 = intermediate_fr(index);
+        fr1dt = intermediate_frdt(index);
+        rr1 = intermediate_rr(index);
+        rr1dt = intermediate_rrdt(index);
     }
 
     if constexpr (rate2 >= 0) {
-        constexpr int index = locate_intermediate_rate_index<array_size>(rate2);
+        constexpr int index = locate_intermediate_rate_index(rate2);
 
-        if constexpr (index >= 1) {
-            fr2 = intermediate_fr(index);
-            fr2dt = intermediate_frdt(index);
-            rr2 = intermediate_rr(index);
-            rr2dt = intermediate_rrdt(index);
-        }
+        static_assert(index >= 1 && index <= num_intermediate);
+
+        fr2 = intermediate_fr(index);
+        fr2dt = intermediate_frdt(index);
+        rr2 = intermediate_rr(index);
+        rr2dt = intermediate_rrdt(index);
     }
 
     if constexpr (rate3 >= 0) {
-        constexpr int index = locate_intermediate_rate_index<array_size>(rate3);
+        constexpr int index = locate_intermediate_rate_index(rate3);
 
-        if constexpr (index >= 1) {
-            fr3 = intermediate_fr(index);
-            fr3dt = intermediate_frdt(index);
-            rr3 = intermediate_rr(index);
-            rr3dt = intermediate_rrdt(index);
-        }
+        static_assert(index >= 1 && index <= num_intermediate);
+
+        fr3 = intermediate_fr(index);
+        fr3dt = intermediate_frdt(index);
+        rr3 = intermediate_rr(index);
+        rr3dt = intermediate_rrdt(index);
     }
 }
 
@@ -1340,7 +1341,7 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     {
         constexpr int rate = n;
 
-        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+        constexpr int index = locate_intermediate_rate_index(rate);
 
         if constexpr (index >= 1) {
             construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate,
@@ -1362,7 +1363,7 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         // We only need to compute the rate at this point if it's not intermediate. If it
         // is intermediate, retrieve it from the cached array.
 
-        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+        constexpr int index = locate_intermediate_rate_index(rate);
         if constexpr (index < 0) {
             construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
         }
@@ -1381,13 +1382,11 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
         Real fr2, fr2dt, rr2, rr2dt;
         Real fr3, fr3dt, rr3, rr3dt;
 
-        fill_additional_rates<rate, intermediate_array_size>(intermediate_fr,
-                                                             intermediate_frdt,
-                                                             intermediate_rr,
-                                                             intermediate_rrdt,
-                                                             fr1, fr1dt, rr1, rr1dt,
-                                                             fr2, fr2dt, rr2, rr2dt,
-                                                             fr3, fr3dt, rr3, rr3dt);
+        fill_additional_rates<rate>(intermediate_fr, intermediate_frdt,
+                                    intermediate_rr, intermediate_rrdt,
+                                    fr1, fr1dt, rr1, rr1dt,
+                                    fr2, fr2dt, rr2, rr2dt,
+                                    fr3, fr3dt, rr3, rr3dt);
 
         // Perform rate postprocessing, using additional reactions as inputs.
         // If there is no postprocessing for this rate, this will be a no-op.
@@ -1472,7 +1471,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     {
         constexpr int rate = n;
 
-        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+        constexpr int index = locate_intermediate_rate_index(rate);
 
         if constexpr (index >= 1) {
             construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate,
@@ -1493,7 +1492,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         // We only need to compute the rate at this point if it's not intermediate. If it
         // is intermediate, retrieve it from the cached array.
 
-        constexpr int index = locate_intermediate_rate_index<intermediate_array_size>(rate);
+        constexpr int index = locate_intermediate_rate_index(rate);
         if constexpr (index < 0) {
             construct_rate<rate>(state.rho, tf, tab, state.y_e, state.eta, y, pstate, fr, frdt, rr, rrdt);
         }
@@ -1508,13 +1507,11 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         // To keep the problem bounded we assume that there are no more than
         // three intermediate reactions needed.
 
-        fill_additional_rates<rate, intermediate_array_size>(intermediate_fr,
-                                                             intermediate_frdt,
-                                                             intermediate_rr,
-                                                             intermediate_rrdt,
-                                                             fr1, fr1dt, rr1, rr1dt,
-                                                             fr2, fr2dt, rr2, rr2dt,
-                                                             fr3, fr3dt, rr3, rr3dt);
+        fill_additional_rates<rate>(intermediate_fr, intermediate_frdt,
+                                    intermediate_rr, intermediate_rrdt,
+                                    fr1, fr1dt, rr1, rr1dt,
+                                    fr2, fr2dt, rr2, rr2dt,
+                                    fr3, fr3dt, rr3, rr3dt);
 
         // Perform rate postprocessing, using additional reactions as inputs.
         // If there is no postprocessing for this rate, this will be a no-op.
