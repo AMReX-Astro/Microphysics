@@ -531,6 +531,10 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
 
         constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
 
+        // Insert a static assert (which will always pass) to require the
+        // compiler to evaluate the screen factor at compile time.
+        static_assert(scn_fac.z1 == Z1);
+
         Real sc, scdt;
         actual_screen5(pstate, scn_fac, sc, scdt);
 
@@ -552,6 +556,8 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         constexpr Real A1 = NetworkProperties::aion(data.species_A);
 
         constexpr auto scn_fac = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
+
+        static_assert(scn_fac.z1 == Z1);
 
         Real sc, scdt;
         actual_screen5(pstate, scn_fac, sc, scdt);
@@ -576,6 +582,8 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
 
         constexpr auto scn_fac1 = scrn::calculate_screen_factor(Z1, A1, Z1, A1);
 
+        static_assert(scn_fac1.z1 == Z1);
+
         Real sc1, sc1dt;
         actual_screen5(pstate, scn_fac1, sc1, sc1dt);
 
@@ -583,6 +591,8 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         constexpr Real A2 = 2.0_rt * A1;
 
         constexpr auto scn_fac2 = scrn::calculate_screen_factor(Z1, A1, Z2, A2);
+
+        static_assert(scn_fac2.z1 == Z1);
 
         Real sc2, sc2dt;
         actual_screen5(pstate, scn_fac2, sc2, sc2dt);
