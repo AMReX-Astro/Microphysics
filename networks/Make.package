@@ -66,6 +66,7 @@ ifeq ($(USE_SCREENING), TRUE)
 
   include $(SCREEN_PATH)/Make.package
 
+  DEFINES += -DSCREENING
   DEFINES += -DNUMSCREEN=$(NSCREEN)
 
 endif
@@ -85,6 +86,8 @@ ifeq ($(USE_NEUTRINOS), TRUE)
   EXTERN_CORE       += $(NEUTRINO_PATH)
 
   include $(NEUTRINO_PATH)/Make.package
+
+  DEFINES += -DNEUTRINOS
 
 endif
 

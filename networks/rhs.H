@@ -9,8 +9,12 @@
 #include <rhs_type.H>
 #include <actual_network.H>
 #include <burn_type.H>
+#ifdef SCREENING
 #include <screen.H>
+#endif
+#ifdef NEUTRINOS
 #include <sneut5.H>
+#endif
 #include <jacobian_utilities.H>
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -507,6 +511,7 @@ void apply_density_scaling (const Real& rho, Real& fr, Real& frdt, Real& rr, Rea
     rrdt *= density_term_reverse;
 }
 
+#ifdef SCREENING
 // Apply the screening term to a given rate.
 template<int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -614,6 +619,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         }
     }
 }
+#endif // SCREENING
 
 // Apply the branching ratios to a given rate.
 template<int rate>
@@ -1218,9 +1224,11 @@ void construct_rate (const Real& rho, const tf_t& tf, const rate_tab_t& tab, con
 
     apply_density_scaling<rate>(rho, fr, frdt, rr, rrdt);
 
+#ifdef SCREENING
     // Screen
 
     apply_screening<rate>(pstate, fr, frdt, rr, rrdt);
+#endif
 
     // Branching ratios
 
@@ -1408,8 +1416,12 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     });
 
     // Evaluate the neutrino cooling.
+#ifdef NEUTRINOS
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+#else
+    Real sneut = 0.0;
+#endif
 
     // Compute the energy RHS term.
     ydot(net_ienuc) = -sneut;
@@ -1549,9 +1561,13 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     });
 
     // Evaluate the neutrino cooling.
+#ifdef NEUTRINOS
     Real sneut, dsneutdt, dsneutdd, snuda, snudz;
     sneut5(state.T, state.rho, state.abar, state.zbar,
            sneut, dsneutdt, dsneutdd, snuda, snudz);
+#else
+    Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, snuda = 0.0, snudz = 0.0;
+#endif
 
     jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(state, dsneutdt);
 
