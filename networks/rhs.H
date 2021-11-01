@@ -611,11 +611,15 @@ void apply_branching (Real& fr, Real& frdt, Real& rr, Real& rrdt)
 {
     constexpr rhs_t data = rhs_data(rate);
 
-    fr *= data.forward_branching_ratio;
-    rr *= data.reverse_branching_ratio;
+    if constexpr (data.forward_branching_ratio != 1.0_rt) {
+        fr *= data.forward_branching_ratio;
+        frdt *= data.forward_branching_ratio;
+    }
 
-    frdt *= data.forward_branching_ratio;
-    rrdt *= data.reverse_branching_ratio;
+    if constexpr (data.forward_branching_ratio != 1.0_rt) {
+        rr *= data.reverse_branching_ratio;
+        rrdt *= data.reverse_branching_ratio;
+    }
 }
 
 // Do the initial tabulation of rates. We loop over various
