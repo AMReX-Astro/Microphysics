@@ -460,7 +460,12 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
 
-            data.forward_branching_ratio = 0.5_rt;
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = C12_O16_to_Mg24_He4;
             break;
 
         case N14_H1_to_O15:
@@ -1307,9 +1312,6 @@ namespace RHS {
         else if constexpr (rate == C12_O16_to_Mg24_He4) {
             rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
-        else if constexpr (rate == C12_O16_to_Si28) {
-            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
-        }
         else if constexpr (rate == N14_H1_to_O15) {
             rate_n14pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
@@ -1570,6 +1572,14 @@ namespace RHS {
         {
             fr = fr1;
             frdt = fr1dt;
+        }
+
+        if constexpr (rate == C12_O16_to_Si28)
+        {
+            fr = fr1;
+            frdt = fr1dt;
+            rr = rr1;
+            rrdt = rr1dt;
         }
 
         if constexpr (rate == N14_2H1_to_O16)
