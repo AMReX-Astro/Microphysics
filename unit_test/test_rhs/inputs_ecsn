@@ -1,0 +1,15 @@
+n_cell = 64
+
+prefix = react_ecsn_
+
+unit_test.small_dens = 1.0e0
+
+unit_test.dens_min   = 1.e6
+unit_test.dens_max   = 1.e9
+unit_test.temp_min   = 1.e7
+unit_test.temp_max   = 1.e9
+
+unit_test.primary_species_1 = oxygen-16
+
+
+
