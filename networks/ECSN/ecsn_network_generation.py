@@ -36,5 +36,5 @@ for rate in rc.rates:
         new_rate_list.append(rate)
 
 wd_net = StarKillerNetwork(rates=new_rate_list, rate_files=escn_tabular)
-wd_net.write_network(use_cse=True)
+wd_net.write_network()
         
