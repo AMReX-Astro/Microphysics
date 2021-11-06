@@ -1,3 +1,13 @@
+# 21.11
+
+  * burn_cell was not correctly doing substepping in some cases.
+    This has been fixed (#784)
+
+  * With Intel compilers, logical runtime parameters in Fortran
+    were not being correctly cast to int (#789)
+
+  * Simplified-SDC now works with Fortran nets (#786) 
+
 # 21.09
 
   * Added a new nova network (nova2) with pp and (hot-)CNO and some
