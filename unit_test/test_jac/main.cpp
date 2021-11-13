@@ -11,7 +11,6 @@
 using namespace amrex;
 
 #include <test_react.H>
-#include <test_react_F.H>
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
@@ -20,7 +19,6 @@ using namespace amrex;
 #include <variables.H>
 #include <unit_test.H>
 #include <react_util.H>
-#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {

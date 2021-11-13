@@ -1,6 +1,8 @@
 #ifndef _burn_type_H_
 #define _burn_type_H_
 
+#include <iomanip>
+
 #include <AMReX_REAL.H>
 
 #include <network.H>
@@ -132,6 +134,11 @@ struct burn_t
   int sdc_iter;
   int num_sdc_iters;
 
+  // for drive_initial_convection, we will fix T during the
+  // integration to a passed in value.  We will interpret a positive
+  // T_fixed as setting this feature.
+  Real T_fixed;
+
 #endif
 
   // all coupling types need the specific heats to transform the
@@ -169,6 +176,7 @@ struct burn_t
 inline
 std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 {
+  o << std::setprecision(12);
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";
@@ -185,15 +193,21 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 #endif
 
 #ifdef SIMPLIFIED_SDC
-  o << "y = ";
-  for (int n = 0; n < SVAR; n++) {
-      o << burn_state.y[n] << " ";
+#if defined(SDC_EVOLVE_ENERGY)
+  o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
+#endif
+  o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
+  o << "y[SFS:] = ";
+  for (int n = 0; n < NumSpec; n++) {
+      o << burn_state.y[SFS+n] << " ";
   }
   o << std::endl;
 
-  o << "ydot_a = ";
-  for (int n = 0; n < SVAR; n++) {
-      o << burn_state.ydot_a[n] << " ";
+  o << "ydot_a[SRHO] = " << burn_state.ydot_a[SRHO] << std::endl;
+  o << "ydot_a[SEINT] = " << burn_state.ydot_a[SEINT] << std::endl;
+  o << "ydot_a[SFS:] = ";
+  for (int n = 0; n < NumSpec; n++) {
+      o << burn_state.ydot_a[SFS+n] << " ";
   }
   o << std::endl;
 #endif

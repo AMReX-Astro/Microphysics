@@ -4,7 +4,11 @@
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
+#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_rhs.H>
+#else
+#include <fortran_to_cxx_actual_rhs.H>
+#endif
 
 ///
 /// Compute the numerical Jacobian of the reactive system, dydot/dy,
@@ -124,6 +128,19 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     Real dy = amrex::max(std::sqrt(U) * std::abs(state.T), r0 * w);
 
     state_delp.T += dy;
+
+    if (state_delp.T <= EOSData::mintemp || state_delp.T >= MAX_TEMP) {
+
+        for (int i = 1; i <= neqs; i++) {
+            for (int j = 1; j <= neqs; j++) {
+                jac(i,j) = 0.0_rt;
+            }
+        }
+
+        return;
+
+    }
+
 
 #ifdef NSE_THERMO
     // make the aux data consistent with the state X's
