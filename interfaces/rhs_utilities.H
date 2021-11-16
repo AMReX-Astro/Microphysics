@@ -29,6 +29,15 @@ Real species_rhs_n (const burn_t& state, rate_fr_t const& rr);
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr);
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr);
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_t const& rr);
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t const& rr);
+
 } // namespace RHS
 
 
@@ -164,6 +173,60 @@ constexpr int num_rhs ()
     return RHS_impl::num_rhs_impl<species>(std::make_integer_sequence<int, Rates::NumRates>{});
 }
 
+// Calculate the density dependence term for tabulated rates. The RHS has a term
+// that goes as rho**(exp_A + exp_B + exp_C) / rho (the denominator is because the
+// LHS is X, not rho * X).
+template<int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int density_exponent_forward ()
+{
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    int exponent = 0;
+
+    if constexpr (rhs_data.species_A >= 0) {
+        exponent += rhs_data.exponent_A;
+    }
+    if constexpr (rhs_data.species_B >= 0) {
+        exponent += rhs_data.exponent_B;
+    }
+    if constexpr (rhs_data.species_C >= 0) {
+        exponent += rhs_data.exponent_C;
+    }
+
+    if (exponent > 0) {
+        exponent -= 1;
+    }
+
+    return exponent;
+}
+
+// Same as the above but for the reverse reaction.
+template <int rate>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr int density_exponent_reverse ()
+{
+    constexpr rhs_t rhs_data = RHS::rhs_data(rate);
+
+    int exponent = 0;
+
+    if constexpr (rhs_data.species_D >= 0) {
+        exponent += rhs_data.exponent_D;
+    }
+    if constexpr (rhs_data.species_E >= 0) {
+        exponent += rhs_data.exponent_E;
+    }
+    if constexpr (rhs_data.species_F >= 0) {
+        exponent += rhs_data.exponent_F;
+    }
+
+    if (exponent > 0) {
+        exponent -= 1;
+    }
+
+    return exponent;
+}
+
 // Calculate the j'th RHS term for a given species.
 //
 // The general form of a reaction is
@@ -209,7 +272,7 @@ constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
     // reverse reactions, which is the same regardless of which species
     // we're producing or consuming.
 
-    Real forward_term = rr.forward_rates(rate);
+    Real forward_term = rr.forward(rate);
 
     if constexpr (rhs_data.species_A >= 0) {
         Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
@@ -232,7 +295,7 @@ constexpr Real rhs_term (const burn_t& state, rate_fr_t const& rr)
                         static_cast<Real>(identical_particle_factor);
     }
 
-    Real reverse_term = rr.reverse_rates(rate);
+    Real reverse_term = rr.reverse(rate);
 
     if constexpr (rhs_data.species_D >= 0) {
         Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
@@ -307,6 +370,7 @@ Real species_rhs_n (const burn_t& state, rate_fr_t const& rr)
 }
 
 // Calculate the array of RHS terms over all species.
+// Legacy interface using old-style rate array.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
 {
@@ -314,11 +378,18 @@ Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_t const& rr)
 
     // Convert old-style rates to new-style
     for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr_fr.forward_rates(j) = rr.rates(2 * j - 1);
-        rr_fr.reverse_rates(j) = rr.rates(2 * j);
+        rr_fr.forward(j) = rr.rates(2 * j - 1);
+        rr_fr.reverse(j) = rr.rates(2 * j);
     }
 
     return RHS_impl::species_rhs_impl(state, rr_fr, std::make_integer_sequence<int, NumSpec>{});
+}
+
+// Calculate the array of RHS terms over all species.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array1D<Real, 1, NumSpec> species_rhs (const burn_t& state, rate_fr_t const& rr)
+{
+    return RHS_impl::species_rhs_impl(state, rr, std::make_integer_sequence<int, NumSpec>{});
 }
 
 // Calculate the energy generation rate, including neutrino losses.
@@ -350,7 +421,8 @@ Real ener_rhs (const burn_t& state, Array1D<Real, 1, NumSpec>& dydt)
 }
 
 // Calculate the Jacobian terms that are derivatives of one species
-// with respect to another.
+// with respect to another. Legacy interface that uses the old-style
+// rate array.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t const& rr)
 {
@@ -358,10 +430,18 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t c
 
     // Convert old-style rates to new-style
     for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr_fr.forward_rates(j) = rr.rates(2 * j - 1);
-        rr_fr.reverse_rates(j) = rr.rates(2 * j);
+        rr_fr.forward(j) = rr.rates(2 * j - 1);
+        rr_fr.reverse(j) = rr.rates(2 * j);
     }
 
+    return species_jac(state, rr_fr);
+}
+
+// Calculate the Jacobian terms that are derivatives of one species
+// with respect to another.
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_fr_t const& rr)
+{
     Array2D<Real, 1, NumSpec, 1, NumSpec> jac{};
 
     for (int spec1 = 1; spec1 <= NumSpec; ++spec1) {
@@ -383,7 +463,7 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t c
 
                 if (spec2 == rhs_data.species_A || spec2 == rhs_data.species_B || spec2 == rhs_data.species_C) {
 
-                    forward_term = rr_fr.forward_rates(rate);
+                    forward_term = rr.forward(rate);
 
                     if (rhs_data.species_A >= 0) {
                         Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
@@ -441,7 +521,7 @@ Array2D<Real, 1, NumSpec, 1, NumSpec> species_jac (const burn_t& state, rate_t c
 
                 if (spec2 == rhs_data.species_D || spec2 == rhs_data.species_E || spec2 == rhs_data.species_F) {
 
-                    reverse_term = rr_fr.reverse_rates(rate);
+                    reverse_term = rr.reverse(rate);
 
                     if (rhs_data.species_D >= 0) {
                         Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];

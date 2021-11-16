@@ -56,6 +56,7 @@ module table_rates
   character(len=50)     :: rate_table_file_j_f20_ne20
   integer               :: num_header_j_f20_ne20
 
+
 contains
 
   subroutine init_tabular()

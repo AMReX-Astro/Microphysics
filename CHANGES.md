@@ -1,3 +1,23 @@
+# 21.11
+
+  * burn_cell was not correctly doing substepping in some cases.
+    This has been fixed (#784)
+
+  * With Intel compilers, logical runtime parameters in Fortran
+    were not being correctly cast to int (#789)
+
+  * Simplified-SDC now works with Fortran nets (#786) 
+
+# 21.09
+
+  * Added a new nova network (nova2) with pp and (hot-)CNO and some
+    breakout reactions (#751)
+
+  * Some fixes to the NSE bailout in aprox19 (#739, #753, #755) and
+    the relaxation check on the NSE critera (#754)
+
+  * Added a new unit test for single-zone SDC (burn_cell_sdc) (#744)
+
 # 21.08
 
   * test_react can now be run with a uniform composition to test GPU
@@ -5,7 +25,7 @@
 
   * the numerical Jacobian now uses a more robust one-sided difference
     algorithm (#660, #728)
-    
+
   * for simplified SDC, we now only integrate (rho X, rho e), and no longer
     integrate (rho E) (#710, #712, #717)
 

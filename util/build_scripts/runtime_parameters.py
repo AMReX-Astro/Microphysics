@@ -298,7 +298,7 @@ class Param:
             ostr += f"     {self.name}_in(len(trim({self.name}))+1) = char(0)\n"
             ostr += f"  end subroutine get_f90_{self.name}\n\n"
 
-        elif self.dtype == "bool":
+        elif self.dtype == "bool" or self.dtype == "logical":
             # F90 logicals are integers in C++
             ostr += f"  subroutine get_f90_{self.name}({self.name}_in) bind(C, name=\"get_f90_{self.name}\")\n"
             ostr += f"     integer, intent(inout) :: {self.name}_in\n"

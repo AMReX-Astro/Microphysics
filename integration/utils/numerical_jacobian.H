@@ -4,7 +4,11 @@
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
+#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_rhs.H>
+#else
+#include <fortran_to_cxx_actual_rhs.H>
+#endif
 
 ///
 /// Compute the numerical Jacobian of the reactive system, dydot/dy,

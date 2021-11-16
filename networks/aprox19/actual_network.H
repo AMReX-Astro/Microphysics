@@ -158,7 +158,7 @@ namespace Rates {
                         NumRates = iralf2
                       };
 
-    const int NumGroups = 4;
+    const int NumGroups = 2;
 }
 
 #endif
