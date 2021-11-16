@@ -221,7 +221,8 @@ int dvstep (burn_t& state, dvode_t& vstate)
 #endif
 #endif
 
-        for (int i = 1; i <= NumSpec; ++i) {
+        int i = 1;
+        while (valid_update && i <= NumSpec) {
 
 #ifdef STRANG
             // Constrain abundances such that they don't change by more than a certain
@@ -252,11 +253,12 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // now we are evolving rhoX instead of X
 
 
-            // this doesn't seem to work well with SDC
-
             if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
                 (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
                  std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+#ifndef AMREX_USE_GPU
+                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << vstate.y(SFS+i) << std::endl;
+#endif
                 valid_update = false;
             }
 
@@ -289,6 +291,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             }
 #endif
 
+            ++i;
 
         }
 
