@@ -134,6 +134,26 @@ int dvstep (burn_t& state, dvode_t& vstate)
     // dvset is called to calculate all integration coefficients.
     // RC is the ratio of new to old values of the coefficient H / EL(2) = h / l1.
 
+    // Save the value of y before calling the solver.
+    // We will use this saved value to determine if any
+    // constraints were violated in the update.
+
+    Array1D<Real, 1, VODE_NEQS> y_save;
+#ifdef STRANG
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        y_save(i) = vstate.y(i);
+    }
+#endif
+#ifdef SIMPLIFIED_SDC
+    Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        y_save(i) = vstate.y(i);
+    }
+    for (int i = 1; i <= NumSpec; ++i) {
+        y_save(SFS+i) /= rho_old;
+    }
+#endif
+
     while (true) {
 
         vstate.tn += vstate.H;
@@ -146,14 +166,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
-        // Save the value of y before calling the solver.
-        // We will use this saved value to determine if any
-        // constraints were violated in the update.
-
-        Array1D<Real, 1, VODE_NEQS> y_save;
-        for (int i = 1; i <= VODE_NEQS; ++i) {
-            y_save(i) = vstate.y(i);
-        }
 
         // Call the nonlinear system solver.
 
@@ -228,7 +240,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-            if (std::abs(y_save(i)) >= atol_spec &&
+            if (std::abs(y_save(i)) > vode_increase_change_factor * atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
                 valid_update = false;
@@ -253,12 +265,15 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
 
             // this doesn't seem to work well with SDC
+            Real X_current = vstate.y(SFS+i) / rho_current;
 
-            //if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
-            //    (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-            //     std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
-            //    valid_update = false;
-            //}
+            if (std::abs(y_save(SFS+i)) >= atol_spec &&
+                (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+                valid_update = false;
+                break;
+            }
 
 #if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
