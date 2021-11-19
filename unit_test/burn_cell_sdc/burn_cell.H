@@ -78,6 +78,33 @@ void burn_cell_c()
         case 21:
             massfractions[n-1] = X21;
             break;
+        case 22:
+            massfractions[n-1] = X22;
+            break;
+        case 23:
+            massfractions[n-1] = X23;
+            break;
+        case 24:
+            massfractions[n-1] = X24;
+            break;
+        case 25:
+            massfractions[n-1] = X25;
+            break;
+        case 26:
+            massfractions[n-1] = X26;
+            break;
+        case 27:
+            massfractions[n-1] = X27;
+            break;
+        case 28:
+            massfractions[n-1] = X28;
+            break;
+        case 29:
+            massfractions[n-1] = X29;
+            break;
+        case 30:
+            massfractions[n-1] = X30;
+            break;
 
         }
 
@@ -179,6 +206,33 @@ void burn_cell_c()
             break;
         case 21:
             adv_species[n-1] = Adv_X21;
+            break;
+        case 22:
+            adv_species[n-1] = Adv_X22;
+            break;
+        case 23:
+            adv_species[n-1] = Adv_X23;
+            break;
+        case 24:
+            adv_species[n-1] = Adv_X24;
+            break;
+        case 25:
+            adv_species[n-1] = Adv_X25;
+            break;
+        case 26:
+            adv_species[n-1] = Adv_X26;
+            break;
+        case 27:
+            adv_species[n-1] = Adv_X27;
+            break;
+        case 28:
+            adv_species[n-1] = Adv_X28;
+            break;
+        case 29:
+            adv_species[n-1] = Adv_X29;
+            break;
+        case 30:
+            adv_species[n-1] = Adv_X30;
             break;
 
         }
@@ -292,6 +346,10 @@ void burn_cell_c()
         burn_state.xn[n] = massfractions[n];
     }
 
+#ifdef NSE_THERMO
+    set_nse_aux_from_X(burn_state);
+#endif
+
     burn_state.e = eos_state.e;
 
 
@@ -359,6 +417,8 @@ void burn_cell_c()
         }
 
         Real dt = tend - t;
+
+        std::cout << "burning for dt = " << dt << std::endl;
 
     	burner(burn_state, dt);
 
