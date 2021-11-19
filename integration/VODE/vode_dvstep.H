@@ -243,7 +243,9 @@ int dvstep (burn_t& state, dvode_t& vstate)
             if (std::abs(y_save(i)) > vode_increase_change_factor * atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
+                std::cout << "rejecting step based on species " << i << " from " << y_save(i) << " to " << vstate.y(i) << std::endl;
                 valid_update = false;
+                break;
             }
 
             // Constrain abundances such that they are not negative (within a tolerance)
@@ -267,7 +269,8 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // this doesn't seem to work well with SDC
             Real X_current = vstate.y(SFS+i) / rho_current;
 
-            if (std::abs(y_save(SFS+i)) >= atol_spec &&
+            if (std::abs(y_save(SFS+i)) > vode_increase_change_factor*atol_spec &&
+                std::abs(X_current) > vode_increase_change_factor*atol_spec &&
                 (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
                  std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
                 std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
