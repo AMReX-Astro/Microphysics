@@ -99,147 +99,147 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     screen5(pstate, 0, zion[H1-1], aion[H1-1], zion[H1-1], aion[H1-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,6) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,6) = dscor_dt;
-    rate_eval.unscreened_rates(i_scor,7) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,7) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_p__d__weak__bet_pos_) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_p__d__weak__bet_pos_) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_p__d__weak__electron_capture) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_p__d__weak__electron_capture) = dscor_dt;
 
 
     screen5(pstate, 1, zion[H1-1], aion[H1-1], zion[H2-1], aion[H2-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,8) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,8) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_d__he3) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_d__he3) = dscor_dt;
 
 
     screen5(pstate, 2, zion[H2-1], aion[H2-1], zion[H2-1], aion[H2-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,9) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,9) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_d_d__he4) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_d_d__he4) = dscor_dt;
 
 
     screen5(pstate, 3, zion[H1-1], aion[H1-1], zion[He3-1], aion[He3-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,10) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,10) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_he3__he4__weak__bet_pos_) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_he3__he4__weak__bet_pos_) = dscor_dt;
 
 
     screen5(pstate, 4, zion[He4-1], aion[He4-1], zion[He3-1], aion[He3-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,11) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,11) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_he4_he3__be7) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he4_he3__be7) = dscor_dt;
 
 
     screen5(pstate, 5, zion[H1-1], aion[H1-1], zion[Be7-1], aion[Be7-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,12) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,12) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_be7__b8) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_be7__b8) = dscor_dt;
 
 
     screen5(pstate, 6, zion[H1-1], aion[H1-1], zion[C12-1], aion[C12-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,13) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,13) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_c12__n13) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_c12__n13) = dscor_dt;
 
 
     screen5(pstate, 7, zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,14) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,14) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_he4_c12__o16) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he4_c12__o16) = dscor_dt;
 
 
     screen5(pstate, 8, zion[H1-1], aion[H1-1], zion[C13-1], aion[C13-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,15) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,15) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_c13__n14) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_c13__n14) = dscor_dt;
 
 
     screen5(pstate, 9, zion[H1-1], aion[H1-1], zion[N13-1], aion[N13-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,16) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,16) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_n13__o14) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_n13__o14) = dscor_dt;
 
 
     screen5(pstate, 10, zion[H1-1], aion[H1-1], zion[N14-1], aion[N14-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,17) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,17) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_n14__o15) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_n14__o15) = dscor_dt;
 
 
     screen5(pstate, 11, zion[He4-1], aion[He4-1], zion[N14-1], aion[N14-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,18) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,18) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_he4_n14__f18) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he4_n14__f18) = dscor_dt;
 
 
     screen5(pstate, 12, zion[H1-1], aion[H1-1], zion[N15-1], aion[N15-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,19) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,19) = dscor_dt;
-    rate_eval.unscreened_rates(i_scor,24) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,24) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_n15__o16) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_n15__o16) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_n15__he4_c12) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_n15__he4_c12) = dscor_dt;
 
 
     screen5(pstate, 13, zion[H1-1], aion[H1-1], zion[O16-1], aion[O16-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,20) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,20) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_o16__f17) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_o16__f17) = dscor_dt;
 
 
     screen5(pstate, 14, zion[H1-1], aion[H1-1], zion[O17-1], aion[O17-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,21) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,21) = dscor_dt;
-    rate_eval.unscreened_rates(i_scor,26) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,26) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_o17__f18) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_o17__f18) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_o17__he4_n14) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_o17__he4_n14) = dscor_dt;
 
 
     screen5(pstate, 15, zion[H2-1], aion[H2-1], zion[He3-1], aion[He3-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,22) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,22) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_d_he3__p_he4) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_d_he3__p_he4) = dscor_dt;
 
 
     screen5(pstate, 16, zion[He4-1], aion[He4-1], zion[N13-1], aion[N13-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,23) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,23) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_he4_n13__p_o16) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he4_n13__p_o16) = dscor_dt;
 
 
     screen5(pstate, 17, zion[He4-1], aion[He4-1], zion[O14-1], aion[O14-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,25) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,25) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_he4_o14__p_f17) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he4_o14__p_f17) = dscor_dt;
 
 
     screen5(pstate, 18, zion[H1-1], aion[H1-1], zion[F18-1], aion[F18-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,27) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,27) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_p_f18__he4_o15) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_p_f18__he4_o15) = dscor_dt;
 
 
     screen5(pstate, 19, zion[He3-1], aion[He3-1], zion[He3-1], aion[He3-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,28) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,28) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_he3_he3__p_p_he4) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he3_he3__p_p_he4) = dscor_dt;
 
 
     screen5(pstate, 20, zion[H2-1], aion[H2-1], zion[Be7-1], aion[Be7-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,29) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,29) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_d_be7__p_he4_he4) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_d_be7__p_he4_he4) = dscor_dt;
 
 
     screen5(pstate, 21, zion[He3-1], aion[He3-1], zion[Be7-1], aion[Be7-1], scor, dscor_dt, dscor_dd);
 
-    rate_eval.unscreened_rates(i_scor,30) = scor;
-    rate_eval.unscreened_rates(i_dscor_dt,30) = dscor_dt;
+    rate_eval.unscreened_rates(i_scor,k_he3_be7__p_p_he4_he4) = scor;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he3_be7__p_p_he4_he4) = dscor_dt;
 
     screen5(pstate, 22, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1], scor, dscor_dt, dscor_dd);
 
     screen5(pstate, 23, zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt, scor2, dscor2_dt, dscor2_dd);
 
-    rate_eval.unscreened_rates(i_scor,31) = scor * scor2;
-    rate_eval.unscreened_rates(i_dscor_dt,31) = scor * dscor2_dt + dscor_dt * scor2;
+    rate_eval.unscreened_rates(i_scor,k_he4_he4_he4__c12) = scor * scor2;
+    rate_eval.unscreened_rates(i_dscor_dt,k_he4_he4_he4__c12) = scor * dscor2_dt + dscor_dt * scor2;
 
 
     // Calculate tabular rates

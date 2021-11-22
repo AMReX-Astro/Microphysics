@@ -24,7 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-    const std::string secret_code_reference = "UH8X8YDBLC1ZTL1X0LC9QURKPIRUGVFS";
+    const std::string secret_code_reference = "FQ0LSBCV6HX1PKVSAZ40SGGEEW27X4EG";
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
