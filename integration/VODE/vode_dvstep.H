@@ -240,7 +240,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-            if (std::abs(y_save(i)) > vode_increase_change_factor * atol_spec &&
+            if (std::abs(y_save(i)) >= atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
 #ifdef MICROPHYSICS_DEBUG
@@ -269,20 +269,20 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // these are basically the same checks as with Strang above, except
             // now we are evolving rhoX instead of X
 
-            Real X_current = vstate.y(SFS+i) / rho_current;
+//             Real X_current = vstate.y(SFS+i) / rho_current;
 
-            if (std::abs(y_save(SFS+i)) > vode_increase_change_factor*atol_spec &&
-                std::abs(X_current) > vode_increase_change_factor*atol_spec &&
-                (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-                 std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
-#ifdef MICROPHYSICS_DEBUG
-#ifndef AMREX_USE_GPU
-                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
-#endif
-#endif
-                valid_update = false;
-                break;
-            }
+//             if (std::abs(y_save(SFS+i)) > vode_increase_change_factor*atol_spec &&
+//                 std::abs(X_current) > vode_increase_change_factor*atol_spec &&
+//                 (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+//                  std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+// #ifdef MICROPHYSICS_DEBUG
+// #ifndef AMREX_USE_GPU
+//                 std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+// #endif
+// #endif
+//                 valid_update = false;
+//                 break;
+//             }
 
 #if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
