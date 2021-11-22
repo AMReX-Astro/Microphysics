@@ -243,7 +243,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
             if (std::abs(y_save(i)) > vode_increase_change_factor * atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
-                std::cout << "rejecting step based on species " << i << " from " << y_save(i) << " to " << vstate.y(i) << std::endl;
+#ifdef MICROPHYSICS_DEBUG
+#ifndef AMREX_USE_GPU 
+               std::cout << "rejecting step based on species " << i << " from " << y_save(i) << " to " << vstate.y(i) << std::endl;
+#endif
+#endif
                 valid_update = false;
                 break;
             }
@@ -273,7 +277,11 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 std::abs(X_current) > vode_increase_change_factor*atol_spec &&
                 (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
                  std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+#ifdef MICROPHYSICS_DEBUG
+#ifndef AMREX_USE_GPU
                 std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+#endif
+#endif
                 valid_update = false;
                 break;
             }
