@@ -24,8 +24,7 @@ EBASE ?= main
 # Networks and Util this list will be searched for runtime parameters
 EXTERN_CORE ?=
 
-
-ifdef ($(USE_MICROPHYSICS_DEBUG),TRUE)
+ifeq ($(USE_MICROPHYSICS_DEBUG),TRUE)
   DEFINES += -DMICROPHYSICS_DEBUG
 endif
 
