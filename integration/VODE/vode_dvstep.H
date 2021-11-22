@@ -269,8 +269,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // these are basically the same checks as with Strang above, except
             // now we are evolving rhoX instead of X
 
-
-            // this doesn't seem to work well with SDC
             Real X_current = vstate.y(SFS+i) / rho_current;
 
             if (std::abs(y_save(SFS+i)) > vode_increase_change_factor*atol_spec &&
