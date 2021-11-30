@@ -1,0 +1,80 @@
+
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+unit_test.tmax = 1.226299545e-06
+unit_test.nsteps = 1
+
+unit_test.density = 2291831.984
+unit_test.temperature = 21464492.51
+
+unit_test.X1 = 1.15571098e-10
+unit_test.X2 = 0.02492596072
+unit_test.X3 = 0.9748104153
+unit_test.X4 = 9.999376965e-11
+unit_test.X5 = 2.631228923e-08
+unit_test.X6 = 0.0002517924179
+unit_test.X7 = 1.052076962e-05
+unit_test.X8 = 1.000057502e-10
+unit_test.X9 = 3.591522569e-09
+unit_test.X10 = 9.924162583e-07
+unit_test.X11 = 3.709967787e-08
+unit_test.X12 = 1.841656458e-07
+unit_test.X13 = 2.107344932e-10
+unit_test.X14 = 6.095365924e-08
+unit_test.X15 = 1.013628628e-10
+unit_test.X16 = 4.273482134e-09
+unit_test.X17 = 1.000391129e-10
+unit_test.X18 = 2.747604287e-10
+unit_test.X19 = 1.000126641e-10
+unit_test.X20 = 1.125121417e-10
+unit_test.X21 = 9.999546035e-11
+unit_test.X22 = 1.000244458e-10
+unit_test.X23 = 9.99969824e-11
+unit_test.X24 = 1.000007578e-10
+unit_test.X25 = 9.999766307e-11
+unit_test.X26 = 9.999993752e-11
+unit_test.X27 = 9.999810305e-11
+unit_test.X28 = 9.999949495e-11
+
+unit_test.Adv_rho = 152814397.8
+unit_test.Adv_rhoe = 3.762658033e+25
+
+unit_test.Adv_X1 = 1522.528964
+unit_test.Adv_X2 = 2957941.479
+unit_test.Adv_X3 = 121425295.5
+unit_test.Adv_X4 = 0.00625991767
+unit_test.Adv_X5 = 31715.60086
+unit_test.Adv_X6 = 40706.02305
+unit_test.Adv_X7 = 24444864.69
+unit_test.Adv_X8 = 0.02735919284
+unit_test.Adv_X9 = 1031.413763
+unit_test.Adv_X10 = 2887794.057
+unit_test.Adv_X11 = 83283.19815
+unit_test.Adv_X12 = 673651.2457
+unit_test.Adv_X13 = 0.5968301036
+unit_test.Adv_X14 = 249673.1741
+unit_test.Adv_X15 = 0.01034974397
+unit_test.Adv_X16 = 16305.55317
+unit_test.Adv_X17 = 0.002932985233
+unit_test.Adv_X18 = 577.3722262
+unit_test.Adv_X19 = 0.04874600857
+unit_test.Adv_X20 = 35.08974021
+unit_test.Adv_X21 = 0.006349571375
+unit_test.Adv_X22 = 0.08174738832
+unit_test.Adv_X23 = 0.007963470383
+unit_test.Adv_X24 = 0.02318077073
+unit_test.Adv_X25 = 0.01126988905
+unit_test.Adv_X26 = 0.0193557075
+unit_test.Adv_X27 = 0.01312192367
+unit_test.Adv_X28 = 0.0174763432
+
+
+integrator.jacobian = 3
+
+integrator.rtol_spec = 1.0e-5
+integrator.rtol_enuc = 1.0e-6
+integrator.atol_spec = 1.0e-5
+integrator.atol_enuc = 1.0e-6
+
+
