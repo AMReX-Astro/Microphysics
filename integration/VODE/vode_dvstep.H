@@ -269,20 +269,20 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // these are basically the same checks as with Strang above, except
             // now we are evolving rhoX instead of X
 
-//             Real X_current = vstate.y(SFS+i) / rho_current;
+            Real X_current = vstate.y(SFS+i) / rho_current;
 
-//             if (std::abs(y_save(SFS+i)) > vode_increase_change_factor*atol_spec &&
-//                 std::abs(X_current) > vode_increase_change_factor*atol_spec &&
-//                 (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-//                  std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
-// #ifdef MICROPHYSICS_DEBUG
-// #ifndef AMREX_USE_GPU
-//                 std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
-// #endif
-// #endif
-//                 valid_update = false;
-//                 break;
-//             }
+            if (std::abs(y_save(SFS+i)) > vode_increase_change_factor*atol_spec &&
+                std::abs(X_current) > vode_increase_change_factor*atol_spec &&
+                (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+#ifdef MICROPHYSICS_DEBUG
+#ifndef AMREX_USE_GPU
+                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+#endif
+#endif
+                valid_update = false;
+                break;
+            }
 
 #if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
