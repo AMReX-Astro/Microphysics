@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>C-burn-simple &mdash; StarKiller Microphysics  documentation</title>
+  <title>ForwardEuler &mdash; StarKiller Microphysics  documentation</title>
       <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -50,12 +50,8 @@
 <li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="rp_intro.html">Runtime parameters</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">C-burn-simple</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#c-test">C-test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ecsn">ECSN</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#forwardeuler">ForwardEuler</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ForwardEuler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#qss">QSS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#urca-simple">URCA-simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vode">VODE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aprox19">aprox19</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#breakout">breakout</a></li>
@@ -70,17 +66,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#integration">integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#multigamma">multigamma</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#networks">networks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nova">nova</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nova2">nova2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#polytrope">polytrope</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#powerlaw">powerlaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#python-library">python_library</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rad-power-law">rad_power_law</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sn160">sn160</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#stellarcollapse">stellarcollapse</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#subch">subch</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#subch2">subch2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-aprox-rates">test_aprox_rates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-conductivity">test_conductivity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
@@ -123,7 +114,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="rp_intro.html">Runtime parameters</a> &raquo;</li>
-      <li>C-burn-simple</li>
+      <li>ForwardEuler</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/runtime_parameters.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -157,72 +148,6 @@
     text-align: unset;
 }
 </style>
-<section id="c-burn-simple">
-<h1>C-burn-simple<a class="headerlink" href="#c-burn-simple" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="c-test">
-<h1>C-test<a class="headerlink" href="#c-test" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="ecsn">
-<h1>ECSN<a class="headerlink" href="#ecsn" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="forwardeuler">
 <h1>ForwardEuler<a class="headerlink" href="#forwardeuler" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
@@ -295,28 +220,6 @@ reject it</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dt_init_fraction</span></code></p></td>
 <td><p>Scale factor for initial timestep</p></td>
 <td><p>0.01</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="urca-simple">
-<h1>URCA-simple<a class="headerlink" href="#urca-simple" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
@@ -679,107 +582,179 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Aux1</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X22</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Aux2</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X23</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Aux3</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X24</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_rho</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X25</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_rhoe</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X26</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X1</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X27</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X2</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X28</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X3</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X29</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X4</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X30</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X5</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Aux1</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X6</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Aux2</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X7</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Aux3</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X8</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_rho</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X9</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_rhoe</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X10</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X1</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X11</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X2</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X12</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X3</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X13</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X4</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X14</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X5</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X15</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X6</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X16</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X7</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X17</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X8</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X18</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X9</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X19</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X10</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X20</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X11</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X21</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X12</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X13</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X14</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X15</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X16</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X17</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X18</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X19</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X20</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X21</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X22</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X23</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X24</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X25</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X26</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X27</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X28</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X29</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X30</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
 </tr>
@@ -1278,50 +1253,6 @@ network?</p></td>
 </tbody>
 </table>
 </section>
-<section id="nova">
-<h1>nova<a class="headerlink" href="#nova" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="nova2">
-<h1>nova2<a class="headerlink" href="#nova2" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="polytrope">
 <h1>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
@@ -1562,28 +1493,6 @@ compatibility</p></td>
 </tbody>
 </table>
 </section>
-<section id="sn160">
-<h1>sn160<a class="headerlink" href="#sn160" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
 <section id="stellarcollapse">
 <h1>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this headline">¶</a></h1>
 <table class="docutils align-default">
@@ -1605,50 +1514,6 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_energy_shift</span></code></p></td>
 <td></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="subch">
-<h1>subch<a class="headerlink" href="#subch" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
-<td><p>.false.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="subch2">
-<h1>subch2<a class="headerlink" href="#subch2" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_thermal_neutrinos</span></code></p></td>
-<td><p>Turn off thermal neutrino losses</p></td>
 <td><p>.false.</p></td>
 </tr>
 </tbody>
@@ -2017,21 +1882,13 @@ compatibility</p></td>
 <td></td>
 <td><p>“”</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
-<td></td>
-<td><p>0.1d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
 <td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
-<td></td>
-<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
