@@ -1,3 +1,14 @@
+# 21.12
+
+  * all of the pynucastro networks were regenerated with the latest
+    pynucastro and converted to C++.  Performance was also improved
+    (#809)
+
+  * a bug was fixed in the VODE step rejection logic (#815)
+
+  * we added USE_MICROPHYSICS_DEBUG that defines MICROPHYSICS_DEBUG to
+    turn on more verbosity to help with debugging (#817)
+
 # 21.11
 
   * burn_cell was not correctly doing substepping in some cases.
