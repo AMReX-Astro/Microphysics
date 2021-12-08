@@ -118,7 +118,7 @@ void main_main ()
     get_varnames(vars, names);
 
     // time = starting time in the simulation
-    Real time = 0.0;
+    Real time = 0.0_rt;
 
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
@@ -128,7 +128,7 @@ void main_main ()
 
     // Initialize the state to zero; we will fill
     // it in below in do_eos.
-    state.setVal(0.0);
+    state.setVal(0.0_rt);
 
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = ParallelDescriptor::second();
@@ -139,9 +139,9 @@ void main_main ()
     Real dmetal  = 0.0e0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
-        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min)) / static_cast<Real>(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/ static_cast<Real>(n_cell - 1);
+        dmetal  = (metalicity_max  - 0.0_rt)/ static_cast<Real>(n_cell - 1);
     }
 
     // Initialize the state and compute the different thermodynamics
