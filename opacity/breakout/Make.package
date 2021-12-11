@@ -1,3 +1,4 @@
-F90EXE_sources += opacity_table_module.F90
-
+ifeq ($(USE_FORT_MICROPHYSICS),TRUE)
+  F90EXE_sources += opacity_table_module.F90
+endif
 CEXE_headers += actual_opacity.H
