@@ -1,7 +1,7 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
 
-USE_FORT_MICROPHYSICS ?= TRUE
+USE_FORT_MICROPHYSICS ?= FALSE
 
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
