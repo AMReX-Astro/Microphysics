@@ -129,3 +129,8 @@ endif
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 
 
+clean::
+	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
+	@if [ ! -f nse19.tbl ]; then rm -f nse19.tbl; fi
+	$(foreach t, $(NET_TABLES), $(shell if [ ! -L `basename $t` ]; then rm -f `basename $t` ; fi))
