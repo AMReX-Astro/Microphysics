@@ -240,7 +240,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-            if (std::abs(y_save(i)) >= atol_spec &&
+            if (std::abs(y_save(i)) > X_reject_buffer * atol_spec && std::abs(vstate.y(i)) > X_reject_buffer * atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
 #ifdef MICROPHYSICS_DEBUG
@@ -266,13 +266,15 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
 #ifdef SIMPLIFIED_SDC
 
-            // these are basically the same checks as with Strang above, except
-            // now we are evolving rhoX instead of X
+            // these are basically the same checks as with Strang
+            // above, except now we are evolving rhoX instead of X.
+            // Also, we only consider the reactive portion of the
+            // update
 
-            Real X_current = vstate.y(SFS+i) / rho_current;
+            Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
 
-            if (std::abs(y_save(SFS+i)) > vode_increase_change_factor*atol_spec &&
-                std::abs(X_current) > vode_increase_change_factor*atol_spec &&
+            if (std::abs(y_save(SFS+i)) > X_reject_buffer * atol_spec &&
+                std::abs(X_current) > X_reject_buffer * atol_spec &&
                 (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
                  std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
 #ifdef MICROPHYSICS_DEBUG
