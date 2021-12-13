@@ -72,7 +72,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#powerlaw">powerlaw</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#rprox">rprox</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#xrb-simple">xrb_simple</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#subch">subch</a></li>
 </ul>
 </li>
@@ -377,24 +376,6 @@ This network was used for the X-ray burst studies in
 <p>This is a 2 reaction network for helium burning, capturing the <span class="math notranslate nohighlight">\(3\)</span>-<span class="math notranslate nohighlight">\(\alpha\)</span>
 reaction and <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
 <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
-</section>
-<section id="xrb-simple">
-<h3>xrb_simple<a class="headerlink" href="#xrb-simple" title="Permalink to this headline">¶</a></h3>
-<p>This is a simple 7 isotope network approximating the burning that
-takes place in X-ray bursts (6 isotopes participate in reactions, one
-additional, <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span>, serves as an inert
-composition). The 6 reactions modeled are:</p>
-<ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(3\alpha + 2p \rightarrow \isotm{O}{14}\)</span> (limited by the 3-<span class="math notranslate nohighlight">\(\alpha\)</span> rate)</p></li>
-<li><p><span class="math notranslate nohighlight">\(\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{O}{14}(\alpha,p)\isotm{F}{17}\)</span> rate)</p></li>
-<li><p><span class="math notranslate nohighlight">\(\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}\)</span> rate)</p></li>
-<li><p><span class="math notranslate nohighlight">\(\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}\)</span> rate)</p></li>
-<li><p><span class="math notranslate nohighlight">\(\isotm{O}{14} + p \rightarrow \isotm{O}{15}\)</span> (limited by <span class="math notranslate nohighlight">\(\isotm{O}{14}(e+\nu)\isotm{N}{14}\)</span> rate)</p></li>
-<li><p><span class="math notranslate nohighlight">\(\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha\)</span>  (limited by <span class="math notranslate nohighlight">\(\isotm{O}{15}(e+\nu)\isotm{N}{15}\)</span> rate)</p></li>
-</ul>
-<p>All reactions conserve mass. Where charge is not conserved, fast weak
-interactions are assumed. Weak rates are trivial, fits to the 4
-strong rates to a power law in <span class="math notranslate nohighlight">\(T_9 \in [0.3, 1]\)</span>, linear in density.</p>
 </section>
 <section id="subch">
 <h3>subch<a class="headerlink" href="#subch" title="Permalink to this headline">¶</a></h3>
