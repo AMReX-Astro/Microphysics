@@ -14,6 +14,9 @@
 #include <fortran_to_cxx_actual_rhs.H>
 #endif
 #include <numerical_jacobian.H>
+#ifdef NONAKA_PLOT
+#include <nonaka_plot.H>
+#endif
 
 // The f_rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
@@ -54,6 +57,10 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
     YdotNetArray1D ydot_react = {0};
 
     actual_rhs(state, ydot_react);
+
+#ifdef NONAKA_PLOT
+    nonaka_rhs(time, state, ydot_react);
+#endif
 
     // apply fudge factor:
 

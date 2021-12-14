@@ -11,13 +11,16 @@
 #include <burn_type.H>
 #include <extern_parameters.H>
 #include <vode_type.H>
+#ifdef NONAKA_PLOT
+#include <nonaka_plot.H>
+#endif
 
 // The rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
 {
 
     // We are integrating a system of
@@ -62,6 +65,10 @@ void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydo
     // Call the specific network routine to get the RHS.
 
     actual_rhs(state, ydot);
+
+#ifdef NONAKA_PLOT
+    nonaka_rhs(time, state, ydot);
+#endif
 
     // We integrate X, not Y
 
