@@ -19,6 +19,11 @@ ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
 endif
 
+USE_NONAKA_PLOT ?= FALSE
+ifeq ($(USE_NONAKA_PLOT),TRUE)
+  DEFINES += -DNONAKA_PLOT
+endif
+
 ifeq ($(EOS_DIR), gamma_law_general)
   override EOS_DIR := gamma_law
   $(warning gamma_law_general has been renamed gamma_law)

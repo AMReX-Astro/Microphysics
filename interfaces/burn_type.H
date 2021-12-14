@@ -101,6 +101,16 @@ struct burn_t
   Real dedZ;
 #endif
 
+  // for diagnostics / error reporting
+
+  int i;
+  int j;
+  int k;
+#ifdef NONAKA_PLOT
+  int level;
+  Real reference_time;
+#endif
+
   // now come the bits that we need for SDC or Strang evolution
 
 #ifdef SIMPLIFIED_SDC
@@ -126,10 +136,6 @@ struct burn_t
   // Pressure in case we wish to use it for EOS calls
   Real p0;
 #endif
-
-  int i;
-  int j;
-  int k;
 
   int sdc_iter;
   int num_sdc_iters;

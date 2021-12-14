@@ -3,9 +3,10 @@ ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
   ifneq ($(USE_TRUE_SDC), TRUE)
     F90EXE_sources += temperature_integration.F90
   endif
-  ifeq ($(USE_NONAKA_PLOT), TRUE)
-    f90EXE_sources += nonaka_plot.f90
-  endif
+endif
+
+ifeq ($(USE_NONAKA_PLOT), TRUE)
+  CEXE_headers += nonaka_plot.H
 endif
 CEXE_headers += jacobian_utilities.H
 CEXE_headers += numerical_jacobian.H
