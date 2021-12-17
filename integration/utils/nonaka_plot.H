@@ -23,6 +23,10 @@ void nonaka_init() {
     std::stringstream ss;
     ss << std::setw(FIELD_WIDTH) << "time" << " ";
 
+#ifdef SIMPLIFIED_SDC
+    ss << std::setw(FIELD_WIDTH) << "sdc-iter" << " ";
+#endif
+
     for (int i = 0; i < NumSpec; ++i) {
       ss << std::setw(FIELD_WIDTH) << "X(" + short_spec_names_cxx[i] + ")" << " ";
     }
@@ -52,8 +56,6 @@ void nonaka_rhs(const Real time, const burn_t& state, const YdotNetArray1D& ydot
     // the integrator yet (e.g., for SDC), so we should index it using
     // the network's convention.
 
-    Real simulation_time = time + state.reference_time;
-
     if (state.level == nonaka_level &&
         state.i == nonaka_i && state.j == nonaka_j && state.k == nonaka_k) {
 
@@ -63,7 +65,14 @@ void nonaka_rhs(const Real time, const burn_t& state, const YdotNetArray1D& ydot
         std::ofstream nf;
         nf.open(nonaka_file, std::ios::app);
 
+
+        Real simulation_time = time + state.reference_time;
+
         nf << std::setw(FIELD_WIDTH) << simulation_time << " ";
+
+#ifdef SIMPLIFIED_SDC
+        nf << std::setw(FIELD_WIDTH) << state.sdc_iter << " ";
+#endif
 
         // Mass fractions X
 
