@@ -133,7 +133,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         // part and then algebraically transforms it to the
         // correct state variables for SDC.  This means we need to
         // account for the NumSpec+1 RHS evals
-        vstate.NFE += NumSpec + 1;
+        vode_state.NFE += NumSpec + 1;
 
 
     } else {
