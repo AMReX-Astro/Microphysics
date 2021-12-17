@@ -6,9 +6,6 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
 include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
-include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NAUX_NETWORK
-
-DEFINES += -DNAUX_NET=$(NAUX)
 
 ifeq ($(USE_REACT), TRUE)
 
@@ -98,6 +95,9 @@ ifneq ($(NETWORK_DIR), general_null)
   ifneq ($(USE_FORT_MICROPHYSICS), TRUE)
     net_opts := --skip_fortran
   endif
+
+  NAUX := $(shell $(MICROPHYSICS_HOME)/networks/get_naux.py --microphysics_path "$(MICROPHYSICS_HOME)" --defines "$(DEFINES)" --net "$(NETWORK_DIR)")
+  DEFINES += "-DNAUX_NET=$(NAUX)"
 
 $(NETWORK_OUTPUT_PATH)/network_properties.H:
 	$(MICROPHYSICS_HOME)/networks/update_headers.py $(net_opts) \
