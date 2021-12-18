@@ -23,7 +23,7 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
     // update rho, rho*u, etc.
@@ -59,7 +59,9 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
     actual_rhs(state, ydot_react);
 
 #ifdef NONAKA_PLOT
-    nonaka_rhs(time, state, ydot_react);
+    if (! in_jacobian) {
+        nonaka_rhs(time, state, ydot_react);
+    }
 #endif
 
     // apply fudge factor:
