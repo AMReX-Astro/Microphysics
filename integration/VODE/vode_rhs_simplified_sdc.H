@@ -126,6 +126,16 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         jac_info_t jac_info;
         jac_info.h = vode_state.H;
         numerical_jac(state, jac_info, jac_react);
+
+        // jacobian = 3 is a hybrid numerical + analytic
+        // implementation for simplified SDC.  It uses a one-sided
+        // difference numerical approximation for the reactive
+        // part and then algebraically transforms it to the
+        // correct state variables for SDC.  This means we need to
+        // account for the NumSpec+1 RHS evals
+        vode_state.NFE += NumSpec + 1;
+
+
     } else {
         actual_jac(state, jac_react);
 
