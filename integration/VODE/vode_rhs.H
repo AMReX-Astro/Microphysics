@@ -20,7 +20,7 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
     // We are integrating a system of
@@ -67,7 +67,9 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
     actual_rhs(state, ydot);
 
 #ifdef NONAKA_PLOT
-    nonaka_rhs(time, state, ydot);
+    if (! in_jacobian) {
+        nonaka_rhs(time, state, ydot);
+    }
 #endif
 
     // We integrate X, not Y
