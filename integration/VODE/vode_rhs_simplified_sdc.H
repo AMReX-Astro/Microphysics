@@ -23,7 +23,7 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
     // update rho, rho*u, etc.
@@ -59,7 +59,9 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
     actual_rhs(state, ydot_react);
 
 #ifdef NONAKA_PLOT
-    nonaka_rhs(time, state, ydot_react);
+    if (! in_jacobian) {
+        nonaka_rhs(time, state, ydot_react);
+    }
 #endif
 
     // apply fudge factor:
@@ -126,6 +128,16 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         jac_info_t jac_info;
         jac_info.h = vode_state.H;
         numerical_jac(state, jac_info, jac_react);
+
+        // jacobian = 3 is a hybrid numerical + analytic
+        // implementation for simplified SDC.  It uses a one-sided
+        // difference numerical approximation for the reactive
+        // part and then algebraically transforms it to the
+        // correct state variables for SDC.  This means we need to
+        // account for the NumSpec+1 RHS evals
+        vode_state.NFE += NumSpec + 1;
+
+
     } else {
         actual_jac(state, jac_react);
 
