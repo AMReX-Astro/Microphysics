@@ -19,9 +19,9 @@ using namespace amrex;
 void actual_network_init();
 
 #ifndef NSE
-const std::string network_name = "aprox19";
+const std::string network_name = "aprox21";
 #else
-const std::string network_name = "aprox19_nse";
+const std::string network_name = "aprox21_nse";
 #endif
 
 namespace network
@@ -168,7 +168,7 @@ namespace RHS {
         switch (rate) {
 
         case P_to_N:
-            // irpen and irnep in the original aprox19
+            // irpen and irnep in the original aprox21
             data.species_A = P;
             data.species_D = N;
 
@@ -185,7 +185,7 @@ namespace RHS {
             break;
 
         case P_N_to_H2:
-            // irhng and irdgn in the original aprox19
+            // irhng and irdgn in the original aprox21
             // Represents p(n,g)H2
             // In this network this is entirely an intermediate
             // reaction and does not directly enter into the RHS
@@ -208,7 +208,7 @@ namespace RHS {
             break;
 
         case P_P_N_N_to_He4:
-            // iralf1 and iralf2 in the original aprox19
+            // iralf1 and iralf2 in the original aprox21
             // Represents p(n,g)H2(n,g)H3(p,g)He4 and p(n,g)H2(p,g)He3(n,g)He4
             data.species_A = P;
             data.species_B = N;
@@ -235,7 +235,7 @@ namespace RHS {
             break;
 
         case H1_H1_to_He3:
-            // irpp in the original aprox19
+            // irpp in the original aprox21
             // Represents the standard proton-proton chain,
             // H1(H1,e+nu)H2(H1,g)He3
             data.species_A = H1;
@@ -254,7 +254,7 @@ namespace RHS {
             // result is still three protons to He3, but because
             // the proton is first converted to a neutron, the
             // identical particle factor would not apply. In the
-            // original aprox19, this is one of the two reactions
+            // original aprox21, this is one of the two reactions
             // that uses the electron capture rate irpen.
             data.species_A = H1;
             data.species_D = He3;
@@ -274,7 +274,7 @@ namespace RHS {
             break;
 
         case H2_P_to_He3:
-            // irdpg and irhegp in the original aprox19
+            // irdpg and irhegp in the original aprox21
             // Represents H2(p,g)He3
             // In this network this is entirely an intermediate
             // reaction and does not directly enter into the RHS
@@ -294,7 +294,7 @@ namespace RHS {
             break;
 
         case He3_N_to_He4:
-            // irheng and irhegn in the original aprox19
+            // irheng and irhegn in the original aprox21
             // Represents He3(n,g)He4
             // In this network this is entirely an intermediate
             // reaction and does not directly enter into the RHS
@@ -317,7 +317,7 @@ namespace RHS {
             break;
 
         case He3_He3_to_He4_2H1:
-            // ir33 in the original aprox19
+            // ir33 in the original aprox21
             data.species_A = He3;
             data.species_D = He4;
             data.species_E = H1;
@@ -332,7 +332,7 @@ namespace RHS {
             break;
 
         case He3_He4_H1_to_2He4:
-            // irhe3ag in the original aprox19
+            // irhe3ag in the original aprox21
             // Represents He3(a,g)Be7(p,g)B8(e+nu)Be8(2a)
             data.species_A = He3;
             data.species_B = He4;
@@ -364,7 +364,7 @@ namespace RHS {
             break;
 
         case C12_H1_to_N13:
-            // ircpg in the original aprox19
+            // ircpg in the original aprox21
             data.species_A = C12;
             data.species_B = H1;
             data.species_D = N13;
@@ -469,7 +469,7 @@ namespace RHS {
             break;
 
         case N14_H1_to_O15:
-            // irnpg in the original aprox19
+            // irnpg in the original aprox21
             data.species_A = N14;
             data.species_B = H1;
             data.species_D = O15;
@@ -484,7 +484,7 @@ namespace RHS {
             break;
 
         case N15_H1_to_O16:
-            // ifg in the original aprox19
+            // ifg in the original aprox21
             data.species_A = N15;
             data.species_B = H1;
             data.species_D = O16;
@@ -502,7 +502,7 @@ namespace RHS {
             break;
 
         case N15_H1_to_C12_He4:
-            // ifa in the original aprox19
+            // ifa in the original aprox21
             data.species_A = N15;
             data.species_B = H1;
             data.species_D = C12;
@@ -574,7 +574,7 @@ namespace RHS {
             break;
 
         case N14_He4_to_F18:
-            // irnag in the original aprox19
+            // irnag in the original aprox21
             // Represents N14 + He4 -> F18
             data.species_A = N14;
             data.species_B = He4;
@@ -613,7 +613,7 @@ namespace RHS {
             break;
 
         case O16_H1_to_F17:
-            // iropg in the original aprox19
+            // iropg in the original aprox21
             data.species_A = O16;
             data.species_B = H1;
             data.species_D = F17;
@@ -1426,7 +1426,7 @@ namespace RHS {
                 // in defining the reaction so that the number of reactants
                 // on each side would be integers while still conserving mass,
                 // so to compensate, we scale the rate by 1/54. This serves
-                // the equivalent role to the c54 constant in the original aprox19.
+                // the equivalent role to the c54 constant in the original aprox21.
 
                 fr *= 1.0_rt / 54.0_rt;
             }
@@ -1447,7 +1447,7 @@ namespace RHS {
 
         if constexpr (rate == P_P_N_N_to_He4)
         {
-            // In the original aprox19:
+            // In the original aprox21:
             // Rate 1 == P_N_to_H2 == irhng (forward), irdgn (reverse)
             // Rate 2 == H2_P_to_He3 == irdpg (forward), irhegp (reverse)
             // Rate 3 == He3_N_to_He4 == irheng (forward), irhegn (reverse)
@@ -1461,14 +1461,14 @@ namespace RHS {
 
                 Real zz = 1.0_rt / denom;
 
-                // iralf1 in the original aprox19
+                // iralf1 in the original aprox21
                 rr = rr3 * rr2 * rr1 * zz;
                 rrdt = rr3dt * rr2 * rr1 * zz +
                        rr3 * rr2dt * rr1 * zz +
                        rr3 * rr2 * rr1dt * zz -
                        rr * zz * denomdt;
 
-                // iralf2 in the original aprox19
+                // iralf2 in the original aprox21
                 fr = fr3 * fr2 * fr1 * zz;
                 frdt = fr3dt * fr2 * fr1 * zz +
                        fr3 * fr2dt * fr1 * zz +
@@ -1663,7 +1663,7 @@ namespace RHS {
 
         if constexpr (rate == Fe52_2N_to_Fe54)
         {
-            // In the original aprox19:
+            // In the original aprox21:
             // Rate 1 == Fe52_N_to_Fe53 == ir52ng (forward), ir53gn (reverse)
             // Rate 2 == Fe53_N_to_Fe54 == ir53ng (forward), ir54gn (reverse)
 
@@ -1673,11 +1673,11 @@ namespace RHS {
             if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
                 Real zz = 1.0_rt / denom;
 
-                // ir2f54 in the original aprox19
+                // ir2f54 in the original aprox21
                 fr = fr1 * fr2 * zz;
                 frdt = fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr * zz * denomdt;
 
-                // ir1f54 in the original aprox19
+                // ir1f54 in the original aprox21
                 rr = rr2 * rr1 * zz;
                 rrdt = rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
             }
@@ -1685,7 +1685,7 @@ namespace RHS {
 
         if constexpr (rate == Fe54_2P_to_Ni56)
         {
-            // In the original aprox19:
+            // In the original aprox21:
             // Rate 1 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
@@ -1697,11 +1697,11 @@ namespace RHS {
 
                 Real zz = 1.0_rt / denom;
 
-                // ir3f54 in the original aprox19
+                // ir3f54 in the original aprox21
                 fr = fr1 * fr2 * zz;
                 frdt = fr1dt * fr2 * zz + fr2 * fr1dt * zz - fr * zz * denomdt;
 
-                // ir4f54 in the original aprox19
+                // ir4f54 in the original aprox21
                 rr = rr2 * rr1 * zz;
                 rrdt = rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
             }
@@ -1709,7 +1709,7 @@ namespace RHS {
 
         if constexpr (rate == Fe52_He4_to_Fe54_2P)
         {
-            // In the original aprox19:
+            // In the original aprox21:
             // Rate 1 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
             // Rate 2 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
             // Rate 3 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
@@ -1721,11 +1721,11 @@ namespace RHS {
 
                 Real zz = 1.0_rt / denom;
 
-                // ir6f54 in the original aprox19
+                // ir6f54 in the original aprox21
                 fr = fr1 * rr2 * zz;
                 frdt = fr1dt * rr2 * zz + fr1 * rr2dt * zz - fr * zz * denomdt;
 
-                // ir5f54 in the original aprox19
+                // ir5f54 in the original aprox21
                 rr = fr2 * rr1 * zz;
                 rrdt = fr2dt * rr1 * zz + fr2 * rr1dt * zz - rr * zz * denomdt;
             }
@@ -1733,7 +1733,7 @@ namespace RHS {
 
         if constexpr (rate == Fe52_He4_to_Ni56)
         {
-            // In the original aprox19:
+            // In the original aprox21:
             // Rate 1 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
