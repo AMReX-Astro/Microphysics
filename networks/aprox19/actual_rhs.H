@@ -2270,7 +2270,7 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
 
     // fe54 jacobian elements
     // d(fe54)/d(he4)
-    dfdy(Fe52,He4) = y(Fe52) * ratdum(ir6f54);
+    dfdy(Fe54,He4) = y(Fe52) * ratdum(ir6f54);
 
     // d(fe54)/d(fe52)
     b(1) =  y(N) * y(N) * ratdum(ir2f54);
@@ -2292,7 +2292,7 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     b(1) =  0.0;
     b(2) =  2.0e0_rt * y(Fe52) * y(N) * ratdum(ir2f54);
     b(3) =  0.0;
-    dfdy(Fe52,N) = esum3(b);
+    dfdy(Fe54,N) = esum3(b);
 
     // d(fe54)/d(prot)
     b(1) = -2.0e0_rt * y(Fe54) * y(P) * ratdum(ir3f54);
@@ -2301,7 +2301,7 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     b(4) = -2.0e0_rt * y(Fe54) * y(P) * ratdum(ir5f54);
     b(5) =  0.0;
     b(6) =  0.0;
-    dfdy(Fe52,P) = esum6(b);
+    dfdy(Fe54,P) = esum6(b);
 
 
     // ni56 jacobian elements
