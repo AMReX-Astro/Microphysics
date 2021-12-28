@@ -18,11 +18,7 @@ using namespace amrex;
 
 void actual_network_init();
 
-#ifndef NSE
 const std::string network_name = "aprox21";
-#else
-const std::string network_name = "aprox21_nse";
-#endif
 
 namespace network
 {
