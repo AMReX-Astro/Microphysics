@@ -93,7 +93,7 @@ actual_jac(burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     // Convert the df(enuc) / dT component
 
-    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_f(net_ienuc, net_ienuc));
+    jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac_f(net_ienuc+1, net_ienuc));
 }
 
 #endif

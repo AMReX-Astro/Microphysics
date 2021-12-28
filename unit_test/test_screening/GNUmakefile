@@ -19,6 +19,14 @@ USE_EXTRA_THERMO = TRUE
 
 USE_CXX_EOS = TRUE
 
+USE_CXX_REACTIONS ?= TRUE
+
+ifeq ($(USE_CXX_REACTIONS),TRUE)
+  DEFINES += -DCXX_REACTIONS
+endif
+
+USE_FORT_MICROPHYSICS = FALSE
+
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 

@@ -117,6 +117,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
                 R0 = 1.0_rt;
             }
 
+            bool in_jacobian = true;
             for (int j = 1; j <= VODE_NEQS; ++j) {
                 Real yj = vstate.y(j);
 
@@ -124,7 +125,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
                 vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
-                rhs(vstate.tn, state, vstate, vstate.acor);
+                rhs(vstate.tn, state, vstate, vstate.acor, in_jacobian);
                 for (int i = 1; i <= VODE_NEQS; ++i) {
                     vstate.jac.set(i, j, (vstate.acor(i) - vstate.savf(i)) * fac);
                 }

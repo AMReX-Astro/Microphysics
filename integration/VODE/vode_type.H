@@ -38,8 +38,8 @@ const Real vode_failure_tolerance = 1.e-2_rt;
 // For each species whose abundance is above a certain threshold, we do
 // not allow its mass fraction to change by more than a certain amount
 // in any integration step.
-const Real vode_increase_change_factor = 2.0_rt;
-const Real vode_decrease_change_factor = 0.5_rt;
+const Real vode_increase_change_factor = 4.0_rt;
+const Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
