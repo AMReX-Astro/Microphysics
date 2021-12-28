@@ -51,8 +51,10 @@ void actual_network_init()
     bion(Ca40) = 342.05680e0_rt;
     bion(Ti44) = 375.47720e0_rt;
     bion(Cr48) = 411.46900e0_rt;
+    bion(Cr56) = 488.4970e0_rt;
     bion(Fe52) = 447.70800e0_rt;
     bion(Fe54) = 471.7696e0_rt;
+    bion(Fe56) = 492.2450e0_rt;
     bion(Ni56) = 484.00300e0_rt;
     bion(N)    = 0.0e0_rt;
     bion(P)    = 0.0e0_rt;

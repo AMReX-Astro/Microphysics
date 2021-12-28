@@ -28,10 +28,12 @@
   titanium-44            Ti44        44.0     22.0
   __extra_vanadium-47    V47         47.0     23.0
   chromium-48            Cr48        48.0     24.0
+  chromium-56            Cr56        56.0     24.0
   __extra_manganese-51   Mn51        51.0     25.0
   iron-52                Fe52        52.0     26.0
   __extra_iron-53        Fe53        53.0     26.0
   iron-54                Fe54        54.0     26.0
+  iron-56                Fe56        56.0     26.0
   __extra_cobalt-55      Co55        55.0     27.0
   nickel-56              Ni56        56.0     28.0
   neutron                n            1.0      0.0
