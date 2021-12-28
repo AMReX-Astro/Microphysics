@@ -1,4 +1,1 @@
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  F90EXE_sources += sneut5.F90
-endif
 CEXE_headers += sneut5.H
