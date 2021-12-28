@@ -95,7 +95,8 @@ namespace Rates {
         Co55_P_to_Ni56,
         Fe52_N_to_Fe53,
         Fe53_N_to_Fe54,
-        Ni56_to_Fe54,
+        Ni56_to_Fe56,
+        Fe56_to_Cr56,
         He3_He3_to_He4_2P,
         C12_H1_to_N13,
         C12_2H1_to_N14,
@@ -112,7 +113,13 @@ namespace Rates {
         Fe52_He4_to_Fe54_2P,
         Fe54_2P_to_Ni56,
         Fe54_P_to_Co55,
-        NumRates=Fe54_P_to_Co55
+        Fe54_N_to_Fe55,
+        Fe55_N_to_Fe56,
+        Fe54_2N_to_Fe56,
+        Fe54_He4_to_Co57_P,
+        Fe56_P_to_Co57,
+        Fe54_He4_to_Fe56_2P,
+        NumRates=Fe54_He4_to_Fe56_2P
     };
 }
 
@@ -1237,12 +1244,12 @@ namespace RHS {
             data.additional_reaction_3 = Fe52_He4_to_Co55_P;
             break;
 
-        case Ni56_to_Fe54:
+        case Ni56_to_Fe56:
             data.species_A = Ni56;
-            data.species_D = Fe54;
+            data.species_D = Fe56;
 
-            data.number_A = 54;
-            data.number_D = 56;
+            data.number_A = 1;
+            data.number_D = 1;
 
             data.exponent_A = 1;
             data.exponent_D = 1;
@@ -1251,6 +1258,136 @@ namespace RHS {
 
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
+            break;
+
+        case Fe56_to_Cr56:
+            data.species_A = Fe56;
+            data.species_D = Cr56;
+
+            data.number_A = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.additional_reaction_1 = Ni56_to_Fe56;
+            break;
+
+        case Fe54_N_to_Fe55:
+            data.species_A = Fe54;
+            data.species_B = N;
+            data.species_D = Fe55;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+            break;
+
+        case Fe55_N_to_Fe56:
+            data.species_A = Fe55;
+            data.species_B = N;
+            data.species_D = Fe56;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+            break;
+
+        case Fe54_2N_to_Fe56:
+            data.species_A = Fe54;
+            data.species_B = N;
+            data.species_D = Fe56;
+
+            data.number_A = 1;
+            data.number_B = 2;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 2;
+            data.exponent_D = 1;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.apply_identical_particle_factor = 0;
+
+            data.additional_reaction_1 = Fe54_N_to_Fe55;
+            data.additional_reaction_2 = Fe55_N_to_Fe56;
+            break;
+
+        case Fe54_He4_to_Co57_P:
+            data.species_A = Fe54;
+            data.species_B = He4;
+            data.species_D = Co57;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        case Fe56_P_to_Co57:
+            data.species_A = Fe56;
+            data.species_B = P;
+            data.species_D = Co57;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case Fe54_He4_to_Fe56_2P:
+            data.species_A = Fe54;
+            data.species_B = He4;
+            data.species_D = Fe56;
+            data.species_E = P;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+            data.number_E = 2;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 2;
+
+            data.screen_forward_reaction = 0;
+            data.screen_reverse_reaction = 0;
+
+            data.apply_identical_particle_factor = 0;
+
+            data.additional_reaction_1 = Fe54_He4_to_Co57_P;
+            data.additional_reaction_2 = Fe56_P_to_Co57;
             break;
         }
 
@@ -1413,19 +1550,23 @@ namespace RHS {
         else if constexpr (rate == Fe54_P_to_Co55) {
             rate_fe54pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
-        else if constexpr (rate == Ni56_to_Fe54) {
+        else if constexpr (rate == Ni56_to_Fe56) {
             if (tf.temp >= 1.0e6_rt && rho >= 1.0e-9_rt) {
                 Real tmp;
                 langanke(tf.temp, rho, y(Ni56), y_e, fr, tmp);
-
-                // We scaled the number of nucleons per reaction
-                // in defining the reaction so that the number of reactants
-                // on each side would be integers while still conserving mass,
-                // so to compensate, we scale the rate by 1/54. This serves
-                // the equivalent role to the c54 constant in the original aprox21.
-
-                fr *= 1.0_rt / 54.0_rt;
             }
+        }
+        else if constexpr (rate == Fe54_N_to_Fe55) {
+            rate_fe54ng(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Fe55_N_to_Fe56) {
+            rate_fe55ng(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Fe54_He4_to_Co57_P) {
+            rate_fe54ap(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Fe56_P_to_Co57) {
+            rate_fe56pg(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
     }
 
@@ -1756,6 +1897,56 @@ namespace RHS {
                 Real rrdt_add = rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr_add * zz * denomdt; 
                 rr += y(P) * rr_add;
                 rrdt += y(P) * rrdt_add;
+            }
+        }
+
+        if constexpr (rate == Fe56_to_Cr56)
+        {
+            // Rate 1 == Ni56_to_Fe56
+            fr = 1.0e-4 * fr1;
+        }
+
+        if constexpr (rate == Fe54_2N_to_Fe56)
+        {
+            // In the original aprox21:
+            // Rate 1 == Fe54_N_to_Fe55 == ir54ng (forward), ir55gn (reverse)
+            // Rate 2 == Fe55_N_to_Fe56 == ir55ng (forward), ir56gn (reverse)
+
+            Real denom   = rr1 + y(N) * fr2;
+            Real denomdt = rr1dt + y(N) * fr2dt;
+
+            if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
+                Real zz = 1.0_rt / denom;
+
+                // irfe56_aux2 in the original aprox21
+                fr = fr1 * fr2 * zz;
+                frdt = fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr * zz * denomdt;
+
+                // irfe56_aux1 in the original aprox21
+                rr = rr2 * rr1 * zz;
+                rrdt = rr2dt * rr1 * zz + rr2 * rr1dt * zz - rr * zz * denomdt;
+            }
+        }
+
+        if constexpr (rate == Fe54_He4_to_Fe56_2P)
+        {
+            // In the original aprox21:
+            // Rate 1 == Fe54_He4_to_Co57_P == ir54ap (forward), irco57pa (reverse)
+            // Rate 2 == Fe56_P_to_Co57 == irfe56pg (forward), irco57gp (reverse)
+
+            Real denom   = rr2 + y(P) * rr1;
+            Real denomdt = rr2dt + y(P) * rr1dt;
+
+            if (denom > 1.0e-50_rt && tf.t9 > 1.5_rt) {
+                Real zz = 1.0_rt / denom;
+
+                // irfe56_aux4 in the original aprox21
+                fr = fr1 * rr2 * zz;
+                frdt = fr1dt * rr2 * zz + fr1 * rr2dt * zz - fr * zz * denomdt;
+
+                // irfe56_aux3 in the original aprox21
+                rr = fr2 * rr1 * zz;
+                rrdt = fr2dt * rr1 * zz + fr2 * rr1dt * zz - rr * zz * denomdt;
             }
         }
     }
