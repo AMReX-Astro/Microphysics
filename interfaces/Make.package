@@ -34,9 +34,6 @@ ifeq ($(USE_CXX_REACTIONS),TRUE)
 endif
 
 ifeq ($(USE_CONDUCTIVITY), TRUE)
-  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-    F90EXE_sources += conductivity.F90
-  endif
   CEXE_headers += conductivity.H
 endif
 

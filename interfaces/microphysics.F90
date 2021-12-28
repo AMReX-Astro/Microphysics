@@ -10,10 +10,6 @@ module microphysics_module
 #endif
 #endif
 
-#ifdef CONDUCTIVITY
-  use actual_conductivity_module, only: actual_conductivity_init
-#endif
-
   use amrex_fort_module, only : rt => amrex_real
   implicit none
 
@@ -51,10 +47,6 @@ contains
     call actual_rhs_init()
 #endif
 #endif
-#endif
-
-#ifdef CONDUCTIVITY
-    call actual_conductivity_init()
 #endif
 
   end subroutine microphysics_init
