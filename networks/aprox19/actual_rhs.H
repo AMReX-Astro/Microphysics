@@ -1896,9 +1896,9 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     b(1)  =  2.0e0_rt * y(Fe54) * y(P) * ratdum(ir5f54);
     b(2)  =  0.0;
     b(3)  =  0.0;
-    b(4)  = -y(Fe52) * y(He4) * ratdum(ir7f54);
+    b(4)  =  0.0;
     b(5)  =  0.0;
-    b(6)  =  y(Ni56) * ratdum(ir8f54);
+    b(6)  =  0.0;
     b(7)  =  0.0;
     b(8)  =  0.0;
     b(9)  =  2.0e0_rt * y(N)*y(N) * y(P) * ratdum(iralf2);
@@ -2261,9 +2261,9 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     b(1) =  2.0e0_rt * y(Fe54) * y(P) * ratdum(ir5f54);
     b(2) =  0.0;
     b(3) =  0.0;
-    b(4) = -y(Fe52) * y(He4) * ratdum(ir7f54);
+    b(4) =  0.0;
     b(5) =  0.0;
-    b(6) =  y(Ni56) * ratdum(ir8f54);
+    b(6) =  0.0;
     b(7) =  0.0;
     dfdy(Fe52,P) = esum7(b);
 
@@ -2329,9 +2329,9 @@ void dfdy_isotopes_aprox19 (Array1D<Real, 1, NumSpec> const& y,
     b(1) =  2.0e0_rt * y(Fe54) * y(P) * ratdum(ir3f54);
     b(2) =  0.0;
     b(3) =  0.0;
-    b(4) =  y(Fe52) * y(He4)* ratdum(ir7f54);
+    b(4) =  0.0;
     b(5) =  0.0;
-    b(6) = -y(Ni56) * ratdum(ir8f54);
+    b(6) =  0.0;
     b(7) =  0.0;
     dfdy(Ni56,P) = esum7(b);
 
