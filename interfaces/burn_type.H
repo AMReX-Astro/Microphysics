@@ -109,6 +109,9 @@ struct burn_t
 #ifdef NONAKA_PLOT
   int level;
   Real reference_time;
+#ifdef STRANG
+  int strang_half;
+#endif
 #endif
 
   // now come the bits that we need for SDC or Strang evolution
