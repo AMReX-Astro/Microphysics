@@ -1249,12 +1249,10 @@ void fill_additional_rates (Arr intermediate_fr, Arr intermediate_frdt,
     constexpr int rate2 = data.additional_reaction_2;
     constexpr int rate3 = data.additional_reaction_3;
 
-    constexpr int num_intermediate = num_intermediate_reactions();
-
     if constexpr (rate1 >= 0) {
         constexpr int index = locate_intermediate_rate_index(rate1);
 
-        static_assert(index >= 1 && index <= num_intermediate);
+        static_assert(index >= 1 && index <= num_intermediate_reactions());
 
         fr1 = intermediate_fr(index);
         fr1dt = intermediate_frdt(index);
@@ -1265,7 +1263,7 @@ void fill_additional_rates (Arr intermediate_fr, Arr intermediate_frdt,
     if constexpr (rate2 >= 0) {
         constexpr int index = locate_intermediate_rate_index(rate2);
 
-        static_assert(index >= 1 && index <= num_intermediate);
+        static_assert(index >= 1 && index <= num_intermediate_reactions());
 
         fr2 = intermediate_fr(index);
         fr2dt = intermediate_frdt(index);
@@ -1276,7 +1274,7 @@ void fill_additional_rates (Arr intermediate_fr, Arr intermediate_frdt,
     if constexpr (rate3 >= 0) {
         constexpr int index = locate_intermediate_rate_index(rate3);
 
-        static_assert(index >= 1 && index <= num_intermediate);
+        static_assert(index >= 1 && index <= num_intermediate_reactions());
 
         fr3 = intermediate_fr(index);
         fr3dt = intermediate_frdt(index);
