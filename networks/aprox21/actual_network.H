@@ -1836,7 +1836,7 @@ namespace RHS {
 
                 // ir3f54 in the original aprox21
                 fr = fr1 * fr2 * zz;
-                frdt = fr1dt * fr2 * zz + fr2 * fr1dt * zz - fr * zz * denomdt;
+                frdt = fr1dt * fr2 * zz + fr1 * fr2dt * zz - fr * zz * denomdt;
 
                 // ir4f54 in the original aprox21
                 rr = rr2 * rr1 * zz;
