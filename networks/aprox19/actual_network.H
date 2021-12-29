@@ -1764,6 +1764,13 @@ namespace RHS {
         }
     }
 
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real ener_gener_rate (Real const& dydt)
+    {
+        return dydt * network::mion(spec) * C::Legacy::enuc_conv2;
+    }
+
 } // namespace RHS
 
 #endif

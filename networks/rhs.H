@@ -1283,16 +1283,6 @@ void fill_additional_rates (Arr intermediate_fr, Arr intermediate_frdt,
     }
 }
 
-template<int spec>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real ener_gener_rate (Real const& dydt)
-{
-    using namespace network;
-
-    // This is basically e = m c**2
-    return dydt * mion(spec) * C::Legacy::enuc_conv2;
-}
-
 AMREX_INLINE
 void rhs_init ()
 {
