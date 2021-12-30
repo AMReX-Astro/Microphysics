@@ -90,6 +90,10 @@ net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.H
 ifneq ($(NETWORK_DIR), general_null)
   $(NETWORK_OUTPUT_PATH)/network_properties.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
+  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
+    F90EXE_sources += network_properties.F90
+  endif
+
   ifneq ($(USE_FORT_MICROPHYSICS), TRUE)
     net_opts := --skip_fortran
   endif
