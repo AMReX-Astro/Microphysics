@@ -1,10 +1,6 @@
 module burn_type_module
 
-#ifdef REACT_SPARSE_JACOBIAN
-  use actual_network, only: nspec, naux, NETWORK_SPARSE_JAC_NNZ
-#else
-  use actual_network, only: nspec, naux
-#endif
+  use network_properties
 
   use amrex_fort_module, only : rt => amrex_real
 

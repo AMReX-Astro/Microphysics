@@ -12,7 +12,7 @@
 module network
 
   use amrex_fort_module, only : rt => amrex_real
-  use actual_network
+  use network_properties
 
   implicit none
 
@@ -30,15 +30,7 @@ contains
 
     implicit none
 
-    ! First, we call the specific network initialization.
-    ! This should set the number of species and number of
-    ! aux variables, and the components of the species.
-    ! Note that the network MUST define nspec and naux
-    ! as parameters, or else the compiler will throw an error.
-
-    call actual_network_init()
-
-    ! Check to make sure, and if not, throw an error.
+    call network_properties_init()
 
     if ( nspec .le. 0 ) then
        call amrex_error("Network cannot have a negative number of species.")
@@ -51,17 +43,6 @@ contains
     network_initialized = .true.
 
   end subroutine network_init
-
-
-  function get_network_name() result(name)
-
-    use actual_network, only: network_name
-
-    character(len=128) :: name
-
-    name = network_name
-
-  end function get_network_name
 
 
   function network_species_index(name) result(r)
@@ -128,8 +109,6 @@ contains
 
   subroutine network_finalize()
     implicit none
-
-    call actual_network_finalize()
 
   end subroutine network_finalize
 
