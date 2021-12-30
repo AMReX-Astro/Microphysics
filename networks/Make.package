@@ -21,9 +21,7 @@ ifeq ($(USE_REACT), TRUE)
   endif
 
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
-  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)  
-    f90EXE_sources += rate_type.f90
-  endif
+
   CEXE_headers += rate_type.H
 
   # we need the actual integrator in the VPATH before the
