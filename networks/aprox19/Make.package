@@ -7,6 +7,7 @@ ifeq ($(USE_REACT),TRUE)
   ifeq ($(USE_CXX_REACTIONS),TRUE)
     CEXE_sources += actual_network_data.cpp
     CEXE_headers += actual_network.H
+    CEXE_headers += actual_rhs.H
   endif
 
   USE_RATES       = TRUE

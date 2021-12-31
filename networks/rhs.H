@@ -1584,6 +1584,21 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
 } // namespace RHS
 
+// For legacy reasons, implement actual_rhs() and actual_jac() interfaces outside the RHS
+// namespace. This should be retired later when nothing still depends on those names.
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+{
+    RHS::rhs(state, ydot);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
+{
+    RHS::jac(state, jac);
+}
+
 #endif // NEW_NETWORK_IMPLEMENTATION
 
 #endif
