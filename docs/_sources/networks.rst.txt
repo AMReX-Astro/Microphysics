@@ -291,30 +291,6 @@ reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
 
-xrb_simple
-----------
-
-This is a simple 7 isotope network approximating the burning that
-takes place in X-ray bursts (6 isotopes participate in reactions, one
-additional, :math:`^{56}\mathrm{Fe}`, serves as an inert
-composition). The 6 reactions modeled are:
-
-* :math:`3\alpha + 2p \rightarrow \isotm{O}{14}` (limited by the 3-\ :math:`\alpha` rate)
-
-* :math:`\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}` (limited by :math:`\isotm{O}{14}(\alpha,p)\isotm{F}{17}` rate)
-
-* :math:`\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}` (limited by :math:`\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}` rate)
-
-* :math:`\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}` (limited by :math:`\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}` rate)
-
-* :math:`\isotm{O}{14} + p \rightarrow \isotm{O}{15}` (limited by :math:`\isotm{O}{14}(e+\nu)\isotm{N}{14}` rate)
-
-* :math:`\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha`  (limited by :math:`\isotm{O}{15}(e+\nu)\isotm{N}{15}` rate)
-
-All reactions conserve mass. Where charge is not conserved, fast weak
-interactions are assumed. Weak rates are trivial, fits to the 4
-strong rates to a power law in :math:`T_9 \in [0.3, 1]`, linear in density.
-
 subch
 -----
 
