@@ -5,20 +5,14 @@ ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
   CEXE_headers += microphysics_F.H
 
   F90EXE_sources += network.F90
-
-  F90EXE_sources += eos.F90
-  F90EXE_sources += eos_override.F90
-  F90EXE_sources += eos_type.F90
 endif
 
-ifeq ($(USE_CXX_EOS),TRUE)
-  CEXE_headers += eos.H
-  CEXE_headers += eos_data.H
-  CEXE_headers += eos_type.H
-  CEXE_headers += eos_override.H
+CEXE_headers += eos.H
+CEXE_headers += eos_data.H
+CEXE_headers += eos_type.H
+CEXE_headers += eos_override.H
 
-  CEXE_sources += eos_data.cpp
-endif
+CEXE_sources += eos_data.cpp
 
 CEXE_headers += network.H
 CEXE_headers += network_utilities.H
