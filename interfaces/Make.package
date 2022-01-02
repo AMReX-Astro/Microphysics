@@ -32,11 +32,6 @@ ifeq ($(USE_CONDUCTIVITY), TRUE)
 endif
 
 ifeq ($(USE_REACT), TRUE)
-  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-    ifneq ($(USE_TRUE_SDC), TRUE)
-      F90EXE_sources += burn_type.F90
-    endif
-  endif
-  CEXE_headres += burn_type.H
+  CEXE_headers += burn_type.H
   CEXE_headers += burner.H
 endif
