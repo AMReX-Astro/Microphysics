@@ -314,11 +314,15 @@ enum eos_input_t {eos_input_rt = 0,
 // these are used to allow for a generic interface to the
 // root finding
 
-enum eos_iter {itemp = 1,
-               idens = 2,
-               iener = 3,
-               ienth = 4,
-               ientr = 5,
-               ipres = 6};
+namespace EOS {
+
+    enum eos_iter {itemp = 1,
+                   idens = 2,
+                   iener = 3,
+                   ienth = 4,
+                   ientr = 5,
+                   ipres = 6};
+
+}
 
 #endif

@@ -859,6 +859,7 @@ void prepare_for_iterations (I input, T& state,
                              int& var, int& dvar, int& var1, int& var2)
 {
     using namespace helmholtz;
+    using namespace EOS;
 
     single_iter = true;
 
@@ -952,6 +953,7 @@ void single_iter_update (T& state, int var, int dvar,
 {
 
     using namespace helmholtz;
+    using namespace EOS;
 
     Real x, v, dvdx, xtol, smallx;
 
@@ -1055,6 +1057,7 @@ void double_iter_update (T& state, int var1, int var2,
                          Real v1_want, Real v2_want, bool& converged)
 {
     using namespace helmholtz;
+    using namespace EOS;
 
     Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
 
