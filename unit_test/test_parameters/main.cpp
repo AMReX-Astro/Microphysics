@@ -14,7 +14,6 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 
 #include <extern_parameters.H>
-#include <unit_test_F.H>
 #include <unit_test.H>
 
 int main (int argc, char* argv[])
@@ -37,18 +36,7 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
-
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    // initialize the F90 parameters
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    init_unit_test();
 
     do_f90_parameters();
 
