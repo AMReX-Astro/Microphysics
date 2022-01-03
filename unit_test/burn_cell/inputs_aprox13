@@ -1,6 +1,6 @@
 unit_test.run_prefix = "react_aprox13_"
 
-unii_test.small_temp = 1.e5
+unit_test.small_temp = 1.e5
 unit_test.small_dens = 1.e5
 
 integrator.burner_verbose = 0
