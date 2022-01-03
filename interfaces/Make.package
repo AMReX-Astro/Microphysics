@@ -1,12 +1,5 @@
 CEXE_headers += ArrayUtilities.H
 
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  F90EXE_sources += microphysics.F90
-  CEXE_headers += microphysics_F.H
-
-  F90EXE_sources += network.F90
-endif
-
 CEXE_headers += eos.H
 CEXE_headers += eos_data.H
 CEXE_headers += eos_type.H
