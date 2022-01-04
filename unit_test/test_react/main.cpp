@@ -141,41 +141,45 @@ void main_main ()
 
     init_t comp_data = setup_composition(n_cell);
 
-    for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
-        const Box& bx = mfi.validbox();
+        BL_PROFILE("initialize");
 
-        auto state_arr = state.array(mfi);
-
-        amrex::ParallelFor(bx,
-        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+        for (MFIter mfi(state); mfi.isValid(); ++mfi)
         {
+            const Box& bx = mfi.validbox();
 
-            state_arr(i, j, k, vars.itemp) =
-                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
-            state_arr(i, j, k, vars.irho) =
-                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+            auto state_arr = state.array(mfi);
 
-            Real xn[NumSpec];
-            get_xn(k, comp_data, xn, uniform_xn);
+            amrex::ParallelFor(bx,
+            [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+            {
 
-            for (int n = 0; n < NumSpec; n++) {
-                state_arr(i, j, k, vars.ispec_old+n) =
-                    amrex::max(xn[n], 1.e-10_rt);
-            }
+                state_arr(i, j, k, vars.itemp) =
+                    std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
+                state_arr(i, j, k, vars.irho) =
+                    std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
 
-            // initialize the auxillary state (in particular, for NSE)
+                Real xn[NumSpec];
+                get_xn(k, comp_data, xn, uniform_xn);
+
+                for (int n = 0; n < NumSpec; n++) {
+                    state_arr(i, j, k, vars.ispec_old+n) =
+                        amrex::max(xn[n], 1.e-10_rt);
+                }
+
+                // initialize the auxillary state (in particular, for NSE)
 #ifdef NSE_THERMO
-            eos_t eos_state;
-            for (int n = 0; n < NumSpec; n++) {
-                eos_state.xn[n] = xn[n];
-            }
-            set_nse_aux_from_X(eos_state);
-            for (int n = 0; n < NumAux; n++) {
-                state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
-            }
+                eos_t eos_state;
+                for (int n = 0; n < NumSpec; n++) {
+                    eos_state.xn[n] = xn[n];
+                }
+                set_nse_aux_from_X(eos_state);
+                for (int n = 0; n < NumAux; n++) {
+                    state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
+                }
 #endif
-        });
+            });
+        }
     }
 
     // allocate a multifab for the number of RHS calls
@@ -189,38 +193,43 @@ void main_main ()
     AsyncArray<int> aa_num_failed(&num_failed, 1);
     int* num_failed_d = aa_num_failed.data();
 
-    // Do the reactions
+    {
+        BL_PROFILE("do_react");
+
+        // Do the reactions
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
-    {
-        const Box& bx = mfi.tilebox();
-
-        auto s = state.array(mfi);
-        auto n_rhs = integrator_n_rhs.array(mfi);
-
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        for (MFIter mfi(state, tile_size); mfi.isValid(); ++mfi)
         {
-            bool success = do_react(i, j, k, s, n_rhs, vars);
+            const Box& bx = mfi.tilebox();
 
-            if (!success) {
-                Gpu::Atomic::Add(num_failed_d, 1);
-            }
-        });
+            auto s = state.array(mfi);
+            auto n_rhs = integrator_n_rhs.array(mfi);
+
+            amrex::ParallelFor(bx,
+            [=] AMREX_GPU_DEVICE (int i, int j, int k)
+            {
+                bool success = do_react(i, j, k, s, n_rhs, vars);
+
+                if (!success) {
+                    Gpu::Atomic::Add(num_failed_d, 1);
+                }
+            });
 
 #ifndef AMREX_USE_GPU
-        if (print_every_nrhs != 0) {
+            if (print_every_nrhs != 0) {
+                auto int_state = integrator_n_rhs.array(mfi);
 
-            auto int_state = integrator_n_rhs.array(mfi);
-
-            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-            {
-                std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
-            });
-        }
+                amrex::ParallelFor(bx,
+                [=] AMREX_GPU_DEVICE (int i, int j, int k)
+                {
+                    std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
+                });
+            }
 #endif
 
+        }
     }
 
     aa_num_failed.copyToHost(&num_failed, 1);
