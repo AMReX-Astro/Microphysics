@@ -1295,7 +1295,7 @@ void rhs_init ()
     }
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     // Convert X to Y.
@@ -1423,7 +1423,7 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 }
 
 // Analytical Jacobian
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 {
     // Convert X to Y.
