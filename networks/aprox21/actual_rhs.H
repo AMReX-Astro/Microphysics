@@ -2152,10 +2152,10 @@ void dfdy_isotopes_aprox21 (Array1D<Real, 1, NumSpec> const& y,
     b(1)  =  2.0e0_rt * y(Fe54) * y(P) * rr(1).rates(ir5f54);
     b(2)  =  y(Fe54) * y(P) * y(P) * rr(3).rates(ir5f54);
     b(3)  = -y(He4) * y(Fe52) * rr(3).rates(ir6f54);
-    b(4)  = -y(Fe52) * y(He4) * rr(1).rates(ir7f54);
-    b(5)  = -y(Fe52) * y(He4) * y(P) * rr(3).rates(ir7f54);
-    b(6)  =  y(Ni56) * rr(1).rates(ir8f54);
-    b(7)  =  y(Ni56) * y(P) * rr(3).rates(ir8f54);
+    b(4)  =  0.0_rt;
+    b(5)  =  0.0_rt;
+    b(6)  =  0.0_rt;
+    b(7)  =  0.0_rt;
     b(8)  = -y(He4) * rr(4).rates(iralf1);
     b(9)  =  2.0e0_rt * y(N)*y(N) * y(P) * rr(1).rates(iralf2);
     b(10) =  y(N)*y(N) * y(P)*y(P) * rr(4).rates(iralf2);
@@ -2548,10 +2548,10 @@ void dfdy_isotopes_aprox21 (Array1D<Real, 1, NumSpec> const& y,
     b(1) =  2.0e0_rt * y(Fe54) * y(P) * rr(1).rates(ir5f54);
     b(2) =  y(Fe54) * y(P) * y(P) * rr(3).rates(ir5f54);
     b(3) = -y(He4) * y(Fe52) * rr(3).rates(ir6f54);
-    b(4) = -y(Fe52) * y(He4) * rr(1).rates(ir7f54);
-    b(5) = -y(Fe52) * y(He4) * y(P) * rr(3).rates(ir7f54);
-    b(6) =  y(Ni56) * rr(1).rates(ir8f54);
-    b(7) =  y(Ni56) * y(P) * rr(3).rates(ir8f54);
+    b(4) =  0.0_rt;
+    b(5) =  0.0_rt;
+    b(6) =  0.0_rt;
+    b(7) =  0.0_rt;
     dfdy(Fe52, P) = esum7(b);
 
 
@@ -2668,10 +2668,10 @@ void dfdy_isotopes_aprox21 (Array1D<Real, 1, NumSpec> const& y,
     b(1) =  2.0e0_rt * y(Fe54) * y(P) * rr(1).rates(ir3f54);
     b(2) =  y(Fe54) * y(P) * y(P) * rr(3).rates(ir3f54);
     b(3) = -y(Ni56) * rr(3).rates(ir4f54);
-    b(4) =  y(Fe52) * y(He4)* rr(1).rates(ir7f54);
-    b(5) =  y(Fe52) * y(He4)* y(P) * rr(3).rates(ir7f54);
-    b(6) = -y(Ni56) * rr(1).rates(ir8f54);
-    b(7) = -y(Ni56) * y(P) * rr(3).rates(ir8f54);
+    b(4) =  0.0_rt;
+    b(5) =  0.0_rt;
+    b(6) =  0.0_rt;
+    b(7) =  0.0_rt;
     dfdy(Ni56, P) = esum7(b);
 
 

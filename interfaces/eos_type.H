@@ -304,8 +304,12 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
     return o;
 }
 
+template <typename T, typename U = typename std::enable_if<std::is_same<T, eos_t>::value ||
+                                                           std::is_same<T, eos_re_t>::value ||
+                                                           std::is_same<T, eos_rep_t>::value
+                                                           >::type>
 inline
-std::ostream& operator<< (std::ostream& o, eos_base_t const& eos_state)
+std::ostream& operator<< (std::ostream& o, T const& eos_state)
 {
     return print_state(o, eos_state);
 }
@@ -322,11 +326,15 @@ enum eos_input_t {eos_input_rt = 0,
 // these are used to allow for a generic interface to the
 // root finding
 
-enum eos_iter {itemp = 1,
-               idens = 2,
-               iener = 3,
-               ienth = 4,
-               ientr = 5,
-               ipres = 6};
+namespace EOS {
+
+    enum eos_iter {itemp = 1,
+                   idens = 2,
+                   iener = 3,
+                   ienth = 4,
+                   ientr = 5,
+                   ipres = 6};
+
+}
 
 #endif

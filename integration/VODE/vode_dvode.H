@@ -125,7 +125,7 @@ int dvode (burn_t& state, dvode_t& vstate)
            if (vstate.NST >= ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
-               std::cout << "DVODE: maximum number of steps taken before reaching TOUT" << std::endl;
+               std::cout << Font::Bold << FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << ResetDisplay << std::endl;
 #endif
                for (int i = 1; i <= VODE_NEQS; ++i) {
                    vstate.y(i) = vstate.yh(i,1);
@@ -160,7 +160,7 @@ int dvode (burn_t& state, dvode_t& vstate)
 
            if (vstate.NST == 0) {
 #ifndef AMREX_USE_GPU
-               std::cout << "DVODE: too much accuracy requested at start of integration" << std::endl;
+               std::cout << Font::Bold << FGColor::Red << "DVODE: too much accuracy requested at start of integration" << ResetDisplay << std::endl;
 #endif
                istate = -3;
                return istate;
@@ -189,7 +189,7 @@ int dvode (burn_t& state, dvode_t& vstate)
        if (kflag == -1) {
            // Error test failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << std::endl;
+           std::cout << Font::Bold << FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= VODE_NEQS; ++i) {
@@ -205,7 +205,7 @@ int dvode (burn_t& state, dvode_t& vstate)
        else if (kflag == -2) {
            // Convergence failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << std::endl;
+           std::cout << Font::Bold << FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= VODE_NEQS; ++i) {

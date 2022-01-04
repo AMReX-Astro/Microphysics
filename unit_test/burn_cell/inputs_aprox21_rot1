@@ -1,1 +1,45 @@
-amr.probin_file = probin_aprox21_rot1
+unit_test.run_prefix = "react_aprox13_"
+
+unit_test.small_temp = 1e5
+unit_test.small_dens = 1e5
+
+integrator.burner_verbose = 0
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+integrator.jacobian   = 2
+
+integrator.renormalize_abundances = 0
+
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
+integrator.atol_spec = 1.0e-6
+integrator.atol_enuc = 1.0e-6
+
+unit_test.tmax     = 1.0e-15
+
+unit_test.density       = 3.8374e8
+unit_test.temperature   = 5.3928e9
+
+unit_test.X1  = 5.5563e-11
+unit_test.X2  = 4.9865e-14
+unit_test.X3  = 7.5545e-04
+unit_test.X4  = 2.4060e-09
+unit_test.X5  = 1.5454e-16
+unit_test.X6  = 4.4130e-09
+unit_test.X7  = 2.8137e-11
+unit_test.X8  = 4.5485e-09
+unit_test.X9  = 2.2032e-06
+unit_test.X10 = 1.3074e-06
+unit_test.X11 = 3.8080e-07
+unit_test.X12 = 2.5726e-07
+unit_test.X13 = 2.5717e-09
+unit_test.X14 = 7.0574e-09
+unit_test.X15 = 1.8035e-04
+unit_test.X16 = 3.2620e-08
+unit_test.X17 = 6.3223e-03
+unit_test.X18 = 9.9271e-01
+unit_test.X19 = 1.6308e-07
+unit_test.X20 = 2.2480e-05
+unit_test.X21 = 2.7902e-06

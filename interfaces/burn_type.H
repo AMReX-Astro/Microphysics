@@ -101,6 +101,19 @@ struct burn_t
   Real dedZ;
 #endif
 
+  // for diagnostics / error reporting
+
+  int i;
+  int j;
+  int k;
+#ifdef NONAKA_PLOT
+  int level;
+  Real reference_time;
+#ifdef STRANG
+  int strang_half;
+#endif
+#endif
+
   // now come the bits that we need for SDC or Strang evolution
 
 #ifdef SIMPLIFIED_SDC
@@ -127,12 +140,13 @@ struct burn_t
   Real p0;
 #endif
 
-  int i;
-  int j;
-  int k;
-
   int sdc_iter;
   int num_sdc_iters;
+
+  // for drive_initial_convection, we will fix T during the
+  // integration to a passed in value.  We will interpret a positive
+  // T_fixed as setting this feature.
+  Real T_fixed;
 
 #endif
 

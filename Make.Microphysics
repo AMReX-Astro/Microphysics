@@ -1,7 +1,7 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
 
-USE_FORT_MICROPHYSICS ?= TRUE
+USE_FORT_MICROPHYSICS ?= FALSE
 
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
@@ -24,6 +24,9 @@ EBASE ?= main
 # Networks and Util this list will be searched for runtime parameters
 EXTERN_CORE ?=
 
+ifeq ($(USE_MICROPHYSICS_DEBUG),TRUE)
+  DEFINES += -DMICROPHYSICS_DEBUG
+endif
 
 ifdef USE_CUDA
   ifeq ($(USE_CUDA),TRUE)
@@ -246,8 +249,6 @@ clean::
 clean::
 	$(RM) network.f90
 	$(RM) extern.f90
-	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
-	@if [ -L nse19.tbl ]; then rm -f nse19.tbl; fi
 
 
 # for debugging.  To see the value of a Makefile variable,
