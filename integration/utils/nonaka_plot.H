@@ -27,6 +27,13 @@ void nonaka_init() {
     ss << std::setw(FIELD_WIDTH) << "sdc-iter" << " ";
 #endif
 
+#ifdef STRANG
+    ss << std::setw(FIELD_WIDTH) << "strang-half" << " ";
+#endif
+
+    ss << std::setw(FIELD_WIDTH) << "density" << " ";
+    ss << std::setw(FIELD_WIDTH) << "temperature" << " ";
+
     for (int i = 0; i < NumSpec; ++i) {
       ss << std::setw(FIELD_WIDTH) << "X(" + short_spec_names_cxx[i] + ")" << " ";
     }
@@ -73,6 +80,15 @@ void nonaka_rhs(const Real time, const burn_t& state, const YdotNetArray1D& ydot
 #ifdef SIMPLIFIED_SDC
         nf << std::setw(FIELD_WIDTH) << state.sdc_iter << " ";
 #endif
+
+#ifdef STRANG
+        nf << std::setw(FIELD_WIDTH) << state.strang_half << " ";
+#endif
+
+        nf << std::setw(FIELD_WIDTH) << state.rho << " ";
+
+        nf << std::setw(FIELD_WIDTH) << state.T << " ";
+
 
         // Mass fractions X
 

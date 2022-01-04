@@ -1,3 +1,14 @@
+# 22.01
+
+  * we added back in support for the "Nonaka plot".  This outputs the
+    state in the RHS routine for a single zone during the reaction
+    network integration. (#830)
+
+  * we removed the xrb_simple network.  This was never used in any
+    science calculations (#827)
+
+  * the simplified-SDC step rejection logic in VODE was improved (#818)
+
 # 21.12
 
   * all of the pynucastro networks were regenerated with the latest
