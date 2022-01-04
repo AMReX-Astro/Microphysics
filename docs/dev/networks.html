@@ -145,22 +145,20 @@ Evolving the species in a network requires an integrator. The design
 of Microphysics decouples the integrator from the network, allowing
 for the ability to swap integrators as desired. We discuss the
 integrators in a later section.</p>
-<p>At a minimum, a network needs to provide:</p>
+<p>A network is defined by a <code class="docutils literal notranslate"><span class="pre">.net</span></code> file which provides a list of species
+and some data about each species (its name and some isotopic data). At build
+time, a file <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> is automatically generated which contains
+a number of variables, including:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">nspec</span></code> : the number of species in the network</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">nrates</span></code> : the number of reaction rates. This is used to
-allocate space in the <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> type</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">num_rate_groups</span></code> : the number of components for each reaction
-rate we want to store in the <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> type</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">naux</span></code> : the number of auxiliary quantities needed by the network (these are not evolved).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">aion(:)</span></code> : the atomic weight (in atomic mass units) of the species</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">zion(:)</span></code> : the atomic number of the species</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">spec_names(:)</span></code> : a descriptive name of the species (e.g. “hydrogen-1”)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">short_spec_names(:)</span></code> : a shorten version of the species name (e.g. “H1”)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">short_aux_names(:)</span></code> : the names of the auxiliary quantities</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">network_name</span></code> : a descriptive name for the network</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NumSpec</span></code> : the number of species in the network</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NumAux</span></code> : the number of auxiliary quantities needed by the network (these are not evolved).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aion[NumSpec]</span></code> : the atomic weight (in atomic mass units) of the species</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">zion[NumSpec]</span></code> : the atomic number of the species</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spec_names[NumSpec]</span></code> : a descriptive name of the species (e.g. “hydrogen-1”)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">short_spec_names[NumSpec]</span></code> : a shortened version of the species name (e.g. “H1”)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">aux_names[NumAux]</span></code>: the names of the auxiliary quantities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">short_aux_names[NumAux]</span></code> : a shortened version of the auxiliary name</p></li>
 </ul>
-<p>Most of these quantities are Fortran parameters.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>A convention adopted in Microphysics is that each network is
@@ -169,67 +167,46 @@ composition. Most networks will provide an array of the species
 binding energies and a routine to compute the energy yield from the
 reaction rates.</p>
 </div>
-<p>There are three primary files within each network directory.</p>
+<p>There are two primary files within each network directory.</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_network.f90</span></code>:</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code> (as well as <code class="docutils literal notranslate"><span class="pre">actual_network_data.H</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_network_data.cpp</span></code>):</p>
 <blockquote>
-<div><p>This is the Fortran module actual_network with routines:</p>
+<div><p>This header defines data for the network such as enumerators for the reaction rates
+and the binding energies. The header must define the following function, which can be
+used to initialize any of the network’s internal data at runtime.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">actual_network_init()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_network_finalize()</span></code></p></li>
 </ul>
-<p>This supplies the number and names of species and auxiliary
-variables, as well as other initializing data, such as their mass
-numbers, proton numbers, and binding energies. It needs to define
-the <code class="docutils literal notranslate"><span class="pre">nspec</span></code> and <code class="docutils literal notranslate"><span class="pre">naux</span></code> quantities as integer
-parameters. Finally, it
-must also define nrates, the number of reaction rates linking
-the isotopes in the network.</p>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs.f90</span></code>:</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs.H</span></code> (as well as <code class="docutils literal notranslate"><span class="pre">actual_rhs_data.H</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_rhs_data.cpp</span></code>):</p>
 <blockquote>
-<div><p>This is the Fortran module <code class="docutils literal notranslate"><span class="pre">actual_rhs_module</span></code>, with routines:</p>
+<div><p>This header defines the functions which are used in the integrator for a burn:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs_init()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs(state)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_jac(state)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs(state,</span> <span class="pre">rhs)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_jac(state,</span> <span class="pre">jac)</span></code></p></li>
 </ul>
 <p>This supplies an interface for computing the right-hand-side of the
 network, the time-derivative of each species (and the temperature
 and nuclear energy release), as well as the analytic Jacobian.
-Both <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> take a single argument,
-a burn_t state. They set the time-derivatives and Jacobian
-elements in this derived type directly.</p>
+Both <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> take as arguments a burn_t
+state and (respectively) the time-derivatives and Jacobian
+elements to fill in.</p>
 <p>Note: some networks do not provide an analytic Jacobian and instead
 rely on the numerical difference-approximation to the Jacobian. In
 this case, the interface <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> is still needed to compile.</p>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner</span></code>:</p>
-<blockquote>
-<div><p>This is the Fortran module <code class="docutils literal notranslate"><span class="pre">actual_burner_module</span></code>, with routines:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner_init()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner(state_in,</span> <span class="pre">state_out,</span> <span class="pre">dt,</span> <span class="pre">time)</span></code></p></li>
 </ul>
-<p>This contains the interface for doing an actual burn. Here,
-<code class="docutils literal notranslate"><span class="pre">state_in</span></code> and <code class="docutils literal notranslate"><span class="pre">state_out</span></code> are <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> objects. In
-general, you will want to call integrator to use one of the
-pre-defined ODE integrators, but you could also write a custom
-integration here. This is covered in more detail in § <a class="reference external" href="#ch:networks:integrators">5</a>.</p>
-</div></blockquote>
-</li>
-</ul>
-<p>Notice that all three of these modules have initialization routines:</p>
+<p>Notice that these modules have initialization routines:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">actual_network_init()</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs_init()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_burner_init()</span></code></p></li>
 </ul>
 <p>These must be called upon initialization. These should be not called
 within OpenMP parallel regions, because in general they will modify
-shared module data.</p>
+global data.</p>
 <p>Note, depending on the network, some of these may do nothing, but
 these interfaces are all required for maximum flexibility.</p>
 </section>
