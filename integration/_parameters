@@ -2,10 +2,6 @@
 
 # these are the parameters for the integration module
 
-# When evolving the temperature, should we assume a constant volume (default)
-# or a constant pressure (do_constant_volume_burn = F)?
-do_constant_volume_burn  logical   .true.
-
 # Normally we update the temperature during a burn to be consistent with
 # the current internal energy. This is done with an EOS call, which can
 # be turned off if desired. This will freeze the temperature and specific heat
