@@ -381,8 +381,7 @@ The basic outline of this routine is:
 #. update the thermodynamic quantities by calling
    ``update_thermodynamics()``
 
-   among other things, this will handle the ``call_eos_in_rhs`` option
-   or if the ``dT_crit`` requires the EOS call.
+   among other things, this will handle the ``call_eos_in_rhs`` option.
 
 #. call ``vode_to_burn`` to convert to a ``burn_t``
 

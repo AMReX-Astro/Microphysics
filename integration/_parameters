@@ -8,13 +8,6 @@
 # to the values at the beginning of the burn, which is inaccurate but cheaper.
 call_eos_in_rhs          logical   .true.
 
-# If we want to call the EOS in general, but don't want to overdo it,
-# we can set a fraction ``dT_crit`` such that we only do the EOS call
-# if the temperature has changed by a relative fraction > ``dT_crit``.
-# If we use this option, we will do a linear fit to c_v and c_p
-# in between EOS calls. This will work regardless of call_eos_in_rhs.
-dT_crit                  real      1.0d20
-
 # Allow the energy integration to be disabled by setting the RHS to zero.
 integrate_energy         logical   .true.
 
