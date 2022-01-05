@@ -8,37 +8,29 @@ Reaction ODE System
 The equations we integrate to do a nuclear burn are:
 
 .. math::
-   \frac{dX_k}{dt} = \omegadot_k(\rho,X_k,T)
+   \frac{dX_k}{dt} = \dot{\omega}_k(\rho,X_k,T)
    :label: eq:spec_integrate
 
 .. math::
-   \frac{d\enuc}{dt} = f(\dot{X}_k)
+   \frac{de}{dt} = f(\dot{X}_k)
    :label: eq:enuc_integrate
 
-.. math::
-   \frac{dT}{dt} =\frac{\edot}{c_x} .
-   :label: eq:temp_integrate
-
-Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`\enuc` is the specifc
-nuclear energy created through reactions, :math:`T` is the
-temperature [1]_ , and :math:`c_x` is the specific heat for the
-fluid. The function :math:`f` provides the energy release based on the
+Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specifc
+nuclear energy created through reactions. Also needed are density :math:`\rho`,
+temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release based on the
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
 section, this is implemented in a network-specific manner.
 
-In this system, :math:`\enuc` is not necessarily the total specific internal
-energy, but rather captures the energy release during the burn:
-
-.. math:: \enuc = \int \edot dt
-
-so we know how much energy was released (or required) over the burn.
+In this system, :math:`e` is generally equal to the total specific internal
+energy. This allows us to easily call the EOS during the burn to obtain the temperature.
+(However, this is not required to be the case, and the integration variable could
+instead be only the energy produced/consumed during the burn, since that would just result
+in subtracting a constant offset from the integration variable.)
 
 .. note::
 
-   This is the energy release that is used in computing the final
-   energy generation rate for the burning.  By integrating a separate
-   equation for :math:`\enuc`, we can account for neutrino losses as
-   well as the energy release from the changing binding energy of the
+   The energy generation rate includes a term for neutrino losses in addition
+   to the energy release from the changing binding energy of the
    fusion products.
 
 While this is the most common way to construct the set of
@@ -46,8 +38,8 @@ burn equations, and is used in most of our production networks,
 all of them are ultimately implemented by the network itself, which
 can choose to disable the evolution of any of these equations by
 setting the RHS to zero. The integration software provides some
-helper routines that construct common RHS evaluations, like the RHS
-of the temperature equation given :math:`\dot{e}`, but these calls
+helper routines that construct common RHS evaluations, like the routine
+that converts a temperature update to :math:`\dot{e}`, but these calls
 are always explicitly done by the individual networks rather than
 being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.
@@ -62,9 +54,7 @@ appropriate Jacobian terms) by the specified constant amount.
 Interfaces
 ==========
 
-There are both C++ and Fortran interfaces to all of the networks and
-integrators.  For the most part, they implement similar data
-structures to describe the evolution.
+The interfaces to all of the networks and integrators are written in C++.
 
 .. note::
 
@@ -75,56 +65,54 @@ structures to describe the evolution.
    routines will internally convert to mass fractions as needed for the
    integrators.
 
-
-Fortran
--------
-
-
 The righthand side of the network is implemented by
-``actual_rhs()`` in ``actual_rhs.f90``, and appears as
+``actual_rhs()`` in ``actual_rhs.H``, and appears as
 
-.. code-block:: fortran
+.. code-block:: c++
 
-      subroutine actual_rhs(state)
-        type (burn_t) :: state
+      void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
 All of the necessary integration data comes in through state, as:
 
-* ``state % xn(:)`` : the ``nspec`` mass fractions.
+* ``state.xn[NumSpec]`` : the mass fractions.
 
-* ``state % aux(:)`` : the ``naux`` auxillary data (only available if ``NAUX_NET`` > 0)
+* ``state.aux[NumAux]`` : the auxiliary data (only available if ``NAUX_NET`` > 0)
 
-* ``state % e`` : the current value of the ODE system’s energy
-  release, :math:`\enuc`—note: as discussed above, this is not
-  necessarily the energy you would get by calling the EOS on the
-  state. It is very rare (never?) that a RHS implementation would need
-  to use this variable.
+* ``state.e`` : the current internal energy. It is very rare (never?) that a RHS
+  implementation would need to use this variable directly -- even though this is
+  the main thermodynamic integration variable, we obtain the temperature from the
+  energy through an EOS evaluation.
 
-* ``state % T`` : the current temperature
+* ``state.T`` : the current temperature
 
-* ``state % rho`` : the current density
+* ``state.rho`` : the current density
 
 Note that we come in with the mass fractions, but the molar fractions can
 be computed as:
 
-.. code-block:: fortran
+.. code-block:: c++
 
-      double precision :: y(nspec)
+      Array1D<Real, 1, NumSpec> y;
       ...
-      y(:) = state % xn(:) * aion_inv(:)
+      for (int i = 1; i <= NumSpec; ++i) {
+          y(i) = state.xn[i-1] * aion_inv[i-1];
+      }
+
+.. note::
+
+   We use 1-based indexing for ``ydot`` for legacy reasons, so watch out when filling in
+   this array based on 0-indexed C arrays.
 
 The ``actual_rhs()`` routine’s job is to fill the righthand side vector
-for the ODE system, ``state % ydot(:)``. Here, the important
+for the ODE system, ``ydot(neqs)``. Here, the important
 fields to fill are:
 
-* ``state % ydot(1:nspec)`` : the change in *molar
-  fractions* for the ``nspec`` species that we are evolving,
+* ``state.ydot(1:NumSpec)`` : the change in *molar
+  fractions* for the ``NumSpec`` species that we are evolving,
   :math:`d({Y}_k)/dt`
 
-* ``state % ydot(net_ienuc)`` : the change in the energy release
-  from the net, :math:`d\enuc/dt`
-
-* ``state % ydot(net_itemp)`` : the change in temperature, :math:`dT/dt`
+* ``state.ydot(net_ienuc)`` : the change in the internal energy
+  from the net, :math:`de/dt`
 
 The righthand side routine is assumed to return the change in *molar fractions*,
 :math:`dY_k/dt`. These will be converted to the change in mass fractions, :math:`dX_k/dt`
@@ -133,206 +121,50 @@ If the network builds the RHS in terms of mass fractions directly, :math:`dX_k/d
 these will need to be converted to molar fraction rates for storage, e.g.,
 :math:`dY_k/dt = A_k^{-1} dX_k/dt`.
 
-The Jacobian is provided by actual_jac(state), and takes the
+The Jacobian is provided by ``actual_jac(state, jac)``, and takes the
 form:
 
-.. code-block:: fortran
+.. code-block:: c++
 
-      subroutine actual_jac(state)
-        type (burn_t) :: state
+      void actual_jac(burn_t& state, MathArray2D<1, neqs, 1, neqs>& jac)
 
-The Jacobian matrix elements are stored in ``state % jac`` as:
+The Jacobian matrix elements are stored in ``jac`` as:
 
-* ``state % jac(m, n)`` for :math:`\mathrm{m}, \mathrm{n} \in [1, \mathrm{nspec\_evolve}]` :
+* ``jac(m, n)`` for :math:`\mathrm{m}, \mathrm{n} \in [1, \mathrm{NumSpec}]` :
   :math:`d(\dot{Y}_m)/dY_n`
 
-* ``state % jac(net_ienuc, n)`` for :math:`\mathrm{n} \in [1, \mathrm{nspec\_evolve}]` :
-  :math:`d(\edot)/dY_n`
+* ``jac(net_ienuc, n)`` for :math:`\mathrm{n} \in [1, \mathrm{NumSpec}]` :
+  :math:`d(\dot{e})/dY_n`
 
-* ``state % jac(net_itemp, n)`` for :math:`\mathrm{n} \in [1, \mathrm{nspec\_evolve}]` :
-  :math:`d(\dot{T})/dY_n`
+* ``jac(m, net_ienuc)`` for :math:`\mathrm{m} \in [1, \mathrm{NumSpec}]` :
+  :math:`d(\dot{Y}_m)/de`
 
-* ``state % jac(m, net_itemp)`` for :math:`\mathrm{m} \in [1, \mathrm{nspec\_evolve}]` :
-  :math:`d(\dot{Y}_m)/dT`
-
-* ``state % jac(net_ienuc, net_itemp)`` :
-  :math:`d(\edot)/dT`
-
-* ``state % jac(net_itemp, net_itemp)`` :
-  :math:`d(\dot{T})/dT`
-
-* ``state % jac(p, net_ienuc)`` :math:`= 0` for :math:`\mathrm{p} \in [1, \mathrm{neqs}]`, since nothing
-  should depend on the integrated energy release
+* ``jac(net_ienuc, net_ienuc)`` :
+  :math:`d(\dot{e})/de`
 
 The form looks like:
 
 .. math::
    \left (
    \begin{matrix}
-      \ddots  & \vdots                          &          & \vdots & \vdots \\
-      \cdots  & \partial \dot{Y}_m/\partial Y_n & \cdots   & 0      & \partial \dot{Y}_m/\partial T    \\
-              & \vdots                          & \ddots   & \vdots & \vdots  \\
-      \cdots  & \partial \edot/\partial Y_n     & \cdots   & 0      & \partial \edot/\partial T   \\
-      \cdots  & \partial \dot{T}/\partial Y_n   & \cdots   & 0      & \partial \dot{T}/\partial T   \\
+      \ddots  & \vdots                          &          & \vdots \\
+      \cdots  & \partial \dot{Y}_m/\partial Y_n & \cdots   & \partial \dot{Y}_m/\partial e    \\
+              & \vdots                          & \ddots   & \vdots  \\
+      \cdots  & \partial \dot{e}/\partial Y_n   & \cdots   & \partial \dot{e}/\partial e   \\
    \end{matrix}
    \right )
-
-This shows that all of the derivatives with respect to the nuclear
-energy generated, :math:`e_\mathrm{nuc}` are zero. Again, this is because
-this is just a diagnostic variable.
 
 Note: a network is not required to compute a Jacobian if a numerical
 Jacobian is used. This is set with the runtime parameter
 ``jacobian`` = 2, and implemented in
-``integration/numerical_jacobian.f90`` using finite-differences.
+``integration/utils/numerical_jacobian.H`` using finite-differences.
 
-C++
----
-
-.. note::
-
-   Currently, only the VODE solver supports C++, so the interfaces
-   here are specific to that integrator.
-
-The righthand side implementation of the network has the interface:
-
-.. code-block:: c++
-
-   AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-   void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
-
-.. note::
-
-   In the C++ implementation of the integrator, we use 1-based
-   indexing for ``ydot`` to allow for easier conversion between
-   Fortran and C++ networks.
-
-The Jacobian has the form:
-
-.. code-block:: c++
-
-   template<class MatrixType>
-   AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-   void actual_jac(burn_t& state, MatrixType& jac)
-
-Here, ``MatrixType`` is either a ``SparseMatrix`` type or a
-``RArray2D`` type (set in the ``dvode_t`` type in ``vode_type.H``.
-This allows a network to use either sparse or dense linear algebra.
-In the case of dense linear algebra, ``RArray2D`` is essentially a 2-d
-array indexed from ``1`` to ``VODE_NEQS`` in each dimension.
-
-
-Thermodynamics and :math:`T` Evolution
+Thermodynamics and :math:`e` Evolution
 ======================================
 
-
-EOS Calls
----------
-
-The evolution of the thermodynamic quantities (like specific heats and
-other partial derivatives) can be frozen during the integration to
-their initial values, updated for every RHS call, or something
-in-between. Just before we call the network-specific RHS routine, we
-update the thermodynamics of our state (by calling
-``update_thermodynamics``) [2]_ The thermodynamic quantity update depends on two runtime
-parameters, call_eos_in_rhs and dT_crit:
-
-* ``call_eos_in_rhs = T``:
-
-  We call the EOS just before every RHS evaluation, using :math:`\rho,
-  T` as inputs. Therefore, the thermodynamic quantities will always be
-  consistent with the input state.
-
-* ``call_eos_in_rhs = F``
-
-  Here we keep track of the temperature, :math:`T_\mathrm{old}`, at
-  which the EOS was last called (which may be the start of
-  integration).
-
-  If
-
-  .. math:: \frac{T - T_\mathrm{old}}{T} > \mathtt{dT\_crit}
-
-  then we update the thermodynamics. We also compute :math:`d(c_v)/dT`
-  and :math:`d(c_p)/dT` via differencing with the old thermodynamic
-  state and store these in the integrator. If this inequality is not
-  met, then we don’t change the thermodynamics, but simply update the
-  composition terms in the EOS state, e.g., :math:`\bar{A}`.
-
-  We interpret ``dT_crit`` as the fractional change needed in the
-  temperature during a burn to trigger an EOS call that updates the
-  thermodynamic variables. Note that this is fully independent of
-  ``call_eos_in_rhs``.
-
-:math:`T` Evolution
--------------------
-
-A network is free to write their own righthand side for the
-temperature evolution equation in its ``actual_rhs()`` routine.
-But since this equation only really needs to know the instantaneous
-energy generation rate, :math:`\dot{e}`, most networks use the helper
-function, ``temperature_rhs``.  The Fortran implementation is in
-``integration/utils/temperature_integration.f90``:
-
-.. code-block:: fortran
-
-      subroutine temperature_rhs(state)
-        type (burn_t) :: state
-
-This function assumes that ``state % ydot(net_ienuc)`` is already
-filled and simply fills ``state % ydot(net_itemp)`` according to
-the prescription below.
-
-The C++ implementation is in ``integration/utils/temperature_integration.H``:
-
-.. code-block:: c++
-
-     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-     void temperature_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
-
-We need the specific heat, :math:`c_x`. Note that because we are evaluating
-the temperature evolution independent of any hydrodynamics, we do not
-incorporate any advective or :math:`pdV` terms in the evolution. Therefore,
-for our approximation here, we need to decide which specific heat we
-want—usually either the specific heat at constant pressure, :math:`c_p`,
-or the specific heat at constant volume, :math:`c_v`. The EOS generally
-will provide both of these specific heats; which one to use is a
-choice the user needs to make based on the physics of their problem.
-This is controlled by the parameter ``do_constant_volume_burn``,
-which will use :math:`c_v` if ``.true.`` and :math:`c_p` is ``.false.``. See
-:cite:`maestro:III` for a discussion of the temperature evolution
-equation.
-
-A fully accurate integration of Equation :eq:`eq:temp_integrate`
-requires an evaluation of the specific heat at each integration step,
-which involves an EOS call given the current temperature. This is done
-if ``call_eos_in_rhs = T``, as discussed above.
-This may add significantly to the expense of the calculation,
-especially for smaller networks where construction of the RHS is
-inexpensive
-
-For ``call_eos_in_rhs = F``, we can still capture some evolution
-of the specific heat by periodically calling the EOS (using
-``dT_crit`` as described above) and extrapolating to the current
-temperature as:
-
-.. math:: c_x = (c_x)_0 + \frac{T - T_0}{d(c_x)/dT|_0}
-
-where the ‘:math:`_0`’ quantities are the values from when the EOS was last
-called. This represents a middle ground between fully on and fully
-off.
-
-Note: if ``state % self_heat = F`` (Fortran) or ``state.self_heat =
-false`` (C++), then we do not evolve temperature.
-
-
-Energy Integration
-==================
-
-The last equation in our system is the nuclear energy release,
-:math:`\edot`. Because of the operator-split approach to this ODE system,
-this is not the true specific internal energy, :math:`e` (since it only
-responds only to the nuclear energy release and no pdV work).
+The thermodynamic equation in our system is the evolution of the internal energy,
+:math:`e`. (Note: when the system is integrated in an operator-split approach,
+this responds only to the nuclear energy release and not pdV work.)
 
 At initialization, :math:`e` is set to the value from the EOS consistent
 with the initial temperature, density, and composition:
@@ -346,14 +178,33 @@ nuclear energy release,
 
 .. math:: e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt
 
-Note that thermodynamic consistency will no longer be maintained
-(because density doesn’t evolve and the :math:`T` evolution is approximate)
-but :math:`e` will represent an approximation to the current specific
-internal energy, including the nuclear energy generation release.
-
-Upon exit, we subtract off this initial offset, so ``% e`` in
+Upon exit, we subtract off this initial offset, so ``state.e`` in
 the returned ``burn_t`` type from the ``actual_integrator``
 call represents the energy *release* during the burn.
+
+A fully accurate integration of Equation :eq:`eq:enuc_integrate`
+requires an evaluation of the temperature at each integration step
+(since the RHS for the species is given in terms of :math:`T`, not :math:`e`).
+This involves an EOS call given the current temperature. This is done
+if ``integrator.call_eos_in_rhs = 1``, which is the default behavior that most accurately
+couples the thermodynamic evolution to the species evolution. This may add
+significantly to the expense of the calculation, especially for smaller networks
+where construction of the RHS is inexpensive, so this can optionally be turned off
+by setting ``integrator.call_eos_in_rhs = 0``. In this case the initial value of
+the temperature will be used for all rate evaluations. Also, energy evolution will
+be turned off if ``state.self_heat = 0``.
+
+Note also that for the Jacobian, we need the specific heat, :math:`c_x`, since we
+usually calculate derivatives with respect to temperature (as this is the form
+the rates are commonly provided in). We need to decide which specific heat we
+want—usually either the specific heat at constant pressure, :math:`c_p`,
+or the specific heat at constant volume, :math:`c_v`. The EOS generally
+will provide both of these specific heats; which one to use is a
+choice the user needs to make based on the physics of their problem.
+This is controlled by the parameter ``do_constant_volume_burn``,
+which will use :math:`c_v` if ``.true.`` and :math:`c_p` is ``.false.``.
+Similar to temperature, this will automatically be updated at each integration
+step (unless you set ``integrator.call_eos_in_rhs = 0``).
 
 
 
@@ -439,8 +290,8 @@ so :math:`10^{-9}` should be used as the default tolerance in future simulations
 The integration tolerances for the burn are controlled by
 ``rtol_spec`` and  ``rtol_enuc``,
 which are the relative error tolerances for
-:eq:`eq:spec_integrate`, :eq:`eq:enuc_integrate`, and
-:eq:`eq:temp_integrate`, respectively. There are corresponding
+:eq:`eq:spec_integrate` and :eq:`eq:enuc_integrate`,
+respectively. There are corresponding
 ``atol`` parameters for the absolute error tolerances. Note that
 not all integrators handle error tolerances the same way—see the
 sections below for integrator-specific information.
@@ -699,22 +550,5 @@ ensure that it takes precedence.
    \centering
 
 |image|
-
-.. [1]
-   Note that in previous versions of our networks in
-   CASTRO and MAESTRO, there was another term in the temperature
-   equation relating to the chemical potential of the gas as it came
-   from the EOS. We have since decided that this term should
-   analytically cancel to zero in all cases for our nuclear networks,
-   and so we no longer think it is correct to include a numerical
-   approximation of it in the integration scheme. So the current
-   results given by our networks will in general be a little different
-   than in the past.
-
-.. [2]
-   Note: each integrator provides its
-   own implementation of this, since it operates on the internal
-   data-structure of the integrator, but the basic procedure is the
-   same.
 
 .. |image| image:: doxygen_network.png
