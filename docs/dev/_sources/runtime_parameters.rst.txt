@@ -462,14 +462,6 @@ integration
 |                                       | heat to the values at the beginning of the burn, which  |                    |
 |                                       | is inaccurate but cheaper.                              |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``dT_crit``                           | If we want to call the EOS in general, but don't want   | 1.0d20             |
-|                                       | to overdo it, we can set a fraction ``dT_crit`` such    |                    |
-|                                       | that we only do the EOS call if the temperature has     |                    |
-|                                       | changed by a relative fraction > ``dT_crit``. If we use |                    |
-|                                       | this option, we will do a linear fit to c_v and c_p in  |                    |
-|                                       | between EOS calls. This will work regardless of         |                    |
-|                                       | call_eos_in_rhs.                                        |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
 | ``integrate_energy``                  | Allow the energy integration to be disabled by setting  | .true.             |
 |                                       | the RHS to zero.                                        |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
