@@ -17,10 +17,8 @@ when parsing the collection of parameter files, a duplicate of an
 existing parameter is encountered, the value from the one with
 the highest priority (largest integer) is retained.
 
-This script takes a template file and replaces keywords in it
-(delimited by @@...@@) with the Fortran code required to
-initialize the parameters, setup a namelist, and allow for
-commandline overriding of their defaults.
+The script outputs the C++ header and .cpp files needed to read and
+manage the runtime parameters via the AMReX ParmParse functionality
 
 """
 
@@ -38,32 +36,6 @@ HEADER = """
 ! To add a runtime parameter, do so by editting the appropriate _parameters
 ! file.
 
-"""
-
-CXX_F_HEADER = """
-#ifndef _external_parameters_F_H_
-#define _external_parameters_F_H_
-#include <AMReX.H>
-#include <AMReX_BLFort.H>
-#include <AMReX_REAL.H>
-
-#ifdef __cplusplus
-#include <AMReX.H>
-extern "C"
-{
-#endif
-
-void runtime_init(const int* name, const int* namlen);
-void update_fortran_extern_after_cxx();
-
-"""
-
-CXX_F_FOOTER = """
-#ifdef __cplusplus
-}
-#endif
-
-#endif
 """
 
 CXX_HEADER = """
@@ -135,7 +107,6 @@ def parse_param_file(params_list, param_file):
         default = fields[2]
 
         current_param = runtime_parameters.Param(name, dtype, default,
-                                                 in_fortran=1,
                                                  namespace=namespace,
                                                  skip_namespace_in_declare=True)
 
@@ -179,7 +150,7 @@ def abort(outfile):
 
 
 def write_probin(probin_template, param_files,
-                 namelist_name, out_file, cxx_prefix, write_fortran):
+                 namelist_name, out_file, cxx_prefix):
 
     """ write_probin will read through the list of parameter files and
     output the new out_file """
@@ -196,152 +167,9 @@ def write_probin(probin_template, param_files,
         if err:
             abort(out_file)
 
-    if write_fortran:
-
-        # open up the template
-        try:
-            ftemplate = open(probin_template, "r")
-        except IOError:
-            sys.exit(f"write_probin.py: ERROR: file {probin_template} does not exist")
-
-        template_lines = ftemplate.readlines()
-
-        ftemplate.close()
-
-        # output the template, inserting the parameter info in between the @@...@@
-        fout = open(out_file, "w")
-
-        fout.write(HEADER)
-
-        for line in template_lines:
-
-            index = line.find("@@")
-
-            if index >= 0:
-                index2 = line.rfind("@@")
-
-                keyword = line[index+len("@@"):index2]
-                indent = index*" "
-
-                if keyword == "declarations":
-
-                    # declaraction statements
-                    for p in params:
-                        fout.write(f"{indent}{p.get_f90_decl_string()}")
-
-                    if not params:
-                        # we always make sure there is atleast one variable
-                        fout.write(f"{indent}integer, save, public :: a_dummy_var = 0\n")
-
-                elif keyword == "cudaattributes":
-                    # we no longer do Fortran with CUDA
-                    pass
-
-                elif keyword == "allocations":
-                    for p in params:
-                        fout.write(p.get_f90_default_string())
-
-                elif keyword == "deallocations":
-                    for p in params:
-                        if p.dtype != "string":
-                            fout.write(f"{indent}deallocate({p.name})\n")
-
-                elif keyword == "namelist":
-                    for p in params:
-                        fout.write(f"{indent}namelist /{namelist_name}/ {p.name}\n")
-
-                    if not params:
-                        fout.write(f"{indent}namelist /{namelist_name}/ a_dummy_var\n")
-
-                elif keyword == "defaults":
-                    # this is no longer used -- we do the defaults together with allocations
-                    pass
-
-                elif keyword == "printing":
-
-                    fout.write("100 format (1x, a3, 2x, a32, 1x, \"=\", 1x, a)\n")
-                    fout.write("101 format (1x, a3, 2x, a32, 1x, \"=\", 1x, i10)\n")
-                    fout.write("102 format (1x, a3, 2x, a32, 1x, \"=\", 1x, g20.10)\n")
-                    fout.write("103 format (1x, a3, 2x, a32, 1x, \"=\", 1x, l)\n")
-
-                    for p in params:
-                        if p.dtype == "logical":
-                            ltest = f"\n{indent}ltest = {p.name} .eqv. {p.default}\n"
-                        else:
-                            ltest = f"\n{indent}ltest = {p.name} == {p.default}\n"
-
-                        fout.write(ltest)
-
-                        cmd = "merge(\"   \", \"[*]\", ltest)"
-
-                        if p.dtype == "real":
-                            fout.write(f"{indent}write (unit,102) {cmd}, &\n \"{p.name}\", {p.name}\n")
-
-                        elif p.dtype == "string":
-                            fout.write(f"{indent}write (unit,100) {cmd}, &\n \"{p.name}\", trim({p.name})\n")
-
-                        elif p.dtype == "integer":
-                            fout.write(f"{indent}write (unit,101) {cmd}, &\n \"{p.name}\", {p.name}\n")
-
-                        elif p.dtype == "logical":
-                            fout.write(f"{indent}write (unit,103) {cmd}, &\n \"{p.name}\", {p.name}\n")
-
-                        else:
-                            print(f"write_probin.py: invalid datatype for variable {p.name}")
-
-
-                elif keyword == "acc":
-                    # we no longer do Fortran openacc
-                    pass
-
-                elif keyword == "cxx_gets":
-                    # this writes out the Fortran functions that can be
-                    # called from C++ to get the value of the parameters
-
-                    for p in params:
-                        fout.write(p.get_f90_get_function())
-
-                elif keyword == "fortran_parmparse_overrides":
-
-                    namespaces = {q.namespace for q in params}
-                    for nm in namespaces:
-                        params_nm = [q for q in params if q.namespace == nm]
-
-                        fout.write(f'    call amrex_parmparse_build(pp, "{nm}")\n')
-
-                        for p in params_nm:
-                            fout.write(p.get_query_string("F90"))
-
-                        fout.write('    call amrex_parmparse_destroy(pp)\n')
-
-                        fout.write("\n\n")
-
-            else:
-                fout.write(line)
-
-        print(" ")
-        fout.close()
-
-        # now handle the C++ -- we need to write a header and a .cpp file
-        # for the parameters + a _F.H file for the Fortran communication
-
-        # first the _F.H file
-        ofile = f"{cxx_prefix}_parameters_F.H"
-        with open(ofile, "w") as fout:
-            fout.write(CXX_F_HEADER)
-
-            for p in params:
-                if p.dtype == "string":
-                    fout.write(f"  void get_f90_{p.name}(char* {p.name});\n\n")
-                    fout.write(f"  void get_f90_{p.name}_len(int& slen);\n\n")
-
-                else:
-                    fout.write(f"  void get_f90_{p.name}({p.get_cxx_decl()}* {p.name});\n\n")
-
-            fout.write(CXX_F_FOOTER)
-
 
     # now the main C++ header with the global data
+
     cxx_base = os.path.basename(cxx_prefix)
 
     ofile = f"{cxx_prefix}_parameters.H"
@@ -356,17 +184,17 @@ def write_probin(probin_template, param_files,
         fout.write(CXX_FOOTER)
 
     # now the C++ job_info tests
+
     ofile = f"{cxx_prefix}_job_info_tests.H"
     with open(ofile, "w") as fout:
         for p in params:
-            fout.write(p.get_job_info_test(lang="C++"))
+            fout.write(p.get_job_info_test())
 
     # finally the C++ initialization routines
+
     ofile = f"{cxx_prefix}_parameters.cpp"
     with open(ofile, "w") as fout:
         fout.write(f"#include <{cxx_base}_parameters.H>\n")
-        if write_fortran:
-            fout.write(f"#include <{cxx_base}_parameters_F.H>\n\n")
         fout.write("#include <AMReX_ParmParse.H>\n\n")
         fout.write("#include <AMReX_REAL.H>\n\n")
 
@@ -379,30 +207,10 @@ def write_probin(probin_template, param_files,
         # we need access to _rt
         fout.write("      using namespace amrex;\n\n")
 
-        if write_fortran:
-            # first write the "get" routines to get the parameter from the
-            # Fortran read -- this will either be the default or the value
-            # from the probin
-
-            fout.write("    // get the values of the parameters from Fortran\n\n")
-
-            for p in params:
-                if p.dtype == "string":
-                    fout.write(f"    int slen_{p.name} = 0;\n")
-                    fout.write(f"    get_f90_{p.name}_len(slen_{p.name});\n")
-                    fout.write(f"    char _{p.name}[slen_{p.name}+1];\n")
-                    fout.write(f"    get_f90_{p.name}(_{p.name});\n")
-                    fout.write(f"    {p.name} = std::string(_{p.name});\n\n")
-                else:
-                    fout.write(f"    get_f90_{p.name}(&{p.name});\n\n")
-
-
         # now write the parmparse code to get the value from the C++
         # inputs.  this will overwrite
 
         fout.write("    // get the value from the inputs file\n")
-        if write_fortran:
-            fout.write("    // (this overwrites the Fortran value)\n\n")
 
         namespaces = {q.namespace for q in params}
 
@@ -413,12 +221,8 @@ def write_probin(probin_template, param_files,
             fout.write("    {\n")
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
-                if not write_fortran:
-                    fout.write(f"        {p.get_default_string()}")
                 fout.write(f"      {p.get_query_string('C++')}\n")
             fout.write("    }\n")
-
-        # have Fortran
 
         fout.write("  }\n")
 
@@ -428,7 +232,6 @@ def main():
     parser.add_argument('-t', type=str, help='probin_template')
     parser.add_argument('-o', type=str, default="", help='out_file')
     parser.add_argument('-n', type=str, help='namelist_name')
-    parser.add_argument("--with_fortran", action="store_true")
     parser.add_argument('--pa', type=str, help='parameter files')
     parser.add_argument('--cxx_prefix', type=str, default="extern",
                         help="a name to use in the C++ file names")
@@ -443,7 +246,7 @@ def main():
     param_files = param_files_str.split()
 
     write_probin(probin_template, param_files,
-                 namelist_name, out_file, args.cxx_prefix, args.with_fortran)
+                 namelist_name, out_file, args.cxx_prefix)
 
 if __name__ == "__main__":
     main()
