@@ -293,15 +293,11 @@ where construction of the RHS is inexpensive, so this can optionally be turned o
 by setting <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>. In this case the initial value of
 the temperature will be used for all rate evaluations. Also, energy evolution will
 be turned off if <code class="docutils literal notranslate"><span class="pre">state.self_heat</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
-<p>Note also that for the Jacobian, we need the specific heat, <span class="math notranslate nohighlight">\(c_x\)</span>, since we
+<p>Note also that for the Jacobian, we need the specific heat, <span class="math notranslate nohighlight">\(c_v\)</span>, since we
 usually calculate derivatives with respect to temperature (as this is the form
-the rates are commonly provided in). We need to decide which specific heat we
-want—usually either the specific heat at constant pressure, <span class="math notranslate nohighlight">\(c_p\)</span>,
-or the specific heat at constant volume, <span class="math notranslate nohighlight">\(c_v\)</span>. The EOS generally
-will provide both of these specific heats; which one to use is a
-choice the user needs to make based on the physics of their problem.
-This is controlled by the parameter <code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code>,
-which will use <span class="math notranslate nohighlight">\(c_v\)</span> if <code class="docutils literal notranslate"><span class="pre">.true.</span></code> and <span class="math notranslate nohighlight">\(c_p\)</span> is <code class="docutils literal notranslate"><span class="pre">.false.</span></code>.
+the rates are commonly provided in). We use the specific heat at constant volume
+because it is most consistent with the operator split methodology we use (density
+is held constant during the burn when doing Strang splitting).
 Similar to temperature, this will automatically be updated at each integration
 step (unless you set <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>).</p>
 </section>

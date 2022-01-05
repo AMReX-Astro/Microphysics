@@ -1052,13 +1052,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
-<td><p>When evolving the temperature, should we assume a
-constant volume (default) or a constant pressure
-(do_constant_volume_burn = F)?</p></td>
-<td><p>.true.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></p></td>
 <td><p>Normally we update the temperature during a burn to be
 consistent with the current internal energy. This is
 done with an EOS call, which can be turned off if
@@ -1067,7 +1061,7 @@ heat to the values at the beginning of the burn, which
 is inaccurate but cheaper.</p></td>
 <td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></p></td>
 <td><p>If we want to call the EOS in general, but don’t want
 to overdo it, we can set a fraction <code class="docutils literal notranslate"><span class="pre">dT_crit</span></code> such
 that we only do the EOS call if the temperature has
@@ -1077,55 +1071,55 @@ between EOS calls. This will work regardless of
 call_eos_in_rhs.</p></td>
 <td><p>1.0d20</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></p></td>
 <td><p>Allow the energy integration to be disabled by setting
 the RHS to zero.</p></td>
 <td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>Whether to use an analytical or numerical Jacobian. 1
 == Analytical 2 == Numerical 3 == Numerical for
 reactions; analytic for primitive -&gt; conserved
 (simplified-SDC only)</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></p></td>
 <td><p>Should we print out diagnostic output after the solve?</p></td>
 <td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
 <td><p>Tolerances for the solver (relative and absolute), for
 the species and energy equations.</p></td>
 <td><p>1.d-12</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
 <td></td>
 <td><p>1.d-8</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
 <td></td>
 <td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_burn</span></code></p></td>
 <td><p>If we fail to find a solution consistent with the
 tolerances, do we want to try again with a looser
 tolerance?</p></td>
 <td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code></p></td>
 <td><p>Should we abort the run when the burn fails?</p></td>
 <td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
 <td><p>Whether to renormalize the mass fractions at each step
 in the evolution so that they sum to unity.</p></td>
 <td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></p></td>
 <td><p>The absolute cutoff for species – note that this might
 be larger than <code class="docutils literal notranslate"><span class="pre">small_x</span></code>, but the issue is that we
 need to prevent underflow issues and keep mass
@@ -1134,44 +1128,44 @@ increase the floor to, e.g. 1.d-20 if your rates are
 large.</p></td>
 <td><p>1.0d-30</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></p></td>
 <td><p>The maximum temperature for reactions in the
 integration.</p></td>
 <td><p>1.0d11</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></p></td>
 <td><p>boost the reaction rates by a factor &gt; 1</p></td>
 <td><p>-1.d0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
 <td><p>maximum number of timesteps for the integrator</p></td>
 <td><p>150000</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_dt</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_dt</span></code></p></td>
 <td><p>maximum timestep for the integrator</p></td>
 <td><p>1.d30</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
 <td><p>Whether to use Jacobian caching in VODE</p></td>
 <td><p>.true.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_i</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_i</span></code></p></td>
 <td><p>Inputs for generating a Nonaka Plot (TM)</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_j</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_j</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_k</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_k</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_level</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_level</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_file</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_file</span></code></p></td>
 <td></td>
 <td><p>“nonaka_plot.dat”</p></td>
 </tr>

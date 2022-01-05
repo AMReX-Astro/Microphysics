@@ -455,10 +455,6 @@ integration
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | parameter                             | description                                             | default value      |
 +=======================================+=========================================================+====================+
-| ``do_constant_volume_burn``           | When evolving the temperature, should we assume a       | .true.             |
-|                                       | constant volume (default) or a constant pressure        |                    |
-|                                       | (do_constant_volume_burn = F)?                          |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
 | ``call_eos_in_rhs``                   | Normally we update the temperature during a burn to be  | .true.             |
 |                                       | consistent with the current internal energy. This is    |                    |
 |                                       | done with an EOS call, which can be turned off if       |                    |
