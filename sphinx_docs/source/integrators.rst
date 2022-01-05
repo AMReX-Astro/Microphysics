@@ -194,15 +194,11 @@ by setting ``integrator.call_eos_in_rhs = 0``. In this case the initial value of
 the temperature will be used for all rate evaluations. Also, energy evolution will
 be turned off if ``state.self_heat = 0``.
 
-Note also that for the Jacobian, we need the specific heat, :math:`c_x`, since we
+Note also that for the Jacobian, we need the specific heat, :math:`c_v`, since we
 usually calculate derivatives with respect to temperature (as this is the form
-the rates are commonly provided in). We need to decide which specific heat we
-want—usually either the specific heat at constant pressure, :math:`c_p`,
-or the specific heat at constant volume, :math:`c_v`. The EOS generally
-will provide both of these specific heats; which one to use is a
-choice the user needs to make based on the physics of their problem.
-This is controlled by the parameter ``do_constant_volume_burn``,
-which will use :math:`c_v` if ``.true.`` and :math:`c_p` is ``.false.``.
+the rates are commonly provided in). We use the specific heat at constant volume
+because it is most consistent with the operator split methodology we use (density
+is held constant during the burn when doing Strang splitting).
 Similar to temperature, this will automatically be updated at each integration
 step (unless you set ``integrator.call_eos_in_rhs = 0``).
 
