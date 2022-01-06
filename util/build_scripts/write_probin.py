@@ -221,6 +221,7 @@ def write_probin(probin_template, param_files,
             fout.write("    {\n")
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
+                fout.write(f"      {p.get_default_string()}")
                 fout.write(f"      {p.get_query_string('C++')}\n")
             fout.write("    }\n")
 
