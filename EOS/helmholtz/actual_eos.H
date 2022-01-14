@@ -955,7 +955,7 @@ void single_iter_update (T& state, int var, int dvar,
     using namespace helmholtz;
     using namespace EOS;
 
-    Real x, v, dvdx, xtol, smallx;
+    Real x, v = 0.0_rt, dvdx = 0.0_rt, xtol, smallx;
 
     if (dvar == itemp) {
 
@@ -1059,7 +1059,7 @@ void double_iter_update (T& state, int var1, int var2,
     using namespace helmholtz;
     using namespace EOS;
 
-    Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
+    Real v1 = 0.0_rt, dv1dt = 0.0_rt, dv1dr = 0.0_rt, v2 = 0.0_rt, dv2dt = 0.0_rt, dv2dr = 0.0_rt;
 
     // Figure out which variables we're using
 
