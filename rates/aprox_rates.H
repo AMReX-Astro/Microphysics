@@ -2085,7 +2085,8 @@ void ecapnuc(const Real etakep, const Real temp,
         Real etael;
         if (iflag == 1) {
             etael = qn2*bktinv;
-        } else if (iflag == 2) {
+        } else {
+            // iflag == 2
             etael = c2me*bktinv;
             etaef = -etaef;
         }
