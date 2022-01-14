@@ -57,7 +57,9 @@ void actual_integrator (burn_t& state, Real dt)
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
+#ifndef AMREX_USE_GPU
     Real T_in = state.T;
+#endif
     Real e_in = state.e;
 
     state.self_heat = true;
