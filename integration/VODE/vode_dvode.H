@@ -99,6 +99,7 @@ int dvode (burn_t& state, dvode_t& vstate)
     // for the next increase.
 
     vstate.NQ = 1;
+    vstate.NEWQ = 1;
     vstate.L = 2;
     vstate.tau(1) = vstate.H;
     vstate.PRL1 = 1.0_rt;
