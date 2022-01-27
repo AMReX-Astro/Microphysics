@@ -16,7 +16,6 @@ EBASE = main
 
 USE_EXTRA_THERMO = TRUE
 
-USE_FORT_MICROPHYSICS = FALSE
 BL_NO_FORT=TRUE
 
 # define the location of the CASTRO top directory
