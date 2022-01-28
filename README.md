@@ -66,7 +66,7 @@ the AMReX-Astro codes, Maestro and Castro.
 
 * Castro: http://amrex-astro.github.io/Castro/
 
-* Maestro: http://amrex-astro.github.io/MAESTRO/
+* MAESTROeX: http://amrex-astro.github.io/MAESTROeX/
 
 To use this repository with AMReX codes, set `MICROPHYSICS_HOME` to
 point to the `Microphysics/` directory.
