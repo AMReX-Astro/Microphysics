@@ -1,8 +1,6 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
 
-USE_FORT_MICROPHYSICS ?= FALSE
-
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
 
@@ -144,12 +142,6 @@ INCLUDE_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
 #------------------------------------------------------------------------------
 # runtime parameters
 #------------------------------------------------------------------------------
-
-# runtime parameter support for extern/ routines
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  F90EXE_sources += extern.F90
-  FEXE_headers += extern_parameters_F.H
-endif
 
 CEXE_sources += extern_parameters.cpp
 CEXE_headers += extern_parameters.H
