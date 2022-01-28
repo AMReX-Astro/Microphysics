@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    = -E -a
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = starkiller
+SPHINXPROJ    = Microphysics
 SOURCEDIR     = source
 BUILDDIR      = build
 
