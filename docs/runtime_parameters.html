@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ForwardEuler &mdash; StarKiller Microphysics  documentation</title>
+  <title>ForwardEuler &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -30,7 +30,7 @@
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
 
-            <a href="index.html" class="icon icon-home"> StarKiller Microphysics
+            <a href="index.html" class="icon icon-home"> Microphysics
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -71,12 +71,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#python-library">python_library</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rad-power-law">rad_power_law</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#stellarcollapse">stellarcollapse</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-aprox-rates">test_aprox_rates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-conductivity">test_conductivity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#test-parameters">test_parameters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-react">test_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-rhs">test_rhs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-screening">test_screening</a></li>
@@ -104,7 +102,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">StarKiller Microphysics</a>
+          <a href="index.html">Microphysics</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -822,11 +820,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_viscosity</span></code></p></td>
-<td></td>
-<td><p>1.0d-4</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
 <td></td>
 <td><p>1.0d0</p></td>
 </tr>
@@ -1058,13 +1052,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_constant_volume_burn</span></code></p></td>
-<td><p>When evolving the temperature, should we assume a
-constant volume (default) or a constant pressure
-(do_constant_volume_burn = F)?</p></td>
-<td><p>.true.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code></p></td>
 <td><p>Normally we update the temperature during a burn to be
 consistent with the current internal energy. This is
 done with an EOS call, which can be turned off if
@@ -1072,16 +1060,6 @@ desired. This will freeze the temperature and specific
 heat to the values at the beginning of the burn, which
 is inaccurate but cheaper.</p></td>
 <td><p>.true.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dT_crit</span></code></p></td>
-<td><p>If we want to call the EOS in general, but don’t want
-to overdo it, we can set a fraction <code class="docutils literal notranslate"><span class="pre">dT_crit</span></code> such
-that we only do the EOS call if the temperature has
-changed by a relative fraction &gt; <code class="docutils literal notranslate"><span class="pre">dT_crit</span></code>. If we use
-this option, we will do a linear fit to c_v and c_p in
-between EOS calls. This will work regardless of
-call_eos_in_rhs.</p></td>
-<td><p>1.0d20</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></p></td>
 <td><p>Allow the energy integration to be disabled by setting
@@ -1310,6 +1288,14 @@ network?</p></td>
 </tr>
 </thead>
 <tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
+<td></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
+<td></td>
+<td><p>1.0</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></p></td>
 <td><p>the coefficient for the reaction rate</p></td>
 <td><p>1.d0</p></td>
@@ -1338,14 +1324,6 @@ network?</p></td>
 <td><p>override the default Jacobian mode with a higher
 priority</p></td>
 <td><p>2</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
-<td></td>
-<td><p>1.0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
-<td></td>
-<td><p>1.0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1391,62 +1369,6 @@ priority</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_p</span></code></p></td>
-<td><p>Opacity constant (Planck)</p></td>
-<td><p>-1.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_m</span></code></p></td>
-<td><p>Density exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_n</span></code></p></td>
-<td><p>Temperature exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_p</span></code></p></td>
-<td><p>Frequency exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_r</span></code></p></td>
-<td><p>Opacity constant (Rosseland)</p></td>
-<td><p>-1.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_m</span></code></p></td>
-<td><p>Density exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_n</span></code></p></td>
-<td><p>Temperature exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_p</span></code></p></td>
-<td><p>Frequency exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_scatter</span></code></p></td>
-<td><p>Opacity constant (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_m</span></code></p></td>
-<td><p>Density exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_n</span></code></p></td>
-<td><p>Temperature exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_p</span></code></p></td>
-<td><p>Frequency exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_floor</span></code></p></td>
-<td><p>Opacity floor</p></td>
-<td><p>0.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rad_temp_floor</span></code></p></td>
-<td><p>Temperature floor</p></td>
-<td><p>1.d-10</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_const_c_v</span></code></p></td>
 <td></td>
 <td><p>-1.d0</p></td>
@@ -1458,6 +1380,62 @@ priority</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_n</span></code></p></td>
 <td></td>
 <td><p>0.d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_p</span></code></p></td>
+<td><p>Opacity constant (Planck)</p></td>
+<td><p>-1.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_m</span></code></p></td>
+<td><p>Density exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_n</span></code></p></td>
+<td><p>Temperature exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_p</span></code></p></td>
+<td><p>Frequency exponent (Planck)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_r</span></code></p></td>
+<td><p>Opacity constant (Rosseland)</p></td>
+<td><p>-1.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_m</span></code></p></td>
+<td><p>Density exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_n</span></code></p></td>
+<td><p>Temperature exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_p</span></code></p></td>
+<td><p>Frequency exponent (Rosseland)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">const_scatter</span></code></p></td>
+<td><p>Opacity constant (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_m</span></code></p></td>
+<td><p>Density exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_n</span></code></p></td>
+<td><p>Temperature exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_p</span></code></p></td>
+<td><p>Frequency exponent (scattering)</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_floor</span></code></p></td>
+<td><p>Opacity floor</p></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rad_temp_floor</span></code></p></td>
+<td><p>Temperature floor</p></td>
+<td><p>1.d-10</p></td>
 </tr>
 </tbody>
 </table>
@@ -1497,32 +1475,6 @@ compatibility</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>override so that the default is an analytical Jacobian</p></td>
 <td><p>1</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="stellarcollapse">
-<h1>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_file</span></code></p></td>
-<td><p>name of the HDF5 file containing tabulated data</p></td>
-<td><p>“”</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_energy_shift</span></code></p></td>
-<td></td>
-<td><p>.false.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1727,52 +1679,6 @@ compatibility</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
 <td></td>
 <td><p>1</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="test-parameters">
-<h1>test_parameters<a class="headerlink" href="#test-parameters" title="Permalink to this headline">¶</a></h1>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 49%" />
-<col style="width: 17%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
-<td></td>
-<td><p>1.d6</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
-<td></td>
-<td><p>1.d9</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
-<td></td>
-<td><p>1.d6</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
-<td></td>
-<td><p>1.d12</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e4</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e-4</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_string</span></code></p></td>
-<td></td>
-<td><p>“test”</p></td>
 </tr>
 </tbody>
 </table>
@@ -2248,7 +2154,7 @@ compatibility</p></td>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2018, StarKiller Development Team.</p>
+    <p>&#169; Copyright 2012, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
