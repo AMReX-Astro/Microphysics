@@ -23,8 +23,6 @@ ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
 endif
 
-USE_FORT_MICROPHYSICS = FALSE
-
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
 

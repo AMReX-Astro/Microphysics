@@ -268,10 +268,10 @@ void rate_triplealf(tf_t tf, const Real den, Real& fr,
         const Real vv   = 4.0e0_rt*std::exp(-std::pow(tf.t9/0.025_rt, 9.227_rt));
         const Real zz   = 1.0e0_rt + vv;
         const Real dzz  = vv * 9.227_rt*std::pow(tf.t9/0.025_rt,8.227_rt) * 40.0e0_rt;
-        const Real aa   = 1.0e0_rt/zz;
-        const Real f1   = 0.01e0_rt + yy * aa;
-        //    ! fxt f1   = yy * aa;
-        const Real df1  = (dyy - f1*dzz)*aa;
+        const Real zzinv   = 1.0e0_rt/zz;
+        const Real f1   = 0.01e0_rt + yy * zzinv;
+        //    ! fxt f1   = yy * 1/zz;
+        const Real df1  = (dyy - f1*dzz)*zzinv;
         term = 2.90e-16_rt * r2abe * rbeac * f1 +  xx;
         dtermdt =   2.90e-16_rt * dr2abedt * rbeac * f1
                     + 2.90e-16_rt * r2abe * drbeacdt * f1
@@ -2085,7 +2085,8 @@ void ecapnuc(const Real etakep, const Real temp,
         Real etael;
         if (iflag == 1) {
             etael = qn2*bktinv;
-        } else if (iflag == 2) {
+        } else {
+            // iflag == 2
             etael = c2me*bktinv;
             etaef = -etaef;
         }

@@ -1,3 +1,15 @@
+# 22.02
+
+  * The Microphysics repo was moved to the AMReX-Astro github
+    organization: https://github.com/amrex-astro/Microphysics
+
+    You can update your git remote via:
+
+    git remote set-url origin git@github.com:amrex-astro/Microphysics.git
+
+  * Fortran support has been removed from the runtime parameter
+    scripts (#869)
+
 # 22.01
 
   * we added back in support for the "Nonaka plot".  This outputs the
