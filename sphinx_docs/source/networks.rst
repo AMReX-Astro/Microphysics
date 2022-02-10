@@ -12,31 +12,26 @@ of Microphysics decouples the integrator from the network, allowing
 for the ability to swap integrators as desired. We discuss the
 integrators in a later section.
 
-At a minimum, a network needs to provide:
+A network is defined by a ``.net`` file which provides a list of species
+and some data about each species (its name and some isotopic data). At build
+time, a file ``network_properties.H`` is automatically generated which contains
+a number of variables, including:
 
-* ``nspec`` : the number of species in the network
+* ``NumSpec`` : the number of species in the network
 
-* ``nrates`` : the number of reaction rates. This is used to
-  allocate space in the ``rate_t`` type
+* ``NumAux`` : the number of auxiliary quantities needed by the network (these are not evolved).
 
-* ``num_rate_groups`` : the number of components for each reaction
-  rate we want to store in the ``rate_t`` type
+* ``aion[NumSpec]`` : the atomic weight (in atomic mass units) of the species
 
-* ``naux`` : the number of auxiliary quantities needed by the network (these are not evolved).
+* ``zion[NumSpec]`` : the atomic number of the species
 
-* ``aion(:)`` : the atomic weight (in atomic mass units) of the species
+* ``spec_names[NumSpec]`` : a descriptive name of the species (e.g. "hydrogen-1")
 
-* ``zion(:)`` : the atomic number of the species
+* ``short_spec_names[NumSpec]`` : a shortened version of the species name (e.g. "H1")
 
-* ``spec_names(:)`` : a descriptive name of the species (e.g. "hydrogen-1")
+* ``aux_names[NumAux]``: the names of the auxiliary quantities
 
-* ``short_spec_names(:)`` : a shorten version of the species name (e.g. "H1")
-
-* ``short_aux_names(:)`` : the names of the auxiliary quantities
-
-* ``network_name`` : a descriptive name for the network
-
-Most of these quantities are Fortran parameters.
+* ``short_aux_names[NumAux]`` : a shortened version of the auxiliary name
 
 .. note::
 
@@ -46,70 +41,46 @@ Most of these quantities are Fortran parameters.
    binding energies and a routine to compute the energy yield from the
    reaction rates.
 
-There are three primary files within each network directory.
+There are two primary files within each network directory.
 
-* ``actual_network.f90``:
+* ``actual_network.H`` (as well as ``actual_network_data.H`` and ``actual_network_data.cpp``):
 
-   This is the Fortran module actual_network with routines:
+   This header defines data for the network such as enumerators for the reaction rates
+   and the binding energies. The header must define the following function, which can be
+   used to initialize any of the network's internal data at runtime.
 
    * ``actual_network_init()``
 
-   * ``actual_network_finalize()``
+* ``actual_rhs.H`` (as well as ``actual_rhs_data.H`` and ``actual_rhs_data.cpp``):
 
-   This supplies the number and names of species and auxiliary
-   variables, as well as other initializing data, such as their mass
-   numbers, proton numbers, and binding energies. It needs to define
-   the ``nspec`` and ``naux`` quantities as integer
-   parameters. Finally, it
-   must also define nrates, the number of reaction rates linking
-   the isotopes in the network.
-
-* ``actual_rhs.f90``:
-
-   This is the Fortran module ``actual_rhs_module``, with routines:
+   This header defines the functions which are used in the integrator for a burn:
 
    * ``actual_rhs_init()``
 
-   * ``actual_rhs(state)``
+   * ``actual_rhs(state, rhs)``
 
-   * ``actual_jac(state)``
+   * ``actual_jac(state, jac)``
 
    This supplies an interface for computing the right-hand-side of the
    network, the time-derivative of each species (and the temperature
    and nuclear energy release), as well as the analytic Jacobian.
-   Both ``actual_rhs`` and ``actual_jac`` take a single argument,
-   a burn_t state. They set the time-derivatives and Jacobian
-   elements in this derived type directly.
+   Both ``actual_rhs`` and ``actual_jac`` take as arguments a burn_t
+   state and (respectively) the time-derivatives and Jacobian
+   elements to fill in.
 
    Note: some networks do not provide an analytic Jacobian and instead
    rely on the numerical difference-approximation to the Jacobian. In
    this case, the interface ``actual_jac`` is still needed to compile.
 
-* ``actual_burner``:
-
-   This is the Fortran module ``actual_burner_module``, with routines:
-
-   * ``actual_burner_init()``
-
-   * ``actual_burner(state_in, state_out, dt, time)``
-
-   This contains the interface for doing an actual burn. Here,
-   ``state_in`` and ``state_out`` are ``burn_t`` objects. In
-   general, you will want to call integrator to use one of the
-   pre-defined ODE integrators, but you could also write a custom
-   integration here. This is covered in more detail in § \ `5 <#ch:networks:integrators>`__.
-
-Notice that all three of these modules have initialization routines:
+Notice that these modules have initialization routines:
 
 * ``actual_network_init()``
 
 * ``actual_rhs_init()``
 
-* ``actual_burner_init()``
-
 These must be called upon initialization. These should be not called
 within OpenMP parallel regions, because in general they will modify
-shared module data.
+global data.
 
 Note, depending on the network, some of these may do nothing, but
 these interfaces are all required for maximum flexibility.
@@ -290,30 +261,6 @@ This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`
 reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
-
-xrb_simple
-----------
-
-This is a simple 7 isotope network approximating the burning that
-takes place in X-ray bursts (6 isotopes participate in reactions, one
-additional, :math:`^{56}\mathrm{Fe}`, serves as an inert
-composition). The 6 reactions modeled are:
-
-* :math:`3\alpha + 2p \rightarrow \isotm{O}{14}` (limited by the 3-\ :math:`\alpha` rate)
-
-* :math:`\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}` (limited by :math:`\isotm{O}{14}(\alpha,p)\isotm{F}{17}` rate)
-
-* :math:`\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}` (limited by :math:`\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}` rate)
-
-* :math:`\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}` (limited by :math:`\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}` rate)
-
-* :math:`\isotm{O}{14} + p \rightarrow \isotm{O}{15}` (limited by :math:`\isotm{O}{14}(e+\nu)\isotm{N}{14}` rate)
-
-* :math:`\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha`  (limited by :math:`\isotm{O}{15}(e+\nu)\isotm{N}{15}` rate)
-
-All reactions conserve mass. Where charge is not conserved, fast weak
-interactions are assumed. Weak rates are trivial, fits to the 4
-strong rates to a power law in :math:`T_9 \in [0.3, 1]`, linear in density.
 
 subch
 -----

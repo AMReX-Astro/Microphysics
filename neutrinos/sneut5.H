@@ -620,7 +620,9 @@ void sneut5(const Real temp, const Real den,
     //                    e+ + gamma => e+ + nu_e + nubar_e
     // equation 3.8 for tau, equation 3.6 for cc,
     // and table 2 written out for speed
-    if (temp >= 1.0e7_rt && temp < 1.0e8_rt) {
+    if (temp < 1.0e8_rt) {
+
+        // note: we already bailed above for T < 1.e7, so this is really 1.e7 <= T < 1.e8
 
        tau  =  std::log10(temp * 1.0e-7_rt);
        cc   =  0.5654e0_rt + tau;
@@ -702,7 +704,9 @@ void sneut5(const Real temp, const Real den,
        dd24 = -3.035e9_rt;
        dd25 = -1.598e9_rt;
 
-    } else if (temp >= 1.0e9_rt) {
+    } else {
+
+        // T > 1.e9
 
        tau  =  std::log10(t9);
        cc   =  1.5654e0_rt;

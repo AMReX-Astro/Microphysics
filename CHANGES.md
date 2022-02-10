@@ -1,3 +1,47 @@
+# 22.02
+
+  * The Microphysics repo was moved to the AMReX-Astro github
+    organization: https://github.com/amrex-astro/Microphysics
+
+    You can update your git remote via:
+
+    git remote set-url origin git@github.com:amrex-astro/Microphysics.git
+
+  * Fortran support has been removed from the runtime parameter
+    scripts (#869)
+
+# 22.01
+
+  * we added back in support for the "Nonaka plot".  This outputs the
+    state in the RHS routine for a single zone during the reaction
+    network integration. (#830)
+
+  * we removed the xrb_simple network.  This was never used in any
+    science calculations (#827)
+
+  * the simplified-SDC step rejection logic in VODE was improved (#818)
+
+# 21.12
+
+  * all of the pynucastro networks were regenerated with the latest
+    pynucastro and converted to C++.  Performance was also improved
+    (#809)
+
+  * a bug was fixed in the VODE step rejection logic (#815)
+
+  * we added USE_MICROPHYSICS_DEBUG that defines MICROPHYSICS_DEBUG to
+    turn on more verbosity to help with debugging (#817)
+
+# 21.11
+
+  * burn_cell was not correctly doing substepping in some cases.
+    This has been fixed (#784)
+
+  * With Intel compilers, logical runtime parameters in Fortran
+    were not being correctly cast to int (#789)
+
+  * Simplified-SDC now works with Fortran nets (#786) 
+
 # 21.09
 
   * Added a new nova network (nova2) with pp and (hot-)CNO and some

@@ -1,28 +1,28 @@
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  F90EXE_sources += actual_network.F90
-  ifeq ($(USE_REACT),TRUE)
-    F90EXE_sources += actual_rhs.F90
-  endif
-endif
 CEXE_headers += network_properties.H
 
+ifeq ($(USE_REACT),TRUE)
+  DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
+  ifeq ($(USE_CXX_REACTIONS),TRUE)
+    CEXE_sources += actual_network_data.cpp
+    CEXE_headers += actual_network.H
+
+    CEXE_sources += actual_rhs_data.cpp
+    CEXE_headers += actual_rhs.H
+  endif
+endif
 
 $(NETWORK_OUTPUT_PATH)/actual_network.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  NETWORK_TEMPLATE := $(MICROPHYSICS_HOME)/networks/general_null/network.template
-  fort_opts := -t $(NETWORK_TEMPLATE) -o $(NETWORK_OUTPUT_PATH)/actual_network.F90
-else
-  NETWORK_TEMPLATE :=
-  fort_opts :=
-endif
+NAUX := $(shell $(MICROPHYSICS_HOME)/networks/general_null/get_naux.py --defines "$(DEFINES)" $(GENERAL_NET_INPUTS))
+DEFINES += "-DNAUX_NET=$(NAUX)"
 
-$(NETWORK_OUTPUT_PATH)/network_properties.H: $(GENERAL_NET_INPUTS) $(strip $(NETWORK_TEMPLATE))
+$(NETWORK_OUTPUT_PATH)/network_properties.H: $(GENERAL_NET_INPUTS)
 	@echo " "
 	@echo "---------------------------------------------------------------------------"
 	@echo "WRITING network files:"
 	@if [ ! -d $(NETWORK_OUTPUT_PATH) ]; then mkdir -p $(NETWORK_OUTPUT_PATH); fi
-	$(MICROPHYSICS_HOME)/networks/general_null/write_network.py $(fort_opts) \
+	$(MICROPHYSICS_HOME)/networks/general_null/write_network.py \
             -s $(GENERAL_NET_INPUTS) \
             --other_properties $(MICROPHYSICS_HOME)/networks/general_null/NETWORK_PROPERTIES \
             --header_template $(MICROPHYSICS_HOME)/networks/general_null/network_header.template \

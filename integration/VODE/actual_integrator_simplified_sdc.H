@@ -168,7 +168,7 @@ void actual_integrator (burn_t& state, Real dt)
 #endif
 
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
@@ -184,7 +184,7 @@ void actual_integrator (burn_t& state, Real dt)
     if (!state.success) {
         if (istate != -100) {
 #ifndef AMREX_USE_GPU
-            std::cout << "ERROR: integration failed in net" << std::endl;
+            std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
