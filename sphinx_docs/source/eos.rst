@@ -191,8 +191,7 @@ module in the code calling this. However, there is a choice of whether
 to update the energy to match this temperature, respecting
 thermodynamic consistency, or to leave the energy alone, respecting
 energy conservation. This is controlled through the
-``eos_input_is_constant`` parameter in your ``extern``
-namelist in your probin file.
+``eos.eos_input_is_constant`` parameter in your inputs file.
 
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.

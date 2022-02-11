@@ -1,4 +1,4 @@
-*****************
+****************
 StarKiller Basics
 *****************
 
@@ -30,10 +30,7 @@ This will create an executable called ``main3d.gnu.ex``.  Then you can run it as
    ./main3d.gnu.ex inputs_aprox21
 
 By default, the test is built with the 21-isotope ``aprox21`` network.
-Here ``inputs_aprox21`` is the inputs file that sets options.  It also
-points to a second inputs file, ``probin_aprox13`` which is
-interpreted by the Fortran portions of the code.  In this second file, you'll
-see the density, temperature, and mass fractions of the nuclei set.
+Here ``inputs_aprox21`` is the inputs file that sets options. 
 
 
 
