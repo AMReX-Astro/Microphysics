@@ -535,15 +535,10 @@ parameters by creating a ``_parameters`` file in the network directory
 (e.g., ``networks/triple_alpha_plus_cago/_parameters``). As noted in
 Chapter [chapter:parameters], the fourth column in the ``_parameter``
 file definition is the *priority*. When a duplicate parameter is
-encountered by the scripts writing the ``extern_probin_module``, the value
+encountered by the scripts writing the runtime parameter header files, the value
 of the parameter with the highest priority is used. So picking a large
 integer value for the priority in a network’s ``_parameter`` file will
 ensure that it takes precedence.
 
-.. raw:: latex
-
-   \centering
-
-|image|
-
-.. |image| image:: doxygen_network.png
+.. image:: doxygen_network.png
+   :align: center
