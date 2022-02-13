@@ -46,7 +46,7 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">StarKiller basics</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
@@ -81,8 +81,6 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
@@ -573,11 +571,11 @@ parameters by creating a <code class="docutils literal notranslate"><span class=
 (e.g., <code class="docutils literal notranslate"><span class="pre">networks/triple_alpha_plus_cago/_parameters</span></code>). As noted in
 Chapter [chapter:parameters], the fourth column in the <code class="docutils literal notranslate"><span class="pre">_parameter</span></code>
 file definition is the <em>priority</em>. When a duplicate parameter is
-encountered by the scripts writing the <code class="docutils literal notranslate"><span class="pre">extern_probin_module</span></code>, the value
+encountered by the scripts writing the runtime parameter header files, the value
 of the parameter with the highest priority is used. So picking a large
 integer value for the priority in a network’s <code class="docutils literal notranslate"><span class="pre">_parameter</span></code> file will
 ensure that it takes precedence.</p>
-<p><img alt="image" src="_images/doxygen_network.png" /></p>
+<img alt="_images/doxygen_network.png" class="align-center" src="_images/doxygen_network.png" />
 </section>
 </section>
 
