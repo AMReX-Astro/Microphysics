@@ -61,16 +61,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#renormalization">Renormalization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#stiff-ode-solvers">Stiff ODE Solvers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#tolerances">Tolerances</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fortran-interfaces">Fortran interfaces</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#integrator"><code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#righthand-side-wrapper">Righthand side wrapper</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#jacobian-wrapper">Jacobian wrapper</a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="#c-interfaces">C++ interfaces</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#burner"><code class="docutils literal notranslate"><span class="pre">burner</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id2">Righthand side wrapper</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id3">Jacobian wrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#righthand-side-wrapper">Righthand side wrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#jacobian-wrapper">Jacobian wrapper</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#retries">Retries</a></li>
@@ -331,7 +325,7 @@ meant for testing purposes only.</p></li>
 integrator to C++ and removed the non-stiff integration code paths.</p></li>
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
-robust and has both Fortran and C++ implementations.</p>
+robust.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In the implementation details shown below, we write the flow in
@@ -359,11 +353,11 @@ because their relative error values are fairly large.
 However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
 and not so low that it takes incredible amounts of computer time,
 so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id2">
 <span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 2 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
-to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id4" title="Permalink to this image">¶</a></p>
+to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </figcaption>
 </figure>
 <p>The integration tolerances for the burn are controlled by
@@ -378,109 +372,6 @@ sections below for integrator-specific information.</p>
 to <span class="math notranslate nohighlight">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math notranslate nohighlight">\(10^{-6}\)</span>
 is used for the temperature and energy.</p>
 </section>
-<section id="fortran-interfaces">
-<h3>Fortran interfaces<a class="headerlink" href="#fortran-interfaces" title="Permalink to this headline">¶</a></h3>
-<section id="integrator">
-<h4><code class="docutils literal notranslate"><span class="pre">integrator</span></code><a class="headerlink" href="#integrator" title="Permalink to this headline">¶</a></h4>
-<p>The entry point to the integrator is <code class="docutils literal notranslate"><span class="pre">integrator()</span></code> in
-<code class="docutils literal notranslate"><span class="pre">integration/integrator.F90</span></code>.  This does some setup and then calls
-the specific integration routine, e.g., <code class="docutils literal notranslate"><span class="pre">vode_integrator()</span></code> in
-<code class="docutils literal notranslate"><span class="pre">integration/VODE/vode_integrator.F90</span></code>.</p>
-<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">subroutine </span><span class="n">vode_integrator</span><span class="p">(</span><span class="n">state_in</span><span class="p">,</span><span class="w"> </span><span class="n">state_out</span><span class="p">,</span><span class="w"> </span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state_in</span><span class="w"></span>
-<span class="w">  </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">state_out</span><span class="w"></span>
-<span class="w">  </span><span class="kt">real</span><span class="p">(</span><span class="n">rt</span><span class="p">),</span><span class="w">    </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="w">   </span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dt</span><span class="p">,</span><span class="w"> </span><span class="nb">time</span>
-<span class="nb">  </span><span class="k">type</span><span class="w"> </span><span class="p">(</span><span class="n">integration_status_t</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">inout</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
-</pre></div>
-</div>
-<p>A basic flow chart of this interface is as follows (note: there are
-many conversions between <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>, <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>, and any
-integrator-specific type implied in these operations):</p>
-<ol class="arabic">
-<li><p>Call the EOS on the input state, using <span class="math notranslate nohighlight">\(\rho, T\)</span> as the input
-variables.</p>
-<p>This involves:</p>
-<ol class="arabic simple">
-<li><p>calling <code class="docutils literal notranslate"><span class="pre">burn_to_eos</span></code> to produce an <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>
-with the thermodynamic information.</p></li>
-<li><p>calling the EOS</p></li>
-<li><p>calling <code class="docutils literal notranslate"><span class="pre">eos_to_vode</span></code> to produce a <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> type
-containing all of the relevant
-data into the internal representation used by the integrator.
-Data that is not part of the integration state is stored in an <code class="docutils literal notranslate"><span class="pre">rpar</span></code>
-array that is indexed using the integer keys in <code class="docutils literal notranslate"><span class="pre">vode_rpar_indices</span></code>.</p></li>
-</ol>
-<p>We use the EOS result to define the energy offset for <span class="math notranslate nohighlight">\(e\)</span>
-integration.</p>
-</li>
-<li><p>Compute the initial <span class="math notranslate nohighlight">\(d(c_x)/dT\)</span> derivatives, if necessary, by
-finite differencing on the temperature.</p></li>
-<li><p>Call the main integration routine, <code class="docutils literal notranslate"><span class="pre">dvode()</span></code>, passing in the
-<code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> state to advance the inputs state through the desired
-time interval, producing the new, output state.</p></li>
-<li><p>If necessary (integration failure, burn_mode demands)
-do any retries of the integration</p></li>
-<li><p>Subtract off the energy offset—we now store just the
-energy release as <code class="docutils literal notranslate"><span class="pre">state_out</span> <span class="pre">%</span> <span class="pre">e</span></code></p></li>
-<li><p>Convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type (by <code class="docutils literal notranslate"><span class="pre">calling</span> <span class="pre">vode_to_burn</span></code>).</p></li>
-<li><p>normalize the abundances so they sum to 1</p></li>
-</ol>
-</section>
-<section id="righthand-side-wrapper">
-<h4>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this headline">¶</a></h4>
-<p>Each integrator does their own thing to construct the solution,
-but they will all need to assess the RHS in <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>,
-which means converting from their internal representation
-to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type. This is handled in a file
-called <code class="docutils literal notranslate"><span class="pre">vode_rhs.F90</span></code>.
-The basic outline of this routine is:</p>
-<ol class="arabic">
-<li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code></p>
-<p>This function operates on the ODE integrator vector directly
-(accessing it from the integrator’s internal data structure). It
-makes sure that the mass fractions lie between <code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code> and 1  and
-that the temperature lies between <span class="math notranslate nohighlight">\([{\tt small\_temp}, {\tt MAX_TEMP}]\)</span>. The
-latter upper limit is arbitrary, but is safe for the types of problems
-we support with these networks.</p>
-<p>It also renormalizes the species, if <code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span> <span class="pre">=</span> <span class="pre">T</span></code></p>
-</li>
-<li><p>update the thermodynamic quantities by calling
-<code class="docutils literal notranslate"><span class="pre">update_thermodynamics()</span></code></p>
-<p>among other things, this will handle the <code class="docutils literal notranslate"><span class="pre">call_eos_in_rhs</span></code> option.</p>
-</li>
-<li><p>call <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code> to convert to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
-<li><p>call the actual RHS</p></li>
-<li><p>convert derivatives to mass-fraction-based (since we integrate
-<span class="math notranslate nohighlight">\(X\)</span>), and zero out energy derivatives (if <code class="docutils literal notranslate"><span class="pre">integrate_energy</span>
-<span class="pre">=</span> <span class="pre">F</span></code>).</p></li>
-<li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0.</p></li>
-<li><p>convert back to the integrator’s internal representation by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
-</ol>
-</section>
-<section id="jacobian-wrapper">
-<h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Permalink to this headline">¶</a></h4>
-<p>Similar to the RHS, the Jacobian wrapper is handled in the same
-<code class="docutils literal notranslate"><span class="pre">vode_rhs.f90</span></code>.
-The basic outline of this routine is:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>It is assumed that the thermodynamics are already correct when
-calling the Jacobian wrapper, likely because we just called the RHS
-wrapper above which did the <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> and
-<code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code> calls.</p>
-</div>
-<ol class="arabic simple">
-<li><p>call <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code> to convert to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type.</p></li>
-<li><p>call the actual Jacobian routine</p></li>
-<li><p>convert derivatives to mass-fraction-based (since we integrate
-<span class="math notranslate nohighlight">\(X\)</span>), and zero out the energy derivative (if
-<code class="docutils literal notranslate"><span class="pre">integrate_energy</span> <span class="pre">=</span> <span class="pre">F</span></code>).</p></li>
-<li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0.</p></li>
-<li><p>convert back to the integrator’s internal representation by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
-</ol>
-</section>
-</section>
 <section id="c-interfaces">
 <h3>C++ interfaces<a class="headerlink" href="#c-interfaces" title="Permalink to this headline">¶</a></h3>
 <section id="burner">
@@ -492,16 +383,12 @@ routine, which at the moment is only provided by VODE.</p>
 <span class="kt">void</span><span class="w"> </span><span class="n">burner</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
-<p>The basic flow of the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code> routine mirrors the Fortran one.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The C++ VODE integrator does not use a separate <code class="docutils literal notranslate"><span class="pre">rpar</span></code> array as
-part of the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> type.  Instead, any auxillary information
-is kept in the original <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> that was passed into the
-integration routines.  For this reason, we often need to pass both
-the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> and <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> objects into the network routines.</p>
-</div>
-<ol class="arabic">
+<p>When integrating the system, we often need auxillary information to
+close the system.  This is kept in the original <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> that was
+passed into the integration routines.  For this reason, we often need
+to pass both the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> and <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> objects into the network
+routines.</p>
+<ol class="arabic simple">
 <li><p>Call the EOS on the input <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> state.  This involves:</p>
 <ol class="arabic simple">
 <li><p>calling <code class="docutils literal notranslate"><span class="pre">burn_to_eos</span></code> to convert the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> to an <code class="docutils literal notranslate"><span class="pre">eos_t</span></code></p></li>
@@ -510,12 +397,7 @@ the <code class="docutils literal notranslate"><span class="pre">dvode_t</span><
 </ol>
 </li>
 <li><p>Fill the integrator type by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code> to create a
-<code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> from the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>unlike the Fortran interface, there is no <code class="docutils literal notranslate"><span class="pre">vode_to_eos</span></code> routine in C++</p>
-</div>
-</li>
+<code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> from the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
 <li><p>Compute the initial <span class="math notranslate nohighlight">\(d(c_x)/dt\)</span> derivatives</p></li>
 <li><p>call the ODE integrator, <code class="docutils literal notranslate"><span class="pre">dvode()</span></code>, passing in the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> _and_ the
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> — as noted above, the auxillary information that is
@@ -527,8 +409,8 @@ in the <code class="docutils literal notranslate"><span class="pre">dvode_t</spa
 <li><p>normalize the abundances so they sum to 1.</p></li>
 </ol>
 </section>
-<section id="id2">
-<h4>Righthand side wrapper<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<section id="righthand-side-wrapper">
+<h4>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this headline">¶</a></h4>
 <ol class="arabic simple">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> on the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
 <li><p>update the thermodynamics by calling <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>.  This takes both
@@ -542,8 +424,8 @@ those quantities.</p></li>
 <li><p>convert back to the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
 </section>
-<section id="id3">
-<h4>Jacobian wrapper<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<section id="jacobian-wrapper">
+<h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Permalink to this headline">¶</a></h4>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>It is assumed that the thermodynamics are already correct when
@@ -575,7 +457,6 @@ encountered by the scripts writing the runtime parameter header files, the value
 of the parameter with the highest priority is used. So picking a large
 integer value for the priority in a network’s <code class="docutils literal notranslate"><span class="pre">_parameter</span></code> file will
 ensure that it takes precedence.</p>
-<img alt="_images/doxygen_network.png" class="align-center" src="_images/doxygen_network.png" />
 </section>
 </section>
 
