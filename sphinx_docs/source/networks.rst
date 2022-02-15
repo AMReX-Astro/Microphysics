@@ -124,20 +124,17 @@ general_null
 
 ``general_null`` is a bare interface for a nuclear reaction network;
 no reactions are enabled, and no auxiliary variables are accepted. The
-data in the Fortran module is defined at compile type by specifying an
+data in the network is defined at compile type by specifying an
 inputs file. For example,
 ``Networks/general_null/triple_alpha_plus_o.net`` would describe the
 triple-:math:`\alpha` reaction converting helium into carbon, as
 well as oxygen and iron.
 
-At compile time, the network module ``actual_network.f90``
-is written using the python script ``write_network.py``
-and the template ``network.template``. The make rule
+At compile time, the network header ``network_properties.H``
+is written using the python script ``write_network.py``.  The make rule
 for this is contained in ``Make.package``. The name of the inputs file
 is specified by the variable ``GENERAL_NET_INPUTS``.
 
-A version of this network comes with MAESTRO and CASTRO, so you do
-not usually need to worry about the version in Microphysics.
 
 ignition_chamulak
 -----------------

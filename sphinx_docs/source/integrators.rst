@@ -243,7 +243,7 @@ the allowed options are:
   integrator to C++ and removed the non-stiff integration code paths.
 
 We recommend that you use the VODE solver, as it is the most
-robust and has both Fortran and C++ implementations.
+robust.
 
 .. note::
 
@@ -297,132 +297,6 @@ to :math:`10^{-12}` for the species, and a relative tolerance of :math:`10^{-6}`
 is used for the temperature and energy.
 
 
-Fortran interfaces
-------------------
-
-``integrator``
-^^^^^^^^^^^^^^
-
-The entry point to the integrator is ``integrator()`` in
-``integration/integrator.F90``.  This does some setup and then calls
-the specific integration routine, e.g., ``vode_integrator()`` in
-``integration/VODE/vode_integrator.F90``.
-
-.. code-block:: fortran
-
-      subroutine vode_integrator(state_in, state_out, dt, time, status)
-
-        type (burn_t), intent(in   ) :: state_in
-        type (burn_t), intent(inout) :: state_out
-        real(rt),    intent(in   ) :: dt, time
-        type (integration_status_t), intent(inout) :: status
-
-A basic flow chart of this interface is as follows (note: there are
-many conversions between ``eos_t``, ``burn_t``, and any
-integrator-specific type implied in these operations):
-
-#. Call the EOS on the input state, using :math:`\rho, T` as the input
-   variables.
-
-   This involves:
-
-   #. calling ``burn_to_eos`` to produce an ``eos_t``
-      with the thermodynamic information.
-
-   #. calling the EOS
-
-   #. calling ``eos_to_vode`` to produce a ``dvode_t`` type
-      containing all of the relevant
-      data into the internal representation used by the integrator.
-      Data that is not part of the integration state is stored in an ``rpar``
-      array that is indexed using the integer keys in ``vode_rpar_indices``.
-
-   We use the EOS result to define the energy offset for :math:`e`
-   integration.
-
-#. Compute the initial :math:`d(c_x)/dT` derivatives, if necessary, by
-   finite differencing on the temperature.
-
-#. Call the main integration routine, ``dvode()``, passing in the
-   ``dvode_t`` state to advance the inputs state through the desired
-   time interval, producing the new, output state.
-
-#. If necessary (integration failure, burn_mode demands)
-   do any retries of the integration
-
-#. Subtract off the energy offset—we now store just the
-   energy release as ``state_out % e``
-
-#. Convert back to a ``burn_t`` type (by ``calling vode_to_burn``).
-
-#. normalize the abundances so they sum to 1
-
-Righthand side wrapper
-^^^^^^^^^^^^^^^^^^^^^^
-
-Each integrator does their own thing to construct the solution,
-but they will all need to assess the RHS in ``actual_rhs``,
-which means converting from their internal representation
-to the ``burn_t`` type. This is handled in a file
-called ``vode_rhs.F90``.
-The basic outline of this routine is:
-
-#. call ``clean_state``
-
-   This function operates on the ODE integrator vector directly
-   (accessing it from the integrator’s internal data structure). It
-   makes sure that the mass fractions lie between ``SMALL_X_SAFE`` and 1  and
-   that the temperature lies between :math:`[{\tt small\_temp}, {\tt MAX_TEMP}]`. The
-   latter upper limit is arbitrary, but is safe for the types of problems
-   we support with these networks.
-
-   It also renormalizes the species, if ``renormalize_abundances = T``
-
-#. update the thermodynamic quantities by calling
-   ``update_thermodynamics()``
-
-   among other things, this will handle the ``call_eos_in_rhs`` option.
-
-#. call ``vode_to_burn`` to convert to a ``burn_t``
-
-#. call the actual RHS
-
-#. convert derivatives to mass-fraction-based (since we integrate
-   :math:`X`), and zero out energy derivatives (if ``integrate_energy
-   = F``).
-
-#. apply any boosting to the rates if ``react_boost`` > 0.
-
-#. convert back to the integrator’s internal representation by calling ``burn_to_vode``
-
-
-Jacobian wrapper
-^^^^^^^^^^^^^^^^
-
-Similar to the RHS, the Jacobian wrapper is handled in the same
-``vode_rhs.f90``.
-The basic outline of this routine is:
-
-.. note::
-
-   It is assumed that the thermodynamics are already correct when
-   calling the Jacobian wrapper, likely because we just called the RHS
-   wrapper above which did the ``clean_state`` and
-   ``update_thermodynamics`` calls.
-
-#. call ``vode_to_burn`` to convert to a ``burn_t`` type.
-
-#. call the actual Jacobian routine
-
-#. convert derivatives to mass-fraction-based (since we integrate
-   :math:`X`), and zero out the energy derivative (if
-   ``integrate_energy = F``).
-
-#. apply any boosting to the rates if ``react_boost`` > 0.
-
-#. convert back to the integrator’s internal representation by calling ``burn_to_vode``
-
-
 
 C++ interfaces
 --------------
@@ -440,15 +314,11 @@ routine, which at the moment is only provided by VODE.
     void burner (burn_t& state, Real dt)
 
 
-The basic flow of the ``integrator()`` routine mirrors the Fortran one.
-
-.. note::
-
-   The C++ VODE integrator does not use a separate ``rpar`` array as
-   part of the ``dvode_t`` type.  Instead, any auxillary information
-   is kept in the original ``burn_t`` that was passed into the
-   integration routines.  For this reason, we often need to pass both
-   the ``dvode_t`` and ``burn_t`` objects into the network routines.
+When integrating the system, we often need auxillary information to
+close the system.  This is kept in the original ``burn_t`` that was
+passed into the integration routines.  For this reason, we often need
+to pass both the ``dvode_t`` and ``burn_t`` objects into the network
+routines.
 
 #. Call the EOS on the input ``burn_t`` state.  This involves:
 
@@ -460,10 +330,6 @@ The basic flow of the ``integrator()`` routine mirrors the Fortran one.
 
 #. Fill the integrator type by calling ``burn_to_vode`` to create a
    ``dvode_t`` from the ``burn_t``
-
-   .. note::
-
-      unlike the Fortran interface, there is no ``vode_to_eos`` routine in C++
 
 #. Compute the initial :math:`d(c_x)/dt` derivatives
 
@@ -540,5 +406,3 @@ of the parameter with the highest priority is used. So picking a large
 integer value for the priority in a network’s ``_parameter`` file will
 ensure that it takes precedence.
 
-.. image:: doxygen_network.png
-   :align: center
