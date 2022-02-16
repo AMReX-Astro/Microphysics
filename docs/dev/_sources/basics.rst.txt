@@ -7,13 +7,17 @@ Getting Started (Standalone)
 
 Microphysics can be used in a "standalone" fashion to run the unit
 tests and explore the behavior of the reaction networks.  The main
-requirement is a copy of AMReX::
+requirement is a copy of AMReX:
+
+.. prompt:: bash
 
    git clone https://github.com/AMReX-Codes/amrex.git
 
 We use this for some data structures and the build system.  You need
 to set the ``AMREX_HOME`` environment variable to point to the
-``amrex/`` directory::
+``amrex/`` directory:
+
+.. prompt:: bash
 
    export AMREX_HOME=/path/to/amrex
 
@@ -22,10 +26,14 @@ to set the ``AMREX_HOME`` environment variable to point to the
 A good unit test to start with is ``burn_cell`` -- this is simply a
 one-zone burn.  In ``Microphysics/`` do:
 
+.. prompt:: bash
+
    cd unit_test/burn_cell
    make
 
-This will create an executable called ``main3d.gnu.ex``.  Then you can run it as::
+This will create an executable called ``main3d.gnu.ex``.  Then you can run it as:
+
+.. prompt:: bash
 
    ./main3d.gnu.ex inputs_aprox21
 
@@ -43,9 +51,11 @@ the AMReX codes understand, you only need to provide to the code
 calling these routines their location on your system. The code will do
 the rest. To do so, define the ``MICROPHYSICS_HOME`` environment
 variable, either at a command line or (if you use the bash shell)
-through your ``~/.bashrc``, e.g.::
+through your ``~/.bashrc``, e.g.:
 
- export MICROPHYSICS_HOME=/path/to/Microphysics
+.. code:: bash
+
+   export MICROPHYSICS_HOME=/path/to/Microphysics
 
 For CASTRO and MAESTROeX the name of the EOS and network are set via
 the make variables ``EOS_DIR`` and ``NETWORK_DIR``. These codes then
@@ -66,7 +76,7 @@ and the generic solvers:
 
 * ``conductivity``: thermal conductivity routines
 
-* ```constants``: fundamental constants
+* ``constants``: fundamental constants
 
 * ``EOS/``: the various equations of state
 
@@ -98,8 +108,6 @@ and the generic solvers:
   need any application code to build, but will require AMReX.
 
 * ``util/``: linear algebra solvers and other routines.
-
-* ``viscosity/``: viscosity routines
 
 Design Philosophy
 =================

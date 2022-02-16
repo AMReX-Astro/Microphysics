@@ -57,7 +57,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#networks">Networks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#burn-t"><code class="docutils literal notranslate"><span class="pre">burn_t</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rate-t"><code class="docutils literal notranslate"><span class="pre">rate_t</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rate-t-rate-fr-t"><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#burn-type-h"><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code></a></li>
 </ul>
 </li>
@@ -67,7 +67,8 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
-<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -193,15 +194,13 @@ between integration and simulation time.</p>
 </li>
 </ul>
 </section>
-<section id="rate-t">
-<h3><code class="docutils literal notranslate"><span class="pre">rate_t</span></code><a class="headerlink" href="#rate-t" title="Permalink to this headline">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> structure is used internally in a network to pass the
+<section id="rate-t-rate-fr-t">
+<h3><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code><a class="headerlink" href="#rate-t-rate-fr-t" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> and <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code> structures are used internally in a network to pass the
 raw reaction rate information (usually just the temperature-dependent
 terms) between various subroutines. It does not come out of the
 network-specific righthand side or Jacobian routines.</p>
-<p>This main component of this is simply an array of dimension
-<code class="docutils literal notranslate"><span class="pre">rates(num_rate_groups,</span> <span class="pre">nrates)</span></code>—both of the parameters
-used in dimensioning this are network-dependent.</p>
+<p>You can see their definitions in <code class="docutils literal notranslate"><span class="pre">networks/rate_type.H</span></code>.</p>
 </section>
 <section id="burn-type-h">
 <h3><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code><a class="headerlink" href="#burn-type-h" title="Permalink to this headline">¶</a></h3>
@@ -221,10 +220,10 @@ to access the different components of the state:</p>
 <section id="integrators">
 <h2>Integrators<a class="headerlink" href="#integrators" title="Permalink to this headline">¶</a></h2>
 <p>Each integrator also has their own internal data structure that holds
-the information needed for the integration. Meta-data that is not part
-of the integration vector of ODEs, but is attached to a particular
-state (<span class="math notranslate nohighlight">\(X_k\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, <span class="math notranslate nohighlight">\(e\)</span>), is stored in an array that
-can be passed into the righthand side routine.</p>
+the information needed for the integration.  Meta-data that is not
+part of the integration vector of ODEs, but is attached to a
+particular state (<span class="math notranslate nohighlight">\(X_k\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, <span class="math notranslate nohighlight">\(e\)</span>), is stored in the
+<code class="docutils literal notranslate"><span class="pre">burn_t</span></code> and can be passed into the righthand side routine.</p>
 </section>
 <section id="converting-between-types">
 <h2>Converting Between Types<a class="headerlink" href="#converting-between-types" title="Permalink to this headline">¶</a></h2>
