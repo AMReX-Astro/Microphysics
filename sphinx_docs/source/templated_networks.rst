@@ -15,9 +15,6 @@ each reaction, we need to provide only a small amount of metadata.
 This greatly simplifies the networks.  This infrastructure works for
 approximate networks as well as regular networks.
 
-Metadata
-========
-
 Consider a reaction of the form:
 
 .. math::
@@ -34,11 +31,12 @@ For this reaction, the evolution equation for :math:`A` would be:
 
 .. math::
 
-   \frac{dY(A)}{dt} = -n_A \, \rho^{n_A + n_B + n_C - 1} \, Y(A)^{n_A} \, Y(B)^{n_B} \, Y(C)^{n_C} \frac{\langle \sigma v \rangle_{ABC,DEF}}{n_A! n_B! n_C!}
+   \frac{dY(A)}{dt} = -n_A \, \rho^{n_A + n_B + n_C - 1} \, Y(A)^{n_A} \, Y(B)^{n_B} \, Y(C)^{n_C} \frac{N_A \langle \sigma v \rangle_{ABC,DEF}}{n_A! n_B! n_C!}
 
-where :math:`\langle \sigma v \rangle_{ABC,DEF}` is the temperature
+where :math:`N_A \langle \sigma v \rangle_{ABC,DEF}` is the temperature
 portion of the reaction rate (cross section averaged over the velocity
-distribution).
+distribution), provide by nuclear reaction rate tables or fits from the nuclear
+experimental community.
 
 For approximate networks, it may be the case that the exponent on
 :math:`Y` is not the same as the number of nuclei involved, e.g.,
@@ -48,7 +46,16 @@ For approximate networks, it may be the case that the exponent on
 
 .. math::
 
-   \frac{dY(A)}{dt} = -n_A \, \rho^{a + b + c - 1} \, Y(A)^a \, Y(B)^b \, Y(C)^c \frac{\langle \sigma v \rangle_{ABC,DEF}}{a! b! c!}
+   \frac{dY(A)}{dt} = -n_A \, \rho^{a + b + c - 1} \, Y(A)^a \, Y(B)^b \, Y(C)^c \frac{N_A \langle \sigma v \rangle_{ABC,DEF}}{a! b! c!}
+
+
+Metadata
+========
+
+With the above formulation, adding a rate to the network means
+supplying the nuclei (:math:`A`, ...), coefficients (:math:`n_A`,
+...), and the exponents (:math:`a`, ...).
+
 
 
 
@@ -57,6 +64,21 @@ Loop over Rates
 ===============
 
 
+pairing terms
+
+
 Jacobian
 ========
 
+With the same rate infrastructure, we are able to provide an analytic
+Jacobian for our reaction networks.
+
+.. note::
+
+   We do one approximation to the species derivatives in the Jacobian.
+   Some approximate networks have compound rates where :math:`N_A
+   \langle \sigma v \rangle` can depend on composition, :math:`Y`.  We
+   neglect this derivative in our Jacobian.
+
+   Testing has shown that this does not greatly affect the performance
+   of the network.
