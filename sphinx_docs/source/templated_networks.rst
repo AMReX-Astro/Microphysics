@@ -48,7 +48,7 @@ For approximate networks, it may be the case that the exponent on
 
 .. math::
 
-   \frac{dY(A)}{dt} = -n_A \, \rho^{n_A + n_B + n_C - 1} \, Y(A)^a \, Y(B)^b \, Y(C)^c \frac{\langle \sigma v \rangle_{ABC,DEF}}{a! b! c!}
+   \frac{dY(A)}{dt} = -n_A \, \rho^{a + b + c - 1} \, Y(A)^a \, Y(B)^b \, Y(C)^c \frac{\langle \sigma v \rangle_{ABC,DEF}}{a! b! c!}
 
 
 
