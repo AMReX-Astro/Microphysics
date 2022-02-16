@@ -15,6 +15,7 @@ Microphysics
    data_structures
    rp_intro
    eos
+   networks-overview
    networks
    integrators
    nse
