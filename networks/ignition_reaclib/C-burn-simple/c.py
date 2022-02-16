@@ -1,6 +1,6 @@
 # C-burning rate module generator
 
-from pynucastro.networks import StarKillerNetwork
+from pynucastro.networks import StarKillerCxxNetwork
 
 files = ["c12-c12a-ne20-cf88",
          "c12-c12n-mg23-cf88",
@@ -8,8 +8,8 @@ files = ["c12-c12a-ne20-cf88",
          "c12-ag-o16-nac2",
          "n--p-wc12"]
 
-c_net = StarKillerNetwork(files)
-c_net.write_network(use_cse=False)
+c_net = StarKillerCxxNetwork(files)
+c_net.write_network()
 
 
 

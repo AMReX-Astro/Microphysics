@@ -193,10 +193,10 @@ void screen_test_C(const Box& bx,
     Array1D<Real, 1, NumSpec> ymass;
 
     for (int n = 0; n < NumSpec; n++) {
-      xn[n] = metalicity/(NumSpec - 2);
+      xn[n] = metalicity / static_cast<Real>(NumSpec - 2);
     }
-    xn[ih1] = 0.75 - 0.5*metalicity;
-    xn[ihe4] = 0.25 - 0.5*metalicity;
+    xn[ih1] = 0.75_rt - 0.5_rt * metalicity;
+    xn[ihe4] = 0.25_rt - 0.5_rt * metalicity;
 
     for (int n = 0; n < NumSpec; n++) {
       ymass(n+1) = xn[n] / aion[n];

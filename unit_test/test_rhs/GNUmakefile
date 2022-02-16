@@ -14,8 +14,6 @@ USE_REACT = TRUE
 
 EBASE = main
 
-USE_CXX_EOS = TRUE
-
 USE_CXX_REACTIONS ?= TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
@@ -44,7 +42,3 @@ Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-clean::
-	$(RM) *.dat
-

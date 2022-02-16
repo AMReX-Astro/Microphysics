@@ -1,11 +1,6 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
-USE_FORT_MICROPHYSICS ?= TRUE
-ifeq ($(USE_FORT_MICROPHYSICS), TRUE)
-  DEFINES += -DMICROPHYSICS_FORT
-endif
-
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   DEFINES += -DSIMPLIFIED_SDC
 else ifeq ($(USE_TRUE_SDC), TRUE)
@@ -17,6 +12,11 @@ endif
 USE_CXX_REACTIONS ?= FALSE
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
+endif
+
+USE_NONAKA_PLOT ?= FALSE
+ifeq ($(USE_NONAKA_PLOT),TRUE)
+  DEFINES += -DNONAKA_PLOT
 endif
 
 ifeq ($(EOS_DIR), gamma_law_general)
@@ -42,14 +42,16 @@ ifndef GENERAL_NET_INPUTS
    endif
 endif
 
-# URCA network has tables
-ifeq ($(findstring URCA-simple, $(NETWORK_DIR)), URCA-simple)
-  all: urcatables
+# electron capture tables
+NET_TABLES = $(wildcard $(NETWORK_PATH)/*_betadecay.dat) $(wildcard $(NETWORK_PATH)/*_electroncapture.dat)
+
+ifneq "$(NET_TABLES)" ""
+  all: nettables
 endif
 
-urcatables:
-	@if [ ! -f 23Ne-23Na_betadecay.dat ]; then echo ${bold}Linking 23Ne-23Na_betadecay.dat${normal}; ln -s $(NETWORK_PATH)/23Ne-23Na_betadecay.dat .;  fi
-	@if [ ! -f 23Na-23Ne_electroncapture.dat ]; then echo ${bold}Linking 23Na-23Ne_electroncapture.dat${normal}; ln -s $(NETWORK_PATH)/23Na-23Ne_electroncapture.dat .;  fi
+nettables:
+	@echo linking network data files...
+	$(foreach t, $(NET_TABLES), $(shell if [ ! -f `basename $t` ]; then ln -s $(t) . ; fi))
 
 # Pynucastro networks read rate data from an external file
 PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
@@ -127,3 +129,8 @@ endif
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 
 
+clean::
+	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
+	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
+	@if [ ! -f nse19.tbl ]; then rm -f nse19.tbl; fi
+	$(foreach t, $(NET_TABLES), $(shell if [ ! -L `basename $t` ]; then rm -f `basename $t` ; fi))

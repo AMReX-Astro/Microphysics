@@ -1,14 +1,14 @@
-.. StarKiller documentation main file.
+.. Microphysics documentation main file.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-***********************
-StarKiller Microphysics
-***********************
+************
+Microphysics
+************
 
 .. toctree::
    :maxdepth: 1
-   :caption: StarKiller basics
+   :caption: Microphysics basics
 
    preface
    basics
@@ -19,8 +19,6 @@ StarKiller Microphysics
    integrators
    nse
    transport
-   cxx
-   gpu
    unit_tests
    sdc
    zreferences
