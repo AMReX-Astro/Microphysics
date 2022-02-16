@@ -86,17 +86,15 @@ the user will only need to fill/use the following information:
    in their local storage—this can be used as an offset to convert
    between integration and simulation time.
 
-``rate_t``
-----------
+``rate_t``, ``rate_fr_t``
+-------------------------
 
-The ``rate_t`` structure is used internally in a network to pass the
+The ``rate_t`` and ``rate_fr_t`` structures are used internally in a network to pass the
 raw reaction rate information (usually just the temperature-dependent
 terms) between various subroutines. It does not come out of the
 network-specific righthand side or Jacobian routines.
 
-This main component of this is simply an array of dimension
-``rates(num_rate_groups, nrates)``—both of the parameters
-used in dimensioning this are network-dependent.
+You can see their definitions in ``networks/rate_type.H``.
 
 ``burn_type.H``
 ---------------
@@ -115,10 +113,10 @@ Integrators
 ===========
 
 Each integrator also has their own internal data structure that holds
-the information needed for the integration. Meta-data that is not part
-of the integration vector of ODEs, but is attached to a particular
-state (:math:`X_k`, :math:`T`, :math:`e`), is stored in an array that
-can be passed into the righthand side routine. 
+the information needed for the integration.  Meta-data that is not
+part of the integration vector of ODEs, but is attached to a
+particular state (:math:`X_k`, :math:`T`, :math:`e`), is stored in the
+``burn_t`` and can be passed into the righthand side routine.
 
 Converting Between Types
 ========================
