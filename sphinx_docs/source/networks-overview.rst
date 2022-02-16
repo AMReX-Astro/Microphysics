@@ -8,7 +8,7 @@ Types of Networks
 There are several different types of reaction networks in Microphysics.  Largely these can
 be split into:
 
-* hardcoded networks: the structure of the network rates linking the
+* *hardcoded networks*: the structure of the network rates linking the
   nuclei was written by hand. Many of these networks are *approximate
   networks* where the links between two nuclei includes steps
   involving nuclei that are not directly represented in the network.
@@ -26,7 +26,7 @@ be split into:
   <https://cococubed.com/code_pages/burn.shtml>`_, and subsequently
   converted into C++ and adapted to our framework.
 
-* automatically-generated networks: these networks are automatically
+* *automatically-generated networks*: these networks are automatically
   generated simply by providing a list of nuclei and having
   `pynucastro <https://github.com/pynucastro/pynucastro>`_ find all of
   the linking rates.  These can easily be regenerated to reflect new rates.
@@ -42,21 +42,38 @@ for the ability to swap integrators as desired. We discuss the
 integrators in a later section.
 
 A network is defined by a ``.net`` file which provides a list of species
-and some data about each species (its name and some isotopic data). At build
+and some data about each species (its name and some isotopic data). 
+
+An example is ``Microphysics/networks/iso7/iso7.net``:
+
+.. literalinclude:: ../../networks/iso7/iso7.net
+
+Lines beginning with ``#`` are comments.  In this example, there are 7
+nuclei that are evolved in the network.  We also have 3 additional
+nuclei prefixed with ``__extra_`` -- these nuclei will not be know to
+the ODE system but we will be able to access their properties (like
+:math:`A` and :math:`Z`) while constructing the righthand side of the
+network.
+
+At build
 time, a file ``network_properties.H`` is automatically generated which contains
 a number of variables, including:
 
-* ``NumSpec`` : the number of species in the network
+* ``NumSpec`` : the number of species evolved in the network
+
+* ``NumSpecExtra`` : the number of evolved and "extra" species, as
+  prefixed with ``__extra_`` in the ``.net`` file.
+
 
 * ``NumAux`` : the number of auxiliary quantities needed by the network (these are not evolved).
 
-* ``aion[NumSpec]`` : the atomic weight (in atomic mass units) of the species
+* ``aion[NumSpec]`` : the atomic weight (in atomic mass units) of the species.  This includes the extra species.
 
-* ``zion[NumSpec]`` : the atomic number of the species
+* ``zion[NumSpec]`` : the atomic number of the species.  This includes the extra species.
 
-* ``spec_names[NumSpec]`` : a descriptive name of the species (e.g. "hydrogen-1")
+* ``spec_names[NumSpec]`` : a descriptive name of the species (e.g. "hydrogen-1").  This includes the extra species.
 
-* ``short_spec_names[NumSpec]`` : a shortened version of the species name (e.g. "H1")
+* ``short_spec_names[NumSpec]`` : a shortened version of the species name (e.g. "H1").  This includes the extra species.
 
 * ``aux_names[NumAux]``: the names of the auxiliary quantities
 
