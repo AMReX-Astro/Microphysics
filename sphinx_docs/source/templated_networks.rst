@@ -91,6 +91,9 @@ special cases (for approximate nets).
 Loop over Rates
 ===============
 
+The main logic for constructing RHS is contained in ``Microphysics/networks/rhs.H``
+
+The basic flow 
 
 pairing terms
 
