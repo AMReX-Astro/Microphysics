@@ -85,7 +85,46 @@ For example, consider the reaction :math:`\isotm{He}{4} + \isotm{C}{12} \rightar
    data.exponent_D = 1;
 
 There are some additional fields in ``rhs_t`` that can be used in
-special cases (for approximate nets).
+special cases (e.g., for approximate nets):
+
+* ``forward_branching_ratio``, ``reverse_branching_ratio`` :
+
+* ``apply_identical_particle_factor`` : 
+
+   Normally for rates involving identical nuclei, we divide
+   the rate by a factor (:math:`n!`, where `n` is the number of the same nuclei participating).  This
+   avoids double-counting.
+
+   For some approximate networks, we want to skip this, since although
+   the net reaction appears to have identical particles, it
+   participates via a chain that does not need the identical particle
+   factor.
+
+   An example of this (from ``aprox19``) is the rate ``P_P_N_N_to_He4``, which represents
+
+   .. math::
+
+      p + p + n + n \rightarrow \isotm{He}{4} + 3 \gamma
+
+   In the approximation used in this network, this rate proceeds as the sequence:
+
+   .. math::
+
+      p(n,\gamma) d(n,\gamma) \isotm{He}{3} (p, \gamma) \isotm{He}{4}
+
+   or
+
+   .. math::
+
+      p(n,\gamma) d(p,\gamma) \isotm{He}{3} (n, \gamma) \isotm{He}{4}
+
+   and none of the reactions in the sequence involve like-nuclei fusing.
+
+* ``rate_can_be_tabulated`` :
+
+* ``screen_forward_reaction``, ``screen_reverse_reaction`` :
+
+* ``additional_reaction_1``, ``additional_reaction_2``, ``additional_reaction_3`` :
 
 
 Loop over Rates
