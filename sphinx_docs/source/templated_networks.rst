@@ -40,8 +40,8 @@ experimental community.
 
 For approximate networks, it may be the case that the exponent on
 :math:`Y` is not the same as the number of nuclei involved, e.g.,
-:math:`n_A`, so we will carry the exponents on :math:`Y(A)`
-... :math:`Y(F)` as :math:`a`, :math:`b`, :math:`c`, :math:`d`,
+:math:`n_A`, so we will carry the exponents on :math:`Y(A)`,
+..., :math:`Y(F)` as :math:`a`, :math:`b`, :math:`c`, :math:`d`,
 :math:`e`, :math:`f`, and instead write this as:
 
 .. math::
@@ -56,8 +56,36 @@ With the above formulation, adding a rate to the network means
 supplying the nuclei (:math:`A`, ...), coefficients (:math:`n_A`,
 ...), and the exponents (:math:`a`, ...).
 
+The network provides a function that returns a ``rhs_t`` given a rate
+(passed in as an integer from an ``enum`` of all the rates that makeup
+the network).  The function signature is:
+
+.. code:: c++
+
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE
+   constexpr rhs_t rhs_data (int rate)
 
 
+For example, consider the reaction :math:`\isotm{He}{4} + \isotm{C}{12} \rightarrow \isotm{O}{16} + \gamma`.  The metadata for this is initialized as:
+
+.. code:: c++
+
+   rhs_t data{};
+
+   data.species_A = C12;
+   data.species_B = He4;
+   data.species_D = O16;
+
+   data.number_A = 1;
+   data.number_B = 1;
+   data.number_D = 1;
+
+   data.exponent_A = 1;
+   data.exponent_B = 1;
+   data.exponent_D = 1;
+
+There are some additional fields in ``rhs_t`` that can be used in
+special cases (for approximate nets).
 
 
 Loop over Rates
