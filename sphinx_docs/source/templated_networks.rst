@@ -48,6 +48,30 @@ For approximate networks, it may be the case that the exponent on
 
    \frac{dY(A)}{dt} = -n_A \, \rho^{a + b + c - 1} \, Y(A)^a \, Y(B)^b \, Y(C)^c \frac{N_A \langle \sigma v \rangle_{ABC,DEF}}{a! b! c!}
 
+The properties of a templated network are contained in the network's
+``actual_network.H`` file.
+
+Rate ``enum``
+=============
+
+A network using the templated RHS construction needs to provide an
+``enum`` called ``Rates::NetworkRates`` that lists all of the reaction
+rates in the network.  Only the forward rates need to be listed.  The
+reverse rates will use the same rate index.
+
+
+Note: some of the reactions listed involve nuclei that are not present
+in the actual network (but represented as ``__extra_`` nuclei.  We call
+these reactions *intermediate reactions*.  These are used as steps in building
+compound reaction sequences in approximate networks and are called upon via the
+*additional reaction* mechanism provided by the metadata (described below).
+
+.. note::
+
+   Every intermediate reaction is some other reaction's additional
+   reaction, but not necessarily vice versa.
+
+
 
 Metadata
 ========
@@ -66,11 +90,22 @@ the network).  The function signature is:
    constexpr rhs_t rhs_data (int rate)
 
 
-For example, consider the reaction :math:`\isotm{He}{4} + \isotm{C}{12} \rightarrow \isotm{O}{16} + \gamma`.  The metadata for this is initialized as:
+At the core, this is just a ``switch`` statement on the rate index:
 
 .. code:: c++
 
    rhs_t data{};
+
+   switch rate {
+
+     // fill the metadata of individual rates
+     ...
+
+   }
+
+For example, consider the reaction :math:`\isotm{He}{4} + \isotm{C}{12} \rightarrow \isotm{O}{16} + \gamma`.  The metadata for this is initialized as:
+
+.. code:: c++
 
    data.species_A = C12;
    data.species_B = He4;
@@ -187,17 +222,14 @@ special cases (e.g., for approximate nets):
 * ``additional_reaction_1``, ``additional_reaction_2``, ``additional_reaction_3`` :
 
 
+
+
 * ``screen_forward_reaction``, ``screen_reverse_reaction`` :
 
   These fields indicate whether to compute and apply the screening
   factors to the reaction rates.  Usually we will do this on all
   rates, but sometimes if a rate involves additional rates in
   a sequence, the screening is instead applied to those rates.
-
-.. note::
-
-   Every intermediate reaction is some other reaction's additional
-   reaction, but not necessarily vice versa.
 
 
 Loop over Rates
