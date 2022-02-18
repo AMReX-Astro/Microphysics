@@ -59,6 +59,12 @@ A network using the templated RHS construction needs to provide an
 rates in the network.  Only the forward rates need to be listed.  The
 reverse rates will use the same rate index.
 
+.. note::
+
+   For some of the networks, we may not actually want to model the
+   reverse rates, so the function that computes the reverse rate will
+   simply return `0`.  But it is always carried in the reaction
+   infrastructure.
 
 Note: some of the reactions listed involve nuclei that are not present
 in the actual network (but represented as ``__extra_`` nuclei.  We call
