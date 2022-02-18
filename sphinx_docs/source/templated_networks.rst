@@ -59,6 +59,12 @@ A network using the templated RHS construction needs to provide an
 rates in the network.  Only the forward rates need to be listed.  The
 reverse rates will use the same rate index.
 
+.. note::
+
+   For some of the networks, we may not actually want to model the
+   reverse rates, so the function that computes the reverse rate will
+   simply return `0`.  But it is always carried in the reaction
+   infrastructure.
 
 Note: some of the reactions listed involve nuclei that are not present
 in the actual network (but represented as ``__extra_`` nuclei.  We call
@@ -221,8 +227,68 @@ special cases (e.g., for approximate nets):
 
 * ``additional_reaction_1``, ``additional_reaction_2``, ``additional_reaction_3`` :
 
+  Consider burning :math:`\isotm{Mg}{24}` to :math:`\isotm{Si}{28}`.  We can imagine two
+  sequences:
 
+  .. math::
 
+     \isotm{Mg}{24} (\alpha, \gamma) \isotm{Si}{28}
+
+  or
+
+  .. math::
+
+     \isotm{Mg}{24} (\alpha, p) \isotm{Al}{27} (p, \gamma) \isotm{Si}{28}
+
+  In the approximate networks, we combine these two reaction sequences
+  into a single effective rate.  If we use the notation:
+
+  .. math::
+
+     \lambda_{\alpha\gamma} \rightarrow \isotm{Mg}{24} (\alpha, \gamma) \isotm{Si}{28}
+
+  .. math::
+
+     \lambda_{\alpha p} \rightarrow \isotm{Mg}{24} (\alpha, p) \isotm{Al}{27}
+
+  .. math::
+
+     \lambda_{p\gamma} \rightarrow \isotm{Al}{27} (p, \gamma) \isotm{Si}{28}
+
+  and the reverse rate of :math:`\lambda_{\alpha p}` is noted as :math:`\lambda_{p\alpha}`.
+
+  The effective rate combining these two channels is:
+
+  .. math::
+
+     (\lambda_{\alpha\gamma})_\mathrm{effective} =
+         \lambda_{\alpha\gamma} + \lambda_{\alpha p} \left [ 1 - \frac{\lambda_{p\alpha}}{\lambda_{p\alpha} + \lambda_{p\gamma}} \right ]
+
+  To capture this approximation with our rate metadata, we specify the
+  additional rates that are needed, and then in the loop over rates
+  that follows their evaluation, we will arrange them into this
+  approximation.
+
+  The metadata for this reaction appears as:
+
+  .. code:: c++
+
+     case Mg24_He4_to_Si28:
+         data.species_A = Mg24;
+         data.species_B = He4;
+         data.species_D = Si28;
+
+         data.number_A = 1;
+         data.number_B = 1;
+         data.number_D = 1;
+
+         data.exponent_A = 1;
+         data.exponent_B = 1;
+         data.exponent_D = 1;
+
+         data.additional_reaction_1 = Mg24_He4_to_Al27_P;
+         data.additional_reaction_2 = Al27_P_to_Si28;
+         break;
 
 * ``screen_forward_reaction``, ``screen_reverse_reaction`` :
 
