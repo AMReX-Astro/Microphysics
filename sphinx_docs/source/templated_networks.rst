@@ -237,7 +237,7 @@ Loop over Rates
 
 The main logic for constructing RHS is contained in ``Microphysics/networks/rhs.H``
 
-The basic flow 
+The basic flow is:
 
 pairing terms
 
