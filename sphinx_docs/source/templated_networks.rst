@@ -361,7 +361,8 @@ Jacobian
 ========
 
 With the same rate infrastructure, we are able to provide an analytic
-Jacobian for our reaction networks.
+Jacobian for our reaction networks.  The overall structure is the same
+as the ``rhs()`` function described above.
 
 .. note::
 
@@ -376,3 +377,14 @@ Jacobian for our reaction networks.
 
 Linear Algebra
 ==============
+
+The VODE integrator needs routines to do LU factorization and back
+substitution.  We build off of the linpack ``dgefa`` and ``dgesl``
+routines, but because we know at compile time which Jacobian terms are
+non-zero, we are able to use ``constexpr`` for-loops to only do the
+calculations on non-zero elements.  This greatly reduces the amount of work
+in the linear algebra.
+
+Note: currently we are still storing a dense Jacobian -- we just skip computation
+on the elements that are 0.
+
