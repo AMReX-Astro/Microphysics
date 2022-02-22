@@ -1,5 +1,5 @@
-#ifndef rhs_utilities_H
-#define rhs_utilities_H
+#ifndef rhs_H
+#define rhs_H
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
