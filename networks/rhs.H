@@ -633,7 +633,7 @@ void apply_branching (Real& fr, Real& frdt, Real& rr, Real& rrdt)
         frdt *= data.forward_branching_ratio;
     }
 
-    if constexpr (data.forward_branching_ratio != 1.0_rt) {
+    if constexpr (data.reverse_branching_ratio != 1.0_rt) {
         rr *= data.reverse_branching_ratio;
         rrdt *= data.reverse_branching_ratio;
     }
