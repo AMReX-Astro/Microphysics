@@ -294,8 +294,12 @@ special cases (e.g., for approximate nets):
 
   These fields indicate whether to compute and apply the screening
   factors to the reaction rates.  Usually we will do this on all
-  rates, but sometimes if a rate involves additional rates in
-  a sequence, the screening is instead applied to those rates.
+  charged-particle reactions.  For neutron or gamma capture reactions,
+  screening should be manually disabled.
+
+  Additionally, if a rate involves additional rates in a sequence, we
+  sometimes disable screening, as the screening is instead applied to
+  those additional rates.
 
 
 Loop over Rates
