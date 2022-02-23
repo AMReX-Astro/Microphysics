@@ -28,14 +28,21 @@ def find_files(SHAs=None):
         raise Exception('git diff encountered an error')
 
     files = [f for f in stdout.decode('utf-8').strip().split('\n') 
-             if 'networks' in f]
+             if f.startswith('networks/')]
     print(files)
 
     # see which directories contain changed files
     changed_networks = set()
     for f in files:
-        d = f.split('/')[1]
-        changed_networks.add(d)
+        # check for the NETWORK_PROPERTIES file in each parent directory
+        parts = f.split('/')
+        while parts:
+            if os.path.exists(os.path.join(*parts, 'NETWORK_PROPERTIES')):
+                # remove networks/
+                changed_networks.add(os.path.join(*parts[1:]))
+                break
+            parts.pop(-1)
+    print(changed_networks)
 
     return changed_networks
 
@@ -55,28 +62,32 @@ def run(SHAs=None, make_options=''):
 
         with cd(f'unit_test/burn_cell'):
 
-            print(f'making unit_test/burn_cell')
+            print('::group::making unit_test/burn_cell')
 
+            subprocess.run('make clean'.split(), stdout=subprocess.DEVNULL, check=True)
             process = subprocess.run(make_command,
                                      stdout=subprocess.PIPE,
                                      stderr=subprocess.STDOUT,
                                      shell=True)
             print(process.stdout.decode('utf-8'))
-            if process.stderr is not None:
+            print('::endgroup::')
+            if process.stderr is not None or process.returncode != 0:
                 raise Exception('make encountered an error')
 
     # compile test_eos as well
     make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE'
 
     with cd(f'unit_test/test_eos'):
-        print(f'making unit_test/test_eos')
+        print('::group::making unit_test/test_eos')
 
+        subprocess.run('make clean'.split(), stdout=subprocess.DEVNULL, check=True)
         process = subprocess.run(make_command,
                                  stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT,
                                  shell=True)
         print(process.stdout.decode('utf-8'))
-        if process.stderr is not None:
+        print('::endgroup::')
+        if process.stderr is not None or process.returncode != 0:
             raise Exception('make encountered an error')
 
 
