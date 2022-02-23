@@ -24,7 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-    const std::string secret_code_reference = "85RDGAN3XGQ44Y6WFEZAAD8FIWTMQAOD";
+    const std::string secret_code_reference = "26A1ZL7R6V96MVPTQEJ5215EW8UQYYK7";
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -88,11 +88,19 @@ void net_screening_init() {
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ne20-1], aion[Ne20-1]);
 
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Na23-1], aion[Na23-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Na23-1], aion[Na23-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mg23-1], aion[Mg23-1]);
+
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mg24-1], aion[Mg24-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Al27-1], aion[Al27-1]);
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Al27-1], aion[Al27-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Si27-1], aion[Si27-1]);
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Si28-1], aion[Si28-1]);
 
@@ -136,6 +144,8 @@ void net_screening_init() {
 
     add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
 
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[C14-1], aion[C14-1]);
+
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[N13-1], aion[N13-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[O16-1], aion[O16-1]);
@@ -144,11 +154,17 @@ void net_screening_init() {
 
     add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1]);
 
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[O18-1], aion[O18-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[O18-1], aion[O18-1]);
+
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[F18-1], aion[F18-1]);
 
     add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[Ne20-1], aion[Ne20-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Ne21-1], aion[Ne21-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ne21-1], aion[Ne21-1]);
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
 
