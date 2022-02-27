@@ -17,7 +17,10 @@ Real ifermi12(const Real f)
     // declare work variables
     int m1,k1,m2,k2;
     Real an,rn,den,ff;
-    Array1D<Real, 1, 12> a1,b1,a2,b2;
+    Array1D<Real, 1, 5> a1;
+    Array1D<Real, 1, 4> b1;
+    Array1D<Real, 1, 7> a2;
+    Array1D<Real, 1, 6> b2;
 
     // the return value
     Real ifermi12r;
@@ -104,7 +107,8 @@ Real zfermim12(const Real x)
     // declare work variables
     int m1,k1,m2,k2;
     Real rn,den,xx;
-    Array1D<Real, 1, 12> a1,b1,a2,b2;
+    Array1D<Real, 1, 8> a1,b1;
+    Array1D<Real, 1, 12> a2,b2;
 
     // return value
     Real zfermim12r;
