@@ -294,25 +294,79 @@ special cases (e.g., for approximate nets):
 
   These fields indicate whether to compute and apply the screening
   factors to the reaction rates.  Usually we will do this on all
-  rates, but sometimes if a rate involves additional rates in
-  a sequence, the screening is instead applied to those rates.
+  charged-particle reactions.  For neutron or gamma capture reactions,
+  screening should be manually disabled.
+
+  Additionally, if a rate involves additional rates in a sequence, we
+  sometimes disable screening, as the screening is instead applied to
+  those additional rates.
 
 
 Loop over Rates
 ===============
 
-The main logic for constructing RHS is contained in ``Microphysics/networks/rhs.H``
+The main logic for constructing RHS is contained in ``Microphysics/networks/rhs.H`` as ``rhs()``:
+
+.. code:: c++
+
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE
+   void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
 The basic flow is:
 
-pairing terms
+#. Convert the incoming mass fractions into molar fractions
+
+#. Compute the common temperature factors (used by rates) and
+   composition factors (used by screening)
+
+#. Compute all of the intermediate rates.
+
+   Since these rates are used multiple times, we compute them once and cache them.
+   This is done soley for performance reasons, since computing the rates is expensive.
+
+#. Loop over rates
+
+   a. Compute the rate if it is not an intermediate rate, otherwise,
+      get the rate from the cache.
+
+   b. Find any additional rates needed if this rate is actual a rate
+      sequence.  These additional rates are drawn from the cache.
+
+   c. Post-process the rate.  This is only done for rates that have
+      additional rates.  This is where we would combine the primary
+      rate and additional rates into a single effective rate (like
+      shown for the :math:`(\alpha,\gamma)` and
+      :math:`(\alpha,p)(p,\gamma)` sequence above.
+
+      If the rate has no additional rates, then this step is a no-op.
+
+   d. Loop over species:
+
+      * If the species is used by this rate, then add it to the
+        ``ydot`` for the species.
+
+        Note: we always add the forward and reverse rates paired
+        together here.  This greatly reduces roundoff error when the
+        rates should drive us toward equilibrium.
+
+#. Evaluate the neutrino cooling term
+
+#. Compute the energy term from the ``ydot`` s.
+
+Note that all of construction logic is done using ``constexpr`` expressions
+(including the for-loops), allowing all of this logic to be evaluated
+at compile time.  This effectively means that the compiler writes out
+the full RHS for the network, leaving only the rate evaluation for
+runtime.
+
 
 
 Jacobian
 ========
 
 With the same rate infrastructure, we are able to provide an analytic
-Jacobian for our reaction networks.
+Jacobian for our reaction networks.  The overall structure is the same
+as the ``rhs()`` function described above.
 
 .. note::
 
@@ -323,3 +377,18 @@ Jacobian for our reaction networks.
 
    Testing has shown that this does not greatly affect the performance
    of the network.
+
+
+Linear Algebra
+==============
+
+The VODE integrator needs routines to do LU factorization and back
+substitution.  We build off of the linpack ``dgefa`` and ``dgesl``
+routines, but because we know at compile time which Jacobian terms are
+non-zero, we are able to use ``constexpr`` for-loops to only do the
+calculations on non-zero elements.  This greatly reduces the amount of work
+in the linear algebra.
+
+Note: currently we are still storing a dense Jacobian -- we just skip computation
+on the elements that are 0.
+
