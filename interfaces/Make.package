@@ -10,7 +10,6 @@ CEXE_sources += eos_data.cpp
 CEXE_headers += network.H
 CEXE_headers += rhs_type.H
 ifeq ($(USE_CXX_REACTIONS),TRUE)
-  CEXE_headers += rhs_utilities.H
   CEXE_sources += network_initialization.cpp
 endif
 
