@@ -138,14 +138,14 @@ def write_network(network_template, header_template,
                     if lang == "C++":
                         fout.write("\n")
                         for n, spec in enumerate(species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n}\n")
+                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n+1}\n")
                             fout.write(f"{indent}{{\n")
                             fout.write(f"{indent}    a = {spec.A};\n")
                             fout.write(f"{indent}    break;\n")
                             fout.write(f"{indent}}}\n\n")
 
                         for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species)}\n")
+                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species) + 1}\n")
                             fout.write(f"{indent}{{\n")
                             fout.write(f"{indent}    a = {spec.A};\n")
                             fout.write(f"{indent}    break;\n")
@@ -179,14 +179,14 @@ def write_network(network_template, header_template,
                     if lang == "C++":
                         fout.write("\n")
                         for n, spec in enumerate(species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n}\n")
+                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n+1}\n")
                             fout.write(f"{indent}{{\n")
                             fout.write(f"{indent}    z = {spec.Z};\n")
                             fout.write(f"{indent}    break;\n")
                             fout.write(f"{indent}}}\n\n")
 
                         for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species)}\n")
+                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species) + 1}\n")
                             fout.write(f"{indent}{{\n")
                             fout.write(f"{indent}    z = {spec.Z};\n")
                             fout.write(f"{indent}    break;\n")
