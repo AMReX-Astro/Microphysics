@@ -5,6 +5,11 @@ Integrating a Network
 Reaction ODE System
 ===================
 
+.. note::
+
+   This describes the integration done when doing Strang operator-splitting, which is the
+   default mode of coupling burning to application codes.
+
 The equations we integrate to do a nuclear burn are:
 
 .. math::
@@ -12,20 +17,17 @@ The equations we integrate to do a nuclear burn are:
    :label: eq:spec_integrate
 
 .. math::
-   \frac{de}{dt} = f(\dot{X}_k)
+   \frac{de}{dt} = f(\rho,X_k,T)
    :label: eq:enuc_integrate
 
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specifc
 nuclear energy created through reactions. Also needed are density :math:`\rho`,
-temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release based on the
+temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the 
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
 section, this is implemented in a network-specific manner.
 
-In this system, :math:`e` is generally equal to the total specific internal
+In this system, :math:`e` is equal to the total specific internal
 energy. This allows us to easily call the EOS during the burn to obtain the temperature.
-(However, this is not required to be the case, and the integration variable could
-instead be only the energy produced/consumed during the burn, since that would just result
-in subtracting a constant offset from the integration variable.)
 
 .. note::
 
@@ -56,21 +58,84 @@ Interfaces
 
 The interfaces to all of the networks and integrators are written in C++.
 
+``burner``
+----------
+
+The main entry point for C++ is ``burner()`` in
+``interfaces/burner.H``.  This simply calls the ``integrator()``
+routine (at the moment this can be ``VODE`` or ``ForwardEuler``).
+
+.. code-block:: c++
+
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    void burner (burn_t& state, Real dt)
+
+The input is a ``burn_t``.  
+
 .. note::
 
-   StarKiller integrates the reaction system in terms of mass fractions,
-   :math:`X_k`, but most astrophysical networks use molar fractions,
-   :math:`Y_k`.  As a result, we expect the networks to return the
-   righthand side and Jacobians in terms of molar fractions.  The StarKiller
-   routines will internally convert to mass fractions as needed for the
-   integrators.
+   For the thermodynamic state, only the density, temperature, and
+   mass fractions -- we explicitly compute the internal energy
+   corresponding to this input state through the equation of state
+   before integrating.
+
+When integrating the system, we often need auxillary information to
+close the system.  This is kept in the original ``burn_t`` that was
+passed into the integration routines.  For this reason, we often need
+to pass both the specific integrator's type (e.g. ``dvode_t``) and
+``burn_t`` objects into the lower-level network routines.
+
+The overall flow of the integrator is (using VODE as the example):
+
+#. Call the EOS on the input ``burn_t`` state.  This involves:
+
+   #. calling ``burn_to_eos`` to convert the ``burn_t`` to an ``eos_t``
+
+   #. calling the EOS with :math:`\rho` and :math:`T` as input
+
+   #. calling ``eos_to_burn`` to convert the ``eos_t`` back to a ``burn_t``
+
+#. Fill the integrator type by calling ``burn_to_vode`` to create a
+   ``dvode_t`` from the ``burn_t``
+
+#. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
+   ``burn_t`` --- as noted above, the auxillary information that is
+   not part of the integration state will be obtained from the
+   ``burn_t``.
+
+#. subtract off the energy offset---we now store just the energy released
+   in the ``dvode_t`` integration state.
+
+#. convert back to a ``burn_t`` by calling ``vode_to_burn``
+
+#. normalize the abundances so they sum to 1.
+
+.. note::
+
+   Upon exit, ``burn_t burn_state.e`` is the energy *released* during
+   the burn, and not the actual internal energy of the state.
+
+Network Routines
+----------------
+
+.. note::
+
+   Microphysics integrates the reaction system in terms of mass
+   fractions, :math:`X_k`, but most astrophysical networks use molar
+   fractions, :math:`Y_k`.  As a result, we expect the networks to
+   return the righthand side and Jacobians in terms of molar
+   fractions.  The integration wrappers will internally
+   convert to mass fractions as needed for the integrators.
+
+Righthand size implementation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The righthand side of the network is implemented by
 ``actual_rhs()`` in ``actual_rhs.H``, and appears as
 
 .. code-block:: c++
 
-      void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
+   void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
 All of the necessary integration data comes in through state, as:
 
@@ -121,12 +186,40 @@ If the network builds the RHS in terms of mass fractions directly, :math:`dX_k/d
 these will need to be converted to molar fraction rates for storage, e.g.,
 :math:`dY_k/dt = A_k^{-1} dX_k/dt`.
 
+Righthand side wrapper
+^^^^^^^^^^^^^^^^^^^^^^
+
+The integrator provides a wrapper that sits between the integration
+routines and the network's implementation of the righthand side.  Its
+flow is (for VODE):
+
+#. call ``clean_state`` on the ``dvode_t``
+
+#. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
+   the ``dvode_t`` and the ``burn_t``.
+
+#. call ``vode_to_burn`` to update the ``burn_t``
+
+#. call ``actual_rhs``
+
+#. convert the derivatives to mass-fraction-based (since we integrate :math:`X`)
+   and zero out the temperature and energy derivatives if we are not integrating
+   those quantities.
+
+#. apply any boosting if ``react_boost`` > 0
+
+#. convert back to the ``dvode_t`` by calling ``burn_to_vode``
+
+
+Jacobian implementation
+^^^^^^^^^^^^^^^^^^^^^^^
+
 The Jacobian is provided by ``actual_jac(state, jac)``, and takes the
 form:
 
 .. code-block:: c++
 
-      void actual_jac(burn_t& state, MathArray2D<1, neqs, 1, neqs>& jac)
+   void actual_jac(burn_t& state, MathArray2D<1, neqs, 1, neqs>& jac)
 
 The Jacobian matrix elements are stored in ``jac`` as:
 
@@ -156,8 +249,36 @@ The form looks like:
 
 Note: a network is not required to compute a Jacobian if a numerical
 Jacobian is used. This is set with the runtime parameter
-``jacobian`` = 2, and implemented in
-``integration/utils/numerical_jacobian.H`` using finite-differences.
+``jacobian`` = 2, and implemented directly in VODE or via
+``integration/utils/numerical_jacobian.H`` for other integrators.
+
+Jacobian wrapper
+^^^^^^^^^^^^^^^^
+
+The integrator provides a wrapper that sits between the integration
+routines and the network's implementation of the Jacobian.  Its
+flow is (for VODE):
+
+.. note::
+
+   It is assumed that the thermodynamics are already correct when
+   calling the Jacobian wrapper, likely because we just called the RHS
+   wrapper above which did the ``clean_state`` and
+   ``update_thermodynamics`` calls.
+
+#. call ``vode_to_burn`` to update the ``burn_t``
+
+#. call ``actual_jac()`` to have the network fill the Jacobian array
+
+#. convert the derivative to be mass-fraction-based
+
+#. apply any boosting to the rates if ``react_boost`` > 0
+
+#. call ``burn_to_vode`` to update the ``dvode_t``
+
+
+
+
 
 Thermodynamics and :math:`e` Evolution
 ======================================
@@ -182,17 +303,14 @@ Upon exit, we subtract off this initial offset, so ``state.e`` in
 the returned ``burn_t`` type from the ``actual_integrator``
 call represents the energy *release* during the burn.
 
-A fully accurate integration of Equation :eq:`eq:enuc_integrate`
+Integration of Equation :eq:`eq:enuc_integrate`
 requires an evaluation of the temperature at each integration step
 (since the RHS for the species is given in terms of :math:`T`, not :math:`e`).
-This involves an EOS call given the current temperature. This is done
-if ``integrator.call_eos_in_rhs = 1``, which is the default behavior that most accurately
-couples the thermodynamic evolution to the species evolution. This may add
-significantly to the expense of the calculation, especially for smaller networks
-where construction of the RHS is inexpensive, so this can optionally be turned off
-by setting ``integrator.call_eos_in_rhs = 0``. In this case the initial value of
-the temperature will be used for all rate evaluations. Also, energy evolution will
-be turned off if ``state.self_heat = 0``.
+This involves an EOS call and is the default behavior of the integration.
+
+If desired, the EOS call can be skipped and the temperature kept
+frozen over the entire time interval of the integration.  This is done
+bu setting ``integrator.call_eos_in_rhs = 0``.
 
 Note also that for the Jacobian, we need the specific heat, :math:`c_v`, since we
 usually calculate derivatives with respect to temperature (as this is the form
@@ -223,12 +341,11 @@ that the mass fractions stay positive and larger than some floor
 Stiff ODE Solvers
 =================
 
-We use high-order implicit ODE solvers for integrating the reaction
-system.  There are several options for integrators. Each should be capable of
-evolving any of the networks, but varying in their approach. Internally,
+We use a high-order implicit ODE solver for integrating the reaction
+system.  As an alternative, a first order explicit integrator is also provided.
+ Internally,
 the integrators uses different data structures to store the integration
-progress (from the old-style rpar array in VODE to derived
-types), and each integrator needs to provide a routine to convert
+progress, and each integrator needs to provide a routine to convert
 from the integrator’s internal representation to the ``burn_t``
 type required by the ``actual_rhs`` and ``actual_jac`` routine.
 
@@ -243,12 +360,8 @@ the allowed options are:
   integrator to C++ and removed the non-stiff integration code paths.
 
 We recommend that you use the VODE solver, as it is the most
-robust and has both Fortran and C++ implementations.
+robust.
 
-.. note::
-
-   In the implementation details shown below, we write the flow in
-   terms of the VODE solver routine names.
 
 Tolerances
 ----------
@@ -297,236 +410,6 @@ to :math:`10^{-12}` for the species, and a relative tolerance of :math:`10^{-6}`
 is used for the temperature and energy.
 
 
-Fortran interfaces
-------------------
-
-``integrator``
-^^^^^^^^^^^^^^
-
-The entry point to the integrator is ``integrator()`` in
-``integration/integrator.F90``.  This does some setup and then calls
-the specific integration routine, e.g., ``vode_integrator()`` in
-``integration/VODE/vode_integrator.F90``.
-
-.. code-block:: fortran
-
-      subroutine vode_integrator(state_in, state_out, dt, time, status)
-
-        type (burn_t), intent(in   ) :: state_in
-        type (burn_t), intent(inout) :: state_out
-        real(rt),    intent(in   ) :: dt, time
-        type (integration_status_t), intent(inout) :: status
-
-A basic flow chart of this interface is as follows (note: there are
-many conversions between ``eos_t``, ``burn_t``, and any
-integrator-specific type implied in these operations):
-
-#. Call the EOS on the input state, using :math:`\rho, T` as the input
-   variables.
-
-   This involves:
-
-   #. calling ``burn_to_eos`` to produce an ``eos_t``
-      with the thermodynamic information.
-
-   #. calling the EOS
-
-   #. calling ``eos_to_vode`` to produce a ``dvode_t`` type
-      containing all of the relevant
-      data into the internal representation used by the integrator.
-      Data that is not part of the integration state is stored in an ``rpar``
-      array that is indexed using the integer keys in ``vode_rpar_indices``.
-
-   We use the EOS result to define the energy offset for :math:`e`
-   integration.
-
-#. Compute the initial :math:`d(c_x)/dT` derivatives, if necessary, by
-   finite differencing on the temperature.
-
-#. Call the main integration routine, ``dvode()``, passing in the
-   ``dvode_t`` state to advance the inputs state through the desired
-   time interval, producing the new, output state.
-
-#. If necessary (integration failure, burn_mode demands)
-   do any retries of the integration
-
-#. Subtract off the energy offset—we now store just the
-   energy release as ``state_out % e``
-
-#. Convert back to a ``burn_t`` type (by ``calling vode_to_burn``).
-
-#. normalize the abundances so they sum to 1
-
-Righthand side wrapper
-^^^^^^^^^^^^^^^^^^^^^^
-
-Each integrator does their own thing to construct the solution,
-but they will all need to assess the RHS in ``actual_rhs``,
-which means converting from their internal representation
-to the ``burn_t`` type. This is handled in a file
-called ``vode_rhs.F90``.
-The basic outline of this routine is:
-
-#. call ``clean_state``
-
-   This function operates on the ODE integrator vector directly
-   (accessing it from the integrator’s internal data structure). It
-   makes sure that the mass fractions lie between ``SMALL_X_SAFE`` and 1  and
-   that the temperature lies between :math:`[{\tt small\_temp}, {\tt MAX_TEMP}]`. The
-   latter upper limit is arbitrary, but is safe for the types of problems
-   we support with these networks.
-
-   It also renormalizes the species, if ``renormalize_abundances = T``
-
-#. update the thermodynamic quantities by calling
-   ``update_thermodynamics()``
-
-   among other things, this will handle the ``call_eos_in_rhs`` option.
-
-#. call ``vode_to_burn`` to convert to a ``burn_t``
-
-#. call the actual RHS
-
-#. convert derivatives to mass-fraction-based (since we integrate
-   :math:`X`), and zero out energy derivatives (if ``integrate_energy
-   = F``).
-
-#. apply any boosting to the rates if ``react_boost`` > 0.
-
-#. convert back to the integrator’s internal representation by calling ``burn_to_vode``
-
-
-Jacobian wrapper
-^^^^^^^^^^^^^^^^
-
-Similar to the RHS, the Jacobian wrapper is handled in the same
-``vode_rhs.f90``.
-The basic outline of this routine is:
-
-.. note::
-
-   It is assumed that the thermodynamics are already correct when
-   calling the Jacobian wrapper, likely because we just called the RHS
-   wrapper above which did the ``clean_state`` and
-   ``update_thermodynamics`` calls.
-
-#. call ``vode_to_burn`` to convert to a ``burn_t`` type.
-
-#. call the actual Jacobian routine
-
-#. convert derivatives to mass-fraction-based (since we integrate
-   :math:`X`), and zero out the energy derivative (if
-   ``integrate_energy = F``).
-
-#. apply any boosting to the rates if ``react_boost`` > 0.
-
-#. convert back to the integrator’s internal representation by calling ``burn_to_vode``
-
-
-
-C++ interfaces
---------------
-
-``burner``
-^^^^^^^^^^
-
-The main entry point for C++ is ``burner()`` in
-``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine, which at the moment is only provided by VODE.
-
-.. code-block:: c++
-
-    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    void burner (burn_t& state, Real dt)
-
-
-The basic flow of the ``integrator()`` routine mirrors the Fortran one.
-
-.. note::
-
-   The C++ VODE integrator does not use a separate ``rpar`` array as
-   part of the ``dvode_t`` type.  Instead, any auxillary information
-   is kept in the original ``burn_t`` that was passed into the
-   integration routines.  For this reason, we often need to pass both
-   the ``dvode_t`` and ``burn_t`` objects into the network routines.
-
-#. Call the EOS on the input ``burn_t`` state.  This involves:
-
-   #. calling ``burn_to_eos`` to convert the ``burn_t`` to an ``eos_t``
-
-   #. calling the EOS with :math:`\rho` and :math:`T` as input
-
-   #. calling ``eos_to_burn`` to convert the ``eos_t`` back to a ``burn_t``
-
-#. Fill the integrator type by calling ``burn_to_vode`` to create a
-   ``dvode_t`` from the ``burn_t``
-
-   .. note::
-
-      unlike the Fortran interface, there is no ``vode_to_eos`` routine in C++
-
-#. Compute the initial :math:`d(c_x)/dt` derivatives
-
-#. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
-   ``burn_t`` --- as noted above, the auxillary information that is
-   not part of the integration state will be obtained from the
-   ``burn_t``.
-
-#. subtract off the energy offset---we now store just the energy released
-   in the ``dvode_t`` integration state.
-
-#. convert back to a ``burn_t`` by calling ``vode_to_burn``
-
-#. normalize the abundances so they sum to 1.
-
-
-Righthand side wrapper
-^^^^^^^^^^^^^^^^^^^^^^
-
-#. call ``clean_state`` on the ``dvode_t``
-
-#. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
-   the ``dvode_t`` and the ``burn_t``.
-
-#. call ``vode_to_burn`` to update the ``burn_t``
-
-#. call ``actual_rhs``
-
-#. convert the derivatives to mass-fraction-based (since we integrate :math:`X`)
-   and zero out the temperature and energy derivatives if we are not integrating
-   those quantities.
-
-#. apply any boosting if ``react_boost`` > 0
-
-#. convert back to the ``dvode_t`` by calling ``burn_to_vode``
-
-
-Jacobian wrapper
-^^^^^^^^^^^^^^^^
-
-.. note::
-
-   It is assumed that the thermodynamics are already correct when
-   calling the Jacobian wrapper, likely because we just called the RHS
-   wrapper above which did the ``clean_state`` and
-   ``update_thermodynamics`` calls.
-
-#. call ``vode_to_burn`` to update the ``burn_t``
-
-#. call ``actual_jac()`` to have the network fill the Jacobian array
-
-#. convert the derivative to be mass-fraction-based
-
-#. apply any boosting to the rates if ``react_boost`` > 0
-
-#. call ``burn_to_vode`` to update the ``dvode_t`` 
-
-
-
-
-Retries
--------
-
 Overriding Parameter Defaults on a Network-by-Network Basis
 ===========================================================
 
@@ -540,5 +423,3 @@ of the parameter with the highest priority is used. So picking a large
 integer value for the priority in a network’s ``_parameter`` file will
 ensure that it takes precedence.
 
-.. image:: doxygen_network.png
-   :align: center

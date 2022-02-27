@@ -54,6 +54,7 @@ extensions = ['sphinx.ext.autodoc',
     'numpydoc',
     'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.githubpages',
+    'sphinx-prompt',
     'breathe']
 
 breathe_projects = {
