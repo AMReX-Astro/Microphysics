@@ -188,6 +188,11 @@ namespace RHS {
             break;
 
         case O16_O16_to_Si28_He4:
+
+            // this models the flows:
+            //  O16(O16,alpha)Si28
+            //  O16(O16,p)P31(p,alpha)Si28
+
             data.species_A = O16;
             data.species_D = Si28;
             data.species_E = He4;
@@ -224,6 +229,14 @@ namespace RHS {
             break;
 
         case O16_O16_to_S32:
+
+            // this models
+            //  O16(O16,gamma)S32
+            //  O16(O16,p)P31(p,g)S32
+            //
+            // we also need Si28(alpha,p)P31 to find the equilibrium
+            // number of protons
+
             data.species_A = O16;
             data.species_D = S32;
 
@@ -269,6 +282,11 @@ namespace RHS {
             break;
 
         case Mg24_He4_to_Si28:
+
+            // this models
+            //  Mg24(alpha,gamma)Si28
+            //  Mg24(alpha,p)Al27(p,gamma)Si28
+
             data.species_A = Mg24;
             data.species_B = He4;
             data.species_D = Si28;
@@ -286,6 +304,11 @@ namespace RHS {
             break;
 
         case Si28_He4_to_S32:
+
+            // this models
+            //  Si28(alpha,gamma)S32
+            //  Si28(alpha,p)P31(p,gamma)S32
+
             data.species_A = Si28;
             data.species_B = He4;
             data.species_D = S32;
@@ -303,6 +326,11 @@ namespace RHS {
             break;
 
         case S32_He4_to_Ar36:
+
+            // this models
+            //  S32(alpha,gamma)Ar36
+            //  S32(alpha,p)Cl35(p,gamma)Ar36
+
             data.species_A = S32;
             data.species_B = He4;
             data.species_D = Ar36;
@@ -320,6 +348,11 @@ namespace RHS {
             break;
 
         case Ar36_He4_to_Ca40:
+
+            // this models
+            //  Ar36(alpha,gamma)Ca40
+            //  Ar36(alpha,p)K39(p,gamma)Ca40
+
             data.species_A = Ar36;
             data.species_B = He4;
             data.species_D = Ca40;
@@ -337,6 +370,11 @@ namespace RHS {
             break;
 
         case Ca40_He4_to_Ti44:
+
+            // this models
+            //  Ca40(alpha,gamma)Ti44
+            //  Ca40(alpha,p)Sc43(p,gamma)Ti44
+
             data.species_A = Ca40;
             data.species_B = He4;
             data.species_D = Ti44;
@@ -354,6 +392,11 @@ namespace RHS {
             break;
 
         case Ti44_He4_to_Cr48:
+
+            // this models
+            //  Ti44(alpha,gamma)Cr48
+            //  Ti44(alpha,p)V47(p,gamma)Cr48
+
             data.species_A = Ti44;
             data.species_B = He4;
             data.species_D = Cr48;
@@ -371,6 +414,11 @@ namespace RHS {
             break;
 
         case Cr48_He4_to_Fe52:
+
+            // this models
+            //  Cr48(alpha,gamma)Fe52
+            //  Cr48(alpha,p)Mn51(p,gamma)Fe52
+
             data.species_A = Cr48;
             data.species_B = He4;
             data.species_D = Fe52;
@@ -388,6 +436,11 @@ namespace RHS {
             break;
 
         case Fe52_He4_to_Ni56:
+
+            // this models
+            //  Fe52(alpha,gamma)Ni56
+            //  Fe52(alpha,p)Co55(p,gamma)Ni56
+
             data.species_A = Fe52;
             data.species_B = He4;
             data.species_D = Ni56;
