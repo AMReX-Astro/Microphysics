@@ -304,7 +304,6 @@ void do_vode_rhs()
 #if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = density;
 
-    // we will pick velocities to be 10% of the sound speed
     burn_state.y[SMX] = 0.0;
     burn_state.y[SMY] = 0.0;
     burn_state.y[SMZ] = 0.0;
