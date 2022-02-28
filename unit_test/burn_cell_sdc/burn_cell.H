@@ -306,7 +306,6 @@ void burn_cell_c()
 #if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = density;
 
-    // we will pick velocities to be 10% of the sound speed
     burn_state.y[SMX] = 0.0;
     burn_state.y[SMY] = 0.0;
     burn_state.y[SMZ] = 0.0;
@@ -336,6 +335,12 @@ void burn_cell_c()
     for (int n = 0; n < NumSpec; n++) {
         burn_state.ydot_a[SFS+n] = adv_species[n];
     }
+
+#ifdef NSE_THERMO
+    for (int n = 0; n < NumAux; n++) {
+        burn_state.ydot_a[SFX+n] = adv_aux[n];
+    }
+#endif
 
     // these need to be initialized 
 
