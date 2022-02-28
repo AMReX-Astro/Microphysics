@@ -295,6 +295,8 @@ void do_vode_rhs()
       burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
     }
 
+    burn_state.T_fixed = -1.e200_rt;
+
 #if NAUX_NET > 0
     for (int n = 0; n < NumAux; n++) {
         burn_state.y[SFX+n] = burn_state.rho * eos_state.aux[n];
