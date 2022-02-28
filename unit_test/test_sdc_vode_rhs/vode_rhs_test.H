@@ -14,7 +14,6 @@ void do_vode_rhs()
 
     Real massfractions[NumSpec] = {-1.0};
 
-    // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
         switch (n) {
 
@@ -121,7 +120,6 @@ void do_vode_rhs()
 #ifdef NSE_THERMO
     Real auxdata[NumAux] = {-1.0};
 
-    // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumAux; ++n) {
         switch (n) {
 
@@ -143,7 +141,6 @@ void do_vode_rhs()
 
     Real adv_species[NumSpec] = {0.0};
 
-    // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
         switch (n) {
 
@@ -246,7 +243,6 @@ void do_vode_rhs()
 #ifdef NSE_THERMO
     Real adv_aux[NumAux] = {0.0};
 
-    // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumAux; ++n) {
         switch (n) {
 
