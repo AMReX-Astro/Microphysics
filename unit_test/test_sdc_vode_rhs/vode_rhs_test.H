@@ -144,9 +144,6 @@ void do_vode_rhs()
                 burn_state.y[SMY] * burn_state.y[SMY] +
                 burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
 
-    // get T from total energy
-    burn_state.T_from_eden = true;
-
 #elif defined(SDC_EVOLVE_ENTHALPY)
     burn_state.y[SENTH] = burn_state.rho * eos_state.h;
 
@@ -207,7 +204,7 @@ void do_vode_rhs()
     rhs(0.0_rt, burn_state, vode_state, ydot);
 
     std::cout << "ydot = " << std::endl;
-    for (int n = 1; n <= NumSpec+2; n++) {
+    for (int n = 1; n <= NumSpec+1; n++) {
         std::cout << n << " " << ydot(n) << std::endl;
     }
  
