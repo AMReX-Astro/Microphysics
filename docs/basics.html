@@ -44,7 +44,7 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">StarKiller basics</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">StarKiller Basics</a><ul>
@@ -57,12 +57,11 @@
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
-<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
@@ -123,31 +122,24 @@
 <p>Microphysics can be used in a “standalone” fashion to run the unit
 tests and explore the behavior of the reaction networks.  The main
 requirement is a copy of AMReX:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">AMReX</span><span class="o">-</span><span class="n">Codes</span><span class="o">/</span><span class="n">amrex</span><span class="o">.</span><span class="n">git</span>
-</pre></div>
-</div>
-<p>We use this for some data structures and the build system.  You need
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">git clone https://github.com/AMReX-Codes/amrex.git</span>
+</pre></div></div><p>We use this for some data structures and the build system.  You need
 to set the <code class="docutils literal notranslate"><span class="pre">AMREX_HOME</span></code> environment variable to point to the
 <code class="docutils literal notranslate"><span class="pre">amrex/</span></code> directory:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">AMREX_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">amrex</span>
-</pre></div>
-</div>
-<p>(where you change <code class="docutils literal notranslate"><span class="pre">/path/to/amrex</span></code> to your actual path).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">export</span> <span class="nv">AMREX_HOME</span><span class="o">=</span>/path/to/amrex</span>
+</pre></div></div><p>(where you change <code class="docutils literal notranslate"><span class="pre">/path/to/amrex</span></code> to your actual path).</p>
 <p>A good unit test to start with is <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> – this is simply a
 one-zone burn.  In <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> do:</p>
-<blockquote>
-<div><p>cd unit_test/burn_cell
-make</p>
-</div></blockquote>
-<p>This will create an executable called <code class="docutils literal notranslate"><span class="pre">main3d.gnu.ex</span></code>.  Then you can run it as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs_aprox21</span>
-</pre></div>
-</div>
-<p>By default, the test is built with the 21-isotope <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> network.
-Here <code class="docutils literal notranslate"><span class="pre">inputs_aprox21</span></code> is the inputs file that sets options.  It also
-points to a second inputs file, <code class="docutils literal notranslate"><span class="pre">probin_aprox13</span></code> which is
-interpreted by the Fortran portions of the code.  In this second file, you’ll
-see the density, temperature, and mass fractions of the nuclei set.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">cd</span> unit_test/burn_cell</span>
+<span class="prompt1">make</span>
+</pre></div></div><p>This will create an executable called <code class="docutils literal notranslate"><span class="pre">main3d.gnu.ex</span></code>.  Then you can run it as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">./main3d.gnu.ex inputs_aprox21</span>
+</pre></div></div><p>By default, the test is built with the 21-isotope <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> network.
+Here <code class="docutils literal notranslate"><span class="pre">inputs_aprox21</span></code> is the inputs file that sets options.</p>
 </section>
 <section id="getting-started-running-with-maestroex-or-castro">
 <h2>Getting Started (Running with MAESTROeX or CASTRO)<a class="headerlink" href="#getting-started-running-with-maestroex-or-castro" title="Permalink to this headline">¶</a></h2>
@@ -158,7 +150,7 @@ calling these routines their location on your system. The code will do
 the rest. To do so, define the <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> environment
 variable, either at a command line or (if you use the bash shell)
 through your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">MICROPHYSICS_HOME</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">Microphysics</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">MICROPHYSICS_HOME</span><span class="o">=</span>/path/to/Microphysics
 </pre></div>
 </div>
 <p>For CASTRO and MAESTROeX the name of the EOS and network are set via
@@ -177,7 +169,7 @@ interfaces.</p>
 and the generic solvers:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">conductivity</span></code>: thermal conductivity routines</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">`constants</span></code>: fundamental constants</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">constants</span></code>: fundamental constants</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the
 reaction networks</p></li>
@@ -197,7 +189,6 @@ reaction networks.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t
 need any application code to build, but will require AMReX.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">viscosity/</span></code>: viscosity routines</p></li>
 </ul>
 </section>
 <section id="design-philosophy">

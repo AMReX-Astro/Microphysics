@@ -22,7 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reaction Networks" href="networks.html" />
+    <link rel="next" title="Overview of Reaction Networks" href="networks-overview.html" />
     <link rel="prev" title="ForwardEuler" href="runtime_parameters.html" /> 
 </head>
 
@@ -46,7 +46,7 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">StarKiller basics</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
@@ -68,12 +68,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#eos-structure">EOS Structure</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="networks.html">Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
@@ -286,8 +285,7 @@ module in the code calling this. However, there is a choice of whether
 to update the energy to match this temperature, respecting
 thermodynamic consistency, or to leave the energy alone, respecting
 energy conservation. This is controlled through the
-<code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code> parameter in your <code class="docutils literal notranslate"><span class="pre">extern</span></code>
-namelist in your probin file.</p>
+<code class="docutils literal notranslate"><span class="pre">eos.eos_input_is_constant</span></code> parameter in your inputs file.</p>
 <p>We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.</p>
 </section>
@@ -337,7 +335,7 @@ accept an eos_input and an eos_t state; see Section <a class="reference internal
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="runtime_parameters.html" class="btn btn-neutral float-left" title="ForwardEuler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="networks.html" class="btn btn-neutral float-right" title="Reaction Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="networks-overview.html" class="btn btn-neutral float-right" title="Overview of Reaction Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

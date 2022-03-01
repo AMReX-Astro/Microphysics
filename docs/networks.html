@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reaction Networks &mdash; Microphysics  documentation</title>
+  <title>Available Reaction Networks &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Integrating a Network" href="integrators.html" />
-    <link rel="prev" title="Equations of State" href="eos.html" /> 
+    <link rel="prev" title="Overview of Reaction Networks" href="networks-overview.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,42 +46,36 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">StarKiller basics</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Reaction Networks</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#network-requirements-and-structure">Network Requirements and Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#available-networks">Available Networks</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#iso7-aprox13-aprox19-and-aprox21">iso7, aprox13, aprox19, and aprox21</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#energy-generation">Energy generation.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Available Reaction Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#iso7-aprox13-aprox19-and-aprox21">iso7, aprox13, aprox19, and aprox21</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#energy-generation">Energy generation.</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#breakout">breakout</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#general-null">general_null</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ignition-chamulak">ignition_chamulak</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#energy-generation-1">Energy generation.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#general-null">general_null</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ignition-chamulak">ignition_chamulak</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#energy-generation-1">Energy generation.</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#ignition-reaclib">ignition_reaclib</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ignition-simple">ignition_simple</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#kpp">kpp</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#powerlaw">powerlaw</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rprox">rprox</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#subch">subch</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#ignition-reaclib">ignition_reaclib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ignition-simple">ignition_simple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kpp">kpp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#powerlaw">powerlaw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subch">subch</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cxx.html">C++ interfaces</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gpu.html">GPUs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
@@ -101,7 +95,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Reaction Networks</li>
+      <li>Available Reaction Networks</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/networks.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -135,91 +129,16 @@
     text-align: unset;
 }
 </style>
-<section id="reaction-networks">
-<h1>Reaction Networks<a class="headerlink" href="#reaction-networks" title="Permalink to this headline">¶</a></h1>
-<section id="network-requirements-and-structure">
-<h2>Network Requirements and Structure<a class="headerlink" href="#network-requirements-and-structure" title="Permalink to this headline">¶</a></h2>
-<p>A network both defines the composition advected by the hydro code as
-well as describes the burning processes between those isotopes.
-Evolving the species in a network requires an integrator. The design
-of Microphysics decouples the integrator from the network, allowing
-for the ability to swap integrators as desired. We discuss the
-integrators in a later section.</p>
-<p>A network is defined by a <code class="docutils literal notranslate"><span class="pre">.net</span></code> file which provides a list of species
-and some data about each species (its name and some isotopic data). At build
-time, a file <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> is automatically generated which contains
-a number of variables, including:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">NumSpec</span></code> : the number of species in the network</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">NumAux</span></code> : the number of auxiliary quantities needed by the network (these are not evolved).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">aion[NumSpec]</span></code> : the atomic weight (in atomic mass units) of the species</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">zion[NumSpec]</span></code> : the atomic number of the species</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">spec_names[NumSpec]</span></code> : a descriptive name of the species (e.g. “hydrogen-1”)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">short_spec_names[NumSpec]</span></code> : a shortened version of the species name (e.g. “H1”)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">aux_names[NumAux]</span></code>: the names of the auxiliary quantities</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">short_aux_names[NumAux]</span></code> : a shortened version of the auxiliary name</p></li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>A convention adopted in Microphysics is that each network is
-responsible for determining the energy release from a change in
-composition. Most networks will provide an array of the species
-binding energies and a routine to compute the energy yield from the
-reaction rates.</p>
-</div>
-<p>There are two primary files within each network directory.</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code> (as well as <code class="docutils literal notranslate"><span class="pre">actual_network_data.H</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_network_data.cpp</span></code>):</p>
-<blockquote>
-<div><p>This header defines data for the network such as enumerators for the reaction rates
-and the binding energies. The header must define the following function, which can be
-used to initialize any of the network’s internal data at runtime.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_network_init()</span></code></p></li>
-</ul>
-</div></blockquote>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs.H</span></code> (as well as <code class="docutils literal notranslate"><span class="pre">actual_rhs_data.H</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_rhs_data.cpp</span></code>):</p>
-<blockquote>
-<div><p>This header defines the functions which are used in the integrator for a burn:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs_init()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs(state,</span> <span class="pre">rhs)</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_jac(state,</span> <span class="pre">jac)</span></code></p></li>
-</ul>
-<p>This supplies an interface for computing the right-hand-side of the
-network, the time-derivative of each species (and the temperature
-and nuclear energy release), as well as the analytic Jacobian.
-Both <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> take as arguments a burn_t
-state and (respectively) the time-derivatives and Jacobian
-elements to fill in.</p>
-<p>Note: some networks do not provide an analytic Jacobian and instead
-rely on the numerical difference-approximation to the Jacobian. In
-this case, the interface <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> is still needed to compile.</p>
-</div></blockquote>
-</li>
-</ul>
-<p>Notice that these modules have initialization routines:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_network_init()</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">actual_rhs_init()</span></code></p></li>
-</ul>
-<p>These must be called upon initialization. These should be not called
-within OpenMP parallel regions, because in general they will modify
-global data.</p>
-<p>Note, depending on the network, some of these may do nothing, but
-these interfaces are all required for maximum flexibility.</p>
-</section>
-<section id="available-networks">
-<h2>Available Networks<a class="headerlink" href="#available-networks" title="Permalink to this headline">¶</a></h2>
+<section id="available-reaction-networks">
+<h1>Available Reaction Networks<a class="headerlink" href="#available-reaction-networks" title="Permalink to this headline">¶</a></h1>
 <section id="iso7-aprox13-aprox19-and-aprox21">
-<h3>iso7, aprox13, aprox19, and aprox21<a class="headerlink" href="#iso7-aprox13-aprox19-and-aprox21" title="Permalink to this headline">¶</a></h3>
+<h2>iso7, aprox13, aprox19, and aprox21<a class="headerlink" href="#iso7-aprox13-aprox19-and-aprox21" title="Permalink to this headline">¶</a></h2>
 <p>These are alpha-chains (with some other nuclei) from Frank Timmes.
 These networks share common rates (from <code class="docutils literal notranslate"><span class="pre">Microphysics/rates</span></code>),
 plasma neutrino loses (from <code class="docutils literal notranslate"><span class="pre">Microphysics/neutrinos</span></code>), and
 electron screening (from <code class="docutils literal notranslate"><span class="pre">Microphysics/screening</span></code>).</p>
 <section id="energy-generation">
-<h4>Energy generation.<a class="headerlink" href="#energy-generation" title="Permalink to this headline">¶</a></h4>
+<h3>Energy generation.<a class="headerlink" href="#energy-generation" title="Permalink to this headline">¶</a></h3>
 <p>These networks store the total binding energy of the nucleus in MeV as
 <code class="docutils literal notranslate"><span class="pre">bion(:)</span></code>. They then compute the mass of each nucleus in grams as:</p>
 <div class="math notranslate nohighlight">
@@ -235,35 +154,29 @@ is stored as <code class="docutils literal notranslate"><span class="pre">mion(:
 and <span class="math notranslate nohighlight">\(\edotnu\)</span> is the neutrino loss term.</p>
 </section>
 </section>
-<section id="breakout">
-<h3>breakout<a class="headerlink" href="#breakout" title="Permalink to this headline">¶</a></h3>
-</section>
 <section id="general-null">
-<h3>general_null<a class="headerlink" href="#general-null" title="Permalink to this headline">¶</a></h3>
+<h2>general_null<a class="headerlink" href="#general-null" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">general_null</span></code> is a bare interface for a nuclear reaction network;
 no reactions are enabled, and no auxiliary variables are accepted. The
-data in the Fortran module is defined at compile type by specifying an
+data in the network is defined at compile type by specifying an
 inputs file. For example,
 <code class="docutils literal notranslate"><span class="pre">Networks/general_null/triple_alpha_plus_o.net</span></code> would describe the
 triple-<span class="math notranslate nohighlight">\(\alpha\)</span> reaction converting helium into carbon, as
 well as oxygen and iron.</p>
-<p>At compile time, the network module <code class="docutils literal notranslate"><span class="pre">actual_network.f90</span></code>
-is written using the python script <code class="docutils literal notranslate"><span class="pre">write_network.py</span></code>
-and the template <code class="docutils literal notranslate"><span class="pre">network.template</span></code>. The make rule
+<p>At compile time, the network header <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code>
+is written using the python script <code class="docutils literal notranslate"><span class="pre">write_network.py</span></code>.  The make rule
 for this is contained in <code class="docutils literal notranslate"><span class="pre">Make.package</span></code>. The name of the inputs file
 is specified by the variable <code class="docutils literal notranslate"><span class="pre">GENERAL_NET_INPUTS</span></code>.</p>
-<p>A version of this network comes with MAESTRO and CASTRO, so you do
-not usually need to worry about the version in Microphysics.</p>
 </section>
 <section id="ignition-chamulak">
-<h3>ignition_chamulak<a class="headerlink" href="#ignition-chamulak" title="Permalink to this headline">¶</a></h3>
+<h2>ignition_chamulak<a class="headerlink" href="#ignition-chamulak" title="Permalink to this headline">¶</a></h2>
 <p>This network was introduced in our paper on convection in white dwarfs
 as a model of Type Ia supernovae <span id="id1">[<a class="reference internal" href="zreferences.html#id19" title="M. Zingale, A. Nonaka, A. S. Almgren, J. B. Bell, C. M. Malone, and S. E. Woosley. The Convective Phase Preceding Type Ia Supernovae. \apj , 740:8, October 2011. doi:10.1088/0004-637X/740/1/8.">ZingaleNonakaAlmgren+11</a>]</span>. It models
 carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in <span id="id2">[<a class="reference internal" href="zreferences.html#id17" title="D. A. Chamulak, E. F. Brown, F. X. Timmes, and K. Dupczak. The Reduction of the Electron Abundance during the Pre-explosion Simmering in White Dwarf Supernovae. \apj , 677:160-168, April 2008. arXiv:0801.1643, doi:10.1086/528944.">ChamulakBrownTimmesDupczak08</a>]</span>.</p>
 <section id="energy-generation-1">
-<span id="id3"></span><h4>Energy generation.<a class="headerlink" href="#energy-generation-1" title="Permalink to this headline">¶</a></h4>
+<span id="id3"></span><h3>Energy generation.<a class="headerlink" href="#energy-generation-1" title="Permalink to this headline">¶</a></h3>
 <p>The binding energy, <span class="math notranslate nohighlight">\(q\)</span>, in this
 network is interpolated based on the density. It is stored as the
 binding energy (ergs/g) <em>per nucleon</em>, with a sign convention that
@@ -274,10 +187,10 @@ binding energies are negative. The energy generation rate is then:</p>
 </section>
 </section>
 <section id="ignition-reaclib">
-<h3>ignition_reaclib<a class="headerlink" href="#ignition-reaclib" title="Permalink to this headline">¶</a></h3>
+<h2>ignition_reaclib<a class="headerlink" href="#ignition-reaclib" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="ignition-simple">
-<h3>ignition_simple<a class="headerlink" href="#ignition-simple" title="Permalink to this headline">¶</a></h3>
+<h2>ignition_simple<a class="headerlink" href="#ignition-simple" title="Permalink to this headline">¶</a></h2>
 <p>This is the original network used in our white dwarf convection
 studies <span id="id4">[<a class="reference internal" href="zreferences.html#id18" title="M. Zingale, A. S. Almgren, J. B. Bell, A. Nonaka, and S. E. Woosley. Low Mach Number Modeling of Type IA Supernovae. IV. White Dwarf Convection. \apj , 704:196-210, October 2009. arXiv:0908.2668, doi:10.1088/0004-637X/704/1/196.">ZingaleAlmgrenBell+09</a>]</span>. It includes a single-step
 <span class="math notranslate nohighlight">\(^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}\)</span> reaction.
@@ -293,10 +206,10 @@ of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.</p>
 </section>
 <section id="kpp">
-<h3>kpp<a class="headerlink" href="#kpp" title="Permalink to this headline">¶</a></h3>
+<h2>kpp<a class="headerlink" href="#kpp" title="Permalink to this headline">¶</a></h2>
 </section>
 <section id="powerlaw">
-<h3>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this headline">¶</a></h3>
+<h2>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this headline">¶</a></h2>
 <p>This is a simple single-step reaction rate.
 We will consider only two species, fuel, <span class="math notranslate nohighlight">\(f\)</span>, and ash, <span class="math notranslate nohighlight">\(a\)</span>, through
 the reaction: <span class="math notranslate nohighlight">\(f + f \rightarrow a + \gamma\)</span>. Baryon conservation
@@ -340,7 +253,7 @@ this network. This is one of the few networks that was designed
 to work with <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> as the EOS.</p>
 </section>
 <section id="rprox">
-<h3>rprox<a class="headerlink" href="#rprox" title="Permalink to this headline">¶</a></h3>
+<h2>rprox<a class="headerlink" href="#rprox" title="Permalink to this headline">¶</a></h2>
 <p>This network contains 10 species, approximating hot CNO,
 triple-<span class="math notranslate nohighlight">\(\alpha\)</span>, and rp-breakout burning up through <span class="math notranslate nohighlight">\(^{56}\mathrm{Ni}\)</span>,
 using the ideas from <span id="id5">[<a class="reference internal" href="zreferences.html#id23" title="R. K. Wallace and S. E. Woosley. Explosive hydrogen burning. \apjs , 45:389-420, February 1981. doi:10.1086/190717.">WallaceWoosley81</a>]</span>, but with modern
@@ -349,13 +262,13 @@ This network was used for the X-ray burst studies in
 <span id="id7">[<a class="reference internal" href="zreferences.html#id22" title="C. M. Malone, M. Zingale, A. Nonaka, A. S. Almgren, and J. B. Bell. Multidimensional Modeling of Type I X-Ray Bursts. II. Two-dimensional Convection in a Mixed H/He Accretor. \apj , 788:115, June 2014. arXiv:1404.6286, doi:10.1088/0004-637X/788/2/115.">MaloneZingaleNonaka+14</a>]</span>, <span id="id8">[<a class="reference internal" href="zreferences.html#id21" title="M. Zingale, C. M. Malone, A. Nonaka, A. S. Almgren, and J. B. Bell. Comparisons of Two- and Three-Dimensional Convection in Type I X-Ray Bursts. \apj , 807:60, July 2015. arXiv:1410.5796, doi:10.1088/0004-637X/807/1/60.">ZingaleMaloneNonaka+15</a>]</span>, and more details are contained in those papers.</p>
 </section>
 <section id="triple-alpha-plus-cago">
-<h3>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this headline">¶</a></h3>
+<h2>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this headline">¶</a></h2>
 <p>This is a 2 reaction network for helium burning, capturing the <span class="math notranslate nohighlight">\(3\)</span>-<span class="math notranslate nohighlight">\(\alpha\)</span>
 reaction and <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
 <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
 </section>
 <section id="subch">
-<h3>subch<a class="headerlink" href="#subch" title="Permalink to this headline">¶</a></h3>
+<h2>subch<a class="headerlink" href="#subch" title="Permalink to this headline">¶</a></h2>
 <p>This is a 10 isotope network including rates from reactions suggested
 by Shen and Bildsten in their 2009 paper on helium burning on a white
 dwarf <span id="id9">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span>.  The reactions included in
@@ -385,13 +298,12 @@ Notably, the reaction <span class="math notranslate nohighlight">\(\isotm{N}{13}
 </figure>
 </section>
 </section>
-</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="eos.html" class="btn btn-neutral float-left" title="Equations of State" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="networks-overview.html" class="btn btn-neutral float-left" title="Overview of Reaction Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="integrators.html" class="btn btn-neutral float-right" title="Integrating a Network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
