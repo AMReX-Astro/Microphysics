@@ -375,6 +375,13 @@ void do_vode_rhs()
 
     // Fill in the initial integration state.
 
+    vode_state.t = 0.0_rt;
+    vode_state.tn = 0.0_rt;   // this is needed for directly accessing the jac() function
+    vode_state.H = tmax/1000.0_rt;  // needed for jacobian = 3 scaling
+    vode_state.tout = tmax;
+    vode_state.NFE = 0;
+    vode_state.NJE = 0;
+
     burn_to_vode(burn_state, vode_state);
 
     // call the RHS routine
