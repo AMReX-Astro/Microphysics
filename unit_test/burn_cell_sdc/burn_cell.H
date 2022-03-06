@@ -105,6 +105,21 @@ void burn_cell_c()
         case 30:
             massfractions[n-1] = X30;
             break;
+        case 31:
+            massfractions[n-1] = X31;
+            break;
+        case 32:
+            massfractions[n-1] = X32;
+            break;
+        case 33:
+            massfractions[n-1] = X33;
+            break;
+        case 34:
+            massfractions[n-1] = X34;
+            break;
+        case 35:
+            massfractions[n-1] = X35;
+            break;
 
         }
 
@@ -233,6 +248,21 @@ void burn_cell_c()
             break;
         case 30:
             adv_species[n-1] = Adv_X30;
+            break;
+        case 31:
+            adv_species[n-1] = Adv_X31;
+            break;
+        case 32:
+            adv_species[n-1] = Adv_X32;
+            break;
+        case 33:
+            adv_species[n-1] = Adv_X33;
+            break;
+        case 34:
+            adv_species[n-1] = Adv_X34;
+            break;
+        case 35:
+            adv_species[n-1] = Adv_X35;
             break;
 
         }
