@@ -105,6 +105,21 @@ void burn_cell_c()
         case 30:
             massfractions[n-1] = X30;
             break;
+        case 31:
+            massfractions[n-1] = X31;
+            break;
+        case 32:
+            massfractions[n-1] = X32;
+            break;
+        case 33:
+            massfractions[n-1] = X33;
+            break;
+        case 34:
+            massfractions[n-1] = X34;
+            break;
+        case 35:
+            massfractions[n-1] = X35;
+            break;
 
         }
 
@@ -234,6 +249,21 @@ void burn_cell_c()
         case 30:
             adv_species[n-1] = Adv_X30;
             break;
+        case 31:
+            adv_species[n-1] = Adv_X31;
+            break;
+        case 32:
+            adv_species[n-1] = Adv_X32;
+            break;
+        case 33:
+            adv_species[n-1] = Adv_X33;
+            break;
+        case 34:
+            adv_species[n-1] = Adv_X34;
+            break;
+        case 35:
+            adv_species[n-1] = Adv_X35;
+            break;
 
         }
 
@@ -306,7 +336,6 @@ void burn_cell_c()
 #if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = density;
 
-    // we will pick velocities to be 10% of the sound speed
     burn_state.y[SMX] = 0.0;
     burn_state.y[SMY] = 0.0;
     burn_state.y[SMZ] = 0.0;
@@ -336,6 +365,12 @@ void burn_cell_c()
     for (int n = 0; n < NumSpec; n++) {
         burn_state.ydot_a[SFS+n] = adv_species[n];
     }
+
+#ifdef NSE_THERMO
+    for (int n = 0; n < NumAux; n++) {
+        burn_state.ydot_a[SFX+n] = adv_aux[n];
+    }
+#endif
 
     // these need to be initialized 
 
