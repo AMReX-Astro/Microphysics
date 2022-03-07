@@ -3,8 +3,6 @@
 import pynucastro as pyna
 from pynucastro.networks import StarKillerCxxNetwork
 
-library_file = "20180319default2"
-
 all_reactants = ["n", "p",
                  "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
                  "ar36", "ca40", "ti44", "cr48", "fe52", "ni56",
@@ -12,17 +10,23 @@ all_reactants = ["n", "p",
                  "c14", "n13", "n14", "o18", "f18", "ne21",
                  "mg23", "na23", "si27", "s31"]
 
-def doit():
-    reaclib_library = pyna.rates.Library(library_file)
+def get_subch2_library():
 
+    reaclib_library = pyna.ReacLibLibrary()
 
     subch_library = reaclib_library.linking_nuclei(all_reactants)
+
+    return subch_library
+
+def doit():
+
+    subch_library = get_subch2_library()
 
     # generate a report about any missing rates that we might want to include
 
     subch_library.validate(reaclib_library)
 
-    net = StarKillerCxxNetwork(libraries=[subch_library])
+    net = StarKillerCxxNetwork(libraries=[subch_library], symmetric_screening=True)
     net.write_network()
 
 if __name__ == "__main__":
