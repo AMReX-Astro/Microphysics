@@ -342,10 +342,13 @@ void do_vode_rhs()
     }
 #endif
 
-    // these need to be initialized 
+    // these need to be initialized
 
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
+    burn_state.i = 0;
+    burn_state.j = 0;
+    burn_state.k = 0;
 
     for (int n = 0; n < NumSpec; ++n) {
         burn_state.xn[n] = massfractions[n];
@@ -372,6 +375,13 @@ void do_vode_rhs()
 
     // Fill in the initial integration state.
 
+    vode_state.t = 0.0_rt;
+    vode_state.tn = 0.0_rt;   // this is needed for directly accessing the jac() function
+    vode_state.H = tmax/1000.0_rt;  // needed for jacobian = 3 scaling
+    vode_state.tout = tmax;
+    vode_state.NFE = 0;
+    vode_state.NJE = 0;
+
     burn_to_vode(burn_state, vode_state);
 
     // call the RHS routine
@@ -382,10 +392,23 @@ void do_vode_rhs()
     rhs(0.0_rt, burn_state, vode_state, ydot);
 
     std::cout << "ydot = " << std::endl;
-    for (int n = 1; n <= NumSpec+1; n++) {
+    for (int n = 1; n <= VODE_NEQS; n++) {
         std::cout << n << " " << ydot(n) << std::endl;
     }
- 
+
+    // call the Jacobian
+
+    RArray2D pd;
+    jac(burn_state, vode_state, pd);
+
+    for (int row = 1; row <= VODE_NEQS; ++row) {
+        for (int col = 1; col <= VODE_NEQS; ++col) {
+            std::cout << "(" << std::setw(2) << row << "," << std::setw(2) << col << ") = " << pd(row,col) << std::endl;
+        }
+    }
+
+    // do a full burn to make sure this zone can be integrated
+
     std::cout << "now do a burn" << std::endl;
 
     integrator(burn_state, tmax);
