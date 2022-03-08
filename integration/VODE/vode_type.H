@@ -7,21 +7,13 @@
 #include <ArrayUtilities.H>
 #include <network.H>
 
+#include <integrator_size.H>
+
 #ifdef NETWORK_SOLVER
 #include <actual_matrix.H>
 #endif
 
-#ifdef STRANG
-const int VODE_NEQS = NumSpec + 1;
-#endif
-
-#ifdef SIMPLIFIED_SDC
-const int VODE_NEQS = SVAR_EVOLVE;
-#endif
-
-#ifdef TRUE_SDC
-const int VODE_NEQS = NumSpec + 2;
-#endif
+const int VODE_NEQS = INT_NEQS;
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
