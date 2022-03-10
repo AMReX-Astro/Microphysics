@@ -7,7 +7,7 @@
 #include <ArrayUtilities.H>
 #include <network.H>
 
-#include <integrator_size.H>
+#include <integrator_data.H>
 
 #ifdef NETWORK_SOLVER
 #include <actual_matrix.H>

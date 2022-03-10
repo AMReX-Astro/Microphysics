@@ -13,7 +13,7 @@ ifeq ($(USE_NONAKA_PLOT), TRUE)
 endif
 
 CEXE_headers += integrator.H
-CEXE_headers += integrator_size.H
+CEXE_headers += integrator_data.H
 
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
 VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils
