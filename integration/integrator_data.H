@@ -1,5 +1,5 @@
-#ifndef INTEGRATOR_SIZE_H
-#define INTEGRATOR_SIZE_H
+#ifndef INTEGRATOR_DATA_H
+#define INTEGRATOR_DATA_H
 
 #include <burn_type.H>
 
