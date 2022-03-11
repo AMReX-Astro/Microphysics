@@ -24,7 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-    const std::string secret_code_reference = "VAYM5A62YL2KOWD0ZXF70L8OACB2K3J0";
+    const std::string secret_code_reference = "8UMAOIN3FA12U4DOUQ1IK1IOAX6DV0GJ";
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -695,6 +695,7 @@ tf_t evaluate_tfactors(const Real T)
     return tf;
 }
 
+template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reaclib_evaluate(plasma_state_t& pstate, const tf_t& tfactors, const int iwhich,
                       Real& rate, Real& drate_dt) {
@@ -729,14 +730,17 @@ void reaclib_evaluate(plasma_state_t& pstate, const tf_t& tfactors, const int iw
 
         // compute the derivative of the log of the rate
 
-        Real dlnirate_dT9 =
-            -reaclib_rates::ctemp_rate(2, istart+i) * tfactors.T9i * tfactors.T9i +
-            -(1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(3, istart+i) * tfactors.T943i +
-            (1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(4, istart+i) * tfactors.T923i +
-            reaclib_rates::ctemp_rate(5, istart+i) +
-            (5.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(6, istart+i) * tfactors.T923 +
-            reaclib_rates::ctemp_rate(7, istart+i) * tfactors.T9i;
+        Real dlnirate_dT9{0.0};
 
+        if constexpr (do_T_derivatives == 1) {
+            dlnirate_dT9 =
+                -reaclib_rates::ctemp_rate(2, istart+i) * tfactors.T9i * tfactors.T9i +
+                -(1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(3, istart+i) * tfactors.T943i +
+                (1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(4, istart+i) * tfactors.T923i +
+                reaclib_rates::ctemp_rate(5, istart+i) +
+                (5.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(6, istart+i) * tfactors.T923 +
+                reaclib_rates::ctemp_rate(7, istart+i) * tfactors.T9i;
+        }
 
         // If the rate will be in the approx. interval [0.0, 1.0E-100], replace by 0.0
         // This avoids issues with passing very large negative values to EXP
@@ -746,8 +750,11 @@ void reaclib_evaluate(plasma_state_t& pstate, const tf_t& tfactors, const int iw
         lnirate = amrex::max(lnirate, -230.0e0_rt);
         irate = std::exp(lnirate);
         rate += irate;
-        dirate_dt = irate * dlnirate_dT9 / 1.0e9_rt;
-        drate_dt += dirate_dt;
+
+        if constexpr (do_T_derivatives == 1) {
+            dirate_dt = irate * dlnirate_dT9 / 1.0e9_rt;
+            drate_dt += dirate_dt;
+        }
     }
 }
 
