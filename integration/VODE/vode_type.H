@@ -9,10 +9,6 @@
 
 #include <integrator_data.H>
 
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
-
 const int VODE_NEQS = INT_NEQS;
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
