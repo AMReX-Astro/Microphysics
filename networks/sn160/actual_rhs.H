@@ -6004,14 +6004,14 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_p_d__n_p_p)*Y(H2)*Y(H1)*state.rho +
         -screened_rates(k_p_be9__d_he4_he4)*Y(Be9)*Y(H1)*state.rho +
         -screened_rates(k_p_b11__he4_he4_he4)*Y(B11)*Y(H1)*state.rho +
-        0.0e0_rt_rt +
+        0.0e0_rt +
         -screened_rates(k_n_p_he4__li6)*Y(He4)*Y(N)*Y(H1)*std::pow(state.rho, 2) +
         -0.5*screened_rates(k_n_p_p__p_d)*Y(N)*std::pow(Y(H1), 2)*std::pow(state.rho, 2) +
         -screened_rates(k_p_p_he4__he3_he3)*Y(He4)*std::pow(Y(H1), 2)*std::pow(state.rho, 2) +
         -0.5*screened_rates(k_p_he4_he4__n_b8)*std::pow(Y(He4), 2)*Y(H1)*std::pow(state.rho, 2) +
         -0.5*screened_rates(k_p_he4_he4__d_be7)*std::pow(Y(He4), 2)*Y(H1)*std::pow(state.rho, 2) +
         -0.5*screened_rates(k_n_p_he4_he4__he3_li7)*std::pow(Y(He4), 2)*Y(N)*Y(H1)*std::pow(state.rho, 3) +
-        0.0e0_rt_rt +
+        0.0e0_rt +
         -0.5*screened_rates(k_p_p_he4_he4__he3_be7)*std::pow(Y(He4), 2)*std::pow(Y(H1), 2)*std::pow(state.rho, 3) +
         screened_rates(k_n__p__weak__wc12)*Y(N) +
         screened_rates(k_d__n_p)*Y(H2) +
@@ -6361,11 +6361,11 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_n_b8__p_he4_he4)*Y(B8)*Y(N)*state.rho +
         screened_rates(k_he3_li7__n_p_he4_he4)*Y(He3)*Y(Li7)*state.rho +
         2.0*screened_rates(k_he3_be7__p_p_he4_he4)*Y(Be7)*Y(He3)*state.rho +
-        0.0e0_rt_rt +
+        0.0e0_rt +
         -0.5*screened_rates(k_n_p_p__p_d)*Y(N)*std::pow(Y(H1), 2)*std::pow(state.rho, 2) +
         0.5*screened_rates(k_d_he4_he4__p_be9)*Y(H2)*std::pow(Y(He4), 2)*std::pow(state.rho, 2) +
         0.16666666666666667*screened_rates(k_he4_he4_he4__p_b11)*std::pow(Y(He4), 3)*std::pow(state.rho, 2) +
-        0.0e0_rt_rt;
+        0.0e0_rt;
 
     ydot_nuc(H2) =
         -screened_rates(k_d__n_p)*Y(H2) +
