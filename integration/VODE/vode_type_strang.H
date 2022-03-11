@@ -1,7 +1,7 @@
 #ifndef VODE_TYPE_STRANG_H
 #define VODE_TYPE_STRANG_H
 
-#include<eos.H>
+#include <eos.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void vode_to_burn (const dvode_t& vode_state, burn_t& state)
