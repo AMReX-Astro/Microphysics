@@ -209,6 +209,46 @@ appropriate interpolation table from that site to use this.
 Interface and Modes
 ===================
 
+The EOS is called as:
+
+.. code:: c++
+
+   eos(mode, eos_type)
+
+where *mode* determines which thermodynamic quantities are inputs,
+and is one of:
+
+* ``eos_input_rt`` : density and temperature are inputs
+
+* ``eos_input_rh`` : density and specific enthalpy are inputs
+
+* ``eos_input_tp`` : temperature and pressure are inputs
+
+* ``eos_input_rp`` : density and pressure are inputs
+
+* ``eos_input_re`` : density and specific internal energy are inputs
+
+* ``eos_input_ps`` : pressure and entropy are inputs
+
+* ``eos_input_ph`` : pressure and specific enthalpy are inputs
+
+* ``eos_input_th`` : temperature and specific enthalpy are inputs
+
+The *eos_type* passed in is one of
+
+* ``eos_t`` : provides access to all available thermodynamic information,
+  including derivatives.
+
+* ``eos_re_t`` : only provides the energy-based thermodynamic information, including
+  energy derivatives.
+
+* ``eos_rep_t`` : expands on ``eos_re_t`` to include pressure information
+
+In general, you should use the type that has the smallest set of
+information needed, since we optimize out needless quantities at
+compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
+
+
 Initialization and Cutoff Values
 ================================
 
