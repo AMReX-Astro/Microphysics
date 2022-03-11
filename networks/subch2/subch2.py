@@ -10,21 +10,57 @@ all_reactants = ["n", "p",
                  "c14", "n13", "n14", "o18", "f18", "ne21",
                  "mg23", "na23", "si27", "s31"]
 
-def get_subch2_library():
+def get_subch2_library(validate=False):
 
     reaclib_library = pyna.ReacLibLibrary()
 
     subch_library = reaclib_library.linking_nuclei(all_reactants)
 
-    return subch_library
+    if validate:
+        subch_library.validate(reaclib_library)
+
+    all_reactants.remove("n")
+
+    no_neutron_library = reaclib_library.linking_nuclei(all_reactants)
+
+    return subch_library, no_neutron_library
+
+
+
 
 def doit():
 
-    subch_library = get_subch2_library()
+    subch_library, no_neutron_library = get_subch2_library()
+
+    n_rates = [r for _, r in (subch_library - no_neutron_library)._rates.items()]
+
+    print("original set of n rates: ")
+    for r in n_rates:
+        print(r)
+
+    print(" ")
+
+    print(subch_library)
+
+    # debugging
+    remove_rates = []
+    for i, r in enumerate(sorted(n_rates)):
+        #if i <= (len(n_rates)-1)//2: doesn't run
+        #if i > len(n_rates)//2:  # runs well
+        #if i > 10:  # doesn't run
+        #if i <= 10 or i > len(n_rates)//2: # works well
+        #if i <= 15 or i > len(n_rates)//2:  # doesn't run
+        if i <= 10 or i > len(n_rates)//2 - 4: # also crashes!
+            continue
+        remove_rates.append(r)
+
+    for r in remove_rates:
+        print("removing: ", r)
+        subch_library.remove_rate(r)
+
 
     # generate a report about any missing rates that we might want to include
 
-    subch_library.validate(reaclib_library)
 
     net = StarKillerCxxNetwork(libraries=[subch_library], symmetric_screening=True)
     net.write_network()

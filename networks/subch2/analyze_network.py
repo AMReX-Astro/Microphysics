@@ -19,4 +19,4 @@ print(f"number of nuclei = {len(comp.X)}")
 print(f"number of rates = {len(rc.rates)}")
 
 rc.plot_network_chart(rho=rho, T=T, comp=comp,
-                      size=(800,2400), outfile="subch_network_chart.pdf")
+                      size=(2800,2200), outfile="subch_network_chart.pdf")
