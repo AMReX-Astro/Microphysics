@@ -16,7 +16,7 @@
 #include <sneut5.H>
 #endif
 #include <jacobian_utilities.H>
-#include <vode_type.H>
+#include <integrator_data.H>
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
 
@@ -340,24 +340,24 @@ constexpr int is_jacobian_term_used ()
 #endif
 }
 
-typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
-typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
+typedef amrex::Array1D<int, 1, INT_NEQS> IArray1D;
+typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
+typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgesl (RArray2D& a1, RArray1D& b1)
 {
-    auto const& a = reinterpret_cast<Array2D<Real, 0, VODE_NEQS-1, 0, VODE_NEQS-1>&>(a1);
-    auto& b = reinterpret_cast<Array1D<Real, 0, VODE_NEQS-1>&>(b1);
+    auto const& a = reinterpret_cast<Array2D<Real, 0, INT_NEQS-1, 0, INT_NEQS-1>&>(a1);
+    auto& b = reinterpret_cast<Array1D<Real, 0, INT_NEQS-1>&>(b1);
 
     // solve a * x = b
     // first solve l * y = b
-    constexpr_for<0, VODE_NEQS-1>([&] (auto n1)
+    constexpr_for<0, INT_NEQS-1>([&] (auto n1)
     {
         constexpr int k = n1;
 
         Real t = b(k);
-        constexpr_for<k+1, VODE_NEQS>([&] (auto n2)
+        constexpr_for<k+1, INT_NEQS>([&] (auto n2)
         {
             constexpr int j = n2;
 
@@ -368,9 +368,9 @@ void dgesl (RArray2D& a1, RArray1D& b1)
     });
 
     // now solve u * x = y
-    constexpr_for<0, VODE_NEQS>([&] (auto kb)
+    constexpr_for<0, INT_NEQS>([&] (auto kb)
     {
-        constexpr int k = VODE_NEQS - kb - 1;
+        constexpr int k = INT_NEQS - kb - 1;
 
         b(k) = b(k) / a(k,k);
         Real t = -b(k);
@@ -387,17 +387,17 @@ void dgesl (RArray2D& a1, RArray1D& b1)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgefa (RArray2D& a1)
 {
-    auto& a = reinterpret_cast<Array2D<Real, 0, VODE_NEQS-1, 0, VODE_NEQS-1>&>(a1);
+    auto& a = reinterpret_cast<Array2D<Real, 0, INT_NEQS-1, 0, INT_NEQS-1>&>(a1);
 
     // LU factorization in-place without pivoting.
 
-    constexpr_for<0, VODE_NEQS-1>([&] (auto n1)
+    constexpr_for<0, INT_NEQS-1>([&] (auto n1)
     {
         constexpr int k = n1;
 
         // compute multipliers
         Real t = -1.0_rt / a(k,k);
-        constexpr_for<k+1, VODE_NEQS>([&] (auto n2)
+        constexpr_for<k+1, INT_NEQS>([&] (auto n2)
         {
             constexpr int j = n2;
 
@@ -407,12 +407,12 @@ void dgefa (RArray2D& a1)
         });
 
         // row elimination with column indexing
-        constexpr_for<k+1, VODE_NEQS>([&] (auto n2)
+        constexpr_for<k+1, INT_NEQS>([&] (auto n2)
         {
             constexpr int j = n2;
 
             t = a(k,j);
-            constexpr_for<k+1, VODE_NEQS>([&] (auto n3)
+            constexpr_for<k+1, INT_NEQS>([&] (auto n3)
             {
                 constexpr int i = n3;
 
