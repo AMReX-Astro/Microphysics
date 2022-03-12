@@ -9,10 +9,6 @@
 
 #include <integrator_data.H>
 
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
-
 const int VODE_NEQS = INT_NEQS;
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
@@ -156,26 +152,12 @@ struct dvode_t
     // Integration array
     RArray1D y;
 
-#ifdef NETWORK_SOLVER
-
-    // Jacobian
-    SparseMatrix jac;
-
-#ifdef ALLOW_JACOBIAN_CACHING
-    // Saved Jacobian
-    SparseMatrix jac_save;
-#endif
-
-#else
-
     // Jacobian
     RArray2D jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     RArray2D jac_save;
-#endif
-
 #endif
 
     // the Nordsieck history array

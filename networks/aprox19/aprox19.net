@@ -1,25 +1,41 @@
 # This is a null network corresponding to the aprox19 burner.
 
-# name       short name    aion     zion
- hydrogen-1     H1           1.0      1.0
- helium-3       He3          3.0      2.0
- helium-4       He4          4.0      2.0
- carbon-12      C12         12.0      6.0
- nitrogen-14    N14         14.0      7.0
- oxygen-16      O16         16.0      8.0
- neon-20        Ne20        20.0     10.0
- magnesium-24   Mg24        24.0     12.0
- silicon-28     Si28        28.0     14.0
- sulfur-32      S32         32.0     16.0
- argon-36       Ar36        36.0     18.0
- calcium-40     Ca40        40.0     20.0
- titanium-44    Ti44        44.0     22.0
- chromium-48    Cr48        48.0     24.0
- iron-52        Fe52        52.0     26.0
- iron-54        Fe54        54.0     26.0
- nickel-56      Ni56        56.0     28.0
- neutron        n            1.0      0.0
- proton         p            1.0      1.0
+# name                   short name  aion     zion
+  hydrogen-1             H1           1.0      1.0
+  __extra_hydrogen-2     H2           2.0      1.0
+  helium-3               He3          3.0      2.0
+  helium-4               He4          4.0      2.0
+  __extra_beryllium-7    Be7          7.0      3.0
+  carbon-12              C12         12.0      6.0
+  __extra_nitrogen-13    N13         13.0      7.0
+  nitrogen-14            N14         14.0      7.0
+  __extra_nitrogen-15    N15         15.0      7.0
+  __extra_oxygen-15      O15         15.0      8.0
+  oxygen-16              O16         16.0      8.0
+  __extra_fluorine-17    F17         17.0      9.0
+  __extra_fluorine-18    F18         18.0      9.0
+  neon-20                Ne20        20.0     10.0
+  magnesium-24           Mg24        24.0     12.0
+  __extra_aluminum-27    Al27        27.0     13.0
+  silicon-28             Si28        28.0     14.0
+  __extra_phosphorus-31  P31         31.0     15.0
+  sulfur-32              S32         32.0     16.0
+  __extra_chlorine-35    Cl35        35.0     17.0
+  argon-36               Ar36        36.0     18.0
+  __extra_potassium-39   K39         39.0     19.0
+  calcium-40             Ca40        40.0     20.0
+  __extra_scandium-43    Sc43        43.0     21.0
+  titanium-44            Ti44        44.0     22.0
+  __extra_vanadium-47    V47         47.0     23.0
+  chromium-48            Cr48        48.0     24.0
+  __extra_manganese-51   Mn51        51.0     25.0
+  iron-52                Fe52        52.0     26.0
+  __extra_iron-53        Fe53        53.0     26.0
+  iron-54                Fe54        54.0     26.0
+  __extra_cobalt-55      Co55        55.0     27.0
+  nickel-56              Ni56        56.0     28.0
+  neutron                n            1.0      0.0
+  proton                 p            1.0      1.0
 
 # auxillary variables
 __aux_Ye       NSE

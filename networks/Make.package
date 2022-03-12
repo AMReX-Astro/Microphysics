@@ -24,6 +24,9 @@ ifeq ($(USE_REACT), TRUE)
 
   CEXE_headers += rate_type.H
 
+  CEXE_headers += rhs.H
+  CEXE_sources += rhs.cpp
+
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
   include $(MICROPHYSICS_HOME)/integration/Make.package
@@ -58,6 +61,7 @@ ifeq ($(USE_SCREENING), TRUE)
 
   include $(SCREEN_PATH)/Make.package
 
+  DEFINES += -DSCREENING
   DEFINES += -DNUMSCREEN=$(NSCREEN)
 
 endif
@@ -77,6 +81,8 @@ ifeq ($(USE_NEUTRINOS), TRUE)
   EXTERN_CORE       += $(NEUTRINO_PATH)
 
   include $(NEUTRINO_PATH)/Make.package
+
+  DEFINES += -DNEUTRINOS
 
 endif
 
