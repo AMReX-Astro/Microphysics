@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Templated Network Righthand Sides &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Integrating a Network" href="integrators.html" />
+    <link rel="prev" title="Available Reaction Networks" href="networks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+            <a href="index.html" class="icon icon-home"> Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="../templated_networks.html">main</a> | <a href="./templated_networks.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Templated Network Righthand Sides</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rate-enum">Rate <code class="docutils literal notranslate"><span class="pre">enum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata">Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#loop-over-rates">Loop over Rates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#jacobian">Jacobian</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linear-algebra">Linear Algebra</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Templated Network Righthand Sides</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/templated_networks.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="templated-network-righthand-sides">
+<h1>Templated Network Righthand Sides<a class="headerlink" href="#templated-network-righthand-sides" title="Permalink to this headline">¶</a></h1>
+<p>A network consists of evaluating the rates and screening, and then for
+each rate, adding or subtracting the appropriate contribution to the
+evolution equation for each nucleus it affects.  That second part is
+something that can be automated, greatly simplifying the construction
+of the righthand side function (and Jacobian) as well as enabling
+optimizations.</p>
+<p>The templated network righthand side functionality builds the
+righthand side function at <em>compile time</em> using C++ templates.  For
+each reaction, we need to provide only a small amount of metadata.
+This greatly simplifies the networks.  This infrastructure works for
+approximate networks as well as regular networks.</p>
+<p>Consider a reaction of the form:</p>
+<div class="math notranslate nohighlight">
+\[n_A A + n_B B + n_C C \rightarrow n_D D + n_E E + n_F F\]</div>
+<p>where <span class="math notranslate nohighlight">\(A\)</span>, <span class="math notranslate nohighlight">\(B\)</span>, <span class="math notranslate nohighlight">\(C\)</span>, <span class="math notranslate nohighlight">\(D\)</span>, <span class="math notranslate nohighlight">\(E\)</span>, and
+<span class="math notranslate nohighlight">\(F\)</span> are nuclei and <span class="math notranslate nohighlight">\(n_A\)</span>, <span class="math notranslate nohighlight">\(n_B\)</span>, <span class="math notranslate nohighlight">\(n_C\)</span>,
+<span class="math notranslate nohighlight">\(n_D\)</span>, <span class="math notranslate nohighlight">\(n_E\)</span>, and <span class="math notranslate nohighlight">\(n_F\)</span> are the number of each
+nuclei that participate in the reacton (these can be zero).  This form
+of a reaction covers all of the cases we use in Microphysics.</p>
+<p>For this reaction, the evolution equation for <span class="math notranslate nohighlight">\(A\)</span> would be:</p>
+<div class="math notranslate nohighlight">
+\[\frac{dY(A)}{dt} = -n_A \, \rho^{n_A + n_B + n_C - 1} \, Y(A)^{n_A} \, Y(B)^{n_B} \, Y(C)^{n_C} \frac{N_A \langle \sigma v \rangle_{ABC,DEF}}{n_A! n_B! n_C!}\]</div>
+<p>where <span class="math notranslate nohighlight">\(N_A \langle \sigma v \rangle_{ABC,DEF}\)</span> is the temperature
+portion of the reaction rate (cross section averaged over the velocity
+distribution), provide by nuclear reaction rate tables or fits from the nuclear
+experimental community.</p>
+<p>For approximate networks, it may be the case that the exponent on
+<span class="math notranslate nohighlight">\(Y\)</span> is not the same as the number of nuclei involved, e.g.,
+<span class="math notranslate nohighlight">\(n_A\)</span>, so we will carry the exponents on <span class="math notranslate nohighlight">\(Y(A)\)</span>,
+…, <span class="math notranslate nohighlight">\(Y(F)\)</span> as <span class="math notranslate nohighlight">\(a\)</span>, <span class="math notranslate nohighlight">\(b\)</span>, <span class="math notranslate nohighlight">\(c\)</span>, <span class="math notranslate nohighlight">\(d\)</span>,
+<span class="math notranslate nohighlight">\(e\)</span>, <span class="math notranslate nohighlight">\(f\)</span>, and instead write this as:</p>
+<div class="math notranslate nohighlight">
+\[\frac{dY(A)}{dt} = -n_A \, \rho^{a + b + c - 1} \, Y(A)^a \, Y(B)^b \, Y(C)^c \frac{N_A \langle \sigma v \rangle_{ABC,DEF}}{a! b! c!}\]</div>
+<p>The properties of a templated network are contained in the network’s
+<code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code> file.</p>
+<section id="rate-enum">
+<h2>Rate <code class="docutils literal notranslate"><span class="pre">enum</span></code><a class="headerlink" href="#rate-enum" title="Permalink to this headline">¶</a></h2>
+<p>A network using the templated RHS construction needs to provide an
+<code class="docutils literal notranslate"><span class="pre">enum</span></code> called <code class="docutils literal notranslate"><span class="pre">Rates::NetworkRates</span></code> that lists all of the reaction
+rates in the network.  Only the forward rates need to be listed.  The
+reverse rates will use the same rate index.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For some of the networks, we may not actually want to model the
+reverse rates, so the function that computes the reverse rate will
+simply return <cite>0</cite>.  But it is always carried in the reaction
+infrastructure.</p>
+</div>
+<p>Note: some of the reactions listed involve nuclei that are not present
+in the actual network (but represented as <code class="docutils literal notranslate"><span class="pre">__extra_</span></code> nuclei.  We call
+these reactions <em>intermediate reactions</em>.  These are used as steps in building
+compound reaction sequences in approximate networks and are called upon via the
+<em>additional reaction</em> mechanism provided by the metadata (described below).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Every intermediate reaction is some other reaction’s additional
+reaction, but not necessarily vice versa.</p>
+</div>
+</section>
+<section id="metadata">
+<h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h2>
+<p>With the above formulation, adding a rate to the network means
+supplying the nuclei (<span class="math notranslate nohighlight">\(A\)</span>, …), coefficients (<span class="math notranslate nohighlight">\(n_A\)</span>,
+…), and the exponents (<span class="math notranslate nohighlight">\(a\)</span>, …).</p>
+<p>The network provides a function that returns a <code class="docutils literal notranslate"><span class="pre">rhs_t</span></code> given a rate
+(passed in as an integer from an <code class="docutils literal notranslate"><span class="pre">enum</span></code> of all the rates that makeup
+the network).  The function signature is:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span><span class="w"></span>
+<span class="k">constexpr</span><span class="w"> </span><span class="n">rhs_t</span><span class="w"> </span><span class="n">rhs_data</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">rate</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>At the core, this is just a <code class="docutils literal notranslate"><span class="pre">switch</span></code> statement on the rate index:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">rhs_t</span><span class="w"> </span><span class="n">data</span><span class="p">{};</span><span class="w"></span>
+
+<span class="k">switch</span><span class="w"> </span><span class="n">rate</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// fill the metadata of individual rates</span>
+<span class="w">  </span><span class="p">...</span><span class="w"></span>
+
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+<p>For example, consider the reaction <span class="math notranslate nohighlight">\(\isotm{He}{4} + \isotm{C}{12} \rightarrow \isotm{O}{16} + \gamma\)</span>.  The metadata for this is initialized as:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">.</span><span class="n">species_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">C12</span><span class="p">;</span><span class="w"></span>
+<span class="n">data</span><span class="p">.</span><span class="n">species_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">He4</span><span class="p">;</span><span class="w"></span>
+<span class="n">data</span><span class="p">.</span><span class="n">species_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">O16</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">data</span><span class="p">.</span><span class="n">number_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">data</span><span class="p">.</span><span class="n">number_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">data</span><span class="p">.</span><span class="n">number_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">data</span><span class="p">.</span><span class="n">exponent_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">data</span><span class="p">.</span><span class="n">exponent_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">data</span><span class="p">.</span><span class="n">exponent_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>There are some additional fields in <code class="docutils literal notranslate"><span class="pre">rhs_t</span></code> that can be used in
+special cases (e.g., for approximate nets):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">forward_branching_ratio</span></code>, <code class="docutils literal notranslate"><span class="pre">reverse_branching_ratio</span></code> :</p>
+<p>Some reactions have multiple possible outcomes (or branches).  For example,
+in <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, we have:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\isotm{C}{12} + \isotm{O}{16} \rightarrow \left \{
+  \begin{array}{c} \isotm{Mg}{24} + \isotm{He}{4} \\
+                   \isotm{Si}{28} + \gamma \end{array} \right .\end{split}\]</div>
+<p>To capture this, we would include this as:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="nl">C12_O16_to_Mg24_He4</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">C12</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">O16</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Mg24</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_E</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">He4</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_E</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_E</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">forward_branching_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="n">_rt</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">case</span><span class="w"> </span><span class="nl">C12_O16_to_Si28</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">C12</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">O16</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Si28</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">forward_branching_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="n">_rt</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This indicates that each branch happens 50% of the time.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">apply_identical_particle_factor</span></code> :</p>
+<blockquote>
+<div><p>Normally for rates involving identical nuclei, we divide
+the rate by a factor (<span class="math notranslate nohighlight">\(n!\)</span>, where <cite>n</cite> is the number of the same nuclei participating).  This
+avoids double-counting.</p>
+<p>For some approximate networks, we want to skip this, since although
+the net reaction appears to have identical particles, it
+participates via a chain that does not need the identical particle
+factor.</p>
+<p>An example of this (from <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>) is the rate <code class="docutils literal notranslate"><span class="pre">P_P_N_N_to_He4</span></code>, which represents</p>
+<div class="math notranslate nohighlight">
+\[p + p + n + n \rightarrow \isotm{He}{4} + 3 \gamma\]</div>
+<p>In the approximation used in this network, this rate proceeds as the sequence:</p>
+<div class="math notranslate nohighlight">
+\[p(n,\gamma) d(n,\gamma) \isotm{He}{3} (p, \gamma) \isotm{He}{4}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[p(n,\gamma) d(p,\gamma) \isotm{He}{3} (n, \gamma) \isotm{He}{4}\]</div>
+<p>and none of the reactions in the sequence involve like-nuclei fusing.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rate_can_be_tabulated</span></code> :</p>
+<p>To save on computation, we can create a table of reaction rates
+by evaluating over a grid of temperature and then interpolating
+in temperature as needed.  This operates only on the
+<span class="math notranslate nohighlight">\(N_A \langle \sigma v \rangle\)</span> portion of the rate.</p>
+<p>Some rates are more complex than fits into the rate tabulation
+scheme, and therefore we turn off the ability to tabulate by
+setting <code class="docutils literal notranslate"><span class="pre">rate_can_be_tabulated</span> <span class="pre">=</span> <span class="pre">0</span></code>.  For instance, this applies
+to weak rates and any rate that is actually a compound rate build
+up via a combination of intermediate rates.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">additional_reaction_1</span></code>, <code class="docutils literal notranslate"><span class="pre">additional_reaction_2</span></code>, <code class="docutils literal notranslate"><span class="pre">additional_reaction_3</span></code> :</p>
+<p>Consider burning <span class="math notranslate nohighlight">\(\isotm{Mg}{24}\)</span> to <span class="math notranslate nohighlight">\(\isotm{Si}{28}\)</span>.  We can imagine two
+sequences:</p>
+<div class="math notranslate nohighlight">
+\[\isotm{Mg}{24} (\alpha, \gamma) \isotm{Si}{28}\]</div>
+<p>or</p>
+<div class="math notranslate nohighlight">
+\[\isotm{Mg}{24} (\alpha, p) \isotm{Al}{27} (p, \gamma) \isotm{Si}{28}\]</div>
+<p>In the approximate networks, we combine these two reaction sequences
+into a single effective rate.  If we use the notation:</p>
+<div class="math notranslate nohighlight">
+\[\lambda_{\alpha\gamma} \rightarrow \isotm{Mg}{24} (\alpha, \gamma) \isotm{Si}{28}\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{\alpha p} \rightarrow \isotm{Mg}{24} (\alpha, p) \isotm{Al}{27}\]</div>
+<div class="math notranslate nohighlight">
+\[\lambda_{p\gamma} \rightarrow \isotm{Al}{27} (p, \gamma) \isotm{Si}{28}\]</div>
+<p>and the reverse rate of <span class="math notranslate nohighlight">\(\lambda_{\alpha p}\)</span> is noted as <span class="math notranslate nohighlight">\(\lambda_{p\alpha}\)</span>.</p>
+<p>The effective rate combining these two channels is:</p>
+<div class="math notranslate nohighlight">
+\[(\lambda_{\alpha\gamma})_\mathrm{effective} =
+    \lambda_{\alpha\gamma} + \lambda_{\alpha p} \left [ 1 - \frac{\lambda_{p\alpha}}{\lambda_{p\alpha} + \lambda_{p\gamma}} \right ]\]</div>
+<p>To capture this approximation with our rate metadata, we specify the
+additional rates that are needed, and then in the loop over rates
+that follows their evaluation, we will arrange them into this
+approximation.</p>
+<p>The metadata for this reaction appears as:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="nl">Mg24_He4_to_Si28</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Mg24</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">He4</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Si28</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">number_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">exponent_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">additional_reaction_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Mg24_He4_to_Al27_P</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">additional_reaction_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Al27_P_to_Si28</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">screen_forward_reaction</span></code>, <code class="docutils literal notranslate"><span class="pre">screen_reverse_reaction</span></code> :</p>
+<p>These fields indicate whether to compute and apply the screening
+factors to the reaction rates.  Usually we will do this on all
+charged-particle reactions.  For neutron or gamma capture reactions,
+screening should be manually disabled.</p>
+<p>Additionally, if a rate involves additional rates in a sequence, we
+sometimes disable screening, as the screening is instead applied to
+those additional rates.</p>
+</li>
+</ul>
+</section>
+<section id="loop-over-rates">
+<h2>Loop over Rates<a class="headerlink" href="#loop-over-rates" title="Permalink to this headline">¶</a></h2>
+<p>The main logic for constructing RHS is contained in <code class="docutils literal notranslate"><span class="pre">Microphysics/networks/rhs.H</span></code> as <code class="docutils literal notranslate"><span class="pre">rhs()</span></code>:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="n">rhs</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The basic flow is:</p>
+<ol class="arabic">
+<li><p>Convert the incoming mass fractions into molar fractions</p></li>
+<li><p>Compute the common temperature factors (used by rates) and
+composition factors (used by screening)</p></li>
+<li><p>Compute all of the intermediate rates.</p>
+<p>Since these rates are used multiple times, we compute them once and cache them.
+This is done soley for performance reasons, since computing the rates is expensive.</p>
+</li>
+<li><p>Loop over rates</p>
+<ol class="loweralpha">
+<li><p>Compute the rate if it is not an intermediate rate, otherwise,
+get the rate from the cache.</p></li>
+<li><p>Find any additional rates needed if this rate is actual a rate
+sequence.  These additional rates are drawn from the cache.</p></li>
+<li><p>Post-process the rate.  This is only done for rates that have
+additional rates.  This is where we would combine the primary
+rate and additional rates into a single effective rate (like
+shown for the <span class="math notranslate nohighlight">\((\alpha,\gamma)\)</span> and
+<span class="math notranslate nohighlight">\((\alpha,p)(p,\gamma)\)</span> sequence above.</p>
+<p>If the rate has no additional rates, then this step is a no-op.</p>
+</li>
+<li><p>Loop over species:</p>
+<ul>
+<li><p>If the species is used by this rate, then add it to the
+<code class="docutils literal notranslate"><span class="pre">ydot</span></code> for the species.</p>
+<p>Note: we always add the forward and reverse rates paired
+together here.  This greatly reduces roundoff error when the
+rates should drive us toward equilibrium.</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li><p>Evaluate the neutrino cooling term</p></li>
+<li><p>Compute the energy term from the <code class="docutils literal notranslate"><span class="pre">ydot</span></code> s.</p></li>
+</ol>
+<p>Note that all of construction logic is done using <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> expressions
+(including the for-loops), allowing all of this logic to be evaluated
+at compile time.  This effectively means that the compiler writes out
+the full RHS for the network, leaving only the rate evaluation for
+runtime.</p>
+</section>
+<section id="jacobian">
+<h2>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this headline">¶</a></h2>
+<p>With the same rate infrastructure, we are able to provide an analytic
+Jacobian for our reaction networks.  The overall structure is the same
+as the <code class="docutils literal notranslate"><span class="pre">rhs()</span></code> function described above.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We do one approximation to the species derivatives in the Jacobian.
+Some approximate networks have compound rates where <span class="math notranslate nohighlight">\(N_A
+\langle \sigma v \rangle\)</span> can depend on composition, <span class="math notranslate nohighlight">\(Y\)</span>.  We
+neglect this derivative in our Jacobian.</p>
+<p>Testing has shown that this does not greatly affect the performance
+of the network.</p>
+</div>
+</section>
+<section id="linear-algebra">
+<h2>Linear Algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this headline">¶</a></h2>
+<p>The VODE integrator needs routines to do LU factorization and back
+substitution.  We build off of the linpack <code class="docutils literal notranslate"><span class="pre">dgefa</span></code> and <code class="docutils literal notranslate"><span class="pre">dgesl</span></code>
+routines, but because we know at compile time which Jacobian terms are
+non-zero, we are able to use <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> for-loops to only do the
+calculations on non-zero elements.  This greatly reduces the amount of work
+in the linear algebra.</p>
+<p>Note: currently we are still storing a dense Jacobian – we just skip computation
+on the elements that are 0.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="networks.html" class="btn btn-neutral float-left" title="Available Reaction Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="integrators.html" class="btn btn-neutral float-right" title="Integrating a Network" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2012, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>
