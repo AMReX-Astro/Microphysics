@@ -103,7 +103,7 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     ratraw = rate_eval.screened_rates(k_he4_he4_he4__c12);
     dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12);
     rate_eval.screened_rates(k_he4_he4_he4__c12) *= scor * scor2;
-    rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor;
+    rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
 
 
     screen5(pstate, 2, zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1], scor, dscor_dt, dscor_dd);
