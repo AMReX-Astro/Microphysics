@@ -302,6 +302,33 @@ appropriate interpolation table from that site to use this.</p>
 </section>
 <section id="interface-and-modes">
 <h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Permalink to this headline">¶</a></h2>
+<p>The EOS is called as:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">eos</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">eos_type</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>where <em>mode</em> determines which thermodynamic quantities are inputs,
+and is one of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rt</span></code> : density and temperature are inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rh</span></code> : density and specific enthalpy are inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_tp</span></code> : temperature and pressure are inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rp</span></code> : density and pressure are inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_re</span></code> : density and specific internal energy are inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_ps</span></code> : pressure and entropy are inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_ph</span></code> : pressure and specific enthalpy are inputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_th</span></code> : temperature and specific enthalpy are inputs</p></li>
+</ul>
+<p>The <em>eos_type</em> passed in is one of</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_t</span></code> : provides access to all available thermodynamic information,
+including derivatives.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> : only provides the energy-based thermodynamic information, including
+energy derivatives.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code> : expands on <code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> to include pressure information</p></li>
+</ul>
+<p>In general, you should use the type that has the smallest set of
+information needed, since we optimize out needless quantities at
+compile type (via C++ templating) for <code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code>.</p>
 </section>
 <section id="initialization-and-cutoff-values">
 <h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Permalink to this headline">¶</a></h2>
