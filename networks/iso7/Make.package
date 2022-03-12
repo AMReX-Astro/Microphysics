@@ -7,10 +7,7 @@ ifeq ($(USE_REACT),TRUE)
   ifeq ($(USE_CXX_REACTIONS),TRUE)
     CEXE_sources += actual_network_data.cpp
     CEXE_headers += actual_network.H
-
-    CEXE_sources += actual_rhs_data.cpp
     CEXE_headers += actual_rhs.H
-    CEXE_headers += actual_linear_solver.H
   endif
 
   USE_RATES       = TRUE

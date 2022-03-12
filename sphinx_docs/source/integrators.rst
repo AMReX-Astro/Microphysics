@@ -342,12 +342,12 @@ Stiff ODE Solvers
 =================
 
 We use a high-order implicit ODE solver for integrating the reaction
-system.  As an alternative, a first order explicit integrator is also provided.
- Internally,
-the integrators uses different data structures to store the integration
-progress, and each integrator needs to provide a routine to convert
-from the integrator’s internal representation to the ``burn_t``
-type required by the ``actual_rhs`` and ``actual_jac`` routine.
+system.  As an alternative, a first order explicit integrator is also
+provided.  Internally, the integrators uses different data structures
+to store the integration progress, and each integrator needs to
+provide a routine to convert from the integrator’s internal
+representation to the ``burn_t`` type required by the ``actual_rhs``
+and ``actual_jac`` routine.
 
 The name of the integrator can be selected at compile time using
 the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
