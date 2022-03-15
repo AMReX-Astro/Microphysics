@@ -389,6 +389,11 @@ non-zero, we are able to use ``constexpr`` for-loops to only do the
 calculations on non-zero elements.  This greatly reduces the amount of work
 in the linear algebra.
 
-Note: currently we are still storing a dense Jacobian -- we just skip computation
-on the elements that are 0.
+Note:
 
+* Currently we are still storing a dense Jacobian -- we just skip computation
+  on the elements that are 0.
+
+* These routines do not perform pivoting.  This does not seem to be an
+  issue for the types of matrices we solve with reactions (since they are
+  all of the form :math:`I - \tau J`, where :math:`tau` is the timestep.
