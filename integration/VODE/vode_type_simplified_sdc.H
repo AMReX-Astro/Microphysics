@@ -332,11 +332,11 @@ void rhs_to_vode(const Real time, burn_t& state,
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    ydot(SEINT+1) += state.rho * ydot_react(net_ienuc);
+    ydot(SEINT+1) += state.rho * ydot(net_ienuc);
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    ydot(SENTH+1) += state.rho * ydot_react(net_ienuc);
+    ydot(SENTH+1) += state.rho * ydot(net_ienuc);
 
 #endif
 
