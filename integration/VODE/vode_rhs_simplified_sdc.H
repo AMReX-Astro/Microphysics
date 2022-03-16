@@ -54,13 +54,11 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     // call the specific network to get the RHS
 
-    YdotNetArray1D ydot_react = {0};
-
-    actual_rhs(state, ydot_react);
+    actual_rhs(state, ydot);
 
 #ifdef NONAKA_PLOT
     if (! in_jacobian) {
-        nonaka_rhs(time, state, ydot_react);
+        nonaka_rhs(time, state, ydot);
     }
 #endif
 
@@ -70,13 +68,13 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
         // the correct size here is the size of the reactive state RHS,
         // not the SDC state RHS (neqs, not VODE_NEQS)
         for (int n = 1; n <= neqs; ++n) {
-            ydot_react(n) *= react_boost;
+            ydot(n) *= react_boost;
         }
     }
 
     // convert back to the vode type -- this will add the advective terms
 
-    rhs_to_vode(time, state, ydot_react, vode_state, ydot);
+    rhs_to_vode(time, state, vode_state, ydot);
 
 }
 
