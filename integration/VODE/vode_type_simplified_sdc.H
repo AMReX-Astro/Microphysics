@@ -346,7 +346,7 @@ void rhs_to_vode(const Real time, burn_t& state,
     // Note: both ydot is 1-based
 
     for (int n = 0; n < SVAR_EVOLVE; n++) {
-        ydot(n+1) = state.ydot_a[n];
+        ydot(n+1) += state.ydot_a[n];
     }
 
 }
