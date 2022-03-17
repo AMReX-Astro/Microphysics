@@ -4,11 +4,7 @@
 #include <eos.H>
 #include <eos_composition.H>
 #include <burn_type.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_rhs.H>
-#else
-#include <fortran_to_cxx_actual_rhs.H>
-#endif
 #ifdef NSE_THERMO
 #include <nse.H>
 #endif

@@ -7,12 +7,8 @@
 
 #include <vode_type_simplified_sdc.H>
 #include <vode_jac_util_simplified_sdc.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
 #include <actual_rhs.H>
-#else
-#include <fortran_to_cxx_actual_rhs.H>
-#endif
 #include <numerical_jacobian.H>
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>

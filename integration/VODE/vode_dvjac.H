@@ -2,7 +2,9 @@
 #define _vode_dvjac_H_
 
 #include <vode_type.H>
+#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <linpack.H>
+#endif
 #ifdef STRANG
 #include <vode_rhs.H>
 #endif
@@ -165,14 +167,18 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
     vstate.jac.mul(con);
     vstate.jac.add_identity();
 
-#ifndef NETWORK_SOLVER
     int IER;
+
+#ifdef NEW_NETWORK_IMPLEMENTATION
+    RHS::dgefa(vstate.jac);
+    IER = 0;
+#else
     dgefa<VODE_NEQS>(vstate.jac, pivot, IER);
+#endif
 
     if (IER != 0) {
         IERPJ = 1;
     }
-#endif
 
 }
 
