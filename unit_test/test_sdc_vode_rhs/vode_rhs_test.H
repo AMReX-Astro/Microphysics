@@ -4,6 +4,9 @@
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#endif
 #include <burner.H>
 #include <fstream>
 #include <iostream>
