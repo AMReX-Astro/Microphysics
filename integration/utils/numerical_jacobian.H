@@ -4,10 +4,10 @@
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
-#include <actual_rhs.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
 #else
-#include <fortran_to_cxx_actual_rhs.H>
+#include <actual_rhs.H>
 #endif
 
 ///

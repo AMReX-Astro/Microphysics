@@ -17,6 +17,7 @@ Microphysics
    eos
    networks-overview
    networks
+   templated_networks
    integrators
    nse
    transport
