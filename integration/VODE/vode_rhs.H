@@ -2,15 +2,11 @@
 #define _vode_rhs_H_
 
 #include <network.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>
 #else
 #include <actual_rhs.H>
-#endif
-#else
-#include <fortran_to_cxx_actual_rhs.H>
 #endif
 #include <burn_type.H>
 #include <extern_parameters.H>
