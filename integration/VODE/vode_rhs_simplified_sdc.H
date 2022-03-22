@@ -38,7 +38,7 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     // make sure that the temperature is valid
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP || state.T <= rate_cutoff_temp) {
 
         for (int n = 1; n <= VODE_NEQS; ++n) {
             ydot(n) = 0.0_rt;
@@ -104,10 +104,10 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     vode_to_burn(vode_state.tn, vode_state, state);
 
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP || state.T <= rate_cutoff_temp) {
 
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int j = 1; j <= VODE_NEQS; ++j) {
                 pd(i,j) = 0.0_rt;
             }
         }
