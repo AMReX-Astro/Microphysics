@@ -323,7 +323,7 @@ void rhs_to_vode(const Real time, burn_t& state,
     BL_ASSERT(SFS == 0);
 
     for (int n = 1; n <= NumSpec; n++) {
-        ydot(SFS+n) = state.rho * aion[n-1] * ydot(n);
+        ydot(n) = state.rho * aion[n-1] * ydot(n);
     }
 
     // rescale the energy to be d(rho e)/dt
