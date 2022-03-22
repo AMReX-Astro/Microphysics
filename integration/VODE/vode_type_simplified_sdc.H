@@ -323,16 +323,20 @@ void rhs_to_vode(const Real time, burn_t& state,
     BL_ASSERT(SFS == 0);
 
     for (int n = 1; n <= NumSpec; n++) {
-        ydot(SFS+n) += state.rho * aion[n-1] * ydot(n);
+        ydot(SFS+n) = state.rho * aion[n-1] * ydot(n);
     }
+
+    // rescale the energy to be d(rho e)/dt
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    ydot(SEINT+1) += state.rho * ydot(net_ienuc);
+    BL_ASSERT(SEINT+1 == net_ienuc);
+
+    ydot(SEINT+1) *= state.rho;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    ydot(SENTH+1) += state.rho * ydot(net_ienuc);
+    ydot(SENTH+1) *= state.rho;
 
 #endif
 
