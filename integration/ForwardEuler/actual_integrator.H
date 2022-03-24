@@ -73,7 +73,7 @@ void clean_state (burn_t& state)
 
     // Ensure that the temperature always stays within reasonable limits.
 
-    state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
+    state.T = amrex::min(ReactData::maxtemp, amrex::max(state.T, EOSData::mintemp));
 
 }
 

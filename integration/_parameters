@@ -49,7 +49,7 @@ SMALL_X_SAFE                 real            1.0d-30
 MAX_TEMP                     real            1.0d11
 
 # The temperature below which we zero out the rates (for simplified-SDC)
-rate_cutoff_temp             real            -1.0
+react_low_cutoff_temp             real            -1.0
 
 # boost the reaction rates by a factor > 1
 react_boost                 real         -1.d0

@@ -36,9 +36,10 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     vode_to_burn(time, vode_state, state);
 
-    // make sure that the temperature is valid
+    // make sure that the temperature is valid -- return zero for
+    // everything if the temperature are just wrong
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP || state.T <= rate_cutoff_temp) {
+    if (state.T <= EOSData::mintemp || state.T >= ReactData::maxtemp) {
 
         for (int n = 1; n <= VODE_NEQS; ++n) {
             ydot(n) = 0.0_rt;
@@ -48,9 +49,17 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     }
 
-    // call the specific network to get the RHS
+    // call the specific network to get the RHS.  However, if we are
+    // below the minimum temperature for evaluating rates, we still
+    // want to include the advection, so just zero the rates here.
 
-    actual_rhs(state, ydot);
+    if (state.T > ReactData::min_temp) {
+        actual_rhs(state, ydot);
+    } else {
+        for (int n = 1; n <= VODE_NEQS; ++n) {
+            ydot(n) = 0.0_rt;
+        }
+    }
 
 #ifdef NONAKA_PLOT
     if (! in_jacobian) {
@@ -102,7 +111,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     vode_to_burn(vode_state.tn, vode_state, state);
 
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP || state.T <= rate_cutoff_temp) {
+    if (state.T <= EOSData::mintemp || state.T >= ReactData::maxtemp || state.T <= ReactData::mintemp) {
 
         for (int i = 1; i <= VODE_NEQS; ++i) {
             for (int j = 1; j <= VODE_NEQS; ++j) {

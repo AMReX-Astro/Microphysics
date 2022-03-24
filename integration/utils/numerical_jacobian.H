@@ -55,7 +55,13 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
     // default -- plus convert the dY/dt into dX/dt
 
-    actual_rhs(state, ydotm);
+    if (state.T > ReactData::mintemp) {
+        actual_rhs(state, ydotm);
+    } else {
+        for (int i = 1; i <= neqs; ++i) {
+            ydotm(i) = 0.0_rt;
+        }
+    }
 
     for (int q = 1; q <= NumSpec; q++) {
         ydotm(q) *= aion[q-1];
@@ -104,7 +110,14 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
         state_delp.xn[n-1] += dy;
 
-        actual_rhs(state_delp, ydotp);
+        if (state_delp.T > ReactData::mintemp) {
+            actual_rhs(state_delp, ydotp);
+        } else {
+            for (int i = 1; i <= neqs; ++i) {
+                ydotp(i) = 0.0_rt;
+            }
+        }
+
 
         // We integrate X, so convert from the Y we got back from the RHS
 
@@ -129,7 +142,7 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
     state_delp.T += dy;
 
-    if (state_delp.T <= EOSData::mintemp || state_delp.T >= MAX_TEMP) {
+    if (state_delp.T <= EOSData::mintemp || state_delp.T >= ReactData::maxtemp) {
 
         for (int i = 1; i <= neqs; i++) {
             for (int j = 1; j <= neqs; j++) {
@@ -149,7 +162,13 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
     eos(eos_input_rt, state_delp);
 
-    actual_rhs(state_delp, ydotp);
+    if (state.delp > ReactData::smalltemp) {
+        actual_rhs(state_delp, ydotp);
+    } else {
+        for (int i = 1; i <= neqs; ++i) {
+            ydotp(i) = 0.0_rt;
+        }
+    }
 
     for (int q = 1; q <= NumSpec; q++) {
         ydotp(q) *= aion[q-1];
