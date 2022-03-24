@@ -1,5 +1,6 @@
 #ifdef REACTIONS
 #include <actual_network.H>
+#include <react_data.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>
 #else
@@ -15,13 +16,15 @@
 void network_init()
 {
 
-ReactData::mintemp = react_low_cutoff_temp;
-ReactData::maxtemp = MAX_TEMP;
-ReactData::initialized = true;
+#ifdef REACTIONS
+    ReactData::mintemp = react_low_cutoff_temp;
+    ReactData::maxtemp = MAX_TEMP;
+    ReactData::initialized = true;
+#endif
 
 #ifdef REACTIONS
 #ifdef NONAKA_PLOT
-nonaka_init();
+    nonaka_init();
 #endif
 #ifdef NEW_NETWORK_IMPLEMENTATION
     actual_network_init();
