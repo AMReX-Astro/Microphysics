@@ -53,7 +53,7 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
     // below the minimum temperature for evaluating rates, we still
     // want to include the advection, so just zero the rates here.
 
-    if (state.T > ReactData::min_temp) {
+    if (state.T > ReactData::mintemp) {
         actual_rhs(state, ydot);
     } else {
         for (int n = 1; n <= VODE_NEQS; ++n) {

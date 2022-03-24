@@ -162,7 +162,7 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
     eos(eos_input_rt, state_delp);
 
-    if (state.delp > ReactData::smalltemp) {
+    if (state_delp.T > ReactData::mintemp) {
         actual_rhs(state_delp, ydotp);
     } else {
         for (int i = 1; i <= neqs; ++i) {
