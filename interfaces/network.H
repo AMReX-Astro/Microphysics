@@ -3,6 +3,7 @@
 
 #include <string>
 #include <network_properties.H>
+#include <react_data.H>
 
 void network_init();
 

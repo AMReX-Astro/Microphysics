@@ -47,7 +47,7 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the RHS to zero and return.
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= ReactData::maxtemp || state.T <= ReactData::mintemp) {
 
         for (int n = 1; n <= VODE_NEQS; ++n) {
             ydot(n) = 0.0_rt;
@@ -112,7 +112,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the Jacobian to zero and return.
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= ReactData::maxtemp || state.T <= ReactData::mintemp) {
 
         for (int j = 1; j <= VODE_NEQS; ++j) {
             for (int i = 1; i <= VODE_NEQS; ++i) {

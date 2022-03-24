@@ -36,9 +36,10 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     vode_to_burn(time, vode_state, state);
 
-    // make sure that the temperature is valid
+    // make sure that the temperature is valid -- return zero for
+    // everything if the temperature are just wrong
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= ReactData::maxtemp) {
 
         for (int n = 1; n <= VODE_NEQS; ++n) {
             ydot(n) = 0.0_rt;
@@ -48,15 +49,21 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     }
 
-    // call the specific network to get the RHS
+    // call the specific network to get the RHS.  However, if we are
+    // below the minimum temperature for evaluating rates, we still
+    // want to include the advection, so just zero the rates here.
 
-    YdotNetArray1D ydot_react = {0};
-
-    actual_rhs(state, ydot_react);
+    if (state.T > ReactData::mintemp) {
+        actual_rhs(state, ydot);
+    } else {
+        for (int n = 1; n <= VODE_NEQS; ++n) {
+            ydot(n) = 0.0_rt;
+        }
+    }
 
 #ifdef NONAKA_PLOT
     if (! in_jacobian) {
-        nonaka_rhs(time, state, ydot_react);
+        nonaka_rhs(time, state, ydot);
     }
 #endif
 
@@ -66,13 +73,13 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
         // the correct size here is the size of the reactive state RHS,
         // not the SDC state RHS (neqs, not VODE_NEQS)
         for (int n = 1; n <= neqs; ++n) {
-            ydot_react(n) *= react_boost;
+            ydot(n) *= react_boost;
         }
     }
 
     // convert back to the vode type -- this will add the advective terms
 
-    rhs_to_vode(time, state, ydot_react, vode_state, ydot);
+    rhs_to_vode(time, state, vode_state, ydot);
 
 }
 
@@ -104,10 +111,10 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     vode_to_burn(vode_state.tn, vode_state, state);
 
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= ReactData::maxtemp || state.T <= ReactData::mintemp) {
 
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int j = 1; j <= VODE_NEQS; ++j) {
                 pd(i,j) = 0.0_rt;
             }
         }

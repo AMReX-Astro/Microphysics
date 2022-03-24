@@ -1,6 +1,10 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
+# for backwards compatibility for any application code that still looks for this
+
+DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   DEFINES += -DSIMPLIFIED_SDC
 else ifeq ($(USE_TRUE_SDC), TRUE)
