@@ -396,4 +396,4 @@ Note:
 
 * These routines do not perform pivoting.  This does not seem to be an
   issue for the types of matrices we solve with reactions (since they are
-  all of the form :math:`I - \tau J`, where :math:`tau` is the timestep.
+  all of the form :math:`I - \tau J`, where :math:`tau` is the timestep).
