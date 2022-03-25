@@ -128,10 +128,12 @@ namespace Rates
         k_he4_fe52__p_co55 = 102,
         k_p_co55__he4_fe52 = 103,
         k_he4_he4_he4__c12 = 104,
-        k_o16_o16__n_s31 = 105,
-        k_n_s31__s32 = 106,
-        k_c12_o16__n_si27 = 107,
-        k_n_si27__si28 = 108,
+        k_c12_c12__n_mg23 = 105,
+        k_n_mg23__mg24 = 106,
+        k_o16_o16__n_s31 = 107,
+        k_n_s31__s32 = 108,
+        k_c12_o16__n_si27 = 109,
+        k_n_si27__si28 = 110,
         NumRates = k_n_si27__si28
     };
 
@@ -141,8 +143,8 @@ namespace Rates
 
     // number of reaclib rates
 
-    const int NrateReaclib = 108;
-    const int NumReaclibSets = 178;
+    const int NrateReaclib = 110;
+    const int NumReaclibSets = 180;
 
     // number of tabular rates
 
