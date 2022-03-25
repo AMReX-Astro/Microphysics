@@ -20,7 +20,9 @@ def get_library():
 
     subch = reaclib_lib.linking_nuclei(all_reactants)
 
-    other_rates = [(("o16", "o16"), ("s31", "n")),
+    other_rates = [(("c12", "c12"), ("mg23", "n")),
+                   (("mg23", "n"), ("mg24")),
+                   (("o16", "o16"), ("s31", "n")),
                    (("s31", "n"), ("s32")),
                    (("c12", "o16"), ("si27", "n")),
                    (("si27", "n"), ("si28"))]

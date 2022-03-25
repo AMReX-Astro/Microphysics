@@ -47,6 +47,7 @@ void actual_network_init()
     ebind_per_nucleon(Ne20) = 8.03224_rt;
     ebind_per_nucleon(Ne21) = 7.971712999999999_rt;
     ebind_per_nucleon(Na23) = 8.111493000000001_rt;
+    ebind_per_nucleon(Mg23) = 7.901115_rt;
     ebind_per_nucleon(Mg24) = 8.260709_rt;
     ebind_per_nucleon(Al27) = 8.331553_rt;
     ebind_per_nucleon(Si27) = 8.124341000000001_rt;
