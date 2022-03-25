@@ -501,10 +501,6 @@ integration
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``atol_enuc``                         |                                                         | 1.d-6              |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``retry_burn``                        | If we fail to find a solution consistent with the       | .false.            |
-|                                       | tolerances, do we want to try again with a looser       |                    |
-|                                       | tolerance?                                              |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
 | ``abort_on_failure``                  | Should we abort the run when the burn fails?            | .true.             |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``renormalize_abundances``            | Whether to renormalize the mass fractions at each step  | .false.            |
