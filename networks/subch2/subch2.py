@@ -36,20 +36,26 @@ def get_library():
 
     return subch
 
-subch = get_library()
+def doit():
 
-rc = pyna.RateCollection(libraries=[subch])
+    subch = get_library()
 
-comp = pyna.Composition(rc.get_nuclei())
-comp.set_all(0.1)
-comp.set_nuc("he4", 0.95)
-comp.normalize()
+    rc = pyna.RateCollection(libraries=[subch])
 
-rc.plot(outfile="subch2.pdf", rho=1.e6, T=1.e9, comp=comp,
-        rotated=True, hide_xalpha=True,
-        size=(1500, 450),
-        node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
-        Z_range=(1,29))
+    comp = pyna.Composition(rc.get_nuclei())
+    comp.set_all(0.1)
+    comp.set_nuc("he4", 0.95)
+    comp.normalize()
 
-net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True)
-net.write_network()
+    rc.plot(outfile="subch2.pdf", rho=1.e6, T=1.e9, comp=comp,
+            rotated=True, hide_xalpha=True,
+            size=(1500, 450),
+            node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
+            Z_range=(1,29))
+
+    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True)
+    net.write_network()
+
+
+if __name__ = "__main__":
+    doit()
