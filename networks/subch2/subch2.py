@@ -57,5 +57,5 @@ def doit():
     net.write_network()
 
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     doit()
