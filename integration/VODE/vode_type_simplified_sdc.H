@@ -174,7 +174,7 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
     for (int n = 1; n <= NumSpec; ++n) {
         // we use 1-based indexing, so we need to offset SFS
         vode_state.y(SFS+n) = amrex::max(amrex::min(vode_state.y(SFS+n), state.rho),
-                                         state.rho * 1.e-200_rt);
+                                         state.rho * SMALL_X_SAFE);
     }
 
 
@@ -232,7 +232,7 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
         state.y[n] = vode_state.y(n+1);
     }
 
-    // update rho, rho*u, ... in the burn_t state
+    // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
     fill_unevolved_variables(time, state, vode_state);

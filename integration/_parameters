@@ -28,10 +28,6 @@ rtol_enuc                real      1.d-6
 atol_spec                real      1.d-8
 atol_enuc                real      1.d-6
 
-# If we fail to find a solution consistent with the tolerances,
-# do we want to try again with a looser tolerance?
-retry_burn               logical   .false.
-
 # Should we abort the run when the burn fails?
 abort_on_failure         logical   .true.
 
