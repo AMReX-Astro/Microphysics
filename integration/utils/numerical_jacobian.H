@@ -147,8 +147,6 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     set_nse_aux_from_X(state_delp);
 #endif
 
-    eos(eos_input_rt, state_delp);
-
     actual_rhs(state_delp, ydotp);
 
     for (int q = 1; q <= NumSpec; q++) {
@@ -179,7 +177,8 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
     eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    // now correct the energy column
+    // now correct the energy column, since we differenced with
+    // respect to T above
 
     for (int m = 1; m <= neqs; m++) {
         jac(m, net_ienuc) *= 1.0_rt / eos_state.cv;
@@ -188,8 +187,8 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    for (int n = 1; n <= NumSpec; n++) {
-        for (int m = 1; m <= neqs; m++) {
+    for (int m = 1; m <= neqs; m++) {
+        for (int n = 1; n <= NumSpec; n++) {
             jac(m, n) -= eos_xderivs.dedX[n-1] * jac(m, net_ienuc);
         }
     }
