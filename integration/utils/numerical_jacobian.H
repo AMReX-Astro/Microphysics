@@ -147,6 +147,8 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     set_nse_aux_from_X(state_delp);
 #endif
 
+    eos(eos_input_rt, state_delp);
+
     actual_rhs(state_delp, ydotp);
 
     for (int q = 1; q <= NumSpec; q++) {
