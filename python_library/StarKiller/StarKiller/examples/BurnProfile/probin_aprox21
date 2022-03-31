@@ -1,7 +1,5 @@
 &extern
 
-  retry_burn = T
-
   small_temp = 1.0d5
   small_dens = 1.0d2
   
