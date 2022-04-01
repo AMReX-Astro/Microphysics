@@ -1,3 +1,11 @@
+# 22.04
+
+  * aprox networks now use a templated C++ righthand side formulation that
+    builds the ODE system at compile time. (#802)
+
+  * pynucastro networks were regenerated to take advantage of recent
+    optimizations (#901)
+
 # 22.02
 
   * The Microphysics repo was moved to the AMReX-Astro github
