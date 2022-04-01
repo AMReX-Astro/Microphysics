@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="NSE" href="nse.html" />
-    <link rel="prev" title="Available Reaction Networks" href="networks.html" /> 
+    <link rel="prev" title="Templated Network Righthand Sides" href="templated_networks.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -55,6 +55,7 @@
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Integrating a Network</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#reaction-ode-system">Reaction ODE System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#interfaces">Interfaces</a><ul>
@@ -405,14 +406,12 @@ that the mass fractions stay positive and larger than some floor
 <section id="stiff-ode-solvers">
 <span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Permalink to this headline">¶</a></h2>
 <p>We use a high-order implicit ODE solver for integrating the reaction
-system.  As an alternative, a first order explicit integrator is also provided.</p>
-<blockquote>
-<div><p>Internally,</p>
-</div></blockquote>
-<p>the integrators uses different data structures to store the integration
-progress, and each integrator needs to provide a routine to convert
-from the integrator’s internal representation to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>
-type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code> and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> routine.</p>
+system.  As an alternative, a first order explicit integrator is also
+provided.  Internally, the integrators uses different data structures
+to store the integration progress, and each integrator needs to
+provide a routine to convert from the integrator’s internal
+representation to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>
+and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> routine.</p>
 <p>The name of the integrator can be selected at compile time using
 the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
 the allowed options are:</p>
@@ -484,7 +483,7 @@ ensure that it takes precedence.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="networks.html" class="btn btn-neutral float-left" title="Available Reaction Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="templated_networks.html" class="btn btn-neutral float-left" title="Templated Network Righthand Sides" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="nse.html" class="btn btn-neutral float-right" title="NSE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
