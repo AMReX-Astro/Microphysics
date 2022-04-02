@@ -16,22 +16,21 @@ def get_library():
                      "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
                      "ar36", "ca40", "ti44", "cr48", "fe52", "ni56",
                      "al27", "p31", "cl35", "k39", "sc43", "v47", "mn51", "co55",
-                     "n13", "n14", "f18", "ne21", "na22"]
+                     "n13", "n14", "f18", "ne21", "na22", "na23"]
 
     subch = reaclib_lib.linking_nuclei(all_reactants)
 
-    other_rates = [(("c12", "c12"), ("mg23", "n")),
-                   (("mg23", "n"), ("mg24")),
-                   (("o16", "o16"), ("s31", "n")),
-                   (("s31", "n"), ("s32")),
-                   (("c12", "o16"), ("si27", "n")),
-                   (("si27", "n"), ("si28"))]
+    # in this list, we have the reactants, the actual reactants,
+    # and modified products that we will use instead
+    other_rates = [(("c12", "c12"), ("mg23", "n"), ("mg24")),
+                   (("o16", "o16"), ("s31", "n"), ("s32")),
+                   (("c12", "o16"), ("si27", "n"), ("si28"))]
 
-    for r, p in other_rates:
-        if not isinstance(p, tuple):
-            p = p,
+    for r, p, mp in other_rates:
         rfilter = pyna.rates.RateFilter(reactants=r, products=p)
         _library = reaclib_lib.filter(rfilter)
+        r = _library.get_rates()[0]
+        r.modify_products(mp)
         subch += _library
 
     return subch
@@ -41,6 +40,9 @@ def doit():
     subch = get_library()
 
     rc = pyna.RateCollection(libraries=[subch])
+
+    print(f"number of nuclei: {len(rc.unique_nuclei)}")
+    print(f"number of rates: {len(rc.rates)}")
 
     comp = pyna.Composition(rc.get_nuclei())
     comp.set_all(0.1)
