@@ -19,8 +19,11 @@ Shen & Bildsten discuss the sequences:
   including na22.
 
 For the c12+c12, c12+o16, and o16+o16 rates, we also need to include
-c12(c12,n)mg23, mg23(n, g)mg24, o16(o16, n)s31, s31(n, g)s32, o16(c12,
-n)si27, si27(n, g)si28.
+c12(c12,n)mg23(n, g)mg24, o16(o16, n)s31(n, g)s32,
+o16(c12, n)si27(n, g)si28.  Since the neutron captures on those
+intermediate nuclei are so fast, we leave those out and take the
+forward rate to just be the first rate.  We do not include reverse
+rates for these processes.
 
 We could go further an include some iron-group nuclei as well to better
 get the equilibrium state there.

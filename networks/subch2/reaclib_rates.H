@@ -24,7 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-    const std::string secret_code_reference = "ECH9OIEP74EMQ3O84R2YSQHEIXC8INZN";
+    const std::string secret_code_reference = "A8TD1TSXNQNDGHGVFCM0ZWT68XWH45S7";
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -88,7 +88,11 @@ void net_screening_init() {
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[F18-1], aion[F18-1]);
 
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Na23-1], aion[Na23-1]);
+
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ne20-1], aion[Ne20-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Na23-1], aion[Na23-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Al27-1], aion[Al27-1]);
 
