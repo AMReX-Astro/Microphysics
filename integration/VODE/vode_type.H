@@ -7,21 +7,9 @@
 #include <ArrayUtilities.H>
 #include <network.H>
 
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
+#include <integrator_data.H>
 
-#ifdef STRANG
-const int VODE_NEQS = NumSpec + 1;
-#endif
-
-#ifdef SIMPLIFIED_SDC
-const int VODE_NEQS = SVAR_EVOLVE;
-#endif
-
-#ifdef TRUE_SDC
-const int VODE_NEQS = NumSpec + 2;
-#endif
+const int VODE_NEQS = INT_NEQS;
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
@@ -164,26 +152,12 @@ struct dvode_t
     // Integration array
     RArray1D y;
 
-#ifdef NETWORK_SOLVER
-
-    // Jacobian
-    SparseMatrix jac;
-
-#ifdef ALLOW_JACOBIAN_CACHING
-    // Saved Jacobian
-    SparseMatrix jac_save;
-#endif
-
-#else
-
     // Jacobian
     RArray2D jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     RArray2D jac_save;
-#endif
-
 #endif
 
     // the Nordsieck history array

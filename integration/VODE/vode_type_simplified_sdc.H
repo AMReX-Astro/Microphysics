@@ -4,11 +4,7 @@
 #include <eos.H>
 #include <eos_composition.H>
 #include <burn_type.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_rhs.H>
-#else
-#include <fortran_to_cxx_actual_rhs.H>
-#endif
 #ifdef NSE_THERMO
 #include <nse.H>
 #endif
@@ -178,7 +174,7 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
     for (int n = 1; n <= NumSpec; ++n) {
         // we use 1-based indexing, so we need to offset SFS
         vode_state.y(SFS+n) = amrex::max(amrex::min(vode_state.y(SFS+n), state.rho),
-                                         state.rho * 1.e-200_rt);
+                                         state.rho * SMALL_X_SAFE);
     }
 
 
@@ -236,7 +232,7 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
         state.y[n] = vode_state.y(n+1);
     }
 
-    // update rho, rho*u, ... in the burn_t state
+    // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
     fill_unevolved_variables(time, state, vode_state);
@@ -312,38 +308,46 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void rhs_to_vode(const Real time, burn_t& state,
-                 YdotNetArray1D& ydot_react, dvode_t& vode_state,
+                 dvode_t& vode_state,
                  RArray1D& ydot)
 {
 
 
-    // ydot_react has just the contribution to the RHS from the
+    // on input, ydot has the contributions to the RHS from the
     // reaction network.  Note that these are in terms of dY/dt
+    // we will convert these in place to the form needed for SDC
 
-    // start with the contribution from the non-reacting sources
+    // convert from dY/dt to dX/dt. The species derivatives are the
+    // first NumSpec components of ydot coming from the reaction network
 
-    // Note: both ydot and ydot_react are 1-based
-    for (int n = 0; n < SVAR_EVOLVE; n++) {
-        ydot(n+1) = state.ydot_a[n];
-    }
-
-    // add in the reacting terms -- here we convert from dY/dt to dX/dt
-    // The species derivatives are the first NumSpec components of
-    // ydot_react
+    BL_ASSERT(SFS == 0);
 
     for (int n = 1; n <= NumSpec; n++) {
-        ydot(SFS+n) += state.rho * aion[n-1] * ydot_react(n);
+        ydot(n) = state.rho * aion[n-1] * ydot(n);
     }
+
+    // rescale the energy to be d(rho e)/dt
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    ydot(SEINT+1) += state.rho * ydot_react(net_ienuc);
+    BL_ASSERT(SEINT+1 == net_ienuc);
+
+    ydot(SEINT+1) *= state.rho;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    ydot(SENTH+1) += state.rho * ydot_react(net_ienuc);
+    ydot(SENTH+1) *= state.rho;
 
 #endif
+
+    // now add the contribution from the non-reacting sources --
+    // including advection
+
+    // Note: both ydot is 1-based
+
+    for (int n = 0; n < SVAR_EVOLVE; n++) {
+        ydot(n+1) += state.ydot_a[n];
+    }
 
 }
 

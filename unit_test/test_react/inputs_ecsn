@@ -9,8 +9,7 @@ unit_test.temp_max = 6.e8
 
 unit_test.tmax = 1.0e-1
 
-unit_test.primary_species_1 = "carbon-12"
-unit_test.primary_species_2 = "oxygen-16"
+unit_test.primary_species_1 = "oxygen-16"
 
 integrator.burner_verbose = 0
 
@@ -19,6 +18,7 @@ integrator.burner_verbose = 0
 # 2 = numerical jacobian
 integrator.jacobian = 1
 
+integrator.retry_burn = 0
 integrator.renormalize_abundances = 0
 
 integrator.rtol_spec = 1.0e-12

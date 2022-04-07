@@ -4,6 +4,8 @@
 // Common variables and routines for burners
 // that use VODE for their integration.
 
+#include <iomanip>
+
 #include <network.H>
 #include <burn_type.H>
 #include <eos_type.H>
@@ -180,47 +182,48 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << "istate = " << istate << std::endl;
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
-            std::cout << "dens start = " << eos_state.rho << std::endl;
-            std::cout << "temp start = " << eos_state.T << std::endl;
+            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
+            std::cout << "dens start = " << std::setprecision(16) << eos_state.rho << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << eos_state.T << std::endl;
             std::cout << "xn start = ";
             for (int n = 0; n < NumSpec; ++n) {
-                std::cout << eos_state.xn[n] << " ";
+                std::cout << std::setprecision(16) << eos_state.xn[n] << " ";
             }
             std::cout << std::endl;
 #ifdef NSE_THERMO
             std::cout << "aux start = ";
             for (int n = 0; n < NumAux; ++n) {
-                std::cout << eos_state.aux[n] << " ";
+                std::cout << std::setprecision(16) << eos_state.aux[n] << " ";
             }
             std::cout << std::endl;
 #endif
-            std::cout << "dens current = " << state.rho << std::endl;
-            std::cout << "temp current = " << state.T << std::endl;
+            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
+            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
             std::cout << "xn current = ";
             for (int n = 0; n < NumSpec; ++n) {
-                std::cout << state.xn[n] << " ";
+                std::cout << std::setprecision(16) << state.xn[n] << " ";
             }
             std::cout << std::endl;
 #ifdef NSE_THERMO
             std::cout << "aux current = ";
             for (int n = 0; n < NumAux; ++n) {
-                std::cout << state.aux[n] << " ";
+                std::cout << std::setprecision(16) << state.aux[n] << " ";
             }
             std::cout << std::endl;
 #endif
 #if defined(SDC_EVOLVE_ENERGY)
-            std::cout << "A(rho) = " << state.ydot_a[SRHO] << std::endl;
+            std::cout << "A(rho) = " << std::setprecision(16) << state.ydot_a[SRHO] << std::endl;
 #endif
-            std::cout << "A(rho e) = " << state.ydot_a[SEINT] << std::endl;
+            std::cout << "A(rho e) = " << std::setprecision(16) << state.ydot_a[SEINT] << std::endl;
             std::cout << "A(rho X_k) = ";
             for (int n = 0; n < NumSpec; n++) {
-                std::cout << state.ydot_a[SFS+n] << " ";
+                std::cout << std::setprecision(16) << state.ydot_a[SFS+n] << " ";
             }
             std::cout << std::endl;
 #ifdef NSE_THERMO
             std::cout << "A(rho aux_k) = ";
             for (int n = 0; n < NumAux; n++) {
-                std::cout << state.ydot_a[SFX+n] << " ";
+                std::cout << std::setprecision(16) << state.ydot_a[SFX+n] << " ";
             }
             std::cout << std::endl;
 #endif

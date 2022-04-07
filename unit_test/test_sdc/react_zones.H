@@ -38,6 +38,7 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
 
     burn_state.rho = eos_state.rho;
     burn_state.T = eos_state.T;
+    burn_state.T_fixed = -1.e200_rt;
 
     for (int n = 0; n < NumSpec; n++) {
       burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];

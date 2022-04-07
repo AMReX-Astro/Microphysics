@@ -15,7 +15,9 @@ Microphysics
    data_structures
    rp_intro
    eos
+   networks-overview
    networks
+   templated_networks
    integrators
    nse
    transport

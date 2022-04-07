@@ -4,8 +4,7 @@
 import pynucastro as pyna
 from pynucastro.networks import StarKillerCxxNetwork
 
-library_file = "20180319default2"
-mylibrary = pyna.rates.Library(library_file)
+mylibrary = pyna.rates.ReacLibLibrary()
 
 all_nuclei = ['n',
               'h1', 'h2',

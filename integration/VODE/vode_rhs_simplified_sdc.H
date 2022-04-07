@@ -7,12 +7,8 @@
 
 #include <vode_type_simplified_sdc.H>
 #include <vode_jac_util_simplified_sdc.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
 #include <actual_rhs.H>
-#else
-#include <fortran_to_cxx_actual_rhs.H>
-#endif
 #include <numerical_jacobian.H>
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>
@@ -26,7 +22,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
-    // update rho, rho*u, etc.
+    // update rho
 
     fill_unevolved_variables(time, state, vode_state);
 
@@ -54,13 +50,11 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     // call the specific network to get the RHS
 
-    YdotNetArray1D ydot_react = {0};
-
-    actual_rhs(state, ydot_react);
+    actual_rhs(state, ydot);
 
 #ifdef NONAKA_PLOT
     if (! in_jacobian) {
-        nonaka_rhs(time, state, ydot_react);
+        nonaka_rhs(time, state, ydot);
     }
 #endif
 
@@ -70,13 +64,13 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
         // the correct size here is the size of the reactive state RHS,
         // not the SDC state RHS (neqs, not VODE_NEQS)
         for (int n = 1; n <= neqs; ++n) {
-            ydot_react(n) *= react_boost;
+            ydot(n) *= react_boost;
         }
     }
 
     // convert back to the vode type -- this will add the advective terms
 
-    rhs_to_vode(time, state, ydot_react, vode_state, ydot);
+    rhs_to_vode(time, state, vode_state, ydot);
 
 }
 
@@ -120,14 +114,22 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     }
 
-    // Call the specific network routine to get the Jacobian.
-
-    JacNetArray2D jac_react;
-
     if (jacobian == 3) {
         jac_info_t jac_info;
         jac_info.h = vode_state.H;
-        numerical_jac(state, jac_info, jac_react);
+
+        // the numerical Jacobian for SDC will automatically
+        // put it into the correct form (in terms of energy)
+        // so we can just operate on the VODE Jacobian storage
+        // directly
+
+        numerical_jac(state, jac_info, pd);
+
+        // apply fudge factor:
+
+        if (react_boost > 0.0_rt) {
+            pd.mul(react_boost);
+        }
 
         // jacobian = 3 is a hybrid numerical + analytic
         // implementation for simplified SDC.  It uses a one-sided
@@ -137,8 +139,12 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         // account for the NumSpec+1 RHS evals
         vode_state.NFE += NumSpec + 1;
 
-
     } else {
+
+        // Call the specific network routine to get the Jacobian.
+
+        JacNetArray2D jac_react;
+
         actual_jac(state, jac_react);
 
         // The Jacobian from the nets is in terms of dYdot/dY, but we want
@@ -155,17 +161,18 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
             }
         }
 
+        // apply fudge factor:
+
+        if (react_boost > 0.0_rt) {
+            jac_react.mul(react_boost);
+        }
+
+        // convert to the system we are using
+
+        jac_to_vode(vode_state.tn, state, jac_react, vode_state, pd);
+
     }
 
-    // apply fudge factor:
-
-    if (react_boost > 0.0_rt) {
-        jac_react.mul(react_boost);
-    }
-
-    // convert to the system we are using
-
-    jac_to_vode(vode_state.tn, state, jac_react, vode_state, pd);
 
 }
 #endif
