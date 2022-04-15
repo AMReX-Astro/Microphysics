@@ -130,6 +130,9 @@ void actual_integrator (burn_t& state, Real dt)
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
+            if (istate == 2) {
+                std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
+            }
             std::cout << "time = " << vode_state.t << std::endl;
             std::cout << "dens = " << state.rho << std::endl;
             std::cout << "temp start = " << T_in << std::endl;
