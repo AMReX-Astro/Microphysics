@@ -24,7 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-    const std::string secret_code_reference = "85RDGAN3XGQ44Y6WFEZAAD8FIWTMQAOD";
+    const std::string secret_code_reference = "OP1ATPVEAA5BVRGDWTO2KKZB2C26M40P";
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -80,79 +80,79 @@ void net_screening_init() {
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[C14-1], aion[C14-1]);
-
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[N14-1], aion[N14-1]);
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[O16-1], aion[O16-1]);
 
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Ne21-1], aion[Ne21-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[F18-1], aion[F18-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Na23-1], aion[Na23-1]);
+
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ne20-1], aion[Ne20-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mg24-1], aion[Mg24-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Na23-1], aion[Na23-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Al27-1], aion[Al27-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Al27-1], aion[Al27-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mg24-1], aion[Mg24-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Si28-1], aion[Si28-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Al27-1], aion[Al27-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[P31-1], aion[P31-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[P31-1], aion[P31-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Si28-1], aion[Si28-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[S32-1], aion[S32-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[P31-1], aion[P31-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Cl35-1], aion[Cl35-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Cl35-1], aion[Cl35-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[S32-1], aion[S32-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ar36-1], aion[Ar36-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Cl35-1], aion[Cl35-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[K39-1], aion[K39-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[K39-1], aion[K39-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ar36-1], aion[Ar36-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ca40-1], aion[Ca40-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[K39-1], aion[K39-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Sc43-1], aion[Sc43-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Sc43-1], aion[Sc43-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ca40-1], aion[Ca40-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ti44-1], aion[Ti44-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Sc43-1], aion[Sc43-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[V47-1], aion[V47-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[V47-1], aion[V47-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ti44-1], aion[Ti44-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Cr48-1], aion[Cr48-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[V47-1], aion[V47-1]);
 
     add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Mn51-1], aion[Mn51-1]);
 
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Cr48-1], aion[Cr48-1]);
+
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mn51-1], aion[Mn51-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Co55-1], aion[Co55-1]);
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Fe52-1], aion[Fe52-1]);
 
-    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Co55-1], aion[Co55-1]);
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt);
 
     add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
 
     add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[N13-1], aion[N13-1]);
 
-    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[O16-1], aion[O16-1]);
-
     add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1]);
 
     add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1]);
 
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[F18-1], aion[F18-1]);
-
     add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[Ne20-1], aion[Ne20-1]);
-
-    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Ne21-1], aion[Ne21-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt);
 
 
 }
@@ -175,6 +175,7 @@ tf_t evaluate_tfactors(const Real T)
     return tf;
 }
 
+template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reaclib_evaluate(plasma_state_t& pstate, const tf_t& tfactors, const int iwhich,
                       Real& rate, Real& drate_dt) {
@@ -209,14 +210,17 @@ void reaclib_evaluate(plasma_state_t& pstate, const tf_t& tfactors, const int iw
 
         // compute the derivative of the log of the rate
 
-        Real dlnirate_dT9 =
-            -reaclib_rates::ctemp_rate(2, istart+i) * tfactors.T9i * tfactors.T9i +
-            -(1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(3, istart+i) * tfactors.T943i +
-            (1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(4, istart+i) * tfactors.T923i +
-            reaclib_rates::ctemp_rate(5, istart+i) +
-            (5.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(6, istart+i) * tfactors.T923 +
-            reaclib_rates::ctemp_rate(7, istart+i) * tfactors.T9i;
+        Real dlnirate_dT9{0.0};
 
+        if constexpr (do_T_derivatives == 1) {
+            dlnirate_dT9 =
+                -reaclib_rates::ctemp_rate(2, istart+i) * tfactors.T9i * tfactors.T9i +
+                -(1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(3, istart+i) * tfactors.T943i +
+                (1.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(4, istart+i) * tfactors.T923i +
+                reaclib_rates::ctemp_rate(5, istart+i) +
+                (5.0_rt/3.0_rt) * reaclib_rates::ctemp_rate(6, istart+i) * tfactors.T923 +
+                reaclib_rates::ctemp_rate(7, istart+i) * tfactors.T9i;
+        }
 
         // If the rate will be in the approx. interval [0.0, 1.0E-100], replace by 0.0
         // This avoids issues with passing very large negative values to EXP
@@ -226,8 +230,11 @@ void reaclib_evaluate(plasma_state_t& pstate, const tf_t& tfactors, const int iw
         lnirate = amrex::max(lnirate, -230.0e0_rt);
         irate = std::exp(lnirate);
         rate += irate;
-        dirate_dt = irate * dlnirate_dT9 / 1.0e9_rt;
-        drate_dt += dirate_dt;
+
+        if constexpr (do_T_derivatives == 1) {
+            dirate_dt = irate * dlnirate_dT9 / 1.0e9_rt;
+            drate_dt += dirate_dt;
+        }
     }
 }
 
