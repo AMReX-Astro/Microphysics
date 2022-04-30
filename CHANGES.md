@@ -1,3 +1,90 @@
+# 22.04
+
+  * aprox networks now use a templated C++ righthand side formulation that
+    builds the ODE system at compile time. (#802)
+
+  * pynucastro networks were regenerated to take advantage of recent
+    optimizations (#901)
+
+# 22.02
+
+  * The Microphysics repo was moved to the AMReX-Astro github
+    organization: https://github.com/amrex-astro/Microphysics
+
+    You can update your git remote via:
+
+    git remote set-url origin git@github.com:amrex-astro/Microphysics.git
+
+  * Fortran support has been removed from the runtime parameter
+    scripts (#869)
+
+# 22.01
+
+  * we added back in support for the "Nonaka plot".  This outputs the
+    state in the RHS routine for a single zone during the reaction
+    network integration. (#830)
+
+  * we removed the xrb_simple network.  This was never used in any
+    science calculations (#827)
+
+  * the simplified-SDC step rejection logic in VODE was improved (#818)
+
+# 21.12
+
+  * all of the pynucastro networks were regenerated with the latest
+    pynucastro and converted to C++.  Performance was also improved
+    (#809)
+
+  * a bug was fixed in the VODE step rejection logic (#815)
+
+  * we added USE_MICROPHYSICS_DEBUG that defines MICROPHYSICS_DEBUG to
+    turn on more verbosity to help with debugging (#817)
+
+# 21.11
+
+  * burn_cell was not correctly doing substepping in some cases.
+    This has been fixed (#784)
+
+  * With Intel compilers, logical runtime parameters in Fortran
+    were not being correctly cast to int (#789)
+
+  * Simplified-SDC now works with Fortran nets (#786) 
+
+# 21.09
+
+  * Added a new nova network (nova2) with pp and (hot-)CNO and some
+    breakout reactions (#751)
+
+  * Some fixes to the NSE bailout in aprox19 (#739, #753, #755) and
+    the relaxation check on the NSE critera (#754)
+
+  * Added a new unit test for single-zone SDC (burn_cell_sdc) (#744)
+
+# 21.08
+
+  * test_react can now be run with a uniform composition to test GPU
+    performance (#734)
+
+  * the numerical Jacobian now uses a more robust one-sided difference
+    algorithm (#660, #728)
+
+  * for simplified SDC, we now only integrate (rho X, rho e), and no longer
+    integrate (rho E) (#710, #712, #717)
+
+  * for the NSE bailout, we can now relax the conditions needed to enter
+    NSE after a failed burn (#702)
+
+# 21.07
+
+   * The C++ networks now implement abort_on_failure functionality
+     (#697)
+
+# 21.06
+
+   * The ability to use a system BLAS library was removed (#675)
+
+   * An equation of state for hypervelocity impacts was added (#645)
+
 # 21.05
 
    * For aprox19 + NSE, we now "bail out" of the integration
@@ -350,16 +437,16 @@
   * a new subCh network for He burning was added.
 
   * implemented the new c12(a,g)o16 nuclear reaction rate and its
-    corresponding inverse from the work of Deboer et al. 2017 
-    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007). 
-    To use the new rate, user must set `use_c12ag_deboer17` to `true`. 
+    corresponding inverse from the work of Deboer et al. 2017
+    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007).
+    To use the new rate, user must set `use_c12ag_deboer17` to `true`.
     This rate is only useable in the `aprox13`, `aprox19`, `aprox21`,
     and `iso7` reaction rate networks. Closes issue #44.
 
   * a routine util/cj_detonation was added to compute the
      Chapman-Jouguet detonation velocity for any of the networks
 
-  * the burn retry strategy now sticks with the current integrator and 
+  * the burn retry strategy now sticks with the current integrator and
     uses looser tolerances before switching to a different integrator.
 
 # 18.04
@@ -375,7 +462,7 @@
 
    * we now disable some composition derivatives in the EOS
      by default, for performance and memory reasons.  They can
-     be reenabled by defining the preprocessor variable 
+     be reenabled by defining the preprocessor variable
      EXTRA_THERMO (PR #59)
 
 # 17.10

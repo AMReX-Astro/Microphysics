@@ -15,15 +15,9 @@
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, Real dt)
 {
-
     dvode_t vode_state;
 
-    // Set the tolerances.  We will be more relaxed on the temperature
-    // since it is only used in evaluating the rates.
-    //
-    // **NOTE** if you reduce these tolerances, you probably will need
-    // to (a) decrease dT_crit, (b) increase the maximum number of
-    // steps allowed.
+    // Set the tolerances.
 
     for (int n = 1; n <= NumSpec; ++n) {
         vode_state.atol(n) = atol_spec; // mass fractions
@@ -63,7 +57,9 @@ void actual_integrator (burn_t& state, Real dt)
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
+#ifndef AMREX_USE_GPU
     Real T_in = state.T;
+#endif
     Real e_in = state.e;
 
     state.self_heat = true;
@@ -116,7 +112,7 @@ void actual_integrator (burn_t& state, Real dt)
         }
     }
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
@@ -132,8 +128,11 @@ void actual_integrator (burn_t& state, Real dt)
     if (!state.success) {
         if (istate != -100) {
 #ifndef AMREX_USE_GPU
-            std::cout << "ERROR: integration failed in net" << std::endl;
+            std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
+            if (istate == 2) {
+                std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
+            }
             std::cout << "time = " << vode_state.t << std::endl;
             std::cout << "dens = " << state.rho << std::endl;
             std::cout << "temp start = " << T_in << std::endl;

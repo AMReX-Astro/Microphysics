@@ -2,8 +2,6 @@ n_cell = 16
 
 prefix = react_reaclib_cburn_
 
-amr.probin_file = probin
-
 unit_test.dens_min = 1.e-3
 unit_test.dens_max = 5.e9
 unit_test.temp_min = 1.e7
@@ -20,7 +18,6 @@ unit_test.primary_species_3 = "oxygen-16"
 # 2 = numerical jacobian
 integrator.jacobian   = 1
 
-integrator.retry_burn = 0
 integrator.renormalize_abundances = 0
 
 network.small_x = 1.e-16

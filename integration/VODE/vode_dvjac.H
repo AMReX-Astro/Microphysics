@@ -2,7 +2,9 @@
 #define _vode_dvjac_H_
 
 #include <vode_type.H>
+#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <linpack.H>
+#endif
 #ifdef STRANG
 #include <vode_rhs.H>
 #endif
@@ -115,6 +117,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
                 R0 = 1.0_rt;
             }
 
+            bool in_jacobian = true;
             for (int j = 1; j <= VODE_NEQS; ++j) {
                 Real yj = vstate.y(j);
 
@@ -122,7 +125,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
                 vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
-                rhs(vstate.tn, state, vstate, vstate.acor);
+                rhs(vstate.tn, state, vstate, vstate.acor, in_jacobian);
                 for (int i = 1; i <= VODE_NEQS; ++i) {
                     vstate.jac.set(i, j, (vstate.acor(i) - vstate.savf(i)) * fac);
                 }
@@ -164,14 +167,18 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
     vstate.jac.mul(con);
     vstate.jac.add_identity();
 
-#ifndef NETWORK_SOLVER
     int IER;
+
+#ifdef NEW_NETWORK_IMPLEMENTATION
+    RHS::dgefa(vstate.jac);
+    IER = 0;
+#else
     dgefa<VODE_NEQS>(vstate.jac, pivot, IER);
+#endif
 
     if (IER != 0) {
         IERPJ = 1;
     }
-#endif
 
 }
 

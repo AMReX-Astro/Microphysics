@@ -1,10 +1,9 @@
 # C-burning with A=23 URCA rate module generator
 
 import pynucastro as pyna
-from pynucastro.networks import StarKillerNetwork
+from pynucastro.networks import StarKillerCxxNetwork
 
-library_file = "20180319default2"
-mylibrary = pyna.rates.Library(library_file)
+mylibrary = pyna.rates.ReacLibLibrary()
 
 subCh = pyna.rates.Library()
 
@@ -25,5 +24,5 @@ for r, p in all_reactants:
     subCh += _library
 
 
-net = StarKillerNetwork(libraries=[subCh])
+net = StarKillerCxxNetwork(libraries=[subCh])
 net.write_network()

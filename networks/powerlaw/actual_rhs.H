@@ -60,8 +60,8 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_jac (burn_t& state, MatrixType& jac)
 {
 
-    for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= NumSpec; ++i) {
+    for (int j = 1; j <= neqs; ++j) {
+        for (int i = 1; i <= neqs; ++i) {
             jac(i,j) = 0.0_rt;
         }
     }

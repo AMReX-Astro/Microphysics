@@ -7,21 +7,9 @@
 #include <ArrayUtilities.H>
 #include <network.H>
 
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
+#include <integrator_data.H>
 
-#ifdef STRANG
-const int VODE_NEQS = NumSpec + 1;
-#endif
-
-#ifdef SIMPLIFIED_SDC
-const int VODE_NEQS = SVAR_EVOLVE;
-#endif
-
-#ifdef TRUE_SDC
-const int VODE_NEQS = NumSpec + 2;
-#endif
+const int VODE_NEQS = INT_NEQS;
 
 typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
@@ -42,8 +30,8 @@ const Real vode_failure_tolerance = 1.e-2_rt;
 // For each species whose abundance is above a certain threshold, we do
 // not allow its mass fraction to change by more than a certain amount
 // in any integration step.
-const Real vode_increase_change_factor = 2.0_rt;
-const Real vode_decrease_change_factor = 0.5_rt;
+const Real vode_increase_change_factor = 4.0_rt;
+const Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
@@ -52,6 +40,10 @@ const int VODE_LMAX = VODE_MAXORD + 1;
 
 // How many timesteps should pass before refreshing the Jacobian
 const int max_steps_between_jacobian_evals = 50;
+
+#ifdef NSE_THERMO
+const int MIN_NSE_BAILOUT_STEPS = 10;
+#endif
 
 // Type dvode_t contains the integration solution and control variables
 struct dvode_t
@@ -160,26 +152,12 @@ struct dvode_t
     // Integration array
     RArray1D y;
 
-#ifdef NETWORK_SOLVER
-
-    // Jacobian
-    SparseMatrix jac;
-
-#ifdef ALLOW_JACOBIAN_CACHING
-    // Saved Jacobian
-    SparseMatrix jac_save;
-#endif
-
-#else
-
     // Jacobian
     RArray2D jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     RArray2D jac_save;
-#endif
-
 #endif
 
     // the Nordsieck history array
@@ -195,7 +173,7 @@ struct dvode_t
     RArray1D acor;
 };
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
 AMREX_FORCE_INLINE
 void print_state(dvode_t& dvode_state)
 {

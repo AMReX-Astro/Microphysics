@@ -127,7 +127,7 @@ namespace ArrayUtil
 
             return xsum;
         }
-    };
-};
+    }
+}
 
 #endif
