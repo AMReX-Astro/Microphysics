@@ -228,7 +228,7 @@ in <code class="docutils literal notranslate"><span class="pre">aprox13</span></
   \begin{array}{c} \isotm{Mg}{24} + \isotm{He}{4} \\
                    \isotm{Si}{28} + \gamma \end{array} \right .\end{split}\]</div>
 <p>To capture this, we would include this as:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="nl">C12_O16_to_Mg24_He4</span><span class="p">:</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="no">C12_O16_to_Mg24_He4</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">C12</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">O16</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Mg24</span><span class="p">;</span><span class="w"></span>
@@ -247,7 +247,7 @@ in <code class="docutils literal notranslate"><span class="pre">aprox13</span></
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">forward_branching_ratio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.5</span><span class="n">_rt</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
 
-<span class="k">case</span><span class="w"> </span><span class="nl">C12_O16_to_Si28</span><span class="p">:</span><span class="w"></span>
+<span class="k">case</span><span class="w"> </span><span class="no">C12_O16_to_Si28</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">C12</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">O16</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Si28</span><span class="p">;</span><span class="w"></span>
@@ -324,7 +324,7 @@ additional rates that are needed, and then in the loop over rates
 that follows their evaluation, we will arrange them into this
 approximation.</p>
 <p>The metadata for this reaction appears as:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="nl">Mg24_He4_to_Si28</span><span class="p">:</span><span class="w"></span>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">case</span><span class="w"> </span><span class="no">Mg24_He4_to_Si28</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Mg24</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">He4</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">data</span><span class="p">.</span><span class="n">species_D</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Si28</span><span class="p">;</span><span class="w"></span>
