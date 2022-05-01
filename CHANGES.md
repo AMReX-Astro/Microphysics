@@ -1,3 +1,8 @@
+# 22.05
+
+  * The subch2 network was improved by adding some missing C+C, C+O,
+    and O+O rates. (#915)
+
 # 22.04
 
   * aprox networks now use a templated C++ righthand side formulation that
