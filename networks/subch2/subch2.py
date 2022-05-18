@@ -55,7 +55,12 @@ def doit():
             node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
             Z_range=(1,29))
 
-    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True)
+    # these are the rates that we are going to allow to be optionally
+    # zeroed
+    r1 = subch.get_rate("p_c12__n13")
+    r2 = subch.get_rate("he4_n13__p_o16")
+
+    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True, rate_params=[r1, r2])
     net.write_network()
 
 

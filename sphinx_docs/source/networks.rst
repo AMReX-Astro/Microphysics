@@ -207,3 +207,48 @@ Notably, the reaction :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`, is high and 
    :align: center
 
    pynucastro plot of the reaction rates of the subch network.
+
+
+
+subch2
+======
+
+This tries to recreate an aprox13 alpha-chain + including a bypass
+rate for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16} discussed
+in :cite:`ShenBildsten`.  We don't approximate the rates (e.g., create
+an effective rate for :math:`(\alpha, \gamma)` and :math:`(\alpha,
+p)(p, \gamma)` assuming proton equilibrium.  Therefore, we need to
+explicitly include those intermediate nuclei.  In all, 28 nuclei and
+107 rates are included.
+
+:cite:`ShenBildsten` discuss the sequences:
+
+* :math:`\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
+  \gamma)\isotm{Ne}{22}` at high temperatures (T > 1 GK).  We don't
+  consider this.
+
+* :math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
+  p)\isotm{Ne21}` is the one they consider important, since it produces
+  protons that are then available for :math:`\isotm{C}{12}(p,
+  \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
+
+  This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
+  the other nuclei by including :math:`\isotm{Na}{22}`.
+
+For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
+\isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
+also need to include
+:math:`\isotm{C}{12}(\isotm{C}{12},n)\isotm{Mg}{23}(n,
+\gamma)\isotm{Mg}{24}`, :math:`\mathrm{O}{16}(\isotm{O}{16},
+n)\isotm{S}{31}(n, \gamma)\isotm{S}{32}`, and
+:math:`\isotm{O}{16}(\isotm{C}{12}, n)\isotm{Si}{27}(n,
+\gamma)\isotm{Si}{28}` sequences.  Since the neutron captures on those
+intermediate nuclei are so fast, we leave those out and take the
+forward rate to just be the first rate.  We do not include reverse
+rates for these processes.
+
+This network is generated via pynucastro using the ``subch2.py`` script.
+The overall network appears as:
+
+.. figure:: subch2.png
+   :align: center
