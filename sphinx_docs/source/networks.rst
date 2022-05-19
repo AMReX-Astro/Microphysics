@@ -228,7 +228,7 @@ explicitly include those intermediate nuclei.  In all, 28 nuclei and
   consider this.
 
 * :math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
-  p)\isotm{Ne21}` is the one they consider important, since it produces
+  p)\isotm{Ne}{21}` is the one they consider important, since it produces
   protons that are then available for :math:`\isotm{C}{12}(p,
   \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
 
