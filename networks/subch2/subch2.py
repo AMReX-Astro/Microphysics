@@ -60,7 +60,7 @@ def doit():
     r1 = subch.get_rate("p_c12__n13")
     r2 = subch.get_rate("he4_n13__p_o16")
 
-    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True, rate_params=[r1, r2])
+    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True, disable_rate_params=[r1, r2])
     net.write_network()
 
 
