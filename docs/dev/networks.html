@@ -71,6 +71,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subch">subch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subch2">subch2</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
@@ -291,11 +292,51 @@ leading into <span class="math notranslate nohighlight">\(\isotm{F}{18}(\alpha,p
 and <span class="math notranslate nohighlight">\(\isotm{C}{14}(\alpha,\gamma)\isotm{O}{18}\)</span> <span id="id10">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span>.
 The rates of these reactions are shown in the figure below.
 Notably, the reaction <span class="math notranslate nohighlight">\(\isotm{N}{13}(\alpha,p)\isotm{O}{16}\)</span>, is high and may produce <span class="math notranslate nohighlight">\(\isotm{O}{16}\)</span> more quickly than reactions involving only <span class="math notranslate nohighlight">\(\isotm{He}{4}\)</span> and <span class="math notranslate nohighlight">\(\isotm{C}{12}\)</span>,</p>
-<figure class="align-center" id="id11">
+<figure class="align-center" id="id13">
 <a class="reference internal image-reference" href="_images/subch.png"><img alt="pynucastro plot of the reaction rates of the subch network." src="_images/subch.png" style="width: 640.0px; height: 480.0px;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 1 </span><span class="caption-text">pynucastro plot of the reaction rates of the subch network.</span><a class="headerlink" href="#id11" title="Permalink to this image">¶</a></p>
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">pynucastro plot of the reaction rates of the subch network.</span><a class="headerlink" href="#id13" title="Permalink to this image">¶</a></p>
 </figcaption>
+</figure>
+</section>
+<section id="subch2">
+<h2>subch2<a class="headerlink" href="#subch2" title="Permalink to this headline">¶</a></h2>
+<p>This tries to recreate an aprox13 alpha-chain + including a bypass
+rate for <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}\)</span> discussed
+in <span id="id11">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span>.  We don’t approximate the rates (e.g., create
+an effective rate for <span class="math notranslate nohighlight">\((\alpha, \gamma)\)</span> and <span class="math notranslate nohighlight">\((\alpha,
+p)(p, \gamma)\)</span> assuming proton equilibrium).  Therefore, we need to
+explicitly include those intermediate nuclei.  In all, 28 nuclei and
+107 rates are included.</p>
+<p><span id="id12">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span> discuss the sequences:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
+\gamma)\isotm{Ne}{22}\)</span> at high temperatures (T &gt; 1 GK).  We don’t
+consider this.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
+p)\isotm{Ne}{21}\)</span> is the one they consider important, since it produces
+protons that are then available for <span class="math notranslate nohighlight">\(\isotm{C}{12}(p,
+\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}\)</span>.</p>
+<p>This leaves <span class="math notranslate nohighlight">\(\isotm{Ne}{21}\)</span> as an endpoint, which we connect to
+the other nuclei by including <span class="math notranslate nohighlight">\(\isotm{Na}{22}\)</span>.</p>
+</li>
+</ul>
+<p>For the <span class="math notranslate nohighlight">\(\isotm{C}{12} + \isotm{C}{12}\)</span>, <span class="math notranslate nohighlight">\(\isotm{C}{12} +
+\isotm{O}{16}\)</span>, and <span class="math notranslate nohighlight">\(\isotm{O}{16} + \isotm{O}{16}\)</span> rates, we
+also need to include:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\isotm{C}{12}(\isotm{C}{12},n)\isotm{Mg}{23}(n,\gamma)\isotm{Mg}{24}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{O}{16}(\isotm{O}{16}, n)\isotm{S}{31}(n, \gamma)\isotm{S}{32}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\isotm{O}{16}(\isotm{C}{12}, n)\isotm{Si}{27}(n, \gamma)\isotm{Si}{28}\)</span></p></li>
+</ul>
+<p>Since the neutron captures on those
+intermediate nuclei are so fast, we leave those out and take the
+forward rate to just be the first rate.  We do not include reverse
+rates for these processes.</p>
+<p>This network is generated via pynucastro using the <code class="docutils literal notranslate"><span class="pre">subch2.py</span></code> script.
+The overall network appears as:</p>
+<figure class="align-center">
+<img alt="_images/subch2.png" src="_images/subch2.png" />
 </figure>
 </section>
 </section>
