@@ -76,7 +76,17 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
             rate_eval.dscreened_rates_dT(i) = 0.0;
             continue;
         }
+        if (i == k_n13__p_c12 && disable_p_c12__n13) {
+            rate_eval.screened_rates(i) = 0.0;
+            rate_eval.dscreened_rates_dT(i) = 0.0;
+            continue;
+        }
         if (i == k_he4_n13__p_o16 && disable_he4_n13__p_o16) {
+            rate_eval.screened_rates(i) = 0.0;
+            rate_eval.dscreened_rates_dT(i) = 0.0;
+            continue;
+        }
+        if (i == k_p_o16__he4_n13 && disable_he4_n13__p_o16) {
             rate_eval.screened_rates(i) = 0.0;
             rate_eval.dscreened_rates_dT(i) = 0.0;
             continue;
