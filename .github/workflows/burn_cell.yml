@@ -26,16 +26,18 @@ jobs:
           sudo apt-get update -y -qq
           sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0 gfortran>=9.3.0 
 
-      - name: Compile burn_cell
+      - name: Compile, burn_cell
         run: |
           cd unit_test/burn_cell
           make NETWORK_DIR=subch2 -j 4
 
       - name: Run burn_cell
         run: |
+          cd unit_test/burn_cell
           ./main3d.gnu.ex inputs_subch2 > test.out
 
       - name: Compare to stored output
         run: |
+          cd unit_test/burn_cell
           diff test.out subch2_unit_test.out
 
