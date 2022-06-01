@@ -1,3 +1,8 @@
+# 22.06
+
+  * The subch2 network now has runtime parameters allowing for
+    some key rates to be disabled (#921).
+
 # 22.05
 
   * The subch2 network was improved by adding some missing C+C, C+O,
