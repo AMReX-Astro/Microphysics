@@ -28,15 +28,15 @@ constexpr int NumAux = NAUX_NET;
 
 @@PROPERTIES@@
 
-MICROPHYSICS_UNUSED static AMREX_GPU_MANAGED amrex::Real aion[NumSpecTotal] = {
+MICROPHYSICS_UNUSED constexpr static AMREX_GPU_MANAGED amrex::Real aion[NumSpecTotal] = {
    @@AION@@
   };
 
-MICROPHYSICS_UNUSED static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpecTotal] = {
+MICROPHYSICS_UNUSED constexpr static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpecTotal] = {
    @@AION_INV@@
   };
 
-MICROPHYSICS_UNUSED static AMREX_GPU_MANAGED amrex::Real zion[NumSpecTotal] = {
+MICROPHYSICS_UNUSED constexpr static AMREX_GPU_MANAGED amrex::Real zion[NumSpecTotal] = {
    @@ZION@@
   };
 
