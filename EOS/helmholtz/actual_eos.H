@@ -498,16 +498,16 @@ void apply_ions (T& state)
     Real dpiondd = dxnidd * kt;
     Real dpiondt = xni * kerg;
 #ifdef EXTRA_THERMO
-    Real dpionda = dxnida * kt;
-    Real dpiondz = 0.0e0_rt;
+    [[maybe_unused]] Real dpionda = dxnida * kt;
+    [[maybe_unused]] Real dpiondz = 0.0e0_rt;
 #endif
 
     Real eion    = 1.5e0_rt * pion * deni;
     Real deiondd = (1.5e0_rt * dpiondd - eion) * deni;
     Real deiondt = 1.5e0_rt * dpiondt * deni;
 #ifdef EXTRA_THERMO
-    Real deionda = 1.5e0_rt * dpionda * deni;
-    Real deiondz = 0.0e0_rt;
+    [[maybe_unused]] Real deionda = 1.5e0_rt * dpionda * deni;
+    [[maybe_unused]] Real deiondz = 0.0e0_rt;
 #endif
 
     Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
@@ -585,16 +585,16 @@ void apply_radiation (T& state)
     Real dpraddd = 0.0e0_rt;
     Real dpraddt = 4.0e0_rt * prad * tempi;
 #ifdef EXTRA_THERMO
-    Real dpradda = 0.0e0_rt;
-    Real dpraddz = 0.0e0_rt;
+    [[maybe_unused]] Real dpradda = 0.0e0_rt;
+    [[maybe_unused]] Real dpraddz = 0.0e0_rt;
 #endif
 
     Real erad    = 3.0e0_rt * prad*deni;
     Real deraddd = -erad * deni;
     Real deraddt = 3.0e0_rt * dpraddt * deni;
 #ifdef EXTRA_THERMO
-    Real deradda = 0.0e0_rt;
-    Real deraddz = 0.0e0_rt;
+    [[maybe_unused]] Real deradda = 0.0e0_rt;
+    [[maybe_unused]] Real deraddz = 0.0e0_rt;
 #endif
 
     Real srad    = (prad * deni + erad) * tempi;
