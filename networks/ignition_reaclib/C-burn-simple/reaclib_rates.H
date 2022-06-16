@@ -24,7 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-    const std::string secret_code_reference = "ZLPFXM3V4U78QSDVZ8DQDMVOBHN2230N";
+    const std::string secret_code_reference = "JQL6X0K2MSZ0KJZ9TV0DAXTIPWFCSSFF";
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -63,23 +63,6 @@ void init_reaclib() {
     }
 
     table.close();
-
-}
-
-AMREX_INLINE
-void net_screening_init() {
-
-    using namespace Species;
-
-    // note: we need to set these up in the same order that we evaluate the
-    // rates in actual_rhs.H (yes, it's ugly)
-
-    int jscr = 0;
-
-    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1]);
-
 
 }
 

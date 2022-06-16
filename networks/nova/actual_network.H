@@ -46,10 +46,6 @@ namespace Rates
         NumRates = k_he4_he4_he4__c12
     };
 
-    // For each rate, we need: rate, drate/dT, screening, dscreening/dT
-
-    const int NumGroups = 4;
-
     // number of reaclib rates
 
     const int NrateReaclib = 19;

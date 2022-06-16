@@ -69,17 +69,17 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     tf_t tfactors = evaluate_tfactors(state.T);
 
-    if (jacobian == 1) {
-        for (int i = 1; i <= NrateReaclib; ++i) {
+    for (int i = 1; i <= NrateReaclib; ++i) {
+
+
+        if (jacobian == 1) {
             Real rate;
             Real drate_dt;
             constexpr int do_T_derivatives = 1;
             reaclib_evaluate<do_T_derivatives>(pstate, tfactors, i, rate, drate_dt);
             rate_eval.screened_rates(i) = rate;
             rate_eval.dscreened_rates_dT(i) = drate_dt;
-        }
-    } else {
-        for (int i = 1; i <= NrateReaclib; ++i) {
+        } else {
             Real rate;
             Real drate_dt;
             // drate_dt is not used in this case
@@ -96,9 +96,30 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     Real scor, dscor_dt, dscor_dd;
     Real scor2, dscor2_dt, dscor2_dd;
 
-    screen5(pstate, 0, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1], scor, dscor_dt, dscor_dd);
 
-    screen5(pstate, 1, zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt, scor2, dscor2_dt, dscor2_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 2.0_rt, 4.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
+
+
+
+    {
+        constexpr auto scn_fac2 = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 4.0_rt, 8.0_rt);
+
+
+        static_assert(scn_fac2.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac2, scor2, dscor2_dt);
+
+    }
+
 
     ratraw = rate_eval.screened_rates(k_he4_he4_he4__c12);
     dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12);
@@ -106,7 +127,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
 
 
-    screen5(pstate, 2, zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 6.0_rt, 12.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_he4_c12__o16);
@@ -115,7 +144,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_he4_c12__o16) = ratraw * dscor_dt + dratraw_dT * scor;
 
 
-    screen5(pstate, 3, zion[He4-1], aion[He4-1], zion[N14-1], aion[N14-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 7.0_rt, 14.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_he4_n14__f18);
@@ -124,7 +161,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_he4_n14__f18) = ratraw * dscor_dt + dratraw_dT * scor;
 
 
-    screen5(pstate, 4, zion[He4-1], aion[He4-1], zion[F18-1], aion[F18-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 9.0_rt, 18.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_he4_f18__p_ne21);
@@ -133,7 +178,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_he4_f18__p_ne21) = ratraw * dscor_dt + dratraw_dT * scor;
 
 
-    screen5(pstate, 5, zion[H1-1], aion[H1-1], zion[C12-1], aion[C12-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(1.0_rt, 1.0_rt, 6.0_rt, 12.0_rt);
+
+
+        static_assert(scn_fac.z1 == 1.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_p_c12__n13);
@@ -142,7 +195,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_p_c12__n13) = ratraw * dscor_dt + dratraw_dT * scor;
 
 
-    screen5(pstate, 6, zion[He4-1], aion[He4-1], zion[N13-1], aion[N13-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 7.0_rt, 13.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_he4_n13__p_o16);
@@ -151,7 +212,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = ratraw * dscor_dt + dratraw_dT * scor;
 
 
-    screen5(pstate, 7, zion[He4-1], aion[He4-1], zion[O16-1], aion[O16-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 8.0_rt, 16.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_he4_o16__ne20);
@@ -160,7 +229,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_he4_o16__ne20) = ratraw * dscor_dt + dratraw_dT * scor;
 
 
-    screen5(pstate, 8, zion[He4-1], aion[He4-1], zion[C14-1], aion[C14-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 6.0_rt, 14.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen5(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_he4_c14__o18);
@@ -185,8 +262,8 @@ void rhs_nuc(const burn_t& state,
     using namespace Rates;
 
     ydot_nuc(H1) =
-        -screened_rates(k_p_c12__n13)*Y(C12)*Y(H1)*state.rho +
         screened_rates(k_he4_f18__p_ne21)*Y(F18)*Y(He4)*state.rho +
+        -screened_rates(k_p_c12__n13)*Y(C12)*Y(H1)*state.rho +
         screened_rates(k_he4_n13__p_o16)*Y(He4)*Y(N13)*state.rho;
 
     ydot_nuc(He4) =
@@ -199,31 +276,31 @@ void rhs_nuc(const burn_t& state,
         -screened_rates(k_he4_c14__o18)*Y(C14)*Y(He4)*state.rho;
 
     ydot_nuc(C12) =
+        0.16666666666666667*screened_rates(k_he4_he4_he4__c12)*std::pow(Y(He4), 3)*std::pow(state.rho, 2) +
         -screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho +
-        -screened_rates(k_p_c12__n13)*Y(C12)*Y(H1)*state.rho +
-        0.16666666666666667*screened_rates(k_he4_he4_he4__c12)*std::pow(Y(He4), 3)*std::pow(state.rho, 2);
+        -screened_rates(k_p_c12__n13)*Y(C12)*Y(H1)*state.rho;
 
     ydot_nuc(C14) =
         -screened_rates(k_he4_c14__o18)*Y(C14)*Y(He4)*state.rho;
 
     ydot_nuc(N13) =
-        -screened_rates(k_he4_n13__p_o16)*Y(He4)*Y(N13)*state.rho +
-        screened_rates(k_p_c12__n13)*Y(C12)*Y(H1)*state.rho;
+        screened_rates(k_p_c12__n13)*Y(C12)*Y(H1)*state.rho +
+        -screened_rates(k_he4_n13__p_o16)*Y(He4)*Y(N13)*state.rho;
 
     ydot_nuc(N14) =
         -screened_rates(k_he4_n14__f18)*Y(He4)*Y(N14)*state.rho;
 
     ydot_nuc(O16) =
-        -screened_rates(k_he4_o16__ne20)*Y(He4)*Y(O16)*state.rho +
         screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho +
-        screened_rates(k_he4_n13__p_o16)*Y(He4)*Y(N13)*state.rho;
+        screened_rates(k_he4_n13__p_o16)*Y(He4)*Y(N13)*state.rho +
+        -screened_rates(k_he4_o16__ne20)*Y(He4)*Y(O16)*state.rho;
 
     ydot_nuc(O18) =
         screened_rates(k_he4_c14__o18)*Y(C14)*Y(He4)*state.rho;
 
     ydot_nuc(F18) =
-        -screened_rates(k_he4_f18__p_ne21)*Y(F18)*Y(He4)*state.rho +
-        screened_rates(k_he4_n14__f18)*Y(He4)*Y(N14)*state.rho;
+        screened_rates(k_he4_n14__f18)*Y(He4)*Y(N14)*state.rho +
+        -screened_rates(k_he4_f18__p_ne21)*Y(F18)*Y(He4)*state.rho;
 
     ydot_nuc(Ne20) =
         screened_rates(k_he4_o16__ne20)*Y(He4)*Y(O16)*state.rho;
@@ -468,10 +545,6 @@ void actual_rhs_init () {
     init_reaclib();
 
     init_tabular();
-
-    screening_init();
-
-    net_screening_init();
 
 }
 

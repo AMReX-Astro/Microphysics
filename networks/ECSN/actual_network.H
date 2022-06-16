@@ -45,10 +45,6 @@ namespace Rates
         NumRates = k_f20__ne20
     };
 
-    // For each rate, we need: rate, drate/dT, screening, dscreening/dT
-
-    const int NumGroups = 4;
-
     // number of reaclib rates
 
     const int NrateReaclib = 14;

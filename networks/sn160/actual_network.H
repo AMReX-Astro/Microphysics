@@ -1565,14 +1565,10 @@ namespace Rates
         NumRates = k_p_p_he4_he4__he3_be7
     };
 
-    // For each rate, we need: rate, drate/dT, screening, dscreening/dT
-
-    const int NumGroups = 4;
-
     // number of reaclib rates
 
     const int NrateReaclib = 1538;
-    const int NumReaclibSets = 1956;
+    const int NumReaclibSets = 1982;
 
     // number of tabular rates
 
