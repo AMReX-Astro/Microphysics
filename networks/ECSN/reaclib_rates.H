@@ -24,7 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-    const std::string secret_code_reference = "1X6U5GX1VFVYWSHGJV8ABL6RW0VO10BS";
+    const std::string secret_code_reference = "27LZW3E8R68EGEY43P21K0AOXYC9C7T2";
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -63,35 +63,6 @@ void init_reaclib() {
     }
 
     table.close();
-
-}
-
-AMREX_INLINE
-void net_screening_init() {
-
-    using namespace Species;
-
-    // note: we need to set these up in the same order that we evaluate the
-    // rates in actual_rhs.H (yes, it's ugly)
-
-    int jscr = 0;
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[O16-1], aion[O16-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ne20-1], aion[Ne20-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mg24-1], aion[Mg24-1]);
-
-    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Al27-1], aion[Al27-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Al27-1], aion[Al27-1]);
-
-    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Si28-1], aion[Si28-1]);
-
-    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[P31-1], aion[P31-1]);
-
-    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1]);
-
 
 }
 
