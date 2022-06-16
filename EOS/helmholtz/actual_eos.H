@@ -498,16 +498,16 @@ void apply_ions (T& state)
     Real dpiondd = dxnidd * kt;
     Real dpiondt = xni * kerg;
 #ifdef EXTRA_THERMO
-    Real dpionda = dxnida * kt;
-    Real dpiondz = 0.0e0_rt;
+    [[maybe_unused]] Real dpionda = dxnida * kt;
+    [[maybe_unused]] Real dpiondz = 0.0e0_rt;
 #endif
 
     Real eion    = 1.5e0_rt * pion * deni;
     Real deiondd = (1.5e0_rt * dpiondd - eion) * deni;
     Real deiondt = 1.5e0_rt * dpiondt * deni;
 #ifdef EXTRA_THERMO
-    Real deionda = 1.5e0_rt * dpionda * deni;
-    Real deiondz = 0.0e0_rt;
+    [[maybe_unused]] Real deionda = 1.5e0_rt * dpionda * deni;
+    [[maybe_unused]] Real deiondz = 0.0e0_rt;
 #endif
 
     Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
@@ -585,16 +585,16 @@ void apply_radiation (T& state)
     Real dpraddd = 0.0e0_rt;
     Real dpraddt = 4.0e0_rt * prad * tempi;
 #ifdef EXTRA_THERMO
-    Real dpradda = 0.0e0_rt;
-    Real dpraddz = 0.0e0_rt;
+    [[maybe_unused]] Real dpradda = 0.0e0_rt;
+    [[maybe_unused]] Real dpraddz = 0.0e0_rt;
 #endif
 
     Real erad    = 3.0e0_rt * prad*deni;
     Real deraddd = -erad * deni;
     Real deraddt = 3.0e0_rt * dpraddt * deni;
 #ifdef EXTRA_THERMO
-    Real deradda = 0.0e0_rt;
-    Real deraddz = 0.0e0_rt;
+    [[maybe_unused]] Real deradda = 0.0e0_rt;
+    [[maybe_unused]] Real deraddz = 0.0e0_rt;
 #endif
 
     Real srad    = (prad * deni + erad) * tempi;
@@ -655,21 +655,21 @@ void apply_coulomb_corrections (T& state)
     const Real forth = 4.0e0_rt/3.0e0_rt;
     const Real pi    = 3.1415926535897932384e0_rt;
 
-    Real pcoul    = 0.e0_rt;
-    Real dpcouldd = 0.e0_rt;
-    Real dpcouldt = 0.e0_rt;
-    Real ecoul    = 0.e0_rt;
-    Real decouldd = 0.e0_rt;
-    Real decouldt = 0.e0_rt;
-    Real scoul    = 0.e0_rt;
-    Real dscouldd = 0.e0_rt;
-    Real dscouldt = 0.e0_rt;
+    [[maybe_unused]] Real pcoul    = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldd = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldt = 0.e0_rt;
+    [[maybe_unused]] Real ecoul    = 0.e0_rt;
+    [[maybe_unused]] Real decouldd = 0.e0_rt;
+    [[maybe_unused]] Real decouldt = 0.e0_rt;
+    [[maybe_unused]] Real scoul    = 0.e0_rt;
+    [[maybe_unused]] Real dscouldd = 0.e0_rt;
+    [[maybe_unused]] Real dscouldt = 0.e0_rt;
 
 #ifdef EXTRA_THERMO
-    Real dpcoulda = 0.e0_rt;
-    Real dpcouldz = 0.e0_rt;
-    Real decoulda = 0.e0_rt;
-    Real decouldz = 0.e0_rt;
+    [[maybe_unused]] Real dpcoulda = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldz = 0.e0_rt;
+    [[maybe_unused]] Real decoulda = 0.e0_rt;
+    [[maybe_unused]] Real decouldz = 0.e0_rt;
 #endif
 
     Real s, x, y, z; // temporary variables

@@ -24,7 +24,11 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
+<<<<<<< HEAD
     const std::string secret_code_reference = "TB5AIG9LDVXX6AL2JPWV6EHT1K6S35K4";
+=======
+    const std::string secret_code_reference = "HC4047O0GDTFY7F6RJ9KYTD7URKD33LA";
+>>>>>>> development
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -66,6 +70,100 @@ void init_reaclib() {
 
 }
 
+<<<<<<< HEAD
+=======
+AMREX_INLINE
+void net_screening_init() {
+
+    using namespace Species;
+
+    // note: we need to set these up in the same order that we evaluate the
+    // rates in actual_rhs.H (yes, it's ugly)
+
+    int jscr = 0;
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[C12-1], aion[C12-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[N14-1], aion[N14-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[O16-1], aion[O16-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Ne21-1], aion[Ne21-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[F18-1], aion[F18-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Na23-1], aion[Na23-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ne20-1], aion[Ne20-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Na23-1], aion[Na23-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Al27-1], aion[Al27-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mg24-1], aion[Mg24-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Al27-1], aion[Al27-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[P31-1], aion[P31-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Si28-1], aion[Si28-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[P31-1], aion[P31-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Cl35-1], aion[Cl35-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[S32-1], aion[S32-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Cl35-1], aion[Cl35-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[K39-1], aion[K39-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ar36-1], aion[Ar36-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[K39-1], aion[K39-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Sc43-1], aion[Sc43-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ca40-1], aion[Ca40-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Sc43-1], aion[Sc43-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[V47-1], aion[V47-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Ti44-1], aion[Ti44-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[V47-1], aion[V47-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Mn51-1], aion[Mn51-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Cr48-1], aion[Cr48-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Mn51-1], aion[Mn51-1]);
+
+    add_screening_factor(jscr++, zion[H1-1], aion[H1-1], zion[Co55-1], aion[Co55-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[Fe52-1], aion[Fe52-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt);
+
+    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1]);
+
+    add_screening_factor(jscr++, zion[He4-1], aion[He4-1], zion[N13-1], aion[N13-1]);
+
+    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[O16-1], aion[O16-1]);
+
+    add_screening_factor(jscr++, zion[O16-1], aion[O16-1], zion[O16-1], aion[O16-1]);
+
+    add_screening_factor(jscr++, zion[C12-1], aion[C12-1], zion[Ne20-1], aion[Ne20-1]);
+
+
+}
+
+>>>>>>> development
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 tf_t evaluate_tfactors(const Real T)
 {

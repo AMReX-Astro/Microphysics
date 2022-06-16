@@ -1,3 +1,21 @@
+# 22.06
+
+  * The subch2 network now has runtime parameters allowing for
+    some key rates to be disabled (#921).
+
+# 22.05
+
+  * The subch2 network was improved by adding some missing C+C, C+O,
+    and O+O rates. (#915)
+
+# 22.04
+
+  * aprox networks now use a templated C++ righthand side formulation that
+    builds the ODE system at compile time. (#802)
+
+  * pynucastro networks were regenerated to take advantage of recent
+    optimizations (#901)
+
 # 22.02
 
   * The Microphysics repo was moved to the AMReX-Astro github

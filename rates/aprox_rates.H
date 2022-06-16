@@ -299,6 +299,8 @@ void rate_c12c12(tf_t tf, const Real den, Real& fr,
                 Real& drrdt) 
 {
     // c12 + c12 reaction
+    // this is the C12(C12,g)Mg24 rate from Caughlin & Fowler (1988)
+
     const Real aa      = 1.0e0_rt + 0.0396_rt*tf.t9;
     Real zz      = 1.0e0_rt/aa;
 
@@ -383,6 +385,8 @@ void rate_o16o16(tf_t tf, const Real den, Real& fr,
                 Real& drrdt) 
 {
     // o16 + o16
+    // this is the O16(O16,g)S32 rate from Caughlin & Fowler (1988)
+
     const Real term  = 7.10e36_rt * tf.t9i23 *
          std::exp(-135.93_rt * tf.t9i13 - 0.629_rt*tf.t923 
          - 0.445_rt*tf.t943 + 0.0103_rt*tf.t9*tf.t9);
