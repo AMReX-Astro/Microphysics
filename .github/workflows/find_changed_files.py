@@ -57,7 +57,8 @@ def run(SHAs=None, make_options=''):
 
     for network in networks:
         make_command = f'make {make_options} USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR={network}'
-
+        if network == "general_null":
+            make_command += " NETWORK_INPUTS=gammalaw.net"
         print(f'make command = {make_command}')
 
         with cd(f'unit_test/burn_cell'):

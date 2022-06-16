@@ -15,6 +15,12 @@
 #define MICROPHYSICS_UNUSED
 #endif
 
+#ifdef AMREX_USE_HIP
+#define HIP_CONSTEXPR constexpr
+#else
+#define HIP_CONSTEXPR
+#endif
+
 constexpr int NumSpec = @@NSPEC@@;
 
 #define NUM_EXTRA_SPECIES @@NEXTRASPEC@@
@@ -28,15 +34,15 @@ constexpr int NumAux = NAUX_NET;
 
 @@PROPERTIES@@
 
-MICROPHYSICS_UNUSED static AMREX_GPU_MANAGED amrex::Real aion[NumSpecTotal] = {
+MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real aion[NumSpecTotal] = {
    @@AION@@
   };
 
-MICROPHYSICS_UNUSED static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpecTotal] = {
+MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real aion_inv[NumSpecTotal] = {
    @@AION_INV@@
   };
 
-MICROPHYSICS_UNUSED static AMREX_GPU_MANAGED amrex::Real zion[NumSpecTotal] = {
+MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real zion[NumSpecTotal] = {
    @@ZION@@
   };
 
