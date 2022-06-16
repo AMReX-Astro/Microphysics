@@ -24,11 +24,7 @@ struct tf_t {
 AMREX_INLINE
 void init_reaclib() {
 
-<<<<<<< HEAD
-    const std::string secret_code_reference = "TB5AIG9LDVXX6AL2JPWV6EHT1K6S35K4";
-=======
     const std::string secret_code_reference = "HC4047O0GDTFY7F6RJ9KYTD7URKD33LA";
->>>>>>> development
 
     amrex::Print() << "reading in reaclib rates..." << std::endl;
 
@@ -70,8 +66,6 @@ void init_reaclib() {
 
 }
 
-<<<<<<< HEAD
-=======
 AMREX_INLINE
 void net_screening_init() {
 
@@ -163,7 +157,6 @@ void net_screening_init() {
 
 }
 
->>>>>>> development
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 tf_t evaluate_tfactors(const Real T)
 {
