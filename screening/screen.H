@@ -319,11 +319,19 @@ void actual_screen5 (const plasma_state_t& state,
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void screen5(const plasma_state_t& state,
-             const int jscreen,
-             MICROPHYSICS_UNUSED const Real z1_screen, MICROPHYSICS_UNUSED const Real a1_screen,
-             MICROPHYSICS_UNUSED const Real z2_screen, MICROPHYSICS_UNUSED const Real a2_screen,
-             Real& scor, Real& scordt, Real& /*scordd*/)
+void actual_screen(const plasma_state_t& state,
+                   const scrn::screen_factors_t& scn_fac,
+                   Real& scor, Real& scordt)
+{
+    actual_screen5(state, scn_fac, scor, scordt);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void screen(const plasma_state_t& state,
+            const int jscreen,
+            MICROPHYSICS_UNUSED const Real z1_screen, MICROPHYSICS_UNUSED const Real a1_screen,
+            MICROPHYSICS_UNUSED const Real z2_screen, MICROPHYSICS_UNUSED const Real a2_screen,
+            Real& scor, Real& scordt, Real& /*scordd*/)
 {
     using namespace scrn;
 
@@ -331,17 +339,17 @@ void screen5(const plasma_state_t& state,
     AMREX_ASSERT(scn_facs[jscreen].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
 #endif
 
-    actual_screen5(state, scn_facs[jscreen], scor, scordt);
+    actual_screen(state, scn_facs[jscreen], scor, scordt);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void screen5(const plasma_state_t& state,
-             const scrn::screen_factors_t& scn_fac,
-             Real& scor, Real& scordt, Real& /*scordd*/)
+void screen(const plasma_state_t& state,
+            const scrn::screen_factors_t& scn_fac,
+            Real& scor, Real& scordt, Real& /*scordd*/)
 {
     using namespace scrn;
 
-    actual_screen5(state, scn_fac, scor, scordt);
+    actual_screen(state, scn_fac, scor, scordt);
 }
 
 #endif
