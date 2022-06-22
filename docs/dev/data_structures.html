@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -127,13 +128,13 @@
 }
 </style>
 <section id="data-structures">
-<span id="id1"></span><h1>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this heading">¶</a></h1>
 <p>All of the routines in this software package are standardized so that
 you interact with them using the same type of data structure, a C++ struct.</p>
 <section id="eos">
-<h2>EOS<a class="headerlink" href="#eos" title="Permalink to this headline">¶</a></h2>
+<h2>EOS<a class="headerlink" href="#eos" title="Permalink to this heading">¶</a></h2>
 <section id="eos-t">
-<h3><code class="docutils literal notranslate"><span class="pre">eos_t</span></code><a class="headerlink" href="#eos-t" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">eos_t</span></code><a class="headerlink" href="#eos-t" title="Permalink to this heading">¶</a></h3>
 <p>The main data structure for interacting with the EOS is <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>.
 This is a collection of data specifying the microphysical state of the
 fluid that we are evaluating. This has many components. For a
@@ -158,9 +159,9 @@ file: <code class="docutils literal notranslate"><span class="pre">Castro/Microp
 </section>
 </section>
 <section id="networks">
-<h2>Networks<a class="headerlink" href="#networks" title="Permalink to this headline">¶</a></h2>
+<h2>Networks<a class="headerlink" href="#networks" title="Permalink to this heading">¶</a></h2>
 <section id="burn-t">
-<h3><code class="docutils literal notranslate"><span class="pre">burn_t</span></code><a class="headerlink" href="#burn-t" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">burn_t</span></code><a class="headerlink" href="#burn-t" title="Permalink to this heading">¶</a></h3>
 <p>The main data structure for interacting with the reaction networks is
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>. This holds the composition (mass fractions), thermodynamic
 state, and a lot of internal information used by the reaction network
@@ -196,7 +197,7 @@ between integration and simulation time.</p>
 </ul>
 </section>
 <section id="rate-t-rate-fr-t">
-<h3><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code><a class="headerlink" href="#rate-t-rate-fr-t" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code><a class="headerlink" href="#rate-t-rate-fr-t" title="Permalink to this heading">¶</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> and <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code> structures are used internally in a network to pass the
 raw reaction rate information (usually just the temperature-dependent
 terms) between various subroutines. It does not come out of the
@@ -204,7 +205,7 @@ network-specific righthand side or Jacobian routines.</p>
 <p>You can see their definitions in <code class="docutils literal notranslate"><span class="pre">networks/rate_type.H</span></code>.</p>
 </section>
 <section id="burn-type-h">
-<h3><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code><a class="headerlink" href="#burn-type-h" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code><a class="headerlink" href="#burn-type-h" title="Permalink to this heading">¶</a></h3>
 <p>In addition to defining the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type, the header <code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code>
 also defines integer indices into the solution vector that can be used
 to access the different components of the state:</p>
@@ -219,7 +220,7 @@ to access the different components of the state:</p>
 </section>
 </section>
 <section id="integrators">
-<h2>Integrators<a class="headerlink" href="#integrators" title="Permalink to this headline">¶</a></h2>
+<h2>Integrators<a class="headerlink" href="#integrators" title="Permalink to this heading">¶</a></h2>
 <p>Each integrator also has their own internal data structure that holds
 the information needed for the integration.  Meta-data that is not
 part of the integration vector of ODEs, but is attached to a
@@ -227,7 +228,7 @@ particular state (<span class="math notranslate nohighlight">\(X_k\)</span>, <sp
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> and can be passed into the righthand side routine.</p>
 </section>
 <section id="converting-between-types">
-<h2>Converting Between Types<a class="headerlink" href="#converting-between-types" title="Permalink to this headline">¶</a></h2>
+<h2>Converting Between Types<a class="headerlink" href="#converting-between-types" title="Permalink to this heading">¶</a></h2>
 <p>There is significant overlap between <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> and <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>.
 The <code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code> header two routines,
 <code class="docutils literal notranslate"><span class="pre">burn_to_eos</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_to_burn</span></code> that convert a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>

@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -128,18 +129,18 @@
 }
 </style>
 <section id="equations-of-state">
-<h1>Equations of State<a class="headerlink" href="#equations-of-state" title="Permalink to this headline">¶</a></h1>
+<h1>Equations of State<a class="headerlink" href="#equations-of-state" title="Permalink to this heading">¶</a></h1>
 <p>In this chapter on equations of state, we list the EOS routines
 available for your use, and then we describe the correct structure of
 an EOS module in case you want to build your own.</p>
 <section id="available-equations-of-state">
-<h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Permalink to this headline">¶</a></h2>
+<h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Permalink to this heading">¶</a></h2>
 <p>The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
 thermodynamic data (including all derivatives) in the <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>
 type.</p>
 <section id="gamma-law">
-<h3>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this headline">¶</a></h3>
+<h3>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> represents a gamma law gas, with
 equation of state:</p>
 <div class="math notranslate nohighlight">
@@ -168,7 +169,7 @@ fills the thermodynamic information in <code class="docutils literal notranslate
 by the hydrodynamics module in CASTRO.</p>
 </section>
 <section id="polytrope">
-<h3>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h3>
+<h3>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">polytrope</span></code> represents a polytropic fluid, with equation of
 state:</p>
 <div class="math notranslate nohighlight">
@@ -199,7 +200,7 @@ electron gas.</p>
 </ul>
 </section>
 <section id="ztwd">
-<h3>ztwd<a class="headerlink" href="#ztwd" title="Permalink to this headline">¶</a></h3>
+<h3>ztwd<a class="headerlink" href="#ztwd" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ztwd</span></code> is the zero-temperature degenerate electron equation
 of state of Chandrasekhar (1935), which is designed to describe
 white dward material. The pressure satisfies the equation:</p>
@@ -223,7 +224,7 @@ with pressure as a primary input then we do Newton-Raphson iteration
 to find the density that matches this pressure.</p>
 </section>
 <section id="multigamma">
-<h3>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this headline">¶</a></h3>
+<h3>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">multigamma</span></code> is an ideal gas equation of state where each
 species can have a different value of <span class="math notranslate nohighlight">\(\gamma\)</span>. This mainly affects
 how the internal energy is constructed as each species, represented
@@ -269,7 +270,7 @@ different species.</p></li>
 </ul>
 </section>
 <section id="helmholtz">
-<h3>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this headline">¶</a></h3>
+<h3>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
@@ -291,7 +292,7 @@ energy conservation. This is controlled through the
 publicly release it in this repository.</p>
 </section>
 <section id="stellarcollapse">
-<h3>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this headline">¶</a></h3>
+<h3>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">stellarcollapse</span></code> is the equation of state module provided
 on <a class="reference external" href="http://stellarcollapse.org">http://stellarcollapse.org</a>. It is designed
 to be used for core-collapse supernovae and is compatible with a
@@ -301,7 +302,7 @@ appropriate interpolation table from that site to use this.</p>
 </section>
 </section>
 <section id="interface-and-modes">
-<h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Permalink to this headline">¶</a></h2>
+<h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Permalink to this heading">¶</a></h2>
 <p>The EOS is called as:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">eos</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">eos_type</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -331,10 +332,10 @@ information needed, since we optimize out needless quantities at
 compile type (via C++ templating) for <code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code>.</p>
 </section>
 <section id="initialization-and-cutoff-values">
-<h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Permalink to this headline">¶</a></h2>
+<h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="input-validation">
-<h2>Input Validation<a class="headerlink" href="#input-validation" title="Permalink to this headline">¶</a></h2>
+<h2>Input Validation<a class="headerlink" href="#input-validation" title="Permalink to this heading">¶</a></h2>
 <p>The EOS will make sure that the inputs are within an acceptable range,
 (e.g., <code class="docutils literal notranslate"><span class="pre">small_temp</span></code> <span class="math notranslate nohighlight">\(&lt; T &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">maxT</span></code>). If they are not, then it
 resets them silently—no error is thrown.</p>
@@ -345,7 +346,7 @@ max ( <code class="docutils literal notranslate"><span class="pre">small_temp</s
 the EOS.</p>
 </section>
 <section id="eos-structure">
-<h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Permalink to this headline">¶</a></h2>
+<h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Permalink to this heading">¶</a></h2>
 <p>Each EOS should have two main routines by which it interfaces to the
 rest of CASTRO. At the beginning of the simulation,
 <code class="docutils literal notranslate"><span class="pre">actual_eos_init</span></code> will perform any initialization steps and save

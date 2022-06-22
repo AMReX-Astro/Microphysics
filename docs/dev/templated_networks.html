@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -120,7 +121,7 @@
 }
 </style>
 <section id="templated-network-righthand-sides">
-<h1>Templated Network Righthand Sides<a class="headerlink" href="#templated-network-righthand-sides" title="Permalink to this headline">¶</a></h1>
+<h1>Templated Network Righthand Sides<a class="headerlink" href="#templated-network-righthand-sides" title="Permalink to this heading">¶</a></h1>
 <p>A network consists of evaluating the rates and screening, and then for
 each rate, adding or subtracting the appropriate contribution to the
 evolution equation for each nucleus it affects.  That second part is
@@ -157,7 +158,7 @@ experimental community.</p>
 <p>The properties of a templated network are contained in the network’s
 <code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code> file.</p>
 <section id="rate-enum">
-<h2>Rate <code class="docutils literal notranslate"><span class="pre">enum</span></code><a class="headerlink" href="#rate-enum" title="Permalink to this headline">¶</a></h2>
+<h2>Rate <code class="docutils literal notranslate"><span class="pre">enum</span></code><a class="headerlink" href="#rate-enum" title="Permalink to this heading">¶</a></h2>
 <p>A network using the templated RHS construction needs to provide an
 <code class="docutils literal notranslate"><span class="pre">enum</span></code> called <code class="docutils literal notranslate"><span class="pre">Rates::NetworkRates</span></code> that lists all of the reaction
 rates in the network.  Only the forward rates need to be listed.  The
@@ -181,7 +182,7 @@ reaction, but not necessarily vice versa.</p>
 </div>
 </section>
 <section id="metadata">
-<h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h2>
+<h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this heading">¶</a></h2>
 <p>With the above formulation, adding a rate to the network means
 supplying the nuclei (<span class="math notranslate nohighlight">\(A\)</span>, …), coefficients (<span class="math notranslate nohighlight">\(n_A\)</span>,
 …), and the exponents (<span class="math notranslate nohighlight">\(a\)</span>, …).</p>
@@ -355,7 +356,7 @@ those additional rates.</p>
 </ul>
 </section>
 <section id="loop-over-rates">
-<h2>Loop over Rates<a class="headerlink" href="#loop-over-rates" title="Permalink to this headline">¶</a></h2>
+<h2>Loop over Rates<a class="headerlink" href="#loop-over-rates" title="Permalink to this heading">¶</a></h2>
 <p>The main logic for constructing RHS is contained in <code class="docutils literal notranslate"><span class="pre">Microphysics/networks/rhs.H</span></code> as <code class="docutils literal notranslate"><span class="pre">rhs()</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span><span class="w"></span>
 <span class="kt">void</span><span class="w"> </span><span class="n">rhs</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span><span class="w"></span>
@@ -405,7 +406,7 @@ the full RHS for the network, leaving only the rate evaluation for
 runtime.</p>
 </section>
 <section id="jacobian">
-<h2>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this headline">¶</a></h2>
+<h2>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this heading">¶</a></h2>
 <p>With the same rate infrastructure, we are able to provide an analytic
 Jacobian for our reaction networks.  The overall structure is the same
 as the <code class="docutils literal notranslate"><span class="pre">rhs()</span></code> function described above.</p>
@@ -420,7 +421,7 @@ of the network.</p>
 </div>
 </section>
 <section id="linear-algebra">
-<h2>Linear Algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this headline">¶</a></h2>
+<h2>Linear Algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this heading">¶</a></h2>
 <p>The VODE integrator needs routines to do LU factorization and back
 substitution.  We build off of the linpack <code class="docutils literal notranslate"><span class="pre">dgefa</span></code> and <code class="docutils literal notranslate"><span class="pre">dgesl</span></code>
 routines, but because we know at compile time which Jacobian terms are
