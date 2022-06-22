@@ -28,6 +28,8 @@ struct plasma_state_t {
   //Real daadd;
 
   Real temp;
+  Real zbar;
+  Real z2bar;
   Real n_e;
   Real gamma_e_fac;
 };
@@ -42,6 +44,8 @@ std::ostream& operator<< (std::ostream& o, plasma_state_t const& pstate)
   o << "aa       = " << pstate.aa << std::endl;
   o << "daadt    = " << pstate.daadt << std::endl;
   o << "temp     = " << pstate.temp << std::endl;
+  o << "zbar     = " << pstate.zbar << std::endl;
+  o << "z2bar    = " << pstate.z2bar << std::endl;
   o << "n_e      = " << pstate.n_e << std::endl;
   o << "gamma_e_fac = " << pstate.gamma_e_fac << std::endl;
 
@@ -85,6 +89,8 @@ void add_screening_factor(const int i,
   scn_facs[i].lzav = (5.0_rt/3.0_rt) * std::log(z1 * z2 / (z1 + z2));
   scn_facs[i].aznut = std::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
                                1.0_rt/3.0_rt);
+  scn_facs[i].ztilde = 0.5_rt * (std::pow(z1, 1.0_rt/3.0_rt) +
+                                 std::pow(z2, 1.0_rt/3.0_rt));
 
 }
 
@@ -112,6 +118,7 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   Real zbar = sum * abar;
   Real z2bar = sum2 * abar;
 
+  // ntot
   Real rr = dens * ytot;
   Real tempi = 1.0_rt / temp;
   Real dtempi = -tempi * tempi;
@@ -138,6 +145,8 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   //state.daadd = 2.27493e5_rt * tempi * dxnidd;
 
   state.temp = temp;
+  state.zbar = zbar;
+  state.z2bar = z2bar;
 
   // Electron number density
   // zbar * ntot works out to sum(z[i] * n[i]), after cancelling terms
@@ -378,10 +387,9 @@ void chugunov2007 (const plasma_state_t& state,
     //   Z^2 -> zbar^2
     //   n_i -> ntot
     //   m_i -> m_u * abar
-    Real ztilde = 0.5_rt * (std::cbrt(scn_fac.z1) + std::cbrt(scn_fac.z2));
     Real mu12 = scn_fac.a1 * scn_fac.a2 / (scn_fac.a1 + scn_fac.a2);
     Real z_factor = scn_fac.z1 * scn_fac.z2;
-    Real n_i = state.n_e / gcem::pow(ztilde, 3);
+    Real n_i = state.n_e / gcem::pow(scn_fac.ztilde, 3);
     Real m_i = 2.0_rt * mu12 / C::n_A;
 
     constexpr Real T_p_factor = C::hbar/C::k_B*C::q_e*gcem::sqrt(4.0_rt*GCEM_PI);
@@ -414,7 +422,7 @@ void chugunov2007 (const plasma_state_t& state,
     }
 
     // Coulomb coupling parameter from Yakovlev 2006 eq. 10
-    Real Gamma = state.gamma_e_fac*scn_fac.z1*scn_fac.z2 / (ztilde*T_norm*T_p);
+    Real Gamma = state.gamma_e_fac*scn_fac.z1*scn_fac.z2 / (scn_fac.ztilde*T_norm*T_p);
     Real dGamma_dT = -Gamma / T_norm * dT_norm_dT;
 
     // The fit for Gamma is only applicable up to ~600, so smoothly cap its value
@@ -503,6 +511,141 @@ void chugunov2007 (const plasma_state_t& state,
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
+{
+    // Calculates the free energy per ion in a OCP, from Chugunov and DeWitt 2009
+    // equation 24.
+
+    // input:
+    // gamma
+    // dlog_dT = derivative of log(gamma) with temperature
+
+    // output:
+    // f       = free energy
+    // df_dT   = derivative of free energy with temperature
+
+    // fit parameters
+    constexpr Real A1 = -0.907_rt;
+    constexpr Real A2 = 0.62954_rt;
+    constexpr Real A3 = -gcem::sqrt(3.0_rt) / 2.0_rt - A1 / gcem::sqrt(A2);
+    constexpr Real B1 = 0.00456_rt;
+    constexpr Real B2 = 211.6_rt;
+    constexpr Real B3 = -1e-4_rt;
+    constexpr Real B4 = 0.00462_rt;
+    Real gamma_12 = std::sqrt(gamma);
+
+    Real term1 = gamma_12 * std::sqrt(A2 + gamma);
+    Real dterm1_dgamma = (0.5_rt * A2 + gamma) / term1;
+
+    Real term2 = std::log(std::sqrt(gamma / A2) + std::sqrt(1.0_rt + gamma / A2));
+    Real dterm2_dgamma = 1.0_rt / (2.0_rt * term1);
+
+    Real term3 = gamma_12 - std::atan(gamma_12);
+    Real dterm3_dgamma = 0.5_rt * gamma_12 / (1.0_rt + gamma);
+
+    Real term4 = std::log(1.0_rt + gamma / B2);
+    Real dterm4_dgamma = 1.0_rt / (B2 + gamma);
+
+    Real term5 = std::log(1.0_rt + gamma * gamma / B4);
+    Real dterm5_dgamma = 2.0_rt * gamma / (B4 + gamma * gamma);
+
+    f = A1*(term1 - A2*term2) + 2.0_rt*A3*term3 + B1*(gamma - B2*term4) + 0.5_rt*B3*term5;
+    df_dT = (A1*(dterm1_dgamma - A2*dterm2_dgamma) +
+             2.0_rt*A3*dterm3_dgamma +
+             B1*(1.0_rt - B2*dterm4_dgamma) +
+             0.5_rt*B3*dterm5_dgamma) * dlog_dT * gamma;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void chugunov2009 (const plasma_state_t& state,
+                   const scrn::screen_factors_t& scn_fac,
+                   Real& scor, Real& scordt)
+{
+    // Calculates screening factors based on Chugunov and DeWitt 2009, PhRvC, 80, 014611
+
+    // input:
+    // state   = plasma state (T, rho, abar, zbar, etc.)
+    // scn_fac = screening factors for A and Z
+
+    // output:
+    // scor    = screening correction
+    // scordt  = derivative of screening correction with temperature
+
+    Real z1z2 = scn_fac.z1 * scn_fac.z2;
+    Real zcomp = scn_fac.z1 + scn_fac.z2;
+
+    // Gamma_e from eq. 6
+    Real Gamma_e = state.gamma_e_fac / state.temp;
+    // work in terms of log derivatives, since it's much simpler
+    Real dlog_Gamma_dT = -1.0_rt / state.temp;
+
+    // Coulomb coupling parameters for ions and compound nucleus, eqs. 7 & 9
+    Real Gamma_1 = Gamma_e * std::pow(scn_fac.z1, 5.0_rt/3.0_rt);
+    Real Gamma_2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
+    Real Gamma_comp = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
+
+    Real Gamma_12 = Gamma_e * z1z2 / scn_fac.ztilde;
+
+    // Coulomb barrier penetrability, eq. 10
+    constexpr Real tau_factor = gcem::pow(
+            27.0_rt/2.0_rt * gcem::pow(M_PI*C::q_e*C::q_e/C::hbar, 2) / (C::n_A*C::k_B),
+            1.0_rt/3.0_rt);
+    Real tau_12 = tau_factor * scn_fac.aznut / std::cbrt(state.temp);
+    Real dlog_tau_12_dT = -1.0_rt / state.temp / 3.0_rt;
+
+    // eq. 12
+    Real zeta = 3.0_rt * Gamma_12 / tau_12;
+    Real dzeta_dT = zeta * (dlog_Gamma_dT - dlog_tau_12_dT);
+
+    // additional fit parameters, eq. 25
+    Real y_12 = 4.0_rt * z1z2 / (zcomp * zcomp);
+    Real c1 = 0.013_rt * y_12 * y_12;
+    Real c2 = 0.406_rt * std::pow(y_12, 0.14_rt);
+    Real c3 = 0.062_rt * std::pow(y_12, 0.19_rt) + 1.8_rt / Gamma_12;
+    Real dc3_dT = -1.8_rt / Gamma_12 * dlog_Gamma_dT;
+
+    Real poly = 1.0_rt + zeta*(c1 + zeta*(c2 + c3*zeta));
+    Real dpoly_dT = (c1 + zeta*(2.0_rt*c2 + 3.0_rt*c3*zeta))*dzeta_dT + dc3_dT*zeta*zeta*zeta;
+    Real t_12 = std::cbrt(poly);
+    Real dlog_t_12_dT = dpoly_dT / (3.0_rt * poly);
+
+    // strong screening enhancement factor, eq. 23, replacing tau_ij with t_ij
+    // Using Gamma/tau_ij gives extremely low values, while Gamma/t_ij gives
+    // values similar to those from Chugunov 2007.
+    Real dlog_dT = dlog_Gamma_dT - dlog_t_12_dT;
+    Real term1, term2, term3;
+    Real dterm1_dT, dterm2_dT, dterm3_dT;
+    f0(Gamma_1 / t_12, dlog_dT, term1, dterm1_dT);
+    f0(Gamma_2 / t_12, dlog_dT, term2, dterm2_dT);
+    f0(Gamma_comp / t_12, dlog_dT, term3, dterm3_dT);
+    Real h_fit = term1 + term2 - term3;
+    Real dh_fit_dT = dterm1_dT + dterm2_dT - dterm3_dT;
+
+    // weak screening correction term, eq. A3
+    Real corr_C = 3.0_rt*z1z2 * std::sqrt(state.z2bar/state.zbar) /
+                  (std::pow(zcomp, 2.5_rt) - std::pow(scn_fac.z1, 2.5_rt) - std::pow(scn_fac.z2, 2.5_rt));
+
+    // corrected enhancement factor, eq. A4
+    Real Gamma_12_2 = Gamma_12 * Gamma_12;
+    Real dGamma_12_2_dT = 2 * Gamma_12_2 * dlog_Gamma_dT;
+    Real numer = corr_C + Gamma_12_2;
+    Real denom = 1.0_rt + Gamma_12_2;
+    Real h12 = numer / denom * h_fit;
+    Real dh12_dT = h12 * (dGamma_12_2_dT/numer - dGamma_12_2_dT/denom + dh_fit_dT/h_fit);
+
+    // machine limit the output
+    const Real h12_max = 300.e0_rt;
+    h12 = amrex::min(h12, h12_max);
+    scor = std::exp(h12);
+
+    if (h12 == h12_max) {
+        scordt = 0.0_rt;
+    } else {
+        scordt = scor * dh12_dT;
+    }
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_screen(const plasma_state_t& state,
                    const scrn::screen_factors_t& scn_fac,
                    Real& scor, Real& scordt)
@@ -511,6 +654,8 @@ void actual_screen(const plasma_state_t& state,
     actual_screen5(state, scn_fac, scor, scordt);
 #elif SCREEN_METHOD == 1
     chugunov2007(state, scn_fac, scor, scordt);
+#elif SCREEN_METHOD == 2
+    chugunov2009(state, scn_fac, scor, scordt);
 #endif
 }
 

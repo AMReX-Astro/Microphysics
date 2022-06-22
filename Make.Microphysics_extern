@@ -24,6 +24,8 @@ ifeq ($(SCREEN_METHOD), screen5)
   DEFINES += -DSCREEN_METHOD=0
 else ifeq ($(SCREEN_METHOD), chugunov2007)
   DEFINES += -DSCREEN_METHOD=1
+else ifeq ($(SCREEN_METHOD), chugunov2009)
+  DEFINES += -DSCREEN_METHOD=2
 endif
 
 ifeq ($(EOS_DIR), gamma_law_general)
