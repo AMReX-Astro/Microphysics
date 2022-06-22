@@ -19,6 +19,13 @@ ifeq ($(USE_NONAKA_PLOT),TRUE)
   DEFINES += -DNONAKA_PLOT
 endif
 
+SCREEN_METHOD ?= screen5
+ifeq ($(SCREEN_METHOD), screen5)
+  DEFINES += -DSCREEN_METHOD=0
+else ifeq ($(SCREEN_METHOD), chugunov2007)
+  DEFINES += -DSCREEN_METHOD=1
+endif
+
 ifeq ($(EOS_DIR), gamma_law_general)
   override EOS_DIR := gamma_law
   $(warning gamma_law_general has been renamed gamma_law)
