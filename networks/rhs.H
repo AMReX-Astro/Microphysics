@@ -550,7 +550,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         static_assert(scn_fac.z1 == Z1);
 
         Real sc, scdt;
-        actual_screen5(pstate, scn_fac, sc, scdt);
+        actual_screen(pstate, scn_fac, sc, scdt);
 
         if constexpr (data.screen_forward_reaction == 1) {
             frdt = frdt * sc + fr * scdt;
@@ -574,7 +574,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         static_assert(scn_fac.z1 == Z1);
 
         Real sc, scdt;
-        actual_screen5(pstate, scn_fac, sc, scdt);
+        actual_screen(pstate, scn_fac, sc, scdt);
 
         if constexpr (data.screen_forward_reaction == 1) {
             frdt = frdt * sc + fr * scdt;
@@ -599,7 +599,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         static_assert(scn_fac1.z1 == Z1);
 
         Real sc1, sc1dt;
-        actual_screen5(pstate, scn_fac1, sc1, sc1dt);
+        actual_screen(pstate, scn_fac1, sc1, sc1dt);
 
         constexpr Real Z2 = 2.0_rt * Z1;
         constexpr Real A2 = 2.0_rt * A1;
@@ -609,7 +609,7 @@ void apply_screening (const plasma_state_t& pstate, Real& fr, Real& frdt, Real& 
         static_assert(scn_fac2.z1 == Z1);
 
         Real sc2, sc2dt;
-        actual_screen5(pstate, scn_fac2, sc2, sc2dt);
+        actual_screen(pstate, scn_fac2, sc2, sc2dt);
 
         // Compute combined screening factor
 
