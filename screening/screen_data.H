@@ -22,6 +22,7 @@ namespace scrn {
       // zhat2   = combination of z1 and z2 raised to the 5/12 power
       // lzav    = log of effective charge
       // aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
+      // ztilde  = effective ion radius factor for a MCP
 
       amrex::Real zs13 = 0.0;
       amrex::Real zs13inv = 0.0;
@@ -29,6 +30,7 @@ namespace scrn {
       amrex::Real zhat2 = 0.0;
       amrex::Real lzav = 0.0;
       amrex::Real aznut = 0.0;
+      amrex::Real ztilde = 0.0;
 
       bool validate_nuclei(const amrex::Real z1_pass, const amrex::Real a1_pass,
                            const amrex::Real z2_pass, const amrex::Real a2_pass) {
@@ -70,6 +72,9 @@ namespace scrn {
 
         scn_fac.aznut = gcem::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
                                   1.0_rt / 3.0_rt);
+
+        scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +
+                                   gcem::pow(z2, 1.0_rt / 3.0_rt));
 
         return scn_fac;
     }
