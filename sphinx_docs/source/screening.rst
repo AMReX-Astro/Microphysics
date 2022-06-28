@@ -25,7 +25,8 @@ The options are:
 
 * ``chugunov2007`` :
 
-  This implements the screening of :cite:`chugunov:2007`.
+  This implements the screening of :cite:`chugunov:2007`, following
+  :cite:`yakovlev:2006` to extend to binary mixtures.
 
 * ``chugunov2009``
 
