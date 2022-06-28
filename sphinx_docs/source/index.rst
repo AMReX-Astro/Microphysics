@@ -18,6 +18,7 @@ Microphysics
    networks-overview
    networks
    templated_networks
+   screening
    integrators
    nse
    transport
