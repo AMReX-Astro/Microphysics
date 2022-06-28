@@ -35,3 +35,5 @@ The options are:
   one-component plasma, while this version (2009) treats it fully as a
   multi-component plasma (which is significantly more expensive)
 
+  This includes the portion in the appendix that blends in the weak
+  screening limit.
