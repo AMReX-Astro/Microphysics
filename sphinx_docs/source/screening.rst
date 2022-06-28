@@ -29,6 +29,9 @@ The options are:
 
 * ``chugunov2009``
 
-  This implements the screening of :cite:`chugunov:2009`.  This extends the
-  work of :cite:`chugunov:2007` to binary mixtures.
+  This implements the screening of :cite:`chugunov:2009`.  The main
+  difference is that the 2007 one calculates an effective coupling
+  parameter based on the two ions and then treats it as a
+  one-component plasma, while this version (2009) treats it fully as a
+  multi-component plasma (which is significantly more expensive)
 
