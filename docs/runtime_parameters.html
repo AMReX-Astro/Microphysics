@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -89,6 +90,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -147,7 +149,7 @@
 }
 </style>
 <section id="forwardeuler">
-<h1>ForwardEuler<a class="headerlink" href="#forwardeuler" title="Permalink to this headline">¶</a></h1>
+<h1>ForwardEuler<a class="headerlink" href="#forwardeuler" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -169,7 +171,7 @@
 </table>
 </section>
 <section id="qss">
-<h1>QSS<a class="headerlink" href="#qss" title="Permalink to this headline">¶</a></h1>
+<h1>QSS<a class="headerlink" href="#qss" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -223,7 +225,7 @@ reject it</p></td>
 </table>
 </section>
 <section id="vode">
-<h1>VODE<a class="headerlink" href="#vode" title="Permalink to this headline">¶</a></h1>
+<h1>VODE<a class="headerlink" href="#vode" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -250,7 +252,7 @@ consider species that are &gt; X_reject_buffer * atol_spec</p></td>
 </table>
 </section>
 <section id="aprox19">
-<h1>aprox19<a class="headerlink" href="#aprox19" title="Permalink to this headline">¶</a></h1>
+<h1>aprox19<a class="headerlink" href="#aprox19" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -301,7 +303,7 @@ entering NSE. This is only applied after a failed burn.</p></td>
 </table>
 </section>
 <section id="breakout">
-<h1>breakout<a class="headerlink" href="#breakout" title="Permalink to this headline">¶</a></h1>
+<h1>breakout<a class="headerlink" href="#breakout" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -323,7 +325,7 @@ entering NSE. This is only applied after a failed burn.</p></td>
 </table>
 </section>
 <section id="burn-cell">
-<h1>burn_cell<a class="headerlink" href="#burn-cell" title="Permalink to this headline">¶</a></h1>
+<h1>burn_cell<a class="headerlink" href="#burn-cell" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -458,7 +460,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="burn-cell-sdc">
-<h1>burn_cell_sdc<a class="headerlink" href="#burn-cell-sdc" title="Permalink to this headline">¶</a></h1>
+<h1>burn_cell_sdc<a class="headerlink" href="#burn-cell-sdc" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -817,7 +819,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="cj-detonation">
-<h1>cj_detonation<a class="headerlink" href="#cj-detonation" title="Permalink to this headline">¶</a></h1>
+<h1>cj_detonation<a class="headerlink" href="#cj-detonation" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -847,7 +849,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="constant">
-<h1>constant<a class="headerlink" href="#constant" title="Permalink to this headline">¶</a></h1>
+<h1>constant<a class="headerlink" href="#constant" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -869,7 +871,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="constant-opacity">
-<h1>constant_opacity<a class="headerlink" href="#constant-opacity" title="Permalink to this headline">¶</a></h1>
+<h1>constant_opacity<a class="headerlink" href="#constant-opacity" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -891,7 +893,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="eos-cell">
-<h1>eos_cell<a class="headerlink" href="#eos-cell" title="Permalink to this headline">¶</a></h1>
+<h1>eos_cell<a class="headerlink" href="#eos-cell" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1009,7 +1011,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="gamma-law">
-<h1>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this headline">¶</a></h1>
+<h1>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1035,7 +1037,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="helmholtz">
-<h1>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this headline">¶</a></h1>
+<h1>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1079,7 +1081,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="integration">
-<h1>integration<a class="headerlink" href="#integration" title="Permalink to this headline">¶</a></h1>
+<h1>integration<a class="headerlink" href="#integration" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1198,7 +1200,7 @@ integration.</p></td>
 </table>
 </section>
 <section id="multigamma">
-<h1>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this headline">¶</a></h1>
+<h1>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1244,7 +1246,7 @@ integration.</p></td>
 </table>
 </section>
 <section id="networks">
-<h1>networks<a class="headerlink" href="#networks" title="Permalink to this headline">¶</a></h1>
+<h1>networks<a class="headerlink" href="#networks" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1275,7 +1277,7 @@ network?</p></td>
 </table>
 </section>
 <section id="polytrope">
-<h1>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this headline">¶</a></h1>
+<h1>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1309,7 +1311,7 @@ network?</p></td>
 </table>
 </section>
 <section id="powerlaw">
-<h1>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this headline">¶</a></h1>
+<h1>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1364,7 +1366,7 @@ priority</p></td>
 </table>
 </section>
 <section id="python-library">
-<h1>python_library<a class="headerlink" href="#python-library" title="Permalink to this headline">¶</a></h1>
+<h1>python_library<a class="headerlink" href="#python-library" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1390,7 +1392,7 @@ priority</p></td>
 </table>
 </section>
 <section id="rad-power-law">
-<h1>rad_power_law<a class="headerlink" href="#rad-power-law" title="Permalink to this headline">¶</a></h1>
+<h1>rad_power_law<a class="headerlink" href="#rad-power-law" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1476,7 +1478,7 @@ priority</p></td>
 </table>
 </section>
 <section id="rprox">
-<h1>rprox<a class="headerlink" href="#rprox" title="Permalink to this headline">¶</a></h1>
+<h1>rprox<a class="headerlink" href="#rprox" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1515,7 +1517,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="subch2">
-<h1>subch2<a class="headerlink" href="#subch2" title="Permalink to this headline">¶</a></h1>
+<h1>subch2<a class="headerlink" href="#subch2" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1541,7 +1543,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-aprox-rates">
-<h1>test_aprox_rates<a class="headerlink" href="#test-aprox-rates" title="Permalink to this headline">¶</a></h1>
+<h1>test_aprox_rates<a class="headerlink" href="#test-aprox-rates" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1587,7 +1589,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-conductivity">
-<h1>test_conductivity<a class="headerlink" href="#test-conductivity" title="Permalink to this headline">¶</a></h1>
+<h1>test_conductivity<a class="headerlink" href="#test-conductivity" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1633,7 +1635,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-eos">
-<h1>test_eos<a class="headerlink" href="#test-eos" title="Permalink to this headline">¶</a></h1>
+<h1>test_eos<a class="headerlink" href="#test-eos" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1679,7 +1681,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-jac">
-<h1>test_jac<a class="headerlink" href="#test-jac" title="Permalink to this headline">¶</a></h1>
+<h1>test_jac<a class="headerlink" href="#test-jac" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1745,7 +1747,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-react">
-<h1>test_react<a class="headerlink" href="#test-react" title="Permalink to this headline">¶</a></h1>
+<h1>test_react<a class="headerlink" href="#test-react" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1811,7 +1813,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-rhs">
-<h1>test_rhs<a class="headerlink" href="#test-rhs" title="Permalink to this headline">¶</a></h1>
+<h1>test_rhs<a class="headerlink" href="#test-rhs" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1869,7 +1871,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-screening">
-<h1>test_screening<a class="headerlink" href="#test-screening" title="Permalink to this headline">¶</a></h1>
+<h1>test_screening<a class="headerlink" href="#test-screening" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1915,7 +1917,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-sdc">
-<h1>test_sdc<a class="headerlink" href="#test-sdc" title="Permalink to this headline">¶</a></h1>
+<h1>test_sdc<a class="headerlink" href="#test-sdc" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -1981,7 +1983,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-sdc-vode-rhs">
-<h1>test_sdc_vode_rhs<a class="headerlink" href="#test-sdc-vode-rhs" title="Permalink to this headline">¶</a></h1>
+<h1>test_sdc_vode_rhs<a class="headerlink" href="#test-sdc-vode-rhs" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -2291,7 +2293,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="tillotson">
-<h1>tillotson<a class="headerlink" href="#tillotson" title="Permalink to this headline">¶</a></h1>
+<h1>tillotson<a class="headerlink" href="#tillotson" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
@@ -2353,7 +2355,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="triple-alpha-plus-cago">
-<h1>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this headline">¶</a></h1>
+<h1>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />

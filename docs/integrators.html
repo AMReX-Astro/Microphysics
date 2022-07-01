@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -23,7 +24,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="NSE" href="nse.html" />
-    <link rel="prev" title="Templated Network Righthand Sides" href="templated_networks.html" /> 
+    <link rel="prev" title="Screening of Reaction Rates" href="screening.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Integrating a Network</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#reaction-ode-system">Reaction ODE System</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#interfaces">Interfaces</a><ul>
@@ -134,9 +136,9 @@
 }
 </style>
 <section id="integrating-a-network">
-<h1>Integrating a Network<a class="headerlink" href="#integrating-a-network" title="Permalink to this headline">¶</a></h1>
+<h1>Integrating a Network<a class="headerlink" href="#integrating-a-network" title="Permalink to this heading">¶</a></h1>
 <section id="reaction-ode-system">
-<h2>Reaction ODE System<a class="headerlink" href="#reaction-ode-system" title="Permalink to this headline">¶</a></h2>
+<h2>Reaction ODE System<a class="headerlink" href="#reaction-ode-system" title="Permalink to this heading">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This describes the integration done when doing Strang operator-splitting, which is the
@@ -176,10 +178,10 @@ multiply the righthand sides of each species evolution equation (and
 appropriate Jacobian terms) by the specified constant amount.</p>
 </section>
 <section id="interfaces">
-<h2>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this headline">¶</a></h2>
+<h2>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this heading">¶</a></h2>
 <p>The interfaces to all of the networks and integrators are written in C++.</p>
 <section id="burner">
-<h3><code class="docutils literal notranslate"><span class="pre">burner</span></code><a class="headerlink" href="#burner" title="Permalink to this headline">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">burner</span></code><a class="headerlink" href="#burner" title="Permalink to this heading">¶</a></h3>
 <p>The main entry point for C++ is <code class="docutils literal notranslate"><span class="pre">burner()</span></code> in
 <code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code>
 routine (at the moment this can be <code class="docutils literal notranslate"><span class="pre">VODE</span></code> or <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>).</p>
@@ -227,7 +229,7 @@ the burn, and not the actual internal energy of the state.</p>
 </div>
 </section>
 <section id="network-routines">
-<h3>Network Routines<a class="headerlink" href="#network-routines" title="Permalink to this headline">¶</a></h3>
+<h3>Network Routines<a class="headerlink" href="#network-routines" title="Permalink to this heading">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Microphysics integrates the reaction system in terms of mass
@@ -238,7 +240,7 @@ fractions.  The integration wrappers will internally
 convert to mass fractions as needed for the integrators.</p>
 </div>
 <section id="righthand-size-implementation">
-<h4>Righthand size implementation<a class="headerlink" href="#righthand-size-implementation" title="Permalink to this headline">¶</a></h4>
+<h4>Righthand size implementation<a class="headerlink" href="#righthand-size-implementation" title="Permalink to this heading">¶</a></h4>
 <p>The righthand side of the network is implemented by
 <code class="docutils literal notranslate"><span class="pre">actual_rhs()</span></code> in <code class="docutils literal notranslate"><span class="pre">actual_rhs.H</span></code>, and appears as</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">actual_rhs</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span><span class="w"></span>
@@ -287,7 +289,7 @@ these will need to be converted to molar fraction rates for storage, e.g.,
 <span class="math notranslate nohighlight">\(dY_k/dt = A_k^{-1} dX_k/dt\)</span>.</p>
 </section>
 <section id="righthand-side-wrapper">
-<h4>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this headline">¶</a></h4>
+<h4>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this heading">¶</a></h4>
 <p>The integrator provides a wrapper that sits between the integration
 routines and the network’s implementation of the righthand side.  Its
 flow is (for VODE):</p>
@@ -305,7 +307,7 @@ those quantities.</p></li>
 </ol>
 </section>
 <section id="jacobian-implementation">
-<h4>Jacobian implementation<a class="headerlink" href="#jacobian-implementation" title="Permalink to this headline">¶</a></h4>
+<h4>Jacobian implementation<a class="headerlink" href="#jacobian-implementation" title="Permalink to this heading">¶</a></h4>
 <p>The Jacobian is provided by <code class="docutils literal notranslate"><span class="pre">actual_jac(state,</span> <span class="pre">jac)</span></code>, and takes the
 form:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">actual_jac</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">MathArray2D</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">jac</span><span class="p">)</span><span class="w"></span>
@@ -338,7 +340,7 @@ Jacobian is used. This is set with the runtime parameter
 <code class="docutils literal notranslate"><span class="pre">integration/utils/numerical_jacobian.H</span></code> for other integrators.</p>
 </section>
 <section id="jacobian-wrapper">
-<h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Permalink to this headline">¶</a></h4>
+<h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Permalink to this heading">¶</a></h4>
 <p>The integrator provides a wrapper that sits between the integration
 routines and the network’s implementation of the Jacobian.  Its
 flow is (for VODE):</p>
@@ -360,7 +362,7 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 </section>
 </section>
 <section id="thermodynamics-and-e-evolution">
-<h2>Thermodynamics and <span class="math notranslate nohighlight">\(e\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-e-evolution" title="Permalink to this headline">¶</a></h2>
+<h2>Thermodynamics and <span class="math notranslate nohighlight">\(e\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-e-evolution" title="Permalink to this heading">¶</a></h2>
 <p>The thermodynamic equation in our system is the evolution of the internal energy,
 <span class="math notranslate nohighlight">\(e\)</span>. (Note: when the system is integrated in an operator-split approach,
 this responds only to the nuclear energy release and not pdV work.)</p>
@@ -392,7 +394,7 @@ Similar to temperature, this will automatically be updated at each integration
 step (unless you set <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>).</p>
 </section>
 <section id="renormalization">
-<h2>Renormalization<a class="headerlink" href="#renormalization" title="Permalink to this headline">¶</a></h2>
+<h2>Renormalization<a class="headerlink" href="#renormalization" title="Permalink to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code> parameter controls whether we
 renormalize the abundances so that the mass fractions sum to one
 during a burn. This has the positive benefit that in some cases it can
@@ -404,7 +406,7 @@ that the mass fractions stay positive and larger than some floor
 <code class="docutils literal notranslate"><span class="pre">small_x</span></code>.</p>
 </section>
 <section id="stiff-ode-solvers">
-<span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Permalink to this headline">¶</a></h2>
+<span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Permalink to this heading">¶</a></h2>
 <p>We use a high-order implicit ODE solver for integrating the reaction
 system.  As an alternative, a first order explicit integrator is also
 provided.  Internally, the integrators uses different data structures
@@ -424,7 +426,7 @@ integrator to C++ and removed the non-stiff integration code paths.</p></li>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
 <section id="tolerances">
-<h3>Tolerances<a class="headerlink" href="#tolerances" title="Permalink to this headline">¶</a></h3>
+<h3>Tolerances<a class="headerlink" href="#tolerances" title="Permalink to this heading">¶</a></h3>
 <p>Tolerances dictate how accurate the ODE solver must be while solving
 equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
@@ -466,7 +468,7 @@ is used for the temperature and energy.</p>
 </section>
 </section>
 <section id="overriding-parameter-defaults-on-a-network-by-network-basis">
-<h2>Overriding Parameter Defaults on a Network-by-Network Basis<a class="headerlink" href="#overriding-parameter-defaults-on-a-network-by-network-basis" title="Permalink to this headline">¶</a></h2>
+<h2>Overriding Parameter Defaults on a Network-by-Network Basis<a class="headerlink" href="#overriding-parameter-defaults-on-a-network-by-network-basis" title="Permalink to this heading">¶</a></h2>
 <p>Any network can override or add to any of the existing runtime
 parameters by creating a <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> file in the network directory
 (e.g., <code class="docutils literal notranslate"><span class="pre">networks/triple_alpha_plus_cago/_parameters</span></code>). As noted in
@@ -483,7 +485,7 @@ ensure that it takes precedence.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="templated_networks.html" class="btn btn-neutral float-left" title="Templated Network Righthand Sides" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="screening.html" class="btn btn-neutral float-left" title="Screening of Reaction Rates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="nse.html" class="btn btn-neutral float-right" title="NSE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

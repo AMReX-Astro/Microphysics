@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -56,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">NSE</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#composition-and-eos">Composition and EOS</a></li>
@@ -118,7 +120,7 @@
 }
 </style>
 <section id="nse">
-<h1>NSE<a class="headerlink" href="#nse" title="Permalink to this headline">¶</a></h1>
+<h1>NSE<a class="headerlink" href="#nse" title="Permalink to this heading">¶</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> can be run in a manner where we blends the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>
 network with a table for nuclear statistic equilibrium at high density
 and temperatures.  This is based on the table described in
@@ -146,7 +148,7 @@ and our evolution equations are:</p>
 <p>Therefore each of these auxillar equations obeys an advection equation
 in the hydro part of the advancement.</p>
 <section id="composition-and-eos">
-<h2>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this headline">¶</a></h2>
+<h2>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this heading">¶</a></h2>
 <p>The NSE table was generated using a 125 nuclei reaction network, so
 the compositional quantities it carries, <span class="math notranslate nohighlight">\(\bar{A}\)</span> and
 <span class="math notranslate nohighlight">\(Y_e\)</span> and not representable from the 19 isotopes we carry in the
@@ -161,7 +163,7 @@ composition.</p>
 \[\bar{Z} = \bar{A} Y_e\]</div>
 </section>
 <section id="nse-flow">
-<h2>NSE Flow<a class="headerlink" href="#nse-flow" title="Permalink to this headline">¶</a></h2>
+<h2>NSE Flow<a class="headerlink" href="#nse-flow" title="Permalink to this heading">¶</a></h2>
 <p>The basic flow of a simulation using the NSE network is as follows:</p>
 <ul>
 <li><p>initialize the problem, including <span class="math notranslate nohighlight">\(X_k\)</span></p></li>
@@ -204,7 +206,7 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </ul>
 </section>
 <section id="nse-check">
-<h2>NSE check<a class="headerlink" href="#nse-check" title="Permalink to this headline">¶</a></h2>
+<h2>NSE check<a class="headerlink" href="#nse-check" title="Permalink to this heading">¶</a></h2>
 <p>We determine is a zone is in NSE according to:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></li>

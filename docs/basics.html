@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -60,6 +61,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -117,9 +119,9 @@
 }
 </style>
 <section id="starkiller-basics">
-<h1>StarKiller Basics<a class="headerlink" href="#starkiller-basics" title="Permalink to this headline">¶</a></h1>
+<h1>StarKiller Basics<a class="headerlink" href="#starkiller-basics" title="Permalink to this heading">¶</a></h1>
 <section id="getting-started-standalone">
-<h2>Getting Started (Standalone)<a class="headerlink" href="#getting-started-standalone" title="Permalink to this headline">¶</a></h2>
+<h2>Getting Started (Standalone)<a class="headerlink" href="#getting-started-standalone" title="Permalink to this heading">¶</a></h2>
 <p>Microphysics can be used in a “standalone” fashion to run the unit
 tests and explore the behavior of the reaction networks.  The main
 requirement is a copy of AMReX:</p>
@@ -143,7 +145,7 @@ one-zone burn.  In <code class="docutils literal notranslate"><span class="pre">
 Here <code class="docutils literal notranslate"><span class="pre">inputs_aprox21</span></code> is the inputs file that sets options.</p>
 </section>
 <section id="getting-started-running-with-maestroex-or-castro">
-<h2>Getting Started (Running with MAESTROeX or CASTRO)<a class="headerlink" href="#getting-started-running-with-maestroex-or-castro" title="Permalink to this headline">¶</a></h2>
+<h2>Getting Started (Running with MAESTROeX or CASTRO)<a class="headerlink" href="#getting-started-running-with-maestroex-or-castro" title="Permalink to this heading">¶</a></h2>
 <p>Getting started with Microphysics using either CASTRO or MAESTROeX is
 straightforward. Because the modules here are already in a format that
 the AMReX codes understand, you only need to provide to the code
@@ -165,7 +167,7 @@ are found in <code class="docutils literal notranslate"><span class="pre">Microp
 interfaces.</p>
 </section>
 <section id="structure">
-<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
+<h2>Structure<a class="headerlink" href="#structure" title="Permalink to this heading">¶</a></h2>
 <p>The high-level directory structure delineates the types of microphysics
 and the generic solvers:</p>
 <ul class="simple">
@@ -193,7 +195,7 @@ need any application code to build, but will require AMReX.</p></li>
 </ul>
 </section>
 <section id="design-philosophy">
-<h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permalink to this headline">¶</a></h2>
+<h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permalink to this heading">¶</a></h2>
 <p>Any application that uses Microphysics will at minimum need to
 choose an EOS and a network. These two components work together. The
 design philosophy is that the EOS depends on the network, but not the

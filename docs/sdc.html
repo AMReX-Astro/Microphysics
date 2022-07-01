@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -56,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -127,9 +129,9 @@
 }
 </style>
 <section id="spectral-deferred-corrections">
-<h1>Spectral Deferred Corrections<a class="headerlink" href="#spectral-deferred-corrections" title="Permalink to this headline">¶</a></h1>
+<h1>Spectral Deferred Corrections<a class="headerlink" href="#spectral-deferred-corrections" title="Permalink to this heading">¶</a></h1>
 <section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h2>
 <p>The Simplified-SDC method provides a means to more strongly couple the
 reactions to the hydrodynamics by evolving the reactions together with
 an approximation of the advection over the timestep.</p>
@@ -152,9 +154,9 @@ hydrodynamical sources),</p>
 is the reaction source term.</p>
 </section>
 <section id="interface-and-data-structures">
-<h2>Interface and Data Structures<a class="headerlink" href="#interface-and-data-structures" title="Permalink to this headline">¶</a></h2>
+<h2>Interface and Data Structures<a class="headerlink" href="#interface-and-data-structures" title="Permalink to this heading">¶</a></h2>
 <section id="sdc-t">
-<h3>sdc_t<a class="headerlink" href="#sdc-t" title="Permalink to this headline">¶</a></h3>
+<h3>sdc_t<a class="headerlink" href="#sdc-t" title="Permalink to this heading">¶</a></h3>
 <p>To accommodate the increased information required to evolve the
 coupled system, we introduce a new data type, <code class="docutils literal notranslate"><span class="pre">sdc_t</span></code>. This is
 used to pass information to/from the integration routine from the
@@ -162,7 +164,7 @@ hydrodynamics code.</p>
 </section>
 </section>
 <section id="ode-system">
-<h2>ODE system<a class="headerlink" href="#ode-system" title="Permalink to this headline">¶</a></h2>
+<h2>ODE system<a class="headerlink" href="#ode-system" title="Permalink to this heading">¶</a></h2>
 <p>The reactions don’t modify the total density, <span class="math notranslate nohighlight">\(\rho\)</span>, or momentum,
 <span class="math notranslate nohighlight">\(\rho \Ub\)</span>, so our ODE system is just:</p>
 <div class="math notranslate nohighlight">
@@ -187,9 +189,9 @@ these as needed from the time-advanced momenta:</p>
 \[(\rho \Ub)(t) = (\rho \Ub)^n + \Adv{\rho \Ub}^{n+1/2} (t - t^n)\]</div>
 </section>
 <section id="interfaces">
-<h2>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this headline">¶</a></h2>
+<h2>Interfaces<a class="headerlink" href="#interfaces" title="Permalink to this heading">¶</a></h2>
 <section id="actual-integrator">
-<h3>actual_integrator<a class="headerlink" href="#actual-integrator" title="Permalink to this headline">¶</a></h3>
+<h3>actual_integrator<a class="headerlink" href="#actual-integrator" title="Permalink to this heading">¶</a></h3>
 <p>Simplified-SDC integration provides its own implementation of the main entry
 point, <code class="docutils literal notranslate"><span class="pre">actual_integrator</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">subroutine</span> <span class="n">actual_integrator</span><span class="p">(</span><span class="n">state_in</span><span class="p">,</span> <span class="n">state_out</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
@@ -220,7 +222,7 @@ through the desired time interval, producing the new, output state.</p></li>
 </ol>
 </section>
 <section id="righthand-side-wrapper">
-<h3>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this headline">¶</a></h3>
+<h3>Righthand side wrapper<a class="headerlink" href="#righthand-side-wrapper" title="Permalink to this heading">¶</a></h3>
 <p>The manipulation of the righthand side is considerably more complex
 now. Each network only provides the change in molar fractions and
 internal energy, but we need to convert these to the conservative
@@ -282,7 +284,7 @@ intergrator through the <code class="docutils literal notranslate"><span class="
 </ol>
 </section>
 <section id="jacobian">
-<h3>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this headline">¶</a></h3>
+<h3>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this heading">¶</a></h3>
 <p>The Jacobian of this system is <span class="math notranslate nohighlight">\({\bf J} = \partial \Rb /
 \partial \Uc\)</span>, since <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is held constant during the
 integration.  We follow the approach of <span id="id1">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">ZingaleKatzBell+19</a>]</span> and factor

@@ -15,6 +15,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -53,6 +54,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -110,7 +112,7 @@
 }
 </style>
 <section id="references">
-<h1>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h1>
+<h1>References<a class="headerlink" href="#references" title="Permalink to this heading">¶</a></h1>
 <div class="docutils container" id="id1">
 <dl class="citation">
 <dt class="label" id="id26"><span class="brackets">BBH89</span></dt>
@@ -119,11 +121,26 @@
 <dt class="label" id="id24"><span class="brackets">CAF+10</span></dt>
 <dd><p>Richard H. Cyburt, A. Matthew Amthor, Ryan Ferguson, Zach Meisel, Karl Smith, Scott Warren, Alexander Heger, R. D. Hoffman, Thomas Rauscher, Alexander Sakharuk, Hendrik Schatz, F. K. Thielemann, and Michael Wiescher. The jina reaclib database: its recent updates and impact on type-i x-ray bursts. <em>\apjs </em>, 189(1):240, 2010. URL: <a class="reference external" href="http://stacks.iop.org/0067-0049/189/i=1/a=240">http://stacks.iop.org/0067-0049/189/i=1/a=240</a>.</p>
 </dd>
+<dt class="label" id="id31"><span class="brackets">AlastueyJancovici78</span></dt>
+<dd><p>A. Alastuey and B. Jancovici. Nuclear reaction rate enhancement in dense stellar matter. <em>\apj </em>, 226:1034–1040, December 1978. <a class="reference external" href="https://doi.org/10.1086/156681">doi:10.1086/156681</a>.</p>
+</dd>
 <dt class="label" id="id17"><span class="brackets">ChamulakBrownTimmesDupczak08</span></dt>
 <dd><p>D. A. Chamulak, E. F. Brown, F. X. Timmes, and K. Dupczak. The Reduction of the Electron Abundance during the Pre-explosion Simmering in White Dwarf Supernovae. <em>\apj </em>, 677:160–168, April 2008. <a class="reference external" href="https://arxiv.org/abs/0801.1643">arXiv:0801.1643</a>, <a class="reference external" href="https://doi.org/10.1086/528944">doi:10.1086/528944</a>.</p>
 </dd>
+<dt class="label" id="id35"><span class="brackets">ChugunovDewitt09</span></dt>
+<dd><p>A. I. Chugunov and H. E. Dewitt. Nuclear fusion reaction rates for strongly coupled ionic mixtures. <em>\prc </em>, 80(1):014611, July 2009. <a class="reference external" href="https://arxiv.org/abs/0905.3844">arXiv:0905.3844</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevC.80.014611">doi:10.1103/PhysRevC.80.014611</a>.</p>
+</dd>
+<dt class="label" id="id33"><span class="brackets">ChugunovDewittYakovlev07</span></dt>
+<dd><p>A. I. Chugunov, H. E. Dewitt, and D. G. Yakovlev. Coulomb tunneling for fusion reactions in dense matter: Path integral MonteCarlo versus mean field. <em>\prd </em>, 76(2):025028, July 2007. <a class="reference external" href="https://arxiv.org/abs/0707.3500">arXiv:0707.3500</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevD.76.025028">doi:10.1103/PhysRevD.76.025028</a>.</p>
+</dd>
 <dt class="label" id="id10"><span class="brackets">FryxellOlsonRicker+00</span></dt>
 <dd><p>B. Fryxell, K. Olson, P. Ricker, F. X. Timmes, M. Zingale, D. Q. Lamb, P. MacNeice, R. Rosner, J. W. Truran, and H. Tufo. FLASH: An Adaptive Mesh Hydrodynamics Code for Modeling Astrophysical Thermonuclear Flashes. <em>ApJS</em>, 131:273–334, November 2000. <a class="reference external" href="https://doi.org/10.1086/317361">doi:10.1086/317361</a>.</p>
+</dd>
+<dt class="label" id="id30"><span class="brackets">GraboskeDewittGrossmanCooper73</span></dt>
+<dd><p>H. C. Graboske, H. E. Dewitt, A. S. Grossman, and M. S. Cooper. Screening Factors for Nuclear Reactions. 11. Intermediate Screen-Ing and Astrophysical Applications. <em>\apj </em>, 181:457–474, April 1973.</p>
+</dd>
+<dt class="label" id="id32"><span class="brackets">ItohTotsujiIchimaruDewitt79</span></dt>
+<dd><p>N. Itoh, H. Totsuji, S. Ichimaru, and H. E. Dewitt. Enhancement of thermonuclear reaction rate due to strong screening. II - Ionic mixtures. <em>\apj </em>, 234:1079–1084, December 1979. <a class="reference external" href="https://doi.org/10.1086/157590">doi:10.1086/157590</a>.</p>
 </dd>
 <dt class="label" id="id22"><span class="brackets">MaloneZingaleNonaka+14</span></dt>
 <dd><p>C. M. Malone, M. Zingale, A. Nonaka, A. S. Almgren, and J. B. Bell. Multidimensional Modeling of Type I X-Ray Bursts. II. Two-dimensional Convection in a Mixed H/He Accretor. <em>\apj </em>, 788:115, June 2014. <a class="reference external" href="https://arxiv.org/abs/1404.6286">arXiv:1404.6286</a>, <a class="reference external" href="https://doi.org/10.1088/0004-637X/788/2/115">doi:10.1088/0004-637X/788/2/115</a>.</p>
@@ -142,6 +159,9 @@
 </dd>
 <dt class="label" id="id23"><span class="brackets">WallaceWoosley81</span></dt>
 <dd><p>R. K. Wallace and S. E. Woosley. Explosive hydrogen burning. <em>\apjs </em>, 45:389–420, February 1981. <a class="reference external" href="https://doi.org/10.1086/190717">doi:10.1086/190717</a>.</p>
+</dd>
+<dt class="label" id="id34"><span class="brackets">YakovlevGasquesAfanasjev+06</span></dt>
+<dd><p>D. G. Yakovlev, L. R. Gasques, A. V. Afanasjev, M. Beard, and M. Wiescher. Fusion reactions in multicomponent dense matter. <em>\prc </em>, 74(3):035803, September 2006. <a class="reference external" href="https://arxiv.org/abs/astro-ph/0608488">arXiv:astro-ph/0608488</a>, <a class="reference external" href="https://doi.org/10.1103/PhysRevC.74.035803">doi:10.1103/PhysRevC.74.035803</a>.</p>
 </dd>
 <dt class="label" id="id18"><span class="brackets">ZingaleAlmgrenBell+09</span></dt>
 <dd><p>M. Zingale, A. S. Almgren, J. B. Bell, A. Nonaka, and S. E. Woosley. Low Mach Number Modeling of Type IA Supernovae. IV. White Dwarf Convection. <em>\apj </em>, 704:196–210, October 2009. <a class="reference external" href="https://arxiv.org/abs/0908.2668">arXiv:0908.2668</a>, <a class="reference external" href="https://doi.org/10.1088/0004-637X/704/1/196">doi:10.1088/0004-637X/704/1/196</a>.</p>
