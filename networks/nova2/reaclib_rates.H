@@ -61,7 +61,7 @@ void rate_n13__c13__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
     // wc12w
     ln_set_rate =  -6.7601;
 
-    dln_set_rate_dT9 = ;
+    dln_set_rate_dT9 = 0.0;
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
     ln_set_rate = std::max(ln_set_rate, -230.0);
@@ -86,7 +86,7 @@ void rate_o14__n14__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
     // wc12w
     ln_set_rate =  -4.62354;
 
-    dln_set_rate_dT9 = ;
+    dln_set_rate_dT9 = 0.0;
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
     ln_set_rate = std::max(ln_set_rate, -230.0);
@@ -111,7 +111,7 @@ void rate_o15__n15__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
     // wc12w
     ln_set_rate =  -5.17053;
 
-    dln_set_rate_dT9 = ;
+    dln_set_rate_dT9 = 0.0;
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
     ln_set_rate = std::max(ln_set_rate, -230.0);
@@ -136,7 +136,7 @@ void rate_f17__o17__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
     // wc12w
     ln_set_rate =  -4.53318;
 
-    dln_set_rate_dT9 = ;
+    dln_set_rate_dT9 = 0.0;
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
     ln_set_rate = std::max(ln_set_rate, -230.0);
@@ -161,7 +161,7 @@ void rate_b8__he4_he4__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_
     // wc12w
     ln_set_rate =  -0.105148;
 
-    dln_set_rate_dT9 = ;
+    dln_set_rate_dT9 = 0.0;
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
     ln_set_rate = std::max(ln_set_rate, -230.0);
