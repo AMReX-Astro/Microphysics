@@ -14,6 +14,14 @@
 
 using namespace amrex;
 
+#if SCREEN_METHOD == 0
+const std::string screen_name = "screen5";
+#elif SCREEN_METHOD == 1
+const std::string screen_name = "chugunov2007";
+#elif SCREEN_METHOD == 2
+const std::string screen_name = "chugunov2009";
+#endif
+
 struct plasma_state_t {
 
   Real qlam0z;

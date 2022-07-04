@@ -153,13 +153,12 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_screening";
-    std::string language = ".cxx";
+    std::string name = "test_screening." + screen_name + ".cxx";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(name, state, names, geom, time, 0);
 
-    write_job_info(name + language);
+    write_job_info(name);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;
