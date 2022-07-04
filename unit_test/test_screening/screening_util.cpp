@@ -73,113 +73,6 @@ void screen_test_C(const Box& bx,
   const int ife56 = network_spec_index("iron-56");
   if (ife56 < 0) amrex::Error("Error: ife56 not found");
 
-
-  // initialize the screening factors
-  int jscr_init = 0;
-  add_screening_factor(jscr_init, zion[ihe4],aion[ihe4],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ihe4],aion[ihe4],4.0e0_rt,8.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ic12],aion[ic12],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ic12],aion[ic12],zion[ic12],aion[ic12]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ic12],aion[ic12],zion[io16],aion[io16]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[io16],aion[io16],zion[io16],aion[io16]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[io16],aion[io16],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ine20],aion[ine20],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[img24],aion[img24],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 13.0e0_rt,27.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[isi28],aion[isi28],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 15.0e0_rt,31.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[is32],aion[is32],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 17.0e0_rt,35.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[iar36],aion[iar36],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 19.0e0_rt,39.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ica40],aion[ica40],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 21.0e0_rt,43.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[iti44],aion[iti44],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 23.0e0_rt,47.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[icr48],aion[icr48],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 25.0e0_rt,51.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ife52],aion[ife52],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 27.0e0_rt,55.0e0_rt,1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ife54],aion[ife54],1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ife54],aion[ife54],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ife56],aion[ife56],1.0e0_rt,1.0e0_rt);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, 1.0e0_rt,2.0e0_rt,zion[ih1],aion[ih1]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ih1],aion[ih1],zion[ih1],aion[ih1]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ihe3],aion[ihe3],zion[ihe3],aion[ihe3]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ihe3],aion[ihe3],zion[ihe4],aion[ihe4]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[ic12],aion[ic12],zion[ih1],aion[ih1]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[in14],aion[in14],zion[ih1],aion[ih1]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[io16],aion[io16],zion[ih1],aion[ih1]);
-
-  jscr_init++;
-  add_screening_factor(jscr_init, zion[in14],aion[in14],zion[ihe4],aion[ihe4]);
-
   amrex::ParallelFor(bx,
   [=] AMREX_GPU_DEVICE (int i, int j, int k)
   {
@@ -219,286 +112,216 @@ void screen_test_C(const Box& bx,
     Real sc1a;
     Real sc1adt;
     Real sc1add;
+    scrn::screen_factors_t scn_fac;
 
     // 3-alpha
-    int jscr = 0;
-    screen(pstate, jscr,
-           zion[ihe4], aion[ihe4], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ihe4], aion[ihe4], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_he4_he4) = sc1a;
     sp(i, j, k, vars.iscn_he4_he4_dt) = sc1adt;
 
-    jscr++;
-    screen(pstate, jscr,
-           zion[ihe4], aion[ihe4], 4.0_rt, 8.0_rt,
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ihe4], aion[ihe4], 4.0_rt, 8.0_rt);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_he4_be8) = sc1a;
     sp(i, j, k, vars.iscn_he4_be8_dt) = sc1adt;
 
     // c12(a,g)o16
-    jscr++;
-    screen(pstate, jscr,
-           zion[ic12], aion[ic12], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ic12], aion[ic12], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_c12_he4) = sc1a;
     sp(i, j, k, vars.iscn_c12_he4_dt) = sc1adt;
 
     // c12 + c12
-    jscr++;
-    screen(pstate, jscr,
-           zion[ic12], aion[ic12], zion[ic12], aion[ic12],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ic12], aion[ic12], zion[ic12], aion[ic12]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_c12_c12) = sc1a;
     sp(i, j, k, vars.iscn_c12_c12_dt) = sc1adt;
 
     // c12 + o16
-    jscr++;
-    screen(pstate, jscr,
-           zion[ic12], aion[ic12], zion[io16], aion[io16],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ic12], aion[ic12], zion[io16], aion[io16]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_c12_o16) = sc1a;
     sp(i, j, k, vars.iscn_c12_o16_dt) = sc1adt;
 
     // o16 + o16
-    jscr++;
-    screen(pstate, jscr,
-           zion[io16], aion[io16], zion[io16], aion[io16],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[io16], aion[io16], zion[io16], aion[io16]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_o16_o16) = sc1a;
     sp(i, j, k, vars.iscn_o16_o16_dt) = sc1adt;
 
     // o16 + he4
-    jscr++;
-    screen(pstate, jscr,
-           zion[io16], aion[io16], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[io16], aion[io16], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_o16_he4) = sc1a;
     sp(i, j, k, vars.iscn_o16_he4_dt) = sc1adt;
 
     // ne20(a,g)mg24
-    jscr++;
-    screen(pstate, jscr,
-           zion[ine20], aion[ine20], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ine20], aion[ine20], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_ne20_he4) = sc1a;
     sp(i, j, k, vars.iscn_ne20_he4_dt) = sc1adt;
 
     // mg24(a,g)si28
-    jscr++;
-    screen(pstate, jscr,
-           zion[img24], aion[img24], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[img24], aion[img24], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_mg24_he4) = sc1a;
     sp(i, j, k, vars.iscn_mg24_he4_dt) = sc1adt;
 
     // al27(p,g)si28
-    jscr++;
-    screen(pstate, jscr,
-           13.0_rt, 27.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(13.0_rt, 27.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_al27_p) = sc1a;
     sp(i, j, k, vars.iscn_al27_p_dt) = sc1adt;
 
     // si28 + he4
-    jscr++;
-    screen(pstate, jscr,
-           zion[isi28], aion[isi28], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[isi28], aion[isi28], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_si28_he4) = sc1a;
     sp(i, j, k, vars.iscn_si28_he4_dt) = sc1adt;
 
     // p31(p,g)s32
-    jscr++;
-    screen(pstate, jscr,
-           15.0_rt, 31.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(15.0_rt, 31.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_p31_p) = sc1a;
     sp(i, j, k, vars.iscn_p31_p_dt) = sc1adt;
 
     // s32 to ar36
-    jscr++;
-    screen(pstate, jscr,
-           zion[is32], aion[is32], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[is32], aion[is32], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_s32_he4) = sc1a;
     sp(i, j, k, vars.iscn_s32_he4_dt) = sc1adt;
 
     // cl35(p,g)ar36
-    jscr++;
-    screen(pstate, jscr,
-           17.0_rt, 35.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(17.0_rt, 35.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_cl35_p) = sc1a;
     sp(i, j, k, vars.iscn_cl35_p_dt) = sc1adt;
 
     // ar36 to ca40
-    jscr++;
-    screen(pstate, jscr,
-           zion[iar36], aion[iar36], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[iar36], aion[iar36], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_ar36_he4) = sc1a;
     sp(i, j, k, vars.iscn_ar36_he4_dt) = sc1adt;
 
     // k39(p,g)ca40
-    jscr++;
-    screen(pstate, jscr,
-           19.0_rt, 39.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(19.0_rt, 39.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_k39_p) = sc1a;
     sp(i, j, k, vars.iscn_k39_p_dt) = sc1adt;
 
     // ca40 to ti44
-    jscr++;
-    screen(pstate, jscr,
-           zion[ica40], aion[ica40], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ica40], aion[ica40], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_ca40_he4) = sc1a;
     sp(i, j, k, vars.iscn_ca40_he4_dt) = sc1adt;
 
     // sc43(p,g)ti44
-    jscr++;
-    screen(pstate, jscr,
-           21.0_rt, 43.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(21.0_rt, 43.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_sc43_p) = sc1a;
     sp(i, j, k, vars.iscn_sc43_p_dt) = sc1adt;
 
     // ti44 to cr48
-    jscr++;
-    screen(pstate, jscr,
-           zion[iti44], aion[iti44], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[iti44], aion[iti44], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_ti44_he4) = sc1a;
     sp(i, j, k, vars.iscn_ti44_he4_dt) = sc1adt;
 
     // v47(p,g)cr48
-    jscr++;
-    screen(pstate, jscr,
-           23.0_rt, 47.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(23.0_rt, 47.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_v47_p) = sc1a;
     sp(i, j, k, vars.iscn_v47_p_dt) = sc1adt;
 
     // cr48 to fe52
-    jscr++;
-    screen(pstate, jscr,
-           zion[icr48], aion[icr48], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[icr48], aion[icr48], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_cr48_he4) = sc1a;
     sp(i, j, k, vars.iscn_cr48_he4_dt) = sc1adt;
 
     // mn51(p,g)fe52
-    jscr++;
-    screen(pstate, jscr,
-           25.0_rt, 51.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(25.0_rt, 51.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_mn51_p) = sc1a;
     sp(i, j, k, vars.iscn_mn51_p_dt) = sc1adt;
 
     // fe to ni
-    jscr++;
-    screen(pstate, jscr,
-           zion[ife52], aion[ife52], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ife52], aion[ife52], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_fe52_he4) = sc1a;
     sp(i, j, k, vars.iscn_fe52_he4_dt) = sc1adt;
 
     // co55(p,g)ni56
-    jscr++;
-    screen(pstate, jscr,
-           27.0_rt, 55.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(27.0_rt, 55.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_co55_p) = sc1a;
     sp(i, j, k, vars.iscn_co55_p_dt) = sc1adt;
 
     // fe54(p,g)co55
-    jscr++;
-    screen(pstate, jscr,
-           zion[ife54], aion[ife54], zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ife52], aion[ife54], zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_fe54_p) = sc1a;
     sp(i, j, k, vars.iscn_fe54_p_dt) = sc1adt;
 
     // fe54(a,p)co57
-    jscr++;
-    screen(pstate, jscr,
-           zion[ife54], aion[ife54], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ife54], aion[ife54], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_fe54_he4) = sc1a;
     sp(i, j, k, vars.iscn_fe54_he4_dt) = sc1adt;
 
     // fe56(p,g)co57
-    jscr++;
-    screen(pstate, jscr,
-           zion[ife56], aion[ife56], zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ife56], aion[ife56], zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_fe56_p) = sc1a;
     sp(i, j, k, vars.iscn_fe56_p_dt) = sc1adt;
 
     // d + p
-    jscr++;
-    screen(pstate, jscr,
-           1.0_rt, 2.0_rt, zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(1.0_rt, 2.0_rt, zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_d_p) = sc1a;
     sp(i, j, k, vars.iscn_d_p_dt) = sc1adt;
 
     // pp
-    jscr++;
-    screen(pstate, jscr,
-           zion[ih1], aion[ih1], zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ih1], aion[ih1], zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_p_p) = sc1a;
     sp(i, j, k, vars.iscn_p_p_dt) = sc1adt;
 
     // he3 + he3
-    jscr++;
-    screen(pstate, jscr,
-           zion[ihe3], aion[ihe3], zion[ihe3], aion[ihe3],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ihe3], aion[ihe3], zion[ihe3], aion[ihe3]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_he3_he3) = sc1a;
     sp(i, j, k, vars.iscn_he3_he3_dt) = sc1adt;
 
     // he3 + he4
-    jscr++;
-    screen(pstate, jscr,
-           zion[ihe3], aion[ihe3], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ihe3], aion[ihe3], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_he3_he4) = sc1a;
     sp(i, j, k, vars.iscn_he3_he4_dt) = sc1adt;
 
     // c12(p,g)n13
-    jscr++;
-    screen(pstate, jscr,
-           zion[ic12], aion[ic12], zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[ic12], aion[ic12], zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_c12_p) = sc1a;
     sp(i, j, k, vars.iscn_c12_p_dt) = sc1adt;
 
     // n14(p,g)o15
-    jscr++;
-    screen(pstate, jscr,
-           zion[in14], aion[in14], zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[in14], aion[in14], zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_n14_p) = sc1a;
     sp(i, j, k, vars.iscn_n14_p_dt) = sc1adt;
 
     // o16(p,g)f17
-    jscr++;
-    screen(pstate, jscr,
-           zion[io16], aion[io16], zion[ih1], aion[ih1],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[io16], aion[io16], zion[ih1], aion[ih1]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_o16_p) = sc1a;
     sp(i, j, k, vars.iscn_o16_p_dt) = sc1adt;
 
     // n14(a,g)f18
-    jscr++;
-    screen(pstate, jscr,
-           zion[in14], aion[in14], zion[ihe4], aion[ihe4],
-           sc1a, sc1adt, sc1add);
+    scn_fac = scrn::calculate_screen_factor(zion[in14], aion[in14], zion[ihe4], aion[ihe4]);
+    actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_n14_he4) = sc1a;
     sp(i, j, k, vars.iscn_n14_he4_dt) = sc1adt;
-
 
   });
 
