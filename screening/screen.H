@@ -78,7 +78,7 @@ void add_screening_factor(const int i,
   scn_facs[i].a1 = a1;
   scn_facs[i].a2 = a2;
 
-  scn_facs[i].zs13 = std::pow(z1 + z2, 1.0_rt/3.0_rt);
+  scn_facs[i].zs13 = std::cbrt(z1 + z2);
   scn_facs[i].zs13inv = 1.0_rt/scn_facs[i].zs13;
   scn_facs[i].zhat = std::pow(z1 + z2, 5.0_rt/3.0_rt) -
                      std::pow(z1, 5.0_rt/3.0_rt) -
@@ -87,10 +87,8 @@ void add_screening_factor(const int i,
                       std::pow(z1, 5.0_rt/12.0_rt) -
                       std::pow(z2, 5.0_rt/12.0_rt);
   scn_facs[i].lzav = (5.0_rt/3.0_rt) * std::log(z1 * z2 / (z1 + z2));
-  scn_facs[i].aznut = std::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
-                               1.0_rt/3.0_rt);
-  scn_facs[i].ztilde = 0.5_rt * (std::pow(z1, 1.0_rt/3.0_rt) +
-                                 std::pow(z2, 1.0_rt/3.0_rt));
+  scn_facs[i].aznut = std::cbrt(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2));
+  scn_facs[i].ztilde = 0.5_rt * (std::cbrt(z1) + std::cbrt(z2));
 
 }
 
@@ -133,11 +131,11 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   state.qlam0zdt = 1.88e8_rt * (dtempi*pp + tempi*dppdt);
   //state.qlam0zdd = 1.88e8_rt * tempi * dppdd;
 
-  state.taufac = co2 * std::pow(tempi, 1.0_rt/3.0_rt);
+  state.taufac = co2 * std::cbrt(tempi);
   state.taufacdt = -(1.0_rt/3.0_rt) * state.taufac * tempi;
 
   qq = rr * zbar;
-  Real xni = std::pow(qq, 1.0_rt/3.0_rt);
+  Real xni = std::cbrt(qq);
   //dxnidd = (1.0_rt/3.0_rt) * xni * deni;
 
   state.aa = 2.27493e5_rt * tempi * xni;
@@ -155,7 +153,7 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
   constexpr Real gamma_e_constants =
       C::q_e*C::q_e/C::k_B * gcem::pow(4.0_rt/3.0_rt*M_PI, 1.0_rt/3.0_rt);
-  state.gamma_e_fac = gamma_e_constants * std::pow(state.n_e, 1.0_rt/3.0_rt);
+  state.gamma_e_fac = gamma_e_constants * std::cbrt(state.n_e);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
