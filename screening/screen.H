@@ -439,7 +439,7 @@ void chugunov2007 (const plasma_state_t& state,
         Real df_dT = 0.5_rt * M_PI / delta_gamma * std::sin(tmp) * dGamma_dT;
 
         dGamma_dT = dGamma_dT - (df_dT * Gamma + f * dGamma_dT) + df_dT * Gamma_max;
-        T_norm = (1.0_rt - f) * Gamma + f * Gamma_max;
+        Gamma = (1.0_rt - f) * Gamma + f * Gamma_max;
     }
 
     // Chugunov 2007 eq. 3
