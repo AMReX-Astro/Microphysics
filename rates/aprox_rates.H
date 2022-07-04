@@ -308,7 +308,7 @@ void rate_c12c12(tf_t tf, const Real den, Real& fr,
     const Real dt9a    = (1.0e0_rt -  t9a*0.0396_rt)*zz;
 
     zz      = dt9a/t9a;
-    const Real t9a13   = std::pow(t9a,1.0_rt/3.0_rt);
+    const Real t9a13   = std::cbrt(t9a);
     const Real dt9a13  = 1.0_rt/3.0_rt*t9a13*zz;
 
     const Real t9a56   = std::pow(t9a,5.0_rt/6.0_rt);
@@ -342,7 +342,7 @@ void rate_c12o16(tf_t tf, const Real den, Real& fr,
         Real dt9a   = (1.0e0_rt - t9a*0.055_rt)*zz;
 
         zz     = dt9a/t9a;
-        Real t9a13  = std::pow(t9a,1.0_rt/3.0_rt);
+        Real t9a13  = std::cbrt(t9a);
         Real dt9a13 = 1.0_rt/3.0_rt*t9a13*zz;
 
         Real t9a23  = t9a13*t9a13;
@@ -1504,7 +1504,7 @@ void rate_he3he4(tf_t tf, const Real den, Real& fr,
     const Real dt9a    = (1.0e0_rt - t9a*daa)*zz;
 
     zz      = dt9a/t9a;
-    const Real t9a13   = std::pow(t9a,1.0_rt/3.0_rt);
+    const Real t9a13   = std::cbrt(t9a);
     const Real dt9a13  = 1.0_rt/3.0_rt*t9a13*zz;
 
     const Real t9a56   = std::pow(t9a,5.0_rt/6.0_rt);
