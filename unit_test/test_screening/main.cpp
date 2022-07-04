@@ -153,7 +153,7 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_screening." + screen_name + ".cxx";
+    std::string name = "test_screening." + screen_name;
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name, state, names, geom, time, 0);
