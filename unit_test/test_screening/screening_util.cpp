@@ -258,7 +258,7 @@ void screen_test_C(const Box& bx,
     sp(i, j, k, vars.iscn_co55_p_dt) = sc1adt;
 
     // fe54(p,g)co55
-    scn_fac = scrn::calculate_screen_factor(zion[ife52], aion[ife54], zion[ih1], aion[ih1]);
+    scn_fac = scrn::calculate_screen_factor(zion[ife54], aion[ife54], zion[ih1], aion[ih1]);
     actual_screen(pstate, scn_fac, sc1a, sc1adt);
     sp(i, j, k, vars.iscn_fe54_p) = sc1a;
     sp(i, j, k, vars.iscn_fe54_p_dt) = sc1adt;
