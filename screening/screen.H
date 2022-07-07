@@ -11,8 +11,17 @@
 #include <fundamental_constants.H>
 #include <cmath>
 #include <screen_data.H>
+#include <extern_parameters.H>
 
 using namespace amrex;
+
+#if SCREEN_METHOD == 0
+const std::string screen_name = "screen5";
+#elif SCREEN_METHOD == 1
+const std::string screen_name = "chugunov2007";
+#elif SCREEN_METHOD == 2
+const std::string screen_name = "chugunov2009";
+#endif
 
 struct plasma_state_t {
 
@@ -78,7 +87,7 @@ void add_screening_factor(const int i,
   scn_facs[i].a1 = a1;
   scn_facs[i].a2 = a2;
 
-  scn_facs[i].zs13 = std::pow(z1 + z2, 1.0_rt/3.0_rt);
+  scn_facs[i].zs13 = std::cbrt(z1 + z2);
   scn_facs[i].zs13inv = 1.0_rt/scn_facs[i].zs13;
   scn_facs[i].zhat = std::pow(z1 + z2, 5.0_rt/3.0_rt) -
                      std::pow(z1, 5.0_rt/3.0_rt) -
@@ -87,14 +96,13 @@ void add_screening_factor(const int i,
                       std::pow(z1, 5.0_rt/12.0_rt) -
                       std::pow(z2, 5.0_rt/12.0_rt);
   scn_facs[i].lzav = (5.0_rt/3.0_rt) * std::log(z1 * z2 / (z1 + z2));
-  scn_facs[i].aznut = std::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
-                               1.0_rt/3.0_rt);
-  scn_facs[i].ztilde = 0.5_rt * (std::pow(z1, 1.0_rt/3.0_rt) +
-                                 std::pow(z2, 1.0_rt/3.0_rt));
+  scn_facs[i].aznut = std::cbrt(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2));
+  scn_facs[i].ztilde = 0.5_rt * (std::cbrt(z1) + std::cbrt(z2));
 
 }
 
 
+template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
 fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
@@ -133,11 +141,11 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   state.qlam0zdt = 1.88e8_rt * (dtempi*pp + tempi*dppdt);
   //state.qlam0zdd = 1.88e8_rt * tempi * dppdd;
 
-  state.taufac = co2 * std::pow(tempi, 1.0_rt/3.0_rt);
+  state.taufac = co2 * std::cbrt(tempi);
   state.taufacdt = -(1.0_rt/3.0_rt) * state.taufac * tempi;
 
   qq = rr * zbar;
-  Real xni = std::pow(qq, 1.0_rt/3.0_rt);
+  Real xni = std::cbrt(qq);
   //dxnidd = (1.0_rt/3.0_rt) * xni * deni;
 
   state.aa = 2.27493e5_rt * tempi * xni;
@@ -155,9 +163,22 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
   constexpr Real gamma_e_constants =
       C::q_e*C::q_e/C::k_B * gcem::pow(4.0_rt/3.0_rt*M_PI, 1.0_rt/3.0_rt);
-  state.gamma_e_fac = gamma_e_constants * std::pow(state.n_e, 1.0_rt/3.0_rt);
+  state.gamma_e_fac = gamma_e_constants * std::cbrt(state.n_e);
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void
+fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
+    if (jacobian == 1) {
+        constexpr int do_T_derivatives = 1;
+        fill_plasma_state<do_T_derivatives>(state, temp, dens, y);
+    } else {
+        constexpr int do_T_derivatives = 0;
+        fill_plasma_state<do_T_derivatives>(state, temp, dens, y);
+    }
+}
+
+template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_screen5 (const plasma_state_t& state,
                      const scrn::screen_factors_t& scn_fac,
@@ -346,6 +367,7 @@ void actual_screen5 (const plasma_state_t& state,
     }
 }
 
+template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void chugunov2007 (const plasma_state_t& state,
                    const scrn::screen_factors_t& scn_fac,
@@ -441,7 +463,7 @@ void chugunov2007 (const plasma_state_t& state,
         Real df_dT = 0.5_rt * M_PI / delta_gamma * std::sin(tmp) * dGamma_dT;
 
         dGamma_dT = dGamma_dT - (df_dT * Gamma + f * dGamma_dT) + df_dT * Gamma_max;
-        T_norm = (1.0_rt - f) * Gamma + f * Gamma_max;
+        Gamma = (1.0_rt - f) * Gamma + f * Gamma_max;
     }
 
     // Chugunov 2007 eq. 3
@@ -556,6 +578,7 @@ void f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
              0.5_rt*B3*dterm5_dgamma) * dlog_dT * gamma;
 }
 
+template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void chugunov2009 (const plasma_state_t& state,
                    const scrn::screen_factors_t& scn_fac,
@@ -645,18 +668,34 @@ void chugunov2009 (const plasma_state_t& state,
     }
 }
 
+template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_screen(const plasma_state_t& state,
                    const scrn::screen_factors_t& scn_fac,
                    Real& scor, Real& scordt)
 {
 #if SCREEN_METHOD == 0
-    actual_screen5(state, scn_fac, scor, scordt);
+    actual_screen5<do_T_derivatives>(state, scn_fac, scor, scordt);
 #elif SCREEN_METHOD == 1
-    chugunov2007(state, scn_fac, scor, scordt);
+    chugunov2007<do_T_derivatives>(state, scn_fac, scor, scordt);
 #elif SCREEN_METHOD == 2
-    chugunov2009(state, scn_fac, scor, scordt);
+    chugunov2009<do_T_derivatives>(state, scn_fac, scor, scordt);
 #endif
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void actual_screen(const plasma_state_t& state,
+                   const scrn::screen_factors_t& scn_fac,
+                   Real& scor, Real& scordt)
+{
+    if (jacobian == 1) {
+        constexpr int do_T_derivatives = 1;
+        actual_screen<do_T_derivatives>(state, scn_fac, scor, scordt);
+    } else {
+        constexpr int do_T_derivatives = 0;
+        actual_screen<do_T_derivatives>(state, scn_fac, scor, scordt);
+        scordt = 0.0_rt;
+    }
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

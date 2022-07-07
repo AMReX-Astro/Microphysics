@@ -22,13 +22,6 @@ using namespace Rates;
 
 using namespace rate_tables;
 
-struct rate_eval_t {
-    Array1D<Real, 1, NumRates>  screened_rates;
-    Array1D<Real, 1, NumRates>  dscreened_rates_dT;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
-};
-
-
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -69,46 +62,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     tf_t tfactors = evaluate_tfactors(state.T);
 
-    for (int i = 1; i <= NrateReaclib; ++i) {
+    fill_reaclib_rates(tfactors, rate_eval);
 
-        if (i == k_p_c12__n13 && disable_p_c12__n13) {
-            rate_eval.screened_rates(i) = 0.0;
-            rate_eval.dscreened_rates_dT(i) = 0.0;
-            continue;
-        }
-        if (i == k_n13__p_c12 && disable_p_c12__n13) {
-            rate_eval.screened_rates(i) = 0.0;
-            rate_eval.dscreened_rates_dT(i) = 0.0;
-            continue;
-        }
-        if (i == k_he4_n13__p_o16 && disable_he4_n13__p_o16) {
-            rate_eval.screened_rates(i) = 0.0;
-            rate_eval.dscreened_rates_dT(i) = 0.0;
-            continue;
-        }
-        if (i == k_p_o16__he4_n13 && disable_he4_n13__p_o16) {
-            rate_eval.screened_rates(i) = 0.0;
-            rate_eval.dscreened_rates_dT(i) = 0.0;
-            continue;
-        }
-
-        if (jacobian == 1) {
-            Real rate;
-            Real drate_dt;
-            constexpr int do_T_derivatives = 1;
-            reaclib_evaluate<do_T_derivatives>(pstate, tfactors, i, rate, drate_dt);
-            rate_eval.screened_rates(i) = rate;
-            rate_eval.dscreened_rates_dT(i) = drate_dt;
-        } else {
-            Real rate;
-            Real drate_dt;
-            // drate_dt is not used in this case
-            constexpr int do_T_derivatives = 0;
-            reaclib_evaluate<do_T_derivatives>(pstate, tfactors, i, rate, drate_dt);
-            rate_eval.screened_rates(i) = rate;
-            rate_eval.dscreened_rates_dT(i) = drate_dt;
-        }
+    if (disable_p_c12__n13) {
+        rate_eval.screened_rates(k_p_c12__n13) = 0.0;
+        rate_eval.dscreened_rates_dT(k_p_c12__n13) = 0.0;
+        rate_eval.screened_rates(k_n13__p_c12) = 0.0;
+        rate_eval.dscreened_rates_dT(k_n13__p_c12) = 0.0;
     }
+
+    if (disable_he4_n13__p_o16) {
+        rate_eval.screened_rates(k_he4_n13__p_o16) = 0.0;
+        rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = 0.0;
+        rate_eval.screened_rates(k_p_o16__he4_n13) = 0.0;
+        rate_eval.dscreened_rates_dT(k_p_o16__he4_n13) = 0.0;
+    }
+
+
 
     // Evaluate screening factors
 
@@ -2213,8 +2183,6 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 
 AMREX_INLINE
 void actual_rhs_init () {
-
-    init_reaclib();
 
     init_tabular();
 
