@@ -31,17 +31,11 @@ void actual_network_init()
     ebind_per_nucleon(Si28) = 8.447744_rt;
     ebind_per_nucleon(P31) = 8.481167_rt;
     ebind_per_nucleon(S32) = 8.493129000000001_rt;
-    ebind_per_nucleon(Cl35) = 8.520278000000001_rt;
     ebind_per_nucleon(Ar36) = 8.519909_rt;
-    ebind_per_nucleon(K39) = 8.557025_rt;
     ebind_per_nucleon(Ca40) = 8.551303_rt;
-    ebind_per_nucleon(Sc43) = 8.530825_rt;
     ebind_per_nucleon(Ti44) = 8.533520000000001_rt;
-    ebind_per_nucleon(V47) = 8.582225000000001_rt;
     ebind_per_nucleon(Cr48) = 8.572269_rt;
-    ebind_per_nucleon(Mn51) = 8.633772_rt;
     ebind_per_nucleon(Fe52) = 8.609574_rt;
-    ebind_per_nucleon(Co55) = 8.669618_rt;
     ebind_per_nucleon(Ni56) = 8.642779_rt;
 
     // convert to binding energies per nucleus in MeV

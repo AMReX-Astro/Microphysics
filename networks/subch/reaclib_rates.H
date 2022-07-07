@@ -650,592 +650,6 @@ void rate_s32__he4_si28(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_cl35__he4_p31(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cl35 --> he4 + p31
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  74.6679 + -81.2033 * tfactors.T9i + -62.5433 * tfactors.T913i + -2.95026 * tfactors.T913
-                         + -0.89652 * tfactors.T9 + 0.0774126 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  81.2033 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -62.5433 * tfactors.T943i + (1.0/3.0) * -2.95026 * tfactors.T923i
-                              + -0.89652 + (5.0/3.0) * 0.0774126 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ar36__p_cl35(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ar36 --> p + cl35
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // il10n
-    ln_set_rate =  60.7366 + -98.7191 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
-                         + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  98.7191 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
-                              + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  17.2028 + -102.37 * tfactors.T9i + 18.0179 * tfactors.T913
-                         + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953;
-
-    dln_set_rate_dT9 =  102.37 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
-                              + -2.86304 + (5.0/3.0) * 0.250854 * tfactors.T923;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  16.0169 + -100.729 * tfactors.T9i;
-
-    dln_set_rate_dT9 =  100.729 * tfactors.T9i * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  -17.4751 + -99.2838 * tfactors.T9i;
-
-    dln_set_rate_dT9 =  99.2838 * tfactors.T9i * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ar36__he4_s32(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ar36 --> he4 + s32
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  73.8164 + -77.0627 * tfactors.T9i + -65.3709 * tfactors.T913i + 5.68294 * tfactors.T913
-                         + -5.00388 * tfactors.T9 + 0.571407 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  77.0627 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -65.3709 * tfactors.T943i + (1.0/3.0) * 5.68294 * tfactors.T923i
-                              + -5.00388 + (5.0/3.0) * 0.571407 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_k39__he4_cl35(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // k39 --> he4 + cl35
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  77.6477 + -83.7658 * tfactors.T9i + -68.2848 * tfactors.T913i + 0.0178545 * tfactors.T913
-                         + -2.06783 * tfactors.T9 + 0.199659 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  83.7658 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -68.2848 * tfactors.T943i + (1.0/3.0) * 0.0178545 * tfactors.T923i
-                              + -2.06783 + (5.0/3.0) * 0.199659 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ca40__p_k39(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ca40 --> p + k39
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // lo18r
-    ln_set_rate =  613.153 + -109.213 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
-                         + 566.426 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  109.213 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 641.844 * tfactors.T943i + (1.0/3.0) * -1248.49 * tfactors.T923i
-                              + 566.426 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // lo18r
-    ln_set_rate =  127.306 + -98.3134 * tfactors.T9i + 41.1723 * tfactors.T913i + -149.299 * tfactors.T913
-                         + 10.5229 * tfactors.T9 + -0.68208 * tfactors.T953 + 60.7367 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  98.3134 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
-                              + 10.5229 + (5.0/3.0) * -0.68208 * tfactors.T923 + 60.7367 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // lo18r
-    ln_set_rate =  2786.44 + -101.871 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
-                         + 1137.69 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  101.871 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
-                              + 1137.69 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ca40__he4_ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ca40 --> he4 + ar36
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  77.2826 + -81.6916 * tfactors.T9i + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
-                         + -5.26509 * tfactors.T9 + 0.683546 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  81.6916 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -71.0046 * tfactors.T943i + (1.0/3.0) * 4.0656 * tfactors.T923i
-                              + -5.26509 + (5.0/3.0) * 0.683546 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_sc43__he4_k39(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // sc43 --> he4 + k39
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  78.3727 + -55.7693 * tfactors.T9i + -73.8006 * tfactors.T913i + 1.87885 * tfactors.T913
-                         + -2.75862 * tfactors.T9 + 0.279678 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  55.7693 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -73.8006 * tfactors.T943i + (1.0/3.0) * 1.87885 * tfactors.T923i
-                              + -2.75862 + (5.0/3.0) * 0.279678 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ti44__p_sc43(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ti44 --> p + sc43
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  62.5939 + -100.373 * tfactors.T9i + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
-                         + -2.21706 * tfactors.T9 + 0.298499 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  100.373 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * -1.77078 * tfactors.T923i
-                              + -2.21706 + (5.0/3.0) * 0.298499 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ti44__he4_ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ti44 --> he4 + ca40
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // chw0 
-    ln_set_rate =  78.6991 + -59.4974 * tfactors.T9i + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
-                         + -3.61477 * tfactors.T9 + 0.367451 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  59.4974 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -76.4273 * tfactors.T943i + (1.0/3.0) * 3.87451 * tfactors.T923i
-                              + -3.61477 + (5.0/3.0) * 0.367451 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_v47__he4_sc43(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // v47 --> he4 + sc43
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  84.6713 + -95.6099 * tfactors.T9i + -79.122 * tfactors.T913i + -7.07006 * tfactors.T913
-                         + 0.424183 * tfactors.T9 + -0.0665231 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  95.6099 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -79.122 * tfactors.T943i + (1.0/3.0) * -7.07006 * tfactors.T923i
-                              + 0.424183 + (5.0/3.0) * -0.0665231 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_cr48__p_v47(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cr48 --> p + v47
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // nfisn
-    ln_set_rate =  65.6231 + -94.5854 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
-                         + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -47.9742 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  94.5854 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -110.655 * tfactors.T943i + (1.0/3.0) * 83.0232 * tfactors.T923i
-                              + -19.7762 + (5.0/3.0) * 3.03961 * tfactors.T923 + -47.9742 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // nfisn
-    ln_set_rate =  67.7403 + -100.13 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
-                         + 1.16501 * tfactors.T9 + -0.105543 * tfactors.T953 + -6.20886 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  100.13 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.0548 * tfactors.T943i + (1.0/3.0) * -3.41973 * tfactors.T923i
-                              + 1.16501 + (5.0/3.0) * -0.105543 * tfactors.T923 + -6.20886 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // nfisn
-    ln_set_rate =  536.523 + -99.3659 * tfactors.T9i + 317.171 * tfactors.T913i + -911.679 * tfactors.T913
-                         + 94.4245 * tfactors.T9 + -10.1973 * tfactors.T953 + 332.227 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  99.3659 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
-                              + 94.4245 + (5.0/3.0) * -10.1973 * tfactors.T923 + 332.227 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // nfisn
-    ln_set_rate =  48.892 + -93.8243 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
-                         + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -6.92325 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  93.8243 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
-                              + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -6.92325 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_cr48__he4_ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cr48 --> he4 + ti44
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  89.7573 + -89.3041 * tfactors.T9i + -81.667 * tfactors.T913i + -10.6333 * tfactors.T913
-                         + -0.672613 * tfactors.T9 + 0.161209 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  89.3041 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -81.667 * tfactors.T943i + (1.0/3.0) * -10.6333 * tfactors.T923i
-                              + -0.672613 + (5.0/3.0) * 0.161209 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_mn51__he4_v47(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // mn51 --> he4 + v47
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  81.4259 + -100.544 * tfactors.T9i + -84.2732 * tfactors.T913i + -2.98061 * tfactors.T913
-                         + -0.531361 * tfactors.T9 + 0.023612 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  100.544 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -84.2732 * tfactors.T943i + (1.0/3.0) * -2.98061 * tfactors.T923i
-                              + -0.531361 + (5.0/3.0) * 0.023612 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_fe52__p_mn51(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // fe52 --> p + mn51
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  61.728 + -85.6325 * tfactors.T9i + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
-                         + -2.89731 * tfactors.T9 + 0.364394 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  85.6325 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.1825 * tfactors.T943i + (1.0/3.0) * 0.873042 * tfactors.T923i
-                              + -2.89731 + (5.0/3.0) * 0.364394 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_fe52__he4_cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // fe52 --> he4 + cr48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  90.1474 + -92.109 * tfactors.T9i + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
-                         + -0.772169 * tfactors.T9 + 0.155883 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  92.109 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * -9.79373 * tfactors.T923i
-                              + -0.772169 + (5.0/3.0) * 0.155883 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_co55__he4_mn51(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // co55 --> he4 + mn51
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  90.613 + -95.2861 * tfactors.T9i + -89.274 * tfactors.T913i + -10.4373 * tfactors.T913
-                         + 1.00492 * tfactors.T9 + -0.125548 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  95.2861 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -89.274 * tfactors.T943i + (1.0/3.0) * -10.4373 * tfactors.T923i
-                              + 1.00492 + (5.0/3.0) * -0.125548 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ni56__p_co55(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ni56 --> p + co55
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  63.1318 + -83.1473 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
-                         + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  83.1473 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
-                              + -2.68377 + (5.0/3.0) * 0.355814 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ni56__he4_fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ni56 --> he4 + fe52
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  91.6226 + -92.801 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
-                         + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + 0.833333 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  92.801 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
-                              + -0.533014 + (5.0/3.0) * 0.0892607 * tfactors.T923 + 0.833333 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_c12__he4_he4_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // c12 --> he4 + he4 + he4
@@ -1904,596 +1318,6 @@ void rate_p_p31__s32(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     dln_set_rate_dT9 =  + -(1.0/3.0) * -25.3278 * tfactors.T943i + (1.0/3.0) * 6.4931 * tfactors.T923i
                               + -9.27513 + (5.0/3.0) * -0.610439 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_p31__cl35(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // p31 + he4 --> cl35
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  50.451 + -62.5433 * tfactors.T913i + -2.95026 * tfactors.T913
-                         + -0.89652 * tfactors.T9 + 0.0774126 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -62.5433 * tfactors.T943i + (1.0/3.0) * -2.95026 * tfactors.T923i
-                              + -0.89652 + (5.0/3.0) * 0.0774126 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_s32__ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // s32 + he4 --> ar36
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  48.901 + -65.3709 * tfactors.T913i + 5.68294 * tfactors.T913
-                         + -5.00388 * tfactors.T9 + 0.571407 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -65.3709 * tfactors.T943i + (1.0/3.0) * 5.68294 * tfactors.T923i
-                              + -5.00388 + (5.0/3.0) * 0.571407 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_cl35__ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cl35 + p --> ar36
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // il10r
-    ln_set_rate =  -9.03294 + -2.00996 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  2.00996 * tfactors.T9i * tfactors.T9i
-                              + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  -42.5249 + -0.564651 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  0.564651 * tfactors.T9i * tfactors.T9i
-                              + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10n
-    ln_set_rate =  35.6868 + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
-                         + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
-                              + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  -7.84699 + -3.65092 * tfactors.T9i + 18.0179 * tfactors.T913
-                         + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  3.65092 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
-                              + -2.86304 + (5.0/3.0) * 0.250854 * tfactors.T923 + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_cl35__k39(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cl35 + he4 --> k39
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  52.718 + -68.2848 * tfactors.T913i + 0.0178545 * tfactors.T913
-                         + -2.06783 * tfactors.T9 + 0.199659 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -68.2848 * tfactors.T943i + (1.0/3.0) * 0.0178545 * tfactors.T923i
-                              + -2.06783 + (5.0/3.0) * 0.199659 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_ar36__ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ar36 + he4 --> ca40
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  52.3486 + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
-                         + -5.26509 * tfactors.T9 + 0.683546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -71.0046 * tfactors.T943i + (1.0/3.0) * 4.0656 * tfactors.T923i
-                              + -5.26509 + (5.0/3.0) * 0.683546 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_k39__ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // k39 + p --> ca40
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // lo18r
-    ln_set_rate =  2761.38 + -5.22234 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
-                         + 1136.19 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  5.22234 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
-                              + 1136.19 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // lo18r
-    ln_set_rate =  588.099 + -12.5647 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
-                         + 564.926 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  12.5647 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 641.844 * tfactors.T943i + (1.0/3.0) * -1248.49 * tfactors.T923i
-                              + 564.926 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // lo18r
-    ln_set_rate =  102.252 + -1.66508 * tfactors.T9i + 41.1723 * tfactors.T913i + -149.299 * tfactors.T913
-                         + 10.5229 * tfactors.T9 + -0.68208 * tfactors.T953 + 59.2367 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  1.66508 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
-                              + 10.5229 + (5.0/3.0) * -0.68208 * tfactors.T923 + 59.2367 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_k39__sc43(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // k39 + he4 --> sc43
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  54.1202 + -73.8006 * tfactors.T913i + 1.87885 * tfactors.T913
-                         + -2.75862 * tfactors.T9 + 0.279678 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -73.8006 * tfactors.T943i + (1.0/3.0) * 1.87885 * tfactors.T923i
-                              + -2.75862 + (5.0/3.0) * 0.279678 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_ca40__ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ca40 + he4 --> ti44
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // chw0 
-    ln_set_rate =  53.75 + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
-                         + -3.61477 * tfactors.T9 + 0.367451 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -76.4273 * tfactors.T943i + (1.0/3.0) * 3.87451 * tfactors.T923i
-                              + -3.61477 + (5.0/3.0) * 0.367451 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_sc43__ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // sc43 + p --> ti44
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  36.8432 + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
-                         + -2.21706 * tfactors.T9 + 0.298499 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * -1.77078 * tfactors.T923i
-                              + -2.21706 + (5.0/3.0) * 0.298499 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_sc43__v47(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // sc43 + he4 --> v47
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  59.0195 + -79.122 * tfactors.T913i + -7.07006 * tfactors.T913
-                         + 0.424183 * tfactors.T9 + -0.0665231 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -79.122 * tfactors.T943i + (1.0/3.0) * -7.07006 * tfactors.T923i
-                              + 0.424183 + (5.0/3.0) * -0.0665231 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_ti44__cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ti44 + he4 --> cr48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  64.7958 + -81.667 * tfactors.T913i + -10.6333 * tfactors.T913
-                         + -0.672613 * tfactors.T9 + 0.161209 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -81.667 * tfactors.T943i + (1.0/3.0) * -10.6333 * tfactors.T923i
-                              + -0.672613 + (5.0/3.0) * 0.161209 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_v47__cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // v47 + p --> cr48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // nfisn
-    ln_set_rate =  42.6798 + -6.0593 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
-                         + 1.16501 * tfactors.T9 + -0.105543 * tfactors.T953 + -7.70886 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  6.0593 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.0548 * tfactors.T943i + (1.0/3.0) * -3.41973 * tfactors.T923i
-                              + 1.16501 + (5.0/3.0) * -0.105543 * tfactors.T923 + -7.70886 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // nfisn
-    ln_set_rate =  511.463 + -5.29491 * tfactors.T9i + 317.171 * tfactors.T913i + -911.679 * tfactors.T913
-                         + 94.4245 * tfactors.T9 + -10.1973 * tfactors.T953 + 330.727 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  5.29491 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
-                              + 94.4245 + (5.0/3.0) * -10.1973 * tfactors.T923 + 330.727 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // nfisn
-    ln_set_rate =  23.8315 + 0.246665 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
-                         + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -8.42325 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  -0.246665 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
-                              + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -8.42325 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // nfisn
-    ln_set_rate =  40.5626 + -0.514414 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
-                         + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -49.4742 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  0.514414 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -110.655 * tfactors.T943i + (1.0/3.0) * 83.0232 * tfactors.T923i
-                              + -19.7762 + (5.0/3.0) * 3.03961 * tfactors.T923 + -49.4742 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_v47__mn51(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // v47 + he4 --> mn51
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  56.8618 + -84.2732 * tfactors.T913i + -2.98061 * tfactors.T913
-                         + -0.531361 * tfactors.T9 + 0.023612 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -84.2732 * tfactors.T943i + (1.0/3.0) * -2.98061 * tfactors.T923i
-                              + -0.531361 + (5.0/3.0) * 0.023612 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_cr48__fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cr48 + he4 --> fe52
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  65.1754 + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
-                         + -0.772169 * tfactors.T9 + 0.155883 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * -9.79373 * tfactors.T923i
-                              + -0.772169 + (5.0/3.0) * 0.155883 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_mn51__fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // mn51 + p --> fe52
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  36.2596 + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
-                         + -2.89731 * tfactors.T9 + 0.364394 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -36.1825 * tfactors.T943i + (1.0/3.0) * 0.873042 * tfactors.T923i
-                              + -2.89731 + (5.0/3.0) * 0.364394 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_mn51__co55(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // mn51 + he4 --> co55
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  65.9219 + -89.274 * tfactors.T913i + -10.4373 * tfactors.T913
-                         + 1.00492 * tfactors.T9 + -0.125548 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -89.274 * tfactors.T943i + (1.0/3.0) * -10.4373 * tfactors.T923i
-                              + 1.00492 + (5.0/3.0) * -0.125548 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_fe52__ni56(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // fe52 + he4 --> ni56
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  66.6417 + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
-                         + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
-                              + -0.533014 + (5.0/3.0) * 0.0892607 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_co55__ni56(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // co55 + p --> ni56
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  37.3736 + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
-                         + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
-                              + -2.68377 + (5.0/3.0) * 0.355814 * tfactors.T923 + -0.666667 * tfactors.T9i;
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
     ln_set_rate = std::max(ln_set_rate, -230.0);
@@ -3362,408 +2186,6 @@ void rate_p_p31__o16_o16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_s32__p_cl35(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // s32 + he4 --> p + cl35
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // il10r
-    ln_set_rate =  2.42563 + -27.6662 * tfactors.T9i + 5.33756 * tfactors.T913
-                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  27.6662 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
-                              + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  -0.877602 + -25.5914 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  25.5914 * tfactors.T9i * tfactors.T9i
-                              + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  -57.395 + -22.1894 * tfactors.T9i + 25.5338 * tfactors.T913
-                         + 6.45824 * tfactors.T9 + -0.950294 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  22.1894 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 25.5338 * tfactors.T923i
-                              + 6.45824 + (5.0/3.0) * -0.950294 * tfactors.T923 + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10n
-    ln_set_rate =  32.2544 + -21.6564 * tfactors.T9i + -30.9147 * tfactors.T913i + -1.2345 * tfactors.T913
-                         + 22.5118 * tfactors.T9 + -33.0589 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  21.6564 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
-                              + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_cl35__he4_s32(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cl35 + p --> he4 + s32
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // il10r
-    ln_set_rate =  2.29121 + -6.00976 * tfactors.T9i + 5.33756 * tfactors.T913
-                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  6.00976 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
-                              + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  -1.01202 + -3.93495 * tfactors.T9i
-                         + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  3.93495 * tfactors.T9i * tfactors.T9i
-                              + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10r
-    ln_set_rate =  -57.5294 + -0.532931 * tfactors.T9i + 25.5338 * tfactors.T913
-                         + 6.45824 * tfactors.T9 + -0.950294 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  0.532931 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 25.5338 * tfactors.T923i
-                              + 6.45824 + (5.0/3.0) * -0.950294 * tfactors.T923 + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-    // il10n
-    ln_set_rate =  32.12 + -30.9147 * tfactors.T913i + -1.2345 * tfactors.T913
-                         + 22.5118 * tfactors.T9 + -33.0589 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
-                              + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_ar36__p_k39(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ar36 + he4 --> p + k39
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  20.6367 + -14.9533 * tfactors.T9i + -30.0732 * tfactors.T913i + 7.03263 * tfactors.T913
-                         + -1.10085 * tfactors.T9 + 0.133768 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  14.9533 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.0732 * tfactors.T943i + (1.0/3.0) * 7.03263 * tfactors.T923i
-                              + -1.10085 + (5.0/3.0) * 0.133768 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_k39__he4_ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // k39 + p --> he4 + ar36
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  20.5166 + -30.0732 * tfactors.T913i + 7.03263 * tfactors.T913
-                         + -1.10085 * tfactors.T9 + 0.133768 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -30.0732 * tfactors.T943i + (1.0/3.0) * 7.03263 * tfactors.T923i
-                              + -1.10085 + (5.0/3.0) * 0.133768 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_ca40__p_sc43(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ca40 + he4 --> p + sc43
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  35.6575 + -40.8757 * tfactors.T9i + -32.1734 * tfactors.T913i + 0.0296879 * tfactors.T913
-                         + -0.95232 * tfactors.T9 + 0.129022 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  40.8757 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * 0.0296879 * tfactors.T923i
-                              + -0.95232 + (5.0/3.0) * 0.129022 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_sc43__he4_ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // sc43 + p --> he4 + ca40
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  34.8559 + -32.1734 * tfactors.T913i + 0.0296879 * tfactors.T913
-                         + -0.95232 * tfactors.T9 + 0.129022 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * 0.0296879 * tfactors.T923i
-                              + -0.95232 + (5.0/3.0) * 0.129022 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_ti44__p_v47(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // ti44 + he4 --> p + v47
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // chw0r
-    ln_set_rate =  -76.5154 + -10.7931 * tfactors.T9i + 70.2835 * tfactors.T913
-                         + -7.99061 * tfactors.T9 + 0.486213 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  10.7931 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 70.2835 * tfactors.T923i
-                              + -7.99061 + (5.0/3.0) * 0.486213 * tfactors.T923 + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_v47__he4_ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // v47 + p --> he4 + ti44
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // chw0r
-    ln_set_rate =  -76.6143 + -6.02945 * tfactors.T9i + 70.2835 * tfactors.T913
-                         + -7.99061 * tfactors.T9 + 0.486213 * tfactors.T953 + -1.5 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  6.02945 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 70.2835 * tfactors.T923i
-                              + -7.99061 + (5.0/3.0) * 0.486213 * tfactors.T923 + -1.5 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_cr48__p_mn51(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // cr48 + he4 --> p + mn51
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  59.2276 + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
-                         + -1.15757 * tfactors.T9 + 0.0877546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * 1.05653 * tfactors.T923i
-                              + -1.15757 + (5.0/3.0) * 0.0877546 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_mn51__he4_cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // mn51 + p --> he4 + cr48
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  58.7312 + -6.47654 * tfactors.T9i + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
-                         + -1.15757 * tfactors.T9 + 0.0877546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  6.47654 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * 1.05653 * tfactors.T923i
-                              + -1.15757 + (5.0/3.0) * 0.0877546 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_fe52__p_co55(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // fe52 + he4 --> p + co55
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  62.2207 + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
-                         + -0.780924 * tfactors.T9 + 0.0425179 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
-                              + -0.780924 + (5.0/3.0) * 0.0425179 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_co55__he4_fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
-
-    // co55 + p --> he4 + fe52
-
-    rate = 0.0;
-    drate_dT = 0.0;
-
-    Real ln_set_rate{0.0};
-    Real dln_set_rate_dT9{0.0};
-    Real set_rate{0.0};
-
-    // ths8r
-    ln_set_rate =  61.4434 + -9.65363 * tfactors.T9i + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
-                         + -0.780924 * tfactors.T9 + 0.0425179 * tfactors.T953 + -0.666667 * tfactors.lnT9;
-
-    dln_set_rate_dT9 =  9.65363 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
-                              + -0.780924 + (5.0/3.0) * 0.0425179 * tfactors.T923 + -0.666667 * tfactors.T9i;
-
-    // avoid underflows by zeroing rates in [0.0, 1.e-100]
-    ln_set_rate = std::max(ln_set_rate, -230.0);
-    set_rate = std::exp(ln_set_rate);
-    rate += set_rate;
-    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rate_he4_he4_he4__c12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // he4 + he4 + he4 --> c12
@@ -3897,6 +2319,1452 @@ void rate_c12_o16__si28__modified(const tf_t& tfactors, Real& rate, Real& drate_
 
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_s32__ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // s32 + he4 --> ar36
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  48.901 + -65.3709 * tfactors.T913i + 5.68294 * tfactors.T913
+                         + -5.00388 * tfactors.T9 + 0.571407 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -65.3709 * tfactors.T943i + (1.0/3.0) * 5.68294 * tfactors.T923i
+                              + -5.00388 + (5.0/3.0) * 0.571407 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_s32__p_cl35(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // s32 + he4 --> p + cl35
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  2.42563 + -27.6662 * tfactors.T9i + 5.33756 * tfactors.T913
+                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  27.6662 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
+                              + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  -0.877602 + -25.5914 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  25.5914 * tfactors.T9i * tfactors.T9i
+                              + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  -57.395 + -22.1894 * tfactors.T9i + 25.5338 * tfactors.T913
+                         + 6.45824 * tfactors.T9 + -0.950294 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  22.1894 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 25.5338 * tfactors.T923i
+                              + 6.45824 + (5.0/3.0) * -0.950294 * tfactors.T923 + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10n
+    ln_set_rate =  32.2544 + -21.6564 * tfactors.T9i + -30.9147 * tfactors.T913i + -1.2345 * tfactors.T913
+                         + 22.5118 * tfactors.T9 + -33.0589 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  21.6564 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
+                              + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_cl35__ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // cl35 + p --> ar36
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  -9.03294 + -2.00996 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  2.00996 * tfactors.T9i * tfactors.T9i
+                              + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  -42.5249 + -0.564651 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  0.564651 * tfactors.T9i * tfactors.T9i
+                              + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10n
+    ln_set_rate =  35.6868 + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
+                         + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
+                              + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  -7.84699 + -3.65092 * tfactors.T9i + 18.0179 * tfactors.T913
+                         + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  3.65092 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
+                              + -2.86304 + (5.0/3.0) * 0.250854 * tfactors.T923 + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ar36__he4_s32(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ar36 --> he4 + s32
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  73.8164 + -77.0627 * tfactors.T9i + -65.3709 * tfactors.T913i + 5.68294 * tfactors.T913
+                         + -5.00388 * tfactors.T9 + 0.571407 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  77.0627 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -65.3709 * tfactors.T943i + (1.0/3.0) * 5.68294 * tfactors.T923i
+                              + -5.00388 + (5.0/3.0) * 0.571407 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ar36__p_cl35(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ar36 --> p + cl35
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // il10n
+    ln_set_rate =  60.7366 + -98.7191 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
+                         + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  98.7191 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
+                              + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  17.2028 + -102.37 * tfactors.T9i + 18.0179 * tfactors.T913
+                         + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953;
+
+    dln_set_rate_dT9 =  102.37 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
+                              + -2.86304 + (5.0/3.0) * 0.250854 * tfactors.T923;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  16.0169 + -100.729 * tfactors.T9i;
+
+    dln_set_rate_dT9 =  100.729 * tfactors.T9i * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  -17.4751 + -99.2838 * tfactors.T9i;
+
+    dln_set_rate_dT9 =  99.2838 * tfactors.T9i * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_cl35__he4_s32(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // cl35 + p --> he4 + s32
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // il10r
+    ln_set_rate =  2.29121 + -6.00976 * tfactors.T9i + 5.33756 * tfactors.T913
+                         + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  6.00976 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
+                              + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  -1.01202 + -3.93495 * tfactors.T9i
+                         + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  3.93495 * tfactors.T9i * tfactors.T9i
+                              + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10r
+    ln_set_rate =  -57.5294 + -0.532931 * tfactors.T9i + 25.5338 * tfactors.T913
+                         + 6.45824 * tfactors.T9 + -0.950294 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  0.532931 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 25.5338 * tfactors.T923i
+                              + 6.45824 + (5.0/3.0) * -0.950294 * tfactors.T923 + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // il10n
+    ln_set_rate =  32.12 + -30.9147 * tfactors.T913i + -1.2345 * tfactors.T913
+                         + 22.5118 * tfactors.T9 + -33.0589 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
+                              + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_ar36__ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ar36 + he4 --> ca40
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  52.3486 + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
+                         + -5.26509 * tfactors.T9 + 0.683546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -71.0046 * tfactors.T943i + (1.0/3.0) * 4.0656 * tfactors.T923i
+                              + -5.26509 + (5.0/3.0) * 0.683546 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_ar36__p_k39(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ar36 + he4 --> p + k39
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  20.6367 + -14.9533 * tfactors.T9i + -30.0732 * tfactors.T913i + 7.03263 * tfactors.T913
+                         + -1.10085 * tfactors.T9 + 0.133768 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  14.9533 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.0732 * tfactors.T943i + (1.0/3.0) * 7.03263 * tfactors.T923i
+                              + -1.10085 + (5.0/3.0) * 0.133768 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_k39__ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // k39 + p --> ca40
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // lo18r
+    ln_set_rate =  2761.38 + -5.22234 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
+                         + 1136.19 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  5.22234 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
+                              + 1136.19 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // lo18r
+    ln_set_rate =  588.099 + -12.5647 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
+                         + 564.926 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  12.5647 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 641.844 * tfactors.T943i + (1.0/3.0) * -1248.49 * tfactors.T923i
+                              + 564.926 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // lo18r
+    ln_set_rate =  102.252 + -1.66508 * tfactors.T9i + 41.1723 * tfactors.T913i + -149.299 * tfactors.T913
+                         + 10.5229 * tfactors.T9 + -0.68208 * tfactors.T953 + 59.2367 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  1.66508 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
+                              + 10.5229 + (5.0/3.0) * -0.68208 * tfactors.T923 + 59.2367 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ca40__he4_ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ca40 --> he4 + ar36
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  77.2826 + -81.6916 * tfactors.T9i + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
+                         + -5.26509 * tfactors.T9 + 0.683546 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  81.6916 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -71.0046 * tfactors.T943i + (1.0/3.0) * 4.0656 * tfactors.T923i
+                              + -5.26509 + (5.0/3.0) * 0.683546 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ca40__p_k39(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ca40 --> p + k39
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // lo18r
+    ln_set_rate =  613.153 + -109.213 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
+                         + 566.426 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  109.213 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 641.844 * tfactors.T943i + (1.0/3.0) * -1248.49 * tfactors.T923i
+                              + 566.426 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // lo18r
+    ln_set_rate =  127.306 + -98.3134 * tfactors.T9i + 41.1723 * tfactors.T913i + -149.299 * tfactors.T913
+                         + 10.5229 * tfactors.T9 + -0.68208 * tfactors.T953 + 60.7367 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  98.3134 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
+                              + 10.5229 + (5.0/3.0) * -0.68208 * tfactors.T923 + 60.7367 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // lo18r
+    ln_set_rate =  2786.44 + -101.871 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
+                         + 1137.69 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  101.871 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
+                              + 1137.69 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_k39__he4_ar36(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // k39 + p --> he4 + ar36
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  20.5166 + -30.0732 * tfactors.T913i + 7.03263 * tfactors.T913
+                         + -1.10085 * tfactors.T9 + 0.133768 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -30.0732 * tfactors.T943i + (1.0/3.0) * 7.03263 * tfactors.T923i
+                              + -1.10085 + (5.0/3.0) * 0.133768 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_ca40__ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ca40 + he4 --> ti44
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // chw0 
+    ln_set_rate =  53.75 + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
+                         + -3.61477 * tfactors.T9 + 0.367451 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -76.4273 * tfactors.T943i + (1.0/3.0) * 3.87451 * tfactors.T923i
+                              + -3.61477 + (5.0/3.0) * 0.367451 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_ca40__p_sc43(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ca40 + he4 --> p + sc43
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  35.6575 + -40.8757 * tfactors.T9i + -32.1734 * tfactors.T913i + 0.0296879 * tfactors.T913
+                         + -0.95232 * tfactors.T9 + 0.129022 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  40.8757 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * 0.0296879 * tfactors.T923i
+                              + -0.95232 + (5.0/3.0) * 0.129022 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_sc43__ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // sc43 + p --> ti44
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  36.8432 + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
+                         + -2.21706 * tfactors.T9 + 0.298499 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * -1.77078 * tfactors.T923i
+                              + -2.21706 + (5.0/3.0) * 0.298499 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ti44__he4_ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ti44 --> he4 + ca40
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // chw0 
+    ln_set_rate =  78.6991 + -59.4974 * tfactors.T9i + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
+                         + -3.61477 * tfactors.T9 + 0.367451 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  59.4974 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -76.4273 * tfactors.T943i + (1.0/3.0) * 3.87451 * tfactors.T923i
+                              + -3.61477 + (5.0/3.0) * 0.367451 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ti44__p_sc43(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ti44 --> p + sc43
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  62.5939 + -100.373 * tfactors.T9i + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
+                         + -2.21706 * tfactors.T9 + 0.298499 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  100.373 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * -1.77078 * tfactors.T923i
+                              + -2.21706 + (5.0/3.0) * 0.298499 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_sc43__he4_ca40(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // sc43 + p --> he4 + ca40
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  34.8559 + -32.1734 * tfactors.T913i + 0.0296879 * tfactors.T913
+                         + -0.95232 * tfactors.T9 + 0.129022 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * 0.0296879 * tfactors.T923i
+                              + -0.95232 + (5.0/3.0) * 0.129022 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_ti44__cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ti44 + he4 --> cr48
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  64.7958 + -81.667 * tfactors.T913i + -10.6333 * tfactors.T913
+                         + -0.672613 * tfactors.T9 + 0.161209 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -81.667 * tfactors.T943i + (1.0/3.0) * -10.6333 * tfactors.T923i
+                              + -0.672613 + (5.0/3.0) * 0.161209 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_ti44__p_v47(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ti44 + he4 --> p + v47
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // chw0r
+    ln_set_rate =  -76.5154 + -10.7931 * tfactors.T9i + 70.2835 * tfactors.T913
+                         + -7.99061 * tfactors.T9 + 0.486213 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  10.7931 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 70.2835 * tfactors.T923i
+                              + -7.99061 + (5.0/3.0) * 0.486213 * tfactors.T923 + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_v47__cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // v47 + p --> cr48
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // nfisn
+    ln_set_rate =  42.6798 + -6.0593 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
+                         + 1.16501 * tfactors.T9 + -0.105543 * tfactors.T953 + -7.70886 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  6.0593 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.0548 * tfactors.T943i + (1.0/3.0) * -3.41973 * tfactors.T923i
+                              + 1.16501 + (5.0/3.0) * -0.105543 * tfactors.T923 + -7.70886 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // nfisn
+    ln_set_rate =  511.463 + -5.29491 * tfactors.T9i + 317.171 * tfactors.T913i + -911.679 * tfactors.T913
+                         + 94.4245 * tfactors.T9 + -10.1973 * tfactors.T953 + 330.727 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  5.29491 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
+                              + 94.4245 + (5.0/3.0) * -10.1973 * tfactors.T923 + 330.727 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // nfisn
+    ln_set_rate =  23.8315 + 0.246665 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
+                         + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -8.42325 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  -0.246665 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
+                              + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -8.42325 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // nfisn
+    ln_set_rate =  40.5626 + -0.514414 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
+                         + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -49.4742 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  0.514414 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -110.655 * tfactors.T943i + (1.0/3.0) * 83.0232 * tfactors.T923i
+                              + -19.7762 + (5.0/3.0) * 3.03961 * tfactors.T923 + -49.4742 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_cr48__he4_ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // cr48 --> he4 + ti44
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  89.7573 + -89.3041 * tfactors.T9i + -81.667 * tfactors.T913i + -10.6333 * tfactors.T913
+                         + -0.672613 * tfactors.T9 + 0.161209 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  89.3041 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -81.667 * tfactors.T943i + (1.0/3.0) * -10.6333 * tfactors.T923i
+                              + -0.672613 + (5.0/3.0) * 0.161209 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_cr48__p_v47(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // cr48 --> p + v47
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // nfisn
+    ln_set_rate =  65.6231 + -94.5854 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
+                         + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -47.9742 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  94.5854 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -110.655 * tfactors.T943i + (1.0/3.0) * 83.0232 * tfactors.T923i
+                              + -19.7762 + (5.0/3.0) * 3.03961 * tfactors.T923 + -47.9742 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // nfisn
+    ln_set_rate =  67.7403 + -100.13 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
+                         + 1.16501 * tfactors.T9 + -0.105543 * tfactors.T953 + -6.20886 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  100.13 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.0548 * tfactors.T943i + (1.0/3.0) * -3.41973 * tfactors.T923i
+                              + 1.16501 + (5.0/3.0) * -0.105543 * tfactors.T923 + -6.20886 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // nfisn
+    ln_set_rate =  536.523 + -99.3659 * tfactors.T9i + 317.171 * tfactors.T913i + -911.679 * tfactors.T913
+                         + 94.4245 * tfactors.T9 + -10.1973 * tfactors.T953 + 332.227 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  99.3659 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
+                              + 94.4245 + (5.0/3.0) * -10.1973 * tfactors.T923 + 332.227 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+    // nfisn
+    ln_set_rate =  48.892 + -93.8243 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
+                         + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -6.92325 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  93.8243 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
+                              + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -6.92325 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_v47__he4_ti44(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // v47 + p --> he4 + ti44
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // chw0r
+    ln_set_rate =  -76.6143 + -6.02945 * tfactors.T9i + 70.2835 * tfactors.T913
+                         + -7.99061 * tfactors.T9 + 0.486213 * tfactors.T953 + -1.5 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  6.02945 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 70.2835 * tfactors.T923i
+                              + -7.99061 + (5.0/3.0) * 0.486213 * tfactors.T923 + -1.5 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_cr48__fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // cr48 + he4 --> fe52
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  65.1754 + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
+                         + -0.772169 * tfactors.T9 + 0.155883 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * -9.79373 * tfactors.T923i
+                              + -0.772169 + (5.0/3.0) * 0.155883 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_cr48__p_mn51(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // cr48 + he4 --> p + mn51
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  59.2276 + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
+                         + -1.15757 * tfactors.T9 + 0.0877546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * 1.05653 * tfactors.T923i
+                              + -1.15757 + (5.0/3.0) * 0.0877546 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_mn51__fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // mn51 + p --> fe52
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  36.2596 + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
+                         + -2.89731 * tfactors.T9 + 0.364394 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -36.1825 * tfactors.T943i + (1.0/3.0) * 0.873042 * tfactors.T923i
+                              + -2.89731 + (5.0/3.0) * 0.364394 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_fe52__he4_cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // fe52 --> he4 + cr48
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  90.1474 + -92.109 * tfactors.T9i + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
+                         + -0.772169 * tfactors.T9 + 0.155883 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  92.109 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * -9.79373 * tfactors.T923i
+                              + -0.772169 + (5.0/3.0) * 0.155883 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_fe52__p_mn51(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // fe52 --> p + mn51
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  61.728 + -85.6325 * tfactors.T9i + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
+                         + -2.89731 * tfactors.T9 + 0.364394 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  85.6325 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.1825 * tfactors.T943i + (1.0/3.0) * 0.873042 * tfactors.T923i
+                              + -2.89731 + (5.0/3.0) * 0.364394 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_mn51__he4_cr48(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // mn51 + p --> he4 + cr48
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  58.7312 + -6.47654 * tfactors.T9i + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
+                         + -1.15757 * tfactors.T9 + 0.0877546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  6.47654 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * 1.05653 * tfactors.T923i
+                              + -1.15757 + (5.0/3.0) * 0.0877546 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_fe52__ni56(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // fe52 + he4 --> ni56
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  66.6417 + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
+                         + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
+                              + -0.533014 + (5.0/3.0) * 0.0892607 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_he4_fe52__p_co55(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // fe52 + he4 --> p + co55
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  62.2207 + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
+                         + -0.780924 * tfactors.T9 + 0.0425179 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
+                              + -0.780924 + (5.0/3.0) * 0.0425179 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_co55__ni56(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // co55 + p --> ni56
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  37.3736 + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
+                         + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
+                              + -2.68377 + (5.0/3.0) * 0.355814 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ni56__he4_fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ni56 --> he4 + fe52
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  91.6226 + -92.801 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
+                         + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  92.801 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
+                              + -0.533014 + (5.0/3.0) * 0.0892607 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ni56__p_co55(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ni56 --> p + co55
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  63.1318 + -83.1473 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
+                         + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  83.1473 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
+                              + -2.68377 + (5.0/3.0) * 0.355814 * tfactors.T923 + 0.833333 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_co55__he4_fe52(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // co55 + p --> he4 + fe52
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  61.4434 + -9.65363 * tfactors.T9i + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
+                         + -0.780924 * tfactors.T9 + 0.0425179 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    dln_set_rate_dT9 =  9.65363 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
+                              + -0.780924 + (5.0/3.0) * 0.0425179 * tfactors.T923 + -0.666667 * tfactors.T9i;
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_s32_he4__ar36__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ag = rate_eval.screened_rates(k_he4_s32__ar36);
+    Real r_ap = rate_eval.screened_rates(k_he4_s32__p_cl35);
+    Real r_pg = rate_eval.screened_rates(k_p_cl35__ar36);
+    Real r_pa = rate_eval.screened_rates(k_p_cl35__he4_s32);
+    Real drdT_ag = rate_eval.dscreened_rates_dT(k_he4_s32__ar36);
+    Real drdT_ap = rate_eval.dscreened_rates_dT(k_he4_s32__p_cl35);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_cl35__ar36);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ag + r_ap * r_pg * dd;
+    drate_dT = drdT_ag + drdT_ap * r_pg * dd + r_ap * drdT_pg * dd - r_ap * r_pg * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ar36__s32_he4__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ga = rate_eval.screened_rates(k_ar36__he4_s32);
+    Real r_pa = rate_eval.screened_rates(k_p_cl35__he4_s32);
+    Real r_gp = rate_eval.screened_rates(k_ar36__p_cl35);
+    Real r_pg = rate_eval.screened_rates(k_p_cl35__ar36);
+    Real drdT_ga = rate_eval.dscreened_rates_dT(k_ar36__he4_s32);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32);
+    Real drdT_gp = rate_eval.dscreened_rates_dT(k_ar36__p_cl35);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_cl35__ar36);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ga + r_gp * r_pa * dd;
+    drate_dT = drdT_ga + drdT_gp * r_pa * dd + r_gp * drdT_pa * dd - r_gp * r_pa * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ar36_he4__ca40__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ag = rate_eval.screened_rates(k_he4_ar36__ca40);
+    Real r_ap = rate_eval.screened_rates(k_he4_ar36__p_k39);
+    Real r_pg = rate_eval.screened_rates(k_p_k39__ca40);
+    Real r_pa = rate_eval.screened_rates(k_p_k39__he4_ar36);
+    Real drdT_ag = rate_eval.dscreened_rates_dT(k_he4_ar36__ca40);
+    Real drdT_ap = rate_eval.dscreened_rates_dT(k_he4_ar36__p_k39);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_k39__ca40);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ag + r_ap * r_pg * dd;
+    drate_dT = drdT_ag + drdT_ap * r_pg * dd + r_ap * drdT_pg * dd - r_ap * r_pg * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ca40__ar36_he4__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ga = rate_eval.screened_rates(k_ca40__he4_ar36);
+    Real r_pa = rate_eval.screened_rates(k_p_k39__he4_ar36);
+    Real r_gp = rate_eval.screened_rates(k_ca40__p_k39);
+    Real r_pg = rate_eval.screened_rates(k_p_k39__ca40);
+    Real drdT_ga = rate_eval.dscreened_rates_dT(k_ca40__he4_ar36);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36);
+    Real drdT_gp = rate_eval.dscreened_rates_dT(k_ca40__p_k39);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_k39__ca40);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ga + r_gp * r_pa * dd;
+    drate_dT = drdT_ga + drdT_gp * r_pa * dd + r_gp * drdT_pa * dd - r_gp * r_pa * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ca40_he4__ti44__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ag = rate_eval.screened_rates(k_he4_ca40__ti44);
+    Real r_ap = rate_eval.screened_rates(k_he4_ca40__p_sc43);
+    Real r_pg = rate_eval.screened_rates(k_p_sc43__ti44);
+    Real r_pa = rate_eval.screened_rates(k_p_sc43__he4_ca40);
+    Real drdT_ag = rate_eval.dscreened_rates_dT(k_he4_ca40__ti44);
+    Real drdT_ap = rate_eval.dscreened_rates_dT(k_he4_ca40__p_sc43);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_sc43__ti44);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ag + r_ap * r_pg * dd;
+    drate_dT = drdT_ag + drdT_ap * r_pg * dd + r_ap * drdT_pg * dd - r_ap * r_pg * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ti44__ca40_he4__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ga = rate_eval.screened_rates(k_ti44__he4_ca40);
+    Real r_pa = rate_eval.screened_rates(k_p_sc43__he4_ca40);
+    Real r_gp = rate_eval.screened_rates(k_ti44__p_sc43);
+    Real r_pg = rate_eval.screened_rates(k_p_sc43__ti44);
+    Real drdT_ga = rate_eval.dscreened_rates_dT(k_ti44__he4_ca40);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40);
+    Real drdT_gp = rate_eval.dscreened_rates_dT(k_ti44__p_sc43);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_sc43__ti44);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ga + r_gp * r_pa * dd;
+    drate_dT = drdT_ga + drdT_gp * r_pa * dd + r_gp * drdT_pa * dd - r_gp * r_pa * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ti44_he4__cr48__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ag = rate_eval.screened_rates(k_he4_ti44__cr48);
+    Real r_ap = rate_eval.screened_rates(k_he4_ti44__p_v47);
+    Real r_pg = rate_eval.screened_rates(k_p_v47__cr48);
+    Real r_pa = rate_eval.screened_rates(k_p_v47__he4_ti44);
+    Real drdT_ag = rate_eval.dscreened_rates_dT(k_he4_ti44__cr48);
+    Real drdT_ap = rate_eval.dscreened_rates_dT(k_he4_ti44__p_v47);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_v47__cr48);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ag + r_ap * r_pg * dd;
+    drate_dT = drdT_ag + drdT_ap * r_pg * dd + r_ap * drdT_pg * dd - r_ap * r_pg * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_cr48__ti44_he4__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ga = rate_eval.screened_rates(k_cr48__he4_ti44);
+    Real r_pa = rate_eval.screened_rates(k_p_v47__he4_ti44);
+    Real r_gp = rate_eval.screened_rates(k_cr48__p_v47);
+    Real r_pg = rate_eval.screened_rates(k_p_v47__cr48);
+    Real drdT_ga = rate_eval.dscreened_rates_dT(k_cr48__he4_ti44);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44);
+    Real drdT_gp = rate_eval.dscreened_rates_dT(k_cr48__p_v47);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_v47__cr48);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ga + r_gp * r_pa * dd;
+    drate_dT = drdT_ga + drdT_gp * r_pa * dd + r_gp * drdT_pa * dd - r_gp * r_pa * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_cr48_he4__fe52__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ag = rate_eval.screened_rates(k_he4_cr48__fe52);
+    Real r_ap = rate_eval.screened_rates(k_he4_cr48__p_mn51);
+    Real r_pg = rate_eval.screened_rates(k_p_mn51__fe52);
+    Real r_pa = rate_eval.screened_rates(k_p_mn51__he4_cr48);
+    Real drdT_ag = rate_eval.dscreened_rates_dT(k_he4_cr48__fe52);
+    Real drdT_ap = rate_eval.dscreened_rates_dT(k_he4_cr48__p_mn51);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_mn51__fe52);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ag + r_ap * r_pg * dd;
+    drate_dT = drdT_ag + drdT_ap * r_pg * dd + r_ap * drdT_pg * dd - r_ap * r_pg * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_fe52__cr48_he4__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ga = rate_eval.screened_rates(k_fe52__he4_cr48);
+    Real r_pa = rate_eval.screened_rates(k_p_mn51__he4_cr48);
+    Real r_gp = rate_eval.screened_rates(k_fe52__p_mn51);
+    Real r_pg = rate_eval.screened_rates(k_p_mn51__fe52);
+    Real drdT_ga = rate_eval.dscreened_rates_dT(k_fe52__he4_cr48);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48);
+    Real drdT_gp = rate_eval.dscreened_rates_dT(k_fe52__p_mn51);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_mn51__fe52);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ga + r_gp * r_pa * dd;
+    drate_dT = drdT_ga + drdT_gp * r_pa * dd + r_gp * drdT_pa * dd - r_gp * r_pa * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_fe52_he4__ni56__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ag = rate_eval.screened_rates(k_he4_fe52__ni56);
+    Real r_ap = rate_eval.screened_rates(k_he4_fe52__p_co55);
+    Real r_pg = rate_eval.screened_rates(k_p_co55__ni56);
+    Real r_pa = rate_eval.screened_rates(k_p_co55__he4_fe52);
+    Real drdT_ag = rate_eval.dscreened_rates_dT(k_he4_fe52__ni56);
+    Real drdT_ap = rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_co55__ni56);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ag + r_ap * r_pg * dd;
+    drate_dT = drdT_ag + drdT_ap * r_pg * dd + r_ap * drdT_pg * dd - r_ap * r_pg * dd * dd * (drdT_pg + drdT_pa);
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ni56__fe52_he4__approx(const rate_eval_t& rate_eval, Real& rate, Real& drate_dT) {
+
+    Real r_ga = rate_eval.screened_rates(k_ni56__he4_fe52);
+    Real r_pa = rate_eval.screened_rates(k_p_co55__he4_fe52);
+    Real r_gp = rate_eval.screened_rates(k_ni56__p_co55);
+    Real r_pg = rate_eval.screened_rates(k_p_co55__ni56);
+    Real drdT_ga = rate_eval.dscreened_rates_dT(k_ni56__he4_fe52);
+    Real drdT_pa = rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52);
+    Real drdT_gp = rate_eval.dscreened_rates_dT(k_ni56__p_co55);
+    Real drdT_pg = rate_eval.dscreened_rates_dT(k_p_co55__ni56);
+    Real dd = 1.0_rt / (r_pg + r_pa);
+    rate = r_ga + r_gp * r_pa * dd;
+    drate_dT = drdT_ga + drdT_gp * r_pa * dd + r_gp * drdT_pa * dd - r_gp * r_pa * dd * dd * (drdT_pg + drdT_pa);
+}
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -3963,78 +3831,6 @@ fill_reaclib_rates(const tf_t& tfactors, rate_eval_t& rate_eval)
     rate_eval.screened_rates(k_s32__he4_si28) = rate;
     rate_eval.dscreened_rates_dT(k_s32__he4_si28) = drate_dT;
 
-    rate_cl35__he4_p31(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_cl35__he4_p31) = rate;
-    rate_eval.dscreened_rates_dT(k_cl35__he4_p31) = drate_dT;
-
-    rate_ar36__p_cl35(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ar36__p_cl35) = rate;
-    rate_eval.dscreened_rates_dT(k_ar36__p_cl35) = drate_dT;
-
-    rate_ar36__he4_s32(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ar36__he4_s32) = rate;
-    rate_eval.dscreened_rates_dT(k_ar36__he4_s32) = drate_dT;
-
-    rate_k39__he4_cl35(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_k39__he4_cl35) = rate;
-    rate_eval.dscreened_rates_dT(k_k39__he4_cl35) = drate_dT;
-
-    rate_ca40__p_k39(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ca40__p_k39) = rate;
-    rate_eval.dscreened_rates_dT(k_ca40__p_k39) = drate_dT;
-
-    rate_ca40__he4_ar36(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ca40__he4_ar36) = rate;
-    rate_eval.dscreened_rates_dT(k_ca40__he4_ar36) = drate_dT;
-
-    rate_sc43__he4_k39(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_sc43__he4_k39) = rate;
-    rate_eval.dscreened_rates_dT(k_sc43__he4_k39) = drate_dT;
-
-    rate_ti44__p_sc43(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ti44__p_sc43) = rate;
-    rate_eval.dscreened_rates_dT(k_ti44__p_sc43) = drate_dT;
-
-    rate_ti44__he4_ca40(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ti44__he4_ca40) = rate;
-    rate_eval.dscreened_rates_dT(k_ti44__he4_ca40) = drate_dT;
-
-    rate_v47__he4_sc43(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_v47__he4_sc43) = rate;
-    rate_eval.dscreened_rates_dT(k_v47__he4_sc43) = drate_dT;
-
-    rate_cr48__p_v47(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_cr48__p_v47) = rate;
-    rate_eval.dscreened_rates_dT(k_cr48__p_v47) = drate_dT;
-
-    rate_cr48__he4_ti44(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_cr48__he4_ti44) = rate;
-    rate_eval.dscreened_rates_dT(k_cr48__he4_ti44) = drate_dT;
-
-    rate_mn51__he4_v47(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_mn51__he4_v47) = rate;
-    rate_eval.dscreened_rates_dT(k_mn51__he4_v47) = drate_dT;
-
-    rate_fe52__p_mn51(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_fe52__p_mn51) = rate;
-    rate_eval.dscreened_rates_dT(k_fe52__p_mn51) = drate_dT;
-
-    rate_fe52__he4_cr48(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_fe52__he4_cr48) = rate;
-    rate_eval.dscreened_rates_dT(k_fe52__he4_cr48) = drate_dT;
-
-    rate_co55__he4_mn51(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_co55__he4_mn51) = rate;
-    rate_eval.dscreened_rates_dT(k_co55__he4_mn51) = drate_dT;
-
-    rate_ni56__p_co55(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ni56__p_co55) = rate;
-    rate_eval.dscreened_rates_dT(k_ni56__p_co55) = drate_dT;
-
-    rate_ni56__he4_fe52(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_ni56__he4_fe52) = rate;
-    rate_eval.dscreened_rates_dT(k_ni56__he4_fe52) = drate_dT;
-
     rate_c12__he4_he4_he4(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_c12__he4_he4_he4) = rate;
     rate_eval.dscreened_rates_dT(k_c12__he4_he4_he4) = drate_dT;
@@ -4094,78 +3890,6 @@ fill_reaclib_rates(const tf_t& tfactors, rate_eval_t& rate_eval)
     rate_p_p31__s32(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_p_p31__s32) = rate;
     rate_eval.dscreened_rates_dT(k_p_p31__s32) = drate_dT;
-
-    rate_he4_p31__cl35(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_p31__cl35) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_p31__cl35) = drate_dT;
-
-    rate_he4_s32__ar36(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_s32__ar36) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_s32__ar36) = drate_dT;
-
-    rate_p_cl35__ar36(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_cl35__ar36) = rate;
-    rate_eval.dscreened_rates_dT(k_p_cl35__ar36) = drate_dT;
-
-    rate_he4_cl35__k39(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_cl35__k39) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_cl35__k39) = drate_dT;
-
-    rate_he4_ar36__ca40(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_ar36__ca40) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_ar36__ca40) = drate_dT;
-
-    rate_p_k39__ca40(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_k39__ca40) = rate;
-    rate_eval.dscreened_rates_dT(k_p_k39__ca40) = drate_dT;
-
-    rate_he4_k39__sc43(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_k39__sc43) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_k39__sc43) = drate_dT;
-
-    rate_he4_ca40__ti44(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_ca40__ti44) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_ca40__ti44) = drate_dT;
-
-    rate_p_sc43__ti44(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_sc43__ti44) = rate;
-    rate_eval.dscreened_rates_dT(k_p_sc43__ti44) = drate_dT;
-
-    rate_he4_sc43__v47(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_sc43__v47) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_sc43__v47) = drate_dT;
-
-    rate_he4_ti44__cr48(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_ti44__cr48) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_ti44__cr48) = drate_dT;
-
-    rate_p_v47__cr48(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_v47__cr48) = rate;
-    rate_eval.dscreened_rates_dT(k_p_v47__cr48) = drate_dT;
-
-    rate_he4_v47__mn51(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_v47__mn51) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_v47__mn51) = drate_dT;
-
-    rate_he4_cr48__fe52(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_cr48__fe52) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_cr48__fe52) = drate_dT;
-
-    rate_p_mn51__fe52(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_mn51__fe52) = rate;
-    rate_eval.dscreened_rates_dT(k_p_mn51__fe52) = drate_dT;
-
-    rate_he4_mn51__co55(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_mn51__co55) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_mn51__co55) = drate_dT;
-
-    rate_he4_fe52__ni56(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_fe52__ni56) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_fe52__ni56) = drate_dT;
-
-    rate_p_co55__ni56(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_co55__ni56) = rate;
-    rate_eval.dscreened_rates_dT(k_p_co55__ni56) = drate_dT;
 
     rate_c12_c12__p_na23(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_c12_c12__p_na23) = rate;
@@ -4271,54 +3995,6 @@ fill_reaclib_rates(const tf_t& tfactors, rate_eval_t& rate_eval)
     rate_eval.screened_rates(k_p_p31__o16_o16) = rate;
     rate_eval.dscreened_rates_dT(k_p_p31__o16_o16) = drate_dT;
 
-    rate_he4_s32__p_cl35(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_s32__p_cl35) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_s32__p_cl35) = drate_dT;
-
-    rate_p_cl35__he4_s32(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_cl35__he4_s32) = rate;
-    rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32) = drate_dT;
-
-    rate_he4_ar36__p_k39(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_ar36__p_k39) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_ar36__p_k39) = drate_dT;
-
-    rate_p_k39__he4_ar36(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_k39__he4_ar36) = rate;
-    rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36) = drate_dT;
-
-    rate_he4_ca40__p_sc43(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_ca40__p_sc43) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_ca40__p_sc43) = drate_dT;
-
-    rate_p_sc43__he4_ca40(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_sc43__he4_ca40) = rate;
-    rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40) = drate_dT;
-
-    rate_he4_ti44__p_v47(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_ti44__p_v47) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_ti44__p_v47) = drate_dT;
-
-    rate_p_v47__he4_ti44(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_v47__he4_ti44) = rate;
-    rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44) = drate_dT;
-
-    rate_he4_cr48__p_mn51(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_cr48__p_mn51) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_cr48__p_mn51) = drate_dT;
-
-    rate_p_mn51__he4_cr48(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_mn51__he4_cr48) = rate;
-    rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48) = drate_dT;
-
-    rate_he4_fe52__p_co55(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_fe52__p_co55) = rate;
-    rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55) = drate_dT;
-
-    rate_p_co55__he4_fe52(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_co55__he4_fe52) = rate;
-    rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52) = drate_dT;
-
     rate_he4_he4_he4__c12(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_he4_he4_he4__c12) = rate;
     rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = drate_dT;
@@ -4335,6 +4011,198 @@ fill_reaclib_rates(const tf_t& tfactors, rate_eval_t& rate_eval)
     rate_eval.screened_rates(k_c12_o16__si28__modified) = rate;
     rate_eval.dscreened_rates_dT(k_c12_o16__si28__modified) = drate_dT;
 
+    rate_he4_s32__ar36(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_s32__ar36) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_s32__ar36) = drate_dT;
+
+    rate_he4_s32__p_cl35(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_s32__p_cl35) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_s32__p_cl35) = drate_dT;
+
+    rate_p_cl35__ar36(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_cl35__ar36) = rate;
+    rate_eval.dscreened_rates_dT(k_p_cl35__ar36) = drate_dT;
+
+    rate_ar36__he4_s32(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ar36__he4_s32) = rate;
+    rate_eval.dscreened_rates_dT(k_ar36__he4_s32) = drate_dT;
+
+    rate_ar36__p_cl35(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ar36__p_cl35) = rate;
+    rate_eval.dscreened_rates_dT(k_ar36__p_cl35) = drate_dT;
+
+    rate_p_cl35__he4_s32(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_cl35__he4_s32) = rate;
+    rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32) = drate_dT;
+
+    rate_he4_ar36__ca40(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_ar36__ca40) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_ar36__ca40) = drate_dT;
+
+    rate_he4_ar36__p_k39(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_ar36__p_k39) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_ar36__p_k39) = drate_dT;
+
+    rate_p_k39__ca40(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_k39__ca40) = rate;
+    rate_eval.dscreened_rates_dT(k_p_k39__ca40) = drate_dT;
+
+    rate_ca40__he4_ar36(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ca40__he4_ar36) = rate;
+    rate_eval.dscreened_rates_dT(k_ca40__he4_ar36) = drate_dT;
+
+    rate_ca40__p_k39(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ca40__p_k39) = rate;
+    rate_eval.dscreened_rates_dT(k_ca40__p_k39) = drate_dT;
+
+    rate_p_k39__he4_ar36(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_k39__he4_ar36) = rate;
+    rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36) = drate_dT;
+
+    rate_he4_ca40__ti44(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_ca40__ti44) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_ca40__ti44) = drate_dT;
+
+    rate_he4_ca40__p_sc43(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_ca40__p_sc43) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_ca40__p_sc43) = drate_dT;
+
+    rate_p_sc43__ti44(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_sc43__ti44) = rate;
+    rate_eval.dscreened_rates_dT(k_p_sc43__ti44) = drate_dT;
+
+    rate_ti44__he4_ca40(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ti44__he4_ca40) = rate;
+    rate_eval.dscreened_rates_dT(k_ti44__he4_ca40) = drate_dT;
+
+    rate_ti44__p_sc43(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ti44__p_sc43) = rate;
+    rate_eval.dscreened_rates_dT(k_ti44__p_sc43) = drate_dT;
+
+    rate_p_sc43__he4_ca40(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_sc43__he4_ca40) = rate;
+    rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40) = drate_dT;
+
+    rate_he4_ti44__cr48(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_ti44__cr48) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_ti44__cr48) = drate_dT;
+
+    rate_he4_ti44__p_v47(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_ti44__p_v47) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_ti44__p_v47) = drate_dT;
+
+    rate_p_v47__cr48(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_v47__cr48) = rate;
+    rate_eval.dscreened_rates_dT(k_p_v47__cr48) = drate_dT;
+
+    rate_cr48__he4_ti44(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_cr48__he4_ti44) = rate;
+    rate_eval.dscreened_rates_dT(k_cr48__he4_ti44) = drate_dT;
+
+    rate_cr48__p_v47(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_cr48__p_v47) = rate;
+    rate_eval.dscreened_rates_dT(k_cr48__p_v47) = drate_dT;
+
+    rate_p_v47__he4_ti44(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_v47__he4_ti44) = rate;
+    rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44) = drate_dT;
+
+    rate_he4_cr48__fe52(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_cr48__fe52) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_cr48__fe52) = drate_dT;
+
+    rate_he4_cr48__p_mn51(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_cr48__p_mn51) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_cr48__p_mn51) = drate_dT;
+
+    rate_p_mn51__fe52(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_mn51__fe52) = rate;
+    rate_eval.dscreened_rates_dT(k_p_mn51__fe52) = drate_dT;
+
+    rate_fe52__he4_cr48(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_fe52__he4_cr48) = rate;
+    rate_eval.dscreened_rates_dT(k_fe52__he4_cr48) = drate_dT;
+
+    rate_fe52__p_mn51(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_fe52__p_mn51) = rate;
+    rate_eval.dscreened_rates_dT(k_fe52__p_mn51) = drate_dT;
+
+    rate_p_mn51__he4_cr48(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_mn51__he4_cr48) = rate;
+    rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48) = drate_dT;
+
+    rate_he4_fe52__ni56(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_fe52__ni56) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_fe52__ni56) = drate_dT;
+
+    rate_he4_fe52__p_co55(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_he4_fe52__p_co55) = rate;
+    rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55) = drate_dT;
+
+    rate_p_co55__ni56(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_co55__ni56) = rate;
+    rate_eval.dscreened_rates_dT(k_p_co55__ni56) = drate_dT;
+
+    rate_ni56__he4_fe52(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ni56__he4_fe52) = rate;
+    rate_eval.dscreened_rates_dT(k_ni56__he4_fe52) = drate_dT;
+
+    rate_ni56__p_co55(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ni56__p_co55) = rate;
+    rate_eval.dscreened_rates_dT(k_ni56__p_co55) = drate_dT;
+
+    rate_p_co55__he4_fe52(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_co55__he4_fe52) = rate;
+    rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52) = drate_dT;
+
+
+    rate_s32_he4__ar36__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_s32_he4__ar36__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_s32_he4__ar36__approx) = drate_dT;
+
+    rate_ar36__s32_he4__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_ar36__s32_he4__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_ar36__s32_he4__approx) = drate_dT;
+
+    rate_ar36_he4__ca40__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_ar36_he4__ca40__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_ar36_he4__ca40__approx) = drate_dT;
+
+    rate_ca40__ar36_he4__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_ca40__ar36_he4__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_ca40__ar36_he4__approx) = drate_dT;
+
+    rate_ca40_he4__ti44__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_ca40_he4__ti44__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_ca40_he4__ti44__approx) = drate_dT;
+
+    rate_ti44__ca40_he4__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_ti44__ca40_he4__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_ti44__ca40_he4__approx) = drate_dT;
+
+    rate_ti44_he4__cr48__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_ti44_he4__cr48__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_ti44_he4__cr48__approx) = drate_dT;
+
+    rate_cr48__ti44_he4__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_cr48__ti44_he4__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_cr48__ti44_he4__approx) = drate_dT;
+
+    rate_cr48_he4__fe52__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_cr48_he4__fe52__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_cr48_he4__fe52__approx) = drate_dT;
+
+    rate_fe52__cr48_he4__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_fe52__cr48_he4__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_fe52__cr48_he4__approx) = drate_dT;
+
+    rate_fe52_he4__ni56__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_fe52_he4__ni56__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_fe52_he4__ni56__approx) = drate_dT;
+
+    rate_ni56__fe52_he4__approx(rate_eval, rate, drate_dT);
+    rate_eval.screened_rates(k_ni56__fe52_he4__approx) = rate;
+    rate_eval.dscreened_rates_dT(k_ni56__fe52_he4__approx) = drate_dT;
 
 
 }
