@@ -114,7 +114,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     }
 
-    if (jacobian == 3) {
+    if (vode_state.jacobian_type == 3) {
         jac_info_t jac_info;
         jac_info.h = vode_state.H;
 
