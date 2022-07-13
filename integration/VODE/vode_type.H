@@ -11,7 +11,7 @@
 
 const int VODE_NEQS = INT_NEQS;
 
-typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
+typedef amrex::Array1D<short, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
 typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
 
@@ -100,37 +100,40 @@ struct dvode_t
     //                   (recoverable error)
     //            2 means convergence failure with current Jacobian or
     //                   singular matrix (unrecoverable error)
-    int ICF;
+    short ICF;
 
     // IPUP   = Saved flag to signal updating of Newton matrix
-    int IPUP;
+    short IPUP;
 
     // JCUR   = Output flag from DVJAC showing Jacobian status:
     //            JCUR = 0 means J is not current
     //            JCUR = 1 means J is current
-    int JCUR;
+    short JCUR;
 
     // L      = Integer variable, NQ + 1, current order plus one
-    int L;
+    short L;
 
     // NEWH   = Saved integer to flag change of H
-    int NEWH;
+    short NEWH;
 
     // NEWQ   = The method order to be used on the next step
-    int NEWQ;
+    short NEWQ;
 
     // NQ     = Integer variable, the current integration method order
-    int NQ;
+    short NQ;
 
     // NQWAIT = A counter controlling the frequency of order changes.
     //          An order change is about to be considered if NQWAIT = 1.
-    int NQWAIT;
+    short NQWAIT;
 
     // NSLJ   = The number of steps taken as of the last Jacobian update
     int NSLJ;
 
     // NSLP   = Saved value of NST as of last Newton matrix update
     int NSLP;
+
+    // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
+    short jacobian_type;
 
     // EL     = Real array of integration coefficients.  See DVSET
     amrex::Array1D<Real, 1, VODE_LMAX> el;
