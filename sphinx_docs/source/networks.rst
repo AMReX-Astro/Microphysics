@@ -172,48 +172,10 @@ reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
 
-subch
-=====
+subch and subch2
+================
 
-This is a 10 isotope network including rates from reactions suggested
-by Shen and Bildsten in their 2009 paper on helium burning on a white
-dwarf :cite:`ShenBildsten`.  The reactions included in
-this networks are as follows:
-
-.. math::
-
-   \begin{aligned}
-       \isotm{He}{4} &\rightarrow  \isotm{C}{12} + 2\gamma \\
-       \isotm{C}{12} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \gamma \\
-       \isotm{N}{14} + \isotm{He}{4} &\rightarrow \isotm{F}{18} + \gamma \label{chemeq:1.1} \\
-       \isotm{F}{18} + \isotm{He}{4} &\rightarrow \isotm{Ne}{21} +  \text{p} \label{chemeq:1.2} \\
-       \isotm{C}{12} + p+ &\rightarrow \isotm{N}{13} + \gamma  \label{chemeq:2.1} \\
-       \isotm{N}{13} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \text{p} \label{chemeq:2.2} \\
-       \isotm{O}{16} + \isotm{He}{4} &\rightarrow \isotm{Ne}{20} + \gamma \\
-       \isotm{C}{14} + \isotm{He}{4} &\rightarrow \isotm{O}{18} + \gamma \label{chemeq:3.2}
-   \end{aligned}
-
-The main reactions suggested by Shen and Bildsten were the :math:`\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}`,
-leading into :math:`\isotm{F}{18}(\alpha,p)\isotm{Ne}{21}`,
-:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` leading into :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`,
-and :math:`\isotm{C}{14}(\alpha,\gamma)\isotm{O}{18}` :cite:`ShenBildsten`.
-The rates of these reactions are shown in the figure below.
-Notably, the reaction :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`, is high and may produce :math:`\isotm{O}{16}` more quickly than reactions involving only :math:`\isotm{He}{4}` and :math:`\isotm{C}{12}`,
-
-
-.. figure:: subch.png
-   :alt: pynucastro plot of the reaction rates of the subch network.
-   :scale: 80%
-   :align: center
-
-   pynucastro plot of the reaction rates of the subch network.
-
-
-
-subch2
-======
-
-This tries to recreate an aprox13 alpha-chain + including a bypass
+subch2 recreates an aprox13 alpha-chain + including a bypass
 rate for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}` discussed
 in :cite:`ShenBildsten`.  We don't approximate the rates (e.g., create
 an effective rate for :math:`(\alpha, \gamma)` and :math:`(\alpha,
@@ -255,3 +217,38 @@ The overall network appears as:
 
 .. figure:: subch2.png
    :align: center
+
+approximate version
+-------------------
+
+The subch network approximates subch2 by combining some of the
+:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
+allowing us to drop the intermediate nucleus :math:`X`.  We do this
+for :math:`\isotm{Cl}{35}`, :math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`,
+:math:`\isotm{V}{47}`, :math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
+The resulting network appears as:
+
+.. figure:: subch.png
+   :align: center
+
+The nuclei in gray are not part of the network, but the links to them
+are approximated.  This reduces the number of nuclei compared to subch2
+from 28 to 22.
+
+disabling rates
+---------------
+
+For both subch and subch2, there are 2 runtime parameters that can be used
+to disable rates:
+
+* ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
+  :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` and its inverse are
+  disabled.
+
+* ``network.disable_he4_n13__p_o16`` : if set to ``1``, then the rate
+  :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
+  disabled.
+
+Together, these parameters allow us to turn off the sequence 
+:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
+acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.

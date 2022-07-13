@@ -49,8 +49,8 @@ def doit():
     comp.set_nuc("he4", 0.95)
     comp.normalize()
 
-    rc.plot(outfile="subch2.pdf", rho=1.e6, T=1.e9, comp=comp,
-            rotated=True, hide_xalpha=True,
+    rc.plot(outfile="subch2.png", rho=1.e6, T=1.e9, comp=comp,
+            rotated=True, hide_xalpha=True, curved_edges=True,
             size=(1500, 450),
             node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
             Z_range=(1,29))
