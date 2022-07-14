@@ -67,7 +67,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
         // We want to evaluate the Jacobian -- now the path depends on
         // whether we're using the numerical or analytic Jacobian.
 
-        if (vstate.jacobian_type != 2) {
+        if ((vstate.jacobian_type != 2 && vstate.ICF == 0) || (vstate.jacobian_type == 2 && vstate.ICF > 0)) {
 
             // For the analytic Jacobian, call the user-supplied function.
 
