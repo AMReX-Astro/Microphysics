@@ -71,8 +71,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#powerlaw">powerlaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#triple-alpha-plus-cago">triple_alpha_plus_cago</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#subch-and-subch2">subch and subch2</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#approximate-version">approximate version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subch-networks">subch networks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subch-full">subch_full</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subch-approx">subch_approx</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#disabling-rates">disabling rates</a></li>
 </ul>
 </li>
@@ -274,28 +275,24 @@ This network was used for the X-ray burst studies in
 reaction and <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
 <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
 </section>
-<section id="subch-and-subch2">
-<h2>subch and subch2<a class="headerlink" href="#subch-and-subch2" title="Permalink to this heading">¶</a></h2>
-<p>subch2 recreates an aprox13 alpha-chain + including a bypass
-rate for <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}\)</span> discussed
-in <span id="id9">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span>.  We don’t approximate the rates (e.g., create
-an effective rate for <span class="math notranslate nohighlight">\((\alpha, \gamma)\)</span> and <span class="math notranslate nohighlight">\((\alpha,
-p)(p, \gamma)\)</span> assuming proton equilibrium).  Therefore, we need to
-explicitly include those intermediate nuclei.  In all, 28 nuclei and
-107 rates are included.</p>
+<section id="subch-networks">
+<h2>subch networks<a class="headerlink" href="#subch-networks" title="Permalink to this heading">¶</a></h2>
+<p>The networks subch_full and subch_approx recreate an aprox13
+alpha-chain + including a bypass rate for <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,
+\gamma)\isotm{O}{16}\)</span> discussed in <span id="id9">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span>.  This is appropriate
+for explosive He burning.</p>
 <p><span id="id10">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span> discuss the sequences:</p>
-<ul>
+<ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
 \gamma)\isotm{Ne}{22}\)</span> at high temperatures (T &gt; 1 GK).  We don’t
 consider this.</p></li>
 <li><p><span class="math notranslate nohighlight">\(\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
 p)\isotm{Ne}{21}\)</span> is the one they consider important, since it produces
 protons that are then available for <span class="math notranslate nohighlight">\(\isotm{C}{12}(p,
-\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}\)</span>.</p>
+\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}\)</span>.</p></li>
+</ul>
 <p>This leaves <span class="math notranslate nohighlight">\(\isotm{Ne}{21}\)</span> as an endpoint, which we connect to
 the other nuclei by including <span class="math notranslate nohighlight">\(\isotm{Na}{22}\)</span>.</p>
-</li>
-</ul>
 <p>For the <span class="math notranslate nohighlight">\(\isotm{C}{12} + \isotm{C}{12}\)</span>, <span class="math notranslate nohighlight">\(\isotm{C}{12} +
 \isotm{O}{16}\)</span>, and <span class="math notranslate nohighlight">\(\isotm{O}{16} + \isotm{O}{16}\)</span> rates, we
 also need to include:</p>
@@ -308,29 +305,37 @@ also need to include:</p>
 intermediate nuclei are so fast, we leave those out and take the
 forward rate to just be the first rate.  We do not include reverse
 rates for these processes.</p>
-<p>This network is generated via pynucastro using the <code class="docutils literal notranslate"><span class="pre">subch2.py</span></code> script.
+<section id="subch-full">
+<h3>subch_full<a class="headerlink" href="#subch-full" title="Permalink to this heading">¶</a></h3>
+<p>subch_full does not create an effective rate for <span class="math notranslate nohighlight">\((\alpha,
+\gamma)\)</span> and <span class="math notranslate nohighlight">\((\alpha, p)(p, \gamma)\)</span> (i.e. combine them
+assuming proton equilibrium).  Therefore, we need to explicitly
+include the intermediate nuclei produced in the <span class="math notranslate nohighlight">\((\alpha,p)\)</span>
+reactions.  In all, 28 nuclei and 107 rates are included.</p>
+<p>This network is generated via pynucastro using the <code class="docutils literal notranslate"><span class="pre">subch_full.py</span></code> script.
 The overall network appears as:</p>
 <figure class="align-center">
-<img alt="_images/subch2.png" src="_images/subch2.png" />
+<img alt="_images/subch_full.png" src="_images/subch_full.png" />
 </figure>
-<section id="approximate-version">
-<h3>approximate version<a class="headerlink" href="#approximate-version" title="Permalink to this heading">¶</a></h3>
-<p>The subch network approximates subch2 by combining some of the
+</section>
+<section id="subch-approx">
+<h3>subch_approx<a class="headerlink" href="#subch-approx" title="Permalink to this heading">¶</a></h3>
+<p>subch_approx approximates subch_full by combining some of the
 <span class="math notranslate nohighlight">\(A(\alpha,p)X(p,\gamma)B\)</span> links with <span class="math notranslate nohighlight">\(A(\alpha,\gamma)B\)</span>,
 allowing us to drop the intermediate nucleus <span class="math notranslate nohighlight">\(X\)</span>.  We do this
 for <span class="math notranslate nohighlight">\(\isotm{Cl}{35}\)</span>, <span class="math notranslate nohighlight">\(\isotm{K}{39}\)</span>, <span class="math notranslate nohighlight">\(\isotm{Sc}{43}\)</span>,
 <span class="math notranslate nohighlight">\(\isotm{V}{47}\)</span>, <span class="math notranslate nohighlight">\(\isotm{Mn}{51}\)</span>, and <span class="math notranslate nohighlight">\(\isotm{Co}{55}\)</span>.
 The resulting network appears as:</p>
 <figure class="align-center">
-<img alt="_images/subch.png" src="_images/subch.png" />
+<img alt="_images/subch_approx.png" src="_images/subch_approx.png" />
 </figure>
 <p>The nuclei in gray are not part of the network, but the links to them
-are approximated.  This reduces the number of nuclei compared to subch2
+are approximated.  This reduces the number of nuclei compared to subch_full
 from 28 to 22.</p>
 </section>
 <section id="disabling-rates">
 <h3>disabling rates<a class="headerlink" href="#disabling-rates" title="Permalink to this heading">¶</a></h3>
-<p>For both subch and subch2, there are 2 runtime parameters that can be used
+<p>For both subch_full and subch_approx, there are 2 runtime parameters that can be used
 to disable rates:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">network.disable_p_c12__n13</span></code> : if set to <code class="docutils literal notranslate"><span class="pre">1</span></code>, then the rate

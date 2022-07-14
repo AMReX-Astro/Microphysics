@@ -172,16 +172,13 @@ reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
 
-subch and subch2
-================
+subch networks
+==============
 
-subch2 recreates an aprox13 alpha-chain + including a bypass
-rate for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}` discussed
-in :cite:`ShenBildsten`.  We don't approximate the rates (e.g., create
-an effective rate for :math:`(\alpha, \gamma)` and :math:`(\alpha,
-p)(p, \gamma)` assuming proton equilibrium).  Therefore, we need to
-explicitly include those intermediate nuclei.  In all, 28 nuclei and
-107 rates are included.
+The networks subch_full and subch_approx recreate an aprox13
+alpha-chain + including a bypass rate for :math:`\isotm{C}{12}(\alpha,
+\gamma)\isotm{O}{16}` discussed in :cite:`ShenBildsten`.  This is appropriate
+for explosive He burning.
 
 :cite:`ShenBildsten` discuss the sequences:
 
@@ -194,8 +191,8 @@ explicitly include those intermediate nuclei.  In all, 28 nuclei and
   protons that are then available for :math:`\isotm{C}{12}(p,
   \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
 
-  This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
-  the other nuclei by including :math:`\isotm{Na}{22}`.
+This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
+the other nuclei by including :math:`\isotm{Na}{22}`.
 
 For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
 \isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
@@ -212,33 +209,43 @@ intermediate nuclei are so fast, we leave those out and take the
 forward rate to just be the first rate.  We do not include reverse
 rates for these processes.
 
-This network is generated via pynucastro using the ``subch2.py`` script.
+
+subch_full
+----------
+
+subch_full does not create an effective rate for :math:`(\alpha,
+\gamma)` and :math:`(\alpha, p)(p, \gamma)` (i.e. combine them
+assuming proton equilibrium).  Therefore, we need to explicitly
+include the intermediate nuclei produced in the :math:`(\alpha,p)`
+reactions.  In all, 28 nuclei and 107 rates are included.
+
+This network is generated via pynucastro using the ``subch_full.py`` script.
 The overall network appears as:
 
-.. figure:: subch2.png
+.. figure:: subch_full.png
    :align: center
 
-approximate version
--------------------
+subch_approx
+------------
 
-The subch network approximates subch2 by combining some of the
+subch_approx approximates subch_full by combining some of the
 :math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
 allowing us to drop the intermediate nucleus :math:`X`.  We do this
 for :math:`\isotm{Cl}{35}`, :math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`,
 :math:`\isotm{V}{47}`, :math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
 The resulting network appears as:
 
-.. figure:: subch.png
+.. figure:: subch_approx.png
    :align: center
 
 The nuclei in gray are not part of the network, but the links to them
-are approximated.  This reduces the number of nuclei compared to subch2
+are approximated.  This reduces the number of nuclei compared to subch_full
 from 28 to 22.
 
 disabling rates
 ---------------
 
-For both subch and subch2, there are 2 runtime parameters that can be used
+For both subch_full and subch_approx, there are 2 runtime parameters that can be used
 to disable rates:
 
 * ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
