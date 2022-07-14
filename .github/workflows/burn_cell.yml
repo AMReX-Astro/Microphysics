@@ -29,7 +29,7 @@ jobs:
       - name: Compile, burn_cell
         run: |
           cd unit_test/burn_cell
-          make NETWORK_DIR=subch2 -j 4
+          make NETWORK_DIR=subch_full -j 4
 
       - name: Run burn_cell
         run: |
