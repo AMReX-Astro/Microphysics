@@ -1,4 +1,4 @@
-# subch2
+# subch_full
 
 This tries to recreate an aprox13 alpha-chain + including a bypass
 rate for c12(a, g)o16 discussed in Shen & Bildsten (2008).

@@ -1,9 +1,6 @@
-# C-burning with A=23 URCA rate module generator
-
-# we want to include everything in an aprox13 net
-# but we also need to include a few n rates to get some
-# of the O16+O16 and C12+O16 rates -- so we just include
-# those explicitly.
+# an approximate network for He/C burning with key rates
+# to bypass the C12(a,g)O16 rate.  This version uses some
+# (a,p)(p,g) approximations.
 
 import pynucastro as pyna
 from pynucastro.networks import StarKillerCxxNetwork
@@ -56,7 +53,7 @@ def doit():
     comp.set_nuc("he4", 0.95)
     comp.normalize()
 
-    net.plot(outfile="subch.png", rho=1.e6, T=1.e9, comp=comp,
+    net.plot(outfile="subch_approx.png", rho=1.e6, T=1.e9, comp=comp,
              rotated=True, hide_xalpha=True, curved_edges=True,
              size=(1500, 450),
              node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
