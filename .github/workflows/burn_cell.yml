@@ -29,15 +29,15 @@ jobs:
       - name: Compile, burn_cell
         run: |
           cd unit_test/burn_cell
-          make NETWORK_DIR=subch_full -j 4
+          make NETWORK_DIR=subch_approx -j 4
 
       - name: Run burn_cell
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_subch2 > test.out
+          ./main3d.gnu.ex inputs_subch_approx > test.out
 
       - name: Compare to stored output
         run: |
           cd unit_test/burn_cell
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out subch2_unit_test.out
+          diff -I "^AMReX" -I "^reading in reaclib rates" test.out subch_approx_unit_test.out
 
