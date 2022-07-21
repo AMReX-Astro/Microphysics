@@ -147,13 +147,26 @@ void main_main ()
         [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
         {
 
-            state_arr(i, j, k, vars.itemp) =
-                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
-            state_arr(i, j, k, vars.irho) =
-                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+            state_arr(i, j, k, vars.itemp) = std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
+            state_arr(i, j, k, vars.irho) = std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
 
             Real xn[NumSpec];
-            get_xn(k, comp_data, xn, uniform_xn);
+            //get_xn(k, comp_data, xn, uniform_xn);
+
+            xn[0] = 4.1550987140446194e-08;
+            xn[1] = 7.62939557007712e-05;
+            xn[2] = 0.7633550668800287;
+            xn[3] = 7.637705767523453e-41;
+            xn[4] = 1.5258236572447772e-40;
+            xn[5] = 1.5262391671170936e-40;
+            xn[6] = 1.5262946238877405e-40;
+            xn[7] = 1.5266546769894104e-40;
+            xn[8] = 1.5267101337600574e-06;
+            xn[9] = 2.2891787241248056e-40;
+            xn[10] = 2.2895942339971224e-40;
+            xn[11] = 3.0516473144895544e-40;
+            xn[12] = 3.0520628243618704e-40;
+            xn[13] = 0.23656707090314952;
 
             for (int n = 0; n < NumSpec; n++) {
                 state_arr(i, j, k, vars.ispec_old+n) =
