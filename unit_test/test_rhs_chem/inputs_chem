@@ -7,13 +7,21 @@ unit_test.small_dens = 1.0e-30
 unit_test.dens_min   = 1.e-25
 unit_test.dens_max   = 1.e-5
 unit_test.temp_min   = 1.e1
-unit_test.temp_max   = 1.e6
+Bunit_test.temp_max   = 1.e6
 
 unit_test.tmax = 1.e-3
 
-#unit_test.primary_species_1 = hydrogen-1
-#unit_test.primary_species_2 = helium-4
-#unit_test.primary_species_3 = carbon-12
-
-
-
+unit_test.primary_species_1 = elec
+unit_test.primary_species_2 = hp
+unit_test.primary_species_3 = h
+unit_test.primary_species_4 = hm
+unit_test.primary_species_5 = dp
+unit_test.primary_species_6 = d
+unit_test.primary_species_7 = h2p
+unit_test.primary_species_8 = dm
+unit_test.primary_species_9 = h2
+unit_test.primary_species_10 = hdp
+unit_test.primary_species_11 = hd
+unit_test.primary_species_12 = hepp
+unit_test.primary_species_13 = hep
+unit_test.primary_species_14 = he

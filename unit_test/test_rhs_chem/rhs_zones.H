@@ -32,7 +32,7 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t p)
 
     burn_to_eos(burn_state, eos_state);
 
-    eos(eos_input_rt, eos_state);
+    eos(eos_input_re, eos_state);
 
     eos_to_burn(eos_state, burn_state);
 

@@ -1,7 +1,7 @@
 PRECISION  = DOUBLE
 PROFILE    = FALSE
 
-DEBUG      = FALSE
+DEBUG      = TRUE
 
 DIM        = 3
 
@@ -25,8 +25,7 @@ MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
 # you'll need to use gamma_law_general
-EOS_DIR     := helmholtz
-
+EOS_DIR     := multigamma
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := primordial_chem
 

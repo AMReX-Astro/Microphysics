@@ -1,5 +1,5 @@
-AMREX_HOME ?= /path/to/amrex
-MICROPHYSICS_HOME ?= /path/to/Castro
+AMREX_HOME ?= /scratch/jh2/ps3459/amrex
+MICROPHYSICS_HOME ?= /scratch/jh2/ps3459/Microphysics
 
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
