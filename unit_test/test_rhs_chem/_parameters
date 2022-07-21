@@ -7,9 +7,20 @@ temp_max      real       1.d6
 
 uniform_xn    integer    0
 
-primary_species_1  character   ""
-primary_species_2  character   ""
-primary_species_3  character   ""
+primary_species_1  character   "elec"
+primary_species_2  character   "hp"
+primary_species_3  character   "h"
+primary_species_4  character   "hm"
+primary_species_5  character   "dp"
+primary_species_6  character   "d"
+primary_species_7  character   "h2p"
+primary_species_8  character   "dm"
+primary_species_9  character   "h2"
+primary_species_10  character   "hdp"
+primary_species_11  character   "hd"
+primary_species_12  character   "hepp"
+primary_species_13  character   "hep"
+primary_species_14  character   "he"
 
 small_temp    real       1.e0
 small_dens    real       1.e-30
