@@ -25,7 +25,7 @@ MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
 # you'll need to use gamma_law_general
-EOS_DIR     := multigamma
+EOS_DIR     := primordial_chem
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := primordial_chem
 
