@@ -1,0 +1,7 @@
+CEXE_sources += main.cpp
+
+CEXE_headers += test_react.H
+
+CEXE_headers += variables.H
+CEXE_sources += variables.cpp
+CEXE_headers += rhs_zones.H
