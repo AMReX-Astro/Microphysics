@@ -6,6 +6,8 @@
 #include <fstream>
 #include <iostream>
 
+Real grav_constant = 6.674e-8;
+
 void burn_cell_c()
 {
 
@@ -147,14 +149,36 @@ void burn_cell_c()
 
     // loop over steps, burn, and output the current state
 
+
+    nsteps = 1;
     for (int n = 0; n < nsteps; n++){
 
         // compute the time we wish to integrate to
 
-        Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
-        Real dt = tend - t;
+        //Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
+        //Real dt = tend - t;
+        Real tff = std::sqrt(M_PI*3.0 / (32.0*state.rho*grav_constant));
+
+        Real dt = 0.1 * tff;
+
+        std::cout<<"dt is "<<dt<<std::endl;
+
+        if (dt < 10) {
+        break; }
+
+        Real deldd = (state.rho/tff) * dt;
+
+        state.rho += deldd;
+
+        if (state.rho > 1e-5) {
+        break; }
+
+        std::cout<< n << std::endl;
+        std::cout<<"input state is "<<state<<std::endl;
 
     	burner(state, dt);
+
+        //std::cout<<"output state is "<<state<<std::endl;
 
         // state.e represents the change in energy over the burn (for
         // just this sybcycle), so turn it back into a physical energy
@@ -169,6 +193,8 @@ void burn_cell_c()
 
         eos(eos_input_re, state);
 
+        std::cout<<"output state is "<<state<<std::endl;
+
         t += dt;
 
 	state_over_time << std::setw(10) << t;
@@ -177,6 +203,8 @@ void burn_cell_c()
 	     state_over_time << std::setw(12) << state.xn[x]; 
 	}
 	state_over_time << std::endl;
+
+
     }
     state_over_time.close();
 
@@ -184,27 +212,17 @@ void burn_cell_c()
 
     std::cout << "------------------------------------" << std::endl;
     std::cout << "successful? " << state.success << std::endl;
-    std::cout << " - Hnuc = " << (state.e - state_in.e) / tmax << std::endl;
-    std::cout << " - added e = " << state.e - state_in.e << std::endl;
-    std::cout << " - final T = " << state.T << std::endl;
-
 
     std::cout << "------------------------------------" << std::endl;
-    std::cout << "e initial = " << state_in.e << std::endl;
-    std::cout << "e final =   " << state.e << std::endl;
-
+    std::cout << "T initial = " << state_in.T << std::endl;
+    std::cout << "T final =   " << state.T << std::endl;
+    std::cout << "rho initial = " << state_in.rho << std::endl;
+    std::cout << "rho final =   " << state.rho << std::endl;
 
     std::cout << "------------------------------------" << std::endl;
     std::cout << "new mass fractions: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << state.xn[n] << std::endl;
-    }
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "species creation rates: " << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
-                  << (state.xn[n] - state_in.xn[n]) / tmax << std::endl;
     }
 
 }
