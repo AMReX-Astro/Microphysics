@@ -3,7 +3,7 @@ unit_test.run_prefix = "burn_cell_primordial_chem_"
 unit_test.small_temp = 1.e1
 unit_test.small_dens = 1.e-30
 
-integrator.burner_verbose = 0
+integrator.burner_verbose = 1
 
 integrator.X_reject_buffer = 1e-100
 

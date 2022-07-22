@@ -161,8 +161,6 @@ void burn_cell_c()
 
         Real dt = 0.1 * tff;
 
-        std::cout<<"dt is "<<dt<<std::endl;
-
         if (dt < 10) {
         break; }
 
