@@ -7,7 +7,7 @@ unit_test.small_dens = 1.0e-30
 unit_test.dens_min   = 2.1923382588263055e-24
 unit_test.dens_max   = 1.e-5
 unit_test.temp_min   = 1.e2
-Bunit_test.temp_max   = 1.e6
+unit_test.temp_max   = 1.e6
 
 unit_test.primary_species_1 = elec
 unit_test.primary_species_2 = hp
