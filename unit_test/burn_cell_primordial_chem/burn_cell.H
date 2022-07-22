@@ -150,7 +150,7 @@ void burn_cell_c()
     // loop over steps, burn, and output the current state
 
 
-    nsteps = 1;
+    nsteps = 2;
     for (int n = 0; n < nsteps; n++){
 
         // compute the time we wish to integrate to
@@ -159,7 +159,7 @@ void burn_cell_c()
         //Real dt = tend - t;
         Real tff = std::sqrt(M_PI*3.0 / (32.0*state.rho*grav_constant));
 
-        Real dt = 1e-5 * tff;
+        Real dt = 1e-1 * tff;
 
         if (dt < 10) {
         break; }

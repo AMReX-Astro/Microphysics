@@ -19,8 +19,8 @@ integrator.jacobian = 1
 
 integrator.renormalize_abundances = 1
 
-integrator.rtol_spec = 1.0e-4
-integrator.atol_spec = 1.0e-4
+integrator.rtol_spec = 1.0e-10
+integrator.atol_spec = 1.0e-10
 
 unit_test.tmax = 3.e15
 
