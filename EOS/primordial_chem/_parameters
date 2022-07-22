@@ -2,6 +2,7 @@
 
 eos_gamma_default       real          1.4
 
+
 species_a_name          character     "elec"
 species_a_gamma         real          5./3.
 species_a_mass         real           9.10938188e-28

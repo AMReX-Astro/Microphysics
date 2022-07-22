@@ -25,7 +25,7 @@ void actual_eos_init ()
 
     for (int n = 0; n < NumSpec; ++n) {
         gammas[n] = eos_gamma_default;
-        spmasses[n] = 1.67353251819e-24;
+        spmasses[n] = 1.672621637e-24;
     }
 
     int idx;
@@ -143,12 +143,13 @@ void actual_eos (I input, T& state)
     // Get the mass of a nucleon from Avogadro's number.
     const Real m_nucleon = 1.0_rt / C::n_A;
     const Real gasconstant = 8.3144725e7;
+    const Real protonmass = 1.672621637e-24;
     // Special gamma factors
     Real sum_Abarinv = 0.0_rt;
     Real sum_gammasinv = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
-        sum_Abarinv = sum_Abarinv + (state.xn[n]/spmasses[n]);
-        sum_gammasinv = sum_gammasinv + (state.xn[n] / (spmasses[n]*(gammas[n]-1.0)) );
+        sum_Abarinv = sum_Abarinv + (state.xn[n]/(spmasses[n]/protonmass));
+        sum_gammasinv = sum_gammasinv + (state.xn[n] / ((spmasses[n]/protonmass)*(gammas[n]-1.0)) );
     }
 
 
