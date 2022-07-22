@@ -159,7 +159,7 @@ void burn_cell_c()
         //Real dt = tend - t;
         Real tff = std::sqrt(M_PI*3.0 / (32.0*state.rho*grav_constant));
 
-        Real dt = 0.1 * tff;
+        Real dt = 1e-5 * tff;
 
         if (dt < 10) {
         break; }

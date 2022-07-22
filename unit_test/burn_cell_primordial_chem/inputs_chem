@@ -6,6 +6,7 @@ unit_test.small_dens = 1.e-30
 integrator.burner_verbose = 1
 
 integrator.X_reject_buffer = 1e-100
+integrator.set_conversion_molar_massfracs = 1
 
 # Set which jacobian to use
 # 1 = analytic jacobian
