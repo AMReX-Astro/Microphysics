@@ -170,7 +170,7 @@ void main_main ()
 
             for (int n = 0; n < NumSpec; n++) {
                 state_arr(i, j, k, vars.ispec_old+n) =
-                    amrex::max(xn[n], 1.e-10_rt);
+                    amrex::max(xn[n], 1.e-100_rt);
             }
         });
 
