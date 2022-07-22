@@ -1,8 +1,11 @@
 unit_test.run_prefix = "burn_cell_primordial_chem_"
 
 unit_test.small_temp = 1.e1
-unit_test.small_dens = 1.e-30
+unit_test.small_dens = 1.e-60
 
+networks.small_x = 1e-100
+
+integrator.SMALL_X_SAFE = 1e-100
 integrator.burner_verbose = 1
 
 integrator.X_reject_buffer = 1e-100
@@ -14,7 +17,7 @@ integrator.set_conversion_molar_massfracs = 1
 
 integrator.jacobian = 1
 
-integrator.renormalize_abundances = 0
+integrator.renormalize_abundances = 1
 
 integrator.rtol_spec = 1.0e-4
 integrator.atol_spec = 1.0e-4
