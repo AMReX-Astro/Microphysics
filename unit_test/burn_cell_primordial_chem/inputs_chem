@@ -1,0 +1,37 @@
+unit_test.run_prefix = "burn_cell_primordial_chem_"
+
+unit_test.small_temp = 1.e1
+unit_test.small_dens = 1.e-30
+
+integrator.burner_verbose = 0
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+
+integrator.jacobian = 2
+
+integrator.renormalize_abundances = 1
+
+integrator.rtol_spec = 1.0e-4
+integrator.atol_spec = 1.0e-4
+
+unit_test.tmax = 3.e25
+
+unit_test.density = 2.1923382588263055e-24
+unit_test.temperature = 1e2
+
+unit_test.primary_species_1 = 4.1550987140446194e-08
+unit_test.primary_species_2 = 7.62939557007712e-05
+unit_test.primary_species_3 = 0.7633550668800287
+unit_test.primary_species_4 = 7.637705767523453e-41
+unit_test.primary_species_5 = 1.5258236572447772e-40
+unit_test.primary_species_6 = 1.5262391671170936e-40
+unit_test.primary_species_7 = 1.5262946238877405e-40
+unit_test.primary_species_8 = 1.5266546769894104e-40
+unit_test.primary_species_9 = 1.5267101337600574e-06
+unit_test.primary_species_10 = 2.2891787241248056e-40
+unit_test.primary_species_11 = 2.2895942339971224e-40
+unit_test.primary_species_12 = 3.0516473144895544e-40
+unit_test.primary_species_13 = 3.0520628243618704e-40
+unit_test.primary_species_14 = 0.23656707090314952
