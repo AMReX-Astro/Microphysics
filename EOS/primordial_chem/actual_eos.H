@@ -158,7 +158,7 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens;
+    Real temp, dens, eint;
 
     switch (input) {
 
@@ -169,7 +169,7 @@ void actual_eos (I input, T& state)
         // We don't need to do anything here
         temp = state.T;
         dens = state.rho;
-
+        eint = sum_gammasinv * sum_Abarinv * gasconstant * state.T;
         break;
 
     case eos_input_re:
@@ -180,7 +180,8 @@ void actual_eos (I input, T& state)
         // e = k T / [(mu m_nucleon)*(gamma-1)]
         if constexpr (has_energy<T>::value) {
             dens = state.rho;
-            temp = state.e * sum_gammasinv * gasconstant / sum_Abarinv;
+            temp = state.e /( sum_gammasinv * gasconstant * sum_Abarinv);
+            eint = state.e;
         }
 
         break;
@@ -212,8 +213,9 @@ void actual_eos (I input, T& state)
     if constexpr (has_pressure<T>::value) {
         state.p = pres;
     }
+
     if constexpr (has_energy<T>::value) {
-        state.e = ener;
+        state.e = eint;
     }
 
     // Enthalpy is h = e + p/rho
