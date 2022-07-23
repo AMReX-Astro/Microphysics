@@ -2,14 +2,17 @@ unit_test.run_prefix = "burn_cell_primordial_chem_"
 
 unit_test.small_temp = 1.e1
 unit_test.small_dens = 1.e-60
+unit_test.tff_reduc = 1.e-1
+unit_test.nsteps = 1
 
 networks.small_x = 1e-100
 
 integrator.SMALL_X_SAFE = 1e-100
 integrator.burner_verbose = 0
+integrator.use_jacobian_caching = 0
 
-integrator.X_reject_buffer = 1e-100
-integrator.set_conversion_molar_massfracs = 0
+integrator.X_reject_buffer = 1e6
+integrator.set_conversion_molar_massfracs = 1
 
 # Set which jacobian to use
 # 1 = analytic jacobian
@@ -19,8 +22,8 @@ integrator.jacobian = 1
 
 integrator.renormalize_abundances = 1
 
-integrator.rtol_spec = 1.0e-10
-integrator.atol_spec = 1.0e-10
+integrator.rtol_spec = 1.0e-4
+integrator.atol_spec = 1.0e-4
 
 unit_test.tmax = 3.e15
 
