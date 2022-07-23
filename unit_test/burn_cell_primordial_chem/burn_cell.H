@@ -103,7 +103,7 @@ void burn_cell_c()
     // we will divide the total integration time into nsteps that are
     // logarithmically spaced
 
-    if (tfirst == 0.0_rt) {
+    /*if (tfirst == 0.0_rt) {
         if (nsteps == 1) {
             tfirst = tmax;
         } else {
@@ -115,7 +115,7 @@ void burn_cell_c()
         dlogt = (std::log10(tmax) - std::log10(tfirst));
     } else {
         dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
-    }
+    }*/
 
     // save the initial state -- we'll use this to determine
     // how much things changed over the entire burn
@@ -150,7 +150,7 @@ void burn_cell_c()
     // loop over steps, burn, and output the current state
 
 
-    nsteps = 2;
+    //nsteps = 1;
     for (int n = 0; n < nsteps; n++){
 
         // compute the time we wish to integrate to
@@ -159,7 +159,7 @@ void burn_cell_c()
         //Real dt = tend - t;
         Real tff = std::sqrt(M_PI*3.0 / (32.0*state.rho*grav_constant));
 
-        Real dt = 1e-1 * tff;
+        Real dt = tff_reduc * tff;
 
         if (dt < 10) {
         break; }
