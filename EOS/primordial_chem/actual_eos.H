@@ -205,7 +205,7 @@ void actual_eos (I input, T& state)
     state.rho = dens;
 
     Real pres = dens * temp * gasconstant * sum_Abarinv;
-    Real ener = 0.0_rt; //currently undefined, as we need kinetic energy total define total energy
+    Real ener = eint;
     Real enth = ener + pres / dens;
 
     // Compute the pressure simply from the ideal gas law, and the
