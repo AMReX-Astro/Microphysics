@@ -152,6 +152,7 @@ void actual_eos (I input, T& state)
         sum_gammasinv = sum_gammasinv + (state.xn[n] / ((spmasses[n]/protonmass)*(gammas[n]-1.0)) );
     }
 
+    sum_gammasinv = sum_gammasinv/sum_Abarinv;
 
     //-------------------------------------------------------------------------
     // For all EOS input modes EXCEPT eos_input_rt, first compute dens
