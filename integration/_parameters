@@ -62,3 +62,7 @@ nonaka_j                integer           0
 nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
+
+# flag for turning off the conversion of ydots (if ydots are already in terms of mass fractions)
+set_conversion_molar_massfracs    logical   .true.
+
