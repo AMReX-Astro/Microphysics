@@ -90,8 +90,10 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ene
 
     // Scale species terms by A (they come from the RHS in terms of Y, not X).
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        spec_rhs(n) = aion[n-1] * ydot(n);
+    if (set_conversion_molar_massfracs) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            spec_rhs(n) = aion[n-1] * ydot(n);
+        }
     }
 
     ener_rhs = ydot(net_ienuc);
