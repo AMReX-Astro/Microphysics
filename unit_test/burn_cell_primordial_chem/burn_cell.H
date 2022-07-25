@@ -125,21 +125,21 @@ void burn_cell_c()
     // output the data in columns, one line per timestep
 
     state_over_time << std::setw(10) << "# Time";
-    state_over_time << std::setw(12) << "Density";
+    state_over_time << std::setw(15) << "Density";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
 	std::string element = short_spec_names_cxx[x];
-	state_over_time << std::setw(12) << element; 
+	state_over_time << std::setw(15) << element; 
     }
     state_over_time << std::endl;
 
     Real t = 0.0;
 
     state_over_time << std::setw(10) << t;
-    state_over_time << std::setw(12) << state.rho;
+    state_over_time << std::setw(15) << state.rho;
     state_over_time << std::setw(12) << state.T; 
     for (int x = 0; x < NumSpec; ++x){
-        state_over_time << std::setw(12) << state.xn[x]; 
+        state_over_time << std::setw(15) << state.xn[x]; 
     }
     state_over_time << std::endl;
 
@@ -174,7 +174,7 @@ void burn_cell_c()
         break; }
 
         std::cout<< n << std::endl;
-        std::cout<<"input state is "<<state<<std::endl;
+        //std::cout<<"input state is "<<state<<std::endl;
 
     	burner(state, dt);
 
@@ -193,14 +193,15 @@ void burn_cell_c()
 
         eos(eos_input_re, state);
 
-        std::cout<<"output state is "<<state<<std::endl;
+        //std::cout<<"output state is "<<state<<std::endl;
 
         t += dt;
 
 	state_over_time << std::setw(10) << t;
+        state_over_time << std::setw(15) << state.rho;
 	state_over_time << std::setw(12) << state.T; 
 	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(12) << state.xn[x]; 
+	     state_over_time << std::setw(15) << state.xn[x]; 
 	}
 	state_over_time << std::endl;
 

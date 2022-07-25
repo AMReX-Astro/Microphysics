@@ -45,6 +45,40 @@ void renormalize_species (dvode_t& vode_state)
     }
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void enforce_charge_conservation_species (dvode_t& vode_state)
+{
+    Real sum = 0.0_rt;
+    //std::cout<<"Inside charge consv "<<std::endl;
+
+    Real x_elec = 0.0_rt;
+    Real n_hm  = 0.0_rt, n_dm  = 0.0_rt, n_hp  = 0.0_rt, n_hep  = 0.0_rt;
+    Real n_h2p  = 0.0_rt, n_dp  = 0.0_rt, n_hdp  = 0.0_rt, n_hepp  = 0.0_rt;
+
+    n_hp = vode_state.y(2)/species_b_mass;
+    n_hm = vode_state.y(4)/species_d_mass;
+    n_dp = vode_state.y(5)/species_e_mass;
+    n_h2p = vode_state.y(7)/species_g_mass;
+    n_dm = vode_state.y(8)/species_h_mass;
+    n_hdp = vode_state.y(10)/species_j_mass;
+    n_hepp = vode_state.y(12)/species_l_mass;
+    n_hep = vode_state.y(13)/species_m_mass;
+
+    x_elec = (-n_hm - n_dm + n_hp + n_hep + n_h2p + n_dp + n_hdp + 2.0*n_hepp);
+    vode_state.y(1) = x_elec * species_a_mass;
+    //std::cout<<"n_elec is  "<<x_elec<<std::endl;
+    //std::cout<<"x_elec is  "<<vode_state.y(1)<<std::endl;
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        sum += vode_state.y(n);
+    }
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        vode_state.y(n) /= sum;
+    }
+
+}
+
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state (dvode_t& vode_state)
@@ -62,6 +96,11 @@ void clean_state (dvode_t& vode_state)
     if (renormalize_abundances) {
         renormalize_species(vode_state);
     }
+
+    if (enforce_charge_conservation) {
+        enforce_charge_conservation_species(vode_state);
+    }
+
 
 }
 
