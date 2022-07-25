@@ -125,6 +125,7 @@ void burn_cell_c()
     // output the data in columns, one line per timestep
 
     state_over_time << std::setw(10) << "# Time";
+    state_over_time << std::setw(12) << "Density";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
 	std::string element = short_spec_names_cxx[x];
@@ -135,6 +136,7 @@ void burn_cell_c()
     Real t = 0.0;
 
     state_over_time << std::setw(10) << t;
+    state_over_time << std::setw(12) << state.rho;
     state_over_time << std::setw(12) << state.T; 
     for (int x = 0; x < NumSpec; ++x){
         state_over_time << std::setw(12) << state.xn[x]; 
@@ -181,11 +183,11 @@ void burn_cell_c()
         // state.e represents the change in energy over the burn (for
         // just this sybcycle), so turn it back into a physical energy
 
-        state.e += energy_initial;
+        //state.e += energy_initial;
 
         // reset the initial energy for the next subcycle
 
-        energy_initial = state.e;
+        //energy_initial = state.e;
 
         // get the updated T
 
@@ -214,6 +216,8 @@ void burn_cell_c()
     std::cout << "------------------------------------" << std::endl;
     std::cout << "T initial = " << state_in.T << std::endl;
     std::cout << "T final =   " << state.T << std::endl;
+    std::cout << "Eint initial = " << state_in.e << std::endl;
+    std::cout << "Eint final =   " << state.e << std::endl;
     std::cout << "rho initial = " << state_in.rho << std::endl;
     std::cout << "rho final =   " << state.rho << std::endl;
 
