@@ -66,3 +66,8 @@ nonaka_file             character         "nonaka_plot.dat"
 # flag for turning off the conversion of ydots (if ydots are already in terms of mass fractions)
 set_conversion_molar_massfracs    logical   .true.
 
+#flag for turning off state.e subtraction (we dont need to subtract initial state.e for primordial chemistry)
+set_e_subtraction     logical      .true.
+
+#flag for enforcing charge conservation (which makes sure the massfrac of electrions is correct in primordial chemistry)
+enforce_charge_conservation     logical    .false.

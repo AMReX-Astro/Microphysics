@@ -80,10 +80,12 @@ void actual_integrator (burn_t& state, Real dt)
 
 #endif
 
-    // Subtract off the initial energy (the application codes expect
-    // to get back only the generated energy during the burn).
+    if (set_e_subtraction) {
+        // Subtract off the initial energy (the application codes expect
+        // to get back only the generated energy during the burn).
 
-    state.e -= e_in;
+        state.e -= e_in;
+    }
 
     // Normalize the final abundances.
 
