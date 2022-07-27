@@ -181,6 +181,7 @@ void actual_eos (I input, T& state)
         // e = k T / [(mu m_nucleon)*(gamma-1)]
         if constexpr (has_energy<T>::value) {
             dens = state.rho;
+            AMREX_ASSERT(state.e > 0.);
             temp = state.e /( sum_gammasinv * gasconstant * sum_Abarinv);
             eint = state.e;
         }
