@@ -224,8 +224,8 @@ void print_state(dvode_t& dvode_state)
         std::cout << "y(" << i << ") = " << dvode_state.y(i) << std::endl;
     }
 
-    for (int j = 1; j <= VODE_NEQS; ++j) {
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int j = 1; j <= VODE_NEQS; ++j) {
             std::cout << "jac(" << i << "," << j << ") = " << dvode_state.jac(i,j) << std::endl;
         }
     }
