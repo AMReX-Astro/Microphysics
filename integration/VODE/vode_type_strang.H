@@ -87,7 +87,7 @@ void clean_state (dvode_t& vode_state)
     // Ensure that mass fractions always stay positive and less than or
     // equal to 1.
 
-    for (int n = 1; n <= NumSpec; ++n) {
+    /*for (int n = 1; n <= NumSpec; ++n) {
         vode_state.y(n) = amrex::max(amrex::min(vode_state.y(n), 1.0_rt), SMALL_X_SAFE);
     }
 
@@ -99,7 +99,7 @@ void clean_state (dvode_t& vode_state)
 
     if (enforce_charge_conservation) {
         enforce_charge_conservation_species(vode_state);
-    }
+    }*/
 
 
 }
@@ -142,6 +142,7 @@ void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
     if (call_eos_in_rhs) {
         eos(eos_input_re, state);
     }
+
 }
 
 #endif
