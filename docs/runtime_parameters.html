@@ -72,7 +72,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#python-library">python_library</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rad-power-law">rad_power_law</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rprox">rprox</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#subch2">subch2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subch-approx">subch_approx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subch-full">subch_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-aprox-rates">test_aprox_rates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-conductivity">test_conductivity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
@@ -1325,14 +1326,6 @@ network?</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
-<td></td>
-<td><p>1.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
-<td></td>
-<td><p>1.0</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></p></td>
 <td><p>the coefficient for the reaction rate</p></td>
 <td><p>1.d0</p></td>
@@ -1361,6 +1354,14 @@ network?</p></td>
 <td><p>override the default Jacobian mode with a higher
 priority</p></td>
 <td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
+<td></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
+<td></td>
+<td><p>1.0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1516,8 +1517,34 @@ compatibility</p></td>
 </tbody>
 </table>
 </section>
-<section id="subch2">
-<h1>subch2<a class="headerlink" href="#subch2" title="Permalink to this heading">¶</a></h1>
+<section id="subch-approx">
+<h1>subch_approx<a class="headerlink" href="#subch-approx" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_p_c12__n13</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disable_he4_n13__p_o16</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="subch-full">
+<h1>subch_full<a class="headerlink" href="#subch-full" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 34%" />
