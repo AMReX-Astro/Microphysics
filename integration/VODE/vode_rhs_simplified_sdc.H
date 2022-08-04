@@ -166,6 +166,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
         // The system we integrate has the form (rho X_k, rho e)
 
+
         // pd is now of the form:
         //
         //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \
