@@ -3898,6 +3898,7 @@ void rate_c12_o16__si28__modified(const tf_t& tfactors, Real& rate, Real& drate_
 }
 
 
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void
 fill_reaclib_rates(const tf_t& tfactors, rate_eval_t& rate_eval)
@@ -4333,6 +4334,7 @@ fill_reaclib_rates(const tf_t& tfactors, rate_eval_t& rate_eval)
     rate_c12_o16__si28__modified(tfactors, rate, drate_dT);
     rate_eval.screened_rates(k_c12_o16__si28__modified) = rate;
     rate_eval.dscreened_rates_dT(k_c12_o16__si28__modified) = drate_dT;
+
 
 
 }
