@@ -28,7 +28,7 @@ unit_test.primary_species_14 = 0.0775e0
 
 # integrator runtime parameters
 # are you using primordial chemistry?
-integrator.use_primordial_chem = 1
+integrator.use_number_densities = 1
 # minimum positive value of number densities 
 integrator.SMALL_X_SAFE = 1e-100
 integrator.burner_verbose = 0

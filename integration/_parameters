@@ -63,5 +63,5 @@ nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
 
-#flag for turning on primordial ISM chemistry
-use_primordial_chem     logical          .false.
+#flag for turning on the use of number densities for all species
+use_number_densities     logical          .false.

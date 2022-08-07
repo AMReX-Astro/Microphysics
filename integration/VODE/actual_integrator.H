@@ -80,7 +80,7 @@ void actual_integrator (burn_t& state, Real dt)
 
 #endif
 
-    if (!use_primordial_chem) {
+    if (!use_number_densities) {
         // Subtract off the initial energy (the application codes expect
         // to get back only the generated energy during the burn).
 
@@ -109,9 +109,9 @@ void actual_integrator (burn_t& state, Real dt)
             state.success = false;
         }
 
-        // Don't enforce the condition below if using primordial ISm chem
-        // since vode_state.y contains number densities
-        if (!use_primordial_chem) {
+        // Don't enforce the condition below if
+        // vode_state.y contains number densities
+        if (!use_number_densities) {
             if (vode_state.y(n) > 1.0_rt + vode_failure_tolerance) {
                  state.success = false;
             }

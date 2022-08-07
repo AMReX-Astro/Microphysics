@@ -258,9 +258,9 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 valid_update = false;
             }
 
-            // Don't enforce the condition below if using primordial ISM chem
-            // since vstate.y contains number densities
-            if (!use_primordial_chem) {
+            // Don't enforce the condition below if
+            // vstate.y contains number densities
+            if (!use_number_densities) {
                 if (vstate.y(i) > 1.0_rt + vode_failure_tolerance) {
                     valid_update = false;
                 }

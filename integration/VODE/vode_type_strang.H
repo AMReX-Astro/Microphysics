@@ -50,7 +50,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state (dvode_t& vode_state)
 {
 
-    if (!use_primordial_chem) {
+    if (!use_number_densities) {
 
         // Ensure that mass fractions always stay positive and less than or
         // equal to 1.
