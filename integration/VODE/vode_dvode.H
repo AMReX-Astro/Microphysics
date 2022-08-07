@@ -74,7 +74,9 @@ int dvode (burn_t& state, dvode_t& vstate)
 
     // Call DVHIN to set initial step size H0 to be attempted.
     H0 = 0.0_rt;
+
     dvhin(state, vstate, H0, NITER, IER);
+
     vstate.NFE += NITER;
 
     if (IER != 0) {
@@ -183,7 +185,6 @@ int dvode (burn_t& state, dvode_t& vstate)
        }
 
        int kflag = dvstep(state, vstate);
-
 
        // Branch on KFLAG. KFLAG can be 0, -1, or -2.
 
