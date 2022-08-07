@@ -2,23 +2,25 @@
 
 run_prefix    character  "burn_cell_primordial_chem"
 
+# floor values of temperature and density
 small_temp    real       1.e1
 small_dens    real       1.e-30
 
 # the final time to integrate to
 tmax          real       1.e10
+# tff_reduc reduces the calculated freefall time to accordingly increase the density during the single zone burn
 tff_reduc     real       1.e-5
 
 # first output time -- we will output in nsteps logarithmically spaced steps between [tfirst, tmax]
 tfirst        real       0.0
 
-# number of steps (logarithmically spaced)
+# number of steps for the single zone burn
 nsteps        integer    100
 
-density       real       2.1923382588263055e-24
-
+# initial temperature
 temperature   real       1e2
 
+#list of species and their number densities used in the network (14 if including deuterium)
 primary_species_1            real       1.0d0
 primary_species_2            real       0.0d0
 primary_species_3            real       0.0d0

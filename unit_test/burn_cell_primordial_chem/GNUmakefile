@@ -1,6 +1,7 @@
 PRECISION  = DOUBLE
 PROFILE    = FALSE
 
+# Set DEBUG to TRUE if debugging
 DEBUG      = TRUE
 
 DIM        = 1
@@ -11,6 +12,8 @@ USE_MPI    = FALSE
 USE_OMP    = FALSE
 
 USE_REACT = TRUE
+
+# Set USE_MICROPHYSICS_DEBUG to TRUE if debugging
 USE_MICROPHYSICS_DEBUG = TRUE
 
 EBASE = main

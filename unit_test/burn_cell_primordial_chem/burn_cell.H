@@ -13,59 +13,54 @@ void burn_cell_c()
 
     burn_t state;
 
-    Real massfractions[NumSpec] = {-1.0};
+    Real numdens[NumSpec] = {-1.0};
 
-    // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
         switch (n) {
 
         case 1:
-            massfractions[n-1] = primary_species_1;
+            numdens[n-1] = primary_species_1;
             break;
         case 2:
-            massfractions[n-1] = primary_species_2;
+            numdens[n-1] = primary_species_2;
             break;
         case 3:
-            massfractions[n-1] = primary_species_3;
+            numdens[n-1] = primary_species_3;
             break;
         case 4:
-            massfractions[n-1] = primary_species_4;
+            numdens[n-1] = primary_species_4;
             break;
         case 5:
-            massfractions[n-1] = primary_species_5;
+            numdens[n-1] = primary_species_5;
             break;
         case 6:
-            massfractions[n-1] = primary_species_6;
+            numdens[n-1] = primary_species_6;
             break;
         case 7:
-            massfractions[n-1] = primary_species_7;
+            numdens[n-1] = primary_species_7;
             break;
         case 8:
-            massfractions[n-1] = primary_species_8;
+            numdens[n-1] = primary_species_8;
             break;
         case 9:
-            massfractions[n-1] = primary_species_9;
+            numdens[n-1] = primary_species_9;
             break;
         case 10:
-            massfractions[n-1] = primary_species_10;
+            numdens[n-1] = primary_species_10;
             break;
         case 11:
-            massfractions[n-1] = primary_species_11;
+            numdens[n-1] = primary_species_11;
             break;
         case 12:
-            massfractions[n-1] = primary_species_12;
+            numdens[n-1] = primary_species_12;
             break;
         case 13:
-            massfractions[n-1] = primary_species_13;
+            numdens[n-1] = primary_species_13;
             break;
         case 14:
-            massfractions[n-1] = primary_species_14;
+            numdens[n-1] = primary_species_14;
             break;
 
-        }
-
-        if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
-            amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
         }
 
     }
@@ -73,63 +68,62 @@ void burn_cell_c()
     // Echo initial conditions at burn and fill burn state input
 
     std::cout << "Maximum Time (s): " << tmax << std::endl;
-    std::cout << "State Density (g/cm^3): " << density << std::endl;
     std::cout << "State Temperature (K): " << temperature << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;
+        std::cout << "Number Density input (" << short_spec_names_cxx[n] << "): " << numdens[n] << std::endl;
     }
 
     state.T = temperature;
-    state.rho = density;
+
+    //find the density in g/cm^3
+    Real rhotot = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] = massfractions[n];
+        state.xn[n] = numdens[n];
+        rhotot += state.xn[n]*spmasses[n];  //spmasses contains the masses of all species, defined in EOS
     }
+
+    state.rho = rhotot;
 
     // normalize -- just in case
 
-    normalize_abundances_burn(state);
+    Real mfracs[NumSpec] = {-1.0};
+    Real msum = 0.0_rt;
+    for (int n = 0; n < NumSpec; ++n) {
+        mfracs[n] = state.xn[n]*spmasses[n]/rhotot;
+        msum += mfracs[n];
+    }
 
-    // output initial burn type data
-    Real time = 0.0_rt;
+    for (int n = 0; n < NumSpec; ++n) {
+        mfracs[n] /= msum;
+        //use the normalized mass fractions to obtain the corresponding number densities
+        state.xn[n] = mfracs[n]*rhotot/spmasses[n];
+    }
 
-    // call the EOS to set initial e -- it actually doesn't matter to
-    // the burn but we need to keep track of e to get a valid
-    // temperature for the burn if we substep
+#ifdef DEBUG
+    for (int n = 0; n < NumSpec; ++n) {
+           std::cout << "Mass fractions (" << short_spec_names_cxx[n] << "): " << mfracs[n] << std::endl;
+           std::cout << "Number Density conserved (" << short_spec_names_cxx[n] << "): " << state.xn[n] << std::endl;
+    }
+#endif
 
+
+    // call the EOS to set initial internal energy e
     eos(eos_input_rt, state);
 
+    // name of output file
     std::ofstream state_over_time("state_over_time.txt");
-
-    // we will divide the total integration time into nsteps that are
-    // logarithmically spaced
-
-    /*if (tfirst == 0.0_rt) {
-        if (nsteps == 1) {
-            tfirst = tmax;
-        } else {
-            tfirst = tmax / nsteps;
-        }
-    }
-    Real dlogt = 0.0_rt;
-    if (nsteps == 1) {
-        dlogt = (std::log10(tmax) - std::log10(tfirst));
-    } else {
-        dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
-    }*/
 
     // save the initial state -- we'll use this to determine
     // how much things changed over the entire burn
-
     burn_t state_in = state;
 
     // output the data in columns, one line per timestep
-
     state_over_time << std::setw(10) << "# Time";
     state_over_time << std::setw(15) << "Density";
-    state_over_time << std::setw(12) << "Temperature";
+    state_over_time << std::setw(15) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
 	std::string element = short_spec_names_cxx[x];
-	state_over_time << std::setw(15) << element; 
+	state_over_time << std::setw(15) << element;
     }
     state_over_time << std::endl;
 
@@ -137,63 +131,93 @@ void burn_cell_c()
 
     state_over_time << std::setw(10) << t;
     state_over_time << std::setw(15) << state.rho;
-    state_over_time << std::setw(12) << state.T; 
+    state_over_time << std::setw(15) << state.T;
     for (int x = 0; x < NumSpec; ++x){
-        state_over_time << std::setw(15) << state.xn[x]; 
+        state_over_time << std::setw(15) << state.xn[x];
     }
     state_over_time << std::endl;
 
 
-    // store the initial internal energy -- we'll update this after
-    // each substep
-
-    Real energy_initial = state.e;
-
     // loop over steps, burn, and output the current state
+    // the loop below is similar to that used in krome and pynucastro
+    Real dd = rhotot;
+    Real dd1 = 0.0_rt;
 
-
-    //nsteps = 1;
     for (int n = 0; n < nsteps; n++){
 
-        // compute the time we wish to integrate to
+        dd1 = dd;
 
-        //Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
-        //Real dt = tend - t;
-        Real tff = std::sqrt(M_PI*3.0 / (32.0*state.rho*grav_constant));
+        Real rhotmp = 0.0_rt;
 
+        for (int nn = 0; nn < NumSpec; ++nn) {
+            rhotmp += state.xn[nn]*spmasses[nn];
+        }
+
+        // find the freefall time
+        Real tff = std::sqrt(M_PI*3.0 / (32.0*rhotmp*grav_constant));
         Real dt = tff_reduc * tff;
+        // scale the density
+        dd += dt*(dd/tff);
 
+#ifdef DEBUG
+        std::cout<<"step params "<<dd<<", "<<tff<<", "<<rhotmp<<std::endl;
+#endif
+
+        // stop the test if dt is very small
         if (dt < 10) {
         break; }
 
-        Real deldd = (state.rho/tff) * dt;
-
-        state.rho += deldd;
-
-        if (state.rho > 1e-5) {
+        // stop the test if we have reached very high densities
+        if (dd > 3e-6) {
         break; }
 
-        std::cout<< n << std::endl;
-        //std::cout<<"input state is "<<state<<std::endl;
+        std::cout<<"step "<<n<<" done"<<std::endl;
 
+        // scale the number densities
+        for (int nn = 0; nn < NumSpec; ++nn) {
+            state.xn[nn] *= dd/dd1;
+        }
+
+        // input the scaled density in burn state
+        state.rho *= dd/dd1;
+
+        // do the actual integration
     	burner(state, dt);
 
-        //std::cout<<"output state is "<<state<<std::endl;
+       // ensure positivity and normalize
+        Real inmfracs[NumSpec] = {-1.0};
+        Real insum = 0.0_rt;
+        for (int nn = 0; nn < NumSpec; ++nn) {
+            state.xn[nn] = amrex::max(state.xn[nn], small_x);
+            inmfracs[nn] = spmasses[nn]*state.xn[nn]/state.rho;
+            insum += inmfracs[nn];
+        }
 
-        // state.e represents the change in energy over the burn (for
-        // just this sybcycle), so turn it back into a physical energy
+        for (int nn = 0; nn < NumSpec; ++nn) {
+            inmfracs[nn] /= insum;
+            //update the number densities with conserved mass fractions
+            state.xn[nn] = inmfracs[nn]*state.rho/spmasses[nn];
+        }
 
-        //state.e += energy_initial;
+       //update the number density of electrons due to charge conservation
+       state.xn[0] = -state.xn[3] - state.xn[7] + state.xn[1] + state.xn[12] + state.xn[6] + state.xn[4] + state.xn[9] + 2.0*state.xn[11];
 
-        // reset the initial energy for the next subcycle
+       //reconserve mass fractions post charge conservation
+       insum = 0;
+        for (int nn = 0; nn < NumSpec; ++nn) {
+            state.xn[nn] = amrex::max(state.xn[nn], small_x);
+            inmfracs[nn] = spmasses[nn]*state.xn[nn]/state.rho;
+            insum += inmfracs[nn];
+        }
 
-        //energy_initial = state.e;
+        for (int nn = 0; nn < NumSpec; ++nn) {
+            inmfracs[nn] /= insum;
+            //update the number densities with conserved mass fractions
+            state.xn[nn] = inmfracs[nn]*state.rho/spmasses[nn];
+        }
 
         // get the updated T
-
         eos(eos_input_re, state);
-
-        //std::cout<<"output state is "<<state<<std::endl;
 
         t += dt;
 
@@ -210,7 +234,6 @@ void burn_cell_c()
     state_over_time.close();
 
     // output diagnostics to the terminal
-
     std::cout << "------------------------------------" << std::endl;
     std::cout << "successful? " << state.success << std::endl;
 
@@ -223,7 +246,7 @@ void burn_cell_c()
     std::cout << "rho final =   " << state.rho << std::endl;
 
     std::cout << "------------------------------------" << std::endl;
-    std::cout << "new mass fractions: " << std::endl;
+    std::cout << "New number densities: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << state.xn[n] << std::endl;
     }
