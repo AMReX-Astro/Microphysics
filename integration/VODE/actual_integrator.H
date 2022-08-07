@@ -84,12 +84,12 @@ void actual_integrator (burn_t& state, Real dt)
         // Subtract off the initial energy (the application codes expect
         // to get back only the generated energy during the burn).
 
+        // Set this to false for primordial ISM chemistry
         state.e -= e_in;
+
+        // Normalize the final abundances.
+        normalize_abundances_burn(state);
     }
-
-    // Normalize the final abundances.
-
-    normalize_abundances_burn(state);
 
     // Get the number of RHS and Jacobian evaluations.
 
@@ -109,8 +109,10 @@ void actual_integrator (burn_t& state, Real dt)
             state.success = false;
         }
 
-        if (vode_state.y(n) > 1.0_rt + vode_failure_tolerance) {
-            state.success = false;
+        if (set_e_subtraction) {
+            if (vode_state.y(n) > 1.0_rt + vode_failure_tolerance) {
+                 state.success = false;
+            }
         }
     }
 
