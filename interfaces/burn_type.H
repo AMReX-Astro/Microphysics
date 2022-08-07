@@ -188,6 +188,7 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << std::setprecision(12);
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
+  o << "Eint = " << burn_state.e << std::endl;
   o << "xn = ";
   for (int n = 0; n < NumSpec; ++n) {
     o << burn_state.xn[n] << " ";
@@ -294,35 +295,6 @@ void normalize_abundances_burn (burn_t& state)
     }
     for (int n = 0; n < NumSpec; ++n) {
         state.xn[n] /= sum;
-    }
-
-    if (enforce_charge_conservation) {
-
-        Real x_elec = 0.0_rt;
-        Real n_hm  = 0.0_rt, n_dm  = 0.0_rt, n_hp  = 0.0_rt, n_hep  = 0.0_rt;
-        Real n_h2p  = 0.0_rt, n_dp  = 0.0_rt, n_hdp  = 0.0_rt, n_hepp  = 0.0_rt;
-
-        n_hp = state.xn[1]/species_b_mass;
-        n_hm = state.xn[3]/species_d_mass;
-        n_dp = state.xn[4]/species_e_mass;
-        n_h2p = state.xn[6]/species_g_mass;
-        n_dm = state.xn[7]/species_h_mass;
-        n_hdp = state.xn[9]/species_j_mass;
-        n_hepp = state.xn[11]/species_l_mass;
-        n_hep = state.xn[12]/species_m_mass;
-
-        x_elec = (-n_hm - n_dm + n_hp + n_hep + n_h2p + n_dp + n_hdp + 2.0*n_hepp);
-        state.xn[0] = x_elec * species_a_mass;
-
-        Real bum = 0.0_rt;
-        for (int n = 0; n < NumSpec; ++n) {
-            state.xn[n] = amrex::max(small_x, amrex::min(1.0_rt, state.xn[n]));
-            bum += state.xn[n];
-        }
-        for (int n = 0; n < NumSpec; ++n) {
-            state.xn[n] /= bum;
-        }
-
     }
 
 }
