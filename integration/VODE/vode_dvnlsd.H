@@ -65,7 +65,6 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
         }
 
         rhs(vstate.tn, state, vstate, vstate.savf);
-
         vstate.NFE += 1;
 
         if (vstate.IPUP == 1) {
@@ -75,7 +74,6 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             // to 0 as an indicator that this has been done.
 
             int IERPJ;
-
             dvjac(pivot, IERPJ, state, vstate);
 
             vstate.IPUP = 0;
@@ -170,7 +168,6 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             DELP = DEL;
 
             rhs(vstate.tn, state, vstate, vstate.savf);
-
             vstate.NFE += 1;
 
         }

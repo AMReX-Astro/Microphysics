@@ -78,7 +78,7 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
 
     // We integrate X, not Y
 
-    if (set_conversion_molar_massfracs) {
+    if (!use_primordial_chem) {
         for (int n = 1; n <= NumSpec; ++n) {
             ydot(n) *= aion[n-1];
         }
@@ -137,7 +137,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 #endif
 
     // We integrate X, not Y
-    if (set_conversion_molar_massfracs) {
+    if (!use_primordial_chem) {
         for (int j = 1; j <= NumSpec; ++j) {
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 pd.mul(j, i, aion[j-1]);
