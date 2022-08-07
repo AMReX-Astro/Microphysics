@@ -65,6 +65,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
         }
 
         rhs(vstate.tn, state, vstate, vstate.savf);
+
         vstate.NFE += 1;
 
         if (vstate.IPUP == 1) {
@@ -74,7 +75,9 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             // to 0 as an indicator that this has been done.
 
             int IERPJ;
+
             dvjac(pivot, IERPJ, state, vstate);
+
             vstate.IPUP = 0;
             vstate.RC = 1.0_rt;
             vstate.DRC = 0.0_rt;
@@ -104,16 +107,19 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             // correction is scaled by the factor 2/(1+RC) to account for
             // changes in h*rl1 since the last dvjac call.
 
+
             for (int i = 1; i <= VODE_NEQS; ++i) {
                 vstate.y(i) = (vstate.RL1 * vstate.H) * vstate.savf(i) -
                               (vstate.RL1 * vstate.yh(i,2) + vstate.acor(i));
             }
+
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
             dgesl<VODE_NEQS>(vstate.jac, pivot, vstate.y);
 #endif
+
 
             if (vstate.RC != 1.0_rt) {
                 Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
@@ -162,7 +168,9 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
             }
 
             DELP = DEL;
+
             rhs(vstate.tn, state, vstate, vstate.savf);
+
             vstate.NFE += 1;
 
         }
@@ -198,6 +206,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, burn_t& state, dvode_t& vstate)
         }
         ACNRM = std::sqrt(ACNRM / VODE_NEQS);
     }
+
 
     return ACNRM;
 
