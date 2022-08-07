@@ -166,6 +166,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
+
         // Call the nonlinear system solver.
 
         Real ACNRM = dvnlsd(pivot, NFLAG, state, vstate);
@@ -253,7 +254,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-
             if (vstate.y(i) < -vode_failure_tolerance) {
                 valid_update = false;
             }
@@ -318,6 +318,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 valid_update = false;
             }
 #endif
+
 
         }
 
@@ -468,9 +469,7 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.H *= vstate.ETA;
         vstate.HSCAL = vstate.H;
         vstate.tau(1) = vstate.H;
-
         rhs(vstate.tn, state, vstate, vstate.savf);
-
         vstate.NFE += 1;
         for (int i = 1; i <= VODE_NEQS; ++i) {
             vstate.yh(i,2) = vstate.H * vstate.savf(i);
