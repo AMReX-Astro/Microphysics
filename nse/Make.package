@@ -1,3 +1,3 @@
-ifeq ( $(NSE), TRUE)
+ifeq ( $(USE_ACTUAL_NSE), TRUE)
      CEXE_headers += actual_nse.H
 endif
