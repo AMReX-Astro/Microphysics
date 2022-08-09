@@ -10,7 +10,8 @@ COMP	   = gnu
 
 USE_MPI    = FALSE
 USE_OMP    = FALSE
-
+#set USE_CUDA to TRUE to compile and run on GPUs
+USE_CUDA   = FALSE
 USE_REACT = TRUE
 
 # Set USE_MICROPHYSICS_DEBUG to TRUE if debugging
