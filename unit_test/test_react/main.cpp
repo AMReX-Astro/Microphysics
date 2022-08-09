@@ -274,12 +274,15 @@ void main_main ()
 
     write_job_info(prefix + name + integrator + language);
 
-    // Tell the I/O Processor to write out the "run time"
-    amrex::Print() << "Run time = " << stop_time << std::endl;
+    if (ParallelDescriptor::IOProcessor()) {
 
-    // print statistics
-    std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
-    std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+        // Tell the I/O Processor to write out the "run time"
+        amrex::Print() << "Run time = " << stop_time << std::endl;
+
+        // print statistics
+        std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
+        std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+        std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+    }
 
 }
