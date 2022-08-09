@@ -80,13 +80,15 @@ void actual_integrator (burn_t& state, Real dt)
 
 #endif
 
-    if (!use_number_densities) {
+    if (!subtract_internal_energy) {
         // Subtract off the initial energy (the application codes expect
         // to get back only the generated energy during the burn).
 
         // Set this to false for primordial ISM chemistry
         state.e -= e_in;
+    }
 
+    if (!use_number_densities) {
         // Normalize the final abundances.
         normalize_abundances_burn(state);
     }
