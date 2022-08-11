@@ -10,6 +10,20 @@ Upon completion, the new state is printed to the screen.
 ## continuous integration
 
 This is used with GitHub actions to do a test on pull requests.  The
-code is built with the `subch2` network and run with `inputs_subch2`
-and then diff is used to compared to the stored output in
-`subch2_unit_test.out`.
+following are the tests:
+
+* `subch_approx` network:
+
+  ```
+  make NETWORK_DIR=subch_approx
+  ./main3d.gnu.ex inputs_subch_approx > test.out
+  diff test.out subch_approx_unit_test.out
+  ```
+
+* `ECSN` network:
+
+  ```
+  make NETWORK_DIR=ECSN
+  ./main3d.gnu.ex inputs_ecsn > test.out
+  diff test.out ecsn_unit_test.out
+  ```

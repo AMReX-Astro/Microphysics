@@ -1,9 +1,6 @@
-# C-burning with A=23 URCA rate module generator
-
-# we want to include everything in an aprox13 net
-# but we also need to include a few n rates to get some
-# of the O16+O16 and C12+O16 rates -- so we just include
-# those explicitly.
+# an approximate network for He/C burning with key rates
+# to bypass the C12(a,g)O16 rate.  This version uses some
+# (a,p)(p,g) approximations.
 
 import pynucastro as pyna
 from pynucastro.networks import StarKillerCxxNetwork
@@ -39,28 +36,29 @@ def doit():
 
     subch = get_library()
 
-    rc = pyna.RateCollection(libraries=[subch])
-
-    print(f"number of nuclei: {len(rc.unique_nuclei)}")
-    print(f"number of rates: {len(rc.rates)}")
-
-    comp = pyna.Composition(rc.get_nuclei())
-    comp.set_all(0.1)
-    comp.set_nuc("he4", 0.95)
-    comp.normalize()
-
-    rc.plot(outfile="subch2.pdf", rho=1.e6, T=1.e9, comp=comp,
-            rotated=True, hide_xalpha=True,
-            size=(1500, 450),
-            node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
-            Z_range=(1,29))
-
     # these are the rates that we are going to allow to be optionally
     # zeroed
     r1 = subch.get_rate("p_c12__n13")
     r2 = subch.get_rate("he4_n13__p_o16")
 
     net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True, disable_rate_params=[r1, r2])
+    net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
+    net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
+
+    print(f"number of nuclei: {len(net.unique_nuclei)}")
+    print(f"number of rates: {len(net.rates)}")
+
+    comp = pyna.Composition(net.get_nuclei())
+    comp.set_all(0.1)
+    comp.set_nuc("he4", 0.95)
+    comp.normalize()
+
+    net.plot(outfile="subch_approx.png", rho=1.e6, T=1.e9, comp=comp,
+             rotated=True, hide_xalpha=True, curved_edges=True,
+             size=(1500, 450),
+             node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
+             Z_range=(1,29))
+
     net.write_network()
 
 

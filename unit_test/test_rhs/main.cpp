@@ -102,6 +102,10 @@ void main_main ()
 
     init_unit_test();
 
+    if (jacobian != 1) {
+        amrex::Error("test_rhs only works for jacobian = 1");
+    }
+
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
 
