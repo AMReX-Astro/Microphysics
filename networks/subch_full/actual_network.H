@@ -143,24 +143,120 @@ namespace Rates
 
     const int NrateTabular = 0;
 
-}
+    // rate names -- note: the rates are 1-based, not zero-based, so we pad
+    // this vector with rate_names[0] = "" so the indices line up with the
+    // NetworkRates enum
 
-namespace reaclib_rates
-{
-
-    // Temperature coefficient arrays (numbers correspond to reaction
-    // numbers in net_info)
-
-    extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, 7, 1, Rates::NumReaclibSets> ctemp_rate;
-
-    // Index into ctemp_rate, dimension 2, where each rate's
-    // coefficients start
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<int, 1, Rates::NrateReaclib> rate_start_idx;
-
-    // Reaction multiplicities-1 (how many rates contribute - 1)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<int, 1, Rates::NrateReaclib> rate_extra_mult;
+    static const std::vector<std::string> rate_names = {
+        "",   // 0
+        "n13__p_c12",  // 1,
+        "o16__he4_c12",  // 2,
+        "f18__he4_n14",  // 3,
+        "ne20__he4_o16",  // 4,
+        "na22__p_ne21",  // 5,
+        "na22__he4_f18",  // 6,
+        "mg24__p_na23",  // 7,
+        "mg24__he4_ne20",  // 8,
+        "al27__he4_na23",  // 9,
+        "si28__p_al27",  // 10,
+        "si28__he4_mg24",  // 11,
+        "p31__he4_al27",  // 12,
+        "s32__p_p31",  // 13,
+        "s32__he4_si28",  // 14,
+        "cl35__he4_p31",  // 15,
+        "ar36__p_cl35",  // 16,
+        "ar36__he4_s32",  // 17,
+        "k39__he4_cl35",  // 18,
+        "ca40__p_k39",  // 19,
+        "ca40__he4_ar36",  // 20,
+        "sc43__he4_k39",  // 21,
+        "ti44__p_sc43",  // 22,
+        "ti44__he4_ca40",  // 23,
+        "v47__he4_sc43",  // 24,
+        "cr48__p_v47",  // 25,
+        "cr48__he4_ti44",  // 26,
+        "mn51__he4_v47",  // 27,
+        "fe52__p_mn51",  // 28,
+        "fe52__he4_cr48",  // 29,
+        "co55__he4_mn51",  // 30,
+        "ni56__p_co55",  // 31,
+        "ni56__he4_fe52",  // 32,
+        "c12__he4_he4_he4",  // 33,
+        "p_c12__n13",  // 34,
+        "he4_c12__o16",  // 35,
+        "he4_n14__f18",  // 36,
+        "he4_o16__ne20",  // 37,
+        "he4_f18__na22",  // 38,
+        "he4_ne20__mg24",  // 39,
+        "p_ne21__na22",  // 40,
+        "p_na23__mg24",  // 41,
+        "he4_na23__al27",  // 42,
+        "he4_mg24__si28",  // 43,
+        "p_al27__si28",  // 44,
+        "he4_al27__p31",  // 45,
+        "he4_si28__s32",  // 46,
+        "p_p31__s32",  // 47,
+        "he4_p31__cl35",  // 48,
+        "he4_s32__ar36",  // 49,
+        "p_cl35__ar36",  // 50,
+        "he4_cl35__k39",  // 51,
+        "he4_ar36__ca40",  // 52,
+        "p_k39__ca40",  // 53,
+        "he4_k39__sc43",  // 54,
+        "he4_ca40__ti44",  // 55,
+        "p_sc43__ti44",  // 56,
+        "he4_sc43__v47",  // 57,
+        "he4_ti44__cr48",  // 58,
+        "p_v47__cr48",  // 59,
+        "he4_v47__mn51",  // 60,
+        "he4_cr48__fe52",  // 61,
+        "p_mn51__fe52",  // 62,
+        "he4_mn51__co55",  // 63,
+        "he4_fe52__ni56",  // 64,
+        "p_co55__ni56",  // 65,
+        "c12_c12__p_na23",  // 66,
+        "c12_c12__he4_ne20",  // 67,
+        "he4_n13__p_o16",  // 68,
+        "p_o16__he4_n13",  // 69,
+        "c12_o16__p_al27",  // 70,
+        "c12_o16__he4_mg24",  // 71,
+        "o16_o16__p_p31",  // 72,
+        "o16_o16__he4_si28",  // 73,
+        "he4_f18__p_ne21",  // 74,
+        "he4_ne20__p_na23",  // 75,
+        "he4_ne20__c12_c12",  // 76,
+        "c12_ne20__p_p31",  // 77,
+        "c12_ne20__he4_si28",  // 78,
+        "p_ne21__he4_f18",  // 79,
+        "p_na23__he4_ne20",  // 80,
+        "p_na23__c12_c12",  // 81,
+        "he4_mg24__p_al27",  // 82,
+        "he4_mg24__c12_o16",  // 83,
+        "p_al27__he4_mg24",  // 84,
+        "p_al27__c12_o16",  // 85,
+        "he4_si28__p_p31",  // 86,
+        "he4_si28__c12_ne20",  // 87,
+        "he4_si28__o16_o16",  // 88,
+        "p_p31__he4_si28",  // 89,
+        "p_p31__c12_ne20",  // 90,
+        "p_p31__o16_o16",  // 91,
+        "he4_s32__p_cl35",  // 92,
+        "p_cl35__he4_s32",  // 93,
+        "he4_ar36__p_k39",  // 94,
+        "p_k39__he4_ar36",  // 95,
+        "he4_ca40__p_sc43",  // 96,
+        "p_sc43__he4_ca40",  // 97,
+        "he4_ti44__p_v47",  // 98,
+        "p_v47__he4_ti44",  // 99,
+        "he4_cr48__p_mn51",  // 100,
+        "p_mn51__he4_cr48",  // 101,
+        "he4_fe52__p_co55",  // 102,
+        "p_co55__he4_fe52",  // 103,
+        "he4_he4_he4__c12",  // 104,
+        "c12_c12__mg24__modified",  // 105,
+        "o16_o16__s32__modified",  // 106,
+        "c12_o16__si28__modified"  // 107,
+    };
 
 }
 

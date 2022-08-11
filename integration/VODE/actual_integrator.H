@@ -29,6 +29,9 @@ void actual_integrator (burn_t& state, Real dt)
     }
     vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
 
+    // set the Jacobian type
+    vode_state.jacobian_type = jacobian;
+
     // Start off by assuming a successful burn.
 
     state.success = true;
