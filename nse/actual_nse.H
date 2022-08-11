@@ -24,7 +24,9 @@ T get_nse_state(T& state)
 {
   // This function finds the nse state given the burn state or eos state
 
-  // three constants for calculating coulomb correction term
+  // three unit-less constants for calculating coulomb correction term
+  // See Calder 2007, doi:10.1086/510709 paper for more detail
+
   const amrex::Real A1 = -0.9052_rt;
   const amrex::Real A2 = 0.6322_rt;
   const amrex::Real A3 = -0.5_rt * std::sqrt(3.0_rt) - A1 / std::sqrt(A2);
@@ -45,8 +47,7 @@ T get_nse_state(T& state)
       continue;
     }
     // term for calculating u_c
-    gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * C::q_e * C::q_e *
-      std::pow(4.0_rt * M_PI * n_e / 3.0_rt, 1.0_rt / 3.0_rt) / C::k_B / state.T;
+    gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) / C::k_B / state.T;
 
     // chemical potential for coulomb correction
     u_c = C::k_B * state.T / C::Legacy::MeV2erg * (A1 * (std::sqrt(gamma * (A2 + gamma)) - A2 * std::log(std::sqrt(gamma / A2) + std::sqrt(1.0_rt + gamma / A2))) + 2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
@@ -113,12 +114,12 @@ Newton_inputs nse_constraint(T& state){
   return nse_inputs;
 }
 
-// A newton-raphson solver for finding nse state
-// used for calibrating chemical potential of proton and neutron
+// A newton-raphson solver for finding nse state used for calibrating chemical potential of proton and neutron
 template<typename T>
 void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt, int nloops=500){
   
-  // Check if network results in singular jacobian first, e.g. aprox13 and iso7
+  // Check if network results in singular jacobian first, require at least one nuclei that nuclei.Z != nuclei.N
+  // Some examples include aprox13 and iso7
   bool singular_network = true;
   for (int n = 0; n < NumSpec; ++n){
     if (short_spec_names_cxx[n] == "p"){
