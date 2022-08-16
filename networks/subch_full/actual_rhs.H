@@ -42,8 +42,9 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 }
 
 
+template <int do_T_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
+void evaluate_rates(const burn_t& state, T& rate_eval) {
 
 
     // create molar fractions
@@ -62,20 +63,28 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     tf_t tfactors = evaluate_tfactors(state.T);
 
-    fill_reaclib_rates(tfactors, rate_eval);
+    fill_reaclib_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
     if (disable_p_c12__n13) {
         rate_eval.screened_rates(k_p_c12__n13) = 0.0;
-        rate_eval.dscreened_rates_dT(k_p_c12__n13) = 0.0;
+        if constexpr (std::is_same<T, rate_derivs_t>::value) {
+            rate_eval.dscreened_rates_dT(k_p_c12__n13) = 0.0;
+        }
         rate_eval.screened_rates(k_n13__p_c12) = 0.0;
+        if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_n13__p_c12) = 0.0;
+        }
     }
 
     if (disable_he4_n13__p_o16) {
         rate_eval.screened_rates(k_he4_n13__p_o16) = 0.0;
-        rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = 0.0;
+        if constexpr (std::is_same<T, rate_derivs_t>::value) {
+            rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = 0.0;
+        }
         rate_eval.screened_rates(k_p_o16__he4_n13) = 0.0;
+        if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_p_o16__he4_n13) = 0.0;
+        }
     }
 
 
@@ -94,19 +103,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_n13__p_c12);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_n13__p_c12);
     rate_eval.screened_rates(k_n13__p_c12) *= scor;
-    rate_eval.dscreened_rates_dT(k_n13__p_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_n13__p_c12);
+        rate_eval.dscreened_rates_dT(k_n13__p_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_c12__n13);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_c12__n13);
     rate_eval.screened_rates(k_p_c12__n13) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_c12__n13) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_c12__n13);
+        rate_eval.dscreened_rates_dT(k_p_c12__n13) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -116,19 +129,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_o16__he4_c12);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_o16__he4_c12);
     rate_eval.screened_rates(k_o16__he4_c12) *= scor;
-    rate_eval.dscreened_rates_dT(k_o16__he4_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_o16__he4_c12);
+        rate_eval.dscreened_rates_dT(k_o16__he4_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_c12__o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_c12__o16);
     rate_eval.screened_rates(k_he4_c12__o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_c12__o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_c12__o16);
+        rate_eval.dscreened_rates_dT(k_he4_c12__o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -138,19 +155,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_f18__he4_n14);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_f18__he4_n14);
     rate_eval.screened_rates(k_f18__he4_n14) *= scor;
-    rate_eval.dscreened_rates_dT(k_f18__he4_n14) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_f18__he4_n14);
+        rate_eval.dscreened_rates_dT(k_f18__he4_n14) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_n14__f18);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n14__f18);
     rate_eval.screened_rates(k_he4_n14__f18) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_n14__f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n14__f18);
+        rate_eval.dscreened_rates_dT(k_he4_n14__f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -160,19 +181,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ne20__he4_o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ne20__he4_o16);
     rate_eval.screened_rates(k_ne20__he4_o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_ne20__he4_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ne20__he4_o16);
+        rate_eval.dscreened_rates_dT(k_ne20__he4_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_o16__ne20);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_o16__ne20);
     rate_eval.screened_rates(k_he4_o16__ne20) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_o16__ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_o16__ne20);
+        rate_eval.dscreened_rates_dT(k_he4_o16__ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -182,19 +207,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_na22__p_ne21);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_na22__p_ne21);
     rate_eval.screened_rates(k_na22__p_ne21) *= scor;
-    rate_eval.dscreened_rates_dT(k_na22__p_ne21) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_na22__p_ne21);
+        rate_eval.dscreened_rates_dT(k_na22__p_ne21) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_ne21__na22);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_ne21__na22);
     rate_eval.screened_rates(k_p_ne21__na22) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_ne21__na22) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_ne21__na22);
+        rate_eval.dscreened_rates_dT(k_p_ne21__na22) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -204,29 +233,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_na22__he4_f18);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_na22__he4_f18);
     rate_eval.screened_rates(k_na22__he4_f18) *= scor;
-    rate_eval.dscreened_rates_dT(k_na22__he4_f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_na22__he4_f18);
+        rate_eval.dscreened_rates_dT(k_na22__he4_f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_f18__na22);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_f18__na22);
     rate_eval.screened_rates(k_he4_f18__na22) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_f18__na22) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_f18__na22);
+        rate_eval.dscreened_rates_dT(k_he4_f18__na22) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_f18__p_ne21);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_f18__p_ne21);
     rate_eval.screened_rates(k_he4_f18__p_ne21) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_f18__p_ne21) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_f18__p_ne21);
+        rate_eval.dscreened_rates_dT(k_he4_f18__p_ne21) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_ne21__he4_f18);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_ne21__he4_f18);
     rate_eval.screened_rates(k_p_ne21__he4_f18) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_ne21__he4_f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_ne21__he4_f18);
+        rate_eval.dscreened_rates_dT(k_p_ne21__he4_f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -236,29 +273,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_mg24__p_na23);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_mg24__p_na23);
     rate_eval.screened_rates(k_mg24__p_na23) *= scor;
-    rate_eval.dscreened_rates_dT(k_mg24__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_mg24__p_na23);
+        rate_eval.dscreened_rates_dT(k_mg24__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_na23__mg24);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_na23__mg24);
     rate_eval.screened_rates(k_p_na23__mg24) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_na23__mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_na23__mg24);
+        rate_eval.dscreened_rates_dT(k_p_na23__mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ne20__p_na23);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ne20__p_na23);
     rate_eval.screened_rates(k_he4_ne20__p_na23) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ne20__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ne20__p_na23);
+        rate_eval.dscreened_rates_dT(k_he4_ne20__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_na23__he4_ne20);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_na23__he4_ne20);
     rate_eval.screened_rates(k_p_na23__he4_ne20) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_na23__he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_na23__he4_ne20);
+        rate_eval.dscreened_rates_dT(k_p_na23__he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -268,19 +313,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_mg24__he4_ne20);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_mg24__he4_ne20);
     rate_eval.screened_rates(k_mg24__he4_ne20) *= scor;
-    rate_eval.dscreened_rates_dT(k_mg24__he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_mg24__he4_ne20);
+        rate_eval.dscreened_rates_dT(k_mg24__he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ne20__mg24);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ne20__mg24);
     rate_eval.screened_rates(k_he4_ne20__mg24) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ne20__mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ne20__mg24);
+        rate_eval.dscreened_rates_dT(k_he4_ne20__mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -290,19 +339,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_al27__he4_na23);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_al27__he4_na23);
     rate_eval.screened_rates(k_al27__he4_na23) *= scor;
-    rate_eval.dscreened_rates_dT(k_al27__he4_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_al27__he4_na23);
+        rate_eval.dscreened_rates_dT(k_al27__he4_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_na23__al27);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_na23__al27);
     rate_eval.screened_rates(k_he4_na23__al27) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_na23__al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_na23__al27);
+        rate_eval.dscreened_rates_dT(k_he4_na23__al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -312,29 +365,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_si28__p_al27);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_si28__p_al27);
     rate_eval.screened_rates(k_si28__p_al27) *= scor;
-    rate_eval.dscreened_rates_dT(k_si28__p_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_si28__p_al27);
+        rate_eval.dscreened_rates_dT(k_si28__p_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_al27__si28);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_al27__si28);
     rate_eval.screened_rates(k_p_al27__si28) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_al27__si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_al27__si28);
+        rate_eval.dscreened_rates_dT(k_p_al27__si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_mg24__p_al27);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mg24__p_al27);
     rate_eval.screened_rates(k_he4_mg24__p_al27) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_mg24__p_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mg24__p_al27);
+        rate_eval.dscreened_rates_dT(k_he4_mg24__p_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_al27__he4_mg24);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_al27__he4_mg24);
     rate_eval.screened_rates(k_p_al27__he4_mg24) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_al27__he4_mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_al27__he4_mg24);
+        rate_eval.dscreened_rates_dT(k_p_al27__he4_mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -344,19 +405,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_si28__he4_mg24);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_si28__he4_mg24);
     rate_eval.screened_rates(k_si28__he4_mg24) *= scor;
-    rate_eval.dscreened_rates_dT(k_si28__he4_mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_si28__he4_mg24);
+        rate_eval.dscreened_rates_dT(k_si28__he4_mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_mg24__si28);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mg24__si28);
     rate_eval.screened_rates(k_he4_mg24__si28) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_mg24__si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mg24__si28);
+        rate_eval.dscreened_rates_dT(k_he4_mg24__si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -366,19 +431,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p31__he4_al27);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p31__he4_al27);
     rate_eval.screened_rates(k_p31__he4_al27) *= scor;
-    rate_eval.dscreened_rates_dT(k_p31__he4_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p31__he4_al27);
+        rate_eval.dscreened_rates_dT(k_p31__he4_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_al27__p31);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_al27__p31);
     rate_eval.screened_rates(k_he4_al27__p31) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_al27__p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_al27__p31);
+        rate_eval.dscreened_rates_dT(k_he4_al27__p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -388,29 +457,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_s32__p_p31);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_s32__p_p31);
     rate_eval.screened_rates(k_s32__p_p31) *= scor;
-    rate_eval.dscreened_rates_dT(k_s32__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_s32__p_p31);
+        rate_eval.dscreened_rates_dT(k_s32__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_p31__s32);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__s32);
     rate_eval.screened_rates(k_p_p31__s32) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_p31__s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__s32);
+        rate_eval.dscreened_rates_dT(k_p_p31__s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_si28__p_p31);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__p_p31);
     rate_eval.screened_rates(k_he4_si28__p_p31) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_si28__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__p_p31);
+        rate_eval.dscreened_rates_dT(k_he4_si28__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_p31__he4_si28);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__he4_si28);
     rate_eval.screened_rates(k_p_p31__he4_si28) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_p31__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__he4_si28);
+        rate_eval.dscreened_rates_dT(k_p_p31__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -420,19 +497,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_s32__he4_si28);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_s32__he4_si28);
     rate_eval.screened_rates(k_s32__he4_si28) *= scor;
-    rate_eval.dscreened_rates_dT(k_s32__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_s32__he4_si28);
+        rate_eval.dscreened_rates_dT(k_s32__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_si28__s32);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__s32);
     rate_eval.screened_rates(k_he4_si28__s32) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_si28__s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__s32);
+        rate_eval.dscreened_rates_dT(k_he4_si28__s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -442,19 +523,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_cl35__he4_p31);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_cl35__he4_p31);
     rate_eval.screened_rates(k_cl35__he4_p31) *= scor;
-    rate_eval.dscreened_rates_dT(k_cl35__he4_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_cl35__he4_p31);
+        rate_eval.dscreened_rates_dT(k_cl35__he4_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_p31__cl35);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_p31__cl35);
     rate_eval.screened_rates(k_he4_p31__cl35) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_p31__cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_p31__cl35);
+        rate_eval.dscreened_rates_dT(k_he4_p31__cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -464,29 +549,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ar36__p_cl35);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ar36__p_cl35);
     rate_eval.screened_rates(k_ar36__p_cl35) *= scor;
-    rate_eval.dscreened_rates_dT(k_ar36__p_cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ar36__p_cl35);
+        rate_eval.dscreened_rates_dT(k_ar36__p_cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_cl35__ar36);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_cl35__ar36);
     rate_eval.screened_rates(k_p_cl35__ar36) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_cl35__ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_cl35__ar36);
+        rate_eval.dscreened_rates_dT(k_p_cl35__ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_s32__p_cl35);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_s32__p_cl35);
     rate_eval.screened_rates(k_he4_s32__p_cl35) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_s32__p_cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_s32__p_cl35);
+        rate_eval.dscreened_rates_dT(k_he4_s32__p_cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_cl35__he4_s32);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32);
     rate_eval.screened_rates(k_p_cl35__he4_s32) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32);
+        rate_eval.dscreened_rates_dT(k_p_cl35__he4_s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -496,19 +589,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ar36__he4_s32);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ar36__he4_s32);
     rate_eval.screened_rates(k_ar36__he4_s32) *= scor;
-    rate_eval.dscreened_rates_dT(k_ar36__he4_s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ar36__he4_s32);
+        rate_eval.dscreened_rates_dT(k_ar36__he4_s32) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_s32__ar36);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_s32__ar36);
     rate_eval.screened_rates(k_he4_s32__ar36) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_s32__ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_s32__ar36);
+        rate_eval.dscreened_rates_dT(k_he4_s32__ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -518,19 +615,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_k39__he4_cl35);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_k39__he4_cl35);
     rate_eval.screened_rates(k_k39__he4_cl35) *= scor;
-    rate_eval.dscreened_rates_dT(k_k39__he4_cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_k39__he4_cl35);
+        rate_eval.dscreened_rates_dT(k_k39__he4_cl35) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_cl35__k39);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_cl35__k39);
     rate_eval.screened_rates(k_he4_cl35__k39) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_cl35__k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_cl35__k39);
+        rate_eval.dscreened_rates_dT(k_he4_cl35__k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -540,29 +641,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ca40__p_k39);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ca40__p_k39);
     rate_eval.screened_rates(k_ca40__p_k39) *= scor;
-    rate_eval.dscreened_rates_dT(k_ca40__p_k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ca40__p_k39);
+        rate_eval.dscreened_rates_dT(k_ca40__p_k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_k39__ca40);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_k39__ca40);
     rate_eval.screened_rates(k_p_k39__ca40) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_k39__ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_k39__ca40);
+        rate_eval.dscreened_rates_dT(k_p_k39__ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ar36__p_k39);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ar36__p_k39);
     rate_eval.screened_rates(k_he4_ar36__p_k39) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ar36__p_k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ar36__p_k39);
+        rate_eval.dscreened_rates_dT(k_he4_ar36__p_k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_k39__he4_ar36);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36);
     rate_eval.screened_rates(k_p_k39__he4_ar36) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36);
+        rate_eval.dscreened_rates_dT(k_p_k39__he4_ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -572,19 +681,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ca40__he4_ar36);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ca40__he4_ar36);
     rate_eval.screened_rates(k_ca40__he4_ar36) *= scor;
-    rate_eval.dscreened_rates_dT(k_ca40__he4_ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ca40__he4_ar36);
+        rate_eval.dscreened_rates_dT(k_ca40__he4_ar36) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ar36__ca40);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ar36__ca40);
     rate_eval.screened_rates(k_he4_ar36__ca40) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ar36__ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ar36__ca40);
+        rate_eval.dscreened_rates_dT(k_he4_ar36__ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -594,19 +707,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_sc43__he4_k39);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_sc43__he4_k39);
     rate_eval.screened_rates(k_sc43__he4_k39) *= scor;
-    rate_eval.dscreened_rates_dT(k_sc43__he4_k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_sc43__he4_k39);
+        rate_eval.dscreened_rates_dT(k_sc43__he4_k39) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_k39__sc43);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_k39__sc43);
     rate_eval.screened_rates(k_he4_k39__sc43) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_k39__sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_k39__sc43);
+        rate_eval.dscreened_rates_dT(k_he4_k39__sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -616,29 +733,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ti44__p_sc43);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ti44__p_sc43);
     rate_eval.screened_rates(k_ti44__p_sc43) *= scor;
-    rate_eval.dscreened_rates_dT(k_ti44__p_sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ti44__p_sc43);
+        rate_eval.dscreened_rates_dT(k_ti44__p_sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_sc43__ti44);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_sc43__ti44);
     rate_eval.screened_rates(k_p_sc43__ti44) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_sc43__ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_sc43__ti44);
+        rate_eval.dscreened_rates_dT(k_p_sc43__ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ca40__p_sc43);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ca40__p_sc43);
     rate_eval.screened_rates(k_he4_ca40__p_sc43) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ca40__p_sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ca40__p_sc43);
+        rate_eval.dscreened_rates_dT(k_he4_ca40__p_sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_sc43__he4_ca40);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40);
     rate_eval.screened_rates(k_p_sc43__he4_ca40) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40);
+        rate_eval.dscreened_rates_dT(k_p_sc43__he4_ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -648,19 +773,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ti44__he4_ca40);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ti44__he4_ca40);
     rate_eval.screened_rates(k_ti44__he4_ca40) *= scor;
-    rate_eval.dscreened_rates_dT(k_ti44__he4_ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ti44__he4_ca40);
+        rate_eval.dscreened_rates_dT(k_ti44__he4_ca40) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ca40__ti44);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ca40__ti44);
     rate_eval.screened_rates(k_he4_ca40__ti44) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ca40__ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ca40__ti44);
+        rate_eval.dscreened_rates_dT(k_he4_ca40__ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -670,19 +799,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_v47__he4_sc43);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_v47__he4_sc43);
     rate_eval.screened_rates(k_v47__he4_sc43) *= scor;
-    rate_eval.dscreened_rates_dT(k_v47__he4_sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_v47__he4_sc43);
+        rate_eval.dscreened_rates_dT(k_v47__he4_sc43) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_sc43__v47);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_sc43__v47);
     rate_eval.screened_rates(k_he4_sc43__v47) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_sc43__v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_sc43__v47);
+        rate_eval.dscreened_rates_dT(k_he4_sc43__v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -692,29 +825,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_cr48__p_v47);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_cr48__p_v47);
     rate_eval.screened_rates(k_cr48__p_v47) *= scor;
-    rate_eval.dscreened_rates_dT(k_cr48__p_v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_cr48__p_v47);
+        rate_eval.dscreened_rates_dT(k_cr48__p_v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_v47__cr48);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_v47__cr48);
     rate_eval.screened_rates(k_p_v47__cr48) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_v47__cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_v47__cr48);
+        rate_eval.dscreened_rates_dT(k_p_v47__cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ti44__p_v47);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ti44__p_v47);
     rate_eval.screened_rates(k_he4_ti44__p_v47) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ti44__p_v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ti44__p_v47);
+        rate_eval.dscreened_rates_dT(k_he4_ti44__p_v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_v47__he4_ti44);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44);
     rate_eval.screened_rates(k_p_v47__he4_ti44) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44);
+        rate_eval.dscreened_rates_dT(k_p_v47__he4_ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -724,19 +865,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_cr48__he4_ti44);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_cr48__he4_ti44);
     rate_eval.screened_rates(k_cr48__he4_ti44) *= scor;
-    rate_eval.dscreened_rates_dT(k_cr48__he4_ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_cr48__he4_ti44);
+        rate_eval.dscreened_rates_dT(k_cr48__he4_ti44) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ti44__cr48);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ti44__cr48);
     rate_eval.screened_rates(k_he4_ti44__cr48) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ti44__cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ti44__cr48);
+        rate_eval.dscreened_rates_dT(k_he4_ti44__cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -746,19 +891,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_mn51__he4_v47);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_mn51__he4_v47);
     rate_eval.screened_rates(k_mn51__he4_v47) *= scor;
-    rate_eval.dscreened_rates_dT(k_mn51__he4_v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_mn51__he4_v47);
+        rate_eval.dscreened_rates_dT(k_mn51__he4_v47) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_v47__mn51);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_v47__mn51);
     rate_eval.screened_rates(k_he4_v47__mn51) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_v47__mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_v47__mn51);
+        rate_eval.dscreened_rates_dT(k_he4_v47__mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -768,19 +917,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_fe52__p_mn51);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_fe52__p_mn51);
     rate_eval.screened_rates(k_fe52__p_mn51) *= scor;
-    rate_eval.dscreened_rates_dT(k_fe52__p_mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_fe52__p_mn51);
+        rate_eval.dscreened_rates_dT(k_fe52__p_mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_mn51__fe52);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_mn51__fe52);
     rate_eval.screened_rates(k_p_mn51__fe52) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_mn51__fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_mn51__fe52);
+        rate_eval.dscreened_rates_dT(k_p_mn51__fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -790,29 +943,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_fe52__he4_cr48);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_fe52__he4_cr48);
     rate_eval.screened_rates(k_fe52__he4_cr48) *= scor;
-    rate_eval.dscreened_rates_dT(k_fe52__he4_cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_fe52__he4_cr48);
+        rate_eval.dscreened_rates_dT(k_fe52__he4_cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_cr48__fe52);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_cr48__fe52);
     rate_eval.screened_rates(k_he4_cr48__fe52) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_cr48__fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_cr48__fe52);
+        rate_eval.dscreened_rates_dT(k_he4_cr48__fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_cr48__p_mn51);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_cr48__p_mn51);
     rate_eval.screened_rates(k_he4_cr48__p_mn51) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_cr48__p_mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_cr48__p_mn51);
+        rate_eval.dscreened_rates_dT(k_he4_cr48__p_mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_mn51__he4_cr48);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48);
     rate_eval.screened_rates(k_p_mn51__he4_cr48) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48);
+        rate_eval.dscreened_rates_dT(k_p_mn51__he4_cr48) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -822,19 +983,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_co55__he4_mn51);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_co55__he4_mn51);
     rate_eval.screened_rates(k_co55__he4_mn51) *= scor;
-    rate_eval.dscreened_rates_dT(k_co55__he4_mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_co55__he4_mn51);
+        rate_eval.dscreened_rates_dT(k_co55__he4_mn51) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_mn51__co55);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mn51__co55);
     rate_eval.screened_rates(k_he4_mn51__co55) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_mn51__co55) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mn51__co55);
+        rate_eval.dscreened_rates_dT(k_he4_mn51__co55) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -844,19 +1009,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ni56__p_co55);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ni56__p_co55);
     rate_eval.screened_rates(k_ni56__p_co55) *= scor;
-    rate_eval.dscreened_rates_dT(k_ni56__p_co55) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ni56__p_co55);
+        rate_eval.dscreened_rates_dT(k_ni56__p_co55) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_co55__ni56);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_co55__ni56);
     rate_eval.screened_rates(k_p_co55__ni56) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_co55__ni56) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_co55__ni56);
+        rate_eval.dscreened_rates_dT(k_p_co55__ni56) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -866,29 +1035,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_ni56__he4_fe52);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_ni56__he4_fe52);
     rate_eval.screened_rates(k_ni56__he4_fe52) *= scor;
-    rate_eval.dscreened_rates_dT(k_ni56__he4_fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_ni56__he4_fe52);
+        rate_eval.dscreened_rates_dT(k_ni56__he4_fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_fe52__ni56);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_fe52__ni56);
     rate_eval.screened_rates(k_he4_fe52__ni56) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_fe52__ni56) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_fe52__ni56);
+        rate_eval.dscreened_rates_dT(k_he4_fe52__ni56) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_fe52__p_co55);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55);
     rate_eval.screened_rates(k_he4_fe52__p_co55) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55);
+        rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_co55__he4_fe52);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52);
     rate_eval.screened_rates(k_p_co55__he4_fe52) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52);
+        rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -898,7 +1075,7 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -910,20 +1087,24 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac2.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac2, scor2, dscor2_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac2, scor2, dscor2_dt);
 
     }
 
 
     ratraw = rate_eval.screened_rates(k_c12__he4_he4_he4);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12__he4_he4_he4);
     rate_eval.screened_rates(k_c12__he4_he4_he4) *= scor * scor2;
-    rate_eval.dscreened_rates_dT(k_c12__he4_he4_he4) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12__he4_he4_he4);
+        rate_eval.dscreened_rates_dT(k_c12__he4_he4_he4) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_he4_he4__c12);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12);
     rate_eval.screened_rates(k_he4_he4_he4__c12) *= scor * scor2;
-    rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12);
+        rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
+    }
 
 
     {
@@ -933,34 +1114,44 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 6.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_c12_c12__p_na23);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__p_na23);
     rate_eval.screened_rates(k_c12_c12__p_na23) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_c12__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__p_na23);
+        rate_eval.dscreened_rates_dT(k_c12_c12__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_c12_c12__he4_ne20);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__he4_ne20);
     rate_eval.screened_rates(k_c12_c12__he4_ne20) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_c12__he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__he4_ne20);
+        rate_eval.dscreened_rates_dT(k_c12_c12__he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_ne20__c12_c12);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ne20__c12_c12);
     rate_eval.screened_rates(k_he4_ne20__c12_c12) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_ne20__c12_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_ne20__c12_c12);
+        rate_eval.dscreened_rates_dT(k_he4_ne20__c12_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_na23__c12_c12);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_na23__c12_c12);
     rate_eval.screened_rates(k_p_na23__c12_c12) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_na23__c12_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_na23__c12_c12);
+        rate_eval.dscreened_rates_dT(k_p_na23__c12_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_c12_c12__mg24__modified);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__mg24__modified);
     rate_eval.screened_rates(k_c12_c12__mg24__modified) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_c12__mg24__modified) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__mg24__modified);
+        rate_eval.dscreened_rates_dT(k_c12_c12__mg24__modified) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -970,19 +1161,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he4_n13__p_o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n13__p_o16);
     rate_eval.screened_rates(k_he4_n13__p_o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n13__p_o16);
+        rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_o16__he4_n13);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o16__he4_n13);
     rate_eval.screened_rates(k_p_o16__he4_n13) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_o16__he4_n13) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o16__he4_n13);
+        rate_eval.dscreened_rates_dT(k_p_o16__he4_n13) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -992,34 +1187,44 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 6.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_c12_o16__p_al27);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_o16__p_al27);
     rate_eval.screened_rates(k_c12_o16__p_al27) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_o16__p_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_o16__p_al27);
+        rate_eval.dscreened_rates_dT(k_c12_o16__p_al27) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_c12_o16__he4_mg24);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_o16__he4_mg24);
     rate_eval.screened_rates(k_c12_o16__he4_mg24) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_o16__he4_mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_o16__he4_mg24);
+        rate_eval.dscreened_rates_dT(k_c12_o16__he4_mg24) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_mg24__c12_o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mg24__c12_o16);
     rate_eval.screened_rates(k_he4_mg24__c12_o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_mg24__c12_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_mg24__c12_o16);
+        rate_eval.dscreened_rates_dT(k_he4_mg24__c12_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_al27__c12_o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_al27__c12_o16);
     rate_eval.screened_rates(k_p_al27__c12_o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_al27__c12_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_al27__c12_o16);
+        rate_eval.dscreened_rates_dT(k_p_al27__c12_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_c12_o16__si28__modified);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_o16__si28__modified);
     rate_eval.screened_rates(k_c12_o16__si28__modified) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_o16__si28__modified) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_o16__si28__modified);
+        rate_eval.dscreened_rates_dT(k_c12_o16__si28__modified) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -1029,34 +1234,44 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 8.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_o16_o16__p_p31);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_o16_o16__p_p31);
     rate_eval.screened_rates(k_o16_o16__p_p31) *= scor;
-    rate_eval.dscreened_rates_dT(k_o16_o16__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_o16_o16__p_p31);
+        rate_eval.dscreened_rates_dT(k_o16_o16__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_o16_o16__he4_si28);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_o16_o16__he4_si28);
     rate_eval.screened_rates(k_o16_o16__he4_si28) *= scor;
-    rate_eval.dscreened_rates_dT(k_o16_o16__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_o16_o16__he4_si28);
+        rate_eval.dscreened_rates_dT(k_o16_o16__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_si28__o16_o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__o16_o16);
     rate_eval.screened_rates(k_he4_si28__o16_o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_si28__o16_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__o16_o16);
+        rate_eval.dscreened_rates_dT(k_he4_si28__o16_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_p31__o16_o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__o16_o16);
     rate_eval.screened_rates(k_p_p31__o16_o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_p31__o16_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__o16_o16);
+        rate_eval.dscreened_rates_dT(k_p_p31__o16_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_o16_o16__s32__modified);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_o16_o16__s32__modified);
     rate_eval.screened_rates(k_o16_o16__s32__modified) *= scor;
-    rate_eval.dscreened_rates_dT(k_o16_o16__s32__modified) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_o16_o16__s32__modified);
+        rate_eval.dscreened_rates_dT(k_o16_o16__s32__modified) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -1066,29 +1281,37 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 6.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_c12_ne20__p_p31);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_ne20__p_p31);
     rate_eval.screened_rates(k_c12_ne20__p_p31) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_ne20__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_ne20__p_p31);
+        rate_eval.dscreened_rates_dT(k_c12_ne20__p_p31) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_c12_ne20__he4_si28);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_ne20__he4_si28);
     rate_eval.screened_rates(k_c12_ne20__he4_si28) *= scor;
-    rate_eval.dscreened_rates_dT(k_c12_ne20__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_ne20__he4_si28);
+        rate_eval.dscreened_rates_dT(k_c12_ne20__he4_si28) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_he4_si28__c12_ne20);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__c12_ne20);
     rate_eval.screened_rates(k_he4_si28__c12_ne20) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_si28__c12_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_si28__c12_ne20);
+        rate_eval.dscreened_rates_dT(k_he4_si28__c12_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_p31__c12_ne20);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__c12_ne20);
     rate_eval.screened_rates(k_p_p31__c12_ne20) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_p31__c12_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p31__c12_ne20);
+        rate_eval.dscreened_rates_dT(k_p_p31__c12_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     // Calculate tabular rates
@@ -1358,9 +1581,10 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // build the rates
 
-    rate_eval_t rate_eval;
+    rate_t rate_eval;
 
-    evaluate_rates(state, rate_eval);
+    constexpr int do_T_derivatives = 0;
+    evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
 
     rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
 
@@ -2142,9 +2366,10 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 
     jac.zero();
 
-    rate_eval_t rate_eval;
+    rate_derivs_t rate_eval;
 
-    evaluate_rates(state, rate_eval);
+    constexpr int do_T_derivatives = 1;
+    evaluate_rates<do_T_derivatives, rate_derivs_t>(state, rate_eval);
 
     // Species Jacobian elements with respect to other species
 
