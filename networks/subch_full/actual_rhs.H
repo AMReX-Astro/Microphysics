@@ -1318,6 +1318,23 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     Real rate, drate_dt, edot_nu;
 
+    // filter rates
+    if (rate_filter_tol > 0.0_rt) {
+        Real max_rate_mag = std::numeric_limits<Real>::lowest();
+        for (int n = 1; n <= NumRates; ++n) {
+            max_rate_mag = amrex::max(max_rate_mag, std::abs(rate_eval.screened_rates(n)));
+        }
+
+        for (int n = 1; n <= NumRates; ++n) {
+            if (std::abs(rate_eval.screened_rates(n)) < rate_filter_tol * max_rate_mag) {
+                rate_eval.screened_rates(n) = 0.0_rt;
+                if constexpr (std::is_same<T, rate_derivs_t>::value) {
+                    rate_eval.dscreened_rates_dT(n) = 0.0_rt;
+                }
+            }
+        }
+    }
+
 
 }
 
