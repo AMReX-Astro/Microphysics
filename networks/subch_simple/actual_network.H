@@ -1,0 +1,251 @@
+#ifndef actual_network_H
+#define actual_network_H
+
+#include <AMReX_REAL.H>
+#include <AMReX_Array.H>
+
+#include <fundamental_constants.H>
+#include <network_properties.H>
+
+using namespace amrex;
+
+void actual_network_init();
+
+const std::string network_name = "pynucastro-cxx";
+
+namespace network
+{
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+}
+
+namespace Rates
+{
+
+    enum NetworkRates
+    {
+        k_n13__p_c12 = 1,
+        k_o16__he4_c12 = 2,
+        k_f18__he4_n14 = 3,
+        k_ne20__he4_o16 = 4,
+        k_na22__p_ne21 = 5,
+        k_na22__he4_f18 = 6,
+        k_mg24__p_na23 = 7,
+        k_mg24__he4_ne20 = 8,
+        k_al27__he4_na23 = 9,
+        k_si28__p_al27 = 10,
+        k_si28__he4_mg24 = 11,
+        k_p31__he4_al27 = 12,
+        k_s32__p_p31 = 13,
+        k_s32__he4_si28 = 14,
+        k_c12__he4_he4_he4 = 15,
+        k_p_c12__n13 = 16,
+        k_he4_c12__o16 = 17,
+        k_he4_n14__f18 = 18,
+        k_he4_o16__ne20 = 19,
+        k_he4_f18__na22 = 20,
+        k_he4_ne20__mg24 = 21,
+        k_p_ne21__na22 = 22,
+        k_p_na23__mg24 = 23,
+        k_he4_na23__al27 = 24,
+        k_he4_mg24__si28 = 25,
+        k_p_al27__si28 = 26,
+        k_he4_al27__p31 = 27,
+        k_he4_si28__s32 = 28,
+        k_p_p31__s32 = 29,
+        k_c12_c12__p_na23 = 30,
+        k_c12_c12__he4_ne20 = 31,
+        k_he4_n13__p_o16 = 32,
+        k_p_o16__he4_n13 = 33,
+        k_c12_o16__p_al27 = 34,
+        k_c12_o16__he4_mg24 = 35,
+        k_o16_o16__p_p31 = 36,
+        k_o16_o16__he4_si28 = 37,
+        k_he4_f18__p_ne21 = 38,
+        k_he4_ne20__p_na23 = 39,
+        k_c12_ne20__p_p31 = 40,
+        k_c12_ne20__he4_si28 = 41,
+        k_p_ne21__he4_f18 = 42,
+        k_p_na23__he4_ne20 = 43,
+        k_he4_mg24__p_al27 = 44,
+        k_p_al27__he4_mg24 = 45,
+        k_he4_si28__p_p31 = 46,
+        k_he4_si28__c12_ne20 = 47,
+        k_p_p31__he4_si28 = 48,
+        k_p_p31__c12_ne20 = 49,
+        k_he4_he4_he4__c12 = 50,
+        k_c12_c12__mg24__modified = 51,
+        k_o16_o16__s32__modified = 52,
+        k_c12_o16__si28__modified = 53,
+        k_he4_s32__ar36 = 54,
+        k_he4_s32__p_cl35 = 55,
+        k_p_cl35__ar36 = 56,
+        k_ar36__he4_s32 = 57,
+        k_ar36__p_cl35 = 58,
+        k_p_cl35__he4_s32 = 59,
+        k_he4_ar36__ca40 = 60,
+        k_he4_ar36__p_k39 = 61,
+        k_p_k39__ca40 = 62,
+        k_ca40__he4_ar36 = 63,
+        k_ca40__p_k39 = 64,
+        k_p_k39__he4_ar36 = 65,
+        k_he4_ca40__ti44 = 66,
+        k_he4_ca40__p_sc43 = 67,
+        k_p_sc43__ti44 = 68,
+        k_ti44__he4_ca40 = 69,
+        k_ti44__p_sc43 = 70,
+        k_p_sc43__he4_ca40 = 71,
+        k_he4_ti44__cr48 = 72,
+        k_he4_ti44__p_v47 = 73,
+        k_p_v47__cr48 = 74,
+        k_cr48__he4_ti44 = 75,
+        k_cr48__p_v47 = 76,
+        k_p_v47__he4_ti44 = 77,
+        k_he4_cr48__fe52 = 78,
+        k_he4_cr48__p_mn51 = 79,
+        k_p_mn51__fe52 = 80,
+        k_fe52__he4_cr48 = 81,
+        k_fe52__p_mn51 = 82,
+        k_p_mn51__he4_cr48 = 83,
+        k_he4_fe52__ni56 = 84,
+        k_he4_fe52__p_co55 = 85,
+        k_p_co55__ni56 = 86,
+        k_ni56__he4_fe52 = 87,
+        k_ni56__p_co55 = 88,
+        k_p_co55__he4_fe52 = 89,
+        k_s32_he4__ar36__approx = 90,
+        k_ar36__s32_he4__approx = 91,
+        k_ar36_he4__ca40__approx = 92,
+        k_ca40__ar36_he4__approx = 93,
+        k_ca40_he4__ti44__approx = 94,
+        k_ti44__ca40_he4__approx = 95,
+        k_ti44_he4__cr48__approx = 96,
+        k_cr48__ti44_he4__approx = 97,
+        k_cr48_he4__fe52__approx = 98,
+        k_fe52__cr48_he4__approx = 99,
+        k_fe52_he4__ni56__approx = 100,
+        k_ni56__fe52_he4__approx = 101,
+        NumRates = k_ni56__fe52_he4__approx
+    };
+
+    // number of reaclib rates
+
+    const int NrateReaclib = 89;
+    const int NumReaclibSets = 165;
+
+    // number of tabular rates
+
+    const int NrateTabular = 0;
+
+    // rate names -- note: the rates are 1-based, not zero-based, so we pad
+    // this vector with rate_names[0] = "" so the indices line up with the
+    // NetworkRates enum
+
+    static const std::vector<std::string> rate_names = {
+        "",   // 0
+        "n13__p_c12",  // 1,
+        "o16__he4_c12",  // 2,
+        "f18__he4_n14",  // 3,
+        "ne20__he4_o16",  // 4,
+        "na22__p_ne21",  // 5,
+        "na22__he4_f18",  // 6,
+        "mg24__p_na23",  // 7,
+        "mg24__he4_ne20",  // 8,
+        "al27__he4_na23",  // 9,
+        "si28__p_al27",  // 10,
+        "si28__he4_mg24",  // 11,
+        "p31__he4_al27",  // 12,
+        "s32__p_p31",  // 13,
+        "s32__he4_si28",  // 14,
+        "c12__he4_he4_he4",  // 15,
+        "p_c12__n13",  // 16,
+        "he4_c12__o16",  // 17,
+        "he4_n14__f18",  // 18,
+        "he4_o16__ne20",  // 19,
+        "he4_f18__na22",  // 20,
+        "he4_ne20__mg24",  // 21,
+        "p_ne21__na22",  // 22,
+        "p_na23__mg24",  // 23,
+        "he4_na23__al27",  // 24,
+        "he4_mg24__si28",  // 25,
+        "p_al27__si28",  // 26,
+        "he4_al27__p31",  // 27,
+        "he4_si28__s32",  // 28,
+        "p_p31__s32",  // 29,
+        "c12_c12__p_na23",  // 30,
+        "c12_c12__he4_ne20",  // 31,
+        "he4_n13__p_o16",  // 32,
+        "p_o16__he4_n13",  // 33,
+        "c12_o16__p_al27",  // 34,
+        "c12_o16__he4_mg24",  // 35,
+        "o16_o16__p_p31",  // 36,
+        "o16_o16__he4_si28",  // 37,
+        "he4_f18__p_ne21",  // 38,
+        "he4_ne20__p_na23",  // 39,
+        "c12_ne20__p_p31",  // 40,
+        "c12_ne20__he4_si28",  // 41,
+        "p_ne21__he4_f18",  // 42,
+        "p_na23__he4_ne20",  // 43,
+        "he4_mg24__p_al27",  // 44,
+        "p_al27__he4_mg24",  // 45,
+        "he4_si28__p_p31",  // 46,
+        "he4_si28__c12_ne20",  // 47,
+        "p_p31__he4_si28",  // 48,
+        "p_p31__c12_ne20",  // 49,
+        "he4_he4_he4__c12",  // 50,
+        "c12_c12__mg24__modified",  // 51,
+        "o16_o16__s32__modified",  // 52,
+        "c12_o16__si28__modified",  // 53,
+        "he4_s32__ar36",  // 54,
+        "he4_s32__p_cl35",  // 55,
+        "p_cl35__ar36",  // 56,
+        "ar36__he4_s32",  // 57,
+        "ar36__p_cl35",  // 58,
+        "p_cl35__he4_s32",  // 59,
+        "he4_ar36__ca40",  // 60,
+        "he4_ar36__p_k39",  // 61,
+        "p_k39__ca40",  // 62,
+        "ca40__he4_ar36",  // 63,
+        "ca40__p_k39",  // 64,
+        "p_k39__he4_ar36",  // 65,
+        "he4_ca40__ti44",  // 66,
+        "he4_ca40__p_sc43",  // 67,
+        "p_sc43__ti44",  // 68,
+        "ti44__he4_ca40",  // 69,
+        "ti44__p_sc43",  // 70,
+        "p_sc43__he4_ca40",  // 71,
+        "he4_ti44__cr48",  // 72,
+        "he4_ti44__p_v47",  // 73,
+        "p_v47__cr48",  // 74,
+        "cr48__he4_ti44",  // 75,
+        "cr48__p_v47",  // 76,
+        "p_v47__he4_ti44",  // 77,
+        "he4_cr48__fe52",  // 78,
+        "he4_cr48__p_mn51",  // 79,
+        "p_mn51__fe52",  // 80,
+        "fe52__he4_cr48",  // 81,
+        "fe52__p_mn51",  // 82,
+        "p_mn51__he4_cr48",  // 83,
+        "he4_fe52__ni56",  // 84,
+        "he4_fe52__p_co55",  // 85,
+        "p_co55__ni56",  // 86,
+        "ni56__he4_fe52",  // 87,
+        "ni56__p_co55",  // 88,
+        "p_co55__he4_fe52",  // 89,
+        "s32_he4__ar36__approx",  // 90,
+        "ar36__s32_he4__approx",  // 91,
+        "ar36_he4__ca40__approx",  // 92,
+        "ca40__ar36_he4__approx",  // 93,
+        "ca40_he4__ti44__approx",  // 94,
+        "ti44__ca40_he4__approx",  // 95,
+        "ti44_he4__cr48__approx",  // 96,
+        "cr48__ti44_he4__approx",  // 97,
+        "cr48_he4__fe52__approx",  // 98,
+        "fe52__cr48_he4__approx",  // 99,
+        "fe52_he4__ni56__approx",  // 100,
+        "ni56__fe52_he4__approx"  // 101,
+    };
+
+}
+
+#endif
