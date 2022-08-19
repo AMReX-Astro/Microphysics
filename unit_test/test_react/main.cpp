@@ -193,44 +193,28 @@ void main_main ()
     AsyncArray<int> aa_num_failed(&num_failed, 1);
     int* num_failed_d = aa_num_failed.data();
 
+    BL_PROFILE("do_react");
+
+    // Do the reactions
+    auto const& ma = state.arrays();
+    auto const& ia = integrator_n_rhs.arrays();
+
+    auto r = amrex::ParReduce(TypeList<ReduceOpMax>{}, TypeList<ValLocPair<int, burn_t>>{}, state,
+    [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) -> GpuTuple<ValLocPair<int, burn_t>>
     {
-        BL_PROFILE("do_react");
 
-        // Do the reactions
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-        for (MFIter mfi(state, tile_size); mfi.isValid(); ++mfi)
-        {
-            const Box& bx = mfi.tilebox();
+        Array4<Real> const& s = ma[box_no];
+        auto n_rhs = ia[box_no];
 
-            auto s = state.array(mfi);
-            auto n_rhs = integrator_n_rhs.array(mfi);
+        burn_t burn_state;
+        bool success = do_react(i, j, k, s, burn_state, n_rhs, vars);
 
-            amrex::ParallelFor(bx,
-            [=] AMREX_GPU_DEVICE (int i, int j, int k)
-            {
-                bool success = do_react(i, j, k, s, n_rhs, vars);
-
-                if (!success) {
-                    Gpu::Atomic::Add(num_failed_d, 1);
-                }
-            });
-
-#ifndef AMREX_USE_GPU
-            if (print_every_nrhs != 0) {
-                auto int_state = integrator_n_rhs.array(mfi);
-
-                amrex::ParallelFor(bx,
-                [=] AMREX_GPU_DEVICE (int i, int j, int k)
-                {
-                    std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
-                });
-            }
-#endif
-
+        if (!success) {
+            Gpu::Atomic::Add(num_failed_d, 1);
         }
-    }
+
+        return {ValLocPair<int, burn_t>{n_rhs(i,j,k,0), burn_state}};
+    });
 
     aa_num_failed.copyToHost(&num_failed, 1);
     Gpu::synchronize();
@@ -247,9 +231,6 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
-    int n_rhs_min = integrator_n_rhs.min(0);
-    int n_rhs_max = integrator_n_rhs.max(0);
-    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -274,6 +255,12 @@ void main_main ()
 
     write_job_info(prefix + name + integrator + language);
 
+    // output stats on the number of RHS calls
+
+    int n_rhs_min = integrator_n_rhs.min(0);
+    int n_rhs_max = integrator_n_rhs.max(0);
+    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
+
     if (ParallelDescriptor::IOProcessor()) {
 
         // Tell the I/O Processor to write out the "run time"
@@ -283,6 +270,14 @@ void main_main ()
         std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
         std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
         std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+    }
+
+    // output the state that took the most time
+
+    if (ParallelDescriptor::IOProcessor()) {
+        std::ofstream of("zone_state.out");
+        of << r.index << std::endl;
+        of.close();
     }
 
 }
