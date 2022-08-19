@@ -1344,6 +1344,20 @@ void rhs_nuc(const burn_t& state,
     ydot_nuc(Ni56) =
         (screened_rates(k_fe52_he4__ni56__approx)*Y(Fe52)*Y(He4)*state.rho + -screened_rates(k_ni56__fe52_he4__approx)*Y(Ni56));
 
+    if (rate_filter_tol > 0.0) {
+        Real max_ydot = std::numeric_limits<Real>::lowest();
+        for (int n = 1; n <= NumSpec; ++n) {
+            max_ydot = amrex::max(max_ydot, std::abs(ydot_nuc(n)));
+        }
+
+        Real cutoff = rate_filter_tol * max_ydot;
+        for (int n = 1; n <= NumSpec; ++n) {
+            if (std::abs(ydot_nuc(n)) < cutoff) {
+                ydot_nuc(n) = std::copysign(cutoff, ydot_nuc(n));
+            }
+        }
+    }
+
 }
 
 
