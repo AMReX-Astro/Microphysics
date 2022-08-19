@@ -1163,6 +1163,16 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     Real rate, drate_dt, edot_nu;
 
 
+    // turn off unimportant rates
+    for (int n = 1; n < NumRates; ++n) {
+        if (! state.rate_filter_mask(n)) {
+            rate_eval.screened_rates(n) = 0.0;
+            if constexpr (std::is_same<T, rate_derivs_t>::value) {
+                rate_eval.dscreened_rates_dT(n) = 0.0;
+            }
+        }
+    }
+
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE

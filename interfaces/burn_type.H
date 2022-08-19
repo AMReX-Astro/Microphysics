@@ -11,6 +11,8 @@
 
 #include <ArrayUtilities.H>
 
+#include <actual_network.H>
+
 using namespace amrex;
 
 // A generic structure holding data necessary to do a nuclear burn.
@@ -113,6 +115,8 @@ struct burn_t
   int strang_half;
 #endif
 #endif
+
+  amrex::Array1D<bool, 1, Rates::NumRates> rate_filter_mask;
 
   // now come the bits that we need for SDC or Strang evolution
 

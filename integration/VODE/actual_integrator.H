@@ -12,6 +12,8 @@
 #include <vode_type.H>
 #include <vode_dvode.H>
 
+#include <actual_rhs.H>
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, Real dt)
 {
@@ -66,6 +68,29 @@ void actual_integrator (burn_t& state, Real dt)
     Real e_in = state.e;
 
     state.self_heat = true;
+
+
+    // set the rate mask if we are doing rate filtering
+    for (int n = 1; n < Rates::NumRates; ++n) {
+        state.rate_filter_mask(n) = true;
+    }
+
+    if (rate_filter_tol > 0.0) {
+        rate_t rate_eval;
+        constexpr int do_T_derivatives = 0;
+        evaluate_rates<do_T_derivatives>(state, rate_eval);
+
+        Real max_rate_mag = std::numeric_limits<Real>::lowest();
+        for (int n = 1; n <= NumRates; ++n) {
+            max_rate_mag = amrex::max(max_rate_mag, std::abs(rate_eval.screened_rates(n)));
+        }
+
+        for (int n = 1; n <= NumRates; ++n) {
+            if (std::abs(rate_eval.screened_rates(n)) < rate_filter_tol * max_rate_mag) {
+                state.rate_filter_mask(n) = false;
+            }
+        }
+    }
 
     // Call the integration routine.
 
