@@ -60,24 +60,39 @@ def doit():
         #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")])):
         #     rates_to_remove.append(r)
 
-        # Q = -10.1
+        # C12+Ne20 and reverse
         if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
             sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
             rates_to_remove.append(r)
 
-        # Q = -12.0
         if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
             sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
             rates_to_remove.append(r)
 
-        # Q = -10.1
         if (sorted(r.products) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
             sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
             rates_to_remove.append(r)
 
-        # Q = -12.0
         if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
             sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
+            rates_to_remove.append(r)
+
+        # (a,g) links between Na23 and Al27
+        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("na23")]) and
+            sorted(r.products) == sorted([pyna.Nucleus("al27")])):
+            rates_to_remove.append(r)
+
+        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("na23")]) and
+            sorted(r.reactants) == sorted([pyna.Nucleus("al27")])):
+            rates_to_remove.append(r)
+
+        # (a,g) links between Al27 and P31
+        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("al27")]) and
+            sorted(r.products) == sorted([pyna.Nucleus("p31")])):
+            rates_to_remove.append(r)
+
+        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("al27")]) and
+            sorted(r.reactants) == sorted([pyna.Nucleus("p31")])):
             rates_to_remove.append(r)
 
         # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("al27")]) and
