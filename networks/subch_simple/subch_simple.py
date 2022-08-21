@@ -55,7 +55,45 @@ def doit():
                                   [pyna.Nucleus("o16"), pyna.Nucleus("o16")]]:
             rates_to_remove.append(r)
 
-    print("removing: ", rates_to_remove)
+        # Q = 1.9
+        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
+        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")])):
+        #     rates_to_remove.append(r)
+
+        # Q = -10.1
+        if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
+            sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
+            rates_to_remove.append(r)
+
+        # Q = -12.0
+        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
+            sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
+            rates_to_remove.append(r)
+
+        # Q = -10.1
+        if (sorted(r.products) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
+            sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
+            rates_to_remove.append(r)
+
+        # Q = -12.0
+        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
+            sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
+            rates_to_remove.append(r)
+
+        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("al27")]) and
+        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("mg24")])):
+        #     rates_to_remove.append(r)
+
+        # If (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("ne21")]) and
+        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("f18")])):
+        #     rates_to_remove.append(r)
+
+        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("o16")]) and
+        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("n13")])):
+        #     rates_to_remove.append(r)
+
+    for r in rates_to_remove:
+        print("removing: ", r)
 
     net.remove_rates(rates_to_remove)
 
