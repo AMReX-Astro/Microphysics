@@ -22,13 +22,6 @@ using namespace Rates;
 
 using namespace rate_tables;
 
-struct rate_eval_t {
-    Array1D<Real, 1, NumRates>  screened_rates;
-    Array1D<Real, 1, NumRates>  dscreened_rates_dT;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
-};
-
-
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -69,26 +62,9 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     tf_t tfactors = evaluate_tfactors(state.T);
 
-    if (jacobian == 1) {
-        for (int i = 1; i <= NrateReaclib; ++i) {
-            Real rate;
-            Real drate_dt;
-            constexpr int do_T_derivatives = 1;
-            reaclib_evaluate<do_T_derivatives>(pstate, tfactors, i, rate, drate_dt);
-            rate_eval.screened_rates(i) = rate;
-            rate_eval.dscreened_rates_dT(i) = drate_dt;
-        }
-    } else {
-        for (int i = 1; i <= NrateReaclib; ++i) {
-            Real rate;
-            Real drate_dt;
-            // drate_dt is not used in this case
-            constexpr int do_T_derivatives = 0;
-            reaclib_evaluate<do_T_derivatives>(pstate, tfactors, i, rate, drate_dt);
-            rate_eval.screened_rates(i) = rate;
-            rate_eval.dscreened_rates_dT(i) = drate_dt;
-        }
-    }
+    fill_reaclib_rates(tfactors, rate_eval);
+
+
 
     // Evaluate screening factors
 
@@ -97,7 +73,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     Real scor2, dscor2_dt, dscor2_dd;
 
 
-    screen5(pstate, 0, zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(6.0_rt, 12.0_rt, 6.0_rt, 12.0_rt);
+
+
+        static_assert(scn_fac.z1 == 6.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_c12_c12__he4_ne20);
@@ -116,7 +100,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
     rate_eval.dscreened_rates_dT(k_c12_c12__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
 
 
-    screen5(pstate, 1, zion[He4-1], aion[He4-1], zion[C12-1], aion[C12-1], scor, dscor_dt, dscor_dd);
+    {
+        constexpr auto scn_fac = scrn::calculate_screen_factor(2.0_rt, 4.0_rt, 6.0_rt, 12.0_rt);
+
+
+        static_assert(scn_fac.z1 == 2.0_rt);
+
+
+        actual_screen(pstate, scn_fac, scor, dscor_dt);
+    }
 
 
     ratraw = rate_eval.screened_rates(k_he4_c12__o16);
@@ -161,14 +153,14 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_n__p__weak__wc12)*Y(N);
 
     ydot_nuc(He4) =
-        -screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho +
-        0.5*screened_rates(k_c12_c12__he4_ne20)*std::pow(Y(C12), 2)*state.rho;
+        0.5*screened_rates(k_c12_c12__he4_ne20)*std::pow(Y(C12), 2)*state.rho +
+        -screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho;
 
     ydot_nuc(C12) =
         -screened_rates(k_c12_c12__he4_ne20)*std::pow(Y(C12), 2)*state.rho +
-        -screened_rates(k_c12_c12__n_mg23)*std::pow(Y(C12), 2)*state.rho +
         -screened_rates(k_c12_c12__p_na23)*std::pow(Y(C12), 2)*state.rho +
-        -screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho;
+        -screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho +
+        -screened_rates(k_c12_c12__n_mg23)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(O16) =
         screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho;
@@ -177,13 +169,11 @@ void rhs_nuc(const burn_t& state,
         0.5*screened_rates(k_c12_c12__he4_ne20)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(Ne23) =
-        -screened_rates(k_ne23__na23)*Y(Ne23) +
-        screened_rates(k_na23__ne23)*Y(Na23);
+        (-screened_rates(k_ne23__na23)*Y(Ne23) + screened_rates(k_na23__ne23)*Y(Na23));
 
     ydot_nuc(Na23) =
-        -screened_rates(k_na23__ne23)*Y(Na23) +
         0.5*screened_rates(k_c12_c12__p_na23)*std::pow(Y(C12), 2)*state.rho +
-        screened_rates(k_ne23__na23)*Y(Ne23);
+        (screened_rates(k_ne23__na23)*Y(Ne23) + -screened_rates(k_na23__ne23)*Y(Na23));
 
     ydot_nuc(Mg23) =
         0.5*screened_rates(k_c12_c12__n_mg23)*std::pow(Y(C12), 2)*state.rho;
@@ -367,13 +357,7 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 AMREX_INLINE
 void actual_rhs_init () {
 
-    init_reaclib();
-
     init_tabular();
-
-    screening_init();
-
-    net_screening_init();
 
 }
 

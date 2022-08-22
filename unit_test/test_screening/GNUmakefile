@@ -38,6 +38,8 @@ INTEGRATOR_DIR := VODE
 
 CONDUCTIVITY_DIR := stellar
 
+SCREEN_METHOD := screen5
+
 EXTERN_SEARCH += .
 
 Bpack   := ./Make.package

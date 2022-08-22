@@ -1,3 +1,24 @@
+# 22.08
+
+  * The subch network was renamed `subch_approx` and the subch2 network was renamed
+    `subch_full` (#947)
+
+# 22.07
+
+  * Two new screening formulations have been added for reaction rates, based
+    on Chugunov, DeWitt, and Yakovlev 2007 and Chugunov and DeWitt 2009.  These
+    can be used with any network by setting SCREEN_METHOD at compile time.(#887)
+
+# 22.06
+
+  * The subch2 network now has runtime parameters allowing for
+    some key rates to be disabled (#921).
+
+# 22.05
+
+  * The subch2 network was improved by adding some missing C+C, C+O,
+    and O+O rates. (#915)
+
 # 22.04
 
   * aprox networks now use a templated C++ righthand side formulation that

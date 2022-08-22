@@ -33,6 +33,9 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_state.HMXI = 1.0_rt / ode_max_dt;
 
+    // set the Jacobian type
+    vode_state.jacobian_type = jacobian;
+
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
@@ -180,6 +183,9 @@ void actual_integrator (burn_t& state, Real dt)
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
+            if (istate == 2) {
+                std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
+            }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;

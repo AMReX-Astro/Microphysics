@@ -45,10 +45,6 @@ namespace Rates
         NumRates = k_f20__ne20
     };
 
-    // For each rate, we need: rate, drate/dT, screening, dscreening/dT
-
-    const int NumGroups = 4;
-
     // number of reaclib rates
 
     const int NrateReaclib = 14;
@@ -58,24 +54,31 @@ namespace Rates
 
     const int NrateTabular = 4;
 
-}
+    // rate names -- note: the rates are 1-based, not zero-based, so we pad
+    // this vector with rate_names[0] = "" so the indices line up with the
+    // NetworkRates enum
 
-namespace reaclib_rates
-{
-
-    // Temperature coefficient arrays (numbers correspond to reaction
-    // numbers in net_info)
-
-    extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, 7, 1, Rates::NumReaclibSets> ctemp_rate;
-
-    // Index into ctemp_rate, dimension 2, where each rate's
-    // coefficients start
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<int, 1, Rates::NrateReaclib> rate_start_idx;
-
-    // Reaction multiplicities-1 (how many rates contribute - 1)
-
-    extern AMREX_GPU_MANAGED amrex::Array1D<int, 1, Rates::NrateReaclib> rate_extra_mult;
+    static const std::vector<std::string> rate_names = {
+        "",   // 0
+        "ne20__he4_o16",  // 1,
+        "he4_o16__ne20",  // 2,
+        "he4_ne20__mg24",  // 3,
+        "he4_mg24__si28",  // 4,
+        "p_al27__si28",  // 5,
+        "he4_al27__p31",  // 6,
+        "he4_si28__s32",  // 7,
+        "p_p31__s32",  // 8,
+        "o16_o16__p_p31",  // 9,
+        "o16_o16__he4_si28",  // 10,
+        "he4_mg24__p_al27",  // 11,
+        "p_al27__he4_mg24",  // 12,
+        "he4_si28__p_p31",  // 13,
+        "p_p31__he4_si28",  // 14,
+        "f20__o20",  // 15,
+        "ne20__f20",  // 16,
+        "o20__f20",  // 17,
+        "f20__ne20"  // 18,
+    };
 
 }
 

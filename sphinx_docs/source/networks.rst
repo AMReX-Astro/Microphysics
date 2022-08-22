@@ -172,38 +172,90 @@ reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
 
-subch
-=====
+subch networks
+==============
 
-This is a 10 isotope network including rates from reactions suggested
-by Shen and Bildsten in their 2009 paper on helium burning on a white
-dwarf :cite:`ShenBildsten`.  The reactions included in
-this networks are as follows:
+The networks subch_full and subch_approx recreate an aprox13
+alpha-chain + including a bypass rate for :math:`\isotm{C}{12}(\alpha,
+\gamma)\isotm{O}{16}` discussed in :cite:`ShenBildsten`.  This is appropriate
+for explosive He burning.
 
-.. math::
+:cite:`ShenBildsten` discuss the sequences:
 
-   \begin{aligned}
-       \isotm{He}{4} &\rightarrow  \isotm{C}{12} + 2\gamma \\
-       \isotm{C}{12} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \gamma \\
-       \isotm{N}{14} + \isotm{He}{4} &\rightarrow \isotm{F}{18} + \gamma \label{chemeq:1.1} \\
-       \isotm{F}{18} + \isotm{He}{4} &\rightarrow \isotm{Ne}{21} +  \text{p} \label{chemeq:1.2} \\
-       \isotm{C}{12} + p+ &\rightarrow \isotm{N}{13} + \gamma  \label{chemeq:2.1} \\
-       \isotm{N}{13} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \text{p} \label{chemeq:2.2} \\
-       \isotm{O}{16} + \isotm{He}{4} &\rightarrow \isotm{Ne}{20} + \gamma \\
-       \isotm{C}{14} + \isotm{He}{4} &\rightarrow \isotm{O}{18} + \gamma \label{chemeq:3.2}
-   \end{aligned}
+* :math:`\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
+  \gamma)\isotm{Ne}{22}` at high temperatures (T > 1 GK).  We don't
+  consider this.
 
-The main reactions suggested by Shen and Bildsten were the :math:`\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}`,
-leading into :math:`\isotm{F}{18}(\alpha,p)\isotm{Ne}{21}`,
-:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` leading into :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`,
-and :math:`\isotm{C}{14}(\alpha,\gamma)\isotm{O}{18}` :cite:`ShenBildsten`.
-The rates of these reactions are shown in the figure below.
-Notably, the reaction :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`, is high and may produce :math:`\isotm{O}{16}` more quickly than reactions involving only :math:`\isotm{He}{4}` and :math:`\isotm{C}{12}`,
+* :math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
+  p)\isotm{Ne}{21}` is the one they consider important, since it produces
+  protons that are then available for :math:`\isotm{C}{12}(p,
+  \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
+
+This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
+the other nuclei by including :math:`\isotm{Na}{22}`.
+
+For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
+\isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
+also need to include:
+
+* :math:`\isotm{C}{12}(\isotm{C}{12},n)\isotm{Mg}{23}(n,\gamma)\isotm{Mg}{24}`
+
+* :math:`\isotm{O}{16}(\isotm{O}{16}, n)\isotm{S}{31}(n, \gamma)\isotm{S}{32}`
+
+* :math:`\isotm{O}{16}(\isotm{C}{12}, n)\isotm{Si}{27}(n, \gamma)\isotm{Si}{28}`
+
+Since the neutron captures on those
+intermediate nuclei are so fast, we leave those out and take the
+forward rate to just be the first rate.  We do not include reverse
+rates for these processes.
 
 
-.. figure:: subch.png
-   :alt: pynucastro plot of the reaction rates of the subch network.
-   :scale: 80%
+subch_full
+----------
+
+subch_full does not create an effective rate for :math:`(\alpha,
+\gamma)` and :math:`(\alpha, p)(p, \gamma)` (i.e. combine them
+assuming proton equilibrium).  Therefore, we need to explicitly
+include the intermediate nuclei produced in the :math:`(\alpha,p)`
+reactions.  In all, 28 nuclei and 107 rates are included.
+
+This network is generated via pynucastro using the ``subch_full.py`` script.
+The overall network appears as:
+
+.. figure:: subch_full.png
    :align: center
 
-   pynucastro plot of the reaction rates of the subch network.
+subch_approx
+------------
+
+subch_approx approximates subch_full by combining some of the
+:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
+allowing us to drop the intermediate nucleus :math:`X`.  We do this
+for :math:`\isotm{Cl}{35}`, :math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`,
+:math:`\isotm{V}{47}`, :math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
+The resulting network appears as:
+
+.. figure:: subch_approx.png
+   :align: center
+
+The nuclei in gray are not part of the network, but the links to them
+are approximated.  This reduces the number of nuclei compared to subch_full
+from 28 to 22.
+
+disabling rates
+---------------
+
+For both subch_full and subch_approx, there are 2 runtime parameters that can be used
+to disable rates:
+
+* ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
+  :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` and its inverse are
+  disabled.
+
+* ``network.disable_he4_n13__p_o16`` : if set to ``1``, then the rate
+  :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
+  disabled.
+
+Together, these parameters allow us to turn off the sequence 
+:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
+acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.

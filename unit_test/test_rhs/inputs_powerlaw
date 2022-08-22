@@ -12,5 +12,4 @@ unit_test.small_temp = 1.e3
 
 unit_test.primary_species_1 = fuel
 
-
-
+integrator.jacobian = 1

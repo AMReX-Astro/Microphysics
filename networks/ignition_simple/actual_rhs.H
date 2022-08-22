@@ -32,9 +32,9 @@ void evaluate_rates(burn_t& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
     Real sc1212, dsc1212dt, dsc1212dd;
     
     int jscr = 0;
-    screen5(pstate, jscr,
-            zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
-            sc1212, dsc1212dt, dsc1212dd);
+    screen(pstate, jscr,
+           zion[C12-1], aion[C12-1], zion[C12-1], aion[C12-1],
+           sc1212, dsc1212dt, dsc1212dd);
 
     // compute some often used temperature constants
     Real T9     = temp / 1.e9_rt;

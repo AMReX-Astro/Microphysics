@@ -29,6 +29,9 @@ void actual_integrator (burn_t& state, Real dt)
     }
     vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
 
+    // set the Jacobian type
+    vode_state.jacobian_type = jacobian;
+
     // Start off by assuming a successful burn.
 
     state.success = true;
@@ -53,11 +56,11 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
+#ifndef AMREX_USE_GPU
     Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
-#ifndef AMREX_USE_GPU
     Real T_in = state.T;
 #endif
     Real e_in = state.e;
@@ -130,6 +133,9 @@ void actual_integrator (burn_t& state, Real dt)
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
+            if (istate == 2) {
+                std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
+            }
             std::cout << "time = " << vode_state.t << std::endl;
             std::cout << "dens = " << state.rho << std::endl;
             std::cout << "temp start = " << T_in << std::endl;
