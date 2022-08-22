@@ -175,6 +175,31 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         //
         //                   SFS                                         SEINT
 
+        // now correct the species derivatives
+        // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
+
+        eos_re_t eos_state;
+        eos_state.rho = state.rho;
+        eos_state.T = state.T;
+        eos_state.e = state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = state.xn[n];
+        }
+#ifdef NSE_THERMO
+        // make the aux data consistent with the state X's
+        set_nse_aux_from_X(eos_state);
+#endif
+
+        eos(eos_input_re, eos_state);
+
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+
+        for (int m = 1; m <= neqs; m++) {
+            for (int n = 1; n <= NumSpec; n++) {
+                pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
+            }
+        }
+
     }
 
 }
