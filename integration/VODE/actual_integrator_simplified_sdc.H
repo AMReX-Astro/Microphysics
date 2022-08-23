@@ -68,7 +68,7 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
 
 
 #if defined(SDC_EVOLVE_ENERGY)
-    Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt;
+    Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
 #elif defined(SDC_EVOLVE_ENTHALPY)
     Real sdc_min_density = state.rho;
     for (int n = 0; n < NumSpec; ++n) {
