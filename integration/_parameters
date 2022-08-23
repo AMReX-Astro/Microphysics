@@ -62,3 +62,18 @@ nonaka_j                integer           0
 nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
+
+# do we retry a failed burn with different parameters?
+use_burn_retry            integer   0
+
+# do we swap the Jacobian (from analytic to numerical or vice versa) on
+# a retry?
+retry_swap_jacobian       integer     1
+
+# Tolerances for the solver (relative and absolute), for the
+# species and energy equations.
+retry_rtol_spec                real      1.d-12
+retry_rtol_enuc                real      1.d-6
+
+retry_atol_spec                real      1.d-8
+retry_atol_enuc                real      1.d-6

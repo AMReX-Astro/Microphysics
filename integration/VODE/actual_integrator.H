@@ -13,24 +13,40 @@
 #include <vode_dvode.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
 {
     dvode_t vode_state;
 
     // Set the tolerances.
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.atol(n) = atol_spec; // mass fractions
-    }
-    vode_state.atol(net_ienuc) = atol_enuc; // energy generated
+    if (!is_retry) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            vode_state.atol(n) = atol_spec; // mass fractions
+        }
+        vode_state.atol(net_ienuc) = atol_enuc; // energy generated
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol(n) = rtol_spec; // mass fractions
+        for (int n = 1; n <= NumSpec; ++n) {
+            vode_state.rtol(n) = rtol_spec; // mass fractions
+        }
+        vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
+    } else {
+        for (int n = 1; n <= NumSpec; ++n) {
+            vode_state.atol(n) = retry_atol_spec; // mass fractions
+        }
+        vode_state.atol(net_ienuc) = retry_atol_enuc; // energy generated
+
+        for (int n = 1; n <= NumSpec; ++n) {
+            vode_state.rtol(n) = retry_rtol_spec; // mass fractions
+        }
+        vode_state.rtol(net_ienuc) = retry_rtol_enuc; // energy generated
     }
-    vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
 
     // set the Jacobian type
-    vode_state.jacobian_type = jacobian;
+    if (!(is_retry && retry_swap_jacobian)) {
+        vode_state.jacobian_type = jacobian;
+    } else {
+        vode_state.jacobian_type = (jacobian == 1) ? 2 : 1;
+    }
 
     // Start off by assuming a successful burn.
 
