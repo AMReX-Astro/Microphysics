@@ -96,6 +96,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     state.n_rhs = vode_state.NFE;
     state.n_jac = vode_state.NJE;
+    state.n_step = vode_state.NST;
 
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the
