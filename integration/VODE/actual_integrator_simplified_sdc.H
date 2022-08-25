@@ -77,7 +77,7 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
     sdc_min_density = amrex::min(state.rho, sdc_min_density);
 #endif
 
-    if (is_retry) {
+    if (!is_retry) {
 
 #if defined(SDC_EVOLVE_ENERGY)
         vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
