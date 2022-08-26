@@ -20,7 +20,7 @@ struct Newton_inputs{
 };
 
 template <typename T>
-T get_nse_state(T& state)
+T get_nse_state(const T& state)
 {
   // This function finds the nse state given the burn state or eos state
 
@@ -65,9 +65,9 @@ T get_nse_state(T& state)
 
 // get the constraint equations and its jacobian for newton raphson
 template <typename T>
-Newton_inputs nse_constraint(T& state){
+Newton_inputs nse_constraint(const T& state){
   // This functions finds the constraint equations and jacobian used for calculating nse.
-  
+
   // it is used to store constraint equation and jacobian
   Newton_inputs nse_inputs;
 
@@ -77,7 +77,6 @@ Newton_inputs nse_constraint(T& state){
 
   // Now find constraint equations
   nse_state.y_e = 0.0_rt;
-  composition(state);
 
   nse_inputs.eqs(0) = -1.0_rt;
 
@@ -116,8 +115,8 @@ Newton_inputs nse_constraint(T& state){
 
 // A newton-raphson solver for finding nse state used for calibrating chemical potential of proton and neutron
 template<typename T>
-void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt, int nloops=500){
-  
+void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
+
   // Check if network results in singular jacobian first, require at least one nuclei that nuclei.Z != nuclei.N
   // Some examples include aprox13 and iso7
   bool singular_network = true;
@@ -135,14 +134,16 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt, int nloops=500){
   }
 
   bool converged = false;                                     // whether nse solver converged or not
+
   Newton_inputs f = nse_constraint(state);                    // get constraint eqs and jacobian
+
   amrex::Real det;                                            // store determinant for finding inverse jac
   decltype(f.jac) inverse_jac;                                // store inverse jacobian
   amrex::Real d_mu_p = 0.0_rt;                                // difference in chemical potential of proton
   amrex::Real d_mu_n = 0.0_rt;                                // difference in chemical potential of neutron
 
   // begin newton-raphson
-  for (int i = 0; i < nloops; ++i){
+  for (int i = 0; i < max_nse_iters; ++i){
 
     // check if current state fulfills constraint equation
     if (std::abs(f.eqs(0)) < eps && std::abs(f.eqs(1)) < eps){
@@ -157,7 +158,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt, int nloops=500){
     if (scale_fac < 1.0e150){
       scale_fac = 1.0_rt;
     }
-    
+
     // Specific inverse 2x2 matrix, perhaps can write a function for solving n systems of equations.
     det = f.jac(0, 0) / scale_fac * f.jac(1, 1) - f.jac(0, 1) / scale_fac * f.jac(1, 0);
 
@@ -193,7 +194,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt, int nloops=500){
     // update constraint
     f = nse_constraint(state);
   }
-  
+
   if (!converged){
     amrex::Error("NSE solver failed to converge!");
   }
@@ -201,15 +202,20 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt, int nloops=500){
 
 // Get the NSE state;
 template<typename T>
-T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, int nloops=500){
+T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_valid=false){
 
-  // invoke newton-raphson to solve chemical potential of proton and neutron
-  nse_nr_solver(state, eps, nloops);
+    if (!input_ye_is_valid) {
+        // ensure Ye is valid
+        composition(state);
+    }
 
-  // get the nse_state
-  T nse_state = get_nse_state(state);
-  return nse_state;
+    // invoke newton-raphson to solve chemical potential of proton and neutron
+    nse_nr_solver(state, eps);
+
+    // get the nse_state
+    T nse_state = get_nse_state(state);
+    return nse_state;
+
 }
 
 #endif
- 
