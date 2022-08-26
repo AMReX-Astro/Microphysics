@@ -92,7 +92,6 @@ void burn_cell_c()
 
     // Echo initial conditions at burn and fill burn state input
 
-    std::cout << "Maximum Time (s): " << tmax << std::endl;
     std::cout << "State Density (g/cm^3): " << density << std::endl;
     std::cout << "State Temperature (K): " << temperature << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
@@ -108,151 +107,28 @@ void burn_cell_c()
     // normalize -- just in case
 
     normalize_abundances_burn(state);
-    
-    // output initial burn type data
-    Real time = 0.0_rt;
 
-    // call the EOS to set initial e -- it actually doesn't matter to
-    // the burn but we need to keep track of e to get a valid
-    // temperature for the burn if we substep
+    // compute the initial Ye
 
-    eos(eos_input_rt, state);
-
-    std::ofstream state_over_time("state_over_time.txt");
-
-    // we will divide the total integration time into nsteps that are
-    // logarithmically spaced
-    std::cout << "Number of steps is " << nsteps << std::endl; 
-    if (tfirst == 0.0_rt) {
-        if (nsteps == 1) {
-            tfirst = tmax;
-        } else {
-            tfirst = tmax / nsteps;
-        }
-    }
-    Real dlogt = 0.0_rt;
-    if (nsteps == 1) {
-        dlogt = (std::log10(tmax) - std::log10(tfirst));
-    } else {
-        dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
-    }
-
-    // save the initial state -- we'll use this to determine
-    // how much things changed over the entire burn
-
-    burn_t state_in = state;
-
-    // output the data in columns, one line per timestep
-
-    state_over_time << std::setw(10) << "# Time";
-    state_over_time << std::setw(12) << "Temperature";
-    for(int x = 0; x < NumSpec; ++x){
-	std::string element = short_spec_names_cxx[x];
-	state_over_time << std::setw(12) << element; 
-    }
-    state_over_time << std::endl;
-
-    Real t = 0.0;
-
-    state_over_time << std::setw(10) << t;
-    state_over_time << std::setw(12) << state.T; 
-    for (int x = 0; x < NumSpec; ++x){
-        state_over_time << std::setw(12) << state.xn[x]; 
-    }
-    state_over_time << std::endl;
+    composition(state);
 
     std::cout << "electron fraction is " << state.y_e << std::endl;
 
     // set initial chemical potential of proton and neutron
+
     state.mu_p = mu_p;
     state.mu_n = mu_n;
-    
+
     std::cout << "chemical potential of proton is " << mu_p << std::endl;
     std::cout << "chemical potential of neutron is " << mu_n << std::endl;
 
-    // find initial nse state
+    // find the  nse state
+
     auto NSE_STATE = get_actual_nse_state(state);
 
-    std::cout << "Initial nse mass fraction: " << std::endl;
+    std::cout << "NSE state: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
       std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
     }
-    
-    // store the initial internal energy -- we'll update this after
-    // each substep
 
-    Real energy_initial = state.e;
-
-    // loop over steps, burn, and output the current state
-
-    for (int n = 0; n < nsteps; n++){
-
-        // compute the time we wish to integrate to
-
-        Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
-        Real dt = tend - t;
-
-	// go through burning, integration procedues
-    	burner(state, dt);
-
-        // state.e represents the change in energy over the burn (for
-        // just this sybcycle), so turn it back into a physical energy
-
-        state.e += energy_initial;
-
-        // reset the initial energy for the next subcycle
-
-        energy_initial = state.e;
-
-        // get the updated T
-
-	eos(eos_input_re, state);
-
-	// update nse state due to update in temperature
-        NSE_STATE = get_actual_nse_state(state);
-   
-        t += dt;
-
-	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << state.T; 
-	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(12) << state.xn[x]; 
-	}
-	state_over_time << std::endl;
-    }
-    state_over_time.close();
-
-    // output diagnostics to the terminal
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "successful? " << state.success << std::endl;
-    std::cout << " - Hnuc = " << (state.e - state_in.e) / tmax << std::endl;
-    std::cout << " - added e = " << state.e - state_in.e << std::endl;
-    std::cout << " - final T = " << state.T << std::endl;
-
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "e initial = " << state_in.e << std::endl;
-    std::cout << "e final =   " << state.e << std::endl;
-
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "new mass fractions: " << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << state.xn[n] << std::endl;
-    }
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "species creation rates: " << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
-                  << (state.xn[n] - state_in.xn[n]) / tmax << std::endl;
-    }
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "final nse mass fraction: " << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-      std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
-    }
-    
 }
