@@ -29,8 +29,35 @@ void burn_cell_c()
                 state.rho = rho;
                 state.y_e = Ye;
 
-                state.mu_p = -3.0;
-                state.mu_n = -14.0;
+                // initial guess
+
+                if (state.T >= 4.e9_rt) {
+
+                    if (state.y_e < 0.45_rt) {
+                        state.mu_p = -15.0;
+                        state.mu_n = -4.0;
+                    } else if (state.y_e < 0.5_rt) {
+                        state.mu_p = -10.0;
+                        state.mu_n = -6.0;
+                    } else {
+                        state.mu_p = -3.0;
+                        state.mu_n = -14.0;
+                    }
+
+                } else {
+
+                    if (state.y_e < 0.45_rt) {
+                        state.mu_p = -15.0;
+                        state.mu_n = -4.0;
+                    } else if (state.y_e < 0.5_rt) {
+                        state.mu_p = -6.0;
+                        state.mu_n = -11.0;
+                    } else {
+                        state.mu_p = -4.0;
+                        state.mu_n = -13.0;
+                    }
+
+                }
 
                 // find the  nse state
 
