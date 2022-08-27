@@ -31,7 +31,7 @@ void burn_cell_c()
 
                 // initial guess
 
-                if (state.T >= 4.e9_rt) {
+                if (state.T >= 4.5e9_rt) {
 
                     if (state.y_e < 0.45_rt) {
                         state.mu_p = -15.0;
@@ -45,13 +45,24 @@ void burn_cell_c()
                     }
 
                 } else {
+                    // lower temperature
 
                     if (state.y_e < 0.45_rt) {
-                        state.mu_p = -15.0;
-                        state.mu_n = -4.0;
+                        if (state.rho < 1.e8_rt) {
+                            state.mu_p = -14.0;
+                            state.mu_n = -5.0;
+                        } else {
+                            state.mu_p = -16.3;
+                            state.mu_n = -3.2;
+                        }
                     } else if (state.y_e < 0.5_rt) {
-                        state.mu_p = -6.0;
-                        state.mu_n = -11.0;
+                        if (state.rho < 1.e8_rt) {
+                            state.mu_p = -6.0;
+                            state.mu_n = -11.0;
+                        } else {
+                            state.mu_p = -9.9;
+                            state.mu_n = -8.0;
+                        }
                     } else {
                         state.mu_p = -4.0;
                         state.mu_n = -13.0;
