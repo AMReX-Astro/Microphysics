@@ -54,6 +54,7 @@ T get_nse_state(const T& state)
 
     // find nse mass frac
     nse_state.xn[n] = network::mion(n+1) * partition_function / state.rho * std::pow(2.0 * M_PI * network::mion(n+1) * C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *  std::exp((zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n - u_c + network::bion(n+1)) / C::k_B / state.T * C::Legacy::MeV2erg);
+
   }
 
   // assign temperature and density
@@ -211,6 +212,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
 
     // invoke newton-raphson to solve chemical potential of proton and neutron
     nse_nr_solver(state, eps);
+
 
     // get the nse_state
     T nse_state = get_nse_state(state);
