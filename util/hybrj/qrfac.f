@@ -126,36 +126,37 @@ c        compute the householder transformation to reduce the
 c        j-th column of a to a multiple of the j-th unit vector.
 c
          ajnorm = enorm(m-j+1,a(j,j))
-         if (ajnorm .eq. zero) go to 100
-         if (a(j,j) .lt. zero) ajnorm = -ajnorm
-         do i = j, m
-            a(i,j) = a(i,j)/ajnorm
-         end do
-         a(j,j) = a(j,j) + one
+         if (ajnorm /= zero) then
+            if (a(j,j) .lt. zero) ajnorm = -ajnorm
+            do i = j, m
+               a(i,j) = a(i,j)/ajnorm
+            end do
+            a(j,j) = a(j,j) + one
 c
 c        apply the transformation to the remaining columns
 c        and update the norms.
 c
-         jp1 = j + 1
-         if (n >= jp1) then
-            do k = jp1, n
-               sum = zero
-               do i = j, m
-                  sum = sum + a(i,j)*a(i,k)
-               end do
-               temp = sum/a(j,j)
-               do i = j, m
-                  a(i,k) = a(i,k) - temp*a(i,j)
-               end do
-               if (pivot .and. rdiag(k) /= zero) then
-                  temp = a(j,k)/rdiag(k)
-                  rdiag(k) = rdiag(k)*dsqrt(dmax1(zero,one-temp**2))
-                  if (p05*(rdiag(k)/wa(k))**2 <= epsmch) then
-                     rdiag(k) = enorm(m-j,a(jp1,k))
-                     wa(k) = rdiag(k)
+            jp1 = j + 1
+            if (n >= jp1) then
+               do k = jp1, n
+                  sum = zero
+                  do i = j, m
+                     sum = sum + a(i,j)*a(i,k)
+                  end do
+                  temp = sum/a(j,j)
+                  do i = j, m
+                     a(i,k) = a(i,k) - temp*a(i,j)
+                  end do
+                  if (pivot .and. rdiag(k) /= zero) then
+                     temp = a(j,k)/rdiag(k)
+                     rdiag(k) = rdiag(k)*dsqrt(dmax1(zero,one-temp**2))
+                     if (p05*(rdiag(k)/wa(k))**2 <= epsmch) then
+                        rdiag(k) = enorm(m-j,a(jp1,k))
+                        wa(k) = rdiag(k)
+                     end if
                   end if
-               end if
-            end do
+               end do
+            end if
          end if
          rdiag(j) = -ajnorm
       end do
