@@ -7,9 +7,16 @@
 #include <iostream>
 #include <actual_nse.H>
 #include <cmath>
+#include <limits>
 
 void burn_cell_c()
 {
+
+    Real min_Ye = std::numeric_limits<Real>::max();
+    for (int n = 0; n < NumSpec; ++n) {
+        min_Ye = amrex::min(min_Ye, zion[n]/aion[n]);
+    }
+    std::cout << "minimum Ye for this network = " << min_Ye << std::endl;
 
     burn_t state;
 

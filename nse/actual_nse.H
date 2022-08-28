@@ -178,14 +178,22 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
     d_mu_p = -(f.eqs(0) * inverse_jac(0,0) + f.eqs(1) * inverse_jac(0,1));
     d_mu_n = -(f.eqs(0) * inverse_jac(1,0) + f.eqs(1) * inverse_jac(1,1));
 
-    // if diff goes beyond 1.0e3_rt, likely that its not making good progress..
-    if (std::abs(d_mu_p) > 1.0e3_rt or std::abs(d_mu_n) > 1.0e3_rt){
-      amrex::Error("Not making good progress, breaking");
-    }
+    // // if diff goes beyond 1.0e3_rt, likely that its not making good progress..
+    // if (std::abs(d_mu_p) > 1.0e3_rt or std::abs(d_mu_n) > 1.0e3_rt){
+    //   amrex::Error("Not making good progress, breaking");
+    // }
 
-    // update new solution
+    // update new solution -- only allow it to vary by 10%
+    //Real f_mu_p = std::copysign(1.0_rt, d_mu_p) * amrex::min(0.1_rt, std::abs(d_mu_p) / std::abs(state.mu_p)) * std::abs(state.mu_p);
+    //Real f_mu_n = std::copysign(1.0_rt, d_mu_n) * amrex::min(0.1_rt, std::abs(d_mu_n) / std::abs(state.mu_n)) * std::abs(state.mu_n);
+
+    //state.mu_p += f_mu_p;
+    //state.mu_n += f_mu_n;
+    
     state.mu_p += d_mu_p;
     state.mu_n += d_mu_n;
+
+    //std::cout << i << " " << state.mu_p << " " << state.mu_n << " " << d_mu_p << " " << d_mu_n << " " << std::abs(f.eqs(0)) << " " << std::abs(f.eqs(1)) << std::endl;
 
     // check whether solution results in nan
     if (std::isnan(state.mu_p) or std::isnan(state.mu_n)){
