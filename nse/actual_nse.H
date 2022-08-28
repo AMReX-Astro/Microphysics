@@ -13,6 +13,65 @@
 #include <eos_composition.H>
 
 
+namespace NSE_INDEX
+{
+  extern bool initialized;
+  
+  // store indices:
+  extern AMREX_GPU_MANAGED int p_index;
+  
+  // these three indices are helpful for implementing adaptive statistical equilibrium.  
+  extern AMREX_GPU_MANAGED int h1_index;
+  extern AMREX_GPU_MANAGED int n_index;
+  extern AMREX_GPU_MANAGED int he4_index;
+}
+
+
+// Initialization for nse, check whether network is valid and stores indices
+void init_actual_nse(){
+  
+  for (n = 0; n < NumSpec; ++n){
+
+    // store index of photoionization proton by looking for Z=1 but exclude h1 which is always at index=0
+    if (zion[n] == 1 && aion[n] == 1){
+      if (n == 0){
+	NSE_INDEX::h1_index = n;
+      }
+      else {
+	NSE_INDEX::p_index = n;
+      }
+    }
+    
+    else if (zion[n] == 0){
+      NSE_INDEX::n_index = n;
+    }
+    
+    else if (zion[n] == 2 && aion[n] == 4){
+      NSE_INDEX::he_index = n;
+    }
+  }
+
+  
+  // Check if network results in singular jacobian first, require at least one nuclei that nuclei.Z != nuclei.N
+  // Some examples include aprox13 and iso7
+  bool singular_network = true;
+  for (int n = 0; n < NumSpec; ++n){
+    if (n == NSE_INDEX::p_index){
+      continue;
+    }
+    if (zion[n] != aion[n] - zion[n]){
+      singular_network = false;
+    }
+  }
+
+  if (singular_network == true){
+    amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction!");
+  }
+
+  NSE_INDEX::initialized = true;
+}
+  
+
 // struct to store output from constraint equations and jacobian for newton-raphson
 struct Newton_inputs{
   amrex::Array1D<amrex::Real, 0, 1> eqs;
@@ -43,7 +102,7 @@ T get_nse_state(const T& state)
   amrex::Real partition_function = 1.0_rt;
 
   for (int n = 0; n < NumSpec; ++n){
-    if (short_spec_names_cxx[n] == "p"){
+    if (n == NSE_INDEX::p_index){
       continue;
     }
     // term for calculating u_c
@@ -81,7 +140,7 @@ Newton_inputs nse_constraint(const T& state){
   nse_inputs.eqs(0) = -1.0_rt;
 
   for (int n = 0; n < NumSpec; ++n){
-    if (short_spec_names_cxx[n] == "p"){
+    if (n == NSE_INDEX::p_index){
       continue;
     }
 
@@ -100,7 +159,7 @@ Newton_inputs nse_constraint(const T& state){
   nse_inputs.jac(1,1) = 0.0_rt;
 
   for (int n = 0; n < NumSpec; ++n){
-    if (short_spec_names_cxx[n] == "p"){
+    if (n == NSE_INDEX::p_index){
       continue;
     }
 
@@ -116,22 +175,6 @@ Newton_inputs nse_constraint(const T& state){
 // A newton-raphson solver for finding nse state used for calibrating chemical potential of proton and neutron
 template<typename T>
 void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
-
-  // Check if network results in singular jacobian first, require at least one nuclei that nuclei.Z != nuclei.N
-  // Some examples include aprox13 and iso7
-  bool singular_network = true;
-  for (int n = 0; n < NumSpec; ++n){
-    if (short_spec_names_cxx[n] == "p"){
-      continue;
-    }
-    if (zion[n] != aion[n] - zion[n]){
-      singular_network = false;
-    }
-  }
-
-  if (singular_network == true){
-    amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction!");
-  }
 
   bool converged = false;                                     // whether nse solver converged or not
 
@@ -204,18 +247,32 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
 template<typename T>
 T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_valid=false){
 
-    if (!input_ye_is_valid) {
-        // ensure Ye is valid
-        composition(state);
-    }
+  
+  // Check whether input ye is actually valid
+  amrex::Real ye_lo = 1.0_rt;
+  amrex::Real ye_hi = 0.0_rt;
+  
+  for (int n = 0; n < NumSpec; ++n){
+    ye_lo = amrex::min(zion[n] * aion_inv[n], ye_lo);
+    ye_hi = amrex::max(zion[n] * aion_inv[n], ye_hi);
+  }
 
-    // invoke newton-raphson to solve chemical potential of proton and neutron
-    nse_nr_solver(state, eps);
+  if (state.ye < ye_lo || state.ye > ye_hi){
+    input_ye_is_valid = false;
+  }
+  
+  if (!input_ye_is_valid) {
+    // ensure Ye is valid
+    composition(state);
+  }
 
-    // get the nse_state
-    T nse_state = get_nse_state(state);
-    return nse_state;
-
+  // invoke newton-raphson to solve chemical potential of proton and neutron
+  nse_nr_solver(state, eps);
+  
+  // get the nse_state
+  T nse_state = get_nse_state(state);
+  return nse_state;
+    
 }
 
 #endif
