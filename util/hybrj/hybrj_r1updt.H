@@ -1,6 +1,8 @@
 #ifndef HYBRJ_R1UPDT_H
 #define HYBRJ_R1UPDT_H
 
+#include <hybrj_type.H>
+
 // given an n by n lower trapezoidal matrix s, an n-vector u,
 // and an n-vector v, the problem is to determine an
 // orthogonal matrix q such that
@@ -50,7 +52,7 @@ template<int neqs>
 void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
             amrex::Array1D<Real, 1, neqs>& u,
             amrex::Array1D<Real, 1, neqs>& v,
-            amrex::Arayy1D<Real, 1, neqs>& w,
+            amrex::Array1D<Real, 1, neqs>& w,
             bool& sing) {
 
     Real giant = std::numeric_limits<Real>::max();
@@ -82,37 +84,36 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
                 // j-th element of v.
 
                 Real tau;
-                Real cotan;
-                Real cos;
-                Real sin;
+                Real fcos;
+                Real fsin;
 
                 if (std::abs(v(neqs)) < std::abs(v(j))) {
-                    cotan = v(neqs) / v(j);
-                    sin = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * cotan * cotan);
-                    cos = sin * cotan;
+                    Real cotan = v(neqs) / v(j);
+                    fsin = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * cotan * cotan);
+                    fcos = fsin * cotan;
                     tau = 1.0_rt;
-                    if (std::abs(cos) * giant > 1.0_rt) {
-                        tau = 1.0_rt / cos;
+                    if (std::abs(fcos) * giant > 1.0_rt) {
+                        tau = 1.0_rt / fcos;
                     }
                 } else {
-                    tan = v(j) / v(neqs);
-                    cos = 0.5_rt / std::sqrt(0.25_rt  0.25_rt * tan * tan);
-                    sin = cos * tan;
-                    tau = sin;
+                    Real ftan = v(j) / v(neqs);
+                    fcos = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * ftan * ftan);
+                    fsin = fcos * ftan;
+                    tau = fsin;
                 }
 
                 // apply the transformation to v and store the information
                 // necessary to recover the givens rotation.
 
-                v(neqs) = sin * v(j) + cos * v(neqs);
+                v(neqs) = fsin * v(j) + fcos * v(neqs);
                 v(j) = tau;
 
                 // apply the transformation to s and extend the spike in w.
 
                 int l = jj;
                 for (int i = j; i <= neqs; ++i) {
-                    temp = cos * s(l) - sin * w(i);
-                    w(i) = sin * s(l) + cos * w(i);
+                    Real temp = fcos * s(l) - fsin * w(i);
+                    w(i) = fsin * s(l) + fcos * w(i);
                     s(l) = temp;
                     l++;
                 }
@@ -128,62 +129,69 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
 
     // eliminate the spike.
 
-    sing = .false.
-      if (nm1 >= 1) then
-         do j = 1, nm1
-            if (w(j) /= zero) then
-c
-c        determine a givens rotation which eliminates the
-c        j-th element of the spike.
-c
-               if (dabs(s(jj)) < dabs(w(j))) then
-                  cotan = s(jj)/w(j)
-                  sin = p5/dsqrt(p25+p25*cotan**2)
-                  cos = sin*cotan
-                  tau = one
-                  if (dabs(cos)*giant .gt. one) tau = one/cos
-               else
-                  tan = w(j)/s(jj)
-                  cos = p5/dsqrt(p25+p25*tan**2)
-                  sin = cos*tan
-                  tau = sin
-               end if
-c
-c        apply the transformation to s and reduce the spike in w.
-c
-               l = jj
-               do i = j, m
-                  temp = cos*s(l) + sin*w(i)
-                  w(i) = -sin*s(l) + cos*w(i)
-                  s(l) = temp
-                  l = l + 1
-               end do
-c
-c        store the information necessary to recover the
-c        givens rotation.
-c
-               w(j) = tau
-            end if
-c
-c        test for zero diagonal elements in the output s.
-c
-            if (s(jj) .eq. zero) sing = .true.
-            jj = jj + (m - j + 1)
-         end do
-      end if
-c
-c     move w back into the last column of the output s.
-c
-      l = jj
-      do i = n, m
-         s(l) = w(i)
-         l = l + 1
-      end do
-      if (s(jj) .eq. zero) sing = .true.
-      return
-c
-c     last card of subroutine r1updt.
-c
-      end
+    sing = false;
 
+    if (nm1 >= 1) {
+        for (int j = 1; j <= nm1; ++j) {
+            if (w(j) != 0.0_rt) {
+
+                // determine a givens rotation which eliminates the
+                // j-th element of the spike.
+
+                Real tau;
+                Real fcos;
+                Real fsin;
+
+                if (std::abs(s(jj)) < std::abs(w(j))) {
+                    Real cotan = s(jj) / w(j);
+                    fsin = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * cotan * cotan);
+                    fcos = fsin * cotan;
+                    tau = 1.0_rt;
+                    if (std::abs(fcos) * giant > 1.0_rt) {
+                        tau = 1.0_rt / fcos;
+                    }
+                } else {
+                    Real ftan = w(j) / s(jj);
+                    fcos = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * ftan * ftan);
+                    fsin = fcos * ftan;
+                    tau = fsin;
+                }
+
+                // apply the transformation to s and reduce the spike in w.
+
+                int l = jj;
+                for (int i = j; i < neqs; ++i) {
+                    Real temp = fcos * s(l) + fsin * w(i);
+                    w(i) = -fsin * s(l) + fcos * w(i);
+                    s(l) = temp;
+                    l++;
+                }
+
+                // store the information necessary to recover the
+                // givens rotation.
+
+                w(j) = tau;
+            }
+
+            // test for zero diagonal elements in the output s.
+
+            if (s(jj) == 0.0_rt) {
+                sing = true;
+            }
+            jj += (neqs - j + 1);
+        }
+    }
+
+    // move w back into the last column of the output s.
+
+    l = jj;
+    for (int i = neqs; i <= neqs; ++i) {
+        s(l) = w(i);
+        l++;
+    }
+
+    if (s(jj) == 0.0_rt) {
+        sing = true;
+    }
+}
 #endif

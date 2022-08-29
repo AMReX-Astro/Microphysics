@@ -2,6 +2,7 @@
 #define HYBRJ_QRFAC_H
 
 #include <hybrj_type.H>
+#include <hybrj_enorm.H>
 
 // this subroutine uses householder transformations with column
 // pivoting (optional) to compute a qr factorization of the
@@ -48,7 +49,10 @@
 // burton s. garbow, kenneth e. hillstrom, jorge j. more
 
 template<int neqs>
-void qrfac(hybrj_t& hj, Array1D<1, neqs>& rdiag, Array1D<1, neqs>& acnorm, Array1D<1, neqs>& wa) {
+void qrfac(Array2D<Real, 1, neqs, 1, neqs>& a,
+           Array1D<Real, 1, neqs>& rdiag,
+           Array1D<Real, 1, neqs>& acnorm,
+           Array1D<Real, 1, neqs>& wa) {
 
     Real epsmch = std::numeric_limits<Real>::epsilon();
 
@@ -60,11 +64,11 @@ void qrfac(hybrj_t& hj, Array1D<1, neqs>& rdiag, Array1D<1, neqs>& acnorm, Array
 
     // compute the initial column norms and initialize several arrays.
 
-    for (int j = 1; j <= hj.n; ++j) {
-        for (int irow = 1; irow <= hj.n; ++irow) {
-            tmp(irow) = hj.fjac(irow, j);
+    for (int j = 1; j <= neqs; ++j) {
+        for (int irow = 1; irow <= neqs; ++irow) {
+            tmp(irow) = a(irow, j);
         }
-        acnorm(j) = enorm(hj.n, tmp);
+        acnorm(j) = enorm(neqs, tmp);
         rdiag(j) = acnorm(j);
         wa(j) = rdiag(j);
     }
@@ -72,38 +76,38 @@ void qrfac(hybrj_t& hj, Array1D<1, neqs>& rdiag, Array1D<1, neqs>& acnorm, Array
 
     // reduce a to r with householder transformations.
 
-    for (int j = 1; j <= hj.n; ++j) {
+    for (int j = 1; j <= neqs; ++j) {
 
         // compute the householder transformation to reduce the
         // j-th column of a to a multiple of the j-th unit vector.
 
         // we want the norm of a(j,j:n)
-        for (int irow = j; irow <= hj.n; ++irow) {
-            tmp(irow-j+1) = hj.fjac(irow,j);
+        for (int irow = j; irow <= neqs; ++irow) {
+            tmp(irow-j+1) = a(irow,j);
         }
-        Real ajnorm = enorm(hj.n-j+1, tmp);
+        Real ajnorm = enorm(neqs-j+1, tmp);
         if (ajnorm != 0.0_rt) {
-            if (hj.fjac(j,j) < 0.0_rt) {
+            if (a(j,j) < 0.0_rt) {
                 ajnorm = -ajnorm;
             }
-            for (int irow = j; irow <= hj.n; ++irow) {
-                hj.fjac(irow,j) /= ajnorm;
+            for (int irow = j; irow <= neqs; ++irow) {
+                a(irow,j) /= ajnorm;
             }
-            hj.fjac(j,j) += 1.0_rt;
+            a(j,j) += 1.0_rt;
 
             // apply the transformation to the remaining columns
             // and update the norms.
 
-            int jp1 = j + 1
-            if (hj.n >= jp1) {
-               for (int k = jp1; k <= hj.n; ++k) {
+            int jp1 = j + 1;
+            if (neqs >= jp1) {
+               for (int k = jp1; k <= neqs; ++k) {
                    Real sum = 0.0_rt;
-                   for (int i = j; i <= hj.n; ++i) {
-                       sum += hj.fjac(i,j) * hj.fjac(i,k);
+                   for (int i = j; i <= neqs; ++i) {
+                       sum += a(i,j) * a(i,k);
                    }
-                   Real temp = sum / hj.fjac(j,j);
-                   for (int i = j; i <= hj.n; ++i) {
-                       a(i,k) += -temp * hj.fjac(i,j);
+                   Real temp = sum / a(j,j);
+                   for (int i = j; i <= neqs; ++i) {
+                       a(i,k) += -temp * a(i,j);
                    }
                }
             }

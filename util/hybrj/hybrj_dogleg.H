@@ -2,6 +2,7 @@
 #define HYBRJ_DOGLEG_H
 
 #include <hybrj_type.H>
+#include <hybrj_enorm.H>
 
 // given an n by n matrix a, an n by n nonsingular diagonal
 // matrix d, an n-vector b, and a positive number delta, the
@@ -45,7 +46,7 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
             amrex::Array1D<Real, 1, neqs>& diag,
             amrex::Array1D<Real, 1, neqs>& qtb,
             Real delta,
-            amrex::Array1D<Real, 1, neqs>& x
+            amrex::Array1D<Real, 1, neqs>& x,
             amrex::Array1D<Real, 1, neqs>& wa1,
             amrex::Array1D<Real, 1, neqs>& wa2) {
 
@@ -72,7 +73,7 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
             l = j;
             for (int i = 1; i <= j; ++i) {
                 temp = amrex::max(temp, std::abs(r(l)));
-                l = l + n - i;
+                l = l + neqs - i;
             }
             temp *= epsmch;
             if (temp == 0.0_rt) {
@@ -108,11 +109,11 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
     // calculate the norm of the scaled gradient and test for
     // the special case in which the scaled gradient is zero.
 
-    Real gnorm = enorm(n, wa1);
+    Real gnorm = enorm(neqs, wa1);
     Real sgnorm = 0.0_rt;
     Real alpha = delta / qnorm;
 
-    if (gnorm != zero) {
+    if (gnorm != 0.0_rt) {
 
         // calculate the point along the scaled gradient
         // at which the quadratic is minimized.
@@ -130,7 +131,7 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
             }
             wa2(j) = sum;
         }
-        Real temp = enorm(n, wa2);
+        Real temp = enorm(neqs, wa2);
         sgnorm = (gnorm / temp) / temp;
 
         // test whether the scaled gradient direction is acceptable.
@@ -142,13 +143,13 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
             // finally, calculate the point along the dogleg
             // at which the quadratic is minimized.
 
-            Real bnorm = enorm(n, qtb);
+            Real bnorm = enorm(neqs, qtb);
             temp = (bnorm/gnorm)*(bnorm/qnorm)*(sgnorm/delta);
             temp = temp - (delta/qnorm) * std::pow(sgnorm/delta, 2.0_rt)
                 + std::sqrt(std::pow(temp-(delta/qnorm), 2.0_rt)
                             + (1.0_rt-std::pow(delta/qnorm, 2/0_rt)) *
                               (1.0_rt-std::pow(sgnorm/delta, 2.0_rt)));
-            alpha = ((delta/qnorm)*(one - std::pow(sgnorm/delta, 2/0_rt))) / temp;
+            alpha = ((delta/qnorm)*(1.0_rt - std::pow(sgnorm/delta, 2/0_rt))) / temp;
         }
     }
 

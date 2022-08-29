@@ -17,9 +17,9 @@
 // * redone to require an nxn matrix
 
 template<int neqs>
-void (amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
-      amrex::Array1D<Real, 1, neqs>& v,
-      amrex::Array1D<Real, 1, neqs>& w) {
+void r1mpyq(amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
+            amrex::Array1D<Real, 1, neqs>& v,
+            amrex::Array1D<Real, 1, neqs>& w) {
 
     // a is an neqs by neqs array. on input a must contain the matrix
     //   to be postmultiplied by the orthogonal matrix q

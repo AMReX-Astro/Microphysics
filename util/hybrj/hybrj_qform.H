@@ -14,7 +14,7 @@
 // originally, this routine supported an mxn matrix, but we assume m=n
 
 template<int neqs>
-void qform(hybrj_t& hj, amrex::Array2d<Real, 1, neqs, 1, neqs>& q,
+void qform(amrex::Array2D<Real, 1, neqs, 1, neqs>& q,
            amrex::Array1D<Real, 1, neqs>& wa) {
 
     // q is an n by n array. on input the full lower trapezoid in
@@ -23,8 +23,8 @@ void qform(hybrj_t& hj, amrex::Array2d<Real, 1, neqs, 1, neqs>& q,
 
     // zero out upper triangle of q in the first n
 
-    if (hj.n >= 2) {
-        for (int j = 2; j <= hj.n; ++j) {
+    if (neqs >= 2) {
+        for (int j = 2; j <= neqs; ++j) {
             int jm1 = j - 1;
             for (int i = 1; i <= jm1; ++i) {
                 q(i,j) = 0.0_rt;
@@ -34,21 +34,21 @@ void qform(hybrj_t& hj, amrex::Array2d<Real, 1, neqs, 1, neqs>& q,
 
     // accumulate q from its factored form.
 
-    for (int l = 1; l <= hj.n; ++l) {
-        int k = hj.n - l + 1;
-        for (int i = k; i <= hj.n; ++i) {
+    for (int l = 1; l <= neqs; ++l) {
+        int k = neqs - l + 1;
+        for (int i = k; i <= neqs; ++i) {
             wa(i) = q(i,k);
             q(i,k) = 0.0_rt;
         }
         q(k,k) = 1.0_rt;
         if (wa(k) != 0.0_rt) {
-            for (int j = k; j <= hj.n; ++j) {
+            for (int j = k; j <= neqs; ++j) {
                 Real sum = 0.0_rt;
-                for (int i = k; i <= hj.n; ++i) {
+                for (int i = k; i <= neqs; ++i) {
                     sum += q(i,j) * wa(i);
                 }
                 Real temp = sum / wa(k);
-                for (int i = k; i <= hj.n; ++i) {
+                for (int i = k; i <= neqs; ++i) {
                     q(i,j) += -temp * wa(i);
                 }
             }

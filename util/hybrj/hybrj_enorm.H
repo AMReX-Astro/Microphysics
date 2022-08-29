@@ -22,7 +22,7 @@
 // burton s. garbow, kenneth e. hillstrom, jorge j. more
 
 template<int neqs>
-void enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
+Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
 
     // note: n <= neqs
 
@@ -60,7 +60,7 @@ void enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
                     s3 = 1.0_rt + s3 * std::pow(x3max/xabs, 2.0_rt);
                     x3max = xabs;
                 } else {
-                    if (xabs != zero) {
+                    if (xabs != 0.0_rt) {
                         s3 += std::pow(xabs/x3max, 2.0_rt);
                     }
                 }
@@ -75,20 +75,22 @@ void enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
 
     // calculation of norm.
 
+    Real _enorm;
     if (s1 != 0.0_rt) {
-        enorm = x1max * std::sqrt(s1 + (s2/x1max) / x1max);
+        _enorm = x1max * std::sqrt(s1 + (s2/x1max) / x1max);
     } else {
         if (s2 != 0.0_rt) {
             if (s2 >= x3max) {
-                enorm = std::sqrt(s2 * (1.0_rt + (x3max/s2)*(x3max*s3)));
+                _enorm = std::sqrt(s2 * (1.0_rt + (x3max/s2)*(x3max*s3)));
             }
             if (s2 < x3max) {
-                enorm = std::sqrt(x3max * ((s2/x3max) + (x3max*s3)));
+                _enorm = std::sqrt(x3max * ((s2/x3max) + (x3max*s3)));
             }
         } else {
-            enorm = x3max * std::sqrt(s3);
+            _enorm = x3max * std::sqrt(s3);
         }
     }
 
+    return _enorm;
 }
 #endif
