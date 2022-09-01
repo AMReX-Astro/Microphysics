@@ -174,6 +174,11 @@ struct burn_t
   Real abar;
   Real zbar;
 
+#ifdef ACTUAL_NSE
+  Real mu_p;
+  Real mu_n;
+#endif
+  
   // diagnostics
   int n_rhs, n_jac;
 
@@ -248,6 +253,11 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
     burn_state.eta  = eos_state.eta;
     burn_state.abar = eos_state.abar;
     burn_state.zbar = eos_state.zbar;
+
+#ifdef ACTUAL_NSE
+    burn_state.mu_p = eos_state.mu_p;
+    burn_state.mu_n = eos_state.mu_n;
+#endif
 }
 
 
@@ -280,6 +290,11 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
     eos_state.eta  = burn_state.eta;
     eos_state.abar = burn_state.abar;
     eos_state.zbar = burn_state.zbar;
+
+#ifdef ACTUAL_NSE
+    eos_state.mu_p = burn_state.mu_p;
+    eos_state.mu_n = burn_state.mu_n;
+#endif
 }
 
 

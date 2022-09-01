@@ -1,0 +1,4 @@
+@namespace: network
+
+disable_p_c12__n13    int     0
+disable_he4_n13__p_o16    int     0
