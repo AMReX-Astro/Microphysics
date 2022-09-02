@@ -9,7 +9,7 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include <burn_cell.H>
+#include <nse_example.H>
 #include <unit_test.H>
 
 int main(int argc, char *argv[]) {
@@ -21,22 +21,17 @@ int main(int argc, char *argv[]) {
   ParmParse ppa("amr");
 
   init_unit_test();
-
+  
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
   eos_init(small_temp, small_dens);
 
   // C++ Network, RHS, screening, rates initialization
   network_init();
 
-  // amrex::Real mu_p;
-  // amrex::Real mu_n;
+  // Initialize nse;
+  init_actual_nse();
   
-  // std::cout << "enter initial guess for mu_p" << std::endl;
-  // std::cin >> mu_p;
-  // std::cout << "enter initial guess for mu_n" << std::endl;
-  // std::cin >> mu_n;
-  
-  burn_cell_c();
+  nse_example_c();
 
   amrex::Finalize();
 }

@@ -7,7 +7,7 @@
 #include <iostream>
 #include <actual_nse.H>
 
-void burn_cell_c()
+void nse_example_c()
 {
 
     burn_t state;
@@ -105,11 +105,11 @@ void burn_cell_c()
     }
 
     // normalize -- just in case
-
+    
     normalize_abundances_burn(state);
 
     // compute the initial Ye
-
+    
     composition(state);
 
     std::cout << "electron fraction is " << state.y_e << std::endl;
@@ -130,5 +130,4 @@ void burn_cell_c()
     for (int n = 0; n < NumSpec; ++n) {
       std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
     }
-
 }
