@@ -22,7 +22,7 @@ ifeq ($(USE_CXX_REACTIONS),TRUE)
 endif
 
 # define the location of the CASTRO top directory
-MICROPHYSICS_HOME  := ../..
+MICROPHYSICS_HOME  := ../../..
 
 # This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
 # you'll need to use gamma_law_general
@@ -41,8 +41,8 @@ endif
 
 EXTERN_SEARCH += .
 
-Bpack   := ./Make.package
-Blocs   := .
+Bpack   := ../Make.package ./Make.package
+Blocs   := ../ .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 

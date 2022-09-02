@@ -10,14 +10,15 @@
 #include <hybrj_r1mpyq.H>
 #include <hybrj_r1updt.H>
 
-template<int neqs>
+template<int neqs, typename T>
 void hybrj(hybrj_t<neqs>& hj,
+           const T& data,
            std::function<void(amrex::Array1D<Real, 1, neqs>&,
                               amrex::Array1D<Real, 1, neqs>&,
-                              int&)> fcn,
+                              const T&, int&)> fcn,
            std::function<void(amrex::Array1D<Real, 1, neqs>&,
                               amrex::Array2D<Real, 1, neqs, 1, neqs>&,
-                              int&)> jcn) {
+                              const T&, int&)> jcn) {
 
     // the purpose of hybrj is to find a zero of a system of
     // n nonlinear functions in n variables by a modification
@@ -64,7 +65,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
     iflag = 1;
 
-    fcn(hj.x, hj.fvec, iflag);
+    fcn(hj.x, hj.fvec, data, iflag);
     hj.nfev = 1;
     if (iflag < 0) {
         // user requested abort
@@ -89,7 +90,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
         // calculate the jacobian matrix.
 
-        jcn(hj.x, hj.fjac, iflag);
+        jcn(hj.x, hj.fjac, data, iflag);
         hj.njev++;
         if (iflag < 0) {
             finished = true;
@@ -204,7 +205,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
             // evaluate the function at x + p and calculate its norm.
 
-            fcn(hj.wa2, hj.wa4, iflag);
+            fcn(hj.wa2, hj.wa4, data, iflag);
             hj.nfev++;
 
             if (iflag < 0) {
