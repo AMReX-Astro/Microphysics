@@ -125,7 +125,7 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
         l = 1;
         for (int j = 1; j <= neqs; ++j) {
             Real sum = 0.0_rt;
-            for (int i = j; i <= neqs; ++j) {
+            for (int i = j; i <= neqs; ++i) {
                 sum += r(l) * wa1(i);
                 l++;
             }
