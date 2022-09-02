@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
   // C++ Network, RHS, screening, rates initialization
   network_init();
 
+  init_actual_nse();
+
   burn_cell_c();
 
   amrex::Finalize();
