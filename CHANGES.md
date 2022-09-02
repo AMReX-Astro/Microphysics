@@ -1,3 +1,10 @@
+# 22.09
+
+  * An NSE solver was added (#963)
+
+  * A new network, subch_simple, was added that further simplifies
+    He/C burning (#964)
+
 # 22.08
 
   * The subch network was renamed `subch_approx` and the subch2 network was renamed
