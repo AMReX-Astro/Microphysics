@@ -15,7 +15,7 @@
 
 // Initialization for nse, check whether network is valid and stores indices
 void init_actual_nse(){
-  
+
   for (int n = 0; n < NumSpec; ++n){
 
     // store index of photoionization proton by looking for Z=1 but exclude h1 which is always at index=0
@@ -27,17 +27,17 @@ void init_actual_nse(){
 	NSE_INDEX::p_index = n;
       }
     }
-    
+
     else if (zion[n] == 0){
       NSE_INDEX::n_index = n;
     }
-    
+
     else if (zion[n] == 2 && aion[n] == 4){
       NSE_INDEX::he4_index = n;
     }
   }
 
-  
+
   // Check if network results in singular jacobian first, require at least one nuclei that nuclei.Z != nuclei.N
   // Some examples include aprox13 and iso7
   bool singular_network = true;
@@ -56,7 +56,7 @@ void init_actual_nse(){
 
   NSE_INDEX::initialized = true;
 }
-  
+
 
 // struct to store output from constraint equations and jacobian for newton-raphson
 struct Newton_inputs{
@@ -99,6 +99,7 @@ T get_nse_state(const T& state)
 
     // find nse mass frac
     nse_state.xn[n] = network::mion(n+1) * partition_function / state.rho * std::pow(2.0 * M_PI * network::mion(n+1) * C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *  std::exp((zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n - u_c + network::bion(n+1)) / C::k_B / state.T * C::Legacy::MeV2erg);
+
   }
 
   // assign temperature and density
@@ -161,7 +162,7 @@ Newton_inputs nse_constraint(const T& state){
 // A newton-raphson solver for finding nse state used for calibrating chemical potential of proton and neutron
 template<typename T>
 void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
-  
+
   bool converged = false;                                     // whether nse solver converged or not
 
   Newton_inputs f = nse_constraint(state);                    // get constraint eqs and jacobian
@@ -240,7 +241,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
   amrex::Real ye_hi = 0.0_rt;
-  
+
   for (int n = 0; n < NumSpec; ++n){
     ye_lo = amrex::min(zion[n] * aion_inv[n], ye_lo);
     ye_hi = amrex::max(zion[n] * aion_inv[n], ye_hi);
@@ -249,7 +250,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
   if (state.y_e < ye_lo || state.y_e > ye_hi){
     input_ye_is_valid = false;
   }
-  
+
   if (!input_ye_is_valid) {
     // ensure Ye is valid
     composition(state);
@@ -257,10 +258,10 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
 
   // invoke newton-raphson to solve chemical potential of proton and neutron
   nse_nr_solver(state, eps);
-  
+
   // get the nse_state
   T nse_state = get_nse_state(state);
-  return nse_state;    
+  return nse_state;
 }
 
 #endif
