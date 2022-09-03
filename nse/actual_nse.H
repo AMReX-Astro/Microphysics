@@ -117,18 +117,25 @@ T get_nse_state(const T& state)
 
       // find nse mass frac
 
+      // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
+      // iteration will make it happy again
+
+      Real exponent = amrex::min(500.0_rt,
+                                 (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
+                                  - u_c + network::bion(n+1)) /
+                                 C::k_B / state.T * C::Legacy::MeV2erg);
+
       nse_state.xn[n] = network::mion(n+1) * partition_function / state.rho *
           std::pow(2.0 * M_PI * network::mion(n+1) *
                    C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
-          std::exp((zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
-                    - u_c + network::bion(n+1)) /
-                   C::k_B / state.T * C::Legacy::MeV2erg);
+          std::exp(exponent);
   }
 
   nse_state.T = state.T;
   nse_state.rho = state.rho;
 
   return nse_state;
+
 }
 
 
@@ -217,6 +224,7 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
     // constraint equation 2, electron fraction should be the same
 
     fvec(2) =  nse_state.y_e - state.y_e;
+
 }
 
 template<typename T>
@@ -260,13 +268,17 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-3_rt) {
     hj.x(2) = state.mu_n;
 
     hj.xtol = eps;
-    hj.mode = 2;
+    hj.mode = 1;
 
     for (int j = 1; j <= 2; ++j) {
         hj.diag(j) = 1.0_rt;
     }
 
     hybrj(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+
+    if (!hj.info == 1) {
+        amrex::Error("failed to solve");
+    }
 
     state.mu_p = hj.x(1);
     state.mu_n = hj.x(2);

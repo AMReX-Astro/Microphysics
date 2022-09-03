@@ -73,7 +73,7 @@ void burn_cell_c()
                 // find the  nse state
 
                 const bool assume_ye_is_valid = true;
-                Real eps = 1.e-4;
+                Real eps = 1.e-8;
 
                 auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
                 std::cout << std::scientific;
