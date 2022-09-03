@@ -115,6 +115,7 @@ T get_nse_state(const T& state)
                                std::sqrt(1.0_rt + gamma / A2))) +
            2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
 
+
       // find nse mass frac
 
       // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
@@ -268,7 +269,7 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-3_rt) {
     hj.x(2) = state.mu_n;
 
     hj.xtol = eps;
-    hj.mode = 1;
+    hj.mode = 2;
 
     for (int j = 1; j <= 2; ++j) {
         hj.diag(j) = 1.0_rt;
@@ -276,7 +277,7 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-3_rt) {
 
     hybrj(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
 
-    if (!hj.info == 1) {
+    if (hj.info != 1) {
         amrex::Error("failed to solve");
     }
 
@@ -296,14 +297,16 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
 
   amrex::Real det;                                            // store determinant for finding inverse jac
   decltype(f.jac) inverse_jac;                                // store inverse jacobian
-  amrex::Real d_mu_p = 0.0_rt;                                // difference in chemical potential of proton
-  amrex::Real d_mu_n = 0.0_rt;                                // difference in chemical potential of neutron
+  amrex::Real d_mu_p = std::numeric_limits<Real>::max();                                // difference in chemical potential of proton
+  amrex::Real d_mu_n = std::numeric_limits<Real>::max();                                // difference in chemical potential of neutron
 
   // begin newton-raphson
   for (int i = 0; i < max_nse_iters; ++i){
 
     // check if current state fulfills constraint equation
-    if (std::abs(f.eqs(0)) < eps && std::abs(f.eqs(1)) < eps){
+//    if (std::abs(f.eqs(0)) < eps && std::abs(f.eqs(1)) < eps){
+    if (std::abs(d_mu_p) < eps * std::abs(state.mu_p) &&
+        std::abs(d_mu_n) < eps * std::abs(state.mu_n)){
       converged = true;
       break;
     }
