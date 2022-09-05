@@ -54,8 +54,6 @@ void qrfac(Array2D<Real, 1, neqs, 1, neqs>& a,
            Array1D<Real, 1, neqs>& acnorm,
            Array1D<Real, 1, neqs>& wa) {
 
-    Real epsmch = std::numeric_limits<Real>::epsilon();
-
     // temporary storage for a column of the Jacobian -- the Fortran
     // code would pass to enorm something like a(i, j) to compute the
     // norm of column j from row i to the last row.

@@ -55,7 +55,7 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
             amrex::Array1D<Real, 1, neqs>& w,
             bool& sing) {
 
-    Real giant = std::numeric_limits<Real>::max();
+    const Real giant = std::numeric_limits<Real>::max();
 
     // initialize the diagonal element pointer.
 
@@ -110,7 +110,7 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
 
                 // apply the transformation to s and extend the spike in w.
 
-                int l = jj;
+                l = jj;
                 for (int i = j; i <= neqs; ++i) {
                     Real temp = fcos * s(l) - fsin * w(i);
                     w(i) = fsin * s(l) + fcos * w(i);
@@ -159,7 +159,7 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
 
                 // apply the transformation to s and reduce the spike in w.
 
-                int l = jj;
+                l = jj;
                 for (int i = j; i <= neqs; ++i) {
                     Real temp = fcos * s(l) + fsin * w(i);
                     w(i) = -fsin * s(l) + fcos * w(i);
