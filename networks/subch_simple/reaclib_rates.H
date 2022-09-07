@@ -4635,6 +4635,17 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
 
     }
 
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void
+fill_approx_rates(const tf_t& tfactors, T& rate_eval)
+{
+
+    Real rate;
+    Real drate_dT;
+
     rate_s32_he4__ar36__approx<T>(rate_eval, rate, drate_dT);
     rate_eval.screened_rates(k_s32_he4__ar36__approx) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
