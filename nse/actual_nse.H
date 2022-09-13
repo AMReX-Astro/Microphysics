@@ -12,13 +12,17 @@
 #include <actual_network.H>
 #include <eos_composition.H>
 #include <nse_index.H>
+#include <hybrj.H>
 
 // Initialization for nse, check whether network is valid and stores indices
+
 void init_actual_nse(){
 
   for (int n = 0; n < NumSpec; ++n){
 
-    // store index of photoionization proton by looking for Z=1 but exclude h1 which is always at index=0
+    // store index of photoionization proton by looking for Z=1 but
+    // exclude h1 which is always at index=0
+
     if (zion[n] == 1 && aion[n] == 1){
       if (n == 0){
 	NSE_INDEX::h1_index = n;
@@ -38,8 +42,10 @@ void init_actual_nse(){
   }
 
 
-  // Check if network results in singular jacobian first, require at least one nuclei that nuclei.Z != nuclei.N
-  // Some examples include aprox13 and iso7
+  // Check if network results in singular jacobian first, require at
+  // least one nuclei that nuclei.Z != nuclei.N.  Some examples include
+  // aprox13 and iso7
+
   bool singular_network = true;
   for (int n = 0; n < NumSpec; ++n){
     if (n == NSE_INDEX::p_index){
@@ -58,7 +64,8 @@ void init_actual_nse(){
 }
 
 
-// struct to store output from constraint equations and jacobian for newton-raphson
+// struct to store output from constraint equations and jacobian for
+// newton-raphson
 struct Newton_inputs{
   amrex::Array1D<amrex::Real, 0, 1> eqs;
   amrex::Array2D<amrex::Real, 0, 1, 0, 1> jac;
@@ -80,86 +87,207 @@ T get_nse_state(const T& state)
   T nse_state;
 
   // Find n_e for original state;
+
   const amrex::Real n_e = state.rho * state.y_e / C::m_u;
   amrex::Real gamma;
   amrex::Real u_c;
 
   // Need partition function, set it to 1 for now.
+
   amrex::Real partition_function = 1.0_rt;
 
   for (int n = 0; n < NumSpec; ++n){
-    if (n == NSE_INDEX::p_index){
-      continue;
-    }
-    // term for calculating u_c
-    gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) / C::k_B / state.T;
+      if (n == NSE_INDEX::p_index){
+          continue;
+      }
 
-    // chemical potential for coulomb correction
-    u_c = C::k_B * state.T / C::Legacy::MeV2erg * (A1 * (std::sqrt(gamma * (A2 + gamma)) - A2 * std::log(std::sqrt(gamma / A2) + std::sqrt(1.0_rt + gamma / A2))) + 2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
+      // term for calculating u_c
 
-    // find nse mass frac
-    nse_state.xn[n] = network::mion(n+1) * partition_function / state.rho * std::pow(2.0 * M_PI * network::mion(n+1) * C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *  std::exp((zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n - u_c + network::bion(n+1)) / C::k_B / state.T * C::Legacy::MeV2erg);
+      gamma = std::pow(zion[n], 5.0_rt/3.0_rt) *
+          C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) /
+          (C::k_B * state.T);
 
+      // chemical potential for coulomb correction
+
+      u_c = C::k_B * state.T / C::Legacy::MeV2erg *
+          (A1 * (std::sqrt(gamma * (A2 + gamma)) -
+                 A2 * std::log(std::sqrt(gamma / A2) +
+                               std::sqrt(1.0_rt + gamma / A2))) +
+           2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
+
+
+      // find nse mass frac
+
+      // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
+      // iteration will make it happy again
+
+      Real exponent = amrex::min(500.0_rt,
+                                 (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
+                                  - u_c + network::bion(n+1)) /
+                                 C::k_B / state.T * C::Legacy::MeV2erg);
+
+      nse_state.xn[n] = network::mion(n+1) * partition_function / state.rho *
+          std::pow(2.0 * M_PI * network::mion(n+1) *
+                   C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
+          std::exp(exponent);
   }
 
-  // assign temperature and density
   nse_state.T = state.T;
   nse_state.rho = state.rho;
 
   return nse_state;
+
 }
 
-// get the constraint equations and its jacobian for newton raphson
+
 template <typename T>
 Newton_inputs nse_constraint(const T& state){
-  // This functions finds the constraint equations and jacobian used for calculating nse.
+    // This functions finds the constraint equations and jacobian used
+    // for calculating nse.
 
-  // it is used to store constraint equation and jacobian
-  Newton_inputs nse_inputs;
+    Newton_inputs nse_inputs;
 
-  // calculate the nse state based on initial conditions of mu_p and mu_n
-  // which are chemical potential of proton and neutron
-  auto nse_state = get_nse_state(state);
+    // calculate the nse state based on initial conditions of mu_p and
+    // mu_n which are chemical potential of proton and neutron
 
-  // Now find constraint equations
-  nse_state.y_e = 0.0_rt;
+    auto nse_state = get_nse_state(state);
 
-  nse_inputs.eqs(0) = -1.0_rt;
+    // Now find constraint equations
 
-  for (int n = 0; n < NumSpec; ++n){
-    if (n == NSE_INDEX::p_index){
-      continue;
+    nse_state.y_e = 0.0_rt;
+
+    nse_inputs.eqs(0) = -1.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n){
+        if (n == NSE_INDEX::p_index){
+            continue;
+        }
+
+        // constraint equation 1, mass fraction sum to 1
+
+        nse_inputs.eqs(0) += nse_state.xn[n];
+        nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
     }
 
-    // constraint equation 1, mass fraction sum to 1
-    nse_inputs.eqs(0) += nse_state.xn[n];
-    nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
-  }
+    // constraint equation 2, electron fraction should be the same
 
-  // constraint equation 2, electron fraction should be the same
-  nse_inputs.eqs(1) =  nse_state.y_e - state.y_e;
+    nse_inputs.eqs(1) = nse_state.y_e - state.y_e;
 
-  // evaluate jacobian of the constraint
-  nse_inputs.jac(0,0) = 0.0_rt;
-  nse_inputs.jac(0,1) = 0.0_rt;
-  nse_inputs.jac(1,0) = 0.0_rt;
-  nse_inputs.jac(1,1) = 0.0_rt;
+    // evaluate jacobian of the constraint
 
-  for (int n = 0; n < NumSpec; ++n){
-    if (n == NSE_INDEX::p_index){
-      continue;
+    nse_inputs.jac(0,0) = 0.0_rt;
+    nse_inputs.jac(0,1) = 0.0_rt;
+    nse_inputs.jac(1,0) = 0.0_rt;
+    nse_inputs.jac(1,1) = 0.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n){
+        if (n == NSE_INDEX::p_index){
+            continue;
+        }
+
+        nse_inputs.jac(0,0) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
+        nse_inputs.jac(0,1) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
+        nse_inputs.jac(1,0) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
+        nse_inputs.jac(1,1) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
     }
 
-    nse_inputs.jac(0,0) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
-    nse_inputs.jac(0,1) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
-    nse_inputs.jac(1,0) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
-    nse_inputs.jac(1,1) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
-  }
-
-  return nse_inputs;
+    return nse_inputs;
 }
 
-// A newton-raphson solver for finding nse state used for calibrating chemical potential of proton and neutron
+
+// for the hybrid Powell solver
+
+template<typename T>
+void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
+                const T& state, int& iflag) {
+
+    T current_state = state;
+    current_state.mu_p = x(1);
+    current_state.mu_n = x(2);
+
+    auto nse_state = get_nse_state(current_state);
+
+    nse_state.y_e = 0.0_rt;
+
+    fvec(1) = -1.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n){
+        if (n == NSE_INDEX::p_index){
+            continue;
+        }
+
+        // constraint equation 1, mass fraction sum to 1
+
+        fvec(1) += nse_state.xn[n];
+        nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
+    }
+
+    // constraint equation 2, electron fraction should be the same
+
+    fvec(2) =  nse_state.y_e - state.y_e;
+
+}
+
+template<typename T>
+void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
+                const T& state, int& iflag) {
+
+    T current_state = state;
+    current_state.mu_p = x(1);
+    current_state.mu_n = x(2);
+
+    auto nse_state = get_nse_state(current_state);
+
+    // evaluate jacobian of the constraint
+
+    fjac(1, 1) = 0.0_rt;
+    fjac(1, 2) = 0.0_rt;
+    fjac(2, 1) = 0.0_rt;
+    fjac(2, 2) = 0.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n){
+        if (n == NSE_INDEX::p_index){
+            continue;
+        }
+
+        fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
+        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
+        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
+        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
+    }
+
+}
+
+template<typename T>
+void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-3_rt) {
+
+    hybrj_t<2> hj;
+
+    // we'll take x[1] = mu_p, x[2] = mu_n
+
+    hj.x(1) = state.mu_p;
+    hj.x(2) = state.mu_n;
+
+    hj.xtol = eps;
+    hj.mode = 2;
+
+    for (int j = 1; j <= 2; ++j) {
+        hj.diag(j) = 1.0_rt;
+    }
+
+    hybrj(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+
+    if (hj.info != 1) {
+        amrex::Error("failed to solve");
+    }
+
+    state.mu_p = hj.x(1);
+    state.mu_n = hj.x(2);
+
+}
+
+// A newton-raphson solver for finding nse state used for calibrating
+// chemical potential of proton and neutron
 template<typename T>
 void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
 
@@ -169,14 +297,16 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
 
   amrex::Real det;                                            // store determinant for finding inverse jac
   decltype(f.jac) inverse_jac;                                // store inverse jacobian
-  amrex::Real d_mu_p = 0.0_rt;                                // difference in chemical potential of proton
-  amrex::Real d_mu_n = 0.0_rt;                                // difference in chemical potential of neutron
+  amrex::Real d_mu_p = std::numeric_limits<Real>::max();                                // difference in chemical potential of proton
+  amrex::Real d_mu_n = std::numeric_limits<Real>::max();                                // difference in chemical potential of neutron
 
   // begin newton-raphson
   for (int i = 0; i < max_nse_iters; ++i){
 
     // check if current state fulfills constraint equation
-    if (std::abs(f.eqs(0)) < eps && std::abs(f.eqs(1)) < eps){
+//    if (std::abs(f.eqs(0)) < eps && std::abs(f.eqs(1)) < eps){
+    if (std::abs(d_mu_p) < eps * std::abs(state.mu_p) &&
+        std::abs(d_mu_n) < eps * std::abs(state.mu_n)){
       converged = true;
       break;
     }
@@ -257,7 +387,11 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
   }
 
   // invoke newton-raphson to solve chemical potential of proton and neutron
-  nse_nr_solver(state, eps);
+  if (use_hybrid_solver) {
+      nse_hybrid_solver(state, eps);
+  } else {
+      nse_nr_solver(state, eps);
+  }
 
   // get the nse_state
   T nse_state = get_nse_state(state);

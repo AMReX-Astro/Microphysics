@@ -1,0 +1,10 @@
+CEXE_headers += hybrj_type.H
+CEXE_headers += hybrj_dogleg.H
+CEXE_headers += hybrj_enorm.H
+CEXE_headers += hybrj.H
+CEXE_headers += hybrj_qform.H
+CEXE_headers += hybrj_qrfac.H
+CEXE_headers += hybrj_r1mpyq.H
+CEXE_headers += hybrj_r1updt.H
+CEXE_headers += hybrj_type.H
+
