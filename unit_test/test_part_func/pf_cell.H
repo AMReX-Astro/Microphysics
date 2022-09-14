@@ -27,4 +27,6 @@ void pf_cell_c()
 
     std::cout << "Fe52: " << pf << " " << dpf_dT << std::endl;
 
+    std::cout << "spins: " << get_spin_state(H1) << " " << get_spin_state(He4) << " " << get_spin_state(Fe52) << " " << get_spin_state(Co55) << " " << get_spin_state(Ni56) << std::endl;
+
 }

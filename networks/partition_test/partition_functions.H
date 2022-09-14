@@ -139,6 +139,7 @@ namespace part_fun {
 
     // interpolation routine
 
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
     void interpolate_pf(const Real t9, const int npts, const Real* temp_array, const Real* pf_array,
                         Real& pf, Real& dpf_dT) {
 
@@ -183,6 +184,7 @@ namespace part_fun {
 
 // main interface
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc, const tf_t& tfactors, Real& pf, Real& dpf_dT) {
 
     // inuc is the 1-based index for the species
@@ -208,6 +210,43 @@ void get_partition_function(const int inuc, const tf_t& tfactors, Real& pf, Real
         dpf_dT = 0.0_rt;
 
     }
+
+}
+
+// spins
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr Real get_spin_state(const int inuc) {
+
+    Real spin = -1.0;
+
+    switch (inuc) {
+
+    case H1:
+        spin = 2.0;
+        break;
+
+    case He4:
+        spin = 1.0;
+        break;
+
+    case Fe52:
+        spin = 1.0;
+        break;
+
+    case Co55:
+        spin = 8.0;
+        break;
+
+    case Ni56:
+        spin = 1.0;
+        break;
+
+
+
+    }
+
+    return spin;
 
 }
 
