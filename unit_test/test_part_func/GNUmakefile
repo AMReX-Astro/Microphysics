@@ -28,7 +28,7 @@ MICROPHYSICS_HOME  := ../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory in Castro/Networks
-NETWORK_DIR := aprox13
+NETWORK_DIR := partition_test
 
 CONDUCTIVITY_DIR := stellar
 
