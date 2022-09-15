@@ -33,6 +33,9 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_state.HMXI = 1.0_rt / ode_max_dt;
 
+    // set the Jacobian type
+    vode_state.jacobian_type = jacobian;
+
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
