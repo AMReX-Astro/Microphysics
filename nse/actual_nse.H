@@ -132,11 +132,22 @@ T get_nse_state(const T& state)
           std::exp(exponent);
   }
 
+  nse_state.y_e = 0.0_rt;
+
+  for (int n = 0; n < NumSpec; ++n){
+    if (n == NSE_INDEX::p_index){
+      continue;
+    }
+    
+    // constraint equation 1, mass fraction sum to 1
+    
+    nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
+  }
+  
   nse_state.T = state.T;
   nse_state.rho = state.rho;
 
   return nse_state;
-
 }
 
 
@@ -154,8 +165,6 @@ Newton_inputs nse_constraint(const T& state){
 
     // Now find constraint equations
 
-    nse_state.y_e = 0.0_rt;
-
     nse_inputs.eqs(0) = -1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
@@ -166,13 +175,12 @@ Newton_inputs nse_constraint(const T& state){
         // constraint equation 1, mass fraction sum to 1
 
         nse_inputs.eqs(0) += nse_state.xn[n];
-        nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
     }
 
     // constraint equation 2, electron fraction should be the same
 
     nse_inputs.eqs(1) = nse_state.y_e - state.y_e;
-
+    
     // evaluate jacobian of the constraint
 
     nse_inputs.jac(0,0) = 0.0_rt;
@@ -207,8 +215,6 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 
     auto nse_state = get_nse_state(current_state);
 
-    nse_state.y_e = 0.0_rt;
-
     fvec(1) = -1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
@@ -219,7 +225,6 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
         // constraint equation 1, mass fraction sum to 1
 
         fvec(1) += nse_state.xn[n];
-        nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
     }
 
     // constraint equation 2, electron fraction should be the same
@@ -259,7 +264,7 @@ void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
 }
 
 template<typename T>
-void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-3_rt) {
+void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-4_rt) {
 
     hybrj_t<2> hj;
 
@@ -289,7 +294,7 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-3_rt) {
 // A newton-raphson solver for finding nse state used for calibrating
 // chemical potential of proton and neutron
 template<typename T>
-void nse_nr_solver(T& state, amrex::Real eps=1.0e-3_rt) {
+void nse_nr_solver(T& state, amrex::Real eps=1.0e-4_rt) {
 
   bool converged = false;                                     // whether nse solver converged or not
 
@@ -392,9 +397,19 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
   } else {
       nse_nr_solver(state, eps);
   }
+  
+  Newton_inputs f = nse_constraint(state);
+
+  // extra check for convergence since hybrj has a bug in its convergence check
+
+  if (std::abs(f.eqs(0)) > 1.0e-3_rt || std::abs(f.eqs(1)) > 1.0e-3_rt){
+    amrex::Error("failed to solve!");
+  }
 
   // get the nse_state
-  T nse_state = get_nse_state(state);
+
+  auto nse_state = get_nse_state(state);
+  
   return nse_state;
 }
 
