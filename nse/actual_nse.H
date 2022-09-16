@@ -67,8 +67,8 @@ void init_actual_nse(){
 // struct to store output from constraint equations and jacobian for
 // newton-raphson
 struct Newton_inputs{
-  amrex::Array1D<amrex::Real, 0, 1> eqs;
-  amrex::Array2D<amrex::Real, 0, 1, 0, 1> jac;
+  amrex::Array1D<amrex::Real, 1, 2> eqs;
+  amrex::Array2D<amrex::Real, 1, 2, 1, 2> jac;
 };
 
 template <typename T>
@@ -165,7 +165,7 @@ Newton_inputs nse_constraint(const T& state){
 
     // Now find constraint equations
 
-    nse_inputs.eqs(0) = -1.0_rt;
+    nse_inputs.eqs(1) = -1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
         if (n == NSE_INDEX::p_index){
@@ -174,29 +174,29 @@ Newton_inputs nse_constraint(const T& state){
 
         // constraint equation 1, mass fraction sum to 1
 
-        nse_inputs.eqs(0) += nse_state.xn[n];
+        nse_inputs.eqs(1) += nse_state.xn[n];
     }
 
     // constraint equation 2, electron fraction should be the same
 
-    nse_inputs.eqs(1) = nse_state.y_e - state.y_e;
+    nse_inputs.eqs(2) = nse_state.y_e - state.y_e;
     
     // evaluate jacobian of the constraint
 
-    nse_inputs.jac(0,0) = 0.0_rt;
-    nse_inputs.jac(0,1) = 0.0_rt;
-    nse_inputs.jac(1,0) = 0.0_rt;
     nse_inputs.jac(1,1) = 0.0_rt;
+    nse_inputs.jac(1,2) = 0.0_rt;
+    nse_inputs.jac(2,1) = 0.0_rt;
+    nse_inputs.jac(2,2) = 0.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
         if (n == NSE_INDEX::p_index){
             continue;
         }
 
-        nse_inputs.jac(0,0) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
-        nse_inputs.jac(0,1) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
-        nse_inputs.jac(1,0) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
-        nse_inputs.jac(1,1) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
+        nse_inputs.jac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
+        nse_inputs.jac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
+        nse_inputs.jac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
+        nse_inputs.jac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
     }
 
     return nse_inputs;
@@ -317,7 +317,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-4_rt) {
     }
 
     // Find the max of the jacobian used for scaling determinant to prevent digit overflow
-    auto scale_fac = amrex::max(f.jac(1,1),amrex::max(f.jac(1,0), amrex::max(f.jac(0,0), f.jac(0,1))));
+    auto scale_fac = amrex::max(f.jac(2,2),amrex::max(f.jac(2,1), amrex::max(f.jac(1,1), f.jac(1,2))));
 
     // if jacobians are small, then no need for scaling
     if (scale_fac < 1.0e150){
@@ -325,7 +325,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-4_rt) {
     }
 
     // Specific inverse 2x2 matrix, perhaps can write a function for solving n systems of equations.
-    det = f.jac(0, 0) / scale_fac * f.jac(1, 1) - f.jac(0, 1) / scale_fac * f.jac(1, 0);
+    det = f.jac(1, 1) / scale_fac * f.jac(2, 2) - f.jac(1, 2) / scale_fac * f.jac(2, 1);
 
     // check if determinant is 0
     if (det == 0.0_rt){
@@ -333,14 +333,14 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-4_rt) {
     }
 
     // find inverse jacobian
-    inverse_jac(0, 0) = f.jac(1,1) / scale_fac / det;
-    inverse_jac(0, 1) = -f.jac(0,1) / scale_fac / det;
-    inverse_jac(1, 0) = -f.jac(1,0) / scale_fac / det;
-    inverse_jac(1, 1) = f.jac(0,0) / scale_fac / det;
+    inverse_jac(1, 1) = f.jac(2, 2) / scale_fac / det;
+    inverse_jac(1, 2) = -f.jac(1, 2) / scale_fac / det;
+    inverse_jac(2, 1) = -f.jac(2, 1) / scale_fac / det;
+    inverse_jac(2, 2) = f.jac(1, 1) / scale_fac / det;
 
     // find the difference
-    d_mu_p = -(f.eqs(0) * inverse_jac(0,0) + f.eqs(1) * inverse_jac(0,1));
-    d_mu_n = -(f.eqs(0) * inverse_jac(1,0) + f.eqs(1) * inverse_jac(1,1));
+    d_mu_p = -(f.eqs(1) * inverse_jac(1, 1) + f.eqs(2) * inverse_jac(1, 2));
+    d_mu_n = -(f.eqs(1) * inverse_jac(2, 1) + f.eqs(2) * inverse_jac(2, 2));
 
     // if diff goes beyond 1.0e3_rt, likely that its not making good progress..
     if (std::abs(d_mu_p) > 1.0e3_rt or std::abs(d_mu_n) > 1.0e3_rt){
@@ -391,20 +391,71 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
     composition(state);
   }
 
+  // amrex::Array1D<amrex::Real, 1, 2> init_x;
+  // init_x(1) = state.mu_p;
+  // init_x(2) = state.mu_n;
+  
+  // amrex::Real dx;
+  // bool is_pos_new;
+  // bool is_pos_old = false;
+  
   // invoke newton-raphson to solve chemical potential of proton and neutron
   if (use_hybrid_solver) {
-      nse_hybrid_solver(state, eps);
-  } else {
-      nse_nr_solver(state, eps);
+    // for (int i = 0; i < 20; ++i){
+
+    //   dx = 0.5_rt;
+    //   state.mu_p = init_x(1);
+    //   state.mu_n = init_x(2);
+
+    //   // std::cout << "state mu_p in outer " << state.mu_p << std::endl;
+    //   // std::cout << "state mu_n in outer " << state.mu_n << std::endl;
+      
+    //   for (int j = 0; j < 20; ++j){
+    nse_hybrid_solver(state, eps);
+	
+    // 	Newton_inputs f = nse_constraint(state);
+    // 	if (std::abs(f.eqs(1)) < 1.0e-3_rt || std::abs(f.eqs(2)) < 1.0e-3_rt){
+    // 	  auto nse_state = get_nse_state(state);
+    // 	  return nse_state;
+    // 	}
+    // 	std::cout << "f.eq 1 " << f.eqs(1) << std::endl;
+    // 	std::cout << "f.eq 2 " << f.eqs(2) << std::endl;
+    // 	if (f.eqs(1) > 0.0_rt && f.eqs(2) > 0.0_rt){
+    // 	  is_pos_new = true;
+    // 	}
+    // 	else{
+    // 	  is_pos_new = false;
+    // 	}
+
+    // 	if (is_pos_old != is_pos_new){
+    // 	  dx *= 0.8_rt;
+    // 	}
+
+    // 	if (is_pos_new){
+    // 	  state.mu_p -= dx;
+    // 	  state.mu_n -= dx;
+    // 	}
+    // 	else{
+    // 	  state.mu_p += dx;
+    // 	  state.mu_n += dx;
+    // 	}
+      
+    // 	is_pos_old = is_pos_new;
+    //   }
+    //   init_x(1) -= 0.5_rt;
+    // }
   }
+  else{
+    nse_nr_solver(state, eps);
+  }
+
   
-  Newton_inputs f = nse_constraint(state);
 
   // extra check for convergence since hybrj has a bug in its convergence check
-
-  if (std::abs(f.eqs(0)) > 1.0e-3_rt || std::abs(f.eqs(1)) > 1.0e-3_rt){
-    amrex::Error("failed to solve!");
-  }
+  // Newton_inputs f = nse_constraint(state);  
+  // if (std::abs(f.eqs(1)) > 1.0e-3_rt || std::abs(f.eqs(2)) > 1.0e-3_rt){
+  //   amrex::Error("failed to solve!");
+  // }
 
   // get the nse_state
 

@@ -29,52 +29,69 @@ void burn_cell_c()
                 state.rho = rho;
                 state.y_e = Ye;
 
+		if (state.y_e > 0.52_rt){
+		  state.mu_p = -2.0_rt;
+		  state.mu_n = -15.0_rt;
+		}
+		else if (state.y_e > 0.48_rt){
+		  state.mu_p = -7.0_rt;
+		  state.mu_n = -11.0_rt;
+		}
+		else if (state.y_e > 0.4_rt){
+		  state.mu_p = -10.0_rt;
+		  state.mu_n = -8.0_rt;
+		}
+		else{
+		  state.mu_p = -16.0;
+		  state.mu_n = -3.0;
+		}
+		
                 // initial guess
 
-                if (state.T >= 4.5e9_rt) {
+                // if (state.T >= 4.5e9_rt) {
 
-                    if (state.y_e < 0.45_rt) {
-                        state.mu_p = -15.0;
-                        state.mu_n = -4.0;
-                    } else if (state.y_e < 0.5_rt) {
-                        state.mu_p = -10.0;
-                        state.mu_n = -6.0;
-                    } else {
-                        state.mu_p = -3.0;
-                        state.mu_n = -14.0;
-                    }
+                //     if (state.y_e < 0.45_rt) {
+                //         state.mu_p = -15.0;
+                //         state.mu_n = -4.0;
+                //     } else if (state.y_e < 0.5_rt) {
+                //         state.mu_p = -10.0;
+                //         state.mu_n = -6.0;
+                //     } else {
+                //         state.mu_p = -3.0;
+                //         state.mu_n = -14.0;
+                //     }
 
-                } else {
-                    // lower temperature
+                // } else {
+                //     // lower temperature
 
-                    if (state.y_e < 0.45_rt) {
-                        if (state.rho < 1.e8_rt) {
-                            state.mu_p = -14.0;
-                            state.mu_n = -5.0;
-                        } else {
-                            state.mu_p = -16.3;
-                            state.mu_n = -3.2;
-                        }
-                    } else if (state.y_e < 0.5_rt) {
-                        if (state.rho < 1.e8_rt) {
-                            state.mu_p = -6.0;
-                            state.mu_n = -11.0;
-                        } else {
-                            state.mu_p = -9.9;
-                            state.mu_n = -8.0;
-                        }
-                    } else {
-                        state.mu_p = -4.0;
-                        state.mu_n = -13.0;
-                    }
+                //     if (state.y_e < 0.45_rt) {
+                //         if (state.rho < 1.e8_rt) {
+                //             state.mu_p = -14.0;
+                //             state.mu_n = -5.0;
+                //         } else {
+                //             state.mu_p = -16.3;
+                //             state.mu_n = -3.2;
+                //         }
+                //     } else if (state.y_e < 0.5_rt) {
+                //         if (state.rho < 1.e8_rt) {
+                //             state.mu_p = -6.0;
+                //             state.mu_n = -11.0;
+                //         } else {
+                //             state.mu_p = -9.9;
+                //             state.mu_n = -8.0;
+                //         }
+                //     } else {
+                //         state.mu_p = -4.0;
+                //         state.mu_n = -13.0;
+                //     }
 
-                }
+                // }
 
                 // find the  nse state
 
                 const bool assume_ye_is_valid = true;
                 Real eps = 1.e-8;
-
+		use_hybrid_solver = 1;
                 auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
                 std::cout << std::scientific;
                 std::cout << std::setw(20) << state.rho << " "

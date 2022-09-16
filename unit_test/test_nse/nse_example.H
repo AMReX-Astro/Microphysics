@@ -104,14 +104,16 @@ void nse_example_c()
         state.xn[n] = massfractions[n];
     }
 
+    
     // normalize -- just in case
     
     normalize_abundances_burn(state);
 
     // compute the initial Ye
     
-    composition(state);
+    // composition(state);
 
+    state.y_e = y_e;
     std::cout << "electron fraction is " << state.y_e << std::endl;
 
     // set initial chemical potential of proton and neutron
@@ -119,12 +121,16 @@ void nse_example_c()
     state.mu_p = mu_p;
     state.mu_n = mu_n;
 
+
     std::cout << "chemical potential of proton is " << mu_p << std::endl;
     std::cout << "chemical potential of neutron is " << mu_n << std::endl;
 
+    
+    const bool assume_ye_valid = true;
+    amrex::Real eps = 1.0e-4_rt;
     // find the  nse state
-
-    auto NSE_STATE = get_actual_nse_state(state);
+    use_hybrid_solver = 1;
+    auto NSE_STATE = get_actual_nse_state(state, eps, assume_ye_valid);
 
     std::cout << "NSE state: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
