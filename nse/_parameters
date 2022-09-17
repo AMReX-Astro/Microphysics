@@ -4,6 +4,6 @@ max_nse_iters        integer    500
 
 use_hybrid_solver    integer    0
 
-f_lim                integer    0.5
+f_lim                integer    0.05
 cell_dx              real       1.0e6_rt
 
