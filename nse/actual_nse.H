@@ -64,13 +64,6 @@ void init_actual_nse(){
 }
 
 
-// struct to store output from constraint equations and jacobian for
-// newton-raphson
-struct Newton_inputs{
-  amrex::Array1D<amrex::Real, 1, 2> eqs;
-  amrex::Array2D<amrex::Real, 1, 2, 1, 2> jac;
-};
-
 template <typename T>
 T get_nse_state(const T& state)
 {
@@ -121,7 +114,7 @@ T get_nse_state(const T& state)
       // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
       // iteration will make it happy again
 
-      Real exponent = amrex::min(700.0_rt,
+      Real exponent = amrex::min(500.0_rt,
                                  (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
                                   - u_c + network::bion(n+1)) /
                                  C::k_B / state.T * C::Legacy::MeV2erg);
@@ -151,59 +144,8 @@ T get_nse_state(const T& state)
 }
 
 
-template <typename T>
-Newton_inputs nse_constraint(const T& state){
-    // This functions finds the constraint equations and jacobian used
-    // for calculating nse.
 
-    Newton_inputs nse_inputs;
-
-    // calculate the nse state based on initial conditions of mu_p and
-    // mu_n which are chemical potential of proton and neutron
-
-    auto nse_state = get_nse_state(state);
-
-    // Now find constraint equations
-
-    nse_inputs.eqs(1) = -1.0_rt;
-
-    for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::p_index){
-            continue;
-        }
-
-        // constraint equation 1, mass fraction sum to 1
-
-        nse_inputs.eqs(1) += nse_state.xn[n];
-    }
-
-    // constraint equation 2, electron fraction should be the same
-
-    nse_inputs.eqs(2) = nse_state.y_e - state.y_e;
-    
-    // evaluate jacobian of the constraint
-
-    nse_inputs.jac(1,1) = 0.0_rt;
-    nse_inputs.jac(1,2) = 0.0_rt;
-    nse_inputs.jac(2,1) = 0.0_rt;
-    nse_inputs.jac(2,2) = 0.0_rt;
-
-    for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::p_index){
-            continue;
-        }
-
-        nse_inputs.jac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
-        nse_inputs.jac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
-        nse_inputs.jac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
-        nse_inputs.jac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
-    }
-
-    return nse_inputs;
-}
-
-
-// for the hybrid Powell solver
+// constraint equation
 
 template<typename T>
 void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
@@ -232,6 +174,8 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
     fvec(2) = nse_state.y_e - state.y_e;
 
 }
+
+// constraint jacobian
 
 template<typename T>
 void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
@@ -354,12 +298,11 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
 // A newton-raphson solver for finding nse state used for calibrating
 // chemical potential of proton and neutron
+
 template<typename T>
 void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
   bool converged = false;                                     // whether nse solver converged or not
-
-  // Newton_inputs f = nse_constraint(state);                    // get constraint eqs and jacobian
 
   amrex::Array1D<amrex::Real, 1, 2> f;
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> jac;
@@ -380,9 +323,8 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
   // begin newton-raphson
   for (int i = 0; i < max_nse_iters; ++i){
 
-    std::cout << "d_mup " << d_mu_p << std::endl;
-    std::cout << "d_mu_n " << d_mu_n << std::endl;
     // check if current state fulfills constraint equation
+
     if (std::abs(d_mu_p) < eps * std::abs(x(1)) &&
         std::abs(d_mu_n) < eps * std::abs(x(2))){
       converged = true;
@@ -392,28 +334,26 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
     }
 
     // Find the max of the jacobian used for scaling determinant to prevent digit overflow
-    //auto scale_fac = amrex::max(f.jac(2,2),amrex::max(f.jac(2,1), amrex::max(f.jac(1,1), f.jac(1,2))));
     
     auto scale_fac = amrex::max(jac(2,2), amrex::max(jac(2,1), amrex::max(jac(1,1), jac(1,2))));
     
     // if jacobians are small, then no need for scaling
+
     if (scale_fac < 1.0e150){
       scale_fac = 1.0_rt;
     }
 
     // Specific inverse 2x2 matrix, perhaps can write a function for solving n systems of equations.
+
     det = jac(1, 1) / scale_fac * jac(2, 2) - jac(1, 2) / scale_fac * jac(2, 1);
 
     // check if determinant is 0
+    
     if (det == 0.0_rt){
       amrex::Error("Jacobian is a singular matrix! Try a different initial guess!");
     }
 
     // find inverse jacobian
-    // inverse_jac(1, 1) = f.jac(2, 2) / scale_fac / det;
-    // inverse_jac(1, 2) = -f.jac(1, 2) / scale_fac / det;
-    // inverse_jac(2, 1) = -f.jac(2, 1) / scale_fac / det;
-    // inverse_jac(2, 2) = f.jac(1, 1) / scale_fac / det;
 
     inverse_jac(1, 1) = jac(2, 2) / scale_fac / det;
     inverse_jac(1, 2) = -jac(1, 2) / scale_fac / det;
@@ -421,32 +361,29 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
     inverse_jac(2, 2) = jac(1, 1) / scale_fac / det;
     
     // find the difference
-    // d_mu_p = -(f.eqs(1) * inverse_jac(1, 1) + f.eqs(2) * inverse_jac(1, 2));
-    // d_mu_n = -(f.eqs(1) * inverse_jac(2, 1) + f.eqs(2) * inverse_jac(2, 2));
 
     d_mu_p = -(f(1) * inverse_jac(1, 1) + f(2) * inverse_jac(1, 2));
     d_mu_n = -(f(1) * inverse_jac(2, 1) + f(2) * inverse_jac(2, 2));
     
     // if diff goes beyond 1.0e3_rt, likely that its not making good progress..
+
     if (std::abs(d_mu_p) > 1.0e3_rt || std::abs(d_mu_n) > 1.0e3_rt){
       amrex::Error("Not making good progress, breaking");
     }
 
     // update new solution
-    // state.mu_p += d_mu_p;
-    // state.mu_n += d_mu_n;
 
     x(1) += d_mu_p;
     x(2) += d_mu_n;
     
     // check whether solution results in nan
-    // if (std::isnan(state.mu_p) or std::isnan(state.mu_n)){
+
     if (std::isnan(x(1)) || std::isnan(x(2))){
 	amrex::Error("Nan encountered, likely due to overflow in digits or not making good progress");
       }
 
     // update constraint
-    // f = nse_constraint(state);
+
     jcn_hybrid(x, jac, state, flag);
     fcn_hybrid(x, f, state, flag);
   }

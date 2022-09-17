@@ -111,9 +111,10 @@ void nse_example_c()
 
     // compute the initial Ye
     
-    // composition(state);
-
     state.y_e = y_e;
+    
+    // composition(state);
+    
     std::cout << "electron fraction is " << state.y_e << std::endl;
 
     // set initial chemical potential of proton and neutron
@@ -125,7 +126,8 @@ void nse_example_c()
     amrex::Real eps = 1.0e-10_rt;
     
     // find the  nse state
-    use_hybrid_solver = 0;
+    use_hybrid_solver = 1;
+    
     auto NSE_STATE = get_actual_nse_state(state, eps, assume_ye_valid);
 
     std::cout << "After solving: " << std::endl;
