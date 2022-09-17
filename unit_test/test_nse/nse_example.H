@@ -120,18 +120,18 @@ void nse_example_c()
 
     state.mu_p = mu_p;
     state.mu_n = mu_n;
-
-
-    std::cout << "chemical potential of proton is " << mu_p << std::endl;
-    std::cout << "chemical potential of neutron is " << mu_n << std::endl;
-
     
     const bool assume_ye_valid = true;
-    amrex::Real eps = 1.0e-4_rt;
+    amrex::Real eps = 1.0e-10_rt;
+    
     // find the  nse state
-    use_hybrid_solver = 1;
+    use_hybrid_solver = 0;
     auto NSE_STATE = get_actual_nse_state(state, eps, assume_ye_valid);
 
+    std::cout << "After solving: " << std::endl;
+    std::cout << "chemical potential of proton is " << state.mu_p << std::endl;
+    std::cout << "chemical potential of neutron is " << state.mu_n << std::endl;
+    
     std::cout << "NSE state: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
       std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
