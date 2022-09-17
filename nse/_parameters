@@ -1,5 +1,9 @@
 @namespace: nse
 
-max_nse_iters    integer    500
+max_nse_iters        integer    500
 
-use_hybrid_solver    integer   0
+use_hybrid_solver    integer    0
+
+f_lim                integer    0.5
+cell_dx              real       1.0e6_rt
+

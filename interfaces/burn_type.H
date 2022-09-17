@@ -177,6 +177,8 @@ struct burn_t
 #ifdef ACTUAL_NSE
   Real mu_p;
   Real mu_n;
+
+  bool in_nse;
 #endif
   
   // diagnostics
