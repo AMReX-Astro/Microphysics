@@ -100,6 +100,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     state.n_rhs = vode_state.NFE;
     state.n_jac = vode_state.NJE;
+    state.n_step = vode_state.NST;
 
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
