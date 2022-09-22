@@ -62,16 +62,6 @@ nettables:
 	@echo linking network data files...
 	$(foreach t, $(NET_TABLES), $(shell if [ ! -f `basename $t` ]; then ln -s $(t) . ; fi))
 
-# Pynucastro networks read rate data from an external file
-PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
-all: pynucastrorates
-
-
-# do not check to see if the file already exists, just force-link it in
-# because different Reaclib networks will have different versions of the file
-pynucastrorates:
-	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
-
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
 
@@ -136,6 +126,13 @@ endif
 
 # fundamental constants
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
+
+# nse stuff
+EXTERN_CORE += $(MICROPHYSICS_HOME)/nse
+
+ifeq ($(USE_ACTUAL_NSE), TRUE)
+     DEFINES += -DACTUAL_NSE
+endif   	
 
 
 clean::

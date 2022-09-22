@@ -1,3 +1,15 @@
+# 22.09
+
+  * An NSE solver was added (#963)
+
+  * A new network, subch_simple, was added that further simplifies
+    He/C burning (#964)
+
+# 22.08
+
+  * The subch network was renamed `subch_approx` and the subch2 network was renamed
+    `subch_full` (#947)
+
 # 22.07
 
   * Two new screening formulations have been added for reaction rates, based
