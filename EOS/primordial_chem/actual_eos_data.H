@@ -6,5 +6,6 @@
 #include <network.H>
 
 extern AMREX_GPU_MANAGED amrex::Real gammas[NumSpec];
+extern AMREX_GPU_MANAGED amrex::Real spmasses[NumSpec];
 
 #endif
