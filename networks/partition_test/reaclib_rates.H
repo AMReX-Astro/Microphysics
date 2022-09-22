@@ -4,9 +4,12 @@
 #include <AMReX.H>
 #include <AMReX_Print.H>
 
+#include <tfactors.H>
 #include <actual_network.H>
+#include <partition_functions.H>
 
 using namespace Rates;
+using namespace Species;
 
 struct rate_t {
     Array1D<Real, 1, NumRates>  screened_rates;
@@ -19,35 +22,6 @@ struct rate_derivs_t {
     Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
 };
 
-struct tf_t {
-    Real T9;
-    Real T9i;
-    Real T943i;
-    Real T923i;
-    Real T913i;
-    Real T913;
-    Real T923;
-    Real T953;
-    Real lnT9;
-};
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-tf_t evaluate_tfactors(const Real T)
-{
-
-    tf_t tf;
-    tf.T9 = T / 1.e9_rt;
-    tf.T9i = 1.0_rt / tf.T9;
-    tf.T913 = std::cbrt(tf.T9);
-    tf.T913i = 1.0_rt / tf.T913;
-    tf.T923i = tf.T913i * tf.T913i;
-    tf.T943i = tf.T9i * tf.T913i;
-    tf.T923 = tf.T913 * tf.T913;
-    tf.T953 = tf.T9 * tf.T923;
-    tf.lnT9 = std::log(tf.T9);
-
-    return tf;
-}
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -145,6 +119,182 @@ void rate_he4_fe52__p_co55(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 }
 
+template <int do_T_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ni56__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ni56 --> he4 + fe52
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  91.62258922810439 + -92.801099329237 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
+                         + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  92.801099329237 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
+                                  + -0.533014 + (5.0/3.0) * 0.0892607 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
+
+    Real fe52_pf, dfe52_pf_dT;
+    // interpolating fe52 partition function
+    get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
+
+    Real ni56_pf, dni56_pf_dT;
+    // interpolating ni56 partition function
+    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
+
+    Real z_r = he4_pf * fe52_pf;
+    Real z_p = ni56_pf;
+
+    Real dz_r_dT = fe52_pf * dhe4_pf_dT + he4_pf * dfe52_pf_dT;
+    Real dz_p_dT = dni56_pf_dT;
+
+    Real dzterm_dT = (z_p * dz_r_dT - z_r * dz_p_dT) / (z_p * z_p);
+
+    drate_dT = dzterm_dT * rate + drate_dT * (z_r / z_p);
+    rate *= z_r/z_p;
+
+}
+
+template <int do_T_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_ni56__p_co55__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // ni56 --> p + co55
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  63.131770608640906 + -83.14741674893808 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
+                         + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + 0.833333 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  83.14741674893808 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
+                                  + -2.68377 + (5.0/3.0) * 0.355814 * tfactors.T923 + 0.833333 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+
+    Real p_pf, dp_pf_dT;
+    // setting p partition function to 1.0 by default, independent of T
+    p_pf = 1.0_rt;
+    dp_pf_dT = 0.0_rt;
+
+    Real co55_pf, dco55_pf_dT;
+    // interpolating co55 partition function
+    get_partition_function(Co55, tfactors, co55_pf, dco55_pf_dT);
+
+    Real ni56_pf, dni56_pf_dT;
+    // interpolating ni56 partition function
+    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
+
+    Real z_r = p_pf * co55_pf;
+    Real z_p = ni56_pf;
+
+    Real dz_r_dT = co55_pf * dp_pf_dT + p_pf * dco55_pf_dT;
+    Real dz_p_dT = dni56_pf_dT;
+
+    Real dzterm_dT = (z_p * dz_r_dT - z_r * dz_p_dT) / (z_p * z_p);
+
+    drate_dT = dzterm_dT * rate + drate_dT * (z_r / z_p);
+    rate *= z_r/z_p;
+
+}
+
+template <int do_T_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rate_p_co55__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+
+    // co55 + p --> he4 + fe52
+
+    rate = 0.0;
+    drate_dT = 0.0;
+
+    Real ln_set_rate{0.0};
+    Real dln_set_rate_dT9{0.0};
+    Real set_rate{0.0};
+
+    // ths8r
+    ln_set_rate =  61.443418619463486 + -9.65364776674457 * tfactors.T9i + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
+                         + -0.780924 * tfactors.T9 + 0.0425179 * tfactors.T953 + -0.666667 * tfactors.lnT9;
+
+    if constexpr (do_T_derivatives) {
+        dln_set_rate_dT9 =  9.65364776674457 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
+                                  + -0.780924 + (5.0/3.0) * 0.0425179 * tfactors.T923 + -0.666667 * tfactors.T9i;
+    }
+
+    // avoid underflows by zeroing rates in [0.0, 1.e-100]
+    ln_set_rate = std::max(ln_set_rate, -230.0);
+    set_rate = std::exp(ln_set_rate);
+    rate += set_rate;
+    if constexpr (do_T_derivatives) {
+        drate_dT += set_rate * dln_set_rate_dT9 / 1.0e9;
+    }
+
+
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
+
+    Real fe52_pf, dfe52_pf_dT;
+    // interpolating fe52 partition function
+    get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
+
+    Real p_pf, dp_pf_dT;
+    // setting p partition function to 1.0 by default, independent of T
+    p_pf = 1.0_rt;
+    dp_pf_dT = 0.0_rt;
+
+    Real co55_pf, dco55_pf_dT;
+    // interpolating co55 partition function
+    get_partition_function(Co55, tfactors, co55_pf, dco55_pf_dT);
+
+    Real z_r = he4_pf * fe52_pf;
+    Real z_p = p_pf * co55_pf;
+
+    Real dz_r_dT = fe52_pf * dhe4_pf_dT + he4_pf * dfe52_pf_dT;
+    Real dz_p_dT = co55_pf * dp_pf_dT + p_pf * dco55_pf_dT;
+
+    Real dzterm_dT = (z_p * dz_r_dT - z_r * dz_p_dT) / (z_p * z_p);
+
+    drate_dT = dzterm_dT * rate + drate_dT * (z_r / z_p);
+    rate *= z_r/z_p;
+
+}
+
 
 
 template <int do_T_derivatives, typename T>
@@ -172,6 +322,24 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
     rate_eval.screened_rates(k_he4_fe52__p_co55) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_he4_fe52__p_co55) = drate_dT;
+
+    }
+    rate_ni56__he4_fe52__derived<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ni56__he4_fe52__derived) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_ni56__he4_fe52__derived) = drate_dT;
+
+    }
+    rate_ni56__p_co55__derived<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_ni56__p_co55__derived) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_ni56__p_co55__derived) = drate_dT;
+
+    }
+    rate_p_co55__he4_fe52__derived<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_co55__he4_fe52__derived) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_p_co55__he4_fe52__derived) = drate_dT;
 
     }
 
