@@ -82,6 +82,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-nse">test_nse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-part-func">test_part_func</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-react">test_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-rhs">test_rhs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-screening">test_screening</a></li>
@@ -1356,7 +1357,7 @@ network?</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_hybrid_solver</span></code></p></td>
 <td></td>
-<td><p>0</p></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -2009,6 +2010,44 @@ compatibility</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_e</span></code></p></td>
+<td></td>
+<td><p>0.5</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-part-func">
+<h1>test_part_func<a class="headerlink" href="#test-part-func" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<td></td>
+<td><p>1.e9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+<td><p>5.e9</p></td>
 </tr>
 </tbody>
 </table>
