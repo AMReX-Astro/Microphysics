@@ -14,6 +14,7 @@
 #include <nse_index.H>
 #include <hybrj.H>
 
+
 // Initialization for nse, check whether network is valid and stores indices
 
 void init_actual_nse(){
@@ -43,7 +44,7 @@ void init_actual_nse(){
 
   // Check if network results in singular jacobian first, require at
   // least one nuclei that nuclei.Z != nuclei.N.  Some examples include
-  // aprox13 and iso7
+  // aprox13 and iso7. If use hybrj solver, this is no longer an issue.
   if (!use_hybrid_solver){
     bool singular_network = true;
     for (int n = 0; n < NumSpec; ++n){
@@ -85,10 +86,16 @@ T get_nse_state(const T& state)
   amrex::Real gamma;
   amrex::Real u_c;
 
-  // Need partition function, set it to 1 for now.
+  // set partition function and spin
+  
+  amrex::Real pf = 1.0_rt;
+  amrex::Real dpf_dT;
+  amrex::Real spin = 1.0_rt;
 
-  amrex::Real partition_function = 1.0_rt;
-
+#ifdef TFACTORS_H
+  auto tfactors = evaluate_tfactors(temperature);
+#endif
+  
   for (int n = 0; n < NumSpec; ++n){
       if (n == NSE_INDEX::p_index){
           continue;
@@ -108,7 +115,13 @@ T get_nse_state(const T& state)
                                std::sqrt(1.0_rt + gamma / A2))) +
            2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
 
-
+      // fill partition function and get spin
+      
+#ifdef PARTITION_FUNCTIONS_H      
+      spin = get_spin_state(n+1);
+      get_partition_function(n+1, tfactors, pf, dpf_dT);
+#endif
+      
       // find nse mass frac
 
       // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
@@ -119,7 +132,7 @@ T get_nse_state(const T& state)
                                   - u_c + network::bion(n+1)) /
                                  C::k_B / state.T * C::Legacy::MeV2erg);
 
-      nse_state.xn[n] = network::mion(n+1) * partition_function / state.rho *
+      nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
           std::pow(2.0 * M_PI * network::mion(n+1) *
                    C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
           std::exp(exponent);
@@ -198,7 +211,7 @@ void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
         if (n == NSE_INDEX::p_index){
             continue;
         }
-
+	
         fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
         fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
         fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
