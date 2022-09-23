@@ -26,3 +26,5 @@ unit_test.X19 = 0.0
 
 unit_test.mu_p = -3.0
 unit_test.mu_n = -12.0
+
+unit_test.y_e = 0.5
