@@ -1,0 +1,35 @@
+# this inputs is used for comparing the subch and subch2 networks
+
+unit_test.run_prefix = "react_aprox13_"
+
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+integrator.burner_verbose = 0
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+
+integrator.jacobian = 1
+
+integrator.renormalize_abundances = 0
+
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
+integrator.atol_spec = 1.0e-8
+integrator.atol_enuc = 1.0e-6
+
+unit_test.tmax = 1.e-1
+unit_test.tfirst = 1.e-10
+unit_test.nsteps = 10
+
+unit_test.density = 1.e6
+unit_test.temperature = 5.e8
+
+unit_test.X1 = 0.7
+unit_test.X2  = 0.1
+unit_test.X3  = 0.1
+unit_test.X4  = 0.1
+
+integrator.integrate_energy = 0
