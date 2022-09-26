@@ -1,4 +1,4 @@
-AMReX (22.08-17-g8294c3afbcbb) initialized
+AMReX (22.08-70-gec3ccbd18787) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 1e-05
@@ -26,6 +26,29 @@ Mass Fraction (ti44): 0
 Mass Fraction (cr48): 0
 Mass Fraction (fe52): 0
 Mass Fraction (ni56): 0
+RHS at t = 0
+    h1 895110670.6
+   he4 -116892540.4
+   c12 778320111
+   n13 -895110656.2
+   n14 -100544.9692
+   o16 116788941.3
+   f18 100544.9692
+  ne20 1553.501095
+  ne21 5.679440901e-23
+  na22 9.495207168e-23
+  na23 14.2963137
+  mg24 1.933938048
+  al27 0.08700012543
+  si28 0.0160176069
+   p31 3.723541443e-05
+   s32 7.325504904e-06
+  ar36 -5.715330804e-28
+  ca40 1.369315623e-26
+  ti44 -5.98426919e-28
+  cr48 6.465178867e-28
+  fe52 1.086815162e-28
+  ni56 2.574225196e-29
 ------------------------------------
 successful? 1
  - Hnuc = 7.242504668e+22
@@ -82,4 +105,5 @@ omegadot(ti44): 526.2916908
 omegadot(cr48): 66.65524196
 omegadot(fe52): 1.291730016
 omegadot(ni56): 0.004728298219
-AMReX (22.08-17-g8294c3afbcbb) finalized
+number of steps taken: 594
+AMReX (22.08-70-gec3ccbd18787) finalized

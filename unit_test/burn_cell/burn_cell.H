@@ -1,10 +1,10 @@
-
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
 #include <burner.H>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 void burn_cell_c()
 {
@@ -108,6 +108,17 @@ void burn_cell_c()
 
     normalize_abundances_burn(state);
 
+    // output just the instantaneous RHS
+
+    Array1D<Real, 1, neqs> ydot;
+    actual_rhs(state, ydot);
+
+    std::cout << "RHS at t = 0" << std::endl;
+    for(int n = 0; n < NumSpec; ++n){
+        std::string element = short_spec_names_cxx[n];
+        std::cout << std::setw(6) << element << " " << ydot(n+1) << std::endl;
+    }
+
     // output initial burn type data
     Real time = 0.0_rt;
 
@@ -146,7 +157,7 @@ void burn_cell_c()
     state_over_time << std::setw(10) << "# Time";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
-	std::string element = short_spec_names_cxx[x];
+        std::string element = short_spec_names_cxx[x];
 	state_over_time << std::setw(12) << element; 
     }
     state_over_time << std::endl;
@@ -168,6 +179,8 @@ void burn_cell_c()
 
     // loop over steps, burn, and output the current state
 
+    int nstep_int = 0;
+
     for (int n = 0; n < nsteps; n++){
 
         // compute the time we wish to integrate to
@@ -176,6 +189,8 @@ void burn_cell_c()
         Real dt = tend - t;
 
     	burner(state, dt);
+
+        nstep_int += state.n_step;
 
         // state.e represents the change in energy over the burn (for
         // just this sybcycle), so turn it back into a physical energy
@@ -227,5 +242,7 @@ void burn_cell_c()
         std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
                   << (state.xn[n] - state_in.xn[n]) / tmax << std::endl;
     }
+
+    std::cout << "number of steps taken: " << nstep_int << std::endl;
 
 }
