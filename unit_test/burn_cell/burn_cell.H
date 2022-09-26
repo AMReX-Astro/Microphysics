@@ -107,7 +107,9 @@ void burn_cell_c()
 
     // normalize -- just in case
 
-    normalize_abundances_burn(state);
+    if (! skip_initial_normalization) {
+        normalize_abundances_burn(state);
+    }
 
     // output just the instantaneous RHS
 
