@@ -127,12 +127,14 @@ endif
 # fundamental constants
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 
-# nse stuff
-EXTERN_CORE += $(MICROPHYSICS_HOME)/nse
 
+# nse stuff
 ifeq ($(USE_ACTUAL_NSE), TRUE)
      DEFINES += -DACTUAL_NSE
-endif   	
+
+     EXTERN_CORE += $(MICROPHYSICS_HOME)/nse
+     EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
+endif
 
 
 clean::
