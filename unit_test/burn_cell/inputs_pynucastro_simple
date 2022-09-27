@@ -11,18 +11,18 @@ integrator.burner_verbose = 0
 # 1 = analytic jacobian
 # 2 = numerical jacobian
 
-integrator.jacobian = 1
+integrator.jacobian = 2
 
 integrator.renormalize_abundances = 0
 
-integrator.rtol_spec = 1.0e-6
+integrator.rtol_spec = 1.0e-10
 integrator.rtol_enuc = 1.0e-6
-integrator.atol_spec = 1.0e-8
+integrator.atol_spec = 1.0e-10
 integrator.atol_enuc = 1.0e-6
 
-unit_test.tmax = 1.e-1
-unit_test.tfirst = 1.e-10
-unit_test.nsteps = 10
+unit_test.tmax = 0.2
+unit_test.tfirst = 0.0
+unit_test.nsteps = 1
 
 unit_test.density = 1.e6
 unit_test.temperature = 5.e8
@@ -33,3 +33,8 @@ unit_test.X3  = 0.1
 unit_test.X4  = 0.1
 
 integrator.integrate_energy = 0
+integrator.call_eos_in_rhs = 0
+
+integrator.do_species_clip = 0
+
+unit_test.skip_initial_normalization = 1
