@@ -1,4 +1,3 @@
-
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
@@ -118,7 +117,7 @@ void burn_cell_c()
 
     std::cout << "RHS at t = 0" << std::endl;
     for(int n = 0; n < NumSpec; ++n){
-	std::string element = short_spec_names_cxx[n];
+        std::string element = short_spec_names_cxx[n];
         std::cout << std::setw(6) << element << " " << ydot(n+1) << std::endl;
     }
 
@@ -160,7 +159,7 @@ void burn_cell_c()
     state_over_time << std::setw(10) << "# Time";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
-	std::string element = short_spec_names_cxx[x];
+        std::string element = short_spec_names_cxx[x];
 	state_over_time << std::setw(12) << element; 
     }
     state_over_time << std::endl;
@@ -206,7 +205,9 @@ void burn_cell_c()
 
         // get the updated T
 
-        eos(eos_input_re, state);
+        if (call_eos_in_rhs) {
+            eos(eos_input_re, state);
+        }
 
         t += dt;
 
@@ -236,7 +237,8 @@ void burn_cell_c()
     std::cout << "------------------------------------" << std::endl;
     std::cout << "new mass fractions: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::cout << state.xn[n] << std::endl;
+        std::string element = short_spec_names_cxx[n];
+        std::cout << element << " " << state.xn[n] << std::endl;
     }
 
     std::cout << "------------------------------------" << std::endl;
