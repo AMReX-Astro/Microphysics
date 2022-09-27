@@ -106,7 +106,9 @@ void burn_cell_c()
 
     // normalize -- just in case
 
-    normalize_abundances_burn(state);
+    if (! skip_initial_normalization) {
+        normalize_abundances_burn(state);
+    }
 
     // output just the instantaneous RHS
 
@@ -203,7 +205,9 @@ void burn_cell_c()
 
         // get the updated T
 
-        eos(eos_input_re, state);
+        if (call_eos_in_rhs) {
+            eos(eos_input_re, state);
+        }
 
         t += dt;
 
@@ -233,7 +237,8 @@ void burn_cell_c()
     std::cout << "------------------------------------" << std::endl;
     std::cout << "new mass fractions: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::cout << state.xn[n] << std::endl;
+        std::string element = short_spec_names_cxx[n];
+        std::cout << element << " " << state.xn[n] << std::endl;
     }
 
     std::cout << "------------------------------------" << std::endl;
