@@ -1,3 +1,8 @@
+# 22.10
+
+  * A null screening routine was added to disable screening for any network at
+    compile time. (#992)
+
 # 22.09
 
   * An NSE solver was added (#963)
