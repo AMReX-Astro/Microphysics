@@ -235,7 +235,8 @@ void burn_cell_c()
     std::cout << "------------------------------------" << std::endl;
     std::cout << "new mass fractions: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::cout << state.xn[n] << std::endl;
+        std::string element = short_spec_names_cxx[n];
+        std::cout << element << " " << state.xn[n] << std::endl;
     }
 
     std::cout << "------------------------------------" << std::endl;
