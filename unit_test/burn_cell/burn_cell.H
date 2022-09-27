@@ -117,17 +117,6 @@ void burn_cell_c()
 
     std::cout << "RHS at t = 0" << std::endl;
     for(int n = 0; n < NumSpec; ++n){
-	std::string element = short_spec_names_cxx[n];
-        std::cout << std::setw(6) << element << " " << ydot(n+1) << std::endl;
-    }
-
-    // output just the instantaneous RHS
-
-    Array1D<Real, 1, neqs> ydot;
-    actual_rhs(state, ydot);
-
-    std::cout << "RHS at t = 0" << std::endl;
-    for(int n = 0; n < NumSpec; ++n){
         std::string element = short_spec_names_cxx[n];
         std::cout << std::setw(6) << element << " " << ydot(n+1) << std::endl;
     }
