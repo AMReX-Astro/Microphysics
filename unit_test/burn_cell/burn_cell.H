@@ -205,7 +205,9 @@ void burn_cell_c()
 
         // get the updated T
 
-        eos(eos_input_re, state);
+        if (call_eos_in_rhs) {
+            eos(eos_input_re, state);
+        }
 
         t += dt;
 

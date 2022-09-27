@@ -17,12 +17,12 @@ integrator.renormalize_abundances = 0
 
 integrator.rtol_spec = 1.0e-6
 integrator.rtol_enuc = 1.0e-6
-integrator.atol_spec = 1.0e-8
+integrator.atol_spec = 1.0e-10
 integrator.atol_enuc = 1.0e-6
 
 unit_test.tmax = 1.e-3
-unit_test.tfirst = 0.0
-unit_test.nsteps = 1
+unit_test.tfirst = 1.e-10
+unit_test.nsteps = 100
 
 unit_test.density = 1.e6
 unit_test.temperature = 2.e9
