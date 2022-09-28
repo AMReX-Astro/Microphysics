@@ -517,10 +517,14 @@ void find_rate_pair(const std::string& rate_name, std::string& reverse_rate,
   reactants.push_back(reactant_names);
 }
 
+
+
 template <typename T>
 void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
 		 const amrex::Array1D<amrex::Real, 1, NumSpec>& Y){
 
+  // Find the burning limiter
+  
   amrex::Real Y_npa = 0.0_rt;
   amrex::Real Y_npa_dot = 0.0_rt;
   amrex::Real Y_tilde = 0.0_rt;
@@ -555,6 +559,73 @@ void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex
   // f_full is the actual burning limiter we use.
   
   f_full = amrex::min(f_e, 1.0_rt / (X_npa / f_npa + X_tilde / f_tilde));
+}
+
+
+// template the size of reaction
+// "i" should be an upper bound to number of nuclei possible
+
+template <int i>
+void find_fast_reaction(){
+  // Find fast reaction of a given nuclei.
+
+  amrex::Array2D<int, 1, 6, 1, i> reactions;            // store 
+  amrex::Array2D<int, 1, 6, 1, i> fast_reactions;
+  
+  std::vector<std::vector<int>> reactions;
+  std::vector<int> starting_nuc;
+  std::vector<int> intermediate_nucs_1;
+  std::vector<int> intermediate_nucs_2;
+  std::vector<int> intermediate_nucs_3;
+  std::vector<int> intermediate_nucs_4;
+
+  std::vector<std::vector<int>> fast_reactions;
+  
+  starting_nuc = {n};
+  reactions = {{n},};
+    
+    for (int i = NumSpec-1, i <= 0; --i){
+
+      if (aion[i] == aion[n]-1 &&
+	  (zion[i] == zion[n] || zion[i] == zion[n]-1)){
+
+	intermediate_nucs_1.push_back(i);
+      }
+
+      if (aion[i] == aion[n]-2 &&
+	      (zion[i] == zion[n] || zion[i] == zion[n]-1 || zion[i] == zion[n]-2)){
+
+	intermediate_nucs_2.push_back(i);
+      }
+
+      if (aion[i] == aion[n]-3 &&
+	  (zion[i] == zion[n]-1 || zion[i] == zion[n]-2)){
+
+	intermediate_nucs_3.push_back(i);
+      }
+
+      if (aion[i] == aion[n]-4 && zion[i] == zion[n]-2){
+
+	intermediate_nucs_4.push_back(i);
+      }
+    }
+
+    intermediate_nucs_4.push_back(n);
+    
+    reactions.push_back(intermediate_nucs_1);
+    reactions.push_back(intermediate_nucs_2);
+    reactions.push_back(intermediate_nucs_3);
+    reactions.push_back(intermediate_nucs_4);
+    reactions.push_back(starting_nuc);
+
+    fast_reactions = {{n},{},{},{},{},{}};
+
+    // Checks if there are no intermediate nuclei
+    
+    if (reactions[1].empty() || reactions[2].empty() || reactions[3].empty()){
+      continue;
+    }
+  
 }
 
 
@@ -640,15 +711,6 @@ void ase (T& state, T& nse_state){
   
   bool found_fast_reaction = false;
   
-  std::vector<std::vector<int>> reactions;
-  std::vector<int> starting_nuc;
-  std::vector<int> intermediate_nucs_1;
-  std::vector<int> intermediate_nucs_2;
-  std::vector<int> intermediate_nucs_3;
-  std::vector<int> intermediate_nucs_4;
-
-  std::vector<std::vector<int>> fast_reactions;
-  
   // Do a reverse for loop to start from heaviest nuclei
 
   // store all possible nuclei involved in a reaction cycle
@@ -657,52 +719,7 @@ void ase (T& state, T& nse_state){
     if (found_fast_reaction){
       break;
     }
-    starting_nuc = {n};
-    reactions = {{n},};
     
-    for (int i = NumSpec-1, i <= 0; --i){
-
-      if (aion[i] == aion[n]-1 &&
-	  (zion[i] == zion[n] || zion[i] == zion[n]-1)){
-
-	intermediate_nucs_1.push_back(i);
-      }
-
-      if (aion[i] == aion[n]-2 &&
-	      (zion[i] == zion[n] || zion[i] == zion[n]-1 || zion[i] == zion[n]-2)){
-
-	intermediate_nucs_2.push_back(i);
-      }
-
-      if (aion[i] == aion[n]-3 &&
-	  (zion[i] == zion[n]-1 || zion[i] == zion[n]-2)){
-
-	intermediate_nucs_3.push_back(i);
-      }
-
-      if (aion[i] == aion[n]-4 && zion[i] == zion[n]-2){
-
-	intermediate_nucs_4.push_back(i);
-      }
-    }
-
-    intermediate_nucs_4.push_back(n);
-    
-    reactions.push_back(intermediate_nucs_1);
-    reactions.push_back(intermediate_nucs_2);
-    reactions.push_back(intermediate_nucs_3);
-    reactions.push_back(intermediate_nucs_4);
-    reactions.push_back(starting_nuc);
-
-    fast_reactions = {{n},{},{},{},{},{}};
-
-    // Checks if there are no intermediate nuclei
-    
-    if (reactions[1].empty() || reactions[2].empty() || reactions[3].empty()){
-      continue;
-    }
-
-
     
     
   }
