@@ -13,6 +13,7 @@
 #include <eos_composition.H>
 #include <nse_index.H>
 #include <hybrj.H>
+#include <cctype>
 
 // Initialization for nse, check whether network is valid and stores indices
 
@@ -448,81 +449,78 @@ void ase_check(T& state, T& nse_state){
   }
 }
 
+
+void cap_first_letter(std::string& name){
+  // capitalize first letter of nuc except for neutron and proton, n and p.
+  
+  if (name == "p" || name == "n"){
+    return;
+  }
+  
+  name[0] = toupper(name[0]);
+}
+
+
+void find_rate_pair(const std::string& rate_name, std::string& reverse_rate,
+		    std::vector<std::string>& reactants, std::vector<std::string>& products){
+  // find the reverse rate name, reactants and products in a given rate, Rates::rate_names
+  // store them vector of strings.
+
+  reverse_rate = "";
+  reactants = {};
+  products = {};
+  
+  auto pos = rate_name.find("__");
+  std::string reactant_names = rate_name.substr(0, pos);
+  std::string product_names = rate_name.substr(pos+2);
+  
+  pos = product_names.find("__");
+  std::string suffix = product_names.substr(pos);
+  product_names.erase(pos);
+  
+  std::string reactant;
+  std::string product;
+  
+  // store names of reactants and products
+
+  while ((pos = product_names.find('_')) != std::string::npos){
+    product = product_names.substr(0, pos);
+
+    reverse_rate += product;
+    reverse_rate += "_";
+    
+    cap_first_letter(product);
+    products.push_back(product);
+    product_names.erase(0, pos+1);
+  }
+
+  reverse_rate += product_names;
+  reverse_rate += "__";
+  
+  cap_first_letter(product_names);
+  products.push_back(product_names); 
+  
+  while ((pos = reactant_names.find('_')) != std::string::npos){
+    reactant = reactant_names.substr(0, pos);
+
+    reverse_rate += reactant;
+    reverse_rate += "_";
+    
+    cap_first_letter(reactant);
+    reactants.push_back(reactant);
+    reactant_names.erase(0, pos+1);
+  }
+  reverse_rate += reactant_names;
+  reverse_rate += suffix;
+  
+  cap_first_letter(reactant_names);
+  reactants.push_back(reactant_names);
+}
+
 template <typename T>
-void ase (T& state, T& nse_state){
+void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
+		 const amrex::Array1D<amrex::Real, 1, NumSpec>& Y){
 
-  // Runtime parameters:
-  // f: characteritic scale for the burning limiter, ~0.05
-  // cell_dx: size of simulation mesh, ~1.0e6
-  // 
-  // assume we have f, cell_dx in _parameters
-  
-  // Update whether state is about in NSE in order to do ASE.
-  ase_check(state, nse_state);
-  if (!state.in_nse){
-    amrex::Error("state currently not in NSE, switch to eos!");
-  }
-
-
-  // set molar fractions
-  // initialize ydot to store Ydot and energy generation rate.
-  
-  amrex::Array1D<amrex::Real, 1, NumSpec> Y;
-  amrex::Array1D<amrex::Real, 1, NumSpec + 1> ydot;
-  for (int n = 1; n <= NumSpec; ++n){
-    if (NSE_INDEX::p_index == n-1){
-      continue;
-    }
-    Y(n) = state.xn[n-1] * inv_aion[n-1];
-    ydot(n) = 0.0_rt;
-  }
-
-  // Need speed of sound and simulation mesh size, make dx: global variable ~ 1.0e6
-  
-  amrex::Real t_s = cell_dx / state.cs;
-
-  // Find ydot and energy generation rate
-  // Currently also considering neutrino thermal loss if neutrino included
-  
-#ifdef NEW_NETWORK_IMPLEMENTATION
-  // rhs_t rhs_data(rate), rate is a string (enum to be indices);
-  // gives specie names, which can be used to determine reaction and find the corresponding rate
-
-  constexpr rhs_t data = RHS::rhs_data(rate)
-  // Real rhs_term<int species, int rate> (state, Real fr, Real rr), given species, rate, forward and reverse.
-  
-  //RHS::rhs(state, ydot);
-  //actual_rhs(state, ydot);
-#else
-  // Get rates, ydot,and energy generation rate, copy routine from  rhs_nuc(state, ydot)
-  
-  // Find individual rates in rate_eval
-  rate_t rate_eval;
-  constexpr do_T_derivatives = 0;
-  evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
-
-  // Find ydot
-  rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
-
-  // Find energy generation rate
-  amrex::Real enuc;
-  ener_gener_rate(ydot, enuc);
-
-#ifdef NEUTRINOS
-  amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-  sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-#else
-  amrex::Real sneut = 0.0_rt, dsneutdt =0.0_rt , dsneutdd = 0.0_rt, snuda = 0.0_rt, snudz = 0.0_rt;
-#endif
-  
-  ydot(NumSpec + 1) = enuc - sneut;
-  //  actual_rhs(state, ydot);
-#endif
-  
-  // ener_gener_rate(ydot, enuc);
-  
-  // Declare parameters defined in the ase paper to find the burning limiter f_lim
-  
   amrex::Real Y_npa = 0.0_rt;
   amrex::Real Y_npa_dot = 0.0_rt;
   amrex::Real Y_tilde = 0.0_rt;
@@ -547,27 +545,217 @@ void ase (T& state, T& nse_state){
     }
   }
 
-
   // Find the burning limiters based on Equation 6 and 7 in ase paper.
   // assume state.e is the total specific internal energy of the system.
+
   amrex::Real f_e = amrex::min(1.0_rt, state.e * f_lim / std::abs(enuc) / t_s);
   amrex::Real f_npa = amrex::min(1.0_rt, Y_npa * f_lim / std::abs(Y_npa_dot) / t_s);
   amrex::Real f_tilde = amrex::min(1.0_rt, Y_tilde * f_lim / std::abs(Y_tilde_dot) / t_s);
 
   // f_full is the actual burning limiter we use.
   
+  f_full = amrex::min(f_e, 1.0_rt / (X_npa / f_npa + X_tilde / f_tilde));
+}
 
-  amrex::Real f_full = amrex::min(f_e, 1.0_rt / (X_npa / f_npa + X_tilde / f_tilde));
 
+template <typename T>
+void ase (T& state, T& nse_state){
+
+  // Runtime parameters:
+  // f: characteritic scale for the burning limiter, ~0.05
+  // cell_dx: size of simulation mesh, ~1.0e6
+  // 
+  // assume we have f, cell_dx in _parameters
+  
+  // Update whether state is about in NSE in order to do ASE.
+  ase_check(state, nse_state);
+  if (!state.in_nse){
+    amrex::Error("state currently not in NSE, switch to eos!");
+  }
+
+  // set molar fractions
+  // initialize ydot to store Ydot and energy generation rate.
+  
+  amrex::Array1D<amrex::Real, 1, NumSpec> Y;
+  amrex::Array1D<amrex::Real, 1, NumSpec + 1> ydot;
+  for (int n = 1; n <= NumSpec; ++n){
+    if (NSE_INDEX::p_index == n-1){
+      continue;
+    }
+    Y(n) = state.xn[n-1] * inv_aion[n-1];
+    ydot(n) = 0.0_rt;
+  }
+
+  // Need speed of sound and simulation mesh size, make dx: global variable ~ 1.0e6
+  
+  amrex::Real t_s = cell_dx / state.cs;
+
+  // Find ydot and energy generation rate
+  // Currently also considering neutrino thermal loss if neutrino included
+  
+#ifdef NEW_NETWORK_IMPLEMENTATION
+  // rhs_t rhs_data(rate), rate is a string (enum to be indices);
+  // gives specie names, which can be used to determine reaction and find the corresponding rate
+  amrex::error("Not implemented yet");
+  //constexpr rhs_t data = RHS::rhs_data(rate)
+  // Real rhs_term<int species, int rate> (state, Real fr, Real rr), given species, rate, forward and reverse.
+  
+  //RHS::rhs(state, ydot);
+  //actual_rhs(state, ydot);
+#else
+    
+  // Get rates, ydot,and energy generation rate, copy routine from  rhs_nuc(state, ydot)
+  
+  // Need individual rates in rate_eval
+  rate_t rate_eval;
+  constexpr do_T_derivatives = 0;
+  evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
+  
+  // Find ydot
+  rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
+
+  // Find energy generation rate
+  amrex::Real enuc;
+  ener_gener_rate(ydot, enuc);
+
+#ifdef NEUTRINOS
+  amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+  sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+#else
+  amrex::Real sneut = 0.0_rt, dsneutdt =0.0_rt , dsneutdd = 0.0_rt, snuda = 0.0_rt, snudz = 0.0_rt;
+#endif
+  
+  ydot(NumSpec + 1) = enuc - sneut;
+  //  actual_rhs(state, ydot);
+#endif
+
+  // Get burning limiter
+  
+  amrex::Real f_full;
+  get_limiter(f_full, state, ydot, Y);
+  
   // Now we look through the network and see if there are fast reaction cycles
   // Need to separate forward and reverse rate and detemine each step is fast enough.
+  // use vectors for now
+  
+  bool found_fast_reaction = false;
+  
+  std::vector<std::vector<int>> reactions;
+  std::vector<int> starting_nuc;
+  std::vector<int> intermediate_nucs_1;
+  std::vector<int> intermediate_nucs_2;
+  std::vector<int> intermediate_nucs_3;
+  std::vector<int> intermediate_nucs_4;
 
-  // For NEW_NETWOR_IMPLEMENTATION: there is seems to have information about it in rhs_data
-  // For subch networks, need to figure out some ways to access different rates
-  // using namespace Species; (enumerate over different species)
-  // using namespace Rates; (enumerate over different rates)
+  std::vector<std::vector<int>> fast_reactions;
+  
+  // Do a reverse for loop to start from heaviest nuclei
+
+  // store all possible nuclei involved in a reaction cycle
+  
+  for (int n = NumSpec-1; n <= 0; --n){
+    if (found_fast_reaction){
+      break;
+    }
+    starting_nuc = {n};
+    reactions = {{n},};
+    
+    for (int i = NumSpec-1, i <= 0; --i){
+
+      if (aion[i] == aion[n]-1 &&
+	  (zion[i] == zion[n] || zion[i] == zion[n]-1)){
+
+	intermediate_nucs_1.push_back(i);
+      }
+
+      if (aion[i] == aion[n]-2 &&
+	      (zion[i] == zion[n] || zion[i] == zion[n]-1 || zion[i] == zion[n]-2)){
+
+	intermediate_nucs_2.push_back(i);
+      }
+
+      if (aion[i] == aion[n]-3 &&
+	  (zion[i] == zion[n]-1 || zion[i] == zion[n]-2)){
+
+	intermediate_nucs_3.push_back(i);
+      }
+
+      if (aion[i] == aion[n]-4 && zion[i] == zion[n]-2){
+
+	intermediate_nucs_4.push_back(i);
+      }
+    }
+
+    intermediate_nucs_4.push_back(n);
+    
+    reactions.push_back(intermediate_nucs_1);
+    reactions.push_back(intermediate_nucs_2);
+    reactions.push_back(intermediate_nucs_3);
+    reactions.push_back(intermediate_nucs_4);
+    reactions.push_back(starting_nuc);
+
+    fast_reactions = {{n},{},{},{},{},{}};
+
+    // Checks if there are no intermediate nuclei
+    
+    if (reactions[1].empty() || reactions[2].empty() || reactions[3].empty()){
+      continue;
+    }
 
 
+    
+    
+  }
+
+  
+  // Strip all rate names, to those include p, n or he4
+
+  
+  // A procedure to find the pair rates of a given rate_name
+  amrex::Real b_f;
+  amrex::Real b_r;
+
+  // Assume we need all intermediate nuclei
+  // only need b_f and b_r so can get below into a same routine and find b_f and b_r
+
+  // Should keep track of what rates are used, put used rates into a list.
+  std::string f_rate_name;
+  std::string r_rate_name;
+  std::vector<std::string> reactants;
+  std::vector<std::string> products;
+  
+  for (int i = 1; i <= Rates::NumRates; ++i){
+    f_rate_name = Rates::rate_names[i];
+    find_rate_pair(f_rate_name, r_rate_name, reactants, products);
+    
+    b_f = rate_eval.screened_rates(i);
+
+    // Find corresponding reverse rate
+    // uses short_spec_name_cxx for now...
+    for (int n = 1; n <= Rates::NumRates; ++n){
+      if (rate_names[n] == r_rate_name){
+	b_r = rate_eval.screened_rates(n);
+      }
+    }
+
+    // Need molar fractions of reactants
+    for (int n = 0; n < NumSpec; ++n){
+      for (auto nuc : reactants){
+	if (short_spec_name_cxx[n] == nuc){
+	  b_f *= Y(n+1);
+	}
+      }
+
+      for (auto nuc : products){
+	if (short_spec_names_cxx[n] == nuc){
+	  b_r *= Y(n+1);
+	}
+      }
+    }
+
+    b_f *= f_full;
+    b_r *= f_full;
+  }
 }
 
 
