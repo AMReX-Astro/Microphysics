@@ -118,13 +118,13 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same<I, eos_input_t>::value, "input must be either eos_input_rt or eos_input_re");
 
-  bool valid = true;
+  bool valid = false;
 
-  if (input == eos_input_ps ||
-      input == eos_input_th) {
-    valid = false;
+  if (input == eos_input_rt ||
+      input == eos_input_re) {
+    valid = true;
   }
 
   return valid;
@@ -135,7 +135,7 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+    static_assert(std::is_same<I, eos_input_t>::value, "input must be either eos_input_rt or eos_input_re");
 
     const Real gasconstant = 8.3144725e7;
     // Special gamma factors
