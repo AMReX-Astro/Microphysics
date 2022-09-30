@@ -148,19 +148,12 @@ void actual_eos (I input, T& state)
     }
 
     for (int n = 0; n < NumSpec; ++n) {
-<<<<<<< HEAD
-        sum_Abarinv = sum_Abarinv + (state.xn[n]/spmasses[n]);
-        sum_gammasinv = sum_gammasinv + (state.xn[n] / (spmasses[n]*(gammas[n]-1.0)) );
-    }
-
-=======
         sum_Abarinv += state.xn[n];
         sum_gammasinv += (state.xn[n]*protonmass/rhotot) * (1.0/(gammas[n]-1.0));
     }
 
     sum_Abarinv *= protonmass/rhotot;
     sum_gammasinv /= sum_Abarinv;
->>>>>>> f9a80208 (cleaned up EOS)
 
     //-------------------------------------------------------------------------
     // For all EOS input modes EXCEPT eos_input_rt, first compute dens
@@ -188,17 +181,62 @@ void actual_eos (I input, T& state)
 
         if constexpr (has_energy<T>::value) {
             dens = state.rho;
-<<<<<<< HEAD
-            temp = state.e * sum_gammasinv * gasconstant / sum_Abarinv;
-=======
+
             // stop the integration if the internal energy < 0
             AMREX_ASSERT(state.e > 0.);
             temp = state.e /( sum_gammasinv * gasconstant * sum_Abarinv);
             eint = state.e;
->>>>>>> f9a80208 (cleaned up EOS)
         }
 
         break;
+
+    case eos_input_rh:
+        // dens, enthalpy, and xmass are inputs
+#ifndef AMREX_USE_GPU
+        amrex::Error("eos_input_rh is not supported");
+#endif
+
+          break;
+
+    case eos_input_tp:
+        // temp, pressure, and xmass are inputs
+#ifndef AMREX_USE_GPU
+        amrex::Error("eos_input_tp is not supported");
+#endif
+
+          break;
+
+    case eos_input_rp:
+        // dens, pressure, and xmass are inputs
+#ifndef AMREX_USE_GPU
+        amrex::Error("eos_input_rp is not supported");
+#endif
+
+          break;
+
+    case eos_input_ps:
+        // pressure, entropy, and xmass are inputs
+#ifndef AMREX_USE_GPU
+        amrex::Error("eos_input_ps is not supported");
+#endif
+
+        break;
+
+    case eos_input_ph:
+        // pressure, enthalpy, and xmass are inputs
+#ifndef AMREX_USE_GPU
+        amrex::Error("eos_input_ph is not supported");
+#endif
+
+          break;
+
+    case eos_input_th:
+        // temp, enthalpy, and xmass are inputs
+#ifndef AMREX_USE_GPU
+        amrex::Error("eos_input_th is not supported");
+#endif
+
+          break;
 
     default:
 
@@ -218,30 +256,14 @@ void actual_eos (I input, T& state)
     state.T   = temp;
     state.rho = dens;
 
-<<<<<<< HEAD
-    Real pres = dens * temp * gasconstant * sum_Abarinv;
-    Real ener = 0.0_rt; //currently undefined, as we need kinetic energy total define total energy
-    Real enth = ener + pres / dens;
-
-    // Compute the pressure simply from the ideal gas law, and the
-    // specific internal energy using the gamma-law EOS relation.
-    if constexpr (has_pressure<T>::value) {
-        state.p = pres;
-    }
-=======
->>>>>>> f9a80208 (cleaned up EOS)
     if constexpr (has_energy<T>::value) {
-        state.e = ener;
+        state.e = eint;
     }
 
     Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
     if constexpr (has_energy<T>::value) {
         state.dedT = dedT;
     }
-
-    //if constexpr (has_energy<T>::value) {
-    //    state.cv = state.dedT;
-    //}
 
 }
 
