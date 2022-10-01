@@ -21,6 +21,8 @@ const std::string screen_name = "screen5";
 const std::string screen_name = "chugunov2007";
 #elif SCREEN_METHOD == 2
 const std::string screen_name = "chugunov2009";
+#elif SCREEN_METHOD == 3
+const std::string screen_name = "null";
 #endif
 
 struct plasma_state_t {
@@ -768,6 +770,10 @@ void actual_screen(const plasma_state_t& state,
     chugunov2007<do_T_derivatives>(state, scn_fac, scor, scordt);
 #elif SCREEN_METHOD == 2
     chugunov2009<do_T_derivatives>(state, scn_fac, scor, scordt);
+#elif SCREEN_METHOD == 3
+    // null screening
+    scor = 1.0_rt;
+    scordt = 0.0_rt;
 #endif
 }
 

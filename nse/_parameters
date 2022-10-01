@@ -1,3 +1,6 @@
 @namespace: nse
 
 max_nse_iters    integer    500
+
+use_hybrid_solver    integer   1
+
