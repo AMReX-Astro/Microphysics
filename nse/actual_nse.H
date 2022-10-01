@@ -91,7 +91,7 @@ void find_rate_pair(const std::string& rate_name, std::string& reverse_rate,
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reaction_indices,
 		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
 
-  // fill the corresponding reactant and product indices of a given rate
+  // fill the corresponding reactant and product indices of a given rate name
   
   for (int n = 1; n <= 3; ++n){
     reaction_indices(n) = -1;
@@ -731,7 +731,39 @@ void find_max_nucs(int& max_nucs, const int current_nuc_ind){
   }
 }
 
-void find_fast_reaction(const int current_nuc_ind){
+void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indices,
+		     amrex::Array1D<int, 1, 3> products_indices){
+
+  // Return the corresponding rate index by providing array of reactants and products indices
+  rate_index = -1;
+  
+  bool found_index = false;
+  
+  sort_Array1D<1, 3>(reactants_indices);
+  sort_Array1D<1, 3>(products_indices);
+  
+  for (int i = 1; i <= Rates::NumRates; ++i){
+    for (int j = 1; j <=3; ++j){
+      if (rate_indices(i, j) == reactants_indices(j) && rate_indices(i, j+3) == product_indices){
+	found_index = true;
+      }
+      else{
+	found_index = false;
+      }
+    }
+    if (found_index){
+      rate_index = i;
+      return;
+    }
+    
+  }
+  
+}
+
+void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
+			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
+			const amrex::Real& f_full, const eos_t& state, bool& found_fast_reaction){
+
   // Find fast reaction of a given nuclei.
 
   // find maximum nucs possible to declare size of reactions
@@ -740,10 +772,22 @@ void find_fast_reaction(const int current_nuc_ind){
   find_max_nucs(max_nucs, current_nuc_ind);
   
   amrex::Array2D<int, 1, 6, 1, max_nucs> reactions;            // store possible reaction nuclei indices
+  amrex::Array2D<int, 1, 6, 1, max_nucs> fast_reactions;       // store indices of fast reaction nucs
 
+  // some variables to hold temporary data
+  amrex::Array1D<int, 1, 3> reaction_scratch;
+  amrex::Array1D<int, 1, 3> product_scratch;
+  int rate_index;                                      // store index of the rate
+  bool have_required_nucs;                             // variable used to check we have required nuc
+  
+  // holds forward and reverse rate of a reaction
+  amrex::Real b_f;
+  amrex::Real b_r;
+  
   for (int i = 1; i <= 6; ++i){
     for (int j = 1; j <= max_nucs; ++j){
       reactions(i, j) = -1;
+      fast_reactions(i, j) = -1;
     }
   }  
   
@@ -752,13 +796,17 @@ void find_fast_reaction(const int current_nuc_ind){
   int inter_nuc_ind3 = 1;
   int inter_nuc_ind4 = 1;
 
+  // a parameter for comparing whether rate is fast enought
+  
+  amrex::Real t_s = cell_dx / state.cs
+  
   // the beginning nuclei of a reaction cycle is always itself
   
   reactions(1, 1) = current_nuc_ind;
   
   // store all possible nuclei involved in a reaction cycle started by nuclei: current_nuc_ind
   
-  for (int n = NumSpec-1, n > NSE_INDEX::he4_index; --n){
+  for (int n = NumSpec-1; n > NSE_INDEX::he4_index; --n){
 
       if (aion[n] == aion[current_nuc_ind]-1 &&
 	  (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1)){
@@ -793,36 +841,24 @@ void find_fast_reaction(const int current_nuc_ind){
 
   // Checks if there are no intermediate nuclei
 
-  bool have_intermediate_nucs; 
   for (int i = 2; i <= 4; ++i){
 
-    have_intermediate_nucs = false;
+    have_required_nucs = false;
 
     for (int j = 1; j <= max_nucs; ++j){
       if (reactions(i, j) != -1){
-	have_intermediate_nucs = true;
+	have_required_nucs = true;
       }
     }
     
-    if (!have_intermediate_nucs){
+    if (!have_required_nucs){
+      found_fast_reaction = false;
       return;
     }
   }
+
   
-
-  // determine where the reactions are fast reactions
-
-  amrex::Array2D<int, 1, 6, 1, max_nucs> fast_reactions;
-  amrex::Array1D<int, 1, 3> reaction_scratch;
-  amrex::Array1D<int, 1, 3> product_scratch;
-
-  // initialize fast_reactions indices
-  
-  for (int i = 1; i <= 6; ++i){
-    for (int j = 1; j <= max_nucs; ++j){
-      fast_reactions(i, j) = -1;
-    }
-  }  
+  // The first nuc in fast reaction is always itself
 
   fast_reactions(1, 1) = current_nuc_ind;
 
@@ -832,7 +868,8 @@ void find_fast_reaction(const int current_nuc_ind){
     for (int j = 1; j <= max_nucs; ++j){
 
       // skip this loop if current nuc is the same as the starting nuc
-      if (reactions(i, j) == current_nuc_ind && i != 1){
+      // also skip if current index is -1, which is not valid
+      if (reactions(i, j) == -1 || (reactions(i, j) == current_nuc_ind && i != 1)){
 	continue;
       }
 
@@ -840,7 +877,12 @@ void find_fast_reaction(const int current_nuc_ind){
       // get nuc index of the next stage in reactions
       
       for (int k = 1; k <= max_nucs; ++k){
-
+      
+	// if reaction index is -1, skip, since its not a valid index
+	if (reactions(i+1, k) == -1){
+	  continue;
+	}
+	
 	// Conditions to tell us which reaction occured.
 	
 	if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 4){
@@ -852,42 +894,138 @@ void find_fast_reaction(const int current_nuc_ind){
 	  // reaction indices: reactions(i, j), NSE_INDEX::he4_index
 	  // product indices: reactions(i+1, k)
 	  // find corresponding rate index in rate_indices
+
+	  // fill in reaction_scratch indices
 	  
+	  reaction_scratch(1) = reactions(i, j);
+	  reaction_scratch(2) = NSE_INDEX::he4_index;
+	  reaction_scratch(3) = -1;
+
+	  product_scratch(1) = reactions(i+1, k);
+	  product_scratch(2) = -1;
+	  product_scratch(3) = -1;
 	  
+	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * rho;
+	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1);
 	}
 
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
 		 zion[reactions(i, j)] == zion[reactions(i+1, k)] - 2){
 	  // (alpha, n) reaction
-	}
+	  
+	  reaction_scratch(1) = reactions(i, j);
+	  reaction_scratch(2) = NSE_INDEX::he4_index;
+	  reaction_scratch(3) = -1;
 
+	  product_scratch(1) = reactions(i+1, k);
+	  product_scratch(2) = NSE_INDEX::n_index;
+	  product_scratch(3) = -1;
+	  
+	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * rho;
+	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * rho;
+	}
+	
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
 		 zion[reactions(i, j)] == zion[reactions(i+1, k)] - 1){
 	  // (alpha, p) reaction
+	  
+	  reaction_scratch(1) = reactions(i, j);
+	  reaction_scratch(2) = NSE_INDEX::he4_index;
+	  reaction_scratch(3) = -1;
+	  
+	  product_scratch(1) = reactions(i+1, k);
+	  product_scratch(2) = NSE_INDEX::p_index;
+	  product_scratch(3) = -1;
+	  
+	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * rho;
+	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * rho;
 	}
 
 	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)]){
 	  // (n, gamma) reaction
+	  
+	  reaction_scratch(1) = reactions(i, j);
+	  reaction_scratch(2) = NSE_INDEX::n_index;
+	  reaction_scratch(3) = -1;
+
+	  product_scratch(1) = reactions(i+1, k);
+	  product_scratch(2) = -1;
+	  product_scratch(3) = -1;
+	  
+	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::n_index + 1) * rho;
+	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1);
 	}
 
 	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)] + 1){
 	  // (p, gamma) reaction
+	  
+	  reaction_scratch(1) = reactions(i, j);
+	  reaction_scratch(2) = NSE_INDEX::p_index;
+	  reaction_scratch(3) = -1;
+
+	  product_scratch(1) = reactions(i+1, k);
+	  product_scratch(2) = -1;
+	  product_scratch(3) = -1;
+	  
+	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::p_index + 1) * rho;
+	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1);
 	}
 
 	else{
 	  // continue if no matching reactions
-	  
 	  continue;
 	}
 
-	// Find the forward and reverse rate of the given reaction
-
 	// A condition to check whether rates are fast enough given by Eq10 and 12 in ASE paper
-
-	// if there are fast reaction nuclei found in the next stage, replace nuclei in reactions with those fast nuclei
-	
-      }
       
+	if ( ((Y[reactions(i, j) + 1] / amrex::min(b_f, b_r) < ase_tol * t_s)
+	      || (Y[reactions(i + 1, k) + 1] / amrex::min(b_f, b_r) < ase_tol * t_s))
+	     && ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol) ){
+	 
+	  // store nuclei index to fast_reaction if pass the condition
+	  fast_reactions(i + 1, k) = reactions(i + 1, k);
+	}
+     		      
+      }
+    }
+    // if (fast_reactions(i + 1, p) have any non -1, means found a fast reac nuc
+    
+    have_required_nucs = false;
+    
+    for (int p = 1; p <= max_nucs; ++p){
+
+      // replace reaction nucs with fast_reaciton nucs of the next reaction stage
+
+	reactions(i + 1, p) = fast_reactions(i + 1, p);
+
+	// if we see current_nuc_ind in the next stage, means we have finished the cycle
+
+	if (fast_reactions(i + 1, p) == current_nuc_ind){
+	  found_fast_reaction = true;
+	  return;
+	}
+
+      if (fast_reactions(i + 1, p) != -1){
+	have_required_nucs = true;
+      }
+    }
+
+    // check if we even have nucs in the next stage that are fast enough
+    // if not, return
+    
+    if (!have_required_nucs){
+      found_fast_reaction = false;
+      return;
     }
   }
     
@@ -925,9 +1063,6 @@ void ase (T& state, T& nse_state){
     ydot(n) = 0.0_rt;
   }
 
-  // Need speed of sound and simulation mesh size, make dx: global variable ~ 1.0e6
-  
-  amrex::Real t_s = cell_dx / state.cs;
 
   // Find ydot and energy generation rate
   // Currently also considering neutrino thermal loss if neutrino included
@@ -986,64 +1121,17 @@ void ase (T& state, T& nse_state){
       break;
     }
         
-    find_fast_reactions(n);
-    
+    find_fast_reaction(n, Y, rate_eval.screened_rates, f_full, state, found_fast_reaction);
   }
 
+  if (!found_fast_reaction){
+    amrex::Error("Unable to find fast reaction cycle, so cannot proceed with ase");
+  }
+
+  // DO ASE if found fast reaction
+  
+  
 }
 
 
 #endif
-
-
-
-
-  
-  // Strip all rate names, to those include p, n or he4
-
-  
-  // A procedure to find the pair rates of a given rate_name
-  amrex::Real b_f;
-  amrex::Real b_r;
-
-  // Assume we need all intermediate nuclei
-  // only need b_f and b_r so can get below into a same routine and find b_f and b_r
-
-  // Should keep track of what rates are used, put used rates into a list.
-  std::string f_rate_name;
-  std::string r_rate_name;
-  std::vector<std::string> reactants;
-  std::vector<std::string> products;
-  
-  for (int i = 1; i <= Rates::NumRates; ++i){
-    f_rate_name = Rates::rate_names[i];
-    find_rate_pair(f_rate_name, r_rate_name, reactants, products);
-    
-    b_f = rate_eval.screened_rates(i);
-
-    // Find corresponding reverse rate
-    // uses short_spec_name_cxx for now...
-    for (int n = 1; n <= Rates::NumRates; ++n){
-      if (rate_names[n] == r_rate_name){
-	b_r = rate_eval.screened_rates(n);
-      }
-    }
-
-    // Need molar fractions of reactants
-    for (int n = 0; n < NumSpec; ++n){
-      for (auto nuc : reactants){
-	if (short_spec_name_cxx[n] == nuc){
-	  b_f *= Y(n+1);
-	}
-      }
-
-      for (auto nuc : products){
-	if (short_spec_names_cxx[n] == nuc){
-	  b_r *= Y(n+1);
-	}
-      }
-    }
-
-    b_f *= f_full;
-    b_r *= f_full;
-  }
