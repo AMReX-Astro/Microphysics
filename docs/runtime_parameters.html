@@ -17,6 +17,7 @@
         <script src="_static/underscore.js"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -65,6 +66,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#gamma-law">gamma_law</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#helmholtz">helmholtz</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#integration">integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-table">make_table</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#multigamma">multigamma</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#networks">networks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#nse">nse</a></li>
@@ -82,6 +84,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-nse">test_nse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-part-func">test_part_func</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-react">test_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-rhs">test_rhs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-screening">test_screening</a></li>
@@ -252,6 +255,11 @@ reject it</p></td>
 <td><p>for the step rejection logic on mass fractions, we only
 consider species that are &gt; X_reject_buffer * atol_spec</p></td>
 <td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_species_clip</span></code></p></td>
+<td><p>in the clean_state process, do we clip the species such
+that they are in [0, 1]?</p></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -460,6 +468,10 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">skip_initial_normalization</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1204,6 +1216,60 @@ integration.</p></td>
 </tbody>
 </table>
 </section>
+<section id="make-table">
+<h1>make_table<a class="headerlink" href="#make-table" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_min</span></code></p></td>
+<td></td>
+<td><p>1.e6</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_max</span></code></p></td>
+<td></td>
+<td><p>1.e10</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nrho</span></code></p></td>
+<td></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_min</span></code></p></td>
+<td></td>
+<td><p>1.e9</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_max</span></code></p></td>
+<td></td>
+<td><p>1.e10</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nT</span></code></p></td>
+<td></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_min</span></code></p></td>
+<td></td>
+<td><p>0.4</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_max</span></code></p></td>
+<td></td>
+<td><p>0.7</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nye</span></code></p></td>
+<td></td>
+<td><p>7</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="multigamma">
 <h1>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this heading">¶</a></h1>
 <table class="docutils align-default">
@@ -1299,6 +1365,10 @@ network?</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_nse_iters</span></code></p></td>
 <td></td>
 <td><p>500</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_hybrid_solver</span></code></p></td>
+<td></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -2085,6 +2155,44 @@ compatibility</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
 <td></td>
 <td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">y_e</span></code></p></td>
+<td></td>
+<td><p>0.5</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-part-func">
+<h1>test_part_func<a class="headerlink" href="#test-part-func" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<td></td>
+<td><p>1.e9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+<td><p>5.e9</p></td>
 </tr>
 </tbody>
 </table>
