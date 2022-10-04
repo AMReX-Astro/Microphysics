@@ -16,75 +16,97 @@
 #include <cctype>
 #include <algorithm>
 
+// Comment out functions that are not in use right now
 
-void cap_first_letter(std::string& name){
-  // capitalize first letter of nuc except for neutron and proton, n and p.
+// void cap_first_letter(std::string& name){
+//   // capitalize first letter of nuc except for neutron and proton, n and p.
   
-  if (name == "p" || name == "n"){
-    return;
-  }
+//   if (name == "p" || name == "n"){
+//     return;
+//   }
   
-  name[0] = toupper(name[0]);
-}
+//   name[0] = toupper(name[0]);
+// }
 
 
-void find_rate_pair(const std::string& rate_name, std::string& reverse_rate,
-		    std::vector<std::string>& reactants, std::vector<std::string>& products){
-  // find the reverse rate_name, reactants and products in a given rate, Rates::rate_names
-  // store them vector of strings.
-  //
-  // currently not used
-  //
+// void find_rate_pair(const std::string& rate_name, std::string& reverse_rate,
+// 		    std::vector<std::string>& reactants, std::vector<std::string>& products){
+//   // find the reverse rate_name, reactants and products in a given rate, Rates::rate_names
+//   // store them vector of strings.
+//   //
+//   // currently not used
+//   //
   
-  reverse_rate = "";
-  reactants = {};
-  products = {};
+//   reverse_rate = "";
+//   reactants = {};
+//   products = {};
   
-  auto pos = rate_name.find("__");
-  std::string reactant_names = rate_name.substr(0, pos);
-  std::string product_names = rate_name.substr(pos+2);
+//   auto pos = rate_name.find("__");
+//   std::string reactant_names = rate_name.substr(0, pos);
+//   std::string product_names = rate_name.substr(pos+2);
   
-  pos = product_names.find("__");
-  std::string suffix = product_names.substr(pos);
-  product_names.erase(pos);
+//   pos = product_names.find("__");
+//   std::string suffix = product_names.substr(pos);
+//   product_names.erase(pos);
   
-  std::string reactant;
-  std::string product;
+//   std::string reactant;
+//   std::string product;
   
-  // store names of reactants and products
+//   // store names of reactants and products
 
-  while ((pos = product_names.find('_')) != std::string::npos){
-    product = product_names.substr(0, pos);
+//   while ((pos = product_names.find('_')) != std::string::npos){
+//     product = product_names.substr(0, pos);
 
-    reverse_rate += product;
-    reverse_rate += "_";
+//     reverse_rate += product;
+//     reverse_rate += "_";
     
-    cap_first_letter(product);
-    products.push_back(product);
-    product_names.erase(0, pos+1);
-  }
+//     cap_first_letter(product);
+//     products.push_back(product);
+//     product_names.erase(0, pos+1);
+//   }
 
-  reverse_rate += product_names;
-  reverse_rate += "__";
+//   reverse_rate += product_names;
+//   reverse_rate += "__";
   
-  cap_first_letter(product_names);
-  products.push_back(product_names); 
+//   cap_first_letter(product_names);
+//   products.push_back(product_names); 
   
-  while ((pos = reactant_names.find('_')) != std::string::npos){
-    reactant = reactant_names.substr(0, pos);
+//   while ((pos = reactant_names.find('_')) != std::string::npos){
+//     reactant = reactant_names.substr(0, pos);
 
-    reverse_rate += reactant;
-    reverse_rate += "_";
+//     reverse_rate += reactant;
+//     reverse_rate += "_";
     
-    cap_first_letter(reactant);
-    reactants.push_back(reactant);
-    reactant_names.erase(0, pos+1);
-  }
-  reverse_rate += reactant_names;
-  reverse_rate += suffix;
+//     cap_first_letter(reactant);
+//     reactants.push_back(reactant);
+//     reactant_names.erase(0, pos+1);
+//   }
+//   reverse_rate += reactant_names;
+//   reverse_rate += suffix;
   
-  cap_first_letter(reactant_names);
-  reactants.push_back(reactant_names);
+//   cap_first_letter(reactant_names);
+//   reactants.push_back(reactant_names);
+// }
+
+
+template <int l, int m>
+void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
+
+  // a simple bubble sort, for sorting Array1D
+  // assumes index start from int l, and end at int m
+
+  bool sorted = false;
+  int scratch;
+  
+  for (int i = l; i <= m-1; ++i){
+    for (int j = l; j <= m-i-1; ++j){
+      if (array_1d(j) > array_1d(j+1)){
+	scratch = array_1d(j);
+	array_1d(j) = array_1d(j+1);
+	array_1d(j+1) = scratch;
+      }
+    }
+  }
 }
 
 
@@ -167,30 +189,10 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reaction_indices,
   }  
 
   // Sort rate_indices.
- 
+
   sort_Array1D<1, 3>(reaction_indices);
   sort_Array1D<1, 3>(product_indices);
-  
-}
 
-template <int l, int m>
-void sort_Arrary1D(amrex::Array1D<int, l, m>& array_1d){
-
-  // a simple bubble sort, for sorting Array1D
-  // assumes index start from int l, and end at int m
-
-  bool sorted = false;
-  int scratch;
-  
-  for (int i = l; i <= m-1; ++i){
-    for (int j = l; j <= m-i-1; ++j){
-      if (array_1d(j) > array_1d(j+1)){
-	scratch = array_1d(j);
-	array_1d(j) = array_1d(j+1);
-	array_1d(j+1) = scratch;
-      }
-    }
-  }
 }
 
 
@@ -247,22 +249,23 @@ void init_actual_nse(){
 
   amrex::Array1D<int, 1, 3> reaction_indices;
   amrex::Array1D<int, 1, 3> product_indices;
+  std::string current_rate_name;
   
   for (int n = 1; n <= Rates::NumRates; ++n){
 
     // get current name of the rate
-    current_rate_name = Rates::rate_name[n];
+    current_rate_name = Rates::rate_names[n];
 
     // find the reaction_indices and product indices
     find_rate_indices(reaction_indices, product_indices, current_rate_name);
 
     // fill in rate_indices
     for (int i = 1; i <= 3; ++i){
-      rate_indices(n, i) = reaction_indices(i);
-      rate_indices(n, i+3) = product_indices(i);
+      NSE_INDEX::rate_indices(n, i) = reaction_indices(i);
+      NSE_INDEX::rate_indices(n, i+3) = product_indices(i);
     }
     
-    rate_indices(n, 7) = n;    
+    NSE_INDEX::rate_indices(n, 7) = n;    
   }
 
   
@@ -607,7 +610,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-4_rt, bool input_ye_is_val
 
 // Check whether to proceed with Adaptive statistical equilibrium
 template<typename T>
-void ase_check(T& state, T& nse_state){
+void check_in_nse(T& state, T& nse_state){
   // Input:
   //
   // state: current eos or burner state
@@ -634,12 +637,12 @@ void ase_check(T& state, T& nse_state){
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
   for (int n = 0; n < NumSpec; ++n){
 
-    if (NSE_INDEX::h1_index == n || NSE_INDEX::n_index = n){
+    if (n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index){
       r /= std::sqrt(state.xn[n] * aion_inv[n]);
       r_nse /= std::sqrt(nse_state.xn[n] * aion_inv[n]);
     } 
     
-    else if (NSE_INDEX::h4_index == n){
+    else if (NSE_INDEX::he4_index == n){
       r *= state.xn[n] * aion_inv[n];
       r_nse *= nse_state.xn[n] * aion_inv[n];
     }
@@ -657,7 +660,7 @@ void ase_check(T& state, T& nse_state){
 
 template <typename T>
 void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
-		 const amrex::Array1D<amrex::Real, 1, NumSpec>& Y){
+		 const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const amrex::Real& t_s){
 
   // Find the burning limiter
   
@@ -676,19 +679,19 @@ void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex
     if (NSE_INDEX::h1_index == n || NSE_INDEX::n_index == n || NSE_INDEX::he4_index == n){
       X_npa += state.xn[n];
       Y_npa += Y(n+1);
-      Y_npa_dot += ydot(n+1)
+      Y_npa_dot += ydot(n+1);
     }
     else{
       X_tilde += state.xn[n];
       Y_tilde += Y(n+1);
-      Y_tilde_dot += ydot(n+1)
+      Y_tilde_dot += ydot(n+1);
     }
   }
 
   // Find the burning limiters based on Equation 6 and 7 in ase paper.
   // assume state.e is the total specific internal energy of the system.
 
-  amrex::Real f_e = amrex::min(1.0_rt, state.e * f_lim / std::abs(enuc) / t_s);
+  amrex::Real f_e = amrex::min(1.0_rt, state.e * f_lim / std::abs(ydot(NumSpec+1) / t_s));
   amrex::Real f_npa = amrex::min(1.0_rt, Y_npa * f_lim / std::abs(Y_npa_dot) / t_s);
   amrex::Real f_tilde = amrex::min(1.0_rt, Y_tilde * f_lim / std::abs(Y_tilde_dot) / t_s);
 
@@ -697,14 +700,14 @@ void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex
   f_full = amrex::min(f_e, 1.0_rt / (X_npa / f_npa + X_tilde / f_tilde));
 }
 
-
+// Currently not useable since we need max_nucs to be determined at compile-time.
 void find_max_nucs(int& max_nucs, const int current_nuc_ind){
   // Find max number of nucs possible in a reaction step given a nuclei index.
   // used to determine the size of reaction array
   
   max_nucs = 0;
   
-  for (int n = NumSpec-1, n > NSE_INDEX::he4_index; --n){
+  for (int n = NumSpec-1; n > NSE_INDEX::he4_index; --n){
 
     if (aion[n] == aion[current_nuc_ind]-1 &&
 	(zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1)){
@@ -744,7 +747,7 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   
   for (int i = 1; i <= Rates::NumRates; ++i){
     for (int j = 1; j <=3; ++j){
-      if (rate_indices(i, j) == reactants_indices(j) && rate_indices(i, j+3) == product_indices){
+      if (NSE_INDEX::rate_indices(i, j) == reactants_indices(j) && NSE_INDEX::rate_indices(i, j+3) == products_indices(j)){
 	found_index = true;
       }
       else{
@@ -760,19 +763,23 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   
 }
 
+template <typename T>
 void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
+			const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-			const amrex::Real& f_full, const eos_t& state, bool& found_fast_reaction){
+			const T& state, bool& found_fast_reaction){
 
   // Find fast reaction of a given nuclei.
-
-  // find maximum nucs possible to declare size of reactions
   
+  // Want to find max size of nucs allowed
+  // template requires constant expression, but there are loops later, so it can still be used..
   int max_nucs;
   find_max_nucs(max_nucs, current_nuc_ind);
+
+  // Here I use NumSpec for YHI index for now, which will leave many unused slots, but deal with it later..
   
-  amrex::Array2D<int, 1, 6, 1, max_nucs> reactions;            // store possible reaction nuclei indices
-  amrex::Array2D<int, 1, 6, 1, max_nucs> fast_reactions;       // store indices of fast reaction nucs
+  amrex::Array2D<int, 1, 6, 1, NumSpec+1> reactions;            // store possible reaction nuclei indices
+  amrex::Array2D<int, 1, 6, 1, NumSpec+1> fast_reactions;       // store indices of fast reaction nucs
 
   // some variables to hold temporary data
   amrex::Array1D<int, 1, 3> reaction_scratch;
@@ -780,26 +787,41 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
   int rate_index;                                      // store index of the rate
   bool have_required_nucs;                             // variable used to check we have required nuc
   
+  eos_t eos_state;                             // need eos_state for speed of sound
+  amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
+  
+  if (std::is_same<T, eos_t>::value){
+    t_s = cell_dx / eos_state.cs;           
+  }
+  else{
+    burn_to_eos<eos_t>(state, eos_state);
+    eos(eos_input_rt, eos_state);
+    t_s = cell_dx / eos_state.cs;
+  }
+  
   // holds forward and reverse rate of a reaction
   amrex::Real b_f;
   amrex::Real b_r;
-  
+
   for (int i = 1; i <= 6; ++i){
     for (int j = 1; j <= max_nucs; ++j){
       reactions(i, j) = -1;
       fast_reactions(i, j) = -1;
     }
   }  
+
+  // Get burning limiter
+  
+  amrex::Real f_full;
+  get_limiter(f_full, state, ydot, Y, t_s);
+  
+  // indices for reaction array to location intermediate nuclei
   
   int inter_nuc_ind1 = 1;
   int inter_nuc_ind2 = 1;
   int inter_nuc_ind3 = 1;
   int inter_nuc_ind4 = 1;
 
-  // a parameter for comparing whether rate is fast enought
-  
-  amrex::Real t_s = cell_dx / state.cs
-  
   // the beginning nuclei of a reaction cycle is always itself
   
   reactions(1, 1) = current_nuc_ind;
@@ -906,9 +928,9 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * rho;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1);
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
 	}
 
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
@@ -924,9 +946,9 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * rho;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * rho;
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
 	}
 	
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
@@ -942,9 +964,9 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * rho;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * rho;
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
 	}
 
 	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)]){
@@ -959,9 +981,9 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::n_index + 1) * rho;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1);
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
 	}
 
 	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)] + 1){
@@ -976,9 +998,9 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rate(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::p_index + 1) * rho;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rate(rate_index) * Y(reactions(i+1, k) + 1);
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
 	}
 
 	else{
@@ -988,8 +1010,8 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 
 	// A condition to check whether rates are fast enough given by Eq10 and 12 in ASE paper
       
-	if ( ((Y[reactions(i, j) + 1] / amrex::min(b_f, b_r) < ase_tol * t_s)
-	      || (Y[reactions(i + 1, k) + 1] / amrex::min(b_f, b_r) < ase_tol * t_s))
+	if ( ((Y(reactions(i, j) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s)
+	      || (Y(reactions(i + 1, k) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s))
 	     && ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol) ){
 	 
 	  // store nuclei index to fast_reaction if pass the condition
@@ -1036,7 +1058,7 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 
 
 template <typename T>
-void ase (T& state, T& nse_state){
+void check_fast_reactions(T& state, T& nse_state){
 
   // Runtime parameters:
   // f: characteritic scale for the burning limiter, ~0.05
@@ -1045,7 +1067,7 @@ void ase (T& state, T& nse_state){
   // assume we have f, cell_dx in _parameters
   
   // Update whether state is about in NSE in order to do ASE.
-  ase_check(state, nse_state);
+  check_in_nse(state, nse_state);
   if (!state.in_nse){
     amrex::Error("state currently not in NSE, switch to eos!");
   }
@@ -1059,7 +1081,7 @@ void ase (T& state, T& nse_state){
     if (NSE_INDEX::p_index == n-1){
       continue;
     }
-    Y(n) = state.xn[n-1] * inv_aion[n-1];
+    Y(n) = state.xn[n-1] * aion_inv[n-1];
     ydot(n) = 0.0_rt;
   }
 
@@ -1082,7 +1104,7 @@ void ase (T& state, T& nse_state){
   
   // Need individual rates in rate_eval
   rate_t rate_eval;
-  constexpr do_T_derivatives = 0;
+  constexpr int do_T_derivatives = 0;
   evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
   
   // Find ydot
@@ -1102,11 +1124,6 @@ void ase (T& state, T& nse_state){
   ydot(NumSpec + 1) = enuc - sneut;
   //  actual_rhs(state, ydot);
 #endif
-
-  // Get burning limiter
-  
-  amrex::Real f_full;
-  get_limiter(f_full, state, ydot, Y);
   
   // Now we look through the network and see if there are fast reaction cycles
   // Need to separate forward and reverse rate and detemine each step is fast enough.
@@ -1116,19 +1133,22 @@ void ase (T& state, T& nse_state){
   
   // Do a reverse for loop to start from heaviest nuclei
   
-  for (int n = NumSpec-1; n => 0; --n){
+  for (int n = NumSpec-1; n >= 0; --n){
     if (found_fast_reaction){
       break;
     }
         
-    find_fast_reaction(n, Y, rate_eval.screened_rates, f_full, state, found_fast_reaction);
+    find_fast_reaction(n, Y, ydot, rate_eval.screened_rates,state, found_fast_reaction);
   }
 
   if (!found_fast_reaction){
     amrex::Error("Unable to find fast reaction cycle, so cannot proceed with ase");
   }
-
-  // DO ASE if found fast reaction
+  else{
+    // DO ASE if found fast reaction
+    std::cout << "Fond fast reaction" << std::endl;
+  }
+  
   
   
 }
