@@ -106,7 +106,9 @@ void burn_cell_c()
 
     // normalize -- just in case
 
-    normalize_abundances_burn(state);
+    if (! skip_initial_normalization) {
+        normalize_abundances_burn(state);
+    }
 
     // output just the instantaneous RHS
 
@@ -154,20 +156,22 @@ void burn_cell_c()
 
     // output the data in columns, one line per timestep
 
-    state_over_time << std::setw(10) << "# Time";
-    state_over_time << std::setw(12) << "Temperature";
+
+    state_over_time << std::setw(25) << "# Time";
+    state_over_time << std::setw(25) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
         std::string element = short_spec_names_cxx[x];
-	state_over_time << std::setw(12) << element; 
+	state_over_time << std::setw(25) << element;
     }
     state_over_time << std::endl;
+    state_over_time << std::setprecision(15);
 
     Real t = 0.0;
 
-    state_over_time << std::setw(10) << t;
-    state_over_time << std::setw(12) << state.T; 
+    state_over_time << std::setw(25) << t;
+    state_over_time << std::setw(25) << state.T;
     for (int x = 0; x < NumSpec; ++x){
-        state_over_time << std::setw(12) << state.xn[x]; 
+        state_over_time << std::setw(25) << state.xn[x];
     }
     state_over_time << std::endl;
 
@@ -203,14 +207,16 @@ void burn_cell_c()
 
         // get the updated T
 
-        eos(eos_input_re, state);
+        if (call_eos_in_rhs) {
+            eos(eos_input_re, state);
+        }
 
         t += dt;
 
-	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << state.T; 
+	state_over_time << std::setw(25) << t;
+	state_over_time << std::setw(25) << state.T;
 	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(12) << state.xn[x]; 
+	     state_over_time << std::setw(25) << state.xn[x];
 	}
 	state_over_time << std::endl;
     }
@@ -233,7 +239,8 @@ void burn_cell_c()
     std::cout << "------------------------------------" << std::endl;
     std::cout << "new mass fractions: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::cout << state.xn[n] << std::endl;
+        std::string element = short_spec_names_cxx[n];
+        std::cout << element << " " << state.xn[n] << std::endl;
     }
 
     std::cout << "------------------------------------" << std::endl;
