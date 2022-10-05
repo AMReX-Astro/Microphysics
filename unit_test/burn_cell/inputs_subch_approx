@@ -1,0 +1,38 @@
+unit_test.run_prefix = "react_subch2_"
+
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+integrator.burner_verbose = 0
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+
+integrator.jacobian = 2
+
+integrator.renormalize_abundances = 0
+
+integrator.rtol_spec = 1.0e-5
+integrator.rtol_enuc = 1.0e-5
+integrator.atol_spec = 1.0e-5
+integrator.atol_enuc = 1.0e-5
+
+unit_test.tmax = 1.e-5
+
+unit_test.density = 1.e6
+unit_test.temperature = 3.e9
+
+unit_test.X1 = 0.1
+unit_test.X2  = 0.5
+unit_test.X3  = 0.1
+unit_test.X4  = 0.1
+unit_test.X5  = 0.1
+unit_test.X6  = 0.1
+unit_test.X7  = 0.0
+unit_test.X8  = 0.0
+unit_test.X9  = 0.0
+unit_test.X10 = 0.0
+unit_test.X11 = 0.0
+unit_test.X12 = 0.0
+unit_test.X13 = 0.0
