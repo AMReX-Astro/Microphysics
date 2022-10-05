@@ -259,6 +259,7 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
 #ifdef ACTUAL_NSE
     burn_state.mu_p = eos_state.mu_p;
     burn_state.mu_n = eos_state.mu_n;
+    burn_state.in_nse = eos_state.in_nse;
 #endif
 }
 
@@ -296,6 +297,7 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
 #ifdef ACTUAL_NSE
     eos_state.mu_p = burn_state.mu_p;
     eos_state.mu_n = burn_state.mu_n;
+    eos_state.in_nse = burn_state.in_nse;
 #endif
 }
 

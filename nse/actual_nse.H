@@ -16,6 +16,7 @@
 #include <cctype>
 #include <algorithm>
 
+
 // Comment out functions that are not in use right now
 
 // void cap_first_letter(std::string& name){
@@ -95,11 +96,10 @@ void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
   // a simple bubble sort, for sorting Array1D
   // assumes index start from int l, and end at int m
 
-  bool sorted = false;
   int scratch;
   
-  for (int i = l; i <= m-1; ++i){
-    for (int j = l; j <= m-i-1; ++j){
+  for (int i = l; i <= m; ++i){
+    for (int j = l; j <= m-i; ++j){
       if (array_1d(j) > array_1d(j+1)){
 	scratch = array_1d(j);
 	array_1d(j) = array_1d(j+1);
@@ -120,26 +120,45 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reaction_indices,
     product_indices(n) = -1;
   }
 
-  int i;
-
+  std::string rate_name_mod = rate_name;
   // Process rate_name to find the reactants and products
+
+  // replace p with h1 to match with short_spec_name_cxx
+
+  size_t pos;
+
+  while (true){
+    pos = rate_name_mod.find("p_");
+    
+    if (pos == std::string::npos){
+      break;
+    }
+
+    rate_name_mod.replace(pos, 2, "h1_");
+  }
+
+
+  // Separate product name from reactant names
   
-  auto pos = rate_name.find("__");
-  std::string reactant_names = rate_name.substr(0, pos);
-  std::string product_names = rate_name.substr(pos+2);
+  pos = rate_name_mod.find("__");
+  std::string reactant_names = rate_name_mod.substr(0, pos);
+  std::string product_names = rate_name_mod.substr(pos+2);
+
+  // Remove suffix in the product name
   
   pos = product_names.find("__");
-  std::string suffix = product_names.substr(pos);
-  product_names.erase(pos);
+  if (pos != std::string::npos){
+    std::string suffix = product_names.substr(pos);
+    product_names.erase(pos);
+  }
 
   std::string _temp;
 
   // Find the index of reactants and products in short_spec_names
-  i = 1;
+  int i = 1;
   while ((pos = reactant_names.find('_')) != std::string::npos){
 
     _temp = reactant_names.substr(0, pos);
-
     // aprox network need capitalize
     // but we only work with pynucastro networks..
   
@@ -167,7 +186,6 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reaction_indices,
   while ((pos = product_names.find('_')) != std::string::npos){
     
     _temp = product_names.substr(0, pos);
-  
     // cap_first_letter(product);
     
     for (int n = 0; n < NumSpec; ++n){
@@ -204,7 +222,7 @@ void init_actual_nse(){
 
     // store index of photoionization proton by looking for Z=1 but
     // exclude h1 which is always at index=0
-
+#ifdef NEW_NETWORK_IMPLEMENTATION
     if (zion[n] == 1 && aion[n] == 1){
       if (n == 0){
 	NSE_INDEX::h1_index = n;
@@ -213,7 +231,11 @@ void init_actual_nse(){
 	NSE_INDEX::p_index = n;
       }
     }
-
+#else
+    if (zion[n] ==1 && aion[n] == 1){
+      NSE_INDEX::h1_index = n;
+    }
+#endif
     else if (zion[n] == 0){
       NSE_INDEX::n_index = n;
     }
@@ -619,13 +641,13 @@ void check_in_nse(T& state, T& nse_state){
   // Purpose:
   // a boolean (state.in_nse) that tells whether it is okay to proceed with ase
 
-  int count{0};
+  int count = 0;
   amrex::Real r = 1.0_rt;
   amrex::Real r_nse = 1.0_rt;
   
   // Check if neutron, proton, and helium are present in the network
   for (int n = 0; n < NumSpec; ++n){
-    if (NSE_INDEX::h1_index == n || NSE_INDEX::n_index == n || NSE_INDEX::he4_index == n){
+    if (n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index|| n == NSE_INDEX::he4_index){
       ++count;
     }
 }
@@ -638,18 +660,21 @@ void check_in_nse(T& state, T& nse_state){
   for (int n = 0; n < NumSpec; ++n){
 
     if (n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index){
-      r /= std::sqrt(state.xn[n] * aion_inv[n]);
-      r_nse /= std::sqrt(nse_state.xn[n] * aion_inv[n]);
+      r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
+      r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
     } 
     
-    else if (NSE_INDEX::he4_index == n){
+    else if (n == NSE_INDEX::he4_index){
       r *= state.xn[n] * aion_inv[n];
       r_nse *= nse_state.xn[n] * aion_inv[n];
     }
   }
 
+  std::cout << "r is " << r << std::endl;
+  std::cout << "r_nse is " << r_nse << std::endl;
+  
   // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
-  if (std::abs((r - r_nse) / r) < 0.5){
+  if (std::abs((r - r_nse) / r_nse) < 0.5){
     state.in_nse = true;
   }
   else{
@@ -672,11 +697,7 @@ void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex
   amrex::Real X_tilde = 0.0_rt;
 
   for (int n = 0; n < NumSpec; ++n){
-    if (NSE_INDEX::p_index == n){
-      continue;
-    }
-
-    if (NSE_INDEX::h1_index == n || NSE_INDEX::n_index == n || NSE_INDEX::he4_index == n){
+    if ( n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index || n == NSE_INDEX::he4_index){
       X_npa += state.xn[n];
       Y_npa += Y(n+1);
       Y_npa_dot += ydot(n+1);
@@ -690,12 +711,23 @@ void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex
 
   // Find the burning limiters based on Equation 6 and 7 in ase paper.
   // assume state.e is the total specific internal energy of the system.
-
+  std::cout << "state.e is " << state.e << std::endl;
+  std::cout << "q dot is " << ydot(NumSpec+1) << std::endl;
+  std::cout << "Y_npa_dot is " << Y_npa_dot << std::endl;
+  std::cout << "Y_tilde_dot is " << Y_tilde_dot << std::endl;
+  std::cout << "Y_npa is " << Y_npa << std::endl;
+  std::cout << "Y_tilde is " << Y_tilde << std::endl;
+  std::cout << "X_npa is " << X_npa << std::endl;
+  
   amrex::Real f_e = amrex::min(1.0_rt, state.e * f_lim / std::abs(ydot(NumSpec+1) / t_s));
   amrex::Real f_npa = amrex::min(1.0_rt, Y_npa * f_lim / std::abs(Y_npa_dot) / t_s);
   amrex::Real f_tilde = amrex::min(1.0_rt, Y_tilde * f_lim / std::abs(Y_tilde_dot) / t_s);
 
   // f_full is the actual burning limiter we use.
+  std::cout << "f_lim is " << f_lim << std::endl;
+  std::cout << "f_e is " << f_e << std::endl;
+  std::cout << "f_npa is " << f_npa << std::endl;
+  std::cout << "f_tilde is " << f_tilde << std::endl;
   
   f_full = amrex::min(f_e, 1.0_rt / (X_npa / f_npa + X_tilde / f_tilde));
 }
@@ -767,12 +799,13 @@ template <typename T>
 void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 			const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-			const T& state, bool& found_fast_reaction){
+			const T& state, const amrex::Real& f_full, const amrex::Real& t_s, bool& found_fast_reaction){
 
   // Find fast reaction of a given nuclei.
   
   // Want to find max size of nucs allowed
   // template requires constant expression, but there are loops later, so it can still be used..
+  
   int max_nucs;
   find_max_nucs(max_nucs, current_nuc_ind);
 
@@ -786,22 +819,10 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
   amrex::Array1D<int, 1, 3> product_scratch;
   int rate_index;                                      // store index of the rate
   bool have_required_nucs;                             // variable used to check we have required nuc
-  
-  eos_t eos_state;                             // need eos_state for speed of sound
-  amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
-  
-  if (std::is_same<T, eos_t>::value){
-    t_s = cell_dx / eos_state.cs;           
-  }
-  else{
-    burn_to_eos<eos_t>(state, eos_state);
-    eos(eos_input_rt, eos_state);
-    t_s = cell_dx / eos_state.cs;
-  }
-  
+    
   // holds forward and reverse rate of a reaction
-  amrex::Real b_f;
-  amrex::Real b_r;
+  amrex::Real b_f = 0.0_rt;
+  amrex::Real b_r = 0.0_rt;
 
   for (int i = 1; i <= 6; ++i){
     for (int j = 1; j <= max_nucs; ++j){
@@ -810,11 +831,6 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
     }
   }  
 
-  // Get burning limiter
-  
-  amrex::Real f_full;
-  get_limiter(f_full, state, ydot, Y, t_s);
-  
   // indices for reaction array to location intermediate nuclei
   
   int inter_nuc_ind1 = 1;
@@ -829,34 +845,34 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
   // store all possible nuclei involved in a reaction cycle started by nuclei: current_nuc_ind
   
   for (int n = NumSpec-1; n > NSE_INDEX::he4_index; --n){
+    
+    if (aion[n] == aion[current_nuc_ind]-1 &&
+	(zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1)){
 
-      if (aion[n] == aion[current_nuc_ind]-1 &&
-	  (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1)){
-
-	reactions(2, inter_nuc_ind1) = n;
-	++inter_nuc_ind1;
-      }
-
-      if (aion[n] == aion[current_nuc_ind]-2 && (zion[n] == zion[current_nuc_ind]
-	     || zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
-
-	reactions(3, inter_nuc_ind2) = n;
-	++inter_nuc_ind2;
-      }
-
-      if (aion[n] == aion[current_nuc_ind]-3 &&
-	  (zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
-
-	reactions(4, inter_nuc_ind3) = n;
-	++inter_nuc_ind3;
-      }
-
-      if (aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2){
-
-	reactions(5, inter_nuc_ind4) = n;
-	++inter_nuc_ind4;
-      }
+      reactions(2, inter_nuc_ind1) = n;
+      ++inter_nuc_ind1;
     }
+    
+    if (aion[n] == aion[current_nuc_ind]-2 && (zion[n] == zion[current_nuc_ind]
+     || zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
+      
+      reactions(3, inter_nuc_ind2) = n;
+      ++inter_nuc_ind2;
+    }
+    
+    if (aion[n] == aion[current_nuc_ind]-3 &&
+	(zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
+	
+      reactions(4, inter_nuc_ind3) = n;
+      ++inter_nuc_ind3;
+    }
+    
+    if (aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2){
+      
+      reactions(5, inter_nuc_ind4) = n;
+	++inter_nuc_ind4;
+    }
+  }
 
   reactions(5, inter_nuc_ind4) = current_nuc_ind;
   reactions(6, 1) = current_nuc_ind;
@@ -868,17 +884,29 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
     have_required_nucs = false;
 
     for (int j = 1; j <= max_nucs; ++j){
-      if (reactions(i, j) != -1){
+      if (reactions(i, j) != -1){	
 	have_required_nucs = true;
       }
     }
     
     if (!have_required_nucs){
       found_fast_reaction = false;
+
+      //debug
+      std::cout << "don't have required nucs" << std::endl;
       return;
     }
   }
 
+  // print out reactions for debug for now.
+  std::cout << "print out current reaction that passed init test" << std::endl;
+  for (int i = 1; i <= 6; ++i){
+    for (int j = 1; j <= max_nucs; ++j){
+      std::cout << reactions(i, j) << " ";
+    }
+    std::cout << std::endl;
+  }
+  
   
   // The first nuc in fast reaction is always itself
 
@@ -887,8 +915,9 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
   // loop over reaction stages
   for (int i = 1; i <= 5; ++i){
     // loop over nuclei in the current stage
+    std::cout << "current i is " << i << std::endl;
     for (int j = 1; j <= max_nucs; ++j){
-
+      std::cout << "current j is " << j << std::endl;
       // skip this loop if current nuc is the same as the starting nuc
       // also skip if current index is -1, which is not valid
       if (reactions(i, j) == -1 || (reactions(i, j) == current_nuc_ind && i != 1)){
@@ -899,13 +928,15 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
       // get nuc index of the next stage in reactions
       
       for (int k = 1; k <= max_nucs; ++k){
-      
+	std::cout << "current k is " << k << std::endl;      
 	// if reaction index is -1, skip, since its not a valid index
 	if (reactions(i+1, k) == -1){
 	  continue;
 	}
 	
 	// Conditions to tell us which reaction occured.
+	std::cout << "current aion is " << aion[reactions(i, j)] << std::endl;
+	std::cout << "next aion is " << aion[reactions(i+1, k)] << std::endl;
 	
 	if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 4){
 	  // (alpha, gamma) reaction
@@ -960,13 +991,13 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  reaction_scratch(3) = -1;
 	  
 	  product_scratch(1) = reactions(i+1, k);
-	  product_scratch(2) = NSE_INDEX::p_index;
+	  product_scratch(2) = NSE_INDEX::h1_index;
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 	}
 
 	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)]){
@@ -990,7 +1021,7 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  // (p, gamma) reaction
 	  
 	  reaction_scratch(1) = reactions(i, j);
-	  reaction_scratch(2) = NSE_INDEX::p_index;
+	  reaction_scratch(2) = NSE_INDEX::h1_index;
 	  reaction_scratch(3) = -1;
 
 	  product_scratch(1) = reactions(i+1, k);
@@ -998,7 +1029,7 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
 	}
@@ -1009,11 +1040,18 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	}
 
 	// A condition to check whether rates are fast enough given by Eq10 and 12 in ASE paper
-      
+	std::cout << "b_f is " << b_f << std::endl;
+	std::cout << "b_r is " << b_r << std::endl;
+	std::cout << "before nuc is " << Y(reactions(i, j) + 1) << std::endl;
+	std::cout << "after nuc is " << Y(reactions(i + 1, k) + 1) << std::endl;
+	std::cout << "ase_tol is " << ase_tol << std::endl;
+	std::cout << "t_s is " << t_s << std::endl;
+	
 	if ( ((Y(reactions(i, j) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s)
 	      || (Y(reactions(i + 1, k) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s))
 	     && ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol) ){
-	 
+
+	  std::cout << "Found a fast reaction" << std::endl;
 	  // store nuclei index to fast_reaction if pass the condition
 	  fast_reactions(i + 1, k) = reactions(i + 1, k);
 	}
@@ -1037,9 +1075,9 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  return;
 	}
 
-      if (fast_reactions(i + 1, p) != -1){
-	have_required_nucs = true;
-      }
+	if (fast_reactions(i + 1, p) != -1){
+	  have_required_nucs = true;
+	}
     }
 
     // check if we even have nucs in the next stage that are fast enough
@@ -1047,6 +1085,7 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
     
     if (!have_required_nucs){
       found_fast_reaction = false;
+      std::cout << "did not find fast reaction in the next stage, breaking in current nuc " << std::endl;
       return;
     }
   }
@@ -1077,10 +1116,8 @@ void check_fast_reactions(T& state, T& nse_state){
   
   amrex::Array1D<amrex::Real, 1, NumSpec> Y;
   amrex::Array1D<amrex::Real, 1, NumSpec + 1> ydot;
+  
   for (int n = 1; n <= NumSpec; ++n){
-    if (NSE_INDEX::p_index == n-1){
-      continue;
-    }
     Y(n) = state.xn[n-1] * aion_inv[n-1];
     ydot(n) = 0.0_rt;
   }
@@ -1106,6 +1143,18 @@ void check_fast_reactions(T& state, T& nse_state){
   rate_t rate_eval;
   constexpr int do_T_derivatives = 0;
   evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
+
+  eos_t eos_state;                             // need eos_state for speed of sound
+  amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
+
+  if constexpr (std::is_same<T, eos_t>::value){
+    t_s = cell_dx / state.cs;           
+  }
+  else{
+    burn_to_eos<eos_t>(state, eos_state);
+    eos(eos_input_rt, eos_state);
+    t_s = cell_dx / eos_state.cs;
+  }
   
   // Find ydot
   rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
@@ -1124,6 +1173,12 @@ void check_fast_reactions(T& state, T& nse_state){
   ydot(NumSpec + 1) = enuc - sneut;
   //  actual_rhs(state, ydot);
 #endif
+
+  // Get burning limiter
+  
+  amrex::Real f_full = 0.0_rt;
+  get_limiter(f_full, state, ydot, Y, t_s);
+
   
   // Now we look through the network and see if there are fast reaction cycles
   // Need to separate forward and reverse rate and detemine each step is fast enough.
@@ -1138,7 +1193,7 @@ void check_fast_reactions(T& state, T& nse_state){
       break;
     }
         
-    find_fast_reaction(n, Y, ydot, rate_eval.screened_rates,state, found_fast_reaction);
+    find_fast_reaction(n, Y, ydot, rate_eval.screened_rates, state, f_full, t_s, found_fast_reaction);
   }
 
   if (!found_fast_reaction){
@@ -1146,7 +1201,7 @@ void check_fast_reactions(T& state, T& nse_state){
   }
   else{
     // DO ASE if found fast reaction
-    std::cout << "Fond fast reaction" << std::endl;
+    std::cout << "Found fast reaction" << std::endl;
   }
   
   
