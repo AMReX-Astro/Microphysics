@@ -61,3 +61,4 @@ nonaka_i                integer           0
 nonaka_j                integer           0
 nonaka_k                integer           0
 nonaka_level            integer           0
+nonaka_file             character         "nonaka_plot.dat"
