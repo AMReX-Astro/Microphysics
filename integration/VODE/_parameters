@@ -13,3 +13,6 @@ do_species_clip              integer          1
 
 #flag for turning on the use of number densities for all species
 use_number_densities     logical          .false.
+
+#flag for tuning on the subtraction of internal energy
+subtract_internal_energy   logical       .false.
