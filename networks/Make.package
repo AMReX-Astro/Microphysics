@@ -9,6 +9,9 @@ include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
 
 ifeq ($(USE_REACT), TRUE)
 
+  # for backwards compatibility
+  DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
+
   ifeq ($(INTEGRATOR_DIR), VODE90)
     override INTEGRATOR_DIR = VODE
     $(warning VODE90 has been renamed VODE)
