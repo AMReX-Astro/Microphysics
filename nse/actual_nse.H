@@ -1001,37 +1001,39 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	}
 
 	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)]){
-	  // (n, gamma) reaction
+	  // (gamma, n) reaction
 	  
 	  reaction_scratch(1) = reactions(i, j);
-	  reaction_scratch(2) = NSE_INDEX::n_index;
+	  reaction_scratch(2) = -1;
 	  reaction_scratch(3) = -1;
 
 	  product_scratch(1) = reactions(i+1, k);
-	  product_scratch(2) = -1;
+	  product_scratch(2) = NSE_INDEX::n_index;
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
 	}
 
 	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)] + 1){
-	  // (p, gamma) reaction
+	  // (gamma, p) reaction
 	  
 	  reaction_scratch(1) = reactions(i, j);
-	  reaction_scratch(2) = NSE_INDEX::h1_index;
+	  reaction_scratch(2) = -1;
 	  reaction_scratch(3) = -1;
 
 	  product_scratch(1) = reactions(i+1, k);
-	  product_scratch(2) = -1;
+	  product_scratch(2) = NSE_INDEX::h1_index;
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
+	  std::cout << "(gamma, p) rate index is " << rate_index << std::endl;
+	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
+	  std::cout << "(p, gamma) rate index is " << rate_index << std::endl;
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 	}
 
 	else{
@@ -1044,15 +1046,18 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	std::cout << "b_r is " << b_r << std::endl;
 	std::cout << "before nuc is " << Y(reactions(i, j) + 1) << std::endl;
 	std::cout << "after nuc is " << Y(reactions(i + 1, k) + 1) << std::endl;
+	std::cout << "before nuc # is " << reactions(i, j) << std::endl;
+	std::cout << "after nuc # is " << reactions(i + 1, k) << std::endl;
+
 	std::cout << "ase_tol is " << ase_tol << std::endl;
 	std::cout << "t_s is " << t_s << std::endl;
-	
 	if ( ((Y(reactions(i, j) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s)
 	      || (Y(reactions(i + 1, k) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s))
 	     && ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol) ){
 
 	  std::cout << "Found a fast reaction" << std::endl;
 	  // store nuclei index to fast_reaction if pass the condition
+	  std::cout << "Now add nuc " << reactions(i+1, k) << " to fast reaction " << std::endl;
 	  fast_reactions(i + 1, k) = reactions(i + 1, k);
 	}
      		      
@@ -1129,7 +1134,7 @@ void check_fast_reactions(T& state, T& nse_state){
 #ifdef NEW_NETWORK_IMPLEMENTATION
   // rhs_t rhs_data(rate), rate is a string (enum to be indices);
   // gives specie names, which can be used to determine reaction and find the corresponding rate
-  amrex::error("Not implemented yet");
+  amrex::Error("Not implemented yet");
   //constexpr rhs_t data = RHS::rhs_data(rate)
   // Real rhs_term<int species, int rate> (state, Real fr, Real rr), given species, rate, forward and reverse.
   

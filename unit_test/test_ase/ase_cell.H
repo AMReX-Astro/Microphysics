@@ -139,10 +139,16 @@ void ase_cell_c()
       }
       std::cout << "rate index: " << NSE_INDEX::rate_indices(n, 7) << std::endl;
     }
+
+
+    // Let state.xn equal to nse_state.xn to make sure its in nse state
+    for (int n = 0; n < NumSpec; ++n){
+      state.xn[n] = NSE_STATE.xn[n];
+    }
     
     // get eos
     eos(eos_input_rt, state);
-
+    
     check_fast_reactions(state, NSE_STATE);
     
 }
