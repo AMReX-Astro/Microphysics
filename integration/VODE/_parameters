@@ -15,4 +15,4 @@ do_species_clip              integer          1
 use_number_densities     logical          .false.
 
 #flag for tuning on the subtraction of internal energy
-subtract_internal_energy   logical       .false.
+subtract_internal_energy   logical       .true.

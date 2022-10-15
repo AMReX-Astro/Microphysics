@@ -86,7 +86,7 @@ void actual_integrator (burn_t& state, Real dt)
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
     // Don't subtract it for primordial chem
-    if (!subtract_internal_energy) {
+    if (subtract_internal_energy) {
         state.e -= e_in;
     }
 
