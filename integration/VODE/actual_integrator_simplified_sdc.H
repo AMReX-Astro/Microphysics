@@ -50,6 +50,14 @@ void actual_integrator (burn_t& state, Real dt)
 
     eos_to_burn(eos_state, state);
 
+    // if we want to keep the temperature fixed with SDC, then we set
+    // T_fixed here.  There will still be an EOS call, but the
+    // temperature will always be reset.
+
+    if (!call_eos_in_rhs && state.T_fixed < 0.0_rt) {
+        state.T_fixed = eos_state.T;
+    }
+
     // Fill in the initial integration state.
 
     burn_to_vode(state, vode_state);
