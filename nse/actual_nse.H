@@ -846,28 +846,59 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
   
   for (int n = NumSpec-1; n > NSE_INDEX::he4_index; --n){
     
-    if (aion[n] == aion[current_nuc_ind]-1 &&
-	(zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1)){
-
+    if (
+	(aion[n] == aion[current_nuc_ind]-1 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1))
+	||
+	(aion[n] == aion[current_nuc_ind]+3 &&
+	    (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
+	||
+	(aion[n] == aion[current_nuc_ind]+4 && zion[n] == zion[current_nuc_ind]+2)
+	){
+      
       reactions(2, inter_nuc_ind1) = n;
       ++inter_nuc_ind1;
     }
     
-    if (aion[n] == aion[current_nuc_ind]-2 && (zion[n] == zion[current_nuc_ind]
-     || zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
+    if (
+	(aion[n] == aion[current_nuc_ind]+3 &&
+	 (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
+	 ||
+	 (aion[n] == aion[current_nuc_ind]+2 &&
+	  (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
+	   || zion[n] == zion[current_nuc_ind]+2))
+	 ||
+	 (aion[n] == aion[current_nuc_ind]-2 &&
+	  (zion[n] == zion[current_nuc_ind]-2 || zion[n] == zion[current_nuc_ind]-1
+	   || zion[n] == zion[current_nuc_ind]))
+	){
       
       reactions(3, inter_nuc_ind2) = n;
       ++inter_nuc_ind2;
     }
     
-    if (aion[n] == aion[current_nuc_ind]-3 &&
-	(zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
-	
+    if (
+	(aion[n] == aion[current_nuc_ind]+2 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
+	  || zion[n] == zion[current_nuc_ind]+2))
+	||
+	(aion[n] == aion[current_nuc_ind]+1 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
+	||
+	(aion[n] == aion[current_nuc_ind]-3 &&
+	 (zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2))
+	){
+      
       reactions(4, inter_nuc_ind3) = n;
       ++inter_nuc_ind3;
     }
     
-    if (aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2){
+    if (
+	(aion[n] == aion[current_nuc_ind]+1 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
+	||
+	(aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2)
+	){
       
       reactions(5, inter_nuc_ind4) = n;
 	++inter_nuc_ind4;
