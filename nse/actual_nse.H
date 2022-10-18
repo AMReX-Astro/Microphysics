@@ -740,29 +740,60 @@ void find_max_nucs(int& max_nucs, const int current_nuc_ind){
   max_nucs = 0;
   
   for (int n = NumSpec-1; n > NSE_INDEX::he4_index; --n){
-
-    if (aion[n] == aion[current_nuc_ind]-1 &&
-	(zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1)){
-
-      ++max_nucs;
-    }
-
-    else if (aion[n] == aion[current_nuc_ind]-2 && (zion[n] == zion[current_nuc_ind]
-       || zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
-
-      ++max_nucs;
-    }
-    
-    else if (aion[n] == aion[current_nuc_ind]-3 &&
-	(zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2)){
+    if (
+	(aion[n] == aion[current_nuc_ind]-1 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1))
+	||
+	(aion[n] == aion[current_nuc_ind]+3 &&
+	    (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
+	||
+	(aion[n] == aion[current_nuc_ind]+4 && zion[n] == zion[current_nuc_ind]+2)
+	){
       
       ++max_nucs;
     }
     
-    else if (aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2){
-
+    if (
+	(aion[n] == aion[current_nuc_ind]+3 &&
+	 (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
+	 ||
+	 (aion[n] == aion[current_nuc_ind]+2 &&
+	  (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
+	   || zion[n] == zion[current_nuc_ind]+2))
+	 ||
+	 (aion[n] == aion[current_nuc_ind]-2 &&
+	  (zion[n] == zion[current_nuc_ind]-2 || zion[n] == zion[current_nuc_ind]-1
+	   || zion[n] == zion[current_nuc_ind]))
+	){
+      
       ++max_nucs;
     }
+    
+    if (
+	(aion[n] == aion[current_nuc_ind]+2 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
+	  || zion[n] == zion[current_nuc_ind]+2))
+	||
+	(aion[n] == aion[current_nuc_ind]+1 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
+	||
+	(aion[n] == aion[current_nuc_ind]-3 &&
+	 (zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2))
+	){
+      
+      ++max_nucs;
+    }
+    
+    if (
+	(aion[n] == aion[current_nuc_ind]+1 &&
+	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
+	||
+	(aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2)
+	){
+      
+      ++max_nucs;
+    }
+    
   }
 }
 
@@ -969,7 +1000,8 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	std::cout << "current aion is " << aion[reactions(i, j)] << std::endl;
 	std::cout << "next aion is " << aion[reactions(i+1, k)] << std::endl;
 	
-	if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 4){
+	if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 4 &&
+	    zion[reactions(i, j)] == zion[reactions(i+1, k)] - 2){
 	  // (alpha, gamma) reaction
 	  // implies reactants are he4, reactions(i, j) and product is (reactions(i+1, k)
 	  // Need to get rate by providing reactant and product, get_rate_by_nuclei
@@ -980,7 +1012,8 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  // find corresponding rate index in rate_indices
 
 	  // fill in reaction_scratch indices
-	  
+
+	  std::cout << "in (a,g) " << std::endl;
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = NSE_INDEX::he4_index;
 	  reaction_scratch(3) = -1;
@@ -998,7 +1031,8 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
 		 zion[reactions(i, j)] == zion[reactions(i+1, k)] - 2){
 	  // (alpha, n) reaction
-	  
+
+	  std::cout << " in (a,n) " << std::endl;
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = NSE_INDEX::he4_index;
 	  reaction_scratch(3) = -1;
@@ -1016,7 +1050,8 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
 		 zion[reactions(i, j)] == zion[reactions(i+1, k)] - 1){
 	  // (alpha, p) reaction
-	  
+
+	  std::cout << "in (a,p) " << std::endl;
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = NSE_INDEX::he4_index;
 	  reaction_scratch(3) = -1;
@@ -1031,9 +1066,11 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 	}
 
-	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)]){
+	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] + 1 &&
+		 zion[reactions(i, j)] == zion[reactions(i+1, k)]){
 	  // (gamma, n) reaction
-	  
+
+	  std::cout << "in (g,n) " << std::endl;
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = -1;
 	  reaction_scratch(3) = -1;
@@ -1047,10 +1084,12 @@ void find_fast_reaction(const int current_nuc_ind, const amrex::Array1D<amrex::R
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
 	}
-
-	else if (zion[reactions(i, j)] == zion[reactions(i+1, k)] + 1){
+		 
+	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] + 1  &&
+		 zion[reactions(i, j)] == zion[reactions(i+1, k)] + 1){
 	  // (gamma, p) reaction
-	  
+
+	  std::cout << "in (g,p) " << std::endl;
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = -1;
 	  reaction_scratch(3) = -1;
