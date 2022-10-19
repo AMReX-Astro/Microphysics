@@ -682,57 +682,58 @@ void check_in_nse(T& state, T& nse_state){
   }
 }
 
+// Lets not use limiters
+// template <typename T>
+// void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
+// 		 const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const amrex::Real& t_s){
 
-template <typename T>
-void get_limiter(amrex::Real& f_full, const T& state, const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
-		 const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const amrex::Real& t_s){
-
-  // Find the burning limiter
+//   // Find the burning limiter
   
-  amrex::Real Y_npa = 0.0_rt;
-  amrex::Real Y_npa_dot = 0.0_rt;
-  amrex::Real Y_tilde = 0.0_rt;
-  amrex::Real Y_tilde_dot = 0.0_rt;
-  amrex::Real X_npa = 0.0_rt;
-  amrex::Real X_tilde = 0.0_rt;
+//   amrex::Real Y_npa = 0.0_rt;
+//   amrex::Real Y_npa_dot = 0.0_rt;
+//   amrex::Real Y_tilde = 0.0_rt;
+//   amrex::Real Y_tilde_dot = 0.0_rt;
+//   amrex::Real X_npa = 0.0_rt;
+//   amrex::Real X_tilde = 0.0_rt;
 
-  for (int n = 0; n < NumSpec; ++n){
-    if ( n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index || n == NSE_INDEX::he4_index){
-      X_npa += state.xn[n];
-      Y_npa += Y(n+1);
-      Y_npa_dot += ydot(n+1);
-    }
-    else{
-      X_tilde += state.xn[n];
-      Y_tilde += Y(n+1);
-      Y_tilde_dot += ydot(n+1);
-    }
-  }
+//   for (int n = 0; n < NumSpec; ++n){
+//     if ( n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index || n == NSE_INDEX::he4_index){
+//       X_npa += state.xn[n];
+//       Y_npa += Y(n+1);
+//       Y_npa_dot += ydot(n+1);
+//     }
+//     else{
+//       X_tilde += state.xn[n];
+//       Y_tilde += Y(n+1);
+//       Y_tilde_dot += ydot(n+1);
+//     }
+//   }
 
-  // Find the burning limiters based on Equation 6 and 7 in ase paper.
-  // assume state.e is the total specific internal energy of the system.
-  std::cout << "state.e is " << state.e << std::endl;
-  std::cout << "q dot is " << ydot(NumSpec+1) << std::endl;
-  std::cout << "Y_npa_dot is " << Y_npa_dot << std::endl;
-  std::cout << "Y_tilde_dot is " << Y_tilde_dot << std::endl;
-  std::cout << "Y_npa is " << Y_npa << std::endl;
-  std::cout << "Y_tilde is " << Y_tilde << std::endl;
-  std::cout << "X_npa is " << X_npa << std::endl;
+//   // Find the burning limiters based on Equation 6 and 7 in ase paper.
+//   // assume state.e is the total specific internal energy of the system.
+//   std::cout << "state.e is " << state.e << std::endl;
+//   std::cout << "q dot is " << ydot(NumSpec+1) << std::endl;
+//   std::cout << "Y_npa_dot is " << Y_npa_dot << std::endl;
+//   std::cout << "Y_tilde_dot is " << Y_tilde_dot << std::endl;
+//   std::cout << "Y_npa is " << Y_npa << std::endl;
+//   std::cout << "Y_tilde is " << Y_tilde << std::endl;
+//   std::cout << "X_npa is " << X_npa << std::endl;
   
-  amrex::Real f_e = amrex::min(1.0_rt, state.e * f_lim / std::abs(ydot(NumSpec+1) / t_s));
-  amrex::Real f_npa = amrex::min(1.0_rt, Y_npa * f_lim / std::abs(Y_npa_dot) / t_s);
-  amrex::Real f_tilde = amrex::min(1.0_rt, Y_tilde * f_lim / std::abs(Y_tilde_dot) / t_s);
+//   amrex::Real f_e = amrex::min(1.0_rt, state.e * f_lim / std::abs(ydot(NumSpec+1) / t_s));
+//   amrex::Real f_npa = amrex::min(1.0_rt, Y_npa * f_lim / std::abs(Y_npa_dot) / t_s);
+//   amrex::Real f_tilde = amrex::min(1.0_rt, Y_tilde * f_lim / std::abs(Y_tilde_dot) / t_s);
 
-  // f_full is the actual burning limiter we use.
-  std::cout << "f_lim is " << f_lim << std::endl;
-  std::cout << "f_e is " << f_e << std::endl;
-  std::cout << "f_npa is " << f_npa << std::endl;
-  std::cout << "f_tilde is " << f_tilde << std::endl;
+//   // f_full is the actual burning limiter we use.
+//   std::cout << "f_lim is " << f_lim << std::endl;
+//   std::cout << "f_e is " << f_e << std::endl;
+//   std::cout << "f_npa is " << f_npa << std::endl;
+//   std::cout << "f_tilde is " << f_tilde << std::endl;
   
-  f_full = amrex::min(f_e, 1.0_rt / (X_npa / f_npa + X_tilde / f_tilde));
-}
+//   f_full = amrex::min(f_e, 1.0_rt / (X_npa / f_npa + X_tilde / f_tilde));
+//   std::cout << "f_full is " << f_full << std::endl;
+// }
 
-// Currently not useable since we need max_nucs to be determined at compile-time.
+
 void find_max_nucs(int& max_nucs, const int current_nuc_ind){
   // Find max number of nucs possible in a reaction step given a nuclei index.
   // used to determine the size of reaction array
@@ -1269,10 +1270,9 @@ void check_fast_reactions(T& state, T& nse_state){
   //  actual_rhs(state, ydot);
 #endif
 
-  // Get burning limiter
-  
-  amrex::Real f_full = 0.0_rt;
-  get_limiter(f_full, state, ydot, Y, t_s);
+  // Limiter is not desired for now, so lets set them to 1 for now.
+  amrex::Real f_full = 1.0_rt;
+  // get_limiter(f_full, state, ydot, Y, t_s);
 
   
   // Now we look through the network and see if there are fast reaction cycles
