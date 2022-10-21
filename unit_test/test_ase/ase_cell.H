@@ -149,6 +149,6 @@ void ase_cell_c()
     // get eos
     eos(eos_input_rt, state);
     
-    check_fast_reactions(state, NSE_STATE);
+    actual_check_in_nse(state, NSE_STATE);
     
 }
