@@ -19,16 +19,14 @@ def get_library():
 
     # in this list, we have the reactants, the actual reactants,
     # and modified products that we will use instead
-    other_rates = [(("c12", "c12"), ("mg23", "n"), ("mg24")),
-                   (("o16", "o16"), ("s31", "n"), ("s32")),
-                   (("c12", "o16"), ("si27", "n"), ("si28"))]
+    other_rates = [("c12(c12,n)mg23", "mg24"),
+                   ("o16(o16,n)s31", "s32"),
+                   ("o16(c12,n)si27", "si28")]
 
-    for r, p, mp in other_rates:
-        rfilter = pyna.rates.RateFilter(reactants=r, products=p)
-        _library = reaclib_lib.filter(rfilter)
-        r = _library.get_rates()[0]
-        r.modify_products(mp)
-        subch += _library
+    for r, mp in other_rates:
+        _r = reaclib_lib.get_rate_by_name(r)
+        _r.modify_products(mp)
+        subch += pyna.Library(rates=[_r])
 
     return subch
 
@@ -55,57 +53,19 @@ def doit():
                                   [pyna.Nucleus("o16"), pyna.Nucleus("o16")]]:
             rates_to_remove.append(r)
 
-        # Q = 1.9
-        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")])):
-        #     rates_to_remove.append(r)
+    # C12+Ne20 and reverse
+    rates_to_remove.append(subch.get_rate_by_name("p31(p,c12)ne20"))
+    rates_to_remove.append(subch.get_rate_by_name("si28(a,c12)ne20"))
+    rates_to_remove.append(subch.get_rate_by_name("ne20(c12,p)p31"))
+    rates_to_remove.append(subch.get_rate_by_name("ne20(c12,a)si28"))
 
-        # C12+Ne20 and reverse
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
+    # (a,g) links between Na23 and Al27
+    rates_to_remove.append(subch.get_rate_by_name("na23(a,g)al27"))
+    rates_to_remove.append(subch.get_rate_by_name("al27(g,a)na23"))
 
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
-
-        # (a,g) links between Na23 and Al27
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("na23")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("al27")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("na23")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("al27")])):
-            rates_to_remove.append(r)
-
-        # (a,g) links between Al27 and P31
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("al27")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("p31")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("al27")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("p31")])):
-            rates_to_remove.append(r)
-
-        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("al27")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("mg24")])):
-        #     rates_to_remove.append(r)
-
-        # If (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("ne21")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("f18")])):
-        #     rates_to_remove.append(r)
-
-        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("o16")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("n13")])):
-        #     rates_to_remove.append(r)
+    # (a,g) links between Al27 and P31
+    rates_to_remove.append(subch.get_rate_by_name("al27(a,g)p31"))
+    rates_to_remove.append(subch.get_rate_by_name("p31(g,a)al27"))
 
     for r in rates_to_remove:
         print("removing: ", r)
