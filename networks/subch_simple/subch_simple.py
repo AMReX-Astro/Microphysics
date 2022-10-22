@@ -39,41 +39,49 @@ def doit():
     r1 = subch.get_rate("p_c12__n13")
     r2 = subch.get_rate("he4_n13__p_o16")
 
-    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True, disable_rate_params=[r1, r2])
-    net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
-    net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
-
     # finally, the aprox nets don't include the reverse rates for
     # C12+C12, C12+O16, and O16+O16, so remove those
 
-    rates_to_remove = []
-    for r in net.rates:
+    for r in subch.get_rates():
         if sorted(r.products) in [[pyna.Nucleus("c12"), pyna.Nucleus("c12")],
                                   [pyna.Nucleus("c12"), pyna.Nucleus("o16")],
                                   [pyna.Nucleus("o16"), pyna.Nucleus("o16")]]:
-            rates_to_remove.append(r)
+            subch.remove_rate(r)
 
     # C12+Ne20 and reverse
-    rates_to_remove.append(subch.get_rate_by_name("p31(p,c12)ne20"))
-    rates_to_remove.append(subch.get_rate_by_name("si28(a,c12)ne20"))
-    rates_to_remove.append(subch.get_rate_by_name("ne20(c12,p)p31"))
-    rates_to_remove.append(subch.get_rate_by_name("ne20(c12,a)si28"))
-
     # (a,g) links between Na23 and Al27
-    rates_to_remove.append(subch.get_rate_by_name("na23(a,g)al27"))
-    rates_to_remove.append(subch.get_rate_by_name("al27(g,a)na23"))
-
     # (a,g) links between Al27 and P31
-    rates_to_remove.append(subch.get_rate_by_name("al27(a,g)p31"))
-    rates_to_remove.append(subch.get_rate_by_name("p31(g,a)al27"))
+
+    rates_to_remove = ["p31(p,c12)ne20",
+                       "si28(a,c12)ne20",
+                       "ne20(c12,p)p31",
+                       "ne20(c12,a)si28",
+                       "na23(a,g)al27",
+                       "al27(g,a)na23",
+                       "al27(a,g)p31",
+                       "p31(g,a)al27"]
 
     for r in rates_to_remove:
         print("removing: ", r)
+        _r = subch.get_rate_by_name(r)
+        subch.remove_rate(_r)
 
-    net.remove_rates(rates_to_remove)
+    # at this point we have a library with all the rates that we want.
+    # We can create the network now.
+
+    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=False,
+                               disable_rate_params=[r1, r2])
+    net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
+    net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
 
     print(f"number of nuclei: {len(net.unique_nuclei)}")
     print(f"number of rates: {len(net.rates)}")
+
+    # We are going to want to replace the reverse rates with rates
+    # derived via detailed balance.  We'll do this only for the rates
+    # that have reverse, and we'll use the RatePair functionality for
+    # this
+
 
     comp = pyna.Composition(net.get_nuclei())
     comp.set_all(0.1)
