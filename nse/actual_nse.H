@@ -37,6 +37,22 @@ void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
 }
 
 
+template <int l, int m>
+bool in_single_group(const amrex::Array1D<int, l, m>& group_ind){
+
+  // This function checks whether a 1d array has the same element overall
+  
+  for (int n = l; n <= m; ++n){
+    if (group_ind(l) != group_ind(n)){
+      return false;
+    }
+  }
+
+  return true;
+}
+
+
+
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
 
@@ -738,7 +754,7 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   sort_Array1D<1, 3>(products_indices);
   
   for (int i = 1; i <= Rates::NumRates; ++i){
-    for (int j = 1; j <=3; ++j){
+    for (int j = 1; j <= 3; ++j){
       if (NSE_INDEX::rate_indices(i, j) == reactants_indices(j) && NSE_INDEX::rate_indices(i, j+3) == products_indices(j)){
 	found_index = true;
       }
@@ -746,6 +762,7 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 	found_index = false;
       }
     }
+    
     if (found_index){
       rate_index = i;
       return;
@@ -960,6 +977,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+
+	  // skip if there are no both forward and reverse rate
+	  if (rate_index == -1){
+	    continue;
+	  }
+	  
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
 
 	  Y_i(1) = Y(NSE_INDEX::he4_index + 1);
@@ -982,6 +1005,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+
+	  // skip if there are no both forward and reverse rate
+	  if (rate_index == -1){
+	    continue;
+	  }
+	  
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
 
 	  Y_i(1) = Y(NSE_INDEX::he4_index + 1);
@@ -1004,6 +1033,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+
+	  // skip if there are no both forward and reverse rate
+	  if (rate_index == -1){
+	    continue;
+	  }
+	  
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 
 	  Y_i(1) = Y(NSE_INDEX::he4_index + 1);
@@ -1026,6 +1061,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+
+	  // skip if there are no both forward and reverse rate
+	  if (rate_index == -1){
+	    continue;
+	  }
+	  
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
 
 	  Y_i(1) = Y(NSE_INDEX::n_index + 1);
@@ -1048,6 +1089,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = f_full * screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
+
+	  // skip if there are no both forward and reverse rate
+	  if (rate_index == -1){
+	    continue;
+	  }
+	  
 	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 
 	  Y_i(1) = Y(NSE_INDEX::h1_index + 1);
@@ -1070,11 +1117,6 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	std::cout << "ase_tol is " << ase_tol << std::endl;
 	std::cout << "t_s is " << t_s << std::endl;
 
-	// For later grouping
-	// if ( ((Y(reactions(i, j) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s)
-	//       || (Y(reactions(i + 1, k) + 1) / amrex::min(b_f, b_r) < ase_tol * t_s))
-	//      && ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol)
-	//      ){
 
 	if ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
 	    || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s)
@@ -1136,7 +1178,7 @@ void actual_check_in_nse(T& state, T& nse_state){
   // Update whether state is in the ballpark of NSE
   check_in_nse(state, nse_state);
   if (!state.in_nse){
-    amrex::Error("state currently not in NSE, switch to eos!");
+    std::cout << "state currently not in NSE, switch to eos!" << std::endl;
     return;
   }
 
@@ -1223,137 +1265,377 @@ void actual_check_in_nse(T& state, T& nse_state){
   }
 
   // Change state.in_nse accordingly
+  // Do nse grouping if found fast reaction cycle.
+
+  amrex::Array1D<int, 1, NumSpec> group_ind;        // holds group index for each nuclei
   
   if (!found_fast_reaction_cycle){
-    amrex::Error("Unable to find fast reaction cycle, so cannot proceed with ase");
+    std::cout << "Unable to find fast reaction cycle, so cannot proceed with ase" << std::endl;
     state.in_nse = false;
   }
   else{
-    state.in_nse = true;
+    // Do nse grouping 
+    // state.in_nse = true;
     std::cout << "Found fast reaction" << std::endl;
+
+    nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
+    
+    // Check if we result in a single group:
+    if (in_single_group<1, NumSpec>(group_ind)){
+      state.in_nse = true;
+      std::cout << "In a single group" << std::endl;
+    }
+    else{
+      state.in_nse = false;
+      //debug
+      for (int z = 1; z <= NumSpec; ++z){
+	std::cout << group_ind(z) << std::endl;
+      }
+      std::cout << "Not in a single group" << std::endl;
+    }
   }
 }
 
 
 // After all checks are successful, lets do nse grouping.
-template <typename T, int l, int m>
-int get_index(const T& x, const amrex::Array1D<int, l, m>& arr){
 
-  // This finds the index of an object, x, in an 1D array arr from l to m
-  
-  for (int i = l, i <= m, ++i){
-    if (arr(i) == x){
-      return i;
-    }
-  }
-}
+int get_root_index(const int nuc_ind,
+		     const amrex::Array1D<int, 1, NumSpec>& group_ind){
 
-
-template <int n>
-void find_parent_index(int& parent_ind, const int& nuc_ind,
-		       amrex::Array1D<int, 1, NumSpec>& group_ind){
-  // This function fills the parent group index of the nuclei
-  // by providing the nuclei index
-
-  parent_ind = group_ind( )
-
-  
-}
-
-
-void find_root_index(const amrex::Array1D<int, 1, NumSpec>& group_ind,){
   // This function returns the root index of the nuclei
   // by providing the nuclei index [0, NumSpec-1], and group indices, group_ind
 
-  int parent_index;
+  int root_index;
+  int scratch_ind = nuc_ind;
   
   while(true){
-    
-    parent_index =
+    root_index = group_ind(scratch_ind + 1);
+
+    if (root_index != scratch_ind + 1){
+      scratch_ind = root_index - 1;
+    }
+
+    else{
+      return root_index;
+    }
   }
   
 }
 
 
-void union(){
-  // This function joins the two group.
+void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, NumSpec>& group_ind){
+
+  // This function joins the two group of the two nuc indices:nuc_ind_a and nuc_ind_b
   // The smaller group is joined to the larger group.
+
+  int root_index_a = get_root_index(nuc_ind_a, group_ind);;
+  int root_index_b = get_root_index(nuc_ind_b, group_ind);;
+
+  if (root_index_a == root_index_b){
+    return;
+  }
+  
+  // find size of the two groups containing a and b
+  
+  int group_a_size = 0;
+  int group_b_size = 0;
+
+  for (int n = 1; n <= NumSpec; ++n){
+    if (n == root_index_a){
+      ++group_a_size;
+    }
+    if (n == root_index_b){
+      ++group_b_size;
+    }
+  }
+
+  // If there is only 1 isotope that is not in LIG, merge it into LIG
+  if (group_a_size >= group_b_size){
+    group_ind(root_index_b) = group_ind(root_index_a);
+  }
+  
+  else{
+    group_ind(root_index_a) = group_ind(root_index_b);
+  }
+}
+
+
+void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
+
+  // This funciton finds the pair rate index given a rate.
+  // given forward rate index, return reverse rate index, vice versa
+
+  pair_rate_index = -1;
+
+  for (int n = 1; n <= Rates::NumRates; ++n){
+    for (int i = 1; i <= 3; ++i){
+      if ((NSE_INDEX::rate_indices(n, i) == NSE_INDEX::rate_indices(rate_index, i+3))
+	  && (NSE_INDEX::rate_indices(n, i+3) == NSE_INDEX::rate_indices(rate_index, i))
+	  ){
+	pair_rate_index = n;
+      }
+    }
+    
+  }
+}
+
+
+// void add_eliminated_rate(int& index, const int current_rate,
+// 			 amrex::Array1D<int, 1, Rates::NumRates>& eliminated_rates,
+// 			 const amrex::Array1D<int, 1, NumSpec>& group_ind){
+  
+
+//   // this function adds current rate to eliminated rate based on conditions
+
+//   // check if current_rate_index is already in eliminated_rates
+
+//   for (int n = 1; n <= Rates::NumRates; ++n){
+//     if (index == eliminated_rates(n)){
+//       return;
+//     }
+//   }
+
+//   // if there are no reverse rate, then add that rate to eliminated_rates
+//   int pair_rate_index;
+//   int num_nonLIG = 0;
+
+//   // find the reverse rate index
+  
+//   fill_pair_rate_index(pair_rate_index, current_rate);
+
+//   // Check if there are > 2 isotopes or 0 isotopes in LIG
+    
+//   for (int k = 1; k <= 6; ++k){
+
+//     if (NSE_INDEX::rate_indices(n, k) == -1){
+//       continue;
+//     }
+      
+//     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
+
+//     if (root_index != 1){
+//       ++num_nonLIG;
+//     }
+//   }
+
+//   // 3 conditions:
+//   //
+//   // 1) add rates to eliminated rates when reaction has more than 3 reactant or product
+//   // 2) there are 3 reactants or products involved in the network
+//   // 3) number of nonLIG isotopes are more than 2 or none.
+  
+//   if ( (pair_rate_index == -1)
+//        || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
+//        || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
+//        || (num_nonLIG > 2)
+//        || (num_nonLIG == 0)
+//       ){
+//     eliminated_rates(index) = current_rate;
+//     ++index;
+//   }
+  
+// }
+
+
+
+template<typename T>
+void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
+		     amrex::Real& rate_t, const int current_rate,
+		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const T& state,
+		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
+		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
+		     const amrex::Real& t_s){
+  
+  // This function determines whether current_rate has a faster timescale than
+  // the provided time scale, rate_t.
+  // It also skips current_rate if certain condition is met.
+
+  int pair_rate_index;
+  int root_index;
+  int num_nonLIG = 0;
+  int nonLIG_root = -1;
+  
+  // Find the Y_group of the nuclei involved in the net
+
+  amrex::Array1D<amrex::Real, 1, 6> Y_group;
+
+  // Here Y_nonNPA represent 2 group isotope that are not n,p,a
+
+  amrex::Array1D<int, 1, 2> nonNPA_ind = {-1, -1};
+  int m;
+  
+  // find the reverse rate index
+  
+  fill_pair_rate_index(pair_rate_index, current_rate);
+
+  // Check if there are > 2 isotopes or 0 isotopes in LIG
+    
+  for (int k = 1; k <= 6; ++k){
+
+    if (NSE_INDEX::rate_indices(current_rate, k) == -1){
+      continue;
+    }
+      
+    root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
+
+    // Determine number of nonLIG isotopes
+    // also check whether nonLIG isotopes are already merged
+    
+    if (root_index != 1){
+      ++num_nonLIG;
+
+      if (root_index != nonLIG_root){
+	nonLIG_root = root_index;
+      }
+
+      // return if nonLIG_root index is repeated, meaning these isotope already merged
+      else{
+	return;
+      }
+    }
+
+    // Find the group molar fraction of the current isotope
+    
+    for (int n = 0; n < NumSpec; ++n){
+	  
+      // if nuclei have the same root_index, then they are the same group
+      if (get_root_index(n, group_ind) == root_index){	    
+	Y_group(k) += Y(n + 1);
+      }
+    }
+
+    // Find indices that is non n,p,a
+    
+    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
+	|| NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
+	|| NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
+	){
+
+      // return if there are more than 2 nonNPA nuclei involved in the network
+      
+      if (m > 2){
+	return;
+      }
+      
+      nonNPA_ind(m) = k;
+      ++m;
+    }
+    
+  }
+
+  // 3 other conditions to skip current rate:
+  //
+  // 1) skip if there is no reverse rate involved.
+  // 2) add rates to eliminated rates when reaction has more than 3 reactant or product
+  // 3) number of nonLIG isotopes are more than 2 or none.
+  
+  if ( (pair_rate_index == -1)
+       || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
+       || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
+       || (num_nonLIG > 2)
+       || (num_nonLIG == 0)
+      ){
+    return;
+  }
+   
+  // Find the rates
+  
+  amrex::Real b_f;
+  amrex::Real b_r;
+  
+  b_f = screened_rates(current_rate) * Y_group(3);  
+  b_r = screened_rates(pair_rate_index) * Y_group(6);
+
+  if (NSE_INDEX::rate_indices(current_rate, 2) != -1){
+    b_f *= Y_group(2) * state.rho;
+  }
+
+  if (NSE_INDEX::rate_indices(current_rate, 5) != -1){
+    b_r *= Y_group(5) * state.rho;
+  }
+
+  // Find the timescale of the rate
+  amrex::Real scratch_t = amrex::min(Y(nonNPA_ind(1)), Y(nonNPA_ind(2))) / amrex::min(b_f, b_r);
+
+  // return if current rate time scale is larger than previous time scale
+  if (rate_t < scratch_t){
+    return;
+  }
+  
+  if (scratch_t < ase_tol * t_s
+      && 2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol
+      ){
+
+    rate_t = scratch_t;    
+    merge_indices(1) = NSE_INDEX::rate_indices(current_rate, nonNPA_ind(1));
+    merge_indices(2) = NSE_INDEX::rate_indices(current_rate, nonNPA_ind(2));
+  }
   
 }
 
+
+
 template<typename T>
-void nse_grouping(T state){
+void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
+		  const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
+		  const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
+		  const amrex::Real& t_s){
   
+    
   // Make sure check_in_nse() is called before nse_grouping
+
   if (!state.in_nse){
     amrex::Error("State is not in the ballpark of NSE, call check_in_nse() before this");
   }
   
-  // Create an array to hold the group index for each nuclei
-  amrex::Array1D<int, 1, NumSpec> group_ind;
-  
   // fill in initial group_ind, group_ind go from 1 to NumSpec
+
   for (int i = 1; i <= NumSpec; ++i){
     group_ind(i) = i;
-
-    // let n,p,a form the same group (LIG) initially
-    if (i == NSE_INDEX::he1_index + 1 || i == NSE_INDEX::n_index + 1
+    
+    // let n,p,a form the same group (LIG) initially, let 1 be index of LIG
+    if (i == NSE_INDEX::h1_index + 1 || i == NSE_INDEX::n_index + 1
 	|| i == NSE_INDEX::he4_index + 1){
       group_ind(i) = 1;
     }
   }
 
+  amrex::Array1D<int, 1, 2> merge_indices;
+  amrex::Real rate_t = std::numeric_limits<amrex::Real>::max();
+
+  // amrex::Array1D<int, 1, Rates::NumRates> eliminated_rates;
+  // int eliminated_rate_index = 1;
+  
+  // // initial process to eliminated rates
+  // for (int n = 1; n <= Rates::NumRates; ++n){
+
+  //   add_eliminated_rate(eliminated_rate_index, n, eliminated_rates, group_ind);
+  // }
+  
   
   // Go through each reaction and perform grouping
-  
-  for (int n = 1; n <= Rates::NumRates; ++n){
-
-    // for pair in pair_list, union(pair[0], pair[1])
-    // I have rate_indices<int, 1, Rates::NumRates, 1, 7>
-
+  while(true){
     
-    // Check if this reaction is the one of the follow reactions
-    // (g,p) (g,n) (a,p) (a,n), (a,g) or their reverses
-    // also check whether forward and reverse rates are large enough
+    merge_indices(1) = -1;
+    merge_indices(2) = -1;
 
-    std::cout << "currently in reaction " << n << std::endl;
-    
-    // (g,p), 
-    if ((NSE_INDEX::rate_indices(n, 2) == -1)
-	&& (NSE_INDEX::rate_indices(n, 4) == NSE_INDEX::h1_index)
-	    && (NSE_INDEX::rate_indices(n, 5) != -1)
-	){
+    // Find the fastest time scale of the avaliable reaction
+    for (int n = 1; n <= Rates::NumRates; ++n){
 
-      std::cout << "in (g,p) " << std::endl;
-      
+      // Check if current rate is the faster rate than previous rate
+      is_fastest_rate(merge_indices, rate_t, n, Y, state, screened_rates, group_ind, t_s);
     }
 
-    // (g,n)
-    else if ((NSE_INDEX::rate_indices(n, 2) == -1)
-	&& (NSE_INDEX::rate_indices(n, 4) == NSE_INDEX::n_index)
-	    && (NSE_INDEX::rate_indices(n, 5) != -1)
-	){
-
-      std::cout << "in (g,n) " << std::endl;
-      
+    // if there are no reaction satisfy conditions, break
+    
+    if (merge_indices(1) == -1 || merge_indices(2) == -1){
+      break;
     }
 
-    // (a,p)
-    else if ((NSE_INDEX::rate_indices(n, 1) == NSE_INDEX::he4_index)
-	     && (NSE_INDEX::rate_indices(n, 2) != -1)
-	     && (NSE_INDEX::rate_indices(n, 4) == NSE_INDEX::h1_index)
-	     &&(NSE_INDEX::rate_indices(n, 5) == -1)
-	){
-      
-      
-    }
-    
-    
-		       
+    // union the isotopes of the rate that have the fastest time scale
+    nse_union(merge_indices(1), merge_indices(2), group_ind);
   }
   
 }
-
-
 
 #endif
