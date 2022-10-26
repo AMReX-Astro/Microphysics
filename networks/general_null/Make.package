@@ -1,8 +1,6 @@
 CEXE_headers += network_properties.H
 
 ifeq ($(USE_REACT),TRUE)
-  DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
-
   ifeq ($(USE_CXX_REACTIONS),TRUE)
     CEXE_sources += actual_network_data.cpp
     CEXE_headers += actual_network.H
