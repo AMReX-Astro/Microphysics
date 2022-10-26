@@ -2,8 +2,9 @@
 
 max_nse_iters        integer    500
 
-use_hybrid_solver    integer    0
+use_hybrid_solver    integer    1
 
 f_lim                real       0.05_rt
 cell_dx              real       1.0e6_rt
 ase_tol              real       0.1_rt
+
