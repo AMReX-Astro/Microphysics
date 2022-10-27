@@ -38,3 +38,8 @@ The options are:
 
   This includes the portion in the appendix that blends in the weak
   screening limit.
+
+* ``null`` :
+
+  This disables screening by always returning 1 for the screening
+  enhancement factor.

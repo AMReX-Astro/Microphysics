@@ -30,7 +30,7 @@ void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vod
 
     // we are always integrating from t = 0, so there is no offset
     // time needed here.  The indexing of ydot_a is based on
-    // the indices in burn_t and is 0-based
+    // the indices in burn_t and is 0-based    
     state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
 
     // for consistency
@@ -171,12 +171,13 @@ void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
 
     // Ensure that mass fractions always stay positive.
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        // we use 1-based indexing, so we need to offset SFS
-        vode_state.y(SFS+n) = amrex::max(amrex::min(vode_state.y(SFS+n), state.rho),
-                                         state.rho * SMALL_X_SAFE);
+    if (do_species_clip) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            // we use 1-based indexing, so we need to offset SFS
+            vode_state.y(SFS+n) = amrex::max(amrex::min(vode_state.y(SFS+n), state.rho),
+                                             state.rho * SMALL_X_SAFE);
+        }
     }
-
 
     // renormalize abundances as necessary
 

@@ -180,7 +180,7 @@ struct burn_t
 #endif
   
   // diagnostics
-  int n_rhs, n_jac;
+  int n_rhs, n_jac, n_step;
 
   // Was the burn successful?
   bool success;

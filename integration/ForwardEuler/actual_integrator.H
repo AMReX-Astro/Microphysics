@@ -173,6 +173,7 @@ void actual_integrator (burn_t& state, Real dt)
         state.success = false;
     }
 
+    state.n_step = num_timesteps;
     state.time = t;
 
 #ifndef AMREX_USE_GPU
