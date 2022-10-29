@@ -33,6 +33,8 @@ NETWORK_DIR := ase
 
 CONDUCTIVITY_DIR := stellar
 
+# Lets have null screen method, and turn of u_c when calculating NSE
+SCREEN_METHOD := 3
 INTEGRATOR_DIR =  VODE
 
 ifeq ($(USE_CUDA), TRUE)
