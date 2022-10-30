@@ -21,6 +21,8 @@ Microphysics, that have slightly different use cases.
   :math:`\langle B/A\rangle`.  All of the EOS calls will work with
   these quantities.
 
+  This is enabled via ``USE_NSE_TABLE``
+
 * self-consistent NSE : this adds an NSE solver to the network that
   can be called to find the equilibrium abundances of each of the
   species defined in the network.  It works with any of the
@@ -28,9 +30,23 @@ Microphysics, that have slightly different use cases.
   no need to advect the auxiliary composition, since this only deals
   with the isotopes defined in the main reaction network.
 
+  This is enabled via ``USE_NSE_NET``
 
+Both solvers define a number of preprocessor variables, and both will
+provide a function ``in_nse()`` that can be used to determine if a
+state is currently in NSE.
 
-Both of these NSE solvers are described below.
+=================        ======================================
+make option               preprocessor variables set
+-----------------        --------------------------------------
+``USE_NSE_TABLE``        ``NSE``, ``NSE_TABLE``, ``AUX_THERMO``
+``USE_NSE_NET``          ``NSE``, ``NSE_NET``
+=================        ======================================
+
+The directive ``NSE`` should be used whether the specific
+implementation of NSE does not matter.
+
+These two NSE solvers are described below.
 
 
 Tabulated NSE and ``aprox19``
