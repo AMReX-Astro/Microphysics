@@ -2,6 +2,40 @@
 NSE
 ***
 
+The reaction networks in Microphysics have the ability to use NSE
+instead of integrating the entire network when the conditions are
+appropriate.  There are 2 different implementations of NSE in
+Microphysics, that have slightly different use cases.
+
+* tabulated NSE : this uses a table of NSE abundances given
+  :math:`(\rho, T, Y_e)` generate from a large network (125 isotopes).
+  The table also returns :math:`dY_e/dt` resulting from
+  electron-captures, to allow for the NSE state to evolve.  This is
+  meant to be used in the cores of massive stars and works only with the
+  ``aprox19`` reaction network.
+
+  Furthermore, since the table can achieve :math:`Y_e` and
+  :math:`\bar{A}` that are not representable by the 19 isotopes in
+  ``aprox19``, this table requires that we use the auxiliary
+  composition and advect :math:`Y_e`, :math:`\bar{A}`, and
+  :math:`\langle B/A\rangle`.  All of the EOS calls will work with
+  these quantities.
+
+* self-consistent NSE : this adds an NSE solver to the network that
+  can be called to find the equilibrium abundances of each of the
+  species defined in the network.  It works with any of the
+  pynucastro-generated networks.  Unlike the tabulated NSE, there is
+  no need to advect the auxiliary composition, since this only deals
+  with the isotopes defined in the main reaction network.
+
+
+
+Both of these NSE solvers are described below.
+
+
+Tabulated NSE and ``aprox19``
+=============================
+
 The ``aprox19`` can be run in a manner where we blends the ``aprox19``
 network with a table for nuclear statistic equilibrium at high density
 and temperatures.  This is based on the table described in
@@ -39,7 +73,7 @@ Therefore each of these auxillar equations obeys an advection equation
 in the hydro part of the advancement.
 
 Composition and EOS
-===================
+-------------------
 
 The NSE table was generated using a 125 nuclei reaction network, so
 the compositional quantities it carries, :math:`\bar{A}` and
@@ -58,7 +92,7 @@ The equation of state also needs :math:`\bar{Z}` which is easily computed as
    \bar{Z} = \bar{A} Y_e
 
 NSE Flow
-========
+--------
 
 The basic flow of a simulation using the NSE network is as follows:
 
@@ -112,7 +146,7 @@ The basic flow of a simulation using the NSE network is as follows:
 
 
 NSE check
-=========
+---------
 
 We determine is a zone is in NSE according to:
 
@@ -123,6 +157,10 @@ We determine is a zone is in NSE according to:
 * :math:`X(\isotm{C}{12})` < ``C_nse``
 
 * :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
+
+
+Self-consistent NSE
+===================
 
 
 .. rubric:: Footnotes
