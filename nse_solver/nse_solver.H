@@ -17,7 +17,7 @@
 
 // Initialization for nse, check whether network is valid and stores indices
 
-void init_actual_nse(){
+void init_nse_net(){
 
   for (int n = 0; n < NumSpec; ++n){
 
