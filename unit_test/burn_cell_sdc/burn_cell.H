@@ -130,7 +130,7 @@ void burn_cell_c()
     }
 
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     Real auxdata[NumAux] = {-1.0};
 
     // Make sure user set all the mass fractions to values in the interval [0, 1]
@@ -270,7 +270,7 @@ void burn_cell_c()
     }
 
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     Real adv_aux[NumAux] = {0.0};
 
     // Make sure user set all the mass fractions to values in the interval [0, 1]
@@ -314,8 +314,8 @@ void burn_cell_c()
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = massfractions[n];
     }
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(eos_state);
+#ifdef AUX_THERMO
+    set_aux_comp_from_X(eos_state);
 #endif
 
     eos(eos_input_rt, eos_state);
@@ -366,7 +366,7 @@ void burn_cell_c()
         burn_state.ydot_a[SFS+n] = adv_species[n];
     }
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     for (int n = 0; n < NumAux; n++) {
         burn_state.ydot_a[SFX+n] = adv_aux[n];
     }
@@ -381,8 +381,8 @@ void burn_cell_c()
         burn_state.xn[n] = massfractions[n];
     }
 
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(burn_state);
+#ifdef AUX_THERMO
+    set_aux_comp_from_X(burn_state);
 #endif
 
     burn_state.e = eos_state.e;
