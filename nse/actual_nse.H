@@ -272,7 +272,9 @@ T get_nse_state(const T& state)
                                std::sqrt(1.0_rt + gamma / A2))) +
            2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
 
+      // for testing purpose.
       u_c = 0.0_rt;
+      
       // fill partition function and get spin
       
 #ifdef PARTITION_FUNCTIONS_H      
@@ -1133,8 +1135,6 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	std::cout << "after nuc is " << Y(reactions(i + 1, k) + 1) << std::endl;
 	std::cout << "before nuc # is " << reactions(i, j) << std::endl;
 	std::cout << "after nuc # is " << reactions(i + 1, k) << std::endl;
-
-	std::cout << "ase_tol is " << ase_tol << std::endl;
 	std::cout << "t_s is " << t_s << std::endl;
 
 
@@ -1241,6 +1241,7 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
   }
 
   // If there is only 1 isotope that is not in LIG, merge it into LIG
+  // merge group with less isotopes to group with larger isotope
   if (group_a_size >= group_b_size){
     group_ind(root_index_b) = group_ind(root_index_a);
   }
@@ -1278,63 +1279,6 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
     
   }
 }
-
-
-// void add_eliminated_rate(int& index, const int current_rate,
-// 			 amrex::Array1D<int, 1, Rates::NumRates>& eliminated_rates,
-// 			 const amrex::Array1D<int, 1, NumSpec>& group_ind){
-  
-
-//   // this function adds current rate to eliminated rate based on conditions
-
-//   // check if current_rate_index is already in eliminated_rates
-
-//   for (int n = 1; n <= Rates::NumRates; ++n){
-//     if (index == eliminated_rates(n)){
-//       return;
-//     }
-//   }
-
-//   // if there are no reverse rate, then add that rate to eliminated_rates
-//   int pair_rate_index;
-//   int num_nonLIG = 0;
-
-//   // find the reverse rate index
-  
-//   fill_pair_rate_index(pair_rate_index, current_rate);
-
-//   // Check if there are > 2 isotopes or 0 isotopes in LIG
-    
-//   for (int k = 1; k <= 6; ++k){
-
-//     if (NSE_INDEX::rate_indices(n, k) == -1){
-//       continue;
-//     }
-      
-//     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
-
-//     if (root_index != 1){
-//       ++num_nonLIG;
-//     }
-//   }
-
-//   // 3 conditions:
-//   //
-//   // 1) add rates to eliminated rates when reaction has more than 3 reactant or product
-//   // 2) there are 3 reactants or products involved in the network
-//   // 3) number of nonLIG isotopes are more than 2 or none.
-  
-//   if ( (pair_rate_index == -1)
-//        || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
-//        || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
-//        || (num_nonLIG > 2)
-//        || (num_nonLIG == 0)
-//       ){
-//     eliminated_rates(index) = current_rate;
-//     ++index;
-//   }
-  
-// }
 
 
 bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
@@ -1566,17 +1510,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
   }
 
   amrex::Array1D<int, 1, 2> merge_indices;
-  amrex::Real fastest_t;
-
-  // amrex::Array1D<int, 1, Rates::NumRates> eliminated_rates;
-  // int eliminated_rate_index = 1;
-  
-  // // initial process to eliminated rates
-  // for (int n = 1; n <= Rates::NumRates; ++n){
-
-  //   add_eliminated_rate(eliminated_rate_index, n, eliminated_rates, group_ind);
-  // }
-  
+  amrex::Real fastest_t;  
   
   // Go through each reaction and perform grouping
   while(true){
