@@ -412,7 +412,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt, bool input_ye_is_va
 
   // Check whether initialized or not
   if (!NSE_INDEX::initialized){
-    amrex::Error("NSE uninitialized! Need to call init_actual_nse() ");
+    amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
   }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
