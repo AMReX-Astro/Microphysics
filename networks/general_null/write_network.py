@@ -18,9 +18,9 @@ def abort(outfile):
     sys.exit(1)
 
 
-def write_network(network_template, header_template,
+def write_network(header_template,
                   net_file, properties_file,
-                  network_file, header_file, defines):
+                  header_file, defines):
     """read through the list of species and output the new out_file
 
     """
@@ -36,7 +36,7 @@ def write_network(network_template, header_template,
     err = network_param_file.parse(species, extra_species, aux_vars, net_file, defines)
 
     if err:
-        abort(network_file)
+        abort(header_file)
 
     properties = {}
     try:
@@ -49,10 +49,9 @@ def write_network(network_template, header_template,
     except FileNotFoundError:
         print("no NETWORK_PROPERTIES found, skipping...")
 
-    # write out the Fortran and C++ files based on the templates
+    # write out the C++ files based on the templates
 
-    templates = [(network_template, network_file, "Fortran"),
-                 (header_template, header_file, "C++")]
+    templates = [(header_template, header_file, "C++")]
 
     for tmp, out_file, lang in templates:
 
@@ -93,40 +92,25 @@ def write_network(network_template, header_template,
                     fout.write(line.replace("@@NAUX@@", str(len(aux_vars))))
 
                 elif keyword == "SPEC_NAMES":
-                    if lang == "Fortran":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}spec_names({n+1}) = \"{spec.name}\"\n")
+                    for n, spec in enumerate(species):
+                        fout.write(f"{indent}\"{spec.name}\",   // {n} \n")
 
-                    elif lang == "C++":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}\"{spec.name}\",   // {n} \n")
-
-                        for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}\"{spec.name}\",   // {n + len(species)} \n")
+                    for n, spec in enumerate(extra_species):
+                        fout.write(f"{indent}\"{spec.name}\",   // {n + len(species)} \n")
 
                 elif keyword == "SHORT_SPEC_NAMES":
-                    if lang == "Fortran":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}short_spec_names({n+1}) = \"{spec.short_name}\"\n")
+                    for n, spec in enumerate(species):
+                        fout.write(f"{indent}\"{spec.short_name}\",   // {n} \n")
 
-                    elif lang == "C++":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}\"{spec.short_name}\",   // {n} \n")
-
-                        for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}\"{spec.short_name}\",   // {n + len(species)} \n")
+                    for n, spec in enumerate(extra_species):
+                        fout.write(f"{indent}\"{spec.short_name}\",   // {n + len(species)} \n")
 
                 elif keyword == "AION":
-                    if lang == "Fortran":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}aion({n+1}) = {spec.A}_rt\n")
+                    for n, spec in enumerate(species):
+                        fout.write(f"{indent}{spec.A},   // {n} \n")
 
-                    elif lang == "C++":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}{spec.A},   // {n} \n")
-
-                        for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}{spec.A},   // {n + len(species)} \n")
+                    for n, spec in enumerate(extra_species):
+                        fout.write(f"{indent}{spec.A},   // {n + len(species)} \n")
 
                 elif keyword == "AION_CONSTEXPR":
                     if lang == "C++":
@@ -146,28 +130,18 @@ def write_network(network_template, header_template,
                             fout.write(f"{indent}}}\n\n")
 
                 elif keyword == "AION_INV":
-                    if lang == "Fortran":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}aion_inv({n+1}) = 1.0_rt/{spec.A}_rt\n")
+                    for n, spec in enumerate(species):
+                        fout.write(f"{indent}1.0/{spec.A},   // {n} \n")
 
-                    elif lang == "C++":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}1.0/{spec.A},   // {n} \n")
-
-                        for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}1.0/{spec.A},   // {n + len(species)} \n")
+                    for n, spec in enumerate(extra_species):
+                        fout.write(f"{indent}1.0/{spec.A},   // {n + len(species)} \n")
 
                 elif keyword == "ZION":
-                    if lang == "Fortran":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}zion({n+1}) = {spec.Z}_rt\n")
+                    for n, spec in enumerate(species):
+                        fout.write(f"{indent}{spec.Z},   // {n}\n")
 
-                    elif lang == "C++":
-                        for n, spec in enumerate(species):
-                            fout.write(f"{indent}{spec.Z},   // {n}\n")
-
-                        for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}{spec.Z},   // {n + len(species)}\n")
+                    for n, spec in enumerate(extra_species):
+                        fout.write(f"{indent}{spec.Z},   // {n + len(species)}\n")
 
                 elif keyword == "ZION_CONSTEXPR":
                     if lang == "C++":
@@ -187,22 +161,12 @@ def write_network(network_template, header_template,
                             fout.write(f"{indent}}}\n\n")
 
                 elif keyword == "AUX_NAMES":
-                    if lang == "Fortran":
-                        for n, aux in enumerate(aux_vars):
-                            fout.write(f"{indent}aux_names({n+1}) = \"{aux.name}\"\n")
-
-                    elif lang == "C++":
-                        for n, aux in enumerate(aux_vars):
-                            fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
+                    for n, aux in enumerate(aux_vars):
+                        fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
 
                 elif keyword == "SHORT_AUX_NAMES":
-                    if lang == "Fortran":
-                        for n, aux in enumerate(aux_vars):
-                            fout.write(f"{indent}short_aux_names({n+1}) = \"{aux.name}\"\n")
-
-                    elif lang == "C++":
-                        for n, aux in enumerate(aux_vars):
-                            fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
+                    for n, aux in enumerate(aux_vars):
+                        fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
 
                 elif keyword == "PROPERTIES":
                     if lang == "C++":
@@ -250,10 +214,6 @@ def write_network(network_template, header_template,
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", type=str, default="",
-                        help="fortran template for the network")
-    parser.add_argument("-o", type=str, default="",
-                        help="fortran module output file name")
     parser.add_argument("--header_template", type=str, default="",
                         help="C++ header template file name")
     parser.add_argument("--header_output", type=str, default="",

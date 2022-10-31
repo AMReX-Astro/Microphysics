@@ -13,7 +13,7 @@ class Species:
         self.is_extra = 0
 
     def __str__(self):
-        return "species {}, (A,Z) = {},{}".format(self.name, self.A, self.Z)
+        return f"species {self.name}, (A,Z) = {self.A},{self.Z}"
 
 
 class AuxVar:
@@ -23,11 +23,12 @@ class AuxVar:
         self.preprocessor = None
 
     def __str__(self):
-        return "auxillary variable {}".format(self.name)
+        return f"auxillary variable {self.name}"
 
 
 class UnusedVar:
-    """this is what we return if an Aux var doesn't meet the preprocessor requirements"""
+    """this is what we return if an Aux var doesn't meet the
+    preprocessor requirements"""
     def __init__(self):
         pass
 
@@ -73,10 +74,9 @@ def parse(species, extra_species, aux_vars, net_file, defines):
     err = 0
 
     try:
-        f = open(net_file, "r")
-    except IOError:
-        sys.exit("write_network.py: ERROR: file "+str(net_file)+" does not exist")
-
+        f = open(net_file)
+    except OSError:
+        sys.exit(f"write_network.py: ERROR: file {net_file} does not exist")
 
     line = get_next_line(f)
 
@@ -104,7 +104,7 @@ def parse(species, extra_species, aux_vars, net_file, defines):
         index = get_object_index(objs, net_obj.name)
 
         if index >= 0:
-            print("write_network.py: ERROR: {} already defined.".format(net_obj))
+            print(f"write_network.py: ERROR: {net_obj} already defined.")
             err = 1
         # add the species or auxvar to the appropriate list
         objs.append(net_obj)
@@ -150,8 +150,9 @@ def parse_network_object(fields, defines):
     if fields[0].startswith("__aux_"):
         ret = AuxVar()
         ret.name = fields[0][6:]
-        # we can put a preprocessor variable after the aux name to require that it be
-        # set in order to define the auxillary variable
+        # we can put a preprocessor variable after the aux name to
+        # require that it be set in order to define the auxillary
+        # variable
         try:
             ret.preprocessor = fields[1]
         except IndexError:
@@ -188,7 +189,8 @@ def parse_network_object(fields, defines):
     # check for missing fields in species definition
     elif not len(fields) == 4:
         print(" ".join(fields))
-        print("write_network.py: ERROR: missing one or more fields in species definition.")
+        print("write_network.py: " +
+              "ERROR: missing one or more fields in species definition.")
         ret = None
         err = 1
     else:
