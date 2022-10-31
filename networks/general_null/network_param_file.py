@@ -1,7 +1,7 @@
 """core functions for deailing with a network file"""
 
 import sys
-import argparse
+
 
 class Species:
     """the species class holds the properties of a single species"""
@@ -15,6 +15,7 @@ class Species:
     def __str__(self):
         return "species {}, (A,Z) = {},{}".format(self.name, self.A, self.Z)
 
+
 class AuxVar:
     """convenience class for an auxilliary variable"""
     def __init__(self):
@@ -23,6 +24,7 @@ class AuxVar:
 
     def __str__(self):
         return "auxillary variable {}".format(self.name)
+
 
 class UnusedVar:
     """this is what we return if an Aux var doesn't meet the preprocessor requirements"""
@@ -108,6 +110,27 @@ def parse(species, extra_species, aux_vars, net_file, defines):
         objs.append(net_obj)
 
         line = get_next_line(f)
+
+    # special case: if we are defining AUX_THERMO, then we want Ye,
+    # abar, and bea in the auxiliary variable list
+    if "-DAUX_THERMO" in defines:
+        index = get_object_index(aux_vars, "Ye")
+        if index <= 0:
+            ye = AuxVar()
+            ye.name = "Ye"
+            aux_vars.append(ye)
+
+        index = get_object_index(aux_vars, "abar")
+        if index <= 0:
+            abar = AuxVar()
+            abar.name = "abar"
+            aux_vars.append(abar)
+
+        index = get_object_index(aux_vars, "bea")
+        if index <= 0:
+            bea = AuxVar()
+            bea.name = "bea"
+            aux_vars.append(bea)
 
     return err
 

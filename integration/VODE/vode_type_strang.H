@@ -75,7 +75,7 @@ void clean_state (dvode_t& vode_state)
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void update_thermodynamics (burn_t& state, const dvode_t& vode_state)
 {
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     // we are handling the thermodynamics via the aux quantities, which
     // are stored in the burn_t here, so we need to update those based on
     // the current state.
