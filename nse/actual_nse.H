@@ -159,7 +159,7 @@ void init_actual_nse(){
     }
 #else
     if (zion[n] ==1 && aion[n] == 1){
-      NSE_INDEX::h1_index = n;
+      NSE_INDEX::p_index = n;
     }
 #endif
     else if (zion[n] == 0){
@@ -177,7 +177,7 @@ void init_actual_nse(){
   if (!use_hybrid_solver){
     bool singular_network = true;
     for (int n = 0; n < NumSpec; ++n){
-      if (n == NSE_INDEX::p_index){
+      if (n == NSE_INDEX::h1_index){
 	continue;
       }
       if (zion[n] != aion[n] - zion[n]){
@@ -190,7 +190,8 @@ void init_actual_nse(){
     }
   }
 
-  // rate names initialization...
+#ifndef NEW_NETWORK_IMPLEMENTATION
+  // rate names initialization for non aprox networks...
 
   // Fill in rate_indices<int, 1, NumRates, 1, 7>
   // used for referencing rate by nuclei indices
@@ -215,6 +216,7 @@ void init_actual_nse(){
     
     NSE_INDEX::rate_indices(n, 7) = n;
   }
+#endif
   
   NSE_INDEX::initialized = true;
 }
@@ -252,7 +254,7 @@ T get_nse_state(const T& state)
 #endif
   
   for (int n = 0; n < NumSpec; ++n){
-      if (n == NSE_INDEX::p_index){
+      if (n == NSE_INDEX::h1_index){
           continue;
       }
 
@@ -297,7 +299,7 @@ T get_nse_state(const T& state)
   nse_state.y_e = 0.0_rt;
 
   for (int n = 0; n < NumSpec; ++n){
-    if (n == NSE_INDEX::p_index){
+    if (n == NSE_INDEX::h1_index){
       continue;
     }
     
@@ -329,7 +331,7 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
     fvec(1) = -1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::p_index){
+        if (n == NSE_INDEX::h1_index){
             continue;
         }
 
@@ -364,7 +366,7 @@ void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
     fjac(2, 2) = 0.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::p_index){
+        if (n == NSE_INDEX::h1_index){
             continue;
         }
 	
@@ -604,6 +606,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt, bool input_ye_is_va
 
 // First check to see if we're in the ballpark of nse state
 
+#ifndef NEW_NETWORK_IMPLEMENTATION
 template<typename T>
 void check_in_nse(T& state, T& nse_state){
   // Input:
@@ -620,7 +623,7 @@ void check_in_nse(T& state, T& nse_state){
   
   // Check if neutron, proton, and helium are present in the network
   for (int n = 0; n < NumSpec; ++n){
-    if (n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index|| n == NSE_INDEX::he4_index){
+    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index|| n == NSE_INDEX::he4_index){
       ++count;
     }
   }
@@ -632,7 +635,7 @@ void check_in_nse(T& state, T& nse_state){
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
   for (int n = 0; n < NumSpec; ++n){
 
-    if (n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index){
+    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index){
       r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
       r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
     } 
@@ -671,7 +674,7 @@ void check_in_nse(T& state, T& nse_state){
 //   amrex::Real X_tilde = 0.0_rt;
 
 //   for (int n = 0; n < NumSpec; ++n){
-//     if ( n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index || n == NSE_INDEX::he4_index){
+//     if ( n == NSE_INDEX::p_index || n == NSE_INDEX::n_index || n == NSE_INDEX::he4_index){
 //       X_npa += state.xn[n];
 //       Y_npa += Y(n+1);
 //       Y_npa_dot += ydot(n+1);
@@ -1044,7 +1047,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(3) = -1;
 	  
 	  product_scratch(1) = reactions(i+1, k);
-	  product_scratch(2) = NSE_INDEX::h1_index;
+	  product_scratch(2) = NSE_INDEX::p_index;
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -1056,10 +1059,10 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	    continue;
 	  }
 	  
-	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
 
 	  Y_i(1) = Y(NSE_INDEX::he4_index + 1);
-	  Y_i(2) = Y(NSE_INDEX::h1_index + 1);
+	  Y_i(2) = Y(NSE_INDEX::p_index + 1);
 	}
 
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] + 1 &&
@@ -1100,7 +1103,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(3) = -1;
 
 	  product_scratch(1) = reactions(i+1, k);
-	  product_scratch(2) = NSE_INDEX::h1_index;
+	  product_scratch(2) = NSE_INDEX::p_index;
 	  product_scratch(3) = -1;
 	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -1112,9 +1115,9 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	    continue;
 	  }
 	  
-	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
+	  b_r = f_full * screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
 
-	  Y_i(1) = Y(NSE_INDEX::h1_index + 1);
+	  Y_i(1) = Y(NSE_INDEX::p_index + 1);
 	  Y_i(2) = 0.0_rt;
 	}
 
@@ -1336,13 +1339,26 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 
 bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
 
-  // This function checks whether all isotopes return the same root index
- 
+  // This function checks whether all isotopes are either in the LIG group
+  // or in another single group.
+
+  int nonLIG_index = -1;
+  
   for (int n = 0; n < NumSpec; ++n){
     std::cout << "current root index is" << get_root_index(n, group_ind) << std::endl;
-    // if (group_ind(0) != get_root_index(n, group_ind)){
-    //   return false;
-    // }
+
+    if (get_root_index(n, group_ind) == 1){
+      continue;
+    }
+
+    if (nonLIG_index == -1){
+      nonLIG_index = get_root_index(n, group_ind);
+    }
+
+    else if (get_root_index(n, group_ind) != nonLIG_index){
+      return false;
+    }
+    
   }
 
   return true;
@@ -1389,13 +1405,13 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   for (int k = 1; k <= 6; ++k){
 
     // skip if current isotope is -1, which means null
-
-    std::cout <<  "current valid isotope is " << NSE_INDEX::rate_indices(current_rate, k) << std::endl;
     
     if (NSE_INDEX::rate_indices(current_rate, k) == -1){
       continue;
     }
 
+    std::cout <<  "current valid isotope is " << NSE_INDEX::rate_indices(current_rate, k) << std::endl;
+    
     // Find the root index of this isotope
     
     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
@@ -1438,7 +1454,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
     }
     // Find indices that is non n,p,a
 
-    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
+    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::p_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
 	){
@@ -1543,7 +1559,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
     group_ind(i) = i;
     
     // let n,p,a form the same group (LIG) initially, let 1 be index of LIG
-    if (i == NSE_INDEX::h1_index + 1 || i == NSE_INDEX::n_index + 1
+    if (i == NSE_INDEX::p_index + 1 || i == NSE_INDEX::n_index + 1
 	|| i == NSE_INDEX::he4_index + 1){
       group_ind(i) = 1;
     }
@@ -1623,16 +1639,16 @@ void actual_check_in_nse(T& state, T& nse_state){
 
   // Find ydot and energy generation rate
   
-#ifdef NEW_NETWORK_IMPLEMENTATION
-  // rhs_t rhs_data(rate), rate is a string (enum to be indices);
-  // gives specie names, which can be used to determine reaction and find the corresponding rate
-  amrex::Error("Not implemented yet");
-  //constexpr rhs_t data = RHS::rhs_data(rate)
-  // Real rhs_term<int species, int rate> (state, Real fr, Real rr), given species, rate, forward and reverse.
+// #ifdef NEW_NETWORK_IMPLEMENTATION
+//   // rhs_t rhs_data(rate), rate is a string (enum to be indices);
+//   // gives specie names, which can be used to determine reaction and find the corresponding rate
+//   amrex::Error("Not implemented yet");
+//   //constexpr rhs_t data = RHS::rhs_data(rate)
+//   // Real rhs_term<int species, int rate> (state, Real fr, Real rr), given species, rate, forward and reverse.
   
-  //RHS::rhs(state, ydot);
-  //actual_rhs(state, ydot);
-#else
+//   //RHS::rhs(state, ydot);
+//   //actual_rhs(state, ydot);
+// #else
     
   // Get rates, ydot,and energy generation rate, copy routine from  rhs_nuc(state, ydot)
   
@@ -1668,7 +1684,7 @@ void actual_check_in_nse(T& state, T& nse_state){
 #endif
   // fill in energy generation rate to ydot
   ydot(NumSpec + 1) = enuc - sneut;
-#endif
+// #endif
 
   // Limiter is not desired for now, so lets set them to 1 for now.
   amrex::Real f_full = 1.0_rt;
@@ -1722,7 +1738,7 @@ void actual_check_in_nse(T& state, T& nse_state){
     }
   }
 }
-
+#endif
 
 
 #endif

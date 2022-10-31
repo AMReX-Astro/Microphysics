@@ -7,7 +7,8 @@ from pynucastro.networks import StarKillerCxxNetwork
 
 reaclib_lib = pyna.ReacLibLibrary()
 
-nucs = ["p", "n", "he4", "si28", "si29",
+nucs = ["p", "n", "he4",
+        "si28", "si29",
         "si30", "p31", "s32"]
 
 ase = reaclib_lib.linking_nuclei(nucs)
