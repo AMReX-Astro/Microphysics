@@ -69,9 +69,13 @@ ifeq ($(USE_SCREENING), TRUE)
 
 endif
 
-ifeq ($(USE_NSE), TRUE)
+ifeq ($(USE_AUX_THERMO), TRUE)
+  DEFINES += -DAUX_THERMO
+endif
 
-  DEFINES += -DNSE_THERMO -DNSE_TABLE -DNSE
+ifeq ($(USE_NSE), TRUE)
+  # note: NSE_THERMO is deprecated
+  DEFINES += -DAUX_THERMO -DNSE_THERMO -DNSE_TABLE -DNSE
 
 endif
 
