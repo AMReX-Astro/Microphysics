@@ -115,19 +115,19 @@ def parse(species, extra_species, aux_vars, net_file, defines):
     # abar, and bea in the auxiliary variable list
     if "-DAUX_THERMO" in defines:
         index = get_object_index(aux_vars, "Ye")
-        if index <= 0:
+        if index < 0:
             ye = AuxVar()
             ye.name = "Ye"
             aux_vars.append(ye)
 
         index = get_object_index(aux_vars, "abar")
-        if index <= 0:
+        if index < 0:
             abar = AuxVar()
             abar.name = "abar"
             aux_vars.append(abar)
 
         index = get_object_index(aux_vars, "bea")
-        if index <= 0:
+        if index < 0:
             bea = AuxVar()
             bea.name = "bea"
             aux_vars.append(bea)
