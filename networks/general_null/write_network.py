@@ -227,9 +227,9 @@ def main():
 
     args = parser.parse_args()
 
-    write_network(args.t, args.header_template,
+    write_network(args.header_template,
                   args.s, args.other_properties,
-                  args.o, args.header_output, args.defines)
+                  args.header_output, args.defines)
 
 if __name__ == "__main__":
     main()
