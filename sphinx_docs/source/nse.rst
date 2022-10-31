@@ -97,7 +97,7 @@ the compositional quantities it carries, :math:`\bar{A}` and
 network.  For this reason, when we are using the NSE network, we
 always take the composition quantities in the EOS directly from
 ``eos_state.aux[]`` instead of from ``eos_state.xn[]``.  The
-``NSE_THERMO`` preprocessor directive is enabled in this case, and the
+``AUX_THERMO`` preprocessor variable is enabled in this case, and the
 equations of state interpret this to use the auxillary data for the
 composition.
 
