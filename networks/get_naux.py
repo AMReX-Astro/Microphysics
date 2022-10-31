@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import argparse
 
 from general_null import network_param_file
@@ -14,10 +13,7 @@ def get_naux(net_file, defines):
     extra_species = []
     aux_vars = []
 
-
-    #-------------------------------------------------------------------------
     # read the species defined in the net_file
-    #-------------------------------------------------------------------------
     err = network_param_file.parse(species, extra_species, aux_vars, net_file, defines)
 
     print(len(aux_vars))
