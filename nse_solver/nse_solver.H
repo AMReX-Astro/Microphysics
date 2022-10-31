@@ -1,5 +1,5 @@
-#ifndef _actual_nse_H_
-#define _actual_nse_H_
+#ifndef NSE_SOLVER_H
+#define NSE_SOLVER_H
 
 #include <fundamental_constants.H>
 #include <AMReX_REAL.H>
