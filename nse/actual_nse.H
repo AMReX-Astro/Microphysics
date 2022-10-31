@@ -26,10 +26,10 @@ void init_actual_nse(){
 #ifdef NEW_NETWORK_IMPLEMENTATION
     if (zion[n] == 1 && aion[n] == 1){
       if (n == 0){
-	NSE_INDEX::p_index = n;
+	NSE_INDEX::h1_index = n;
       }
       else {
-	NSE_INDEX::h1_index = n;
+	NSE_INDEX::p_index = n;
       }
     }
 #else
