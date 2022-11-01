@@ -55,8 +55,6 @@ struct eos_t:eos_base_t {
 #ifdef NSE_NET
     amrex::Real mu_p;   //chemical potential of proton
     amrex::Real mu_n;   //chemical potential of neutron
-
-    bool in_nse_net;
 #endif
 };
 
@@ -89,8 +87,6 @@ struct eos_re_t:eos_base_t {
 #ifdef NSE_NET
     amrex::Real mu_p;   //chemical potential of proton
     amrex::Real mu_n;   //chemical potential of neutron
-
-    bool in_nse_net;
 #endif
 };
 
@@ -134,8 +130,6 @@ struct eos_rep_t:eos_base_t {
 #ifdef NSE_NET
     amrex::Real mu_p;   //chemical potential of proton
     amrex::Real mu_n;   //chemical potential of neutron
-
-    bool in_nse_net;
 #endif
 };
 

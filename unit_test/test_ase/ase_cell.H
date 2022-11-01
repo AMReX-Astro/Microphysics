@@ -131,16 +131,6 @@ void ase_cell_c()
       std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
     }
 
-    // print out rate indices
-    std::cout << " Printing out rate_indices:" << std::endl;
-    for (int n = 1; n <= Rates::NumRates; ++n) {
-      for (int i = 1; i <= 6; ++i){
-        std::cout << NSE_INDEX::rate_indices(n, i) << " ";
-      }
-      std::cout << "rate index: " << NSE_INDEX::rate_indices(n, 7) << std::endl;
-    }
-
-
     // Let state.xn equal to nse_state.xn to make sure its in nse state
     for (int n = 0; n < NumSpec; ++n){
       state.xn[n] = NSE_STATE.xn[n];
@@ -149,6 +139,11 @@ void ase_cell_c()
     // get eos
     eos(eos_input_rt, state);
     
-    actual_check_in_nse(state, NSE_STATE);
+    if (in_nse(state, NSE_STATE)){
+      std::cout << "We're in NSE. " << std::endl;
+    }
+    else{
+      std::cout << "We're not in NSE. " << std::endl;
+    }
     
 }
