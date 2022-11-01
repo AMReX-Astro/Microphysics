@@ -255,8 +255,11 @@ compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
    is set to ``TRUE``, then we instead use the auxillary quantities
    stored in ``eos_t.aux[]``.
 
+.. _aux_eos_comp:
+
 Auxillary Composition
 ---------------------
+
 
 With ``USE_AUX_THERMO=TRUE``, we interpret the composition from the auxiliary variables.
 The auxiliary variables are
@@ -267,7 +270,7 @@ The auxiliary variables are
 
      Y_e = \sum_k \frac{X_k Z_k}{A_k}
 
-* ``eos_state.aux[iabar]`` : the average mass of the nuclei, defined as:
+* ``eos_state.aux[iabar]`` : the average mass of the nuclei, :math:`\bar{A}`, defined as:
 
   .. math::
 
@@ -287,6 +290,12 @@ The auxiliary variables are
 Given a composition of mass fractions, the function
 ``set_aux_comp_from_X(state_t& state)`` will initialize these
 auxiliary quantities.
+
+The equation of state also needs :math:`\bar{Z}` which is easily computed as
+
+.. math::
+
+   \bar{Z} = \bar{A} Y_e
 
 
 Initialization and Cutoff Values
