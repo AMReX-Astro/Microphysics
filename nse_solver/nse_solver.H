@@ -648,10 +648,10 @@ void check_in_nse(T& state, T& nse_state){
   // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
   
   if (std::abs((r - r_nse) / r_nse) < 0.5){
-    state.in_nse = true;
+    state.in_nse_net = true;
   }
   else{
-    state.in_nse = false;
+    state.in_nse_net = false;
   }
 }
 
@@ -1427,7 +1427,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
     
   // Make sure check_in_nse() is called before nse_grouping
 
-  if (!state.in_nse){
+  if (!state.in_nse_net){
     amrex::Error("State is not in the ballpark of NSE, call check_in_nse() before this");
   }
   
@@ -1486,7 +1486,7 @@ void actual_check_in_nse(T& state, T& nse_state){
   // Update whether state is in the ballpark of NSE
   
   check_in_nse(state, nse_state);
-  if (!state.in_nse){
+  if (!state.in_nse_net){
     return;
   }
 
@@ -1568,14 +1568,14 @@ void actual_check_in_nse(T& state, T& nse_state){
     find_fast_reaction_cycle(n, Y, ydot, rate_eval.screened_rates, state, t_s, found_fast_reaction_cycle);
   }
 
-  // Change state.in_nse accordingly
+  // Change state.in_nse_net accordingly
   // Do nse grouping if found fast reaction cycle.
 
   amrex::Array1D<int, 1, NumSpec> group_ind;        // holds group index for each nuclei
   
   if (!found_fast_reaction_cycle){
     std::cout << "Unable to find fast reaction cycle, so cannot proceed with ase" << std::endl;
-    state.in_nse = false;
+    state.in_nse_net = false;
   }
   else{
     // Do nse grouping
@@ -1586,11 +1586,11 @@ void actual_check_in_nse(T& state, T& nse_state){
     
     // Check if we result in a single group:
     if (in_single_group(group_ind)){
-      state.in_nse = true;
+      state.in_nse_net = true;
       std::cout << "In a single group" << std::endl;
     }
     else{
-      state.in_nse = false;
+      state.in_nse_net = false;
       //debug
       for (int z = 1; z <= NumSpec; ++z){
 	std::cout << group_ind(z) << std::endl;

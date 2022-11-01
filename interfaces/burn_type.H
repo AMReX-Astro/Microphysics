@@ -178,7 +178,7 @@ struct burn_t
   Real mu_p;
   Real mu_n;
 
-  bool in_nse;
+  bool in_nse_net;
 #endif
   
   // diagnostics
@@ -259,7 +259,7 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
 #ifdef NSE_NET
     burn_state.mu_p = eos_state.mu_p;
     burn_state.mu_n = eos_state.mu_n;
-    burn_state.in_nse = eos_state.in_nse;
+    burn_state.in_nse_net = eos_state.in_nse_net;
 #endif
 }
 
@@ -297,7 +297,7 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
 #ifdef NSE_NET
     eos_state.mu_p = burn_state.mu_p;
     eos_state.mu_n = burn_state.mu_n;
-    eos_state.in_nse = burn_state.in_nse;
+    eos_state.in_nse_net = burn_state.in_nse_net;
 #endif
 }
 
