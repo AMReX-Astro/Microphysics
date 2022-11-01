@@ -1,15 +1,12 @@
 CEXE_headers += network_properties.H
 
 ifeq ($(USE_REACT),TRUE)
-  ifeq ($(USE_CXX_REACTIONS),TRUE)
-    CEXE_sources += actual_network_data.cpp
-    CEXE_headers += actual_network.H
+  CEXE_sources += actual_network_data.cpp
+  CEXE_headers += actual_network.H
 
-    CEXE_headers += rprox_tfactors.H
-    CEXE_headers += rprox_rates.H
-    CEXE_headers += actual_rhs.H
-  endif
+  CEXE_headers += rprox_tfactors.H
+  CEXE_headers += rprox_rates.H
+  CEXE_headers += actual_rhs.H
 
   USE_SCREENING   = TRUE
-
 endif
