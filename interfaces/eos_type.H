@@ -52,7 +52,7 @@ struct eos_t:eos_base_t {
 #endif
     amrex::Real conductivity;
 
-#ifdef ACTUAL_NSE
+#ifdef NSE_NET
     amrex::Real mu_p;   //chemical potential of proton
     amrex::Real mu_n;   //chemical potential of neutron
 
@@ -86,7 +86,7 @@ struct eos_re_t:eos_base_t {
     amrex::Real dedZ;
 #endif
 
-#ifdef ACTUAL_NSE
+#ifdef NSE_NET
     amrex::Real mu_p;   //chemical potential of proton
     amrex::Real mu_n;   //chemical potential of neutron
 
@@ -131,7 +131,7 @@ struct eos_rep_t:eos_base_t {
     amrex::Real dedZ;
 #endif
   
-#ifdef ACTUAL_NSE
+#ifdef NSE_NET
     amrex::Real mu_p;   //chemical potential of proton
     amrex::Real mu_n;   //chemical potential of neutron
 

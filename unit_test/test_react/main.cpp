@@ -18,9 +18,7 @@ using namespace amrex;
 #include <variables.H>
 #include <unit_test.H>
 #include <react_util.H>
-#ifdef NSE_THERMO
-#include <nse.H>
-#endif
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -168,12 +166,12 @@ void main_main ()
                 }
 
                 // initialize the auxillary state (in particular, for NSE)
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
                 eos_t eos_state;
                 for (int n = 0; n < NumSpec; n++) {
                     eos_state.xn[n] = xn[n];
                 }
-                set_nse_aux_from_X(eos_state);
+                set_aux_comp_from_X(eos_state);
                 for (int n = 0; n < NumAux; n++) {
                     state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
                 }

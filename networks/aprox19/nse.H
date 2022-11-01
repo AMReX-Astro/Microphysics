@@ -132,30 +132,6 @@ bool in_nse(const burn_t& state, const bool relax = false) {
 
 }
 
-///
-/// After doing a burn via integrating the network, update the composition
-/// aux variables to be consistent with the new X's resulting from the burn.
-///
-template <class state_t> 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void set_nse_aux_from_X(state_t& state) {
-
-  using namespace AuxZero;
-
-  state.aux[iye] = 0.0_rt;
-  state.aux[iabar] = 0.0_rt;
-  state.aux[ibea] = 0.0_rt;
-
-  for (int n = 0; n < NumSpec; n++) {
-    state.aux[iye] += state.xn[n] * zion[n] * aion_inv[n];
-    state.aux[iabar] += state.xn[n] * aion_inv[n];
-    state.aux[ibea] += state.xn[n] * network::bion(n+1) * aion_inv[n];
-  }
-  state.aux[iabar] = 1.0_rt/state.aux[iabar];
-
-}
-
-
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,

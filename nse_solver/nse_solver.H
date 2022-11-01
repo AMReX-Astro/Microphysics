@@ -1,5 +1,5 @@
-#ifndef _actual_nse_H_
-#define _actual_nse_H_
+#ifndef NSE_SOLVER_H
+#define NSE_SOLVER_H
 
 #include <fundamental_constants.H>
 #include <AMReX_REAL.H>
@@ -139,11 +139,9 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
 }
 
-
-void init_actual_nse(){
-  
+void init_nse_net(){
   // Initialization for nse, check whether network is valid and stores indices
-  
+
   for (int n = 0; n < NumSpec; ++n){
 
     // store index of photoionization proton by looking for Z=1 but
@@ -158,14 +156,13 @@ void init_actual_nse(){
       }
     }
 #else
-    if (zion[n] ==1 && aion[n] == 1){
+    if (zion[n] == 1 && aion[n]== 1){
       NSE_INDEX::p_index = n;
     }
 #endif
     else if (zion[n] == 0){
       NSE_INDEX::n_index = n;
     }
-
     else if (zion[n] == 2 && aion[n] == 4){
       NSE_INDEX::he4_index = n;
     }
@@ -572,7 +569,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt, bool input_ye_is_va
 
   // Check whether initialized or not
   if (!NSE_INDEX::initialized){
-    amrex::Error("NSE uninitialized! Need to call init_actual_nse() ");
+    amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
   }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
