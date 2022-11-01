@@ -39,7 +39,7 @@ jobs:
 
       - name: Compare to stored output (helmholtz)
         run: |
-          cd unit_test/test_nse
+          cd unit_test/eos_cell
           diff -I "^AMReX" test.out ci-benchmarks/eos_helmholtz.out
 
       - name: Compile eos_cell (gamma_law)
@@ -55,7 +55,7 @@ jobs:
 
       - name: Compare to stored output (gamma_law)
         run: |
-          cd unit_test/test_nse
+          cd unit_test/eos_cell
           diff -I "^AMReX" test.out ci-benchmarks/eos_gamma_law.out
 
 
