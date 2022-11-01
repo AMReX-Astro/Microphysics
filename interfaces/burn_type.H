@@ -174,7 +174,7 @@ struct burn_t
   Real abar;
   Real zbar;
 
-#ifdef ACTUAL_NSE
+#ifdef NSE_NET
   Real mu_p;
   Real mu_n;
 #endif
@@ -254,7 +254,7 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
     burn_state.abar = eos_state.abar;
     burn_state.zbar = eos_state.zbar;
 
-#ifdef ACTUAL_NSE
+#ifdef NSE_NET
     burn_state.mu_p = eos_state.mu_p;
     burn_state.mu_n = eos_state.mu_n;
 #endif
@@ -291,7 +291,7 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
     eos_state.abar = burn_state.abar;
     eos_state.zbar = burn_state.zbar;
 
-#ifdef ACTUAL_NSE
+#ifdef NSE_NET
     eos_state.mu_p = burn_state.mu_p;
     eos_state.mu_n = burn_state.mu_n;
 #endif
