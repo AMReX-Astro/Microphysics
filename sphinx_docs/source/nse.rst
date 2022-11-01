@@ -52,22 +52,37 @@ These two NSE solvers are described below.
 Tabulated NSE and ``aprox19``
 =============================
 
-The ``aprox19`` can be run in a manner where we blends the ``aprox19``
-network with a table for nuclear statistic equilibrium at high density
-and temperatures.  This is based on the table described in
-:cite:`ma:2013`.  This option is enabled by building with ``USE_NSE=TRUE``.
+The ``aprox19`` network can be run in a manner where we blends the
+standard ``aprox19`` network with a table for nuclear statistic
+equilibrium resulting from a much larger network at high density and
+temperatures.    This option is enabled by building with
+``USE_NSE=TRUE``.
 
-The NSE table provides:
+Composition and EOS
+-------------------
 
-.. math::
+The NSE table was generated using a 125 nuclei reaction network
+(described in :cite:`ma:2013`), and includes electron-capture rates,
+so the compositional quantities it carries, :math:`\bar{A}` and
+:math:`Y_e` and not representable from the 19 isotopes we carry in the
+network.  In particular, it can attain a lower :math:`Y_e` than
+``aprox19`` can represent.
 
-   \begin{align*}
-   Y_e &= \sum_k \frac{Z_k X_k}{A_k} \\
-   \bar{A} &= \left [ \sum_k \frac{X_k}{A_k} \right ]^{-1} \\
-   \frac{B}{A} &= \sum_k \frac{B_k X_k}{A_k}
-   \end{align*}
+For this reason, when we are using the NSE network, we always take the
+composition quantities in the EOS directly from ``eos_state.aux[]``
+instead of from ``eos_state.xn[]``.  The ``AUX_THERMO`` preprocessor
+variable is enabled in this case, and the equations of state interpret
+this to use the auxillary data for the composition.  This is described in :ref:`aux_eos_comp`.
 
-where :math:`B_k` is the binding energy of nucleus :math:`k`.
+
+NSE Table Outputs
+-----------------
+
+The NSE table provides values for the auxiliary composition,
+:math:`Y_e`, :math:`\bar{A}`, and :math:`\langle B/A \rangle`
+resulting from the full 125 nuclei network.   It also provides a set of 19
+:math:`X_k` that map into the isotopes carried by ``aprox19``.
+
 
 These three quantities are stored as ``aux`` data in the network and
 are indexed as ``iye``, ``iabar``, and ``ibea``.  Additionally, when
@@ -88,29 +103,11 @@ and our evolution equations are:
 Therefore each of these auxillar equations obeys an advection equation
 in the hydro part of the advancement.
 
-Composition and EOS
--------------------
-
-The NSE table was generated using a 125 nuclei reaction network, so
-the compositional quantities it carries, :math:`\bar{A}` and
-:math:`Y_e` and not representable from the 19 isotopes we carry in the
-network.  For this reason, when we are using the NSE network, we
-always take the composition quantities in the EOS directly from
-``eos_state.aux[]`` instead of from ``eos_state.xn[]``.  The
-``AUX_THERMO`` preprocessor variable is enabled in this case, and the
-equations of state interpret this to use the auxillary data for the
-composition.
-
-The equation of state also needs :math:`\bar{Z}` which is easily computed as
-
-.. math::
-
-   \bar{Z} = \bar{A} Y_e
 
 NSE Flow
 --------
 
-The basic flow of a simulation using the NSE network is as follows:
+The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
 
 * initialize the problem, including :math:`X_k`
 
@@ -177,6 +174,9 @@ We determine is a zone is in NSE according to:
 
 Self-consistent NSE
 ===================
+
+
+
 
 
 .. rubric:: Footnotes
