@@ -7,7 +7,7 @@ instead of integrating the entire network when the conditions are
 appropriate.  There are 2 different implementations of NSE in
 Microphysics, that have slightly different use cases.
 
-* tabulated NSE : this uses a table of NSE abundances given
+* :ref:`tabulated_nse` : this uses a table of NSE abundances given
   :math:`(\rho, T, Y_e)` generate from a large network (125 isotopes).
   The table also returns :math:`dY_e/dt` resulting from
   electron-captures, to allow for the NSE state to evolve.  This is
@@ -23,7 +23,7 @@ Microphysics, that have slightly different use cases.
 
   This is enabled via ``USE_NSE_TABLE``
 
-* self-consistent NSE : this adds an NSE solver to the network that
+* :ref:`self_consistent_nse` : this adds an NSE solver to the network that
   can be called to find the equilibrium abundances of each of the
   species defined in the network.  It works with any of the
   pynucastro-generated networks.  Unlike the tabulated NSE, there is
@@ -49,14 +49,19 @@ implementation of NSE does not matter.
 These two NSE solvers are described below.
 
 
+.. _tabulated_nse:
+
 Tabulated NSE and ``aprox19``
 =============================
 
 The ``aprox19`` network can be run in a manner where we blends the
 standard ``aprox19`` network with a table for nuclear statistic
 equilibrium resulting from a much larger network at high density and
-temperatures.    This option is enabled by building with
-``USE_NSE=TRUE``.
+temperatures.    This option is enabled by building with:
+
+.. prompt:: bash
+
+   NETWORK_DIR=aprox19 USE_NSE=TRUE
 
 Composition and EOS
 -------------------
@@ -171,11 +176,29 @@ We determine is a zone is in NSE according to:
 
 * :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
 
+.. _self_consistent_nse:
 
 Self-consistent NSE
 ===================
 
+The self-consistent NSE approach uses only the nuclei in the main
+reaction network.  It solves for the chemical potentials of the proton
+and neutron and from there gets the abundances of each of the nuclei
+under the assumption of NSE, following the procedure outlined in :cite:`Calder_2007`.
 
+The solve is done using a port of the hybrid Powell method from
+MINPACK (we ported the solver to templated C++).
+
+The advantage of this approach is that it can be used with any
+reaction network, once the integration has reached NSE.
+
+This solver is enabled by compiling with
+
+.. prompt:: bash
+
+   USE_NSE_NET=TRUE
+
+The functions to find the NSE state are then found in ``nse_solver.H``.
 
 
 
