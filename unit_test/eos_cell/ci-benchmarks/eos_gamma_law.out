@@ -31,7 +31,6 @@ gam1 = 1.666666667
 cs = 186127892.2
 abar = 4
 zbar = 2
-conductivity = 0
 Unused ParmParse Variables:
   [TOP]::unit_test.x4(nvals = 1)  :: [0.0]
 
