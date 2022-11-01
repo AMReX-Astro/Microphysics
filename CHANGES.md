@@ -1,3 +1,9 @@
+# 22.11
+
+  * use of the auxillary state to define composition is now enabled
+    via USE_AUX_THERMO and the preprocessor variable AUX_THERMO
+    (#1003)
+
 # 22.10
 
   * A null screening routine was added to disable screening for any network at

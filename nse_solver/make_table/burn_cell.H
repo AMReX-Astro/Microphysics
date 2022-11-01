@@ -5,7 +5,7 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
-#include <actual_nse.H>
+#include <nse_solver.H>
 #include <cmath>
 
 void burn_cell_c()
