@@ -64,7 +64,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#stellarcollapse">stellarcollapse</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and Modes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#auxillary-composition">Auxillary Composition</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#initialization-and-cutoff-values">Initialization and Cutoff Values</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#input-validation">Input Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#eos-structure">EOS Structure</a></li>
@@ -332,6 +335,38 @@ energy derivatives.</p></li>
 <p>In general, you should use the type that has the smallest set of
 information needed, since we optimize out needless quantities at
 compile type (via C++ templating) for <code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All of these modes require composition as an input.  Usually this is
+via the set of mass fractions, <code class="docutils literal notranslate"><span class="pre">eos_t.xn[]</span></code>, but if <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO</span></code>
+is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, then we instead use the auxillary quantities
+stored in <code class="docutils literal notranslate"><span class="pre">eos_t.aux[]</span></code>.</p>
+</div>
+<section id="auxillary-composition">
+<h3>Auxillary Composition<a class="headerlink" href="#auxillary-composition" title="Permalink to this heading">¶</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
+The auxiliary variables are</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[iye]</span></code> : electron fraction, defined as</p>
+<div class="math notranslate nohighlight">
+\[Y_e = \sum_k \frac{X_k Z_k}{A_k}\]</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[iabar]</span></code> : the average mass of the nuclei, defined as:</p>
+<div class="math notranslate nohighlight">
+\[\frac{1}{\bar{A}} = \sum_k \frac{X_k}{A_k}\]</div>
+<p>In many stellar evolutions texts, this would be written as <span class="math notranslate nohighlight">\(\mu_I\)</span>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[ibea]</span></code> : the binding energy per nucleon (units of
+MeV), defined as</p>
+<div class="math notranslate nohighlight">
+\[\left \langle \frac{B}{A} \right \rangle  = \sum_k \frac{X_k B_k}{A_k}\]</div>
+<p>where <span class="math notranslate nohighlight">\(B_k\)</span> is the binding energy of nucleus <span class="math notranslate nohighlight">\(k\)</span></p>
+</li>
+</ul>
+<p>Given a composition of mass fractions, the function
+<code class="docutils literal notranslate"><span class="pre">set_aux_comp_from_X(state_t&amp;</span> <span class="pre">state)</span></code> will initialize these
+auxiliary quantities.</p>
+</section>
 </section>
 <section id="initialization-and-cutoff-values">
 <h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Permalink to this heading">¶</a></h2>
