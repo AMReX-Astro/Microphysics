@@ -302,10 +302,11 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "dedZ = " << eos_state.dedZ << std::endl;
     }
 #endif
-
+#ifdef CONDUCTIVITY
     if constexpr (has_conductivity<T>::value) {
         o << "conductivity = " << eos_state.conductivity << std::endl;
     }
+#endif
 
     return o;
 }
