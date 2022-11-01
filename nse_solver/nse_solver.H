@@ -1,5 +1,5 @@
-#ifndef _actual_nse_H_
-#define _actual_nse_H_
+#ifndef NSE_SOLVER_H
+#define NSE_SOLVER_H
 
 #include <fundamental_constants.H>
 #include <AMReX_REAL.H>
@@ -17,13 +17,13 @@
 
 // Initialization for nse, check whether network is valid and stores indices
 
-void init_actual_nse(){
+void init_nse_net(){
 
   for (int n = 0; n < NumSpec; ++n){
 
     // store index of photoionization proton by looking for Z=1 but
-    // exclude h1 which is always at index=0
-
+    // exclude h1 which is always at index=0 for aprox networks
+#ifdef NEW_NETWORK_IMPLEMENTATION
     if (zion[n] == 1 && aion[n] == 1){
       if (n == 0){
 	NSE_INDEX::h1_index = n;
@@ -32,11 +32,14 @@ void init_actual_nse(){
 	NSE_INDEX::p_index = n;
       }
     }
-
+#else
+    if (zion[n] == 1 && aion[n]== 1){
+      NSE_INDEX::p_index = n;
+    }
+#endif
     else if (zion[n] == 0){
       NSE_INDEX::n_index = n;
     }
-
     else if (zion[n] == 2 && aion[n] == 4){
       NSE_INDEX::he4_index = n;
     }
@@ -48,7 +51,7 @@ void init_actual_nse(){
   if (!use_hybrid_solver){
     bool singular_network = true;
     for (int n = 0; n < NumSpec; ++n){
-      if (n == NSE_INDEX::p_index){
+      if (n == NSE_INDEX::h1_index){
 	continue;
       }
       if (zion[n] != aion[n] - zion[n]){
@@ -97,7 +100,7 @@ T get_nse_state(const T& state)
 #endif
   
   for (int n = 0; n < NumSpec; ++n){
-      if (n == NSE_INDEX::p_index){
+      if (n == NSE_INDEX::h1_index){
           continue;
       }
 
@@ -141,7 +144,7 @@ T get_nse_state(const T& state)
   nse_state.y_e = 0.0_rt;
 
   for (int n = 0; n < NumSpec; ++n){
-    if (n == NSE_INDEX::p_index){
+    if (n == NSE_INDEX::h1_index){
       continue;
     }
     
@@ -173,7 +176,7 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
     fvec(1) = -1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::p_index){
+        if (n == NSE_INDEX::h1_index){
             continue;
         }
 
@@ -208,7 +211,7 @@ void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
     fjac(2, 2) = 0.0_rt;
 
     for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::p_index){
+        if (n == NSE_INDEX::h1_index){
             continue;
         }
 	
@@ -412,7 +415,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt, bool input_ye_is_va
 
   // Check whether initialized or not
   if (!NSE_INDEX::initialized){
-    amrex::Error("NSE uninitialized! Need to call init_actual_nse() ");
+    amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
   }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;

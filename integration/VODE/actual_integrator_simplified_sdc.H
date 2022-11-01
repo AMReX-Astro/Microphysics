@@ -223,7 +223,7 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
                 std::cout << std::setprecision(16) << eos_state.xn[n] << " ";
             }
             std::cout << std::endl;
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
             std::cout << "aux start = ";
             for (int n = 0; n < NumAux; ++n) {
                 std::cout << std::setprecision(16) << eos_state.aux[n] << " ";
@@ -237,7 +237,7 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
                 std::cout << std::setprecision(16) << state.xn[n] << " ";
             }
             std::cout << std::endl;
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
             std::cout << "aux current = ";
             for (int n = 0; n < NumAux; ++n) {
                 std::cout << std::setprecision(16) << state.aux[n] << " ";
@@ -253,7 +253,7 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
                 std::cout << std::setprecision(16) << state.ydot_a[SFS+n] << " ";
             }
             std::cout << std::endl;
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
             std::cout << "A(rho aux_k) = ";
             for (int n = 0; n < NumAux; n++) {
                 std::cout << std::setprecision(16) << state.ydot_a[SFX+n] << " ";
