@@ -247,7 +247,7 @@ T get_nse_state(const T& state)
   amrex::Real spin = 1.0_rt;
 
 #ifdef TFACTORS_H
-  auto tfactors = evaluate_tfactors(temperature);
+  auto tfactors = evaluate_tfactors(state.T);
 #endif
   
   for (int n = 0; n < NumSpec; ++n){
@@ -268,6 +268,7 @@ T get_nse_state(const T& state)
                  A2 * std::log(std::sqrt(gamma / A2) +
                                std::sqrt(1.0_rt + gamma / A2))) +
            2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
+
 
       // fill partition function and get spin
       
@@ -1519,9 +1520,11 @@ bool in_nse(T& state, T& nse_state){
   amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
 
   if constexpr (std::is_same<T, eos_t>::value){
+    // if state is already in eos, then assumed eos() is called
     t_s = cell_dx / state.cs;           
   }
   else{
+    // if state is burn_t then convert to eos_t and call eos()
     burn_to_eos<eos_t>(state, eos_state);
     eos(eos_input_rt, eos_state);
     t_s = cell_dx / eos_state.cs;

@@ -9,6 +9,7 @@ density       real       1.d7
 
 temperature   real       3.d9
 
+ye            real       0.75
 mu_p          real       -3.0
 mu_n          real       -12.0
 
@@ -33,6 +34,3 @@ X18           real       0.0d0
 X19           real       0.0d0
 X20           real       0.0d0
 X21           real       0.0d0
-
-
-

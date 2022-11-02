@@ -9,7 +9,7 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include <ase_cell.H>
+#include <burn_cell.H>
 #include <unit_test.H>
 
 int main(int argc, char *argv[]) {
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   // Initialize nse;
   init_nse_net();
   
-  ase_cell_c();
+  burn_cell_c();
 
   amrex::Finalize();
 }
