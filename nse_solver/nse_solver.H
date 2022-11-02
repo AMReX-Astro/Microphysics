@@ -1,5 +1,5 @@
-#ifndef _actual_nse_H_
-#define _actual_nse_H_
+#ifndef NSE_SOLVER_H
+#define NSE_SOLVER_H
 
 #include <fundamental_constants.H>
 #include <AMReX_REAL.H>
@@ -17,7 +17,7 @@
 
 // Initialization for nse, check whether network is valid and stores indices
 
-void init_actual_nse(){
+void init_nse_net(){
 
   for (int n = 0; n < NumSpec; ++n){
 
@@ -415,7 +415,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt, bool input_ye_is_va
 
   // Check whether initialized or not
   if (!NSE_INDEX::initialized){
-    amrex::Error("NSE uninitialized! Need to call init_actual_nse() ");
+    amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
   }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
