@@ -1359,8 +1359,8 @@ void actual_eos_init ()
         }
     }
 
-    // it does not work on all machines (for GPUs_ to read directly
-    // into the managed memory, so instead we'll read into a local
+    // it does not work on all machines (for GPUs) broadcast to other
+    // procs from managed memory.  So instead we'll read into a local
     // buffer, broadcast that, and then copy that into the managed
     // memory.
 
