@@ -1359,6 +1359,16 @@ void actual_eos_init ()
         }
     }
 
+    // it does not work on all machines (for GPUs_ to read directly
+    // into the managed memory, so instead we'll read into a local
+    // buffer, broadcast that, and then copy that into the managed
+    // memory.
+
+    amrex::Vector<Real> f_local(jmax * imax * 9);
+    amrex::Vector<Real> dpdf_local(jmax * imax * 4);
+    amrex::Vector<Real> ef_local(jmax * imax * 4);
+    amrex::Vector<Real> xf_local(jmax * imax * 4);
+
     if (amrex::ParallelDescriptor::IOProcessor()) {
 
         // open the table
@@ -1373,39 +1383,51 @@ void actual_eos_init ()
         std::string line;
 
         // read in the free energy table
+        int idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> f[j][i][0] >> f[j][i][3] >> f[j][i][1] >> f[j][i][4] >> f[j][i][2]
-                     >> f[j][i][5] >> f[j][i][6] >> f[j][i][7] >> f[j][i][8];
+                data >> f_local[idx] >> f_local[idx+3] >> f_local[idx+1]
+                     >> f_local[idx+4] >> f_local[idx+2] >> f_local[idx+5]
+                     >> f_local[idx+6] >> f_local[idx+7] >> f_local[idx+8];
+                idx += 9;
             }
         }
 
         // read the pressure derivative with density table
+        idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> dpdf[j][i][0] >> dpdf[j][i][2] >> dpdf[j][i][1] >> dpdf[j][i][3];
+                data >> dpdf_local[idx] >> dpdf_local[idx+2]
+                     >> dpdf_local[idx+1] >> dpdf_local[idx+3];
+                idx += 4;
             }
         }
 
         // read the electron chemical potential table
+        idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> ef[j][i][0] >> ef[j][i][2] >> ef[j][i][1] >> ef[j][i][3];
+                data >> ef_local[idx] >> ef_local[idx+2]
+                     >> ef_local[idx+1] >> ef_local[idx+3];
+                idx += 4;
             }
         }
 
         // read the number density table
+        idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> xf[j][i][0] >> xf[j][i][2] >> xf[j][i][1] >> xf[j][i][3];
+                data >> xf_local[idx] >> xf_local[idx+2]
+                     >> xf_local[idx+1] >> xf_local[idx+3];
+                idx += 4;
             }
         }
 
@@ -1413,10 +1435,33 @@ void actual_eos_init ()
 
     }
 
-    amrex::ParallelDescriptor::Bcast(&f[0][0][0],    9 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&dpdf[0][0][0], 4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&ef[0][0][0],   4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&xf[0][0][0],   4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&f_local[0],    9 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&dpdf_local[0], 4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&ef_local[0],   4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&xf_local[0],   4 * imax * jmax);
+
+    // now copy into managed memory
+    int idx = 0;
+    for (int j = 0; j < jmax; ++j) {
+        for (int i = 0; i < imax; ++i) {
+            for (int m = 0; m < 9; ++m) {
+                f[j][i][m] = f_local[idx];
+                idx++;
+            }
+        }
+    }
+
+    idx = 0;
+    for (int j = 0; j < jmax; ++j) {
+        for (int i = 0; i < imax; ++i) {
+            for (int m = 0; m < 4; ++m) {
+                dpdf[j][i][m] = dpdf_local[idx];
+                ef[j][i][m] = ef_local[idx];
+                xf[j][i][m] = xf_local[idx];
+                idx++;
+            }
+        }
+    }
 
     // construct the temperature and density deltas and their inverses
     for (int j = 0; j < jmax-1; ++j)
