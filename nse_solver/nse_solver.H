@@ -269,7 +269,7 @@ T get_nse_state(const T& state)
                                std::sqrt(1.0_rt + gamma / A2))) +
            2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
 
-
+      u_c = 0.0_rt;
       // fill partition function and get spin
       
 #ifdef PARTITION_FUNCTIONS_H      
