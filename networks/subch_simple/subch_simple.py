@@ -28,17 +28,6 @@ def get_library():
         _r.modify_products(mp)
         subch += pyna.Library(rates=[_r])
 
-    return subch
-
-def doit():
-
-    subch = get_library()
-
-    # these are the rates that we are going to allow to be optionally
-    # zeroed
-    r1 = subch.get_rate("p_c12__n13")
-    r2 = subch.get_rate("he4_n13__p_o16")
-
     # finally, the aprox nets don't include the reverse rates for
     # C12+C12, C12+O16, and O16+O16, so remove those
 
@@ -65,6 +54,17 @@ def doit():
         print("removing: ", r)
         _r = subch.get_rate_by_name(r)
         subch.remove_rate(_r)
+
+    return subch
+
+def doit():
+
+    subch = get_library()
+
+    # these are the rates that we are going to allow to be optionally
+    # zeroed
+    r1 = subch.get_rate_by_name("c12(p,g)n13")
+    r2 = subch.get_rate_by_name("n13(a,p)o16")
 
     # at this point we have a library with all the rates that we want.
     # We can create the network now.
