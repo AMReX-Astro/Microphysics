@@ -29,13 +29,13 @@ jobs:
       - name: Dependencies
         run: .github/workflows/dependencies_hip.sh
 
-      - name: compile test_reach with HIP (aprox13)
+      - name: compile test_react with HIP (aprox13)
         run: |
-          cd unit_tests/test_react
+          cd unit_test/test_react
           make COMP=gnu USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=aprox13 -j 2
 
-      - name: compile test_reach with HIP (subch_simple)
+      - name: compile test_react with HIP (subch_simple)
         run: |
-          cd unit_tests/test_react
+          cd unit_test/test_react
           make realclean
           make COMP=gnu USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=subch_simple -j 2
