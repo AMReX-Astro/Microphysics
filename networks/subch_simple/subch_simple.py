@@ -3,7 +3,7 @@
 # (a,p)(p,g) approximations.
 
 import pynucastro as pyna
-from pynucastro.networks import StarKillerCxxNetwork
+from pynucastro.networks import AmrexAstroCxxNetwork
 
 def get_library():
 
@@ -69,7 +69,7 @@ def doit():
     # at this point we have a library with all the rates that we want.
     # We can create the network now.
 
-    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=False,
+    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False,
                                disable_rate_params=[r1, r2])
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
