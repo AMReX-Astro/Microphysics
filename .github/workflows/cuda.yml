@@ -1,0 +1,35 @@
+name: cuda
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-cuda
+  cancel-in-progress: true
+
+jobs:
+  cuda-compile:
+    name: CUDA@11.7 GCC
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Dependencies
+        run: .github/workflows/dependencies_nvcc11.sh
+
+      - name: compile test_react (aprox13)
+        run: |
+          export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+          cd unit_test/test_react
+          make NETWORK_DIR=aprox13 USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 2
