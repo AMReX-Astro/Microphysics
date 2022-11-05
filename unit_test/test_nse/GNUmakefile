@@ -15,13 +15,7 @@ USE_REACT = TRUE
 USE_NSE_NET = TRUE
 EBASE = main
 
-USE_CXX_REACTIONS ?= TRUE
-
 BL_NO_FORT = TRUE
-
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
 
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
