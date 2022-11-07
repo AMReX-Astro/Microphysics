@@ -5,6 +5,8 @@
 import pynucastro as pyna
 from pynucastro.networks import AmrexAstroCxxNetwork
 
+DO_DERIVED_RATES = True
+
 def get_library():
 
     reaclib_lib = pyna.ReacLibLibrary()
@@ -66,21 +68,39 @@ def doit():
     r1 = subch.get_rate_by_name("c12(p,g)n13")
     r2 = subch.get_rate_by_name("n13(a,p)o16")
 
+    if DO_DERIVED_RATES:
+        rates_to_derive = []
+        for r in subch.get_rates():
+            if r.reverse:
+                # this rate was computed using detailed balance, regardless
+                # of whether Q < 0 or not.  We want to remove it and then
+                # recompute it
+                rates_to_derive.append(r)
+
+    # now for each of those derived rates, look to see if the pair exists
+
+    for r in rates_to_derive:
+        fr = subch.get_rate_by_nuclei(r.products, r.reactants)
+        if fr:
+            print(f"modifying {r} from {fr}")
+            subch.remove_rate(r)
+            d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+            subch.add_rate(d)
+
     # at this point we have a library with all the rates that we want.
     # We can create the network now.
 
     net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False,
                                disable_rate_params=[r1, r2])
+
+    # now we do the (a,p)(p,g) approximation
+
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
 
     print(f"number of nuclei: {len(net.unique_nuclei)}")
     print(f"number of rates: {len(net.rates)}")
 
-    # We are going to want to replace the reverse rates with rates
-    # derived via detailed balance.  We'll do this only for the rates
-    # that have reverse, and we'll use the RatePair functionality for
-    # this
 
 
     comp = pyna.Composition(net.get_nuclei())
