@@ -36,7 +36,7 @@ void burner (burn_t& state, Real dt)
 #ifndef SIMPLIFIED_SDC
         // update the aux from the new X's this is not needed with the
         // SDC method, since we took care of that internally.
-        set_nse_aux_from_X(state);
+        set_aux_comp_from_X(state);
 #endif
 
         // if we failed our burn, it may have been because we tried to

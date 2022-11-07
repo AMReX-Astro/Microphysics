@@ -29,17 +29,14 @@ def write_network(network_template, header_template,
     extra_species = []
     aux_vars = []
 
-
-    #-------------------------------------------------------------------------
     # read the species defined in the net_file
-    #-------------------------------------------------------------------------
+
     print(f"write_network.py: working on network file {net_file} ...")
 
     err = network_param_file.parse(species, extra_species, aux_vars, net_file, defines)
 
     if err:
         abort(network_file)
-
 
     properties = {}
     try:
@@ -52,11 +49,8 @@ def write_network(network_template, header_template,
     except FileNotFoundError:
         print("no NETWORK_PROPERTIES found, skipping...")
 
-
-
-    #-------------------------------------------------------------------------
     # write out the Fortran and C++ files based on the templates
-    #-------------------------------------------------------------------------
+
     templates = [(network_template, network_file, "Fortran"),
                  (header_template, header_file, "C++")]
 

@@ -120,7 +120,7 @@ void do_vode_rhs()
     }
 
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     Real auxdata[NumAux] = {-1.0};
 
     for (int n = 1; n <= NumAux; ++n) {
@@ -243,7 +243,7 @@ void do_vode_rhs()
     }
 
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     Real adv_aux[NumAux] = {0.0};
 
     for (int n = 1; n <= NumAux; ++n) {
@@ -285,8 +285,8 @@ void do_vode_rhs()
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = massfractions[n];
     }
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(eos_state);
+#ifdef AUX_THERMO
+    set_aux_comp_from_X(eos_state);
 #endif
 
     eos(eos_input_rt, eos_state);
@@ -339,7 +339,7 @@ void do_vode_rhs()
         burn_state.ydot_a[SFS+n] = adv_species[n];
     }
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     for (int n = 0; n < NumAux; n++) {
         burn_state.ydot_a[SFX+n] = adv_aux[n];
     }
@@ -357,8 +357,8 @@ void do_vode_rhs()
         burn_state.xn[n] = massfractions[n];
     }
 
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(burn_state);
+#ifdef AUX_THERMO
+    set_aux_comp_from_X(burn_state);
 #endif
 
     // now make the dvode_t
