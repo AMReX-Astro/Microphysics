@@ -1,0 +1,41 @@
+name: hip
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-hip
+  cancel-in-progress: true
+
+jobs:
+  hip-compile:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Dependencies
+        run: .github/workflows/dependencies_hip.sh
+
+      - name: compile test_react with HIP (aprox13)
+        run: |
+          cd unit_test/test_react
+          make COMP=gnu USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=aprox13 -j 2
+
+      - name: compile test_react with HIP (subch_simple)
+        run: |
+          cd unit_test/test_react
+          make realclean
+          make COMP=gnu USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=subch_simple -j 2
