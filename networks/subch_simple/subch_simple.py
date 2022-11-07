@@ -57,17 +57,6 @@ def get_library():
         _r = subch.get_rate_by_name(r)
         subch.remove_rate(_r)
 
-    return subch
-
-def doit():
-
-    subch = get_library()
-
-    # these are the rates that we are going to allow to be optionally
-    # zeroed
-    r1 = subch.get_rate_by_name("c12(p,g)n13")
-    r2 = subch.get_rate_by_name("n13(a,p)o16")
-
     if DO_DERIVED_RATES:
         rates_to_derive = []
         for r in subch.get_rates():
@@ -86,6 +75,17 @@ def doit():
             subch.remove_rate(r)
             d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
             subch.add_rate(d)
+
+    return subch
+
+def doit():
+
+    subch = get_library()
+
+    # these are the rates that we are going to allow to be optionally
+    # zeroed
+    r1 = subch.get_rate_by_name("c12(p,g)n13")
+    r2 = subch.get_rate_by_name("n13(a,p)o16")
 
     # at this point we have a library with all the rates that we want.
     # We can create the network now.
