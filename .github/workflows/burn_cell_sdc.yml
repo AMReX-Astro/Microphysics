@@ -26,7 +26,7 @@ jobs:
           sudo apt-get update -y -qq
           sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
 
-      - name: Compile, burn_cell_sdc (subch_approx)
+      - name: Compile, burn_cell_sdc (aprox19)
         run: |
           cd unit_test/burn_cell_sdc
           make realclean
