@@ -1469,14 +1469,14 @@ void rate_he4_s32__p_cl35__derived(const tf_t& tfactors, Real& rate, Real& drate
     // interpolating cl35 partition function
     get_partition_function(Cl35, tfactors, cl35_pf, dcl35_pf_dT);
 
+    Real s32_pf, ds32_pf_dT;
+    // interpolating s32 partition function
+    get_partition_function(S32, tfactors, s32_pf, ds32_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
-
-    Real s32_pf, ds32_pf_dT;
-    // interpolating s32 partition function
-    get_partition_function(S32, tfactors, s32_pf, ds32_pf_dT);
 
     Real z_r = p_pf * cl35_pf;
     Real z_p = he4_pf * s32_pf;
@@ -1645,7 +1645,7 @@ void rate_ar36__p_cl35__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  16.01685487088493 + -100.72924752614605 * tfactors.T9i;
+    ln_set_rate =  16.016854870884917 + -100.72924752614605 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  100.72924752614605 * tfactors.T9i * tfactors.T9i;
@@ -1660,7 +1660,7 @@ void rate_ar36__p_cl35__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  -17.47510512911507 + -99.28393852614604 * tfactors.T9i;
+    ln_set_rate =  -17.475105129115086 + -99.28393852614604 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  99.28393852614604 * tfactors.T9i * tfactors.T9i;
@@ -1675,7 +1675,7 @@ void rate_ar36__p_cl35__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  60.73659487088493 + -98.71928752614605 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
+    ln_set_rate =  60.736594870884915 + -98.71928752614605 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
                          + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -1692,7 +1692,7 @@ void rate_ar36__p_cl35__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  17.202804870884933 + -102.37020752614605 * tfactors.T9i + 18.0179 * tfactors.T913
+    ln_set_rate =  17.20280487088492 + -102.37020752614605 * tfactors.T9i + 18.0179 * tfactors.T913
                          + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -1890,14 +1890,14 @@ void rate_he4_ar36__p_k39__derived(const tf_t& tfactors, Real& rate, Real& drate
     // interpolating k39 partition function
     get_partition_function(K39, tfactors, k39_pf, dk39_pf_dT);
 
+    Real ar36_pf, dar36_pf_dT;
+    // interpolating ar36 partition function
+    get_partition_function(Ar36, tfactors, ar36_pf, dar36_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
-
-    Real ar36_pf, dar36_pf_dT;
-    // interpolating ar36 partition function
-    get_partition_function(Ar36, tfactors, ar36_pf, dar36_pf_dT);
 
     Real z_r = p_pf * k39_pf;
     Real z_p = he4_pf * ar36_pf;
@@ -1992,7 +1992,7 @@ void rate_ca40__he4_ar36__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  77.28261041284823 + -81.69174599574632 * tfactors.T9i + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
+    ln_set_rate =  77.28261041284821 + -81.69174599574632 * tfactors.T9i + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
                          + -5.26509 * tfactors.T9 + 0.683546 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2014,13 +2014,13 @@ void rate_ca40__he4_ar36__derived(const tf_t& tfactors, Real& rate, Real& drate_
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
 
-    Real ar36_pf, dar36_pf_dT;
-    // interpolating ar36 partition function
-    get_partition_function(Ar36, tfactors, ar36_pf, dar36_pf_dT);
-
     Real ca40_pf, dca40_pf_dT;
     // interpolating ca40 partition function
     get_partition_function(Ca40, tfactors, ca40_pf, dca40_pf_dT);
+
+    Real ar36_pf, dar36_pf_dT;
+    // interpolating ar36 partition function
+    get_partition_function(Ar36, tfactors, ar36_pf, dar36_pf_dT);
 
     Real z_r = he4_pf * ar36_pf;
     Real z_p = ca40_pf;
@@ -2105,13 +2105,13 @@ void rate_ca40__p_k39__derived(const tf_t& tfactors, Real& rate, Real& drate_dT)
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
-    Real k39_pf, dk39_pf_dT;
-    // interpolating k39 partition function
-    get_partition_function(K39, tfactors, k39_pf, dk39_pf_dT);
-
     Real ca40_pf, dca40_pf_dT;
     // interpolating ca40 partition function
     get_partition_function(Ca40, tfactors, ca40_pf, dca40_pf_dT);
+
+    Real k39_pf, dk39_pf_dT;
+    // interpolating k39 partition function
+    get_partition_function(K39, tfactors, k39_pf, dk39_pf_dT);
 
     Real z_r = p_pf * k39_pf;
     Real z_p = ca40_pf;
@@ -2226,18 +2226,18 @@ void rate_he4_ca40__p_sc43__derived(const tf_t& tfactors, Real& rate, Real& drat
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
-    Real sc43_pf, dsc43_pf_dT;
-    // interpolating sc43 partition function
-    get_partition_function(Sc43, tfactors, sc43_pf, dsc43_pf_dT);
+    Real ca40_pf, dca40_pf_dT;
+    // interpolating ca40 partition function
+    get_partition_function(Ca40, tfactors, ca40_pf, dca40_pf_dT);
 
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
 
-    Real ca40_pf, dca40_pf_dT;
-    // interpolating ca40 partition function
-    get_partition_function(Ca40, tfactors, ca40_pf, dca40_pf_dT);
+    Real sc43_pf, dsc43_pf_dT;
+    // interpolating sc43 partition function
+    get_partition_function(Sc43, tfactors, sc43_pf, dsc43_pf_dT);
 
     Real z_r = p_pf * sc43_pf;
     Real z_p = he4_pf * ca40_pf;
@@ -2298,7 +2298,7 @@ void rate_ti44__he4_ca40__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real set_rate{0.0};
 
     // chw0 
-    ln_set_rate =  78.69908591662849 + -59.4975248620018 * tfactors.T9i + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
+    ln_set_rate =  78.69908591662846 + -59.4975248620018 * tfactors.T9i + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
                          + -3.61477 * tfactors.T9 + 0.367451 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2355,7 +2355,7 @@ void rate_ti44__p_sc43__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  62.59391408955788 + -100.37327949403844 * tfactors.T9i + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
+    ln_set_rate =  62.59391408955786 + -100.37327949403844 * tfactors.T9i + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
                          + -2.21706 * tfactors.T9 + 0.298499 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2377,13 +2377,13 @@ void rate_ti44__p_sc43__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
-    Real sc43_pf, dsc43_pf_dT;
-    // interpolating sc43 partition function
-    get_partition_function(Sc43, tfactors, sc43_pf, dsc43_pf_dT);
-
     Real ti44_pf, dti44_pf_dT;
     // interpolating ti44 partition function
     get_partition_function(Ti44, tfactors, ti44_pf, dti44_pf_dT);
+
+    Real sc43_pf, dsc43_pf_dT;
+    // interpolating sc43 partition function
+    get_partition_function(Sc43, tfactors, sc43_pf, dsc43_pf_dT);
 
     Real z_r = p_pf * sc43_pf;
     Real z_p = ti44_pf;
@@ -2608,6 +2608,10 @@ void rate_cr48__he4_ti44__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
 
+    Real cr48_pf, dcr48_pf_dT;
+    // interpolating cr48 partition function
+    get_partition_function(Cr48, tfactors, cr48_pf, dcr48_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
@@ -2616,10 +2620,6 @@ void rate_cr48__he4_ti44__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real ti44_pf, dti44_pf_dT;
     // interpolating ti44 partition function
     get_partition_function(Ti44, tfactors, ti44_pf, dti44_pf_dT);
-
-    Real cr48_pf, dcr48_pf_dT;
-    // interpolating cr48 partition function
-    get_partition_function(Cr48, tfactors, cr48_pf, dcr48_pf_dT);
 
     Real z_r = he4_pf * ti44_pf;
     Real z_p = cr48_pf;
@@ -2648,7 +2648,7 @@ void rate_cr48__p_v47__derived(const tf_t& tfactors, Real& rate, Real& drate_dT)
     Real set_rate{0.0};
 
     // nfisn
-    ln_set_rate =  67.74027107253823 + -100.12633621113824 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
+    ln_set_rate =  67.7402710725382 + -100.12633621113824 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
                          + 1.16501 * tfactors.T9 + -0.105543 * tfactors.T953 + -6.20886 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2682,7 +2682,7 @@ void rate_cr48__p_v47__derived(const tf_t& tfactors, Real& rate, Real& drate_dT)
     }
 
     // nfisn
-    ln_set_rate =  48.891971072538226 + -93.82037121113825 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
+    ln_set_rate =  48.89197107253821 + -93.82037121113825 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
                          + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -6.9232499999999995 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2699,7 +2699,7 @@ void rate_cr48__p_v47__derived(const tf_t& tfactors, Real& rate, Real& drate_dT)
     }
 
     // nfisn
-    ln_set_rate =  65.62307107253824 + -94.58145021113825 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
+    ln_set_rate =  65.62307107253821 + -94.58145021113825 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
                          + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -47.9742 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2716,6 +2716,10 @@ void rate_cr48__p_v47__derived(const tf_t& tfactors, Real& rate, Real& drate_dT)
     }
 
 
+    Real cr48_pf, dcr48_pf_dT;
+    // interpolating cr48 partition function
+    get_partition_function(Cr48, tfactors, cr48_pf, dcr48_pf_dT);
+
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
@@ -2724,10 +2728,6 @@ void rate_cr48__p_v47__derived(const tf_t& tfactors, Real& rate, Real& drate_dT)
     Real v47_pf, dv47_pf_dT;
     // interpolating v47 partition function
     get_partition_function(V47, tfactors, v47_pf, dv47_pf_dT);
-
-    Real cr48_pf, dcr48_pf_dT;
-    // interpolating cr48 partition function
-    get_partition_function(Cr48, tfactors, cr48_pf, dcr48_pf_dT);
 
     Real z_r = p_pf * v47_pf;
     Real z_p = cr48_pf;
@@ -2773,23 +2773,23 @@ void rate_p_v47__he4_ti44__derived(const tf_t& tfactors, Real& rate, Real& drate
     }
 
 
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
-    Real ti44_pf, dti44_pf_dT;
-    // interpolating ti44 partition function
-    get_partition_function(Ti44, tfactors, ti44_pf, dti44_pf_dT);
-
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
+
     Real v47_pf, dv47_pf_dT;
     // interpolating v47 partition function
     get_partition_function(V47, tfactors, v47_pf, dv47_pf_dT);
+
+    Real ti44_pf, dti44_pf_dT;
+    // interpolating ti44 partition function
+    get_partition_function(Ti44, tfactors, ti44_pf, dti44_pf_dT);
 
     Real z_r = he4_pf * ti44_pf;
     Real z_p = p_pf * v47_pf;
@@ -2914,7 +2914,7 @@ void rate_fe52__he4_cr48__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  90.14738712482466 + -92.10912191363732 * tfactors.T9i + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
+    ln_set_rate =  90.14738712482465 + -92.10912191363732 * tfactors.T9i + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
                          + -0.772169 * tfactors.T9 + 0.155883 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2931,14 +2931,14 @@ void rate_fe52__he4_cr48__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
 
+    Real cr48_pf, dcr48_pf_dT;
+    // interpolating cr48 partition function
+    get_partition_function(Cr48, tfactors, cr48_pf, dcr48_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
-
-    Real cr48_pf, dcr48_pf_dT;
-    // interpolating cr48 partition function
-    get_partition_function(Cr48, tfactors, cr48_pf, dcr48_pf_dT);
 
     Real fe52_pf, dfe52_pf_dT;
     // interpolating fe52 partition function
@@ -2971,7 +2971,7 @@ void rate_fe52__p_mn51__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  61.72798916565748 + -85.6326403498911 * tfactors.T9i + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
+    ln_set_rate =  61.72798916565747 + -85.6326403498911 * tfactors.T9i + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
                          + -2.89731 * tfactors.T9 + 0.364394 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -2988,14 +2988,14 @@ void rate_fe52__p_mn51__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
 
+    Real mn51_pf, dmn51_pf_dT;
+    // interpolating mn51 partition function
+    get_partition_function(Mn51, tfactors, mn51_pf, dmn51_pf_dT);
+
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
-
-    Real mn51_pf, dmn51_pf_dT;
-    // interpolating mn51 partition function
-    get_partition_function(Mn51, tfactors, mn51_pf, dmn51_pf_dT);
 
     Real fe52_pf, dfe52_pf_dT;
     // interpolating fe52 partition function
@@ -3045,19 +3045,19 @@ void rate_p_mn51__he4_cr48__derived(const tf_t& tfactors, Real& rate, Real& drat
     }
 
 
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
+    Real p_pf, dp_pf_dT;
+    // setting p partition function to 1.0 by default, independent of T
+    p_pf = 1.0_rt;
+    dp_pf_dT = 0.0_rt;
 
     Real cr48_pf, dcr48_pf_dT;
     // interpolating cr48 partition function
     get_partition_function(Cr48, tfactors, cr48_pf, dcr48_pf_dT);
 
-    Real p_pf, dp_pf_dT;
-    // setting p partition function to 1.0 by default, independent of T
-    p_pf = 1.0_rt;
-    dp_pf_dT = 0.0_rt;
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
 
     Real mn51_pf, dmn51_pf_dT;
     // interpolating mn51 partition function
@@ -3186,7 +3186,7 @@ void rate_ni56__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  91.62258922810439 + -92.801099329237 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
+    ln_set_rate =  91.62258922810437 + -92.801099329237 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
                          + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3203,6 +3203,10 @@ void rate_ni56__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
 
+    Real ni56_pf, dni56_pf_dT;
+    // interpolating ni56 partition function
+    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
@@ -3211,10 +3215,6 @@ void rate_ni56__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real fe52_pf, dfe52_pf_dT;
     // interpolating fe52 partition function
     get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
-
-    Real ni56_pf, dni56_pf_dT;
-    // interpolating ni56 partition function
-    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
 
     Real z_r = he4_pf * fe52_pf;
     Real z_p = ni56_pf;
@@ -3243,7 +3243,7 @@ void rate_ni56__p_co55__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  63.131770608640906 + -83.14741674893808 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
+    ln_set_rate =  63.13177060864089 + -83.14741674893808 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
                          + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3260,6 +3260,10 @@ void rate_ni56__p_co55__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
 
+    Real ni56_pf, dni56_pf_dT;
+    // interpolating ni56 partition function
+    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
+
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
@@ -3268,10 +3272,6 @@ void rate_ni56__p_co55__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real co55_pf, dco55_pf_dT;
     // interpolating co55 partition function
     get_partition_function(Co55, tfactors, co55_pf, dco55_pf_dT);
-
-    Real ni56_pf, dni56_pf_dT;
-    // interpolating ni56 partition function
-    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
 
     Real z_r = p_pf * co55_pf;
     Real z_p = ni56_pf;
@@ -3317,23 +3317,23 @@ void rate_p_co55__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drat
     }
 
 
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
-    Real fe52_pf, dfe52_pf_dT;
-    // interpolating fe52 partition function
-    get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
-
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
+
     Real co55_pf, dco55_pf_dT;
     // interpolating co55 partition function
     get_partition_function(Co55, tfactors, co55_pf, dco55_pf_dT);
+
+    Real fe52_pf, dfe52_pf_dT;
+    // interpolating fe52 partition function
+    get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
 
     Real z_r = he4_pf * fe52_pf;
     Real z_p = p_pf * co55_pf;
@@ -3362,7 +3362,7 @@ void rate_n13__p_c12__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) 
     Real set_rate{0.0};
 
     // ls09c
-    ln_set_rate =  40.04074558314484 + -22.547578710551672 * tfactors.T9i + -13.692 * tfactors.T913i + -0.230881 * tfactors.T913
+    ln_set_rate =  40.040745583144826 + -22.547578710551672 * tfactors.T9i + -13.692 * tfactors.T913i + -0.230881 * tfactors.T913
                          + 4.44362 * tfactors.T9 + -3.15898 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3379,7 +3379,7 @@ void rate_n13__p_c12__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) 
     }
 
     // ls09c
-    ln_set_rate =  40.43534558314484 + -26.326068710551674 * tfactors.T9i + -5.10735 * tfactors.T913i + -2.24111 * tfactors.T913
+    ln_set_rate =  40.43534558314482 + -26.326068710551674 * tfactors.T9i + -5.10735 * tfactors.T913i + -2.24111 * tfactors.T913
                          + 0.148883 * tfactors.T9;
 
     if constexpr (do_T_derivatives) {
@@ -3396,15 +3396,15 @@ void rate_n13__p_c12__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) 
     }
 
 
-    Real p_pf, dp_pf_dT;
-    // setting p partition function to 1.0 by default, independent of T
-    p_pf = 1.0_rt;
-    dp_pf_dT = 0.0_rt;
-
     Real c12_pf, dc12_pf_dT;
     // setting c12 partition function to 1.0 by default, independent of T
     c12_pf = 1.0_rt;
     dc12_pf_dT = 0.0_rt;
+
+    Real p_pf, dp_pf_dT;
+    // setting p partition function to 1.0 by default, independent of T
+    p_pf = 1.0_rt;
+    dp_pf_dT = 0.0_rt;
 
     Real n13_pf, dn13_pf_dT;
     // setting n13 partition function to 1.0 by default, independent of T
@@ -3455,7 +3455,7 @@ void rate_o16__he4_c12__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // nac2 
-    ln_set_rate =  94.31312807765731 + -84.50317042649215 * tfactors.T9i + 58.9128 * tfactors.T913i + -148.273 * tfactors.T913
+    ln_set_rate =  94.3131280776573 + -84.50317042649215 * tfactors.T9i + 58.9128 * tfactors.T913i + -148.273 * tfactors.T913
                          + 9.08324 * tfactors.T9 + -0.541041 * tfactors.T953 + 71.8554 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3472,15 +3472,15 @@ void rate_o16__he4_c12__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
 
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
     Real c12_pf, dc12_pf_dT;
     // setting c12 partition function to 1.0 by default, independent of T
     c12_pf = 1.0_rt;
     dc12_pf_dT = 0.0_rt;
+
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
 
     Real o16_pf, do16_pf_dT;
     // interpolating o16 partition function
@@ -3513,7 +3513,7 @@ void rate_f18__he4_n14__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  46.248979543913606 + -51.22930570025806 * tfactors.T9i + -36.2504 * tfactors.T913i
+    ln_set_rate =  46.24897954391359 + -51.22930570025806 * tfactors.T9i + -36.2504 * tfactors.T913i
                          + -5.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3530,7 +3530,7 @@ void rate_f18__he4_n14__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  38.61457954391361 + -62.19490570025806 * tfactors.T9i + -5.6227 * tfactors.T913i;
+    ln_set_rate =  38.61457954391359 + -62.19490570025806 * tfactors.T9i + -5.6227 * tfactors.T913i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  62.19490570025806 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -5.6227 * tfactors.T943i;
@@ -3545,7 +3545,7 @@ void rate_f18__he4_n14__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  24.91191754391361 + -56.38964570025806 * tfactors.T9i;
+    ln_set_rate =  24.911917543913596 + -56.38964570025806 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  56.38964570025806 * tfactors.T9i * tfactors.T9i;
@@ -3565,14 +3565,14 @@ void rate_f18__he4_n14__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
 
+    Real f18_pf, df18_pf_dT;
+    // interpolating f18 partition function
+    get_partition_function(F18, tfactors, f18_pf, df18_pf_dT);
+
     Real n14_pf, dn14_pf_dT;
     // setting n14 partition function to 1.0 by default, independent of T
     n14_pf = 1.0_rt;
     dn14_pf_dT = 0.0_rt;
-
-    Real f18_pf, df18_pf_dT;
-    // interpolating f18 partition function
-    get_partition_function(F18, tfactors, f18_pf, df18_pf_dT);
 
     Real z_r = he4_pf * n14_pf;
     Real z_p = f18_pf;
@@ -3601,7 +3601,7 @@ void rate_ne20__he4_o16__derived(const tf_t& tfactors, Real& rate, Real& drate_d
     Real set_rate{0.0};
 
     // co10c
-    ln_set_rate =  34.26581585936365 + -67.65193003813836 * tfactors.T9i + -3.65925 * tfactors.T913
+    ln_set_rate =  34.265815859363634 + -67.65193003813836 * tfactors.T9i + -3.65925 * tfactors.T913
                          + 0.714224 * tfactors.T9 + -0.00107508 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -3618,7 +3618,7 @@ void rate_ne20__he4_o16__derived(const tf_t& tfactors, Real& rate, Real& drate_d
     }
 
     // co10c
-    ln_set_rate =  28.64304585936365 + -65.24613003813835 * tfactors.T9i;
+    ln_set_rate =  28.643045859363635 + -65.24613003813835 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  65.24613003813835 * tfactors.T9i * tfactors.T9i;
@@ -3633,7 +3633,7 @@ void rate_ne20__he4_o16__derived(const tf_t& tfactors, Real& rate, Real& drate_d
     }
 
     // co10c
-    ln_set_rate =  48.66033585936365 + -54.887630038138354 * tfactors.T9i + -39.7262 * tfactors.T913i + -0.210799 * tfactors.T913
+    ln_set_rate =  48.660335859363634 + -54.887630038138354 * tfactors.T9i + -39.7262 * tfactors.T913i + -0.210799 * tfactors.T913
                          + 0.442879 * tfactors.T9 + -0.0797753 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3690,7 +3690,7 @@ void rate_na22__p_ne21__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  -24.579038986172677 + -78.40599033331655 * tfactors.T9i;
+    ln_set_rate =  -24.57903898617269 + -78.40599033331655 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  78.40599033331655 * tfactors.T9i * tfactors.T9i;
@@ -3705,7 +3705,7 @@ void rate_na22__p_ne21__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  42.145961013827325 + -78.20981033331655 * tfactors.T9i + -19.2096 * tfactors.T913i
+    ln_set_rate =  42.14596101382731 + -78.20981033331655 * tfactors.T9i + -19.2096 * tfactors.T913i
                          + -1.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3722,7 +3722,7 @@ void rate_na22__p_ne21__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  -16.409838986172673 + -82.42366033331655 * tfactors.T9i + 21.1176 * tfactors.T913i + 34.0411 * tfactors.T913
+    ln_set_rate =  -16.409838986172687 + -82.42366033331655 * tfactors.T9i + 21.1176 * tfactors.T913i + 34.0411 * tfactors.T913
                          + -4.45593 * tfactors.T9 + 0.328613 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -3739,7 +3739,7 @@ void rate_na22__p_ne21__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  24.833401013827324 + -79.60938033331655 * tfactors.T9i;
+    ln_set_rate =  24.83340101382731 + -79.60938033331655 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  79.60938033331655 * tfactors.T9i * tfactors.T9i;
@@ -3754,14 +3754,14 @@ void rate_na22__p_ne21__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
 
+    Real ne21_pf, dne21_pf_dT;
+    // interpolating ne21 partition function
+    get_partition_function(Ne21, tfactors, ne21_pf, dne21_pf_dT);
+
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
-
-    Real ne21_pf, dne21_pf_dT;
-    // interpolating ne21 partition function
-    get_partition_function(Ne21, tfactors, ne21_pf, dne21_pf_dT);
 
     Real na22_pf, dna22_pf_dT;
     // interpolating na22 partition function
@@ -3794,7 +3794,7 @@ void rate_na22__he4_f18__derived(const tf_t& tfactors, Real& rate, Real& drate_d
     Real set_rate{0.0};
 
     // rpsmr
-    ln_set_rate =  59.32234728275454 + -100.23588367240258 * tfactors.T9i + 18.8956 * tfactors.T913i + -65.6134 * tfactors.T913
+    ln_set_rate =  59.32234728275453 + -100.23588367240258 * tfactors.T9i + 18.8956 * tfactors.T913i + -65.6134 * tfactors.T913
                          + 1.71114 * tfactors.T9 + -0.0260999 * tfactors.T953 + 39.3396 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3851,7 +3851,7 @@ void rate_mg24__p_na23__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  43.93571176470678 + -135.6881490421346 * tfactors.T9i + -20.6428 * tfactors.T913i + 1.52954 * tfactors.T913
+    ln_set_rate =  43.93571176470677 + -135.6881490421346 * tfactors.T9i + -20.6428 * tfactors.T913i + 1.52954 * tfactors.T913
                          + 2.7487 * tfactors.T9 + -1.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3868,7 +3868,7 @@ void rate_mg24__p_na23__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  34.08761176470678 + -138.9684390421346 * tfactors.T9i + -0.360588 * tfactors.T913
+    ln_set_rate =  34.087611764706764 + -138.9684390421346 * tfactors.T9i + -0.360588 * tfactors.T913
                          + 1.4187 * tfactors.T9 + -0.184061 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -3885,7 +3885,7 @@ void rate_mg24__p_na23__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  20.002361764706784 + -137.3003390421346 * tfactors.T9i;
+    ln_set_rate =  20.00236176470677 + -137.3003390421346 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  137.3003390421346 * tfactors.T9i * tfactors.T9i;
@@ -3900,14 +3900,14 @@ void rate_mg24__p_na23__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
 
+    Real na23_pf, dna23_pf_dT;
+    // interpolating na23 partition function
+    get_partition_function(Na23, tfactors, na23_pf, dna23_pf_dT);
+
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
-
-    Real na23_pf, dna23_pf_dT;
-    // interpolating na23 partition function
-    get_partition_function(Na23, tfactors, na23_pf, dna23_pf_dT);
 
     Real mg24_pf, dmg24_pf_dT;
     // interpolating mg24 partition function
@@ -3940,7 +3940,7 @@ void rate_mg24__he4_ne20__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  -13.886931148855957 + -110.62012330714883 * tfactors.T9i;
+    ln_set_rate =  -13.886931148855972 + -110.62012330714883 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  110.62012330714883 * tfactors.T9i * tfactors.T9i;
@@ -3955,7 +3955,7 @@ void rate_mg24__he4_ne20__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
     // il10c
-    ln_set_rate =  49.324368851144044 + -108.11407330714883 * tfactors.T9i + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
+    ln_set_rate =  49.32436885114403 + -108.11407330714883 * tfactors.T9i + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
                          + 7.61843 * tfactors.T9 + -3.683 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -3972,7 +3972,7 @@ void rate_mg24__he4_ne20__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
     // il10c
-    ln_set_rate =  16.02029885114404 + -120.89497330714883 * tfactors.T9i + 16.9229 * tfactors.T913
+    ln_set_rate =  16.020298851144027 + -120.89497330714883 * tfactors.T9i + 16.9229 * tfactors.T913
                          + -2.57325 * tfactors.T9 + 0.208997 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -3989,7 +3989,7 @@ void rate_mg24__he4_ne20__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
     // il10c
-    ln_set_rate =  26.801638851144045 + -117.33433330714882 * tfactors.T9i;
+    ln_set_rate =  26.80163885114403 + -117.33433330714882 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  117.33433330714882 * tfactors.T9i * tfactors.T9i;
@@ -4009,13 +4009,13 @@ void rate_mg24__he4_ne20__derived(const tf_t& tfactors, Real& rate, Real& drate_
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
 
-    Real ne20_pf, dne20_pf_dT;
-    // interpolating ne20 partition function
-    get_partition_function(Ne20, tfactors, ne20_pf, dne20_pf_dT);
-
     Real mg24_pf, dmg24_pf_dT;
     // interpolating mg24 partition function
     get_partition_function(Mg24, tfactors, mg24_pf, dmg24_pf_dT);
+
+    Real ne20_pf, dne20_pf_dT;
+    // interpolating ne20 partition function
+    get_partition_function(Ne20, tfactors, ne20_pf, dne20_pf_dT);
 
     Real z_r = he4_pf * ne20_pf;
     Real z_p = mg24_pf;
@@ -4044,7 +4044,7 @@ void rate_si28__p_al27__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  11.776564828186824 + -136.3434628922348 * tfactors.T9i + 23.8634 * tfactors.T913
+    ln_set_rate =  11.77656482818681 + -136.3434628922348 * tfactors.T9i + 23.8634 * tfactors.T913
                          + -3.70135 * tfactors.T9 + 0.28964 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -4078,7 +4078,7 @@ void rate_si28__p_al27__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
     // il10c
-    ln_set_rate =  46.54946482818683 + -134.4395028922348 * tfactors.T9i + -23.2205 * tfactors.T913i
+    ln_set_rate =  46.549464828186814 + -134.4395028922348 * tfactors.T9i + -23.2205 * tfactors.T913i
                          + -2.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -4135,7 +4135,7 @@ void rate_si28__he4_mg24__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real set_rate{0.0};
 
     // st08r
-    ln_set_rate =  -25.688574833405916 + -128.69270892750794 * tfactors.T9i + 21.3721 * tfactors.T913i + 37.7649 * tfactors.T913
+    ln_set_rate =  -25.68857483340593 + -128.69270892750794 * tfactors.T9i + 21.3721 * tfactors.T913i + 37.7649 * tfactors.T913
                          + -4.10635 * tfactors.T9 + 0.249618 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -4152,7 +4152,7 @@ void rate_si28__he4_mg24__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
     // st08r
-    ln_set_rate =  32.90059516659409 + -131.48850892750792 * tfactors.T9i;
+    ln_set_rate =  32.90059516659407 + -131.48850892750792 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  131.48850892750792 * tfactors.T9i * tfactors.T9i;
@@ -4207,7 +4207,7 @@ void rate_s32__p_p31__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) 
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  25.172836958303158 + -106.63693563716609 * tfactors.T9i + 8.09341 * tfactors.T913
+    ln_set_rate =  25.172836958303144 + -106.63693563716609 * tfactors.T9i + 8.09341 * tfactors.T913
                          + -0.615971 * tfactors.T9 + 0.031159 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -4224,7 +4224,7 @@ void rate_s32__p_p31__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) 
     }
 
     // il10c
-    ln_set_rate =  21.682890958303158 + -105.11947563716609 * tfactors.T9i;
+    ln_set_rate =  21.682890958303144 + -105.11947563716609 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 =  105.11947563716609 * tfactors.T9i * tfactors.T9i;
@@ -4239,7 +4239,7 @@ void rate_s32__p_p31__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) 
     }
 
     // il10c
-    ln_set_rate =  43.610880958303156 + -102.85989563716609 * tfactors.T9i + -25.3278 * tfactors.T913i + 6.4931 * tfactors.T913
+    ln_set_rate =  43.61088095830314 + -102.85989563716609 * tfactors.T9i + -25.3278 * tfactors.T913i + 6.4931 * tfactors.T913
                          + -9.27513 * tfactors.T9 + -0.610439 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -4261,13 +4261,13 @@ void rate_s32__p_p31__derived(const tf_t& tfactors, Real& rate, Real& drate_dT) 
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
-    Real p31_pf, dp31_pf_dT;
-    // interpolating p31 partition function
-    get_partition_function(P31, tfactors, p31_pf, dp31_pf_dT);
-
     Real s32_pf, ds32_pf_dT;
     // interpolating s32 partition function
     get_partition_function(S32, tfactors, s32_pf, ds32_pf_dT);
+
+    Real p31_pf, dp31_pf_dT;
+    // interpolating p31 partition function
+    get_partition_function(P31, tfactors, p31_pf, dp31_pf_dT);
 
     Real z_r = p_pf * p31_pf;
     Real z_p = s32_pf;
@@ -4318,13 +4318,13 @@ void rate_s32__he4_si28__derived(const tf_t& tfactors, Real& rate, Real& drate_d
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
 
-    Real si28_pf, dsi28_pf_dT;
-    // interpolating si28 partition function
-    get_partition_function(Si28, tfactors, si28_pf, dsi28_pf_dT);
-
     Real s32_pf, ds32_pf_dT;
     // interpolating s32 partition function
     get_partition_function(S32, tfactors, s32_pf, ds32_pf_dT);
+
+    Real si28_pf, dsi28_pf_dT;
+    // interpolating si28 partition function
+    get_partition_function(Si28, tfactors, si28_pf, dsi28_pf_dT);
 
     Real z_r = he4_pf * si28_pf;
     Real z_p = s32_pf;
@@ -4404,25 +4404,15 @@ void rate_c12__he4_he4_he4__derived(const tf_t& tfactors, Real& rate, Real& drat
     }
 
 
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
     Real c12_pf, dc12_pf_dT;
     // setting c12 partition function to 1.0 by default, independent of T
     c12_pf = 1.0_rt;
     dc12_pf_dT = 0.0_rt;
+
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
 
     Real z_r = he4_pf * he4_pf * he4_pf;
     Real z_p = c12_pf;
@@ -4468,6 +4458,15 @@ void rate_p_o16__he4_n13__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
 
+    Real p_pf, dp_pf_dT;
+    // setting p partition function to 1.0 by default, independent of T
+    p_pf = 1.0_rt;
+    dp_pf_dT = 0.0_rt;
+
+    Real o16_pf, do16_pf_dT;
+    // interpolating o16 partition function
+    get_partition_function(O16, tfactors, o16_pf, do16_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
@@ -4477,15 +4476,6 @@ void rate_p_o16__he4_n13__derived(const tf_t& tfactors, Real& rate, Real& drate_
     // setting n13 partition function to 1.0 by default, independent of T
     n13_pf = 1.0_rt;
     dn13_pf_dT = 0.0_rt;
-
-    Real p_pf, dp_pf_dT;
-    // setting p partition function to 1.0 by default, independent of T
-    p_pf = 1.0_rt;
-    dp_pf_dT = 0.0_rt;
-
-    Real o16_pf, do16_pf_dT;
-    // interpolating o16 partition function
-    get_partition_function(O16, tfactors, o16_pf, do16_pf_dT);
 
     Real z_r = he4_pf * n13_pf;
     Real z_p = p_pf * o16_pf;
@@ -4565,14 +4555,14 @@ void rate_he4_ne20__p_na23__derived(const tf_t& tfactors, Real& rate, Real& drat
     }
 
 
+    Real na23_pf, dna23_pf_dT;
+    // interpolating na23 partition function
+    get_partition_function(Na23, tfactors, na23_pf, dna23_pf_dT);
+
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
-
-    Real na23_pf, dna23_pf_dT;
-    // interpolating na23 partition function
-    get_partition_function(Na23, tfactors, na23_pf, dna23_pf_dT);
 
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
@@ -4627,15 +4617,6 @@ void rate_p_ne21__he4_f18__derived(const tf_t& tfactors, Real& rate, Real& drate
     }
 
 
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
-    Real f18_pf, df18_pf_dT;
-    // interpolating f18 partition function
-    get_partition_function(F18, tfactors, f18_pf, df18_pf_dT);
-
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
@@ -4644,6 +4625,15 @@ void rate_p_ne21__he4_f18__derived(const tf_t& tfactors, Real& rate, Real& drate
     Real ne21_pf, dne21_pf_dT;
     // interpolating ne21 partition function
     get_partition_function(Ne21, tfactors, ne21_pf, dne21_pf_dT);
+
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
+
+    Real f18_pf, df18_pf_dT;
+    // interpolating f18 partition function
+    get_partition_function(F18, tfactors, f18_pf, df18_pf_dT);
 
     Real z_r = he4_pf * f18_pf;
     Real z_p = p_pf * ne21_pf;
@@ -4732,14 +4722,14 @@ void rate_he4_mg24__p_al27__derived(const tf_t& tfactors, Real& rate, Real& drat
     // interpolating al27 partition function
     get_partition_function(Al27, tfactors, al27_pf, dal27_pf_dT);
 
+    Real mg24_pf, dmg24_pf_dT;
+    // interpolating mg24 partition function
+    get_partition_function(Mg24, tfactors, mg24_pf, dmg24_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
-
-    Real mg24_pf, dmg24_pf_dT;
-    // interpolating mg24 partition function
-    get_partition_function(Mg24, tfactors, mg24_pf, dmg24_pf_dT);
 
     Real z_r = p_pf * al27_pf;
     Real z_p = he4_pf * mg24_pf;
@@ -4824,14 +4814,14 @@ void rate_he4_si28__p_p31__derived(const tf_t& tfactors, Real& rate, Real& drate
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
-    Real p31_pf, dp31_pf_dT;
-    // interpolating p31 partition function
-    get_partition_function(P31, tfactors, p31_pf, dp31_pf_dT);
-
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
     dhe4_pf_dT = 0.0_rt;
+
+    Real p31_pf, dp31_pf_dT;
+    // interpolating p31 partition function
+    get_partition_function(P31, tfactors, p31_pf, dp31_pf_dT);
 
     Real si28_pf, dsi28_pf_dT;
     // interpolating si28 partition function
