@@ -2,22 +2,92 @@
 NSE
 ***
 
-The ``aprox19`` can be run in a manner where we blends the ``aprox19``
-network with a table for nuclear statistic equilibrium at high density
-and temperatures.  This is based on the table described in
-:cite:`ma:2013`.  This option is enabled by building with ``USE_NSE=TRUE``.
+The reaction networks in Microphysics have the ability to use NSE
+instead of integrating the entire network when the conditions are
+appropriate.  There are 2 different implementations of NSE in
+Microphysics, that have slightly different use cases.
 
-The NSE table provides:
+* :ref:`tabulated_nse` : this uses a table of NSE abundances given
+  :math:`(\rho, T, Y_e)` generate from a large network (125 isotopes).
+  The table also returns :math:`dY_e/dt` resulting from
+  electron-captures, to allow for the NSE state to evolve.  This is
+  meant to be used in the cores of massive stars and works only with the
+  ``aprox19`` reaction network.
 
-.. math::
+  Furthermore, since the table can achieve :math:`Y_e` and
+  :math:`\bar{A}` that are not representable by the 19 isotopes in
+  ``aprox19``, this table requires that we use the auxiliary
+  composition and advect :math:`Y_e`, :math:`\bar{A}`, and
+  :math:`\langle B/A\rangle`.  All of the EOS calls will work with
+  these quantities.
 
-   \begin{align*}
-   Y_e &= \sum_k \frac{Z_k X_k}{A_k} \\
-   \bar{A} &= \left [ \sum_k \frac{X_k}{A_k} \right ]^{-1} \\
-   \frac{B}{A} &= \sum_k \frac{B_k X_k}{A_k}
-   \end{align*}
+  This is enabled via ``USE_NSE_TABLE``
 
-where :math:`B_k` is the binding energy of nucleus :math:`k`.
+* :ref:`self_consistent_nse` : this adds an NSE solver to the network that
+  can be called to find the equilibrium abundances of each of the
+  species defined in the network.  It works with any of the
+  pynucastro-generated networks.  Unlike the tabulated NSE, there is
+  no need to advect the auxiliary composition, since this only deals
+  with the isotopes defined in the main reaction network.
+
+  This is enabled via ``USE_NSE_NET``
+
+Both solvers define a number of preprocessor variables, and both will
+provide a function ``in_nse()`` that can be used to determine if a
+state is currently in NSE.
+
+=================        ======================================
+make option               preprocessor variables set
+-----------------        --------------------------------------
+``USE_NSE_TABLE``        ``NSE``, ``NSE_TABLE``, ``AUX_THERMO``
+``USE_NSE_NET``          ``NSE``, ``NSE_NET``
+=================        ======================================
+
+The directive ``NSE`` should be used whether the specific
+implementation of NSE does not matter.
+
+These two NSE solvers are described below.
+
+
+.. _tabulated_nse:
+
+Tabulated NSE and ``aprox19``
+=============================
+
+The ``aprox19`` network can be run in a manner where we blends the
+standard ``aprox19`` network with a table for nuclear statistic
+equilibrium resulting from a much larger network at high density and
+temperatures.    This option is enabled by building with:
+
+.. prompt:: bash
+
+   NETWORK_DIR=aprox19 USE_NSE=TRUE
+
+Composition and EOS
+-------------------
+
+The NSE table was generated using a 125 nuclei reaction network
+(described in :cite:`ma:2013`), and includes electron-capture rates,
+so the compositional quantities it carries, :math:`\bar{A}` and
+:math:`Y_e` and not representable from the 19 isotopes we carry in the
+network.  In particular, it can attain a lower :math:`Y_e` than
+``aprox19`` can represent.
+
+For this reason, when we are using the NSE network, we always take the
+composition quantities in the EOS directly from ``eos_state.aux[]``
+instead of from ``eos_state.xn[]``.  The ``AUX_THERMO`` preprocessor
+variable is enabled in this case, and the equations of state interpret
+this to use the auxillary data for the composition.  This is described in :ref:`aux_eos_comp`.
+
+
+NSE Table Outputs
+-----------------
+
+The NSE table provides values for the auxiliary composition,
+:math:`Y_e`, :math:`\bar{A}`, and :math:`\langle B/A \rangle`
+resulting from the full 125 nuclei network.   It also provides a set of 19
+:math:`X_k` that map into the isotopes carried by ``aprox19``.
+
 
 These three quantities are stored as ``aux`` data in the network and
 are indexed as ``iye``, ``iabar``, and ``ibea``.  Additionally, when
@@ -38,29 +108,11 @@ and our evolution equations are:
 Therefore each of these auxillar equations obeys an advection equation
 in the hydro part of the advancement.
 
-Composition and EOS
-===================
-
-The NSE table was generated using a 125 nuclei reaction network, so
-the compositional quantities it carries, :math:`\bar{A}` and
-:math:`Y_e` and not representable from the 19 isotopes we carry in the
-network.  For this reason, when we are using the NSE network, we
-always take the composition quantities in the EOS directly from
-``eos_state.aux[]`` instead of from ``eos_state.xn[]``.  The
-``AUX_THERMO`` preprocessor variable is enabled in this case, and the
-equations of state interpret this to use the auxillary data for the
-composition.
-
-The equation of state also needs :math:`\bar{Z}` which is easily computed as
-
-.. math::
-
-   \bar{Z} = \bar{A} Y_e
 
 NSE Flow
-========
+--------
 
-The basic flow of a simulation using the NSE network is as follows:
+The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
 
 * initialize the problem, including :math:`X_k`
 
@@ -112,7 +164,7 @@ The basic flow of a simulation using the NSE network is as follows:
 
 
 NSE check
-=========
+---------
 
 We determine is a zone is in NSE according to:
 
@@ -123,6 +175,31 @@ We determine is a zone is in NSE according to:
 * :math:`X(\isotm{C}{12})` < ``C_nse``
 
 * :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
+
+.. _self_consistent_nse:
+
+Self-consistent NSE
+===================
+
+The self-consistent NSE approach uses only the nuclei in the main
+reaction network.  It solves for the chemical potentials of the proton
+and neutron and from there gets the abundances of each of the nuclei
+under the assumption of NSE, following the procedure outlined in :cite:`Calder_2007`.
+
+The solve is done using a port of the hybrid Powell method from
+MINPACK (we ported the solver to templated C++).
+
+The advantage of this approach is that it can be used with any
+reaction network, once the integration has reached NSE.
+
+This solver is enabled by compiling with
+
+.. prompt:: bash
+
+   USE_NSE_NET=TRUE
+
+The functions to find the NSE state are then found in ``nse_solver.H``.
+
 
 
 .. rubric:: Footnotes
