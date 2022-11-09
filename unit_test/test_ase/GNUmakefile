@@ -15,6 +15,7 @@ USE_REACT = TRUE
 USE_NSE_NET = TRUE
 EBASE = main
 
+
 USE_CXX_REACTIONS ?= TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
@@ -33,8 +34,11 @@ NETWORK_DIR := ase
 
 CONDUCTIVITY_DIR := stellar
 
-# Lets have null screen method, and turn of u_c when calculating NSE
-# SCREEN_METHOD := 3
+# Lets have null screen method, and turn off u_c when calculating NSE
+
+SCREEN_METHOD := null
+#SCREEN_METHOD := chugunov2007
+
 INTEGRATOR_DIR =  VODE
 
 ifeq ($(USE_CUDA), TRUE)
