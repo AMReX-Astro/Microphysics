@@ -1619,7 +1619,6 @@ bool in_nse(T& state, T& nse_state){
     }
     else{
       nse_check = false;
-      std::cout << "failed to group in single group" << std::endl;
     }
     
   }
