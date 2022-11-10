@@ -1211,6 +1211,30 @@ constexpr Real get_spin_state(const int inuc) {
         spin = 1.0;
         break;
 
+    case Cl35:
+        spin = 4.0;
+        break;
+
+    case K39:
+        spin = 4.0;
+        break;
+
+    case Sc43:
+        spin = 8.0;
+        break;
+
+    case V47:
+        spin = 4.0;
+        break;
+
+    case Mn51:
+        spin = 6.0;
+        break;
+
+    case Co55:
+        spin = 8.0;
+        break;
+
 
     }
 
