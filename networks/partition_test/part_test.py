@@ -15,6 +15,6 @@ for r in fwd_rates_lib.get_rates():
 
 der_rates_lib = pyna.Library(rates=derived)
 full_lib = fwd_rates_lib + der_rates_lib
-net = pyna.StarKillerCxxNetwork(libraries=[full_lib])
+net = pyna.AmrexAstroCxxNetwork(libraries=[full_lib])
 
 net.write_network()
