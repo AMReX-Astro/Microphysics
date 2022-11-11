@@ -1,5 +1,5 @@
 import pynucastro as pyna
-from pynucastro.networks import StarKillerCxxNetwork, RateCollection, Composition
+from pynucastro.networks import AmrexAstroCxxNetwork, RateCollection, Composition
 
 mylibrary = pyna.rates.ReacLibLibrary()
 
@@ -9,7 +9,7 @@ nova_library = mylibrary.linking_nuclei(all_nuclei, with_reverse=False)
 
 print(nova_library)
 
-net = StarKillerCxxNetwork(libraries=[nova_library])
+net = AmrexAstroCxxNetwork(libraries=[nova_library])
 net.write_network()
 
 # make a plot
