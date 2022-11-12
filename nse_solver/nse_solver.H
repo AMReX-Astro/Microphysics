@@ -83,7 +83,7 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
   // check whether if this rate is a child rate
   // let its reactant and product all to be -1 if child rate
   
-  pos = suffix.find("child");
+  pos = suffix.find("removed");
   if (pos != std::string::npos){
     return;
   }
