@@ -4,7 +4,7 @@ ForwardEuler
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | parameter                             | description                                             | default value      |
 +=======================================+=========================================================+====================+
-| ``maximum_timestep_change_factor``    | Maximum amount any quantity can change by in a timestep | 1.01               |
+| ``maximum_timestep_change_factor``    | Maximum amount any quantity can change by in a timestep | 1.001              |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
 
