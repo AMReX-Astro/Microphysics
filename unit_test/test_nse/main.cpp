@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   network_init();
 
   // Initialize nse;
-  init_actual_nse();
+  init_nse_net();
   
   nse_example_c();
 

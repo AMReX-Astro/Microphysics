@@ -9,11 +9,6 @@ else
   DEFINES += -DSTRANG
 endif
 
-USE_CXX_REACTIONS ?= FALSE
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
-
 USE_NONAKA_PLOT ?= FALSE
 ifeq ($(USE_NONAKA_PLOT),TRUE)
   DEFINES += -DNONAKA_PLOT
@@ -76,10 +71,6 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
-ifeq ($(findstring gamma_law, $(EOS_DIR)), gamma_law)
-   DEFINES += -DEOS_GAMMA_LAW_GENERAL
-endif
-
 # NSE networks need the table
 ifeq ($(USE_NSE),TRUE)
   ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
@@ -136,11 +127,11 @@ endif
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 
 
-# nse stuff
-ifeq ($(USE_ACTUAL_NSE), TRUE)
-     DEFINES += -DACTUAL_NSE
+# self-consistent NSE solver for a network
+ifeq ($(USE_NSE_NET), TRUE)
+     DEFINES += -DNSE_NET
 
-     EXTERN_CORE += $(MICROPHYSICS_HOME)/nse
+     EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
 

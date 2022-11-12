@@ -6,9 +6,13 @@
 #include <network.H>
 #include <eos_type.H>
 
+#ifdef AUX_THERMO
+#include <actual_network.H>
+#endif
+
 using namespace amrex;
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
 using namespace AuxZero;
 #endif
 
@@ -17,6 +21,31 @@ struct eos_xderivs_t {
   Real dpdX[NumSpec];
   Real dhdX[NumSpec];
 };
+
+#ifdef AUX_THERMO
+///
+/// The auxiliary state provides an alternate description to the composition,
+/// in terms of Ye, abar, and binding energy / nucleon
+///
+template <class state_t> 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void set_aux_comp_from_X(state_t& state) {
+
+  using namespace AuxZero;
+
+  state.aux[iye] = 0.0_rt;
+  state.aux[iabar] = 0.0_rt;
+  state.aux[ibea] = 0.0_rt;
+
+  for (int n = 0; n < NumSpec; n++) {
+    state.aux[iye] += state.xn[n] * zion[n] * aion_inv[n];
+    state.aux[iabar] += state.xn[n] * aion_inv[n];
+    state.aux[ibea] += state.xn[n] * network::bion(n+1) * aion_inv[n];
+  }
+  state.aux[iabar] = 1.0_rt/state.aux[iabar];
+
+}
+#endif
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -28,7 +57,7 @@ void composition (T& state)
   // mu_e, the mean number of nucleons per electron, and
   // y_e, the electron fraction.
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
 
   state.mu_e = 1.0 / state.aux[iye];
   state.y_e = state.aux[iye];

@@ -20,3 +20,4 @@ The following equations of state are provided:
   
 * `ztwd`: a zero-temperature white dwarf equation of state
 
+* `primordial_chem`: a version of multigamma for primordial ISM chemistry

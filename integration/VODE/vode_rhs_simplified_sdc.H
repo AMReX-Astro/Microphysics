@@ -185,9 +185,9 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         for (int n = 0; n < NumSpec; n++) {
             eos_state.xn[n] = state.xn[n];
         }
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
         // make the aux data consistent with the state X's
-        set_nse_aux_from_X(eos_state);
+        set_aux_comp_from_X(eos_state);
 #endif
 
         eos(eos_input_re, eos_state);
