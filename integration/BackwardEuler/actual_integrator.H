@@ -230,7 +230,9 @@ int single_step (burn_t& state, const Real dt)
             }
 
         } else {
-            numerical_jac(state, jac);
+            jac_info_t jac_info;
+            jac_info.h = dt;
+            numerical_jac(state, jac_info, jac);
         }
 
         if (!integrate_energy) {

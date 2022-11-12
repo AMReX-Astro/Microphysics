@@ -1,6 +1,7 @@
 #ifndef NUMERICAL_JACOBIAN_H
 #define NUMERICAL_JACOBIAN_H
 
+#include <eos_composition.H>
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
@@ -103,8 +104,6 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
         Real dy = amrex::max(std::sqrt(U) * std::abs(yj), r0 * w);
 
         state_delp.xn[n-1] += dy;
-
-        std::cout << state_delp << std::endl;
 
         actual_rhs(state_delp, ydotp);
 
