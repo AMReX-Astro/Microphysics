@@ -52,8 +52,8 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Re
     RHS::rhs(state, ydot);
 
     for (int n = 1; n <= NumSpec; ++n) {
-        f_plus(n) = ydot(n).first;
-        f_minus(n) = ydot(n).second;
+        f_plus(n) = ydot(n).first * aion[n-1];
+        f_minus(n) = ydot(n).second * aion[n-1];
     }
 
     dedt = ydot(net_ienuc).first - ydot(net_ienuc).second;
