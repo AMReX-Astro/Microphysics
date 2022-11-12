@@ -944,6 +944,10 @@ constexpr std::pair<Real, Real> rhs_term (const burn_t& state, const Real& fr, c
         forward_term *= data.number_F;
         reverse_term *= -data.number_F;
     }
+    else {
+        forward_term = 0.0;
+        reverse_term = 0.0;
+    }
 
     return {forward_term, reverse_term};
 }
@@ -1599,7 +1603,7 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
             constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                auto [forward_term, reverse_term] = rhs_term<species, rate>(state, fr, rr);
+                auto [forward_term, reverse_term] = rhs_term<species, rate>(state, frdt, rrdt);
                 jac(species, net_ienuc) += forward_term + reverse_term;
             }
         });
