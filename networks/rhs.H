@@ -1432,16 +1432,11 @@ void rhs (burn_t& state, Array1D<R, 1, neqs>& ydot)
                 if constexpr (track_pos_and_neg_separately) {
                     if (forward_term >= 0.0_rt) {
                         ydot(species).first += forward_term;
-                    }
-                    else {
-                        ydot(species).second -= forward_term;
-                    }
-
-                    if (reverse_term >= 0.0_rt) {
-                        ydot(species).first += reverse_term;
-                    }
-                    else {
                         ydot(species).second -= reverse_term;
+                    }
+                    else {
+                        ydot(species).first += reverse_term;
+                        ydot(species).second -= forward_term;
                     }
                 }
                 else {
