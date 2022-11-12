@@ -1,5 +1,5 @@
 import pynucastro as pyna
-from pynucastro.networks import StarKillerCxxNetwork
+from pynucastro.networks import AmrexAstroCxxNetwork
 
 mylibrary = pyna.rates.ReacLibLibrary()
 
@@ -34,5 +34,5 @@ for rate in rc.rates:
     if ydots[rate] >= 1.e-20 and rate.weak == False:
         new_rate_list.append(rate)
 
-wd_net = StarKillerCxxNetwork(rates=new_rate_list, rate_files=escn_tabular)
+wd_net = AmrexAstroCxxNetwork(rates=new_rate_list, rate_files=escn_tabular)
 wd_net.write_network()

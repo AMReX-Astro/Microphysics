@@ -26,13 +26,6 @@ ifeq ($(USE_MICROPHYSICS_DEBUG),TRUE)
   DEFINES += -DMICROPHYSICS_DEBUG
 endif
 
-ifdef USE_CUDA
-  ifeq ($(USE_CUDA),TRUE)
-    USE_GPU_PRAGMA = TRUE
-    DEFINES += -DCUDA
-  endif
-endif
-
 # Require C++17
 CXXSTD := c++17
 
