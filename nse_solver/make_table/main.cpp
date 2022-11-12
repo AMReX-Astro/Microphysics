@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
   // C++ Network, RHS, screening, rates initialization
   network_init();
 
-  init_actual_nse();
+  init_nse_net();
 
   burn_cell_c();
 

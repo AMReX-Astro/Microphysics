@@ -13,7 +13,7 @@
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
 #endif
-#ifdef NSE_THERMO
+#ifdef NSE
 #include <nse.H>
 #endif
 
@@ -220,7 +220,7 @@ int dvode (burn_t& state, dvode_t& vstate)
 
        }
 
-#ifdef NSE_THERMO
+#ifdef NSE
        // check if, during the course of integration, we hit NSE, and
        // if so, bail out we rely on the state being consistent after
        // the call to dvstep, even if the step failed.

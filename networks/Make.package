@@ -69,9 +69,13 @@ ifeq ($(USE_SCREENING), TRUE)
 
 endif
 
-ifeq ($(USE_NSE), TRUE)
+ifeq ($(USE_AUX_THERMO), TRUE)
+  DEFINES += -DAUX_THERMO
+endif
 
-  DEFINES += -DNSE_THERMO -DNSE_TABLE -DNSE
+ifeq ($(USE_NSE), TRUE)
+  # note: NSE_THERMO is deprecated
+  DEFINES += -DAUX_THERMO -DNSE_THERMO -DNSE_TABLE -DNSE
 
 endif
 
@@ -103,7 +107,7 @@ ifneq ($(NETWORK_DIR), general_null)
   DEFINES += "-DNAUX_NET=$(NAUX)"
 
 $(NETWORK_OUTPUT_PATH)/network_properties.H:
-	PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/update_headers.py --skip_fortran \
+	PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net $(NETWORK_DIR) \
            --odir $(NETWORK_OUTPUT_PATH) \

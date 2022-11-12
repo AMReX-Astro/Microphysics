@@ -3,6 +3,7 @@
 
 #include <network.H>
 #include <actual_network.H>
+#include <rhs.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <rate_type.H>
