@@ -760,7 +760,7 @@ void evaluate_tabulated_rate (const Real& rho, const rate_tab_t& tab, const Real
 // in the multiplication.
 template<int species, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
+constexpr std::pair<Real, Real> rhs_term (const burn_t& state, const Real& fr, const Real& rr)
 {
     constexpr rhs_t data = rhs_data(rate);
 
@@ -920,28 +920,32 @@ constexpr Real rhs_term (const burn_t& state, const Real& fr, const Real& rr)
 
     // Now compute the total contribution to this species.
 
-    Real term = 0.0_rt;
-
     if constexpr (data.species_A == species) {
-        term += data.number_A * (reverse_term - forward_term);
+        forward_term *= -data.number_A;
+        reverse_term *= data.number_A;
     }
-    if constexpr (data.species_B == species) {
-        term += data.number_B * (reverse_term - forward_term);
+    else if constexpr (data.species_B == species) {
+        forward_term *= -data.number_B;
+        reverse_term *= data.number_B;
     }
-    if constexpr (data.species_C == species) {
-        term += data.number_C * (reverse_term - forward_term);
+    else if constexpr (data.species_C == species) {
+        forward_term *= -data.number_C;
+        reverse_term *= data.number_C;
     }
-    if constexpr (data.species_D == species) {
-        term += data.number_D * (forward_term - reverse_term);
+    else if constexpr (data.species_D == species) {
+        forward_term *= data.number_D;
+        reverse_term *= -data.number_D;
     }
-    if constexpr (data.species_E == species) {
-        term += data.number_E * (forward_term - reverse_term);
+    else if constexpr (data.species_E == species) {
+        forward_term *= data.number_E;
+        reverse_term *= -data.number_E;
     }
-    if constexpr (data.species_F == species) {
-        term += data.number_F * (forward_term - reverse_term);
+    else if constexpr (data.species_F == species) {
+        forward_term *= data.number_F;
+        reverse_term *= -data.number_F;
     }
 
-    return term;
+    return {forward_term, reverse_term};
 }
 
 // Calculate the j'th Jacobian term for d(f(species1)) / d(species2).
@@ -1303,9 +1307,17 @@ void rhs_init ()
     }
 }
 
+// rhs can either return NumSpec + 1 quantities (the usual RHS)
+// or 2 * NumSpec + 1 quantities, in which case we want to track
+// positive and negative terms separately.
+template<int nrhs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
+void rhs (burn_t& state, Array1D<Real, 1, nrhs>& ydot)
 {
+    static_assert(nrhs == NumSpec + 1 || nrhs == 2 * NumSpec + 1);
+
+    constexpr bool track_pos_and_neg_separately = (nrhs == 2 * NumSpec + 1) ? true : false;
+
     // Convert X to Y.
     Array1D<Real, 1, NumSpec> y;
     for (int n = 1; n <= NumSpec; ++n) {
@@ -1324,8 +1336,15 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     }
 
     // Initialize the RHS terms.
-    for (int n = 1; n <= NumSpec; ++n) {
-        ydot(n) = 0.0;
+    if constexpr (track_pos_and_neg_separately) {
+        for (int n = 1; n <= 2 * NumSpec; ++n) {
+            ydot(n) = 0.0;
+        }
+    }
+    else {
+        for (int n = 1; n <= NumSpec; ++n) {
+            ydot(n) = 0.0;
+        }
     }
 
     // Count up number of intermediate rates (rates that are used in any other reaction).
@@ -1406,7 +1425,26 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
             constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                ydot(species) += rhs_term<species, rate>(state, fr, rr);
+                auto [forward_term, reverse_term] = rhs_term<species, rate>(state, fr, rr);
+
+                if constexpr (track_pos_and_neg_separately) {
+                    if (forward_term >= 0.0_rt) {
+                        ydot(2 * species - 1) += forward_term;
+                    }
+                    else {
+                        ydot(2 * species    ) -= forward_term;
+                    }
+
+                    if (reverse_term >= 0.0_rt) {
+                        ydot(2 * species - 1) += reverse_term;
+                    }
+                    else {
+                        ydot(2 * species    ) -= reverse_term;
+                    }
+                }
+                else {
+                    ydot(species) += forward_term + reverse_term;
+                }
             }
         });
     });
@@ -1420,13 +1458,23 @@ void rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 #endif
 
     // Compute the energy RHS term.
-    ydot(net_ienuc) = -sneut;
+    if constexpr (track_pos_and_neg_separately) {
+        ydot(2 * NumSpec + 1) = -sneut;
+    }
+    else {
+        ydot(NumSpec + 1) = -sneut;
+    }
 
     constexpr_for<1, NumSpec+1>([&] (auto n)
     {
         constexpr int species = n;
 
-        ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
+        if constexpr (track_pos_and_neg_separately) {
+            ydot(2 * NumSpec + 1) += ener_gener_rate<species>(ydot(2 * species - 1) - ydot(2 * species));
+        }
+        else {
+            ydot(NumSpec + 1) += ener_gener_rate<species>(ydot(species));
+        }
     });
 }
 
@@ -1551,7 +1599,8 @@ void jac (burn_t& state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
             constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                jac(species, net_ienuc) += rhs_term<species, rate>(state, frdt, rrdt);
+                auto [forward_term, reverse_term] = rhs_term<species, rate>(state, fr, rr);
+                jac(species, net_ienuc) += forward_term + reverse_term;
             }
         });
     });

@@ -3,6 +3,7 @@
 
 #include <network.H>
 #include <actual_network.H>
+#include <rhs.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <rate_type.H>
@@ -47,130 +48,15 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
                    Real& dedt)
 {
-    Array1D<rate_t, 1, Rates::NumGroups> rr_old;
-    evaluate_rates(state, rr_old);
+    Array1D<Real, 1, 2 * NumSpec + 1> ydot;
+    RHS::rhs(state, ydot);
 
-    rate_fr_t rr;
-
-    // Convert old-style rates to new-style
-    for (int j = 1; j <= Rates::NumRatesFR; ++j) {
-        rr.forward_rates(j) = rr_old(1).rates(2 * j - 1);
-        rr.reverse_rates(j) = rr_old(1).rates(2 * j);
-    }
-
-    Array1D<Real, 1, NumSpec> y;
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        y(spec) = state.xn[spec-1] * aion_inv[spec-1];
-    }
-
-    // For each species calculate its positive and negative RHS contributions.
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        f_plus(spec) = 0.0;
-        f_minus(spec) = 0.0;
-    }
-
-    for (int rate = 1; rate <= Rates::NumRatesFR; ++rate) {
-
-        // Loop through rates and then species. All terms that have a positive
-        // contribution to the RHS for this species get the full term added to
-        // f_plus. All terms that deplete the species are added to f_minus.
-
-        rhs_t rhs_data = RHS::rhs_data(rate);
-
-        // First, compute the Y * rate component of both the forward and
-        // reverse reactions, which is the same regardless of which species
-        // we're producing or consuming.
-
-        Real forward_term = rr.forward_rates(rate);
-
-        if (rhs_data.species_A >= 0) {
-            Real Y_A = state.xn[rhs_data.species_A-1] * aion_inv[rhs_data.species_A-1];
-            forward_term *= std::pow(Y_A, rhs_data.exponent_A);
-        }
-
-        if (rhs_data.species_B >= 0) {
-            Real Y_B = state.xn[rhs_data.species_B-1] * aion_inv[rhs_data.species_B-1];
-            forward_term *= std::pow(Y_B, rhs_data.exponent_B);
-        }
-
-        if (rhs_data.species_C >= 0) {
-            Real Y_C = state.xn[rhs_data.species_C-1] * aion_inv[rhs_data.species_C-1];
-            forward_term *= std::pow(Y_C, rhs_data.exponent_C);
-        }
-
-        Real reverse_term = rr.reverse_rates(rate);
-
-        if (rhs_data.species_D >= 0) {
-            Real Y_D = state.xn[rhs_data.species_D-1] * aion_inv[rhs_data.species_D-1];
-            reverse_term *= std::pow(Y_D, rhs_data.exponent_D);
-        }
-
-        if (rhs_data.species_E >= 0) {
-            Real Y_E = state.xn[rhs_data.species_E-1] * aion_inv[rhs_data.species_E-1];
-            reverse_term *= std::pow(Y_E, rhs_data.exponent_E);
-        }
-
-        if (rhs_data.species_F >= 0) {
-            Real Y_F = state.xn[rhs_data.species_F-1] * aion_inv[rhs_data.species_F-1];
-            reverse_term *= std::pow(Y_F, rhs_data.exponent_F);
-        }
-
-        for (int spec = 1; spec <= NumSpec; ++spec) {
-
-            // Now compute the total contribution to this species.
-
-            Real term = 0.0_rt;
-
-            if (rhs_data.species_A == spec) {
-                f_plus(spec) += rhs_data.number_A * reverse_term;
-                f_minus(spec) += rhs_data.number_A * forward_term;
-            }
-            if (rhs_data.species_B == spec) {
-                f_plus(spec) += rhs_data.number_B * reverse_term;
-                f_minus(spec) += rhs_data.number_B * forward_term;
-            }
-            if (rhs_data.species_C == spec) {
-                f_plus(spec) += rhs_data.number_C * reverse_term;
-                f_minus(spec) += rhs_data.number_C * forward_term;
-            }
-            if (rhs_data.species_D == spec) {
-                f_plus(spec) += rhs_data.number_D * forward_term;
-                f_minus(spec) += rhs_data.number_D * reverse_term;
-            }
-            if (rhs_data.species_E == spec) {
-                f_plus(spec) += rhs_data.number_E * forward_term;
-                f_minus(spec) += rhs_data.number_E * reverse_term;
-            }
-            if (rhs_data.species_F == spec) {
-                f_plus(spec) += rhs_data.number_F * forward_term;
-                f_minus(spec) += rhs_data.number_F * reverse_term;
-            }
-
-            if (term > 0.0) {
-                f_plus(spec) += term;
-            } else {
-                f_minus(spec) -= term;
-            }
-        }
-    }
-
-    // Scale by aion to get dX/dt instead of dY/dt.
-
-    for (int spec = 1; spec <= NumSpec; ++spec) {
-        f_plus(spec) *= aion[spec - 1];
-        f_minus(spec) *= aion[spec - 1];
-    }
- 
-    // Determine the corresponding energy RHS.
-
-    Array1D<Real, 1, NumSpec> dYdt;
     for (int n = 1; n <= NumSpec; ++n) {
-        dYdt(n) = (f_plus(n) - f_minus(n)) * aion_inv[n - 1];
+        f_plus(n) = ydot(2 * n - 1);
+        f_minus(n) = ydot(2 * n);
     }
 
-    dedt = RHS::ener_rhs(state, dYdt);
+    dedt = ydot(2 * NumSpec + 1);
 
     state.n_rhs += 1;
 }
