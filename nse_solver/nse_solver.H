@@ -72,15 +72,26 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
   // Remove suffix in the product name
   
+  std::string suffix;
+  
   pos = product_names.find("__");
   if (pos != std::string::npos){
-    std::string suffix = product_names.substr(pos);
+    suffix = product_names.substr(pos);
     product_names.erase(pos);
-  }
+  } 
 
+  // check whether if this rate is a child rate
+  // let its reactant and product all to be -1 if child rate
+  
+  pos = suffix.find("child");
+  if (pos != std::string::npos){
+    return;
+  }
+  
   std::string _temp;
 
   // Find the index of reactants and products in short_spec_names
+  
   int i = 1;
   while ((pos = reactant_names.find('_')) != std::string::npos){
 
@@ -190,7 +201,7 @@ void init_nse_net(){
 #ifndef NEW_NETWORK_IMPLEMENTATION
   // rate names initialization for non aprox networks...
 
-  // Fill in rate_indices<int, 1, NumRates, 1, 7>
+  // Fill in rate_indices<int, 1, NumRates, 1, 6>
   // used for referencing rate by nuclei indices
 
   amrex::Array1D<int, 1, 3> reactant_indices;
@@ -211,7 +222,6 @@ void init_nse_net(){
       NSE_INDEX::rate_indices(n, i+3) = product_indices(i);
     }
     
-    NSE_INDEX::rate_indices(n, 7) = n;
   }
 #endif
   
@@ -730,6 +740,19 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   // fill in the corresponding rate_index by providing array of reactants and products indices
 
   rate_index = -1;
+
+  bool valid_rate = false;
+  // if all -1 then return, since its an invalid rate
+  for (int n = 1; n <= 3; ++n){
+    if (NSE_INDEX::rate_indices(rate_index, n) != -1){
+      valid_rate = true;
+      break;
+    }
+  }
+
+  if (!valid_rate){
+    return;
+  }
   
   bool found_index = false;
   
@@ -1211,6 +1234,20 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 
   pair_rate_index = -1;
   bool found_reverse_rate = false;
+
+  bool valid_rate = false;
+  // if all -1 then return, since its an invalid rate
+  for (int n = 1; n <= 3; ++n){
+    if (NSE_INDEX::rate_indices(rate_index, n) != -1){
+      valid_rate = true;
+      break;
+    }
+  }
+
+  if (!valid_rate){
+    return;
+  }
+  
   
   for (int n = 1; n <= Rates::NumRates; ++n){
     for (int i = 1; i <= 3; ++i){
@@ -1241,7 +1278,6 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
 
   int nonLIG_index = -1;
   int LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind); 
-  // int LIG_root_index = 1;
   
   for (int n = 0; n < NumSpec; ++n){
 
@@ -1297,7 +1333,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   // find the reverse rate index
 
   fill_pair_rate_index(pair_rate_index, current_rate); 
-
+  
   // Check if there are > 2 isotopes or 0 isotopes in LIG in this reaction
 
   for (int k = 1; k <= 6; ++k){
@@ -1384,16 +1420,15 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
       ){
     return;
   }
-   
+  
   // Find the rates
   
   amrex::Real b_f;
   amrex::Real b_r;
   
-
   b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 3) + 1);  
   b_r = screened_rates(pair_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
-
+  
   if (NSE_INDEX::rate_indices(current_rate, 2) != -1){
 
     if (NSE_INDEX::rate_indices(current_rate, 2) == NSE_INDEX::rate_indices(current_rate, 3)){
@@ -1430,7 +1465,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
       ){
 
     fastest_t = scratch_t;
-
+    
     for (int n = 1; n <= 2; ++n){
       if (nonNPA_ind(n) == -1){
 	merge_indices(n) = get_root_index(NSE_INDEX::he4_index, group_ind);
@@ -1493,7 +1528,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
     if (merge_indices(1) == -1 && merge_indices(2) == -1){
       break;
     }
-    
+
     // union the isotopes of the rate that have the fastest time scale
     
     nse_union(merge_indices(1), merge_indices(2), group_ind);

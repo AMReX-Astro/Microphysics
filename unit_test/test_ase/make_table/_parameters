@@ -8,7 +8,7 @@ rho_max   real   1.e10
 
 nrho      integer    5
 
-T_min     real   6.0e9
+T_min     real   4.0e9
 T_max     real   1.e10
 
 nT        integer    10
