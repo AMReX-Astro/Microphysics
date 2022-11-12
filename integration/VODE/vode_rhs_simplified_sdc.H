@@ -6,12 +6,11 @@
 #include <extern_parameters.H>
 
 #include <vode_type_simplified_sdc.H>
-#include <vode_jac_util_simplified_sdc.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
 #include <actual_rhs.H>
-#else
-#include <fortran_to_cxx_actual_rhs.H>
+#include <numerical_jacobian.H>
+#ifdef NONAKA_PLOT
+#include <nonaka_plot.H>
 #endif
 
 // The f_rhs routine provides the right-hand-side for the DVODE solver.
@@ -19,34 +18,58 @@
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
-  // Fix the state as necessary.
+    // update rho
 
-  clean_state(time, state, vode_state);
+    fill_unevolved_variables(time, state, vode_state);
 
-  // convert to the burn_t
+    // ensure that the mass fractions are valid -- only vode_state is
+    // updated here
 
-  vode_to_burn(time, vode_state, state);
+    clean_state(time, state, vode_state);
 
-  // call the specific network to get the RHS
-  YdotNetArray1D ydot_react = {0};
+    // convert to the burn_t -- this does an EOS call to get T
+    // and populates the (burn_t) state
 
-  actual_rhs(state, ydot_react);
+    vode_to_burn(time, vode_state, state);
 
-  // apply fudge factor:
-  if (react_boost > 0.0_rt) {
-      // the correct size here is the size of the reactive state RHS,
-      // not the SDC state RHS (neqs, not VODE_NEQS)
-      for (int n = 1; n <= neqs; ++n) {
-          ydot_react(n) *= react_boost;
-      }
-  }
+    // make sure that the temperature is valid
 
-  // convert back to the vode type -- this will add the advective terms
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
-  rhs_to_vode(time, state, ydot_react, vode_state, ydot);
+        for (int n = 1; n <= VODE_NEQS; ++n) {
+            ydot(n) = 0.0_rt;
+        }
+
+        return;
+
+    }
+
+    // call the specific network to get the RHS
+
+    actual_rhs(state, ydot);
+
+#ifdef NONAKA_PLOT
+    if (! in_jacobian) {
+        nonaka_rhs(time, state, ydot);
+    }
+#endif
+
+    // apply fudge factor:
+
+    if (react_boost > 0.0_rt) {
+        // the correct size here is the size of the reactive state RHS,
+        // not the SDC state RHS (neqs, not VODE_NEQS)
+        for (int n = 1; n <= neqs; ++n) {
+            ydot(n) *= react_boost;
+        }
+    }
+
+    // convert back to the vode type -- this will add the advective terms
+
+    rhs_to_vode(time, state, vode_state, ydot);
 
 }
 
@@ -62,27 +85,122 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // explicitly passed. VODE always evaluates the analytic
     // Jacobian at vode_state.tn, and we pass vode_state.
 
-    // Call the specific network routine to get the Jacobian.
+
+    // update rho, rho*u, ... in the burn_t state
+
+    fill_unevolved_variables(vode_state.tn, state, vode_state);
+
+    // ensure that the mass fractions are valid -- only vode_state is
+    // updated here
+
+    clean_state(vode_state.tn, state, vode_state);
+
+    // convert to the burn_t -- this does an EOS call to get T
+    // and populates the (burn_t) state
 
     vode_to_burn(vode_state.tn, vode_state, state);
 
-    JacNetArray2D jac_react;
 
-    actual_jac(state, jac_react);
+    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
-    // apply fudge factor:
-
-    if (react_boost > 0.0_rt) {
-        for (int j = 1; j <= neqs; ++j) {
-            for (int i = 1; i <= neqs; ++i) {
-                jac_react.mul(i, j, react_boost);
+        for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                pd(i,j) = 0.0_rt;
             }
         }
+
+        return;
+
     }
 
-    // convert to the system we are using
+    if (vode_state.jacobian_type == 3) {
+        jac_info_t jac_info;
+        jac_info.h = vode_state.H;
 
-    jac_to_vode(vode_state.tn, state, jac_react, vode_state, pd);
+        // the numerical Jacobian for SDC will automatically
+        // put it into the correct form (in terms of energy)
+        // so we can just operate on the VODE Jacobian storage
+        // directly
+
+        numerical_jac(state, jac_info, pd);
+
+        // apply fudge factor:
+
+        if (react_boost > 0.0_rt) {
+            pd.mul(react_boost);
+        }
+
+        // jacobian = 3 is a hybrid numerical + analytic
+        // implementation for simplified SDC.  It uses a one-sided
+        // difference numerical approximation for the reactive
+        // part and then algebraically transforms it to the
+        // correct state variables for SDC.  This means we need to
+        // account for the NumSpec+1 RHS evals
+        vode_state.NFE += NumSpec + 1;
+
+    } else {
+
+        // Call the specific network routine to get the Jacobian.
+
+        actual_jac(state, pd);
+
+        // The Jacobian from the nets is in terms of dYdot/dY, but we want
+        // it was dXdot/dX, so convert here.
+        for (int n = 1; n <= NumSpec; n++) {
+            for (int m = 1; m <= neqs; m++) {
+                pd(n,m) = pd(n,m) * aion[n-1];
+            }
+        }
+
+        for (int m = 1; m <= neqs; m++) {
+            for (int n = 1; n <= NumSpec; n++) {
+                pd(m,n) = pd(m,n) * aion_inv[n-1];
+            }
+        }
+
+        // apply fudge factor:
+
+        if (react_boost > 0.0_rt) {
+            pd.mul(react_boost);
+        }
+
+        // The system we integrate has the form (rho X_k, rho e)
+
+        // pd is now of the form:
+        //
+        //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \
+        //              | d(rho X2dot)/dX1  d(rho X2dot)/dX2 ... 1/cv d(rho X2dot)/dT |
+        //  SFS-1+nspec |   ...                                                       |
+        //  SEINT       \ d(rho Edot)/dX1   d(rho Edot)/dX2  ... 1/cv d(rho Edot)/dT  /
+        //
+        //                   SFS                                         SEINT
+
+        // now correct the species derivatives
+        // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
+
+        eos_re_t eos_state;
+        eos_state.rho = state.rho;
+        eos_state.T = state.T;
+        eos_state.e = state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = state.xn[n];
+        }
+#ifdef NSE_THERMO
+        // make the aux data consistent with the state X's
+        set_nse_aux_from_X(eos_state);
+#endif
+
+        eos(eos_input_re, eos_state);
+
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+
+        for (int m = 1; m <= neqs; m++) {
+            for (int n = 1; n <= NumSpec; n++) {
+                pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
+            }
+        }
+
+    }
 
 }
 #endif

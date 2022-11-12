@@ -1,17 +1,5 @@
-ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
-  f90EXE_sources += numerical_jacobian_sdc.f90
-else
-  ifneq ($(USE_TRUE_SDC), TRUE)
-    F90EXE_sources += numerical_jacobian.F90
-  endif
-endif
-
-F90EXE_sources += jacobian_sparsity.F90
-ifneq ($(USE_TRUE_SDC), TRUE)
-  F90EXE_sources += temperature_integration.F90
-endif
 ifeq ($(USE_NONAKA_PLOT), TRUE)
-  f90EXE_sources += nonaka_plot.f90
+  CEXE_headers += nonaka_plot.H
 endif
-
 CEXE_headers += jacobian_utilities.H
+CEXE_headers += numerical_jacobian.H

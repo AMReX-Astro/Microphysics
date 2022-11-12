@@ -17,16 +17,13 @@ def main():
                         help="output directory")
     parser.add_argument("--defines", type=str, default="",
                         help="any preprocessor defines")
-
+    parser.add_argument("--skip_fortran", action="store_true",
+                        help="skip building the Fortran modules")
 
     args = parser.parse_args()
 
     micro_path = args.microphysics_path
     net = args.net
-    fortran_template = os.path.join(micro_path, "networks",
-                                    "general_null/network_properties.template")
-    cxx_template = os.path.join(micro_path, "networks",
-                                "general_null/network_header.template")
 
     net_file = os.path.join(micro_path, "networks", net, "{}.net".format(net))
     if not os.path.isfile(net_file):
@@ -34,7 +31,16 @@ def main():
 
     properties_file = os.path.join(micro_path, "networks", net, "NETWORK_PROPERTIES")
 
-    f90_name = os.path.join(args.odir, "network_properties.F90")
+    if args.skip_fortran:
+        fortran_template = ""
+        f90_name = ""
+    else:
+        fortran_template = os.path.join(micro_path, "networks",
+                                        "general_null/network_properties.template")
+        f90_name = os.path.join(args.odir, "network_properties.F90")
+
+    cxx_template = os.path.join(micro_path, "networks",
+                                "general_null/network_header.template")
     cxx_name = os.path.join(args.odir, "network_properties.H")
 
     try:

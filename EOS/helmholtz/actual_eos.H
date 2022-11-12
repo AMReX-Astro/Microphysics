@@ -11,6 +11,7 @@
 #include <fundamental_constants.H>
 #include <eos_type.H>
 #include <eos_data.H>
+#include <actual_eos_data.H>
 #include <cmath>
 
 // Frank Timmes Helmholtz based Equation of State
@@ -35,65 +36,6 @@
 // references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
 const std::string eos_name = "helmholtz";
-
-namespace helmholtz
-{
-    inline AMREX_GPU_MANAGED bool do_coulomb;
-    inline AMREX_GPU_MANAGED bool input_is_constant;
-
-    // for the tables
-
-    const int imax = 541;
-    const int jmax = 201;
-
-    inline AMREX_GPU_MANAGED int itmax;
-    inline AMREX_GPU_MANAGED int jtmax;
-
-    inline AMREX_GPU_MANAGED amrex::Real d[imax];
-    inline AMREX_GPU_MANAGED amrex::Real t[jmax];
-
-    inline AMREX_GPU_MANAGED amrex::Real tlo;
-    inline AMREX_GPU_MANAGED amrex::Real thi;
-    inline AMREX_GPU_MANAGED amrex::Real tstp;
-    inline AMREX_GPU_MANAGED amrex::Real tstpi;
-
-    inline AMREX_GPU_MANAGED amrex::Real dlo;
-    inline AMREX_GPU_MANAGED amrex::Real dhi;
-    inline AMREX_GPU_MANAGED amrex::Real dstp;
-    inline AMREX_GPU_MANAGED amrex::Real dstpi;
-
-    inline AMREX_GPU_MANAGED amrex::Real ttol;
-    inline AMREX_GPU_MANAGED amrex::Real dtol;
-
-    // for the helmholtz free energy tables
-    inline AMREX_GPU_MANAGED amrex::Real f[jmax][imax][9];
-
-    // for the pressure derivative with density tables
-    inline AMREX_GPU_MANAGED amrex::Real dpdf[jmax][imax][4];
-
-    // for chemical potential tables
-    inline AMREX_GPU_MANAGED amrex::Real ef[jmax][imax][4];
-
-    // for the number density tables
-    inline AMREX_GPU_MANAGED amrex::Real xf[jmax][imax][4];
-
-    // for storing the differences
-    inline AMREX_GPU_MANAGED amrex::Real dt_sav[jmax];
-    inline AMREX_GPU_MANAGED amrex::Real dt2_sav[jmax];
-    inline AMREX_GPU_MANAGED amrex::Real dti_sav[jmax];
-    inline AMREX_GPU_MANAGED amrex::Real dt2i_sav[jmax];
-
-    inline AMREX_GPU_MANAGED amrex::Real dd_sav[imax];
-    inline AMREX_GPU_MANAGED amrex::Real dd2_sav[imax];
-    inline AMREX_GPU_MANAGED amrex::Real ddi_sav[imax];
-    inline AMREX_GPU_MANAGED amrex::Real dd2i_sav[imax];
-
-    // 2006 CODATA physical constants
-    const amrex::Real h = 6.6260689633e-27;
-    const amrex::Real avo_eos = 6.0221417930e23;
-    const amrex::Real kerg = 1.380650424e-16;
-    const amrex::Real amu = 1.66053878283e-24;
-}
 
 // quintic hermite polynomial functions
 // psi0 and its derivatives
@@ -556,16 +498,16 @@ void apply_ions (T& state)
     Real dpiondd = dxnidd * kt;
     Real dpiondt = xni * kerg;
 #ifdef EXTRA_THERMO
-    Real dpionda = dxnida * kt;
-    Real dpiondz = 0.0e0_rt;
+    [[maybe_unused]] Real dpionda = dxnida * kt;
+    [[maybe_unused]] Real dpiondz = 0.0e0_rt;
 #endif
 
     Real eion    = 1.5e0_rt * pion * deni;
     Real deiondd = (1.5e0_rt * dpiondd - eion) * deni;
     Real deiondt = 1.5e0_rt * dpiondt * deni;
 #ifdef EXTRA_THERMO
-    Real deionda = 1.5e0_rt * dpionda * deni;
-    Real deiondz = 0.0e0_rt;
+    [[maybe_unused]] Real deionda = 1.5e0_rt * dpionda * deni;
+    [[maybe_unused]] Real deiondz = 0.0e0_rt;
 #endif
 
     Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
@@ -643,16 +585,16 @@ void apply_radiation (T& state)
     Real dpraddd = 0.0e0_rt;
     Real dpraddt = 4.0e0_rt * prad * tempi;
 #ifdef EXTRA_THERMO
-    Real dpradda = 0.0e0_rt;
-    Real dpraddz = 0.0e0_rt;
+    [[maybe_unused]] Real dpradda = 0.0e0_rt;
+    [[maybe_unused]] Real dpraddz = 0.0e0_rt;
 #endif
 
     Real erad    = 3.0e0_rt * prad*deni;
     Real deraddd = -erad * deni;
     Real deraddt = 3.0e0_rt * dpraddt * deni;
 #ifdef EXTRA_THERMO
-    Real deradda = 0.0e0_rt;
-    Real deraddz = 0.0e0_rt;
+    [[maybe_unused]] Real deradda = 0.0e0_rt;
+    [[maybe_unused]] Real deraddz = 0.0e0_rt;
 #endif
 
     Real srad    = (prad * deni + erad) * tempi;
@@ -713,21 +655,21 @@ void apply_coulomb_corrections (T& state)
     const Real forth = 4.0e0_rt/3.0e0_rt;
     const Real pi    = 3.1415926535897932384e0_rt;
 
-    Real pcoul    = 0.e0_rt;
-    Real dpcouldd = 0.e0_rt;
-    Real dpcouldt = 0.e0_rt;
-    Real ecoul    = 0.e0_rt;
-    Real decouldd = 0.e0_rt;
-    Real decouldt = 0.e0_rt;
-    Real scoul    = 0.e0_rt;
-    Real dscouldd = 0.e0_rt;
-    Real dscouldt = 0.e0_rt;
+    [[maybe_unused]] Real pcoul    = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldd = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldt = 0.e0_rt;
+    [[maybe_unused]] Real ecoul    = 0.e0_rt;
+    [[maybe_unused]] Real decouldd = 0.e0_rt;
+    [[maybe_unused]] Real decouldt = 0.e0_rt;
+    [[maybe_unused]] Real scoul    = 0.e0_rt;
+    [[maybe_unused]] Real dscouldd = 0.e0_rt;
+    [[maybe_unused]] Real dscouldt = 0.e0_rt;
 
 #ifdef EXTRA_THERMO
-    Real dpcoulda = 0.e0_rt;
-    Real dpcouldz = 0.e0_rt;
-    Real decoulda = 0.e0_rt;
-    Real decouldz = 0.e0_rt;
+    [[maybe_unused]] Real dpcoulda = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldz = 0.e0_rt;
+    [[maybe_unused]] Real decoulda = 0.e0_rt;
+    [[maybe_unused]] Real decouldz = 0.e0_rt;
 #endif
 
     Real s, x, y, z; // temporary variables
@@ -917,6 +859,7 @@ void prepare_for_iterations (I input, T& state,
                              int& var, int& dvar, int& var1, int& var2)
 {
     using namespace helmholtz;
+    using namespace EOS;
 
     single_iter = true;
 
@@ -1010,8 +953,9 @@ void single_iter_update (T& state, int var, int dvar,
 {
 
     using namespace helmholtz;
+    using namespace EOS;
 
-    Real x, v, dvdx, xtol, smallx;
+    Real x, v = 0.0_rt, dvdx = 0.0_rt, xtol, smallx;
 
     if (dvar == itemp) {
 
@@ -1113,8 +1057,9 @@ void double_iter_update (T& state, int var1, int var2,
                          Real v1_want, Real v2_want, bool& converged)
 {
     using namespace helmholtz;
+    using namespace EOS;
 
-    Real v1, dv1dt, dv1dr, v2, dv2dt, dv2dr;
+    Real v1 = 0.0_rt, dv1dt = 0.0_rt, dv1dr = 0.0_rt, v2 = 0.0_rt, dv2dt = 0.0_rt, dv2dr = 0.0_rt;
 
     // Figure out which variables we're using
 
@@ -1419,6 +1364,11 @@ void actual_eos_init ()
         // open the table
         std::ifstream table;
         table.open("helm_table.dat");
+
+        if (!table.is_open()) {
+            // the table was not present or we could not open it; abort
+            amrex::Error("helm_table.dat could not be opened");
+        }
 
         std::string line;
 

@@ -1,7 +1,5 @@
 @namespace: unit_test
 
-run_prefix    character  ""
-
 small_temp    real       1.e5
 small_dens    real       1.e5
 
@@ -32,6 +30,58 @@ X18           real       0.0d0
 X19           real       0.0d0
 X20           real       0.0d0
 X21           real       0.0d0
+X22           real       0.0d0
+X23           real       0.0d0
+X24           real       0.0d0
+X25           real       0.0d0
+X26           real       0.0d0
+X27           real       0.0d0
+X28           real       0.0d0
+X29           real       0.0d0
+X30           real       0.0d0
+
+Aux1          real       0.0d0
+Aux2          real       0.0d0
+Aux3          real       0.0d0
+
+
+Adv_rho           real       0.0d0
+Adv_rhoe          real       0.0d0
+
+Adv_X1            real       0.0d0
+Adv_X2            real       0.0d0
+Adv_X3            real       0.0d0
+Adv_X4            real       0.0d0
+Adv_X5            real       0.0d0
+Adv_X6            real       0.0d0
+Adv_X7            real       0.0d0
+Adv_X8            real       0.0d0
+Adv_X9            real       0.0d0
+Adv_X10           real       0.0d0
+Adv_X11           real       0.0d0
+Adv_X12           real       0.0d0
+Adv_X13           real       0.0d0
+Adv_X14           real       0.0d0
+Adv_X15           real       0.0d0
+Adv_X16           real       0.0d0
+Adv_X17           real       0.0d0
+Adv_X18           real       0.0d0
+Adv_X19           real       0.0d0
+Adv_X20           real       0.0d0
+Adv_X21           real       0.0d0
+Adv_X22           real       0.0d0
+Adv_X23           real       0.0d0
+Adv_X24           real       0.0d0
+Adv_X25           real       0.0d0
+Adv_X26           real       0.0d0
+Adv_X27           real       0.0d0
+Adv_X28           real       0.0d0
+Adv_X29           real       0.0d0
+Adv_X30           real       0.0d0
+
+Adv_Aux1          real       0.0d0
+Adv_Aux2          real       0.0d0
+Adv_Aux3          real       0.0d0
 
 
 

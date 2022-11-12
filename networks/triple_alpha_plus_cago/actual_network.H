@@ -14,7 +14,7 @@ void actual_network_init();
 
 const std::string network_name = "triple_alpha_plus_cago";
 
-namespace triple_alpha_plus_cago
+namespace network
 {
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
 }

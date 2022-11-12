@@ -1,6 +1,7 @@
 #ifndef VODE_TYPE_STRANG_H
 #define VODE_TYPE_STRANG_H
 
+#include <eos.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void vode_to_burn (const dvode_t& vode_state, burn_t& state)
@@ -12,6 +13,8 @@ void vode_to_burn (const dvode_t& vode_state, burn_t& state)
     }
 
     state.e = vode_state.y(net_ienuc);
+
+    state.time = vode_state.t;
 }
 
 
@@ -50,8 +53,10 @@ void clean_state (dvode_t& vode_state)
     // Ensure that mass fractions always stay positive and less than or
     // equal to 1.
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.y(n) = amrex::max(amrex::min(vode_state.y(n), 1.0_rt), SMALL_X_SAFE);
+    if (do_species_clip) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            vode_state.y(n) = amrex::max(amrex::min(vode_state.y(n), 1.0_rt), SMALL_X_SAFE);
+        }
     }
 
     // Renormalize the abundances as necessary.

@@ -25,19 +25,26 @@ init_t setup_composition(const int nz) {
 
     comp_data.nprim = 0;
 
+    // we absolutely require primary_species_1 to be defined
     comp_data.is1 = network_spec_index(primary_species_1);
     if (comp_data.is1 >= 0) {
         comp_data.nprim++;
+    } else {
+        amrex::Error("Error: invalid primary_species_1");
     }
 
+    // we'll check the next species, but if it is not valid,
+    // we'll just move on
     comp_data.is2 = network_spec_index(primary_species_2);
     if (comp_data.is2 >= 0) {
         comp_data.nprim++;
-    }
 
-    comp_data.is3 = network_spec_index(primary_species_3);
-    if (comp_data.is3 >= 0) {
-        comp_data.nprim++;
+        // only consider primary_species_3 if primary_species_2
+        // was defined
+        comp_data.is3 = network_spec_index(primary_species_3);
+        if (comp_data.is3 >= 0) {
+            comp_data.nprim++;
+        }
     }
 
     if (comp_data.nprim == 0) {
@@ -78,53 +85,64 @@ init_t setup_composition(const int nz) {
 
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-void get_xn(const int k, const init_t cd, Real *xn_zone) {
+void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition = 0) {
 
     for (int n = 0; n < NumSpec; n++) {
         xn_zone[n] = 0.0_rt;
     }
 
-    if (k < cd.n1) {
-        if (cd.nprim >= 2) xn_zone[cd.is2] = cd.Xp_min/2;
-        if (cd.nprim >= 3) xn_zone[cd.is3] = cd.Xp_min/2;
+    if (uniform_composition) {
 
-        Real dX = (cd.Xp_max - cd.Xp_min) /
-            amrex::max((cd.n1 - 1), 1);
-        xn_zone[cd.is1] = cd.Xp_min + k * dX;
-
-    } else if (cd.nprim >= 2 && k < cd.n1 + cd.n2) {
-        xn_zone[cd.is1] = cd.Xp_min/2;
-        if (cd.nprim >= 3) {
-            xn_zone[cd.is3] = cd.Xp_min/2;
-        }
-        Real dX = (cd.Xp_max - cd.Xp_min) /
-            amrex::max((cd.n2 - 1), 1);
-        xn_zone[cd.is2] = cd.Xp_min + (k - cd.n1) * dX;
-
-    } else {
-        xn_zone[cd.is1] = cd.Xp_min/2;
-        xn_zone[cd.is2] = cd.Xp_min/2;
-
-        Real dX = (cd.Xp_max - cd.Xp_min) /
-            amrex::max((cd.n3 - 1), 1);
-        xn_zone[cd.is3] = cd.Xp_min + (k - (cd.n1 + cd.n2)) * dX;
-
-    }
-
-    Real excess = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        excess += xn_zone[n];
-    }
-    excess = 1.0_rt - excess;
-
-    for (int n = 0; n < NumSpec; n++) {
-        if (n == cd.is1 ||
-            (n == cd.is2 && cd.nprim >= 2) ||
-            (n == cd.is3 && cd.nprim >= 3)) {
-            continue;
+        for (int n = 0; n < NumSpec; ++n) {
+            xn_zone[n] = 1.0_rt / NumSpec;
         }
 
-        xn_zone[n] = excess / (NumSpec - cd.nprim);
+    }
+    else {
+
+        if (k < cd.n1) {
+            if (cd.nprim >= 2) xn_zone[cd.is2] = cd.Xp_min/2;
+            if (cd.nprim >= 3) xn_zone[cd.is3] = cd.Xp_min/2;
+
+            Real dX = (cd.Xp_max - cd.Xp_min) /
+                amrex::max((cd.n1 - 1), 1);
+            xn_zone[cd.is1] = cd.Xp_min + k * dX;
+
+        } else if (cd.nprim >= 2 && k < cd.n1 + cd.n2) {
+            xn_zone[cd.is1] = cd.Xp_min/2;
+            if (cd.nprim >= 3) {
+                xn_zone[cd.is3] = cd.Xp_min/2;
+            }
+            Real dX = (cd.Xp_max - cd.Xp_min) /
+                amrex::max((cd.n2 - 1), 1);
+            xn_zone[cd.is2] = cd.Xp_min + (k - cd.n1) * dX;
+
+        } else {
+            xn_zone[cd.is1] = cd.Xp_min/2;
+            xn_zone[cd.is2] = cd.Xp_min/2;
+
+            Real dX = (cd.Xp_max - cd.Xp_min) /
+                amrex::max((cd.n3 - 1), 1);
+            xn_zone[cd.is3] = cd.Xp_min + (k - (cd.n1 + cd.n2)) * dX;
+
+        }
+
+        Real excess = 0.0_rt;
+        for (int n = 0; n < NumSpec; n++) {
+            excess += xn_zone[n];
+        }
+        excess = 1.0_rt - excess;
+
+        for (int n = 0; n < NumSpec; n++) {
+            if (n == cd.is1 ||
+                (n == cd.is2 && cd.nprim >= 2) ||
+                (n == cd.is3 && cd.nprim >= 3)) {
+                continue;
+            }
+
+            xn_zone[n] = excess / (NumSpec - cd.nprim);
+        }
+
     }
 
 

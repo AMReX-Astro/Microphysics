@@ -1,3 +1,2 @@
-F90EXE_sources += stellar_conductivity.F90
 CEXE_headers += actual_conductivity.H
 

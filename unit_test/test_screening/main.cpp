@@ -10,7 +10,6 @@
 using namespace amrex;
 
 #include <test_screen.H>
-#include <test_screen_F.H>
 #include <AMReX_buildInfo.H>
 
 #include <network.H>
@@ -21,7 +20,6 @@ using namespace amrex;
 
 #include <cmath>
 #include <unit_test.H>
-#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
@@ -37,7 +35,7 @@ void main_main ()
 {
 
     // AMREX_SPACEDIM: number of dimensions
-    int n_cell, max_grid_size, do_cxx;
+    int n_cell, max_grid_size;
 
     // inputs parameters
     {
@@ -52,11 +50,8 @@ void main_main ()
         max_grid_size = 32;
         pp.query("max_grid_size", max_grid_size);
 
-        // do_cxx = 1 for C++ EOS, 0 for Fortran EOS
-        do_cxx = 0;
-        pp.query("do_cxx", do_cxx);
-
     }
+
 
     Vector<int> is_periodic(AMREX_SPACEDIM,0);
     for (int idim=0; idim < AMREX_SPACEDIM; ++idim) {
@@ -97,38 +92,23 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
-
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    init_unit_test();
 
     eos_init(small_temp, small_dens);
 
+    network_init();
+
     screening_init();
 
-    // for C++
     plot_t vars;
-
-    // C++ test
 
     vars = init_variables();
 
     amrex::Vector<std::string> names;
     get_varnames(vars, names);
 
-    // Fortran test
-
-    init_variables_F();
-
     // time = starting time in the simulation
-    Real time = 0.0;
+    Real time = 0.0_rt;
 
     // How Boxes are distrubuted among MPI processes
     DistributionMapping dm(ba);
@@ -138,7 +118,7 @@ void main_main ()
 
     // Initialize the state to zero; we will fill
     // it in below in do_eos.
-    state.setVal(0.0);
+    state.setVal(0.0_rt);
 
     // What time is it now?  We'll use this to compute total run time.
     Real strt_time = ParallelDescriptor::second();
@@ -149,9 +129,9 @@ void main_main ()
     Real dmetal  = 0.0e0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
-        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min)) / static_cast<Real>(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/ static_cast<Real>(n_cell - 1);
+        dmetal  = (metalicity_max  - 0.0_rt)/ static_cast<Real>(n_cell - 1);
     }
 
     // Initialize the state and compute the different thermodynamics
@@ -162,15 +142,8 @@ void main_main ()
 
       Array4<Real> const sp = state.array(mfi);
 
-      if (do_cxx == 1) {
-        screen_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+      screen_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
-      } else {
-        do_screening(AMREX_INT_ANYD(bx.loVect()), AMREX_INT_ANYD(bx.hiVect()),
-                     dlogrho, dlogT, dmetal,
-                     BL_TO_FORTRAN_ANYD(state[mfi]));
-
-      }
     }
 
     // Call the timer again and compute the maximum difference between
@@ -180,13 +153,12 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_screening";
-    std::string language = do_cxx == 1 ? ".cxx" : "";
+    std::string name = "test_screening." + screen_name;
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(name, state, names, geom, time, 0);
 
-    write_job_info(name + language);
+    write_job_info(name);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

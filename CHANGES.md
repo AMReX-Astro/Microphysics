@@ -1,8 +1,171 @@
+# 22.10
+
+  * A null screening routine was added to disable screening for any network at
+    compile time. (#992)
+
+  * An option to disable the clipping of species in the VODE integration
+    was added (`integrator.do_species_clip`) (#989)
+
+  * A unit test for C++ partition functions was added (#980)
+
+  * An EOS for primordial chemistry was added (#981)
+
+  * A C++ version of the Powell's hybrid non linear system solver was
+    added (#976)
+
+  * screening in the approximate rates in pynucastro nets was fixed
+    (#978)
+
+# 22.09
+
+  * An NSE solver was added (#963)
+
+  * A new network, subch_simple, was added that further simplifies
+    He/C burning (#964)
+
+# 22.08
+
+  * The subch network was renamed `subch_approx` and the subch2
+    network was renamed `subch_full` (#947)
+
+# 22.07
+
+  * Two new screening formulations have been added for reaction rates,
+    based on Chugunov, DeWitt, and Yakovlev 2007 and Chugunov and
+    DeWitt 2009.  These can be used with any network by setting
+    SCREEN_METHOD at compile time.(#887)
+
+# 22.06
+
+  * The subch2 network now has runtime parameters allowing for
+    some key rates to be disabled (#921).
+
+# 22.05
+
+  * The subch2 network was improved by adding some missing C+C, C+O,
+    and O+O rates. (#915)
+
+# 22.04
+
+  * aprox networks now use a templated C++ righthand side formulation
+    that builds the ODE system at compile time. (#802)
+
+  * pynucastro networks were regenerated to take advantage of recent
+    optimizations (#901)
+
+# 22.02
+
+  * The Microphysics repo was moved to the AMReX-Astro github
+    organization: https://github.com/amrex-astro/Microphysics
+
+    You can update your git remote via:
+
+    git remote set-url origin git@github.com:amrex-astro/Microphysics.git
+
+  * Fortran support has been removed from the runtime parameter
+    scripts (#869)
+
+# 22.01
+
+  * we added back in support for the "Nonaka plot".  This outputs the
+    state in the RHS routine for a single zone during the reaction
+    network integration. (#830)
+
+  * we removed the xrb_simple network.  This was never used in any
+    science calculations (#827)
+
+  * the simplified-SDC step rejection logic in VODE was improved (#818)
+
+# 21.12
+
+  * all of the pynucastro networks were regenerated with the latest
+    pynucastro and converted to C++.  Performance was also improved
+    (#809)
+
+  * a bug was fixed in the VODE step rejection logic (#815)
+
+  * we added USE_MICROPHYSICS_DEBUG that defines MICROPHYSICS_DEBUG to
+    turn on more verbosity to help with debugging (#817)
+
+# 21.11
+
+  * burn_cell was not correctly doing substepping in some cases.
+    This has been fixed (#784)
+
+  * With Intel compilers, logical runtime parameters in Fortran
+    were not being correctly cast to int (#789)
+
+  * Simplified-SDC now works with Fortran nets (#786)
+
+# 21.09
+
+  * Added a new nova network (nova2) with pp and (hot-)CNO and some
+    breakout reactions (#751)
+
+  * Some fixes to the NSE bailout in aprox19 (#739, #753, #755) and
+    the relaxation check on the NSE critera (#754)
+
+  * Added a new unit test for single-zone SDC (burn_cell_sdc) (#744)
+
+# 21.08
+
+  * test_react can now be run with a uniform composition to test GPU
+    performance (#734)
+
+  * the numerical Jacobian now uses a more robust one-sided difference
+    algorithm (#660, #728)
+
+  * for simplified SDC, we now only integrate (rho X, rho e), and no
+    longer integrate (rho E) (#710, #712, #717)
+
+  * for the NSE bailout, we can now relax the conditions needed to enter
+    NSE after a failed burn (#702)
+
+# 21.07
+
+   * The C++ networks now implement abort_on_failure functionality
+     (#697)
+
+# 21.06
+
+   * The ability to use a system BLAS library was removed (#675)
+
+   * An equation of state for hypervelocity impacts was added (#645)
+
+# 21.05
+
+   * For aprox19 + NSE, we now "bail out" of the integration
+     immediately if the state enters NSE, and then do the rest of the
+     update through the NSE table. (#658)
+
+   * The old gamma_law EOS was removed and gamma_law_general was
+     renamed gamma_law.  The old gamma_law EOS have a very reduced
+     subset of thermodynamic quantities that it computed, for
+     efficiency purposes.  This is no longer needed now that we have
+     templated the EOSes and have different eos_t data types (#653).
+
+   * Integration for simplified-SDC was interpreting rtol incorrectly.
+     This has been fixed (#643)
+
+   * Screening for the 3-alpha reaction in the subch, subch2, and nova
+     networks was fixed (#627, #634, #635)
+
+# 21.04
+
+   * We added a new mechanism to recover a failed burn when the state
+     tries to enter NSE during the evolution, when using the aprox19 +
+     NSE network.  Now it will capture the failure and redo the burn
+     if it satisfies the NSE criteria (#628)
+
+   * We updated the VODE logic for rejecting a step to consider mass
+     fractions for both simplified-SDC and true SDC burns (#619)
+
 # 21.03
 
-   * We now integrate internal energy (e) directly instead of integrating
-     temperature (T) for the thermodynamic evolution. T is obtained from e
-     with an EOS call when needed to evaluate the rates. (#496)
+   * We now integrate internal energy (e) directly instead of
+     integrating temperature (T) for the thermodynamic evolution. T is
+     obtained from e with an EOS call when needed to evaluate the
+     rates. (#496)
 
    * simplified-SDC can be used with the NSE table in aprox19 now
      (#423, #497)
@@ -23,8 +186,8 @@
 
    * Microphysics now requires C++17 (gcc >= 7, CUDA >= 11). (#485)
 
-   * The BS integrator was removed.  This was Fortran only, doesn't support
-     SDC integration, and not well used. (#488)
+   * The BS integrator was removed.  This was Fortran only, doesn't
+     support SDC integration, and not well used. (#488)
 
 # 20.12
 
@@ -59,8 +222,8 @@
    * A new single-zone EOS test routine was created as unit_test/eos_cell
      (#382)
 
-   * The gamma_law eos (not gamma_law_general) now fills the sound speed,
-     entropy, and derivatives for more inputs (#374)
+   * The gamma_law eos (not gamma_law_general) now fills the sound
+     speed, entropy, and derivatives for more inputs (#374)
 
    * The rprox network now has screening (#377)
 
@@ -78,8 +241,8 @@
    * The VBDF integrator was removed (#348)
 
    * VODE can now reject an internal timestep that has any abundance
-     change by more than a factor of 2, or an abundance < 0 or > 1,
-     as well as timesteps where the temperature ends up negative. (#350)
+     change by more than a factor of 2, or an abundance < 0 or > 1, as
+     well as timesteps where the temperature ends up negative. (#350)
 
 # 20.07
 
@@ -322,16 +485,16 @@
   * a new subCh network for He burning was added.
 
   * implemented the new c12(a,g)o16 nuclear reaction rate and its
-    corresponding inverse from the work of Deboer et al. 2017 
-    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007). 
-    To use the new rate, user must set `use_c12ag_deboer17` to `true`. 
+    corresponding inverse from the work of Deboer et al. 2017
+    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007).
+    To use the new rate, user must set `use_c12ag_deboer17` to `true`.
     This rate is only useable in the `aprox13`, `aprox19`, `aprox21`,
     and `iso7` reaction rate networks. Closes issue #44.
 
   * a routine util/cj_detonation was added to compute the
      Chapman-Jouguet detonation velocity for any of the networks
 
-  * the burn retry strategy now sticks with the current integrator and 
+  * the burn retry strategy now sticks with the current integrator and
     uses looser tolerances before switching to a different integrator.
 
 # 18.04
@@ -347,7 +510,7 @@
 
    * we now disable some composition derivatives in the EOS
      by default, for performance and memory reasons.  They can
-     be reenabled by defining the preprocessor variable 
+     be reenabled by defining the preprocessor variable
      EXTRA_THERMO (PR #59)
 
 # 17.10

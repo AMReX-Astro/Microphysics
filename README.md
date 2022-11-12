@@ -1,5 +1,4 @@
-[![github pages](https://github.com/starkiller-astro/Microphysics/workflows/github%20pages/badge.svg?branch=main)](https://github.com/starkiller-astro/Microphysics/actions?query=workflow%3A%22github+pages%22)
-[![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
+[![github pages](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/AMReX-Astro/Microphysics/actions/workflows/gh-pages.yml) [![DOI](https://zenodo.org/badge/33425497.svg)](https://zenodo.org/badge/latestdoi/33425497)
 
 # Microphysics
 
@@ -55,9 +54,9 @@ There are several core types of microphysics routines hosted here:
 
   - `test_screening` evaluates the screening routines.
 
-* `util`: linear algebra routines for the various integrators
-  (including BLAS and LINPACK), other math routines, and build
-  scripts
+* `util`: linear algebra routines for the integrators
+  (specifically a linear system solver from LINPACK),
+  other math routines, and build scripts
 
 
 # AMReX-Astro Codes
@@ -67,7 +66,7 @@ the AMReX-Astro codes, Maestro and Castro.
 
 * Castro: http://amrex-astro.github.io/Castro/
 
-* Maestro: http://amrex-astro.github.io/MAESTRO/
+* MAESTROeX: http://amrex-astro.github.io/MAESTROeX/
 
 To use this repository with AMReX codes, set `MICROPHYSICS_HOME` to
 point to the `Microphysics/` directory.
@@ -87,7 +86,7 @@ system to ensure the interfaces are tested.
 # Documentation
 
 A user's guide for Microphysics is available at:
-http://starkiller-astro.github.io/Microphysics/docs/
+http://amrex-astro.github.io/Microphysics/docs/
 
 The sphinx source for the documentation is in `Microphysics/sphinx_docs/`
 
@@ -139,7 +138,7 @@ Development generally follows the following ideas:
 ## Core Developers
 
 People who make a number of substantive contributions will be named
-"core developers" of StarKiller Microphysics. The criteria for
+"core developers" of Microphysics. The criteria for
 becoming a core developer are flexible, but generally involve one of
 the following:
 
@@ -157,7 +156,7 @@ Core developers will be recognized in the following ways:
   * listed in the User's Guide and website as a core developer
 
   * invited to co-author general code papers / proceedings describing
-    StarKiller Microphysics, its performance, etc. (Note: science
+    Microphysics, its performance, etc. (Note: science
     papers will always be left to the science leads to determine
     authorship).
 
@@ -170,4 +169,4 @@ status as a core developer.
 We use github discussions for requesting help and interacting with the
 community:
 
-https://github.com/starkiller-astro/Microphysics/discussions
+https://github.com/amrex-astro/Microphysics/discussions

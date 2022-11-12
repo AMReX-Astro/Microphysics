@@ -1,0 +1,9 @@
+n_cell = 16
+max_grid_size = 32
+
+unit_test.dens_min = 1.0
+unit_test.dens_max = 10.0
+unit_test.temp_min = 1.e4
+unit_test.temp_max   = 1.e5
+
+

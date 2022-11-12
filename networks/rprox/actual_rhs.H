@@ -79,9 +79,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_p_c12_to_n13(tfactors, rate, dratedt);
 
     int jscr = 0;
-    screen5(pstate, jscr,
-            zion[C12-1], aion[C12-1], zion[H1-1], aion[H1-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           zion[C12-1], aion[C12-1], zion[H1-1], aion[H1-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irpg12c) = dens * rate * sc1a;
     rr(2).rates(irpg12c) = dens * (dratedt * sc1a + rate * sc1adt);
@@ -90,14 +90,14 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_he4_he4_he4_to_c12(tfactors, rate, dratedt);
 
     jscr = 1;
-    screen5(pstate, jscr,
-            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
+           sc1a, sc1adt, sc1add);
 
     jscr = 2;
-    screen5(pstate, jscr,
-            zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
-            sc2a, sc2adt, sc2add);
+    screen(pstate, jscr,
+           zion[He4-1], aion[He4-1], 4.0_rt, 8.0_rt,
+           sc2a, sc2adt, sc2add);
 
     sc3a = sc1a * sc2a;
     sc3adt = sc1adt*sc2a + sc1a*sc2adt;
@@ -109,9 +109,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_p_f17_to_ne18(tfactors, rate, dratedt);
 
     jscr = 3;
-    screen5(pstate, jscr,
-            zion[F17-1], aion[F17-1], zion[H1-1], aion[H1-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           zion[F17-1], aion[F17-1], zion[H1-1], aion[H1-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irpg17f) = dens * rate * sc1a;
     rr(2).rates(irpg17f) = dens * (dratedt * sc1a + rate * sc1adt);
@@ -125,9 +125,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_he4_o15_to_ne19(tfactors, rate, dratedt);
 
     jscr = 4;
-    screen5(pstate, jscr,
-            zion[O15-1], aion[O15-1], zion[He4-1], aion[He4-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           zion[O15-1], aion[O15-1], zion[He4-1], aion[He4-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irag15o) = dens * rate * sc1a;
     rr(2).rates(irag15o) = dens * (dratedt * sc1a + rate * sc1adt);
@@ -136,9 +136,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_he4_o16_to_ne20(tfactors, rate, dratedt);
 
     jscr = 5;
-    screen5(pstate, jscr,
-            zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           zion[O16-1], aion[O16-1], zion[He4-1], aion[He4-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irag16o) = dens * rate * sc1a;
     rr(2).rates(irag16o) = dens * (dratedt * sc1a + rate * sc1adt);
@@ -147,9 +147,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_p_o16_to_f17(tfactors, rate, dratedt);
 
     jscr = 6;
-    screen5(pstate, jscr,
-            zion[O16-1], aion[O16-1], zion[H1-1], aion[H1-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           zion[O16-1], aion[O16-1], zion[H1-1], aion[H1-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irpg16o) = dens * rate * sc1a;
     rr(2).rates(irpg16o) = dens * (dratedt * sc1a + rate * sc1adt);
@@ -158,9 +158,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_he4_o14_to_p_f17(tfactors, rate, dratedt);
 
     jscr = 7;
-    screen5(pstate, jscr,
-            zion[O14-1], aion[O14-1], zion[He4-1], aion[He4-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           zion[O14-1], aion[O14-1], zion[He4-1], aion[He4-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irap14o) = dens * rate * sc1a;
     rr(2).rates(irap14o) = dens * (dratedt * sc1a + rate * sc1adt);
@@ -170,9 +170,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_p_n14_to_o15(tfactors, rate, dratedt);
 
     jscr = 8;
-    screen5(pstate, jscr,
-            7.0_rt, 14.0_rt, zion[H1-1], aion[H1-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           7.0_rt, 14.0_rt, zion[H1-1], aion[H1-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irlambCNO) = amrex::min(rr(1).rates(irwk15o),
                                         rate * dens * sc1a * y(H1));
@@ -188,9 +188,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_he4_si26_to_p_p29(tfactors, rate, dratedt);
 
     jscr = 9;
-    screen5(pstate, jscr,
-            14.0_rt, 26.0_rt, zion[He4-1], aion[He4-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           14.0_rt, 26.0_rt, zion[He4-1], aion[He4-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irlambda1) = amrex::max(rr(1).rates(irLweak),
                                         dens * y(He4) * rate * sc1a);
@@ -209,9 +209,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_he4_ti44_to_p_v47(tfactors, rate, dratedt);
 
     jscr = 10;
-    screen5(pstate, jscr,
-            22.0_rt, 44.0_rt, zion[He4-1], aion[He4-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           22.0_rt, 44.0_rt, zion[He4-1], aion[He4-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irlambda2) = amrex::max(rr(1).rates(irla2),
                                         dens * y(He4) * rate * sc1a);
@@ -229,9 +229,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_he4_ne18_to_p_na21(tfactors, rate, dratedt);
 
     jscr = 11;
-    screen5(pstate, jscr,
-            10.0_rt, 18.0_rt, zion[He4-1], aion[He4-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           10.0_rt, 18.0_rt, zion[He4-1], aion[He4-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irs1) = wk18ne / (wk18ne + dens * y(He4) * rate * sc1a);
     rr(2).rates(irs1) = -rr(1).rates(irs1) * dens * y(He4) * (dratedt * sc1a + rate * sc1adt)
@@ -245,9 +245,9 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rate_p_ne19_to_na20(tfactors, rate, dratedt);
 
     jscr = 12;
-    screen5(pstate, jscr,
-            10.0_rt, 19.0_rt, zion[H1-1], aion[H1-1],
-            sc1a, sc1adt, sc1add);
+    screen(pstate, jscr,
+           10.0_rt, 19.0_rt, zion[H1-1], aion[H1-1],
+           sc1a, sc1adt, sc1add);
 
     rr(1).rates(irr1) = wk19ne / (wk19ne + dens * y(H1) * rate * sc1a);
     rr(2).rates(irr1) = -rr(1).rates(irr1) * dens * y(H1) * (dratedt * sc1a + rate * sc1adt)
@@ -421,7 +421,7 @@ void ener_gener_rate(T& dydt, Real& enuc)
     enuc = 0.0_rt;
 
     for (int i = 1; i <= NumSpec; ++i) {
-        enuc -= dydt(i) * aion[i-1] * rprox::ebin(i);
+        enuc -= dydt(i) * aion[i-1] * network::ebin(i);
     }
 }
 

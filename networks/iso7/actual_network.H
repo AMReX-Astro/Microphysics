@@ -1,41 +1,26 @@
 #ifndef _actual_network_H_
 #define _actual_network_H_
 
+#define NEW_NETWORK_IMPLEMENTATION
+
 #include <AMReX_REAL.H>
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
 
+using namespace amrex;
+
 #include <fundamental_constants.H>
 #include <network_properties.H>
-#include <network_utilities.H>
-
-using namespace amrex;
+#include <rhs_type.H>
+#include <extern_parameters.H>
+#include <tfactors.H>
+#include <aprox_rates.H>
 
 void actual_network_init();
 
-namespace C
-{
-    namespace Legacy
-    {
-        // These are the values of the constants used in the original iso7
-        constexpr amrex::Real m_n = 1.67492721184e-24_rt;
-        constexpr amrex::Real m_p = 1.67262163783e-24_rt;
-        constexpr amrex::Real m_e = 9.1093821545e-28_rt;
-
-        constexpr amrex::Real eV2erg  = 1.60217648740e-12_rt;
-        constexpr amrex::Real MeV2erg = eV2erg*1.0e6_rt;
-        constexpr amrex::Real MeV2gr  = MeV2erg/(c_light*c_light);
-
-        constexpr amrex::Real n_A = 6.0221417930e23_rt;
-
-        // conversion factor for nuclear energy generation rate
-        constexpr amrex::Real enuc_conv2 = -n_A * c_light * c_light;
-    }
-}
-
 const std::string network_name = "iso7";
 
-namespace iso7
+namespace network
 {
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
@@ -43,7 +28,7 @@ namespace iso7
 }
 
 namespace Rates {
-    enum NetworkRatesFR {
+    enum NetworkRates {
         C12_He4_to_O16 = 1,
         He4_He4_He4_to_C12,
         C12_C12_to_Ne20_He4,
@@ -55,34 +40,8 @@ namespace Rates {
         Mg24_He4_to_Si28,
         Ca40_He4_to_Ti44,
         Si28_7He4_to_Ni56,
-        NumRatesFR = Si28_7He4_to_Ni56
+        NumRates = Si28_7He4_to_Ni56
     };
-
-    enum NetworkRates {C12_He4_to_O16_forward = 1,
-                       C12_He4_to_O16_reverse,
-                       He4_He4_He4_to_C12_forward,
-                       He4_He4_He4_to_C12_reverse,
-                       C12_C12_to_Ne20_He4_forward,
-                       C12_C12_to_Ne20_He4_reverse,
-                       C12_O16_to_Mg24_He4_forward,
-                       C12_O16_to_Mg24_He4_reverse,
-                       C12_O16_to_Si28_forward,
-                       C12_O16_to_Si28_reverse,
-                       O16_O16_to_Si28_He4_forward,
-                       O16_O16_to_Si28_He4_reverse,
-                       O16_He4_to_Ne20_forward,
-                       O16_He4_to_Ne20_reverse,
-                       Ne20_He4_to_Mg24_forward,
-                       Ne20_He4_to_Mg24_reverse,
-                       Mg24_He4_to_Si28_forward,
-                       Mg24_He4_to_Si28_reverse,
-                       Ca40_He4_to_Ti44_forward,
-                       Ca40_He4_to_Ti44_reverse,
-                       Si28_7He4_to_Ni56_forward,
-                       Si28_7He4_to_Ni56_reverse,
-                       NumRates = Si28_7He4_to_Ni56_reverse};
-
-    const int NumGroups = 2 + NumSpec;
 }
 
 namespace RHS {
@@ -115,6 +74,20 @@ namespace RHS {
         data.exponent_D = 0;
         data.exponent_E = 0;
         data.exponent_F = 0;
+
+        data.forward_branching_ratio = 1.0_rt;
+        data.reverse_branching_ratio = 1.0_rt;
+
+        data.apply_identical_particle_factor = 1;
+
+        data.rate_can_be_tabulated = 1;
+
+        data.screen_forward_reaction = 1;
+        data.screen_reverse_reaction = 0; // For consistency with original iso7
+
+        data.additional_reaction_1 = -1;
+        data.additional_reaction_2 = -1;
+        data.additional_reaction_3 = -1;
 
         switch (rate) {
 
@@ -172,6 +145,9 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
             data.exponent_E = 1;
+
+            // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
+            data.forward_branching_ratio = 0.5_rt;
             break;
 
         case C12_O16_to_Si28:
@@ -186,6 +162,9 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+
+            // Equal probability branching ratio between (Mg24 + He4) and (Si28) endpoints
+            data.forward_branching_ratio = 0.5_rt;
             break;
 
         case O16_O16_to_Si28_He4:
@@ -244,6 +223,20 @@ namespace RHS {
             data.exponent_D = 1;
             break;
 
+        case Ca40_He4_to_Ti44:
+            data.species_A = Ca40;
+            data.species_B = He4;
+            data.species_D = Ti44;
+
+            data.number_A = 1;
+            data.number_B = 1;
+            data.number_D = 1;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
         case Si28_7He4_to_Ni56:
             data.species_A = Si28;
             data.species_B = He4;
@@ -256,6 +249,8 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+
+            data.additional_reaction_1 = Ca40_He4_to_Ti44;
             break;
 
         }
@@ -263,393 +258,97 @@ namespace RHS {
         return data;
     }
 
-    // Contribution to the Jacobian from d(RHS(species1)) / d(species2)
+    template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr jac_t jac_data (int species1, int species2, int rateindex)
+    void evaluate_analytical_rate (const Real& rho, const tf_t& tf, const Real& y_e,
+                                   const Real& eta, const Array1D<Real, 1, NumSpec>& y,
+                                   Real& fr, Real& frdt, Real& rr, Real& rrdt)
     {
         using namespace Species;
         using namespace Rates;
 
-        jac_t data{};
-
-        // The RHS for species 1 has the form prefactor * Y(speciesA) * Y(speciesB) * Y(speciesC) * rate.
-        // If species2 is one of species{A,B,C}, then the Jacobian has a contribution from the derivative
-        // of the RHS term with respect to Y(species2). Additionally, the rate itself may have a functional
-        // dependence on species2 so we also return the same format for d(rate) / d(species2) if it exists.
-
-        data.prefactor  = 0.0_rt;
-        data.specindex1 = -1;
-        data.specindex2 = -1;
-        data.specindex3 = -1;
-
-        data.rate_prefactor = 0.0_rt;
-        data.rate_specindex1 = -1;
-        data.rate_specindex2 = -1;
-        data.rate_specindex3 = -1;
-
-        switch (jac_rate<NumSpec, NumRates>(species1, species2, rateindex)) {
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, He4_He4_He4_to_C12_forward):
-            data.prefactor = -9.0_rt;
-            data.specindex1 = He4;
-            data.specindex2 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, C12_He4_to_O16_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, O16_He4_to_Ne20_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, Ne20_He4_to_Mg24_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = Ne20;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, Mg24_He4_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = Mg24;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, Si28_7He4_to_Ni56_forward):
-            data.prefactor = -7.0_rt;
-            data.specindex1 = Si28;
-
-            data.rate_prefactor = -7.0_rt;
-            data.rate_specindex1 = He4;
-            data.rate_specindex2 = Si28;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, He4, Si28_7He4_to_Ni56_reverse):
-            data.rate_prefactor = 7.0_rt;
-            data.rate_specindex1 = Ni56;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, C12, He4_He4_He4_to_C12_reverse):
-            data.prefactor = 3.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, C12, C12_He4_to_O16_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, C12, C12_C12_to_Ne20_He4_forward):
-            data.prefactor = 2.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, C12, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, O16, C12_He4_to_O16_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, O16, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, O16, O16_O16_to_Si28_He4_forward):
-            data.prefactor = 2.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, O16, O16_He4_to_Ne20_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, Ne20, O16_He4_to_Ne20_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, Ne20, Ne20_He4_to_Mg24_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, Mg24, Ne20_He4_to_Mg24_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, Mg24, Mg24_He4_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, Si28, Mg24_He4_to_Si28_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, Si28, Si28_7He4_to_Ni56_forward):
-            data.prefactor = -7.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(He4, Ni56, Si28_7He4_to_Ni56_reverse):
-            data.prefactor = 7.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, He4, He4_He4_He4_to_C12_forward):
-            data.prefactor = 3.0_rt;
-            data.specindex1 = He4;
-            data.specindex2 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, He4, C12_He4_to_O16_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, C12, He4_He4_He4_to_C12_reverse):
-            data.prefactor = -1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, C12, C12_He4_to_O16_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, C12, C12_C12_to_Ne20_He4_forward):
-            data.prefactor = -4.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, C12, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, C12, C12_O16_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, O16, C12_He4_to_O16_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, O16, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(C12, O16, C12_O16_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, He4, C12_He4_to_O16_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, He4, O16_He4_to_Ne20_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, C12, C12_He4_to_O16_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, C12, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, C12, C12_O16_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, O16, C12_He4_to_O16_reverse):
-            data.prefactor = -1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, O16, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, O16, C12_O16_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, O16, O16_O16_to_Si28_He4_forward):
-            data.prefactor = -4.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, O16, O16_He4_to_Ne20_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(O16, Ne20, O16_He4_to_Ne20_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ne20, He4, O16_He4_to_Ne20_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ne20, He4, Ne20_He4_to_Mg24_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = Ne20;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ne20, C12, C12_C12_to_Ne20_He4_forward):
-            data.prefactor = 2.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ne20, O16, O16_He4_to_Ne20_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ne20, Ne20, O16_He4_to_Ne20_reverse):
-            data.prefactor = -1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ne20, Ne20, Ne20_He4_to_Mg24_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ne20, Mg24, Ne20_He4_to_Mg24_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, He4, Ne20_He4_to_Mg24_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = Ne20;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, He4, Mg24_He4_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = Mg24;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, C12, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, O16, C12_O16_to_Mg24_He4_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, Ne20, Ne20_He4_to_Mg24_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, Mg24, Ne20_He4_to_Mg24_reverse):
-            data.prefactor = -1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, Mg24, Mg24_He4_to_Si28_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Mg24, Si28, Mg24_He4_to_Si28_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, He4, Mg24_He4_to_Si28_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = Mg24;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, He4, Si28_7He4_to_Ni56_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = Si28;
-
-            data.rate_prefactor = -1.0_rt;
-            data.rate_specindex1 = He4;
-            data.rate_specindex2 = Si28;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, He4, Si28_7He4_to_Ni56_reverse):
-            data.rate_prefactor = 1.0_rt;
-            data.rate_specindex1 = Ni56;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, C12, C12_O16_to_Si28_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, O16, O16_O16_to_Si28_He4_forward):
-            data.prefactor = 2.0_rt;
-            data.specindex1 = O16;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, O16, C12_O16_to_Si28_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = C12;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, Mg24, Mg24_He4_to_Si28_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, Si28, Mg24_He4_to_Si28_reverse):
-            data.prefactor = -1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, Si28, Si28_7He4_to_Ni56_forward):
-            data.prefactor = -1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Si28, Ni56, Si28_7He4_to_Ni56_reverse):
-            data.prefactor = 1.0_rt;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ni56, He4, Si28_7He4_to_Ni56_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = Si28;
-
-            data.rate_prefactor = 1.0_rt;
-            data.rate_specindex1 = He4;
-            data.rate_specindex2 = Si28;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ni56, He4, Si28_7He4_to_Ni56_reverse):
-            data.rate_prefactor = -1.0_rt;
-            data.rate_specindex1 = Ni56;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ni56, Si28, Si28_7He4_to_Ni56_forward):
-            data.prefactor = 1.0_rt;
-            data.specindex1 = He4;
-            break;
-
-        case jac_rate<NumSpec, NumRates>(Ni56, Ni56, Si28_7He4_to_Ni56_reverse):
-            data.prefactor = -1.0_rt;
-            break;
-
+        if constexpr (rate == C12_He4_to_O16) {
+            rate_c12ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
         }
-
-        return data;
+        else if constexpr (rate == He4_He4_He4_to_C12) {
+            rate_triplealf(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_C12_to_Ne20_He4) {
+            rate_c12c12(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Mg24_He4) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == C12_O16_to_Si28) {
+            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_O16_to_Si28_He4) {
+            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == O16_He4_to_Ne20) {
+            rate_o16ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ne20_He4_to_Mg24) {
+            rate_ne20ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Mg24_He4_to_Si28) {
+            rate_mg24ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
+        else if constexpr (rate == Ca40_He4_to_Ti44) {
+            rate_ca40ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+        }
     }
-}
+
+    template<int rate>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    void postprocess_rate (const Real& rho, const tf_t& tf, const Real& y_e,
+                           const Real& eta, const Array1D<Real, 1, NumSpec>& y,
+                           Real& fr, Real& frdt, Real& rr, Real& rrdt,
+                           Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
+                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
+                           Real& fr3, Real& fr3dt, Real& rr3, Real& rr3dt)
+    {
+        using namespace Species;
+        using namespace Rates;
+
+        if constexpr (rate == Si28_7He4_to_Ni56) {
+            // first rate corresponds to Ca40_He4_to_Ti44
+
+            if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
+
+                Real t992  = tf.t972 * tf.t9;
+                Real t9i92 = 1.0_rt / t992;
+
+                Real yeff_ca40   = t9i92 * std::exp(239.42_rt * tf.t9i - 74.741_rt);
+                Real yeff_ca40dt = -yeff_ca40 * (239.42_rt * tf.t9i2 + 4.5_rt * tf.t9i);
+
+                Real yeff_ti44   = t992  * std::exp(-274.12_rt * tf.t9i + 74.914_rt);
+                Real yeff_ti44dt = yeff_ti44*(274.12_rt * tf.t9i2 + 4.5_rt * tf.t9i);
+
+                Real denom = std::pow(rho * y(He4), 3.0_rt);
+
+                fr   = yeff_ca40 * denom * fr1;
+                frdt = (yeff_ca40dt * fr1 + yeff_ca40 * fr1dt) * denom * 1.0e-9_rt;
+
+                Real zz = 1.0_rt / denom;
+                rr = amrex::min(1.0e10_rt, yeff_ti44 * rr1 * zz);
+
+                if (rr == 1.0e10_rt) {
+                    rrdt = 0.0_rt;
+                } else {
+                    rrdt = (yeff_ti44dt * rr1 + yeff_ti44 * rr1dt) * zz * 1.0e-9_rt;
+                }
+            }
+        }
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real ener_gener_rate (Real const& dydt)
+    {
+        return dydt * network::mion(spec) * C::Legacy::enuc_conv2;
+    }
+
+} // namespace RHS
 
 #endif

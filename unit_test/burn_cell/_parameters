@@ -41,4 +41,4 @@ X20           real       0.0d0
 X21           real       0.0d0
 
 
-
+skip_initial_normalization    int    0

@@ -1,2 +1,27 @@
-do_cxx=1
-amr.probin_file = probin_ignition
+unit_test.run_prefix = "react_ignition_"
+
+unit_test.small_temp = 1e5
+unit_test.small_dens = 1e5
+
+integrator.burner_verbose = 0
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+integrator.jacobian   = 2
+
+integrator.renormalize_abundances = 0
+
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
+integrator.atol_spec = 1.0e-6
+integrator.atol_enuc = 1.0e-6
+
+unit_test.tmax    = 1.0
+
+unit_test.density = 1.e9
+unit_test.temperature = 1.d9
+
+unit_test.X1  = 1.0
+unit_test.X2  = 0.0
+unit_test.X3  = 0.0

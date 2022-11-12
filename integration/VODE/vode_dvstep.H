@@ -124,7 +124,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.H = vstate.HSCAL * vstate.ETA;
         vstate.HSCAL = vstate.H;
         vstate.RC = vstate.RC * vstate.ETA;
-        vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
     }
 
@@ -134,6 +133,26 @@ int dvstep (burn_t& state, dvode_t& vstate)
     // multiplying the yh array by the Pascal triangle matrix.
     // dvset is called to calculate all integration coefficients.
     // RC is the ratio of new to old values of the coefficient H / EL(2) = h / l1.
+
+    // Save the value of y before calling the solver.
+    // We will use this saved value to determine if any
+    // constraints were violated in the update.
+
+    Array1D<Real, 1, VODE_NEQS> y_save;
+#ifdef STRANG
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        y_save(i) = vstate.y(i);
+    }
+#endif
+#ifdef SIMPLIFIED_SDC
+    Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        y_save(i) = vstate.y(i);
+    }
+    for (int i = 1; i <= NumSpec; ++i) {
+        y_save(SFS+i) /= rho_old;
+    }
+#endif
 
     while (true) {
 
@@ -147,14 +166,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.RC *= (vstate.RL1 / vstate.PRL1);
         vstate.PRL1 = vstate.RL1;
 
-        // Save the value of y before calling the solver.
-        // We will use this saved value to determine if any
-        // constraints were violated in the update.
-
-        Array1D<Real, 1, VODE_NEQS> y_save;
-        for (int i = 1; i <= VODE_NEQS; ++i) {
-            y_save(i) = vstate.y(i);
-        }
 
         // Call the nonlinear system solver.
 
@@ -199,7 +210,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.H = vstate.HSCAL * vstate.ETA;
             vstate.HSCAL = vstate.H;
             vstate.RC *= vstate.ETA;
-            vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
             continue;
         }
@@ -211,15 +221,15 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
 #ifdef SIMPLIFIED_SDC
 #if defined(SDC_EVOLVE_ENERGY)
-        if (vstate.y(SEDEN+1) < 0.0_rt || vstate.y(SEINT+1) < 0.0_rt) {
+	if (vstate.y(SEINT+1) < 0.0_rt) {
+	    valid_update = false;
+	}
+
+        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+
+        if (rho_current < 0.0_rt) {
             valid_update = false;
         }
-#endif
-#endif
-
-#ifdef SIMPLIFIED_SDC
-#if defined(SDC_EVOLVE_ENERGY)
-        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 #endif
 #endif
 
@@ -230,10 +240,16 @@ int dvstep (burn_t& state, dvode_t& vstate)
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-            if (std::abs(y_save(i)) >= atol_spec &&
+            if (std::abs(y_save(i)) > X_reject_buffer * atol_spec && std::abs(vstate.y(i)) > X_reject_buffer * atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
+#ifdef MICROPHYSICS_DEBUG
+#ifndef AMREX_USE_GPU 
+               std::cout << "rejecting step based on species " << i << " from " << y_save(i) << " to " << vstate.y(i) << std::endl;
+#endif
+#endif
                 valid_update = false;
+                break;
             }
 
             // Constrain abundances such that they are not negative (within a tolerance)
@@ -250,29 +266,56 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
 #ifdef SIMPLIFIED_SDC
 
-            // these are basically the same checks as with Strang above, except
-            // now we are evolving rhoX instead of X
+            // these are basically the same checks as with Strang
+            // above, except now we are evolving rhoX instead of X.
+            // Also, we only consider the reactive portion of the
+            // update
 
+            Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
 
-            // this doesn't seem to work well with SDC
-
-            //if (std::abs(y_save(SFS+i)) >= atol_spec * rho_current &&
-            //    (std::abs(vstate.y(SFS+i)) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
-            //     std::abs(vstate.y(SFS+i)) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
-            //    valid_update = false;
-            //}
-
-            if (vstate.y(SFS+i) < -vode_failure_tolerance) {
+            if (std::abs(y_save(SFS+i)) > X_reject_buffer * atol_spec &&
+                std::abs(X_current) > X_reject_buffer * atol_spec &&
+                (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
+                 std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
+#ifdef MICROPHYSICS_DEBUG
+#ifndef AMREX_USE_GPU
+                std::cout << "rejecting step based on species " << i << " from " << y_save(SFS+i) << " to " << X_current << std::endl;
+#endif
+#endif
                 valid_update = false;
+                break;
             }
 
 #if defined(SDC_EVOLVE_ENERGY)
+            if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
+                valid_update = false;
+            }
+
             if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
                 valid_update = false;
             }
 #endif
 
 #endif
+
+#ifdef TRUE_SDC
+            // as above, we want to make sure that the mass fractions stay bounded, but we are
+            // evolving:
+            //
+            //  y(1) = density
+            //  y(2:2+NumSpec-1) = rho X
+            //  y(NumSpec+2) = rho e
+
+            if (vstate.y(1+i) < -vode_failure_tolerance * vstate.y(1)) {
+                valid_update = false;
+            }
+
+            if (vstate.y(1+i) > (1.0_rt + vode_failure_tolerance) * vstate.y(1)) {
+                valid_update = false;
+            }
+#endif
+
+
         }
 
         // The corrector has converged (NFLAG = 0). The local error test is
@@ -319,7 +362,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.NEWQ = vstate.NQ;
             vstate.NEWH = 0;
             vstate.ETA = 1.0_rt;
-            vstate.HNEW = vstate.H;
             vstate.ETAMAX = ETAMX3;
             if (vstate.NST <= 10) {
                 vstate.ETAMAX = ETAMX2;
@@ -377,7 +419,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.H = vstate.HSCAL * vstate.ETA;
             vstate.HSCAL = vstate.H;
             vstate.RC = vstate.RC * vstate.ETA;
-            vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
             continue;
 
@@ -415,7 +456,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             vstate.H = vstate.HSCAL * vstate.ETA;
             vstate.HSCAL = vstate.H;
             vstate.RC = vstate.RC * vstate.ETA;
-            vstate.NQNYH = vstate.NQ * VODE_NEQS;
 
             continue;
 
@@ -510,7 +550,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         vstate.ETA = amrex::min(vstate.ETA, vstate.ETAMAX);
         vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * vstate.HMXI * vstate.ETA);
         vstate.NEWH = 1;
-        vstate.HNEW = vstate.H * vstate.ETA;
         vstate.ETAMAX = ETAMX3;
         if (vstate.NST <= 10) {
             vstate.ETAMAX = ETAMX2;
@@ -525,7 +564,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
     vstate.NEWQ = vstate.NQ;
     vstate.NEWH = 0;
     vstate.ETA = 1.0_rt;
-    vstate.HNEW = vstate.H;
     vstate.ETAMAX = ETAMX3;
     if (vstate.NST <= 10) {
         vstate.ETAMAX = ETAMX2;

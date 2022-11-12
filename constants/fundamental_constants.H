@@ -50,7 +50,10 @@ namespace C
 
     // mass of electron
     constexpr amrex::Real m_e = 9.10938291e-28;  // g
-
+  
+    // atomic mass unit
+    constexpr amrex::Real m_u = 1.6605390666e-24; // g
+  
     // electron charge
     // NIST: q_e = 1.602176565e-19 C
     //
@@ -81,6 +84,23 @@ namespace C
 
     // solar radius
     constexpr amrex::Real R_solar = 6.957e10;
+
+    namespace Legacy
+    {
+        // These are the values of the constants used in the original aprox networks
+        constexpr amrex::Real m_n = 1.67492721184e-24;
+        constexpr amrex::Real m_p = 1.67262163783e-24;
+        constexpr amrex::Real m_e = 9.1093821545e-28;
+
+        constexpr amrex::Real eV2erg  = 1.60217648740e-12;
+        constexpr amrex::Real MeV2erg = eV2erg * 1.0e6;
+        constexpr amrex::Real MeV2gr  = MeV2erg / (c_light * c_light);
+
+        constexpr amrex::Real n_A = 6.0221417930e23;
+
+        // conversion factor for nuclear energy generation rate
+        constexpr amrex::Real enuc_conv2 = -n_A * c_light * c_light;
+    }
 }
 
 #endif

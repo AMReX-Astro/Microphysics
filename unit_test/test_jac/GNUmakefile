@@ -14,9 +14,11 @@ USE_REACT = TRUE
 
 EBASE = main
 
-USE_CXX_EOS = TRUE
+USE_EXTRA_THERMO = TRUE
 
 USE_CXX_REACTIONS = TRUE
+
+BL_NO_FORT=TRUE
 
 ifeq ($(USE_CXX_REACTIONS),TRUE)
   DEFINES += -DCXX_REACTIONS
@@ -44,7 +46,4 @@ Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-clean::
-	$(RM) *.dat
 

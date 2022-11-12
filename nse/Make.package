@@ -1,0 +1,6 @@
+ifeq ($(USE_ACTUAL_NSE), TRUE)
+     CEXE_headers += actual_nse.H
+     CEXE_headers += nse_index.H
+
+     CEXE_sources += nse_index.cpp
+endif

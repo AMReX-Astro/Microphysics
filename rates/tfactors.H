@@ -86,7 +86,7 @@ tf_t get_tfactors(amrex::Real temp)
     // tf.t972  = tf.t9*tf.t952;
     tf.t972  = tf.t92*tf.t932;
     
-    tf.t913  = std::pow(tf.t9, 1.0_rt/3.0_rt);
+    tf.t913  = std::cbrt(tf.t9);
     tf.t923  = tf.t913*tf.t913;
     tf.t943  = tf.t9*tf.t913;
     tf.t953  = tf.t9*tf.t923;

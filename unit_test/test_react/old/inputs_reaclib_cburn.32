@@ -18,7 +18,6 @@
   ! 2 = numerical jacobian
   jacobian   = 1
 
-  retry_burn = .false.
   renormalize_abundances = .false.
 
   call_eos_in_rhs = T
@@ -27,9 +26,7 @@
 
   rtol_spec = 1.0d-12
   rtol_enuc = 1.0d-9
-  rtol_temp = 1.0d-9
   atol_spec = 1.0d-12
   atol_enuc = 1.0d-9
-  atol_temp = 1.0d-9
-  
+
 /

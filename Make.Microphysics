@@ -9,9 +9,6 @@ CUDA_VERBOSE ?= FALSE
 # default is not to compile in the conductivity
 USE_CONDUCTIVITY ?= FALSE
 
-# system blas
-BLAS_LIBRARY ?= -lopenblas
-
 TOP := $(MICROPHYSICS_HOME)
 
 # default microphysics locations
@@ -25,9 +22,8 @@ EBASE ?= main
 # Networks and Util this list will be searched for runtime parameters
 EXTERN_CORE ?=
 
-
-ifeq ($(USE_SYSTEM_BLAS), TRUE)
-  LIBRARIES += $(BLAS_LIBRARY)
+ifeq ($(USE_MICROPHYSICS_DEBUG),TRUE)
+  DEFINES += -DMICROPHYSICS_DEBUG
 endif
 
 ifdef USE_CUDA
@@ -71,11 +67,6 @@ endif
 
 ifeq ($(USE_REACT), TRUE)
   DEFINES += -DREACTIONS
-endif
-
-USE_NETWORK_SOLVER ?= FALSE
-ifeq ($(USE_NETWORK_SOLVER), TRUE)
-  DEFINES += -DNETWORK_SOLVER
 endif
 
 ifeq ($(USE_REACT_SPARSE_JACOBIAN), TRUE)
@@ -147,13 +138,12 @@ INCLUDE_LOCATIONS += $(MICROPHYSICS_AUTO_SOURCE_DIR)
 # runtime parameters
 #------------------------------------------------------------------------------
 
-# runtime parameter support for extern/ routines
-F90EXE_sources += extern.F90
 CEXE_sources += extern_parameters.cpp
-FEXE_headers += extern_parameters_F.H
 CEXE_headers += extern_parameters.H
 
-EXTERN_TEMPLATE := $(MICROPHYSICS_HOME)/interfaces/extern_probin.template
+# for dependency resolution
+
+AUTO_BUILD_SOURCES += $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
 
 # these are for finding runtime parameters
 EXTERN_SEARCH += $(EXTERN_CORE) $(MICROPHYSICS_HOME)/unit_test
@@ -163,17 +153,18 @@ endif
 
 EXTERN_PARAMETERS := $(shell $(MICROPHYSICS_HOME)/util/build_scripts/findparams.py $(EXTERN_SEARCH))
 
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
 
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
+
+$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)
 	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
 	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py \
-           -t $(EXTERN_TEMPLATE) -o $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90 -n extern \
            --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
            --pa "$(EXTERN_PARAMETERS)"
 
 # for debugging
-test_extern_params: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90
+test_extern_params: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp
 
 #------------------------------------------------------------------------------
 # build info
@@ -237,8 +228,6 @@ clean::
 clean::
 	$(RM) network.f90
 	$(RM) extern.f90
-	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
-	@if [ -L nse19.tbl ]; then rm -f nse19.tbl; fi
 
 
 # for debugging.  To see the value of a Makefile variable,

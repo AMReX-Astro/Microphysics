@@ -7,28 +7,19 @@
 #include <ArrayUtilities.H>
 #include <network.H>
 
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
+#include <integrator_data.H>
 
-#ifdef STRANG
-const int VODE_NEQS = NumSpec + 1;
-#endif
+const int VODE_NEQS = INT_NEQS;
 
-#ifdef SIMPLIFIED_SDC
-const int VODE_NEQS = SVAR_EVOLVE;
-#endif
-
-#ifdef TRUE_SDC
-const int VODE_NEQS = NumSpec + 2;
-#endif
-
-typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
+typedef amrex::Array1D<short, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
 typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
+
+// CCMXJ  = Threshhold on DRC for updating the Jacobian
 const amrex::Real CCMXJ = 0.2e0_rt;
+
 const amrex::Real HMIN = 0.0_rt;
 
 // We will use this parameter to determine if a given species abundance
@@ -39,8 +30,8 @@ const Real vode_failure_tolerance = 1.e-2_rt;
 // For each species whose abundance is above a certain threshold, we do
 // not allow its mass fraction to change by more than a certain amount
 // in any integration step.
-const Real vode_increase_change_factor = 2.0_rt;
-const Real vode_decrease_change_factor = 0.5_rt;
+const Real vode_increase_change_factor = 4.0_rt;
+const Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
@@ -50,20 +41,109 @@ const int VODE_LMAX = VODE_MAXORD + 1;
 // How many timesteps should pass before refreshing the Jacobian
 const int max_steps_between_jacobian_evals = 50;
 
+#ifdef NSE_THERMO
+const int MIN_NSE_BAILOUT_STEPS = 10;
+#endif
+
 // Type dvode_t contains the integration solution and control variables
 struct dvode_t
 {
-    amrex::Real CONP, CRATE, DRC;
-    amrex::Real ETA, ETAMAX, H, HNEW, HSCAL, PRL1, HMXI;
-    amrex::Real RC, RL1, tn;
-    int NFE, NJE, NST;
-    int ICF, IPUP, JCUR;
-    int L;
-    int NEWH, NEWQ, NQ, NQNYH, NQWAIT, NSLJ;
+    // CONP   = The saved value of TQ(5)
+    amrex::Real CONP;
+
+    // CRATE  = Estimated corrector convergence rate constant
+    amrex::Real CRATE;
+
+    // Relative change in H*RL1 since last DVJAC call
+    amrex::Real DRC;
+
+    // ETA    = Saved tentative ratio of new to old H
+    amrex::Real ETA;
+
+    // ETAMAX = Saved maximum value of ETA to be allowed
+    amrex::Real ETAMAX;
+
+    // H      = The step size
+    amrex::Real H;
+
+    // HSCAL  = Stepsize in scaling of YH array
+    amrex::Real HSCAL;
+
+    // PRL1   = The saved value of RL1
+    amrex::Real PRL1;
+
+    // HMXI   = Inverse of the maximum absolute value of H to be used.
+    //          HMXI = 0.0 is allowed and corresponds to an infinite HMAX.
+    amrex::Real HMXI;
+
+    // RC     = Ratio of current H*RL1 to value on last DVJAC call
+    amrex::Real RC;
+
+    // RL1    = The reciprocal of the coefficient EL(1)
+    amrex::Real RL1;
+
+    // TN     = The independent variable, updated on each step taken
+    amrex::Real tn;
+
+    // NFE    = The number of f evaluations for the problem so far
+    int NFE;
+
+    // NJE    = The number of Jacobian evaluations so far
+    int NJE;
+
+    // NST    = The number of steps taken for the problem so far
+    int NST;
+
+    // ICF    = Integer flag for convergence failure in DVNLSD:
+    //            0 means no failures
+    //            1 means convergence failure with out of date Jacobian
+    //                   (recoverable error)
+    //            2 means convergence failure with current Jacobian or
+    //                   singular matrix (unrecoverable error)
+    short ICF;
+
+    // IPUP   = Saved flag to signal updating of Newton matrix
+    short IPUP;
+
+    // JCUR   = Output flag from DVJAC showing Jacobian status:
+    //            JCUR = 0 means J is not current
+    //            JCUR = 1 means J is current
+    short JCUR;
+
+    // L      = Integer variable, NQ + 1, current order plus one
+    short L;
+
+    // NEWH   = Saved integer to flag change of H
+    short NEWH;
+
+    // NEWQ   = The method order to be used on the next step
+    short NEWQ;
+
+    // NQ     = Integer variable, the current integration method order
+    short NQ;
+
+    // NQWAIT = A counter controlling the frequency of order changes.
+    //          An order change is about to be considered if NQWAIT = 1.
+    short NQWAIT;
+
+    // NSLJ   = The number of steps taken as of the last Jacobian update
+    int NSLJ;
+
+    // NSLP   = Saved value of NST as of last Newton matrix update
     int NSLP;
 
+    // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
+    short jacobian_type;
+
+    // EL     = Real array of integration coefficients.  See DVSET
     amrex::Array1D<Real, 1, VODE_LMAX> el;
+
+    // TAU    = Real vector of past NQ step sizes, length 13
     amrex::Array1D<Real, 1, VODE_LMAX> tau;
+
+    // TQ     = A real vector of length 5 in which DVSET stores constants
+    //          used for the convergence test, the error test, and the
+    //          selection of H at a new order.
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
@@ -75,18 +155,6 @@ struct dvode_t
     // Integration array
     RArray1D y;
 
-#ifdef NETWORK_SOLVER
-
-    // Jacobian
-    SparseMatrix jac;
-
-#ifdef ALLOW_JACOBIAN_CACHING
-    // Saved Jacobian
-    SparseMatrix jac_save;
-#endif
-
-#else
-
     // Jacobian
     RArray2D jac;
 
@@ -95,14 +163,20 @@ struct dvode_t
     RArray2D jac_save;
 #endif
 
-#endif
-
+    // the Nordsieck history array
     amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_LMAX> yh;
 
-    RArray1D ewt, savf, acor;
+    RArray1D ewt, savf;
+
+    // Array of size NEQ used for the accumulated corrections on each
+    // step, scaled in the output to represent the estimated local
+    // error in Y on the last step.  This is the vector e in the
+    // description of the error control.  It is defined only on a
+    // successful return from DVODE.
+    RArray1D acor;
 };
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
 AMREX_FORCE_INLINE
 void print_state(dvode_t& dvode_state)
 {
@@ -122,7 +196,6 @@ void print_state(dvode_t& dvode_state)
     std::cout << "ETA = " << dvode_state.ETA << std::endl;
     std::cout << "ETAMAX = " << dvode_state.ETAMAX << std::endl;
     std::cout << "H = " << dvode_state.H << std::endl;
-    std::cout << "HNEW = " << dvode_state.HNEW << std::endl;
     std::cout << "HSCAL = " << dvode_state.HSCAL << std::endl;
     std::cout << "PRL1 = " << dvode_state.PRL1 << std::endl;
     std::cout << "RC = " << dvode_state.RC << std::endl;
@@ -146,7 +219,6 @@ void print_state(dvode_t& dvode_state)
     std::cout << "NEWH = " << dvode_state.NEWH << std::endl;
     std::cout << "NEWQ = " << dvode_state.NEWQ << std::endl;
     std::cout << "NQ = " << dvode_state.NQ << std::endl;
-    std::cout << "NQNYH = " << dvode_state.NQNYH << std::endl;
     std::cout << "NQWAIT = " << dvode_state.NQWAIT << std::endl;
     std::cout << "NSLJ = " << dvode_state.NSLJ << std::endl;
     std::cout << "NSLP = " << dvode_state.NSLP << std::endl;
