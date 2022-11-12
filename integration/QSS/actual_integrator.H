@@ -48,15 +48,15 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
                    Real& dedt)
 {
-    Array1D<Real, 1, 2 * NumSpec + 1> ydot;
+    Array1D<std::pair<Real, Real>, 1, neqs> ydot;
     RHS::rhs(state, ydot);
 
     for (int n = 1; n <= NumSpec; ++n) {
-        f_plus(n) = ydot(2 * n - 1);
-        f_minus(n) = ydot(2 * n);
+        f_plus(n) = ydot(n).first;
+        f_minus(n) = ydot(n).second;
     }
 
-    dedt = ydot(2 * NumSpec + 1);
+    dedt = ydot(net_ienuc).first - ydot(net_ienuc).second;
 
     state.n_rhs += 1;
 }
