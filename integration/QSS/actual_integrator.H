@@ -41,7 +41,9 @@ void initialize_state (burn_t& state)
 
     state.success = true;
 
+    state.time = 0.0;
     state.n_rhs = 0;
+    state.n_step = 0;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -61,7 +63,7 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Re
         f_minus(n) = ydot(2 * n) * aion[n-1];
     }
 
-    dedt = ydot(2 * net_ienuc - 1) - ydot(2* net_ienuc);
+    dedt = ydot(2 * net_ienuc - 1) - ydot(2 * net_ienuc);
 
     state.n_rhs += 1;
 }
@@ -358,7 +360,10 @@ void actual_integrator (burn_t& state, Real dt)
         }
 
         t += dt_sub;
+        state.time = t;
+
         ++num_timesteps;
+        state.n_step = num_timesteps;
     }
 
     if (num_timesteps >= ode_max_steps) {
@@ -366,6 +371,7 @@ void actual_integrator (burn_t& state, Real dt)
     }
 
     state.time = t;
+    state.n_step = num_timesteps;
 
 #ifndef AMREX_USE_GPU
     if (burner_verbose) {
