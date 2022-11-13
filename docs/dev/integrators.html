@@ -185,7 +185,7 @@ appropriate Jacobian terms) by the specified constant amount.</p>
 <h3><code class="docutils literal notranslate"><span class="pre">burner</span></code><a class="headerlink" href="#burner" title="Permalink to this heading">¶</a></h3>
 <p>The main entry point for C++ is <code class="docutils literal notranslate"><span class="pre">burner()</span></code> in
 <code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code>
-routine (at the moment this can be <code class="docutils literal notranslate"><span class="pre">VODE</span></code> or <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>).</p>
+routine (at the moment this can be <code class="docutils literal notranslate"><span class="pre">VODE</span></code>, <code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>, or <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>).</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span><span class="w"></span>
 <span class="kt">void</span><span class="w"> </span><span class="n">burner</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span><span class="w"></span>
 </pre></div>
@@ -419,6 +419,10 @@ and <code class="docutils literal notranslate"><span class="pre">actual_jac</spa
 the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
 the allowed options are:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>: an implicit first-order accurate backward-Euler
+method.  An error estimate is done by taking 2 half steps and
+comparing to a single full step.  This error is then used to control
+the timestep by using the local truncation error scaling.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
 meant for testing purposes only.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE (<span id="id1">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span>) integration package.  We ported this
