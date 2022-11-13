@@ -507,6 +507,7 @@ void actual_integrator (burn_t& state, const Real dt)
         state.success = false;
     }
 
+    state.n_step = num_timesteps;
 
 #ifndef AMREX_USE_CUDA
     if (burner_verbose) {
