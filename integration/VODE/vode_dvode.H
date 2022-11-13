@@ -13,7 +13,7 @@
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
 #endif
-#ifdef NSE_THERMO
+#ifdef NSE
 #include <nse.H>
 #endif
 
@@ -99,6 +99,7 @@ int dvode (burn_t& state, dvode_t& vstate)
     // for the next increase.
 
     vstate.NQ = 1;
+    vstate.NEWQ = 1;
     vstate.L = 2;
     vstate.tau(1) = vstate.H;
     vstate.PRL1 = 1.0_rt;
@@ -125,7 +126,7 @@ int dvode (burn_t& state, dvode_t& vstate)
            if (vstate.NST >= ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
-               std::cout << "DVODE: maximum number of steps taken before reaching TOUT" << std::endl;
+               std::cout << Font::Bold << FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << ResetDisplay << std::endl;
 #endif
                for (int i = 1; i <= VODE_NEQS; ++i) {
                    vstate.y(i) = vstate.yh(i,1);
@@ -160,7 +161,7 @@ int dvode (burn_t& state, dvode_t& vstate)
 
            if (vstate.NST == 0) {
 #ifndef AMREX_USE_GPU
-               std::cout << "DVODE: too much accuracy requested at start of integration" << std::endl;
+               std::cout << Font::Bold << FGColor::Red << "DVODE: too much accuracy requested at start of integration" << ResetDisplay << std::endl;
 #endif
                istate = -3;
                return istate;
@@ -189,7 +190,7 @@ int dvode (burn_t& state, dvode_t& vstate)
        if (kflag == -1) {
            // Error test failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << std::endl;
+           std::cout << Font::Bold << FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= VODE_NEQS; ++i) {
@@ -205,7 +206,7 @@ int dvode (burn_t& state, dvode_t& vstate)
        else if (kflag == -2) {
            // Convergence failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << std::endl;
+           std::cout << Font::Bold << FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= VODE_NEQS; ++i) {
@@ -219,23 +220,31 @@ int dvode (burn_t& state, dvode_t& vstate)
 
        }
 
-#ifdef NSE_THERMO
+#ifdef NSE
        // check if, during the course of integration, we hit NSE, and
        // if so, bail out we rely on the state being consistent after
        // the call to dvstep, even if the step failed.
 
-       // first we need to make the burn_t in sync
+       // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
+       // from hitting this right at the start when VODE might do so
+       // wild exploration.  Also ensure we are not working > tmax,
+       // so we don't need to worry about extrapolating back in time.
+
+       if (vstate.NST > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
+           // first we need to make the burn_t in sync
 
 #ifdef STRANG
-       update_thermodynamics(state, vstate);
+           update_thermodynamics(state, vstate);
 #endif
 #ifdef SIMPLIFIED_SDC
-       vode_to_burn(vstate.tn, vstate, state);
+           vode_to_burn(vstate.tn, vstate, state);
 #endif
 
-       if (in_nse(state)) {
-           istate = -100;
-           return istate;
+           if (in_nse(state)) {
+               istate = -100;
+               vstate.t = vstate.tn;
+               return istate;
+           }
        }
 #endif
 

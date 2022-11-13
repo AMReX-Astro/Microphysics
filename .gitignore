@@ -90,6 +90,7 @@ extern_parameters_F.H
 # old plotfiles
 *.old.*[0-9]
 
-
 # Jupyter stuff
 .ipynb_checkpoints/
+
+20180319default2

@@ -34,7 +34,7 @@ void actual_network_init()
     bion(Ni56) = 484.00300e0_rt;
     bion(N)    = 0.0e0_rt;
     bion(P)    = 0.0e0_rt;
-    
+
     // Set the mass
     for (int i = 1; i <= NumSpec; ++i) {
         mion(i) = (aion[i-1] - zion[i-1]) * C::Legacy::m_n + zion[i-1] * (C::Legacy::m_p + C::Legacy::m_e) - bion(i) * C::Legacy::MeV2gr;

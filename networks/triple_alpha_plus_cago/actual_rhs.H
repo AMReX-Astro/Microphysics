@@ -44,14 +44,14 @@ void screen (const Real& temp, const Real& dens, const Array1D<Real, 1, NumSpec>
     fill_plasma_state(state, temp, dens, ymol);
 
     int jscr = 0;
-    screen5(state, jscr,
-            zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
-            scorr1, dscorr1dt, dscorr1dd);
+    screen(state, jscr,
+           zion[He4-1], aion[He4-1], zion[He4-1], aion[He4-1],
+           scorr1, dscorr1dt, dscorr1dd);
 
     jscr++;
-    screen5(state, jscr,
-            zion[He4-1], aion[He4-1], 4.0e0_rt, 8.0e0_rt,
-            scorr2, dscorr2dt, dscorr2dd);
+    screen(state, jscr,
+           zion[He4-1], aion[He4-1], 4.0e0_rt, 8.0e0_rt,
+           scorr2, dscorr2dt, dscorr2dd);
 
     scorr    = scorr1 * scorr2;
     dscorrdt = dscorr1dt * scorr2 + scorr1 * dscorr2dt;
@@ -61,9 +61,9 @@ void screen (const Real& temp, const Real& dens, const Array1D<Real, 1, NumSpec>
 
     // C12 + alpha --> O16
     jscr++;
-    screen5(state, jscr,
-            zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
-            scorr, dscorrdt, dscorrdd);
+    screen(state, jscr,
+           zion[C12-1], aion[C12-1], zion[He4-1], aion[He4-1],
+           scorr, dscorrdt, dscorrdd);
 
     rates(ircago)    = rates_in(ircago) * scorr;
     dratesdt(ircago) = dratesdt_in(ircago) * scorr + rates_in(ircago) * dscorrdt;

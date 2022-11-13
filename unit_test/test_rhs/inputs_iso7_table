@@ -1,0 +1,16 @@
+n_cell = 64
+
+prefix = react_iso7_
+
+unit_test.small_dens = 1.0e0
+
+unit_test.dens_min   = 1.e6
+unit_test.dens_max   = 1.e9
+unit_test.temp_min   = 1.e7
+unit_test.temp_max   = 1.e10
+
+unit_test.primary_species_1 = helium-4
+unit_test.primary_species_2 = silicon-28
+
+
+network.use_tables = 1

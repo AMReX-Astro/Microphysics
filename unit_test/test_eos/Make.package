@@ -1,15 +1,8 @@
 CEXE_sources += main.cpp
 CEXE_sources += eos_util.cpp
 
-ifeq ($(USE_FORT_EOS), TRUE)
-  F90EXE_sources += eos_util_F.F90
-endif
-
-FEXE_headers += test_eos_F.H
-
 CEXE_headers += test_eos.H
 
 CEXE_sources += variables.cpp
 CEXE_headers += variables.H
-F90EXE_sources += variables_F.F90
 

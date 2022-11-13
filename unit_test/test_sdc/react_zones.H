@@ -28,8 +28,8 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = state(i, j, k, p.ispec_old+n);
     }
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(eos_state);
+#ifdef AUX_THERMO
+    set_aux_comp_from_X(eos_state);
 #endif
 
     eos(eos_input_rt, eos_state);
@@ -38,6 +38,7 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
 
     burn_state.rho = eos_state.rho;
     burn_state.T = eos_state.T;
+    burn_state.T_fixed = -1.e200_rt;
 
     for (int n = 0; n < NumSpec; n++) {
       burn_state.y[SFS+n] = burn_state.rho * eos_state.xn[n];
@@ -62,9 +63,6 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
       0.5_rt * (burn_state.y[SMX] * burn_state.y[SMX] +
                 burn_state.y[SMY] * burn_state.y[SMY] +
                 burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
-
-    // get T from total energy
-    burn_state.T_from_eden = true;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     burn_state.y[SENTH] = burn_state.rho * eos_state.h;
@@ -92,6 +90,16 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     for (int n = 0; n < SVAR; n++) {
         burn_state.ydot_a[n] = 0.0;
     }
+
+
+    // for diagnostics
+    burn_state.i = i;
+    burn_state.j = j;
+    burn_state.k = k;
+#ifdef NONAKA_PLOT
+    burn_state.level = 0;
+    burn_state.reference_time = 0.0;
+#endif
 
     // these need to be initialized 
 
