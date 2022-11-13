@@ -48,15 +48,20 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
                    Real& dedt)
 {
-    Array1D<std::pair<Real, Real>, 1, neqs> ydot;
+    // Call the RHS with a special array that will record both the positive and negative
+    // contributions to each integration quantity.
+
+    Array1D<Real, 1, 2 * neqs> ydot;
     RHS::rhs(state, ydot);
 
+    // Now unpack the positive and negative contributions.
+
     for (int n = 1; n <= NumSpec; ++n) {
-        f_plus(n) = ydot(n).first * aion[n-1];
-        f_minus(n) = ydot(n).second * aion[n-1];
+        f_plus(n) = ydot(2 * n - 1) * aion[n-1];
+        f_minus(n) = ydot(2 * n) * aion[n-1];
     }
 
-    dedt = ydot(net_ienuc).first - ydot(net_ienuc).second;
+    dedt = ydot(2 * net_ienuc - 1) - ydot(2* net_ienuc);
 
     state.n_rhs += 1;
 }

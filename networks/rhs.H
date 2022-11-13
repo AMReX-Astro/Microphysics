@@ -1311,16 +1311,15 @@ void rhs_init ()
     }
 }
 
-// The components of ydot can either be the actual RHS term (Real)
+// The components of ydot can either be the actual RHS terms (neqs)
 // or separate tracking of positive and negative contributions to
-// the RHS (std::pair<Real, Real>).
-template<class R>
+// the RHS (2 * neqs, with the positive followed by the negative
+// for each term in ydot).
+template<int nrhs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rhs (burn_t& state, Array1D<R, 1, neqs>& ydot)
+void rhs (burn_t& state, Array1D<Real, 1, nrhs>& ydot)
 {
-    static_assert(std::is_same<R, Real>() || std::is_same<R, std::pair<Real, Real>>());
-
-    constexpr bool track_pos_and_neg_separately = std::is_same<R, std::pair<Real, Real>>() ? true : false;
+    static_assert(nrhs == neqs || nrhs == 2 * neqs);
 
     // Convert X to Y.
     Array1D<Real, 1, NumSpec> y;
@@ -1340,13 +1339,8 @@ void rhs (burn_t& state, Array1D<R, 1, neqs>& ydot)
     }
 
     // Initialize the RHS terms.
-    for (int n = 1; n <= NumSpec; ++n) {
-        if constexpr (track_pos_and_neg_separately) {
-            ydot(n) = {0.0, 0.0};
-        }
-        else {
-            ydot(n) = 0.0;
-        }
+    for (int n = 1; n <= nrhs; ++n) {
+        ydot(n) = 0.0;
     }
 
     // Count up number of intermediate rates (rates that are used in any other reaction).
@@ -1429,14 +1423,14 @@ void rhs (burn_t& state, Array1D<R, 1, neqs>& ydot)
             if constexpr (is_rate_used<species, rate>()) {
                 auto [forward_term, reverse_term] = rhs_term<species, rate>(state, fr, rr);
 
-                if constexpr (track_pos_and_neg_separately) {
+                if constexpr (nrhs == 2 * neqs) {
                     if (forward_term >= 0.0_rt) {
-                        ydot(species).first += forward_term;
-                        ydot(species).second -= reverse_term;
+                        ydot(2 * species - 1) += forward_term;
+                        ydot(2 * species    ) += -reverse_term;
                     }
                     else {
-                        ydot(species).first += reverse_term;
-                        ydot(species).second -= forward_term;
+                        ydot(2 * species - 1) += reverse_term;
+                        ydot(2 * species    ) += -forward_term;
                     }
                 }
                 else {
@@ -1455,8 +1449,9 @@ void rhs (burn_t& state, Array1D<R, 1, neqs>& ydot)
 #endif
 
     // Compute the energy RHS term.
-    if constexpr (track_pos_and_neg_separately) {
-        ydot(net_ienuc).second = sneut;
+    if constexpr (nrhs == 2 * neqs) {
+        ydot(2 * net_ienuc - 1) = 0.0;
+        ydot(2 * net_ienuc    ) = sneut;
     }
     else {
         ydot(net_ienuc) = -sneut;
@@ -1466,9 +1461,9 @@ void rhs (burn_t& state, Array1D<R, 1, neqs>& ydot)
     {
         constexpr int species = n;
 
-        if constexpr (track_pos_and_neg_separately) {
-            ydot(net_ienuc).first += ener_gener_rate<species>(ydot(species).first);
-            ydot(net_ienuc).second += ener_gener_rate<species>(ydot(species).second);
+        if constexpr (nrhs == 2 * neqs) {
+            ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(ydot(2 * species - 1));
+            ydot(2 * net_ienuc    ) += ener_gener_rate<species>(ydot(2 * species    ));
         }
         else {
             ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
