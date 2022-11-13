@@ -361,6 +361,12 @@ the allowed options are:
 * ``ForwardEuler``: an explicit first-order forward-Euler method.  This is
   meant for testing purposes only.
 
+* ``QSS``: the quasi-steady-state method of :cite:`mott_qss` (see also
+  :cite:`guidry_qss`). This uses a second-order predictor-corrector method,
+  and is designed specifically for handling coupled ODE systems for chemical
+  and nuclear reactions. However, this integrator has difficulty near NSE,
+  so we don't recommend its use in production for nuclear astrophysics.
+
 * ``VODE``: the VODE (:cite:`vode`) integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
