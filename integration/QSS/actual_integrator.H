@@ -63,7 +63,12 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Re
         f_minus(n) = ydot(2 * n) * aion[n-1];
     }
 
-    dedt = ydot(2 * net_ienuc - 1) - ydot(2 * net_ienuc);
+    if (integrate_energy) {
+        dedt = ydot(2 * net_ienuc - 1) - ydot(2 * net_ienuc);
+    }
+    else {
+        dedt = 0.0_rt;
+    }
 
     state.n_rhs += 1;
 }
@@ -109,7 +114,7 @@ bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
         Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
         state.xn[n-1] = X_0 + dt * dXdt;
 
-        if (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance) {
+        if (X_0 >= atol_spec && (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance)) {
             return false;
         }
     }
@@ -156,7 +161,7 @@ bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
 
         state.xn[n-1] = X_c;
 
-        if (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance) {
+        if (X_0 >= atol_spec && (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance)) {
             return false;
         }
     }
@@ -200,11 +205,8 @@ void actual_integrator (burn_t& state, Real dt)
     Real dt_sub = dt;
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (f_plus_init(n) >= 1.e2 * f_minus_init(n)) {
-            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / f_minus_init(n));
-        }
-        else {
-            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / std::abs(f_plus_init(n) - f_minus_init(n)));
+        if (xn_in[n-1] >= atol_spec) {
+            dt_sub = amrex::min(dt_sub, xn_in[n - 1] / amrex::max(std::abs(f_plus_init(n) - f_minus_init(n)), 1.e-50_rt));
         }
     }
 
@@ -330,7 +332,9 @@ void actual_integrator (burn_t& state, Real dt)
             for (int n = 1; n <= NumSpec; ++n)
             {
                 Real dX = std::abs(state.xn[n-1] - predictor_state.xn[n-1]);
-                max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
+                if (state_0.xn[n-1] >= atol_spec) {
+                    max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
+                }
             }
 
             // If the relative diff was smaller than the requested tolerance factor, we're done.
