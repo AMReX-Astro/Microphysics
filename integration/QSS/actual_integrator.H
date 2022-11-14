@@ -377,6 +377,11 @@ void actual_integrator (burn_t& state, Real dt)
     state.time = t;
     state.n_step = num_timesteps;
 
+    // Subtract off the initial energy (the application codes expect
+    // to get back only the generated energy during the burn).
+
+    state.e -= e_in;
+
 #ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
