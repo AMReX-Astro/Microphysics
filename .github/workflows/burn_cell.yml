@@ -74,3 +74,20 @@ jobs:
           cd unit_test/burn_cell
           diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/subch_approx_BE_unit_test.out
 
+      - name: Compile, burn_cell (QSS, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=aprox13 INTEGRATOR_DIR=QSS -j 4
+
+      - name: Run burn_cell (QSS, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_aprox13 > test.out
+
+      - name: Compare to stored output (QSS, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_QSS_unit_test.out
+
+
