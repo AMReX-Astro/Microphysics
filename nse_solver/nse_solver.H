@@ -41,6 +41,7 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
 
   // fill the corresponding reactant and product indices of a given rate name
+  // used during initialization
   
   for (int n = 1; n <= 3; ++n){
     reactant_indices(n) = -1;
@@ -48,6 +49,7 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
   }
 
   std::string rate_name_mod = rate_name;
+
   // Process rate_name to find the reactants and products
 
   // replace p with h1 to match with short_spec_name_cxx
@@ -80,8 +82,8 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
     product_names.erase(pos);
   } 
 
-  // check whether if this rate is a child rate
-  // let its reactant and product all to be -1 if child rate
+  // check whether if this rate is removed from the network
+  // let its reactant and product all to be -1 if rate is removed
   
   pos = suffix.find("removed");
   if (pos != std::string::npos){
@@ -626,6 +628,7 @@ template<typename T>
 void first_check_in_nse(T& state, T& nse_state, bool& nse_check){
 
   // This function gives the first estimate whether we're in the nse or not
+  // it checks whether the molar fractions of n,p,a are approximately in NSE
   
   int count = 0;
   amrex::Real r = 1.0_rt;
@@ -659,6 +662,7 @@ void first_check_in_nse(T& state, T& nse_state, bool& nse_check){
   }
   
   // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
+  // Eq. 14 in Kushnir paper
   
   if (std::abs((r - r_nse) / r_nse) < 0.5){
     nse_check = true;
@@ -742,8 +746,10 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   rate_index = -1;
 
   bool valid_rate = false;
+  
   // if all -1 then return, since its an invalid rate
-  for (int n = 1; n <= 3; ++n){
+  
+  for (int n = 1; n <= 6; ++n){
     if (NSE_INDEX::rate_indices(rate_index, n) != -1){
       valid_rate = true;
       break;
@@ -755,9 +761,13 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   }
   
   bool found_index = false;
+
+  // sort indices just to make sure
   
   sort_Array1D<1, 3>(reactants_indices);
   sort_Array1D<1, 3>(products_indices);
+
+  // check for which rate matches these input indices
   
   for (int i = 1; i <= Rates::NumRates; ++i){
     for (int j = 1; j <= 3; ++j){
@@ -787,6 +797,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 			const T& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
   
   // This function finds the fast reaction cycle of a given nuclei.
+  // This is done to satisfy Section 4.4.3 of Kushnir
   
   // Here pre-determine the max number of nuclei possible in each cycle
   // so we don't loop over too many nucs
@@ -818,7 +829,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
     }
   }  
 
-  // indices for reaction array to location intermediate nuclei
+  // indices for reaction array to locate intermediate nuclei
   
   int inter_nuc_ind1 = 1;
   int inter_nuc_ind2 = 1;
@@ -895,8 +906,8 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
   reactions(5, inter_nuc_ind4) = current_nuc_ind;
   reactions(6, 1) = current_nuc_ind;
 
-  // Checks if there are intermediate nuclei
-  // break if no intermediate nuclei
+  // Checks if there are intermediate nuclei in the cycle
+  // if no intermediate nuclei present, then there is no way to make a full reaction cycle
 
   for (int i = 2; i <= 4; ++i){
 
@@ -916,7 +927,8 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
   }
   
 
-  // Now we check whether the possible reaction are fast enought
+  // Now we have all the intermediate nuclei necessary for the reaction cycle
+  // Now we check whether the possible reaction are fast enough
   
   // The first nuc in fast reaction is always itself
 
@@ -950,6 +962,8 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	}
 
 	// determine which reaction it went through
+	// Kushnir listed a total of 5 possible reactions to consider
+	// (a,g), (a,p), (a,n), (g,p), (g,n)
 	
 	if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 4 &&
 	    zion[reactions(i, j)] == zion[reactions(i+1, k)] - 2){
@@ -1104,9 +1118,10 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  continue;
 	}
 
-	// A condition to check whether rates are fast enough given by Eq10 and 12 in ASE paper
-	// Not sure if the 3rd condition is required, not significant difference.
-	// I'll leave it here for future reference
+	// A condition to check whether rates are fast enough given by Eq. 11 in Kushnir.
+	// Not sure if the 3rd condition (Eq. 12) is required
+	// It didn't mention it in in the paragraph in section 4.4.3, but listed it in Eq. 12
+	// It didn't have a significant difference, but I'll leave it here for future reference
 	
 	if ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
 	    || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s)
@@ -1161,7 +1176,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
 
 
-// After all checks are successful, lets do nse grouping.
+// After all preliminary checks are successful, lets do nse grouping.
 
 int get_root_index(const int nuc_ind,
 		     const amrex::Array1D<int, 1, NumSpec>& group_ind){
@@ -1230,14 +1245,16 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
 void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 
   // This funciton finds the pair rate index given a rate.
-  // given forward rate index, return reverse rate index, vice versa
+  // For example given forward rate index, return reverse rate index, vice versa
 
   pair_rate_index = -1;
   bool found_reverse_rate = false;
 
   bool valid_rate = false;
+  
   // if all -1 then return, since its an invalid rate
-  for (int n = 1; n <= 3; ++n){
+  
+  for (int n = 1; n <= 6; ++n){
     if (NSE_INDEX::rate_indices(rate_index, n) != -1){
       valid_rate = true;
       break;
@@ -1310,6 +1327,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   
   // This function determines whether current_rate has a faster timescale than
   // the provided time scale, current fastest_t.
+  // Updates the timescale once if the current rate has a faster timescale
+  
   // It also skips current_rate if certain condition is met.
 
   int pair_rate_index;
@@ -1318,7 +1337,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   int nonLIG_root = -1;
   
   // Find the Y_group of the nuclei involved in the net
-  // Y_group are the group index of the nonLIG group
+  // Y_group are the group molar fractions corresponding to the reactants and products
+  
   // first 3 is for reactants, last 3 for products
   
   amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
@@ -1330,11 +1350,11 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   amrex::Array1D<int, 1, 2> nonNPA_ind = {-1, -1};
   int m = 1;                    // m is counts the number of nonNPA isotope detected.
   
-  // find the reverse rate index
+  // find the reverse rate index of the current rate
 
   fill_pair_rate_index(pair_rate_index, current_rate); 
   
-  // Check if there are > 2 isotopes or 0 isotopes in LIG in this reaction
+  // Check if there are > 2 isotopes or 0 isotopes in LIG (light isotope group) in this reaction
 
   for (int k = 1; k <= 6; ++k){
 
@@ -1409,7 +1429,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   // 3 other conditions to skip current rate:
   //
   // 1) skip if there is no reverse rate involved.
-  // 2) add rates to eliminated rates when reaction has more than 3 reactant or product
+  // 2) skip when reaction has more than 3 reactants or products involved
   // 3) number of nonLIG isotopes are more than 2 or none.
   
   if ( (pair_rate_index == -1)
@@ -1447,26 +1467,35 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
     b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
   }
 
-  // Find the timescale of the rate
+  // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
 
   amrex::Real scratch_t = Y_group(nonNPA_ind(1)) / amrex::min(b_f, b_r);
   if (nonNPA_ind(2) != -1){
     scratch_t = amrex::min(scratch_t, Y_group(nonNPA_ind(2)) / amrex::min(b_f, b_r));
   }
   
-  // return if current rate time scale is larger than previous time scale
+  // return if current rate timescale is larger than previous time scale
 
   if (fastest_t < scratch_t){
     return;
   }
+
+  // if current rate timescale is smaller (faster), have additional checks
+  // to see whether the forward and balance rates are in equilibrium
+  // see Eq. 17 again
   
   if (scratch_t < ase_tol * t_s
       && 2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol
       ){
 
     fastest_t = scratch_t;
+
+    // get merge indices for nonNPA isotopes
     
     for (int n = 1; n <= 2; ++n){
+
+      // If nonNPA index is -1, meaning null, then use LIG index
+      
       if (nonNPA_ind(n) == -1){
 	merge_indices(n) = get_root_index(NSE_INDEX::he4_index, group_ind);
       }
@@ -1578,8 +1607,10 @@ bool in_nse(T& state, T& nse_state){
   if constexpr (std::is_same<T, eos_t>::value){
     
     // if state is already in eos, then assumed eos() is called
+
+    // see Section 3 in Kushnir
+    t_s = cell_dx / state.cs;
     
-    t_s = cell_dx / state.cs;           
   }
   else{
     
@@ -1645,7 +1676,6 @@ bool in_nse(T& state, T& nse_state){
     // Do nse grouping if found_fast_reaction_cycle
     
     nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
-
 
     // Check if we result in a single group after grouping
     
