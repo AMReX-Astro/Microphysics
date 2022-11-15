@@ -6,9 +6,6 @@
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
-#include <eos_type.H>
-#include <eos.H>
-#include <extern_parameters.H>
 #include <linpack.H>
 #include <numerical_jacobian.H>
 #include <be_type_strang.H>
@@ -19,7 +16,7 @@
 /// we return an error code
 ///
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int single_step (burn_t& state, const Real dt)
+int single_step (burn_t& state, be_t& be, const Real dt)
 {
 
     clean_state(state);
@@ -44,7 +41,7 @@ int single_step (burn_t& state, const Real dt)
 
     evaluate_rhs(state, ydot);
 
-    state.n_rhs += 1;
+    be.n_rhs += 1;
 
     Array1D<Real, 1, BE_NEQS> y_np1;
 
@@ -108,7 +105,7 @@ int single_step (burn_t& state, const Real dt)
 
         evaluate_rhs(state, ydot);
 
-        state.n_rhs += 1;
+        be.n_rhs += 1;
 
         // construct the RHS of our linear system
 
@@ -190,48 +187,32 @@ int single_step (burn_t& state, const Real dt)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void be_integrator (burn_t& state, const Real dt)
+int be_integrator (burn_t& state, be_t& be)
 {
-    // We assume that (rho, T) coming in are valid, do an EOS call
-    // to fill the rest of the thermodynamic variables.
 
-    initialize_state(state);
+    be.n_rhs = 0;
+    be.n_step = 0;
 
-    Real T_in = state.T;
-    Real e_in = state.e;
-    Real xn_in[NumSpec];
-    for (int n = 0; n < NumSpec; ++n) {
-        xn_in[n] = state.xn[n];
-    }
-
-    state.success = true;
-
-    state.n_rhs = 0;
-
-    Real t = 0.0;
-
-    // pack the solution into a vector
-
-    int num_timesteps = 0;
+    int ierr;
 
     // estimate the timestep
 
     Array1D<Real, 1, neqs> ydot;
     evaluate_rhs(state, ydot);
 
-    state.n_rhs += 1;
+    be.n_rhs += 1;
 
-    Real dt_sub = initial_dt(state, dt, ydot);
+    Real dt_sub = initial_dt(state, be.tout, ydot);
 
     // main timestepping loop
 
-    while (t < (1.0_rt - timestep_safety_factor) * dt &&
-           num_timesteps < ode_max_steps) {
+    while (be.t < (1.0_rt - timestep_safety_factor) * be.tout &&
+           be.n_step < ode_max_steps) {
 
         // don't go too far
 
-        if (t + dt_sub > dt) {
-            dt_sub = dt - t;
+        if (be.t + dt_sub > be.tout) {
+            dt_sub = be.tout - be.t;
         }
 
         // our strategy is to take 2 steps at dt/2 and one at dt and
@@ -244,15 +225,15 @@ void be_integrator (burn_t& state, const Real dt)
 
         // first do 2 (fine) dt/2 steps
 
-        int ierr = single_step(state, dt_sub/2);
+        ierr = single_step(state, be, dt_sub/2);
         if (ierr == BE_SUCCESS) {
-            ierr = single_step(state, dt_sub/2);
+            ierr = single_step(state, be, dt_sub/2);
         }
 
         // now that single (coarse) dt step
 
         if (ierr == BE_SUCCESS) {
-            ierr = single_step(state_coarse_dt, dt_sub);
+            ierr = single_step(state_coarse_dt, be, dt_sub);
         }
 
 #ifdef VODELIKE_ERROR
@@ -309,7 +290,7 @@ void be_integrator (burn_t& state, const Real dt)
             // state has the current best solution
 
             if (step_success) {
-                t += dt_sub;
+                be.t += dt_sub;
 
                 // can we potentially increase the timestep?
                 // backward-Euler has a local truncation error of dt**2
@@ -335,59 +316,22 @@ void be_integrator (burn_t& state, const Real dt)
 
         }
 
-        ++num_timesteps;
-        ++num_timesteps;
+        ++be.n_step;
+        ++be.n_step;
 
     }
 
-    // do a final clean_state on the solution
-
-    clean_state(state);
-
-    // Subtract off the initial energy (the application codes expect
-    // to get back only the generated energy during the burn).
-
-    state.e -= e_in;
-
-    if (num_timesteps >= ode_max_steps) {
-        state.success = false;
+    if (be.n_step >= ode_max_steps) {
+        ierr = BE_TOO_MANY_STEPS;
     }
 
-    state.n_step = num_timesteps;
+    if (ierr == BE_SUCCESS) {
+        // do a final clean_state on the solution
 
-#ifndef AMREX_USE_CUDA
-    if (burner_verbose) {
-        // Print out some integration statistics, if desired.
-        std::cout <<  "integration summary: " << std::endl;
-        std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
-        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
+        clean_state(state);
     }
-#endif
 
-    // If we failed, print out the current state of the integration.
-
-    if (!state.success) {
-#ifndef AMREX_USE_CUDA
-        std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "time = " << t << std::endl;
-        std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << T_in << std::endl;
-        std::cout << "xn start = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << xn_in[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "temp current = " << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << state.xn[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "energy generated = " << state.e << std::endl;
-#endif
-    }
+    return ierr;
 
 }
 

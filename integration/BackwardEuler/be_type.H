@@ -19,6 +19,7 @@ const int BE_NEQS = INT_NEQS;
 const int BE_SUCCESS = 0;
 const int BE_NONCONVERGENCE = -100;
 const int BE_LU_DECOMPOSITION_ERROR = -101;
+const int BE_TOO_MANY_STEPS = -102;
 
 // When checking the integration time to see if we're done,
 // be careful with roundoff issues.
@@ -35,6 +36,9 @@ struct be_t {
 
     amrex::Real t;      // the starting time
     amrex::Real tout;   // the stopping time
+
+    int n_step;
+    int n_rhs;
 
     amrex::Real atol_spec;
     amrex::Real rtol_spec;
