@@ -40,8 +40,6 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t p)
     // energy.
     burn_state.e = 0.0_rt;
 
-    burn_state.self_heat = true;
-
     Array1D<Real, 1, neqs> ydot;
 
     ArrayUtil::MathArray2D<1, neqs, 1, neqs> jac;

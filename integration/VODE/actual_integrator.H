@@ -65,8 +65,6 @@ void actual_integrator (burn_t& state, Real dt)
 #endif
     Real e_in = state.e;
 
-    state.self_heat = true;
-
     // Call the integration routine.
 
     int istate = dvode(state, vode_state);

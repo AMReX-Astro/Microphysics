@@ -154,8 +154,6 @@ void initialize_state (burn_t& state)
 
     eos(eos_input_rt, state);
 
-    state.self_heat = true;
-
     state.success = true;
 
     state.n_rhs = 0;
