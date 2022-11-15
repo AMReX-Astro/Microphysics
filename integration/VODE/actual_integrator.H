@@ -140,8 +140,7 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-            std::cout << "dens start = " << std::setprecision(16) << eos_state.rho << std::endl;
-            std::cout << "temp start = " << std::setprecision(16) << eos_state.T << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "xn start = ";
             for (int n = 0; n < NumSpec; ++n) {
                 std::cout << std::setprecision(16) << xn_in[n] << " ";
