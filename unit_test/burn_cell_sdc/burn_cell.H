@@ -388,6 +388,9 @@ void burn_cell_c()
     burn_state.e = eos_state.e;
 
 
+    burn_state.T_fixed = -1.0;
+
+
     // output initial burn type data
     Real time = 0.0_rt;
 
