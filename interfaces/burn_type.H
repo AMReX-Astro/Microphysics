@@ -154,13 +154,6 @@ struct burn_t
   // reaction Jacobian elements from T to e
   Real cv;
 
-#ifdef STRANG
-
-  // Are we doing a self-heating burn?
-  bool self_heat;
-
-#endif
-
 #ifdef TRUE_SDC
   Real E_var;
   Real mom[3];
