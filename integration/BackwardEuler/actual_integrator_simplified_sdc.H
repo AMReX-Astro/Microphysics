@@ -17,11 +17,22 @@ void actual_integrator (burn_t& state, const Real dt)
     be.t = 0.0;
     be.tout = dt;
 
-    be.atol_spec = atol_spec;
-    be.rtol_spec = rtol_spec;
+    // set the tolerances
 
-    be.atol_enuc = atol_enuc;
-    be.rtol_enuc = rtol_enuc;
+    Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
+
+    Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
+
+    be.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
+    be.rtol_enuc = rtol_enuc * sdc_tol_fac;
+
+    // Note: we define the input atol for species to refer only to the
+    // mass fraction part, and we multiply by a representative density
+    // so that atol becomes an absolutely tolerance on (rho X)
+
+    be.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
+    be.rtol_spec = rtol_spec * sdc_tol_fac;
+
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
