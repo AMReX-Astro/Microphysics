@@ -127,7 +127,7 @@ void actual_integrator (burn_t& state, Real dt)
     // calling this is making use of the conserved state (state.y[]),
     // so that is what will be normalized.
 
-    renormalize_species(state);
+    normalize_abundances_sdc_burn(state);
 
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the
