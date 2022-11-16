@@ -36,23 +36,26 @@ void actual_integrator (burn_t& state, Real dt)
 
     vode_state.HMXI = 1.0_rt / ode_max_dt;
 
-    // We assume that (rho, T) coming in are valid, do an EOS call
-    // to fill the rest of the thermodynamic variables.
-
-    eos_re_t eos_state;
-
-    // initialize the EOS state using the conserved state that was
-    // passed in
-
-    sdc_burn_to_eos(state, eos_state);
-
-    eos(eos_input_rt, eos_state);
-
-    eos_to_burn(eos_state, state);
-
     // Fill in the initial integration state.
 
     burn_to_vode(state, vode_state);
+
+    // Save the initial composition and temperature for our later diagnostics.
+
+#ifndef AMREX_USE_GPU
+    Real xn_in[NumSpec];
+    for (int n = 0; n < NumSpec; ++n) {
+        xn_in[n] = state.y[SFS+n] / state.y[SRHO];
+    }
+    // we are assuming that the temperature was valid on input
+    Real T_in = state.T;
+#ifdef AUX_THERMO
+    Real aux_in[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        aux_in[n] = state.y[SFX+n] / state.y[SRHO];
+    }
+#endif
+#endif
 
 
     // Set the tolerances.
@@ -190,17 +193,17 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-            std::cout << "dens start = " << std::setprecision(16) << eos_state.rho << std::endl;
-            std::cout << "temp start = " << std::setprecision(16) << eos_state.T << std::endl;
+            std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "xn start = ";
             for (int n = 0; n < NumSpec; ++n) {
-                std::cout << std::setprecision(16) << eos_state.xn[n] << " ";
+                std::cout << std::setprecision(16) << xn_in[n] << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
             std::cout << "aux start = ";
             for (int n = 0; n < NumAux; ++n) {
-                std::cout << std::setprecision(16) << eos_state.aux[n] << " ";
+                std::cout << std::setprecision(16) << aux_in[n] << " ";
             }
             std::cout << std::endl;
 #endif
