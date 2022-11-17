@@ -6,7 +6,3 @@ sdc_burn_tol_factor          real         1.d0
 # for the step rejection logic on mass fractions, we only consider
 # species that are > X_reject_buffer * atol_spec
 X_reject_buffer              real         1.0
-
-# in the clean_state process, do we clip the species such that they
-# are in [0, 1]?
-do_species_clip              integer          1
