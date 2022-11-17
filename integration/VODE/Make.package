@@ -22,8 +22,6 @@ ifneq ($(USE_TRUE_SDC), TRUE)
   CEXE_headers += vode_type_strang.H
 endif
 
-DEFINES += -DINTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
-
 CEXE_headers += vode_dvode.H
 CEXE_headers += vode_type.H
 CEXE_headers += vode_dvhin.H
