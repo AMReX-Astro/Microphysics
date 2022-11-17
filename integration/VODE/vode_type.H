@@ -147,7 +147,8 @@ struct dvode_t
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
-    RArray1D rtol, atol;
+    Real rtol_spec, atol_spec;
+    Real rtol_enuc, atol_enuc;
 
     // Local time and integration end time
     amrex::Real t, tout;

@@ -4,6 +4,8 @@
 // Common variables and routines for burners
 // that use VODE for their integration.
 
+#include <iomanip>
+
 #include <network.H>
 #include <burn_type.H>
 #include <eos_type.H>
@@ -19,15 +21,11 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Set the tolerances.
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.atol(n) = atol_spec; // mass fractions
-    }
-    vode_state.atol(net_ienuc) = atol_enuc; // energy generated
+    vode_state.atol_spec = atol_spec; // mass fractions
+    vode_state.atol_enuc = atol_enuc; // energy generated
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol(n) = rtol_spec; // mass fractions
-    }
-    vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
+    vode_state.rtol_spec = rtol_spec; // mass fractions
+    vode_state.rtol_enuc = rtol_enuc; // energy generated
 
     // set the Jacobian type
     vode_state.jacobian_type = jacobian;
@@ -135,25 +133,27 @@ void actual_integrator (burn_t& state, Real dt)
             if (istate == 2) {
                 std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
             }
+            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << vode_state.t << std::endl;
-            std::cout << "dens = " << state.rho << std::endl;
-            std::cout << "temp start = " << T_in << std::endl;
+            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "xn start = ";
             for (int n = 0; n < NumSpec; ++n) {
-                std::cout << xn_in[n] << " ";
+                std::cout << std::setprecision(16) << xn_in[n] << " ";
             }
             std::cout << std::endl;
-            std::cout << "temp current = " << state.T << std::endl;
+            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
+            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
             std::cout << "xn current = ";
             for (int n = 0; n < NumSpec; ++n) {
-                std::cout << state.xn[n] << " ";
+                std::cout << std::setprecision(16) << state.xn[n] << " ";
             }
             std::cout << std::endl;
             std::cout << "energy generated = " << state.e << std::endl;
 #endif
         } else {
 #ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration" << std::endl;
+            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
         }
     }
