@@ -20,6 +20,9 @@ void actual_integrator (burn_t& state, Real dt)
 
     dvode_t vode_state;
 
+    // set the Jacobian type
+    vode_state.jacobian_type = jacobian;
+
     // Start off by assuming a successful burn.
 
     state.success = true;
@@ -32,9 +35,6 @@ void actual_integrator (burn_t& state, Real dt)
     // Set the (inverse of the) timestep limiter.
 
     vode_state.HMXI = 1.0_rt / ode_max_dt;
-
-    // set the Jacobian type
-    vode_state.jacobian_type = jacobian;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -65,8 +65,8 @@ void actual_integrator (burn_t& state, Real dt)
 #if defined(SDC_EVOLVE_ENERGY)
     Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
 
-    vode_state.atol(SEINT+1) = sdc_min_density * atol_enuc * sdc_tol_fac;
-    vode_state.rtol(SEINT+1) = rtol_enuc * sdc_tol_fac;
+    vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
+    vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     Real sdc_min_density = state.rho;
@@ -75,8 +75,8 @@ void actual_integrator (burn_t& state, Real dt)
     }
     sdc_min_density = amrex::min(state.rho, sdc_min_density);
 
-    vode_state.atol(SENTH+1) = sdc_min_density * atol_enuc * sdc_tol_fac; 
-    vode_state.rtol(SENTH+1) = rtol_enuc * sdc_tol_fac; 
+    vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac; 
+    vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac; 
 
 #endif
 
@@ -84,13 +84,8 @@ void actual_integrator (burn_t& state, Real dt)
     // mass fraction part, and we multiply by a representative density
     // so that atol becomes an absolutely tolerance on (rho X)
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.atol(SFS+n) = sdc_min_density * atol_spec * sdc_tol_fac;
-    }
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol(SFS+n) = rtol_spec * sdc_tol_fac;
-    }
-
+    vode_state.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
+    vode_state.rtol_spec = rtol_spec * sdc_tol_fac;
 
     // Call the integration routine.
 

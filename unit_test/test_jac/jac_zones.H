@@ -38,8 +38,6 @@ bool do_jac (int i, int j, int k, Array4<Real> const& state, const plot_t p)
     // energy.
     burn_state.e = 0.0_rt;
 
-    burn_state.self_heat = true;
-
     JacNetArray2D jac_analytic;
     JacNetArray2D jac_numerical;
 
