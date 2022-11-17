@@ -50,7 +50,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Fill in the initial integration state.
 
-    burn_to_vode(state, vode_state);
+    burn_to_integrator(state, vode_state);
 
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
@@ -69,7 +69,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Copy the integration data back to the burn state.
 
-    vode_to_burn(vode_state, state);
+    integrator_to_burn(vode_state, state);
 
 #ifdef NSE
     // compute the temperature based on the energy release -- we need 

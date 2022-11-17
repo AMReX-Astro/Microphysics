@@ -18,10 +18,6 @@ ifeq ($(USE_JACOBIAN_CACHING), TRUE)
   DEFINES += -DALLOW_JACOBIAN_CACHING
 endif
 
-ifneq ($(USE_TRUE_SDC), TRUE)
-  CEXE_headers += vode_type_strang.H
-endif
-
 DEFINES += -DINTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
 
 CEXE_headers += vode_dvode.H

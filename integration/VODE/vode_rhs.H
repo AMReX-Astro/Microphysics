@@ -126,7 +126,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     // Call the specific network routine to get the Jacobian.
 
-    vode_to_burn(vode_state, state);
+    integrator_to_burn(vode_state, state);
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
     RHS::jac(state, pd);
