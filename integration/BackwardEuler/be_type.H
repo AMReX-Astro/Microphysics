@@ -37,8 +37,11 @@ struct be_t {
     amrex::Real t;      // the starting time
     amrex::Real tout;   // the stopping time
 
+    short jacobian_type;
+
     int n_step;
     int n_rhs;
+    int n_jac;
 
     amrex::Real atol_spec;
     amrex::Real rtol_spec;

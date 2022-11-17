@@ -66,8 +66,9 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         JacNetArray2D jac;
 
-        if (jacobian == 1) {
+        if (be.jacobian_type == 1) {
             actual_jac(state, jac);
+            be.n_jac++;
 
             // We integrate X, not Y
             for (int j = 1; j <= NumSpec; ++j) {
@@ -81,6 +82,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
             jac_info_t jac_info;
             jac_info.h = dt;
             numerical_jac(state, jac_info, jac);
+            be.n_jac++;
         }
 
         if (!integrate_energy) {
@@ -191,6 +193,7 @@ int be_integrator (burn_t& state, be_t& be)
 {
 
     be.n_rhs = 0;
+    be.n_jac = 0;
     be.n_step = 0;
 
     int ierr;
