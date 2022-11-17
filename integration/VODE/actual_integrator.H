@@ -21,15 +21,11 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Set the tolerances.
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.atol(n) = atol_spec; // mass fractions
-    }
-    vode_state.atol(net_ienuc) = atol_enuc; // energy generated
+    vode_state.atol_spec = atol_spec; // mass fractions
+    vode_state.atol_enuc = atol_enuc; // energy generated
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        vode_state.rtol(n) = rtol_spec; // mass fractions
-    }
-    vode_state.rtol(net_ienuc) = rtol_enuc; // energy generated
+    vode_state.rtol_spec = rtol_spec; // mass fractions
+    vode_state.rtol_enuc = rtol_enuc; // energy generated
 
     // set the Jacobian type
     vode_state.jacobian_type = jacobian;
