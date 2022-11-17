@@ -46,40 +46,6 @@ void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vod
 }
 
 
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void sdc_burn_to_eos (const burn_t& state, T& eos_state)
-{
-#if defined(SDC_EVOLVE_ENERGY)
-    eos_state.rho = state.y[SRHO];
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    eos_state.rho = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.rho += state.y[SFS+n];
-    }
-#endif
-
-    eos_state.T = state.T;
-
-    // species
-
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.y[SFS+n] / eos_state.rho;
-    }
-
-#if NAUX_NET > 0
-    // aux
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
-    }
-    //set_nse_aux_from_X(eos_state);
-#endif
-
-    // we don't bother filling the other fields, since the EOS call
-    // will do that for us
-}
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
 {
@@ -115,52 +81,6 @@ void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
 
 }
 
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void renormalize_species(burn_t& state)
-{
-
-    // Constrain the partial densities in burn_t state to sum to the 
-    // density.
-    //
-    // This is meant to be used upon exit, and we assume that
-    // vode_to_burn was already called
-
-#ifdef SDC_EVOLVE_ENERGY
-
-    // we have state.y[SRHO] to constrain to
-
-    Real rhoX_sum = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
-        rhoX_sum += state.y[SFS+n];
-    }
-    rhoX_sum /= state.y[SRHO];
-
-    for (int n = 0; n < NumSpec; n++) {
-        state.y[SFS+n] /= rhoX_sum;
-    }
-
-#ifdef AUX_THERMO
-    // make the aux data consistent with the vode_state X's
-
-    eos_re_t eos_state;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.y[SFS+n] / state.y[SRHO];
-    }
-
-    set_aux_comp_from_X(eos_state);
-
-    // also store it in the burn_t state
-
-    for (int n = 0; n < NumAux; n++) {
-        state.y[SFX+n] = state.y[SRHO] * eos_state.aux[n];
-    }
-#endif
-
-#endif
-
-}
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
