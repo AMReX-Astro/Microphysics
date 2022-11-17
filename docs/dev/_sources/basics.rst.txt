@@ -94,8 +94,6 @@ and the generic solvers:
 
 * ``opacity/``: opacity routines for radiation transport
 
-* ``python_library/``: python bindings for the Microphysics routines
-
 * ``rates/``: common nuclear reaction rate modules used by some of the
   networks.
 
