@@ -26,7 +26,11 @@ void actual_integrator (burn_t& state, const Real dt)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    initialize_state(state);
+    eos(eos_input_rt, state);
+
+    // Fill in the initial integration state.
+
+    burn_to_integrator(state, be);
 
     Real T_in = state.T;
     Real e_in = state.e;
