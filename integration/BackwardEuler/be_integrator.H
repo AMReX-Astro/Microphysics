@@ -25,11 +25,10 @@ int single_step (burn_t& state, be_t& be, const Real dt)
     // RHS of the linear system and to reset the state if we are
     // unsuccessful here
 
-    Array1D<Real, 1, BE_NEQS> y;
     for (int n = 1; n <= NumSpec; n++) {
-        y(n) = state.xn[n-1];
+        be.y(n) = state.xn[n-1];
     }
-    y(net_ienuc) = state.e;
+    be.y(net_ienuc) = state.e;
 
     int ierr = BE_SUCCESS;
     bool converged = false;
@@ -46,7 +45,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
     Array1D<Real, 1, BE_NEQS> y_np1;
 
     for (int n = 1; n <= BE_NEQS; n++) {
-        y_np1(n) = y(n) + dt * ydot(n);
+        y_np1(n) = be.y(n) + dt * ydot(n);
     }
 
     // Newton loop
@@ -64,28 +63,26 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         // construct the Jacobian
 
-        JacNetArray2D jac;
-
         if (jacobian == 1) {
-            actual_jac(state, jac);
+            actual_jac(state, be.jac);
 
             // We integrate X, not Y
             for (int j = 1; j <= NumSpec; ++j) {
                 for (int i = 1; i <= neqs; ++i) {
-                    jac(j, i) *= aion[j-1];
-                    jac(i, j) *= aion_inv[j-1];
+                    be.jac(j, i) *= aion[j-1];
+                    be.jac(i, j) *= aion_inv[j-1];
                 }
             }
 
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
-            numerical_jac(state, jac_info, jac);
+            numerical_jac(state, jac_info, be.jac);
         }
 
         if (!integrate_energy) {
             for (int j = 1; j <= BE_NEQS; j++) {
-                jac(net_ienuc, j) = 0.0_rt;
+                be.jac(net_ienuc, j) = 0.0_rt;
             }
         }
 
@@ -94,9 +91,9 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         for (int m  = 1; m <= BE_NEQS; m++) {
             for (int n = 1; n <= BE_NEQS; n++) {
-                jac(m, n) *= -dt;
+                be.jac(m, n) *= -dt;
                 if (m == n) {
-                    jac(m, n) = 1.0_rt + jac(m, n);
+                    be.jac(m, n) = 1.0_rt + be.jac(m, n);
                 }
             }
         }
@@ -111,21 +108,21 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         Array1D<Real, 1, BE_NEQS> b;
         for (int n = 1; n <= BE_NEQS; n++) {
-            b(n) = y(n) - y_np1(n) + dt * ydot(n);
+            b(n) = be.y(n) - y_np1(n) + dt * ydot(n);
         }
 
         // solve the linear system
 
         int ierr_linpack;
         IArray1D pivot;
-        dgefa<BE_NEQS>(jac, pivot, ierr_linpack);
+        dgefa<BE_NEQS>(be.jac, pivot, ierr_linpack);
 
         if (ierr_linpack != 0) {
             ierr = BE_LU_DECOMPOSITION_ERROR;
             break;
         }
 
-        dgesl<BE_NEQS>(jac, pivot, b);
+        dgesl<BE_NEQS>(be.jac, pivot, b);
 
         // update our current guess for the solution
 
@@ -164,23 +161,24 @@ int single_step (burn_t& state, be_t& be, const Real dt)
             ierr = BE_NONCONVERGENCE;
         }
 
-        // reset the state
-
-        for (int n = 0; n < NumSpec; n++) {
-            state.xn[n] = y(n+1);
-        }
-        state.e = y(net_ienuc);
 
     } else {
 
         // update the state to the latest values
 
-        for (int n = 0; n < NumSpec; n++) {
-            state.xn[n] = y_np1(n+1);
+        for (int n = 1; n <= BE_NEQS; n++) {
+            be.y(n) = y_np1(n);
         }
-        state.e = y_np1(net_ienuc);
 
     }
+
+    // update the state -- if we didn't converge, then this just
+    // restores the old state
+
+    for (int n = 0; n < NumSpec; n++) {
+        state.xn[n] = be.y(n+1);
+    }
+    state.e = be.y(net_ienuc);
 
     return ierr;
 
