@@ -77,9 +77,11 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
 #endif
 
     // We integrate X, not Y
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        ydot(n) *= aion[n-1];
+    // turn it off for primordial chem
+    if (!use_number_densities) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            ydot(n) *= aion[n-1];
+        }
     }
 
     // Allow energy integration to be disabled.
@@ -135,10 +137,13 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 #endif
 
     // We integrate X, not Y
-    for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= VODE_NEQS; ++i) {
-            pd.mul(j, i, aion[j-1]);
-            pd.mul(i, j, aion_inv[j-1]);
+    // turn it off for primordial chem
+    if (!use_number_densities) {
+        for (int j = 1; j <= NumSpec; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                pd.mul(j, i, aion[j-1]);
+                pd.mul(i, j, aion_inv[j-1]);
+            }
         }
     }
 
