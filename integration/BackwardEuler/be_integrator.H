@@ -290,7 +290,7 @@ int be_integrator (burn_t& state, be_t& be)
 
         // first do 2 (fine) dt/2 steps
 
-        Array1D<Real, 1, neqs> y_fine;
+        Array1D<Real, 1, BE_NEQS> y_fine;
 
         ierr = single_step(state, be, dt_sub/2);
         if (ierr == BE_SUCCESS) {
@@ -298,13 +298,13 @@ int be_integrator (burn_t& state, be_t& be)
 
             // store the fine dt solution
 
-            for (int n = 1; n < BE_NEQS; ++n) {
+            for (int n = 1; n <= BE_NEQS; ++n) {
                 y_fine(n) = be.y(n);
             }
 
             // now that single (coarse) dt step
             // first reset the solution
-            for (int n = 1; n < BE_NEQS; ++n) {
+            for (int n = 1; n <= BE_NEQS; ++n) {
                 be.y(n) = y_old(n);
             }
             ierr = single_step(state_coarse_dt, be, dt_sub);
@@ -341,7 +341,7 @@ int be_integrator (burn_t& state, be_t& be)
 
             be.t += dt_sub;
 
-            for (int n = 1; n < BE_NEQS; ++n) {
+            for (int n = 1; n <= BE_NEQS; ++n) {
                 be.y(n) = y_fine(n);
             }
 
