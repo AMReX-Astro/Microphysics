@@ -286,8 +286,6 @@ int be_integrator (burn_t& state, be_t& be)
 
         // try to take a step dt
 
-        burn_t state_coarse_dt = state;
-
         // first do 2 (fine) dt/2 steps
 
         Array1D<Real, 1, BE_NEQS> y_fine;
@@ -307,7 +305,7 @@ int be_integrator (burn_t& state, be_t& be)
             for (int n = 1; n <= BE_NEQS; ++n) {
                 be.y(n) = y_old(n);
             }
-            ierr = single_step(state_coarse_dt, be, dt_sub);
+            ierr = single_step(state, be, dt_sub);
         }
 
         // define a weight for each variable to use in checking the error
