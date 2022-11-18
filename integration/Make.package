@@ -14,6 +14,9 @@ endif
 
 CEXE_headers += integrator.H
 CEXE_headers += integrator_data.H
+ifneq ($(USE_TRUE_SDC), TRUE)
+  CEXE_headers += integrator_type_strang.H
+endif
 
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
 VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils

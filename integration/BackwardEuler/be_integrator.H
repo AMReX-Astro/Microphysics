@@ -10,6 +10,96 @@
 #include <numerical_jacobian.H>
 #include <be_type_strang.H>
 
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+Real initial_dt (burn_t& state, be_t& be,
+                 Array1D<Real, 1, BE_NEQS>& ydot)
+{
+    // this is a version of the initial timestep estimator from VODE
+    // we come in with be.y() storing the initial solution
+
+    // initial lower and upper bounds on the timestep
+
+    Real hL = 100.0_rt * std::numeric_limits<Real>::epsilon() * be.tout;
+    Real hU = 0.1_rt * be.tout;
+
+    // initial guess for the itteraction
+
+    Real h = std::sqrt(hL * hU);
+    Real h_old = 10.0_rt * h;
+
+    // Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
+
+    Array1D<Real, 1, BE_NEQS> ewt;
+    Array1D<Real, 1, BE_NEQS> ydot_temp;
+    Array1D<Real, 1, BE_NEQS> ddydtt;
+
+    // save the old state and update the stored state
+    Array1D<Real, 1, BE_NEQS> y_old;
+    for (int n = 1; n <= BE_NEQS; ++n) {
+        y_old(n) = be.y(n);
+    }
+
+    for (int n = 1; n <= 4; n++) {
+
+       h_old = h;
+
+       // Get the error weighting -- this is similar to VODE's dewset
+       // routine
+
+       for (int ii = 1; ii <= NumSpec; ii++) {
+           ewt(ii) = rtol_spec * std::abs(y_old(ii)) + atol_spec;
+       }
+       ewt(net_ienuc) = rtol_enuc * std::abs(y_old(net_ienuc)) + atol_enuc;
+
+       // Construct the trial point.
+
+       for (int ii = 1; ii <= BE_NEQS; ii++) {
+           be.y(ii) = y_old(ii) + h * ydot(ii);
+       }
+
+       // Call the RHS, then estimate the finite difference.
+
+       evaluate_rhs(state, be, ydot_temp);
+
+       for (int ii = 1; ii <= BE_NEQS; ii++) {
+           ddydtt(ii) = (ydot_temp(ii) - ydot(ii)) / h;
+       }
+
+       Real yddnorm = 0.0_rt;
+       for (int ii = 1; ii <= BE_NEQS; ii++) {
+           yddnorm += std::pow(ddydtt(ii) * ewt(ii), 2);
+       }
+       yddnorm = std::sqrt(yddnorm / BE_NEQS);
+
+       if (yddnorm*hU*hU > 2.0_rt) {
+          h = std::sqrt(2.0_rt / yddnorm);
+       } else {
+          h = std::sqrt(h * hU);
+       }
+
+       if (h_old < 2.0_rt * h && h_old > 0.5_rt * h) {
+           break;
+       }
+
+    }
+
+    // Save the final timestep, with a bias factor.
+
+    Real dt = h / 2.0_rt;
+    dt = amrex::min(amrex::max(h, hL), hU);
+
+    dt = amrex::min(dt, ode_max_dt);
+
+    // restore the old time solution
+    for (int n = 1; n <= BE_NEQS; ++n) {
+        be.y(n) = y_old(n);
+    }
+
+    return dt;
+}
+
+
 ///
 /// update state.xn[] and state.e through a timestep dt
 /// state is updated in place -- if we are unsuccessful, we reset it
@@ -19,18 +109,6 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int single_step (burn_t& state, be_t& be, const Real dt)
 {
 
-    clean_state(state);
-
-    // pack the initial state into a vector -- we need this for the
-    // RHS of the linear system and to reset the state if we are
-    // unsuccessful here
-
-    Array1D<Real, 1, BE_NEQS> y;
-    for (int n = 1; n <= NumSpec; n++) {
-        y(n) = state.xn[n-1];
-    }
-    y(net_ienuc) = state.e;
-
     int ierr = BE_SUCCESS;
     bool converged = false;
 
@@ -39,14 +117,15 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
     Array1D<Real, 1, neqs> ydot;
 
-    evaluate_rhs(state, ydot);
+    evaluate_rhs(state, be, ydot);
 
     be.n_rhs += 1;
 
-    Array1D<Real, 1, BE_NEQS> y_np1;
+    Array1D<Real, 1, BE_NEQS> y_old;
 
     for (int n = 1; n <= BE_NEQS; n++) {
-        y_np1(n) = y(n) + dt * ydot(n);
+        y_old(n) = be.y(n);
+        be.y(n) = be.y(n) + dt * ydot(n);
     }
 
     // Newton loop
@@ -55,39 +134,34 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         // work with the current guess
 
-        for (int n = 0; n < NumSpec; n++) {
-            state.xn[n] = y_np1(n+1);
-        }
-        state.e = y_np1(net_ienuc);
+        // get the ydots for our current guess of y
 
-        clean_state(state);
+        evaluate_rhs(state, be, ydot);
+        be.n_rhs += 1;
 
         // construct the Jacobian
 
-        JacNetArray2D jac;
-
         if (be.jacobian_type == 1) {
-            actual_jac(state, jac);
-            be.n_jac++;
+            actual_jac(state, be.jac);
 
             // We integrate X, not Y
             for (int j = 1; j <= NumSpec; ++j) {
                 for (int i = 1; i <= neqs; ++i) {
-                    jac(j, i) *= aion[j-1];
-                    jac(i, j) *= aion_inv[j-1];
+                    be.jac(j, i) *= aion[j-1];
+                    be.jac(i, j) *= aion_inv[j-1];
                 }
             }
 
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
-            numerical_jac(state, jac_info, jac);
+            numerical_jac(state, jac_info, be.jac);
             be.n_jac++;
         }
 
         if (!integrate_energy) {
             for (int j = 1; j <= BE_NEQS; j++) {
-                jac(net_ienuc, j) = 0.0_rt;
+                be.jac(net_ienuc, j) = 0.0_rt;
             }
         }
 
@@ -96,43 +170,37 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         for (int m  = 1; m <= BE_NEQS; m++) {
             for (int n = 1; n <= BE_NEQS; n++) {
-                jac(m, n) *= -dt;
+                be.jac(m, n) *= -dt;
                 if (m == n) {
-                    jac(m, n) = 1.0_rt + jac(m, n);
+                    be.jac(m, n) = 1.0_rt + be.jac(m, n);
                 }
             }
         }
-
-        // get the ydots for our current guess of y
-
-        evaluate_rhs(state, ydot);
-
-        be.n_rhs += 1;
 
         // construct the RHS of our linear system
 
         Array1D<Real, 1, BE_NEQS> b;
         for (int n = 1; n <= BE_NEQS; n++) {
-            b(n) = y(n) - y_np1(n) + dt * ydot(n);
+            b(n) = y_old(n) - be.y(n) + dt * ydot(n);
         }
 
         // solve the linear system
 
         int ierr_linpack;
         IArray1D pivot;
-        dgefa<BE_NEQS>(jac, pivot, ierr_linpack);
+        dgefa<BE_NEQS>(be.jac, pivot, ierr_linpack);
 
         if (ierr_linpack != 0) {
             ierr = BE_LU_DECOMPOSITION_ERROR;
             break;
         }
 
-        dgesl<BE_NEQS>(jac, pivot, b);
+        dgesl<BE_NEQS>(be.jac, pivot, b);
 
         // update our current guess for the solution
 
         for (int n = 1; n <= BE_NEQS; n++) {
-            y_np1(n) += b(n);
+            be.y(n) += b(n);
         }
 
         // check to see if we converged
@@ -141,7 +209,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
         Real y_norm = 0.0;
         Real b_norm = 0.0;
         for (int n = 1; n <= BE_NEQS; n++) {
-            y_norm += y_np1(n) * y_np1(n);
+            y_norm += be.y(n) * be.y(n);
             b_norm += b(n) * b(n);
         }
         y_norm = std::sqrt(y_norm / BE_NEQS);
@@ -164,23 +232,13 @@ int single_step (burn_t& state, be_t& be, const Real dt)
             // out of iterations, so set nonconvergence
 
             ierr = BE_NONCONVERGENCE;
+
+            // reset the solution to the original
+            for (int n = 1; n <= BE_NEQS; n++) {
+                be.y(n) = y_old(n);
+            }
+
         }
-
-        // reset the state
-
-        for (int n = 0; n < NumSpec; n++) {
-            state.xn[n] = y(n+1);
-        }
-        state.e = y(net_ienuc);
-
-    } else {
-
-        // update the state to the latest values
-
-        for (int n = 0; n < NumSpec; n++) {
-            state.xn[n] = y_np1(n+1);
-        }
-        state.e = y_np1(net_ienuc);
 
     }
 
@@ -201,16 +259,22 @@ int be_integrator (burn_t& state, be_t& be)
     // estimate the timestep
 
     Array1D<Real, 1, neqs> ydot;
-    evaluate_rhs(state, ydot);
+    evaluate_rhs(state, be, ydot);
 
     be.n_rhs += 1;
 
-    Real dt_sub = initial_dt(state, be.tout, ydot);
+    Real dt_sub = initial_dt(state, be, ydot);
 
     // main timestepping loop
 
     while (be.t < (1.0_rt - timestep_safety_factor) * be.tout &&
            be.n_step < ode_max_steps) {
+
+        // store the current solution -- we'll revert to this if a step fails
+        Array1D<Real, 1, BE_NEQS> y_old;
+        for (int n = 1; n <= BE_NEQS; ++n) {
+            y_old(n) = be.y(n);
+        }
 
         // don't go too far
 
@@ -224,95 +288,75 @@ int be_integrator (burn_t& state, be_t& be)
 
         // try to take a step dt
 
-        burn_t state_coarse_dt = state;
-
         // first do 2 (fine) dt/2 steps
+
+        Array1D<Real, 1, BE_NEQS> y_fine;
 
         ierr = single_step(state, be, dt_sub/2);
         if (ierr == BE_SUCCESS) {
             ierr = single_step(state, be, dt_sub/2);
+
+            // store the fine dt solution
+
+            for (int n = 1; n <= BE_NEQS; ++n) {
+                y_fine(n) = be.y(n);
+            }
+
+            // now that single (coarse) dt step
+            // first reset the solution
+            for (int n = 1; n <= BE_NEQS; ++n) {
+                be.y(n) = y_old(n);
+            }
+            ierr = single_step(state, be, dt_sub);
         }
 
-        // now that single (coarse) dt step
-
-        if (ierr == BE_SUCCESS) {
-            ierr = single_step(state_coarse_dt, be, dt_sub);
-        }
-
-#ifdef VODELIKE_ERROR
         // define a weight for each variable to use in checking the error
 
         Array1D<Real, 1, BE_NEQS> w;
         for (int n = 1; n <= NumSpec; n++) {
-            w(n) = 1.0_rt / (rtol_spec * std::abs(state.xn[n-1]) + atol_spec);
+            w(n) = 1.0_rt / (rtol_spec * std::abs(y_fine(n)) + atol_spec);
         }
-        w(net_ienuc) = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_enuc);
+        w(net_ienuc) = 1.0_rt / (rtol_enuc * std::abs(y_fine(net_ienuc)) + atol_enuc);
 
         // now look for w |y_fine - y_coarse| < 1
 
         Real rel_error = 0.0_rt;
         for (int n = 1; n <= NumSpec; n++) {
-            rel_error = amrex::max(rel_error, w(n) * std::abs(state.xn[n-1] - state_coarse_dt.xn[n-1]));
+            rel_error = amrex::max(rel_error, w(n) * std::abs(y_fine(n) - be.y(n)));
         }
-        rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(state.e - state_coarse_dt.e));
+        rel_error = amrex::max(rel_error, w(net_ienuc) * std::abs(y_fine(net_ienuc) - be.y(net_ienuc)));
 
         bool step_success = false;
         if (rel_error < 1.0_rt) {
             step_success = true;
         }
-#else
 
-        // compute a relative error only for the species that are more
-        // abundant that atol_spec
-
-        Real rel_error = 0.0_rt;
-        for (int n = 1; n <= NumSpec; n++) {
-            if (state.xn[n-1] > atol_spec) {
-                rel_error = amrex::max(rel_error,
-                                       std::abs((state.xn[n-1] - state_coarse_dt.xn[n-1]) /
-                                                (state.xn[n-1] + atol_spec)));
-            }
-        }
-        rel_error = amrex::max(rel_error,
-                               std::abs((state.e - state_coarse_dt.e) / state.e));
-
-        bool step_success = false;
-        if (rel_error < rtol_spec) {
-            step_success = true;
-        }
-
-#endif
-
-
-        if (ierr == BE_SUCCESS) {
+        if (ierr == BE_SUCCESS && step_success) {
 
             // there were no problems with the mechanics of the step
-            // (linear algebra, etc.).  Now check if we met our error
+            // (linear algebra, etc.) and we met our error
             // goals.
 
-            // state has the current best solution
+            // y_fine has the current best solution
 
-            if (step_success) {
-                be.t += dt_sub;
+            be.t += dt_sub;
 
-                // can we potentially increase the timestep?
-                // backward-Euler has a local truncation error of dt**2
-
-#ifdef VODELIKE_ERROR
-                Real dt_new = dt_sub * std::pow(1.0_rt / rel_error, 0.5_rt);
-#else
-                Real dt_new = dt_sub * std::pow(rtol_spec / rel_error, 0.5_rt);
-#endif
-                dt_sub = amrex::min(amrex::max(dt_new, dt_sub / 2.0), 2.0 * dt_sub);
-
-            } else {
-
-                // we did not make our error goals, so just cut the timestep and leave the old solution in place
-
-                dt_sub /= 2;
-
+            for (int n = 1; n <= BE_NEQS; ++n) {
+                be.y(n) = y_fine(n);
             }
+
+            // can we potentially increase the timestep?
+            // backward-Euler has a local truncation error of dt**2
+
+            Real dt_new = dt_sub * std::pow(1.0_rt / rel_error, 0.5_rt);
+            dt_sub = amrex::min(amrex::max(dt_new, dt_sub / 2.0), 2.0 * dt_sub);
+
         } else {
+
+            // roll back the solution
+            for (int n = 1; n <= BE_NEQS; ++n) {
+                be.y(n) = y_old(n);
+            }
 
             // adjust the timestep and try again
             dt_sub /= 2;
@@ -331,7 +375,7 @@ int be_integrator (burn_t& state, be_t& be)
     if (ierr == BE_SUCCESS) {
         // do a final clean_state on the solution
 
-        clean_state(state);
+        //clean_state(state);
     }
 
     return ierr;

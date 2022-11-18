@@ -26,29 +26,44 @@ void actual_integrator (burn_t& state, const Real dt)
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
-    initialize_state(state);
+    eos(eos_input_rt, state);
 
+    // Fill in the initial integration state.
+
+    burn_to_integrator(state, be);
+
+#ifndef AMREX_USE_GPU
     Real T_in = state.T;
-    Real e_in = state.e;
     Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
+#endif
+    Real e_in = state.e;
+
+    // Call the integration routine.
 
     int ierr = be_integrator(state, be);
 
-    if (ierr < 0) {
-        state.success = false;
-    }
+    // Copy the integration data back to the burn state.
+
+    integrator_to_burn(be, state);
 
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
 
     state.e -= e_in;
 
+    // Normalize the final abundances.
+
+    normalize_abundances_burn(state);
+
     state.n_rhs = be.n_rhs;
     state.n_step = be.n_step;
 
+    if (ierr < 0) {
+        state.success = false;
+    }
 
 #ifndef AMREX_USE_CUDA
     if (burner_verbose) {

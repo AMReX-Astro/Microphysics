@@ -7,7 +7,9 @@
 #include <ArrayUtilities.H>
 
 #include <integrator_data.H>
-
+#ifdef STRANG
+#include <integrator_type_strang.H>
+#endif
 #include <network.H>
 
 #ifdef NETWORK_SOLVER
@@ -48,6 +50,9 @@ struct be_t {
 
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
+
+    Array1D<Real, 1, BE_NEQS> y;
+    JacNetArray2D jac;
 
 };
 
