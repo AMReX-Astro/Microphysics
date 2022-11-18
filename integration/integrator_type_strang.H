@@ -63,6 +63,13 @@ void clean_state (I& int_state)
         }
     }
 
+    // for primordial chem, just enforce positivity
+    if (use_number_densities) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            vode_state.y(n) = amrex::max(vode_state.y(n), SMALL_X_SAFE);
+        }
+    }
+
     // Renormalize the abundances as necessary.
 
     if (renormalize_abundances) {
