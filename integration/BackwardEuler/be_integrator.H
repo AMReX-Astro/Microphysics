@@ -125,7 +125,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
     for (int n = 1; n <= BE_NEQS; n++) {
         y_old(n) = be.y(n);
-        be.y(n) += dt * ydot(n);
+        be.y(n) = be.y(n) + dt * ydot(n);
     }
 
     // Newton loop
@@ -254,12 +254,6 @@ int be_integrator (burn_t& state, be_t& be)
 
     int ierr;
 
-    // store the current solution -- we'll update this each time we have a successful step
-    Array1D<Real, 1, BE_NEQS> y_old;
-    for (int n = 1; n <= BE_NEQS; ++n) {
-        y_old(n) = be.y(n);
-    }
-
     // estimate the timestep
 
     Array1D<Real, 1, neqs> ydot;
@@ -273,6 +267,12 @@ int be_integrator (burn_t& state, be_t& be)
 
     while (be.t < (1.0_rt - timestep_safety_factor) * be.tout &&
            be.n_step < ode_max_steps) {
+
+        // store the current solution -- we'll revert to this if a step fails
+        Array1D<Real, 1, BE_NEQS> y_old;
+        for (int n = 1; n <= BE_NEQS; ++n) {
+            y_old(n) = be.y(n);
+        }
 
         // don't go too far
 
