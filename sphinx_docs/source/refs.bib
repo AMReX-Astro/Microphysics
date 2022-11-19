@@ -499,3 +499,32 @@ archivePrefix = {arXiv},
 	journal = {The Astrophysical Journal},
 	abstract = {We develop and calibrate a realistic model flame for hydrodynamic simulations of deflagrations in white dwarf (Type Ia) supernovae. Our flame model builds on the advection-diffusion-reaction model of Khokhlov and includes electron screening and Coulomb corrections to the equation of state in a self-consistent way. We calibrate this model flame—its energetics and timescales for energy release and neutronization—with self-heating reaction network calculations that include both these Coulomb effects and up-to-date weak interactions. The burned material evolves postflame due to both weak interactions and hydrodynamic changes in density and temperature. We develop a scheme to follow the evolution, including neutronization, of the NSE state subsequent to the passage of the flame front. As a result, our model flame is suitable for deflagration simulations over a wide range of initial central densities and can track the temperature and electron fraction of the burned material through the explosion and into the expansion of the ejecta.}
 }
+
+@article{mott_qss,
+        title = {A Quasi-Steady-State Solver for the Stiff Ordinary Differential Equations of Reaction Kinetics},
+        journal = {Journal of Computational Physics},
+        volume = {164},
+        number = {2},
+        pages = {407-428},
+        year = {2000},
+        issn = {0021-9991},
+        doi = {https://doi.org/10.1006/jcph.2000.6605},
+        url = {https://www.sciencedirect.com/science/article/pii/S0021999100966051},
+        author = {David R. Mott and Elaine S. Oran and Bram {van Leer}},
+        abstract = {A quasi-steady-state method is presented that integrates stiff differential equations arising from reaction kinetics. This predictor–corrector method is A-stable for linear equations and second-order accurate. The method is used for all species regardless of the time scales of the individual equations, and it works well for problems typical of hydrocarbon combustion. Start-up costs are low, making the method ideal for use in process-split reacting-flow simulations which require the solution of an initial-value problem in every computational cell for every global time step. The algorithm is described, and error analysis and linear stability analysis are included. The algorithm is also applied to several test problems, and the results are compared to those of the stiff integrator CHEMEQ. The method, which we call α-QSS, is more stable, more accurate, and less costly than CHEMEQ.}
+}
+
+@article{guidry_qss,
+        doi = {10.1088/1749-4699/6/1/015002},
+        url = {https://dx.doi.org/10.1088/1749-4699/6/1/015002},
+        year = {2013},
+        month = {jan},
+        publisher = {IOP Publishing},
+        volume = {6},
+        number = {1},
+        pages = {015002},
+        author = {M W Guidry and J A Harris},
+        title = {Explicit integration of extremely stiff reaction networks: quasi-steady-state methods},
+        journal = {Computational Science & Discovery},
+        abstract = {A preceding paper by Guidry et al 2013 Comput. Sci. Disc. 6 015001 demonstrated that explicit asymptotic methods generally work much better for extremely stiff reaction networks than has previously been shown in the literature. There we showed that for systems well removed from equilibrium, explicit asymptotic methods can rival standard implicit codes in speed and accuracy for solving extremely stiff differential equations. In this paper, we continue the investigation of systems well removed from equilibrium by examining quasi-steady-state (QSS) methods as an alternative to asymptotic methods. We show that for systems well removed from equilibrium, QSS methods also can compete with, or even exceed, standard implicit methods in speed, even for extremely stiff networks, and in many cases give a somewhat better integration speed than for asymptotic methods. As for asymptotic methods, we will find that QSS methods give correct results, but with a non-competitive integration speed as equilibrium is approached. Thus, we find that both asymptotic and QSS methods must be supplemented with partial equilibrium methods as equilibrium is approached to remain competitive with implicit methods.}
+}

@@ -42,7 +42,8 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
     Real HUB = PT1 * TDIST;
 
     for (int i = 1; i <= VODE_NEQS; ++i) {
-        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + vstate.atol(i);
+        Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
+        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
         Real AFI = std::abs(vstate.yh(i,2));
         if (AFI * HUB > DELYI) {
             HUB = DELYI / AFI;

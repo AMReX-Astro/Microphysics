@@ -62,3 +62,11 @@ nonaka_j                integer           0
 nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
+
+# in the clean_state process, do we clip the species such that they
+# are in [0, 1]?
+do_species_clip              integer          1
+
+# flag for turning on the use of number densities for all species
+use_number_densities     logical          .false.
+
