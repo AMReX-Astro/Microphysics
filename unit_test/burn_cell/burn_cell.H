@@ -110,6 +110,10 @@ void burn_cell_c()
         normalize_abundances_burn(state);
     }
 
+    // update the composition quantities
+
+    eos(eos_input_rt, state);
+
     // output just the instantaneous RHS
 
     Array1D<Real, 1, neqs> ydot;
