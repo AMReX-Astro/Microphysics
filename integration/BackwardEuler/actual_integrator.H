@@ -337,7 +337,7 @@ int single_step (burn_t& state, const Real dt)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, const Real dt)
+void actual_integrator (burn_t& state, const Real dt, const bool is_retry=false)
 {
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
