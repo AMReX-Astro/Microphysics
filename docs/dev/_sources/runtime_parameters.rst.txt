@@ -64,12 +64,6 @@ VODE
 | ``X_reject_buffer``                   | for the step rejection logic on mass fractions, we only | 1.0                |
 |                                       | consider species that are > X_reject_buffer * atol_spec |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``do_species_clip``                   | in the clean_state process, do we clip the species such | 1                  |
-|                                       | that they are in [0, 1]?                                |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
-| ``use_number_densities``              | flag for turning on the use of number densities for all | .false.            |
-|                                       | species                                                 |                    |
-+---------------------------------------+---------------------------------------------------------+--------------------+
 | ``subtract_internal_energy``          | flag for tuning on the subtraction of internal energy   | .true.             |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
@@ -558,6 +552,12 @@ integration
 | ``nonaka_level``                      |                                                         | 0                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``nonaka_file``                       |                                                         | "nonaka_plot.dat"  |
++---------------------------------------+---------------------------------------------------------+--------------------+
+| ``do_species_clip``                   | in the clean_state process, do we clip the species such | 1                  |
+|                                       | that they are in [0, 1]?                                |                    |
++---------------------------------------+---------------------------------------------------------+--------------------+
+| ``use_number_densities``              | flag for turning on the use of number densities for all | .false.            |
+|                                       | species                                                 |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
 
