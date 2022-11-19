@@ -496,8 +496,11 @@ void actual_integrator (burn_t& state, const Real dt)
 
     clean_state(state);
 
-    // Subtract off the initial energy (the application codes expect
-    // to get back only the generated energy during the burn).
+    // Subtract off the initial energy if the application codes expect
+    // to get back only the generated energy during the burn.
+    if (subtract_internal_energy) {
+        state.e -= e_in;
+    }
 
     state.e -= e_in;
 
