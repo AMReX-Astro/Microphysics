@@ -1,6 +1,7 @@
 #ifndef NUMERICAL_JACOBIAN_H
 #define NUMERICAL_JACOBIAN_H
 
+#include <eos_composition.H>
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>

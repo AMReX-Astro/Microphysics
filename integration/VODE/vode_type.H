@@ -147,7 +147,8 @@ struct dvode_t
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
-    RArray1D rtol, atol;
+    Real rtol_spec, atol_spec;
+    Real rtol_enuc, atol_enuc;
 
     // Local time and integration end time
     amrex::Real t, tout;
@@ -252,7 +253,7 @@ void print_state(dvode_t& dvode_state)
 #include <vode_type_simplified_sdc.H>
 #endif
 #ifdef STRANG
-#include <vode_type_strang.H>
+#include <integrator_type_strang.H>
 #endif
 
 #endif

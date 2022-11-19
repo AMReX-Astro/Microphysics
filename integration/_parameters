@@ -77,3 +77,10 @@ retry_rtol_enuc                real      1.d-6
 
 retry_atol_spec                real      1.d-8
 retry_atol_enuc                real      1.d-6
+
+# in the clean_state process, do we clip the species such that they
+# are in [0, 1]?
+do_species_clip              integer          1
+
+# flag for turning on the use of number densities for all species
+use_number_densities     logical          .false.

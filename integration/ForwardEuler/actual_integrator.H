@@ -3,6 +3,7 @@
 
 #include <network.H>
 #include <actual_network.H>
+#include <rhs.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <rate_type.H>
@@ -104,8 +105,6 @@ void initialize_state (burn_t& state)
     // to fill the rest of the thermodynamic variables.
 
     eos(eos_input_rt, state);
-
-    state.self_heat = true;
 
     state.success = true;
 
