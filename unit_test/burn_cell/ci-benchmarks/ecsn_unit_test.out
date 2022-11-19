@@ -1,4 +1,4 @@
-AMReX (22.08-70-gec3ccbd18787) initialized
+AMReX (22.11-1-gc4a4811c373d) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 0.01
@@ -19,8 +19,8 @@ RHS at t = 0
     h1 -171061600.5
    he4 164121259.9
    o16 -67273.73352
-   o20 -2.354443542e-05
-   f20 -9.580348607e-06
+   o20 -1.464466368e-05
+   f20 -1.411421393e-05
   ne20 -447648.0568
   mg24 68871335.21
   al27 -73391041.15
@@ -62,4 +62,4 @@ omegadot(si28): 23.8187057
 omegadot(p31): -1
 omegadot(s32): 71.37240779
 number of steps taken: 31559
-AMReX (22.08-70-gec3ccbd18787) finalized
+AMReX (22.11-1-gc4a4811c373d) finalized
