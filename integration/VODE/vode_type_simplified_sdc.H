@@ -158,15 +158,37 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
     Real rhoInv = 1.0_rt / state.rho;
 
 #if defined(SDC_EVOLVE_ENERGY)
-    eos_re_t eos_state;
+    for (int n = 0; n < NumSpec; n++) {
+        // vode_state uses 1-based indexing
+        state.xn[n] = vode_state.y(SFS+1+n) * rhoInv;
+    }
+
+#ifdef AUX_THERMO
+    // make the aux data consistent with the vode_state X's
+    set_aux_comp_from_X(state);
+
+    // also store it in the burn_t state solution
+    for (int n = 0; n < NumAux; n++) {
+        state.y[SFX+n] = state.rho * state.aux[n];
+    }
+#endif
+
+    // set internal energy for EOS call
+
+    state.e = vode_state.y(SEINT+1) * rhoInv;
+
+    state.T = state.T;  // initial guess
+
+    eos(eos_input_re, state);
+
 #elif defined(SDC_EVOLVE_ENTHALPY)
     eos_t eos_state;
-#endif
     eos_state.rho = state.rho;
     for (int n = 0; n < NumSpec; n++) {
         // vode_state uses 1-based indexing
         eos_state.xn[n] = vode_state.y(SFS+1+n) * rhoInv;
     }
+
 #ifdef AUX_THERMO
     // make the aux data consistent with the vode_state X's
     set_aux_comp_from_X(eos_state);
@@ -177,14 +199,6 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
-
-    // set internal energy for EOS call
-
-    eos_state.e = vode_state.y(SEINT+1) * rhoInv;
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
     if (maestro::use_tfromp) {
         // under this assumption, we are assuming that there is no base state evolution
         eos_state.p = state.p0;
@@ -192,14 +206,8 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
         eos_state.h = vode_state.y(SENTH+1) * rhoInv;
     }
 
-#endif
-
     eos_state.T = state.T;  // initial guess
 
-#if defined(SDC_EVOLVE_ENERGY)
-    eos(eos_input_re, eos_state);
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
 
     if (maestro::use_tfromp) {
         // NOT SURE IF THIS IS VALID
@@ -209,11 +217,11 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
         eos(eos_input_rh, eos_state);
     }
 
-#endif
-
     // fill the rest of the burn_t state
 
     eos_to_burn(eos_state, state);
+
+#endif
 
     // override T if we are fixing it (e.g. due to
     // drive_initial_convection)
