@@ -7,6 +7,7 @@
 
 #include <network.H>
 #include <eos_type.H>
+#include <eos_composition.H>
 #include <extern_parameters.H>
 
 #include <ArrayUtilities.H>
