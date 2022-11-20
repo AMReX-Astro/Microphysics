@@ -64,8 +64,6 @@ VODE
 | ``X_reject_buffer``                   | for the step rejection logic on mass fractions, we only | 1.0                |
 |                                       | consider species that are > X_reject_buffer * atol_spec |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``subtract_internal_energy``          | flag for tuning on the subtraction of internal energy   | .true.             |
-+---------------------------------------+---------------------------------------------------------+--------------------+
 
 
 
@@ -558,6 +556,8 @@ integration
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``use_number_densities``              | flag for turning on the use of number densities for all | .false.            |
 |                                       | species                                                 |                    |
++---------------------------------------+---------------------------------------------------------+--------------------+
+| ``subtract_internal_energy``          | flag for tuning on the subtraction of internal energy   | .true.             |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
 
