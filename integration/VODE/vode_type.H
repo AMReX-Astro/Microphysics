@@ -149,7 +149,9 @@ struct dvode_t
     // Tolerances
     Real rtol_spec, atol_spec;
     Real rtol_enuc, atol_enuc;
-
+#ifdef TRUE_SDC
+    Real rtol_dens, atol_dens;
+#endif
     // Local time and integration end time
     amrex::Real t, tout;
 
