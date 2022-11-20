@@ -605,7 +605,7 @@ void apply_branching (rate_t& rates)
 
 // Do the initial tabulation of rates. We loop over various
 // temperatures and evaluate all the rates at each temperature.
-AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void tabulate_rates ()
 {
     using namespace Rates;
