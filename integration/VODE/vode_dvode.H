@@ -67,12 +67,24 @@ int dvode (burn_t& state, dvode_t& vstate)
     vstate.NQ = 1;
     vstate.H = 1.0_rt;
 
+#ifdef TRUE_SDC
+    vstate.ewt(1) = vstate.rtol_dens * std::abs(vstate.yh(1,1)) + vstate.atol_dens;
+    vstate.ewt(1) = 1.0_rt / vstate.ewt(1);
+
+    for (int i = 2; i <= NumSpec+1; ++i) {
+        vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
+        vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
+    }
+    vstate.ewt(NumSpec+2) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+2,1)) + vstate.atol_enuc;
+    vstate.ewt(NumSpec+2) = 1.0_rt / vstate.ewt(NumSpec+2);
+#else
     for (int i = 1; i <= NumSpec; ++i) {
         vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
         vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
     }
     vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
     vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+#endif
 
     // Call DVHIN to set initial step size H0 to be attempted.
     H0 = 0.0_rt;
@@ -141,12 +153,24 @@ int dvode (burn_t& state, dvode_t& vstate)
 
            }
 
+#ifdef TRUE_SDC
+           vstate.ewt(1) = vstate.rtol_dens * std::abs(vstate.yh(1,1)) + vstate.atol_dens;
+           vstate.ewt(1) = 1.0_rt / vstate.ewt(1);
+
+           for (int i = 2; i <= NumSpec+1; ++i) {
+               vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
+               vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
+           }
+           vstate.ewt(NumSpec+2) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+2,1)) + vstate.atol_enuc;
+           vstate.ewt(NumSpec+2) = 1.0_rt / vstate.ewt(NumSpec+2);
+#else
            for (int i = 1; i <= NumSpec; ++i) {
                vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
                vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
            }
            vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
            vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+#endif
 
        }
        else {
