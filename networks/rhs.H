@@ -1267,6 +1267,8 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
     rhs_state_t rhs_state;
 
     rhs_state.rho = burn_state.rho;
+    rhs_state.eta = burn_state.eta;
+    rhs_state.y_e = burn_state.y_e;
 
     // Convert X to Y.
     for (int n = 1; n <= NumSpec; ++n) {
@@ -1401,6 +1403,10 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 {
     rhs_state_t rhs_state;
+
+    rhs_state.rho = burn_state.rho;
+    rhs_state.eta = burn_state.eta;
+    rhs_state.y_e = burn_state.y_e;
 
     // Convert X to Y.
     for (int n = 1; n <= NumSpec; ++n) {
