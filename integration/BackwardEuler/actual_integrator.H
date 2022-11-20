@@ -502,8 +502,6 @@ void actual_integrator (burn_t& state, const Real dt)
         state.e -= e_in;
     }
 
-    state.e -= e_in;
-
     if (num_timesteps >= ode_max_steps) {
         state.success = false;
     }
