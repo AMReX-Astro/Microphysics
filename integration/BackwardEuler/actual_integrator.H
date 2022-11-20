@@ -41,10 +41,15 @@ void actual_integrator (burn_t& state, const Real dt)
         state.success = false;
     }
 
-    // Subtract off the initial energy (the application codes expect
-    // to get back only the generated energy during the burn).
+    // do a final clean_state on the solution
 
-    state.e -= e_in;
+    clean_state(state);
+
+    // Subtract off the initial energy if the application codes expect
+    // to get back only the generated energy during the burn.
+    if (subtract_internal_energy) {
+        state.e -= e_in;
+    }
 
     state.n_rhs = be.n_rhs;
     state.n_step = be.n_step;
