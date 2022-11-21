@@ -7,6 +7,8 @@
 #include <iostream>
 #include <nse_solver.H>
 
+using namespace unit_test;
+
 void nse_example_c()
 {
 

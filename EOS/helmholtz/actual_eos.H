@@ -14,6 +14,8 @@
 #include <actual_eos_data.H>
 #include <cmath>
 
+using namespace eos;
+
 // Frank Timmes Helmholtz based Equation of State
 // http://cococubed.asu.edu/
   

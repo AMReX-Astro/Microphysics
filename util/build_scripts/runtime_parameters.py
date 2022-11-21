@@ -73,33 +73,22 @@ class Param:
 
         return "int"
 
-    def get_declare_string(self):
+    def get_declare_string(self, with_extern=False):
         """this is the line that goes into, e.g., castro_declares.H included
         into Castro.cpp"""
 
+        extern = ""
+        if with_extern:
+            extern = "extern "
+
         if self.dtype != "string":
-            tstr = f"AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.nm_pre}{self.cpp_var_name}"
+            tstr = f"{extern}AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.cpp_var_name}"
         elif self.dtype == "string":
-            tstr = f"std::string {self.nm_pre}{self.cpp_var_name}"
+            tstr = f"{extern}std::string {self.cpp_var_name}"
         else:
             sys.exit(f"invalid data type for parameter {self.name}")
 
         return f"{tstr};\n"
-
-    def get_decl_string(self):
-        """this is the line that goes into, e.g., castro_params.H included
-        into Castro.H"""
-
-        tstr = ""
-
-        if self.dtype != "string":
-            tstr = f"extern AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.cpp_var_name};\n"
-        elif self.dtype == "string":
-            tstr = f"extern std::string {self.cpp_var_name};\n"
-        else:
-            sys.exit(f"invalid data type for parameter {self.name}")
-
-        return tstr
 
     def get_default_string(self):
         """this is the line that goes into, e.g., castro_declares.H included

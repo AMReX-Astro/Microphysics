@@ -14,6 +14,8 @@
 #include <cmath>
 #include <actual_eos_data.H>
 
+using namespace eos;
+
 const std::string eos_name = "multigamma";
 
 inline

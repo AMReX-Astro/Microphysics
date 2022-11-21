@@ -9,6 +9,8 @@
 #include <reaclib_rates.H>
 #include <partition_functions.H>
 
+using namespace unit_test;
+
 void pf_cell_c()
 {
 

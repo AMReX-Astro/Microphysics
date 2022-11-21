@@ -6,6 +6,7 @@
 #include <burn_type.H>
 
 using namespace amrex;
+using namespace network;
 
 AMREX_INLINE
 void actual_rhs_init () {

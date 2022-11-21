@@ -14,6 +14,8 @@
 #include <vode_type.H>
 #include <vode_dvode.H>
 
+using namespace integrator;
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, Real dt)
 {

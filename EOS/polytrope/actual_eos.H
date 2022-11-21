@@ -28,6 +28,8 @@
 #include <eos_type.H>
 #include <actual_eos_data.H>
 
+using namespace eos;
+
 const std::string eos_name = "polytrope";
 
 inline

@@ -20,6 +20,8 @@ using namespace amrex;
 using namespace ArrayUtil;
 using namespace Rates;
 
+using namespace network;
+
 void actual_rhs_init ();
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE

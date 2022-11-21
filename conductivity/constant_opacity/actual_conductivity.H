@@ -6,6 +6,8 @@
 #include <network.H>
 #include <extern_parameters.H>
 
+using namespace conductivity;
+
 const std::string cond_name = "constant_opacity";
 
 AMREX_FORCE_INLINE

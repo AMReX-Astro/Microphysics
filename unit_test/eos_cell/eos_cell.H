@@ -5,6 +5,8 @@
 #include <fstream>
 #include <iostream>
 
+using namespace unit_test;
+
 void eos_cell_c()
 {
 

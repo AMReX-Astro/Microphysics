@@ -14,6 +14,7 @@
 #include <nse_index.H>
 #include <hybrj.H>
 
+using namespace nse;
 
 // Initialization for nse, check whether network is valid and stores indices
 

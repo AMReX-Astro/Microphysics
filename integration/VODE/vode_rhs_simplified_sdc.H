@@ -13,6 +13,8 @@
 #include <nonaka_plot.H>
 #endif
 
+using namespace integrator;
+
 // The f_rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.

@@ -12,6 +12,8 @@
 #include <iostream>
 #include <vode_rhs_simplified_sdc.H>
 
+using namespace unit_test;
+
 void do_vode_rhs()
 {
 

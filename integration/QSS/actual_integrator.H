@@ -11,6 +11,8 @@
 #include <eos.H>
 #include <extern_parameters.H>
 
+using namespace integrator;
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state (burn_t& state)
 {
