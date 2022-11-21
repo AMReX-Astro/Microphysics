@@ -8,7 +8,7 @@
 #include <screen.H>
 
 using namespace amrex;
-using namespace network_rp;
+using namespace network;
 
 void actual_rhs_init ();
 

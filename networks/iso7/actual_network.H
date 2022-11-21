@@ -8,7 +8,6 @@
 #include <AMReX_Array.H>
 
 using namespace amrex;
-using namespace network_rp;
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
