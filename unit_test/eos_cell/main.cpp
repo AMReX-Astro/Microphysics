@@ -12,7 +12,7 @@ using namespace amrex;
 #include <eos_cell.H>
 #include <unit_test.H>
 
-using namespace unit_test;
+using namespace unit_test_rp;
 
 int main(int argc, char *argv[]) {
 

@@ -9,7 +9,7 @@ namespace network
 void actual_network_init()
 {
     using namespace Species;
-    using namespace network;
+    using namespace network_rp;
 
     // Binding energies per nucleus in MeV
     bion(C12)  = 92.16294e0_rt;

@@ -6,7 +6,7 @@
 #include <fundamental_constants.H>
 #include <cmath>
 
-using namespace eos;
+using namespace eos_rp;
 
 // This is a constant gamma equation of state, using an ideal gas.
 //

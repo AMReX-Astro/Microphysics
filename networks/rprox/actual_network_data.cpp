@@ -9,7 +9,7 @@ namespace network
 void actual_network_init()
 {
     using namespace Species;
-    using namespace network;
+    using namespace network_rp;
 
     // Our convention is that binding energy is negative.  The
     // following are the binding energies in MeV.

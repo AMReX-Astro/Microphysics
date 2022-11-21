@@ -6,7 +6,7 @@
 #include <network.H>
 #include <extern_parameters.H>
 
-using namespace conductivity;
+using namespace conductivity_rp;
 
 const std::string cond_name = "constant_opacity";
 

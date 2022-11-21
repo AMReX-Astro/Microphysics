@@ -3,6 +3,8 @@
 
 #include <eos.H>
 
+using namespace integrator_rp;
+
 template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void integrator_to_burn (const I& int_state, burn_t& state)

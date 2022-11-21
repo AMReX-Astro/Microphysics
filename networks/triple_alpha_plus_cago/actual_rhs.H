@@ -20,7 +20,7 @@ using namespace amrex;
 using namespace ArrayUtil;
 using namespace Rates;
 
-using namespace network;
+using namespace network_rp;
 
 void actual_rhs_init ();
 
@@ -267,7 +267,7 @@ template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate (T& dydt, Real& enuc)
 {
-    using namespace network;
+    using namespace network_rp;
 
     enuc = 0.0_rt;
 

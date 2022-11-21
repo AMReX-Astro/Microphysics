@@ -17,7 +17,7 @@
 #include <eos.H>
 
 using namespace amrex;
-using namespace network;
+using namespace network_rp;
 
 AMREX_INLINE
 void init_nse() {

@@ -19,7 +19,7 @@
 using namespace amrex;
 using namespace ArrayUtil;
 using namespace Rates;
-using namespace network;
+using namespace network_rp;
 
 void actual_rhs_init ();
 

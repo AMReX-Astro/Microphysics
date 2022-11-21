@@ -13,7 +13,7 @@
 
 #define VODELIKE_ERROR 1
 
-using namespace integrator;
+using namespace integrator_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state (burn_t& state)

@@ -6,7 +6,7 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace unit_test;
+using namespace unit_test_rp;
 
 void burn_cell_c()
 {

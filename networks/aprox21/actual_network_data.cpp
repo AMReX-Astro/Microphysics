@@ -10,7 +10,7 @@ namespace network
 void actual_network_init()
 {
     using namespace Species;
-    using namespace network;
+    using namespace network_rp;
 
     // Set the binding energy of the element
     bion(H1)   = 0.0e0_rt;

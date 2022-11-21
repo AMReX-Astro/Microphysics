@@ -189,7 +189,7 @@ def write_probin(param_files,
             params_in_nm = [q for q in params if q.namespace == nm]
 
             if use_namespace:
-                fout.write(f"  namespace {nm} {{\n")
+                fout.write(f"  namespace {nm}_rp {{\n")
 
             for p in params_in_nm:
                 fout.write(f"    {p.get_declare_string(with_extern=True)}")
@@ -221,7 +221,7 @@ def write_probin(param_files,
             params_in_nm = [q for q in params if q.namespace == nm]
 
             if use_namespace:
-                fout.write(f"  namespace {nm} {{\n")
+                fout.write(f"  namespace {nm}_rp {{\n")
 
             for p in params_in_nm:
                 fout.write(f"    {p.get_declare_string()}")

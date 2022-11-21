@@ -14,6 +14,7 @@
 #include <extern_parameters.H>
 
 using namespace amrex;
+using namespace integrator_rp;
 
 #if SCREEN_METHOD == 0
 const std::string screen_name = "screen5";

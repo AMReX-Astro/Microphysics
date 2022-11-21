@@ -11,7 +11,7 @@
 #include <actual_rhs.H>
 #endif
 
-using namespace integrator;
+using namespace integrator_rp;
 
 ///
 /// Compute the numerical Jacobian of the reactive system, dydot/dy,

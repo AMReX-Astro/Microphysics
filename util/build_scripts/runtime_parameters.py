@@ -60,7 +60,7 @@ class Param:
         if self.namespace is None or self.namespace == "" or self.skip_namespace_in_declare:
             self.nm_pre = ""
         else:
-            self.nm_pre = f"{self.namespace}::"
+            self.nm_pre = f"{self.namespace}_rp::"
 
     def get_cxx_decl(self):
         """ get the C++ declaration """

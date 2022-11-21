@@ -22,7 +22,7 @@ using namespace Rates;
 
 using namespace rate_tables;
 
-using namespace network;
+using namespace network_rp;
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE

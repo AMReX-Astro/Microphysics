@@ -12,7 +12,7 @@
 #include <burn_type.H>
 
 using namespace amrex;
-using namespace network;
+using namespace network_rp;
 
 void actual_rhs_init();
 

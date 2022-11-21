@@ -9,14 +9,15 @@
 
 using namespace amrex;
 
-using namespace network;
-
 #include <fundamental_constants.H>
 #include <network_properties.H>
 #include <rhs_type.H>
 #include <extern_parameters.H>
 #include <tfactors.H>
 #include <aprox_rates.H>
+
+using namespace network_rp;
+
 
 void actual_network_init();
 

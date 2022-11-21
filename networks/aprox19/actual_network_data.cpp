@@ -30,7 +30,7 @@ namespace table
 void actual_network_init()
 {
     using namespace Species;
-    using namespace network;
+    using namespace network_rp;
 
 #ifdef NSE_TABLE
     init_nse();

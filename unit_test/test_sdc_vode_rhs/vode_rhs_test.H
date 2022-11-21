@@ -12,7 +12,7 @@
 #include <iostream>
 #include <vode_rhs_simplified_sdc.H>
 
-using namespace unit_test;
+using namespace unit_test_rp;
 
 void do_vode_rhs()
 {

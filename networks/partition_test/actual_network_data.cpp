@@ -10,7 +10,7 @@ namespace network
 void actual_network_init()
 {
     using namespace Species;
-    using namespace network;
+    using namespace network_rp;
 
     // binding energies per nucleon in MeV
     amrex::Array1D<amrex::Real, 1, NumSpec> ebind_per_nucleon;
