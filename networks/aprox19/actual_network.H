@@ -8,7 +8,6 @@
 #include <AMReX_Array.H>
 
 using namespace amrex;
-using namespace network_rp;
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
@@ -16,6 +15,8 @@ using namespace network_rp;
 #include <extern_parameters.H>
 #include <tfactors.H>
 #include <aprox_rates.H>
+
+using namespace network_rp;
 
 void actual_network_init();
 

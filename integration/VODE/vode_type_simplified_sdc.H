@@ -9,6 +9,7 @@
 #include <maestro_params.H>
 #endif
 
+using namespace integrator_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vode_state)
