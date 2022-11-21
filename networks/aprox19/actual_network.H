@@ -1275,7 +1275,7 @@ namespace RHS {
         else if constexpr (rate == P_to_N) {
             if (state.tf.temp >= 1.0e6_rt && state.rho >= 1.0e-9_rt) {
                 Real tmp1, tmp2;
-                ecapnuc(eta, state.tf.temp, rates.fr, rates.rr, tmp1, tmp2);
+                ecapnuc(state.eta, state.tf.temp, rates.fr, rates.rr, tmp1, tmp2);
             }
         }
         else if constexpr (rate == P_N_to_H2) {
