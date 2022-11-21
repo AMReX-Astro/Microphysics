@@ -112,7 +112,7 @@ def parse_param_file(params_list, param_file, use_namespace=False):
             skip_namespace_in_declare = True
 
         current_param = runtime_parameters.Param(name, dtype, default,
-                                                 namespace=namespace,
+                                                 namespace=namespace, namespace_suffix="_rp",
                                                  skip_namespace_in_declare=skip_namespace_in_declare)
 
         try:

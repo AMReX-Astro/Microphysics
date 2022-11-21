@@ -17,6 +17,7 @@ class Param:
     def __init__(self, name, dtype, default,
                  cpp_var_name=None,
                  namespace=None,
+                 namespace_suffix="",
                  skip_namespace_in_declare=False,
                  debug_default=None,
                  priority=0,
@@ -45,6 +46,8 @@ class Param:
         else:
             self.namespace = namespace
 
+        self.namespace_suffix = namespace_suffix
+
         # if this is true, then we use the namespace when we read the var
         # (e.g., via ParmParse), but we do not declare the C++
         # parameter to be in a namespace
@@ -60,7 +63,7 @@ class Param:
         if self.namespace is None or self.namespace == "" or self.skip_namespace_in_declare:
             self.nm_pre = ""
         else:
-            self.nm_pre = f"{self.namespace}_rp::"
+            self.nm_pre = f"{self.namespace}{self.namespace_suffix}::"
 
     def get_cxx_decl(self):
         """ get the C++ declaration """
