@@ -267,7 +267,7 @@ template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void ener_gener_rate (T& dydt, Real& enuc)
 {
-    using namespace network_rp;
+    using namespace network;
 
     enuc = 0.0_rt;
 
