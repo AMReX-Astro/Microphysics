@@ -2,13 +2,103 @@
 #define BE_INTEGRATOR_H
 
 #include <be_type.H>
+#include <integrator_rhs_strang.H>
 #include <network.H>
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <linpack.H>
 #include <numerical_jacobian.H>
-#include <be_type_strang.H>
+
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+Real initial_dt (burn_t& state, be_t& be,
+                 Array1D<Real, 1, BE_NEQS>& ydot)
+{
+    // this is a version of the initial timestep estimator from VODE
+    // we come in with be.y() storing the initial solution
+
+    // initial lower and upper bounds on the timestep
+
+    Real hL = 100.0_rt * std::numeric_limits<Real>::epsilon() * be.tout;
+    Real hU = 0.1_rt * be.tout;
+
+    // initial guess for the itteraction
+
+    Real h = std::sqrt(hL * hU);
+    Real h_old = 10.0_rt * h;
+
+    // Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
+
+    Array1D<Real, 1, BE_NEQS> ewt;
+    Array1D<Real, 1, BE_NEQS> ydot_temp;
+    Array1D<Real, 1, BE_NEQS> ddydtt;
+
+    // save the old state and update the stored state
+    Array1D<Real, 1, BE_NEQS> y_old;
+    for (int n = 1; n <= BE_NEQS; ++n) {
+        y_old(n) = be.y(n);
+    }
+
+    for (int n = 1; n <= 4; n++) {
+
+       h_old = h;
+
+       // Get the error weighting -- this is similar to VODE's dewset
+       // routine
+
+       for (int ii = 1; ii <= NumSpec; ii++) {
+           ewt(ii) = rtol_spec * std::abs(y_old(ii)) + atol_spec;
+       }
+       ewt(net_ienuc) = rtol_enuc * std::abs(y_old(net_ienuc)) + atol_enuc;
+
+       // Construct the trial point.
+
+       for (int ii = 1; ii <= BE_NEQS; ii++) {
+           be.y(ii) = y_old(ii) + h * ydot(ii);
+       }
+
+       // Call the RHS, then estimate the finite difference.
+
+       rhs(be.t, state, be, ydot_temp);
+
+       for (int ii = 1; ii <= BE_NEQS; ii++) {
+           ddydtt(ii) = (ydot_temp(ii) - ydot(ii)) / h;
+       }
+
+       Real yddnorm = 0.0_rt;
+       for (int ii = 1; ii <= BE_NEQS; ii++) {
+           yddnorm += std::pow(ddydtt(ii) * ewt(ii), 2);
+       }
+       yddnorm = std::sqrt(yddnorm / BE_NEQS);
+
+       if (yddnorm*hU*hU > 2.0_rt) {
+          h = std::sqrt(2.0_rt / yddnorm);
+       } else {
+          h = std::sqrt(h * hU);
+       }
+
+       if (h_old < 2.0_rt * h && h_old > 0.5_rt * h) {
+           break;
+       }
+
+    }
+
+    // Save the final timestep, with a bias factor.
+
+    Real dt = h / 2.0_rt;
+    dt = amrex::min(amrex::max(h, hL), hU);
+
+    dt = amrex::min(dt, ode_max_dt);
+
+    // restore the old time solution
+    for (int n = 1; n <= BE_NEQS; ++n) {
+        be.y(n) = y_old(n);
+    }
+
+    return dt;
+}
+
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -117,7 +207,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
     Array1D<Real, 1, neqs> ydot;
 
-    evaluate_rhs(state, be, ydot);
+    rhs(be.t, state, be, ydot);
 
     be.n_rhs += 1;
 
@@ -136,22 +226,13 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         // get the ydots for our current guess of y
 
-        evaluate_rhs(state, be, ydot);
+        rhs(be.t, state, be, ydot);
         be.n_rhs += 1;
 
         // construct the Jacobian
 
         if (be.jacobian_type == 1) {
-            actual_jac(state, be.jac);
-
-            // We integrate X, not Y
-            for (int j = 1; j <= NumSpec; ++j) {
-                for (int i = 1; i <= neqs; ++i) {
-                    be.jac(j, i) *= aion[j-1];
-                    be.jac(i, j) *= aion_inv[j-1];
-                }
-            }
-
+            jac(state, be, be.jac);
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
@@ -259,7 +340,7 @@ int be_integrator (burn_t& state, be_t& be)
     // estimate the timestep
 
     Array1D<Real, 1, neqs> ydot;
-    evaluate_rhs(state, be, ydot);
+    rhs(be.t, state, be, ydot);
 
     be.n_rhs += 1;
 
