@@ -2,13 +2,13 @@
 #define BE_INTEGRATOR_H
 
 #include <be_type.H>
+#include <integrator_rhs_strang.H>
 #include <network.H>
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <linpack.H>
 #include <numerical_jacobian.H>
-#include <be_type_strang.H>
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -60,7 +60,7 @@ Real initial_dt (burn_t& state, be_t& be,
 
        // Call the RHS, then estimate the finite difference.
 
-       evaluate_rhs(state, be, ydot_temp);
+       rhs(be.t, state, be, ydot_temp);
 
        for (int ii = 1; ii <= BE_NEQS; ii++) {
            ddydtt(ii) = (ydot_temp(ii) - ydot(ii)) / h;
@@ -117,7 +117,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
     Array1D<Real, 1, neqs> ydot;
 
-    evaluate_rhs(state, be, ydot);
+    rhs(be.t, state, be, ydot);
 
     be.n_rhs += 1;
 
@@ -136,21 +136,13 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         // get the ydots for our current guess of y
 
-        evaluate_rhs(state, be, ydot);
+        rhs(be.t, state, be, ydot);
         be.n_rhs += 1;
 
         // construct the Jacobian
 
-        if (jacobian == 1) {
-            actual_jac(state, be.jac);
-
-            // We integrate X, not Y
-            for (int j = 1; j <= NumSpec; ++j) {
-                for (int i = 1; i <= neqs; ++i) {
-                    be.jac(j, i) *= aion[j-1];
-                    be.jac(i, j) *= aion_inv[j-1];
-                }
-            }
+        if (be.jacobian_type == 1) {
+            jac(state, be, be.jac);
 
         } else {
             jac_info_t jac_info;
@@ -257,7 +249,7 @@ int be_integrator (burn_t& state, be_t& be)
     // estimate the timestep
 
     Array1D<Real, 1, neqs> ydot;
-    evaluate_rhs(state, be, ydot);
+    rhs(be.t, state, be, ydot);
 
     be.n_rhs += 1;
 
