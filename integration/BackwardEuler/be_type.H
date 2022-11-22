@@ -9,6 +9,7 @@
 #include <integrator_data.H>
 #ifdef STRANG
 #include <integrator_type_strang.H>
+#include <integrator_rhs_strang.H>
 #endif
 #include <network.H>
 
@@ -28,10 +29,6 @@ const int BE_TOO_MANY_STEPS = -102;
 
 const Real timestep_safety_factor = 1.0e-12_rt;
 
-typedef amrex::Array1D<int, 1, BE_NEQS> IArray1D;
-typedef amrex::Array1D<Real, 1, BE_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, BE_NEQS, 1, BE_NEQS> RArray2D;
-
 #define VODELIKE_ERROR 1
 
 struct be_t {
@@ -41,6 +38,7 @@ struct be_t {
 
     int n_step;
     int n_rhs;
+    int n_jac;
 
     amrex::Real atol_spec;
     amrex::Real rtol_spec;
@@ -50,6 +48,8 @@ struct be_t {
 
     Array1D<Real, 1, BE_NEQS> y;
     JacNetArray2D jac;
+
+    short jacobian_type;
 
 };
 
