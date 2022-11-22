@@ -5,7 +5,7 @@
 #include <vode_dvhin.H>
 #include <vode_dvstep.H>
 #ifdef STRANG
-#include <integrator_rhs.H>
+#include <integrator_rhs_strang.H>
 #endif
 #ifdef SIMPLIFIED_SDC
 #include <integrator_rhs_simplified_sdc.H>
