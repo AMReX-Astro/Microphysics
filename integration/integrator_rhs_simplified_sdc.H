@@ -86,7 +86,6 @@ void jac (burn_t& state, T& int_state, MatrixType& pd)
     // explicitly passed. integrator always evaluates the analytic
     // Jacobian at int_state.tn, and we pass int_state.
 
-
     // update rho, rho*u, ... in the burn_t state
 
     fill_unevolved_variables(int_state.tn, state, int_state);

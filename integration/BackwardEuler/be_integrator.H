@@ -2,14 +2,18 @@
 #define BE_INTEGRATOR_H
 
 #include <be_type.H>
-#include <integrator_rhs_strang.H>
 #include <network.H>
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <linpack.H>
 #include <numerical_jacobian.H>
-
+#ifdef STRANG
+#include <integrator_rhs_strang.H>
+#endif
+#ifdef SIMPLIFIED_SDC
+#include <integrator_rhs_simplified_sdc.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real initial_dt (burn_t& state, be_t& be,
