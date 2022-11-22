@@ -370,12 +370,6 @@ int be_integrator (burn_t& state, be_t& be)
         ierr = BE_TOO_MANY_STEPS;
     }
 
-    if (ierr == BE_SUCCESS) {
-        // do a final clean_state on the solution
-
-        //clean_state(state);
-    }
-
     return ierr;
 
 }
