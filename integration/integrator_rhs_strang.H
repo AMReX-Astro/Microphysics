@@ -10,6 +10,7 @@
 #endif
 #include <burn_type.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 #include <integrator_type_strang.H>
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>

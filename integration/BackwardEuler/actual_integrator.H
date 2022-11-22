@@ -1,8 +1,8 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <be_type.H>
 #include <be_integrator.H>
-#include <be_type_strang.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, const Real dt)
@@ -48,10 +48,6 @@ void actual_integrator (burn_t& state, const Real dt)
     // Copy the integration data back to the burn state.
 
     integrator_to_burn(be, state);
-
-    // do a final clean_state on the solution
-
-    clean_state(state);
 
     // Subtract off the initial energy if the application codes expect
     // to get back only the generated energy during the burn.
