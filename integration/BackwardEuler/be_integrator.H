@@ -141,7 +141,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         // construct the Jacobian
 
-        if (jacobian == 1) {
+        if (be.jacobian_type == 1) {
             jac(state, be, be.jac);
 
         } else {

@@ -38,6 +38,7 @@ struct be_t {
 
     int n_step;
     int n_rhs;
+    int n_jac;
 
     amrex::Real atol_spec;
     amrex::Real rtol_spec;
@@ -47,6 +48,8 @@ struct be_t {
 
     Array1D<Real, 1, BE_NEQS> y;
     JacNetArray2D jac;
+
+    short jacobian_type;
 
 };
 

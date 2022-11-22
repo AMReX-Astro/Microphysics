@@ -8,20 +8,28 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, const Real dt)
 {
 
-    // start off by assuming a successful burn
+    be_t be;
+
+    // Set the tolerances.
+
+    be.atol_spec = atol_spec;  // mass fractions
+    be.atol_enuc = atol_enuc;  // energy generated
+
+    be.rtol_spec = rtol_spec;  // mass fractions
+    be.rtol_enuc = rtol_enuc;  // energy generated
+
+    // set the Jacobian type
+    be.jacobian_type = jacobian;
+
+    // Start off by assuming a successful burn.
 
     state.success = true;
 
-    be_t be;
+    // Initialize the integration time.
 
-    be.t = 0.0;
+    be.t = 0.0_rt;
     be.tout = dt;
 
-    be.atol_spec = atol_spec;
-    be.rtol_spec = rtol_spec;
-
-    be.atol_enuc = atol_enuc;
-    be.rtol_enuc = rtol_enuc;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -32,18 +40,20 @@ void actual_integrator (burn_t& state, const Real dt)
 
     burn_to_integrator(state, be);
 
+    // Save the initial composition, temperature, and energy for our later diagnostics.
+
 #ifndef AMREX_USE_GPU
-    Real T_in = state.T;
     Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
+    Real T_in = state.T;
 #endif
     Real e_in = state.e;
 
     // Call the integration routine.
 
-    int ierr = be_integrator(state, be);
+    int istate = be_integrator(state, be);
 
     // Copy the integration data back to the burn state.
 
@@ -57,12 +67,17 @@ void actual_integrator (burn_t& state, const Real dt)
 
     // Normalize the final abundances.
 
-    normalize_abundances_burn(state);
+    if (!use_number_densities) {
+        normalize_abundances_burn(state);
+    }
+
+    // Get the number of RHS and Jacobian evaluations.
 
     state.n_rhs = be.n_rhs;
+    state.n_jac = be.n_jac;
     state.n_step = be.n_step;
 
-    if (ierr < 0) {
+    if (istate < 0) {
         state.success = false;
     }
 
@@ -81,25 +96,27 @@ void actual_integrator (burn_t& state, const Real dt)
 
     if (!state.success) {
 #ifndef AMREX_USE_CUDA
-        std::cout << "ERROR: integration failed in net" << std::endl;
+        std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
+        std::cout << "istate = " << istate << std::endl;
+        std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
         std::cout << "time = " << be.t << std::endl;
-        std::cout << "dens = " << state.rho << std::endl;
-        std::cout << "temp start = " << T_in << std::endl;
+        std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
+        std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
         std::cout << "xn start = ";
         for (int n = 0; n < NumSpec; ++n) {
-            std::cout << xn_in[n] << " ";
+            std::cout << std::setprecision(16) << xn_in[n] << " ";
         }
         std::cout << std::endl;
-        std::cout << "temp current = " << state.T << std::endl;
+        std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
+        std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
         std::cout << "xn current = ";
         for (int n = 0; n < NumSpec; ++n) {
-            std::cout << state.xn[n] << " ";
+            std::cout << std::setprecision(16) << state.xn[n] << " ";
         }
         std::cout << std::endl;
         std::cout << "energy generated = " << state.e << std::endl;
 #endif
     }
-
 
 }
 
