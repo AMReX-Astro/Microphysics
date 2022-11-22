@@ -113,7 +113,7 @@ void clean_state(const Real time, burn_t& state, T& int_state)
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burn_to_vode(burn_t& state, T& int_state)
+void burn_to_int(burn_t& state, T& int_state)
 {
 
     for (int n = 0; n < SVAR_EVOLVE; n++) {

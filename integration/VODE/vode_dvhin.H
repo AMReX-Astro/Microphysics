@@ -2,13 +2,13 @@
 #define _vode_dvhin_H_
 
 #ifdef STRANG
-#include <vode_rhs.H>
+#include <integrator_rhs.H>
 #endif
 #ifdef SIMPLIFIED_SDC
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
-#include <vode_rhs_true_sdc.H>
+#include <integrator_rhs_true_sdc.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

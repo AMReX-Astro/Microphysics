@@ -5,7 +5,7 @@
 #include <burn_type.H>
 #include <extern_parameters.H>
 
-#include <int_type_simplified_sdc.H>
+#include <integrator_type_simplified_sdc.H>
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <numerical_jacobian.H>
