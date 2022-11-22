@@ -4,7 +4,6 @@ ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
 else
   ifneq ($(USE_TRUE_SDC), TRUE)
     CEXE_headers += actual_integrator.H
-    CEXE_headers += be_type_strang.H
   endif
 endif
 
