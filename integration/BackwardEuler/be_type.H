@@ -10,6 +10,9 @@
 #ifdef STRANG
 #include <integrator_type_strang.H>
 #endif
+#ifdef SIMPLIFIED_SDC
+#include <integrator_type_simplified_sdc.H>
+#endif
 #include <network.H>
 
 #ifdef NETWORK_SOLVER

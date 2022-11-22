@@ -24,7 +24,7 @@ void actual_integrator (burn_t& state, const Real dt)
 
     // Fill in the initial integration state.
 
-    burn_to_be(state, be);
+    burn_to_int(state, be);
 
     // Save the initial composition and temperature for our later diagnostics.
 
@@ -75,14 +75,14 @@ void actual_integrator (burn_t& state, const Real dt)
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
 
-    be_to_burn(be.t, be, state);
+    int_to_burn(be.t, be, state);
 
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative
 
     Real rho_Sdot = 0.0_rt;
     if (state.time > 0) {
-        rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+        rho_Sdot = (be.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
     }
 
     state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
