@@ -6,16 +6,3 @@ sdc_burn_tol_factor          real         1.d0
 # for the step rejection logic on mass fractions, we only consider
 # species that are > X_reject_buffer * atol_spec
 X_reject_buffer              real         1.0
-<<<<<<< HEAD
-
-# in the clean_state process, do we clip the species such that they
-# are in [0, 1]?
-do_species_clip              integer          1
-
-#flag for turning on the use of number densities for all species
-use_number_densities     logical          .false.
-
-#flag for tuning on the subtraction of internal energy
-subtract_internal_energy   logical       .true.
-=======
->>>>>>> a751d605bb9b20c641f29f143ca1c8fbf21dfbe4

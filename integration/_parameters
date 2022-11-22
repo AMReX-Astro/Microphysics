@@ -63,13 +63,6 @@ nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
 
-<<<<<<< HEAD
-#flag for turning on the use of number densities for all species
-use_number_densities     logical          .false.
-
-#flag for tuning on the subtraction of internal energy
-subtract_internal_energy   logical       .false.
-=======
 # in the clean_state process, do we clip the species such that they
 # are in [0, 1]?
 do_species_clip              integer          1
