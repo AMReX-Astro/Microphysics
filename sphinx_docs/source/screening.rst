@@ -18,8 +18,8 @@ The options are:
   This is the screening routine from the Kepler stellar evolution code
   and is the default used with the distributed versions of the "aprox"
   family of reaction networks.  It uses the screening described in
-  :cite:`graboske:1973` for the weak limit and :cite:`alastuey:1978`,
-  :cite:`itoh:1979` for the strong limit.
+  :cite:`graboske:1973` for the weak limit and :cite:`jancovici:1977`,
+  :cite:`alastuey:1978`, :cite:`itoh:1979` for the strong limit.
 
   This is the default screening method.
 
