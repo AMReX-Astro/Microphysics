@@ -172,7 +172,7 @@ void actual_eos (I input, T& state)
 
         temp = state.T;
         dens = state.rho;
-
+        eint = sum_gammasinv * sum_Abarinv * gasconstant * state.T;
         break;
 
     case eos_input_re:
