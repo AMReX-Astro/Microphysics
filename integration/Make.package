@@ -28,6 +28,10 @@ ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   CEXE_headers += integrator_type_simplified_sdc.H
   CEXE_headers += integrator_rhs_simplified_sdc.H
 endif
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+  CEXE_headers += integrator_type_simplified_sdc.H
+  CEXE_headers += integrator_rhs_simplified_sdc.H
+endif
 
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
 VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils
