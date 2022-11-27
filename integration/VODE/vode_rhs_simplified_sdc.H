@@ -23,7 +23,7 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     // update rho
 
-    fill_unevolved_variables(time, state, vode_state);
+    update_density_in_time(time, state, vode_state);
 
     // ensure that the mass fractions are valid -- only vode_state is
     // updated here
@@ -88,7 +88,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     // update rho, rho*u, ... in the burn_t state
 
-    fill_unevolved_variables(vode_state.tn, state, vode_state);
+    update_density_in_time(vode_state.tn, state, vode_state);
 
     // ensure that the mass fractions are valid -- only vode_state is
     // updated here
