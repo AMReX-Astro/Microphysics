@@ -11,7 +11,7 @@
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vode_state)
+void update_density_in_time(const Real time, burn_t& state, const dvode_t& vode_state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -61,7 +61,7 @@ void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
 
     // update rho, rho*u, etc.
 
-    fill_unevolved_variables(time, state, vode_state);
+    update_density_in_time(time, state, vode_state);
 
     Real nspec_sum = 0.0_rt;
     for (int n = 1; n <= NumSpec; n++) {
@@ -153,7 +153,7 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
     // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
-    fill_unevolved_variables(time, state, vode_state);
+    update_density_in_time(time, state, vode_state);
 
     Real rhoInv = 1.0_rt / state.rho;
 
