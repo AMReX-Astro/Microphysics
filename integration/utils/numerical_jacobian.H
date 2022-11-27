@@ -105,8 +105,8 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
 
         state_delp.xn[n-1] += dy;
 
-#ifdef NSE_THERMO
-        set_nse_aux_from_X(state_delp);
+#ifdef AUX_THERMO
+        set_aux_comp_from_X(state_delp);
 #endif
 
         actual_rhs(state_delp, ydotp);
