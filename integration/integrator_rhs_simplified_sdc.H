@@ -80,26 +80,22 @@ void rhs(const Real time, burn_t& state, T& int_state, RArray1D& ydot, const boo
 
 template<typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (burn_t& state, T& int_state, MatrixType& pd)
+void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
 {
-    // NOTE: the time at which to evaluate the Jacobian is not
-    // explicitly passed. The integrator always evaluates the analytic
-    // Jacobian at int_state.tn, and we pass int_state.
-
 
     // update rho, rho*u, ... in the burn_t state
 
-    fill_unevolved_variables(int_state.tn, state, int_state);
+    fill_unevolved_variables(time, state, int_state);
 
     // ensure that the mass fractions are valid -- only int_state is
     // updated here
 
-    clean_state(int_state.tn, state, int_state);
+    clean_state(time, state, int_state);
 
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state
 
-    int_to_burn(int_state.tn, int_state, state);
+    int_to_burn(time, int_state, state);
 
 
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {

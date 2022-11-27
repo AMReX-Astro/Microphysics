@@ -83,7 +83,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
             // Initialize the Jacobian to zero
             vstate.jac.zero();
 
-            jac(state, vstate, vstate.jac);
+            jac(vstate.tn, state, vstate, vstate.jac);
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
