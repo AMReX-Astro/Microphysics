@@ -12,10 +12,6 @@
 #include <variables.H>
 #include <numerical_jacobian.H>
 
-#ifndef NETWORK_HAS_CXX_IMPLEMENTATION
-#include <fortran_to_cxx_actual_rhs.H>
-#endif
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_jac (int i, int j, int k, Array4<Real> const& state, const plot_t p)
 {
@@ -41,8 +37,6 @@ bool do_jac (int i, int j, int k, Array4<Real> const& state, const plot_t p)
     // the integrator doesn't actually care about the initial internal
     // energy.
     burn_state.e = 0.0_rt;
-
-    burn_state.self_heat = true;
 
     JacNetArray2D jac_analytic;
     JacNetArray2D jac_numerical;

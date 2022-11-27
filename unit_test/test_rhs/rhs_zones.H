@@ -3,6 +3,9 @@
 
 #include <variables.H>
 #include <network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#endif
 #include <eos_type.H>
 #include <eos.H>
 #include <burn_type.H>
@@ -10,13 +13,6 @@
 #include <extern_parameters.H>
 #include <ArrayUtilities.H>
 #include <variables.H>
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
-
-#ifndef NETWORK_HAS_CXX_IMPLEMENTATION
-#include <fortran_to_cxx_actual_rhs.H>
-#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t p)
@@ -44,18 +40,17 @@ bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t p)
     // energy.
     burn_state.e = 0.0_rt;
 
-    burn_state.self_heat = true;
-
     Array1D<Real, 1, neqs> ydot;
 
-#ifdef NETWORK_SOLVER
-    SparseMatrix jac;
-#else
     ArrayUtil::MathArray2D<1, neqs, 1, neqs> jac;
-#endif
 
+#ifdef NEW_NETWORK_IMPLEMENTATION
+    RHS::rhs(burn_state, ydot);
+    RHS::jac(burn_state, jac);
+#else
     actual_rhs(burn_state, ydot);
     actual_jac(burn_state, jac);
+#endif
 
     for (int n = 1; n <= NumSpec; ++n) {
         state(i, j, k, p.ispec + n - 1) = ydot(n);

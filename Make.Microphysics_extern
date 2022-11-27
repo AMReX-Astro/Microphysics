@@ -9,14 +9,20 @@ else
   DEFINES += -DSTRANG
 endif
 
-USE_CXX_REACTIONS ?= FALSE
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
-
 USE_NONAKA_PLOT ?= FALSE
 ifeq ($(USE_NONAKA_PLOT),TRUE)
   DEFINES += -DNONAKA_PLOT
+endif
+
+SCREEN_METHOD ?= screen5
+ifeq ($(SCREEN_METHOD), screen5)
+  DEFINES += -DSCREEN_METHOD=0
+else ifeq ($(SCREEN_METHOD), chugunov2007)
+  DEFINES += -DSCREEN_METHOD=1
+else ifeq ($(SCREEN_METHOD), chugunov2009)
+  DEFINES += -DSCREEN_METHOD=2
+else ifeq ($(SCREEN_METHOD), null)
+  DEFINES += -DSCREEN_METHOD=3
 endif
 
 ifeq ($(EOS_DIR), gamma_law_general)
@@ -53,16 +59,6 @@ nettables:
 	@echo linking network data files...
 	$(foreach t, $(NET_TABLES), $(shell if [ ! -f `basename $t` ]; then ln -s $(t) . ; fi))
 
-# Pynucastro networks read rate data from an external file
-PYNUCASTRO_FILE := "$(NETWORK_PATH)/reaclib_rate_metadata.dat"
-all: pynucastrorates
-
-
-# do not check to see if the file already exists, just force-link it in
-# because different Reaclib networks will have different versions of the file
-pynucastrorates:
-	@if [ -f $(PYNUCASTRO_FILE) ] && [ ! -f ./reaclib_rate_metadata.dat ]; then echo Linking pynucastro rate file; ln -s $(PYNUCASTRO_FILE) .; fi
-
 EXTERN_CORE += $(EOS_HOME)
 EXTERN_CORE += $(EOS_PATH)
 
@@ -74,10 +70,6 @@ endif
 
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
-
-ifeq ($(findstring gamma_law, $(EOS_DIR)), gamma_law)
-   DEFINES += -DEOS_GAMMA_LAW_GENERAL
-endif
 
 # NSE networks need the table
 ifeq ($(USE_NSE),TRUE)
@@ -120,6 +112,12 @@ ifeq ($(USE_RAD), TRUE)
    EXTERN_CORE += $(OPAC_PATH)
 endif
 
+ifeq ($(INTEGRATOR_DIR), BackwardEuler)
+  # we are implementing the numerical Jacobian ourselves, and we
+  # need the composition derivatives
+  USE_EXTRA_THERMO := TRUE
+endif
+
 ifeq ($(USE_EXTRA_THERMO), TRUE)
   DEFINES += -DEXTRA_THERMO
 endif
@@ -127,6 +125,15 @@ endif
 
 # fundamental constants
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
+
+
+# self-consistent NSE solver for a network
+ifeq ($(USE_NSE_NET), TRUE)
+     DEFINES += -DNSE_NET
+
+     EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
+     EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
+endif
 
 
 clean::

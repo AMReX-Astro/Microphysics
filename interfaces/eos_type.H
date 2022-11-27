@@ -50,8 +50,12 @@ struct eos_t:eos_base_t {
     amrex::Real dedA;
     amrex::Real dedZ;
 #endif
-
     amrex::Real conductivity;
+
+#ifdef NSE_NET
+    amrex::Real mu_p;   //chemical potential of proton
+    amrex::Real mu_n;   //chemical potential of neutron
+#endif
 };
 
 struct eos_re_t:eos_base_t {
@@ -78,6 +82,11 @@ struct eos_re_t:eos_base_t {
 #ifdef EXTRA_THERMO
     amrex::Real dedA;
     amrex::Real dedZ;
+#endif
+
+#ifdef NSE_NET
+    amrex::Real mu_p;   //chemical potential of proton
+    amrex::Real mu_n;   //chemical potential of neutron
 #endif
 };
 
@@ -116,6 +125,11 @@ struct eos_rep_t:eos_base_t {
     amrex::Real dpdZ;
     amrex::Real dedA;
     amrex::Real dedZ;
+#endif
+  
+#ifdef NSE_NET
+    amrex::Real mu_p;   //chemical potential of proton
+    amrex::Real mu_n;   //chemical potential of neutron
 #endif
 };
 
@@ -288,10 +302,11 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "dedZ = " << eos_state.dedZ << std::endl;
     }
 #endif
-
+#ifdef CONDUCTIVITY
     if constexpr (has_conductivity<T>::value) {
         o << "conductivity = " << eos_state.conductivity << std::endl;
     }
+#endif
 
     return o;
 }

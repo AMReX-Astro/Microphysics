@@ -2,8 +2,6 @@ ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   CEXE_headers += actual_integrator_simplified_sdc.H
   CEXE_headers += vode_rhs_simplified_sdc.H
   CEXE_headers += vode_type_simplified_sdc.H
-  CEXE_headers += vode_jac_util_simplified_sdc.H
-  CEXE_sources += vode_jac_util_simplified_sdc.cpp
 else
   ifneq ($(USE_TRUE_SDC), TRUE)
     CEXE_headers += vode_rhs.H
@@ -19,12 +17,6 @@ endif
 ifeq ($(USE_JACOBIAN_CACHING), TRUE)
   DEFINES += -DALLOW_JACOBIAN_CACHING
 endif
-
-ifneq ($(USE_TRUE_SDC), TRUE)
-  CEXE_headers += vode_type_strang.H
-endif
-
-DEFINES += -DINTEGRATOR_HAS_FORTRAN_IMPLEMENTATION
 
 CEXE_headers += vode_dvode.H
 CEXE_headers += vode_type.H

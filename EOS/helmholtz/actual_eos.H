@@ -498,16 +498,16 @@ void apply_ions (T& state)
     Real dpiondd = dxnidd * kt;
     Real dpiondt = xni * kerg;
 #ifdef EXTRA_THERMO
-    Real dpionda = dxnida * kt;
-    Real dpiondz = 0.0e0_rt;
+    [[maybe_unused]] Real dpionda = dxnida * kt;
+    [[maybe_unused]] Real dpiondz = 0.0e0_rt;
 #endif
 
     Real eion    = 1.5e0_rt * pion * deni;
     Real deiondd = (1.5e0_rt * dpiondd - eion) * deni;
     Real deiondt = 1.5e0_rt * dpiondt * deni;
 #ifdef EXTRA_THERMO
-    Real deionda = 1.5e0_rt * dpionda * deni;
-    Real deiondz = 0.0e0_rt;
+    [[maybe_unused]] Real deionda = 1.5e0_rt * dpionda * deni;
+    [[maybe_unused]] Real deiondz = 0.0e0_rt;
 #endif
 
     Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
@@ -585,16 +585,16 @@ void apply_radiation (T& state)
     Real dpraddd = 0.0e0_rt;
     Real dpraddt = 4.0e0_rt * prad * tempi;
 #ifdef EXTRA_THERMO
-    Real dpradda = 0.0e0_rt;
-    Real dpraddz = 0.0e0_rt;
+    [[maybe_unused]] Real dpradda = 0.0e0_rt;
+    [[maybe_unused]] Real dpraddz = 0.0e0_rt;
 #endif
 
     Real erad    = 3.0e0_rt * prad*deni;
     Real deraddd = -erad * deni;
     Real deraddt = 3.0e0_rt * dpraddt * deni;
 #ifdef EXTRA_THERMO
-    Real deradda = 0.0e0_rt;
-    Real deraddz = 0.0e0_rt;
+    [[maybe_unused]] Real deradda = 0.0e0_rt;
+    [[maybe_unused]] Real deraddz = 0.0e0_rt;
 #endif
 
     Real srad    = (prad * deni + erad) * tempi;
@@ -655,21 +655,21 @@ void apply_coulomb_corrections (T& state)
     const Real forth = 4.0e0_rt/3.0e0_rt;
     const Real pi    = 3.1415926535897932384e0_rt;
 
-    Real pcoul    = 0.e0_rt;
-    Real dpcouldd = 0.e0_rt;
-    Real dpcouldt = 0.e0_rt;
-    Real ecoul    = 0.e0_rt;
-    Real decouldd = 0.e0_rt;
-    Real decouldt = 0.e0_rt;
-    Real scoul    = 0.e0_rt;
-    Real dscouldd = 0.e0_rt;
-    Real dscouldt = 0.e0_rt;
+    [[maybe_unused]] Real pcoul    = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldd = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldt = 0.e0_rt;
+    [[maybe_unused]] Real ecoul    = 0.e0_rt;
+    [[maybe_unused]] Real decouldd = 0.e0_rt;
+    [[maybe_unused]] Real decouldt = 0.e0_rt;
+    [[maybe_unused]] Real scoul    = 0.e0_rt;
+    [[maybe_unused]] Real dscouldd = 0.e0_rt;
+    [[maybe_unused]] Real dscouldt = 0.e0_rt;
 
 #ifdef EXTRA_THERMO
-    Real dpcoulda = 0.e0_rt;
-    Real dpcouldz = 0.e0_rt;
-    Real decoulda = 0.e0_rt;
-    Real decouldz = 0.e0_rt;
+    [[maybe_unused]] Real dpcoulda = 0.e0_rt;
+    [[maybe_unused]] Real dpcouldz = 0.e0_rt;
+    [[maybe_unused]] Real decoulda = 0.e0_rt;
+    [[maybe_unused]] Real decouldz = 0.e0_rt;
 #endif
 
     Real s, x, y, z; // temporary variables
@@ -1359,6 +1359,16 @@ void actual_eos_init ()
         }
     }
 
+    // it does not work on all machines (for GPUs) broadcast to other
+    // procs from managed memory.  So instead we'll read into a local
+    // buffer, broadcast that, and then copy that into the managed
+    // memory.
+
+    amrex::Vector<Real> f_local(jmax * imax * 9);
+    amrex::Vector<Real> dpdf_local(jmax * imax * 4);
+    amrex::Vector<Real> ef_local(jmax * imax * 4);
+    amrex::Vector<Real> xf_local(jmax * imax * 4);
+
     if (amrex::ParallelDescriptor::IOProcessor()) {
 
         // open the table
@@ -1373,39 +1383,51 @@ void actual_eos_init ()
         std::string line;
 
         // read in the free energy table
+        int idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> f[j][i][0] >> f[j][i][3] >> f[j][i][1] >> f[j][i][4] >> f[j][i][2]
-                     >> f[j][i][5] >> f[j][i][6] >> f[j][i][7] >> f[j][i][8];
+                data >> f_local[idx] >> f_local[idx+3] >> f_local[idx+1]
+                     >> f_local[idx+4] >> f_local[idx+2] >> f_local[idx+5]
+                     >> f_local[idx+6] >> f_local[idx+7] >> f_local[idx+8];
+                idx += 9;
             }
         }
 
         // read the pressure derivative with density table
+        idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> dpdf[j][i][0] >> dpdf[j][i][2] >> dpdf[j][i][1] >> dpdf[j][i][3];
+                data >> dpdf_local[idx] >> dpdf_local[idx+2]
+                     >> dpdf_local[idx+1] >> dpdf_local[idx+3];
+                idx += 4;
             }
         }
 
         // read the electron chemical potential table
+        idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> ef[j][i][0] >> ef[j][i][2] >> ef[j][i][1] >> ef[j][i][3];
+                data >> ef_local[idx] >> ef_local[idx+2]
+                     >> ef_local[idx+1] >> ef_local[idx+3];
+                idx += 4;
             }
         }
 
         // read the number density table
+        idx = 0;
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
                 std::istringstream data(line);
-                data >> xf[j][i][0] >> xf[j][i][2] >> xf[j][i][1] >> xf[j][i][3];
+                data >> xf_local[idx] >> xf_local[idx+2]
+                     >> xf_local[idx+1] >> xf_local[idx+3];
+                idx += 4;
             }
         }
 
@@ -1413,10 +1435,33 @@ void actual_eos_init ()
 
     }
 
-    amrex::ParallelDescriptor::Bcast(&f[0][0][0],    9 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&dpdf[0][0][0], 4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&ef[0][0][0],   4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&xf[0][0][0],   4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&f_local[0],    9 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&dpdf_local[0], 4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&ef_local[0],   4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(&xf_local[0],   4 * imax * jmax);
+
+    // now copy into managed memory
+    int idx = 0;
+    for (int j = 0; j < jmax; ++j) {
+        for (int i = 0; i < imax; ++i) {
+            for (int m = 0; m < 9; ++m) {
+                f[j][i][m] = f_local[idx];
+                idx++;
+            }
+        }
+    }
+
+    idx = 0;
+    for (int j = 0; j < jmax; ++j) {
+        for (int i = 0; i < imax; ++i) {
+            for (int m = 0; m < 4; ++m) {
+                dpdf[j][i][m] = dpdf_local[idx];
+                ef[j][i][m] = ef_local[idx];
+                xf[j][i][m] = xf_local[idx];
+                idx++;
+            }
+        }
+    }
 
     // construct the temperature and density deltas and their inverses
     for (int j = 0; j < jmax-1; ++j)

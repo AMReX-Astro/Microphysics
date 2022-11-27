@@ -1,10 +1,6 @@
 CEXE_headers += network_properties.H
 
-DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
-
 ifeq ($(USE_REACT),TRUE)
-  ifeq ($(USE_CXX_REACTIONS),TRUE)
-    CEXE_headers += actual_network.H
-    CEXE_headers += actual_rhs.H
-  endif
+  CEXE_headers += actual_network.H
+  CEXE_headers += actual_rhs.H
 endif

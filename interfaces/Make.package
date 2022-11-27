@@ -8,11 +8,8 @@ CEXE_headers += eos_override.H
 CEXE_sources += eos_data.cpp
 
 CEXE_headers += network.H
-CEXE_headers += network_utilities.H
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  CEXE_headers += rhs_utilities.H
-  CEXE_sources += network_initialization.cpp
-endif
+CEXE_headers += rhs_type.H
+CEXE_sources += network_initialization.cpp
 
 ifeq ($(USE_CONDUCTIVITY), TRUE)
   CEXE_headers += conductivity.H

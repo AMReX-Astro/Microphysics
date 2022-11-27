@@ -1,0 +1,53 @@
+AMReX (22.10-25-g735c3513153f) initialized
+starting the single zone burn...
+0x7ffd73ad6d20
+State Density (g/cm^3): 277355338.4
+State Temperature (K): 5197769252
+Mass Fraction (H1): 0.4
+Mass Fraction (He3): 0.2
+Mass Fraction (He4): 0.2
+Mass Fraction (C12): 0.01111111111
+Mass Fraction (N14): 0.01111111111
+Mass Fraction (O16): 0.01111111111
+Mass Fraction (Ne20): 0.01111111111
+Mass Fraction (Mg24): 0.01111111111
+Mass Fraction (Si28): 0.01111111111
+Mass Fraction (S32): 0.01111111111
+Mass Fraction (Ar36): 0.01111111111
+Mass Fraction (Ca40): 0.01111111111
+Mass Fraction (Ti44): 0.01111111111
+Mass Fraction (Cr48): 0.01111111111
+Mass Fraction (Cr56): 0.01111111111
+Mass Fraction (Fe52): 0.01111111111
+Mass Fraction (Fe54): 0.01111111111
+Mass Fraction (Fe56): 0.01111111111
+Mass Fraction (Ni56): 0.01111111111
+Mass Fraction (n): 0.01111111111
+Mass Fraction (p): 0.01111111111
+electron fraction is 0.5
+After solving: 
+chemical potential of proton is -5.582021138
+chemical potential of neutron is -12.02471977
+NSE state: 
+H1 : 0
+He3 : 6.728066857e-12
+He4 : 0.002681009009
+C12 : 2.088071581e-08
+N14 : 3.632384684e-13
+O16 : 8.47594681e-08
+Ne20 : 1.345962309e-09
+Mg24 : 5.594617425e-07
+Si28 : 0.001008098348
+S32 : 0.002046870355
+Ar36 : 0.002092144335
+Ca40 : 0.005240157608
+Ti44 : 0.0001839581247
+Cr48 : 0.002037991617
+Cr56 : 7.751434856e-22
+Fe52 : 0.03983919827
+Fe54 : 0.04497244709
+Fe56 : 1.686482626e-05
+Ni56 : 0.8982137413
+n : 9.442515318e-10
+p : 0.001666851761
+AMReX (22.10-25-g735c3513153f) finalized

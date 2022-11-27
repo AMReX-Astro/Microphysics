@@ -7,6 +7,7 @@
 
 #include <network.H>
 #include <eos_type.H>
+#include <eos_composition.H>
 #include <extern_parameters.H>
 
 #include <ArrayUtilities.H>
@@ -44,10 +45,10 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 // integrate rho*X, internal energy, total energy
 // carry momentum as an unevolved variable
 
-const int SEINT = 0;
-const int SFS   = 1;
+const int SFS   = 0;
+const int SEINT = NumSpec;
 // the following are not evolved
-const int SFX   = SFS + NumSpec;
+const int SFX   = SEINT + 1;
 const int SRHO  = SFX + NumAux; // this is SFS + NumSpec if NumAux = 0;
 const int SMX   = SRHO + 1;
 const int SMY   = SRHO + 2;
@@ -154,13 +155,6 @@ struct burn_t
   // reaction Jacobian elements from T to e
   Real cv;
 
-#ifdef STRANG
-
-  // Are we doing a self-heating burn?
-  bool self_heat;
-
-#endif
-
 #ifdef TRUE_SDC
   Real E_var;
   Real mom[3];
@@ -174,8 +168,13 @@ struct burn_t
   Real abar;
   Real zbar;
 
+#ifdef NSE_NET
+  Real mu_p;
+  Real mu_n;
+#endif
+  
   // diagnostics
-  int n_rhs, n_jac;
+  int n_rhs, n_jac, n_step;
 
   // Was the burn successful?
   bool success;
@@ -248,6 +247,11 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
     burn_state.eta  = eos_state.eta;
     burn_state.abar = eos_state.abar;
     burn_state.zbar = eos_state.zbar;
+
+#ifdef NSE_NET
+    burn_state.mu_p = eos_state.mu_p;
+    burn_state.mu_n = eos_state.mu_n;
+#endif
 }
 
 
@@ -280,8 +284,95 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
     eos_state.eta  = burn_state.eta;
     eos_state.abar = burn_state.abar;
     eos_state.zbar = burn_state.zbar;
+
+#ifdef NSE_NET
+    eos_state.mu_p = burn_state.mu_p;
+    eos_state.mu_n = burn_state.mu_n;
+#endif
 }
 
+
+#ifdef SIMPLIFIED_SDC
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void sdc_burn_to_eos (const burn_t& state, T& eos_state)
+{
+#if defined(SDC_EVOLVE_ENERGY)
+    eos_state.rho = state.y[SRHO];
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    eos_state.rho = 0.0_rt;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.rho += state.y[SFS+n];
+    }
+#endif
+
+    eos_state.T = state.T;
+
+    // species
+
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.y[SFS+n] / eos_state.rho;
+    }
+
+#if NAUX_NET > 0
+    // aux
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
+    }
+    //set_nse_aux_from_X(eos_state);
+#endif
+
+    // we don't bother filling the other fields, since the EOS call
+    // will do that for us
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void normalize_abundances_sdc_burn(burn_t& state)
+{
+
+    // Constrain the partial densities in burn_t state to sum to the 
+    // density.
+    //
+    // This is meant to be used upon exit, and we assume that
+    // vode_to_burn was already called
+
+#ifdef SDC_EVOLVE_ENERGY
+
+    // we have state.y[SRHO] to constrain to
+
+    Real rhoX_sum = 0.0_rt;
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
+        rhoX_sum += state.y[SFS+n];
+    }
+    rhoX_sum /= state.y[SRHO];
+
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] /= rhoX_sum;
+    }
+
+#ifdef AUX_THERMO
+    // make the aux data consistent with the vode_state X's
+
+    eos_re_t eos_state;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.y[SFS+n] / state.y[SRHO];
+    }
+
+    set_aux_comp_from_X(eos_state);
+
+    // also store it in the burn_t state
+
+    for (int n = 0; n < NumAux; n++) {
+        state.y[SFX+n] = state.y[SRHO] * eos_state.aux[n];
+    }
+#endif
+
+#endif
+
+}
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void normalize_abundances_burn (burn_t& state)

@@ -18,9 +18,7 @@ using namespace amrex;
 #include <variables.H>
 #include <unit_test.H>
 #include <react_util.H>
-#ifdef NSE_THERMO
-#include <nse.H>
-#endif
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -168,12 +166,12 @@ void main_main ()
                 }
 
                 // initialize the auxillary state (in particular, for NSE)
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
                 eos_t eos_state;
                 for (int n = 0; n < NumSpec; n++) {
                     eos_state.xn[n] = xn[n];
                 }
-                set_nse_aux_from_X(eos_state);
+                set_aux_comp_from_X(eos_state);
                 for (int n = 0; n < NumAux; n++) {
                     state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
                 }
@@ -182,9 +180,9 @@ void main_main ()
         }
     }
 
-    // allocate a multifab for the number of RHS calls
+    // allocate a multifab for the number of RHS calls and steps
     // so we can manually do the reductions (for GPU)
-    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
+    iMultiFab integrator_n_rhs(ba, dm, 2, Nghost);
 
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
@@ -247,9 +245,14 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
+    // these operations are over all processors
     int n_rhs_min = integrator_n_rhs.min(0);
     int n_rhs_max = integrator_n_rhs.max(0);
-    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
+    long n_rhs_sum = integrator_n_rhs.sum(0);
+
+    int n_step_min = integrator_n_rhs.min(1);
+    int n_step_max = integrator_n_rhs.max(1);
+    long n_step_sum = integrator_n_rhs.sum(1);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -274,12 +277,20 @@ void main_main ()
 
     write_job_info(prefix + name + integrator + language);
 
-    // Tell the I/O Processor to write out the "run time"
-    amrex::Print() << "Run time = " << stop_time << std::endl;
+    if (ParallelDescriptor::IOProcessor()) {
 
-    // print statistics
-    std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
-    std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+        // Tell the I/O Processor to write out the "run time"
+        amrex::Print() << "Run time = " << stop_time << std::endl;
+
+        // print statistics
+        std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
+        std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+        std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+
+        std::cout << "min number of steps: " << n_step_min << std::endl;
+        std::cout << "avg number of steps: " << n_step_sum / (n_cell*n_cell*n_cell) << std::endl;
+        std::cout << "max number of steps: " << n_step_max << std::endl;
+
+    }
 
 }

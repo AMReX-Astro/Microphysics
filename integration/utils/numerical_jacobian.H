@@ -1,13 +1,14 @@
 #ifndef NUMERICAL_JACOBIAN_H
 #define NUMERICAL_JACOBIAN_H
 
+#include <eos_composition.H>
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
-#include <actual_rhs.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
 #else
-#include <fortran_to_cxx_actual_rhs.H>
+#include <actual_rhs.H>
 #endif
 
 ///
@@ -146,9 +147,9 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     }
 
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     // make the aux data consistent with the state X's
-    set_nse_aux_from_X(state_delp);
+    set_aux_comp_from_X(state_delp);
 #endif
 
     eos(eos_input_rt, state_delp);
@@ -174,16 +175,17 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     for (int n = 0; n < NumSpec; n++) {
         eos_state.xn[n] = state.xn[n];
     }
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     // make the aux data consistent with the state X's
-    set_nse_aux_from_X(eos_state);
+    set_aux_comp_from_X(eos_state);
 #endif
 
     eos(eos_input_re, eos_state);
 
     eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    // now correct the energy column
+    // now correct the energy column, since we differenced with
+    // respect to T above
 
     for (int m = 1; m <= neqs; m++) {
         jac(m, net_ienuc) *= 1.0_rt / eos_state.cv;
@@ -192,8 +194,8 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    for (int n = 1; n <= NumSpec; n++) {
-        for (int m = 1; m <= neqs; m++) {
+    for (int m = 1; m <= neqs; m++) {
+        for (int n = 1; n <= NumSpec; n++) {
             jac(m, n) -= eos_xderivs.dedX[n-1] * jac(m, net_ienuc);
         }
     }

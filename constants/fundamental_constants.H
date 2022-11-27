@@ -50,7 +50,10 @@ namespace C
 
     // mass of electron
     constexpr amrex::Real m_e = 9.10938291e-28;  // g
-
+  
+    // atomic mass unit
+    constexpr amrex::Real m_u = 1.6605390666e-24; // g
+  
     // electron charge
     // NIST: q_e = 1.602176565e-19 C
     //

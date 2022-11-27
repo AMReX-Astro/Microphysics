@@ -4,14 +4,7 @@
 #include <eos.H>
 #include <eos_composition.H>
 #include <burn_type.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_rhs.H>
-#else
-#include <fortran_to_cxx_actual_rhs.H>
-#endif
-#ifdef NSE_THERMO
-#include <nse.H>
-#endif
 #if defined(SDC_EVOLVE_ENTHALPY)
 #include <maestro_params.H>
 #endif
@@ -34,7 +27,7 @@ void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vod
 
     // we are always integrating from t = 0, so there is no offset
     // time needed here.  The indexing of ydot_a is based on
-    // the indices in burn_t and is 0-based
+    // the indices in burn_t and is 0-based    
     state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
 
     // for consistency
@@ -52,40 +45,6 @@ void fill_unevolved_variables(const Real time, burn_t& state, const dvode_t& vod
 
 }
 
-
-template <typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void sdc_burn_to_eos (const burn_t& state, T& eos_state)
-{
-#if defined(SDC_EVOLVE_ENERGY)
-    eos_state.rho = state.y[SRHO];
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    eos_state.rho = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.rho += state.y[SFS+n];
-    }
-#endif
-
-    eos_state.T = state.T;
-
-    // species
-
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.y[SFS+n] / eos_state.rho;
-    }
-
-#if NAUX_NET > 0
-    // aux
-    //for (int n = 0; n < NumAux; n++) {
-    //    eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
-    //}
-    set_nse_aux_from_X(eos_state);
-#endif
-
-    // we don't bother filling the other fields, since the EOS call
-    // will do that for us
-}
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
@@ -124,63 +83,18 @@ void renormalize_species(const Real time, burn_t& state, dvode_t& vode_state)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void renormalize_species(burn_t& state)
-{
-
-    // Constrain the partial densities in burn_t state to sum to the 
-    // density.
-    //
-    // This is meant to be used upon exit, and we assume that
-    // vode_to_burn was already called
-
-#ifdef SDC_EVOLVE_ENERGY
-
-    // we have state.y[SRHO] to constrain to
-
-    Real rhoX_sum = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
-        rhoX_sum += state.y[SFS+n];
-    }
-    rhoX_sum /= state.y[SRHO];
-
-    for (int n = 0; n < NumSpec; n++) {
-        state.y[SFS+n] /= rhoX_sum;
-    }
-
-#ifdef NSE_THERMO
-    // make the aux data consistent with the vode_state X's
-
-    eos_re_t eos_state;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.y[SFS+n] / state.y[SRHO];
-    }
-
-    set_nse_aux_from_X(eos_state);
-
-    // also store it in the burn_t state
-
-    for (int n = 0; n < NumAux; n++) {
-        state.y[SFX+n] = state.y[SRHO] * eos_state.aux[n];
-    }
-#endif
-
-#endif
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state(const Real time, burn_t& state, dvode_t& vode_state)
 {
 
     // Ensure that mass fractions always stay positive.
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        // we use 1-based indexing, so we need to offset SFS
-        vode_state.y(SFS+n) = amrex::max(amrex::min(vode_state.y(SFS+n), state.rho),
-                                         state.rho * 1.e-200_rt);
+    if (do_species_clip) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            // we use 1-based indexing, so we need to offset SFS
+            vode_state.y(SFS+n) = amrex::max(amrex::min(vode_state.y(SFS+n), state.rho),
+                                             state.rho * SMALL_X_SAFE);
+        }
     }
-
 
     // renormalize abundances as necessary
 
@@ -236,7 +150,7 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
         state.y[n] = vode_state.y(n+1);
     }
 
-    // update rho, rho*u, ... in the burn_t state
+    // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
     fill_unevolved_variables(time, state, vode_state);
@@ -244,32 +158,46 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
     Real rhoInv = 1.0_rt / state.rho;
 
 #if defined(SDC_EVOLVE_ENERGY)
-    eos_re_t eos_state;
+    for (int n = 0; n < NumSpec; n++) {
+        // vode_state uses 1-based indexing
+        state.xn[n] = vode_state.y(SFS+1+n) * rhoInv;
+    }
+
+#ifdef AUX_THERMO
+    // make the aux data consistent with the vode_state X's
+    set_aux_comp_from_X(state);
+
+    // also store it in the burn_t state solution
+    for (int n = 0; n < NumAux; n++) {
+        state.y[SFX+n] = state.rho * state.aux[n];
+    }
+#endif
+
+    // set internal energy for EOS call
+
+    state.e = vode_state.y(SEINT+1) * rhoInv;
+
+    state.T = state.T;  // initial guess
+
+    eos(eos_input_re, state);
+
 #elif defined(SDC_EVOLVE_ENTHALPY)
     eos_t eos_state;
-#endif
     eos_state.rho = state.rho;
     for (int n = 0; n < NumSpec; n++) {
         // vode_state uses 1-based indexing
         eos_state.xn[n] = vode_state.y(SFS+1+n) * rhoInv;
     }
-#ifdef NSE_THERMO
+
+#ifdef AUX_THERMO
     // make the aux data consistent with the vode_state X's
-    set_nse_aux_from_X(eos_state);
+    set_aux_comp_from_X(eos_state);
 
     // also store it in the burn_t state
     for (int n = 0; n < NumAux; n++) {
         state.y[SFX+n] = state.rho * eos_state.aux[n];
     }
 #endif
-
-#if defined(SDC_EVOLVE_ENERGY)
-
-    // set internal energy for EOS call
-
-    eos_state.e = vode_state.y(SEINT+1) * rhoInv;
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
 
     if (maestro::use_tfromp) {
         // under this assumption, we are assuming that there is no base state evolution
@@ -278,14 +206,8 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
         eos_state.h = vode_state.y(SENTH+1) * rhoInv;
     }
 
-#endif
-
     eos_state.T = state.T;  // initial guess
 
-#if defined(SDC_EVOLVE_ENERGY)
-    eos(eos_input_re, eos_state);
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
 
     if (maestro::use_tfromp) {
         // NOT SURE IF THIS IS VALID
@@ -295,11 +217,11 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
         eos(eos_input_rh, eos_state);
     }
 
-#endif
-
     // fill the rest of the burn_t state
 
     eos_to_burn(eos_state, state);
+
+#endif
 
     // override T if we are fixing it (e.g. due to
     // drive_initial_convection)
@@ -312,38 +234,46 @@ void vode_to_burn(const Real time, const dvode_t& vode_state, burn_t& state)
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void rhs_to_vode(const Real time, burn_t& state,
-                 YdotNetArray1D& ydot_react, dvode_t& vode_state,
+                 dvode_t& vode_state,
                  RArray1D& ydot)
 {
 
 
-    // ydot_react has just the contribution to the RHS from the
+    // on input, ydot has the contributions to the RHS from the
     // reaction network.  Note that these are in terms of dY/dt
+    // we will convert these in place to the form needed for SDC
 
-    // start with the contribution from the non-reacting sources
+    // convert from dY/dt to dX/dt. The species derivatives are the
+    // first NumSpec components of ydot coming from the reaction network
 
-    // Note: both ydot and ydot_react are 1-based
-    for (int n = 0; n < SVAR_EVOLVE; n++) {
-        ydot(n+1) = state.ydot_a[n];
-    }
-
-    // add in the reacting terms -- here we convert from dY/dt to dX/dt
-    // The species derivatives are the first NumSpec components of
-    // ydot_react
+    BL_ASSERT(SFS == 0);
 
     for (int n = 1; n <= NumSpec; n++) {
-        ydot(SFS+n) += state.rho * aion[n-1] * ydot_react(n);
+        ydot(n) = state.rho * aion[n-1] * ydot(n);
     }
+
+    // rescale the energy to be d(rho e)/dt
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-    ydot(SEINT+1) += state.rho * ydot_react(net_ienuc);
+    BL_ASSERT(SEINT+1 == net_ienuc);
+
+    ydot(SEINT+1) *= state.rho;
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
 
-    ydot(SENTH+1) += state.rho * ydot_react(net_ienuc);
+    ydot(SENTH+1) *= state.rho;
 
 #endif
+
+    // now add the contribution from the non-reacting sources --
+    // including advection
+
+    // Note: both ydot is 1-based
+
+    for (int n = 0; n < SVAR_EVOLVE; n++) {
+        ydot(n+1) += state.ydot_a[n];
+    }
 
 }
 
