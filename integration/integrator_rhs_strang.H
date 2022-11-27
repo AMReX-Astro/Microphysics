@@ -107,11 +107,8 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bo
 // Analytical Jacobian
 template<typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (burn_t& state, T& int_state, MatrixType& pd)
+void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
 {
-    // NOTE: the time at which to evaluate the Jacobian is not
-    // explicitly passed. The integrator always evaluates the analytic
-    // Jacobian at int_state.tn, and we pass int_state.
 
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the Jacobian to zero and return.

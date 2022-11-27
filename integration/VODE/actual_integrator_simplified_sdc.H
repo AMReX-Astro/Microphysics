@@ -38,7 +38,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Fill in the initial integration state.
 
-    burn_to_vode(state, vode_state);
+    burn_to_int(state, vode_state);
 
     // Save the initial composition and temperature for our later diagnostics.
 
@@ -91,7 +91,7 @@ void actual_integrator (burn_t& state, Real dt)
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
 
-    vode_to_burn(vode_state.t, vode_state, state);
+    int_to_burn(vode_state.t, vode_state, state);
 
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative
