@@ -6,10 +6,9 @@
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <network.H>
+#include <actual_eos_data.H>
 
 const std::string eos_name = "breakout";
-
-inline AMREX_GPU_MANAGED amrex::Real gamma_const;
 
 inline
 void actual_eos_init ()

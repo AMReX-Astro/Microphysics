@@ -191,8 +191,7 @@ module in the code calling this. However, there is a choice of whether
 to update the energy to match this temperature, respecting
 thermodynamic consistency, or to leave the energy alone, respecting
 energy conservation. This is controlled through the
-``eos_input_is_constant`` parameter in your ``extern``
-namelist in your probin file.
+``eos.eos_input_is_constant`` parameter in your inputs file.
 
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.
@@ -209,6 +208,95 @@ appropriate interpolation table from that site to use this.
 
 Interface and Modes
 ===================
+
+The EOS is called as:
+
+.. code:: c++
+
+   eos(mode, eos_type)
+
+where *mode* determines which thermodynamic quantities are inputs,
+and is one of:
+
+* ``eos_input_rt`` : density and temperature are inputs
+
+* ``eos_input_rh`` : density and specific enthalpy are inputs
+
+* ``eos_input_tp`` : temperature and pressure are inputs
+
+* ``eos_input_rp`` : density and pressure are inputs
+
+* ``eos_input_re`` : density and specific internal energy are inputs
+
+* ``eos_input_ps`` : pressure and entropy are inputs
+
+* ``eos_input_ph`` : pressure and specific enthalpy are inputs
+
+* ``eos_input_th`` : temperature and specific enthalpy are inputs
+
+The *eos_type* passed in is one of
+
+* ``eos_t`` : provides access to all available thermodynamic information,
+  including derivatives.
+
+* ``eos_re_t`` : only provides the energy-based thermodynamic information, including
+  energy derivatives.
+
+* ``eos_rep_t`` : expands on ``eos_re_t`` to include pressure information
+
+In general, you should use the type that has the smallest set of
+information needed, since we optimize out needless quantities at
+compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
+
+.. note::
+
+   All of these modes require composition as an input.  Usually this is
+   via the set of mass fractions, ``eos_t.xn[]``, but if ``USE_AUX_THERMO``
+   is set to ``TRUE``, then we instead use the auxillary quantities
+   stored in ``eos_t.aux[]``.
+
+.. _aux_eos_comp:
+
+Auxillary Composition
+---------------------
+
+
+With ``USE_AUX_THERMO=TRUE``, we interpret the composition from the auxiliary variables.
+The auxiliary variables are
+
+* ``eos_state.aux[iye]`` : electron fraction, defined as
+
+  .. math::
+
+     Y_e = \sum_k \frac{X_k Z_k}{A_k}
+
+* ``eos_state.aux[iabar]`` : the average mass of the nuclei, :math:`\bar{A}`, defined as:
+
+  .. math::
+
+     \frac{1}{\bar{A}} = \sum_k \frac{X_k}{A_k}
+
+  In many stellar evolutions texts, this would be written as :math:`\mu_I`.
+
+* ``eos_state.aux[ibea]`` : the binding energy per nucleon (units of
+  MeV), defined as
+
+  .. math::
+
+     \left \langle \frac{B}{A} \right \rangle  = \sum_k \frac{X_k B_k}{A_k}
+
+  where :math:`B_k` is the binding energy of nucleus :math:`k`
+
+Given a composition of mass fractions, the function
+``set_aux_comp_from_X(state_t& state)`` will initialize these
+auxiliary quantities.
+
+The equation of state also needs :math:`\bar{Z}` which is easily computed as
+
+.. math::
+
+   \bar{Z} = \bar{A} Y_e
+
 
 Initialization and Cutoff Values
 ================================

@@ -3,6 +3,7 @@
 
 #include <network.H>
 #include <actual_network.H>
+#include <rhs.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <rate_type.H>
@@ -105,8 +106,6 @@ void initialize_state (burn_t& state)
 
     eos(eos_input_rt, state);
 
-    state.self_heat = true;
-
     state.success = true;
 
     state.n_rhs = 0;
@@ -173,9 +172,10 @@ void actual_integrator (burn_t& state, Real dt)
         state.success = false;
     }
 
+    state.n_step = num_timesteps;
     state.time = t;
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
@@ -189,7 +189,7 @@ void actual_integrator (burn_t& state, Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
         std::cout << "ERROR: integration failed in net" << std::endl;
         std::cout << "time = " << t << std::endl;
         std::cout << "dens = " << state.rho << std::endl;

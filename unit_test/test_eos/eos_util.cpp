@@ -10,6 +10,8 @@
 #include <network.H>
 #include <eos.H>
 
+#include <extern_parameters.H>
+
 #include <cmath>
 
 using namespace amrex;

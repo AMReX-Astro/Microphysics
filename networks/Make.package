@@ -6,11 +6,11 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
 include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
-include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NAUX_NETWORK
-
-DEFINES += -DNAUX_NET=$(NAUX)
 
 ifeq ($(USE_REACT), TRUE)
+
+  # for backwards compatibility
+  DEFINES += -DNETWORK_HAS_CXX_IMPLEMENTATION
 
   ifeq ($(INTEGRATOR_DIR), VODE90)
     override INTEGRATOR_DIR = VODE
@@ -24,10 +24,11 @@ ifeq ($(USE_REACT), TRUE)
   endif
 
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
-  ifeq ($(USE_FORT_MICROPHYSICS), TRUE)  
-    f90EXE_sources += rate_type.f90
-  endif
+
   CEXE_headers += rate_type.H
+
+  CEXE_headers += rhs.H
+  CEXE_sources += rhs.cpp
 
   # we need the actual integrator in the VPATH before the
   # integration/ dir to get overrides correct
@@ -63,13 +64,18 @@ ifeq ($(USE_SCREENING), TRUE)
 
   include $(SCREEN_PATH)/Make.package
 
+  DEFINES += -DSCREENING
   DEFINES += -DNUMSCREEN=$(NSCREEN)
 
 endif
 
-ifeq ($(USE_NSE), TRUE)
+ifeq ($(USE_AUX_THERMO), TRUE)
+  DEFINES += -DAUX_THERMO
+endif
 
-  DEFINES += -DNSE_THERMO -DNSE_TABLE -DNSE
+ifeq ($(USE_NSE), TRUE)
+  # note: NSE_THERMO is deprecated
+  DEFINES += -DAUX_THERMO -DNSE_THERMO -DNSE_TABLE -DNSE
 
 endif
 
@@ -83,6 +89,8 @@ ifeq ($(USE_NEUTRINOS), TRUE)
 
   include $(NEUTRINO_PATH)/Make.package
 
+  DEFINES += -DNEUTRINOS
+
 endif
 
 NETWORK_OUTPUT_PATH ?= .
@@ -95,12 +103,11 @@ net_prop_debug: $(NETWORK_OUTPUT_PATH)/network_properties.H
 ifneq ($(NETWORK_DIR), general_null)
   $(NETWORK_OUTPUT_PATH)/network_properties.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
 
-  ifneq ($(USE_FORT_MICROPHYSICS), TRUE)
-    net_opts := --skip_fortran
-  endif
+  NAUX := $(shell PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/get_naux.py --microphysics_path "$(MICROPHYSICS_HOME)" --defines "$(DEFINES)" --net "$(NETWORK_DIR)")
+  DEFINES += "-DNAUX_NET=$(NAUX)"
 
 $(NETWORK_OUTPUT_PATH)/network_properties.H:
-	$(MICROPHYSICS_HOME)/networks/update_headers.py $(net_opts) \
+	PYTHONPATH=$(MICROPHYSICS_HOME)/networks/general_null $(MICROPHYSICS_HOME)/networks/update_headers.py \
            --microphysics_path $(MICROPHYSICS_HOME) \
            --net $(NETWORK_DIR) \
            --odir $(NETWORK_OUTPUT_PATH) \

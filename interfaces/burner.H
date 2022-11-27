@@ -2,12 +2,7 @@
 #define _burner_H_
 
 #include <burn_type.H>
-#ifdef SIMPLIFIED_SDC
-#include <integrator_sdc.H>
-#endif
-#ifdef STRANG
 #include <integrator.H>
-#endif
 
 #include <ArrayUtilities.H>
 
@@ -41,7 +36,7 @@ void burner (burn_t& state, Real dt)
 #ifndef SIMPLIFIED_SDC
         // update the aux from the new X's this is not needed with the
         // SDC method, since we took care of that internally.
-        set_nse_aux_from_X(state);
+        set_aux_comp_from_X(state);
 #endif
 
         // if we failed our burn, it may have been because we tried to
@@ -49,10 +44,20 @@ void burner (burn_t& state, Real dt)
         // aux data, T, and e represent the result from the incomplete
         // burn.
 
-        if (in_nse(state) && state.success == false) {
-            // replace dt with just the remaining integration time
-            // left after the failure
-            Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
+        // replace dt with just the remaining integration time
+        // left after the failure
+        Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
+
+        // we use a relaxed NSE criteria now to catch states that are
+        // right on the edge of being in NSE
+
+        if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
+#ifdef SIMPLIFIED_SDC
+#ifndef AMREX_USE_GPU
+            std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+#endif
+#endif
+
             // This will append to state.e the amount additional
             // energy released from adjusting to the new NSE state
 #ifdef SIMPLIFIED_SDC

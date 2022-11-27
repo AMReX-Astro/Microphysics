@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# StarKiller Microphysics documentation build configuration file, created by
+# Microphysics documentation build configuration file, created by
 # sphinx-quickstart on Tue Oct 23 11:59:54 2018.
 #
 # This file is execfile()d with the current directory set to its
@@ -54,6 +54,7 @@ extensions = ['sphinx.ext.autodoc',
     'numpydoc',
     'IPython.sphinxext.ipython_console_highlighting',
     'sphinx.ext.githubpages',
+    'sphinx-prompt',
     'breathe']
 
 breathe_projects = {
@@ -81,9 +82,9 @@ numpydoc_show_class_members = False
 main_doc = 'index'
 
 # General information about the project.
-project = 'StarKiller Microphysics'
-copyright = '2018, StarKiller Development Team'
-author = 'StarKiller Development Team'
+project = 'Microphysics'
+copyright = '2012, Microphysics Development Team'
+author = 'Microphysics Development Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -114,16 +115,19 @@ todo_include_todos = False
 
 
 # -- Options for MathJax
-mathjax_config = {'TeX': {'Macros': {}}}
+mathjax3_config = {'tex': {'macros': {}}}
 
 with open('mathsymbols.tex', 'r') as f:
     for line in f:
         macros = re.findall(r'\\newcommand{\\(.*?)}(\[(\d)\])?{(.+)}', line)
         for macro in macros:
             if len(macro[1]) == 0:
-                mathjax_config['TeX']['Macros'][macro[0]] = "{"+macro[3]+"}"
+                mathjax3_config['tex']['macros'][macro[0]
+                                                 ] = "{"+macro[3]+"}"
             else:
-                mathjax_config['TeX']['Macros'][macro[0]] = ["{"+macro[3]+"}", int(macro[2])]
+                mathjax3_config['tex']['macros'][macro[0]] = [
+                    "{"+macro[3]+"}", int(macro[2])]
+
 
 numfig = True
 
@@ -149,6 +153,8 @@ html_static_path = ['_static']
 html_context = {
     'css_files': [
         '_static/theme_overrides.css',  # override wide tables in RTD theme
+        '_static/css/theme.css',
+        '_static/pygments.css'
         ],
      }
 
@@ -168,7 +174,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'StarKillerMicrophysicsdoc'
+htmlhelp_basename = 'Microphysicsdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -195,8 +201,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (main_doc, 'StarKillerMicrophysics.tex', 'StarKiller Microphysics Documentation',
-     'StarKiller Development Team', 'manual'),
+    (main_doc, 'Microphysics.tex', 'Microphysics Documentation',
+     'Microphysics Development Team', 'manual'),
 ]
 
 
@@ -205,7 +211,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (main_doc, 'starkillermicrophysics', 'StarKiller Microphysics Documentation',
+    (main_doc, 'microphysics', 'Microphysics Documentation',
      [author], 1)
 ]
 
@@ -216,7 +222,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (main_doc, 'StarKillerMicrophysics', 'StarKiller Microphysics Documentation',
-     author, 'StarKillerMicrophysics', 'One line description of project.',
+    (main_doc, 'Microphysics', 'Microphysics Documentation',
+     author, 'Microphysics', 'One line description of project.',
      'Miscellaneous'),
 ]

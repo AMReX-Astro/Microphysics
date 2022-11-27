@@ -2,22 +2,25 @@
 #define _vode_rhs_H_
 
 #include <network.H>
-#ifdef NETWORK_HAS_CXX_IMPLEMENTATION
 #include <actual_network.H>
-#include <actual_rhs.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
 #else
-#include <fortran_to_cxx_actual_rhs.H>
+#include <actual_rhs.H>
 #endif
 #include <burn_type.H>
 #include <extern_parameters.H>
 #include <vode_type.H>
+#ifdef NONAKA_PLOT
+#include <nonaka_plot.H>
+#endif
 
 // The rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydot)
+void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
     // We are integrating a system of
@@ -61,12 +64,24 @@ void rhs (const Real /*time*/, burn_t& state, dvode_t& vode_state, RArray1D& ydo
 
     // Call the specific network routine to get the RHS.
 
+#ifdef NEW_NETWORK_IMPLEMENTATION
+    RHS::rhs(state, ydot);
+#else
     actual_rhs(state, ydot);
+#endif
+
+#ifdef NONAKA_PLOT
+    if (! in_jacobian) {
+        nonaka_rhs(time, state, ydot);
+    }
+#endif
 
     // We integrate X, not Y
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        ydot(n) *= aion[n-1];
+    // turn it off for primordial chem
+    if (!use_number_densities) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            ydot(n) *= aion[n-1];
+        }
     }
 
     // Allow energy integration to be disabled.
@@ -113,25 +128,28 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     // Call the specific network routine to get the Jacobian.
 
-    vode_to_burn(vode_state, state);
+    integrator_to_burn(vode_state, state);
 
+#ifdef NEW_NETWORK_IMPLEMENTATION
+    RHS::jac(state, pd);
+#else
     actual_jac(state, pd);
+#endif
 
     // We integrate X, not Y
-    for (int j = 1; j <= NumSpec; ++j) {
-        for (int i = 1; i <= VODE_NEQS; ++i) {
-            pd.mul(j, i, aion[j-1]);
-            pd.mul(i, j, aion_inv[j-1]);
+    // turn it off for primordial chem
+    if (!use_number_densities) {
+        for (int j = 1; j <= NumSpec; ++j) {
+            for (int i = 1; i <= VODE_NEQS; ++i) {
+                pd.mul(j, i, aion[j-1]);
+                pd.mul(i, j, aion_inv[j-1]);
+            }
         }
     }
 
     // apply fudge factor:
     if (react_boost > 0.0_rt) {
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
-                pd.mul(i, j, react_boost);
-            }
-        }
+        pd.mul(react_boost);
     }
 
     // Allow temperature and energy integration to be disabled.

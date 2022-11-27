@@ -1,124 +1,10 @@
-*****************
-Reaction Networks
-*****************
+***************************
+Available Reaction Networks
+***************************
 
-Network Requirements and Structure
-==================================
-
-A network both defines the composition advected by the hydro code as
-well as describes the burning processes between those isotopes.
-Evolving the species in a network requires an integrator. The design
-of Microphysics decouples the integrator from the network, allowing
-for the ability to swap integrators as desired. We discuss the
-integrators in a later section.
-
-At a minimum, a network needs to provide:
-
-* ``nspec`` : the number of species in the network
-
-* ``nrates`` : the number of reaction rates. This is used to
-  allocate space in the ``rate_t`` type
-
-* ``num_rate_groups`` : the number of components for each reaction
-  rate we want to store in the ``rate_t`` type
-
-* ``naux`` : the number of auxiliary quantities needed by the network (these are not evolved).
-
-* ``aion(:)`` : the atomic weight (in atomic mass units) of the species
-
-* ``zion(:)`` : the atomic number of the species
-
-* ``spec_names(:)`` : a descriptive name of the species (e.g. "hydrogen-1")
-
-* ``short_spec_names(:)`` : a shorten version of the species name (e.g. "H1")
-
-* ``short_aux_names(:)`` : the names of the auxiliary quantities
-
-* ``network_name`` : a descriptive name for the network
-
-Most of these quantities are Fortran parameters.
-
-.. note::
-
-   A convention adopted in Microphysics is that each network is
-   responsible for determining the energy release from a change in
-   composition. Most networks will provide an array of the species
-   binding energies and a routine to compute the energy yield from the
-   reaction rates.
-
-There are three primary files within each network directory.
-
-* ``actual_network.f90``:
-
-   This is the Fortran module actual_network with routines:
-
-   * ``actual_network_init()``
-
-   * ``actual_network_finalize()``
-
-   This supplies the number and names of species and auxiliary
-   variables, as well as other initializing data, such as their mass
-   numbers, proton numbers, and binding energies. It needs to define
-   the ``nspec`` and ``naux`` quantities as integer
-   parameters. Finally, it
-   must also define nrates, the number of reaction rates linking
-   the isotopes in the network.
-
-* ``actual_rhs.f90``:
-
-   This is the Fortran module ``actual_rhs_module``, with routines:
-
-   * ``actual_rhs_init()``
-
-   * ``actual_rhs(state)``
-
-   * ``actual_jac(state)``
-
-   This supplies an interface for computing the right-hand-side of the
-   network, the time-derivative of each species (and the temperature
-   and nuclear energy release), as well as the analytic Jacobian.
-   Both ``actual_rhs`` and ``actual_jac`` take a single argument,
-   a burn_t state. They set the time-derivatives and Jacobian
-   elements in this derived type directly.
-
-   Note: some networks do not provide an analytic Jacobian and instead
-   rely on the numerical difference-approximation to the Jacobian. In
-   this case, the interface ``actual_jac`` is still needed to compile.
-
-* ``actual_burner``:
-
-   This is the Fortran module ``actual_burner_module``, with routines:
-
-   * ``actual_burner_init()``
-
-   * ``actual_burner(state_in, state_out, dt, time)``
-
-   This contains the interface for doing an actual burn. Here,
-   ``state_in`` and ``state_out`` are ``burn_t`` objects. In
-   general, you will want to call integrator to use one of the
-   pre-defined ODE integrators, but you could also write a custom
-   integration here. This is covered in more detail in § \ `5 <#ch:networks:integrators>`__.
-
-Notice that all three of these modules have initialization routines:
-
-* ``actual_network_init()``
-
-* ``actual_rhs_init()``
-
-* ``actual_burner_init()``
-
-These must be called upon initialization. These should be not called
-within OpenMP parallel regions, because in general they will modify
-shared module data.
-
-Note, depending on the network, some of these may do nothing, but
-these interfaces are all required for maximum flexibility.
-
-Available Networks
-==================
 
 iso7, aprox13, aprox19, and aprox21
------------------------------------
+===================================
 
 These are alpha-chains (with some other nuclei) from Frank Timmes.
 These networks share common rates (from ``Microphysics/rates``),
@@ -126,7 +12,7 @@ plasma neutrino loses (from ``Microphysics/neutrinos``), and
 electron screening (from ``Microphysics/screening``).
 
 Energy generation.
-^^^^^^^^^^^^^^^^^^
+------------------
 
 These networks store the total binding energy of the nucleus in MeV as
 ``bion(:)``. They then compute the mass of each nucleus in grams as:
@@ -145,31 +31,26 @@ The energy release per gram is converted from the rates as:
 where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
 and :math:`\edotnu` is the neutrino loss term.
 
-breakout
---------
 
 general_null
-------------
+============
 
 ``general_null`` is a bare interface for a nuclear reaction network;
 no reactions are enabled, and no auxiliary variables are accepted. The
-data in the Fortran module is defined at compile type by specifying an
+data in the network is defined at compile type by specifying an
 inputs file. For example,
 ``Networks/general_null/triple_alpha_plus_o.net`` would describe the
 triple-:math:`\alpha` reaction converting helium into carbon, as
 well as oxygen and iron.
 
-At compile time, the network module ``actual_network.f90``
-is written using the python script ``write_network.py``
-and the template ``network.template``. The make rule
+At compile time, the network header ``network_properties.H``
+is written using the python script ``write_network.py``.  The make rule
 for this is contained in ``Make.package``. The name of the inputs file
 is specified by the variable ``GENERAL_NET_INPUTS``.
 
-A version of this network comes with MAESTRO and CASTRO, so you do
-not usually need to worry about the version in Microphysics.
 
 ignition_chamulak
------------------
+=================
 
 This network was introduced in our paper on convection in white dwarfs
 as a model of Type Ia supernovae :cite:`wdconvect`. It models
@@ -181,7 +62,7 @@ state and energetics to the values suggested in :cite:`chamulak:2008`.
 .. _energy-generation.-1:
 
 Energy generation.
-^^^^^^^^^^^^^^^^^^
+------------------
 
 The binding energy, :math:`q`, in this
 network is interpolated based on the density. It is stored as the
@@ -193,10 +74,10 @@ binding energies are negative. The energy generation rate is then:
 (this is positive since both :math:`q` and :math:`dY/dt` are negative)
 
 ignition_reaclib
-----------------
+================
 
 ignition_simple
----------------
+===============
 
 This is the original network used in our white dwarf convection
 studies :cite:`lowMach4`. It includes a single-step
@@ -216,10 +97,10 @@ of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.
 
 kpp
----
+===
 
 powerlaw
---------
+========
 
 This is a simple single-step reaction rate.
 We will consider only two species, fuel, :math:`f`, and ash, :math:`a`, through
@@ -274,7 +155,7 @@ this network. This is one of the few networks that was designed
 to work with ``gamma_law`` as the EOS.
 
 rprox
------
+=====
 
 This network contains 10 species, approximating hot CNO,
 triple-\ :math:`\alpha`, and rp-breakout burning up through :math:`^{56}\mathrm{Ni}`,
@@ -284,69 +165,97 @@ This network was used for the X-ray burst studies in
 :cite:`xrb:II`, :cite:`xrb:III`, and more details are contained in those papers.
 
 triple_alpha_plus_cago
-----------------------
+======================
 
 This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`\alpha`
 reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
 
 
-xrb_simple
+subch networks
+==============
+
+The networks subch_full and subch_approx recreate an aprox13
+alpha-chain + including a bypass rate for :math:`\isotm{C}{12}(\alpha,
+\gamma)\isotm{O}{16}` discussed in :cite:`ShenBildsten`.  This is appropriate
+for explosive He burning.
+
+:cite:`ShenBildsten` discuss the sequences:
+
+* :math:`\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
+  \gamma)\isotm{Ne}{22}` at high temperatures (T > 1 GK).  We don't
+  consider this.
+
+* :math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
+  p)\isotm{Ne}{21}` is the one they consider important, since it produces
+  protons that are then available for :math:`\isotm{C}{12}(p,
+  \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
+
+This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
+the other nuclei by including :math:`\isotm{Na}{22}`.
+
+For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
+\isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
+also need to include:
+
+* :math:`\isotm{C}{12}(\isotm{C}{12},n)\isotm{Mg}{23}(n,\gamma)\isotm{Mg}{24}`
+
+* :math:`\isotm{O}{16}(\isotm{O}{16}, n)\isotm{S}{31}(n, \gamma)\isotm{S}{32}`
+
+* :math:`\isotm{O}{16}(\isotm{C}{12}, n)\isotm{Si}{27}(n, \gamma)\isotm{Si}{28}`
+
+Since the neutron captures on those
+intermediate nuclei are so fast, we leave those out and take the
+forward rate to just be the first rate.  We do not include reverse
+rates for these processes.
+
+
+subch_full
 ----------
 
-This is a simple 7 isotope network approximating the burning that
-takes place in X-ray bursts (6 isotopes participate in reactions, one
-additional, :math:`^{56}\mathrm{Fe}`, serves as an inert
-composition). The 6 reactions modeled are:
+subch_full does not create an effective rate for :math:`(\alpha,
+\gamma)` and :math:`(\alpha, p)(p, \gamma)` (i.e. combine them
+assuming proton equilibrium).  Therefore, we need to explicitly
+include the intermediate nuclei produced in the :math:`(\alpha,p)`
+reactions.  In all, 28 nuclei and 107 rates are included.
 
-* :math:`3\alpha + 2p \rightarrow \isotm{O}{14}` (limited by the 3-\ :math:`\alpha` rate)
+This network is generated via pynucastro using the ``subch_full.py`` script.
+The overall network appears as:
 
-* :math:`\isotm{O}{14} + \alpha \rightarrow \isotm{Ne}{18}` (limited by :math:`\isotm{O}{14}(\alpha,p)\isotm{F}{17}` rate)
-
-* :math:`\isotm{O}{15} + \alpha + 6 p \rightarrow \isotm{Si}{25}` (limited by :math:`\isotm{O}{15}(\alpha,\gamma)\isotm{Ne}{19}` rate)
-
-* :math:`\isotm{Ne}{18} + \alpha + 3p \rightarrow \isotm{Si}{25}` (limited by :math:`\isotm{Ne}{18}(\alpha,p)\isotm{Na}{21}` rate)
-
-* :math:`\isotm{O}{14} + p \rightarrow \isotm{O}{15}` (limited by :math:`\isotm{O}{14}(e+\nu)\isotm{N}{14}` rate)
-
-* :math:`\isotm{O}{15} + 3p \rightarrow \isotm{O}{14} + \alpha`  (limited by :math:`\isotm{O}{15}(e+\nu)\isotm{N}{15}` rate)
-
-All reactions conserve mass. Where charge is not conserved, fast weak
-interactions are assumed. Weak rates are trivial, fits to the 4
-strong rates to a power law in :math:`T_9 \in [0.3, 1]`, linear in density.
-
-subch
------
-
-This is a 10 isotope network including rates from reactions suggested
-by Shen and Bildsten in their 2009 paper on helium burning on a white
-dwarf :cite:`ShenBildsten`.  The reactions included in
-this networks are as follows:
-
-.. math::
-
-   \begin{aligned}
-       \isotm{He}{4} &\rightarrow  \isotm{C}{12} + 2\gamma \\
-       \isotm{C}{12} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \gamma \\
-       \isotm{N}{14} + \isotm{He}{4} &\rightarrow \isotm{F}{18} + \gamma \label{chemeq:1.1} \\
-       \isotm{F}{18} + \isotm{He}{4} &\rightarrow \isotm{Ne}{21} +  \text{p} \label{chemeq:1.2} \\
-       \isotm{C}{12} + p+ &\rightarrow \isotm{N}{13} + \gamma  \label{chemeq:2.1} \\
-       \isotm{N}{13} + \isotm{He}{4} &\rightarrow \isotm{O}{16} + \text{p} \label{chemeq:2.2} \\
-       \isotm{O}{16} + \isotm{He}{4} &\rightarrow \isotm{Ne}{20} + \gamma \\
-       \isotm{C}{14} + \isotm{He}{4} &\rightarrow \isotm{O}{18} + \gamma \label{chemeq:3.2}
-   \end{aligned}
-
-The main reactions suggested by Shen and Bildsten were the :math:`\isotm{N}{14}(\alpha,\gamma)\isotm{F}{18}`,
-leading into :math:`\isotm{F}{18}(\alpha,p)\isotm{Ne}{21}`,
-:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` leading into :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`,
-and :math:`\isotm{C}{14}(\alpha,\gamma)\isotm{O}{18}` :cite:`ShenBildsten`.
-The rates of these reactions are shown in the figure below.
-Notably, the reaction :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}`, is high and may produce :math:`\isotm{O}{16}` more quickly than reactions involving only :math:`\isotm{He}{4}` and :math:`\isotm{C}{12}`,
-
-
-.. figure:: subch.png
-   :alt: pynucastro plot of the reaction rates of the subch network.
-   :scale: 80%
+.. figure:: subch_full.png
    :align: center
 
-   pynucastro plot of the reaction rates of the subch network.
+subch_approx
+------------
+
+subch_approx approximates subch_full by combining some of the
+:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
+allowing us to drop the intermediate nucleus :math:`X`.  We do this
+for :math:`\isotm{Cl}{35}`, :math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`,
+:math:`\isotm{V}{47}`, :math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
+The resulting network appears as:
+
+.. figure:: subch_approx.png
+   :align: center
+
+The nuclei in gray are not part of the network, but the links to them
+are approximated.  This reduces the number of nuclei compared to subch_full
+from 28 to 22.
+
+disabling rates
+---------------
+
+For both subch_full and subch_approx, there are 2 runtime parameters that can be used
+to disable rates:
+
+* ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
+  :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` and its inverse are
+  disabled.
+
+* ``network.disable_he4_n13__p_o16`` : if set to ``1``, then the rate
+  :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
+  disabled.
+
+Together, these parameters allow us to turn off the sequence 
+:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
+acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.

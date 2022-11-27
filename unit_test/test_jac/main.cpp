@@ -11,7 +11,6 @@
 using namespace amrex;
 
 #include <test_react.H>
-#include <test_react_F.H>
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
@@ -20,7 +19,6 @@ using namespace amrex;
 #include <variables.H>
 #include <unit_test.H>
 #include <react_util.H>
-#include <unit_test_F.H>
 
 int main (int argc, char* argv[])
 {
@@ -98,17 +96,7 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
-
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    init_unit_test();
 
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
@@ -161,7 +149,7 @@ void main_main ()
                 std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
 
             Real xn[NumSpec];
-            get_xn(k, comp_data, xn);
+            get_xn(k, comp_data, xn, uniform_xn);
 
             for (int n = 0; n < NumSpec; n++) {
                 state_arr(i, j, k, vars.ispec_old+n) =

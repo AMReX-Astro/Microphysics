@@ -1,4 +1,0 @@
-unit_test.test_string = "this is a C++ string"
-eos.eos_input_is_constant = 0
-
-amr.probin = probin

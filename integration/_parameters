@@ -2,22 +2,11 @@
 
 # these are the parameters for the integration module
 
-# When evolving the temperature, should we assume a constant volume (default)
-# or a constant pressure (do_constant_volume_burn = F)?
-do_constant_volume_burn  logical   .true.
-
 # Normally we update the temperature during a burn to be consistent with
 # the current internal energy. This is done with an EOS call, which can
 # be turned off if desired. This will freeze the temperature and specific heat
 # to the values at the beginning of the burn, which is inaccurate but cheaper.
 call_eos_in_rhs          logical   .true.
-
-# If we want to call the EOS in general, but don't want to overdo it,
-# we can set a fraction ``dT_crit`` such that we only do the EOS call
-# if the temperature has changed by a relative fraction > ``dT_crit``.
-# If we use this option, we will do a linear fit to c_v and c_p
-# in between EOS calls. This will work regardless of call_eos_in_rhs.
-dT_crit                  real      1.0d20
 
 # Allow the energy integration to be disabled by setting the RHS to zero.
 integrate_energy         logical   .true.
@@ -28,13 +17,7 @@ integrate_energy         logical   .true.
 # 3 == Numerical for reactions; analytic for primitive -> conserved (simplified-SDC only)
 jacobian                 integer   1
 
-# one-sided numerical jacobian (.False.) or centered-difference
-# Jacobian (.true.).  Note: the centered-difference requires
-# twice as many RHS calls
-centered_diff_jac        logical   .false.
-
-
-# Should we print out diagnostic output after the solve?  
+# Should we print out diagnostic output after the solve?
 burner_verbose           logical   .false.
 
 # Tolerances for the solver (relative and absolute), for the
@@ -44,10 +27,6 @@ rtol_enuc                real      1.d-6
 
 atol_spec                real      1.d-8
 atol_enuc                real      1.d-6
-
-# If we fail to find a solution consistent with the tolerances,
-# do we want to try again with a looser tolerance?
-retry_burn               logical   .false.
 
 # Should we abort the run when the burn fails?
 abort_on_failure         logical   .true.
@@ -81,4 +60,15 @@ use_jacobian_caching    logical   .true.
 nonaka_i                integer           0
 nonaka_j                integer           0
 nonaka_k                integer           0
+nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
+
+# in the clean_state process, do we clip the species such that they
+# are in [0, 1]?
+do_species_clip              integer          1
+
+# flag for turning on the use of number densities for all species
+use_number_densities     logical          .false.
+
+# flag for tuning on the subtraction of internal energy
+subtract_internal_energy   logical       .true.

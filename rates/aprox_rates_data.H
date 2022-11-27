@@ -1,5 +1,5 @@
 #ifndef _aprox_rates_data_H_
-#define _aaprox_rates_data_H_
+#define _aprox_rates_data_H_
 
 #include <AMReX.H>
 #include <AMReX_Array.H>

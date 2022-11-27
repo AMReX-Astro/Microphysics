@@ -35,6 +35,14 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
 
     Real dt = tmax;
 
+    burn_state.i = i;
+    burn_state.j = j;
+    burn_state.k = k;
+#ifdef NONAKA_PLOT
+    burn_state.level = 0;
+    burn_state.reference_time = 0.0;
+#endif
+
     burner(burn_state, dt);
 
     for (int n = 0; n < NumSpec; ++n) {
@@ -51,6 +59,7 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
     state(i, j, k, p.irho_hnuc) = state(i, j, k, p.irho) * burn_state.e / dt;
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
+    n_rhs(i, j, k, 1) = burn_state.n_step;
 
     return burn_state.success;
 

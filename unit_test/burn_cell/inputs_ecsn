@@ -1,0 +1,36 @@
+unit_test.run_prefix = "react_aprox13_"
+
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+integrator.burner_verbose = 0
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+
+integrator.jacobian = 2
+
+integrator.renormalize_abundances = 0
+
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
+integrator.atol_spec = 1.0e-6
+integrator.atol_enuc = 1.0e-6
+
+unit_test.tmax = 1.e-2
+
+unit_test.density = 1.e8
+unit_test.temperature = 3.e9
+
+unit_test.X1 = 1.e-2
+unit_test.X2  = 3.e-2
+unit_test.X3  = 0.5
+unit_test.X4  = 1.e-2
+unit_test.X5  = 1.e-2
+unit_test.X6  = 0.3
+unit_test.X7  = 0.1
+unit_test.X8  = 1.e-2
+unit_test.X9  = 1.e-2
+unit_test.X10 = 1.e-2
+unit_test.X11 = 1.e-2

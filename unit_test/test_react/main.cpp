@@ -17,11 +17,8 @@ using namespace amrex;
 #include <AMReX_buildInfo.H>
 #include <variables.H>
 #include <unit_test.H>
-#include <unit_test_F.H>
 #include <react_util.H>
-#ifdef NSE_THERMO
-#include <nse.H>
-#endif
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -40,7 +37,11 @@ void main_main ()
 
     std::string prefix = "plt";
 
+#ifdef AMREX_USE_GPU
+    IntVect tile_size(1024, 1024, 1024);
+#else
     IntVect tile_size(1024, 8, 8);
+#endif
 
     // inputs parameters
     {
@@ -101,17 +102,7 @@ void main_main ()
 
     ParmParse ppa("amr");
 
-    std::string probin_file = "probin";
-
-    ppa.query("probin_file", probin_file);
-
-    const int probin_file_length = probin_file.length();
-    Vector<int> probin_file_name(probin_file_length);
-
-    for (int i = 0; i < probin_file_length; i++)
-      probin_file_name[i] = probin_file[i];
-
-    init_unit_test(probin_file_name.dataPtr(), &probin_file_length);
+    init_unit_test();
 
     // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
     eos_init(small_temp, small_dens);
@@ -148,46 +139,50 @@ void main_main ()
 
     init_t comp_data = setup_composition(n_cell);
 
-    for ( MFIter mfi(state); mfi.isValid(); ++mfi )
     {
-        const Box& bx = mfi.validbox();
+        BL_PROFILE("initialize");
 
-        auto state_arr = state.array(mfi);
-
-        amrex::ParallelFor(bx,
-        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+        for (MFIter mfi(state); mfi.isValid(); ++mfi)
         {
+            const Box& bx = mfi.validbox();
 
-            state_arr(i, j, k, vars.itemp) =
-                std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
-            state_arr(i, j, k, vars.irho) =
-                std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
+            auto state_arr = state.array(mfi);
 
-            Real xn[NumSpec];
-            get_xn(k, comp_data, xn);
+            amrex::ParallelFor(bx,
+            [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
+            {
 
-            for (int n = 0; n < NumSpec; n++) {
-                state_arr(i, j, k, vars.ispec_old+n) =
-                    amrex::max(xn[n], 1.e-10_rt);
-            }
+                state_arr(i, j, k, vars.itemp) =
+                    std::pow(10.0_rt, (std::log10(temp_min) + static_cast<Real>(j)*dlogT));
+                state_arr(i, j, k, vars.irho) =
+                    std::pow(10.0_rt, (std::log10(dens_min) + static_cast<Real>(i)*dlogrho));
 
-            // initialize the auxillary state (in particular, for NSE)
-#ifdef NSE_THERMO
-            eos_t eos_state;
-            for (int n = 0; n < NumSpec; n++) {
-                eos_state.xn[n] = xn[n];
-            }
-            set_nse_aux_from_X(eos_state);
-            for (int n = 0; n < NumAux; n++) {
-                state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
-            }
+                Real xn[NumSpec];
+                get_xn(k, comp_data, xn, uniform_xn);
+
+                for (int n = 0; n < NumSpec; n++) {
+                    state_arr(i, j, k, vars.ispec_old+n) =
+                        amrex::max(xn[n], 1.e-10_rt);
+                }
+
+                // initialize the auxillary state (in particular, for NSE)
+#ifdef AUX_THERMO
+                eos_t eos_state;
+                for (int n = 0; n < NumSpec; n++) {
+                    eos_state.xn[n] = xn[n];
+                }
+                set_aux_comp_from_X(eos_state);
+                for (int n = 0; n < NumAux; n++) {
+                    state_arr(i, j, k, vars.iaux_old+n) = eos_state.aux[n];
+                }
 #endif
-        });
+            });
+        }
     }
 
-    // allocate a multifab for the number of RHS calls
+    // allocate a multifab for the number of RHS calls and steps
     // so we can manually do the reductions (for GPU)
-    iMultiFab integrator_n_rhs(ba, dm, 1, Nghost);
+    iMultiFab integrator_n_rhs(ba, dm, 2, Nghost);
 
     // What time is it now?  We'll use this to compute total react time.
     Real strt_time = ParallelDescriptor::second();
@@ -196,38 +191,43 @@ void main_main ()
     AsyncArray<int> aa_num_failed(&num_failed, 1);
     int* num_failed_d = aa_num_failed.data();
 
-    // Do the reactions
+    {
+        BL_PROFILE("do_react");
+
+        // Do the reactions
 #ifdef _OPENMP
 #pragma omp parallel
 #endif
-    for ( MFIter mfi(state, tile_size); mfi.isValid(); ++mfi )
-    {
-        const Box& bx = mfi.tilebox();
-
-        auto s = state.array(mfi);
-        auto n_rhs = integrator_n_rhs.array(mfi);
-
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        for (MFIter mfi(state, tile_size); mfi.isValid(); ++mfi)
         {
-            bool success = do_react(i, j, k, s, n_rhs, vars);
+            const Box& bx = mfi.tilebox();
 
-            if (!success) {
-                Gpu::Atomic::Add(num_failed_d, 1);
-            }
-        });
+            auto s = state.array(mfi);
+            auto n_rhs = integrator_n_rhs.array(mfi);
+
+            amrex::ParallelFor(bx,
+            [=] AMREX_GPU_DEVICE (int i, int j, int k)
+            {
+                bool success = do_react(i, j, k, s, n_rhs, vars);
+
+                if (!success) {
+                    Gpu::Atomic::Add(num_failed_d, 1);
+                }
+            });
 
 #ifndef AMREX_USE_GPU
-        if (print_every_nrhs != 0) {
+            if (print_every_nrhs != 0) {
+                auto int_state = integrator_n_rhs.array(mfi);
 
-            auto int_state = integrator_n_rhs.array(mfi);
-
-            AMREX_PARALLEL_FOR_3D(bx, i, j, k,
-            {
-                std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
-            });
-        }
+                amrex::ParallelFor(bx,
+                [=] AMREX_GPU_DEVICE (int i, int j, int k)
+                {
+                    std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
+                });
+            }
 #endif
 
+        }
     }
 
     aa_num_failed.copyToHost(&num_failed, 1);
@@ -245,9 +245,14 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
+    // these operations are over all processors
     int n_rhs_min = integrator_n_rhs.min(0);
     int n_rhs_max = integrator_n_rhs.max(0);
-    long n_rhs_sum = integrator_n_rhs.sum(0, 0, true);
+    long n_rhs_sum = integrator_n_rhs.sum(0);
+
+    int n_step_min = integrator_n_rhs.min(1);
+    int n_step_max = integrator_n_rhs.max(1);
+    long n_step_sum = integrator_n_rhs.sum(1);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -272,12 +277,20 @@ void main_main ()
 
     write_job_info(prefix + name + integrator + language);
 
-    // Tell the I/O Processor to write out the "run time"
-    amrex::Print() << "Run time = " << stop_time << std::endl;
+    if (ParallelDescriptor::IOProcessor()) {
 
-    // print statistics
-    std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-    std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
-    std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+        // Tell the I/O Processor to write out the "run time"
+        amrex::Print() << "Run time = " << stop_time << std::endl;
+
+        // print statistics
+        std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
+        std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+        std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
+
+        std::cout << "min number of steps: " << n_step_min << std::endl;
+        std::cout << "avg number of steps: " << n_step_sum / (n_cell*n_cell*n_cell) << std::endl;
+        std::cout << "max number of steps: " << n_step_max << std::endl;
+
+    }
 
 }

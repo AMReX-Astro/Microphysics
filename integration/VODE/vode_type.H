@@ -7,23 +7,11 @@
 #include <ArrayUtilities.H>
 #include <network.H>
 
-#ifdef NETWORK_SOLVER
-#include <actual_matrix.H>
-#endif
+#include <integrator_data.H>
 
-#ifdef STRANG
-const int VODE_NEQS = NumSpec + 1;
-#endif
+const int VODE_NEQS = INT_NEQS;
 
-#ifdef SIMPLIFIED_SDC
-const int VODE_NEQS = SVAR_EVOLVE;
-#endif
-
-#ifdef TRUE_SDC
-const int VODE_NEQS = NumSpec + 2;
-#endif
-
-typedef amrex::Array1D<int, 1, VODE_NEQS> IArray1D;
+typedef amrex::Array1D<short, 1, VODE_NEQS> IArray1D;
 typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
 typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
 
@@ -42,8 +30,8 @@ const Real vode_failure_tolerance = 1.e-2_rt;
 // For each species whose abundance is above a certain threshold, we do
 // not allow its mass fraction to change by more than a certain amount
 // in any integration step.
-const Real vode_increase_change_factor = 2.0_rt;
-const Real vode_decrease_change_factor = 0.5_rt;
+const Real vode_increase_change_factor = 4.0_rt;
+const Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
@@ -52,6 +40,10 @@ const int VODE_LMAX = VODE_MAXORD + 1;
 
 // How many timesteps should pass before refreshing the Jacobian
 const int max_steps_between_jacobian_evals = 50;
+
+#ifdef NSE
+const int MIN_NSE_BAILOUT_STEPS = 10;
+#endif
 
 // Type dvode_t contains the integration solution and control variables
 struct dvode_t
@@ -108,37 +100,40 @@ struct dvode_t
     //                   (recoverable error)
     //            2 means convergence failure with current Jacobian or
     //                   singular matrix (unrecoverable error)
-    int ICF;
+    short ICF;
 
     // IPUP   = Saved flag to signal updating of Newton matrix
-    int IPUP;
+    short IPUP;
 
     // JCUR   = Output flag from DVJAC showing Jacobian status:
     //            JCUR = 0 means J is not current
     //            JCUR = 1 means J is current
-    int JCUR;
+    short JCUR;
 
     // L      = Integer variable, NQ + 1, current order plus one
-    int L;
+    short L;
 
     // NEWH   = Saved integer to flag change of H
-    int NEWH;
+    short NEWH;
 
     // NEWQ   = The method order to be used on the next step
-    int NEWQ;
+    short NEWQ;
 
     // NQ     = Integer variable, the current integration method order
-    int NQ;
+    short NQ;
 
     // NQWAIT = A counter controlling the frequency of order changes.
     //          An order change is about to be considered if NQWAIT = 1.
-    int NQWAIT;
+    short NQWAIT;
 
     // NSLJ   = The number of steps taken as of the last Jacobian update
     int NSLJ;
 
     // NSLP   = Saved value of NST as of last Newton matrix update
     int NSLP;
+
+    // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
+    short jacobian_type;
 
     // EL     = Real array of integration coefficients.  See DVSET
     amrex::Array1D<Real, 1, VODE_LMAX> el;
@@ -152,25 +147,16 @@ struct dvode_t
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
-    RArray1D rtol, atol;
-
+    Real rtol_spec, atol_spec;
+    Real rtol_enuc, atol_enuc;
+#ifdef TRUE_SDC
+    Real rtol_dens, atol_dens;
+#endif
     // Local time and integration end time
     amrex::Real t, tout;
 
     // Integration array
     RArray1D y;
-
-#ifdef NETWORK_SOLVER
-
-    // Jacobian
-    SparseMatrix jac;
-
-#ifdef ALLOW_JACOBIAN_CACHING
-    // Saved Jacobian
-    SparseMatrix jac_save;
-#endif
-
-#else
 
     // Jacobian
     RArray2D jac;
@@ -178,8 +164,6 @@ struct dvode_t
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
     RArray2D jac_save;
-#endif
-
 #endif
 
     // the Nordsieck history array
@@ -195,7 +179,7 @@ struct dvode_t
     RArray1D acor;
 };
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
 AMREX_FORCE_INLINE
 void print_state(dvode_t& dvode_state)
 {
@@ -271,7 +255,7 @@ void print_state(dvode_t& dvode_state)
 #include <vode_type_simplified_sdc.H>
 #endif
 #ifdef STRANG
-#include <vode_type_strang.H>
+#include <integrator_type_strang.H>
 #endif
 
 #endif
