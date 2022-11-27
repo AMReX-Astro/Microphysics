@@ -5,8 +5,6 @@
 
 #include <extern_parameters.H>
 
-using namespace opacity;
-
 AMREX_INLINE
 void actual_opacity_init () {}
 
