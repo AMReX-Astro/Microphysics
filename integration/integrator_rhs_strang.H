@@ -1,5 +1,5 @@
-#ifndef _vode_rhs_H_
-#define _vode_rhs_H_
+#ifndef _integrator_rhs_strang_H_
+#define _integrator_rhs_strang_H_
 
 #include <network.H>
 #include <actual_network.H>
@@ -10,7 +10,8 @@
 #endif
 #include <burn_type.H>
 #include <extern_parameters.H>
-#include <vode_type.H>
+#include <integrator_data.H>
+#include <integrator_type_strang.H>
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>
 #endif
@@ -19,8 +20,9 @@
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
+void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
     // We are integrating a system of
@@ -28,7 +30,7 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
     // y(1:NumSpec) = dX/dt
     // y(net_ienuc) = denuc/dt
 
-    // we come in with (dvode_t) vode_state having the current
+    // we come in with (integrator type) int_state having the current
     // solution (or predicted) state and we need to copy this over to
     // the (burn_t) state to interface with the actual reaction
     // network
@@ -36,20 +38,20 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
     // Fix the state as necessary -- this ensures that the mass
     // fractions that enter are valud (and optionally normalized)
 
-    clean_state(vode_state);
+    clean_state(int_state);
 
     // Update the thermodynamics as necessary -- this primarily takes
-    // the information in vode_state (X and e), copies it to the
+    // the information in int_state (X and e), copies it to the
     // (burn_t) state and calls the EOS to get state.T
 
-    update_thermodynamics(state, vode_state);
+    update_thermodynamics(state, int_state);
 
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the RHS to zero and return.
 
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
-        for (int n = 1; n <= VODE_NEQS; ++n) {
+        for (int n = 1; n <= INT_NEQS; ++n) {
             ydot(n) = 0.0_rt;
         }
 
@@ -57,9 +59,9 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
 
     }
 
-    state.time = vode_state.t;
+    state.time = int_state.t;
 
-    // at this point, the (burn_t) state is synchronized with VODE
+    // at this point, the (burn_t) state is synchronized with the integrator
     // and is thermodynamically consistent.
 
     // Call the specific network routine to get the RHS.
@@ -93,7 +95,7 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
     // apply fudge factor:
 
     if (react_boost > 0.0_rt) {
-        for (int n = 1; n <= VODE_NEQS; ++n) {
+        for (int n = 1; n <= INT_NEQS; ++n) {
             ydot(n) *= react_boost;
         }
     }
@@ -103,21 +105,18 @@ void rhs (const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, c
 
 
 // Analytical Jacobian
-template<class MatrixType>
+template<typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
+void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
 {
-    // NOTE: the time at which to evaluate the Jacobian is not
-    // explicitly passed. VODE always evaluates the analytic
-    // Jacobian at vode_state.tn, and we pass vode_state.
 
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the Jacobian to zero and return.
 
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 pd(i,j) = 0.0_rt;
             }
         }
@@ -128,7 +127,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     // Call the specific network routine to get the Jacobian.
 
-    integrator_to_burn(vode_state, state);
+    integrator_to_burn(int_state, state);
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
     RHS::jac(state, pd);
@@ -140,7 +139,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // turn it off for primordial chem
     if (!use_number_densities) {
         for (int j = 1; j <= NumSpec; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 pd.mul(j, i, aion[j-1]);
                 pd.mul(i, j, aion_inv[j-1]);
             }
@@ -155,7 +154,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
     // Allow temperature and energy integration to be disabled.
 
     if (!integrate_energy) {
-        for (int j = 1; j <= VODE_NEQS; ++j) {
+        for (int j = 1; j <= INT_NEQS; ++j) {
             pd(net_ienuc,j) = 0.0_rt;
         }
     }
