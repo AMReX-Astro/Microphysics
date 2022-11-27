@@ -66,7 +66,7 @@ void actual_integrator (burn_t& state, Real dt)
     // we use 1-based indexing inside of VODE, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
-    Real sdc_min_density = amrex::min(state.rho, vode_state.rho_orig + state.ydot_a[SRHO] * dt);
+    Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
 
     vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
     vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
