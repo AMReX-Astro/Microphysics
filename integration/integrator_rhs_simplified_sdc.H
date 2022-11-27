@@ -1,11 +1,11 @@
-#ifndef VODE_RHS_SIMPLIFIED_SDC_H
-#define VODE_RHS_SIMPLIFIED_SDC_H
+#ifndef INTEGRATOR_RHS_SIMPLIFIED_SDC_H
+#define INTEGRATOR_RHS_SIMPLIFIED_SDC_H
 
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
 
-#include <vode_type_simplified_sdc.H>
+#include <integrator_type_simplified_sdc.H>
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <numerical_jacobian.H>
@@ -13,33 +13,34 @@
 #include <nonaka_plot.H>
 #endif
 
-// The f_rhs routine provides the right-hand-side for the DVODE solver.
+// The f_rhs routine provides the right-hand-side for the integrator.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, const bool in_jacobian=false)
+void rhs(const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bool in_jacobian=false)
 {
 
     // update rho
 
-    fill_unevolved_variables(time, state, vode_state);
+    fill_unevolved_variables(time, state, int_state);
 
-    // ensure that the mass fractions are valid -- only vode_state is
+    // ensure that the mass fractions are valid -- only int_state is
     // updated here
 
-    clean_state(time, state, vode_state);
+    clean_state(time, state, int_state);
 
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state
 
-    vode_to_burn(time, vode_state, state);
+    int_to_burn(time, int_state, state);
 
     // make sure that the temperature is valid
 
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
-        for (int n = 1; n <= VODE_NEQS; ++n) {
+        for (int n = 1; n <= INT_NEQS; ++n) {
             ydot(n) = 0.0_rt;
         }
 
@@ -61,15 +62,15 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
     if (react_boost > 0.0_rt) {
         // the correct size here is the size of the reactive state RHS,
-        // not the SDC state RHS (neqs, not VODE_NEQS)
+        // not the SDC state RHS (neqs, not INT_NEQS)
         for (int n = 1; n <= neqs; ++n) {
             ydot(n) *= react_boost;
         }
     }
 
-    // convert back to the vode type -- this will add the advective terms
+    // convert back to the int type -- this will add the advective terms
 
-    rhs_to_vode(time, state, vode_state, ydot);
+    rhs_to_int(time, state, int_state, ydot);
 
 }
 
@@ -77,34 +78,30 @@ void rhs(const Real time, burn_t& state, dvode_t& vode_state, RArray1D& ydot, co
 
 // Analytical Jacobian
 
-template<class MatrixType>
+template<typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
+void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
 {
-    // NOTE: the time at which to evaluate the Jacobian is not
-    // explicitly passed. VODE always evaluates the analytic
-    // Jacobian at vode_state.tn, and we pass vode_state.
-
 
     // update rho, rho*u, ... in the burn_t state
 
-    fill_unevolved_variables(vode_state.tn, state, vode_state);
+    fill_unevolved_variables(time, state, int_state);
 
-    // ensure that the mass fractions are valid -- only vode_state is
+    // ensure that the mass fractions are valid -- only int_state is
     // updated here
 
-    clean_state(vode_state.tn, state, vode_state);
+    clean_state(time, state, int_state);
 
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state
 
-    vode_to_burn(vode_state.tn, vode_state, state);
+    int_to_burn(time, int_state, state);
 
 
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
-        for (int j = 1; j <= VODE_NEQS; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 pd(i,j) = 0.0_rt;
             }
         }
@@ -113,13 +110,13 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
 
     }
 
-    if (vode_state.jacobian_type == 3) {
+    if (int_state.jacobian_type == 3) {
         jac_info_t jac_info;
-        jac_info.h = vode_state.H;
+        jac_info.h = int_state.H;
 
         // the numerical Jacobian for SDC will automatically
         // put it into the correct form (in terms of energy)
-        // so we can just operate on the VODE Jacobian storage
+        // so we can just operate on the integrator Jacobian storage
         // directly
 
         numerical_jac(state, jac_info, pd);
@@ -136,7 +133,7 @@ void jac (burn_t& state, dvode_t& vode_state, MatrixType& pd)
         // part and then algebraically transforms it to the
         // correct state variables for SDC.  This means we need to
         // account for the NumSpec+1 RHS evals
-        vode_state.NFE += NumSpec + 1;
+        int_state.NFE += NumSpec + 1;
 
     } else {
 
