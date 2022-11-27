@@ -6,10 +6,10 @@
 #include <linpack.H>
 #endif
 #ifdef STRANG
-#include <vode_rhs.H>
+#include <integrator_rhs_strang.H>
 #endif
 #ifdef SIMPLIFIED_SDC
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
