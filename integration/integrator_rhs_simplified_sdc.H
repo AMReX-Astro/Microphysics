@@ -7,8 +7,11 @@
 
 #include <integrator_type_simplified_sdc.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
-#include <numerical_jacobian.H>
+#endif
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>
 #endif
@@ -110,94 +113,66 @@ void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
 
     }
 
-    if (int_state.jacobian_type == 3) {
-        jac_info_t jac_info;
-        jac_info.h = int_state.H;
+    // Call the specific network routine to get the Jacobian.
 
-        // the numerical Jacobian for SDC will automatically
-        // put it into the correct form (in terms of energy)
-        // so we can just operate on the integrator Jacobian storage
-        // directly
+    actual_jac(state, pd);
 
-        numerical_jac(state, jac_info, pd);
-
-        // apply fudge factor:
-
-        if (react_boost > 0.0_rt) {
-            pd.mul(react_boost);
-        }
-
-        // jacobian = 3 is a hybrid numerical + analytic
-        // implementation for simplified SDC.  It uses a one-sided
-        // difference numerical approximation for the reactive
-        // part and then algebraically transforms it to the
-        // correct state variables for SDC.  This means we need to
-        // account for the NumSpec+1 RHS evals
-        int_state.NFE += NumSpec + 1;
-
-    } else {
-
-        // Call the specific network routine to get the Jacobian.
-
-        actual_jac(state, pd);
-
-        // The Jacobian from the nets is in terms of dYdot/dY, but we want
-        // it was dXdot/dX, so convert here.
-        for (int n = 1; n <= NumSpec; n++) {
-            for (int m = 1; m <= neqs; m++) {
-                pd(n,m) = pd(n,m) * aion[n-1];
-            }
-        }
-
+    // The Jacobian from the nets is in terms of dYdot/dY, but we want
+    // it was dXdot/dX, so convert here.
+    for (int n = 1; n <= NumSpec; n++) {
         for (int m = 1; m <= neqs; m++) {
-            for (int n = 1; n <= NumSpec; n++) {
-                pd(m,n) = pd(m,n) * aion_inv[n-1];
-            }
+            pd(n,m) = pd(n,m) * aion[n-1];
         }
+    }
 
-        // apply fudge factor:
-
-        if (react_boost > 0.0_rt) {
-            pd.mul(react_boost);
+    for (int m = 1; m <= neqs; m++) {
+        for (int n = 1; n <= NumSpec; n++) {
+            pd(m,n) = pd(m,n) * aion_inv[n-1];
         }
+    }
 
-        // The system we integrate has the form (rho X_k, rho e)
+    // apply fudge factor:
 
-        // pd is now of the form:
-        //
-        //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \
-        //              | d(rho X2dot)/dX1  d(rho X2dot)/dX2 ... 1/cv d(rho X2dot)/dT |
-        //  SFS-1+nspec |   ...                                                       |
-        //  SEINT       \ d(rho Edot)/dX1   d(rho Edot)/dX2  ... 1/cv d(rho Edot)/dT  /
-        //
-        //                   SFS                                         SEINT
+    if (react_boost > 0.0_rt) {
+        pd.mul(react_boost);
+    }
 
-        // now correct the species derivatives
-        // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
+    // The system we integrate has the form (rho X_k, rho e)
 
-        eos_re_t eos_state;
-        eos_state.rho = state.rho;
-        eos_state.T = state.T;
-        eos_state.e = state.e;
-        for (int n = 0; n < NumSpec; n++) {
-            eos_state.xn[n] = state.xn[n];
-        }
+    // pd is now of the form:
+    //
+    //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \
+    //              | d(rho X2dot)/dX1  d(rho X2dot)/dX2 ... 1/cv d(rho X2dot)/dT |
+    //  SFS-1+nspec |   ...                                                       |
+    //  SEINT       \ d(rho Edot)/dX1   d(rho Edot)/dX2  ... 1/cv d(rho Edot)/dT  /
+    //
+    //                   SFS                                         SEINT
+
+    // now correct the species derivatives
+    // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
+
+    eos_re_t eos_state;
+    eos_state.rho = state.rho;
+    eos_state.T = state.T;
+    eos_state.e = state.e;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.xn[n];
+    }
 #ifdef AUX_THERMO
-        // make the aux data consistent with the state X's
-        set_aux_comp_from_X(eos_state);
+    // make the aux data consistent with the state X's
+    set_aux_comp_from_X(eos_state);
 #endif
 
-        eos(eos_input_re, eos_state);
+    eos(eos_input_re, eos_state);
 
-        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+    eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-        for (int m = 1; m <= neqs; m++) {
-            for (int n = 1; n <= NumSpec; n++) {
-                pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
-            }
+    for (int m = 1; m <= neqs; m++) {
+        for (int n = 1; n <= NumSpec; n++) {
+            pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
         }
-
     }
 
 }
+
 #endif
