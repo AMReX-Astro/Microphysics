@@ -7,7 +7,11 @@
 
 #include <integrator_type_simplified_sdc.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>
 #endif
