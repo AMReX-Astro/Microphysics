@@ -52,9 +52,9 @@ Real initial_dt (burn_t& state, be_t& be,
        // routine
 
        for (int ii = 1; ii <= NumSpec; ii++) {
-           ewt(ii) = rtol_spec * std::abs(y_old(ii)) + atol_spec;
+           ewt(ii) = be.rtol_spec * std::abs(y_old(ii)) + be.atol_spec;
        }
-       ewt(net_ienuc) = rtol_enuc * std::abs(y_old(net_ienuc)) + atol_enuc;
+       ewt(net_ienuc) = be.rtol_enuc * std::abs(y_old(net_ienuc)) + be.atol_enuc;
 
        // Construct the trial point.
 
@@ -311,9 +311,9 @@ int be_integrator (burn_t& state, be_t& be)
 
         Array1D<Real, 1, BE_NEQS> w;
         for (int n = 1; n <= NumSpec; n++) {
-            w(n) = 1.0_rt / (rtol_spec * std::abs(y_fine(n)) + atol_spec);
+            w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
         }
-        w(net_ienuc) = 1.0_rt / (rtol_enuc * std::abs(y_fine(net_ienuc)) + atol_enuc);
+        w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(y_fine(net_ienuc)) + be.atol_enuc);
 
         // now look for w |y_fine - y_coarse| < 1
 
