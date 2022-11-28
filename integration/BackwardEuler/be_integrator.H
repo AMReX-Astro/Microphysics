@@ -151,8 +151,10 @@ int single_step (burn_t& state, be_t& be, const Real dt)
             jac_info_t jac_info;
             jac_info.h = dt;
             numerical_jac(state, jac_info, be.jac);
-            be.n_jac++;
+            be.n_rhs += (NumSpec+1);
         }
+
+        be.n_jac++;
 
         if (!integrate_energy) {
             for (int j = 1; j <= BE_NEQS; j++) {
