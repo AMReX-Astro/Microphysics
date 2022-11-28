@@ -1,8 +1,11 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <iomanip>
+
 #include <be_type.H>
 #include <be_integrator.H>
+#include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, const Real dt)
@@ -41,7 +44,9 @@ void actual_integrator (burn_t& state, const Real dt)
         aux_in[n] = state.y[SFX+n] / state.y[SRHO];
     }
 #endif
+    Real rhoe_in = state.y[SEINT];
 #endif
+
 
     // Set the tolerances.
 
@@ -50,7 +55,7 @@ void actual_integrator (burn_t& state, const Real dt)
     // we use 1-based indexing inside of BackwardEuler, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
-    Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
+    Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
 
     be.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
     be.rtol_enuc = rtol_enuc * sdc_tol_fac;
@@ -104,7 +109,7 @@ void actual_integrator (burn_t& state, const Real dt)
     }
 
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
@@ -118,7 +123,7 @@ void actual_integrator (burn_t& state, const Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
         std::cout << "istate = " << istate << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
@@ -126,6 +131,7 @@ void actual_integrator (burn_t& state, const Real dt)
         std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
         std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
         std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
+        std::cout << "rhoe start = " << std::setprecision(16) << rhoe_in << std::endl;
         std::cout << "xn start = ";
         for (int n = 0; n < NumSpec; ++n) {
             std::cout << std::setprecision(16) << xn_in[n] << " ";
