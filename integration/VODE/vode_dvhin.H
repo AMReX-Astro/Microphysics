@@ -8,7 +8,7 @@
 #include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
-#include <integrator_rhs_true_sdc.H>
+#include <vode_rhs_true_sdc.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

@@ -11,7 +11,7 @@
 #include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
-#include <integrator_rhs_true_sdc.H>
+#include <vode_rhs_true_sdc.H>
 #endif
 #ifdef NSE
 #include <nse.H>
