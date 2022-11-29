@@ -131,13 +131,13 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   // ntot
   Real rr = dens * ytot;
   Real tempi = 1.0_rt / temp;
-  Real dtempi;
+  [[maybe_unused]] Real dtempi;
   if constexpr (do_T_derivatives) {
     dtempi = -tempi * tempi;
   }
 
   Real pp = std::sqrt(rr*tempi*(z2bar + zbar));
-  Real dppdt;
+  [[maybe_unused]] Real dppdt;
   if constexpr (do_T_derivatives) {
     Real qq = 0.5_rt/pp *(z2bar + zbar);
     dppdt = qq*rr*dtempi;
@@ -219,27 +219,27 @@ void actual_screen5 (const plasma_state_t& state,
     // calculate individual screening factors
     Real bb = z1 * z2;
     Real gamp = state.aa;
-    Real gampdt;
+    [[maybe_unused]] Real gampdt;
     if constexpr (do_T_derivatives) {
         gampdt = state.daadt;
     }
 
     Real qq = fact * bb * scn_fac.zs13inv;
     Real gamef = qq * gamp;
-    Real gamefdt;
+    [[maybe_unused]] Real gamefdt;
     if constexpr (do_T_derivatives) {
         gamefdt = qq * gampdt;
     }
 
     Real tau12 = state.taufac * scn_fac.aznut;
-    Real tau12dt;
+    [[maybe_unused]] Real tau12dt;
     if constexpr (do_T_derivatives) {
         tau12dt = state.taufacdt * scn_fac.aznut;
     }
 
     qq = 1.0_rt/tau12;
     Real alph12 = gamef * qq;
-    Real alph12dt;
+    [[maybe_unused]] Real alph12dt;
     if constexpr (do_T_derivatives) {
         alph12dt = (gamefdt - alph12*tau12dt) * qq;
     }
@@ -267,13 +267,13 @@ void actual_screen5 (const plasma_state_t& state,
 
     // weak screening regime
     Real h12w = bb * state.qlam0z;
-    Real dh12wdt;
+    [[maybe_unused]] Real dh12wdt;
     if constexpr (do_T_derivatives) {
         dh12wdt = bb * state.qlam0zdt;
     }
 
     Real h12 = h12w;
-    Real dh12dt;
+    [[maybe_unused]] Real dh12dt;
     if constexpr (do_T_derivatives) {
         dh12dt = dh12wdt;
     }
@@ -289,7 +289,7 @@ void actual_screen5 (const plasma_state_t& state,
             - 0.5551e0_rt * (std::log(gamp) + scn_fac.lzav)
             - 2.996e0_rt;
 
-        Real dccdt;
+        [[maybe_unused]] Real dccdt;
         if constexpr (do_T_derivatives) {
             qq = 0.25_rt * gamp14 * rr;
             Real gamp14dt = qq * gampdt;
@@ -304,7 +304,7 @@ void actual_screen5 (const plasma_state_t& state,
         qq = 0.014e0_rt + 0.0128e0_rt*alph12;
 
         rr = (5.0_rt/32.0_rt) - alph12*qq;
-        Real drrdt;
+        [[maybe_unused]] Real drrdt;
         if constexpr (do_T_derivatives) {
             Real dqqdt  = 0.0128e0_rt*alph12dt;
             drrdt  = -(alph12dt*qq + alph12*dqqdt);
@@ -335,7 +335,7 @@ void actual_screen5 (const plasma_state_t& state,
         }
 
         Real xlgfac;
-        Real dxlgfacdt;
+        [[maybe_unused]] Real dxlgfacdt;
 
         if (rr >= 0.77e0_rt) {
             xlgfac = rr;
@@ -460,7 +460,7 @@ void chugunov2007 (const plasma_state_t& state,
         constexpr Real delta_T = T_norm_fade - T_norm_min;
         tmp = M_PI * (T_norm - T_norm_min) / delta_T;
         Real f = 0.5_rt * (1.0_rt - std::cos(tmp));
-        Real df_dT;
+        [[maybe_unused]] Real df_dT;
         if constexpr (do_T_derivatives) {
             df_dT = 0.5_rt * M_PI / delta_T * std::sin(tmp) * dT_norm_dT;
         }
@@ -473,7 +473,7 @@ void chugunov2007 (const plasma_state_t& state,
 
     // Coulomb coupling parameter from Yakovlev 2006 eq. 10
     Real Gamma = state.gamma_e_fac*scn_fac.z1*scn_fac.z2 / (scn_fac.ztilde*T_norm*T_p);
-    Real dGamma_dT;
+    [[maybe_unused]] Real dGamma_dT;
     if constexpr (do_T_derivatives) {
         dGamma_dT = -Gamma / T_norm * dT_norm_dT;
     }
@@ -491,7 +491,7 @@ void chugunov2007 (const plasma_state_t& state,
         constexpr Real delta_gamma = Gamma_max - Gamma_fade;
         tmp = M_PI * (Gamma - Gamma_fade) / delta_gamma;
         Real f = 0.5_rt * (1.0_rt - std::cos(tmp));
-        Real df_dT;
+        [[maybe_unused]] Real df_dT;
         if constexpr (do_T_derivatives) {
             df_dT = 0.5_rt * M_PI / delta_gamma * std::sin(tmp) * dGamma_dT;
             dGamma_dT = dGamma_dT - (df_dT * Gamma + f * dGamma_dT) + df_dT * Gamma_max;
@@ -501,7 +501,7 @@ void chugunov2007 (const plasma_state_t& state,
 
     // Chugunov 2007 eq. 3
     Real zeta = std::cbrt(4.0_rt / (3.0_rt * GCEM_PI*GCEM_PI * T_norm*T_norm));
-    Real dzeta_dT;
+    [[maybe_unused]] Real dzeta_dT;
     if constexpr (do_T_derivatives) {
         dzeta_dT = -2.0_rt / (3.0_rt * T_norm) * zeta * dT_norm_dT;
     }
@@ -512,7 +512,7 @@ void chugunov2007 (const plasma_state_t& state,
     Real fit_gamma = 0.06_rt + 2.2_rt / Gamma;
     // Polynomial term in Gamma tilde
     Real poly = 1.0_rt + zeta*(fit_alpha + zeta*(fit_beta + fit_gamma*zeta));
-    Real dpoly_dT;
+    [[maybe_unused]] Real dpoly_dT;
     if constexpr (do_T_derivatives) {
         tmp = dGamma_dT / (Gamma * Gamma);
         Real dfit_beta_dT = 0.6_rt * tmp;
@@ -523,7 +523,7 @@ void chugunov2007 (const plasma_state_t& state,
 
     Real gamtilde = Gamma / std::cbrt(poly);
     // this is gamtilde * dlog(gamtilde)/dT
-    Real dgamtilde_dT;
+    [[maybe_unused]] Real dgamtilde_dT;
     if constexpr (do_T_derivatives) {
         dgamtilde_dT = gamtilde * (dGamma_dT / Gamma - dpoly_dT / poly / 3.0_rt);
     }
@@ -539,7 +539,7 @@ void chugunov2007 (const plasma_state_t& state,
     Real gamtilde2 = gamtilde * gamtilde;
 
     Real term1, term2, term3, term4;
-    Real dterm1_dT, dterm2_dT, dterm3_dT, dterm4_dT;
+    [[maybe_unused]] Real dterm1_dT, dterm2_dT, dterm3_dT, dterm4_dT;
     // Chugunov 2007 eq. 19
     term1 = 1.0_rt / std::sqrt(A2 + gamtilde);
     if constexpr (do_T_derivatives) {
@@ -567,7 +567,7 @@ void chugunov2007 (const plasma_state_t& state,
 
     Real gamtilde32 = std::pow(gamtilde, 1.5_rt);
     Real h = gamtilde32 * inner + B1 * term3 + B3 * term4;
-    Real dh_dT;
+    [[maybe_unused]] Real dh_dT;
     if constexpr (do_T_derivatives) {
         Real dinner_dT = A1 * dterm1_dT + A3 * dterm2_dT;
         Real dgamtilde32_dT = 1.5_rt * std::sqrt(gamtilde) * dgamtilde_dT;

@@ -38,7 +38,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Fill in the initial integration state.
 
-    burn_to_vode(state, vode_state);
+    burn_to_int(state, vode_state);
 
     // Save the initial composition and temperature for our later diagnostics.
 
@@ -55,6 +55,7 @@ void actual_integrator (burn_t& state, Real dt)
         aux_in[n] = state.y[SFX+n] / state.y[SRHO];
     }
 #endif
+    Real rhoe_in = state.y[SEINT];
 #endif
 
 
@@ -65,23 +66,10 @@ void actual_integrator (burn_t& state, Real dt)
     // we use 1-based indexing inside of VODE, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
-#if defined(SDC_EVOLVE_ENERGY)
-    Real sdc_min_density = amrex::min(state.rho, state.rho + state.ydot_a[SRHO] * dt);
+    Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
 
     vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
     vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    Real sdc_min_density = state.rho;
-    for (int n = 0; n < NumSpec; ++n) {
-      sdc_min_density += dt * state.ydot_a[SFS+n];
-    }
-    sdc_min_density = amrex::min(state.rho, sdc_min_density);
-
-    vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac; 
-    vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac; 
-
-#endif
 
     // Note: we define the input atol for species to refer only to the
     // mass fraction part, and we multiply by a representative density
@@ -103,7 +91,7 @@ void actual_integrator (burn_t& state, Real dt)
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
 
-    vode_to_burn(vode_state.t, vode_state, state);
+    int_to_burn(vode_state.t, vode_state, state);
 
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative
@@ -190,6 +178,7 @@ void actual_integrator (burn_t& state, Real dt)
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
             std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
+            std::cout << "rhoe start = " << std::setprecision(16) << rhoe_in << std::endl;
             std::cout << "xn start = ";
             for (int n = 0; n < NumSpec; ++n) {
                 std::cout << std::setprecision(16) << xn_in[n] << " ";
