@@ -191,28 +191,31 @@ void main_main ()
     AsyncArray<int> aa_num_failed(&num_failed, 1);
     int* num_failed_d = aa_num_failed.data();
 
-    BL_PROFILE("do_react");
-
-    // Do the reactions
-    auto const& ma = state.arrays();
-    auto const& ia = integrator_n_rhs.arrays();
-
-    auto r = amrex::ParReduce(TypeList<ReduceOpMax>{}, TypeList<ValLocPair<int, burn_t>>{}, state,
-    [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) -> GpuTuple<ValLocPair<int, burn_t>>
     {
+        BL_PROFILE("do_react");
 
-        Array4<Real> const& s = ma[box_no];
-        auto n_rhs = ia[box_no];
+        // Do the reactions
+        auto const& ma = state.arrays();
+        auto const& ia = integrator_n_rhs.arrays();
 
-        burn_t burn_state;
-        bool success = do_react(i, j, k, s, burn_state, n_rhs, vars);
+        auto r = amrex::ParReduce(TypeList<ReduceOpMax>{}, TypeList<ValLocPair<int, burn_t>>{}, state,
+        [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) -> GpuTuple<ValLocPair<int, burn_t>>
+        {
 
-        if (!success) {
-            Gpu::Atomic::Add(num_failed_d, 1);
-        }
+            Array4<Real> const& s = ma[box_no];
+            auto n_rhs = ia[box_no];
 
-        return {ValLocPair<int, burn_t>{n_rhs(i,j,k,0), burn_state}};
-    });
+            burn_t burn_state;
+            bool success = do_react(i, j, k, s, burn_state, n_rhs, vars);
+
+            if (!success) {
+                Gpu::Atomic::Add(num_failed_d, 1);
+            }
+
+            return {ValLocPair<int, burn_t>{n_rhs(i,j,k,0), burn_state}};
+        });
+
+    }
 
     aa_num_failed.copyToHost(&num_failed, 1);
     Gpu::synchronize();
