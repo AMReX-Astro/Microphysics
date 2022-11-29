@@ -4,6 +4,8 @@
 #include <AMReX.H>
 #include <cmath>
 
+using namespace amrex;
+
 struct tf_t {
     amrex::Real temp;
     amrex::Real t9;
