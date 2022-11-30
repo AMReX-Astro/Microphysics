@@ -149,7 +149,9 @@ struct dvode_t
     // Tolerances
     Real rtol_spec, atol_spec;
     Real rtol_enuc, atol_enuc;
-
+#ifdef TRUE_SDC
+    Real rtol_dens, atol_dens;
+#endif
     // Local time and integration end time
     amrex::Real t, tout;
 
@@ -250,7 +252,7 @@ void print_state(dvode_t& dvode_state)
 #endif
 
 #ifdef SIMPLIFIED_SDC
-#include <vode_type_simplified_sdc.H>
+#include <integrator_type_simplified_sdc.H>
 #endif
 #ifdef STRANG
 #include <integrator_type_strang.H>
