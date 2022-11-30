@@ -42,6 +42,7 @@ void actual_integrator (burn_t& state, const Real dt)
 
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
+#ifdef AMREX_USE_GPU
     Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
