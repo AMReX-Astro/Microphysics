@@ -2,10 +2,10 @@
 #define _vode_dvhin_H_
 
 #ifdef STRANG
-#include <vode_rhs.H>
+#include <integrator_rhs_strang.H>
 #endif
 #ifdef SIMPLIFIED_SDC
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
@@ -41,13 +41,33 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
     // Set an upper bound on h based on vstate.tout-vstate.t and the initial Y and YDOT.
     Real HUB = PT1 * TDIST;
 
+#ifdef TRUE_SDC
     for (int i = 1; i <= VODE_NEQS; ++i) {
-        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + vstate.atol(i);
+        Real atol;
+        if (i == 1) {
+            atol = vstate.atol_dens;
+        } else if (i == NumSpec+2) {
+            atol = vstate.atol_enuc;
+        } else {
+            atol = vstate.atol_spec;
+        }
+        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
         Real AFI = std::abs(vstate.yh(i,2));
         if (AFI * HUB > DELYI) {
             HUB = DELYI / AFI;
         }
     }
+
+#else
+    for (int i = 1; i <= VODE_NEQS; ++i) {
+        Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
+        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
+        Real AFI = std::abs(vstate.yh(i,2));
+        if (AFI * HUB > DELYI) {
+            HUB = DELYI / AFI;
+        }
+    }
+#endif
 
     // Set initial guess for h as geometric mean of upper and lower bounds.
     int iter = 0;

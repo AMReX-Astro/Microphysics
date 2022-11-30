@@ -17,7 +17,7 @@ integrate_energy         logical   .true.
 # 3 == Numerical for reactions; analytic for primitive -> conserved (simplified-SDC only)
 jacobian                 integer   1
 
-# Should we print out diagnostic output after the solve?  
+# Should we print out diagnostic output after the solve?
 burner_verbose           logical   .false.
 
 # Tolerances for the solver (relative and absolute), for the
@@ -62,3 +62,13 @@ nonaka_j                integer           0
 nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
+
+# in the clean_state process, do we clip the species such that they
+# are in [0, 1]?
+do_species_clip              integer          1
+
+# flag for turning on the use of number densities for all species
+use_number_densities     logical          .false.
+
+# flag for tuning on the subtraction of internal energy
+subtract_internal_energy   logical       .true.
