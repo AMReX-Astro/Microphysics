@@ -1,3 +1,17 @@
+# 22.12
+
+  * A first order backward Euler integrator was added that works with
+    both Strang and simplified-SDC integration (#504, #1041, #1042, #1045)
+
+  * The jacobian = 3 option for simplified SDC was removed (#1069)
+
+  * An option to not subtract off the initial energy after the burn
+    was added as well as one to evolve number densities (#999, #1051)
+
+  * The python bindings have been removed (#1036)
+
+  * An issue with reading the helmholtz table on GPUs was fixed (#1020)
+
 # 22.11
 
   * use of the auxillary state to define composition is now enabled
