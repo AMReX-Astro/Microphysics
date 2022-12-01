@@ -61,9 +61,14 @@
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">NSE</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#composition-and-eos">Composition and EOS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nse-flow">NSE Flow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nse-check">NSE check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tabulated-nse-and-aprox19">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#composition-and-eos">Composition and EOS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nse-table-outputs">NSE Table Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nse-flow">NSE Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nse-check">NSE check</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#self-consistent-nse">Self-consistent NSE</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -85,8 +90,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>NSE</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">NSE</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/nse.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -122,18 +127,88 @@
 </style>
 <section id="nse">
 <h1>NSE<a class="headerlink" href="#nse" title="Permalink to this heading">¶</a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> can be run in a manner where we blends the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>
-network with a table for nuclear statistic equilibrium at high density
-and temperatures.  This is based on the table described in
-<span id="id1">[<a class="reference internal" href="zreferences.html#id29" title="H. Ma, S. E. Woosley, C. M. Malone, A. Almgren, and J. Bell. Carbon Deflagration in Type Ia Supernova. I. Centrally Ignited Models. \apj , 771(1):58, jul 2013. arXiv:1305.2433, doi:10.1088/0004-637X/771/1/58.">MaWoosleyMalone+13</a>]</span>.  This option is enabled by building with <code class="docutils literal notranslate"><span class="pre">USE_NSE=TRUE</span></code>.</p>
-<p>The NSE table provides:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{align*}
-Y_e &amp;= \sum_k \frac{Z_k X_k}{A_k} \\
-\bar{A} &amp;= \left [ \sum_k \frac{X_k}{A_k} \right ]^{-1} \\
-\frac{B}{A} &amp;= \sum_k \frac{B_k X_k}{A_k}
-\end{align*}\end{split}\]</div>
-<p>where <span class="math notranslate nohighlight">\(B_k\)</span> is the binding energy of nucleus <span class="math notranslate nohighlight">\(k\)</span>.</p>
+<p>The reaction networks in Microphysics have the ability to use NSE
+instead of integrating the entire network when the conditions are
+appropriate.  There are 2 different implementations of NSE in
+Microphysics, that have slightly different use cases.</p>
+<ul>
+<li><p><a class="reference internal" href="#tabulated-nse"><span class="std std-ref">Tabulated NSE and aprox19</span></a> : this uses a table of NSE abundances given
+<span class="math notranslate nohighlight">\((\rho, T, Y_e)\)</span> generate from a large network (125 isotopes).
+The table also returns <span class="math notranslate nohighlight">\(dY_e/dt\)</span> resulting from
+electron-captures, to allow for the NSE state to evolve.  This is
+meant to be used in the cores of massive stars and works only with the
+<code class="docutils literal notranslate"><span class="pre">aprox19</span></code> reaction network.</p>
+<p>Furthermore, since the table can achieve <span class="math notranslate nohighlight">\(Y_e\)</span> and
+<span class="math notranslate nohighlight">\(\bar{A}\)</span> that are not representable by the 19 isotopes in
+<code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, this table requires that we use the auxiliary
+composition and advect <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and
+<span class="math notranslate nohighlight">\(\langle B/A\rangle\)</span>.  All of the EOS calls will work with
+these quantities.</p>
+<p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p>
+</li>
+<li><p><a class="reference internal" href="#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a> : this adds an NSE solver to the network that
+can be called to find the equilibrium abundances of each of the
+species defined in the network.  It works with any of the
+pynucastro-generated networks.  Unlike the tabulated NSE, there is
+no need to advect the auxiliary composition, since this only deals
+with the isotopes defined in the main reaction network.</p>
+<p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_NET</span></code></p>
+</li>
+</ul>
+<p>Both solvers define a number of preprocessor variables, and both will
+provide a function <code class="docutils literal notranslate"><span class="pre">in_nse()</span></code> that can be used to determine if a
+state is currently in NSE.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 69%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p>make option</p></td>
+<td><p>preprocessor variables set</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NSE</span></code>, <code class="docutils literal notranslate"><span class="pre">NSE_TABLE</span></code>, <code class="docutils literal notranslate"><span class="pre">AUX_THERMO</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">USE_NSE_NET</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">NSE</span></code>, <code class="docutils literal notranslate"><span class="pre">NSE_NET</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The directive <code class="docutils literal notranslate"><span class="pre">NSE</span></code> should be used whether the specific
+implementation of NSE does not matter.</p>
+<p>These two NSE solvers are described below.</p>
+<section id="tabulated-nse-and-aprox19">
+<span id="tabulated-nse"></span><h2>Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code><a class="headerlink" href="#tabulated-nse-and-aprox19" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network can be run in a manner where we blends the
+standard <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network with a table for nuclear statistic
+equilibrium resulting from a much larger network at high density and
+temperatures.    This option is enabled by building with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1"><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19 <span class="nv">USE_NSE</span><span class="o">=</span>TRUE</span>
+</pre></div></div><section id="composition-and-eos">
+<h3>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this heading">¶</a></h3>
+<p>The NSE table was generated using a 125 nuclei reaction network
+(described in <span id="id1">[<a class="reference internal" href="zreferences.html#id29" title="H. Ma, S. E. Woosley, C. M. Malone, A. Almgren, and J. Bell. Carbon Deflagration in Type Ia Supernova. I. Centrally Ignited Models. \apj , 771(1):58, jul 2013. arXiv:1305.2433, doi:10.1088/0004-637X/771/1/58.">MaWoosleyMalone+13</a>]</span>), and includes electron-capture rates,
+so the compositional quantities it carries, <span class="math notranslate nohighlight">\(\bar{A}\)</span> and
+<span class="math notranslate nohighlight">\(Y_e\)</span> and not representable from the 19 isotopes we carry in the
+network.  In particular, it can attain a lower <span class="math notranslate nohighlight">\(Y_e\)</span> than
+<code class="docutils literal notranslate"><span class="pre">aprox19</span></code> can represent.</p>
+<p>For this reason, when we are using the NSE network, we always take the
+composition quantities in the EOS directly from <code class="docutils literal notranslate"><span class="pre">eos_state.aux[]</span></code>
+instead of from <code class="docutils literal notranslate"><span class="pre">eos_state.xn[]</span></code>.  The <code class="docutils literal notranslate"><span class="pre">AUX_THERMO</span></code> preprocessor
+variable is enabled in this case, and the equations of state interpret
+this to use the auxillary data for the composition.  This is described in <a class="reference internal" href="eos.html#aux-eos-comp"><span class="std std-ref">Auxillary Composition</span></a>.</p>
+</section>
+<section id="nse-table-outputs">
+<h3>NSE Table Outputs<a class="headerlink" href="#nse-table-outputs" title="Permalink to this heading">¶</a></h3>
+<p>The NSE table provides values for the auxiliary composition,
+<span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and <span class="math notranslate nohighlight">\(\langle B/A \rangle\)</span>
+resulting from the full 125 nuclei network.   It also provides a set of 19
+<span class="math notranslate nohighlight">\(X_k\)</span> that map into the isotopes carried by <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>.</p>
 <p>These three quantities are stored as <code class="docutils literal notranslate"><span class="pre">aux</span></code> data in the network and
 are indexed as <code class="docutils literal notranslate"><span class="pre">iye</span></code>, <code class="docutils literal notranslate"><span class="pre">iabar</span></code>, and <code class="docutils literal notranslate"><span class="pre">ibea</span></code>.  Additionally, when
 coupling to hydrodynamics, we need to advect these auxillary
@@ -148,24 +223,10 @@ and our evolution equations are:</p>
 \end{align*}\end{split}\]</div>
 <p>Therefore each of these auxillar equations obeys an advection equation
 in the hydro part of the advancement.</p>
-<section id="composition-and-eos">
-<h2>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this heading">¶</a></h2>
-<p>The NSE table was generated using a 125 nuclei reaction network, so
-the compositional quantities it carries, <span class="math notranslate nohighlight">\(\bar{A}\)</span> and
-<span class="math notranslate nohighlight">\(Y_e\)</span> and not representable from the 19 isotopes we carry in the
-network.  For this reason, when we are using the NSE network, we
-always take the composition quantities in the EOS directly from
-<code class="docutils literal notranslate"><span class="pre">eos_state.aux[]</span></code> instead of from <code class="docutils literal notranslate"><span class="pre">eos_state.xn[]</span></code>.  The
-<code class="docutils literal notranslate"><span class="pre">AUX_THERMO</span></code> preprocessor variable is enabled in this case, and the
-equations of state interpret this to use the auxillary data for the
-composition.</p>
-<p>The equation of state also needs <span class="math notranslate nohighlight">\(\bar{Z}\)</span> which is easily computed as</p>
-<div class="math notranslate nohighlight">
-\[\bar{Z} = \bar{A} Y_e\]</div>
 </section>
 <section id="nse-flow">
-<h2>NSE Flow<a class="headerlink" href="#nse-flow" title="Permalink to this heading">¶</a></h2>
-<p>The basic flow of a simulation using the NSE network is as follows:</p>
+<h3>NSE Flow<a class="headerlink" href="#nse-flow" title="Permalink to this heading">¶</a></h3>
+<p>The basic flow of a simulation using <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> + the NSE table is as follows:</p>
 <ul>
 <li><p>initialize the problem, including <span class="math notranslate nohighlight">\(X_k\)</span></p></li>
 <li><p>fill the initial aux data with <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and <span class="math notranslate nohighlight">\((B/A)\)</span></p></li>
@@ -207,7 +268,7 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </ul>
 </section>
 <section id="nse-check">
-<h2>NSE check<a class="headerlink" href="#nse-check" title="Permalink to this heading">¶</a></h2>
+<h3>NSE check<a class="headerlink" href="#nse-check" title="Permalink to this heading">¶</a></h3>
 <p>We determine is a zone is in NSE according to:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></li>
@@ -215,6 +276,21 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 <li><p><span class="math notranslate nohighlight">\(X(\isotm{C}{12})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></li>
 <li><p><span class="math notranslate nohighlight">\(X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></li>
 </ul>
+</section>
+</section>
+<section id="self-consistent-nse">
+<span id="id3"></span><h2>Self-consistent NSE<a class="headerlink" href="#self-consistent-nse" title="Permalink to this heading">¶</a></h2>
+<p>The self-consistent NSE approach uses only the nuclei in the main
+reaction network.  It solves for the chemical potentials of the proton
+and neutron and from there gets the abundances of each of the nuclei
+under the assumption of NSE, following the procedure outlined in <span id="id4">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">CTS+07</a>]</span>.</p>
+<p>The solve is done using a port of the hybrid Powell method from
+MINPACK (we ported the solver to templated C++).</p>
+<p>The advantage of this approach is that it can be used with any
+reaction network, once the integration has reached NSE.</p>
+<p>This solver is enabled by compiling with</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
+</pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
 <p class="rubric">Footnotes</p>
 <dl class="footnote brackets">
 <dt class="label" id="fy"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>

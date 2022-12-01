@@ -25,7 +25,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Overview of Reaction Networks" href="networks-overview.html" />
-    <link rel="prev" title="ForwardEuler" href="runtime_parameters.html" /> 
+    <link rel="prev" title="BackwardEuler" href="runtime_parameters.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -98,8 +98,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Equations of State</li>
+      <li><a href="index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Equations of State</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/eos.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -343,7 +343,7 @@ is set to <code class="docutils literal notranslate"><span class="pre">TRUE</spa
 stored in <code class="docutils literal notranslate"><span class="pre">eos_t.aux[]</span></code>.</p>
 </div>
 <section id="auxillary-composition">
-<h3>Auxillary Composition<a class="headerlink" href="#auxillary-composition" title="Permalink to this heading">¶</a></h3>
+<span id="aux-eos-comp"></span><h3>Auxillary Composition<a class="headerlink" href="#auxillary-composition" title="Permalink to this heading">¶</a></h3>
 <p>With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
 The auxiliary variables are</p>
 <ul>
@@ -351,7 +351,7 @@ The auxiliary variables are</p>
 <div class="math notranslate nohighlight">
 \[Y_e = \sum_k \frac{X_k Z_k}{A_k}\]</div>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[iabar]</span></code> : the average mass of the nuclei, defined as:</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[iabar]</span></code> : the average mass of the nuclei, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, defined as:</p>
 <div class="math notranslate nohighlight">
 \[\frac{1}{\bar{A}} = \sum_k \frac{X_k}{A_k}\]</div>
 <p>In many stellar evolutions texts, this would be written as <span class="math notranslate nohighlight">\(\mu_I\)</span>.</p>
@@ -366,6 +366,9 @@ MeV), defined as</p>
 <p>Given a composition of mass fractions, the function
 <code class="docutils literal notranslate"><span class="pre">set_aux_comp_from_X(state_t&amp;</span> <span class="pre">state)</span></code> will initialize these
 auxiliary quantities.</p>
+<p>The equation of state also needs <span class="math notranslate nohighlight">\(\bar{Z}\)</span> which is easily computed as</p>
+<div class="math notranslate nohighlight">
+\[\bar{Z} = \bar{A} Y_e\]</div>
 </section>
 </section>
 <section id="initialization-and-cutoff-values">
@@ -400,7 +403,7 @@ accept an eos_input and an eos_t state; see Section <a class="reference internal
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="runtime_parameters.html" class="btn btn-neutral float-left" title="ForwardEuler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="runtime_parameters.html" class="btn btn-neutral float-left" title="BackwardEuler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="networks-overview.html" class="btn btn-neutral float-right" title="Overview of Reaction Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
