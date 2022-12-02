@@ -1,6 +1,8 @@
-# NSE table maker
+# NSE check tables
 
-This is a simple driver that makes a table for rho, T, Y_e -> mu_p, mu_n
+This test is used to have a table that has a variety of differen rho,
+T, and Y_e, to test the valitidy of the function `in_nse`.
 
-The goal is to provide a nice initial guess for an input state to the NSE
-solver.
+We solve for the NSE state for variety of different conditions, and update
+the current state mass fraction to the NSE state to make sure we're in
+NSE. Then `in_nse` is called to see whether we're in NSE or not.
