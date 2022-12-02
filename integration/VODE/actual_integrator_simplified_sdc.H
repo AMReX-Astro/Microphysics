@@ -91,7 +91,8 @@ void actual_integrator (burn_t& state, Real dt)
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
 
-    int_to_burn(vode_state.t, vode_state, state);
+    constexpr bool do_copy = true;
+    int_to_burn<do_copy, dvode_t>(vode_state.t, vode_state, state);
 
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative

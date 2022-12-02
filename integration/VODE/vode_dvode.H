@@ -265,7 +265,8 @@ int dvode (burn_t& state, dvode_t& vstate)
            update_thermodynamics(state, vstate);
 #endif
 #ifdef SIMPLIFIED_SDC
-           int_to_burn(vstate.tn, vstate, state);
+           constexpr bool do_copy = false;
+           int_to_burn<do_copy, dvode_t>(vstate.tn, vstate, state);
 #endif
 
            if (in_nse(state)) {
