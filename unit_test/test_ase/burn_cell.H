@@ -24,6 +24,10 @@ void burn_cell_c()
     state.mu_p = mu_p;
     state.mu_n = mu_n;
 
+    // set a reference cell size.
+    
+    state.dx = 1.0e6_rt;
+    
     std::cout << "chemical potential of proton is " << mu_p << std::endl;
     std::cout << "chemical potential of neutron is " << mu_n << std::endl;
 

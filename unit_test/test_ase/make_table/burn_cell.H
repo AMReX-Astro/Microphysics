@@ -13,6 +13,10 @@ void burn_cell_c()
 
     burn_t state;
 
+    // set a reference cell size
+
+    state.dx = 1.0e6_rt;
+    
     Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<Real>(nrho-1);
     Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<Real>(nT-1);
     Real dYe = (Ye_max - Ye_min)/(nye-1);

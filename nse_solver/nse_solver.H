@@ -1599,17 +1599,15 @@ bool in_nse(T& state, T& nse_state){
   
   eos_t eos_state;                             // need eos_state for speed of sound
   amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
-
+  
   // Here we need to find t_s, sound crossing timescale for a single zone
-  // here I just assumed cell_dx is 1.0e6, which is a value paper suggested
-  // in a real simulation run we probably need to adjust this accordingly.
   
   if constexpr (std::is_same<T, eos_t>::value){
     
-    // if state is already in eos, then assumed eos() is called
+    // if state is already in eos, then assume eos() is called
 
     // see Section 3 in Kushnir
-    t_s = cell_dx / state.cs;
+    t_s = state.dx / state.cs;
     
   }
   else{
@@ -1618,7 +1616,7 @@ bool in_nse(T& state, T& nse_state){
     
     burn_to_eos<eos_t>(state, eos_state);
     eos(eos_input_rt, eos_state);
-    t_s = cell_dx / eos_state.cs;
+    t_s = state.dx / eos_state.cs;
   }
   
   // Find ydot
