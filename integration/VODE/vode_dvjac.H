@@ -6,10 +6,10 @@
 #include <linpack.H>
 #endif
 #ifdef STRANG
-#include <vode_rhs.H>
+#include <integrator_rhs_strang.H>
 #endif
 #ifdef SIMPLIFIED_SDC
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
@@ -67,7 +67,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
         // We want to evaluate the Jacobian -- now the path depends on
         // whether we're using the numerical or analytic Jacobian.
 
-        if (vstate.jacobian_type != 2) {
+        if (vstate.jacobian_type == 1) {
 
             // For the analytic Jacobian, call the user-supplied function.
 
@@ -83,7 +83,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
             // Initialize the Jacobian to zero
             vstate.jac.zero();
 
-            jac(state, vstate, vstate.jac);
+            jac(vstate.tn, state, vstate, vstate.jac);
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.

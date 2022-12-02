@@ -2,7 +2,7 @@
 # Reaclib rates linking the specified nuclei.
 
 import pynucastro as pyna
-from pynucastro.networks import StarKillerCxxNetwork
+from pynucastro.networks import AmrexAstroCxxNetwork
 
 mylibrary = pyna.rates.ReacLibLibrary()
 
@@ -42,5 +42,5 @@ all_nuclei = ['n',
 
 sn160 = mylibrary.linking_nuclei(all_nuclei, with_reverse=True)
 
-net = StarKillerCxxNetwork(libraries=[sn160])
+net = AmrexAstroCxxNetwork(libraries=[sn160])
 net.write_network()

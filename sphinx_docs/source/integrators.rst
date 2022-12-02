@@ -63,7 +63,7 @@ The interfaces to all of the networks and integrators are written in C++.
 
 The main entry point for C++ is ``burner()`` in
 ``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE`` or ``ForwardEuler``).
+routine (at the moment this can be ``VODE``, ``BackwardEuler``, or ``ForwardEuler``).
 
 .. code-block:: c++
 
@@ -353,8 +353,19 @@ The name of the integrator can be selected at compile time using
 the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
 the allowed options are:
 
+* ``BackwardEuler``: an implicit first-order accurate backward-Euler
+  method.  An error estimate is done by taking 2 half steps and
+  comparing to a single full step.  This error is then used to control
+  the timestep by using the local truncation error scaling.
+
 * ``ForwardEuler``: an explicit first-order forward-Euler method.  This is
   meant for testing purposes only.
+
+* ``QSS``: the quasi-steady-state method of :cite:`mott_qss` (see also
+  :cite:`guidry_qss`). This uses a second-order predictor-corrector method,
+  and is designed specifically for handling coupled ODE systems for chemical
+  and nuclear reactions. However, this integrator has difficulty near NSE,
+  so we don't recommend its use in production for nuclear astrophysics.
 
 * ``VODE``: the VODE (:cite:`vode`) integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.

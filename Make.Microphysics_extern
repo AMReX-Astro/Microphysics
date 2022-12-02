@@ -71,10 +71,6 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
-ifeq ($(findstring gamma_law, $(EOS_DIR)), gamma_law)
-   DEFINES += -DEOS_GAMMA_LAW_GENERAL
-endif
-
 # NSE networks need the table
 ifeq ($(USE_NSE),TRUE)
   ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
@@ -114,6 +110,12 @@ ifeq ($(USE_RAD), TRUE)
 
    OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
    EXTERN_CORE += $(OPAC_PATH)
+endif
+
+ifeq ($(INTEGRATOR_DIR), BackwardEuler)
+  # we are implementing the numerical Jacobian ourselves, and we
+  # need the composition derivatives
+  USE_EXTRA_THERMO := TRUE
 endif
 
 ifeq ($(USE_EXTRA_THERMO), TRUE)
