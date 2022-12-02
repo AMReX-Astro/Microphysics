@@ -150,11 +150,6 @@ void int_to_burn(const Real time, const T& int_state, burn_t& state)
 
     state.time = time;
 
-    for (int n = 0; n < SVAR_EVOLVE; n++) {
-        // note int_state uses 1-based indexing
-        state.y[n] = int_state.y(n+1);
-    }
-
     // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
