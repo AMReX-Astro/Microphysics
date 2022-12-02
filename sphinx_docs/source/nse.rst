@@ -262,7 +262,7 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
   involved with the reaction that is different from :math:`p`, :math:`n`, and :math:`\alpha`.
   :math:`\tilde{Y}_i` represents the sum of molar fractions of the group that isotope :math:`i`
   belongs in, or :math:`\tilde{Y}_i = \Sigma_{l \in q}Y^l_i`. After determining which reaction
-  has the fast time-scale, there are two requirements for us to check whether this reaction
+  has the fastest time-scale, there are two requirements for us to check whether this reaction
   can be used to group the nuclei involved, which are:
 
   * at least 1 isotope, :math:`i`, that passes:
