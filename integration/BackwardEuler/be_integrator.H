@@ -2,14 +2,18 @@
 #define BE_INTEGRATOR_H
 
 #include <be_type.H>
-#include <integrator_rhs_strang.H>
 #include <network.H>
 #include <actual_network.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
 #include <linpack.H>
 #include <numerical_jacobian.H>
-
+#ifdef STRANG
+#include <integrator_rhs_strang.H>
+#endif
+#ifdef SIMPLIFIED_SDC
+#include <integrator_rhs_simplified_sdc.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real initial_dt (burn_t& state, be_t& be,
@@ -48,9 +52,9 @@ Real initial_dt (burn_t& state, be_t& be,
        // routine
 
        for (int ii = 1; ii <= NumSpec; ii++) {
-           ewt(ii) = rtol_spec * std::abs(y_old(ii)) + atol_spec;
+           ewt(ii) = be.rtol_spec * std::abs(y_old(ii)) + be.atol_spec;
        }
-       ewt(net_ienuc) = rtol_enuc * std::abs(y_old(net_ienuc)) + atol_enuc;
+       ewt(net_ienuc) = be.rtol_enuc * std::abs(y_old(net_ienuc)) + be.atol_enuc;
 
        // Construct the trial point.
 
@@ -142,13 +146,15 @@ int single_step (burn_t& state, be_t& be, const Real dt)
         // construct the Jacobian
 
         if (be.jacobian_type == 1) {
-            jac(state, be, be.jac);
-
+            jac(be.t, state, be, be.jac);
         } else {
             jac_info_t jac_info;
             jac_info.h = dt;
             numerical_jac(state, jac_info, be.jac);
+            be.n_rhs += (NumSpec+1);
         }
+
+        be.n_jac++;
 
         if (!integrate_energy) {
             for (int j = 1; j <= BE_NEQS; j++) {
@@ -242,6 +248,7 @@ int be_integrator (burn_t& state, be_t& be)
 {
 
     be.n_rhs = 0;
+    be.n_jac = 0;
     be.n_step = 0;
 
     int ierr;
@@ -304,9 +311,9 @@ int be_integrator (burn_t& state, be_t& be)
 
         Array1D<Real, 1, BE_NEQS> w;
         for (int n = 1; n <= NumSpec; n++) {
-            w(n) = 1.0_rt / (rtol_spec * std::abs(y_fine(n)) + atol_spec);
+            w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
         }
-        w(net_ienuc) = 1.0_rt / (rtol_enuc * std::abs(y_fine(net_ienuc)) + atol_enuc);
+        w(net_ienuc) = 1.0_rt / (be.rtol_enuc * std::abs(y_fine(net_ienuc)) + be.atol_enuc);
 
         // now look for w |y_fine - y_coarse| < 1
 
