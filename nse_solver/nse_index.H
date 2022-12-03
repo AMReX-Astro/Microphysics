@@ -3,6 +3,7 @@
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
+#include <actual_network.H>
 
 namespace NSE_INDEX
 {
@@ -15,6 +16,9 @@ namespace NSE_INDEX
   extern AMREX_GPU_MANAGED int h1_index;
   extern AMREX_GPU_MANAGED int n_index;
   extern AMREX_GPU_MANAGED int he4_index;
+
+  // array for storing indices to access different rates
+  extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 6> rate_indices;
 }
 
 #endif
