@@ -68,7 +68,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#nse-check">NSE check</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#self-consistent-nse">Self-consistent NSE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#self-consistent-nse">Self-consistent NSE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -291,6 +294,95 @@ reaction network, once the integration has reached NSE.</p>
 <p>This solver is enabled by compiling with</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
 </pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
+<section id="dynamic-nse-check">
+<h3>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Permalink to this heading">¶</a></h3>
+<p>We have implemented a dynamic NSE check for the self-consistent nse procedure
+that tells us whether the network has reached the NSE state. The overall procedure
+is outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id39" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>. The overall usage comes down to a single function
+<code class="docutils literal notranslate"><span class="pre">in_nse(state,</span> <span class="pre">NSE_state)</span></code>. By supplying the current state and the NSE state,
+this function returns a boolean that tells us whether we’re in NSE or not.
+The current status of this functionality only works for pynucastro-generated
+network since aprox networks have slightly different syntax.</p>
+<p>There are 3 main criteria discussed in the <span id="id6">[<a class="reference internal" href="zreferences.html#id39" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>.</p>
+<ul>
+<li><p>Have a rough check to determine whether the current state is close to NSE. They use a
+criteria of:</p>
+<div class="math notranslate nohighlight">
+\[\frac{r - r_{NSE}}{r_{NSE}} &lt; 0.5\]</div>
+<p>where <span class="math notranslate nohighlight">\(r = Y_\alpha/(Y_p^2 Y_n^2)\)</span> and
+<span class="math notranslate nohighlight">\(r_{NSE} = \left(Y_\alpha/(Y_p^2 Y_n^2)\right)_{NSE}\)</span>.</p>
+</li>
+<li><p>Does the network has a fast reaction cycle that exchanges 1 <span class="math notranslate nohighlight">\(\alpha\)</span> particle with
+2 <span class="math notranslate nohighlight">\(p\)</span> and 2 <span class="math notranslate nohighlight">\(n\)</span> particles. This cycle should have the following reactions or
+their reverse:</p>
+<ul class="simple">
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, \gamma)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, p)\)</span>, 1 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, n)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 1 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+</ul>
+<p>To consider to be fast reaction cycle, we require every step in the cycle to
+have <span class="math notranslate nohighlight">\(Y_i/\textbf{min}(b_f, b_r) &lt; \epsilon t_s\)</span> for <span class="math notranslate nohighlight">\(i = n, p, \alpha\)</span>
+participated in this step, where <span class="math notranslate nohighlight">\(b_f\)</span> and <span class="math notranslate nohighlight">\(b_r\)</span>
+are the forward and reverse rate of the reaction, <span class="math notranslate nohighlight">\(\epsilon\)</span> is a tolerance which
+has a default value of <span class="math notranslate nohighlight">\(0.1\)</span>, and <span class="math notranslate nohighlight">\(t_s\)</span> is the sound crossing time of a
+simulation cell.</p>
+<p>An example of such reaction cycle would be:</p>
+<div class="math notranslate nohighlight">
+\[\isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
+(\alpha, \gamma) \isotm{S}{32}\]</div>
+<p>The general approach to this is to start iterations from the heavy to the light nuclei to
+use them as the starting point of the cycle. Then algorithmn checks if isotopes involved
+in the network can actually form a cycle using the combination reactions above. If such cycle
+is formed, then we check the rates of these reactions to see if they satisfy the condition
+mention previously. If there are no isotope present in the network that would form
+a closed-cycle, we move on to the next nuclei. We break out of the iteration once we found
+a fast reaction cycle.</p>
+</li>
+<li><p>If the previous two check pass, we proceed to nuclei grouping. Initially,
+<span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(\alpha\)</span> are grouped into a single group called
+the light-isotope-group, or LIG. Other isotopes belong to their own group,
+which only contains themselves. During each iteration, we find all valid reaction,
+<span class="math notranslate nohighlight">\(k\)</span>, that has the fastest time-scale,
+<span class="math notranslate nohighlight">\(t_{i,k} = \tilde{Y}_i/\textbf{min}(b_f(k), b_r(k))\)</span>, for <span class="math notranslate nohighlight">\(i\)</span> to be the isotope
+involved with the reaction that is different from <span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(\alpha\)</span>.
+<span class="math notranslate nohighlight">\(\tilde{Y}_i\)</span> represents the sum of molar fractions of the group that isotope <span class="math notranslate nohighlight">\(i\)</span>
+belongs in, or <span class="math notranslate nohighlight">\(\tilde{Y}_i = \Sigma_{l \in q}Y^l_i\)</span>. After determining which reaction
+has the fastest time-scale, there are two requirements for us to check whether this reaction
+can be used to group the nuclei involved, which are:</p>
+<ul>
+<li><p>at least 1 isotope, <span class="math notranslate nohighlight">\(i\)</span>, that passes:</p>
+<div class="math notranslate nohighlight">
+\[t_{i,k} &lt; \epsilon t_s\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k) &lt; \epsilon\]</div>
+</li>
+</ul>
+<p>Here we only consider two cases of reactions:</p>
+<ul class="simple">
+<li><p>There are exactly two isotopes involved in reaction, <span class="math notranslate nohighlight">\(k\)</span>, that are not in the
+light-isotope-group. In this case, if the reaction passes the two criteria mentioned above,
+we merge the groups containing those two isotopes if they’re not yet in the same group.</p></li>
+<li><p>There is only one isotope involed in reaction, <span class="math notranslate nohighlight">\(k\)</span>, that is not in the
+light-isotope-group, which is not necessarily isotope <span class="math notranslate nohighlight">\(i\)</span> that passes the
+first criteria. In this case, we merge the isotope that is not in LIG into LIG.</p></li>
+</ul>
+<p>Here we skip over reactions of the following due to obvious reasons:</p>
+<ul class="simple">
+<li><p>Reactions that have no reverse rates.</p></li>
+<li><p>Reactions that involve more than 2 reactants and products</p></li>
+<li><p>Reactions that have more than 2 non-light-isotope-group.</p></li>
+<li><p>The nuclei that participate in the reaction is either in LIG or in another group.
+This means that the non-LIG nuclei have already merged.</p></li>
+</ul>
+<p>And the iteration stops once there are no reactions that can satisfy the above criteria.
+At the end of the iterations, we define that the current state  have reached NSE
+when there is only a single group left, or there are two groups left where
+1 of them is the light-isotope-group.</p>
+</li>
+</ul>
 <p class="rubric">Footnotes</p>
 <dl class="footnote brackets">
 <dt class="label" id="fy"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
@@ -302,6 +394,7 @@ positron capture, [wrate] = [rectot] + [rpdtot] - [redtot] - [rpctot]</p>
 be subtracted from <span class="math notranslate nohighlight">\(Y_e\)</span>.</p>
 </dd>
 </dl>
+</section>
 </section>
 </section>
 
