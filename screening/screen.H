@@ -23,6 +23,8 @@ const std::string screen_name = "chugunov2007";
 const std::string screen_name = "chugunov2009";
 #elif SCREEN_METHOD == 3
 const std::string screen_name = "null";
+#elif SCREEN_METHOD == 4
+const std::string screen_name = "potekhin1998";
 #endif
 
 struct plasma_state_t {
@@ -757,6 +759,75 @@ void chugunov2009 (const plasma_state_t& state,
         }
     }
 }
+
+
+template <int do_T_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void chabrier1998 (const plasma_state_t& state,
+                   const scrn::screen_factors_t& scn_fac,
+                   Real& scor, Real& scordt)
+{
+  // Calculates screening factors based on Chabrier & Potekhin 1998,
+  // Calder2007 and partly screen5 routine mentioned in Alastuey 1978.
+  
+  // This screening is valid for weak screening: Gamma < 0.1
+  // and strong screening: 1 <= Gamma <= 160
+  // Reference:
+  //            Chabrier & Potekhin 1998, PhRvE, 58, 4941
+  //            Calder 2007, doi:10.1086/510709
+  //            Wallace & Woosley 1982
+  //            Alastuey 1978
+
+  // Eq. 2 in Chabrier & Potekhin 1998
+  
+  Real Gamma_e = state.gamma_e_fac / state.temp;
+  Real zcomp = scn_fac.z1 + scn_fac.z2;
+
+  // See Calder2007 appendix Eq. A9
+  
+  Real Gamma_1 = Gamma_e * std::pow(scn_fac.z1, 5.0_rt/3.0_rt);
+  Real Gamma_2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
+  Real Gamma_12 = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
+    
+  // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
+  
+  const Real A_1 = -0.9052_rt;
+  const Real A_2 = 0.6322_rt;
+  const Real A_3 = -0.5_rt * std::sqrt(3.0_rt) - A_1 / std::sqrt(A_2);
+    
+  // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
+
+  Real f1 = A_1 * (std::sqrt(Gamma_1 * (A_1 + Gamma_1)) -
+		   A_2 * std::log(std::sqrt(Gamma_1/A_2) + std::sqrt(1.0_rt + Gamma_1/A_2)))
+    + 2.0_rt * A_3 * (std::sqrt(Gamma_1) - std::atan(std::sqrt(Gamma_1)));
+
+  Real f2 = A_1 * (std::sqrt(Gamma_2 * (A_1 + Gamma_2)) -
+		   A_2 * std::log(std::sqrt(Gamma_2/A_2) + std::sqrt(1.0_rt + Gamma_2/A_2)))
+    + 2.0_rt * A_3 * (std::sqrt(Gamma_2) - std::atan(std::sqrt(Gamma_2)));
+  
+  Real f12 = A_1 * (std::sqrt(Gamma_12 * (A_1 + Gamma_12)) -
+		   A_2 * std::log(std::sqrt(Gamma_12/A_2) + std::sqrt(1.0_rt + Gamma_12/A_2)))
+    + 2.0_rt * A_3 * (std::sqrt(Gamma_12) - std::atan(std::sqrt(Gamma_12)));
+
+
+  // See Calder2007 Appendix Eq. A9, This is the classical screening term.
+  // It is also the original Chabrier & Potekhin 1998 screening enhancement.
+  Real C = f1 + f2 - f12;
+
+  // Now we add quantum correction terms discussed in Alastuey 1978.
+  // Notice in Alastuey 1978, they have a differnt classical term,
+  // which is implemented in the strong screening limit of our screen5 routine.
+  
+  Real h12_max = 300.0_rt;
+  h12 = amrex::min(h12_max, h12);
+
+  Real scor = std::exp(h12);
+  return scor;
+  
+}
+
+
+
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
