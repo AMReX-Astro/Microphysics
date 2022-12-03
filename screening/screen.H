@@ -235,14 +235,13 @@ void actual_screen5 (const plasma_state_t& state,
         gampdt = state.daadt;
     }
 
-    // Part of Eq.4 in Itoh:1979
-    // 2^(1/3)Z_1*Z_2/(Z_1+Z_2)^(1/3)
-    // There is a typo here?
-    // I think it should be 2*Z_1*Z_2/(Z_1^(1/3) + Z_2^(1/3))?
+    // In Eq.4 in Itoh:1979, this term is 2*Z_1*Z_2/(Z_1^(1/3) + Z_2^(1/3))
+    // However here we follow Wallace:1982 Eq. A13, which is Z_1*Z_2*(2/(Z_1+Z_2))^(1/3)
+    
     Real qq = fact * bb * scn_fac.zs13inv;
 
-    // Full version of Eq.4 in Itoh:1979
-    // gamef = gamma_ij
+    // Full Equation of Wallace:1982 Eq. A13
+    
     Real gamef = qq * gamp;
     Real gamefdt;
     if constexpr (do_T_derivatives) {
@@ -252,6 +251,7 @@ void actual_screen5 (const plasma_state_t& state,
     // Full version of Eq.6 in Itoh:1979 with extra 1/3 factor
     // the extra 1/3 factor is there for convenience.
     // tau12 = Eq.6 / 3
+    
     Real tau12 = state.taufac * scn_fac.aznut;
     Real tau12dt;
     if constexpr (do_T_derivatives) {
@@ -261,6 +261,7 @@ void actual_screen5 (const plasma_state_t& state,
     qq = 1.0_rt/tau12;
 
     // alph12 = 3*gamma_ij/tau_ij
+    
     Real alph12 = gamef * qq;
     Real alph12dt;
     if constexpr (do_T_derivatives) {
@@ -270,6 +271,7 @@ void actual_screen5 (const plasma_state_t& state,
 
     // limit alph12 to 1.6 to prevent unphysical behavior.
     // See Introduction in Alastuey:1978
+
     // this should really be replaced by a pycnonuclear reaction rate formula
     if (alph12 > 1.6_rt) {
         alph12   = 1.6e0_rt;
@@ -278,6 +280,7 @@ void actual_screen5 (const plasma_state_t& state,
         }
 
 	// redetermine previous factors if 3*gamma_ij/tau_ij > 1.6
+	
         gamef    = 1.6e0_rt * tau12;
         if constexpr (do_T_derivatives) {
             gamefdt  = 1.6e0_rt * tau12dt;
@@ -292,6 +295,8 @@ void actual_screen5 (const plasma_state_t& state,
 
     // weak screening regime
     // Full version of Eq. 19 in Graboske:1973 by considering weak regime
+    // and Wallace:1982 Eq. A14. Here the degeneracy factor is assumed to be 1.
+    
     Real h12w = bb * state.qlam0z;
     Real dh12wdt;
     if constexpr (do_T_derivatives) {
@@ -305,19 +310,16 @@ void actual_screen5 (const plasma_state_t& state,
     }
 
     // intermediate and strong sceening regime
+    
     if (gamef > gamefx) {
 
       // gamma_ij^(1/4)
+      
         Real gamp14 = std::pow(gamp, 0.25_rt);
         Real rr = 1.0_rt/gamp;
 
-	// I think this is meant to be constant C in Eq. 25 Alastuey:1978
-	// but it is using Eq. 16 of Jancovici:1977, which is not a complete version.
-	// Even then, it has sign issues.
-	// it also multiplies by scn_fac.zhat and scn_fac.zhat2, which I'm not sure why.
-	
-	// Just to note Eq.17 of Jancovici:1977 also has a typo.
-	// I believe the term 2.35 should be 5.35.
+	// Here we follow Eq. A9 in Wallace:1982
+	// See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
         Real cc = 0.896434e0_rt * gamp * scn_fac.zhat
             - 3.44740e0_rt * gamp14 * scn_fac.zhat2
             - 0.5551e0_rt * (std::log(gamp) + scn_fac.lzav)
