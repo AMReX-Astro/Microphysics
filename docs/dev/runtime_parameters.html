@@ -57,6 +57,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#qss">QSS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vode">VODE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aprox19">aprox19</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ase">ase</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#breakout">breakout</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#burn-cell">burn_cell</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#burn-cell-sdc">burn_cell_sdc</a></li>
@@ -80,6 +81,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#subch-full">subch_full</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subch-simple">subch_simple</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-aprox-rates">test_aprox_rates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-ase">test_ase</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-conductivity">test_conductivity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
@@ -332,6 +334,32 @@ consider species that are &gt; X_reject_buffer * atol_spec</p></td>
 <td><p>factor (&lt; 1) by which to relax the criteria for
 entering NSE. This is only applied after a failed burn.</p></td>
 <td><p>1.0</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="ase">
+<h1>ase<a class="headerlink" href="#ase" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_p_c12__n13</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disable_he4_n13__p_o16</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1306,6 +1334,50 @@ species</p></td>
 <td></td>
 <td><p>7</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_min</span></code></p></td>
+<td></td>
+<td><p>1.e6</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_max</span></code></p></td>
+<td></td>
+<td><p>1.e10</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nrho</span></code></p></td>
+<td></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_min</span></code></p></td>
+<td></td>
+<td><p>4.0e9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_max</span></code></p></td>
+<td></td>
+<td><p>1.e10</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nT</span></code></p></td>
+<td></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_min</span></code></p></td>
+<td></td>
+<td><p>0.4</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_max</span></code></p></td>
+<td></td>
+<td><p>0.7</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nye</span></code></p></td>
+<td></td>
+<td><p>7</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -1408,6 +1480,10 @@ network?</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_hybrid_solver</span></code></p></td>
 <td></td>
 <td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ase_tol</span></code></p></td>
+<td></td>
+<td><p>0.1_rt</p></td>
 </tr>
 </tbody>
 </table>
@@ -1940,6 +2016,140 @@ compatibility</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e-4</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-ase">
+<h1>test_ase<a class="headerlink" href="#test-ase" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 49%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<td></td>
+<td><p>1.d7</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+<td><p>3.d9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ye</span></code></p></td>
+<td></td>
+<td><p>0.75</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mu_p</span></code></p></td>
+<td></td>
+<td><p>-3.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mu_n</span></code></p></td>
+<td></td>
+<td><p>-12.0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X1</span></code></p></td>
+<td></td>
+<td><p>1.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X2</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X3</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X4</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X5</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X6</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X7</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X8</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X9</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X10</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X11</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X12</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X13</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X14</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X15</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X16</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X17</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X18</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X19</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X20</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
+<td></td>
+<td><p>0.0d0</p></td>
 </tr>
 </tbody>
 </table>
