@@ -16,7 +16,7 @@
 #include <nonaka_plot.H>
 #endif
 
-// The f_rhs routine provides the right-hand-side for the integrator.
+// The f_rhs routine provides the right-hand-side for the integration solver.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
