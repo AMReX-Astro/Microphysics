@@ -1314,6 +1314,10 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     }
 
 
+    // Fill approximate rates
+
+    fill_approx_rates<do_T_derivatives, T>(tfactors, rate_eval);
+
     // Calculate tabular rates
 
     Real rate, drate_dt, edot_nu;
