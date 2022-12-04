@@ -716,9 +716,9 @@ void evaluate_tabulated_rate (const rhs_state_t& state, rate_t& rates)
 // If a given reaction uses fewer than three species, we infer
 // this by calling its index -1 and then not accessing it
 // in the multiplication.
-template<int species, int rate>
+template<int species, int rate, int use_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr std::pair<Real, Real> rhs_term (const burn_t& state, const Real& fr, const Real& rr)
+constexpr std::pair<Real, Real> rhs_term (const burn_t& state, const rate_t& rates)
 {
     constexpr rhs_t data = rhs_data(rate);
 
@@ -726,7 +726,7 @@ constexpr std::pair<Real, Real> rhs_term (const burn_t& state, const Real& fr, c
     // reverse reactions, which is the same regardless of which species
     // we're producing or consuming.
 
-    Real forward_term = fr;
+    Real forward_term = use_T_derivatives ? rates.frdt : rates.fr;
 
     if constexpr (data.species_A >= 0) {
         Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
@@ -803,7 +803,7 @@ constexpr std::pair<Real, Real> rhs_term (const burn_t& state, const Real& fr, c
         forward_term *= df;
     }
 
-    Real reverse_term = rr;
+    Real reverse_term = use_T_derivatives ? rates.rrdt : rates.rr;
 
     if constexpr (data.species_D >= 0) {
         Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
@@ -921,7 +921,7 @@ constexpr std::pair<Real, Real> rhs_term (const burn_t& state, const Real& fr, c
 // contribution if spec2 is one of (D, E, F).
 template<int spec1, int spec2, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
+constexpr Real jac_term (const burn_t& state, const rate_t& rates)
 {
     constexpr rhs_t data = rhs_data(rate);
 
@@ -929,7 +929,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
     if constexpr (spec2 == data.species_A || spec2 == data.species_B || spec2 == data.species_C) {
 
-        forward_term = fr;
+        forward_term = rates.fr;
 
         if constexpr (data.species_A >= 0) {
             Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
@@ -1042,7 +1042,7 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
     if constexpr (spec2 == data.species_D || spec2 == data.species_E || spec2 == data.species_F) {
 
-        reverse_term = rr;
+        reverse_term = rates.rr;
 
         if constexpr (data.species_D >= 0) {
             Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
@@ -1347,7 +1347,8 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
             constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                auto [forward_term, reverse_term] = rhs_term<species, rate>(burn_state, rates.fr, rates.rr);
+                constexpr int use_T_derivatives = 0;
+                auto [forward_term, reverse_term] = rhs_term<species, rate, use_T_derivatives>(burn_state, rates);
 
                 if constexpr (nrhs == 2 * neqs) {
                     if (forward_term >= 0.0_rt) {
@@ -1491,7 +1492,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
                 [[maybe_unused]] constexpr int spec2 = n3;
 
                 if constexpr (is_rate_used<spec1, rate>()) {
-                    jac(spec1, spec2) += jac_term<spec1, spec2, rate>(burn_state, rates.fr, rates.rr);
+                    jac(spec1, spec2) += jac_term<spec1, spec2, rate>(burn_state, rates);
                 }
             });
         });
@@ -1503,7 +1504,8 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
             [[maybe_unused]] constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                auto [forward_term, reverse_term] = rhs_term<species, rate>(burn_state, rates.frdt, rates.rrdt);
+                constexpr int use_T_derivatives = 1;
+                auto [forward_term, reverse_term] = rhs_term<species, rate, use_T_derivatives>(burn_state, rates);
                 jac(species, net_ienuc) += forward_term + reverse_term;
             }
         });
