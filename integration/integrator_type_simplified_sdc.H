@@ -96,7 +96,7 @@ void clean_state(const Real time, burn_t& state, T& int_state)
         for (int n = 1; n <= NumSpec; ++n) {
             // we use 1-based indexing, so we need to offset SFS
             int_state.y(SFS+n) = amrex::max(amrex::min(int_state.y(SFS+n), state.rho),
-                                             state.rho * SMALL_X_SAFE);
+                                            state.rho * SMALL_X_SAFE);
         }
     }
 

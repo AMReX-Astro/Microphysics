@@ -156,6 +156,9 @@ struct burn_t
   // reaction Jacobian elements from T to e
   Real cv;
 
+  // dx is useful for estimating timescales for equilibriation
+  Real dx;
+
 #ifdef TRUE_SDC
   Real E_var;
   Real mom[3];
