@@ -30,6 +30,11 @@ void burner (burn_t& state, Real dt)
 #endif
 
     } else {
+
+        // in case we bail out of the burn because we hit NSE, then
+        // we'll redo the burn as NSE
+        burn_t old_state = state;
+
         // burn as usual
         integrator(state, dt);
 
@@ -52,18 +57,20 @@ void burner (burn_t& state, Real dt)
         // right on the edge of being in NSE
 
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
-#ifdef SIMPLIFIED_SDC
 #ifndef AMREX_USE_GPU
-            std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "recovering burn failure in NSE, zone = ("
+                      << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
-#endif
+
+            // reset the state
+            state = old_state;
 
             // This will append to state.e the amount additional
             // energy released from adjusting to the new NSE state
 #ifdef SIMPLIFIED_SDC
-            sdc_nse_burn(state, dt_remaining);
+            sdc_nse_burn(state, dt);
 #else
-            nse_burn(state, dt_remaining);
+            nse_burn(state, dt);
 #endif
         } else if (state.success == false && abort_on_failure) {
 #ifndef AMREX_USE_GPU
