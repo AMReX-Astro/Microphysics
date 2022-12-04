@@ -927,7 +927,8 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
     Real forward_term = 0.0_rt;
 
-    if constexpr (spec2 == data.species_A || spec2 == data.species_B || spec2 == data.species_C) {
+    if constexpr (is_rate_used<spec1, rate>() &&
+                  (spec2 == data.species_A || spec2 == data.species_B || spec2 == data.species_C)) {
 
         forward_term = fr;
 
@@ -1040,7 +1041,8 @@ constexpr Real jac_term (const burn_t& state, const Real& fr, const Real& rr)
 
     Real reverse_term = 0.0_rt;
 
-    if constexpr (spec2 == data.species_D || spec2 == data.species_E || spec2 == data.species_F) {
+    if constexpr (is_rate_used<spec1, rate>() &&
+                  (spec2 == data.species_D || spec2 == data.species_E || spec2 == data.species_F)) {
 
         reverse_term = rr;
 
