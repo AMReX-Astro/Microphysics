@@ -42,3 +42,19 @@ jobs:
           cd unit_test/burn_cell_sdc
           diff state_over_time.txt ci-benchmarks/aprox19_state_over_time.txt
 
+      - name: Compile, burn_cell_sdc (BackwardEuler, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          make realclean
+          make INTEGRATOR_DIR=BackwardEuler NETWORK_DIR=aprox19 -j 4
+
+      - name: Run burn_cell_sdc (BackwardEuler, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          ./main3d.gnu.ex inputs_aprox19.ci
+
+      - name: Compare to stored output (BackwardEuler, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          diff state_over_time.txt ci-benchmarks/aprox19_BE_state_over_time.txt
+
