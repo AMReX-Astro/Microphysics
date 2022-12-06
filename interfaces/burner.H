@@ -63,11 +63,6 @@ void burner (burn_t& state, Real dt)
 #else
             nse_burn(state, dt_remaining);
 #endif
-
-            // reset the success flag so the application code knows about it
-
-            state.success  = true;
-
         } else if (state.success == false && abort_on_failure) {
 #ifndef AMREX_USE_GPU
             std::cout << "failure \n";
