@@ -73,7 +73,7 @@ bool in_nse(const eos_t& state, const bool relax = false) {
     Real O_group = state.xn[O16-1];
     Real Si_group = state.xn[Si28-1];
 
-    if (Fe_group + He_group > He_Fe_nse &&
+    if (Fe_group + He_group > f * He_Fe_nse &&
         C_group < C_nse / f &&
         O_group < O_nse / f &&
         Si_group < Si_nse / f) {
