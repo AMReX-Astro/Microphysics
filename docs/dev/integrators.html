@@ -205,28 +205,25 @@ to pass both the specific integrator’s type (e.g. <code class="docutils litera
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> objects into the lower-level network routines.</p>
 <p>The overall flow of the integrator is (using VODE as the example):</p>
 <ol class="arabic simple">
-<li><p>Call the EOS on the input <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> state.  This involves:</p>
-<ol class="arabic simple">
-<li><p>calling <code class="docutils literal notranslate"><span class="pre">burn_to_eos</span></code> to convert the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> to an <code class="docutils literal notranslate"><span class="pre">eos_t</span></code></p></li>
-<li><p>calling the EOS with <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(T\)</span> as input</p></li>
-<li><p>calling <code class="docutils literal notranslate"><span class="pre">eos_to_burn</span></code> to convert the <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
-</ol>
-</li>
-<li><p>Fill the integrator type by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code> to create a
-<code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> from the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
+<li><p>Call the EOS directly on the input <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> state using <span class="math notranslate nohighlight">\(\rho\)</span> and <span class="math notranslate nohighlight">\(T\)</span> as inputs.</p></li>
+<li><p>Fill the integrator type by calling <code class="docutils literal notranslate"><span class="pre">burn_to_integrator()</span></code> to create a
+<code class="docutils literal notranslate"><span class="pre">dvode_t</span></code>.</p></li>
 <li><p>call the ODE integrator, <code class="docutils literal notranslate"><span class="pre">dvode()</span></code>, passing in the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> _and_ the
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> — as noted above, the auxillary information that is
 not part of the integration state will be obtained from the
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>.</p></li>
 <li><p>subtract off the energy offset—we now store just the energy released
 in the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> integration state.</p></li>
-<li><p>convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code></p></li>
+<li><p>convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">integrator_to_burn</span></code></p></li>
 <li><p>normalize the abundances so they sum to 1.</p></li>
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Upon exit, <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.e</span></code> is the energy <em>released</em> during
 the burn, and not the actual internal energy of the state.</p>
+<p>Optionally, by settting <code class="docutils literal notranslate"><span class="pre">integrator.subtract_internal_energy=0</span></code>
+the output will be the total internal energy, including that released
+burning the burn.</p>
 </div>
 </section>
 <section id="network-routines">
@@ -297,14 +294,13 @@ flow is (for VODE):</p>
 <ol class="arabic simple">
 <li><p>call <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> on the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
 <li><p>update the thermodynamics by calling <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code>.  This takes both
-the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> and the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>.</p></li>
-<li><p>call <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
+the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> and the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> and computes the temperature that matches the
+current state.</p></li>
 <li><p>call <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code></p></li>
 <li><p>convert the derivatives to mass-fraction-based (since we integrate <span class="math notranslate nohighlight">\(X\)</span>)
 and zero out the temperature and energy derivatives if we are not integrating
 those quantities.</p></li>
 <li><p>apply any boosting if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0</p></li>
-<li><p>convert back to the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code></p></li>
 </ol>
 </section>
 <section id="jacobian-implementation">
@@ -353,11 +349,10 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code> calls.</p>
 </div>
 <ol class="arabic simple">
-<li><p>call <code class="docutils literal notranslate"><span class="pre">vode_to_burn</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
+<li><p>call <code class="docutils literal notranslate"><span class="pre">integrator_to_burn</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
 <li><p>call <code class="docutils literal notranslate"><span class="pre">actual_jac()</span></code> to have the network fill the Jacobian array</p></li>
 <li><p>convert the derivative to be mass-fraction-based</p></li>
 <li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0</p></li>
-<li><p>call <code class="docutils literal notranslate"><span class="pre">burn_to_vode</span></code> to update the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code></p></li>
 </ol>
 </section>
 </section>
