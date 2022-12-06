@@ -801,14 +801,25 @@ void chabrier1998 (const plasma_state_t& state,
 		   A_2 * std::log(std::sqrt(Gamma_1/A_2) + std::sqrt(1.0_rt + Gamma_1/A_2)))
     + 2.0_rt * A_3 * (std::sqrt(Gamma_1) - std::atan(std::sqrt(Gamma_1)));
 
+  if constexpr (do_T_derivatives) {
+    
+  }
+  
   Real f2 = A_1 * (std::sqrt(Gamma_2 * (A_1 + Gamma_2)) -
 		   A_2 * std::log(std::sqrt(Gamma_2/A_2) + std::sqrt(1.0_rt + Gamma_2/A_2)))
     + 2.0_rt * A_3 * (std::sqrt(Gamma_2) - std::atan(std::sqrt(Gamma_2)));
+
+  if constexpr (do_T_derivatives) {
+    
+  }
   
   Real f12 = A_1 * (std::sqrt(Gamma_12 * (A_1 + Gamma_12)) -
 		   A_2 * std::log(std::sqrt(Gamma_12/A_2) + std::sqrt(1.0_rt + Gamma_12/A_2)))
     + 2.0_rt * A_3 * (std::sqrt(Gamma_12) - std::atan(std::sqrt(Gamma_12)));
 
+  if constexpr (do_T_derivatives) {
+    
+  }
 
   // See Calder2007 Appendix Eq. A9, This is the classical screening term.
   // It is also the original Chabrier & Potekhin 1998 screening enhancement.
