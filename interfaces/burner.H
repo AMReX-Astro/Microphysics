@@ -52,10 +52,8 @@ void burner (burn_t& state, Real dt)
         // right on the edge of being in NSE
 
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
-#ifdef SIMPLIFIED_SDC
 #ifndef AMREX_USE_GPU
             std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-#endif
 #endif
 
             // This will append to state.e the amount additional
@@ -65,6 +63,11 @@ void burner (burn_t& state, Real dt)
 #else
             nse_burn(state, dt_remaining);
 #endif
+
+            // reset the success flag so the application code knows about it
+
+            state.success  = true;
+
         } else if (state.success == false && abort_on_failure) {
 #ifndef AMREX_USE_GPU
             std::cout << "failure \n";
