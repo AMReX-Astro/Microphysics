@@ -120,7 +120,7 @@ bool in_nse(const burn_t& state, const bool relax = false) {
         Real Si_group = state.y[SFS+Si28-1] / state.rho;
 #endif
 
-        if (Fe_group + He_group > He_Fe_nse &&
+        if (Fe_group + He_group > f * He_Fe_nse &&
             C_group < C_nse / f &&
             O_group < O_nse / f &&
             Si_group < Si_nse / f) {

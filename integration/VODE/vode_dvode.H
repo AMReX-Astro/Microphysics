@@ -271,6 +271,8 @@ int dvode (burn_t& state, dvode_t& vstate)
            if (in_nse(state)) {
                istate = -100;
                vstate.t = vstate.tn;
+               std::cout << "entered NSE" << std::endl;
+               std::cout << state << std::endl;
                return istate;
            }
        }

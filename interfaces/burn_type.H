@@ -195,6 +195,7 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
     o << burn_state.xn[n] << " ";
   }
   o << std::endl;
+  o << "(i, j, k) = " << burn_state.i << " " << burn_state.j << " " << burn_state.k << std::endl;
 #if NAUX_NET > 0
   o << "aux = ";
   for (int n = 0; n < NumAux; ++n) {
