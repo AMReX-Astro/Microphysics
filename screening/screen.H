@@ -785,10 +785,17 @@ void chabrier1998 (const plasma_state_t& state,
 
   // See Calder2007 appendix Eq. A9
   
-  Real Gamma_1 = Gamma_e * std::pow(scn_fac.z1, 5.0_rt/3.0_rt);
-  Real Gamma_2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
-  Real Gamma_12 = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
-    
+  Real Gamma1 = Gamma_e * std::pow(scn_fac.z1, 5.0_rt/3.0_rt);
+  Real Gamma2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
+  Real Gamma12 = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
+
+  [[maybe_unused]] Real Gamma1dT, Gamma2dT, Gamma12dT;
+  
+  if constexpr (do_T_derivatives) {
+    Gamma1dT = -Gamma1 / state.temp;
+    Gamma2dT = -Gamma2 / state.temp;
+    Gamma12dT = -Gamma12 / state.temp;
+  }
   // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
   
   const Real A_1 = -0.9052_rt;
@@ -797,42 +804,71 @@ void chabrier1998 (const plasma_state_t& state,
     
   // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
-  Real f1 = A_1 * (std::sqrt(Gamma_1 * (A_2 + Gamma_1)) -
-		   A_2 * std::log(std::sqrt(Gamma_1/A_2) + std::sqrt(1.0_rt + Gamma_1/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma_1) - std::atan(std::sqrt(Gamma_1)));
-
-  // if constexpr (do_T_derivatives) {
-    
-  // }
+  Real f1 = A_1 * (std::sqrt(Gamma1 * (A_2 + Gamma1)) -
+		   A_2 * std::log(std::sqrt(Gamma1/A_2) + std::sqrt(1.0_rt + Gamma1/A_2)))
+    + 2.0_rt * A_3 * (std::sqrt(Gamma1) - std::atan(std::sqrt(Gamma1)));
   
-  Real f2 = A_1 * (std::sqrt(Gamma_2 * (A_2 + Gamma_2)) -
-		   A_2 * std::log(std::sqrt(Gamma_2/A_2) + std::sqrt(1.0_rt + Gamma_2/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma_2) - std::atan(std::sqrt(Gamma_2)));
-
-  // if constexpr (do_T_derivatives) {
-    
-  // }
+  Real f2 = A_1 * (std::sqrt(Gamma2 * (A_2 + Gamma2)) -
+		   A_2 * std::log(std::sqrt(Gamma2/A_2) + std::sqrt(1.0_rt + Gamma2/A_2)))
+    + 2.0_rt * A_3 * (std::sqrt(Gamma2) - std::atan(std::sqrt(Gamma2)));
   
-  Real f12 = A_1 * (std::sqrt(Gamma_12 * (A_2 + Gamma_12)) -
-		   A_2 * std::log(std::sqrt(Gamma_12/A_2) + std::sqrt(1.0_rt + Gamma_12/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma_12) - std::atan(std::sqrt(Gamma_12)));
+  Real f12 = A_1 * (std::sqrt(Gamma12 * (A_2 + Gamma12)) -
+		   A_2 * std::log(std::sqrt(Gamma12/A_2) + std::sqrt(1.0_rt + Gamma12/A_2)))
+    + 2.0_rt * A_3 * (std::sqrt(Gamma12) - std::atan(std::sqrt(Gamma12)));
 
-  // if constexpr (do_T_derivatives) {
-    
-  // }
+  [[maybe_unused]] Real f1dT, f2dT, f12dT;
+  
+  if constexpr (do_T_derivatives) {
+    f1dT = A_1 * ((A_2 + 2.0_rt * Gamma1) / (2.0_rt * std::sqrt(Gamma1 * (A_2 + Gamma1)))
+		       - 0.5_rt / (std::sqrt(Gamma1 / A_2) + std::sqrt(1.0_rt + Gamma1 / A_2))
+		       * (1.0_rt / std::sqrt(Gamma1 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma1 / A_2)))
+      + A_3 / std::sqrt(Gamma1) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma1));
+
+    f1dT *= Gamma1dT;
+
+    f2dT = A_1 * ((A_2 + 2.0_rt * Gamma2) / (2.0_rt * std::sqrt(Gamma2 * (A_2 + Gamma2)))
+		       - 0.5_rt / (std::sqrt(Gamma2 / A_2) + std::sqrt(1.0_rt + Gamma2 / A_2))
+		       * (1.0_rt / std::sqrt(Gamma2 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma2 / A_2)))
+      + A_3 / std::sqrt(Gamma2) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma2));
+
+    f2dT *= Gamma2dT;
+
+    f12dT = A_1 * ((A_2 + 2.0_rt * Gamma12) / (2.0_rt * std::sqrt(Gamma12 * (A_2 + Gamma12)))
+		       - 0.5_rt / (std::sqrt(Gamma12 / A_2) + std::sqrt(1.0_rt + Gamma12 / A_2))
+		       * (1.0_rt / std::sqrt(Gamma12 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma12 / A_2)))
+      + A_3 / std::sqrt(Gamma12) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma12));
+
+    f12dT *= Gamma12dT;
+  }
 
   // See Calder2007 Appendix Eq. A9, This is the classical screening term.
   // It is also the original Chabrier & Potekhin 1998 screening enhancement.
   Real h12 = f1 + f2 - f12;
-
+  
+  [[maybe_unused]] Real dh12dT;
+  
+  if constexpr (do_T_derivatives) {
+    dh12dT = f1dT + f2dT - f12dT;
+  }
+  
   // Now we add quantum correction terms discussed in Alastuey 1978.
   // Notice in Alastuey 1978, they have a differnt classical term,
   // which is implemented in the strong screening limit of our screen5 routine.
   
   Real h12_max = 300.0_rt;
   h12 = amrex::min(h12_max, h12);
-
+  
   scor = std::exp(h12);
+
+  if constexpr (do_T_derivatives) {
+    if (h12 == h12_max) {
+      scordt = 0.0_rt;
+    } else {
+      scordt = scor * dh12dT;
+    }
+  }
+  
+  
 }
 
 
