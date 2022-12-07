@@ -24,7 +24,7 @@ const std::string screen_name = "chugunov2009";
 #elif SCREEN_METHOD == 3
 const std::string screen_name = "null";
 #elif SCREEN_METHOD == 4
-const std::string screen_name = "potekhin1998";
+const std::string screen_name = "chabrier1998";
 #endif
 
 struct plasma_state_t {
@@ -797,33 +797,33 @@ void chabrier1998 (const plasma_state_t& state,
     
   // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
-  Real f1 = A_1 * (std::sqrt(Gamma_1 * (A_1 + Gamma_1)) -
+  Real f1 = A_1 * (std::sqrt(Gamma_1 * (A_2 + Gamma_1)) -
 		   A_2 * std::log(std::sqrt(Gamma_1/A_2) + std::sqrt(1.0_rt + Gamma_1/A_2)))
     + 2.0_rt * A_3 * (std::sqrt(Gamma_1) - std::atan(std::sqrt(Gamma_1)));
 
-  if constexpr (do_T_derivatives) {
+  // if constexpr (do_T_derivatives) {
     
-  }
+  // }
   
-  Real f2 = A_1 * (std::sqrt(Gamma_2 * (A_1 + Gamma_2)) -
+  Real f2 = A_1 * (std::sqrt(Gamma_2 * (A_2 + Gamma_2)) -
 		   A_2 * std::log(std::sqrt(Gamma_2/A_2) + std::sqrt(1.0_rt + Gamma_2/A_2)))
     + 2.0_rt * A_3 * (std::sqrt(Gamma_2) - std::atan(std::sqrt(Gamma_2)));
 
-  if constexpr (do_T_derivatives) {
+  // if constexpr (do_T_derivatives) {
     
-  }
+  // }
   
-  Real f12 = A_1 * (std::sqrt(Gamma_12 * (A_1 + Gamma_12)) -
+  Real f12 = A_1 * (std::sqrt(Gamma_12 * (A_2 + Gamma_12)) -
 		   A_2 * std::log(std::sqrt(Gamma_12/A_2) + std::sqrt(1.0_rt + Gamma_12/A_2)))
     + 2.0_rt * A_3 * (std::sqrt(Gamma_12) - std::atan(std::sqrt(Gamma_12)));
 
-  if constexpr (do_T_derivatives) {
+  // if constexpr (do_T_derivatives) {
     
-  }
+  // }
 
   // See Calder2007 Appendix Eq. A9, This is the classical screening term.
   // It is also the original Chabrier & Potekhin 1998 screening enhancement.
-  Real C = f1 + f2 - f12;
+  Real h12 = f1 + f2 - f12;
 
   // Now we add quantum correction terms discussed in Alastuey 1978.
   // Notice in Alastuey 1978, they have a differnt classical term,
@@ -832,9 +832,7 @@ void chabrier1998 (const plasma_state_t& state,
   Real h12_max = 300.0_rt;
   h12 = amrex::min(h12_max, h12);
 
-  Real scor = std::exp(h12);
-  return scor;
-  
+  scor = std::exp(h12);
 }
 
 
@@ -856,6 +854,8 @@ void actual_screen(const plasma_state_t& state,
     // null screening
     scor = 1.0_rt;
     scordt = 0.0_rt;
+#elif SCREEN_METHOD ==4
+    chabrier1998<do_T_derivatives>(state, scn_fac, scor, scordt);
 #endif
 }
 
