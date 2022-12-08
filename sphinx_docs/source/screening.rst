@@ -43,3 +43,7 @@ The options are:
 
   This disables screening by always returning 1 for the screening
   enhancement factor.
+
+* ``chabrier1998``:
+
+  This implements the screening of :cite:`Chabrier_1998` as well as the quantum corrections for strong screening according to screen5. This is suggested in the appendix of :cite:`Calder_2007`. This screening is compatible with NSE calculations unlike ``screen5``, ``chugunov2007``, and ``chugunov2009``. This screening should be valid in the weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime, :math:`1 \lesssim \Gamma \lesssim 160`.
