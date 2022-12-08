@@ -37,7 +37,7 @@ endif
 EXTERN_SEARCH += .
 
 Bpack   := ./Make.package
-Blocs   := .
+Blocs   := . ..
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 
