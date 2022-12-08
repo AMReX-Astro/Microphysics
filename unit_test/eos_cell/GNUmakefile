@@ -34,10 +34,10 @@ ifeq ($(USE_CUDA), TRUE)
   INTEGRATOR_DIR := VODE
 endif
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
-Blocs   := . ..
+Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
 
