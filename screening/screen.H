@@ -865,32 +865,32 @@ void chabrier1998 (const plasma_state_t& state,
 
   // see Calder 2007 Eq. A8
   
-  Real b = Gamma_eff / tau12;
+  Real b_fac = Gamma_eff / tau12;
   
-  [[maybe_unused]] Real b_dT;
+  [[maybe_unused]] Real b_fac_dT;
   if constexpr (do_T_derivatives) {
-    b_dT = (Gamma_eff_dT - b*tau12dT) / tau12;
+    b_fac_dT = (Gamma_eff_dT - b_fac * tau12dT) / tau12;
   }
 
   // Quantum correction terms (same as screen5)
   //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
   
-  Real quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * std::pow(b, 3) - 0.014_rt * std::pow(b, 4)
-				  - 0.128_rt * std::pow(b, 5));
+  Real quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * std::pow(b_fac, 3) - 0.014_rt * std::pow(b_fac, 4)
+				  - 0.128_rt * std::pow(b_fac, 5));
   
-  Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * std::pow(b, 4) - 0.0098_rt * std::pow(b, 5)
-				      - 0.048_rt * std::pow(b, 6));
+  Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * std::pow(b_fac, 4) - 0.0098_rt * std::pow(b_fac, 5)
+				      - 0.048_rt * std::pow(b_fac, 6));
 
   [[maybe_unused]] Real quantum_corr_1_dT;
   [[maybe_unused]] Real quantum_corr_2_dT;
   if constexpr (do_T_derivatives) {
-    quantum_corr_1_dT = -tau12dT * quantum_corr_1 - tau12 * b_dT
-      * (15.0_rt/32.0_rt * std::pow(b, 2) - 0.014_rt * 4.0_rt * std::pow(b, 3)
-	 - 0.128_rt * 5.0_rt * std::pow(b, 4));
+    quantum_corr_1_dT = -tau12dT * quantum_corr_1 - tau12 * b_fac_dT
+      * (15.0_rt/32.0_rt * std::pow(b_fac, 2) - 0.014_rt * 4.0_rt * std::pow(b_fac, 3)
+	 - 0.128_rt * 5.0_rt * std::pow(b_fac, 4));
 
-    quantum_corr_2_dT = -Gamma_eff_dT * quantum_corr_2 - Gamma_eff * b_dT
-      * (0.0055_rt * 4.0_rt * std::pow(b, 3) - 0.0098_rt * 5.0_rt
-	 * std::pow(b, 4) + 0.0048_rt * 6.0_rt * std::pow(b, 5));
+    quantum_corr_2_dT = -Gamma_eff_dT * quantum_corr_2 - Gamma_eff * b_fac_dT
+      * (0.0055_rt * 4.0_rt * std::pow(b_fac, 3) - 0.0098_rt * 5.0_rt
+	 * std::pow(b_fac, 4) + 0.0048_rt * 6.0_rt * std::pow(b_fac, 5));
   }
   
   // See Calder2007 Appendix Eq. A8.
@@ -920,9 +920,6 @@ void chabrier1998 (const plasma_state_t& state,
   }
     
 }
-
-
-
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
