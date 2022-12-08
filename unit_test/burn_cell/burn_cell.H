@@ -66,6 +66,12 @@ void burn_cell_c()
         normalize_abundances_burn(burn_state);
     }
 
+    // call the EOS to set initial e -- it actually doesn't matter to
+    // the burn but we need to keep track of e to get a valid
+    // temperature for the burn if we substep
+
+    eos(eos_input_rt, burn_state);
+
     // output just the instantaneous RHS
 
     Array1D<Real, 1, neqs> ydot;
@@ -79,12 +85,6 @@ void burn_cell_c()
 
     // output initial burn type data
     Real time = 0.0_rt;
-
-    // call the EOS to set initial e -- it actually doesn't matter to
-    // the burn but we need to keep track of e to get a valid
-    // temperature for the burn if we substep
-
-    eos(eos_input_rt, burn_state);
 
     std::ofstream state_over_time("state_over_time.txt");
 
