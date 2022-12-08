@@ -60,6 +60,10 @@ void burn_cell_c()
     }
 #endif
 
+    burn_state.i = 0;
+    burn_state.j = 0;
+    burn_state.k = 0;
+
     // normalize -- just in case
 
     if (! skip_initial_normalization) {

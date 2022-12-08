@@ -273,6 +273,10 @@ void burn_cell_c()
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
+    burn_state.i = 0;
+    burn_state.j = 0;
+    burn_state.k = 0;
+
     for (int n = 0; n < NumSpec; ++n) {
         burn_state.xn[n] = massfractions[n];
     }
