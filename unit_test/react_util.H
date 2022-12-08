@@ -166,9 +166,9 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 Real get_xn(const int index) {
 
-    Real massfraction{};
+    Real mass_fraction{};
 
-    switch (n) {
+    switch (index) {
 
     case 1:
         mass_fraction = X1;
