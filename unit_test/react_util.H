@@ -157,5 +157,130 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
     }
 
 }
+
+///
+/// return the value of the runtime parameter XN, where N is
+/// the integer index passed in
+///
+
+AMREX_INLINE AMREX_GPU_HOST_DEVICE
+Real get_xn(const int index) {
+
+    Real massfraction{};
+
+    switch (n) {
+
+    case 1:
+        mass_fraction = X1;
+        break;
+    case 2:
+        mass_fraction = X2;
+        break;
+    case 3:
+        mass_fraction = X3;
+        break;
+    case 4:
+        mass_fraction = X4;
+        break;
+    case 5:
+        mass_fraction = X5;
+        break;
+    case 6:
+        mass_fraction = X6;
+        break;
+    case 7:
+        mass_fraction = X7;
+        break;
+    case 8:
+        mass_fraction = X8;
+        break;
+    case 9:
+        mass_fraction = X9;
+        break;
+    case 10:
+        mass_fraction = X10;
+        break;
+    case 11:
+        mass_fraction = X11;
+        break;
+    case 12:
+        mass_fraction = X12;
+        break;
+    case 13:
+        mass_fraction = X13;
+        break;
+    case 14:
+        mass_fraction = X14;
+        break;
+    case 15:
+        mass_fraction = X15;
+        break;
+    case 16:
+        mass_fraction = X16;
+        break;
+    case 17:
+        mass_fraction = X17;
+        break;
+    case 18:
+        mass_fraction = X18;
+        break;
+    case 19:
+        mass_fraction = X19;
+        break;
+    case 20:
+        mass_fraction = X20;
+        break;
+    case 21:
+        mass_fraction = X21;
+        break;
+    case 22:
+        mass_fraction = X22;
+        break;
+    case 23:
+        mass_fraction = X23;
+        break;
+    case 24:
+        mass_fraction = X24;
+        break;
+    case 25:
+        mass_fraction = X25;
+        break;
+    case 26:
+        mass_fraction = X26;
+        break;
+    case 27:
+        mass_fraction = X27;
+        break;
+    case 28:
+        mass_fraction = X28;
+        break;
+    case 29:
+        mass_fraction = X29;
+        break;
+    case 30:
+        mass_fraction = X30;
+        break;
+    case 31:
+        mass_fraction = X31;
+        break;
+    case 32:
+        mass_fraction = X32;
+        break;
+    case 33:
+        mass_fraction = X33;
+        break;
+    case 34:
+        mass_fraction = X34;
+        break;
+    case 35:
+        mass_fraction = X35;
+        break;
+
+    }
+
+    return mass_fraction;
+
+}
+
 #endif
 
