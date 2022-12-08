@@ -99,7 +99,7 @@ jobs:
       - name: Run burn_cell (NSE, aprox19)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_aprox19 > test.out
+          ./main3d.gnu.ex inputs_aprox19.nse > test.out
 
       - name: Compare to stored output (NSE, aprox19)
         run: |
