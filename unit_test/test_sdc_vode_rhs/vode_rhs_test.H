@@ -10,7 +10,8 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
+#include <react_util.H>
 
 void do_vode_rhs()
 {
@@ -293,7 +294,7 @@ void do_vode_rhs()
     vode_state.NFE = 0;
     vode_state.NJE = 0;
 
-    burn_to_vode(burn_state, vode_state);
+    burn_to_int(burn_state, vode_state);
 
     // call the RHS routine
 
@@ -310,7 +311,8 @@ void do_vode_rhs()
     // call the Jacobian
 
     RArray2D pd;
-    jac(burn_state, vode_state, pd);
+    const Real time = 0.0_rt;
+    jac(time, burn_state, vode_state, pd);
 
     for (int row = 1; row <= VODE_NEQS; ++row) {
         for (int col = 1; col <= VODE_NEQS; ++col) {
