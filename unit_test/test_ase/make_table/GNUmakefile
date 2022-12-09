@@ -26,6 +26,7 @@ EOS_DIR     := helmholtz
 NETWORK_DIR := ase
 SCREEN_METHOD := null
 # SCREEN_METHOD := chugunov2007
+# SCREEN_METHOD := chabrier1998
 
 CONDUCTIVITY_DIR := stellar
 
