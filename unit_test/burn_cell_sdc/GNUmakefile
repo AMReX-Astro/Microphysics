@@ -34,7 +34,7 @@ DEFINES += -DSDC_EVOLVE_ENERGY
 
 CONDUCTIVITY_DIR := stellar
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
 Blocs   := .

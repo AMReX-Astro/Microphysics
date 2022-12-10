@@ -32,7 +32,7 @@ CONDUCTIVITY_DIR := stellar
 INTEGRATOR_DIR := VODE
 DEFINES += -DSDC_EVOLVE_ENERGY
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
 Blocs   := .
