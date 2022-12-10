@@ -23,6 +23,8 @@ else ifeq ($(SCREEN_METHOD), chugunov2009)
   DEFINES += -DSCREEN_METHOD=2
 else ifeq ($(SCREEN_METHOD), null)
   DEFINES += -DSCREEN_METHOD=3
+else ifeq ($(SCREEN_METHOD), chabrier1998)
+  DEFINES += -DSCREEN_METHOD=4
 endif
 
 ifeq ($(EOS_DIR), gamma_law_general)
