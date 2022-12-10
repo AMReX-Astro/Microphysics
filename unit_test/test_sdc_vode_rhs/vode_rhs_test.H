@@ -279,11 +279,7 @@ void do_vode_rhs()
     // initialize the EOS state using the conserved state that was
     // passed in
 
-    sdc_burn_to_eos(burn_state, eos_state);
-
-    eos(eos_input_rt, eos_state);
-
-    eos_to_burn(eos_state, burn_state);
+    eos(eos_input_rt, burn_state);
 
     // Fill in the initial integration state.
 
