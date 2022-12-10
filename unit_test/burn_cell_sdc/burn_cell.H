@@ -1,3 +1,5 @@
+#ifndef BURN_CELL_H
+#define BURN_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -5,6 +7,7 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
+#include <react_util.H>
 
 void burn_cell_c()
 {
@@ -13,115 +16,8 @@ void burn_cell_c()
 
     // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
-        switch (n) {
 
-        case 1:
-            massfractions[n-1] = X1;
-            break;
-        case 2:
-            massfractions[n-1] = X2;
-            break;
-        case 3:
-            massfractions[n-1] = X3;
-            break;
-        case 4:
-            massfractions[n-1] = X4;
-            break;
-        case 5:
-            massfractions[n-1] = X5;
-            break;
-        case 6:
-            massfractions[n-1] = X6;
-            break;
-        case 7:
-            massfractions[n-1] = X7;
-            break;
-        case 8:
-            massfractions[n-1] = X8;
-            break;
-        case 9:
-            massfractions[n-1] = X9;
-            break;
-        case 10:
-            massfractions[n-1] = X10;
-            break;
-        case 11:
-            massfractions[n-1] = X11;
-            break;
-        case 12:
-            massfractions[n-1] = X12;
-            break;
-        case 13:
-            massfractions[n-1] = X13;
-            break;
-        case 14:
-            massfractions[n-1] = X14;
-            break;
-        case 15:
-            massfractions[n-1] = X15;
-            break;
-        case 16:
-            massfractions[n-1] = X16;
-            break;
-        case 17:
-            massfractions[n-1] = X17;
-            break;
-        case 18:
-            massfractions[n-1] = X18;
-            break;
-        case 19:
-            massfractions[n-1] = X19;
-            break;
-        case 20:
-            massfractions[n-1] = X20;
-            break;
-        case 21:
-            massfractions[n-1] = X21;
-            break;
-        case 22:
-            massfractions[n-1] = X22;
-            break;
-        case 23:
-            massfractions[n-1] = X23;
-            break;
-        case 24:
-            massfractions[n-1] = X24;
-            break;
-        case 25:
-            massfractions[n-1] = X25;
-            break;
-        case 26:
-            massfractions[n-1] = X26;
-            break;
-        case 27:
-            massfractions[n-1] = X27;
-            break;
-        case 28:
-            massfractions[n-1] = X28;
-            break;
-        case 29:
-            massfractions[n-1] = X29;
-            break;
-        case 30:
-            massfractions[n-1] = X30;
-            break;
-        case 31:
-            massfractions[n-1] = X31;
-            break;
-        case 32:
-            massfractions[n-1] = X32;
-            break;
-        case 33:
-            massfractions[n-1] = X33;
-            break;
-        case 34:
-            massfractions[n-1] = X34;
-            break;
-        case 35:
-            massfractions[n-1] = X35;
-            break;
-
-        }
+        massfractions[n-1] = get_xn(n);
 
         if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
             amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
@@ -377,6 +273,10 @@ void burn_cell_c()
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
 
+    burn_state.i = 0;
+    burn_state.j = 0;
+    burn_state.k = 0;
+
     for (int n = 0; n < NumSpec; ++n) {
         burn_state.xn[n] = massfractions[n];
     }
@@ -488,3 +388,5 @@ void burn_cell_c()
     std::cout << "successful? " << burn_state.success << std::endl;
     std::cout << "number of RHS evals: " << burn_state.n_rhs << std::endl;
 }
+
+#endif

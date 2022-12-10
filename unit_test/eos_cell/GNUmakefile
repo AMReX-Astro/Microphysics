@@ -34,7 +34,7 @@ ifeq ($(USE_CUDA), TRUE)
   INTEGRATOR_DIR := VODE
 endif
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
 Blocs   := .

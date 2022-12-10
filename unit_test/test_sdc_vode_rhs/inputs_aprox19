@@ -51,7 +51,7 @@ unit_test.Adv_X17 = -36478261.12
 unit_test.Adv_X18 = 0.004751096435
 unit_test.Adv_X19 = -702.5507917 
 
-integrator.jacobian = 3
+integrator.jacobian = 1
 
 integrator.rtol_spec = 1.0e-5
 integrator.rtol_enuc = 1.0e-5
