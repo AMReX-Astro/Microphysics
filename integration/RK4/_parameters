@@ -1,0 +1,4 @@
+@namespace: integrator
+
+# We setup the main variables here
+maximum_timestep_change_factor      real        1.001
