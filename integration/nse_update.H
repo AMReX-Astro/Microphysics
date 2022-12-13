@@ -103,11 +103,13 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
         // compute the energy release -- we need to remove the advective part
 
-        Real rho_bea_tilde = state.y[SRHO] * dq_out - dt * state.ydot_a[SFX+ibea];
-        Real rho_dBEA = rho_bea_tilde - rho_bea_old;  // this is MeV / nucleon * g / cm**3
+        Real rho_bea_star = rho_bea_old + dt * state.ydot_a[SFX+ibea];
+        Real bea_star = rho_bea_star / state.y[SRHO];
+
+        Real dbea = dq_out - bea_star;
 
         // convert the energy to erg / cm**3
-        rho_enucdot  = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+        rho_enucdot  = rho_half * dbea * C::MeV2eV * C::ev2erg * C::n_A / dt;
 
         // update the new state for the next pass
 
