@@ -347,6 +347,7 @@ void burn_cell_c()
     Real t = 0.0;
 
     state_over_time << std::setw(10) << t;
+    state_over_time << std::setw(12) << burn_state.rho; 
     state_over_time << std::setw(12) << burn_state.T; 
     for (int x = 0; x < NumSpec; ++x){
         state_over_time << std::setw(12) << burn_state.xn[x]; 
@@ -381,8 +382,8 @@ void burn_cell_c()
         t += dt;
 
 	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << burn_state.T;
 	state_over_time << std::setw(12) << burn_state.rho;
+	state_over_time << std::setw(12) << burn_state.T;
 	for (int x = 0; x < NumSpec; ++x){
 	     state_over_time << std::setw(12) << burn_state.y[SFS+x] / burn_state.rho; 
 	}
