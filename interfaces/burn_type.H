@@ -209,19 +209,37 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
 #endif
   o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
+
   o << "y[SFS:] = ";
   for (int n = 0; n < NumSpec; n++) {
       o << burn_state.y[SFS+n] << " ";
   }
   o << std::endl;
 
+#if NAUX_NET > 0
+  o << "y[SFX:] = ";
+  for (int n = 0; n < NumAux; n++) {
+      o << burn_state.y[SFX+n] << " ";
+  }
+  o << std::endl;
+#endif
+
   o << "ydot_a[SRHO] = " << burn_state.ydot_a[SRHO] << std::endl;
   o << "ydot_a[SEINT] = " << burn_state.ydot_a[SEINT] << std::endl;
+
   o << "ydot_a[SFS:] = ";
   for (int n = 0; n < NumSpec; n++) {
       o << burn_state.ydot_a[SFS+n] << " ";
   }
   o << std::endl;
+
+#if NAUX_NET > 0
+  o << "ydot_a[SFX:] = ";
+  for (int n = 0; n < NumAux; n++) {
+      o << burn_state.ydot_a[SFX+n] << " ";
+  }
+  o << std::endl;
+#endif
 #endif
   return o;
 }
