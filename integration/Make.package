@@ -25,6 +25,10 @@ else
   endif
 endif
 
+ifeq ($(USE_NSE), TRUE)
+  CEXE_headers += nse.H
+endif
+
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils
 VPATH_LOCATIONS   += $(MICROPHYSICS_HOME)/integration/utils
 EXTERN_CORE       += $(MICROPHYSICS_HOME)/integration/utils
