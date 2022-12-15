@@ -62,7 +62,7 @@ void burn_cell_c()
 		  state.xn[i] = nse_state.xn[i];
 		}
 		
-		bool in_nse_state = in_nse(state, nse_state);
+		bool in_nse_state = in_nse(state);
 		
 		std::cout << std::scientific;
                 std::cout << std::setw(20) << state.rho << " "
