@@ -12,6 +12,7 @@
 #include <eos_composition.H>
 #include <nse_index.H>
 
+
 // Currently doesn't support aprox networks, only networks produced by pynucastro
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
@@ -19,7 +20,7 @@
 // First check to see if we're in the ballpark of nse state
 
 template<typename T>
-void first_check_in_nse(T& state, T& nse_state, bool& nse_check){
+void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
 
   // This function gives the first estimate whether we're in the nse or not
   // it checks whether the molar fractions of n,p,a are approximately in NSE
@@ -961,11 +962,13 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 
 
 template <typename T>
-bool in_nse(T& state, T& nse_state){
+bool in_nse(T& state){
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
 
+  // Get the nse state which is used to compare nse molar fractions.
+  const auto nse_state = get_nse_state(state);
 
   // Check whether state is in the ballpark of NSE
 
@@ -1033,7 +1036,6 @@ bool in_nse(T& state, T& nse_state){
 
   ydot(NumSpec + 1) = enuc - sneut;
 
-
   // Now we look through the network and see if there are fast reaction cycles
   // Need to separate forward and reverse rate and detemine each step is fast enough.
   // use vectors for now
@@ -1084,5 +1086,6 @@ bool in_nse(T& state, T& nse_state){
 
 }
 #endif
+
 
 #endif
