@@ -7,7 +7,7 @@
 #include <ArrayUtilities.H>
 
 #ifdef NSE_TABLE
-#include <nse.H>
+#include <nse_update.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

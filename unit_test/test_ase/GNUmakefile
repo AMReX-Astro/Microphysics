@@ -34,9 +34,9 @@ NETWORK_DIR := ase
 
 CONDUCTIVITY_DIR := stellar
 
-# Lets have null screen method, and turn off u_c when calculating NSE
+SCREEN_METHOD := chabrier1998
 
-SCREEN_METHOD := null
+#SCREEN_METHOD := null
 #SCREEN_METHOD := chugunov2007
 
 INTEGRATOR_DIR =  VODE

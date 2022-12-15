@@ -1,0 +1,41 @@
+@namespace: unit_test
+
+primary_species_1  character   ""
+primary_species_2  character   ""
+primary_species_3  character   ""
+
+X1            real       1.0d0
+X2            real       0.0d0
+X3            real       0.0d0
+X4            real       0.0d0
+X5            real       0.0d0
+X6            real       0.0d0
+X7            real       0.0d0
+X8            real       0.0d0
+X9            real       0.0d0
+X10           real       0.0d0
+X11           real       0.0d0
+X12           real       0.0d0
+X13           real       0.0d0
+X14           real       0.0d0
+X15           real       0.0d0
+X16           real       0.0d0
+X17           real       0.0d0
+X18           real       0.0d0
+X19           real       0.0d0
+X20           real       0.0d0
+X21           real       0.0d0
+X22           real       0.0d0
+X23           real       0.0d0
+X24           real       0.0d0
+X25           real       0.0d0
+X26           real       0.0d0
+X27           real       0.0d0
+X28           real       0.0d0
+X29           real       0.0d0
+X30           real       0.0d0
+X31           real       0.0d0
+X32           real       0.0d0
+X33           real       0.0d0
+X34           real       0.0d0
+X35           real       0.0d0
