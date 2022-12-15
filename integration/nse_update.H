@@ -42,8 +42,19 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     Real X[NumSpec];
 
     Real ye_in = state.y[SFX+iye] / state.rho;
+
+#if defined (NSE_TABLE)
+    // get the current NSE state from the table
+
     nse_interp(state.T, state.rho, ye_in,
                abar_out, dq_out, dyedt, X);
+
+#elif defined (NSE_NET)
+    // solve for the NSE state directly
+
+    // compute abar, dq_out (B/A), and dyedt
+
+#endif
 
     Real dyedt_old = dyedt;
 
@@ -92,10 +103,21 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
         eos(eos_input_re, eos_state);
 
-        // call the NSE table using the * state to get the t^{n+1} source estimates
+#if defined(NSE_TABLE)
+        // call the NSE table using the * state to get the t^{n+1}
+        // source estimates
 
         nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
                    abar_out, dq_out, dyedt, X);
+
+#elif defined(NSE_NET)
+        // solve for the NSE state for this network we need to call
+        // get_nse_state with a burn_t, so we need to ensure that the
+        // xn are in sync
+
+        // compute abar, dq_out, and dyedt
+
+#endif
 
         // compute the energy release
 
@@ -151,10 +173,20 @@ void nse_burn(burn_t& state, const Real dt) {
   Real dyedt;
   Real X[NumSpec];
 
-  // use the NSE table to get an estimate of dYe/dt
+#if defined(NSE_TABLE)
+
+  // call the NSE table using the * state to get the t^{n+1}
+  // source estimates
 
   nse_interp(state.T, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
+
+#elif defined(NSE_NET)
+
+  // solve for the NSE state
+
+  // get the dyedt
+#endif
 
   // update Ye
 

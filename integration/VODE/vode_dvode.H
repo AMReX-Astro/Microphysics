@@ -16,6 +16,9 @@
 #ifdef NSE_TABLE
 #include <nse_table_check.H>
 #endif
+#ifdef NSE_NET
+#include <nse_check.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int dvode (burn_t& state, dvode_t& vstate)
