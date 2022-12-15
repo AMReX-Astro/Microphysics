@@ -112,8 +112,18 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     // now update the aux quantities
 
     // the new mass fractions are just those that come from the table
+    // make sure they are normalized
+    Real sum_X{0.0_rt};
+    for (int n = 0; n < NumSpec; ++n) {
+        X[n] = amrex::max(small_x, amrex::min(1.0_rt, X[n]));
+        sum_X += X[n];
+    }
 
-    for (int n = 0; n < NumSpec; n++) {
+    for (int n = 0; n < NumSpec; ++n) {
+        X[n] /= sum_X;
+    }
+
+    for (int n = 0; n < NumSpec; ++n) {
         state.y[SFS+n] = state.y[SRHO] * X[n];
     }
 

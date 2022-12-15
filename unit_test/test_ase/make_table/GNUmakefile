@@ -24,9 +24,11 @@ EOS_DIR     := helmholtz
 
 # This sets the network directory in Castro/Networks
 NETWORK_DIR := ase
-SCREEN_METHOD := null
+
+# SCREEN_METHOD := null
 # SCREEN_METHOD := chugunov2007
-# SCREEN_METHOD := chabrier1998
+
+SCREEN_METHOD := chabrier1998
 
 CONDUCTIVITY_DIR := stellar
 
