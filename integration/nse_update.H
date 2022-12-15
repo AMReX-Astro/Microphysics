@@ -16,6 +16,10 @@
 #include <burn_type.H>
 #include <eos.H>
 
+#ifdef NSE_TABLE
+#include <nse_table.H>
+#endif
+
 using namespace amrex;
 
 #ifdef SIMPLIFIED_SDC

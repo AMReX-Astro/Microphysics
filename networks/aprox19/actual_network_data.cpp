@@ -1,7 +1,7 @@
 #include <AMReX_Vector.H>
 #include <actual_network.H>
 #ifdef NSE_TABLE
-#include <nse.H>
+#include <nse_table.H>
 #endif
 
 namespace network

@@ -13,8 +13,8 @@
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
 #endif
-#ifdef NSE
-#include <nse.H>
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
