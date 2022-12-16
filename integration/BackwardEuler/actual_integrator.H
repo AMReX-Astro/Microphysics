@@ -5,21 +5,33 @@
 #include <be_integrator.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, const Real dt)
+void actual_integrator (burn_t& state, const Real dt, bool is_retry=false)
 {
 
     be_t be;
 
     // Set the tolerances.
 
-    be.atol_spec = atol_spec;  // mass fractions
-    be.atol_enuc = atol_enuc;  // energy generated
+    if (!is_retry) {
+        be.atol_spec = atol_spec;  // mass fractions
+        be.atol_enuc = atol_enuc;  // energy generated
 
-    be.rtol_spec = rtol_spec;  // mass fractions
-    be.rtol_enuc = rtol_enuc;  // energy generated
+        be.rtol_spec = rtol_spec;  // mass fractions
+        be.rtol_enuc = rtol_enuc;  // energy generated
+    } else {
+        be.atol_spec = retry_atol_spec; // mass fractions
+        be.atol_enuc = retry_atol_enuc; // energy generated
+
+        be.rtol_spec = retry_rtol_spec; // mass fractions
+        be.rtol_enuc = retry_rtol_enuc; // energy generated
+    }
 
     // set the Jacobian type
-    be.jacobian_type = jacobian;
+    if (!(is_retry && retry_swap_jacobian)) {
+        be.jacobian_type = jacobian;
+    } else {
+        be.jacobian_type = (jacobian == 1) ? 2 : 1;
+    }
 
     // Start off by assuming a successful burn.
 
@@ -42,7 +54,7 @@ void actual_integrator (burn_t& state, const Real dt)
 
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
-#ifdef AMREX_USE_GPU
+#ifndef AMREX_USE_GPU
     Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
@@ -81,7 +93,7 @@ void actual_integrator (burn_t& state, const Real dt)
         state.success = false;
     }
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
@@ -95,7 +107,7 @@ void actual_integrator (burn_t& state, const Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
         std::cout << "istate = " << istate << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;

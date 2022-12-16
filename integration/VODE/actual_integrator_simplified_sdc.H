@@ -20,9 +20,6 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
 
     dvode_t vode_state;
 
-    // set the Jacobian type
-    vode_state.jacobian_type = jacobian;
-
     // Start off by assuming a successful burn.
 
     state.success = true;

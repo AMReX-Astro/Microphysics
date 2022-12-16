@@ -8,13 +8,10 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, const Real dt)
+void actual_integrator (burn_t& state, const Real dt, bool is_retry=false)
 {
 
     be_t be;
-
-    // set the Jacobian type
-    be.jacobian_type = jacobian;
 
     // Start off by assuming a successful burn.
 
@@ -24,6 +21,13 @@ void actual_integrator (burn_t& state, const Real dt)
 
     be.t = 0.0;
     be.tout = dt;
+
+    // set the Jacobian type
+    if (!(is_retry && retry_swap_jacobian)) {
+        be.jacobian_type = jacobian;
+    } else {
+        be.jacobian_type = (jacobian == 1) ? 2 : 1;
+    }
 
     // Fill in the initial integration state.
 
@@ -57,15 +61,31 @@ void actual_integrator (burn_t& state, const Real dt)
 
     Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
 
-    be.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
-    be.rtol_enuc = rtol_enuc * sdc_tol_fac;
+    if (!is_retry) {
 
-    // Note: we define the input atol for species to refer only to the
-    // mass fraction part, and we multiply by a representative density
-    // so that atol becomes an absolutely tolerance on (rho X)
+        be.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
+        be.rtol_enuc = rtol_enuc * sdc_tol_fac;
 
-    be.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
-    be.rtol_spec = rtol_spec * sdc_tol_fac;
+        // Note: we define the input atol for species to refer only to the
+        // mass fraction part, and we multiply by a representative density
+        // so that atol becomes an absolutely tolerance on (rho X)
+
+        be.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
+        be.rtol_spec = rtol_spec * sdc_tol_fac;
+
+    } else {
+
+        be.atol_enuc = sdc_min_density * retry_atol_enuc * sdc_tol_fac;
+        be.rtol_enuc = retry_rtol_enuc * sdc_tol_fac;
+
+        // Note: we define the input atol for species to refer only to the
+        // mass fraction part, and we multiply by a representative density
+        // so that atol becomes an absolutely tolerance on (rho X)
+
+        be.atol_spec = sdc_min_density * retry_atol_spec * sdc_tol_fac;
+        be.rtol_spec = retry_rtol_spec * sdc_tol_fac;
+
+    }
 
     // Call the integration routine.
 
