@@ -11,7 +11,7 @@
 #include <actual_network.H>
 #include <eos_composition.H>
 #include <nse_index.H>
-
+#include <nse_solver.H>
 
 // Currently doesn't support aprox networks, only networks produced by pynucastro
 
