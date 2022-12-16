@@ -136,7 +136,7 @@
 <p>The Simplified-SDC method provides a means to more strongly couple the
 reactions to the hydrodynamics by evolving the reactions together with
 an approximation of the advection over the timestep.  The full details
-of the algorithm are presented in <span id="id1">[<a class="reference internal" href="zreferences.html#id39" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span>.</p>
+of the algorithm are presented in <span id="id1">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span>.</p>
 <p>We want to solve the coupled equations:</p>
 <div class="math notranslate nohighlight">
 \[\Uc_t = \Advs{\Uc} + \Rb(\Uc)\]</div>
@@ -242,7 +242,7 @@ This converts the <code class="docutils literal notranslate"><span class="pre">y
 <h3>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this heading">¶</a></h3>
 <p>The Jacobian of this system is <span class="math notranslate nohighlight">\({\bf J} = \partial \Rb /
 \partial \Uc\)</span>, since <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is held constant during the
-integration.  We follow the approach of <span id="id2">[<a class="reference internal" href="zreferences.html#id39" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span> and factor
+integration.  We follow the approach of <span id="id2">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span> and factor
 the Jacobian as:</p>
 <div class="math notranslate nohighlight">
 \[{\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
