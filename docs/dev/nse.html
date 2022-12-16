@@ -299,10 +299,9 @@ reaction network, once the integration has reached NSE.</p>
 <p>We have implemented a dynamic NSE check for the self-consistent nse procedure
 that tells us whether the network has reached the NSE state. The overall procedure
 is outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id40" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>. The overall usage comes down to a single function
-<code class="docutils literal notranslate"><span class="pre">in_nse(state,</span> <span class="pre">NSE_state)</span></code>. By supplying the current state and the NSE state,
-this function returns a boolean that tells us whether we’re in NSE or not.
-The current status of this functionality only works for pynucastro-generated
-network since aprox networks have slightly different syntax.</p>
+<code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>. By supplying the current state, this function returns a boolean that
+tells us whether we’re in NSE or not. The current status of this functionality only
+works for pynucastro-generated network since aprox networks have slightly different syntax.</p>
 <p>There are 3 main criteria discussed in the <span id="id6">[<a class="reference internal" href="zreferences.html#id40" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>.</p>
 <ul>
 <li><p>Have a rough check to determine whether the current state is close to NSE. They use a

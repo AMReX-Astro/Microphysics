@@ -206,10 +206,9 @@ Dynamic NSE Check
 We have implemented a dynamic NSE check for the self-consistent nse procedure
 that tells us whether the network has reached the NSE state. The overall procedure
 is outlined in :cite:`Kushnir_2020`. The overall usage comes down to a single function
-``in_nse(state, NSE_state)``. By supplying the current state and the NSE state,
-this function returns a boolean that tells us whether we're in NSE or not.
-The current status of this functionality only works for pynucastro-generated
-network since aprox networks have slightly different syntax.
+``in_nse(state)``. By supplying the current state, this function returns a boolean that
+tells us whether we're in NSE or not. The current status of this functionality only
+works for pynucastro-generated network since aprox networks have slightly different syntax.
 
 There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
