@@ -11,7 +11,8 @@ ifeq ($(USE_REACT),TRUE)
   USE_NEUTRINOS   = TRUE
 
   ifeq ($(USE_NSE),TRUE)
-    CEXE_headers += nse.H
+    CEXE_headers += nse_table.H
+    CEXE_headers += nse_table_check.H
   endif
 
 endif
