@@ -968,7 +968,7 @@ bool in_nse(T& state){
   // Note that it only works with pynucastro network for now.
 
   // Get the nse state which is used to compare nse molar fractions.
-  const auto nse_state = get_nse_state(state);
+  const auto nse_state = get_actual_nse_state(state);
 
   // Check whether state is in the ballpark of NSE
 
