@@ -194,6 +194,8 @@ void burn_cell_c()
     std::cout << "Maximum Time (s): " << tmax << std::endl;
     std::cout << "State Density (g/cm^3): " << density << std::endl;
     std::cout << "State Temperature (K): " << temperature << std::endl;
+    std::cout << "State rhoe (erg/cm^3): " << rhoe << std::endl;
+
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;
     }
@@ -207,14 +209,24 @@ void burn_cell_c()
     eos_t eos_state;
     eos_state.rho = density;
     eos_state.T = temperature;
+
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = massfractions[n];
     }
 #ifdef AUX_THERMO
-    set_aux_comp_from_X(eos_state);
+    if (recompute_aux) {
+        set_aux_comp_from_X(eos_state);
+    } else {
+        for (int n = 0; n < NumAux; ++n) {
+            eos_state.aux[n] = auxdata[n];
+        }
+    }
 #endif
 
-    eos(eos_input_rt, eos_state);
+    if (rhoe < 0) {
+        eos(eos_input_rt, eos_state);
+        rhoe = density * eos_state.e;
+    }
 
     burn_state.rho = eos_state.rho;
     burn_state.T = eos_state.T;
@@ -236,7 +248,7 @@ void burn_cell_c()
     burn_state.y[SMY] = 0.0;
     burn_state.y[SMZ] = 0.0;
 
-    burn_state.y[SEINT] = burn_state.y[SRHO] * eos_state.e;
+    burn_state.y[SEINT] = rhoe;
     burn_state.y[SEDEN] = burn_state.y[SEINT];
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
@@ -278,14 +290,16 @@ void burn_cell_c()
     burn_state.k = 0;
 
     for (int n = 0; n < NumSpec; ++n) {
-        burn_state.xn[n] = massfractions[n];
+        burn_state.xn[n] = eos_state.xn[n];
     }
 
 #ifdef AUX_THERMO
-    set_aux_comp_from_X(burn_state);
+    for (int n = 0; n < NumAux; ++n) {
+        burn_state.aux[n] = eos_state.aux[n];
+    }
 #endif
 
-    burn_state.e = eos_state.e;
+    burn_state.e = rhoe / burn_state.rho;
 
 
     burn_state.T_fixed = -1.0;
@@ -300,10 +314,16 @@ void burn_cell_c()
     // we will divide the total integration time into nsteps that are
     // logarithmically spaced
 
-    Real dlogt = 0.0_rt;
-
     if (tfirst == 0.0_rt) {
-        dlogt = std::log10(tmax) / nsteps;
+        if (nsteps == 1) {
+            tfirst = tmax;
+        } else {
+            tfirst = tmax / nsteps;
+        }
+    }
+    Real dlogt = 0.0_rt;
+    if (nsteps == 1) {
+        dlogt = (std::log10(tmax) - std::log10(tfirst));
     } else {
         dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
     }
@@ -327,6 +347,7 @@ void burn_cell_c()
     Real t = 0.0;
 
     state_over_time << std::setw(10) << t;
+    state_over_time << std::setw(12) << burn_state.rho; 
     state_over_time << std::setw(12) << burn_state.T; 
     for (int x = 0; x < NumSpec; ++x){
         state_over_time << std::setw(12) << burn_state.xn[x]; 
@@ -341,43 +362,28 @@ void burn_cell_c()
 
     // loop over steps, burn, and output the current state
 
+    int nstep_int = 0;
+
     std::cout << burn_state << std::endl;
 
     for (int n = 0; n < nsteps; n++){
 
         // compute the time we wish to integrate to
 
-        Real tend;
-        if (tfirst == 0.0_rt) {
-            tend = std::pow(10.0_rt, dlogt * (n + 1));
-        } else {
-            tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
-        }
-
+        Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
         Real dt = tend - t;
 
         std::cout << "burning for dt = " << dt << std::endl;
 
     	burner(burn_state, dt);
 
-        // burn_state.e represents the change in energy over the burn (for
-        // just this sybcycle), so turn it back into a physical energy
-
-        burn_state.e += energy_initial;
-
-        // reset the initial energy for the next subcycle
-
-        energy_initial = burn_state.e;
-
-        // get the updated T
-
-        eos(eos_input_re, burn_state);
+        nstep_int += burn_state.n_step;
 
         t += dt;
 
 	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << burn_state.T;
 	state_over_time << std::setw(12) << burn_state.rho;
+	state_over_time << std::setw(12) << burn_state.T;
 	for (int x = 0; x < NumSpec; ++x){
 	     state_over_time << std::setw(12) << burn_state.y[SFS+x] / burn_state.rho; 
 	}
@@ -386,7 +392,8 @@ void burn_cell_c()
     state_over_time.close();
 
     std::cout << "successful? " << burn_state.success << std::endl;
-    std::cout << "number of RHS evals: " << burn_state.n_rhs << std::endl;
+    std::cout << "number of steps taken: " << nstep_int << std::endl;
+
 }
 
 #endif

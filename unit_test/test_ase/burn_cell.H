@@ -54,7 +54,7 @@ void burn_cell_c()
     // get eos
     //eos(eos_input_rt, state);
     
-    if (in_nse(state, NSE_STATE)){
+    if (in_nse(state)){
       std::cout << "We're in NSE. " << std::endl;
     }
     else{
