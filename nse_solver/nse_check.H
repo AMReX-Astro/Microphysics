@@ -10,6 +10,7 @@
 #include <AMReX_Array.H>
 #include <actual_network.H>
 #include <eos_composition.H>
+#include <microphysics_sort.H>
 #include <nse_index.H>
 #include <nse_solver.H>
 
@@ -20,6 +21,7 @@
 // First check to see if we're in the ballpark of nse state
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
 
   // This function gives the first estimate whether we're in the nse or not
@@ -68,6 +70,7 @@ void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void find_max_nucs(int& max_nucs, const int current_nuc_ind){
 
   // Find max number of nucs possible in a reaction step given a nuclei index.
@@ -133,6 +136,7 @@ void find_max_nucs(int& max_nucs, const int current_nuc_ind){
   }
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indices,
 		     amrex::Array1D<int, 1, 3> products_indices){
 
@@ -186,6 +190,7 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 
 
 template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 			const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
@@ -573,6 +578,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
 // After all preliminary checks are successful, lets do nse grouping.
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int get_root_index(const int nuc_ind,
 		     const amrex::Array1D<int, 1, NumSpec>& group_ind){
 
@@ -598,6 +604,7 @@ int get_root_index(const int nuc_ind,
 
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, NumSpec>& group_ind){
 
   // This function joins the two group of the two nuc indices:nuc_ind_a and nuc_ind_b
@@ -637,6 +644,7 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 
   // This funciton finds the pair rate index given a rate.
@@ -683,6 +691,7 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
 
   // This function checks whether all isotopes are either in the LIG group
@@ -711,8 +720,8 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
 }
 
 
-
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 		     amrex::Real& fastest_t, const int current_rate,
 		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const T& state,
@@ -906,6 +915,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 		  const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 		  const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
@@ -962,6 +972,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 
 
 template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool in_nse(T& state){
 
   // This function returns the boolean that tells whether we're in nse or not
