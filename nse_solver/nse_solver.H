@@ -11,32 +11,11 @@
 #include <AMReX_Array.H>
 #include <actual_network.H>
 #include <eos_composition.H>
+#include <microphysics_sort.H>
 #include <nse_index.H>
 #include <hybrj.H>
 #include <cctype>
 #include <algorithm>
-
-
-template <int l, int m>
-AMREX_INLINE
-void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
-
-  // a simple bubble sort, for sorting Array1D
-  // assumes index start from int l, and end at int m
-
-  int scratch;
-
-  for (int i = l; i <= m; ++i){
-    for (int j = l; j <= m-i; ++j){
-      if (array_1d(j) > array_1d(j+1)){
-	scratch = array_1d(j);
-	array_1d(j) = array_1d(j+1);
-	array_1d(j+1) = scratch;
-      }
-    }
-  }
-}
-
 
 AMREX_INLINE
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
