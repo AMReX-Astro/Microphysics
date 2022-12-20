@@ -18,6 +18,7 @@
 
 
 template <int l, int m>
+AMREX_INLINE
 void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
 
   // a simple bubble sort, for sorting Array1D
@@ -37,6 +38,7 @@ void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
 }
 
 
+AMREX_INLINE
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
 
@@ -152,7 +154,9 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
 }
 
-void init_nse_net(){
+
+AMREX_INLINE
+void init_nse_net() {
   // Initialization for nse, check whether network is valid and stores indices
 
   for (int n = 0; n < NumSpec; ++n){
@@ -232,6 +236,7 @@ void init_nse_net(){
 
 
 template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_nse_state(const T& state)
 {
   // This function finds the nse state given the burn state or eos state
@@ -332,6 +337,7 @@ T get_nse_state(const T& state)
 // constraint equation
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
 
@@ -362,6 +368,7 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 // constraint jacobian
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
 
@@ -392,6 +399,7 @@ void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
 }
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     hybrj_t<2> hj;
@@ -484,6 +492,7 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 // chemical potential of proton and neutron
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
   bool converged = false;                                     // whether nse solver converged or not
@@ -579,7 +588,9 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
 // Get the NSE state;
 template<typename T>
-T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt, bool input_ye_is_valid=false){
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
+                       bool input_ye_is_valid=false){
 
   // Check whether initialized or not
   if (!NSE_INDEX::initialized){
