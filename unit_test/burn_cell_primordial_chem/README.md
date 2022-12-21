@@ -20,5 +20,4 @@
 
 # continuous integration
 
-This is used with GitHub actions to do a test on pull requests.  The
-code is built with the `primordial_chem` network and run with `inputs_primordial_chem`.
+The code is built with the `primordial_chem` network and run with `inputs_primordial_chem`.
