@@ -90,26 +90,99 @@ void evaluate_rhs(burn_t& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener
     ener_rhs = ydot(net_ienuc);
 }
 
+//Computes the state after integrating over a dt lapse.
+void rk4_step(burn_t& state, Real dt){
+
+    Real e_in = state.e;
+    Real x_in[NumSpec];
+
+    for(int n=1; n<=NumSpec; ++n){
+        x_in[n-1] = state.xn[n-1];
+    }
+
+    Array1D<Real, 1, NumSpec> k1_rhs, k2_rhs, k3_rhs, k4_rhs;
+    Real k1_energy_rate, k2_energy_rate, k3_energy_rate, k4_energy_rate;
+
+    //We start our integration by evaluating k1
+    evaluate_rhs(state, k1_rhs, k1_energy_rate);
+
+    for(int n=1; n<=Numspec; ++n){
+        state.xn[n-1] = x_in[n-1] + k1_rhs(n) * dt / 2.0_rt;
+    }
+
+    if(integrate_energy){
+        state.e = e_in + k1_energy_rate * dt / 2.0_rt;
+    }
+
+    evaluate_rhs(state, k2_rhs, k2_energy_rate);
+
+    for(int n=1; n<=Numspec; ++n){
+        state.xn[n-1] = x_in[n-1] + k2_rhs(n) * dt / 2.0_rt;
+    }
+
+    if(integrate_energy){
+        state.e = e_in + k2_energy_rate * dt / 2.0_rt;
+    }
+
+    evaluate_rhs(state, k3_rhs, k3_energy_rate);
+
+    for(int n=1; n<=Numspec; ++n){
+        state.xn[n-1] = x_in[n-1] + k3_rhs(n) * dt;
+    }
+
+    if(integrate_energy){
+        state.e += e_in + k3_energy_rate * dt;
+    }
+
+    evaluate_rhs(state, k4_rhs, k4_energy_rate);
+
+    for(int n=1; n<=Numspec; ++n){
+        state.xn[n-1] = x_in[n-1] + (k1_rhs(n) + 2.0_rt * k2_rhs(n) + 2.0_rt * k3_rhs(n) + k4_rhs(n) ) * dt / 6.0_rt;
+    }
+
+    if(integrate_energy){
+        state.e = e_in + (k1_energy_rate + 2.0_rt * k2_energy_rate + 2.0_rt * k3_energy_rate + k4_energy_rate) * dt / 6.0_rt;
+    }
+
+    clean_state(state);
+
+}
+
+void copy(burn_t& state_copy, const burn_t& state){
+
+    state_copy.rho = state.rho;
+    state_copy.e = state.e;
+
+    for(int n=1; n<=NumSpec; ++n){
+        state_copy.xn[n-1] = state.xn[n-1];
+    }
+
+    eos(eos_input_re, state_copy);
+}
+
 void actual_integrator(burn_t& state, Real dt)
 {
     initialize_state(state);
 
-    Real T_in = state.T;
-    Real e_in = state.e;
-    Real x_in[NumSpec];
-
-    for(int n=1; n<= NumSpec; ++n){
-        x_in = state.xn[n-1];
-    }
+    burn_t check_state;
+    copy(check_state, state);
 
     Real timestep_safety_factor = 1.0e-12;
-
     int num_timesteps = 0;
 
     while(t < (1.0_rt - timestep_safety_factor)*dt && num_timesteps < ode_max_steps){
 
+        rk4_step(state, dt);
 
+        rk4_step(check_state, dt/2.0_rt);
+        rk4_step(check_state, dt/2.0_rt);
 
+        for(int n=1; n<NumSpec; ++n){
+            Real rel_error_xn = std::abs(state.xn[n-1] - check_state.xn[n-1]) / state.xn[n-1]
+        }
+
+        t += dt;
+        ++num_timesteps;
     }
 
 }
