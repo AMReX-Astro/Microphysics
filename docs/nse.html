@@ -1,17 +1,38 @@
+
+
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
   <title>NSE &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
@@ -21,21 +42,40 @@
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="_static/js/theme.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Transport Coefficients" href="transport.html" />
     <link rel="prev" title="Integrating a Network" href="integrators.html" /> 
 </head>
 
-<body class="wy-body-for-nav"> 
+<body class="wy-body-for-nav">
+
+   
   <div class="wy-grid-for-nav">
+    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
+          
 
+
+          
             <a href="index.html" class="icon icon-home"> Microphysics
+          
+
+          
           </a>
+
+          
+            
+            
+          
+
+          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -43,11 +83,22 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
+
+          
     <div class="branch">
         Branch: <a href="./nse.html">main</a> | <a href="./dev/nse.html">development</a>
     </div>
 
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
               <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
@@ -68,7 +119,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#nse-check">NSE check</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#self-consistent-nse">Self-consistent NSE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#self-consistent-nse">Self-consistent NSE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -77,30 +131,71 @@
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 
+            
+          
         </div>
+        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="index.html">Microphysics</a>
+        
       </nav>
 
+
       <div class="wy-nav-content">
+        
         <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-      <li class="breadcrumb-item active">NSE</li>
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>NSE</li>
+    
+    
       <li class="wy-breadcrumbs-aside">
+        
+          
             <a href="_sources/nse.rst.txt" rel="nofollow"> View page source</a>
+          
+        
       </li>
+    
   </ul>
+
+  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-             
+            
   
 <style>
 /* CSS overrides for sphinx_rtd_theme */
@@ -159,10 +254,6 @@ with the isotopes defined in the main reaction network.</p>
 provide a function <code class="docutils literal notranslate"><span class="pre">in_nse()</span></code> that can be used to determine if a
 state is currently in NSE.</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 31%" />
-<col style="width: 69%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>make option</p></td>
 <td><p>preprocessor variables set</p></td>
@@ -188,7 +279,7 @@ temperatures.    This option is enabled by building with:</p>
 span.prompt1:before {
   content: "$ ";
 }
-</style><span class="prompt1"><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19 <span class="nv">USE_NSE</span><span class="o">=</span>TRUE</span>
+</style><span class="prompt1"><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">USE_NSE</span><span class="o">=</span>TRUE</span>
 </pre></div></div><section id="composition-and-eos">
 <h3>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this heading">¶</a></h3>
 <p>The NSE table was generated using a 125 nuclei reaction network
@@ -239,7 +330,7 @@ Strang-split evolution)</p></li>
 <ul>
 <li><p>use <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(Y_e\)</span> to call the table.
 This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <span class="math notranslate nohighlight">\((B/A)_{\rm out}\)</span>, and <span class="math notranslate nohighlight">\(\bar{A}_{\rm out}\)</span>.</p></li>
-<li><p>update <span class="math notranslate nohighlight">\(Y_e\)</span> <a class="footnote-reference brackets" href="#fy" id="id2">1</a> :</p>
+<li><p>update <span class="math notranslate nohighlight">\(Y_e\)</span> <a class="footnote-reference brackets" href="#fy" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> :</p>
 <div class="math notranslate nohighlight">
 \[(Y_e)_{\rm out} = (Y_e)_{\rm in} + \Delta t \frac{dY_e}{dt}\]</div>
 </li>
@@ -291,49 +382,156 @@ reaction network, once the integration has reached NSE.</p>
 <p>This solver is enabled by compiling with</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
 </pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
+<section id="dynamic-nse-check">
+<h3>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Permalink to this heading">¶</a></h3>
+<p>We have implemented a dynamic NSE check for the self-consistent nse procedure
+that tells us whether the network has reached the NSE state. The overall procedure
+is outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>. The overall usage comes down to a single function
+<code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>. By supplying the current state, this function returns a boolean that
+tells us whether we’re in NSE or not. The current status of this functionality only
+works for pynucastro-generated network since aprox networks have slightly different syntax.</p>
+<p>There are 3 main criteria discussed in the <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>.</p>
+<ul>
+<li><p>Have a rough check to determine whether the current state is close to NSE. They use a
+criteria of:</p>
+<div class="math notranslate nohighlight">
+\[\frac{r - r_{NSE}}{r_{NSE}} &lt; 0.5\]</div>
+<p>where <span class="math notranslate nohighlight">\(r = Y_\alpha/(Y_p^2 Y_n^2)\)</span> and
+<span class="math notranslate nohighlight">\(r_{NSE} = \left(Y_\alpha/(Y_p^2 Y_n^2)\right)_{NSE}\)</span>.</p>
+</li>
+<li><p>Does the network has a fast reaction cycle that exchanges 1 <span class="math notranslate nohighlight">\(\alpha\)</span> particle with
+2 <span class="math notranslate nohighlight">\(p\)</span> and 2 <span class="math notranslate nohighlight">\(n\)</span> particles. This cycle should have the following reactions or
+their reverse:</p>
+<ul class="simple">
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, \gamma)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, p)\)</span>, 1 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+<li><p>1 <span class="math notranslate nohighlight">\((\alpha, n)\)</span>, 2 <span class="math notranslate nohighlight">\((\gamma, p)\)</span>, 1 <span class="math notranslate nohighlight">\((\gamma, n)\)</span></p></li>
+</ul>
+<p>To consider to be fast reaction cycle, we require every step in the cycle to
+have <span class="math notranslate nohighlight">\(Y_i/\textbf{min}(b_f, b_r) &lt; \epsilon t_s\)</span> for <span class="math notranslate nohighlight">\(i = n, p, \alpha\)</span>
+participated in this step, where <span class="math notranslate nohighlight">\(b_f\)</span> and <span class="math notranslate nohighlight">\(b_r\)</span>
+are the forward and reverse rate of the reaction, <span class="math notranslate nohighlight">\(\epsilon\)</span> is a tolerance which
+has a default value of <span class="math notranslate nohighlight">\(0.1\)</span>, and <span class="math notranslate nohighlight">\(t_s\)</span> is the sound crossing time of a
+simulation cell.</p>
+<p>An example of such reaction cycle would be:</p>
+<div class="math notranslate nohighlight">
+\[\isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
+(\alpha, \gamma) \isotm{S}{32}\]</div>
+<p>The general approach to this is to start iterations from the heavy to the light nuclei to
+use them as the starting point of the cycle. Then algorithmn checks if isotopes involved
+in the network can actually form a cycle using the combination reactions above. If such cycle
+is formed, then we check the rates of these reactions to see if they satisfy the condition
+mention previously. If there are no isotope present in the network that would form
+a closed-cycle, we move on to the next nuclei. We break out of the iteration once we found
+a fast reaction cycle.</p>
+</li>
+<li><p>If the previous two check pass, we proceed to nuclei grouping. Initially,
+<span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(\alpha\)</span> are grouped into a single group called
+the light-isotope-group, or LIG. Other isotopes belong to their own group,
+which only contains themselves. During each iteration, we find all valid reaction,
+<span class="math notranslate nohighlight">\(k\)</span>, that has the fastest time-scale,
+<span class="math notranslate nohighlight">\(t_{i,k} = \tilde{Y}_i/\textbf{min}(b_f(k), b_r(k))\)</span>, for <span class="math notranslate nohighlight">\(i\)</span> to be the isotope
+involved with the reaction that is different from <span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(\alpha\)</span>.
+<span class="math notranslate nohighlight">\(\tilde{Y}_i\)</span> represents the sum of molar fractions of the group that isotope <span class="math notranslate nohighlight">\(i\)</span>
+belongs in, or <span class="math notranslate nohighlight">\(\tilde{Y}_i = \Sigma_{l \in q}Y^l_i\)</span>. After determining which reaction
+has the fastest time-scale, there are two requirements for us to check whether this reaction
+can be used to group the nuclei involved, which are:</p>
+<ul>
+<li><p>at least 1 isotope, <span class="math notranslate nohighlight">\(i\)</span>, that passes:</p>
+<div class="math notranslate nohighlight">
+\[t_{i,k} &lt; \epsilon t_s\]</div>
+<ul class="simple">
+<li></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k) &lt; \epsilon\]</div>
+</li>
+</ul>
+<p>Here we only consider two cases of reactions:</p>
+<ul class="simple">
+<li><p>There are exactly two isotopes involved in reaction, <span class="math notranslate nohighlight">\(k\)</span>, that are not in the
+light-isotope-group. In this case, if the reaction passes the two criteria mentioned above,
+we merge the groups containing those two isotopes if they’re not yet in the same group.</p></li>
+<li><p>There is only one isotope involed in reaction, <span class="math notranslate nohighlight">\(k\)</span>, that is not in the
+light-isotope-group, which is not necessarily isotope <span class="math notranslate nohighlight">\(i\)</span> that passes the
+first criteria. In this case, we merge the isotope that is not in LIG into LIG.</p></li>
+</ul>
+<p>Here we skip over reactions of the following due to obvious reasons:</p>
+<ul class="simple">
+<li><p>Reactions that have no reverse rates.</p></li>
+<li><p>Reactions that involve more than 2 reactants and products</p></li>
+<li><p>Reactions that have more than 2 non-light-isotope-group.</p></li>
+<li><p>The nuclei that participate in the reaction is either in LIG or in another group.
+This means that the non-LIG nuclei have already merged.</p></li>
+</ul>
+<p>And the iteration stops once there are no reactions that can satisfy the above criteria.
+At the end of the iterations, we define that the current state  have reached NSE
+when there is only a single group left, or there are two groups left where
+1 of them is the light-isotope-group.</p>
+</li>
+</ul>
 <p class="rubric">Footnotes</p>
-<dl class="footnote brackets">
-<dt class="label" id="fy"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
-<dd><p>The table actually provides the weak rate, which is the sum
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="fy" role="note">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>The table actually provides the weak rate, which is the sum
 of all electron capture and positron decay rates times the
 appropriate abundances minus a similar rate for the beta decay and
 positron capture, [wrate] = [rectot] + [rpdtot] - [redtot] - [rpctot]</p>
 <p>So if electron capture dominates, then [wrate] is positive and this should
 be subtracted from <span class="math notranslate nohighlight">\(Y_e\)</span>.</p>
-</dd>
-</dl>
+</aside>
+</aside>
+</section>
 </section>
 </section>
 
 
            </div>
+           
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="integrators.html" class="btn btn-neutral float-left" title="Integrating a Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
         <a href="transport.html" class="btn btn-neutral float-right" title="Transport Coefficients" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="integrators.html" class="btn btn-neutral float-left" title="Integrating a Network" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2012, Microphysics Development Team.</p>
-  </div>
+    <p>
+        &#169; Copyright 2012, Microphysics Development Team.
 
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
         </div>
       </div>
+
     </section>
+
   </div>
-  <script>
+  
+
+  <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>  
+  </script>
+
+  
+  
+    
+    
 
 
 </body>
