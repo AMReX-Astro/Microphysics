@@ -1,4 +1,4 @@
-AMReX (22.11-30-ged095ca21072) initialized
+AMReX (22.12-7-ga141ca6edfd6) initialized
 starting the single zone burn...
 reading the NSE table (C++) ...
 Maximum Time (s): 0.01
@@ -44,6 +44,7 @@ RHS at t = 0
      n 6.323463259e-06
      p 6.323463259e-06
 burn entered NSE during integration (after 280 steps), zone = (0, 0, 0)
+recovering burn failure in NSE, zone = (0, 0, 0)
 ------------------------------------
 successful? 1
  - Hnuc = 1.71409534e+21
@@ -95,4 +96,4 @@ omegadot(Ni56): -1.148257243e-38
 omegadot(n): 31.21397751
 omegadot(p): 31.34957242
 number of steps taken: 33642
-AMReX (22.11-30-ged095ca21072) finalized
+AMReX (22.12-7-ga141ca6edfd6) finalized

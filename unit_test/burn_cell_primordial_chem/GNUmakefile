@@ -1,20 +1,23 @@
 PRECISION  = DOUBLE
 PROFILE    = FALSE
 
-DEBUG      = FALSE
+# Set DEBUG to TRUE if debugging
+DEBUG      = TRUE
 
-DIM        = 3
+DIM        = 1
 
-COMP	   = gnu
+COMP       = gnu
 
 USE_MPI    = FALSE
 USE_OMP    = FALSE
-
+#set USE_CUDA to TRUE to compile and run on GPUs
+USE_CUDA   = FALSE
 USE_REACT = TRUE
 
-USE_NSE_NET = TRUE
-EBASE = main
+# Set USE_MICROPHYSICS_DEBUG to TRUE if debugging
+USE_MICROPHYSICS_DEBUG = TRUE
 
+EBASE = main
 
 USE_CXX_REACTIONS ?= TRUE
 
@@ -27,17 +30,12 @@ MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
 # you'll need to use gamma_law_general
-EOS_DIR     := helmholtz
+EOS_DIR     := primordial_chem
 
 # This sets the network directory in Castro/Networks
-NETWORK_DIR := ase
+NETWORK_DIR := primordial_chem
 
 CONDUCTIVITY_DIR := stellar
-
-SCREEN_METHOD := chabrier1998
-
-#SCREEN_METHOD := null
-#SCREEN_METHOD := chugunov2007
 
 INTEGRATOR_DIR =  VODE
 
@@ -51,5 +49,3 @@ Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-
