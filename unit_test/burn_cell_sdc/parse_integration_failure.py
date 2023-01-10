@@ -46,6 +46,12 @@ def doit(string):
     # figure out if it is the VODE failre or burn_t that was provided
 
     is_vode = False
+    rhoe = None
+    tmax = None
+
+    aux = None
+    A_aux_k = None
+
     for line in string:
         if line.startswith("dens start"):
             is_vode = True
@@ -59,9 +65,19 @@ def doit(string):
             elif line.startswith("temp start"):
                 temperature = float(line.split("=")[-1])
 
+            elif line.startswith("rhoe start"):
+                rhoe = float(line.split("=")[-1])
+
+            elif line.startswith("dt"):
+                tmax = float(line.split("=")[-1])
+
             elif line.startswith("xn start"):
                 _tmp = line.split("=")[-1]
                 xn = [float(q) for q in _tmp.split()]
+
+            elif line.startswith("aux start"):
+                _tmp = line.split("=")[-1]
+                aux = [float(q) for q in _tmp.split()]
 
             elif line.startswith("A(rho)"):
                 A_rho = float(line.split("=")[-1])
@@ -72,6 +88,10 @@ def doit(string):
             elif line.startswith("A(rho X_k)"):
                 _tmp = line.split("=")[-1]
                 A_X_k = [float(q) for q in _tmp.split()]
+
+            elif line.startswith("A(rho aux_k)"):
+                _tmp = line.split("=")[-1]
+                A_aux_k = [float(q) for q in _tmp.split()]
 
     else:
 
@@ -86,6 +106,10 @@ def doit(string):
                 _tmp = line.split("=")[-1]
                 xn = [float(q) for q in _tmp.split()]
 
+            elif line.startswith("aux"):
+                _tmp = line.split("=")[-1]
+                aux = [float(q) for q in _tmp.split()]
+
             elif line.startswith("ydot_a[SRHO]"):
                 A_rho = float(line.split("=")[-1])
 
@@ -96,13 +120,28 @@ def doit(string):
                 _tmp = line.split("=")[-1]
                 A_X_k = [float(q) for q in _tmp.split()]
 
+            elif line.startswith("ydot_a[SFX:]"):
+                _tmp = line.split("=")[-1]
+                A_aux_k = [float(q) for q in _tmp.split()]
+
     print(f"unit_test.density = {density}")
     print(f"unit_test.temperature = {temperature}")
+    if rhoe:
+        print(f"unit_test.rhoe = {rhoe}")
+
+    if tmax:
+        print(f"unit_test.tmax = {tmax}")
 
     print("")
 
     for n, X in enumerate(xn):
         print(f"unit_test.X{n+1} = {X}")
+
+    print("")
+
+    if aux:
+        for n, a in enumerate(aux):
+            print(f"unit_test.Aux{n+1} = {a}")
 
     print("")
 
@@ -113,6 +152,12 @@ def doit(string):
 
     for n, A in enumerate(A_X_k):
         print(f"unit_test.Adv_X{n+1} = {A}")
+
+    if A_aux_k:
+        print("")
+
+        for n, A in enumerate(A_aux_k):
+            print(f"unit_test.Adv_Aux{n+1} = {A}")
 
 
 if __name__ == "__main__":
