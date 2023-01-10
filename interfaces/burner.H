@@ -7,6 +7,12 @@
 #include <ArrayUtilities.H>
 
 #ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
+#endif
+#ifdef NSE
 #include <nse_update.H>
 #endif
 
@@ -16,7 +22,7 @@ void burner (burn_t& state, Real dt)
 
 #ifndef TRUE_SDC
 
-#ifdef NSE_TABLE
+#ifdef NSE
 
     bool nse_check = in_nse(state);
 
