@@ -1,3 +1,20 @@
+# 23.01
+
+  * a new test, burn_cell_primordial_chem/, works with the primordial
+    chemistry (#1064)
+
+  * burn_cell and burn_cell_sdc now work with aux data with NSE
+    (#1084, #1094)
+
+  * a screening implementation from Chabrier & Potekhin (1998) was
+    added (#1085)
+
+  * test_react can now output the burn state that took the longest to
+    evaluate (#967)
+
+  * an initial implementation of adaptive nuclear statistic equilibrium
+    was added (#983)
+
 # 22.12
 
   * A first order backward Euler integrator was added that works with

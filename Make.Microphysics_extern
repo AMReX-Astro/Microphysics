@@ -137,6 +137,12 @@ ifeq ($(USE_NSE_NET), TRUE)
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
 
+# we can't have both NSE solvers
+ifeq ($(USE_NSE), TRUE)
+  ifeq ($(USE_NSE_NET), TRUE)
+    $(error USE_NSE and USE_NSE_NET cannot be used together)
+  endif
+endif
 
 clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi

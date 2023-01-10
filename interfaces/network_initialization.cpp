@@ -8,6 +8,9 @@
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>
 #endif
+#ifdef NSE_NET
+#include <nse_solver.H>
+#endif
 #endif
 
 void network_init()
@@ -24,5 +27,11 @@ nonaka_init();
     actual_network_init();
     actual_rhs_init();
 #endif
+
+#ifdef NSE_NET
+    init_nse_net();
 #endif
+
+#endif
+
 }

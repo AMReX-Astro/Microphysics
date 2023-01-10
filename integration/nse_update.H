@@ -19,6 +19,9 @@
 #ifdef NSE_TABLE
 #include <nse_table.H>
 #endif
+#ifdef NSE_NET
+#include <nse_solver.H>
+#endif
 
 using namespace amrex;
 
@@ -177,6 +180,8 @@ void nse_burn(burn_t& state, const Real dt) {
 
   using namespace AuxZero;
 
+#if defined(NSE_TABLE)
+
   // use the NSE table
   Real abar_out;
   Real dq_out;
@@ -187,20 +192,12 @@ void nse_burn(burn_t& state, const Real dt) {
 
   eos(eos_input_rt, state);
 
-#if defined(NSE_TABLE)
-
   // call the NSE table using the * state to get the t^{n+1}
-  // source estimates
+  // source estimates.  The thermodynamnics here is specified
+  // in terms of the auxillary composition, Ye, abar, and B/A
 
   nse_interp(state.T, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
-
-#elif defined(NSE_NET)
-
-  // solve for the NSE state
-
-  // get the dyedt
-#endif
 
   // update Ye
 
@@ -211,9 +208,6 @@ void nse_burn(burn_t& state, const Real dt) {
   nse_interp(state.T, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
 
-  state.success = true;
-  state.n_rhs = 0;
-  state.n_jac = 0;
 
   // this is MeV / nucleon -- here aux has not yet been updated, so we
   // access the old binding energy
@@ -223,18 +217,57 @@ void nse_burn(burn_t& state, const Real dt) {
   deltaq = eta * deltaq;
 
   state.aux[ibea] += deltaq;
+  state.aux[iabar] = abar_out;
+
+#elif defined(NSE_NET)
+
+  // solve for the NSE state -- first compute Ye
+  state.ye = 0.0_rt;
+  for (int n = 0; n < NumSpec; ++n) {
+      state.ye += zion[n] * state.xn[n] * aion_inv[n];
+  }
+
+  auto nse_state = get_actual_nse_state(state);
+
+  // for now, we'll take dyedt = 0.  Later we can evaluate this by
+  // calling the RHS with the NSE state.
+  Real dyedt = 0.0_rt;
+
+  // compute the change in binding energy -- this is the energy release
+  // we want to do sum {B dY}, where Y is the molar fraction.
+  // this will be in MeV / nucleon
+  Real deltaq = 0.0_rt;
+  for (int n = 0; n < NumSpec; ++n) {
+      deltaq += network::bion(n+1) * aion_inv[n] * (nse_state.xn[n] - state.xn[n]);
+  }
+
+  // under-relaxation / inertia (see Ma et el. 2013)
+  deltaq = eta * deltaq;
+
+#endif
+
+  state.success = true;
+  state.n_rhs = 0;
+  state.n_jac = 0;
 
   // convert the energy to erg / g
   Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
 
   state.e = enuc + state.e;
 
-  state.aux[iabar] = abar_out;
 
   // store the new composition
-  for (int n = 0; n < NumSpec; n++) {
+
+#if defined(NSE_TABLE)
+  for (int n = 0; n < NumSpec; ++n) {
     state.xn[n] = X[n];
   }
+#elif defined(NSE_NET)
+  for (int n = 0; n < NumSpec; ++n) {
+    state.xn[n] = nse_state.xn[n];
+  }
+#endif
+
 
 }
 #endif
