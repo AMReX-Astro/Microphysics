@@ -5,7 +5,7 @@
 #include <AMReX_REAL.H>
 #include <eos_type.H>
 #include <network.H>
-#include <burner.H>
+#include <burn_type.H>
 #include <extern_parameters.H>
 #include <cmath>
 #include <AMReX_Array.H>
