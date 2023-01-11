@@ -137,8 +137,8 @@ void find_max_nucs(int& max_nucs, const int current_nuc_ind){
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indices,
-		     amrex::Array1D<int, 1, 3> products_indices){
+void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 4> reactants_indices,
+		     amrex::Array1D<int, 1, 4> products_indices){
 
   // fill in the corresponding rate_index by providing array of reactants and products indices
 
@@ -148,7 +148,7 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 
   // if all -1 then return, since its an invalid rate
 
-  for (int n = 1; n <= 6; ++n){
+  for (int n = 1; n <= 8; ++n){
     if (NSE_INDEX::rate_indices(rate_index, n) != -1){
       valid_rate = true;
       break;
@@ -163,14 +163,14 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 
   // sort indices just to make sure
 
-  sort_Array1D<1, 3>(reactants_indices);
-  sort_Array1D<1, 3>(products_indices);
+  sort_Array1D<1, 4>(reactants_indices);
+  sort_Array1D<1, 4>(products_indices);
 
   // check for which rate matches these input indices
 
   for (int i = 1; i <= Rates::NumRates; ++i){
-    for (int j = 1; j <= 3; ++j){
-      if (NSE_INDEX::rate_indices(i, j) == reactants_indices(j) && NSE_INDEX::rate_indices(i, j+3) == products_indices(j)){
+    for (int j = 1; j <= 4; ++j){
+      if (NSE_INDEX::rate_indices(i, j) == reactants_indices(j) && NSE_INDEX::rate_indices(i, j+4) == products_indices(j)){
 	found_index = true;
       }
       else{
@@ -210,8 +210,8 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
   // some variables to hold temporary data
 
-  amrex::Array1D<int, 1, 3> reaction_scratch;
-  amrex::Array1D<int, 1, 3> product_scratch;
+  amrex::Array1D<int, 1, 4> reaction_scratch;
+  amrex::Array1D<int, 1, 4> product_scratch;
   int rate_index;                                      // store index of the rate
   bool have_required_nucs;                             // variable used to check we have required nuc
 
@@ -374,11 +374,13 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = NSE_INDEX::he4_index;
 	  reaction_scratch(3) = -1;
-
+	  reaction_scratch(4) = -1;
+	  
 	  product_scratch(1) = reactions(i+1, k);
 	  product_scratch(2) = -1;
 	  product_scratch(3) = -1;
-
+	  product_scratch(4) = -1;
+	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
@@ -403,10 +405,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = NSE_INDEX::he4_index;
 	  reaction_scratch(3) = -1;
-
+	  reaction_scratch(4) = -1;
+	  
 	  product_scratch(1) = reactions(i+1, k);
 	  product_scratch(2) = NSE_INDEX::n_index;
 	  product_scratch(3) = -1;
+	  product_scratch(4) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
@@ -432,11 +436,13 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = NSE_INDEX::he4_index;
 	  reaction_scratch(3) = -1;
-
+	  reaction_scratch(4) = -1;
+	  
 	  product_scratch(1) = reactions(i+1, k);
 	  product_scratch(2) = NSE_INDEX::p_index;
 	  product_scratch(3) = -1;
-
+	  product_scratch(4) = -1;
+	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
@@ -461,10 +467,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = -1;
 	  reaction_scratch(3) = -1;
-
+	  reaction_scratch(4) = -1;
+	  
 	  product_scratch(1) = reactions(i+1, k);
 	  product_scratch(2) = NSE_INDEX::n_index;
 	  product_scratch(3) = -1;
+	  product_scratch(4) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
@@ -490,11 +498,13 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(1) = reactions(i, j);
 	  reaction_scratch(2) = -1;
 	  reaction_scratch(3) = -1;
-
+	  reaction_scratch(4) = -1;
+	  
 	  product_scratch(1) = reactions(i+1, k);
 	  product_scratch(2) = NSE_INDEX::p_index;
 	  product_scratch(3) = -1;
-
+	  product_scratch(4) = -1;
+	  
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
@@ -657,7 +667,7 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 
   // if all -1 then return, since its an invalid rate
 
-  for (int n = 1; n <= 6; ++n){
+  for (int n = 1; n <= 8; ++n){
     if (NSE_INDEX::rate_indices(rate_index, n) != -1){
       valid_rate = true;
       break;
@@ -670,9 +680,9 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 
 
   for (int n = 1; n <= Rates::NumRates; ++n){
-    for (int i = 1; i <= 3; ++i){
-      if (NSE_INDEX::rate_indices(n, i) == NSE_INDEX::rate_indices(rate_index, i+3)
-	  && NSE_INDEX::rate_indices(n, i+3) == NSE_INDEX::rate_indices(rate_index, i)
+    for (int i = 1; i <= 4; ++i){
+      if (NSE_INDEX::rate_indices(n, i) == NSE_INDEX::rate_indices(rate_index, i+4)
+	  && NSE_INDEX::rate_indices(n, i+4) == NSE_INDEX::rate_indices(rate_index, i)
 	  ){
 	found_reverse_rate = true;
       }
@@ -745,8 +755,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // first 3 is for reactants, last 3 for products
 
-  amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
-					       0.0_rt, 0.0_rt, 0.0_rt};
+  amrex::Array1D<amrex::Real, 1, 8> Y_group = {0.0_rt, 0.0_rt, 0.0_rt, 0.0_rt,
+					       0.0_rt, 0.0_rt, 0.0_rt, 0.0_rt};
 
   // Here Y_nonNPA represent 2 group isotopes that are not n,p,a
   // there can be at most 2 nonNPA isotopes in a reaction for it to be valid
@@ -760,7 +770,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // Check if there are > 2 isotopes or 0 isotopes in LIG (light isotope group) in this reaction
 
-  for (int k = 1; k <= 6; ++k){
+  for (int k = 1; k <= 8; ++k){
 
     // skip if current isotope is -1, which means null
 
@@ -837,8 +847,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   // 3) number of nonLIG isotopes are more than 2 or none.
 
   if ( (pair_rate_index == -1)
-       || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
-       || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
+       || (NSE_INDEX::rate_indices(current_rate, 2) != -1)
+       || (NSE_INDEX::rate_indices(current_rate, 6) != -1)
        || (num_nonLIG > 2)
        || (num_nonLIG == 0)
       ){
@@ -850,25 +860,25 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   amrex::Real b_f;
   amrex::Real b_r;
 
-  b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 3) + 1);
-  b_r = screened_rates(pair_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
+  b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 4) + 1);
+  b_r = screened_rates(pair_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 8) + 1);
 
-  if (NSE_INDEX::rate_indices(current_rate, 2) != -1){
+  if (NSE_INDEX::rate_indices(current_rate, 3) != -1){
 
-    if (NSE_INDEX::rate_indices(current_rate, 2) == NSE_INDEX::rate_indices(current_rate, 3)){
+    if (NSE_INDEX::rate_indices(current_rate, 3) == NSE_INDEX::rate_indices(current_rate, 4)){
       b_f *= 0.5_rt;
     }
 
-    b_f *= Y(NSE_INDEX::rate_indices(current_rate, 2) + 1) * state.rho;
+    b_f *= Y(NSE_INDEX::rate_indices(current_rate, 3) + 1) * state.rho;
   }
 
-  if (NSE_INDEX::rate_indices(current_rate, 5) != -1){
+  if (NSE_INDEX::rate_indices(current_rate, 7) != -1){
 
-    if (NSE_INDEX::rate_indices(current_rate, 5) == NSE_INDEX::rate_indices(current_rate, 6)){
+    if (NSE_INDEX::rate_indices(current_rate, 7) == NSE_INDEX::rate_indices(current_rate, 8)){
       b_r *= 0.5_rt;
     }
 
-    b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
+    b_r *= Y(NSE_INDEX::rate_indices(current_rate, 7) + 1) * state.rho;
   }
 
   // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
@@ -1001,9 +1011,178 @@ bool in_nse(T& state){
     ydot(n) = 0.0_rt;
   }
 
+#ifdef NEW_NETWORK_IMPLEMENTATION
+
+  //amrex::Array1D<amrex::Real, 1, Rates::NumRates> rates
+    
+  static_assert(nrhs == neqs || nrhs == 2 * neqs);
+
+  rhs_state_t rhs_state;
+
+  rhs_state.rho = state.rho;
+  rhs_state.eta = state.eta;
+  rhs_state.y_e = state.y_e;
+
+  // Convert X to Y.
+  for (int n = 1; n <= NumSpec; ++n) {
+    rhs_state.y(n) = state.xn[n-1] * aion_inv[n-1];
+  }
+
+  // Set up the state data, which is the same for all screening factors.
+  fill_plasma_state(rhs_state.pstate, state.T, state.rho, rhs_state.y);
+
+  // Initialize the rate temperature term.
+  rhs_state.tf = get_tfactors(state.T);
+  if (use_tables) {
+    rhs_state.tab.initialize(state.T);
+  }
+
+  // Initialize the RHS terms.
+  for (int n = 1; n <= NumSpec + 1; ++n) {
+    ydot(n) = 0.0;
+  }
+
+  // Count up number of intermediate rates (rates that are used in any other reaction).
+  constexpr int num_intermediate = num_intermediate_reactions();
+
+  // We cannot have a zero-sized array, so just set the array size to 1 in that case.
+  constexpr int intermediate_array_size = num_intermediate > 0 ? num_intermediate : 1;
+
+  // Define forward and reverse (and d/dT) rate arrays.
+  Array1D<rate_t, 1, intermediate_array_size> intermediate_rates;
+
+  // Fill all intermediate rates first.
+  constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+  {
+    constexpr int rate = n;
+
+    constexpr int index = locate_intermediate_rate_index(rate);
+
+    if constexpr (index >= 1) {
+      construct_rate<rate>(rhs_state, intermediate_rates(index));
+    }
+  });
+
+  // Loop over all rates, and then loop over all species, and if the
+  // rate affects that given species, add its contribution to the RHS.
+  constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
+  {
+    constexpr int rate = n1;
+
+    rate_t rates;
+
+    // We only need to compute the rate at this point if it's not intermediate. If it
+    // is intermediate, retrieve it from the cached array.
+
+    constexpr int index = locate_intermediate_rate_index(rate);
+    if constexpr (index < 0) {
+      construct_rate<rate>(rhs_state, rates);
+    }
+    else {
+      rates = intermediate_rates(index);
+    }
+
+    // Locate all intermediate rates needed to augment this reaction.
+    // To keep the problem bounded we assume that there are no more than
+    // three intermediate reactions needed.
+
+    rate_t rates1, rates2, rates3;
+
+    fill_additional_rates<rate>(intermediate_rates, rates1, rates2, rates3);
+
+    // Perform rate postprocessing, using additional reactions as inputs.
+    // If there is no postprocessing for this rate, this will be a no-op.
+
+    postprocess_rate<rate>(rhs_state, rates, rates1, rates2, rates3);
+
+    constexpr_for<1, NumSpec+1>([&] (auto n2)
+    {
+      constexpr int species = n2;
+
+      if constexpr (is_rate_used<species, rate>()) {
+	constexpr int use_T_derivatives = 0;
+	auto [forward_term, reverse_term] = rhs_term<species, rate, use_T_derivatives>(burn_state, rates);
+
+	if constexpr (nrhs == 2 * neqs) {
+	  if (forward_term >= 0.0_rt) {
+	    ydot(2 * species - 1) += forward_term;
+	    ydot(2 * species    ) += -reverse_term;
+	  }
+	  else {
+	    ydot(2 * species - 1) += reverse_term;
+	    ydot(2 * species    ) += -forward_term;
+	  }
+	}
+	else {
+	  ydot(species) += forward_term + reverse_term;
+	}
+      }
+    });
+  });
+
+  // Evaluate the neutrino cooling.
+#ifdef NEUTRINOS
+  Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+  sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
+	 sneut, dsneutdt, dsneutdd, snuda, snudz);
+#else
+  Real sneut = 0.0;
+#endif
+
+  // Compute the energy RHS term.
+  if constexpr (nrhs == 2 * neqs) {
+    ydot(2 * net_ienuc - 1) = 0.0;
+    ydot(2 * net_ienuc    ) = sneut;
+  }
+  else {
+    ydot(net_ienuc) = -sneut;
+  }
+
+  constexpr_for<1, NumSpec+1>([&] (auto n)
+  {
+    constexpr int species = n;
+
+    if constexpr (nrhs == 2 * neqs) {
+      ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(ydot(2 * species - 1));
+      ydot(2 * net_ienuc    ) += ener_gener_rate<species>(ydot(2 * species    ));
+    }
+    else {
+      ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
+    }
+  });
+  
+  // Find ydot
+   
+  actual_rhs(state, ydot);
+  
+#else
+
+  // Find rates
+  
   rate_t rate_eval;
   constexpr int do_T_derivatives = 0;
   evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
+
+  // Find ydot
+  
+  rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
+
+  // Find energy generation rate
+
+  amrex::Real enuc;
+  ener_gener_rate(ydot, enuc);
+
+#ifdef NEUTRINOS
+  amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+  sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+#else
+  amrex::Real sneut = 0.0_rt;
+#endif
+
+  // fill in energy generation rate to ydot
+
+  ydot(NumSpec + 1) = enuc - sneut;
+#endif
 
   eos_t eos_state;                             // need eos_state for speed of sound
   amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
@@ -1026,27 +1205,7 @@ bool in_nse(T& state){
     eos(eos_input_rt, eos_state);
     t_s = state.dx / eos_state.cs;
   }
-
-  // Find ydot
-
-  rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
-
-  // Find energy generation rate
-
-  amrex::Real enuc;
-  ener_gener_rate(ydot, enuc);
-
-#ifdef NEUTRINOS
-  amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-  sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-#else
-  amrex::Real sneut = 0.0_rt, dsneutdt =0.0_rt , dsneutdd = 0.0_rt, snuda = 0.0_rt, snudz = 0.0_rt;
-#endif
-
-  // fill in energy generation rate to ydot
-
-  ydot(NumSpec + 1) = enuc - sneut;
-
+  
   // Now we look through the network and see if there are fast reaction cycles
   // Need to separate forward and reverse rate and detemine each step is fast enough.
   // use vectors for now

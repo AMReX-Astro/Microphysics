@@ -16,15 +16,18 @@
 #include <hybrj.H>
 #include <cctype>
 #include <algorithm>
+#include <rhs_type.H>
 
+
+#ifndef NEW_NETWORK_IMPLEMENTATION
 AMREX_INLINE
-void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
-		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
+void find_rate_indices(amrex::Array1D<int, 1, 4>& reactant_indices,
+		       amrex::Array1D<int, 1, 4>& product_indices, const std::string& rate_name){
 
   // fill the corresponding reactant and product indices of a given rate name
   // used during initialization
 
-  for (int n = 1; n <= 3; ++n){
+  for (int n = 1; n <= 4; ++n){
     reactant_indices(n) = -1;
     product_indices(n) = -1;
   }
@@ -71,14 +74,12 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
     return;
   }
 
-  std::string _temp;
-
   // Find the index of reactants and products in short_spec_names
 
   int i = 1;
   while ((pos = reactant_names.find('_')) != std::string::npos){
 
-    _temp = reactant_names.substr(0, pos);
+    std::string _temp = reactant_names.substr(0, pos);
     // aprox network need capitalize
     // but we only work with pynucastro networks for now.
 
@@ -105,7 +106,7 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
   i = 1;
   while ((pos = product_names.find('_')) != std::string::npos){
 
-    _temp = product_names.substr(0, pos);
+    std::string _temp = product_names.substr(0, pos);
     // cap_first_letter(product);
 
     for (int n = 0; n < NumSpec; ++n){
@@ -128,11 +129,11 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
   // Sort rate_indices.
 
-  sort_Array1D<1, 3>(reactant_indices);
-  sort_Array1D<1, 3>(product_indices);
+  sort_Array1D<1, 4>(reactant_indices);
+  sort_Array1D<1, 4>(product_indices);
 
 }
-
+#endif
 
 AMREX_INLINE
 void init_nse_net() {
@@ -145,10 +146,10 @@ void init_nse_net() {
 #ifdef NEW_NETWORK_IMPLEMENTATION
     if (zion[n] == 1 && aion[n] == 1){
       if (n == 0){
-	NSE_INDEX::h1_index = n;
+	NSE_INDEX::h1_index = n;        
       }
       else {
-	NSE_INDEX::p_index = n;
+	NSE_INDEX::p_index = n;             // photodisintegration proton
       }
     }
 #else
@@ -183,28 +184,87 @@ void init_nse_net() {
     }
   }
 
-#ifndef NEW_NETWORK_IMPLEMENTATION
+#ifdef NEW_NETWORK_IMPLEMENTATION
+
+  // Fill in rate_indices<int, 1, NumRates, 1, 8> for aprox networks
+
+  for (int n = 1; n <= Rates::NumRates; ++n){
+
+    RHS::rhs_t data = RHS::rhs_data(n);
+
+    amrex::Array1D<int, 1, 4> reactant_indices{-1, -1, -1 ,-1};
+    amrex::Array1D<int, 1, 4> product_indices{-1, -1, -1, -1};
+
+    int m = 1;
+
+    for (int i = 0; i < data.number_A; ++i){
+      reactant_indices(m) = data.species_A - 1;
+      m += 1;
+    }
+
+    for (int i = 0; i < data.number_B; ++i){
+      reactant_indices(m) = data.species_B - 1;
+      m += 1;
+    }
+
+    for (int i = 0; i < data.number_C; ++i){
+      reactant_indices(m) = data.species_C - 1;
+      m += 1;
+    }
+
+    m = 1;
+    
+    for (int i = 0; i < data.number_D; ++i){
+      product_indices(m) = data.species_D - 1;
+      m += 1;
+    }
+
+    for (int i = 0; i < data.number_E; ++i){
+      product_indices(m) = data.species_E - 1;
+      m += 1;
+    }
+
+    for (int i = 0; i < data.number_F; ++i){
+      product_indices(m) = data.species_F - 1;
+      m += 1;
+    }
+
+    // Sort rate_indices.
+
+    sort_Array1D<1, 4>(reactant_indices);
+    sort_Array1D<1, 4>(product_indices);
+
+    // fill in rate_indices
+    
+    for (int i = 1; i <= 4; ++i){
+      NSE_INDEX::rate_indices(n, i) = reactant_indices(i);
+      NSE_INDEX::rate_indices(n, i+4) = product_indices(i);
+    }
+
+  }
+
+#else
+  
   // rate names initialization for non aprox networks...
 
-  // Fill in rate_indices<int, 1, NumRates, 1, 6>
+  // Fill in rate_indices<int, 1, NumRates, 1, 8>
   // used for referencing rate by nuclei indices
 
-  amrex::Array1D<int, 1, 3> reactant_indices;
-  amrex::Array1D<int, 1, 3> product_indices;
-  std::string current_rate_name;
+  amrex::Array1D<int, 1, 4> reactant_indices;
+  amrex::Array1D<int, 1, 4> product_indices;
 
   for (int n = 1; n <= Rates::NumRates; ++n){
 
     // get current name of the rate
-    current_rate_name = Rates::rate_names[n];
+    std::string current_rate_name = Rates::rate_names[n];
 
     // fill in reactant_indices and product indices
     find_rate_indices(reactant_indices, product_indices, current_rate_name);
 
     // fill in rate_indices
-    for (int i = 1; i <= 3; ++i){
+    for (int i = 1; i <= 4; ++i){
       NSE_INDEX::rate_indices(n, i) = reactant_indices(i);
-      NSE_INDEX::rate_indices(n, i+3) = product_indices(i);
+      NSE_INDEX::rate_indices(n, i+4) = product_indices(i);
     }
 
   }

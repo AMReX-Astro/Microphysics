@@ -18,7 +18,7 @@ namespace NSE_INDEX
   extern AMREX_GPU_MANAGED int he4_index;
 
   // array for storing indices to access different rates
-  extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 6> rate_indices;
+  extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 8> rate_indices;
 }
 
 #endif

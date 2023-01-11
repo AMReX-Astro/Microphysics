@@ -1,0 +1,30 @@
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+unit_test.density = 5.e8
+unit_test.temperature = 4.04e9
+unit_test.ye = 0.5
+
+unit_test.X1 = 1.37e-6
+unit_test.X2  = 1.2e-11
+unit_test.X3  = 2.54e-5
+unit_test.X4  = 1.1e-11
+unit_test.X5  = 2.8e-22
+unit_test.X6  = 3.1e-17
+unit_test.X7  = 1.0e-10
+unit_test.X8  = 1.27e-19
+unit_test.X9  = 7.45e-13
+unit_test.X10 = 5.78e-12
+unit_test.X11 = 8.5e-17
+unit_test.X12 = 8.4e-10
+unit_test.X13 = 2.6e-9
+unit_test.X14 = 2.7e-5
+unit_test.X15 = 5.1e-5
+unit_test.X16 = 0.074
+unit_test.X17 = 0.00016
+unit_test.X18 = 0.00021
+unit_test.X19 = 0.0008
+unit_test.X20 = 1.6e-5
+unit_test.X21 = 0.0005
+unit_test.X22 = 0.0225
+unit_test.X23 = 0.902

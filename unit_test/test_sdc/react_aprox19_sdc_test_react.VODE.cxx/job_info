@@ -1,0 +1,125 @@
+==============================================================================
+ Microphysics Job Information
+==============================================================================
+number of MPI processes: 1
+
+
+==============================================================================
+ Plotfile Information
+==============================================================================
+output date / time: Fri Dec  9 13:51:59 2022
+output dir:         /home/zhi/Github/Microphysics/unit_test/test_sdc
+
+
+==============================================================================
+ Build Information
+==============================================================================
+build date:    2022-12-09 13:51:24.579598
+build machine: Linux Bombay 6.0.9-200.fc36.x86_64 #1 SMP PREEMPT_DYNAMIC Wed Nov 16 17:50:45 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+build dir:     /home/zhi/Github/Microphysics/unit_test/test_sdc
+AMReX dir:     /home/zhi/Github/amrex
+
+COMP:          gnu
+COMP version:  12.2.1
+
+C++ compiler:  g++
+C++ flags:     -Werror=return-type -gdwarf-4 -O3 -std=c++17  -pthread   -DSDC_EVOLVE_ENERGY -DBL_NO_FORT -DBL_SPACEDIM=3 -DAMREX_SPACEDIM=3 -DBL_FORT_USE_UNDERSCORE -DAMREX_FORT_USE_UNDERSCORE -DBL_Linux -DAMREX_Linux -DNDEBUG -DCRSEGRNDOMP -DREACTIONS -DSIMPLIFIED_SDC -DSCREEN_METHOD=0 -DEXTRA_THERMO -DNETWORK_HAS_CXX_IMPLEMENTATION -DALLOW_JACOBIAN_CACHING -DSCREENING -DNUMSCREEN=33 -DNEUTRINOS -DNAUX_NET=0 -Itmp_build_dir/s/3d.gnu.EXE -I. -I/home/zhi/Github/amrex/Src/Base -I/home/zhi/Github/amrex/Src/Base/Parser -I../../util -I../../util/gcem/include -I../../integration/VODE -I../../integration/utils -I../../integration -I../../rates -I../../screening -I../../neutrinos -I. -I../../unit_test -I../../EOS -I../../EOS/helmholtz -I../../networks/aprox19 -I../../EOS -I../../networks -I../../interfaces -I../../constants -Itmp_build_dir/microphysics_sources/3d.gnu.EXE -I/home/zhi/Github/amrex/Tools/C_scripts 
+
+Fortran comp:  gfortran
+Fortran flags: -g -O3 -ffree-line-length-none -fno-range-check -fno-second-underscore -fimplicit-none 
+
+Link flags:    -L. 
+Libraries:       
+
+EOS: ../../EOS/helmholtz
+NETWORK: ../../networks/aprox19
+INTEGRATOR: VODE
+
+Microphysics git describe: 22.12-12-gf24d8273-dirty
+AMReX        git describe: 67384701a
+
+
+==============================================================================
+ Species Information
+==============================================================================
+ index                         name              A              Z
+------------------------------------------------------------------------------
+     0                           H1              1              1
+     1                          He3              3              2
+     2                          He4              4              2
+     3                          C12             12              6
+     4                          N14             14              7
+     5                          O16             16              8
+     6                         Ne20             20             10
+     7                         Mg24             24             12
+     8                         Si28             28             14
+     9                          S32             32             16
+    10                         Ar36             36             18
+    11                         Ca40             40             20
+    12                         Ti44             44             22
+    13                         Cr48             48             24
+    14                         Fe52             52             26
+    15                         Fe54             54             26
+    16                         Ni56             56             28
+    17                            n              1              0
+    18                            p              1              1
+
+
+==============================================================================
+ Inputs File Parameters
+==============================================================================
+[*] unit_test.dens_min = 100000
+[*] unit_test.dens_max = 5e+08
+[*] unit_test.temp_min = 5e+07
+[*] unit_test.temp_max = 5e+09
+    unit_test.uniform_xn = 0
+[*] unit_test.primary_species_1 = helium-4
+[*] unit_test.primary_species_2 = iron-54
+    unit_test.primary_species_3 = 
+[*] unit_test.tmax = 1e-09
+    unit_test.small_temp = 100000
+    unit_test.small_dens = 1000
+    unit_test.do_acc = 1
+    eos.use_eos_coulomb = 1
+    eos.eos_input_is_constant = 1
+    eos.eos_ttol = 1e-08
+    eos.eos_dtol = 1e-08
+    eos.prad_limiter_rho_c = -1
+    eos.prad_limiter_delta_rho = -1
+    network.rho_nse = 3e+08
+    network.T_nse = 3e+09
+    network.C_nse = 0.01
+    network.O_nse = 0.01
+    network.Si_nse = 0.01
+    network.He_Fe_nse = 0.88
+    network.eta = 1
+    network.nse_relax_factor = 1
+    network.small_x = 1e-30
+    network.use_tables = 0
+    network.use_c12ag_deboer17 = 0
+    integrator.X_reject_buffer = 1
+    integrator.call_eos_in_rhs = 1
+    integrator.integrate_energy = 1
+    integrator.jacobian = 1
+    integrator.burner_verbose = 0
+    integrator.rtol_spec = 1e-12
+    integrator.rtol_enuc = 1e-06
+    integrator.atol_spec = 1e-08
+    integrator.atol_enuc = 1e-06
+    integrator.abort_on_failure = 1
+    integrator.renormalize_abundances = 0
+    integrator.SMALL_X_SAFE = 1e-30
+    integrator.MAX_TEMP = 1e+11
+    integrator.react_boost = -1
+    integrator.ode_max_steps = 150000
+    integrator.ode_max_dt = 1e+30
+    integrator.use_jacobian_caching = 1
+    integrator.nonaka_i = 0
+    integrator.nonaka_j = 0
+    integrator.nonaka_k = 0
+    integrator.nonaka_level = 0
+    integrator.nonaka_file = nonaka_plot.dat
+    integrator.do_species_clip = 1
+    integrator.use_number_densities = 0
+    integrator.subtract_internal_energy = 1
+    integrator.sdc_burn_tol_factor = 1
