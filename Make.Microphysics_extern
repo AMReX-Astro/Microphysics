@@ -74,7 +74,7 @@ table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
 # NSE networks need the table
-ifeq ($(USE_NSE),TRUE)
+ifeq ($(USE_NSE_TABLE),TRUE)
   ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
      all: nsetable
   endif
@@ -132,15 +132,16 @@ EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 # self-consistent NSE solver for a network
 ifeq ($(USE_NSE_NET), TRUE)
      DEFINES += -DNSE_NET
+     DEFINES += -DNSE
 
      EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
 
 # we can't have both NSE solvers
-ifeq ($(USE_NSE), TRUE)
+ifeq ($(USE_NSE_TABLE), TRUE)
   ifeq ($(USE_NSE_NET), TRUE)
-    $(error USE_NSE and USE_NSE_NET cannot be used together)
+    $(error USE_NSE_TABLE and USE_NSE_NET cannot be used together)
   endif
 endif
 
