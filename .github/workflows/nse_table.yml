@@ -30,7 +30,7 @@ jobs:
         run: |
           cd unit_test/burn_cell
           make realclean
-          make NETWORK_DIR=aprox19 USE_NSE=TRUE INTEGRATOR_DIR=VODE -j 4
+          make NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE INTEGRATOR_DIR=VODE -j 4
 
       - name: Run burn_cell (NSE, aprox19)
         run: |
