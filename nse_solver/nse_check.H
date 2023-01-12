@@ -4,7 +4,7 @@
 #include <AMReX_REAL.H>
 #include <eos_type.H>
 #include <network.H>
-#include <burner.H>
+#include <burn_type.H>
 #include <extern_parameters.H>
 #include <cmath>
 #include <AMReX_Array.H>
@@ -979,7 +979,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
   }
 
 }
-
+#endif
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -987,7 +987,8 @@ bool in_nse(T& state){
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
-
+  
+#ifndef NEW_NETWORK_IMPLEMENTATION
   // Get the nse state which is used to compare nse molar fractions.
   const auto nse_state = get_actual_nse_state(state);
 
@@ -1254,8 +1255,12 @@ bool in_nse(T& state){
 
   return nse_check;
 
-}
+#else
+  amrex::Error("in_nse() is currently not supported for aprox networks!");
+
+  return false;
 #endif
 
+}
 
 #endif
