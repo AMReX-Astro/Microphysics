@@ -971,9 +971,9 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 }
 #endif
 
-template <typename T>
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(T& state){
+bool in_nse(burn_t& state){
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
@@ -1007,26 +1007,12 @@ bool in_nse(T& state){
   evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
 
   eos_t eos_state;                             // need eos_state for speed of sound
-  amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
 
   // Here we need to find t_s, sound crossing timescale for a single zone
 
-  if constexpr (std::is_same<T, eos_t>::value){
-
-    // if state is already in eos, then assume eos() is called
-
-    // see Section 3 in Kushnir
-    t_s = state.dx / state.cs;
-
-  }
-  else{
-
-    // if state is burn_t then convert to eos_t and call eos()
-
-    burn_to_eos<eos_t>(state, eos_state);
-    eos(eos_input_rt, eos_state);
-    t_s = state.dx / eos_state.cs;
-  }
+  burn_to_eos<eos_t>(state, eos_state);
+  eos(eos_input_rt, eos_state);
+  amrex::Real t_s = state.dx / eos_state.cs;   // a parameter to characterize whether a rate is fast enough
 
   // Find ydot
 
