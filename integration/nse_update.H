@@ -128,7 +128,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
         dq = dq_out - rho_bea_old/rho_old;
 
         // convert the energy to erg / cm**3
-        enucdot  = dq * C::MeV2eV * C::ev2erg * C::n_A / dt;
+        enucdot = dq * C::MeV2eV * C::ev2erg * C::n_A / dt;
 
         // update the aux source terms
 
@@ -178,15 +178,19 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_burn(burn_t& state, const Real dt) {
 
-  using namespace AuxZero;
-
 #if defined(NSE_TABLE)
 
+  using namespace AuxZero;
+  
   // use the NSE table
   Real abar_out;
   Real dq_out;
   Real dyedt;
   Real X[NumSpec];
+
+  // get the energy -- we are assuming that rho, T are valid on input
+
+  eos(eos_input_rt, state);
 
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
@@ -218,9 +222,9 @@ void nse_burn(burn_t& state, const Real dt) {
 #elif defined(NSE_NET)
 
   // solve for the NSE state -- first compute Ye
-  state.ye = 0.0_rt;
+  state.y_e = 0.0_rt;
   for (int n = 0; n < NumSpec; ++n) {
-      state.ye += zion[n] * state.xn[n] * aion_inv[n];
+      state.y_e += zion[n] * state.xn[n] * aion_inv[n];
   }
 
   auto nse_state = get_actual_nse_state(state);

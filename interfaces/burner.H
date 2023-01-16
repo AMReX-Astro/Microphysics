@@ -44,7 +44,7 @@ void burner (burn_t& state, Real dt)
         // burn as usual
         integrator(state, dt);
 
-#ifndef SIMPLIFIED_SDC
+#if !defined(SIMPLIFIED_SDC) && defined(AUX_THERMO)
         // update the aux from the new X's this is not needed with the
         // SDC method, since we took care of that internally.
         set_aux_comp_from_X(state);
@@ -61,8 +61,12 @@ void burner (burn_t& state, Real dt)
 
         // we use a relaxed NSE criteria now to catch states that are
         // right on the edge of being in NSE
-
+#ifdef NSE_TABLE
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
+#else
+	if (in_nse(state) && state.success == false && dt_remaining > 0.0) {
+#endif
+
 #ifndef AMREX_USE_GPU
             std::cout << "recovering burn failure in NSE, zone = ("
                       << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
