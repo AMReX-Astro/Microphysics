@@ -65,18 +65,17 @@ void initialize_state(burn_t& state){
 
 }
 
+//We normalize and setup the temperature of the state.
 void clean_state(burn_t& state){
 
-    // We start by normalizing the abundances
     normalize_abundances_burn(state);
 
-    //From the energy and density we compute the temperature,
     eos(eos_input_re, state);
 
-    //And finally, we setup a limit to the temperature
     state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
 }
 
+//We evaluate the RHS: spec_rhs(n) and ener_rhs, using the state variable.
 void evaluate_rhs(burn_t& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs){
 
     Array1D<Real, 1, neqs> ydot;
@@ -170,18 +169,25 @@ void actual_integrator(burn_t& state, Real dt)
     Real timestep_safety_factor = 1.0e-12;
     int num_timesteps = 0;
 
+    Real dt_sub; //set dt_sub
+    Real t = 0.0_rt;
+
     while(t < (1.0_rt - timestep_safety_factor)*dt && num_timesteps < ode_max_steps){
 
-        rk4_step(state, dt);
+        if(t + dt_sub > dt){
+            dt_sub = dt - t;
+        }
 
-        rk4_step(check_state, dt/2.0_rt);
-        rk4_step(check_state, dt/2.0_rt);
+        rk4_step(state, dt_sub);
+
+        rk4_step(check_state, dt_sub/2.0_rt);
+        rk4_step(check_state, dt_sub/2.0_rt);
 
         for(int n=1; n<NumSpec; ++n){
             Real rel_error_xn = std::abs(state.xn[n-1] - check_state.xn[n-1]) / state.xn[n-1]
         }
 
-        t += dt;
+        t += dt_sub;
         ++num_timesteps;
     }
 
