@@ -128,7 +128,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
         dq = dq_out - rho_bea_old/rho_old;
 
         // convert the energy to erg / cm**3
-        enucdot  = dq * C::MeV2eV * C::ev2erg * C::n_A / dt;
+        enucdot = dq * C::MeV2eV * C::ev2erg * C::n_A / dt;
 
         // update the aux source terms
 
@@ -187,6 +187,10 @@ void nse_burn(burn_t& state, const Real dt) {
   Real dq_out;
   Real dyedt;
   Real X[NumSpec];
+
+  // get the energy -- we are assuming that rho, T are valid on input
+
+  eos(eos_input_rt, state);
 
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
