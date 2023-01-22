@@ -294,7 +294,7 @@ T get_nse_state(const T& state)
 
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
           std::pow(2.0 * M_PI * network::mion(n+1) *
-                   C::k_B * T_n / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
+                   C::k_B * T_in / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
           std::exp(exponent);
   }
 
