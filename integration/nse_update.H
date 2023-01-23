@@ -204,6 +204,10 @@ void nse_burn(burn_t& state, const Real dt) {
   Real dyedt;
   Real X[NumSpec];
 
+  // get the energy -- we are assuming that rho, T are valid on input
+
+  eos(eos_input_rt, state);
+
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
   // in terms of the auxillary composition, Ye, abar, and B/A
