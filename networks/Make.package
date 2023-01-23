@@ -73,7 +73,7 @@ ifeq ($(USE_AUX_THERMO), TRUE)
   DEFINES += -DAUX_THERMO
 endif
 
-ifeq ($(USE_NSE), TRUE)
+ifeq ($(USE_NSE_TABLE), TRUE)
   # note: NSE_THERMO is deprecated
   DEFINES += -DAUX_THERMO -DNSE_THERMO -DNSE_TABLE -DNSE
 
