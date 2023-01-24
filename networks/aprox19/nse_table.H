@@ -50,6 +50,7 @@ void init_nse() {
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,
                 Real& abar, Real& dq, Real& dyedt, Real* X) {
 
