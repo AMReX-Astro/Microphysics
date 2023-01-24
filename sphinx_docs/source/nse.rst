@@ -61,7 +61,7 @@ temperatures.    This option is enabled by building with:
 
 .. prompt:: bash
 
-   NETWORK_DIR=aprox19 USE_NSE=TRUE
+   NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE
 
 Composition and EOS
 -------------------
