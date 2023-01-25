@@ -46,10 +46,15 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     Real ye_in = state.y[SFX+iye] / state.rho;
 
+    // if we are doing drive_initial_convection, we want to use
+    // the temperature that comes in through T_fixed
+
+    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
 #if defined (NSE_TABLE)
     // get the current NSE state from the table
 
-    nse_interp(state.T, state.rho, ye_in,
+    nse_interp(T_in, state.rho, ye_in,
                abar_out, dq_out, dyedt, X);
 
 #elif defined (NSE_NET)
@@ -98,19 +103,25 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
         // call the EOS to get the updated T*
 
+        Real T_new;
         eos_state.rho = state.y[SRHO];
         eos_state.e = rhoe_new / state.y[SRHO];
         for (int n = 0; n < NumAux; n++) {
             eos_state.aux[n] = rho_aux_new[n] / state.y[SRHO];
         }
 
-        eos(eos_input_re, eos_state);
+        if (state.T_fixed > 0) {
+            T_new = state.T_fixed;
+        } else {
+            eos(eos_input_re, eos_state);
+            T_new = state.T;
+        }
 
 #if defined(NSE_TABLE)
         // call the NSE table using the * state to get the t^{n+1}
         // source estimates
 
-        nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
+        nse_interp(T_new, eos_state.rho, eos_state.aux[iye],
                    abar_out, dq_out, dyedt, X);
 
 #elif defined(NSE_NET)
@@ -192,11 +203,16 @@ void nse_burn(burn_t& state, const Real dt) {
 
   eos(eos_input_rt, state);
 
+  // if we are doing drive_initial_convection, we want to use
+  // the temperature that comes in through T_fixed
+
+  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
   // in terms of the auxillary composition, Ye, abar, and B/A
 
-  nse_interp(state.T, state.rho, state.aux[iye],
+  nse_interp(T_in, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
 
   // update Ye
@@ -205,7 +221,7 @@ void nse_burn(burn_t& state, const Real dt) {
 
   // now get the composition from the table using the upated Ye
 
-  nse_interp(state.T, state.rho, state.aux[iye],
+  nse_interp(T_in, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
 
 
