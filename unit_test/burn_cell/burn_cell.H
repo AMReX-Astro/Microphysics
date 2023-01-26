@@ -41,7 +41,7 @@ void burn_cell_c()
     eos_state.rho = density;
     eos_state.T = temperature;
     for (int n = 0; n < NumSpec; n++) {
-      eos_state.xn[n] = massfractions[n];
+        eos_state.xn[n] = massfractions[n];
     }
 #ifdef AUX_THERMO
     set_aux_comp_from_X(eos_state);
@@ -63,6 +63,7 @@ void burn_cell_c()
     burn_state.i = 0;
     burn_state.j = 0;
     burn_state.k = 0;
+    burn_state.T_fixed = -1.0_rt;
 
     // normalize -- just in case
 
