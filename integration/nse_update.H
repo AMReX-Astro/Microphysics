@@ -114,7 +114,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
             T_new = state.T_fixed;
         } else {
             eos(eos_input_re, eos_state);
-            T_new = state.T;
+            T_new = eos_state.T;
         }
 
 #if defined(NSE_TABLE)
