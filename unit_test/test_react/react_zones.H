@@ -42,6 +42,8 @@ bool do_react (int i, int j, int k, Array4<Real> const& state,
     burn_state.reference_time = 0.0;
 #endif
 
+    burn_state.T_fixed = -1.0_rt;
+
     burner(burn_state, dt);
 
     for (int n = 0; n < NumSpec; ++n) {
