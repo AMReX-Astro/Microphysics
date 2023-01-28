@@ -178,6 +178,18 @@ We determine is a zone is in NSE according to:
 
 .. _self_consistent_nse:
 
+
+NSE table ranges
+----------------
+
+The NSE table was created for:
+
+* :math:`9 < \log_{10}(T) < 10.4`
+* :math:`7 < \log_{10}(\rho) < 10`
+* :math:`0.4 < Y_e < 0.5`
+
+
+
 Self-consistent NSE
 ===================
 

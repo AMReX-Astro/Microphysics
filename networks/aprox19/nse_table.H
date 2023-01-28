@@ -52,7 +52,23 @@ void init_nse() {
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_idx(const int ir, const int it, const int ic) {
+    // this uses a 1-based indexing
     return (ir-1) * table::ntemp * table::nye + (it-1) * table::nye + ic;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real nse_table_logT(const int it) {
+    return 9.0_rt + static_cast<Real>(it-1) * table::dlogT;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real nse_table_logrho(const int ir) {
+    return 7.0_rt + static_cast<Real>(ir-1) * table::dlogrho;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real nse_table_ye(const int ic) {
+    return 0.50_rt - static_cast<Real>(ic-1) * table::dye;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -113,9 +129,9 @@ void nse_interp(const Real T, const Real rho, const Real ye,
   int it2r2c1 = nse_idx(ir2, it2, ic1);
   int it2r2c2 = nse_idx(ir2, it2, ic2);
 
-  Real t0 = 9.0_rt + static_cast<Real>(it1-1) * table::dlogT;
-  Real r0 = 7.0_rt + static_cast<Real>(ir1-1) * table::dlogrho;
-  Real x0 = 0.50_rt - static_cast<Real>(ic1-1) * table::dye;
+  Real t0 = nse_table_logT(it1);
+  Real r0 = nse_table_logrho(ir1);
+  Real x0 = nse_table_ye(ic1);
 
   Real td = (tlog - t0) / table::dlogT;
   Real rd = (rholog - r0) / table::dlogrho;
