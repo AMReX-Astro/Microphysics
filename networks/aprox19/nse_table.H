@@ -31,13 +31,14 @@ void init_nse() {
   nse_table.open("nse19.tbl", std::ios::in);
 
   Real the, tsi, tfe;
+  Real ttemp, tdens, tye;
 
   for (int irho = 1; irho <= table::nden; irho++) {
     for (int it9 = 1; it9 <= table::ntemp; it9++) {
       for (int iye = 1; iye <= table::nye; iye++) {
         int j = (irho-1)*table::ntemp*table::nye + (it9-1)*table::nye + iye;
 
-        nse_table >> table::ttlog(j) >> table::ddlog(j) >> table::yetab(j);
+        nse_table >> ttemp >> tdens >> tye;
         nse_table >> the >> tsi >> tfe;
         nse_table >> table::abartab(j) >> table::ebtab(j) >> table::wratetab(j);
         for (int n = 1; n <= NumSpec; n++) {
@@ -49,6 +50,10 @@ void init_nse() {
 
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_idx(const int ir, const int it, const int ic) {
+    return (ir-1) * table::ntemp * table::nye + (it-1) * table::nye + ic;
+}
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,
@@ -69,7 +74,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     tlog = 10.4_rt;
   }
 
-  int it1 = static_cast<int>((tlog - 9.0_rt)*50.0_rt - 1.e-6_rt);
+  int it1 = static_cast<int>((tlog - 9.0_rt) / table::dlogT - 1.e-6_rt);
   it1 += 1;
   int it2 = it1 + 1;
 
@@ -81,7 +86,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     rholog = 10.0_rt;
   }
 
-  int ir1 = static_cast<int>((rholog - 7.0_rt)*10.0_rt - 1.e-6_rt);
+  int ir1 = static_cast<int>((rholog - 7.0_rt) / table::dlogrho - 1.e-6_rt);
   ir1 += 1;
   int ir2 = ir1 + 1;
 
@@ -93,28 +98,28 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     yet = 0.50_rt;
   }
 
-  int ic1 = static_cast<int>((0.50_rt - yet)/0.005_rt - 1.0e-6_rt);
+  int ic1 = static_cast<int>((0.50_rt - yet) / table::dye - 1.0e-6_rt);
   ic1 += 1;
   int ic2 = ic1 + 1;
 
   // find the eight interpolation points in the 1D arrays
 
-  int it1r1c1 = (ir1-1)*71*21 + (it1-1)*21 + ic1;
-  int it1r1c2 = (ir1-1)*71*21 + (it1-1)*21 + ic2;
-  int it1r2c1 = (ir2-1)*71*21 + (it1-1)*21 + ic1;
-  int it1r2c2 = (ir2-1)*71*21 + (it1-1)*21 + ic2;
-  int it2r1c1 = (ir1-1)*71*21 + (it2-1)*21 + ic1;
-  int it2r1c2 = (ir1-1)*71*21 + (it2-1)*21 + ic2;
-  int it2r2c1 = (ir2-1)*71*21 + (it2-1)*21 + ic1;
-  int it2r2c2 = (ir2-1)*71*21 + (it2-1)*21 + ic2;
+  int it1r1c1 = nse_idx(ir1, it1, ic1);
+  int it1r1c2 = nse_idx(ir1, it1, ic2);
+  int it1r2c1 = nse_idx(ir2, it1, ic1);
+  int it1r2c2 = nse_idx(ir2, it1, ic2);
+  int it2r1c1 = nse_idx(ir1, it2, ic1);
+  int it2r1c2 = nse_idx(ir1, it2, ic2);
+  int it2r2c1 = nse_idx(ir2, it2, ic1);
+  int it2r2c2 = nse_idx(ir2, it2, ic2);
 
-  Real t0 = 9.0_rt + static_cast<Real>(it1-1)*0.02_rt;
-  Real r0 = 7.0_rt + static_cast<Real>(ir1-1)*0.10_rt;
-  Real x0 = 0.50_rt - static_cast<Real>(ic1-1)*0.005_rt;
+  Real t0 = 9.0_rt + static_cast<Real>(it1-1) * table::dlogT;
+  Real r0 = 7.0_rt + static_cast<Real>(ir1-1) * table::dlogrho;
+  Real x0 = 0.50_rt - static_cast<Real>(ic1-1) * table::dye;
 
-  Real td = (tlog - t0)/0.02_rt;
-  Real rd = (rholog - r0)/0.10_rt;
-  Real xd = (x0-yet)/0.005_rt;
+  Real td = (tlog - t0) / table::dlogT;
+  Real rd = (rholog - r0) / table::dlogrho;
+  Real xd = (x0-yet) / table::dye;
   xd = amrex::max(0.0_rt, xd);
 
   Real omtd = 1.0_rt - td;

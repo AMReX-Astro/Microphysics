@@ -39,9 +39,9 @@ namespace table
   constexpr int nden = 31;
   constexpr int nye = 21;
 
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
+  constexpr Real dlogT = 0.02_rt;
+  constexpr Real dlogrho = 0.10_rt;
+  constexpr Real dye = 0.005_rt;
 
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
