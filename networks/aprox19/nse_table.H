@@ -71,6 +71,33 @@ Real nse_table_ye(const int ic) {
     return 0.50_rt - static_cast<Real>(ic-1) * table::dye;
 }
 
+// return the index in the table such that logrho[irho] < input density
+// note: this is a 1-based index
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_get_logrho_index(const Real logrho) {
+
+    int ir0 = static_cast<int>((logrho - 7.0_rt) / table::dlogrho - 1.e-6_rt);
+    return ir0 + 1;
+}
+
+// return the index in the table such that logT[it] < input temperature
+// note: this is a 1-based index
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_get_logT_index(const Real logT) {
+
+    int it0 = static_cast<int>((logT - 9.0_rt) / table::dlogT - 1.e-6_rt);
+    return it0 + 1;
+}
+
+// return the index in the table such that ye[ic] < input Ye
+// note: this is a 1-based index
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_get_ye_index(const Real ye) {
+
+    int ic0 = static_cast<int>((0.50_rt - ye) / table::dye - 1.0e-6_rt);
+    return ic0 + 1;
+}
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,
                 Real& abar, Real& dq, Real& dyedt, Real* X) {
@@ -82,40 +109,17 @@ void nse_interp(const Real T, const Real rho, const Real ye,
   Real rholog = std::log10(rho);
   Real yet = ye;
 
-  if (tlog < 9.0_rt) {
-    tlog = 9.0_rt;
-  }
+  Real rholog = amrex::max(7.0_rt, amrex::min(10.0_rt, std::log10(rho)));
+  Real tlog = amrex::max(9.0_rt, amrex::min(10.4_rt, std::log10(T)));
+  Real yet = amrex::max(0.40_rt, amrex::min(0.50_rt, ye));
 
-  if (tlog > 10.4_rt) {
-    tlog = 10.4_rt;
-  }
-
-  int it1 = static_cast<int>((tlog - 9.0_rt) / table::dlogT - 1.e-6_rt);
-  it1 += 1;
-  int it2 = it1 + 1;
-
-  if (rholog < 7.0_rt) {
-    rholog = 7.0_rt;
-  }
-
-  if (rholog > 10.0_rt) {
-    rholog = 10.0_rt;
-  }
-
-  int ir1 = static_cast<int>((rholog - 7.0_rt) / table::dlogrho - 1.e-6_rt);
-  ir1 += 1;
+  int ir1 = nse_get_logrho_index(rholog);
   int ir2 = ir1 + 1;
 
-  if (yet < 0.40_rt) {
-    yet = 0.40_rt;
-  }
+  int it1 = nse_get_logT_index(tlog);
+  int it2 = it1 + 1;
 
-  if (yet > 0.50_rt) {
-    yet = 0.50_rt;
-  }
-
-  int ic1 = static_cast<int>((0.50_rt - yet) / table::dye - 1.0e-6_rt);
-  ic1 += 1;
+  int ic1 = nse_get_ye_index(yet);
   int ic2 = ic1 + 1;
 
   // find the eight interpolation points in the 1D arrays
