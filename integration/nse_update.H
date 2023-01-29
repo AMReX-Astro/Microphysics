@@ -179,13 +179,13 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     // aux data comes from the table (except Ye, which we predicted)
 
-    //state.y[SFX+iye] = eos_state.rho * eos_state.aux[iye];
-    //state.y[SFX+iabar] = eos_state.rho * abar_out;
-    //state.y[SFX+ibea] = eos_state.rho * dq_out;
+    state.y[SFX+iye] = eos_state.rho * eos_state.aux[iye];
+    state.y[SFX+iabar] = eos_state.rho * abar_out;
+    state.y[SFX+ibea] = eos_state.rho * dq_out;
 
-    for (int n = 0; n < NumAux; ++n) {
-        state.y[SFX+n] = rho_aux_new[n];
-    }
+    //for (int n = 0; n < NumAux; ++n) {
+    //    state.y[SFX+n] = rho_aux_new[n];
+    //}
 
     // density and momenta have already been updated
 
