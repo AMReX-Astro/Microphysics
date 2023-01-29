@@ -105,10 +105,6 @@ void nse_interp(const Real T, const Real rho, const Real ye,
   using namespace table;
   using namespace AuxZero;
 
-  Real tlog = std::log10(T);
-  Real rholog = std::log10(rho);
-  Real yet = ye;
-
   Real rholog = amrex::max(7.0_rt, amrex::min(10.0_rt, std::log10(rho)));
   Real tlog = amrex::max(9.0_rt, amrex::min(10.4_rt, std::log10(T)));
   Real yet = amrex::max(0.40_rt, amrex::min(0.50_rt, ye));
