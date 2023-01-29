@@ -71,6 +71,34 @@ Real nse_table_ye(const int ic) {
     return 0.50_rt - static_cast<Real>(ic-1) * table::dye;
 }
 
+
+// return the index in the table such that logrho[irho] < input density
+// note: this is a 1-based index
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_get_logrho_index(const Real logrho) {
+
+    int ir0 = static_cast<int>((logrho - 7.0_rt) / table::dlogrho - 1.e-6_rt);
+    return ir0 + 1;
+}
+
+// return the index in the table such that logT[it] < input temperature
+// note: this is a 1-based index
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_get_logT_index(const Real logT) {
+
+    int it0 = static_cast<int>((logT - 9.0_rt) / table::dlogT - 1.e-6_rt);
+    return it0 + 1;
+}
+
+// return the index in the table such that ye[ic] < input Ye
+// note: this is a 1-based index
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_get_ye_index(const Real ye) {
+
+    int ic0 = static_cast<int>((0.50_rt - ye) / table::dye - 1.0e-6_rt);
+    return ic0 + 1;
+}
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real cubic(const Real* xs, const Real* fs, const Real dx, const Real x) {
 
@@ -113,6 +141,8 @@ Real tricubic(const int ir0, const int it0, const int ic0,
     // the first index will be rho and the second will be T
     Real d1[4][4];
 
+    // FIX???? ye monotonically decreases! not increases?
+
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
@@ -121,7 +151,9 @@ Real tricubic(const int ir0, const int it0, const int ic0,
                          data(nse_idx(ir0+ii, it0+jj, ic0+2)),
                          data(nse_idx(ir0+ii, it0+jj, ic0+3))};
 
-            d1[ii][jj] = cubic(yes, _d, table::dye, ye);
+            // note that the ye values are monotonically decreasing,
+            // so the "dx" needs to be negative
+            d1[ii][jj] = cubic(yes, _d, -table::dye, ye);
         }
     }
 
@@ -150,23 +182,23 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     using namespace table;
     using namespace AuxZero;
 
-    Real tlog = amrex::max(9.0_rt, amrex::min(10.4_rt, std::log10(T)));
     Real rholog = amrex::max(7.0_rt, amrex::min(10.0_rt, std::log10(rho)));
+    Real tlog = amrex::max(9.0_rt, amrex::min(10.4_rt, std::log10(T)));
     Real yet = amrex::max(0.40_rt, amrex::min(0.50_rt, ye));
 
     // for a cubic interpolant, we need 4 points that span the data value
     // for temperature, these will be it0, it0+1, it0+2, it0+3
     // with the idea that the temperature we want is between it0+1 and it0+2
-    // also recall that we need 1-based indexing into the table
+    // so we offset one to the left and also ensure that we don't go off the table
 
-    // at the boundaries, we will shift the cubic to be in the range
+    int ir0 = nse_get_logrho_index(rholog) - 1;
+    ir0 = amrex::max(1, amrex::min(table::nden-3, ir0));
 
-    int ir0 = amrex::max(0, amrex::min(table::nden-3,
-                                       static_cast<int>((rholog - 7.0_rt) / table::dlogrho - 1.e-6_rt)));
-    int it0 = amrex::max(0, amrex::min(table::ntemp-3,
-                                       static_cast<int>((tlog - 9.0_rt) / table::dlogT - 1.e-6_rt)));
-    int ic0 = amrex::max(0, amrex::min(table::nye-3,
-                                       static_cast<int>((0.50_rt - yet) / table::dye - 1.0e-6_rt)));
+    int it0 = nse_get_logT_index(tlog) - 1;
+    it0 = amrex::max(1, amrex::min(table::ntemp-3, it0));
+
+    int ic0 = nse_get_ye_index(yet) - 1;
+    ic0 = amrex::max(1, amrex::min(table::nye-3, ic0));
 
     abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
     dq = tricubic(ir0, it0, ic0, rholog, tlog, yet, ebtab);
