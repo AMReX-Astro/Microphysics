@@ -71,7 +71,6 @@ Real nse_table_ye(const int ic) {
     return 0.50_rt - static_cast<Real>(ic-1) * table::dye;
 }
 
-
 // return the index in the table such that logrho[irho] < input density
 // note: this is a 1-based index
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
