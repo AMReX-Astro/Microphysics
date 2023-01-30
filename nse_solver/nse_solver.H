@@ -253,6 +253,7 @@ T get_nse_state(const T& state)
 
   for (int n = 0; n < NumSpec; ++n){
       if (n == NSE_INDEX::h1_index){
+          nse_state.xn[n] = 0.0;
           continue;
       }
 
