@@ -979,12 +979,17 @@ bool in_nse(burn_t& state){
   // Note that it only works with pynucastro network for now.
   
 #ifndef NEW_NETWORK_IMPLEMENTATION
+
+  bool nse_check = false;
+
+  if (state.T < 1.0e9_rt){
+    return nse_check;
+  }
+    
   // Get the nse state which is used to compare nse molar fractions.
   const auto nse_state = get_actual_nse_state(state);
 
   // Check whether state is in the ballpark of NSE
-
-  bool nse_check = false;
 
   first_check_in_nse(state, nse_state, nse_check);
   if (!nse_check){
