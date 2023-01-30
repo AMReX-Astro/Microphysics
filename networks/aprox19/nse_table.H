@@ -213,8 +213,9 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     // indexing the component
 
     for (int n = 1; n <= NumSpec; n++) {
-        X[n-1] = tricubic(ir0, it0, ic0, rholog, tlog, yet,
-                          [=] (const int i) {return massfractab(n, i);});
+        Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
+                           [=] (const int i) {return massfractab(n, i);});
+        X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
     }
 
 }
