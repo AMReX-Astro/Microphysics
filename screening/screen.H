@@ -904,7 +904,7 @@ void chabrier1998 (const plasma_state_t& state,
   [[maybe_unused]] Real Gamma_eff_dT;
 
   if constexpr (do_T_derivatives) {
-    Gamma_eff_dT /= -state.temp;
+    Gamma_eff_dT = -Gamma_eff / state.temp;
   }
   
   // TAU/3, see Wallace1982, Eq. A2
