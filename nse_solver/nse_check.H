@@ -1029,6 +1029,9 @@ bool in_nse(burn_t& state){
   ener_gener_rate(ydot, enuc);
 
 #ifdef NEUTRINOS
+  // get abar and zbar
+  composition(state);
+  
   amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
   sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 #else
