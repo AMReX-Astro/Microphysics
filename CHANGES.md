@@ -1,3 +1,9 @@
+# 23.02
+
+  * `T_fixed` now works with NSE (#1098, #1111)
+
+  * `USE_NSE` was changed to `USE_NSE_TABLE` (#1108)
+
 # 23.01
 
   * a new test, burn_cell_primordial_chem/, works with the primordial
