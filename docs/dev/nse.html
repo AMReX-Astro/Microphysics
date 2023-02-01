@@ -117,9 +117,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#nse-table-outputs">NSE Table Outputs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#nse-flow">NSE Flow</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#nse-check">NSE check</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nse-table-ranges">NSE table ranges</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#self-consistent-nse">Self-consistent NSE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Self-consistent NSE</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
 </ul>
 </li>
@@ -241,7 +242,7 @@ composition and advect <span class="math notranslate nohighlight">\(Y_e\)</span>
 these quantities.</p>
 <p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p>
 </li>
-<li><p><a class="reference internal" href="#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a> : this adds an NSE solver to the network that
+<li><p><a class="reference internal" href="#self-consistent-nse"><span class="std std-ref">NSE table ranges</span></a> : this adds an NSE solver to the network that
 can be called to find the equilibrium abundances of each of the
 species defined in the network.  It works with any of the
 pynucastro-generated networks.  Unlike the tabulated NSE, there is
@@ -368,9 +369,18 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 <li><p><span class="math notranslate nohighlight">\(X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></li>
 </ul>
 </section>
+<section id="nse-table-ranges">
+<span id="self-consistent-nse"></span><h3>NSE table ranges<a class="headerlink" href="#nse-table-ranges" title="Permalink to this heading">¶</a></h3>
+<p>The NSE table was created for:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(9 &lt; \log_{10}(T) &lt; 10.4\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(7 &lt; \log_{10}(\rho) &lt; 10\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(0.4 &lt; Y_e &lt; 0.5\)</span></p></li>
+</ul>
 </section>
-<section id="self-consistent-nse">
-<span id="id3"></span><h2>Self-consistent NSE<a class="headerlink" href="#self-consistent-nse" title="Permalink to this heading">¶</a></h2>
+</section>
+<section id="id3">
+<h2>Self-consistent NSE<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
 <p>The self-consistent NSE approach uses only the nuclei in the main
 reaction network.  It solves for the chemical potentials of the proton
 and neutron and from there gets the abundances of each of the nuclei
