@@ -33,11 +33,12 @@ namespace network
 namespace table
 {
 
-  constexpr int npts = 46221;
 
   constexpr int ntemp = 71;
   constexpr int nden = 31;
   constexpr int nye = 21;
+
+  constexpr int npts = ntemp * nden * nye;
 
   constexpr Real dlogT = 0.02_rt;
   constexpr Real dlogrho = 0.10_rt;

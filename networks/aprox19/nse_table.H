@@ -140,8 +140,6 @@ Real tricubic(const int ir0, const int it0, const int ic0,
     // the first index will be rho and the second will be T
     Real d1[4][4];
 
-    // FIX???? ye monotonically decreases! not increases?
-
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
