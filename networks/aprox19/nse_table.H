@@ -117,6 +117,47 @@ Real cubic(const Real* xs, const Real* fs, const Real dx, const Real x) {
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real trilinear(const int ir1, const int it1, const int ic1,
+               const Real rho, const Real temp, const Real ye, const T& data) {
+
+    // find the eight interpolation points in the 1D arrays
+
+    int it1r1c1 = nse_idx(ir1,   it1,   ic1);
+    int it1r1c2 = nse_idx(ir1,   it1,   ic1+1);
+    int it1r2c1 = nse_idx(ir1+1, it1,   ic1);
+    int it1r2c2 = nse_idx(ir1+1, it1,   ic1+1);
+    int it2r1c1 = nse_idx(ir1,   it1+1, ic1);
+    int it2r1c2 = nse_idx(ir1,   it1+1, ic1+1);
+    int it2r2c1 = nse_idx(ir1+1, it1+1, ic1);
+    int it2r2c2 = nse_idx(ir1+1, it1+1, ic1+1);
+
+    Real t0 = nse_table_logT(it1);
+    Real r0 = nse_table_logrho(ir1);
+    Real x0 = nse_table_ye(ic1);
+
+    Real td = (temp - t0) / table::dlogT;
+    Real rd = (rho - r0) / table::dlogrho;
+    Real xd = (x0 - ye) / table::dye;
+    xd = amrex::max(0.0_rt, xd);
+
+    Real omtd = 1.0_rt - td;
+    Real omrd = 1.0_rt - rd;
+    Real omxd = 1.0_rt - xd;
+
+    Real val = data(it1r1c1) * omtd * omrd * omxd +
+               data(it1r1c2) * omtd * omrd * xd +
+               data(it1r2c1) * omtd * rd * omxd +
+               data(it1r2c2) * omtd * rd * xd +
+               data(it2r1c1) * td * omrd * omxd +
+               data(it2r1c2) * td * omrd * xd +
+               data(it2r2c1) * td * rd * omxd +
+               data(it2r2c2) * td * rd * xd;
+
+    return val;
+}
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real tricubic(const int ir0, const int it0, const int ic0,
               const Real rho, const Real temp, const Real ye, const T& data) {
 
@@ -183,37 +224,66 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     Real tlog = amrex::max(9.0_rt, amrex::min(10.4_rt, std::log10(T)));
     Real yet = amrex::max(0.40_rt, amrex::min(0.50_rt, ye));
 
-    // for a cubic interpolant, we need 4 points that span the data value
-    // for temperature, these will be it0, it0+1, it0+2, it0+3
-    // with the idea that the temperature we want is between it0+1 and it0+2
-    // so we offset one to the left and also ensure that we don't go off the table
+    if (nse_table_interp_linear) {
 
-    int ir0 = nse_get_logrho_index(rholog) - 1;
-    ir0 = amrex::max(1, amrex::min(table::nden-3, ir0));
+        int ir1 = nse_get_logrho_index(rholog);
+        int it1 = nse_get_logT_index(tlog);
+        int ic1 = nse_get_ye_index(yet);
 
-    int it0 = nse_get_logT_index(tlog) - 1;
-    it0 = amrex::max(1, amrex::min(table::ntemp-3, it0));
+        abar = trilinear(ir1, it1, ic1, rholog, tlog, yet, abartab);
+        dq = trilinear(ir1, it1, ic1, rholog, tlog, yet, ebtab);
+        dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, wratetab);
 
-    int ic0 = nse_get_ye_index(yet) - 1;
-    ic0 = amrex::max(1, amrex::min(table::nye-3, ic0));
+        // this is actually the sum of all e- capture and e+ decay, so if
+        // e- capture dominates, this quantity is positive, but Ye should
+        // decrease, so we swap the sign here.
 
-    abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
-    dq = tricubic(ir0, it0, ic0, rholog, tlog, yet, ebtab);
-    dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, wratetab);
+        dyedt = -dyedt;
 
-    // this is actually the sum of all e- capture and e+ decay, so if
-    // e- capture dominates, this quantity is positive, but Ye should
-    // decrease, so we swap the sign here.
+        // massfractab is 2-d, so we wrap the access in a lambda already
+        // indexing the component
 
-    dyedt = -dyedt;
+        for (int n = 1; n <= NumSpec; n++) {
+            Real _X = trilinear(ir1, it1, ic1, rholog, tlog, yet,
+                                [=] (const int i) {return massfractab(n, i);});
+            X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+        }
 
-    // massfractab is 2-d, so we wrap the access in a lambda already
-    // indexing the component
+    } else {
 
-    for (int n = 1; n <= NumSpec; n++) {
-        Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
-                           [=] (const int i) {return massfractab(n, i);});
-        X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+        // for a cubic interpolant, we need 4 points that span the data value
+        // for temperature, these will be it0, it0+1, it0+2, it0+3
+        // with the idea that the temperature we want is between it0+1 and it0+2
+        // so we offset one to the left and also ensure that we don't go off the table
+
+        int ir0 = nse_get_logrho_index(rholog) - 1;
+        ir0 = amrex::max(1, amrex::min(table::nden-3, ir0));
+
+        int it0 = nse_get_logT_index(tlog) - 1;
+        it0 = amrex::max(1, amrex::min(table::ntemp-3, it0));
+
+        int ic0 = nse_get_ye_index(yet) - 1;
+        ic0 = amrex::max(1, amrex::min(table::nye-3, ic0));
+
+        abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
+        dq = tricubic(ir0, it0, ic0, rholog, tlog, yet, ebtab);
+        dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, wratetab);
+
+        // this is actually the sum of all e- capture and e+ decay, so if
+        // e- capture dominates, this quantity is positive, but Ye should
+        // decrease, so we swap the sign here.
+
+        dyedt = -dyedt;
+
+        // massfractab is 2-d, so we wrap the access in a lambda already
+        // indexing the component
+
+        for (int n = 1; n <= NumSpec; n++) {
+            Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
+                               [=] (const int i) {return massfractab(n, i);});
+            X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+        }
+
     }
 
 }
