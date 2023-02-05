@@ -104,13 +104,13 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
 
             wa1(i) += r(l) * temp;
             l++;
-	    if ( std::isnan(wa1(i)) || std::isinf(wa1(i)) ) {
+	    if ( amrex::isnan(wa1(i)) || amrex::isinf(wa1(i)) ) {
 	      return;
 	  }
         }
         wa1(j) /= diag(j);
 
-	if ( std::isnan(wa1(j)) || std::isinf(wa1(j)) ) {
+	if ( amrex::isnan(wa1(j)) || amrex::isinf(wa1(j)) ) {
 	  return;
 	}
     }

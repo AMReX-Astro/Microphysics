@@ -2,6 +2,7 @@
 #define HYBRJ_ENORM_H
 
 #include <hybrj_type.H>
+#include <AMReX_GpuUtility.H>
 
 // given an n-vector x, this function calculates the
 // euclidean norm of x.
@@ -41,7 +42,7 @@ Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
     for (int i = 1; i <= n; ++i) {
         Real xabs = std::abs(x(i));
 
-	if ( std::isnan(xabs) || std::isinf(xabs) ) {
+	if ( amrex::isnan(xabs) || amrex::isinf(xabs) ) {
 	  return 0.0_rt;
 	}
         if (xabs <= rdwarf || xabs >= agiant) {

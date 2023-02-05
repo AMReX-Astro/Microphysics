@@ -227,6 +227,9 @@ T get_nse_state(const T& state)
   // Store nse_state
   T nse_state;
 
+  // Get the required terms to calculate coulomb correction term, u_c
+  // if we use a non-null screening method.
+  
 #if SCREEN_METHOD != 3
   const amrex::Real A1 = -0.9052_rt;
   const amrex::Real A2 = 0.6322_rt;
@@ -235,9 +238,10 @@ T get_nse_state(const T& state)
   // Find n_e for original state;
   const amrex::Real n_e = state.rho * state.y_e / C::m_u;
   amrex::Real gamma;
-  amrex::Real u_c;
 #endif
 
+  amrex::Real u_c = 0.0_rt;
+  
   // set partition function and spin
 
   amrex::Real pf = 1.0_rt;
@@ -261,10 +265,9 @@ T get_nse_state(const T& state)
 
       // term for calculating u_c
 
-      // if null screening, set u_c = 0
-#if SCREEN_METHOD == 3
-      amrex::Real u_c = 0.0_rt;
-#else
+      // if use non-null screening, calculate the coulomb correction term
+
+#if SCREEN_METHOD != 3
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) *
           C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) /
           (C::k_B * T_in);

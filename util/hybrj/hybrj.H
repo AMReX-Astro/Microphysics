@@ -9,7 +9,7 @@
 #include <hybrj_enorm.H>
 #include <hybrj_r1mpyq.H>
 #include <hybrj_r1updt.H>
-#include <cmath>
+#include <AMReX_GpuUtility.H>
 
 template<int neqs, typename T>
 void hybrj(hybrj_t<neqs>& hj,
@@ -193,7 +193,7 @@ void hybrj(hybrj_t<neqs>& hj,
 	    bool invalid = false;
 
 	    for (int i = 1; i < neqs; ++i) {
-	      if ( std::isinf(hj.wa1(i)) || std::isnan(hj.wa1(i)) ){
+	      if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
 		invalid = true;
 	      }
 	    }

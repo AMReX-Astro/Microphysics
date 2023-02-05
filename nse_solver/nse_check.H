@@ -654,14 +654,13 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
+int get_pair_rate_index(const int& rate_index){
 
   // This funciton finds the pair rate index given a rate.
   // For example given forward rate index, return reverse rate index, vice versa
 
-  pair_rate_index = -1;
+  int pair_rate_index = -1;
   bool found_reverse_rate = false;
-
   bool valid_rate = false;
 
   // if all -1 then return, since its an invalid rate
@@ -674,29 +673,30 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
   }
 
   if (!valid_rate){
-    return;
+    return pair_rate_index;
   }
 
 
-  for (int n = 1; n <= Rates::NumRates; ++n){
-    for (int i = 1; i <= 3; ++i){
+  for (int n = 1; n <= Rates::NumRates; ++n) {
+    for (int i = 1; i <= 3; ++i) {
       if (NSE_INDEX::rate_indices(n, i) == NSE_INDEX::rate_indices(rate_index, i+3)
 	  && NSE_INDEX::rate_indices(n, i+3) == NSE_INDEX::rate_indices(rate_index, i)
-	  ){
+	  ) {
 	found_reverse_rate = true;
       }
-      else{
+      else {
 	found_reverse_rate = false;
 	break;
       }
     }
 
-    if (found_reverse_rate){
+    if (found_reverse_rate) {
       pair_rate_index = n;
-      return;
+      break;
     }
-
   }
+
+  return pair_rate_index;
 }
 
 
@@ -744,7 +744,6 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // It also skips current_rate if certain condition is met.
 
-  int pair_rate_index;
   int root_index;
   int num_nonLIG = 0;
   int nonLIG_root = -1;
@@ -765,7 +764,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // find the reverse rate index of the current rate
 
-  fill_pair_rate_index(pair_rate_index, current_rate);
+  int pair_rate_index = get_pair_rate_index(current_rate);
 
   // Check if there are > 2 isotopes or 0 isotopes in LIG (light isotope group) in this reaction
 
