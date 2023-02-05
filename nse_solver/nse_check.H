@@ -140,25 +140,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indices,
 		     amrex::Array1D<int, 1, 3> products_indices){
 
-  // fill in the corresponding rate_index by providing array of reactants and products indices
-
   rate_index = -1;
-
-  bool valid_rate = false;
-
-  // if all -1 then return, since its an invalid rate
-
-  for (int n = 1; n <= 6; ++n){
-    if (NSE_INDEX::rate_indices(rate_index, n) != -1){
-      valid_rate = true;
-      break;
-    }
-  }
-
-  if (!valid_rate){
-    return;
-  }
-
   bool found_index = false;
 
   // sort indices just to make sure
@@ -167,6 +149,7 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   sort_Array1D<1, 3>(products_indices);
 
   // check for which rate matches these input indices
+  // fill in the corresponding rate_index by providing array of reactants and products indices
 
   for (int i = 1; i <= Rates::NumRates; ++i){
     for (int j = 1; j <= 3; ++j){
@@ -183,7 +166,6 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
       rate_index = i;
       return;
     }
-
   }
 
 }
@@ -380,6 +362,13 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  // skip if there is no such rate.
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -409,6 +398,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -438,6 +432,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -467,6 +466,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -496,6 +500,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -684,7 +693,7 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
 
     if (found_reverse_rate){
       pair_rate_index = n;
-      break;
+      return;
     }
 
   }

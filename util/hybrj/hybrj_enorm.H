@@ -41,6 +41,9 @@ Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
     for (int i = 1; i <= n; ++i) {
         Real xabs = std::abs(x(i));
 
+	if ( std::isnan(xabs) || std::isinf(xabs) ) {
+	  return 0.0_rt;
+	}
         if (xabs <= rdwarf || xabs >= agiant) {
             if (xabs > rdwarf) {
 
@@ -75,7 +78,7 @@ Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
 
     // calculation of norm.
 
-    Real _enorm;
+    Real _enorm = 0.0_rt;
     if (s1 != 0.0_rt) {
         _enorm = x1max * std::sqrt(s1 + (s2/x1max) / x1max);
     } else {
