@@ -9,6 +9,7 @@
 #include <hybrj_enorm.H>
 #include <hybrj_r1mpyq.H>
 #include <hybrj_r1updt.H>
+#include <AMReX_GpuUtility.H>
 
 template<int neqs, typename T>
 void hybrj(hybrj_t<neqs>& hj,
@@ -44,6 +45,9 @@ void hybrj(hybrj_t<neqs>& hj,
     hj.nfev = 0;
     hj.njev = 0;
 
+    Real delta = 0.0_rt;
+    Real xnorm = 0.0_rt;
+
     // check the input parameters for errors.
 
     if (hj.xtol < 0.0_rt) {
@@ -61,7 +65,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
     // evaluate the function at the starting point
     // and calculate its norm.
-    Real fnorm;
+    Real fnorm = 0.0_rt;
 
     iflag = 1;
 
@@ -103,9 +107,6 @@ void hybrj(hybrj_t<neqs>& hj,
 
         // on the first iteration and if mode is 1, scale according
         // to the norms of the columns of the initial jacobian.
-
-        Real delta;
-        Real xnorm;
 
         if (iter == 1) {
             if (hj.mode != 2) {
@@ -188,6 +189,19 @@ void hybrj(hybrj_t<neqs>& hj,
             dogleg(hj.r, hj.diag, hj.qtf, delta, hj.wa1, hj.wa2, hj.wa3);
 
             // store the direction p and x + p. calculate the norm of p.
+
+	    bool invalid = false;
+
+	    for (int i = 1; i < neqs; ++i) {
+	      if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
+		invalid = true;
+	      }
+	    }
+
+	    if (invalid) {
+	      finished = true;
+	      break;
+	    }
 
             for (int j = 1; j <= neqs; ++j) {
                 hj.wa1(j) = -hj.wa1(j);
@@ -318,6 +332,7 @@ void hybrj(hybrj_t<neqs>& hj,
             if (nslow1 == 10) {
                 hj.info = 5;
             }
+
             if (hj.info != 0) {
                 finished = true;
                 break;
@@ -331,6 +346,9 @@ void hybrj(hybrj_t<neqs>& hj,
 
             // calculate the rank one modification to the jacobian
             // and update qtf if necessary.
+	    if (pnorm == 0.0_rt) {
+	      break;
+	    }
 
             for (int j = 1; j <= hj.n; ++j) {
                 Real sum = 0.0_rt;

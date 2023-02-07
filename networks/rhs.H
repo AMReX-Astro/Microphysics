@@ -632,17 +632,15 @@ void tabulate_rates ()
             [[maybe_unused]] constexpr int rate = n;
 
             rate_t rates;
+            rates.fr = 0.0_rt;
+            rates.rr = 0.0_rt;
+            rates.frdt = 0.0_rt;
+            rates.rrdt = 0.0_rt;
 
             constexpr rhs_t data = RHS::rhs_data(rate);
 
             if constexpr (data.rate_can_be_tabulated) {
                 evaluate_analytical_rate<rate>(state, rates);
-            }
-            else {
-                rates.fr = 0.0_rt;
-                rates.rr = 0.0_rt;
-                rates.frdt = 0.0_rt;
-                rates.rrdt = 0.0_rt;
             }
 
             rattab(rate, 1, i)    = rates.fr;
