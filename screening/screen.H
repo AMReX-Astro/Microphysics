@@ -515,12 +515,8 @@ void chugunov2007 (const plasma_state_t& state,
         constexpr Real delta_T = T_norm_fade - T_norm_min;
         tmp = M_PI * (T_norm - T_norm_min) / delta_T;
         Real f = 0.5_rt * (1.0_rt - std::cos(tmp));
-        [[maybe_unused]] Real df_dT;
         if constexpr (do_T_derivatives) {
-            df_dT = 0.5_rt * M_PI / delta_T * std::sin(tmp) * dT_norm_dT;
-        }
-
-        if constexpr (do_T_derivatives) {
+            Real df_dT = 0.5_rt * M_PI / delta_T * std::sin(tmp) * dT_norm_dT;
             dT_norm_dT = -df_dT * T_norm_min + df_dT * T_norm + f * dT_norm_dT;
         }
         T_norm = (1.0_rt - f) * T_norm_min + f * T_norm;
@@ -546,9 +542,8 @@ void chugunov2007 (const plasma_state_t& state,
         constexpr Real delta_gamma = Gamma_max - Gamma_fade;
         tmp = M_PI * (Gamma - Gamma_fade) / delta_gamma;
         Real f = 0.5_rt * (1.0_rt - std::cos(tmp));
-        [[maybe_unused]] Real df_dT;
         if constexpr (do_T_derivatives) {
-            df_dT = 0.5_rt * M_PI / delta_gamma * std::sin(tmp) * dGamma_dT;
+            Real df_dT = 0.5_rt * M_PI / delta_gamma * std::sin(tmp) * dGamma_dT;
             dGamma_dT = dGamma_dT - (df_dT * Gamma + f * dGamma_dT) + df_dT * Gamma_max;
         }
         Gamma = (1.0_rt - f) * Gamma + f * Gamma_max;
@@ -762,7 +757,7 @@ void chugunov2009 (const plasma_state_t& state,
 
     Real poly = 1.0_rt + zeta*(c1 + zeta*(c2 + c3*zeta));
     Real t_12 = std::cbrt(poly);
-    Real dlog_dT;
+    Real dlog_dT = 0.0_rt;
     if constexpr (do_T_derivatives) {
         Real dc3_dT = -1.8_rt / Gamma_12 * dlog_Gamma_dT;
         Real dpoly_dT = (c1 + zeta*(2.0_rt*c2 + 3.0_rt*c3*zeta))*dzeta_dT + dc3_dT*zeta*zeta*zeta;
@@ -774,7 +769,7 @@ void chugunov2009 (const plasma_state_t& state,
     // Using Gamma/tau_ij gives extremely low values, while Gamma/t_ij gives
     // values similar to those from Chugunov 2007.
     Real term1, term2, term3;
-    Real dterm1_dT, dterm2_dT, dterm3_dT;
+    Real dterm1_dT = 0.0_rt, dterm2_dT = 0.0_rt, dterm3_dT = 0.0_rt;
     f0<do_T_derivatives>(Gamma_1 / t_12, dlog_dT, term1, dterm1_dT);
     f0<do_T_derivatives>(Gamma_2 / t_12, dlog_dT, term2, dterm2_dT);
     f0<do_T_derivatives>(Gamma_comp / t_12, dlog_dT, term3, dterm3_dT);
