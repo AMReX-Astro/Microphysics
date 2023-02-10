@@ -932,18 +932,18 @@ void chabrier1998 (const plasma_state_t& state,
 				  - 0.128_rt * std::pow(b_fac, 5));
   
   Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * std::pow(b_fac, 4) - 0.0098_rt * std::pow(b_fac, 5)
-				      - 0.048_rt * std::pow(b_fac, 6));
+				      - 0.0048_rt * std::pow(b_fac, 6));
 
   [[maybe_unused]] Real quantum_corr_1_dT;
   [[maybe_unused]] Real quantum_corr_2_dT;
   if constexpr (do_T_derivatives) {
-    quantum_corr_1_dT = -tau12dT * quantum_corr_1 - tau12 * b_fac_dT
+    quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 * b_fac_dT
       * (15.0_rt/32.0_rt * std::pow(b_fac, 2) - 0.014_rt * 4.0_rt * std::pow(b_fac, 3)
 	 - 0.128_rt * 5.0_rt * std::pow(b_fac, 4));
 
-    quantum_corr_2_dT = -Gamma_eff_dT * quantum_corr_2 - Gamma_eff * b_fac_dT
+    quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff * b_fac_dT
       * (0.0055_rt * 4.0_rt * std::pow(b_fac, 3) - 0.0098_rt * 5.0_rt
-	 * std::pow(b_fac, 4) + 0.0048_rt * 6.0_rt * std::pow(b_fac, 5));
+	 * std::pow(b_fac, 4) - 0.0048_rt * 6.0_rt * std::pow(b_fac, 5));
   }
   
   // See Calder2007 Appendix Eq. A8.
