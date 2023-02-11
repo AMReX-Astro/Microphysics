@@ -34,6 +34,6 @@ public:
 
 plot_t init_variables();
 
-void get_varnames(const plot_t p, amrex::Vector<std::string>& names);
+void get_varnames(const plot_t& p, amrex::Vector<std::string>& names);
 
 #endif
