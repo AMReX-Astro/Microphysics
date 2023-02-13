@@ -102,7 +102,7 @@ Real ener_gener_rate (const Real& dydt_C12, const Real& ebin_C12)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_rhs (const burn_t& state, const Array1D<Real, 1, neqs>& ydot)
+void actual_rhs (const burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     using namespace Species;
 
