@@ -2,7 +2,7 @@
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include <burner.H>
+#include <burn_type.H>
 #include <fstream>
 #include <iostream>
 #include <nse_solver.H>

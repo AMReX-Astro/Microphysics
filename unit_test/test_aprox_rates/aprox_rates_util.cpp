@@ -18,7 +18,7 @@ using namespace unit_test_rp;
 
 void aprox_rates_test(const Box& bx,
                       const Real dlogrho, const Real dlogT, const Real dNi,
-                      const plot_t vars,
+                      const plot_t& vars,
                       Array4<Real> const sp) {
 
   const int ini56 = network_spec_index("nickel-56");
@@ -438,7 +438,7 @@ void aprox_rates_test(const Box& bx,
 
 void aprox_rates_extra_c12ag(const Box& bx,
                              const Real dlogrho, const Real dlogT, const Real dNi,
-                             const plot_t vars,
+                             const plot_t& vars,
                              Array4<Real> const sp) {
 
     const int ini56 = network_spec_index("nickel-56");

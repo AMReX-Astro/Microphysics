@@ -16,41 +16,6 @@
 #include <burn_type.H>
 #include <eos.H>
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(const eos_t& state, const bool relax = false) {
-
-  using namespace Species;
-
-  Real f = relax ? nse_relax_factor : 1.0_rt;
-
-  bool nse_check = false;
-
-  if (state.rho > f * rho_nse && state.T > f * T_nse) {
-
-    // Ma checks on Fe-group (for our composition, this means Cr48, Fe52, Fe54, Ni56)
-    // and C-group (for us, that is C12, N14)
-    // and He-group (for us, that is H1, He3, He4)
-    // also make sure there is not a lot of O16 (O16 burning will dominate then) or Si28
-
-    Real Fe_group = state.xn[Cr48-1] + state.xn[Fe52-1] +
-                    state.xn[Fe54-1] + state.xn[Ni56-1];
-    Real C_group = state.xn[C12-1] + state.xn[N14-1];
-    Real He_group = state.xn[H1-1] + state.xn[He3-1] + state.xn[He4-1];
-    Real O_group = state.xn[O16-1];
-    Real Si_group = state.xn[Si28-1];
-
-    if (Fe_group + He_group > f * He_Fe_nse &&
-        C_group < C_nse / f &&
-        O_group < O_nse / f &&
-        Si_group < Si_nse / f) {
-      nse_check = true;
-    }
-  }
-
-  return nse_check;
-
-}
-
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool in_nse(const burn_t& state, const bool relax = false) {

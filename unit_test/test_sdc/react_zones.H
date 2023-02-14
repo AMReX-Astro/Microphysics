@@ -12,7 +12,7 @@
 using namespace unit_test_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_react (const plot_t p, const int i, const int j, const int k,
+bool do_react (const plot_t& p, const int i, const int j, const int k,
                Array4<Real> const& state, Array4<int> const& n_rhs)
 {
 

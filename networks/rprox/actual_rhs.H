@@ -18,7 +18,7 @@ using namespace network_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
-                 burn_t& state, Array1D<rate_t, 1, Rates::NumGroups>& rr)
+                 Array1D<rate_t, 1, Rates::NumGroups>& rr)
 {
     using namespace Species;
     using namespace Rates;
@@ -71,7 +71,7 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
 
     Real sc1a, sc1adt, sc1add;
     Real sc2a, sc2adt, sc2add;
-    Real sc3a, sc3adt, sc3add;
+    Real sc3a, sc3adt;
 
     plasma_state_t pstate;
     fill_plasma_state(pstate, T9 * 1.e9_rt, dens, y);
@@ -263,20 +263,20 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     //....   of 56ni(pg) and 57cu decay rate
     //....
     //....  use 56ni rate from wallace and woosley 1981
-    Real T9i32 = tfactors.T9i * std::sqrt(tfactors.T9i);
-    Real r56pg = dens * (1.29e-02_rt * std::exp(-4.897_rt * tfactors.T9i)
-                 + 7.065e+03_rt * std::exp(-20.33_rt * tfactors.T9i)) * T9i32;
-    Real dr56pgdt = -(3.0_rt / 2.0_rt) * r56pg * tfactors.T9i +
-                    dens * T9i32 * tfactors.T9i*tfactors.T9i *
-                    (4.897_rt * 1.29e-2_rt * std::exp(-4.897_rt * tfactors.T9i)
-                     + 20.33_rt * 7.065e3_rt * std::exp(-20.33_rt * tfactors.T9i));
+    //Real T9i32 = tfactors.T9i * std::sqrt(tfactors.T9i);
+    //Real r56pg = dens * (1.29e-02_rt * std::exp(-4.897_rt * tfactors.T9i)
+    //             + 7.065e+03_rt * std::exp(-20.33_rt * tfactors.T9i)) * T9i32;
+    //Real dr56pgdt = -(3.0_rt / 2.0_rt) * r56pg * tfactors.T9i +
+    //                dens * T9i32 * tfactors.T9i*tfactors.T9i *
+    //                (4.897_rt * 1.29e-2_rt * std::exp(-4.897_rt * tfactors.T9i)
+    //                 + 20.33_rt * 7.065e3_rt * std::exp(-20.33_rt * tfactors.T9i));
     //....  use generic proton separation energy of 400 kev
     //....  8.02 -> 4.64
     //      cutoni=2.08e-10_rt*dens*exp(8.02*T9m1)/T932
-    Real cutoni = 2.08e-10_rt * dens * std::exp(4.642_rt * tfactors.T9i) * T9i32;
-    Real dcutonidt = cutoni * tfactors.T9i * (-(3.0_rt / 2.0_rt) - 4.642_rt * tfactors.T9i);
-    Real r57decay = 3.54_rt;
-    Real dr56eff = amrex::min(r56pg, cutoni * r57decay);
+    //Real cutoni = 2.08e-10_rt * dens * std::exp(4.642_rt * tfactors.T9i) * T9i32;
+    //Real dcutonidt = cutoni * tfactors.T9i * (-(3.0_rt / 2.0_rt) - 4.642_rt * tfactors.T9i);
+    //Real r57decay = 3.54_rt;
+    //Real dr56eff = amrex::min(r56pg, cutoni * r57decay);
     //   rr(3).rates(r56eff) = d56eff;
     //   if (d56eff < r56pg) rr(3).rates(dr56effdt) = r57decay * dcutonidt;
     rr(3).rates(r56eff) = 0.0_rt;
@@ -285,8 +285,8 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void make_ydots (const Array1D<Real, 1, NumSpec>& ymol, const Real& T9,
-                 burn_t& state, Array1D<rate_t, 1, Rates::NumGroups>& rr,
+void make_ydots (const Array1D<Real, 1, NumSpec>& ymol,
+                 Array1D<rate_t, 1, Rates::NumGroups>& rr,
                  Array1D<Real, 1, neqs>& dydt, bool doing_dratesdt)
 {
     using namespace Species;
@@ -444,10 +444,10 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // build the rates; weak rates are the wk* variables
     Array1D<rate_t, 1, Rates::NumGroups> rr;
-    make_rates(T9, dens, y, state, rr);
+    make_rates(T9, dens, y, rr);
 
     // set up the ODEs for the species
-    make_ydots(y, T9, state, rr, ydot, false);
+    make_ydots(y, rr, ydot, false);
 
     // Energy release
     ener_gener_rate(ydot, ydot(net_ienuc));
@@ -475,7 +475,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     // build the rates; weak rates are the wk* variables
     Array1D<rate_t, 1, Rates::NumGroups> rr;
-    make_rates(T9, dens, ymol, state, rr);
+    make_rates(T9, dens, ymol, rr);
 
 
     // carbon-12
@@ -597,7 +597,7 @@ void actual_jac(burn_t& state, MatrixType& jac)
 
     // energy derivatives df(Y)/df(e)
     Array1D<Real, 1, neqs> ydot;
-    make_ydots(ymol, T9, state, rr, ydot, true);
+    make_ydots(ymol, rr, ydot, true);
 
     for (int i = 1; i <= NumSpec; ++i) {
         jac(i, net_ienuc) = temperature_to_energy_jacobian(state, ydot(i));

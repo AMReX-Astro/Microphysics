@@ -5,7 +5,7 @@
 #include <AMReX_REAL.H>
 #include <eos_type.H>
 #include <network.H>
-#include <burner.H>
+#include <burn_type.H>
 #include <extern_parameters.H>
 #include <cmath>
 #include <AMReX_Array.H>
@@ -225,47 +225,58 @@ T get_nse_state(const T& state)
   // three unit-less constants for calculating coulomb correction term
   // See Calder 2007, doi:10.1086/510709 paper for more detail
 
-  const amrex::Real A1 = -0.9052_rt;
-  const amrex::Real A2 = 0.6322_rt;
-  const amrex::Real A3 = -0.5_rt * std::sqrt(3.0_rt) - A1 / std::sqrt(A2);
 
   // Store nse_state
   T nse_state;
 
-  // Find n_e for original state;
+  // Get the required terms to calculate coulomb correction term, u_c
+  // if we use a non-null screening method.
+  
+#if SCREEN_METHOD != 3
+  const amrex::Real A1 = -0.9052_rt;
+  const amrex::Real A2 = 0.6322_rt;
+  const amrex::Real A3 = -0.5_rt * std::sqrt(3.0_rt) - A1 / std::sqrt(A2);
 
+  // Find n_e for original state;
   const amrex::Real n_e = state.rho * state.y_e / C::m_u;
   amrex::Real gamma;
-  amrex::Real u_c;
+#endif
 
+  amrex::Real u_c = 0.0_rt;
+  
   // set partition function and spin
 
   amrex::Real pf = 1.0_rt;
   amrex::Real dpf_dT;
   amrex::Real spin = 1.0_rt;
 
+  // if we are doing drive_initial_convection, we want to use
+  // the temperature that comes in through T_fixed
+
+  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
 #ifdef TFACTORS_H
-  auto tfactors = evaluate_tfactors(state.T);
+  auto tfactors = evaluate_tfactors(T_in);
 #endif
 
   for (int n = 0; n < NumSpec; ++n){
       if (n == NSE_INDEX::h1_index){
+          nse_state.xn[n] = 0.0;
           continue;
       }
 
       // term for calculating u_c
 
-      // if null screening, set u_c = 0
-#if SCREEN_METHOD == 3
-      u_c = 0.0_rt;
-#else
+      // if use non-null screening, calculate the coulomb correction term
+
+#if SCREEN_METHOD != 3
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) *
           C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) /
-          (C::k_B * state.T);
+          (C::k_B * T_in);
 
       // chemical potential for coulomb correction
 
-      u_c = C::k_B * state.T / C::Legacy::MeV2erg *
+      u_c = C::k_B * T_in / C::Legacy::MeV2erg *
           (A1 * (std::sqrt(gamma * (A2 + gamma)) -
                  A2 * std::log(std::sqrt(gamma / A2) +
                                std::sqrt(1.0_rt + gamma / A2))) +
@@ -287,11 +298,11 @@ T get_nse_state(const T& state)
       Real exponent = amrex::min(500.0_rt,
                                  (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
                                   - u_c + network::bion(n+1)) /
-                                 C::k_B / state.T * C::Legacy::MeV2erg);
+                                 C::k_B / T_in * C::Legacy::MeV2erg);
 
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
           std::pow(2.0 * M_PI * network::mion(n+1) *
-                   C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
+                   C::k_B * T_in / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
           std::exp(exponent);
   }
 
@@ -307,7 +318,7 @@ T get_nse_state(const T& state)
     nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
   }
 
-  nse_state.T = state.T;
+  nse_state.T = T_in;
   nse_state.rho = state.rho;
 
   return nse_state;
@@ -366,15 +377,20 @@ void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
     fjac(2, 1) = 0.0_rt;
     fjac(2, 2) = 0.0_rt;
 
+    // if we are doing drive_initial_convection, we want to use
+    // the temperature that comes in through T_fixed
+
+    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
     for (int n = 0; n < NumSpec; ++n){
         if (n == NSE_INDEX::h1_index){
             continue;
         }
 
-        fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
-        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
-        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
-        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
+        fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / T_in * C::Legacy::MeV2erg ;
+        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / T_in * C::Legacy::MeV2erg;
+        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / T_in * C::Legacy::MeV2erg;
+        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / T_in * C::Legacy::MeV2erg;
     }
 
 }

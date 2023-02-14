@@ -516,12 +516,8 @@ void chugunov2007 (const plasma_state_t& state,
         constexpr Real delta_T = T_norm_fade - T_norm_min;
         tmp = M_PI * (T_norm - T_norm_min) / delta_T;
         Real f = 0.5_rt * (1.0_rt - std::cos(tmp));
-        [[maybe_unused]] Real df_dT;
         if constexpr (do_T_derivatives) {
-            df_dT = 0.5_rt * M_PI / delta_T * std::sin(tmp) * dT_norm_dT;
-        }
-
-        if constexpr (do_T_derivatives) {
+            Real df_dT = 0.5_rt * M_PI / delta_T * std::sin(tmp) * dT_norm_dT;
             dT_norm_dT = -df_dT * T_norm_min + df_dT * T_norm + f * dT_norm_dT;
         }
         T_norm = (1.0_rt - f) * T_norm_min + f * T_norm;
@@ -547,9 +543,8 @@ void chugunov2007 (const plasma_state_t& state,
         constexpr Real delta_gamma = Gamma_max - Gamma_fade;
         tmp = M_PI * (Gamma - Gamma_fade) / delta_gamma;
         Real f = 0.5_rt * (1.0_rt - std::cos(tmp));
-        [[maybe_unused]] Real df_dT;
         if constexpr (do_T_derivatives) {
-            df_dT = 0.5_rt * M_PI / delta_gamma * std::sin(tmp) * dGamma_dT;
+            Real df_dT = 0.5_rt * M_PI / delta_gamma * std::sin(tmp) * dGamma_dT;
             dGamma_dT = dGamma_dT - (df_dT * Gamma + f * dGamma_dT) + df_dT * Gamma_max;
         }
         Gamma = (1.0_rt - f) * Gamma + f * Gamma_max;
@@ -763,7 +758,7 @@ void chugunov2009 (const plasma_state_t& state,
 
     Real poly = 1.0_rt + zeta*(c1 + zeta*(c2 + c3*zeta));
     Real t_12 = std::cbrt(poly);
-    Real dlog_dT;
+    Real dlog_dT = 0.0_rt;
     if constexpr (do_T_derivatives) {
         Real dc3_dT = -1.8_rt / Gamma_12 * dlog_Gamma_dT;
         Real dpoly_dT = (c1 + zeta*(2.0_rt*c2 + 3.0_rt*c3*zeta))*dzeta_dT + dc3_dT*zeta*zeta*zeta;
@@ -775,7 +770,7 @@ void chugunov2009 (const plasma_state_t& state,
     // Using Gamma/tau_ij gives extremely low values, while Gamma/t_ij gives
     // values similar to those from Chugunov 2007.
     Real term1, term2, term3;
-    Real dterm1_dT, dterm2_dT, dterm3_dT;
+    Real dterm1_dT = 0.0_rt, dterm2_dT = 0.0_rt, dterm3_dT = 0.0_rt;
     f0<do_T_derivatives>(Gamma_1 / t_12, dlog_dT, term1, dterm1_dT);
     f0<do_T_derivatives>(Gamma_2 / t_12, dlog_dT, term2, dterm2_dT);
     f0<do_T_derivatives>(Gamma_comp / t_12, dlog_dT, term3, dterm3_dT);
@@ -905,7 +900,7 @@ void chabrier1998 (const plasma_state_t& state,
   [[maybe_unused]] Real Gamma_eff_dT;
 
   if constexpr (do_T_derivatives) {
-    Gamma_eff_dT /= -state.temp;
+    Gamma_eff_dT = -Gamma_eff / state.temp;
   }
   
   // TAU/3, see Wallace1982, Eq. A2
@@ -933,16 +928,16 @@ void chabrier1998 (const plasma_state_t& state,
 				  - 0.128_rt * std::pow(b_fac, 5));
   
   Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * std::pow(b_fac, 4) - 0.0098_rt * std::pow(b_fac, 5)
-				      - 0.048_rt * std::pow(b_fac, 6));
+				      + 0.0048_rt * std::pow(b_fac, 6));
 
   [[maybe_unused]] Real quantum_corr_1_dT;
   [[maybe_unused]] Real quantum_corr_2_dT;
   if constexpr (do_T_derivatives) {
-    quantum_corr_1_dT = -tau12dT * quantum_corr_1 - tau12 * b_fac_dT
+    quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 * b_fac_dT
       * (15.0_rt/32.0_rt * std::pow(b_fac, 2) - 0.014_rt * 4.0_rt * std::pow(b_fac, 3)
 	 - 0.128_rt * 5.0_rt * std::pow(b_fac, 4));
 
-    quantum_corr_2_dT = -Gamma_eff_dT * quantum_corr_2 - Gamma_eff * b_fac_dT
+    quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff * b_fac_dT
       * (0.0055_rt * 4.0_rt * std::pow(b_fac, 3) - 0.0098_rt * 5.0_rt
 	 * std::pow(b_fac, 4) + 0.0048_rt * 6.0_rt * std::pow(b_fac, 5));
   }

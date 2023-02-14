@@ -19,7 +19,7 @@ using namespace unit_test_rp;
 
 void eos_test_C(const Box& bx,
                 const Real dlogrho, const Real dlogT, const Real dmetal,
-                const plot_t vars,
+                const plot_t& vars,
                 Array4<Real> const sp) {
 
   const int ih1 = network_spec_index("hydrogen-1");

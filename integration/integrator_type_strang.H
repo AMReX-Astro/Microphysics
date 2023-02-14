@@ -119,6 +119,13 @@ void update_thermodynamics (burn_t& state, const I& int_state)
     if (call_eos_in_rhs) {
         eos(eos_input_re, state);
     }
+
+    // override T if we are fixing it (e.g. due to
+    // drive_initial_convection)
+    if (state.T_fixed > 0.0_rt) {
+        state.T = state.T_fixed;
+    }
+
 }
 
 #endif
