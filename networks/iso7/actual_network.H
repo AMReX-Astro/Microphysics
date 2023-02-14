@@ -250,6 +250,8 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
 
+            data.rate_can_be_tabulated = 0;
+
             data.additional_reaction_1 = Ca40_He4_to_Ti44;
             break;
 
