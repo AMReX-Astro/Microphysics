@@ -15,7 +15,7 @@
 #include <variables.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t p)
+bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t& p)
 {
 
     burn_t burn_state;

@@ -22,7 +22,8 @@
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs(const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bool in_jacobian=false)
+void rhs(const Real time, burn_t& state, T& int_state, RArray1D& ydot,
+         [[maybe_unused]] const bool in_jacobian=false)
 {
 
     // update rho
@@ -65,16 +66,18 @@ void rhs(const Real time, burn_t& state, T& int_state, RArray1D& ydot, const boo
     // apply fudge factor:
 
     if (react_boost > 0.0_rt) {
-        // the correct size here is the size of the reactive state RHS,
-        // not the SDC state RHS (neqs, not INT_NEQS)
+        // the correct size here is the size of the reactive state
+        // RHS, not the SDC state RHS (neqs, not INT_NEQS)
+
         for (int n = 1; n <= neqs; ++n) {
             ydot(n) *= react_boost;
         }
     }
 
-    // convert back to the int type -- this will add the advective terms
+    // convert back to the form needed by the integrator -- this will
+    // add the advective terms
 
-    rhs_to_int(time, state, int_state, ydot);
+    rhs_to_int(time, state, ydot);
 
 }
 
@@ -143,7 +146,7 @@ void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
 
     // pd is now of the form:
     //
-    //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \
+    //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \ //
     //              | d(rho X2dot)/dX1  d(rho X2dot)/dX2 ... 1/cv d(rho X2dot)/dT |
     //  SFS-1+nspec |   ...                                                       |
     //  SEINT       \ d(rho Edot)/dX1   d(rho Edot)/dX2  ... 1/cv d(rho Edot)/dT  /

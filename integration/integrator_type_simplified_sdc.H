@@ -12,7 +12,7 @@
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_density_in_time(const Real time, burn_t& state, const T& int_state)
+void update_density_in_time(const Real time, burn_t& state, [[maybe_unused]] const T& int_state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -240,10 +240,9 @@ void int_to_burn(const Real time, const T& int_state, burn_t& state)
 }
 
 
-template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs_to_int(const Real time, burn_t& state,
-                T& int_state,
+void rhs_to_int([[maybe_unused]] const Real time,
+                burn_t& state,
                 RArray1D& ydot)
 {
 
