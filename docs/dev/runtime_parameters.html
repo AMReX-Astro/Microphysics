@@ -91,6 +91,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#test-eos">test_eos</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-jac">test_jac</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-nse">test_nse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#test-nse-interp">test_nse_interp</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-part-func">test_part_func</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-react">test_react</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#test-rhs">test_rhs</a></li>
@@ -311,6 +312,11 @@ consider species that are &gt; X_reject_buffer * atol_spec</p></td>
 <td><p>factor (&lt; 1) by which to relax the criteria for
 entering NSE. This is only applied after a failed burn.</p></td>
 <td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_table_interp_linear</span></code></p></td>
+<td><p>do we do tri-linear or tri-cubic interpolation on the
+table?</p></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -1882,6 +1888,39 @@ compatibility</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">y_e</span></code></p></td>
 <td></td>
 <td><p>0.5</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="test-nse-interp">
+<h1>test_nse_interp<a class="headerlink" href="#test-nse-interp" title="Permalink to this heading">¶</a></h1>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<td></td>
+<td><p>1.23e9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+<td><p>5.18e9</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ye</span></code></p></td>
+<td></td>
+<td><p>0.472</p></td>
 </tr>
 </tbody>
 </table>
