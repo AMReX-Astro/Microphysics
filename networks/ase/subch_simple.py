@@ -11,7 +11,7 @@ def get_library():
 
     reaclib_lib = pyna.ReacLibLibrary()
 
-    all_reactants = ["p", "n", 
+    all_reactants = ["p", "n",
                      "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
                      "ar36", "ca40", "ti44", "cr48", "fe52", "ni56",
                      "al27", "p31", "cl35", "k39", "sc43", "v47", "mn51", "co55",
@@ -66,15 +66,15 @@ def get_library():
                 # recompute it
                 rates_to_derive.append(r)
 
-    # now for each of those derived rates, look to see if the pair exists
+        # now for each of those derived rates, look to see if the pair exists
 
-    for r in rates_to_derive:
-        fr = subch.get_rate_by_nuclei(r.products, r.reactants)
-        if fr:
-            print(f"modifying {r} from {fr}")
-            subch.remove_rate(r)
-            d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
-            subch.add_rate(d)
+        for r in rates_to_derive:
+            fr = subch.get_rate_by_nuclei(r.products, r.reactants)
+            if fr:
+                print(f"modifying {r} from {fr}")
+                subch.remove_rate(r)
+                d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+                subch.add_rate(d)
 
     return subch
 
@@ -85,23 +85,17 @@ def doit():
     # these are the rates that we are going to allow to be optionally
     # zeroed
     r1 = subch.get_rate_by_name("c12(p,g)n13")
-    r2 = subch.get_rate_by_name("n13(a,p)o16")
+    r2 = subch.get_rate_by_name("n13(he4,p)o16")
 
-    # at this point we have a library with all the rates that we want.
-    # We can create the network now.
-
-    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False,
-                               disable_rate_params=[r1, r2])
-
-    # now we do the (a,p)(p,g) approximation
-
+    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False, disable_rate_params=[r1, r2])
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
 
+    # finally, the aprox nets don't include the reverse rates for
+    # C12+C12, C12+O16, and O16+O16, so remove those
+
     print(f"number of nuclei: {len(net.unique_nuclei)}")
     print(f"number of rates: {len(net.rates)}")
-
-
 
     comp = pyna.Composition(net.get_nuclei())
     comp.set_all(0.1)
