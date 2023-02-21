@@ -983,9 +983,10 @@ void actual_screen(const plasma_state_t& state,
     chugunov2009<do_T_derivatives>(state, scn_fac, scor, scordt);
 #elif SCREEN_METHOD == 3
     // null screening
+    amrex::ignore_unused(state, scn_fac);
     scor = 1.0_rt;
     scordt = 0.0_rt;
-#elif SCREEN_METHOD ==4
+#elif SCREEN_METHOD == 4
     chabrier1998<do_T_derivatives>(state, scn_fac, scor, scordt);
 #endif
 }
