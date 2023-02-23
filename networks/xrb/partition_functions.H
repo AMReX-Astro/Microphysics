@@ -185,7 +185,7 @@ constexpr Real get_spin_state(const int inuc) {
         spin = 1;
         break;
 
-    case Ni56:
+    case Fe56:
         spin = 1;
         break;
 

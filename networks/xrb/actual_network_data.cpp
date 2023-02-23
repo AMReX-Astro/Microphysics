@@ -39,7 +39,7 @@ void actual_network_init()
     ebind_per_nucleon(Mg22) = 7.662761000000001_rt;
     ebind_per_nucleon(Mg23) = 7.901115_rt;
     ebind_per_nucleon(Mg24) = 8.260709_rt;
-    ebind_per_nucleon(Ni56) = 8.642779_rt;
+    ebind_per_nucleon(Fe56) = 8.790353999999999_rt;
 
     // convert to binding energies per nucleus in MeV
     for (int i = 1; i <= NumSpec; ++i) {

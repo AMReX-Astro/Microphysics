@@ -918,7 +918,7 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_c12_o16__he4_mg24)*Y(C12)*Y(O16)*state.rho +
         -screened_rates(k_p_mg24__he4_na21)*Y(Mg24)*Y(H1)*state.rho;
 
-    ydot_nuc(Ni56) = 0.0;
+    ydot_nuc(Fe56) = 0.0;
 
 }
 
