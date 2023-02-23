@@ -1,7 +1,7 @@
 #include <AMReX_Vector.H>
 #include <actual_network.H>
 #ifdef NSE_TABLE
-#include <nse.H>
+#include <nse_table.H>
 #endif
 
 namespace network
@@ -13,10 +13,6 @@ namespace network
 #ifdef NSE_TABLE
 namespace table
 {
-
-  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
-  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
-  AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
 
   AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
   AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;

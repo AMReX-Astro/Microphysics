@@ -1,0 +1,60 @@
+@namespace: eos
+
+eos_gamma_default       real          1.4
+
+# define the specie names, and their masses and gammas
+species_a_name          character     "elec"
+species_a_gamma         real          5./3.
+species_a_mass          real          9.10938188e-28
+
+species_b_name          character     "hp"
+species_b_gamma         real          5./3.
+species_b_mass          real          1.67262158e-24
+
+species_c_name          character     "h"
+species_c_gamma         real          5./3.
+species_c_mass          real          1.67353251819e-24
+
+species_d_name          character     "hm"
+species_d_gamma         real          5./3.
+species_d_mass          real          1.67444345638e-24
+
+species_e_name          character     "dp"
+species_e_gamma         real          5./3.
+species_e_mass          real          3.34512158e-24
+
+species_f_name          character     "d"
+species_f_gamma         real          5./3.
+species_f_mass          real          3.34603251819e-24
+
+species_g_name          character     "h2p"
+species_g_gamma         real          1.4
+species_g_mass          real          3.34615409819e-24
+
+species_h_name          character     "dm"
+species_h_gamma         real          5./3.
+species_h_mass          real          3.34694345638e-24
+
+species_i_name          character     "h2"
+species_i_gamma         real          1.4
+species_i_mass          real          3.34706503638e-24
+
+species_j_name          character     "hdp"
+species_j_gamma         real          1.4
+species_j_mass          real          5.01865409819e-24
+
+species_k_name          character     "hd"
+species_k_gamma         real          1.4
+species_k_mass          real          5.01956503638e-24
+
+species_l_name          character     "hepp"
+species_l_gamma         real          5./3.
+species_l_mass          real          6.69024316e-24
+
+species_m_name          character     "hep"
+species_m_gamma         real          5./3.
+species_m_mass          real          6.69115409819e-24
+
+species_n_name          character     "he"
+species_n_gamma         real          5./3.
+species_n_mass          real          6.69206503638e-24

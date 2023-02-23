@@ -63,7 +63,7 @@ The interfaces to all of the networks and integrators are written in C++.
 
 The main entry point for C++ is ``burner()`` in
 ``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE`` or ``ForwardEuler``).
+routine (at the moment this can be ``VODE``, ``BackwardEuler``, or ``ForwardEuler``).
 
 .. code-block:: c++
 
@@ -87,16 +87,10 @@ to pass both the specific integrator's type (e.g. ``dvode_t``) and
 
 The overall flow of the integrator is (using VODE as the example):
 
-#. Call the EOS on the input ``burn_t`` state.  This involves:
+#. Call the EOS directly on the input ``burn_t`` state using :math:`\rho` and :math:`T` as inputs.
 
-   #. calling ``burn_to_eos`` to convert the ``burn_t`` to an ``eos_t``
-
-   #. calling the EOS with :math:`\rho` and :math:`T` as input
-
-   #. calling ``eos_to_burn`` to convert the ``eos_t`` back to a ``burn_t``
-
-#. Fill the integrator type by calling ``burn_to_vode`` to create a
-   ``dvode_t`` from the ``burn_t``
+#. Fill the integrator type by calling ``burn_to_integrator()`` to create a
+   ``dvode_t``.
 
 #. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
    ``burn_t`` --- as noted above, the auxillary information that is
@@ -106,7 +100,7 @@ The overall flow of the integrator is (using VODE as the example):
 #. subtract off the energy offset---we now store just the energy released
    in the ``dvode_t`` integration state.
 
-#. convert back to a ``burn_t`` by calling ``vode_to_burn``
+#. convert back to a ``burn_t`` by calling ``integrator_to_burn``
 
 #. normalize the abundances so they sum to 1.
 
@@ -114,6 +108,10 @@ The overall flow of the integrator is (using VODE as the example):
 
    Upon exit, ``burn_t burn_state.e`` is the energy *released* during
    the burn, and not the actual internal energy of the state.
+
+   Optionally, by settting ``integrator.subtract_internal_energy=0``
+   the output will be the total internal energy, including that released
+   burning the burn.
 
 Network Routines
 ----------------
@@ -196,9 +194,8 @@ flow is (for VODE):
 #. call ``clean_state`` on the ``dvode_t``
 
 #. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
-   the ``dvode_t`` and the ``burn_t``.
-
-#. call ``vode_to_burn`` to update the ``burn_t``
+   the ``dvode_t`` and the ``burn_t`` and computes the temperature that matches the
+   current state.
 
 #. call ``actual_rhs``
 
@@ -207,8 +204,6 @@ flow is (for VODE):
    those quantities.
 
 #. apply any boosting if ``react_boost`` > 0
-
-#. convert back to the ``dvode_t`` by calling ``burn_to_vode``
 
 
 Jacobian implementation
@@ -266,15 +261,13 @@ flow is (for VODE):
    wrapper above which did the ``clean_state`` and
    ``update_thermodynamics`` calls.
 
-#. call ``vode_to_burn`` to update the ``burn_t``
+#. call ``integrator_to_burn`` to update the ``burn_t``
 
 #. call ``actual_jac()`` to have the network fill the Jacobian array
 
 #. convert the derivative to be mass-fraction-based
 
 #. apply any boosting to the rates if ``react_boost`` > 0
-
-#. call ``burn_to_vode`` to update the ``dvode_t``
 
 
 
@@ -353,8 +346,19 @@ The name of the integrator can be selected at compile time using
 the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
 the allowed options are:
 
+* ``BackwardEuler``: an implicit first-order accurate backward-Euler
+  method.  An error estimate is done by taking 2 half steps and
+  comparing to a single full step.  This error is then used to control
+  the timestep by using the local truncation error scaling.
+
 * ``ForwardEuler``: an explicit first-order forward-Euler method.  This is
   meant for testing purposes only.
+
+* ``QSS``: the quasi-steady-state method of :cite:`mott_qss` (see also
+  :cite:`guidry_qss`). This uses a second-order predictor-corrector method,
+  and is designed specifically for handling coupled ODE systems for chemical
+  and nuclear reactions. However, this integrator has difficulty near NSE,
+  so we don't recommend its use in production for nuclear astrophysics.
 
 * ``VODE``: the VODE (:cite:`vode`) integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.

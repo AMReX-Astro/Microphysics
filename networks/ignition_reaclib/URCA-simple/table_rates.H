@@ -40,7 +40,6 @@ struct table_t
     int nrhoy;
     int nvars;
     int nheader;
-    std::string file;
 };
 
 // we add a 7th quantity dr/dT
@@ -67,10 +66,10 @@ namespace rate_tables
 }
 
 template <typename R, typename T, typename D>
-void init_tab_info(const table_t tf, R& rhoy, T& temp, D& data) {
+void init_tab_info(const table_t& tf, const std::string& file, R& rhoy, T& temp, D& data) {
 
     std::ifstream table;
-    table.open(tf.file);
+    table.open(file);
 
     std::string line;
 
@@ -316,7 +315,7 @@ void
 tabular_evaluate(const table_t& table_meta,
                  const R& rhoy_table, const T& temp_table, const D& data,
                  const Real rhoy, const Real temp,
-                 Real& rate, Real& drate_dt, Real& edot_nu)
+                 Real& rate, Real& drate_dt, Real& edot_nu, Real& edot_gamma)
 {
 
 
@@ -330,9 +329,10 @@ tabular_evaluate(const table_t& table_meta,
     // Fill outputs: rate, d(rate)/d(temperature), and
     // (negative) neutrino loss contribution to energy generation
 
-    rate     = entries(jtab_rate);
-    drate_dt = entries(k_drate_dt);
-    edot_nu  = -entries(jtab_nuloss);
+    rate       = entries(jtab_rate);
+    drate_dt   = entries(k_drate_dt);
+    edot_nu    = -entries(jtab_nuloss);
+    edot_gamma = entries(jtab_gamma);
 }
 
 #endif

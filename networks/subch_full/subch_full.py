@@ -3,7 +3,7 @@
 # approximations.
 
 import pynucastro as pyna
-from pynucastro.networks import StarKillerCxxNetwork
+from pynucastro.networks import AmrexAstroCxxNetwork
 
 def get_library():
 
@@ -19,16 +19,14 @@ def get_library():
 
     # in this list, we have the reactants, the actual reactants,
     # and modified products that we will use instead
-    other_rates = [(("c12", "c12"), ("mg23", "n"), ("mg24")),
-                   (("o16", "o16"), ("s31", "n"), ("s32")),
-                   (("c12", "o16"), ("si27", "n"), ("si28"))]
+    other_rates = [("c12(c12,n)mg23", "mg24"),
+                   ("o16(o16,n)s31", "s32"),
+                   ("o16(c12,n)si27", "si28")]
 
-    for r, p, mp in other_rates:
-        rfilter = pyna.rates.RateFilter(reactants=r, products=p)
-        _library = reaclib_lib.filter(rfilter)
-        r = _library.get_rates()[0]
-        r.modify_products(mp)
-        subch += _library
+    for r, mp in other_rates:
+        _r = reaclib_lib.get_rate_by_name(r)
+        _r.modify_products(mp)
+        subch += pyna.Library(rates=[_r])
 
     return subch
 
@@ -54,10 +52,10 @@ def doit():
 
     # these are the rates that we are going to allow to be optionally
     # zeroed
-    r1 = subch.get_rate("p_c12__n13")
-    r2 = subch.get_rate("he4_n13__p_o16")
+    r1 = subch.get_rate_by_name("c12(p,g)n13")
+    r2 = subch.get_rate_by_name("n13(a,p)o16")
 
-    net = StarKillerCxxNetwork(libraries=[subch], symmetric_screening=True, disable_rate_params=[r1, r2])
+    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=True, disable_rate_params=[r1, r2])
     net.write_network()
 
 

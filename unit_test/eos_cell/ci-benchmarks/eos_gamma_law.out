@@ -1,0 +1,37 @@
+AMReX (22.10-75-g0a3ee1486cc3) initialized
+calling the EOS on a single zone state...
+rho = 1000000
+T =   1000000000
+xn = 1 0 0 0 0 0 0 0 0 0 0 0 0 
+p = 2.078615536e+22
+e = 3.117923305e+16
+h = 5.196538841e+16
+s = 315177040.1
+dpdT = 2.078615536e+13
+dpdr = 2.078615536e+16
+dedT = 31179233.05
+dedr = 0
+dhdT = 51965388.41
+dhdr = 0
+dsdT = 0.03117923305
+dsdr = -20.78615536
+dpde = 666666.6667
+dpdr_e = 2.078615536e+16
+cv = 31179233.05
+cp = 51965388.41
+xne = 0
+xnp = 0
+eta = 0
+pele = 0
+ppos = 0
+mu = 4
+mu_e = 2
+y_e = 0.5
+gam1 = 1.666666667
+cs = 186127892.2
+abar = 4
+zbar = 2
+Unused ParmParse Variables:
+  [TOP]::unit_test.x4(nvals = 1)  :: [0.0]
+
+AMReX (22.10-75-g0a3ee1486cc3) finalized

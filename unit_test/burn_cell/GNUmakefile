@@ -14,11 +14,7 @@ USE_REACT = TRUE
 
 EBASE = main
 
-USE_CXX_REACTIONS ?= TRUE
-
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
+BL_NO_FORT = TRUE
 
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
@@ -38,7 +34,7 @@ ifeq ($(USE_CUDA), TRUE)
   INTEGRATOR_DIR := VODE
 endif
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
 Blocs   := .

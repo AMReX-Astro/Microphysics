@@ -10,10 +10,9 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const& n_rhs, const plot_t p)
+bool do_react (int i, int j, int k, Array4<Real> const& state,
+               burn_t& burn_state, Array4<int> const& n_rhs, const plot_t& p)
 {
-
-    burn_t burn_state;
 
     burn_state.rho = state(i, j, k, p.irho);
     burn_state.T = state(i, j, k, p.itemp);
@@ -43,6 +42,8 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
     burn_state.reference_time = 0.0;
 #endif
 
+    burn_state.T_fixed = -1.0_rt;
+
     burner(burn_state, dt);
 
     for (int n = 0; n < NumSpec; ++n) {
@@ -59,6 +60,7 @@ bool do_react (int i, int j, int k, Array4<Real> const& state, Array4<int> const
     state(i, j, k, p.irho_hnuc) = state(i, j, k, p.irho) * burn_state.e / dt;
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
+    n_rhs(i, j, k, 1) = burn_state.n_step;
 
     return burn_state.success;
 

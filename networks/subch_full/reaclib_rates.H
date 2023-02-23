@@ -4,50 +4,22 @@
 #include <AMReX.H>
 #include <AMReX_Print.H>
 
+#include <tfactors.H>
 #include <actual_network.H>
+#include <partition_functions.H>
 
 using namespace Rates;
+using namespace Species;
 
 struct rate_t {
     Array1D<Real, 1, NumRates>  screened_rates;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
 };
 
 struct rate_derivs_t {
     Array1D<Real, 1, NumRates>  screened_rates;
     Array1D<Real, 1, NumRates>  dscreened_rates_dT;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
 };
 
-struct tf_t {
-    Real T9;
-    Real T9i;
-    Real T943i;
-    Real T923i;
-    Real T913i;
-    Real T913;
-    Real T923;
-    Real T953;
-    Real lnT9;
-};
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-tf_t evaluate_tfactors(const Real T)
-{
-
-    tf_t tf;
-    tf.T9 = T / 1.e9_rt;
-    tf.T9i = 1.0_rt / tf.T9;
-    tf.T913 = std::cbrt(tf.T9);
-    tf.T913i = 1.0_rt / tf.T913;
-    tf.T923i = tf.T913i * tf.T913i;
-    tf.T943i = tf.T9i * tf.T913i;
-    tf.T923 = tf.T913 * tf.T913;
-    tf.T953 = tf.T9 * tf.T923;
-    tf.lnT9 = std::log(tf.T9);
-
-    return tf;
-}
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -5394,6 +5366,17 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
         rate_eval.dscreened_rates_dT(k_c12_o16__si28__modified) = drate_dT;
 
     }
+
+}
+
+template <int do_T_derivatives, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void
+fill_approx_rates([[maybe_unused]] const tf_t& tfactors, T& rate_eval)
+{
+
+    Real rate;
+    Real drate_dT;
 
 
 }

@@ -9,9 +9,8 @@ CEXE_sources += eos_data.cpp
 
 CEXE_headers += network.H
 CEXE_headers += rhs_type.H
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  CEXE_sources += network_initialization.cpp
-endif
+CEXE_headers += tfactors.H
+CEXE_sources += network_initialization.cpp
 
 ifeq ($(USE_CONDUCTIVITY), TRUE)
   CEXE_headers += conductivity.H

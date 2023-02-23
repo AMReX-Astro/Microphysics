@@ -1,6 +1,7 @@
 #ifndef NUMERICAL_JACOBIAN_H
 #define NUMERICAL_JACOBIAN_H
 
+#include <eos_composition.H>
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
@@ -142,9 +143,9 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     }
 
 
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     // make the aux data consistent with the state X's
-    set_nse_aux_from_X(state_delp);
+    set_aux_comp_from_X(state_delp);
 #endif
 
     eos(eos_input_rt, state_delp);
@@ -170,9 +171,9 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     for (int n = 0; n < NumSpec; n++) {
         eos_state.xn[n] = state.xn[n];
     }
-#ifdef NSE_THERMO
+#ifdef AUX_THERMO
     // make the aux data consistent with the state X's
-    set_nse_aux_from_X(eos_state);
+    set_aux_comp_from_X(eos_state);
 #endif
 
     eos(eos_input_re, eos_state);

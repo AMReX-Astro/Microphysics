@@ -18,8 +18,9 @@ The options are:
   This is the screening routine from the Kepler stellar evolution code
   and is the default used with the distributed versions of the "aprox"
   family of reaction networks.  It uses the screening described in
-  :cite:`graboske:1973` for the weak limit and :cite:`alastuey:1978`,
-  :cite:`itoh:1979` for the strong limit.
+  :cite:`graboske:1973` for the weak limit and :cite:`jancovici:1977`,
+  :cite:`alastuey:1978`, :cite:`itoh:1979` for the strong limit. The
+  overall procedure is described in :cite:`Wallace:1982`.
 
   This is the default screening method.
 
@@ -38,3 +39,12 @@ The options are:
 
   This includes the portion in the appendix that blends in the weak
   screening limit.
+
+* ``null`` :
+
+  This disables screening by always returning 1 for the screening
+  enhancement factor.
+
+* ``chabrier1998``:
+
+  This implements the screening of :cite:`Chabrier_1998` as well as the quantum corrections for strong screening according to screen5. This is suggested in the appendix of :cite:`Calder_2007`. This screening is compatible with NSE calculations unlike ``screen5``, ``chugunov2007``, and ``chugunov2009``. This screening should be valid in the weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime, :math:`1 \lesssim \Gamma \lesssim 160`.

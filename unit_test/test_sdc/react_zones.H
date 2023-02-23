@@ -10,7 +10,7 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_react (const plot_t p, const int i, const int j, const int k,
+bool do_react (const plot_t& p, const int i, const int j, const int k,
                Array4<Real> const& state, Array4<int> const& n_rhs)
 {
 
@@ -28,8 +28,8 @@ bool do_react (const plot_t p, const int i, const int j, const int k,
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = state(i, j, k, p.ispec_old+n);
     }
-#ifdef NSE_THERMO
-    set_nse_aux_from_X(eos_state);
+#ifdef AUX_THERMO
+    set_aux_comp_from_X(eos_state);
 #endif
 
     eos(eos_input_rt, eos_state);

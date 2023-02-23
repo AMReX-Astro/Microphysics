@@ -1,13 +1,82 @@
+# 23.02
+
+  * `T_fixed` now works with NSE (#1098, #1111)
+
+  * `USE_NSE` was changed to `USE_NSE_TABLE` (#1108)
+
+# 23.01
+
+  * a new test, burn_cell_primordial_chem/, works with the primordial
+    chemistry (#1064)
+
+  * burn_cell and burn_cell_sdc now work with aux data with NSE
+    (#1084, #1094)
+
+  * a screening implementation from Chabrier & Potekhin (1998) was
+    added (#1085)
+
+  * test_react can now output the burn state that took the longest to
+    evaluate (#967)
+
+  * an initial implementation of adaptive nuclear statistic equilibrium
+    was added (#983)
+
+# 22.12
+
+  * A first order backward Euler integrator was added that works with
+    both Strang and simplified-SDC integration (#504, #1041, #1042, #1045)
+
+  * The jacobian = 3 option for simplified SDC was removed (#1069)
+
+  * An option to not subtract off the initial energy after the burn
+    was added as well as one to evolve number densities (#999, #1051)
+
+  * The python bindings have been removed (#1036)
+
+  * An issue with reading the helmholtz table on GPUs was fixed (#1020)
+
+# 22.11
+
+  * use of the auxillary state to define composition is now enabled
+    via USE_AUX_THERMO and the preprocessor variable AUX_THERMO
+    (#1003)
+
+# 22.10
+
+  * A null screening routine was added to disable screening for any network at
+    compile time. (#992)
+
+  * An option to disable the clipping of species in the VODE integration
+    was added (`integrator.do_species_clip`) (#989)
+
+  * A unit test for C++ partition functions was added (#980)
+
+  * An EOS for primordial chemistry was added (#981)
+
+  * A C++ version of the Powell's hybrid non linear system solver was
+    added (#976)
+
+  * screening in the approximate rates in pynucastro nets was fixed
+    (#978)
+
+# 22.09
+
+  * An NSE solver was added (#963)
+
+  * A new network, subch_simple, was added that further simplifies
+    He/C burning (#964)
+
 # 22.08
 
-  * The subch network was renamed `subch_approx` and the subch2 network was renamed
-    `subch_full` (#947)
+  * The subch network was renamed `subch_approx` and the subch2
+    network was renamed `subch_full` (#947)
 
 # 22.07
 
-  * Two new screening formulations have been added for reaction rates, based
-    on Chugunov, DeWitt, and Yakovlev 2007 and Chugunov and DeWitt 2009.  These
-    can be used with any network by setting SCREEN_METHOD at compile time.(#887)
+  * Two new screening formulations have been added for reaction rates,
+    based on Chugunov, DeWitt, and Yakovlev 2007 and Chugunov and
+    DeWitt 2009.  These can be used with any network by setting
+    SCREEN_METHOD at compile time.(#887)
 
 # 22.06
 
@@ -21,8 +90,8 @@
 
 # 22.04
 
-  * aprox networks now use a templated C++ righthand side formulation that
-    builds the ODE system at compile time. (#802)
+  * aprox networks now use a templated C++ righthand side formulation
+    that builds the ODE system at compile time. (#802)
 
   * pynucastro networks were regenerated to take advantage of recent
     optimizations (#901)
@@ -69,7 +138,7 @@
   * With Intel compilers, logical runtime parameters in Fortran
     were not being correctly cast to int (#789)
 
-  * Simplified-SDC now works with Fortran nets (#786) 
+  * Simplified-SDC now works with Fortran nets (#786)
 
 # 21.09
 
@@ -89,8 +158,8 @@
   * the numerical Jacobian now uses a more robust one-sided difference
     algorithm (#660, #728)
 
-  * for simplified SDC, we now only integrate (rho X, rho e), and no longer
-    integrate (rho E) (#710, #712, #717)
+  * for simplified SDC, we now only integrate (rho X, rho e), and no
+    longer integrate (rho E) (#710, #712, #717)
 
   * for the NSE bailout, we can now relax the conditions needed to enter
     NSE after a failed burn (#702)
@@ -136,9 +205,10 @@
 
 # 21.03
 
-   * We now integrate internal energy (e) directly instead of integrating
-     temperature (T) for the thermodynamic evolution. T is obtained from e
-     with an EOS call when needed to evaluate the rates. (#496)
+   * We now integrate internal energy (e) directly instead of
+     integrating temperature (T) for the thermodynamic evolution. T is
+     obtained from e with an EOS call when needed to evaluate the
+     rates. (#496)
 
    * simplified-SDC can be used with the NSE table in aprox19 now
      (#423, #497)
@@ -159,8 +229,8 @@
 
    * Microphysics now requires C++17 (gcc >= 7, CUDA >= 11). (#485)
 
-   * The BS integrator was removed.  This was Fortran only, doesn't support
-     SDC integration, and not well used. (#488)
+   * The BS integrator was removed.  This was Fortran only, doesn't
+     support SDC integration, and not well used. (#488)
 
 # 20.12
 
@@ -195,8 +265,8 @@
    * A new single-zone EOS test routine was created as unit_test/eos_cell
      (#382)
 
-   * The gamma_law eos (not gamma_law_general) now fills the sound speed,
-     entropy, and derivatives for more inputs (#374)
+   * The gamma_law eos (not gamma_law_general) now fills the sound
+     speed, entropy, and derivatives for more inputs (#374)
 
    * The rprox network now has screening (#377)
 
@@ -214,8 +284,8 @@
    * The VBDF integrator was removed (#348)
 
    * VODE can now reject an internal timestep that has any abundance
-     change by more than a factor of 2, or an abundance < 0 or > 1,
-     as well as timesteps where the temperature ends up negative. (#350)
+     change by more than a factor of 2, or an abundance < 0 or > 1, as
+     well as timesteps where the temperature ends up negative. (#350)
 
 # 20.07
 

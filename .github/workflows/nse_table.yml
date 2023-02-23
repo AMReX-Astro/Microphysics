@@ -1,0 +1,45 @@
+name: nse_table
+
+on: [pull_request]
+jobs:
+  nse_table:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
+
+      - name: Compile, burn_cell (NSE, aprox19)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE INTEGRATOR_DIR=VODE -j 4
+
+      - name: Run burn_cell (NSE, aprox19)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_aprox19.nse > test.out
+
+      - name: Compare to stored output (NSE, aprox19)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox19_nse_unit_test.out
+
+

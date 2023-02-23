@@ -41,7 +41,7 @@ const int VODE_LMAX = VODE_MAXORD + 1;
 // How many timesteps should pass before refreshing the Jacobian
 const int max_steps_between_jacobian_evals = 50;
 
-#ifdef NSE_THERMO
+#ifdef NSE
 const int MIN_NSE_BAILOUT_STEPS = 10;
 #endif
 
@@ -147,8 +147,11 @@ struct dvode_t
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
-    RArray1D rtol, atol;
-
+    Real rtol_spec, atol_spec;
+    Real rtol_enuc, atol_enuc;
+#ifdef TRUE_SDC
+    Real rtol_dens, atol_dens;
+#endif
     // Local time and integration end time
     amrex::Real t, tout;
 
@@ -249,10 +252,10 @@ void print_state(dvode_t& dvode_state)
 #endif
 
 #ifdef SIMPLIFIED_SDC
-#include <vode_type_simplified_sdc.H>
+#include <integrator_type_simplified_sdc.H>
 #endif
 #ifdef STRANG
-#include <vode_type_strang.H>
+#include <integrator_type_strang.H>
 #endif
 
 #endif

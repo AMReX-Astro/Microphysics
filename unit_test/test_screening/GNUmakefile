@@ -17,11 +17,7 @@ EBASE = main
 
 USE_EXTRA_THERMO = TRUE
 
-USE_CXX_REACTIONS ?= TRUE
-
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
+BL_NO_FORT = TRUE
 
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..

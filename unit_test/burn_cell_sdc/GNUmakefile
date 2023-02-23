@@ -15,16 +15,10 @@ USE_SIMPLIFIED_SDC = TRUE
 
 EBASE = main
 
-USE_CXX_REACTIONS = TRUE
-
 USE_EXTRA_THERMO = TRUE
 
 BL_NO_FORT = TRUE
 USE_MICROPHYSICS_DEBUG = TRUE
-
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
 
 # define the location of the CASTRO top directory
 MICROPHYSICS_HOME  := ../..
@@ -40,7 +34,7 @@ DEFINES += -DSDC_EVOLVE_ENERGY
 
 CONDUCTIVITY_DIR := stellar
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
 Blocs   := .
