@@ -203,6 +203,9 @@ void nse_burn(burn_t& state, const Real dt) {
 
   eos(eos_input_rt, state);
 
+  Real e_in = state.e;
+  Real bea_in = state.aux[ibea];
+
   // if we are doing drive_initial_convection, we want to use
   // the temperature that comes in through T_fixed
 
@@ -219,51 +222,64 @@ void nse_burn(burn_t& state, const Real dt) {
 
   state.aux[iye] += dt * dyedt;
 
-  // now get the composition from the table using the upated Ye
 
-  nse_interp(T_in, state.rho, state.aux[iye],
-             abar_out, dq_out, dyedt, X);
+  // we iterate here.  The first time through, T will be the input T.
+  // at the end of the loop, we update T, and then do another pass
+
+  for (int iter = 0; iter < 2; ++iter) {
+
+      // now get the composition from the table using the upated Ye
+
+      nse_interp(state.T, state.rho, state.aux[iye],
+                 abar_out, dq_out, dyedt, X);
 
 
-  // this is MeV / nucleon -- here aux has not yet been updated, so we
-  // access the old binding energy
-  Real deltaq = dq_out - state.aux[ibea];
+      // this is MeV / nucleon -- here aux has not yet been updated, so we
+      // access the old binding energy
+      Real deltaq = dq_out - bea_in;
 
-  state.aux[ibea] += deltaq;
-  state.aux[iabar] = abar_out;
+      state.aux[ibea] = bea_in + deltaq;
+      state.aux[iabar] = abar_out;
 
 #elif defined(NSE_NET)
 
-  // solve for the NSE state -- first compute Ye
-  state.y_e = 0.0_rt;
-  for (int n = 0; n < NumSpec; ++n) {
-      state.y_e += zion[n] * state.xn[n] * aion_inv[n];
-  }
+      // solve for the NSE state -- first compute Ye
+      state.y_e = 0.0_rt;
+      for (int n = 0; n < NumSpec; ++n) {
+          state.y_e += zion[n] * state.xn[n] * aion_inv[n];
+      }
 
-  auto nse_state = get_actual_nse_state(state);
+      auto nse_state = get_actual_nse_state(state);
 
-  // for now, we'll take dyedt = 0.  Later we can evaluate this by
-  // calling the RHS with the NSE state.
-  Real dyedt = 0.0_rt;
+      // for now, we'll take dyedt = 0.  Later we can evaluate this by
+      // calling the RHS with the NSE state.
+      Real dyedt = 0.0_rt;
 
-  // compute the change in binding energy -- this is the energy release
-  // we want to do sum {B dY}, where Y is the molar fraction.
-  // this will be in MeV / nucleon
-  Real deltaq = 0.0_rt;
-  for (int n = 0; n < NumSpec; ++n) {
-      deltaq += network::bion(n+1) * aion_inv[n] * (nse_state.xn[n] - state.xn[n]);
-  }
+      // compute the change in binding energy -- this is the energy release
+      // we want to do sum {B dY}, where Y is the molar fraction.
+      // this will be in MeV / nucleon
+      Real deltaq = 0.0_rt;
+      for (int n = 0; n < NumSpec; ++n) {
+          deltaq += network::bion(n+1) * aion_inv[n] * (nse_state.xn[n] - state.xn[n]);
+      }
 
 #endif
+
+      // convert the energy to erg / g
+      Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
+
+      state.e = e_in + enuc;
+
+      // update the temperature for the next pass
+
+      eos(eos_input_re, state);
+
+  }
+
 
   state.success = true;
   state.n_rhs = 0;
   state.n_jac = 0;
-
-  // convert the energy to erg / g
-  Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
-
-  state.e = enuc + state.e;
 
 
   // store the new composition
