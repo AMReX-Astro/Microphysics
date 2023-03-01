@@ -189,7 +189,6 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_burn(burn_t& state, const Real dt) {
 
-#if defined(NSE_TABLE)
 
   using namespace AuxZero;
   
@@ -205,6 +204,7 @@ void nse_burn(burn_t& state, const Real dt) {
 
   Real e_in = state.e;
   Real bea_in = state.aux[ibea];
+  Real ye_in = state.aux[iye];
 
   // if we are doing drive_initial_convection, we want to use
   // the temperature that comes in through T_fixed
@@ -221,7 +221,7 @@ void nse_burn(burn_t& state, const Real dt) {
   // update Ye
 
   state.aux[iye] += dt * dyedt;
-
+  Real dyedt_in = dyedt;
 
   // we iterate here.  The first time through, T will be the input T.
   // at the end of the loop, we update T, and then do another pass
@@ -240,30 +240,7 @@ void nse_burn(burn_t& state, const Real dt) {
 
       state.aux[ibea] = bea_in + deltaq;
       state.aux[iabar] = abar_out;
-
-#elif defined(NSE_NET)
-
-      // solve for the NSE state -- first compute Ye
-      state.y_e = 0.0_rt;
-      for (int n = 0; n < NumSpec; ++n) {
-          state.y_e += zion[n] * state.xn[n] * aion_inv[n];
-      }
-
-      auto nse_state = get_actual_nse_state(state);
-
-      // for now, we'll take dyedt = 0.  Later we can evaluate this by
-      // calling the RHS with the NSE state.
-      Real dyedt = 0.0_rt;
-
-      // compute the change in binding energy -- this is the energy release
-      // we want to do sum {B dY}, where Y is the molar fraction.
-      // this will be in MeV / nucleon
-      Real deltaq = 0.0_rt;
-      for (int n = 0; n < NumSpec; ++n) {
-          deltaq += network::bion(n+1) * aion_inv[n] * (nse_state.xn[n] - state.xn[n]);
-      }
-
-#endif
+      state.aux[iye] = ye_in + 0.5 * dt * (dyedt_in + dyedt);
 
       // convert the energy to erg / g
       Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
