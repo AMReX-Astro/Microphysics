@@ -174,7 +174,7 @@ struct burn_t
 #ifdef NSE_NET
   Real mu_p;
   Real mu_n;
-  bool in_nse;
+  bool nse;
 #endif
   
   // diagnostics
