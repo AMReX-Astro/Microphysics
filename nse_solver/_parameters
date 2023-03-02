@@ -3,5 +3,5 @@
 max_nse_iters           integer    500
 use_hybrid_solver       integer    1
 ase_tol                 real       0.1_rt
-nse_dx_independent      bool       false
-nse_molar_independent   bool       false
+nse_dx_independent      logical    .false.
+nse_molar_independent   logical    .false.
