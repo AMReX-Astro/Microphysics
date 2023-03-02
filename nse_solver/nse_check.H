@@ -61,7 +61,7 @@ void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
   // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
   // Eq. 14 in Kushnir paper
 
-  if (std::abs((r - r_nse) / r_nse) < 0.5){
+  if (std::abs((r - r_nse) / r_nse) < 0.5_rt){
     nse_check = true;
   }
   else{
@@ -532,9 +532,13 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	// It didn't mention it in in the paragraph in section 4.4.3, but listed it in Eq. 12
 	// It didn't have a significant difference, but I'll leave it here for future reference
 
-	if ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
-	    || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s)
-	    // && ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol)
+	if (
+	    ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol)
+#ifndef NSE_DX_INDEPENDENT
+	    &&
+	    ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
+	     || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s))
+#endif	    
 	  ){
 
 	  // store nuclei index to fast_reaction if pass the condition
@@ -896,8 +900,12 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   // to see whether the forward and balance rates are in equilibrium
   // see Eq. 17 again
 
-  if (scratch_t < ase_tol * t_s
-      && 2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol
+  if (
+      (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
+#ifndef NSE_DX_INDEPENDENT
+      &&
+      (scratch_t < ase_tol * t_s)
+#endif
       ){
 
     fastest_t = scratch_t;
@@ -990,7 +998,7 @@ bool in_nse(burn_t& state){
 
   bool nse_check = false;
 
-  if (state.T < 1.0e9_rt){
+  if (state.T < 2.0e9_rt){
     return nse_check;
   }
     
@@ -1066,7 +1074,6 @@ bool in_nse(burn_t& state){
     find_fast_reaction_cycle(n, Y, ydot, rate_eval.screened_rates, state, t_s, found_fast_reaction_cycle);
   }
 
-
   // Do nse grouping if found fast reaction cycle.
 
   // This holds group index for each nuclei
@@ -1086,14 +1093,11 @@ bool in_nse(burn_t& state){
     nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
 
     // Check if we result in a single group after grouping
+    nse_check = false;
 
     if (in_single_group(group_ind)){
       nse_check = true;
     }
-    else{
-      nse_check = false;
-    }
-
   }
 
   return nse_check;

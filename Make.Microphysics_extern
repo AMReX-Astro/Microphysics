@@ -136,6 +136,10 @@ ifeq ($(USE_NSE_NET), TRUE)
      DEFINES += -DNSE_NET
      DEFINES += -DNSE
 
+     ifeq ($(DISABLE_NSE_DX_DEPENDENT), TRUE)
+     	  DEFINES += -DNSE_DX_INDEPENDENT
+     endif
+     
      EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
