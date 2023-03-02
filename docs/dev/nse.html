@@ -72,6 +72,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">Self-consistent NSE</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-options">Additional Options</a></li>
 </ul>
 </li>
 </ul>
@@ -337,7 +338,7 @@ simulation cell.</p>
 \[\isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
 (\alpha, \gamma) \isotm{S}{32}\]</div>
 <p>The general approach to this is to start iterations from the heavy to the light nuclei to
-use them as the starting point of the cycle. Then algorithmn checks if isotopes involved
+use them as the starting point of the cycle. Then the algorithmn checks if isotopes involved
 in the network can actually form a cycle using the combination reactions above. If such cycle
 is formed, then we check the rates of these reactions to see if they satisfy the condition
 mention previously. If there are no isotope present in the network that would form
@@ -388,6 +389,18 @@ At the end of the iterations, we define that the current state  have reached NSE
 when there is only a single group left, or there are two groups left where
 1 of them is the light-isotope-group.</p>
 </li>
+</ul>
+</section>
+<section id="additional-options">
+<h3>Additional Options<a class="headerlink" href="#additional-options" title="Permalink to this heading">¶</a></h3>
+<p>Here we have some runtime options to allow a more cruel estimation to the self-consistent
+nse check:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_dx_independent</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the nse check to ignore
+the dependency on the cell size, <code class="docutils literal notranslate"><span class="pre">dx</span></code>, which calculates the sound crossing time, <code class="docutils literal notranslate"><span class="pre">t_s</span></code>.
+Naturally, we require the timescale of the rates to be smaller than <code class="docutils literal notranslate"><span class="pre">t_s</span></code> to ensure the
+states have time to achieve equilibrium. However, sometimes this check can be difficult
+to acheive, so we leave this as an option for the user to explore.</p></li>
 </ul>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
