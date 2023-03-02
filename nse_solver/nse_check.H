@@ -981,7 +981,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(burn_t& state){
+bool in_nse(burn_t& current_state){
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
@@ -990,18 +990,33 @@ bool in_nse(burn_t& state){
 
   bool nse_check = false;
 
-  if (state.T < 2.0e9_rt){
+  if (current_state.T < 2.0e9_rt){
     return nse_check;
   }
     
   // Get the nse state which is used to compare nse molar fractions.
-  const auto nse_state = get_actual_nse_state(state);
+
+  const auto nse_state = get_actual_nse_state(current_state, 1.0e-10_rt, true);
 
   // Check whether state is in the ballpark of NSE
 
-  first_check_in_nse(state, nse_state, nse_check);
-  if (!nse_check){
-    return nse_check;
+  // first_check_in_nse(current_state, nse_state, nse_check);
+  // if (!nse_check){
+  //   return nse_check;
+  // }
+
+  // We can do a further approximation where we use the NSE mass fractions
+  // instead of the current mass fractions. This makes the check soley dependent on
+  // the thermodynamic condition.
+  // Note we only do this after the first check, which should tell us whether
+  // our current mass fractions are in the ballpark of NSE mass fractions.
+
+  burn_t state = current_state;
+
+  if (nse_molar_independent) {
+    std::cout << "in here" << std::endl;
+    state = nse_state;
+    state.dx = current_state.dx;
   }
 
   // set molar fractions
@@ -1020,7 +1035,6 @@ bool in_nse(burn_t& state){
   evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
 
   eos_t eos_state;                             // need eos_state for speed of sound
-
 
   // Initialize t_s, sound crossing timescale for a single zone to be max
   amrex::Real t_s = std::numeric_limits<amrex::Real>::max();
