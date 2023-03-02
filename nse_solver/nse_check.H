@@ -174,7 +174,6 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
-			const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 			const T& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
 
@@ -740,7 +739,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const T& state,
 		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
-		     const amrex::Real& t_s){
+		     const amrex::Real& t_s) {
 
   // This function determines whether current_rate has a faster timescale than
   // the provided time scale, current fastest_t.
@@ -1071,7 +1070,7 @@ bool in_nse(burn_t& state){
       break;
     }
 
-    find_fast_reaction_cycle(n, Y, ydot, rate_eval.screened_rates, state, t_s, found_fast_reaction_cycle);
+    find_fast_reaction_cycle(n, Y, rate_eval.screened_rates, state, t_s, found_fast_reaction_cycle);
   }
 
   // Do nse grouping if found fast reaction cycle.
