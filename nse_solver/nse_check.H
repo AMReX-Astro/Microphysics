@@ -996,7 +996,7 @@ bool in_nse(burn_t& current_state){
     
   // Get the nse state which is used to compare nse molar fractions.
 
-  const auto nse_state = get_actual_nse_state(current_state, 1.0e-10_rt, true);
+  const auto nse_state = get_actual_nse_state(current_state);
 
   // Check whether state is in the ballpark of NSE
 
