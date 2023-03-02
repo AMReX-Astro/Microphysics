@@ -3,3 +3,4 @@
 max_nse_iters        integer    500
 use_hybrid_solver    integer    1
 ase_tol              real       0.1_rt
+nse_dx_independent   logical    .false.
