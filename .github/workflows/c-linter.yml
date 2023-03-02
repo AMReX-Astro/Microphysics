@@ -1,0 +1,49 @@
+name: cpp-linter
+
+on: [pull_request]
+
+jobs:
+  cpp-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl clang-tidy cmake jq clang cppcheck clang-format bear g++>=9.3.0
+
+      - name: Run cpp linter
+        uses: AMReX-Astro/cpp-linter-action@main
+        with:
+          build_path: 'unit_test/test_react'
+          make_options: '-j 2 USE_OMP=FALSE USE_MPI=FALSE USE_CUDA=FALSE DEBUG=TRUE'
+          ignore_files: 'amrex'
+          header_filter: 'Microphysics'
+          config_file: ${GITHUB_WORKSPACE}/.clang-tidy
+
+      - name: Archive clang tidy report
+        uses: actions/upload-artifact@v1
+        with:
+          name: clang-tidy-report
+          path: clang-tidy-report.txt
+
+      - name: Archive cppcheck report
+        uses: actions/upload-artifact@v1
+        with:
+          name: cppcheck-report
+          path: cppcheck-report.txt
