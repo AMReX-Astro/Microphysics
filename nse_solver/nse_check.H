@@ -533,11 +533,9 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
 	if (
 	    ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol)
-#ifndef NSE_DX_INDEPENDENT
 	    &&
 	    ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
 	     || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s))
-#endif	    
 	  ){
 
 	  // store nuclei index to fast_reaction if pass the condition
@@ -899,13 +897,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   // to see whether the forward and balance rates are in equilibrium
   // see Eq. 17 again
 
-  if (
-      (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
-#ifndef NSE_DX_INDEPENDENT
-      &&
-      (scratch_t < ase_tol * t_s)
-#endif
-      ){
+  if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
+      && (scratch_t < ase_tol * t_s) ) {
 
     fastest_t = scratch_t;
 
@@ -1028,11 +1021,17 @@ bool in_nse(burn_t& state){
 
   eos_t eos_state;                             // need eos_state for speed of sound
 
-  // Here we need to find t_s, sound crossing timescale for a single zone
 
-  burn_to_eos<eos_t>(state, eos_state);
-  eos(eos_input_rt, eos_state);
-  amrex::Real t_s = state.dx / eos_state.cs;   // a parameter to characterize whether a rate is fast enough
+  // Initialize t_s, sound crossing timescale for a single zone to be max
+  amrex::Real t_s = std::numeric_limits<amrex::Real>::max();
+
+  // If we care about checking the timescale of the rate to be smaller than t_s, then:
+
+  if (!nse_dx_independent) {
+    burn_to_eos<eos_t>(state, eos_state);
+    eos(eos_input_rt, eos_state);
+    t_s = state.dx / eos_state.cs;   // a parameter to characterize whether a rate is fast enough
+  }
 
   // Find ydot
 
