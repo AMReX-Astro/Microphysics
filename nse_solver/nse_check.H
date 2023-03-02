@@ -536,7 +536,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	    &&
 	    ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
 	     || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s))
-	  ){
+	  ) {
 
 	  // store nuclei index to fast_reaction if pass the condition
 
