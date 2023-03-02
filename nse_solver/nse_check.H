@@ -22,7 +22,7 @@
 
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
+void check_nse_molar(T& state, const T& nse_state, bool& nse_check){
 
   // This function gives the first estimate whether we're in the nse or not
   // it checks whether the molar fractions of n,p,a are approximately in NSE
@@ -981,7 +981,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(burn_t& current_state){
+bool in_nse(burn_t& current_state) {
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
@@ -990,7 +990,7 @@ bool in_nse(burn_t& current_state){
 
   bool nse_check = false;
 
-  if (current_state.T < 2.0e9_rt){
+  if (current_state.T < 2.0e9_rt) {
     return nse_check;
   }
     
@@ -1000,10 +1000,10 @@ bool in_nse(burn_t& current_state){
 
   // Check whether state is in the ballpark of NSE
 
-  // first_check_in_nse(current_state, nse_state, nse_check);
-  // if (!nse_check){
-  //   return nse_check;
-  // }
+  check_nse_molar(current_state, nse_state, nse_check);
+  if (!nse_check) {
+    return nse_check;
+  }
 
   // We can do a further approximation where we use the NSE mass fractions
   // instead of the current mass fractions. This makes the check soley dependent on
@@ -1014,7 +1014,6 @@ bool in_nse(burn_t& current_state){
   burn_t state = current_state;
 
   if (nse_molar_independent) {
-    std::cout << "in here" << std::endl;
     state = nse_state;
     state.dx = current_state.dx;
   }
