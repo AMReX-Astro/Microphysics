@@ -33,7 +33,7 @@ jobs:
           build_path: 'unit_test/test_react'
           make_options: '-j 2 USE_OMP=FALSE USE_MPI=FALSE USE_CUDA=FALSE DEBUG=TRUE'
           ignore_files: 'amrex'
-          header_filter: 'Microphysics'
+          header_filter: '(/conductivity/|/constants/|/EOS/|/integration/|/interfaces/|/networks/|/neutrinos/|/nse_solver/|/opacity/|/rates/|/screening/|/util/|^\./).*\.H$'
           config_file: ${GITHUB_WORKSPACE}/.clang-tidy
 
       - name: Archive clang tidy report
