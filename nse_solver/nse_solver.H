@@ -283,7 +283,7 @@ T get_nse_state(const T& state)
 
       // fill partition function and get spin
 
-#ifndef NET_NETWORK_IMPLEMENTATION
+#ifndef NEW_NETWORK_IMPLEMENTATION
       spin = get_spin_state(n+1);
       get_partition_function(n+1, tfactors, pf, dpf_dT);
 #endif
