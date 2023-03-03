@@ -1036,6 +1036,7 @@ bool in_nse(burn_t& current_state) {
   eos_t eos_state;                             // need eos_state for speed of sound
 
   // Initialize t_s, sound crossing timescale for a single zone to be max
+
   amrex::Real t_s = std::numeric_limits<amrex::Real>::max();
 
   // If we care about checking the timescale of the rate to be smaller than t_s, then:
@@ -1104,6 +1105,7 @@ bool in_nse(burn_t& current_state) {
     nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
 
     // Check if we result in a single group after grouping
+
     current_state.nse = false;
 
     if (in_single_group(group_ind)){
