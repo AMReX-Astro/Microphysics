@@ -1,5 +1,5 @@
-#ifndef _vode_dvjac_H_
-#define _vode_dvjac_H_
+#ifndef VODE_DVJAC_H
+#define VODE_DVJAC_H
 
 #include <vode_type.H>
 #ifndef NEW_NETWORK_IMPLEMENTATION

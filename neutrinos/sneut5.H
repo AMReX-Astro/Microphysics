@@ -1,5 +1,5 @@
-#ifndef _sneut5_H_
-#define _sneut5_H_
+#ifndef SNEUT5_H
+#define SNEUT5_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
