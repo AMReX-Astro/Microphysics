@@ -1,5 +1,5 @@
-#ifndef _react_zones_H_
-#define _react_zones_H_
+#ifndef JAC_ZONES_H
+#define JAC_ZONES_H
 
 #include <variables.H>
 #include <network.H>

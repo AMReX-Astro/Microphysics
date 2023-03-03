@@ -25,6 +25,8 @@ else ifeq ($(SCREEN_METHOD), null)
   DEFINES += -DSCREEN_METHOD=3
 else ifeq ($(SCREEN_METHOD), chabrier1998)
   DEFINES += -DSCREEN_METHOD=4
+else
+  $(error Invalid value for SCREEN_METHOD)
 endif
 
 ifeq ($(EOS_DIR), gamma_law_general)
