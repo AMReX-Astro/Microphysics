@@ -7,129 +7,129 @@
 struct eos_base_t {};
 
 struct eos_t:eos_base_t {
-    amrex::Real rho;
-    amrex::Real T;
-    amrex::Real p;
-    amrex::Real e;
-    amrex::Real h;
-    amrex::Real s;
-    amrex::Real xn[NumSpec];
+    amrex::Real rho{};
+    amrex::Real T{};
+    amrex::Real p{};
+    amrex::Real e{};
+    amrex::Real h{};
+    amrex::Real s{};
+    amrex::Real xn[NumSpec]{};
 #if NAUX_NET > 0
-    amrex::Real aux[NumAux];
+    amrex::Real aux[NumAux]{};
 #endif
-    amrex::Real dpdT;
-    amrex::Real dpdr;
-    amrex::Real dedT;
-    amrex::Real dedr;
-    amrex::Real dhdT;
-    amrex::Real dhdr;
-    amrex::Real dsdT;
-    amrex::Real dsdr;
-    amrex::Real dpde;
-    amrex::Real dpdr_e;
+    amrex::Real dpdT{};
+    amrex::Real dpdr{};
+    amrex::Real dedT{};
+    amrex::Real dedr{};
+    amrex::Real dhdT{};
+    amrex::Real dhdr{};
+    amrex::Real dsdT{};
+    amrex::Real dsdr{};
+    amrex::Real dpde{};
+    amrex::Real dpdr_e{};
 
-    amrex::Real cv;
-    amrex::Real cp;
-    amrex::Real xne;
-    amrex::Real xnp;
-    amrex::Real eta;
-    amrex::Real pele;
-    amrex::Real ppos;
-    amrex::Real mu;
-    amrex::Real mu_e;
-    amrex::Real y_e;
-    amrex::Real gam1;
-    amrex::Real cs;
+    amrex::Real cv{};
+    amrex::Real cp{};
+    amrex::Real xne{};
+    amrex::Real xnp{};
+    amrex::Real eta{};
+    amrex::Real pele{};
+    amrex::Real ppos{};
+    amrex::Real mu{};
+    amrex::Real mu_e{};
+    amrex::Real y_e{};
+    amrex::Real gam1{};
+    amrex::Real cs{};
 
-    amrex::Real abar;
-    amrex::Real zbar;
+    amrex::Real abar{};
+    amrex::Real zbar{};
 
 #ifdef EXTRA_THERMO
-    amrex::Real dpdA;
-    amrex::Real dpdZ;
-    amrex::Real dedA;
-    amrex::Real dedZ;
+    amrex::Real dpdA{};
+    amrex::Real dpdZ{};
+    amrex::Real dedA{};
+    amrex::Real dedZ{};
 #endif
-    amrex::Real conductivity;
+    amrex::Real conductivity{};
 
 #ifdef NSE_NET
-    amrex::Real mu_p;   //chemical potential of proton
-    amrex::Real mu_n;   //chemical potential of neutron
+    amrex::Real mu_p{};   //chemical potential of proton
+    amrex::Real mu_n{};   //chemical potential of neutron
 #endif
 };
 
 struct eos_re_t:eos_base_t {
-    amrex::Real rho;
-    amrex::Real T;
-    amrex::Real e;
-    amrex::Real xn[NumSpec];
+    amrex::Real rho{};
+    amrex::Real T{};
+    amrex::Real e{};
+    amrex::Real xn[NumSpec]{};
 #if NAUX_NET > 0
-    amrex::Real aux[NumAux];
+    amrex::Real aux[NumAux]{};
 #endif
-    amrex::Real dedT;
-    amrex::Real dedr;
+    amrex::Real dedT{};
+    amrex::Real dedr{};
 
-    amrex::Real cv;
+    amrex::Real cv{};
 
-    amrex::Real mu;
-    amrex::Real mu_e;
-    amrex::Real y_e;
-    amrex::Real eta;
+    amrex::Real mu{};
+    amrex::Real mu_e{};
+    amrex::Real y_e{};
+    amrex::Real eta{};
 
-    amrex::Real abar;
-    amrex::Real zbar;
+    amrex::Real abar{};
+    amrex::Real zbar{};
 
 #ifdef EXTRA_THERMO
-    amrex::Real dedA;
-    amrex::Real dedZ;
+    amrex::Real dedA{};
+    amrex::Real dedZ{};
 #endif
 
 #ifdef NSE_NET
-    amrex::Real mu_p;   //chemical potential of proton
-    amrex::Real mu_n;   //chemical potential of neutron
+    amrex::Real mu_p{};   //chemical potential of proton
+    amrex::Real mu_n{};   //chemical potential of neutron
 #endif
 };
 
 struct eos_rep_t:eos_base_t {
-    amrex::Real rho;
-    amrex::Real T;
-    amrex::Real e;
-    amrex::Real p;
-    amrex::Real xn[NumSpec];
+    amrex::Real rho{};
+    amrex::Real T{};
+    amrex::Real e{};
+    amrex::Real p{};
+    amrex::Real xn[NumSpec]{};
 #if NAUX_NET > 0
-    amrex::Real aux[NumAux];
+    amrex::Real aux[NumAux]{};
 #endif
-    amrex::Real dedT;
-    amrex::Real dedr;
+    amrex::Real dedT{};
+    amrex::Real dedr{};
 
-    amrex::Real dpdT;
-    amrex::Real dpdr;
-    amrex::Real dpdr_e;
-    amrex::Real dpde;
+    amrex::Real dpdT{};
+    amrex::Real dpdr{};
+    amrex::Real dpdr_e{};
+    amrex::Real dpde{};
 
-    amrex::Real cv;
-    amrex::Real cp;
-    amrex::Real gam1;
-    amrex::Real cs;
+    amrex::Real cv{};
+    amrex::Real cp{};
+    amrex::Real gam1{};
+    amrex::Real cs{};
 
-    amrex::Real mu;
-    amrex::Real mu_e;
-    amrex::Real y_e;
-    amrex::Real eta;
+    amrex::Real mu{};
+    amrex::Real mu_e{};
+    amrex::Real y_e{};
+    amrex::Real eta{};
 
-    amrex::Real abar;
-    amrex::Real zbar;
+    amrex::Real abar{};
+    amrex::Real zbar{};
 
 #ifdef EXTRA_THERMO
-    amrex::Real dpdA;
-    amrex::Real dpdZ;
-    amrex::Real dedA;
-    amrex::Real dedZ;
+    amrex::Real dpdA{};
+    amrex::Real dpdZ{};
+    amrex::Real dedA{};
+    amrex::Real dedZ{};
 #endif
   
 #ifdef NSE_NET
-    amrex::Real mu_p;   //chemical potential of proton
-    amrex::Real mu_n;   //chemical potential of neutron
+    amrex::Real mu_p{};   //chemical potential of proton
+    amrex::Real mu_n{};   //chemical potential of neutron
 #endif
 };
 
