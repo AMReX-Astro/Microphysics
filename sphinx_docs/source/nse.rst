@@ -221,6 +221,8 @@ is outlined in :cite:`Kushnir_2020`. The overall usage comes down to a single fu
 ``in_nse(state)``. By supplying the current state, this function returns a boolean that
 tells us whether we're in NSE or not. The current status of this functionality only
 works for pynucastro-generated network since aprox networks have slightly different syntax.
+Note that we ignore this check when ``T < 2.0e9``, since we don't expect NSE to occur when
+temperature is below 2 billion Kelvin.
 
 There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
@@ -325,7 +327,12 @@ nse check:
   Naturally, we require the timescale of the rates to be smaller than ``t_s`` to ensure the
   states have time to achieve equilibrium. However, sometimes this check can be difficult
   to acheive, so we leave this as an option for the user to explore.
-  
+
+* ``nse.nse_molar_independent = 1`` in the input file allows the user to use the nse mass
+  fractions for nse check after the first check (the one that ensures we're close enough
+  to the nse mass fractions to get reasonable results) is passed. This allows the subsequent
+  checks to only rely on the thermodynamic conditions instead of mass fractions.
+
 .. rubric:: Footnotes
 
 .. [#fY] The table actually provides the weak rate, which is the sum
