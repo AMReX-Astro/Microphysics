@@ -245,9 +245,6 @@ void nse_burn(burn_t& state, const Real dt) {
   // access the old binding energy
   Real deltaq = dq_out - state.aux[ibea];
 
-  // under-relaxation / inertia (see Ma et el. 2013)
-  deltaq = eta * deltaq;
-
   state.aux[ibea] += deltaq;
   state.aux[iabar] = abar_out;
 
@@ -272,9 +269,6 @@ void nse_burn(burn_t& state, const Real dt) {
   for (int n = 0; n < NumSpec; ++n) {
       deltaq += network::bion(n+1) * aion_inv[n] * (nse_state.xn[n] - state.xn[n]);
   }
-
-  // under-relaxation / inertia (see Ma et el. 2013)
-  deltaq = eta * deltaq;
 
 #endif
 

@@ -1,5 +1,5 @@
-#ifndef _integrator_rhs_strang_H_
-#define _integrator_rhs_strang_H_
+#ifndef INTEGRATOR_RHS_STRANG_H
+#define INTEGRATOR_RHS_STRANG_H
 
 #include <network.H>
 #include <actual_network.H>
@@ -22,7 +22,7 @@
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bool in_jacobian=false)
+void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
 {
 
     // We are integrating a system of
@@ -59,7 +59,7 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bo
 
     }
 
-    state.time = int_state.t;
+    state.time = time;
 
     // at this point, the (burn_t) state is synchronized with the integrator
     // and is thermodynamically consistent.
@@ -107,7 +107,7 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bo
 // Analytical Jacobian
 template<typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
+void jac ([[maybe_unused]] const Real time, burn_t& state, T& int_state, MatrixType& pd)
 {
 
     // Only do the burn if the incoming temperature is within the temperature

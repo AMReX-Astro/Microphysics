@@ -42,8 +42,9 @@ void ener_gener_rate(T const& dydt, Real& enuc)
 }
 
 
+template <int do_T_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
+void evaluate_rates(const burn_t& state, T& rate_eval) {
 
 
     // create molar fractions
@@ -53,7 +54,7 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         Y(n) = state.xn[n-1] * aion_inv[n-1];
     }
 
-    Real rhoy = state.rho * state.y_e;
+    [[maybe_unused]] Real rhoy = state.rho * state.y_e;
 
     // Calculate Reaclib rates
 
@@ -62,15 +63,15 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
 
     tf_t tfactors = evaluate_tfactors(state.T);
 
-    fill_reaclib_rates(tfactors, rate_eval);
+    fill_reaclib_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
 
 
     // Evaluate screening factors
 
     Real ratraw, dratraw_dT;
-    Real scor, dscor_dt, dscor_dd;
-    Real scor2, dscor2_dt, dscor2_dd;
+    Real scor, dscor_dt;
+    Real scor2, dscor2_dt;
 
 
     {
@@ -80,19 +81,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_p__d__weak__bet_pos_);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p__d__weak__bet_pos_);
     rate_eval.screened_rates(k_p_p__d__weak__bet_pos_) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_p__d__weak__bet_pos_) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p__d__weak__bet_pos_);
+        rate_eval.dscreened_rates_dT(k_p_p__d__weak__bet_pos_) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_p__d__weak__electron_capture);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p__d__weak__electron_capture);
     rate_eval.screened_rates(k_p_p__d__weak__electron_capture) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_p__d__weak__electron_capture) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_p__d__weak__electron_capture);
+        rate_eval.dscreened_rates_dT(k_p_p__d__weak__electron_capture) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -102,14 +107,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_d__he3);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_d__he3);
     rate_eval.screened_rates(k_p_d__he3) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_d__he3) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_d__he3);
+        rate_eval.dscreened_rates_dT(k_p_d__he3) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -119,14 +126,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_d_d__he4);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_d_d__he4);
     rate_eval.screened_rates(k_d_d__he4) *= scor;
-    rate_eval.dscreened_rates_dT(k_d_d__he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_d_d__he4);
+        rate_eval.dscreened_rates_dT(k_d_d__he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -136,14 +145,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_he3__he4__weak__bet_pos_);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_he3__he4__weak__bet_pos_);
     rate_eval.screened_rates(k_p_he3__he4__weak__bet_pos_) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_he3__he4__weak__bet_pos_) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_he3__he4__weak__bet_pos_);
+        rate_eval.dscreened_rates_dT(k_p_he3__he4__weak__bet_pos_) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -153,14 +164,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he4_he3__be7);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he3__be7);
     rate_eval.screened_rates(k_he4_he3__be7) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_he3__be7) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he3__be7);
+        rate_eval.dscreened_rates_dT(k_he4_he3__be7) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -170,14 +183,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_be7__b8);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_be7__b8);
     rate_eval.screened_rates(k_p_be7__b8) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_be7__b8) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_be7__b8);
+        rate_eval.dscreened_rates_dT(k_p_be7__b8) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -187,14 +202,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_c12__n13);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_c12__n13);
     rate_eval.screened_rates(k_p_c12__n13) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_c12__n13) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_c12__n13);
+        rate_eval.dscreened_rates_dT(k_p_c12__n13) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -204,14 +221,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he4_c12__o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_c12__o16);
     rate_eval.screened_rates(k_he4_c12__o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_c12__o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_c12__o16);
+        rate_eval.dscreened_rates_dT(k_he4_c12__o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -221,14 +240,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_c13__n14);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_c13__n14);
     rate_eval.screened_rates(k_p_c13__n14) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_c13__n14) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_c13__n14);
+        rate_eval.dscreened_rates_dT(k_p_c13__n14) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -238,14 +259,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_n13__o14);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n13__o14);
     rate_eval.screened_rates(k_p_n13__o14) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_n13__o14) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n13__o14);
+        rate_eval.dscreened_rates_dT(k_p_n13__o14) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -255,14 +278,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_n14__o15);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n14__o15);
     rate_eval.screened_rates(k_p_n14__o15) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_n14__o15) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n14__o15);
+        rate_eval.dscreened_rates_dT(k_p_n14__o15) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -272,14 +297,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he4_n14__f18);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n14__f18);
     rate_eval.screened_rates(k_he4_n14__f18) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_n14__f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n14__f18);
+        rate_eval.dscreened_rates_dT(k_he4_n14__f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -289,19 +316,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_n15__o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n15__o16);
     rate_eval.screened_rates(k_p_n15__o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_n15__o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n15__o16);
+        rate_eval.dscreened_rates_dT(k_p_n15__o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_n15__he4_c12);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n15__he4_c12);
     rate_eval.screened_rates(k_p_n15__he4_c12) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_n15__he4_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_n15__he4_c12);
+        rate_eval.dscreened_rates_dT(k_p_n15__he4_c12) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -311,14 +342,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_o16__f17);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o16__f17);
     rate_eval.screened_rates(k_p_o16__f17) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_o16__f17) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o16__f17);
+        rate_eval.dscreened_rates_dT(k_p_o16__f17) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -328,19 +361,23 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_o17__f18);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o17__f18);
     rate_eval.screened_rates(k_p_o17__f18) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_o17__f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o17__f18);
+        rate_eval.dscreened_rates_dT(k_p_o17__f18) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
     ratraw = rate_eval.screened_rates(k_p_o17__he4_n14);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o17__he4_n14);
     rate_eval.screened_rates(k_p_o17__he4_n14) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_o17__he4_n14) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_o17__he4_n14);
+        rate_eval.dscreened_rates_dT(k_p_o17__he4_n14) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -350,14 +387,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_d_he3__p_he4);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_d_he3__p_he4);
     rate_eval.screened_rates(k_d_he3__p_he4) *= scor;
-    rate_eval.dscreened_rates_dT(k_d_he3__p_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_d_he3__p_he4);
+        rate_eval.dscreened_rates_dT(k_d_he3__p_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -367,14 +406,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he4_n13__p_o16);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n13__p_o16);
     rate_eval.screened_rates(k_he4_n13__p_o16) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_n13__p_o16);
+        rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -384,14 +425,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he4_o14__p_f17);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_o14__p_f17);
     rate_eval.screened_rates(k_he4_o14__p_f17) *= scor;
-    rate_eval.dscreened_rates_dT(k_he4_o14__p_f17) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_o14__p_f17);
+        rate_eval.dscreened_rates_dT(k_he4_o14__p_f17) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -401,14 +444,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_p_f18__he4_o15);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_p_f18__he4_o15);
     rate_eval.screened_rates(k_p_f18__he4_o15) *= scor;
-    rate_eval.dscreened_rates_dT(k_p_f18__he4_o15) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_p_f18__he4_o15);
+        rate_eval.dscreened_rates_dT(k_p_f18__he4_o15) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -418,14 +463,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he3_he3__p_p_he4);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he3_he3__p_p_he4);
     rate_eval.screened_rates(k_he3_he3__p_p_he4) *= scor;
-    rate_eval.dscreened_rates_dT(k_he3_he3__p_p_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he3_he3__p_p_he4);
+        rate_eval.dscreened_rates_dT(k_he3_he3__p_p_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -435,14 +482,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_d_be7__p_he4_he4);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_d_be7__p_he4_he4);
     rate_eval.screened_rates(k_d_be7__p_he4_he4) *= scor;
-    rate_eval.dscreened_rates_dT(k_d_be7__p_he4_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_d_be7__p_he4_he4);
+        rate_eval.dscreened_rates_dT(k_d_be7__p_he4_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -452,14 +501,16 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
     ratraw = rate_eval.screened_rates(k_he3_be7__p_p_he4_he4);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he3_be7__p_p_he4_he4);
     rate_eval.screened_rates(k_he3_be7__p_p_he4_he4) *= scor;
-    rate_eval.dscreened_rates_dT(k_he3_be7__p_p_he4_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he3_be7__p_p_he4_he4);
+        rate_eval.dscreened_rates_dT(k_he3_be7__p_p_he4_he4) = ratraw * dscor_dt + dratraw_dT * scor;
+    }
 
 
     {
@@ -469,7 +520,7 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -481,20 +532,26 @@ void evaluate_rates(const burn_t& state, rate_eval_t& rate_eval) {
         static_assert(scn_fac2.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac2, scor2, dscor2_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac2, scor2, dscor2_dt);
 
     }
 
 
     ratraw = rate_eval.screened_rates(k_he4_he4_he4__c12);
-    dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12);
     rate_eval.screened_rates(k_he4_he4_he4__c12) *= scor * scor2;
-    rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12);
+        rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = ratraw * (scor * dscor2_dt + dscor_dt * scor2) + dratraw_dT * scor * scor2;
+    }
 
+
+    // Fill approximate rates
+
+    fill_approx_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
     // Calculate tabular rates
 
-    Real rate, drate_dt, edot_nu;
+    [[maybe_unused]] Real rate, drate_dt, edot_nu, edot_gamma;
 
 
 }
@@ -652,9 +709,10 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // build the rates
 
-    rate_eval_t rate_eval;
+    rate_t rate_eval;
 
-    evaluate_rates(state, rate_eval);
+    constexpr int do_T_derivatives = 0;
+    evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
 
     rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
 
@@ -663,7 +721,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     Real enuc;
     ener_gener_rate(ydot, enuc);
 
-    // include reaction neutrino losses (non-thermal)
+    // include reaction neutrino losses (non-thermal) and gamma heating
 
     // Get the thermal neutrino losses
 
@@ -980,9 +1038,10 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 
     jac.zero();
 
-    rate_eval_t rate_eval;
+    rate_derivs_t rate_eval;
 
-    evaluate_rates(state, rate_eval);
+    constexpr int do_T_derivatives = 1;
+    evaluate_rates<do_T_derivatives, rate_derivs_t>(state, rate_eval);
 
     // Species Jacobian elements with respect to other species
 

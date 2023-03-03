@@ -1,5 +1,5 @@
-#ifndef _eos_H_
-#define _eos_H_
+#ifndef EOS_H
+#define EOS_H
 
 #include <network_properties.H>
 #include <eos_data.H>

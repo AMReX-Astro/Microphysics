@@ -1,5 +1,5 @@
-#ifndef _actual_network_H_
-#define _actual_network_H_
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 #define NEW_NETWORK_IMPLEMENTATION
 
@@ -249,6 +249,8 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
 
             data.additional_reaction_1 = Ca40_He4_to_Ti44;
             break;

@@ -1,5 +1,5 @@
-#ifndef _be_type_H_
-#define _be_type_H_
+#ifndef BE_TYPE_H
+#define BE_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
