@@ -1,5 +1,5 @@
-#ifndef _burner_H_
-#define _burner_H_
+#ifndef BURNER_H
+#define BURNER_H
 
 #include <burn_type.H>
 #include <integrator.H>

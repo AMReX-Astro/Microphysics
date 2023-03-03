@@ -1,5 +1,5 @@
-#ifndef _eos_type_H_
-#define _eos_type_H_
+#ifndef EOS_TYPE_H
+#define EOS_TYPE_H
 
 #include <AMReX.H>
 #include <network.H>
