@@ -1,5 +1,5 @@
-#ifndef REACT_ZONES_H
-#define REACT_ZONES_H
+#ifndef RHS_ZONES_H
+#define RHS_ZONES_H
 
 #include <variables.H>
 #include <network.H>
