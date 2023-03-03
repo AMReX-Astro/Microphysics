@@ -253,7 +253,7 @@ T get_nse_state(const T& state)
 
   Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
-#ifdef TFACTORS_H
+#ifndef NEW_NETWORK_IMPLEMENTATION
   auto tfactors = evaluate_tfactors(T_in);
 #endif
 
@@ -283,7 +283,7 @@ T get_nse_state(const T& state)
 
       // fill partition function and get spin
 
-#ifdef PARTITION_FUNCTIONS_H
+#ifndef NET_NETWORK_IMPLEMENTATION
       spin = get_spin_state(n+1);
       get_partition_function(n+1, tfactors, pf, dpf_dT);
 #endif
