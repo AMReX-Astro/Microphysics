@@ -1,5 +1,5 @@
-#ifndef _screen_H_
-#define _screen_H_
+#ifndef SCREEN_H
+#define SCREEN_H
 
 #include <AMReX.H>
 #include <AMReX_Algorithm.H>
