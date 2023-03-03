@@ -1,3 +1,22 @@
+# 23.03
+
+  * updated all of the pynucastro networks to the latest
+    pynucastro version (#1134, #1136)
+
+  * added tricubic interpolation for the NSE table (#1114)
+
+  * fixed an issue with rate tabulation in the aprox nets (#1123,
+    #1124)
+
+  * fixed some bugs in the NSE solver and made the hybrid Powell
+    solver more robust (#1122)
+
+# 23.02
+
+  * `T_fixed` now works with NSE (#1098, #1111)
+
+  * `USE_NSE` was changed to `USE_NSE_TABLE` (#1108)
+
 # 23.01
 
   * a new test, burn_cell_primordial_chem/, works with the primordial

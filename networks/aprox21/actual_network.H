@@ -26,27 +26,6 @@ namespace network
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
 }
 
-namespace table
-{
-
-  constexpr int npts = 46221;
-
-  constexpr int ntemp = 71;
-  constexpr int nden = 31;
-  constexpr int nye = 21;
-
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ttlog;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ddlog;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> yetab;
-
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> wratetab;
-
-  extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;
-
-}
-
 
 namespace Rates {
     enum NetworkRates {
@@ -97,7 +76,6 @@ namespace Rates {
         Fe53_N_to_Fe54,
         Ni56_to_Fe56,
         Fe56_to_Cr56,
-        He3_He3_to_He4_2P,
         C12_H1_to_N13,
         C12_2H1_to_N14,
         N14_H1_to_O15,
@@ -1175,6 +1153,8 @@ namespace RHS {
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
 
+            data.rate_can_be_tabulated = 0;
+
             data.apply_identical_particle_factor = 0;
 
             data.additional_reaction_1 = Fe52_N_to_Fe53;
@@ -1214,6 +1194,8 @@ namespace RHS {
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
 
+            data.rate_can_be_tabulated = 0;
+
             data.apply_identical_particle_factor = 0;
 
             data.additional_reaction_1 = Fe52_He4_to_Co55_P;
@@ -1236,6 +1218,8 @@ namespace RHS {
 
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
 
             data.apply_identical_particle_factor = 0;
 
@@ -1328,6 +1312,8 @@ namespace RHS {
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
 
+            data.rate_can_be_tabulated = 0;
+
             data.apply_identical_particle_factor = 0;
 
             data.additional_reaction_1 = Fe54_N_to_Fe55;
@@ -1383,6 +1369,8 @@ namespace RHS {
 
             data.screen_forward_reaction = 0;
             data.screen_reverse_reaction = 0;
+
+            data.rate_can_be_tabulated = 0;
 
             data.apply_identical_particle_factor = 0;
 

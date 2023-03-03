@@ -1,8 +1,8 @@
 #include <vector>
 #include <string>
 
-#ifndef _variables_H_
-#define _variables_H_
+#ifndef VARIABLES_H
+#define VARIABLES_H
 
 #include <AMReX_Vector.H>
 
@@ -32,6 +32,6 @@ public:
 
 plot_t init_variables();
 
-void get_varnames(const plot_t p, amrex::Vector<std::string>& names);
+void get_varnames(const plot_t& p, amrex::Vector<std::string>& names);
 
 #endif
