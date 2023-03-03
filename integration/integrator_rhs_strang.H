@@ -1,5 +1,5 @@
-#ifndef _integrator_rhs_strang_H_
-#define _integrator_rhs_strang_H_
+#ifndef INTEGRATOR_RHS_STRANG_H
+#define INTEGRATOR_RHS_STRANG_H
 
 #include <network.H>
 #include <actual_network.H>

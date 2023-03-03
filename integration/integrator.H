@@ -1,5 +1,5 @@
-#ifndef _integrator_H_
-#define _integrator_H_
+#ifndef INTEGRATOR_H
+#define INTEGRATOR_H
 
 #ifdef SIMPLIFIED_SDC
 #include <actual_integrator_simplified_sdc.H>

@@ -1,5 +1,5 @@
-#ifndef _vode_dvnlsd_H_
-#define _vode_dvnlsd_H_
+#ifndef VODE_DVNLSD_H
+#define VODE_DVNLSD_H
 
 #include <vode_type.H>
 #ifndef NEW_NETWORK_IMPLEMENTATION

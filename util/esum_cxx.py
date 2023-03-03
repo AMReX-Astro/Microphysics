@@ -33,8 +33,8 @@ module_start = """
 // other than msum that do exact arithmetic, without
 // changing the interface as seen in the networks.
 
-#ifndef _esum_H_
-#define _esum_H_
+#ifndef ESUM_H
+#define ESUM_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>

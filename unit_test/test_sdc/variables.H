@@ -1,8 +1,8 @@
 #include <vector>
 #include <string>
 
-#ifndef _variables_H_
-#define _variables_H_
+#ifndef VARIABLES_H
+#define VARIABLES_H
 
 #include <AMReX_Vector.H>
 

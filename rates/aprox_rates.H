@@ -1,5 +1,5 @@
-#ifndef _aprox_rates_H_
-#define _aprox_rates_H_
+#ifndef APROX_RATES_H
+#define APROX_RATES_H
 
 #include <aprox_rates_data.H>
 #include <tfactors.H>
