@@ -1,20 +1,23 @@
-#ifndef _vode_dvode_H_
-#define _vode_dvode_H_
+#ifndef VODE_DVODE_H
+#define VODE_DVODE_H
 
 #include <vode_type.H>
 #include <vode_dvhin.H>
 #include <vode_dvstep.H>
 #ifdef STRANG
-#include <vode_rhs.H>
+#include <integrator_rhs_strang.H>
 #endif
 #ifdef SIMPLIFIED_SDC
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
 #endif
-#ifdef NSE
-#include <nse.H>
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -265,7 +268,7 @@ int dvode (burn_t& state, dvode_t& vstate)
            update_thermodynamics(state, vstate);
 #endif
 #ifdef SIMPLIFIED_SDC
-           vode_to_burn(vstate.tn, vstate, state);
+           int_to_burn(vstate.tn, vstate, state);
 #endif
 
            if (in_nse(state)) {

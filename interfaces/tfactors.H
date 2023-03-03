@@ -1,8 +1,10 @@
-#ifndef _tfactors_H_
-#define _tfactors_H_
+#ifndef TFACTORS_H
+#define TFACTORS_H
 
 #include <AMReX.H>
 #include <cmath>
+
+using namespace amrex;
 
 struct tf_t {
     amrex::Real temp;

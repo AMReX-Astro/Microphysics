@@ -1,7 +1,7 @@
-// Fundamental constants taken from NIST's 2010 CODATA recommended values
+#ifndef FUNDAMENTAL_CONSTANTS_H
+#define FUNDAMENTAL_CONSTANTS_H
 
-#ifndef _fundamental_constants_H_
-#define _fundamental_constants_H_
+// Fundamental constants taken from NIST's 2010 CODATA recommended values
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>

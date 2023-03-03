@@ -1,3 +1,53 @@
+# 23.03
+
+  * updated all of the pynucastro networks to the latest
+    pynucastro version (#1134, #1136)
+
+  * added tricubic interpolation for the NSE table (#1114)
+
+  * fixed an issue with rate tabulation in the aprox nets (#1123,
+    #1124)
+
+  * fixed some bugs in the NSE solver and made the hybrid Powell
+    solver more robust (#1122)
+
+# 23.02
+
+  * `T_fixed` now works with NSE (#1098, #1111)
+
+  * `USE_NSE` was changed to `USE_NSE_TABLE` (#1108)
+
+# 23.01
+
+  * a new test, burn_cell_primordial_chem/, works with the primordial
+    chemistry (#1064)
+
+  * burn_cell and burn_cell_sdc now work with aux data with NSE
+    (#1084, #1094)
+
+  * a screening implementation from Chabrier & Potekhin (1998) was
+    added (#1085)
+
+  * test_react can now output the burn state that took the longest to
+    evaluate (#967)
+
+  * an initial implementation of adaptive nuclear statistic equilibrium
+    was added (#983)
+
+# 22.12
+
+  * A first order backward Euler integrator was added that works with
+    both Strang and simplified-SDC integration (#504, #1041, #1042, #1045)
+
+  * The jacobian = 3 option for simplified SDC was removed (#1069)
+
+  * An option to not subtract off the initial energy after the burn
+    was added as well as one to evolve number densities (#999, #1051)
+
+  * The python bindings have been removed (#1036)
+
+  * An issue with reading the helmholtz table on GPUs was fixed (#1020)
+
 # 22.11
 
   * use of the auxillary state to define composition is now enabled

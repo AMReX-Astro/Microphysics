@@ -1,5 +1,5 @@
-#ifndef _vode_type_H_
-#define _vode_type_H_
+#ifndef VODE_TYPE_H
+#define VODE_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
@@ -252,7 +252,7 @@ void print_state(dvode_t& dvode_state)
 #endif
 
 #ifdef SIMPLIFIED_SDC
-#include <vode_type_simplified_sdc.H>
+#include <integrator_type_simplified_sdc.H>
 #endif
 #ifdef STRANG
 #include <integrator_type_strang.H>

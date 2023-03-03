@@ -1,5 +1,5 @@
-#ifndef _react_zones_H_
-#define _react_zones_H_
+#ifndef JAC_ZONES_H
+#define JAC_ZONES_H
 
 #include <variables.H>
 #include <network.H>
@@ -13,7 +13,7 @@
 #include <numerical_jacobian.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_jac (int i, int j, int k, Array4<Real> const& state, const plot_t p)
+bool do_jac (int i, int j, int k, Array4<Real> const& state, const plot_t& p)
 {
 
     burn_t burn_state;

@@ -1,5 +1,5 @@
-#ifndef _be_type_H_
-#define _be_type_H_
+#ifndef BE_TYPE_H
+#define BE_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
@@ -9,7 +9,9 @@
 #include <integrator_data.H>
 #ifdef STRANG
 #include <integrator_type_strang.H>
-#include <integrator_rhs_strang.H>
+#endif
+#ifdef SIMPLIFIED_SDC
+#include <integrator_type_simplified_sdc.H>
 #endif
 #include <network.H>
 
@@ -50,7 +52,6 @@ struct be_t {
     JacNetArray2D jac;
 
     short jacobian_type;
-
 };
 
 #endif
