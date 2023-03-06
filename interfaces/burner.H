@@ -56,10 +56,8 @@ void burner (burn_t& state, Real dt)
 
         // we use a relaxed NSE criteria now to catch states that are
         // right on the edge of being in NSE
-#ifdef NSE_TABLE
+#ifdef NSE
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
-#else
-	if (in_nse(state) && state.success == false && dt_remaining > 0.0) {
 #endif
 
 #ifndef AMREX_USE_GPU
@@ -73,6 +71,7 @@ void burner (burn_t& state, Real dt)
 #else
             nse_burn(state, dt_remaining);
 #endif
+
         } else if (state.success == false && abort_on_failure) {
 #ifndef AMREX_USE_GPU
             std::cout << "failure \n";
@@ -80,6 +79,7 @@ void burner (burn_t& state, Real dt)
             amrex::Error("integration failed in burner");
 #endif
         }
+
     }
 
 #else

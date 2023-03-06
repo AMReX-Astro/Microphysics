@@ -981,7 +981,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(burn_t& current_state) {
+bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
@@ -1000,11 +1000,12 @@ bool in_nse(burn_t& current_state) {
 
   // Check whether state is in the ballpark of NSE
 
-  check_nse_molar(current_state, nse_state, nse_check);
-  if (!nse_check) {
-    return nse_check;
+  if (!skip_molar_check) {
+    check_nse_molar(current_state, nse_state, nse_check);
+    if (!nse_check) {
+      return nse_check;
+    }
   }
-
   // We can do a further approximation where we use the NSE mass fractions
   // instead of the current mass fractions. This makes the check soley dependent on
   // the thermodynamic condition.
