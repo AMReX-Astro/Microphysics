@@ -327,12 +327,12 @@ nse check:
   Naturally, we require the timescale of the rates to be smaller than ``t_s`` to ensure the
   states have time to achieve equilibrium. However, sometimes this check can be difficult
   to acheive, so we leave this as an option for the user to explore.
-  
+
 * ``nse.nse_molar_independent = 1`` in the input file allows the user to use the nse mass
   fractions for nse check after the first check (the one that ensures we're close enough
   to the nse mass fractions to get reasonable results) is passed. This allows the subsequent
   checks to only rely on the thermodynamic conditions instead of mass fractions.
-  
+
 .. rubric:: Footnotes
 
 .. [#fY] The table actually provides the weak rate, which is the sum
