@@ -20,9 +20,8 @@
 
 // First check to see if we're in the ballpark of nse state
 
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void check_nse_molar(T& state, const T& nse_state, bool& nse_check){
+void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check){
 
   // This function gives the first estimate whether we're in the nse or not
   // it checks whether the molar fractions of n,p,a are approximately in NSE
@@ -171,11 +170,10 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 }
 
 
-template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-			const T& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
+			const burn_t& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
 
   // This function finds the fast reaction cycle of a given nuclei.
   // This is done to satisfy Section 4.4.3 of Kushnir
@@ -585,7 +583,6 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 }
 
 
-
 // After all preliminary checks are successful, lets do nse grouping.
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -611,7 +608,6 @@ int get_root_index(const int nuc_ind,
   }
 
 }
-
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -730,11 +726,10 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
 }
 
 
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 		     amrex::Real& fastest_t, const int current_rate,
-		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const T& state,
+		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
 		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
 		     const amrex::Real& t_s) {
@@ -921,10 +916,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 }
 
 
-
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
+void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& state,
 		  const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 		  const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 		  const amrex::Real& t_s){
