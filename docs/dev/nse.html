@@ -407,6 +407,13 @@ to acheive, so we leave this as an option for the user to explore.</p></li>
 fractions for nse check after the first check (the one that ensures we’re close enough
 to the nse mass fractions to get reasonable results) is passed. This allows the subsequent
 checks to only rely on the thermodynamic conditions instead of mass fractions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_skip_molar</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the user to skip the molar fraction
+check after the integration has failed. This option is used to completely forgo the
+requirement on molar fractions and allow the check to only dependent on the thermodynamic
+conditions. By only applying this after option after the integration failure, we hope the
+integrator has evolved the system to the NSE state the best it can. By turning on this
+option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
+which is likely the case.</p></li>
 </ul>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
