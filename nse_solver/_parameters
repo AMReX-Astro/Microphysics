@@ -5,3 +5,4 @@ use_hybrid_solver       integer    1
 ase_tol                 real       0.1_rt
 nse_dx_independent      logical    .false.
 nse_molar_independent   logical    .false.
+nse_skip_molar          logical    .false.
