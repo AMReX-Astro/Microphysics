@@ -61,7 +61,7 @@ temperatures.    This option is enabled by building with:
 
 .. prompt:: bash
 
-   NETWORK_DIR=aprox19 USE_NSE=TRUE
+   NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE
 
 Composition and EOS
 -------------------
@@ -177,6 +177,18 @@ We determine is a zone is in NSE according to:
 * :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
 
 .. _self_consistent_nse:
+
+
+NSE table ranges
+----------------
+
+The NSE table was created for:
+
+* :math:`9 < \log_{10}(T) < 10.4`
+* :math:`7 < \log_{10}(\rho) < 10`
+* :math:`0.4 < Y_e < 0.5`
+
+
 
 Self-consistent NSE
 ===================

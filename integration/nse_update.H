@@ -46,10 +46,15 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     Real ye_in = state.y[SFX+iye] / state.rho;
 
+    // if we are doing drive_initial_convection, we want to use
+    // the temperature that comes in through T_fixed
+
+    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
 #if defined (NSE_TABLE)
     // get the current NSE state from the table
 
-    nse_interp(state.T, state.rho, ye_in,
+    nse_interp(T_in, state.rho, ye_in,
                abar_out, dq_out, dyedt, X);
 
 #elif defined (NSE_NET)
@@ -98,19 +103,25 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
         // call the EOS to get the updated T*
 
+        Real T_new;
         eos_state.rho = state.y[SRHO];
         eos_state.e = rhoe_new / state.y[SRHO];
         for (int n = 0; n < NumAux; n++) {
             eos_state.aux[n] = rho_aux_new[n] / state.y[SRHO];
         }
 
-        eos(eos_input_re, eos_state);
+        if (state.T_fixed > 0) {
+            T_new = state.T_fixed;
+        } else {
+            eos(eos_input_re, eos_state);
+            T_new = eos_state.T;
+        }
 
 #if defined(NSE_TABLE)
         // call the NSE table using the * state to get the t^{n+1}
         // source estimates
 
-        nse_interp(eos_state.T, eos_state.rho, eos_state.aux[iye],
+        nse_interp(T_new, eos_state.rho, eos_state.aux[iye],
                    abar_out, dq_out, dyedt, X);
 
 #elif defined(NSE_NET)
@@ -128,7 +139,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
         dq = dq_out - rho_bea_old/rho_old;
 
         // convert the energy to erg / cm**3
-        enucdot  = dq * C::MeV2eV * C::ev2erg * C::n_A / dt;
+        enucdot = dq * C::MeV2eV * C::ev2erg * C::n_A / dt;
 
         // update the aux source terms
 
@@ -178,21 +189,30 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_burn(burn_t& state, const Real dt) {
 
-  using namespace AuxZero;
-
 #if defined(NSE_TABLE)
 
+  using namespace AuxZero;
+  
   // use the NSE table
   Real abar_out;
   Real dq_out;
   Real dyedt;
   Real X[NumSpec];
 
+  // get the energy -- we are assuming that rho, T are valid on input
+
+  eos(eos_input_rt, state);
+
+  // if we are doing drive_initial_convection, we want to use
+  // the temperature that comes in through T_fixed
+
+  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
   // in terms of the auxillary composition, Ye, abar, and B/A
 
-  nse_interp(state.T, state.rho, state.aux[iye],
+  nse_interp(T_in, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
 
   // update Ye
@@ -201,7 +221,7 @@ void nse_burn(burn_t& state, const Real dt) {
 
   // now get the composition from the table using the upated Ye
 
-  nse_interp(state.T, state.rho, state.aux[iye],
+  nse_interp(T_in, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
 
 
@@ -209,18 +229,15 @@ void nse_burn(burn_t& state, const Real dt) {
   // access the old binding energy
   Real deltaq = dq_out - state.aux[ibea];
 
-  // under-relaxation / inertia (see Ma et el. 2013)
-  deltaq = eta * deltaq;
-
   state.aux[ibea] += deltaq;
   state.aux[iabar] = abar_out;
 
 #elif defined(NSE_NET)
 
   // solve for the NSE state -- first compute Ye
-  state.ye = 0.0_rt;
+  state.y_e = 0.0_rt;
   for (int n = 0; n < NumSpec; ++n) {
-      state.ye += zion[n] * state.xn[n] * aion_inv[n];
+      state.y_e += zion[n] * state.xn[n] * aion_inv[n];
   }
 
   auto nse_state = get_actual_nse_state(state);
@@ -236,9 +253,6 @@ void nse_burn(burn_t& state, const Real dt) {
   for (int n = 0; n < NumSpec; ++n) {
       deltaq += network::bion(n+1) * aion_inv[n] * (nse_state.xn[n] - state.xn[n]);
   }
-
-  // under-relaxation / inertia (see Ma et el. 2013)
-  deltaq = eta * deltaq;
 
 #endif
 
