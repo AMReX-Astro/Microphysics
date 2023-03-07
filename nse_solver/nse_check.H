@@ -20,9 +20,8 @@
 
 // First check to see if we're in the ballpark of nse state
 
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void check_nse_molar(T& state, const T& nse_state, bool& nse_check){
+void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check){
 
   // This function gives the first estimate whether we're in the nse or not
   // it checks whether the molar fractions of n,p,a are approximately in NSE
@@ -171,11 +170,10 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 }
 
 
-template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-			const T& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
+			const burn_t& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
 
   // This function finds the fast reaction cycle of a given nuclei.
   // This is done to satisfy Section 4.4.3 of Kushnir
@@ -585,7 +583,6 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 }
 
 
-
 // After all preliminary checks are successful, lets do nse grouping.
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -611,7 +608,6 @@ int get_root_index(const int nuc_ind,
   }
 
 }
-
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -730,11 +726,10 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
 }
 
 
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 		     amrex::Real& fastest_t, const int current_rate,
-		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const T& state,
+		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
 		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
 		     const amrex::Real& t_s) {
@@ -921,10 +916,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 }
 
 
-
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
+void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& state,
 		  const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 		  const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 		  const amrex::Real& t_s){
@@ -981,17 +974,17 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(burn_t& current_state) {
+bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
   
 #ifndef NEW_NETWORK_IMPLEMENTATION
 
-  bool nse_check = false;
+  current_state.nse = false;
 
   if (current_state.T < 2.0e9_rt) {
-    return nse_check;
+    return current_state.nse;
   }
     
   // Get the nse state which is used to compare nse molar fractions.
@@ -1000,9 +993,12 @@ bool in_nse(burn_t& current_state) {
 
   // Check whether state is in the ballpark of NSE
 
-  check_nse_molar(current_state, nse_state, nse_check);
-  if (!nse_check) {
-    return nse_check;
+  if (!skip_molar_check) {
+
+    check_nse_molar(current_state, nse_state, current_state.nse);    
+    if (!current_state.nse) {
+      return current_state.nse;
+    }
   }
 
   // We can do a further approximation where we use the NSE mass fractions
@@ -1096,7 +1092,7 @@ bool in_nse(burn_t& current_state) {
   // if not found_fast_reaction_cycle, state not in nse
 
   if (!found_fast_reaction_cycle){
-    nse_check = false;
+    current_state.nse = false;
   }
   else{
 
@@ -1105,14 +1101,15 @@ bool in_nse(burn_t& current_state) {
     nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
 
     // Check if we result in a single group after grouping
-    nse_check = false;
+
+    current_state.nse = false;
 
     if (in_single_group(group_ind)){
-      nse_check = true;
+      current_state.nse = true;
     }
   }
 
-  return nse_check;
+  return current_state.nse;
 
 #else
   amrex::Error("in_nse() is currently not supported for aprox networks!");
