@@ -333,6 +333,14 @@ nse check:
   to the nse mass fractions to get reasonable results) is passed. This allows the subsequent
   checks to only rely on the thermodynamic conditions instead of mass fractions.
 
+* ``nse.nse_skip_molar = 1`` in the input file allows the user to skip the molar fraction
+  check after the integration has failed. This option is used to completely forgo the
+  requirement on molar fractions and allow the check to only dependent on the thermodynamic
+  conditions. By only applying this after option after the integration failure, we hope the
+  integrator has evolved the system to the NSE state the best it can. By turning on this
+  option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
+  which is likely the case.
+
 .. rubric:: Footnotes
 
 .. [#fY] The table actually provides the weak rate, which is the sum
