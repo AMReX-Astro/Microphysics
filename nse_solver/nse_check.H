@@ -994,12 +994,13 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // Check whether state is in the ballpark of NSE
 
   if (!skip_molar_check) {
-    check_nse_molar(current_state, nse_state, current_state.nse);
-    
+
+    check_nse_molar(current_state, nse_state, current_state.nse);    
     if (!current_state.nse) {
       return current_state.nse;
     }
   }
+
   // We can do a further approximation where we use the NSE mass fractions
   // instead of the current mass fractions. This makes the check soley dependent on
   // the thermodynamic condition.
