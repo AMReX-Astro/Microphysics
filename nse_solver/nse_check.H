@@ -988,10 +988,10 @@ bool in_nse(burn_t& current_state) {
   
 #ifndef NEW_NETWORK_IMPLEMENTATION
 
-  bool nse_check = false;
+  current_state.nse = false;
 
   if (current_state.T < 2.0e9_rt) {
-    return nse_check;
+    return current_state.nse;
   }
     
   // Get the nse state which is used to compare nse molar fractions.
@@ -1000,9 +1000,9 @@ bool in_nse(burn_t& current_state) {
 
   // Check whether state is in the ballpark of NSE
 
-  check_nse_molar(current_state, nse_state, nse_check);
-  if (!nse_check) {
-    return nse_check;
+  check_nse_molar(current_state, nse_state, current_state.nse);
+  if (!current_state.nse) {
+    return current_state.nse;
   }
 
   // We can do a further approximation where we use the NSE mass fractions
@@ -1096,7 +1096,7 @@ bool in_nse(burn_t& current_state) {
   // if not found_fast_reaction_cycle, state not in nse
 
   if (!found_fast_reaction_cycle){
-    nse_check = false;
+    current_state.nse = false;
   }
   else{
 
@@ -1105,14 +1105,15 @@ bool in_nse(burn_t& current_state) {
     nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
 
     // Check if we result in a single group after grouping
-    nse_check = false;
+
+    current_state.nse = false;
 
     if (in_single_group(group_ind)){
-      nse_check = true;
+      current_state.nse = true;
     }
   }
 
-  return nse_check;
+  return current_state.nse;
 
 #else
   amrex::Error("in_nse() is currently not supported for aprox networks!");
