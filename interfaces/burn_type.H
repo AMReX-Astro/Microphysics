@@ -1,5 +1,5 @@
-#ifndef _burn_type_H_
-#define _burn_type_H_
+#ifndef BURN_TYPE_H
+#define BURN_TYPE_H
 
 #include <iomanip>
 
@@ -174,6 +174,7 @@ struct burn_t
 #ifdef NSE_NET
   Real mu_p;
   Real mu_n;
+  bool nse;
 #endif
   
   // diagnostics

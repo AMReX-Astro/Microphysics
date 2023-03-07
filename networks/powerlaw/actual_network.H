@@ -1,5 +1,5 @@
-#ifndef _actual_network_H_
-#define _actual_network_H_
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 void actual_network_init();
 
