@@ -1,6 +1,5 @@
-
-#ifndef _eos_composition_H_
-#define _eos_composition_H_
+#ifndef EOS_COMPOSITION_H
+#define EOS_COMPOSITION_H
 
 #include <AMReX_BLFort.H>
 #include <network.H>

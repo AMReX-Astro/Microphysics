@@ -1,5 +1,5 @@
-#ifndef _actual_rhs_H_
-#define _actual_rhs_H_
+#ifndef ACTUAL_RHS_H
+#define ACTUAL_RHS_H
 
 #include <cmath>
 

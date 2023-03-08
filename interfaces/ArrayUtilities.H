@@ -1,5 +1,5 @@
-#ifndef _array_utilities_H_
-#define _array_utilities_H_
+#ifndef ARRAY_UTILITIES_H
+#define ARRAY_UTILITIES_H
 
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
