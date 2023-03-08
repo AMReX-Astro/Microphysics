@@ -424,69 +424,88 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
     amrex::Array1D<amrex::Real, 1, 2> outer_x;
     amrex::Array1D<amrex::Real, 1, 2> inner_x;
 
-    outer_x(1) = state.mu_p;
-    outer_x(2) = state.mu_n;
-
     // for (int j = 1; j <= 2; ++j) {
     //     hj.diag(j) = 1.0_rt;
     // }
 
     // fine tuning initial guesses
 
-    for (int i = 0; i < 20; ++i){
+    for (int n = 0; n < 4; ++n) {
 
-      dx = 0.5_rt;
-      inner_x(1) = outer_x(1);
-      inner_x(2) = outer_x(2);
+      outer_x(1) = state.mu_p;
+      outer_x(2) = state.mu_n;
 
-      for (int j = 0; j < 20; ++j){
+      for (int i = 0; i < 20; ++i) {
 
-	hj.x(1) = inner_x(1);
-	hj.x(2) = inner_x(2);
+	dx = 0.5_rt;
+	inner_x(1) = outer_x(1);
+	inner_x(2) = outer_x(2);
 
-	hybrj(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+	for (int j = 0; j < 10; ++j) {
 
-	fcn_hybrid(hj.x, f, state, flag);
+	  hj.x(1) = inner_x(1);
+	  hj.x(2) = inner_x(2);
 
-	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps){
+	  hybrj(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
 
-	  state.mu_p = hj.x(1);
-	  state.mu_n = hj.x(2);
-	  return;
+	  fcn_hybrid(hj.x, f, state, flag);
+
+	  if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
+
+	    state.mu_p = hj.x(1);
+	    state.mu_n = hj.x(2);
+	    return;
+	  }
+
+	  if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
+	    is_pos_new = true;
+	  }
+	  else{
+	    is_pos_new = false;
+	  }
+
+	  if (is_pos_old != is_pos_new) {
+	    dx *= 0.8_rt;
+	  }
+
+	  if (is_pos_new) {
+	    inner_x(1) -= dx;
+	    inner_x(2) -= dx;
+	  }
+	  else {
+	    inner_x(1) += dx;
+	    inner_x(2) += dx;
+	  }
+
+	  is_pos_old = is_pos_new;
 	}
 
-	if (f(1) > 0.0_rt && f(2) > 0.0_rt){
-	  is_pos_new = true;
-	}
-	else{
-	  is_pos_new = false;
-	}
-
-	if (is_pos_old != is_pos_new){
-	  dx *= 0.8_rt;
-	}
-
-	if (is_pos_new){
-	  inner_x(1) -= dx;
-	  inner_x(2) -= dx;
-	}
-	else{
-	  inner_x(1) += dx;
-	  inner_x(2) += dx;
+	switch (n) {
+	case 0:
+	  outer_x(1) -= 0.3_rt;
+	  break;
+	case 1:
+	  outer_x(1) += 0.3_rt;
+	case 2:
+	  outer_x(0) -= 0.3_rt;
+	case 3:
+	  outer_x(0) += 0.3_rt;
 	}
 
-	is_pos_old = is_pos_new;
       }
-
-      outer_x(1) -= 0.5_rt;
-
     }
-
     // if (hj.info != 1) {
     //     amrex::Error("failed to solve");
     // }
 
-    amrex::Error("failed to solve");
+#ifndef AMREX_USE_GPU
+    std::cout << "NSE solver failed with these conditions: " << std::endl;
+    std::cout << "Temperature: " << state.T << std::endl;
+    std::cout << "Density: " << state.rho << std::endl;
+    std::cout << "Ye: " << state.y_e << std::endl;
+    std::cout << "Initial mu_p and mu_n: " << state.mu_p << ", " << state.mu_n << std::endl;
+#endif
+    amrex::Error("failed to solve NSE states");
 }
 
 // A newton-raphson solver for finding nse state used for calibrating
