@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.1)
+
 project(Microphysics
     VERSION 1.0.0
     DESCRIPTION "some description of the project; built with CMake"
