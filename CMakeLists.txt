@@ -31,9 +31,18 @@ set(sources
     networks/rhs.H)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
-#adding amrex and units_test as subdirectories
-#not sure how to link amrex as a subdirectory here, because there is no path called extern/amrex in microphysics
-add_subdirectory(${Microphysics_SOURCE_DIR}/extern/amrex ${Microphysics_BINARY_DIR}/amrex)
+#fetching amrex
+FetchContent_Declare(
+  amrex
+  GIT_REPOSITORY https://github.com/AMReX-Codes/amrex.git
+  GIT_TAG        v23.03
+)
+
+# CMake 3.14+
+FetchContent_MakeAvailable(amrex)
+
+
+#adding unit_test as subdirectories
 add_subdirectory(${Microphysics_SOURCE_DIR}/unit_test)
 
 
