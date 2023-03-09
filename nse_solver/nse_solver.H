@@ -324,7 +324,9 @@ T get_nse_state(const T& state)
 
   nse_state.T = T_in;
   nse_state.rho = state.rho;
-
+  nse_state.mu_p = state.mu_p;
+  nse_state.mu_n = state.mu_n;
+  
   return nse_state;
 }
 
