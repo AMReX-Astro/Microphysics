@@ -71,6 +71,8 @@ FetchContent_Declare(
 # CMake 3.14+
 FetchContent_MakeAvailable(amrex)
 
+include_directories(${amrex_INCLUDE_DIRS_RET})
+link_libraries(AMReX::amrex)
 
 #adding unit_test as subdirectories
 add_subdirectory(${Microphysics_SOURCE_DIR}/unit_test)
