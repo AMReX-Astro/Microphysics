@@ -1,13 +1,19 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.16)
 
 project(Microphysics
     VERSION 1.0.0
     DESCRIPTION "some description of the project; built with CMake"
-    LANGUAGES CXX)
+    LANGUAGES CXX C)
 
 #----------------------------------------------------------------------------------------------------------------------
 # general settings and options
 #----------------------------------------------------------------------------------------------------------------------
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_COMPILER "clang" CACHE PATH "")
+set(CMAKE_CXX_COMPILER "clang++" CACHE PATH "")
+include(CTest)
 
 add_library(Microphysics) # initialized below
 add_library(Microphysics::Microphysics ALIAS Microphysics)
@@ -34,11 +40,12 @@ set(sources
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
 #fetching amrex
-set (AMREX_TAG "master")
+set (AMREX_TAG "main")
 include(FetchContent)
 FetchContent_Declare(
   amrex
-  GIT_REPOSITORY https://github.com/AMReX-Codes/amrex.git
+  GIT_REPOSITORY https://github.com/AMReX-Codes/amrex
+  GIT_TAG "${AMREX_TAG}"
 )
 
 # CMake 3.14+
