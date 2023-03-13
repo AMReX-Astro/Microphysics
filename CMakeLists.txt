@@ -34,10 +34,11 @@ set(sources
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
 #fetching amrex
+set (AMREX_TAG "master")
+include(FetchContent)
 FetchContent_Declare(
   amrex
   GIT_REPOSITORY https://github.com/AMReX-Codes/amrex.git
-  GIT_TAG        v23.03
 )
 
 # CMake 3.14+
