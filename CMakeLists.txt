@@ -32,7 +32,8 @@ set(sources
     interfaces/network.H
     interfaces/rhs_type.H
     networks/rate_type.H
-    networks/rhs.H)
+    networks/rhs.H
+    unit_test/unit_test.H)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 
 #----------------------------------------------------------------------------------------------------------------------
