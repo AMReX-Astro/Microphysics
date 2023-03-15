@@ -170,9 +170,14 @@ class Param:
     def get_job_info_test(self):
         """this is the output in C++ in the job_info writing"""
 
+        value = self.default_format(lang="C++")
+        if self.dtype == "string" and  value == "":
+            test = f"{self.nm_pre}{self.cpp_var_name}.empty()"
+        else:
+            test = f"{self.nm_pre}{self.cpp_var_name} == {value}"
+
         ostr = (
-            f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format(lang="C++")} ? "    "' +
-            f': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
+            f'jobInfoFile << ({test} ? "    ": "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
             f'<< {self.nm_pre}{self.cpp_var_name} << std::endl;\n')
 
         return ostr
