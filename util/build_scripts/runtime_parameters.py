@@ -171,7 +171,7 @@ class Param:
         """this is the output in C++ in the job_info writing"""
 
         value = self.default_format(lang="C++")
-        if self.dtype == "string" and  value == "":
+        if self.dtype == "string" and  value.strip() == '\"\"':
             test = f"{self.nm_pre}{self.cpp_var_name}.empty()"
         else:
             test = f"{self.nm_pre}{self.cpp_var_name} == {value}"
