@@ -1,5 +1,5 @@
-#ifndef _vode_type_H_
-#define _vode_type_H_
+#ifndef VODE_TYPE_H
+#define VODE_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>

@@ -1,5 +1,5 @@
-#ifndef _burner_H_
-#define _burner_H_
+#ifndef BURNER_H
+#define BURNER_H
 
 #include <burn_type.H>
 #include <integrator.H>
@@ -59,7 +59,7 @@ void burner (burn_t& state, Real dt)
 #ifdef NSE_TABLE
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
 #else
-	if (in_nse(state) && state.success == false && dt_remaining > 0.0) {
+	if (in_nse(state, nse_skip_molar) && state.success == false && dt_remaining > 0.0) {
 #endif
 
 #ifndef AMREX_USE_GPU
