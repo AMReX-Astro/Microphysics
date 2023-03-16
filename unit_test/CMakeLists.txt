@@ -5,15 +5,25 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/util ${CMAKE
 add_subdirectory(burn_cell_primordial_chem)
 
 set(externparamfile "${CMAKE_CURRENT_BINARY_DIR}/extern_parameters.H")
-set(paramfile "${CMAKE_SOURCE_DIR}/networks/primordial_chem/_parameters")
+
+set(paramfile "${CMAKE_SOURCE_DIR}/unit_test/burn_cell_primordial_chem/_parameters")
+set(EOSparamfile "${CMAKE_SOURCE_DIR}/EOS/primordial_chem/_parameters")
+set(networkpcparamfile "${CMAKE_SOURCE_DIR}/networks/primordial_chem/_parameters")
+set(networkparamfile "${CMAKE_SOURCE_DIR}/networks/_parameters")
+set(VODEparamfile "${CMAKE_SOURCE_DIR}/integration/VODE/_parameters")
+set(integrationparamfile "${CMAKE_SOURCE_DIR}/integration/_parameters")
+set(unittestparamfile "${CMAKE_SOURCE_DIR}/unit_test/_parameters")
+
+
 set(networkpropfile "${CMAKE_CURRENT_BINARY_DIR}/network_properties.H")
 set(networkfile "${CMAKE_SOURCE_DIR}/networks/primordial_chem/pynucastro.net")
 set(networkdir "${CMAKE_SOURCE_DIR}/networks/primordial_chem/")
 set(networkpropertiesfile "${CMAKE_SOURCE_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
 set(networkheadertemplatefile "${CMAKE_SOURCE_DIR}/networks/general_null/network_header.template")
 
+
 add_custom_command(OUTPUT ${externparamfile}
-    COMMAND python3 "${CMAKE_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile}"
+    COMMAND python3 "${CMAKE_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}"
     DEPENDS "${CMAKE_SOURCE_DIR}/util/build_scripts/write_probin.py"
     DEPENDS "${CMAKE_SOURCE_DIR}/util/build_scripts/runtime_parameters.py"
     DEPENDS "${paramfile}"
