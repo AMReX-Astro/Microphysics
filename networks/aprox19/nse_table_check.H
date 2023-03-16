@@ -18,13 +18,13 @@
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(const burn_t& state, const bool relax = false) {
+bool in_nse(burn_t& state, const bool relax = false) {
 
     using namespace Species;
 
     Real f = relax ? nse_relax_factor : 1.0_rt;
 
-    bool nse_check = false;
+    state.nse = false;
 
     if (state.rho > f * rho_nse && state.T > f * T_nse) {
 
@@ -55,11 +55,11 @@ bool in_nse(const burn_t& state, const bool relax = false) {
             C_group < C_nse / f &&
             O_group < O_nse / f &&
             Si_group < Si_nse / f) {
-            nse_check = true;
+            state.nse = true;
         }
     }
 
-    return nse_check;
+    return state.nse;
 
 }
 
