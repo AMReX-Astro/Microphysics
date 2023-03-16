@@ -74,7 +74,7 @@ void nse_burn(burn_t& state, const Real dt) {
   // we iterate here.  The first time through, T will be the input T.
   // at the end of the loop, we update T, and then do another pass
 
-  for (int iter = 0; iter < 2; ++iter) {
+  for (int iter = 0; iter < 3; ++iter) {
 
       // now get the composition from the table using the upated Ye
 
