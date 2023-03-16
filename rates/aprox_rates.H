@@ -65,7 +65,7 @@ void rates_init()
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_c12ag(tf_t tf, const Real den, Real& fr, 
+void rate_c12ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -209,7 +209,7 @@ void rate_c12ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_triplealf(tf_t tf, const Real den, Real& fr, 
+void rate_triplealf(const tf_t& tf, const Real den, Real& fr, 
                   Real& dfrdt, Real& rr, Real& drrdt) 
 {
     const Real rc28 = 0.1_rt;
@@ -294,7 +294,7 @@ void rate_triplealf(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_c12c12(tf_t tf, const Real den, Real& fr, 
+void rate_c12c12(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -328,7 +328,7 @@ void rate_c12c12(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_c12o16(tf_t tf, const Real den, Real& fr, 
+void rate_c12o16(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -380,7 +380,7 @@ void rate_c12o16(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_o16o16(tf_t tf, const Real den, Real& fr, 
+void rate_o16o16(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -404,7 +404,7 @@ void rate_o16o16(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_o16ag(tf_t tf, const Real den, Real& fr, 
+void rate_o16ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -441,7 +441,7 @@ void rate_o16ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_ne20ag(tf_t tf, const Real den, Real& fr, 
+void rate_ne20ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -500,7 +500,7 @@ void rate_ne20ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_mg24ag(tf_t tf, const Real den, Real& fr, 
+void rate_mg24ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -546,7 +546,7 @@ void rate_mg24ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_mg24ap(tf_t tf, const Real den, Real& fr, 
+void rate_mg24ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -604,7 +604,7 @@ void rate_mg24ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_al27pg(tf_t tf, const Real den, Real& fr, 
+void rate_al27pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -647,7 +647,7 @@ void rate_al27pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_al27pg_old(tf_t tf, const Real den, Real& fr, 
+void rate_al27pg_old(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -706,7 +706,7 @@ void rate_al27pg_old(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_si28ag(tf_t tf, const Real den, Real& fr, 
+void rate_si28ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -737,7 +737,7 @@ void rate_si28ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_si28ap(tf_t tf, const Real den, Real& fr, 
+void rate_si28ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -769,7 +769,7 @@ void rate_si28ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_p31pg(tf_t tf, const Real den, Real& fr, 
+void rate_p31pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -800,7 +800,7 @@ void rate_p31pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_s32ag(tf_t tf, const Real den, Real& fr, 
+void rate_s32ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -831,7 +831,7 @@ void rate_s32ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_s32ap(tf_t tf, const Real den, Real& fr, 
+void rate_s32ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -862,7 +862,7 @@ void rate_s32ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_cl35pg(tf_t tf, const Real den, Real& fr, 
+void rate_cl35pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -885,7 +885,7 @@ void rate_cl35pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_ar36ag(tf_t tf, const Real den, Real& fr, 
+void rate_ar36ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -916,7 +916,7 @@ void rate_ar36ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_ar36ap(tf_t tf, const Real den, Real& fr, 
+void rate_ar36ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -947,7 +947,7 @@ void rate_ar36ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_k39pg(tf_t tf, const Real den, Real& fr, 
+void rate_k39pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -978,7 +978,7 @@ void rate_k39pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_ca40ag(tf_t tf, const Real den, Real& fr, 
+void rate_ca40ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1009,7 +1009,7 @@ void rate_ca40ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_ca40ap(tf_t tf, const Real den, Real& fr, 
+void rate_ca40ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1040,7 +1040,7 @@ void rate_ca40ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_sc43pg(tf_t tf, const Real den, Real& fr, 
+void rate_sc43pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1071,7 +1071,7 @@ void rate_sc43pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_ti44ag(tf_t tf, const Real den, Real& fr, 
+void rate_ti44ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1102,7 +1102,7 @@ void rate_ti44ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_ti44ap(tf_t tf, const Real den, Real& fr, 
+void rate_ti44ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1133,7 +1133,7 @@ void rate_ti44ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_v47pg(tf_t tf, const Real den, Real& fr, 
+void rate_v47pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1164,7 +1164,7 @@ void rate_v47pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_cr48ag(tf_t tf, const Real den, Real& fr, 
+void rate_cr48ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1195,7 +1195,7 @@ void rate_cr48ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_cr48ap(tf_t tf, const Real den, Real& fr, 
+void rate_cr48ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1226,7 +1226,7 @@ void rate_cr48ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_mn51pg(tf_t tf, const Real den, Real& fr, 
+void rate_mn51pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1257,7 +1257,7 @@ void rate_mn51pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe52ag(tf_t tf, const Real den, Real& fr, 
+void rate_fe52ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1288,7 +1288,7 @@ void rate_fe52ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe52ap(tf_t tf, const Real den, Real& fr, 
+void rate_fe52ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1319,7 +1319,7 @@ void rate_fe52ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_co55pg(tf_t tf, const Real den, Real& fr, 
+void rate_co55pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1350,7 +1350,7 @@ void rate_co55pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_pp(tf_t tf, const Real den, Real& fr, 
+void rate_pp(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1380,7 +1380,7 @@ void rate_pp(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_png(tf_t tf, const Real den, Real& fr, 
+void rate_png(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1417,7 +1417,7 @@ void rate_png(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_dpg(tf_t tf, const Real den, Real& fr, 
+void rate_dpg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1443,7 +1443,7 @@ void rate_dpg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_he3ng(tf_t tf, const Real den, Real& fr, 
+void rate_he3ng(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1463,7 +1463,7 @@ void rate_he3ng(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_he3he3(tf_t tf, const Real den, Real& fr, 
+void rate_he3he3(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1491,7 +1491,7 @@ void rate_he3he3(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_he3he4(tf_t tf, const Real den, Real& fr, 
+void rate_he3he4(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1526,7 +1526,7 @@ void rate_he3he4(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_c12pg(tf_t tf, const Real den, Real& fr, 
+void rate_c12pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1565,7 +1565,7 @@ void rate_c12pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_n14pg(tf_t tf, const Real den, Real& fr, 
+void rate_n14pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {   
@@ -1604,7 +1604,7 @@ void rate_n14pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_n15pg(tf_t tf, const Real den, Real& fr, 
+void rate_n15pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1646,7 +1646,7 @@ void rate_n15pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_n15pa(tf_t tf, const Real den, Real& fr, 
+void rate_n15pa(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1692,7 +1692,7 @@ void rate_n15pa(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_o16pg(tf_t tf, const Real den, Real& fr, 
+void rate_o16pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1728,7 +1728,7 @@ void rate_o16pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_n14ag(tf_t tf, const Real den, Real& fr, 
+void rate_n14ag(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1770,7 +1770,7 @@ void rate_n14ag(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe52ng(tf_t tf, const Real den, Real& fr, 
+void rate_fe52ng(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1791,7 +1791,7 @@ void rate_fe52ng(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe53ng(tf_t tf, const Real den, Real& fr, 
+void rate_fe53ng(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1816,7 +1816,7 @@ void rate_fe53ng(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe54ng(tf_t tf, const Real den, Real& fr, 
+void rate_fe54ng(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1851,7 +1851,7 @@ void rate_fe54ng(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe54pg(tf_t tf, const Real den, Real& fr, 
+void rate_fe54pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1882,7 +1882,7 @@ void rate_fe54pg(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe54ap(tf_t tf, const Real den, Real& fr, 
+void rate_fe54ap(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1917,7 +1917,7 @@ void rate_fe54ap(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe55ng(tf_t tf, const Real den, Real& fr, 
+void rate_fe55ng(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
@@ -1952,7 +1952,7 @@ void rate_fe55ng(tf_t tf, const Real den, Real& fr,
 }
 
 AMREX_GPU_HOST_DEVICE inline 
-void rate_fe56pg(tf_t tf, const Real den, Real& fr, 
+void rate_fe56pg(const tf_t& tf, const Real den, Real& fr, 
                 Real& dfrdt, Real& rr, 
                 Real& drrdt) 
 {
