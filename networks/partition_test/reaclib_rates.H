@@ -13,13 +13,11 @@ using namespace Species;
 
 struct rate_t {
     Array1D<Real, 1, NumRates>  screened_rates;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
 };
 
 struct rate_derivs_t {
     Array1D<Real, 1, NumRates>  screened_rates;
     Array1D<Real, 1, NumRates>  dscreened_rates_dT;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
 };
 
 
@@ -150,6 +148,10 @@ void rate_ni56__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drate_
     }
 
 
+    Real ni56_pf, dni56_pf_dT;
+    // interpolating ni56 partition function
+    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
+
     Real he4_pf, dhe4_pf_dT;
     // setting he4 partition function to 1.0 by default, independent of T
     he4_pf = 1.0_rt;
@@ -158,10 +160,6 @@ void rate_ni56__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drate_
     Real fe52_pf, dfe52_pf_dT;
     // interpolating fe52 partition function
     get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
-
-    Real ni56_pf, dni56_pf_dT;
-    // interpolating ni56 partition function
-    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
 
     Real z_r = he4_pf * fe52_pf;
     Real z_p = ni56_pf;
@@ -207,6 +205,10 @@ void rate_ni56__p_co55__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     }
 
 
+    Real ni56_pf, dni56_pf_dT;
+    // interpolating ni56 partition function
+    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
+
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
@@ -215,10 +217,6 @@ void rate_ni56__p_co55__derived(const tf_t& tfactors, Real& rate, Real& drate_dT
     Real co55_pf, dco55_pf_dT;
     // interpolating co55 partition function
     get_partition_function(Co55, tfactors, co55_pf, dco55_pf_dT);
-
-    Real ni56_pf, dni56_pf_dT;
-    // interpolating ni56 partition function
-    get_partition_function(Ni56, tfactors, ni56_pf, dni56_pf_dT);
 
     Real z_r = p_pf * co55_pf;
     Real z_p = ni56_pf;
@@ -264,23 +262,23 @@ void rate_p_co55__he4_fe52__derived(const tf_t& tfactors, Real& rate, Real& drat
     }
 
 
-    Real he4_pf, dhe4_pf_dT;
-    // setting he4 partition function to 1.0 by default, independent of T
-    he4_pf = 1.0_rt;
-    dhe4_pf_dT = 0.0_rt;
-
-    Real fe52_pf, dfe52_pf_dT;
-    // interpolating fe52 partition function
-    get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
-
     Real p_pf, dp_pf_dT;
     // setting p partition function to 1.0 by default, independent of T
     p_pf = 1.0_rt;
     dp_pf_dT = 0.0_rt;
 
+    Real he4_pf, dhe4_pf_dT;
+    // setting he4 partition function to 1.0 by default, independent of T
+    he4_pf = 1.0_rt;
+    dhe4_pf_dT = 0.0_rt;
+
     Real co55_pf, dco55_pf_dT;
     // interpolating co55 partition function
     get_partition_function(Co55, tfactors, co55_pf, dco55_pf_dT);
+
+    Real fe52_pf, dfe52_pf_dT;
+    // interpolating fe52 partition function
+    get_partition_function(Fe52, tfactors, fe52_pf, dfe52_pf_dT);
 
     Real z_r = he4_pf * fe52_pf;
     Real z_p = p_pf * co55_pf;
@@ -348,7 +346,7 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
 template <int do_T_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void
-fill_approx_rates(const tf_t& tfactors, T& rate_eval)
+fill_approx_rates([[maybe_unused]] const tf_t& tfactors, T& rate_eval)
 {
 
     Real rate;

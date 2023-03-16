@@ -1,5 +1,5 @@
-#ifndef _vode_dvode_H_
-#define _vode_dvode_H_
+#ifndef VODE_DVODE_H
+#define VODE_DVODE_H
 
 #include <vode_type.H>
 #include <vode_dvhin.H>
