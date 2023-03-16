@@ -1,5 +1,5 @@
-#ifndef _nse_index_H
-#define _nse_index_H
+#ifndef NSE_INDEX_H
+#define NSE_INDEX_H
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
