@@ -25,6 +25,7 @@ set(sources
     EOS/eos_composition.H
     integration/integrator.H
     integration/integrator_data.H
+    integration/integrator_rhs_strang.H
     interfaces/ArrayUtilities.H
     interfaces/eos.H
     interfaces/eos_data.H
@@ -35,7 +36,7 @@ set(sources
     networks/rate_type.H
     networks/rhs.H
     unit_test/unit_test.H)
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
+source_group(TREE "${CMAKE_SOURCE_DIR}" FILES ${sources})
 
 #----------------------------------------------------------------------------------------------------------------------
 # mylib target
@@ -44,12 +45,10 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
 include(CMakePackageConfigHelpers)
 
 target_sources(Microphysics PRIVATE ${sources})
-#target_compile_definitions(Microphysics PUBLIC "$<$<NOT:$<BOOL:${BUILD_SHARED_LIBS}>>:MYLIB_STATIC_DEFINE>")
+target_compile_definitions(Microphysics PUBLIC source_group)
 
-#target_include_directories(Microphysics
-#    PUBLIC
-#        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-#        "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>")
+target_include_directories(Microphysics PUBLIC ${CMAKE_SOURCE_DIR}/integration/VODE)
+#target_link_libraries(Microphysics PRIVATE ${CMAKE_SOURCE_DIR}/integration/VODE)
 
 set_target_properties(Microphysics PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
