@@ -9,6 +9,7 @@ project(Microphysics
 # general settings and options
 #----------------------------------------------------------------------------------------------------------------------
 
+find_package (Python COMPONENTS Interpreter Development)
 include(CTest)
 
 add_library(Microphysics) # initialized below
