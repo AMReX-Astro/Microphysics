@@ -76,3 +76,5 @@ subtract_internal_energy   logical       .true.
 # SDC iteration tolerance adjustment factor
 sdc_burn_tol_factor          real         1.d0
 
+# number of substeps to take in the NSE update
+nse_substeps            integer           4

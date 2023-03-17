@@ -66,15 +66,15 @@ void nse_burn(burn_t& state, const Real dt) {
   nse_interp(T_in, state.rho, state.aux[iye],
              abar_out, dq_out, dyedt, X);
 
-  // update Ye
+  // break the update into multiple substeps of length dt / nse_substeps
 
-  state.aux[iye] += dt * dyedt;
-  Real dyedt_in = dyedt;
+  Real dt_sub = dt / static_cast<Real>(nse_substeps);
 
-  // we iterate here.  The first time through, T will be the input T.
-  // at the end of the loop, we update T, and then do another pass
+  for (int iter = 0; iter < nse_substeps; ++iter) {
 
-  for (int iter = 0; iter < 3; ++iter) {
+      // update Ye
+
+      state.aux[iye] += dt_sub * dyedt;
 
       // now get the composition from the table using the upated Ye
 
@@ -83,19 +83,17 @@ void nse_burn(burn_t& state, const Real dt) {
       nse_interp(T_in, state.rho, state.aux[iye],
                  abar_out, dq_out, dyedt, X);
 
-
       // this is MeV / nucleon -- here aux has not yet been updated, so we
       // access the old binding energy
-      Real deltaq = dq_out - bea_in;
+      Real deltaq = dq_out - state.aux[ibea];
 
-      state.aux[ibea] = bea_in + deltaq;
+      state.aux[ibea] += deltaq;
       state.aux[iabar] = abar_out;
-      state.aux[iye] = ye_in + 0.5 * dt * (dyedt_in + dyedt);
 
       // convert the energy to erg / g
       Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
 
-      state.e = e_in + enuc;
+      state.e += enuc;
 
       // update the temperature for the next pass
 
