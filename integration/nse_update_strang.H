@@ -31,6 +31,21 @@ using namespace amrex;
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_burn(burn_t& state, const Real dt) {
 
+  // get the energy -- we are assuming that rho, T are valid on input
+
+  eos(eos_input_rt, state);
+
+  Real e_in = state.e;
+
+  state.success = true;
+  state.n_rhs = 0;
+  state.n_jac = 0;
+
+  // if we are doing drive_initial_convection, we want to use
+  // the temperature that comes in through T_fixed
+
+  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
 #if defined(NSE_TABLE)
 
   using namespace AuxZero;
@@ -40,25 +55,10 @@ void nse_burn(burn_t& state, const Real dt) {
   Real dq_out;
   Real dyedt;
   Real X[NumSpec];
-#endif
 
-  // get the energy -- we are assuming that rho, T are valid on input
-
-  eos(eos_input_rt, state);
-
-  Real e_in = state.e;
-
-#if defined(NSE_TABLE)
   Real bea_in = state.aux[ibea];
   Real ye_in = state.aux[iye];
-#endif
 
-  // if we are doing drive_initial_convection, we want to use
-  // the temperature that comes in through T_fixed
-
-  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-
-#if defined(NSE_TABLE)
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
   // in terms of the auxillary composition, Ye, abar, and B/A
@@ -101,6 +101,10 @@ void nse_burn(burn_t& state, const Real dt) {
 
   }
 
+  for (int n = 0; n < NumSpec; ++n) {
+    state.xn[n] = X[n];
+  }
+
 #elif defined(NSE_NET)
 
   // solve for the NSE state -- first compute Ye
@@ -130,24 +134,12 @@ void nse_burn(burn_t& state, const Real dt) {
 
   state.e = e_in + enuc;
 
-#endif
-
-  state.success = true;
-  state.n_rhs = 0;
-  state.n_jac = 0;
-
-
-  // store the new composition
-
-#if defined(NSE_TABLE)
-  for (int n = 0; n < NumSpec; ++n) {
-    state.xn[n] = X[n];
-  }
-#elif defined(NSE_NET)
   for (int n = 0; n < NumSpec; ++n) {
     state.xn[n] = nse_state.xn[n];
   }
+
 #endif
+
 
 
 }
