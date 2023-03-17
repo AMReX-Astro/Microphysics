@@ -12,8 +12,8 @@ project(Microphysics
 find_package (Python COMPONENTS Interpreter Development)
 include(CTest)
 
-add_library(Microphysics) # initialized below
-add_library(Microphysics::Microphysics ALIAS Microphysics)
+add_library(Microphysics SHARED) # initialized below
+#add_library(Microphysics::Microphysics ALIAS Microphysics)
 
 # Search for your dependencies here
 
@@ -26,7 +26,9 @@ set(sources
     integration/integrator.H
     integration/integrator_data.H
     integration/integrator_rhs_strang.H
+    integration/integrator_type_strang.H
     interfaces/ArrayUtilities.H
+    interfaces/burner.H
     interfaces/eos.H
     interfaces/eos_data.H
     interfaces/eos_type.H
@@ -36,7 +38,7 @@ set(sources
     networks/rate_type.H
     networks/rhs.H
     unit_test/unit_test.H)
-source_group(TREE "${CMAKE_SOURCE_DIR}" FILES ${sources})
+#source_group(TREE "${CMAKE_SOURCE_DIR}" FILES ${sources})
 
 #----------------------------------------------------------------------------------------------------------------------
 # mylib target
@@ -44,10 +46,10 @@ source_group(TREE "${CMAKE_SOURCE_DIR}" FILES ${sources})
 
 include(CMakePackageConfigHelpers)
 
-target_sources(Microphysics PRIVATE ${sources})
-target_compile_definitions(Microphysics PUBLIC source_group)
+target_sources(Microphysics PUBLIC ${sources})
+target_compile_definitions(Microphysics PUBLIC NAUX_NET STRANG)
 
-target_include_directories(Microphysics PUBLIC ${CMAKE_SOURCE_DIR}/integration/VODE)
+#target_include_directories(Microphysics PUBLIC ${CMAKE_SOURCE_DIR}/integration/VODE)
 #target_link_libraries(Microphysics PRIVATE ${CMAKE_SOURCE_DIR}/integration/VODE)
 
 set_target_properties(Microphysics PROPERTIES
