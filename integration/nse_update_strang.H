@@ -63,14 +63,17 @@ void nse_burn(burn_t& state, const Real dt) {
   // source estimates.  The thermodynamnics here is specified
   // in terms of the auxillary composition, Ye, abar, and B/A
 
+  bool skip_X_fill = true;
   nse_interp(T_in, state.rho, state.aux[iye],
-             abar_out, dq_out, dyedt, X);
+             abar_out, dq_out, dyedt, X, skip_X_fill);
 
   // break the update into multiple substeps of length dt / nse_substeps
 
   Real dt_sub = dt / static_cast<Real>(nse_substeps);
 
   for (int iter = 0; iter < nse_substeps; ++iter) {
+
+      skip_X_fill = (iter == nse_substeps-1) ? false : true;
 
       // update Ye
 
@@ -81,7 +84,7 @@ void nse_burn(burn_t& state, const Real dt) {
       Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
       nse_interp(T_in, state.rho, state.aux[iye],
-                 abar_out, dq_out, dyedt, X);
+                 abar_out, dq_out, dyedt, X, skip_X_fill);
 
       // this is MeV / nucleon -- here aux has not yet been updated, so we
       // access the old binding energy
