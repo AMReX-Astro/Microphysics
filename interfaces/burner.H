@@ -61,11 +61,16 @@ void burner (burn_t& state, Real dt)
 
         // we use a relaxed NSE criteria now to catch states that are
         // right on the edge of being in NSE
+
+        bool entered_nse = state.nse;
+
 #ifdef NSE_TABLE
-        if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
+        auto redo_nse = in_nse(state, true);
 #else
-	if (in_nse(state, nse_skip_molar) && state.success == false && dt_remaining > 0.0) {
+        auto redo_nse = in_nse(state, nse_skip_molar);
 #endif
+
+        if ((redo_nse || entered_nse) && state.success == false && dt_remaining > 0.0) {
 
 #ifndef AMREX_USE_GPU
             std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
