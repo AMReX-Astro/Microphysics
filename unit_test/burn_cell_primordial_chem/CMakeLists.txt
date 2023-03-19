@@ -17,7 +17,7 @@ file(GLOB SOURCESS
 add_executable(test_burn_cell_primordial_chem ${SOURCESS})
 target_include_directories(test_burn_cell_primordial_chem PUBLIC ${CMAKE_SOURCE_DIR}/unit_test/burn_cell_primordial_chem "includes/burn_cell.H"
                            ${CMAKE_SOURCE_DIR}/unit_test "includes/unit_test.H")
-target_link_libraries(test_burn_cell_primordial_chem Microphysics ${CMAKE_SOURCE_DIR}/build/libMicrophysics.so)
+target_link_libraries(test_burn_cell_primordial_chem Microphysics)
 
 
 if(AMReX_GPU_BACKEND MATCHES "CUDA")
