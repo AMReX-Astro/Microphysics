@@ -2,12 +2,13 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/util ${CMAKE
                     ${CMAKE_SOURCE_DIR}/EOS ${CMAKE_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_SOURCE_DIR}/networks/primordial_chem ${CMAKE_SOURCE_DIR}/networks ${CMAKE_SOURCE_DIR}/interfaces
                     ${CMAKE_SOURCE_DIR}/constants ${CMAKE_SOURCE_DIR}/networks/general_null)
 
-link_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/util ${CMAKE_SOURCE_DIR}/util/gcem/include ${CMAKE_SOURCE_DIR}/integration/VODE ${CMAKE_SOURCE_DIR}/integration/utils ${CMAKE_SOURCE_DIR}/integration
-                    ${CMAKE_SOURCE_DIR}/EOS ${CMAKE_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_SOURCE_DIR}/networks/primordial_chem ${CMAKE_SOURCE_DIR}/networks ${CMAKE_SOURCE_DIR}/interfaces
-                    ${CMAKE_SOURCE_DIR}/constants ${CMAKE_SOURCE_DIR}/networks/general_null)
+#link_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR}/util ${CMAKE_SOURCE_DIR}/util/gcem/include ${CMAKE_SOURCE_DIR}/integration/VODE ${CMAKE_SOURCE_DIR}/integration/utils ${CMAKE_SOURCE_DIR}/integration
+#                    ${CMAKE_SOURCE_DIR}/EOS ${CMAKE_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_SOURCE_DIR}/networks/primordial_chem ${CMAKE_SOURCE_DIR}/networks ${CMAKE_SOURCE_DIR}/interfaces
+#                    ${CMAKE_SOURCE_DIR}/constants ${CMAKE_SOURCE_DIR}/networks/general_null)
 
-
-add_subdirectory(burn_cell_primordial_chem)
+#include_dir
+#link_directories(${CMAKE_SOURCE_DIR}/unit_test/burn_cell_primordial_chem)
+add_subdirectory(${CMAKE_SOURCE_DIR}/unit_test/burn_cell_primordial_chem)
 
 set(externparamfile "${CMAKE_CURRENT_BINARY_DIR}/extern_parameters.H")
 

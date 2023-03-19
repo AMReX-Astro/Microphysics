@@ -74,6 +74,8 @@ include_directories(${amrex_INCLUDE_DIRS_RET})
 link_libraries(AMReX::amrex)
 
 #adding unit_test as subdirectories
-add_subdirectory(${Microphysics_SOURCE_DIR}/unit_test)
+#include_directories(${CMAKE_SOURCE_DIR}/unit_test)
+#link_directories(${CMAKE_SOURCE_DIR}/unit_test)
+add_subdirectory(${CMAKE_SOURCE_DIR}/unit_test)
 
 
