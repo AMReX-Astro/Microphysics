@@ -12,6 +12,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -116,15 +118,15 @@
            <div itemprop="articleBody">
              
   <section id="available-reaction-networks">
-<h1>Available Reaction Networks<a class="headerlink" href="#available-reaction-networks" title="Permalink to this heading">¶</a></h1>
+<h1>Available Reaction Networks<a class="headerlink" href="#available-reaction-networks" title="Permalink to this heading"></a></h1>
 <section id="iso7-aprox13-aprox19-and-aprox21">
-<h2>iso7, aprox13, aprox19, and aprox21<a class="headerlink" href="#iso7-aprox13-aprox19-and-aprox21" title="Permalink to this heading">¶</a></h2>
+<h2>iso7, aprox13, aprox19, and aprox21<a class="headerlink" href="#iso7-aprox13-aprox19-and-aprox21" title="Permalink to this heading"></a></h2>
 <p>These are alpha-chains (with some other nuclei) from Frank Timmes.
 These networks share common rates (from <code class="docutils literal notranslate"><span class="pre">Microphysics/rates</span></code>),
 plasma neutrino loses (from <code class="docutils literal notranslate"><span class="pre">Microphysics/neutrinos</span></code>), and
 electron screening (from <code class="docutils literal notranslate"><span class="pre">Microphysics/screening</span></code>).</p>
 <section id="energy-generation">
-<h3>Energy generation.<a class="headerlink" href="#energy-generation" title="Permalink to this heading">¶</a></h3>
+<h3>Energy generation.<a class="headerlink" href="#energy-generation" title="Permalink to this heading"></a></h3>
 <p>These networks store the total binding energy of the nucleus in MeV as
 <code class="docutils literal notranslate"><span class="pre">bion(:)</span></code>. They then compute the mass of each nucleus in grams as:</p>
 <div class="math notranslate nohighlight">
@@ -141,7 +143,7 @@ and <span class="math notranslate nohighlight">\(\edotnu\)</span> is the neutrin
 </section>
 </section>
 <section id="general-null">
-<h2>general_null<a class="headerlink" href="#general-null" title="Permalink to this heading">¶</a></h2>
+<h2>general_null<a class="headerlink" href="#general-null" title="Permalink to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">general_null</span></code> is a bare interface for a nuclear reaction network;
 no reactions are enabled, and no auxiliary variables are accepted. The
 data in the network is defined at compile type by specifying an
@@ -155,14 +157,14 @@ for this is contained in <code class="docutils literal notranslate"><span class=
 is specified by the variable <code class="docutils literal notranslate"><span class="pre">GENERAL_NET_INPUTS</span></code>.</p>
 </section>
 <section id="ignition-chamulak">
-<h2>ignition_chamulak<a class="headerlink" href="#ignition-chamulak" title="Permalink to this heading">¶</a></h2>
+<h2>ignition_chamulak<a class="headerlink" href="#ignition-chamulak" title="Permalink to this heading"></a></h2>
 <p>This network was introduced in our paper on convection in white dwarfs
 as a model of Type Ia supernovae <span id="id1">[<a class="reference internal" href="zreferences.html#id19" title="M. Zingale, A. Nonaka, A. S. Almgren, J. B. Bell, C. M. Malone, and S. E. Woosley. The Convective Phase Preceding Type Ia Supernovae. \apj , 740:8, October 2011. doi:10.1088/0004-637X/740/1/8.">ZingaleNonakaAlmgren+11</a>]</span>. It models
 carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in <span id="id2">[<a class="reference internal" href="zreferences.html#id17" title="D. A. Chamulak, E. F. Brown, F. X. Timmes, and K. Dupczak. The Reduction of the Electron Abundance during the Pre-explosion Simmering in White Dwarf Supernovae. \apj , 677:160-168, April 2008. arXiv:0801.1643, doi:10.1086/528944.">ChamulakBrownTimmesDupczak08</a>]</span>.</p>
 <section id="energy-generation-1">
-<span id="id3"></span><h3>Energy generation.<a class="headerlink" href="#energy-generation-1" title="Permalink to this heading">¶</a></h3>
+<span id="id3"></span><h3>Energy generation.<a class="headerlink" href="#energy-generation-1" title="Permalink to this heading"></a></h3>
 <p>The binding energy, <span class="math notranslate nohighlight">\(q\)</span>, in this
 network is interpolated based on the density. It is stored as the
 binding energy (ergs/g) <em>per nucleon</em>, with a sign convention that
@@ -173,10 +175,10 @@ binding energies are negative. The energy generation rate is then:</p>
 </section>
 </section>
 <section id="ignition-reaclib">
-<h2>ignition_reaclib<a class="headerlink" href="#ignition-reaclib" title="Permalink to this heading">¶</a></h2>
+<h2>ignition_reaclib<a class="headerlink" href="#ignition-reaclib" title="Permalink to this heading"></a></h2>
 </section>
 <section id="ignition-simple">
-<h2>ignition_simple<a class="headerlink" href="#ignition-simple" title="Permalink to this heading">¶</a></h2>
+<h2>ignition_simple<a class="headerlink" href="#ignition-simple" title="Permalink to this heading"></a></h2>
 <p>This is the original network used in our white dwarf convection
 studies <span id="id4">[<a class="reference internal" href="zreferences.html#id18" title="M. Zingale, A. S. Almgren, J. B. Bell, A. Nonaka, and S. E. Woosley. Low Mach Number Modeling of Type IA Supernovae. IV. White Dwarf Convection. \apj , 704:196-210, October 2009. arXiv:0908.2668, doi:10.1088/0004-637X/704/1/196.">ZingaleAlmgrenBell+09</a>]</span>. It includes a single-step
 <span class="math notranslate nohighlight">\(^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}\)</span> reaction.
@@ -192,10 +194,10 @@ of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.</p>
 </section>
 <section id="kpp">
-<h2>kpp<a class="headerlink" href="#kpp" title="Permalink to this heading">¶</a></h2>
+<h2>kpp<a class="headerlink" href="#kpp" title="Permalink to this heading"></a></h2>
 </section>
 <section id="powerlaw">
-<h2>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this heading">¶</a></h2>
+<h2>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this heading"></a></h2>
 <p>This is a simple single-step reaction rate.
 We will consider only two species, fuel, <span class="math notranslate nohighlight">\(f\)</span>, and ash, <span class="math notranslate nohighlight">\(a\)</span>, through
 the reaction: <span class="math notranslate nohighlight">\(f + f \rightarrow a + \gamma\)</span>. Baryon conservation
@@ -239,7 +241,7 @@ this network. This is one of the few networks that was designed
 to work with <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> as the EOS.</p>
 </section>
 <section id="rprox">
-<h2>rprox<a class="headerlink" href="#rprox" title="Permalink to this heading">¶</a></h2>
+<h2>rprox<a class="headerlink" href="#rprox" title="Permalink to this heading"></a></h2>
 <p>This network contains 10 species, approximating hot CNO,
 triple-<span class="math notranslate nohighlight">\(\alpha\)</span>, and rp-breakout burning up through <span class="math notranslate nohighlight">\(^{56}\mathrm{Ni}\)</span>,
 using the ideas from <span id="id5">[<a class="reference internal" href="zreferences.html#id23" title="R. K. Wallace and S. E. Woosley. Explosive hydrogen burning. \apjs , 45:389-420, February 1981. doi:10.1086/190717.">WallaceWoosley81</a>]</span>, but with modern
@@ -248,13 +250,13 @@ This network was used for the X-ray burst studies in
 <span id="id7">[<a class="reference internal" href="zreferences.html#id22" title="C. M. Malone, M. Zingale, A. Nonaka, A. S. Almgren, and J. B. Bell. Multidimensional Modeling of Type I X-Ray Bursts. II. Two-dimensional Convection in a Mixed H/He Accretor. \apj , 788:115, June 2014. arXiv:1404.6286, doi:10.1088/0004-637X/788/2/115.">MaloneZingaleNonaka+14</a>]</span>, <span id="id8">[<a class="reference internal" href="zreferences.html#id21" title="M. Zingale, C. M. Malone, A. Nonaka, A. S. Almgren, and J. B. Bell. Comparisons of Two- and Three-Dimensional Convection in Type I X-Ray Bursts. \apj , 807:60, July 2015. arXiv:1410.5796, doi:10.1088/0004-637X/807/1/60.">ZingaleMaloneNonaka+15</a>]</span>, and more details are contained in those papers.</p>
 </section>
 <section id="triple-alpha-plus-cago">
-<h2>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this heading">¶</a></h2>
+<h2>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this heading"></a></h2>
 <p>This is a 2 reaction network for helium burning, capturing the <span class="math notranslate nohighlight">\(3\)</span>-<span class="math notranslate nohighlight">\(\alpha\)</span>
 reaction and <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}\)</span>. Additionally,
 <span class="math notranslate nohighlight">\(^{56}\mathrm{Fe}\)</span> is included as an inert species.</p>
 </section>
 <section id="subch-networks">
-<h2>subch networks<a class="headerlink" href="#subch-networks" title="Permalink to this heading">¶</a></h2>
+<h2>subch networks<a class="headerlink" href="#subch-networks" title="Permalink to this heading"></a></h2>
 <p>The networks subch_full and subch_approx recreate an aprox13
 alpha-chain + including a bypass rate for <span class="math notranslate nohighlight">\(\isotm{C}{12}(\alpha,
 \gamma)\isotm{O}{16}\)</span> discussed in <span id="id9">[<a class="reference internal" href="zreferences.html#id27" title="K. J. Shen and L. Bildsten. Unstable Helium Shell Burning on Accreting White Dwarfs. \apj , 699:10, March 2009. arXiv:0903.0654v2.">ShenBildsten09</a>]</span>.  This is appropriate
@@ -284,7 +286,7 @@ intermediate nuclei are so fast, we leave those out and take the
 forward rate to just be the first rate.  We do not include reverse
 rates for these processes.</p>
 <section id="subch-full">
-<h3>subch_full<a class="headerlink" href="#subch-full" title="Permalink to this heading">¶</a></h3>
+<h3>subch_full<a class="headerlink" href="#subch-full" title="Permalink to this heading"></a></h3>
 <p>subch_full does not create an effective rate for <span class="math notranslate nohighlight">\((\alpha,
 \gamma)\)</span> and <span class="math notranslate nohighlight">\((\alpha, p)(p, \gamma)\)</span> (i.e. combine them
 assuming proton equilibrium).  Therefore, we need to explicitly
@@ -297,7 +299,7 @@ The overall network appears as:</p>
 </figure>
 </section>
 <section id="subch-approx">
-<h3>subch_approx<a class="headerlink" href="#subch-approx" title="Permalink to this heading">¶</a></h3>
+<h3>subch_approx<a class="headerlink" href="#subch-approx" title="Permalink to this heading"></a></h3>
 <p>subch_approx approximates subch_full by combining some of the
 <span class="math notranslate nohighlight">\(A(\alpha,p)X(p,\gamma)B\)</span> links with <span class="math notranslate nohighlight">\(A(\alpha,\gamma)B\)</span>,
 allowing us to drop the intermediate nucleus <span class="math notranslate nohighlight">\(X\)</span>.  We do this
@@ -312,7 +314,7 @@ are approximated.  This reduces the number of nuclei compared to subch_full
 from 28 to 22.</p>
 </section>
 <section id="disabling-rates">
-<h3>disabling rates<a class="headerlink" href="#disabling-rates" title="Permalink to this heading">¶</a></h3>
+<h3>disabling rates<a class="headerlink" href="#disabling-rates" title="Permalink to this heading"></a></h3>
 <p>For both subch_full and subch_approx, there are 2 runtime parameters that can be used
 to disable rates:</p>
 <ul class="simple">

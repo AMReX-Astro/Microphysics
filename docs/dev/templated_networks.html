@@ -12,6 +12,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -100,7 +102,7 @@
            <div itemprop="articleBody">
              
   <section id="templated-network-righthand-sides">
-<h1>Templated Network Righthand Sides<a class="headerlink" href="#templated-network-righthand-sides" title="Permalink to this heading">¶</a></h1>
+<h1>Templated Network Righthand Sides<a class="headerlink" href="#templated-network-righthand-sides" title="Permalink to this heading"></a></h1>
 <p>A network consists of evaluating the rates and screening, and then for
 each rate, adding or subtracting the appropriate contribution to the
 evolution equation for each nucleus it affects.  That second part is
@@ -137,7 +139,7 @@ experimental community.</p>
 <p>The properties of a templated network are contained in the network’s
 <code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code> file.</p>
 <section id="rate-enum">
-<h2>Rate <code class="docutils literal notranslate"><span class="pre">enum</span></code><a class="headerlink" href="#rate-enum" title="Permalink to this heading">¶</a></h2>
+<h2>Rate <code class="docutils literal notranslate"><span class="pre">enum</span></code><a class="headerlink" href="#rate-enum" title="Permalink to this heading"></a></h2>
 <p>A network using the templated RHS construction needs to provide an
 <code class="docutils literal notranslate"><span class="pre">enum</span></code> called <code class="docutils literal notranslate"><span class="pre">Rates::NetworkRates</span></code> that lists all of the reaction
 rates in the network.  Only the forward rates need to be listed.  The
@@ -161,7 +163,7 @@ reaction, but not necessarily vice versa.</p>
 </div>
 </section>
 <section id="metadata">
-<h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this heading">¶</a></h2>
+<h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this heading"></a></h2>
 <p>With the above formulation, adding a rate to the network means
 supplying the nuclei (<span class="math notranslate nohighlight">\(A\)</span>, …), coefficients (<span class="math notranslate nohighlight">\(n_A\)</span>,
 …), and the exponents (<span class="math notranslate nohighlight">\(a\)</span>, …).</p>
@@ -335,7 +337,7 @@ those additional rates.</p>
 </ul>
 </section>
 <section id="loop-over-rates">
-<h2>Loop over Rates<a class="headerlink" href="#loop-over-rates" title="Permalink to this heading">¶</a></h2>
+<h2>Loop over Rates<a class="headerlink" href="#loop-over-rates" title="Permalink to this heading"></a></h2>
 <p>The main logic for constructing RHS is contained in <code class="docutils literal notranslate"><span class="pre">Microphysics/networks/rhs.H</span></code> as <code class="docutils literal notranslate"><span class="pre">rhs()</span></code>:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">rhs</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Array1D</span><span class="o">&lt;</span><span class="n">Real</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ydot</span><span class="p">)</span>
@@ -385,7 +387,7 @@ the full RHS for the network, leaving only the rate evaluation for
 runtime.</p>
 </section>
 <section id="jacobian">
-<h2>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this heading">¶</a></h2>
+<h2>Jacobian<a class="headerlink" href="#jacobian" title="Permalink to this heading"></a></h2>
 <p>With the same rate infrastructure, we are able to provide an analytic
 Jacobian for our reaction networks.  The overall structure is the same
 as the <code class="docutils literal notranslate"><span class="pre">rhs()</span></code> function described above.</p>
@@ -400,7 +402,7 @@ of the network.</p>
 </div>
 </section>
 <section id="linear-algebra">
-<h2>Linear Algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this heading">¶</a></h2>
+<h2>Linear Algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this heading"></a></h2>
 <p>The VODE integrator needs routines to do LU factorization and back
 substitution.  We build off of the linpack <code class="docutils literal notranslate"><span class="pre">dgefa</span></code> and <code class="docutils literal notranslate"><span class="pre">dgesl</span></code>
 routines, but because we know at compile time which Jacobian terms are
