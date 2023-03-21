@@ -215,7 +215,9 @@ Real tricubic(const int ir0, const int it0, const int ic0,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,
-                Real& abar, Real& dq, Real& dyedt, Real* X) {
+                Real& abar, Real& dq, Real& dyedt, Real* X, bool skip_X_fill=false) {
+
+    // if skip_X_fill = true then we don't fill X[] with the mass fractions.
 
     using namespace table;
     using namespace AuxZero;
@@ -243,10 +245,12 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
 
-        for (int n = 1; n <= NumSpec; n++) {
-            Real _X = trilinear(ir1, it1, ic1, rholog, tlog, yet,
-                                [=] (const int i) {return massfractab(n, i);});
-            X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+        if (! skip_X_fill) {
+            for (int n = 1; n <= NumSpec; n++) {
+                Real _X = trilinear(ir1, it1, ic1, rholog, tlog, yet,
+                                    [=] (const int i) {return massfractab(n, i);});
+                X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+            }
         }
 
     } else {
@@ -278,12 +282,13 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
 
-        for (int n = 1; n <= NumSpec; n++) {
-            Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
-                               [=] (const int i) {return massfractab(n, i);});
-            X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+        if (! skip_X_fill) {
+            for (int n = 1; n <= NumSpec; n++) {
+                Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
+                                   [=] (const int i) {return massfractab(n, i);});
+                X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+            }
         }
-
     }
 
 }
