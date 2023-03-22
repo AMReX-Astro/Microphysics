@@ -1,6 +1,9 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
 
+# use our .clang-tidy with the AMReX USE_CLANG_TIDY=TRUE build
+CLANG_TIDY_CONFIG_FILE := $(MICROPHYSICS_HOME)/.clang-tidy
+
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
 
