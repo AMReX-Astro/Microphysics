@@ -1002,7 +1002,7 @@ void sneut5(const Real temp, const Real den,
     } else {
 
        u     = fac3 * (std::log10(den) - 3.0e0_rt);
-       a0    = iln10*fac3*deni;
+       //a0    = iln10*fac3*deni;
 
        // compute the expensive trig functions of equation 5.21 only once
        cos1 = std::cos(u);
@@ -1015,7 +1015,7 @@ void sneut5(const Real temp, const Real den,
        sin2 = std::sin(2.0e0_rt*u);
        sin3 = std::sin(3.0e0_rt*u);
        sin4 = std::sin(4.0e0_rt*u);
-       sin5 = std::sin(5.0e0_rt*u);
+       //sin5 = std::sin(5.0e0_rt*u);
 
        // equation 5.21
        fb =  0.5e0_rt * 0.17946e0_rt  + 0.00945e0_rt*u + 0.34529e0_rt

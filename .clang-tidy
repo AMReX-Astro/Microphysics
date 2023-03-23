@@ -36,4 +36,4 @@ Checks: >
      mpi-*,
      openmp-*
 
-HeaderFilterRegex: '(/conductivity/|/constants/|/EOS/|/integration/|/interfaces/|/networks/|/neutrinos/|/nse_solver/|/opacity/|/rates/|/screening/|/util/|^\./).*\.H$'
+HeaderFilterRegex: '(/conductivity/|/constants/|/EOS/|/integration/|/interfaces/|/networks/|/neutrinos/|/nse_solver/|/opacity/|/rates/|/screening/|/util/|^\./|^./tmp_build_dir/microphysics_sources/*/).*\.H$'
