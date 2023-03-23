@@ -77,7 +77,7 @@ namespace ArrayUtil
             arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] *= x;
         }
 
-        AMREX_GPU_HOST_DEVICE  [[nodiscard]] AMREX_FORCE_INLINE
+        [[nodiscard]] AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         Real get (const int i, const int j) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI && j >= YLO && j <= YHI);
             return arr[i+j*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)];
