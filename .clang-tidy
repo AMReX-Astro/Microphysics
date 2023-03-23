@@ -35,3 +35,5 @@ Checks: >
        -readability-simplify-boolean-expr,
      mpi-*,
      openmp-*
+
+HeaderFilterRegex: '(/conductivity/|/constants/|/EOS/|/integration/|/interfaces/|/networks/|/neutrinos/|/nse_solver/|/opacity/|/rates/|/screening/|/util/|^\./).*\.H$'
