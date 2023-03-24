@@ -1,11 +1,5 @@
 #all .cpp files that need to be compiled for the test go here
-add_executable(test_burn_cell_primordial_chem
-    main.cpp
-    ${CMAKE_SOURCE_DIR}/interfaces/eos_data.cpp
-    ${CMAKE_SOURCE_DIR}/interfaces/network_initialization.cpp
-    ${CMAKE_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-    ${CMAKE_BINARY_DIR}/extern_parameters.cpp
-    )
+add_executable(test_burn_cell_primordial_chem main.cpp ${primordial_chem_sources})
 
 #test needs to find burn_cell.H, unit_test.H, and extern_parameters.H
 target_include_directories(test_burn_cell_primordial_chem PUBLIC ${CMAKE_SOURCE_DIR}/unit_test/burn_cell_primordial_chem "includes/burn_cell.H"

@@ -82,6 +82,14 @@ FetchContent_MakeAvailable(amrex)
 include_directories(${amrex_INCLUDE_DIRS_RET})
 link_libraries(AMReX::amrex)
 
+#setting .cpp files needed to make the test here
+#so that they are accessible to Quokka
+set(primordial_chem_sources ${CMAKE_SOURCE_DIR}/interfaces/eos_data.cpp
+                            ${CMAKE_SOURCE_DIR}/interfaces/network_initialization.cpp
+                            ${CMAKE_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
+
+
 #adding unit_test as subdirectories
 add_subdirectory(${CMAKE_SOURCE_DIR}/unit_test)
 
