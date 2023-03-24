@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Microphysics
     VERSION 1.0.0
-    DESCRIPTION "some description of the project; built with CMake"
+    DESCRIPTION "building primordial_chemistry network in Microphysics with CMake"
     LANGUAGES CXX C)
 
 #----------------------------------------------------------------------------------------------------------------------
