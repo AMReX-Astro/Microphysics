@@ -86,9 +86,9 @@ if(BUILD_AMREX)
 
    include_directories(${amrex_INCLUDE_DIRS_RET})
    link_libraries(AMReX::amrex)
-   message("Built and fetched amrex")
+   message("Built and fetched amrex in Microphysics")
 else()
-   message("Not building and fetching amrex")
+   message("Not building and fetching amrex in Microphysics")
 endif()
 
 #setting .cpp files needed to make the test here
@@ -100,15 +100,15 @@ set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
 
 #set a cache variable that controls whether
 #we want to build the unit test or not
-set(BUILD_UNIT_TEST true CACHE BOOL "Do you want to build the unit test? (true/false)")
+set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
 message("Building unit test -- ${BUILD_UNIT_TEST}")
 
 
 if(BUILD_UNIT_TEST)
    #adding unit_test as subdirectories
    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
-   message("Building unit test")
+   message("Building primordial chem unit test")
 else()
-   message("Not building unit test")
+   message("Not building primordial chem unit test")
 endif()
 
