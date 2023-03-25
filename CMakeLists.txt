@@ -68,7 +68,7 @@ execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/
 
 #set a cache variable that controls whether
 #we want to fetch and link amrex or not
-set(BUILD_AMREX true CACHE BOOL "Do you want to build and link amrex? (true/false)")
+set(BUILD_AMREX false CACHE BOOL "Do you want to build and link amrex? (true/false)")
 message("Building and linking amrex -- ${BUILD_AMREX}")
 
 if(BUILD_AMREX)
