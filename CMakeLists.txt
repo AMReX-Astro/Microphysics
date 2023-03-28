@@ -37,7 +37,6 @@ set(sources
     networks/rate_type.H
     networks/rhs.H
     unit_test/unit_test.H)
-#source_group(TREE "${CMAKE_SOURCE_DIR}" FILES ${sources})
 
 #----------------------------------------------------------------------------------------------------------------------
 # mylib target
@@ -57,40 +56,59 @@ set_target_properties(Microphysics PROPERTIES
 
 #we need to have extern_parameters.cpp be available at configure time
 #the script write_probin.py writes this .cpp file so we call it here
-set(paramfile "${CMAKE_SOURCE_DIR}/unit_test/burn_cell_primordial_chem/_parameters")
-set(EOSparamfile "${CMAKE_SOURCE_DIR}/EOS/primordial_chem/_parameters")
-set(networkpcparamfile "${CMAKE_SOURCE_DIR}/networks/primordial_chem/_parameters")
-set(networkparamfile "${CMAKE_SOURCE_DIR}/networks/_parameters")
-set(VODEparamfile "${CMAKE_SOURCE_DIR}/integration/VODE/_parameters")
-set(integrationparamfile "${CMAKE_SOURCE_DIR}/integration/_parameters")
-set(unittestparamfile "${CMAKE_SOURCE_DIR}/unit_test/_parameters")
+set(paramfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/burn_cell_primordial_chem/_parameters")
+set(EOSparamfile "${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/_parameters")
+set(networkpcparamfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/_parameters")
+set(networkparamfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/_parameters")
+set(VODEparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE/_parameters")
+set(integrationparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/_parameters")
+set(unittestparamfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/_parameters")
 
-execute_process(COMMAND python3 "${CMAKE_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}")
+execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}")
 
-#fetching amrex
-set (AMREX_TAG "development")
-include(FetchContent)
-FetchContent_Declare(
-  amrex
-  GIT_REPOSITORY https://github.com/AMReX-Codes/amrex
-  GIT_TAG "${AMREX_TAG}"
-)
+#set a cache variable that controls whether
+#we want to fetch and link amrex or not
+set(BUILD_AMREX false CACHE BOOL "Do you want to build and link amrex? (true/false)")
+message("Building and linking amrex -- ${BUILD_AMREX}")
 
-# CMake 3.14+
-FetchContent_MakeAvailable(amrex)
+if(BUILD_AMREX)
+   #fetching amrex
+   set (AMREX_TAG "development")
+   include(FetchContent)
+   FetchContent_Declare(
+     amrex
+     GIT_REPOSITORY https://github.com/AMReX-Codes/amrex
+     GIT_TAG "${AMREX_TAG}"
+   )
 
-include_directories(${amrex_INCLUDE_DIRS_RET})
-link_libraries(AMReX::amrex)
+   # CMake 3.14+
+   FetchContent_MakeAvailable(amrex)
+
+   include_directories(${amrex_INCLUDE_DIRS_RET})
+   link_libraries(AMReX::amrex)
+   message("Built and fetched amrex in Microphysics")
+else()
+   message("Not building and fetching amrex in Microphysics")
+endif()
 
 #setting .cpp files needed to make the test here
 #so that they are accessible to Quokka
-set(primordial_chem_sources ${CMAKE_SOURCE_DIR}/interfaces/eos_data.cpp
-                            ${CMAKE_SOURCE_DIR}/interfaces/network_initialization.cpp
-                            ${CMAKE_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
                             ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
 
+#set a cache variable that controls whether
+#we want to build the unit test or not
+set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
+message("Building unit test -- ${BUILD_UNIT_TEST}")
 
-#adding unit_test as subdirectories
-add_subdirectory(${CMAKE_SOURCE_DIR}/unit_test)
 
+if(BUILD_UNIT_TEST)
+   #adding unit_test as subdirectories
+   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
+   message("Building primordial chem unit test")
+else()
+   message("Not building primordial chem unit test")
+endif()
 
