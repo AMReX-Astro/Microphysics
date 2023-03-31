@@ -214,7 +214,7 @@ def write_probin(probin_template, param_files,
 
         namespaces = {q.namespace for q in params}
 
-        for nm in namespaces:
+        for nm in sorted(namespaces):
             params_nm = [q for q in params if q.namespace == nm]
 
             # open namespace
