@@ -92,11 +92,22 @@ else()
 endif()
 
 #setting .cpp files needed to make the test here
-#so that they are accessible to Quokka
+#so that they are accessible to codes using
+#Microphysics as a submodule
 set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
                             ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
+
+
+#setting directories needed to make the test here
+#so that they are accessible to codes using
+#Microphysics as a submodule
+set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
+                          ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration
+                          ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
+                          ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null)
+
 
 #set a cache variable that controls whether
 #we want to build the unit test or not
