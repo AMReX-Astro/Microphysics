@@ -12,6 +12,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -72,6 +74,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#id3">Self-consistent NSE</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#dynamic-nse-check">Dynamic NSE Check</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#additional-options">Additional Options</a></li>
 </ul>
 </li>
 </ul>
@@ -106,32 +109,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="nse">
-<h1>NSE<a class="headerlink" href="#nse" title="Permalink to this heading">¶</a></h1>
+  <section id="nse">
+<h1>NSE<a class="headerlink" href="#nse" title="Permalink to this heading"></a></h1>
 <p>The reaction networks in Microphysics have the ability to use NSE
 instead of integrating the entire network when the conditions are
 appropriate.  There are 2 different implementations of NSE in
@@ -180,7 +159,7 @@ state is currently in NSE.</p>
 implementation of NSE does not matter.</p>
 <p>These two NSE solvers are described below.</p>
 <section id="tabulated-nse-and-aprox19">
-<span id="tabulated-nse"></span><h2>Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code><a class="headerlink" href="#tabulated-nse-and-aprox19" title="Permalink to this heading">¶</a></h2>
+<span id="tabulated-nse"></span><h2>Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code><a class="headerlink" href="#tabulated-nse-and-aprox19" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network can be run in a manner where we blends the
 standard <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network with a table for nuclear statistic
 equilibrium resulting from a much larger network at high density and
@@ -191,7 +170,7 @@ span.prompt1:before {
 }
 </style><span class="prompt1"><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">USE_NSE_TABLE</span><span class="o">=</span>TRUE</span>
 </pre></div></div><section id="composition-and-eos">
-<h3>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this heading">¶</a></h3>
+<h3>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Permalink to this heading"></a></h3>
 <p>The NSE table was generated using a 125 nuclei reaction network
 (described in <span id="id1">[<a class="reference internal" href="zreferences.html#id29" title="H. Ma, S. E. Woosley, C. M. Malone, A. Almgren, and J. Bell. Carbon Deflagration in Type Ia Supernova. I. Centrally Ignited Models. \apj , 771(1):58, jul 2013. arXiv:1305.2433, doi:10.1088/0004-637X/771/1/58.">MaWoosleyMalone+13</a>]</span>), and includes electron-capture rates,
 so the compositional quantities it carries, <span class="math notranslate nohighlight">\(\bar{A}\)</span> and
@@ -205,7 +184,7 @@ variable is enabled in this case, and the equations of state interpret
 this to use the auxillary data for the composition.  This is described in <a class="reference internal" href="eos.html#aux-eos-comp"><span class="std std-ref">Auxillary Composition</span></a>.</p>
 </section>
 <section id="nse-table-outputs">
-<h3>NSE Table Outputs<a class="headerlink" href="#nse-table-outputs" title="Permalink to this heading">¶</a></h3>
+<h3>NSE Table Outputs<a class="headerlink" href="#nse-table-outputs" title="Permalink to this heading"></a></h3>
 <p>The NSE table provides values for the auxiliary composition,
 <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and <span class="math notranslate nohighlight">\(\langle B/A \rangle\)</span>
 resulting from the full 125 nuclei network.   It also provides a set of 19
@@ -226,7 +205,7 @@ and our evolution equations are:</p>
 in the hydro part of the advancement.</p>
 </section>
 <section id="nse-flow">
-<h3>NSE Flow<a class="headerlink" href="#nse-flow" title="Permalink to this heading">¶</a></h3>
+<h3>NSE Flow<a class="headerlink" href="#nse-flow" title="Permalink to this heading"></a></h3>
 <p>The basic flow of a simulation using <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> + the NSE table is as follows:</p>
 <ul>
 <li><p>initialize the problem, including <span class="math notranslate nohighlight">\(X_k\)</span></p></li>
@@ -269,7 +248,7 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </ul>
 </section>
 <section id="nse-check">
-<h3>NSE check<a class="headerlink" href="#nse-check" title="Permalink to this heading">¶</a></h3>
+<h3>NSE check<a class="headerlink" href="#nse-check" title="Permalink to this heading"></a></h3>
 <p>We determine is a zone is in NSE according to:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></li>
@@ -279,7 +258,7 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </ul>
 </section>
 <section id="nse-table-ranges">
-<span id="self-consistent-nse"></span><h3>NSE table ranges<a class="headerlink" href="#nse-table-ranges" title="Permalink to this heading">¶</a></h3>
+<span id="self-consistent-nse"></span><h3>NSE table ranges<a class="headerlink" href="#nse-table-ranges" title="Permalink to this heading"></a></h3>
 <p>The NSE table was created for:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(9 &lt; \log_{10}(T) &lt; 10.4\)</span></p></li>
@@ -289,7 +268,7 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </section>
 </section>
 <section id="id3">
-<h2>Self-consistent NSE<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h2>
+<h2>Self-consistent NSE<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
 <p>The self-consistent NSE approach uses only the nuclei in the main
 reaction network.  It solves for the chemical potentials of the proton
 and neutron and from there gets the abundances of each of the nuclei
@@ -302,13 +281,15 @@ reaction network, once the integration has reached NSE.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
 </pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
 <section id="dynamic-nse-check">
-<h3>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Permalink to this heading">¶</a></h3>
+<h3>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Permalink to this heading"></a></h3>
 <p>We have implemented a dynamic NSE check for the self-consistent nse procedure
 that tells us whether the network has reached the NSE state. The overall procedure
 is outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>. The overall usage comes down to a single function
 <code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>. By supplying the current state, this function returns a boolean that
 tells us whether we’re in NSE or not. The current status of this functionality only
-works for pynucastro-generated network since aprox networks have slightly different syntax.</p>
+works for pynucastro-generated network since aprox networks have slightly different syntax.
+Note that we ignore this check when <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&lt;</span> <span class="pre">2.0e9</span></code>, since we don’t expect NSE to occur when
+temperature is below 2 billion Kelvin.</p>
 <p>There are 3 main criteria discussed in the <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413–5433, feb 2020. URL: https://doi.org/10.1093, doi:10.1093/mnras/staa594.">KK20</a>]</span>.</p>
 <ul>
 <li><p>Have a rough check to determine whether the current state is close to NSE. They use a
@@ -337,7 +318,7 @@ simulation cell.</p>
 \[\isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
 (\alpha, \gamma) \isotm{S}{32}\]</div>
 <p>The general approach to this is to start iterations from the heavy to the light nuclei to
-use them as the starting point of the cycle. Then algorithmn checks if isotopes involved
+use them as the starting point of the cycle. Then the algorithmn checks if isotopes involved
 in the network can actually form a cycle using the combination reactions above. If such cycle
 is formed, then we check the rates of these reactions to see if they satisfy the condition
 mention previously. If there are no isotope present in the network that would form
@@ -388,6 +369,29 @@ At the end of the iterations, we define that the current state  have reached NSE
 when there is only a single group left, or there are two groups left where
 1 of them is the light-isotope-group.</p>
 </li>
+</ul>
+</section>
+<section id="additional-options">
+<h3>Additional Options<a class="headerlink" href="#additional-options" title="Permalink to this heading"></a></h3>
+<p>Here we have some runtime options to allow a more cruel estimation to the self-consistent
+nse check:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_dx_independent</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the nse check to ignore
+the dependency on the cell size, <code class="docutils literal notranslate"><span class="pre">dx</span></code>, which calculates the sound crossing time, <code class="docutils literal notranslate"><span class="pre">t_s</span></code>.
+Naturally, we require the timescale of the rates to be smaller than <code class="docutils literal notranslate"><span class="pre">t_s</span></code> to ensure the
+states have time to achieve equilibrium. However, sometimes this check can be difficult
+to acheive, so we leave this as an option for the user to explore.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_molar_independent</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the user to use the nse mass
+fractions for nse check after the first check (the one that ensures we’re close enough
+to the nse mass fractions to get reasonable results) is passed. This allows the subsequent
+checks to only rely on the thermodynamic conditions instead of mass fractions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_skip_molar</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the user to skip the molar fraction
+check after the integration has failed. This option is used to completely forgo the
+requirement on molar fractions and allow the check to only dependent on the thermodynamic
+conditions. By only applying this after option after the integration failure, we hope the
+integrator has evolved the system to the NSE state the best it can. By turning on this
+option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
+which is likely the case.</p></li>
 </ul>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">

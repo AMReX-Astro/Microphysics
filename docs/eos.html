@@ -12,6 +12,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -110,43 +112,19 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="equations-of-state">
-<h1>Equations of State<a class="headerlink" href="#equations-of-state" title="Permalink to this heading">¶</a></h1>
+  <section id="equations-of-state">
+<h1>Equations of State<a class="headerlink" href="#equations-of-state" title="Permalink to this heading"></a></h1>
 <p>In this chapter on equations of state, we list the EOS routines
 available for your use, and then we describe the correct structure of
 an EOS module in case you want to build your own.</p>
 <section id="available-equations-of-state">
-<h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Permalink to this heading">¶</a></h2>
+<h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Permalink to this heading"></a></h2>
 <p>The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
 thermodynamic data (including all derivatives) in the <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>
 type.</p>
 <section id="gamma-law">
-<h3>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this heading">¶</a></h3>
+<h3>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> represents a gamma law gas, with
 equation of state:</p>
 <div class="math notranslate nohighlight">
@@ -175,7 +153,7 @@ fills the thermodynamic information in <code class="docutils literal notranslate
 by the hydrodynamics module in CASTRO.</p>
 </section>
 <section id="polytrope">
-<h3>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this heading">¶</a></h3>
+<h3>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">polytrope</span></code> represents a polytropic fluid, with equation of
 state:</p>
 <div class="math notranslate nohighlight">
@@ -206,7 +184,7 @@ electron gas.</p>
 </ul>
 </section>
 <section id="ztwd">
-<h3>ztwd<a class="headerlink" href="#ztwd" title="Permalink to this heading">¶</a></h3>
+<h3>ztwd<a class="headerlink" href="#ztwd" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">ztwd</span></code> is the zero-temperature degenerate electron equation
 of state of Chandrasekhar (1935), which is designed to describe
 white dward material. The pressure satisfies the equation:</p>
@@ -230,7 +208,7 @@ with pressure as a primary input then we do Newton-Raphson iteration
 to find the density that matches this pressure.</p>
 </section>
 <section id="multigamma">
-<h3>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this heading">¶</a></h3>
+<h3>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">multigamma</span></code> is an ideal gas equation of state where each
 species can have a different value of <span class="math notranslate nohighlight">\(\gamma\)</span>. This mainly affects
 how the internal energy is constructed as each species, represented
@@ -276,7 +254,7 @@ different species.</p></li>
 </ul>
 </section>
 <section id="helmholtz">
-<h3>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this heading">¶</a></h3>
+<h3>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> contains a general, publicly available stellar
 equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
@@ -298,7 +276,7 @@ energy conservation. This is controlled through the
 publicly release it in this repository.</p>
 </section>
 <section id="stellarcollapse">
-<h3>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this heading">¶</a></h3>
+<h3>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Permalink to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">stellarcollapse</span></code> is the equation of state module provided
 on <a class="reference external" href="http://stellarcollapse.org">http://stellarcollapse.org</a>. It is designed
 to be used for core-collapse supernovae and is compatible with a
@@ -308,7 +286,7 @@ appropriate interpolation table from that site to use this.</p>
 </section>
 </section>
 <section id="interface-and-modes">
-<h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Permalink to this heading">¶</a></h2>
+<h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Permalink to this heading"></a></h2>
 <p>The EOS is called as:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">eos</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">eos_type</span><span class="p">)</span>
 </pre></div>
@@ -344,7 +322,7 @@ is set to <code class="docutils literal notranslate"><span class="pre">TRUE</spa
 stored in <code class="docutils literal notranslate"><span class="pre">eos_t.aux[]</span></code>.</p>
 </div>
 <section id="auxillary-composition">
-<span id="aux-eos-comp"></span><h3>Auxillary Composition<a class="headerlink" href="#auxillary-composition" title="Permalink to this heading">¶</a></h3>
+<span id="aux-eos-comp"></span><h3>Auxillary Composition<a class="headerlink" href="#auxillary-composition" title="Permalink to this heading"></a></h3>
 <p>With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
 The auxiliary variables are</p>
 <ul>
@@ -373,10 +351,10 @@ auxiliary quantities.</p>
 </section>
 </section>
 <section id="initialization-and-cutoff-values">
-<h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Permalink to this heading">¶</a></h2>
+<h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Permalink to this heading"></a></h2>
 </section>
 <section id="input-validation">
-<h2>Input Validation<a class="headerlink" href="#input-validation" title="Permalink to this heading">¶</a></h2>
+<h2>Input Validation<a class="headerlink" href="#input-validation" title="Permalink to this heading"></a></h2>
 <p>The EOS will make sure that the inputs are within an acceptable range,
 (e.g., <code class="docutils literal notranslate"><span class="pre">small_temp</span></code> <span class="math notranslate nohighlight">\(&lt; T &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">maxT</span></code>). If they are not, then it
 resets them silently—no error is thrown.</p>
@@ -387,7 +365,7 @@ max ( <code class="docutils literal notranslate"><span class="pre">small_temp</s
 the EOS.</p>
 </section>
 <section id="eos-structure">
-<h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Permalink to this heading">¶</a></h2>
+<h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Permalink to this heading"></a></h2>
 <p>Each EOS should have two main routines by which it interfaces to the
 rest of CASTRO. At the beginning of the simulation,
 <code class="docutils literal notranslate"><span class="pre">actual_eos_init</span></code> will perform any initialization steps and save

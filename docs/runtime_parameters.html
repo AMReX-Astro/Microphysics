@@ -12,6 +12,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -138,32 +140,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="backwardeuler">
-<h1>BackwardEuler<a class="headerlink" href="#backwardeuler" title="Permalink to this heading">¶</a></h1>
+  <section id="backwardeuler">
+<h1>BackwardEuler<a class="headerlink" href="#backwardeuler" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -188,7 +166,7 @@
 </table>
 </section>
 <section id="forwardeuler">
-<h1>ForwardEuler<a class="headerlink" href="#forwardeuler" title="Permalink to this heading">¶</a></h1>
+<h1>ForwardEuler<a class="headerlink" href="#forwardeuler" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -205,7 +183,7 @@
 </table>
 </section>
 <section id="qss">
-<h1>QSS<a class="headerlink" href="#qss" title="Permalink to this heading">¶</a></h1>
+<h1>QSS<a class="headerlink" href="#qss" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -254,7 +232,7 @@ reject it</p></td>
 </table>
 </section>
 <section id="vode">
-<h1>VODE<a class="headerlink" href="#vode" title="Permalink to this heading">¶</a></h1>
+<h1>VODE<a class="headerlink" href="#vode" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -272,7 +250,7 @@ consider species that are &gt; X_reject_buffer * atol_spec</p></td>
 </table>
 </section>
 <section id="aprox19">
-<h1>aprox19<a class="headerlink" href="#aprox19" title="Permalink to this heading">¶</a></h1>
+<h1>aprox19<a class="headerlink" href="#aprox19" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -319,7 +297,7 @@ table?</p></td>
 </table>
 </section>
 <section id="ase">
-<h1>ase<a class="headerlink" href="#ase" title="Permalink to this heading">¶</a></h1>
+<h1>ase<a class="headerlink" href="#ase" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -340,7 +318,7 @@ table?</p></td>
 </table>
 </section>
 <section id="breakout">
-<h1>breakout<a class="headerlink" href="#breakout" title="Permalink to this heading">¶</a></h1>
+<h1>breakout<a class="headerlink" href="#breakout" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -357,7 +335,7 @@ table?</p></td>
 </table>
 </section>
 <section id="burn-cell">
-<h1>burn_cell<a class="headerlink" href="#burn-cell" title="Permalink to this heading">¶</a></h1>
+<h1>burn_cell<a class="headerlink" href="#burn-cell" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -407,10 +385,10 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </table>
 </section>
 <section id="burn-cell-primordial-chem">
-<h1>burn_cell_primordial_chem<a class="headerlink" href="#burn-cell-primordial-chem" title="Permalink to this heading">¶</a></h1>
+<h1>burn_cell_primordial_chem<a class="headerlink" href="#burn-cell-primordial-chem" title="Permalink to this heading"></a></h1>
 </section>
 <section id="burn-cell-sdc">
-<h1>burn_cell_sdc<a class="headerlink" href="#burn-cell-sdc" title="Permalink to this heading">¶</a></h1>
+<h1>burn_cell_sdc<a class="headerlink" href="#burn-cell-sdc" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -633,7 +611,7 @@ as given in the inputs?</p></td>
 </table>
 </section>
 <section id="cj-detonation">
-<h1>cj_detonation<a class="headerlink" href="#cj-detonation" title="Permalink to this heading">¶</a></h1>
+<h1>cj_detonation<a class="headerlink" href="#cj-detonation" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -658,7 +636,7 @@ as given in the inputs?</p></td>
 </table>
 </section>
 <section id="constant">
-<h1>constant<a class="headerlink" href="#constant" title="Permalink to this heading">¶</a></h1>
+<h1>constant<a class="headerlink" href="#constant" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -675,7 +653,7 @@ as given in the inputs?</p></td>
 </table>
 </section>
 <section id="constant-opacity">
-<h1>constant_opacity<a class="headerlink" href="#constant-opacity" title="Permalink to this heading">¶</a></h1>
+<h1>constant_opacity<a class="headerlink" href="#constant-opacity" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -692,7 +670,7 @@ as given in the inputs?</p></td>
 </table>
 </section>
 <section id="eos-cell">
-<h1>eos_cell<a class="headerlink" href="#eos-cell" title="Permalink to this heading">¶</a></h1>
+<h1>eos_cell<a class="headerlink" href="#eos-cell" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -721,7 +699,7 @@ as given in the inputs?</p></td>
 </table>
 </section>
 <section id="gamma-law">
-<h1>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this heading">¶</a></h1>
+<h1>gamma_law<a class="headerlink" href="#gamma-law" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -742,7 +720,7 @@ as given in the inputs?</p></td>
 </table>
 </section>
 <section id="helmholtz">
-<h1>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this heading">¶</a></h1>
+<h1>helmholtz<a class="headerlink" href="#helmholtz" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -781,7 +759,7 @@ as given in the inputs?</p></td>
 </table>
 </section>
 <section id="integration">
-<h1>integration<a class="headerlink" href="#integration" title="Permalink to this heading">¶</a></h1>
+<h1>integration<a class="headerlink" href="#integration" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -913,7 +891,7 @@ species</p></td>
 </table>
 </section>
 <section id="make-table">
-<h1>make_table<a class="headerlink" href="#make-table" title="Permalink to this heading">¶</a></h1>
+<h1>make_table<a class="headerlink" href="#make-table" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1006,7 +984,7 @@ species</p></td>
 </table>
 </section>
 <section id="multigamma">
-<h1>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this heading">¶</a></h1>
+<h1>multigamma<a class="headerlink" href="#multigamma" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1047,7 +1025,7 @@ species</p></td>
 </table>
 </section>
 <section id="networks">
-<h1>networks<a class="headerlink" href="#networks" title="Permalink to this heading">¶</a></h1>
+<h1>networks<a class="headerlink" href="#networks" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1073,7 +1051,7 @@ network?</p></td>
 </table>
 </section>
 <section id="nse-solver">
-<h1>nse_solver<a class="headerlink" href="#nse-solver" title="Permalink to this heading">¶</a></h1>
+<h1>nse_solver<a class="headerlink" href="#nse-solver" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1094,11 +1072,23 @@ network?</p></td>
 <td></td>
 <td><p>0.1_rt</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_dx_independent</span></code></p></td>
+<td></td>
+<td><p>.false.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_molar_independent</span></code></p></td>
+<td></td>
+<td><p>.false.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_skip_molar</span></code></p></td>
+<td></td>
+<td><p>.false.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
 <section id="polytrope">
-<h1>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this heading">¶</a></h1>
+<h1>polytrope<a class="headerlink" href="#polytrope" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1127,7 +1117,7 @@ network?</p></td>
 </table>
 </section>
 <section id="powerlaw">
-<h1>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this heading">¶</a></h1>
+<h1>powerlaw<a class="headerlink" href="#powerlaw" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1177,7 +1167,7 @@ priority</p></td>
 </table>
 </section>
 <section id="primordial-chem">
-<h1>primordial_chem<a class="headerlink" href="#primordial-chem" title="Permalink to this heading">¶</a></h1>
+<h1>primordial_chem<a class="headerlink" href="#primordial-chem" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1366,7 +1356,7 @@ priority</p></td>
 </table>
 </section>
 <section id="rad-power-law">
-<h1>rad_power_law<a class="headerlink" href="#rad-power-law" title="Permalink to this heading">¶</a></h1>
+<h1>rad_power_law<a class="headerlink" href="#rad-power-law" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1447,7 +1437,7 @@ priority</p></td>
 </table>
 </section>
 <section id="rprox">
-<h1>rprox<a class="headerlink" href="#rprox" title="Permalink to this heading">¶</a></h1>
+<h1>rprox<a class="headerlink" href="#rprox" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1481,7 +1471,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="subch-approx">
-<h1>subch_approx<a class="headerlink" href="#subch-approx" title="Permalink to this heading">¶</a></h1>
+<h1>subch_approx<a class="headerlink" href="#subch-approx" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1502,7 +1492,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="subch-full">
-<h1>subch_full<a class="headerlink" href="#subch-full" title="Permalink to this heading">¶</a></h1>
+<h1>subch_full<a class="headerlink" href="#subch-full" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1523,7 +1513,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="subch-simple">
-<h1>subch_simple<a class="headerlink" href="#subch-simple" title="Permalink to this heading">¶</a></h1>
+<h1>subch_simple<a class="headerlink" href="#subch-simple" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1544,7 +1534,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-aprox-rates">
-<h1>test_aprox_rates<a class="headerlink" href="#test-aprox-rates" title="Permalink to this heading">¶</a></h1>
+<h1>test_aprox_rates<a class="headerlink" href="#test-aprox-rates" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1585,7 +1575,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-ase">
-<h1>test_ase<a class="headerlink" href="#test-ase" title="Permalink to this heading">¶</a></h1>
+<h1>test_ase<a class="headerlink" href="#test-ase" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1714,7 +1704,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-conductivity">
-<h1>test_conductivity<a class="headerlink" href="#test-conductivity" title="Permalink to this heading">¶</a></h1>
+<h1>test_conductivity<a class="headerlink" href="#test-conductivity" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1755,7 +1745,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-eos">
-<h1>test_eos<a class="headerlink" href="#test-eos" title="Permalink to this heading">¶</a></h1>
+<h1>test_eos<a class="headerlink" href="#test-eos" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1796,7 +1786,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-jac">
-<h1>test_jac<a class="headerlink" href="#test-jac" title="Permalink to this heading">¶</a></h1>
+<h1>test_jac<a class="headerlink" href="#test-jac" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1845,7 +1835,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-nse">
-<h1>test_nse<a class="headerlink" href="#test-nse" title="Permalink to this heading">¶</a></h1>
+<h1>test_nse<a class="headerlink" href="#test-nse" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1890,7 +1880,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-nse-interp">
-<h1>test_nse_interp<a class="headerlink" href="#test-nse-interp" title="Permalink to this heading">¶</a></h1>
+<h1>test_nse_interp<a class="headerlink" href="#test-nse-interp" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1923,7 +1913,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-part-func">
-<h1>test_part_func<a class="headerlink" href="#test-part-func" title="Permalink to this heading">¶</a></h1>
+<h1>test_part_func<a class="headerlink" href="#test-part-func" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1952,7 +1942,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-react">
-<h1>test_react<a class="headerlink" href="#test-react" title="Permalink to this heading">¶</a></h1>
+<h1>test_react<a class="headerlink" href="#test-react" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2001,7 +1991,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-rhs">
-<h1>test_rhs<a class="headerlink" href="#test-rhs" title="Permalink to this heading">¶</a></h1>
+<h1>test_rhs<a class="headerlink" href="#test-rhs" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2042,7 +2032,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-screening">
-<h1>test_screening<a class="headerlink" href="#test-screening" title="Permalink to this heading">¶</a></h1>
+<h1>test_screening<a class="headerlink" href="#test-screening" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2083,7 +2073,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-sdc">
-<h1>test_sdc<a class="headerlink" href="#test-sdc" title="Permalink to this heading">¶</a></h1>
+<h1>test_sdc<a class="headerlink" href="#test-sdc" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2132,7 +2122,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="test-sdc-vode-rhs">
-<h1>test_sdc_vode_rhs<a class="headerlink" href="#test-sdc-vode-rhs" title="Permalink to this heading">¶</a></h1>
+<h1>test_sdc_vode_rhs<a class="headerlink" href="#test-sdc-vode-rhs" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2317,7 +2307,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="tillotson">
-<h1>tillotson<a class="headerlink" href="#tillotson" title="Permalink to this heading">¶</a></h1>
+<h1>tillotson<a class="headerlink" href="#tillotson" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2374,7 +2364,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="triple-alpha-plus-cago">
-<h1>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this heading">¶</a></h1>
+<h1>triple_alpha_plus_cago<a class="headerlink" href="#triple-alpha-plus-cago" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -2408,7 +2398,7 @@ compatibility</p></td>
 </table>
 </section>
 <section id="unit-test">
-<h1>unit_test<a class="headerlink" href="#unit-test" title="Permalink to this heading">¶</a></h1>
+<h1>unit_test<a class="headerlink" href="#unit-test" title="Permalink to this heading"></a></h1>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>

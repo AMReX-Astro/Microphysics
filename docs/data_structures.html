@@ -12,6 +12,8 @@
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
@@ -106,38 +108,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="data-structures">
-<span id="id1"></span><h1>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this heading">¶</a></h1>
+  <section id="data-structures">
+<span id="id1"></span><h1>Data Structures<a class="headerlink" href="#data-structures" title="Permalink to this heading"></a></h1>
 <p>All of the routines in this software package are standardized so that
 you interact with them using the same type of data structure, a C++ struct.</p>
 <section id="eos">
-<h2>EOS<a class="headerlink" href="#eos" title="Permalink to this heading">¶</a></h2>
+<h2>EOS<a class="headerlink" href="#eos" title="Permalink to this heading"></a></h2>
 <section id="eos-t">
-<h3><code class="docutils literal notranslate"><span class="pre">eos_t</span></code><a class="headerlink" href="#eos-t" title="Permalink to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">eos_t</span></code><a class="headerlink" href="#eos-t" title="Permalink to this heading"></a></h3>
 <p>The main data structure for interacting with the EOS is <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>.
 This is a collection of data specifying the microphysical state of the
 fluid that we are evaluating. This has many components. For a
@@ -162,9 +140,9 @@ file: <code class="docutils literal notranslate"><span class="pre">Castro/Microp
 </section>
 </section>
 <section id="networks">
-<h2>Networks<a class="headerlink" href="#networks" title="Permalink to this heading">¶</a></h2>
+<h2>Networks<a class="headerlink" href="#networks" title="Permalink to this heading"></a></h2>
 <section id="burn-t">
-<h3><code class="docutils literal notranslate"><span class="pre">burn_t</span></code><a class="headerlink" href="#burn-t" title="Permalink to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">burn_t</span></code><a class="headerlink" href="#burn-t" title="Permalink to this heading"></a></h3>
 <p>The main data structure for interacting with the reaction networks is
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>. This holds the composition (mass fractions), thermodynamic
 state, and a lot of internal information used by the reaction network
@@ -200,7 +178,7 @@ between integration and simulation time.</p>
 </ul>
 </section>
 <section id="rate-t-rate-fr-t">
-<h3><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code><a class="headerlink" href="#rate-t-rate-fr-t" title="Permalink to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">rate_t</span></code>, <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code><a class="headerlink" href="#rate-t-rate-fr-t" title="Permalink to this heading"></a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">rate_t</span></code> and <code class="docutils literal notranslate"><span class="pre">rate_fr_t</span></code> structures are used internally in a network to pass the
 raw reaction rate information (usually just the temperature-dependent
 terms) between various subroutines. It does not come out of the
@@ -208,7 +186,7 @@ network-specific righthand side or Jacobian routines.</p>
 <p>You can see their definitions in <code class="docutils literal notranslate"><span class="pre">networks/rate_type.H</span></code>.</p>
 </section>
 <section id="burn-type-h">
-<h3><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code><a class="headerlink" href="#burn-type-h" title="Permalink to this heading">¶</a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code><a class="headerlink" href="#burn-type-h" title="Permalink to this heading"></a></h3>
 <p>In addition to defining the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type, the header <code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code>
 also defines integer indices into the solution vector that can be used
 to access the different components of the state:</p>
@@ -223,7 +201,7 @@ to access the different components of the state:</p>
 </section>
 </section>
 <section id="integrators">
-<h2>Integrators<a class="headerlink" href="#integrators" title="Permalink to this heading">¶</a></h2>
+<h2>Integrators<a class="headerlink" href="#integrators" title="Permalink to this heading"></a></h2>
 <p>Each integrator also has their own internal data structure that holds
 the information needed for the integration.  Meta-data that is not
 part of the integration vector of ODEs, but is attached to a
@@ -231,7 +209,7 @@ particular state (<span class="math notranslate nohighlight">\(X_k\)</span>, <sp
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> and can be passed into the righthand side routine.</p>
 </section>
 <section id="converting-between-types">
-<h2>Converting Between Types<a class="headerlink" href="#converting-between-types" title="Permalink to this heading">¶</a></h2>
+<h2>Converting Between Types<a class="headerlink" href="#converting-between-types" title="Permalink to this heading"></a></h2>
 <p>There is significant overlap between <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> and <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>.
 The <code class="docutils literal notranslate"><span class="pre">burn_type.H</span></code> header two routines,
 <code class="docutils literal notranslate"><span class="pre">burn_to_eos</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_to_burn</span></code> that convert a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>
