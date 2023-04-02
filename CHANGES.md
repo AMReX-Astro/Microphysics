@@ -1,3 +1,19 @@
+# 23.04
+
+  * added preliminary CMake support (#1151, #1164, #1166)
+
+  * added code of conduct (#1152)
+
+  * clang-tidy code clean-ups(#1141, #1153, #1156)
+
+  * burn_t now stores whether we entered NSE (#1144, #1147)
+
+  * burn_t now store chemical potentials for NSE (#1149)
+
+  * some NSE solver updates to make it easier to enter NSE (#1138, #1139)
+
+  * a new CNO + rp network for XRBs (#1145)
+
 # 23.03
 
   * updated all of the pynucastro networks to the latest
