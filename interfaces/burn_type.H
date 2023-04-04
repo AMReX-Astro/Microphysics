@@ -195,15 +195,15 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";
-  for (int n = 0; n < NumSpec; ++n) {
-    o << burn_state.xn[n] << " ";
+  for (double X : burn_state.xn) {
+    o << X << " ";
   }
   o << std::endl;
   o << "(i, j, k) = " << burn_state.i << " " << burn_state.j << " " << burn_state.k << std::endl;
 #if NAUX_NET > 0
   o << "aux = ";
-  for (int n = 0; n < NumAux; ++n) {
-    o << burn_state.aux[n] << " ";
+  for (double A : burn_state.aux) {
+    o << A << " ";
   }
   o << std::endl;
 #endif

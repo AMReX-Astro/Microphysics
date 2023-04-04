@@ -29,6 +29,9 @@ void init_nse() {
   amrex::Print() << "reading the NSE table (C++) ..." << std::endl;
 
   nse_table.open("nse19.tbl", std::ios::in);
+  if (nse_table.fail()) {
+      amrex::Error("unable to open nse19.tbl");
+  }
 
   Real the, tsi, tfe;
   Real ttemp, tdens, tye;
