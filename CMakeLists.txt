@@ -28,6 +28,7 @@ set(sources
     integration/integrator_type_strang.H
     interfaces/ArrayUtilities.H
     interfaces/burner.H
+    interfaces/burn_type.H
     interfaces/eos.H
     interfaces/eos_data.H
     interfaces/eos_type.H
