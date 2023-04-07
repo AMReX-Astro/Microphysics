@@ -1,5 +1,5 @@
 #include these directories based on the output of the traditional make
-include_directories(${primordial_chem_dirs})
+#include_directories(${primordial_chem_dirs})
 
 #add primordial_chem test
 add_subdirectory(burn_cell_primordial_chem)

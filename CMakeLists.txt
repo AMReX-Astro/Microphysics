@@ -106,22 +106,37 @@ else()
    message("Not building and fetching amrex in Microphysics")
 endif()
 
-#setting .cpp files needed to make the test here
-#so that they are accessible to codes using
-#Microphysics as a submodule
-set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp PARENT_SCOPE)
 
 
 #setting directories needed to make the test here
 #so that they are accessible to codes using
 #Microphysics as a submodule
-set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
+
+if(BUILD_UNIT_TEST)
+   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
+                          ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
+                          ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
+                          ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null)
+   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
+else()
+   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
                           ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
                           ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
                           ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
+
+   #setting .cpp files needed to make the test here
+   #so that they are accessible to codes using
+   #Microphysics as a submodule
+   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
+                            ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp PARENT_SCOPE)
+
+endif()
+
 
 include_directories(${primordial_chem_dirs})
 
