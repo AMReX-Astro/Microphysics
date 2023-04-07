@@ -119,7 +119,7 @@ set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
 #so that they are accessible to codes using
 #Microphysics as a submodule
 set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
-                          ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration
+                          ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
                           ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
                           ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
 
