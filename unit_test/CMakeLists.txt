@@ -29,7 +29,7 @@ add_subdirectory(burn_cell_primordial_chem)
 #    )
 
 #the test depends on this custom target
-add_dependencies(test_burn_cell_primordial_chem generate_network_properties)
+#add_dependencies(test_burn_cell_primordial_chem generate_network_properties)
 
 #uncomment below if you want to see the values of all CMAKE variables
 #get_cmake_property(_variableNames VARIABLES)

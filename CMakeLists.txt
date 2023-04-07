@@ -76,22 +76,9 @@ set(networkheadertemplatefile "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null
 
 execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}")
 
-add_custom_command(OUTPUT ${networkpropfile}
-    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}"
-    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/../networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/../"
-    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/../networks/update_headers.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/../" --odir "${CMAKE_BINARY_DIR}"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/get_naux.py"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/update_headers.py"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/write_network.py"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/network_param_file.py"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/network_header.template"
-    DEPENDS "${networkfile}"
-    COMMENT "writing network_properties.H"
-    )
+execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/")
 
-add_custom_target(generate_network_properties
-    DEPENDS ${networkpropfile}
-    )
+execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/update_headers.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/" --odir "${CMAKE_BINARY_DIR}")
 
 
 #set a cache variable that controls whether
@@ -125,7 +112,7 @@ endif()
 set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
                             ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
+                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp PARENT_SCOPE)
 
 
 #setting directories needed to make the test here
