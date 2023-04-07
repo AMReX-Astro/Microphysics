@@ -57,6 +57,9 @@ set_target_properties(Microphysics PROPERTIES
 
 #we need to have extern_parameters.cpp be available at configure time
 #the script write_probin.py writes this .cpp file so we call it here
+#note, execute_process only works on 'cmake' and not 'make'
+#so, if any of the _parameter files are changed, one needs to re-run 'cmake'
+#to generate updated header files
 set(paramfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/burn_cell_primordial_chem/_parameters")
 set(EOSparamfile "${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/_parameters")
 set(networkpcparamfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/_parameters")
