@@ -48,7 +48,7 @@ include(CMakePackageConfigHelpers)
 target_sources(Microphysics PUBLIC ${sources})
 #below line will add NAUX_NET and STRANG compiler flags
 #these are needed for preprocessor variables
-target_compile_definitions(Microphysics INTERFACE NAUX_NET STRANG)
+target_compile_definitions(Microphysics PRIVATE NAUX_NET STRANG)
 
 set_target_properties(Microphysics PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
