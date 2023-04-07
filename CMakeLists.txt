@@ -48,7 +48,7 @@ include(CMakePackageConfigHelpers)
 target_sources(Microphysics PUBLIC ${sources})
 #below line will add NAUX_NET and STRANG compiler flags
 #these are needed for preprocessor variables
-target_compile_definitions(Microphysics PRIVATE NAUX_NET STRANG)
+target_compile_definitions(Microphysics PUBLIC NAUX_NET STRANG)
 
 set_target_properties(Microphysics PROPERTIES
     SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -64,20 +64,18 @@ set(networkparamfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/_parameters")
 set(VODEparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE/_parameters")
 set(integrationparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/_parameters")
 set(unittestparamfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/_parameters")
-
 execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}")
 
-
+#similarly, we want network_properties.H
 set(networkpropfile "${CMAKE_BINARY_DIR}/network_properties.H")
 set(networkfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/pynucastro.net")
 set(networkdir "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/")
 set(networkpropertiesfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
 set(networkheadertemplatefile "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/network_header.template")
-
 execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}")
-
+#below for NAUX
 execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/")
-
+#below to update headers
 execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/update_headers.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/" --odir "${CMAKE_BINARY_DIR}")
 
 
@@ -106,50 +104,57 @@ else()
    message("Not building and fetching amrex in Microphysics")
 endif()
 
-
-
-#setting directories needed to make the test here
-#so that they are accessible to codes using
-#Microphysics as a submodule
-
-if(BUILD_UNIT_TEST)
-   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
-                          ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                          ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                          ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null)
-   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
-else()
-   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
-                          ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                          ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                          ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
-
-   #setting .cpp files needed to make the test here
-   #so that they are accessible to codes using
-   #Microphysics as a submodule
-   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
-                            ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-                            ${CMAKE_BINARY_DIR}/extern_parameters.cpp PARENT_SCOPE)
-
-endif()
-
-
-include_directories(${primordial_chem_dirs})
-
 #set a cache variable that controls whether
 #we want to build the unit test or not
 set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
 message("Building unit test -- ${BUILD_UNIT_TEST}")
 
+
+#setting sourcefiles and directories needed to make the test here
+#so that they are accessible to codes using
+#Microphysics as a submodule
+#include parent_scope for sourcefiles and directories
+#when built as a submodule in an external code
+#otherwise these are not visible to the external code
+#this will generate a warning but it will build successfully
+
+
 if(BUILD_UNIT_TEST)
+   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
+                             ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/interfaces ${CMAKE_CURRENT_SOURCE_DIR}/constants 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null)
+
+   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
+                               ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
+                               ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                               ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
+
+   include_directories(${primordial_chem_dirs})
+
    #adding unit_test as subdirectories
    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
    message("Building primordial chem unit test")
+
 else()
+   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
+                             ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/interfaces ${CMAKE_CURRENT_SOURCE_DIR}/constants 
+                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
+
+   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
+                               ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
+                               ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                               ${CMAKE_BINARY_DIR}/extern_parameters.cpp PARENT_SCOPE)
+
    message("Not building primordial chem unit test")
 endif()
+
+
 
