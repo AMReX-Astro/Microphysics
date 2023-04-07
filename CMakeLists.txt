@@ -107,14 +107,13 @@ set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
 set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE
                           ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/integration
                           ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                          ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null)
+                          ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
 
 
 #set a cache variable that controls whether
 #we want to build the unit test or not
 set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
 message("Building unit test -- ${BUILD_UNIT_TEST}")
-
 
 if(BUILD_UNIT_TEST)
    #adding unit_test as subdirectories
