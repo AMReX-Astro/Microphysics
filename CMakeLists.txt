@@ -123,6 +123,7 @@ set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util $
                           ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
                           ${CMAKE_CURRENT_SOURCE_DIR}/constants ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
 
+include_directories(${primordial_chem_dirs})
 
 #set a cache variable that controls whether
 #we want to build the unit test or not
