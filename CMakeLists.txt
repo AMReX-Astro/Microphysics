@@ -67,6 +67,33 @@ set(unittestparamfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/_parameters")
 
 execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}")
 
+
+set(networkpropfile "${CMAKE_BINARY_DIR}/network_properties.H")
+set(networkfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/pynucastro.net")
+set(networkdir "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/")
+set(networkpropertiesfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
+set(networkheadertemplatefile "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/network_header.template")
+
+execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}")
+
+add_custom_command(OUTPUT ${networkpropfile}
+    COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}"
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/../networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/../"
+    COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/../networks/update_headers.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/../" --odir "${CMAKE_BINARY_DIR}"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/get_naux.py"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/update_headers.py"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/write_network.py"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/network_param_file.py"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null/network_header.template"
+    DEPENDS "${networkfile}"
+    COMMENT "writing network_properties.H"
+    )
+
+add_custom_target(generate_network_properties
+    DEPENDS ${networkpropfile}
+    )
+
+
 #set a cache variable that controls whether
 #we want to fetch and link amrex or not
 set(BUILD_AMREX false CACHE BOOL "Do you want to build and link amrex? (true/false)")
