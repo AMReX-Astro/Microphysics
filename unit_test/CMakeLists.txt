@@ -1,8 +1,5 @@
 #include these directories based on the output of the traditional make
-include_directories(${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../util ${CMAKE_CURRENT_SOURCE_DIR}/../util/gcem/include ${CMAKE_CURRENT_SOURCE_DIR}/../integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/../integration/utils ${CMAKE_CURRENT_SOURCE_DIR}/../integration
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../EOS ${CMAKE_CURRENT_SOURCE_DIR}/../EOS/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/../networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/../networks ${CMAKE_CURRENT_SOURCE_DIR}/../interfaces
-                    ${CMAKE_CURRENT_SOURCE_DIR}/../constants ${CMAKE_CURRENT_SOURCE_DIR}/../networks/general_null)
-
+include_directories(${primordial_chem_dirs})
 
 #add primordial_chem test
 add_subdirectory(burn_cell_primordial_chem)
