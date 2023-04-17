@@ -67,7 +67,7 @@ set(networkparamfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/_parameters")
 set(VODEparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE/_parameters")
 set(integrationparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/_parameters")
 set(unittestparamfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/_parameters")
-execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+#execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
 
 #similarly, we want network_properties.H
 set(networkpropfile "${CMAKE_BINARY_DIR}/network_properties.H")
@@ -123,6 +123,7 @@ message("Building unit test -- ${BUILD_UNIT_TEST}")
 
 
 if(BUILD_UNIT_TEST)
+   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
    set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
@@ -143,6 +144,7 @@ if(BUILD_UNIT_TEST)
    message("Building primordial chem unit test")
 
 else()
+   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
    set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
