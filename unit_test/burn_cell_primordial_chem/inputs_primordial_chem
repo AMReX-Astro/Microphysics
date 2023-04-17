@@ -4,7 +4,6 @@ unit_test.run_prefix = "burn_cell_primordial_chem_"
 unit_test.small_temp = 1.e1
 unit_test.small_dens = 1.e-60
 unit_test.tff_reduc = 1.e-1
-uni_test.max_dens_primordialchem = 3e-6
 # number of integration steps
 unit_test.nsteps = 1000
 # max total time

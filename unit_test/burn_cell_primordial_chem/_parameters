@@ -14,9 +14,6 @@ tff_reduc     real       1.e-1
 # first output time -- we will output in nsteps logarithmically spaced steps between [tfirst, tmax]
 tfirst        real       0.0
 
-#max density threshold for primordial chem
-max_dens_primordialchem    real   3e-6
-
 # number of steps for the single zone burn
 nsteps        integer    1000
 

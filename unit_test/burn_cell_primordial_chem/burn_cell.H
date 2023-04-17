@@ -167,7 +167,7 @@ void burn_cell_c()
         break; }
 
         // stop the test if we have reached very high densities
-        if (dd > max_dens_primordialchem) {
+        if (dd > 3e-6) {
         break; }
 
         std::cout<<"step "<<n<<" done"<<std::endl;
