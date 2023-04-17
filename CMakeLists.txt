@@ -67,7 +67,6 @@ set(networkparamfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/_parameters")
 set(VODEparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE/_parameters")
 set(integrationparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/_parameters")
 set(unittestparamfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/_parameters")
-#execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
 
 #similarly, we want network_properties.H
 set(networkpropfile "${CMAKE_BINARY_DIR}/network_properties.H")
@@ -120,7 +119,7 @@ message("Building unit test -- ${BUILD_UNIT_TEST}")
 #when built as a submodule in an external code
 #otherwise these are not visible to the external code
 #this will generate a warning but it will build successfully
-
+#do not need unit_test paramfiles when unit_test is not built
 
 if(BUILD_UNIT_TEST)
    execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
