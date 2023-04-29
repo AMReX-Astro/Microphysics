@@ -188,8 +188,6 @@ int dvode (burn_t& state, dvode_t& vstate)
 
        if (TOLSF > 1.0_rt) {
 
-           TOLSF *= 2.0_rt;
-
            if (vstate.NST == 0) {
 #ifndef AMREX_USE_GPU
                std::cout << Font::Bold << FGColor::Red << "DVODE: too much accuracy requested at start of integration" << ResetDisplay << std::endl;
