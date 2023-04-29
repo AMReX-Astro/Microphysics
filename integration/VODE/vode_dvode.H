@@ -1,20 +1,23 @@
-#ifndef _vode_dvode_H_
-#define _vode_dvode_H_
+#ifndef VODE_DVODE_H
+#define VODE_DVODE_H
 
 #include <vode_type.H>
 #include <vode_dvhin.H>
 #include <vode_dvstep.H>
 #ifdef STRANG
-#include <vode_rhs.H>
+#include <integrator_rhs_strang.H>
 #endif
 #ifdef SIMPLIFIED_SDC
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
 #endif
-#ifdef NSE
-#include <nse.H>
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -67,10 +70,24 @@ int dvode (burn_t& state, dvode_t& vstate)
     vstate.NQ = 1;
     vstate.H = 1.0_rt;
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
-        vstate.ewt(i) = vstate.rtol(i) * std::abs(vstate.yh(i,1)) + vstate.atol(i);
+#ifdef TRUE_SDC
+    vstate.ewt(1) = vstate.rtol_dens * std::abs(vstate.yh(1,1)) + vstate.atol_dens;
+    vstate.ewt(1) = 1.0_rt / vstate.ewt(1);
+
+    for (int i = 2; i <= NumSpec+1; ++i) {
+        vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
         vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
     }
+    vstate.ewt(NumSpec+2) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+2,1)) + vstate.atol_enuc;
+    vstate.ewt(NumSpec+2) = 1.0_rt / vstate.ewt(NumSpec+2);
+#else
+    for (int i = 1; i <= NumSpec; ++i) {
+        vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
+        vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
+    }
+    vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
+    vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+#endif
 
     // Call DVHIN to set initial step size H0 to be attempted.
     H0 = 0.0_rt;
@@ -139,10 +156,24 @@ int dvode (burn_t& state, dvode_t& vstate)
 
            }
 
-           for (int i = 1; i <= VODE_NEQS; ++i) {
-               vstate.ewt(i) = vstate.rtol(i) * std::abs(vstate.yh(i,1)) + vstate.atol(i);
+#ifdef TRUE_SDC
+           vstate.ewt(1) = vstate.rtol_dens * std::abs(vstate.yh(1,1)) + vstate.atol_dens;
+           vstate.ewt(1) = 1.0_rt / vstate.ewt(1);
+
+           for (int i = 2; i <= NumSpec+1; ++i) {
+               vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
                vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
            }
+           vstate.ewt(NumSpec+2) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+2,1)) + vstate.atol_enuc;
+           vstate.ewt(NumSpec+2) = 1.0_rt / vstate.ewt(NumSpec+2);
+#else
+           for (int i = 1; i <= NumSpec; ++i) {
+               vstate.ewt(i) = vstate.rtol_spec * std::abs(vstate.yh(i,1)) + vstate.atol_spec;
+               vstate.ewt(i) = 1.0_rt / vstate.ewt(i);
+           }
+           vstate.ewt(NumSpec+1) = vstate.rtol_enuc * std::abs(vstate.yh(NumSpec+1,1)) + vstate.atol_enuc;
+           vstate.ewt(NumSpec+1) = 1.0_rt / vstate.ewt(NumSpec+1);
+#endif
 
        }
        else {
@@ -156,8 +187,6 @@ int dvode (burn_t& state, dvode_t& vstate)
        TOLSF = UROUND * std::sqrt(TOLSF / VODE_NEQS);
 
        if (TOLSF > 1.0_rt) {
-
-           TOLSF *= 2.0_rt;
 
            if (vstate.NST == 0) {
 #ifndef AMREX_USE_GPU
@@ -237,7 +266,7 @@ int dvode (burn_t& state, dvode_t& vstate)
            update_thermodynamics(state, vstate);
 #endif
 #ifdef SIMPLIFIED_SDC
-           vode_to_burn(vstate.tn, vstate, state);
+           int_to_burn(vstate.tn, vstate, state);
 #endif
 
            if (in_nse(state)) {

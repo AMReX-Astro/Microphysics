@@ -20,7 +20,7 @@ The equations we integrate to do a nuclear burn are:
    \frac{de}{dt} = f(\rho,X_k,T)
    :label: eq:enuc_integrate
 
-Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specifc
+Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specific
 nuclear energy created through reactions. Also needed are density :math:`\rho`,
 temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the 
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
@@ -63,7 +63,7 @@ The interfaces to all of the networks and integrators are written in C++.
 
 The main entry point for C++ is ``burner()`` in
 ``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE`` or ``ForwardEuler``).
+routine (at the moment this can be ``VODE``, ``BackwardEuler``, or ``ForwardEuler``).
 
 .. code-block:: c++
 
@@ -79,7 +79,7 @@ The input is a ``burn_t``.
    corresponding to this input state through the equation of state
    before integrating.
 
-When integrating the system, we often need auxillary information to
+When integrating the system, we often need auxiliary information to
 close the system.  This is kept in the original ``burn_t`` that was
 passed into the integration routines.  For this reason, we often need
 to pass both the specific integrator's type (e.g. ``dvode_t``) and
@@ -87,26 +87,20 @@ to pass both the specific integrator's type (e.g. ``dvode_t``) and
 
 The overall flow of the integrator is (using VODE as the example):
 
-#. Call the EOS on the input ``burn_t`` state.  This involves:
+#. Call the EOS directly on the input ``burn_t`` state using :math:`\rho` and :math:`T` as inputs.
 
-   #. calling ``burn_to_eos`` to convert the ``burn_t`` to an ``eos_t``
-
-   #. calling the EOS with :math:`\rho` and :math:`T` as input
-
-   #. calling ``eos_to_burn`` to convert the ``eos_t`` back to a ``burn_t``
-
-#. Fill the integrator type by calling ``burn_to_vode`` to create a
-   ``dvode_t`` from the ``burn_t``
+#. Fill the integrator type by calling ``burn_to_integrator()`` to create a
+   ``dvode_t``.
 
 #. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
-   ``burn_t`` --- as noted above, the auxillary information that is
+   ``burn_t`` --- as noted above, the auxiliary information that is
    not part of the integration state will be obtained from the
    ``burn_t``.
 
 #. subtract off the energy offset---we now store just the energy released
    in the ``dvode_t`` integration state.
 
-#. convert back to a ``burn_t`` by calling ``vode_to_burn``
+#. convert back to a ``burn_t`` by calling ``integrator_to_burn``
 
 #. normalize the abundances so they sum to 1.
 
@@ -114,6 +108,10 @@ The overall flow of the integrator is (using VODE as the example):
 
    Upon exit, ``burn_t burn_state.e`` is the energy *released* during
    the burn, and not the actual internal energy of the state.
+
+   Optionally, by setting ``integrator.subtract_internal_energy=0``
+   the output will be the total internal energy, including that released
+   burning the burn.
 
 Network Routines
 ----------------
@@ -196,9 +194,8 @@ flow is (for VODE):
 #. call ``clean_state`` on the ``dvode_t``
 
 #. update the thermodynamics by calling ``update_thermodynamics``.  This takes both
-   the ``dvode_t`` and the ``burn_t``.
-
-#. call ``vode_to_burn`` to update the ``burn_t``
+   the ``dvode_t`` and the ``burn_t`` and computes the temperature that matches the
+   current state.
 
 #. call ``actual_rhs``
 
@@ -207,8 +204,6 @@ flow is (for VODE):
    those quantities.
 
 #. apply any boosting if ``react_boost`` > 0
-
-#. convert back to the ``dvode_t`` by calling ``burn_to_vode``
 
 
 Jacobian implementation
@@ -266,15 +261,13 @@ flow is (for VODE):
    wrapper above which did the ``clean_state`` and
    ``update_thermodynamics`` calls.
 
-#. call ``vode_to_burn`` to update the ``burn_t``
+#. call ``integrator_to_burn`` to update the ``burn_t``
 
 #. call ``actual_jac()`` to have the network fill the Jacobian array
 
 #. convert the derivative to be mass-fraction-based
 
 #. apply any boosting to the rates if ``react_boost`` > 0
-
-#. call ``burn_to_vode`` to update the ``dvode_t``
 
 
 
@@ -310,7 +303,7 @@ This involves an EOS call and is the default behavior of the integration.
 
 If desired, the EOS call can be skipped and the temperature kept
 frozen over the entire time interval of the integration.  This is done
-bu setting ``integrator.call_eos_in_rhs = 0``.
+by setting ``integrator.call_eos_in_rhs = 0``.
 
 Note also that for the Jacobian, we need the specific heat, :math:`c_v`, since we
 usually calculate derivatives with respect to temperature (as this is the form
@@ -353,8 +346,19 @@ The name of the integrator can be selected at compile time using
 the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
 the allowed options are:
 
+* ``BackwardEuler``: an implicit first-order accurate backward-Euler
+  method.  An error estimate is done by taking 2 half steps and
+  comparing to a single full step.  This error is then used to control
+  the timestep by using the local truncation error scaling.
+
 * ``ForwardEuler``: an explicit first-order forward-Euler method.  This is
   meant for testing purposes only.
+
+* ``QSS``: the quasi-steady-state method of :cite:`mott_qss` (see also
+  :cite:`guidry_qss`). This uses a second-order predictor-corrector method,
+  and is designed specifically for handling coupled ODE systems for chemical
+  and nuclear reactions. However, this integrator has difficulty near NSE,
+  so we don't recommend its use in production for nuclear astrophysics.
 
 * ``VODE``: the VODE (:cite:`vode`) integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
@@ -382,7 +386,7 @@ For this investigation, it was assumed that a run with a tolerance of :math:`10^
 corresponded to an exact result,
 so it is used as the basis for the rest of the tests.
 From the figure, one can infer that the :math:`10^{-3}` and :math:`10^{-6}` tolerances
-do not yeild the most accurate results
+do not yield the most accurate results
 because their relative error values are fairly large.
 However, the test with a tolerance of :math:`10^{-9}` is accurate
 and not so low that it takes incredible amounts of computer time,

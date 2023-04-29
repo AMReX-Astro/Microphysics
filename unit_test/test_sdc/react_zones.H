@@ -1,5 +1,5 @@
-#ifndef _react_zones_H_
-#define _react_zones_H_
+#ifndef REACT_ZONES_H
+#define REACT_ZONES_H
 
 #include <variables.H>
 #include <network.H>
@@ -10,7 +10,7 @@
 #include <extern_parameters.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_react (const plot_t p, const int i, const int j, const int k,
+bool do_react (const plot_t& p, const int i, const int j, const int k,
                Array4<Real> const& state, Array4<int> const& n_rhs)
 {
 

@@ -11,7 +11,7 @@
 // exactly to within double precision arithmetic.
 // Ported to C++.
 
-// For perfomance reasons we implement a specialized
+// For performance reasons we implement a specialized
 // version of esum for each possible value of N >= 3.
 
 // Also for performance reasons, we explicitly unroll
@@ -27,8 +27,8 @@
 // other than msum that do exact arithmetic, without
 // changing the interface as seen in the networks.
 
-#ifndef _esum_H_
-#define _esum_H_
+#ifndef ESUM_H
+#define ESUM_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>

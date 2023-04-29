@@ -1,5 +1,5 @@
-#ifndef _actual_eos_H_
-#define _actual_eos_H_
+#ifndef ACTUAL_EOS_H
+#define ACTUAL_EOS_H
 
 // This is a mult-gamma EOS for primordial ISM chemistry.
 // Each species can have its own gamma, but
@@ -138,6 +138,7 @@ void actual_eos (I input, T& state)
     static_assert(std::is_same<I, eos_input_t>::value, "input must be either eos_input_rt or eos_input_re");
 
     const Real gasconstant = 8.3144725e7;
+    const Real protonmass = 1.672621637e-24;
     // Special gamma factors
     Real sum_Abarinv = 0.0_rt;
     Real sum_gammasinv = 0.0_rt;
@@ -160,7 +161,7 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens;
+    Real temp, dens, eint;
 
     switch (input) {
 
@@ -171,7 +172,7 @@ void actual_eos (I input, T& state)
 
         temp = state.T;
         dens = state.rho;
-
+        eint = sum_gammasinv * sum_Abarinv * gasconstant * state.T;
         break;
 
     case eos_input_re:

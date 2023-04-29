@@ -1,5 +1,5 @@
-#ifndef _burner_H_
-#define _burner_H_
+#ifndef BURNER_H
+#define BURNER_H
 
 #include <burn_type.H>
 #include <integrator.H>
@@ -7,7 +7,18 @@
 #include <ArrayUtilities.H>
 
 #ifdef NSE_TABLE
-#include <nse.H>
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
+#endif
+#ifdef NSE
+#ifdef STRANG
+#include <nse_update_strang.H>
+#endif
+#ifdef SIMPLIFIED_SDC
+#include <nse_update_simplified_sdc.H>
+#endif
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -16,7 +27,7 @@ void burner (burn_t& state, Real dt)
 
 #ifndef TRUE_SDC
 
-#ifdef NSE_TABLE
+#ifdef NSE
 
     bool nse_check = in_nse(state);
 
@@ -33,7 +44,7 @@ void burner (burn_t& state, Real dt)
         // burn as usual
         integrator(state, dt);
 
-#ifndef SIMPLIFIED_SDC
+#if !defined(SIMPLIFIED_SDC) && defined(AUX_THERMO)
         // update the aux from the new X's this is not needed with the
         // SDC method, since we took care of that internally.
         set_aux_comp_from_X(state);
@@ -50,12 +61,14 @@ void burner (burn_t& state, Real dt)
 
         // we use a relaxed NSE criteria now to catch states that are
         // right on the edge of being in NSE
-
+#ifdef NSE_TABLE
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
-#ifdef SIMPLIFIED_SDC
+#else
+	if (in_nse(state, nse_skip_molar) && state.success == false && dt_remaining > 0.0) {
+#endif
+
 #ifndef AMREX_USE_GPU
             std::cout << "recovering burn failure in NSE, zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-#endif
 #endif
 
             // This will append to state.e the amount additional

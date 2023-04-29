@@ -1,5 +1,5 @@
-#ifndef _vode_type_H_
-#define _vode_type_H_
+#ifndef VODE_TYPE_H
+#define VODE_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
@@ -17,7 +17,7 @@ typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
-// CCMXJ  = Threshhold on DRC for updating the Jacobian
+// CCMXJ  = Threshold on DRC for updating the Jacobian
 const amrex::Real CCMXJ = 0.2e0_rt;
 
 const amrex::Real HMIN = 0.0_rt;
@@ -147,8 +147,11 @@ struct dvode_t
     amrex::Array1D<Real, 1, 5> tq;
 
     // Tolerances
-    RArray1D rtol, atol;
-
+    Real rtol_spec, atol_spec;
+    Real rtol_enuc, atol_enuc;
+#ifdef TRUE_SDC
+    Real rtol_dens, atol_dens;
+#endif
     // Local time and integration end time
     amrex::Real t, tout;
 
@@ -249,10 +252,10 @@ void print_state(dvode_t& dvode_state)
 #endif
 
 #ifdef SIMPLIFIED_SDC
-#include <vode_type_simplified_sdc.H>
+#include <integrator_type_simplified_sdc.H>
 #endif
 #ifdef STRANG
-#include <vode_type_strang.H>
+#include <integrator_type_strang.H>
 #endif
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef _burn_type_H_
-#define _burn_type_H_
+#ifndef BURN_TYPE_H
+#define BURN_TYPE_H
 
 #include <iomanip>
 
@@ -7,6 +7,7 @@
 
 #include <network.H>
 #include <eos_type.H>
+#include <eos_composition.H>
 #include <extern_parameters.H>
 
 #include <ArrayUtilities.H>
@@ -36,7 +37,7 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-// these indicies represent the order that the conserved state comes
+// these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
 // they also represent the order of the advective sources
@@ -143,23 +144,19 @@ struct burn_t
   int sdc_iter;
   int num_sdc_iters;
 
+#endif
+
   // for drive_initial_convection, we will fix T during the
   // integration to a passed in value.  We will interpret a positive
   // T_fixed as setting this feature.
-  Real T_fixed;
-
-#endif
+  Real T_fixed{-1.0};
 
   // all coupling types need the specific heats to transform the
   // reaction Jacobian elements from T to e
   Real cv;
 
-#ifdef STRANG
-
-  // Are we doing a self-heating burn?
-  bool self_heat;
-
-#endif
+  // dx is useful for estimating timescales for equilibriation
+  Real dx;
 
 #ifdef TRUE_SDC
   Real E_var;
@@ -178,7 +175,11 @@ struct burn_t
   Real mu_p;
   Real mu_n;
 #endif
-  
+
+#ifdef NSE
+  bool nse;
+#endif
+
   // diagnostics
   int n_rhs, n_jac, n_step;
 
@@ -194,14 +195,14 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";
-  for (int n = 0; n < NumSpec; ++n) {
-    o << burn_state.xn[n] << " ";
+  for (double X : burn_state.xn) {
+    o << X << " ";
   }
   o << std::endl;
 #if NAUX_NET > 0
   o << "aux = ";
-  for (int n = 0; n < NumAux; ++n) {
-    o << burn_state.aux[n] << " ";
+  for (double A : burn_state.aux) {
+    o << A << " ";
   }
   o << std::endl;
 #endif
@@ -211,19 +212,37 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
 #endif
   o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
+
   o << "y[SFS:] = ";
   for (int n = 0; n < NumSpec; n++) {
       o << burn_state.y[SFS+n] << " ";
   }
   o << std::endl;
 
+#if NAUX_NET > 0
+  o << "y[SFX:] = ";
+  for (int n = 0; n < NumAux; n++) {
+      o << burn_state.y[SFX+n] << " ";
+  }
+  o << std::endl;
+#endif
+
   o << "ydot_a[SRHO] = " << burn_state.ydot_a[SRHO] << std::endl;
   o << "ydot_a[SEINT] = " << burn_state.ydot_a[SEINT] << std::endl;
+
   o << "ydot_a[SFS:] = ";
   for (int n = 0; n < NumSpec; n++) {
       o << burn_state.ydot_a[SFS+n] << " ";
   }
   o << std::endl;
+
+#if NAUX_NET > 0
+  o << "ydot_a[SFX:] = ";
+  for (int n = 0; n < NumAux; n++) {
+      o << burn_state.ydot_a[SFX+n] << " ";
+  }
+  o << std::endl;
+#endif
 #endif
   return o;
 }
@@ -297,6 +316,88 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
 #endif
 }
 
+
+#ifdef SIMPLIFIED_SDC
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void sdc_burn_to_eos (const burn_t& state, T& eos_state)
+{
+#if defined(SDC_EVOLVE_ENERGY)
+    eos_state.rho = state.y[SRHO];
+
+#elif defined(SDC_EVOLVE_ENTHALPY)
+    eos_state.rho = 0.0_rt;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.rho += state.y[SFS+n];
+    }
+#endif
+
+    eos_state.T = state.T;
+
+    // species
+
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.y[SFS+n] / eos_state.rho;
+    }
+
+#if NAUX_NET > 0
+    // aux
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
+    }
+    //set_nse_aux_from_X(eos_state);
+#endif
+
+    // we don't bother filling the other fields, since the EOS call
+    // will do that for us
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void normalize_abundances_sdc_burn(burn_t& state)
+{
+
+    // Constrain the partial densities in burn_t state to sum to the 
+    // density.
+    //
+    // This is meant to be used upon exit, and we assume that
+    // vode_to_burn was already called
+
+#ifdef SDC_EVOLVE_ENERGY
+
+    // we have state.y[SRHO] to constrain to
+
+    Real rhoX_sum = 0.0_rt;
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
+        rhoX_sum += state.y[SFS+n];
+    }
+    rhoX_sum /= state.y[SRHO];
+
+    for (int n = 0; n < NumSpec; n++) {
+        state.y[SFS+n] /= rhoX_sum;
+    }
+
+#ifdef AUX_THERMO
+    // make the aux data consistent with the vode_state X's
+
+    eos_re_t eos_state;
+    for (int n = 0; n < NumSpec; n++) {
+        eos_state.xn[n] = state.y[SFS+n] / state.y[SRHO];
+    }
+
+    set_aux_comp_from_X(eos_state);
+
+    // also store it in the burn_t state
+
+    for (int n = 0; n < NumAux; n++) {
+        state.y[SFX+n] = state.y[SRHO] * eos_state.aux[n];
+    }
+#endif
+
+#endif
+
+}
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void normalize_abundances_burn (burn_t& state)

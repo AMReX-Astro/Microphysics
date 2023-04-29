@@ -1,0 +1,10 @@
+ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+  CEXE_headers += actual_integrator_simplified_sdc.H
+else
+  ifneq ($(USE_TRUE_SDC), TRUE)
+    CEXE_headers += actual_integrator.H
+  endif
+endif
+
+CEXE_headers += be_integrator.H
+CEXE_headers += be_type.H

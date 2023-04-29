@@ -23,6 +23,10 @@ else ifeq ($(SCREEN_METHOD), chugunov2009)
   DEFINES += -DSCREEN_METHOD=2
 else ifeq ($(SCREEN_METHOD), null)
   DEFINES += -DSCREEN_METHOD=3
+else ifeq ($(SCREEN_METHOD), chabrier1998)
+  DEFINES += -DSCREEN_METHOD=4
+else
+  $(error Invalid value for SCREEN_METHOD)
 endif
 
 ifeq ($(EOS_DIR), gamma_law_general)
@@ -72,7 +76,7 @@ table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
 # NSE networks need the table
-ifeq ($(USE_NSE),TRUE)
+ifeq ($(USE_NSE_TABLE),TRUE)
   ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
      all: nsetable
   endif
@@ -112,6 +116,12 @@ ifeq ($(USE_RAD), TRUE)
    EXTERN_CORE += $(OPAC_PATH)
 endif
 
+ifeq ($(INTEGRATOR_DIR), BackwardEuler)
+  # we are implementing the numerical Jacobian ourselves, and we
+  # need the composition derivatives
+  USE_EXTRA_THERMO := TRUE
+endif
+
 ifeq ($(USE_EXTRA_THERMO), TRUE)
   DEFINES += -DEXTRA_THERMO
 endif
@@ -124,11 +134,18 @@ EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 # self-consistent NSE solver for a network
 ifeq ($(USE_NSE_NET), TRUE)
      DEFINES += -DNSE_NET
+     DEFINES += -DNSE
 
      EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
 
+# we can't have both NSE solvers
+ifeq ($(USE_NSE_TABLE), TRUE)
+  ifeq ($(USE_NSE_NET), TRUE)
+    $(error USE_NSE_TABLE and USE_NSE_NET cannot be used together)
+  endif
+endif
 
 clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
