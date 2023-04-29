@@ -222,11 +222,9 @@ void main_main ()
     aa_num_failed.copyToHost(&num_failed, 1);
     Gpu::synchronize();
 
-#ifndef AMREX_USE_GPU
     if (num_failed > 0) {
         amrex::Abort("Integration failed");
     }
-#endif
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors
