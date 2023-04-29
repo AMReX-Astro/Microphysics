@@ -112,7 +112,7 @@ void main_main ()
     // time = starting time in the simulation
     Real time = 0.0_rt;
 
-    // How Boxes are distrubuted among MPI processes
+    // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs

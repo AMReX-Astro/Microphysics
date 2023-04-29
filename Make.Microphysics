@@ -1,6 +1,9 @@
 AMREX_HOME ?= /path/to/amrex
 MICROPHYSICS_HOME ?= /path/to/Castro
 
+# use our .clang-tidy with the AMReX USE_CLANG_TIDY=TRUE build
+CLANG_TIDY_CONFIG_FILE := $(MICROPHYSICS_HOME)/.clang-tidy
+
 # default is not to compile with CUDA
 USE_CUDA ?= FALSE
 
@@ -196,6 +199,7 @@ $(objEXETempDir)/AMReX_buildInfo.o: .FORCE
           --link_flags "$(LDFLAGS)" --libraries "$(libraries)" \
           --MODULES "$(MNAMES)" $(EXTRA_BUILD_INFO) \
           --GIT "$(TOP) $(AMREX_HOME) $(MICROPHYSICS_HOME)"
+	@if [ ! -d $(objEXETempDir) ]; then mkdir -p $(objEXETempDir); fi
 	$(SILENT) $(CCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $(CXXEXEFLAGS) AMReX_buildInfo.cpp -o $(objEXETempDir)/AMReX_buildInfo.o
 	$(SILENT) $(RM) AMReX_buildInfo.cpp
 

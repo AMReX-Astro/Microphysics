@@ -77,11 +77,8 @@ int dvstep (burn_t& state, dvode_t& vstate)
     const Real THRESH = 1.5e0_rt;
 
     Real CNQUOT, DDN, DSM, DUP, TOLD;
-    Real ETAQ, ETAQM1, ETAQP1, FLOTL, R;
+    Real FLOTL, R;
     int NCF, NFLAG;
-
-    ETAQ = 1.0_rt;
-    ETAQM1 = 1.0_rt;
 
     int kflag = 0;
     TOLD = vstate.tn;
@@ -100,13 +97,13 @@ int dvstep (burn_t& state, dvode_t& vstate)
         if (vstate.NEWQ < vstate.NQ) {
             dvjust(-1, vstate);
             vstate.NQ = vstate.NEWQ;
-            vstate.L = vstate.NQ + 1;
+            vstate.L = static_cast<short>(vstate.NQ + 1);
             vstate.NQWAIT = vstate.L;
         }
         else if (vstate.NEWQ > vstate.NQ) {
             dvjust(1, vstate);
             vstate.NQ = vstate.NEWQ;
-            vstate.L = vstate.NQ + 1;
+            vstate.L = static_cast<short>(vstate.NQ + 1);
             vstate.NQWAIT = vstate.L;
         }
 
@@ -492,10 +489,12 @@ int dvstep (burn_t& state, dvode_t& vstate)
 
     // Compute ratio of new H to current H at the current order.
     FLOTL = vstate.L;
-    ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
+    Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
-        ETAQM1 = 0.0_rt;
+
+        Real ETAQM1{0.0_rt};
+
         if (vstate.NQ != 1) {
             // Compute ratio of new H to current H at the current order less one.
             DDN = 0.0_rt;
@@ -506,7 +505,8 @@ int dvstep (burn_t& state, dvode_t& vstate)
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
-        ETAQP1 = 0.0_rt;
+        Real ETAQP1{0.0_rt};
+
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
             CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
@@ -524,21 +524,21 @@ int dvstep (burn_t& state, dvode_t& vstate)
         if (ETAQ < ETAQP1) {
             if (ETAQP1 > ETAQM1) {
                 vstate.ETA = ETAQP1;
-                vstate.NEWQ = vstate.NQ + 1;
+                vstate.NEWQ = static_cast<short>(vstate.NQ + 1);
                 for (int i = 1; i <= VODE_NEQS; ++i) {
                     vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
             }
             else {
                 vstate.ETA = ETAQM1;
-                vstate.NEWQ = vstate.NQ - 1;
+                vstate.NEWQ = static_cast<short>(vstate.NQ - 1);
             }
             already_set_eta = true;
         }
 
         if (ETAQ < ETAQM1 && !already_set_eta) {
             vstate.ETA = ETAQM1;
-            vstate.NEWQ = vstate.NQ - 1;
+            vstate.NEWQ = static_cast<short>(vstate.NQ - 1);
             already_set_eta = true;
         }
 

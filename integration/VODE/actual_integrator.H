@@ -78,7 +78,7 @@ void actual_integrator (burn_t& state, Real dt)
     // this in case we failed in our burn here because we entered NSE
 
 #ifdef AUX_THERMO
-    // need to sync the auxilary data up with the new mass fractions
+    // need to sync the auxiliary data up with the new mass fractions
     set_aux_comp_from_X(state);
 #endif
 

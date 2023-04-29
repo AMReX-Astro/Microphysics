@@ -212,6 +212,12 @@ void init_nse_net() {
   }
 #endif
 
+  // make sure nse_molar_independent is used if nse_skip_molar is enabled
+
+  if (nse_skip_molar) {
+    nse_molar_independent = true;
+  }
+  
   NSE_INDEX::initialized = true;
 }
 
@@ -320,7 +326,9 @@ T get_nse_state(const T& state)
 
   nse_state.T = T_in;
   nse_state.rho = state.rho;
-
+  nse_state.mu_p = state.mu_p;
+  nse_state.mu_n = state.mu_n;
+  
   return nse_state;
 }
 

@@ -891,7 +891,7 @@ void chabrier1998 (const plasma_state_t& state,
   }
   
   // Now we add quantum correction terms discussed in Alastuey 1978.
-  // Notice in Alastuey 1978, they have a differnt classical term,
+  // Notice in Alastuey 1978, they have a different classical term,
   // which is implemented in the strong screening limit of our screen5 routine.
 
   // See Wallace1982, Eq. A13

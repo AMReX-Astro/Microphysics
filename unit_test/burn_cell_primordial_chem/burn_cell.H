@@ -121,8 +121,8 @@ void burn_cell_c()
     state_over_time << std::setw(15) << "Density";
     state_over_time << std::setw(15) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
-    std::string element = short_spec_names_cxx[x];
-    state_over_time << std::setw(15) << element;
+        const std::string& element = short_spec_names_cxx[x];
+        state_over_time << std::setw(15) << element;
     }
     state_over_time << std::endl;
 

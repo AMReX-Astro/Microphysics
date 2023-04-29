@@ -38,7 +38,7 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, [[maybe_
     // network
 
     // Fix the state as necessary -- this ensures that the mass
-    // fractions that enter are valud (and optionally normalized)
+    // fractions that enter are valid (and optionally normalized)
 
     clean_state(int_state);
 
