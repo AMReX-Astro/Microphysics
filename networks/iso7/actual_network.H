@@ -1,5 +1,5 @@
-#ifndef _actual_network_H_
-#define _actual_network_H_
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 #define NEW_NETWORK_IMPLEMENTATION
 
@@ -250,6 +250,8 @@ namespace RHS {
             data.exponent_B = 1;
             data.exponent_D = 1;
 
+            data.rate_can_be_tabulated = 0;
+
             data.additional_reaction_1 = Ca40_He4_to_Ti44;
             break;
 
@@ -260,53 +262,47 @@ namespace RHS {
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const Real& rho, const tf_t& tf, const Real& y_e,
-                                   const Real& eta, const Array1D<Real, 1, NumSpec>& y,
-                                   Real& fr, Real& frdt, Real& rr, Real& rrdt)
+    void evaluate_analytical_rate (const rhs_state_t& state, rate_t& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == C12_He4_to_O16) {
-            rate_c12ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_c12ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == He4_He4_He4_to_C12) {
-            rate_triplealf(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_triplealf(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == C12_C12_to_Ne20_He4) {
-            rate_c12c12(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == C12_O16_to_Mg24_He4) {
-            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == C12_O16_to_Si28) {
-            rate_c12o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == O16_O16_to_Si28_He4) {
-            rate_o16o16(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
-            rate_o16ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_o16ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == Ne20_He4_to_Mg24) {
-            rate_ne20ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_ne20ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == Mg24_He4_to_Si28) {
-            rate_mg24ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_mg24ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == Ca40_He4_to_Ti44) {
-            rate_ca40ag(tf, 1.0_rt, fr, frdt, rr, rrdt);
+            rate_ca40ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
     }
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const Real& rho, const tf_t& tf, const Real& y_e,
-                           const Real& eta, const Array1D<Real, 1, NumSpec>& y,
-                           Real& fr, Real& frdt, Real& rr, Real& rrdt,
-                           Real& fr1, Real& fr1dt, Real& rr1, Real& rr1dt,
-                           Real& fr2, Real& fr2dt, Real& rr2, Real& rr2dt,
-                           Real& fr3, Real& fr3dt, Real& rr3, Real& rr3dt)
+    void postprocess_rate (const rhs_state_t& state, rate_t& rates,
+                           rate_t& rates1, [[maybe_unused]] rate_t& rates2, [[maybe_unused]] rate_t& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -314,29 +310,29 @@ namespace RHS {
         if constexpr (rate == Si28_7He4_to_Ni56) {
             // first rate corresponds to Ca40_He4_to_Ti44
 
-            if (tf.t9 > 2.5_rt && y(C12) + y(O16) <= 4.0e-3_rt) {
+            if (state.tf.t9 > 2.5_rt && state.y(C12) + state.y(O16) <= 4.0e-3_rt) {
 
-                Real t992  = tf.t972 * tf.t9;
+                Real t992  = state.tf.t972 * state.tf.t9;
                 Real t9i92 = 1.0_rt / t992;
 
-                Real yeff_ca40   = t9i92 * std::exp(239.42_rt * tf.t9i - 74.741_rt);
-                Real yeff_ca40dt = -yeff_ca40 * (239.42_rt * tf.t9i2 + 4.5_rt * tf.t9i);
+                Real yeff_ca40   = t9i92 * std::exp(239.42_rt * state.tf.t9i - 74.741_rt);
+                Real yeff_ca40dt = -yeff_ca40 * (239.42_rt * state.tf.t9i2 + 4.5_rt * state.tf.t9i);
 
-                Real yeff_ti44   = t992  * std::exp(-274.12_rt * tf.t9i + 74.914_rt);
-                Real yeff_ti44dt = yeff_ti44*(274.12_rt * tf.t9i2 + 4.5_rt * tf.t9i);
+                Real yeff_ti44   = t992  * std::exp(-274.12_rt * state.tf.t9i + 74.914_rt);
+                Real yeff_ti44dt = yeff_ti44*(274.12_rt * state.tf.t9i2 + 4.5_rt * state.tf.t9i);
 
-                Real denom = std::pow(rho * y(He4), 3.0_rt);
+                Real denom = std::pow(state.rho * state.y(He4), 3.0_rt);
 
-                fr   = yeff_ca40 * denom * fr1;
-                frdt = (yeff_ca40dt * fr1 + yeff_ca40 * fr1dt) * denom * 1.0e-9_rt;
+                rates.fr   = yeff_ca40 * denom * rates1.fr;
+                rates.frdt = (yeff_ca40dt * rates1.fr + yeff_ca40 * rates1.frdt) * denom * 1.0e-9_rt;
 
                 Real zz = 1.0_rt / denom;
-                rr = amrex::min(1.0e10_rt, yeff_ti44 * rr1 * zz);
+                rates.rr = amrex::min(1.0e10_rt, yeff_ti44 * rates1.rr * zz);
 
-                if (rr == 1.0e10_rt) {
-                    rrdt = 0.0_rt;
+                if (rates.rr == 1.0e10_rt) {
+                    rates.rrdt = 0.0_rt;
                 } else {
-                    rrdt = (yeff_ti44dt * rr1 + yeff_ti44 * rr1dt) * zz * 1.0e-9_rt;
+                    rates.rrdt = (yeff_ti44dt * rates1.rr + yeff_ti44 * rates1.rrdt) * zz * 1.0e-9_rt;
                 }
             }
         }

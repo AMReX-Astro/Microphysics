@@ -72,3 +72,7 @@ use_number_densities     logical          .false.
 
 # flag for tuning on the subtraction of internal energy
 subtract_internal_energy   logical       .true.
+
+# SDC iteration tolerance adjustment factor
+sdc_burn_tol_factor          real         1.d0
+

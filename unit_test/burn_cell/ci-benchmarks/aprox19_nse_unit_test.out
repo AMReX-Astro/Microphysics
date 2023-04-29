@@ -1,0 +1,99 @@
+AMReX (23.01-12-ga05384c0b7c4) initialized
+starting the single zone burn...
+reading the NSE table (C++) ...
+Maximum Time (s): 0.01
+State Density (g/cm^3): 10000000
+State Temperature (K): 5000000000
+Mass Fraction (H1): 0.1
+Mass Fraction (He3): 0.025
+Mass Fraction (He4): 0.8
+Mass Fraction (C12): 0.025
+Mass Fraction (N14): 0.025
+Mass Fraction (O16): 0.025
+Mass Fraction (Ne20): 0
+Mass Fraction (Mg24): 0
+Mass Fraction (Si28): 0
+Mass Fraction (S32): 0
+Mass Fraction (Ar36): 0
+Mass Fraction (Ca40): 0
+Mass Fraction (Ti44): 0
+Mass Fraction (Cr48): 0
+Mass Fraction (Fe52): 0
+Mass Fraction (Fe54): 0
+Mass Fraction (Ni56): 0
+Mass Fraction (n): 0
+Mass Fraction (p): 0
+RHS at t = 0
+    H1 5.563858283e+10
+   He3 -5.565596198e+10
+   He4 2.782612088e+10
+   C12 -8798734.915
+   N14 7453810.482
+   O16 -17918.02694
+  Ne20 1315422.301
+  Mg24 561.51192
+  Si28 565.7230082
+   S32 0.4807588352
+  Ar36 4.568994869e-24
+  Ca40 9.507837264e-24
+  Ti44 -5.79502284e-24
+  Cr48 1.218841096e-24
+  Fe52 1.81524092e-24
+  Fe54 5.809449792e-24
+  Ni56 -4.649371884e-24
+     n 6.323463259e-06
+     p 6.323463259e-06
+burn entered NSE during integration (after 280 steps), zone = (0, 0, 0)
+recovering burn failure in NSE, zone = (0, 0, 0)
+------------------------------------
+successful? 1
+ - Hnuc = 2.552804555e+21
+ - added e = 2.552804555e+19
+ - final T = 1.060964458e+10
+------------------------------------
+e initial = 1.516256085e+18
+e final =   2.704430164e+19
+------------------------------------
+new mass fractions: 
+H1 0.0001057720428
+He3 1.320599831e-10
+He4 0.06412077048
+C12 1.016297715e-11
+N14 9.999991592e-31
+O16 9.999991592e-31
+Ne20 3.890552725e-17
+Mg24 9.999991592e-31
+Si28 1.194568144e-21
+S32 1.956720348e-25
+Ar36 4.189728368e-29
+Ca40 9.999991592e-31
+Ti44 3.531480561e-30
+Cr48 9.999991592e-31
+Fe52 9.999991592e-31
+Fe54 9.999991592e-31
+Ni56 9.999991592e-31
+n 0.4665061227
+p 0.4692673346
+------------------------------------
+species creation rates: 
+omegadot(H1): -9.989422796
+omegadot(He3): -2.499999987
+omegadot(He4): -73.58792295
+omegadot(C12): -2.499999999
+omegadot(N14): -2.5
+omegadot(O16): -2.5
+omegadot(Ne20): 3.890552725e-15
+omegadot(Mg24): -8.408373504e-35
+omegadot(Si28): 1.194568143e-19
+omegadot(S32): 1.956710348e-23
+omegadot(Ar36): 4.089728368e-27
+omegadot(Ca40): -8.408373504e-35
+omegadot(Ti44): 2.531480561e-28
+omegadot(Cr48): -8.408373504e-35
+omegadot(Fe52): -8.408373504e-35
+omegadot(Fe54): -8.408373504e-35
+omegadot(Ni56): -8.408373504e-35
+omegadot(n): 46.65061227
+omegadot(p): 46.92673346
+number of steps taken: 27384
+AMReX (23.01-12-ga05384c0b7c4) finalized

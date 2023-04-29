@@ -1,5 +1,5 @@
-#ifndef _eos_override_H_
-#define _eos_override_H_
+#ifndef EOS_OVERRIDE_H
+#define EOS_OVERRIDE_H
 
 #include <eos_type.H>
 

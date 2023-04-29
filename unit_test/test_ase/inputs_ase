@@ -1,0 +1,20 @@
+unit_test.small_temp = 1.e5
+unit_test.small_dens = 1.e5
+
+unit_test.density = 1.e7
+unit_test.temperature = 6.e9
+unit_test.ye = 0.5
+
+unit_test.X1 = 0.0
+unit_test.X2  = 0.5
+unit_test.X3  = 0.0
+unit_test.X4  = 0.0
+unit_test.X5  = 0.0
+unit_test.X6  = 0.0
+unit_test.X7  = 0.0
+unit_test.X8  = 0.5
+unit_test.X9  = 0.0
+unit_test.X10 = 0.0
+unit_test.X11 = 0.0
+unit_test.X12 = 0.0
+unit_test.X13 = 0.0

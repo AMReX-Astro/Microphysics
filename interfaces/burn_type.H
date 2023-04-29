@@ -1,5 +1,5 @@
-#ifndef _burn_type_H_
-#define _burn_type_H_
+#ifndef BURN_TYPE_H
+#define BURN_TYPE_H
 
 #include <iomanip>
 
@@ -37,7 +37,7 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-// these indicies represent the order that the conserved state comes
+// these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
 // they also represent the order of the advective sources
@@ -144,16 +144,19 @@ struct burn_t
   int sdc_iter;
   int num_sdc_iters;
 
+#endif
+
   // for drive_initial_convection, we will fix T during the
   // integration to a passed in value.  We will interpret a positive
   // T_fixed as setting this feature.
-  Real T_fixed;
-
-#endif
+  Real T_fixed{-1.0};
 
   // all coupling types need the specific heats to transform the
   // reaction Jacobian elements from T to e
   Real cv;
+
+  // dx is useful for estimating timescales for equilibriation
+  Real dx;
 
 #ifdef TRUE_SDC
   Real E_var;
@@ -172,7 +175,11 @@ struct burn_t
   Real mu_p;
   Real mu_n;
 #endif
-  
+
+#ifdef NSE
+  bool nse;
+#endif
+
   // diagnostics
   int n_rhs, n_jac, n_step;
 
@@ -188,14 +195,14 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";
-  for (int n = 0; n < NumSpec; ++n) {
-    o << burn_state.xn[n] << " ";
+  for (double X : burn_state.xn) {
+    o << X << " ";
   }
   o << std::endl;
 #if NAUX_NET > 0
   o << "aux = ";
-  for (int n = 0; n < NumAux; ++n) {
-    o << burn_state.aux[n] << " ";
+  for (double A : burn_state.aux) {
+    o << A << " ";
   }
   o << std::endl;
 #endif
@@ -205,19 +212,37 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
 #endif
   o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
+
   o << "y[SFS:] = ";
   for (int n = 0; n < NumSpec; n++) {
       o << burn_state.y[SFS+n] << " ";
   }
   o << std::endl;
 
+#if NAUX_NET > 0
+  o << "y[SFX:] = ";
+  for (int n = 0; n < NumAux; n++) {
+      o << burn_state.y[SFX+n] << " ";
+  }
+  o << std::endl;
+#endif
+
   o << "ydot_a[SRHO] = " << burn_state.ydot_a[SRHO] << std::endl;
   o << "ydot_a[SEINT] = " << burn_state.ydot_a[SEINT] << std::endl;
+
   o << "ydot_a[SFS:] = ";
   for (int n = 0; n < NumSpec; n++) {
       o << burn_state.ydot_a[SFS+n] << " ";
   }
   o << std::endl;
+
+#if NAUX_NET > 0
+  o << "ydot_a[SFX:] = ";
+  for (int n = 0; n < NumAux; n++) {
+      o << burn_state.ydot_a[SFX+n] << " ";
+  }
+  o << std::endl;
+#endif
 #endif
   return o;
 }

@@ -1,20 +1,23 @@
-#ifndef _vode_dvode_H_
-#define _vode_dvode_H_
+#ifndef VODE_DVODE_H
+#define VODE_DVODE_H
 
 #include <vode_type.H>
 #include <vode_dvhin.H>
 #include <vode_dvstep.H>
 #ifdef STRANG
-#include <vode_rhs.H>
+#include <integrator_rhs_strang.H>
 #endif
 #ifdef SIMPLIFIED_SDC
-#include <vode_rhs_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
 #endif
 #ifdef TRUE_SDC
 #include <vode_rhs_true_sdc.H>
 #endif
-#ifdef NSE
-#include <nse.H>
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -185,8 +188,6 @@ int dvode (burn_t& state, dvode_t& vstate)
 
        if (TOLSF > 1.0_rt) {
 
-           TOLSF *= 2.0_rt;
-
            if (vstate.NST == 0) {
 #ifndef AMREX_USE_GPU
                std::cout << Font::Bold << FGColor::Red << "DVODE: too much accuracy requested at start of integration" << ResetDisplay << std::endl;
@@ -272,7 +273,7 @@ int dvode (burn_t& state, dvode_t& vstate)
 #endif
 #ifdef SIMPLIFIED_SDC
            burn_t burn_state_temp = state;
-           vode_to_burn(vstate.tn, vstate, burn_state_temp);
+           int_to_burn(vstate.tn, vstate, burn_state_temp);
 
            if (in_nse(burn_state_temp)) {
                istate = -100;

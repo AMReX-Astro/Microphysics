@@ -118,7 +118,7 @@ void main_main ()
     // time = starting time in the simulation
     Real time = 0.0;
 
-    // How Boxes are distrubuted among MPI processes
+    // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
@@ -165,7 +165,7 @@ void main_main ()
                         amrex::max(xn[n], 1.e-10_rt);
                 }
 
-                // initialize the auxillary state (in particular, for NSE)
+                // initialize the auxiliary state (in particular, for NSE)
 #ifdef AUX_THERMO
                 eos_t eos_state;
                 for (int n = 0; n < NumSpec; n++) {
@@ -191,43 +191,32 @@ void main_main ()
     AsyncArray<int> aa_num_failed(&num_failed, 1);
     int* num_failed_d = aa_num_failed.data();
 
+    ValLocPair<int, burn_t> r;
+
     {
         BL_PROFILE("do_react");
 
         // Do the reactions
-#ifdef _OPENMP
-#pragma omp parallel
-#endif
-        for (MFIter mfi(state, tile_size); mfi.isValid(); ++mfi)
+        auto const& ma = state.arrays();
+        auto const& ia = integrator_n_rhs.arrays();
+
+        r = amrex::ParReduce(TypeList<ReduceOpMax>{}, TypeList<ValLocPair<int, burn_t>>{}, state,
+        [=] AMREX_GPU_DEVICE (int box_no, int i, int j, int k) -> GpuTuple<ValLocPair<int, burn_t>>
         {
-            const Box& bx = mfi.tilebox();
 
-            auto s = state.array(mfi);
-            auto n_rhs = integrator_n_rhs.array(mfi);
+            Array4<Real> const& s = ma[box_no];
+            auto n_rhs = ia[box_no];
 
-            amrex::ParallelFor(bx,
-            [=] AMREX_GPU_DEVICE (int i, int j, int k)
-            {
-                bool success = do_react(i, j, k, s, n_rhs, vars);
+            burn_t burn_state;
+            bool success = do_react(i, j, k, s, burn_state, n_rhs, vars);
 
-                if (!success) {
-                    Gpu::Atomic::Add(num_failed_d, 1);
-                }
-            });
-
-#ifndef AMREX_USE_GPU
-            if (print_every_nrhs != 0) {
-                auto int_state = integrator_n_rhs.array(mfi);
-
-                amrex::ParallelFor(bx,
-                [=] AMREX_GPU_DEVICE (int i, int j, int k)
-                {
-                    std::cout << " nrhs for " << i << " " << j << " " << k << " " <<int_state(i,j,k,0) << std::endl;
-                });
+            if (!success) {
+                Gpu::Atomic::Add(num_failed_d, 1);
             }
-#endif
 
-        }
+            return {ValLocPair<int, burn_t>{n_rhs(i,j,k,0), burn_state}};
+        });
+
     }
 
     aa_num_failed.copyToHost(&num_failed, 1);
@@ -245,14 +234,6 @@ void main_main ()
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
-    // these operations are over all processors
-    int n_rhs_min = integrator_n_rhs.min(0);
-    int n_rhs_max = integrator_n_rhs.max(0);
-    long n_rhs_sum = integrator_n_rhs.sum(0);
-
-    int n_step_min = integrator_n_rhs.min(1);
-    int n_step_max = integrator_n_rhs.max(1);
-    long n_step_sum = integrator_n_rhs.sum(1);
 
     // get the name of the integrator from the build info functions
     // written at compile time.  We will append the name of the
@@ -277,6 +258,17 @@ void main_main ()
 
     write_job_info(prefix + name + integrator + language);
 
+    // output stats on the number of RHS calls
+
+    // these operations are over all processors
+    int n_rhs_min = integrator_n_rhs.min(0);
+    int n_rhs_max = integrator_n_rhs.max(0);
+    long n_rhs_sum = integrator_n_rhs.sum(0);
+
+    int n_step_min = integrator_n_rhs.min(1);
+    int n_step_max = integrator_n_rhs.max(1);
+    long n_step_sum = integrator_n_rhs.sum(1);
+
     if (ParallelDescriptor::IOProcessor()) {
 
         // Tell the I/O Processor to write out the "run time"
@@ -291,6 +283,14 @@ void main_main ()
         std::cout << "avg number of steps: " << n_step_sum / (n_cell*n_cell*n_cell) << std::endl;
         std::cout << "max number of steps: " << n_step_max << std::endl;
 
+    }
+
+    // output the state that took the most time
+
+    if (ParallelDescriptor::IOProcessor()) {
+        std::ofstream of("zone_state.out");
+        of << r.index << std::endl;
+        of.close();
     }
 
 }

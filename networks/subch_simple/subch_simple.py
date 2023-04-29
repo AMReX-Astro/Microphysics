@@ -5,6 +5,8 @@
 import pynucastro as pyna
 from pynucastro.networks import AmrexAstroCxxNetwork
 
+DO_DERIVED_RATES = False
+
 def get_library():
 
     reaclib_lib = pyna.ReacLibLibrary()
@@ -19,16 +21,60 @@ def get_library():
 
     # in this list, we have the reactants, the actual reactants,
     # and modified products that we will use instead
-    other_rates = [(("c12", "c12"), ("mg23", "n"), ("mg24")),
-                   (("o16", "o16"), ("s31", "n"), ("s32")),
-                   (("c12", "o16"), ("si27", "n"), ("si28"))]
+    other_rates = [("c12(c12,n)mg23", "mg24"),
+                   ("o16(o16,n)s31", "s32"),
+                   ("o16(c12,n)si27", "si28")]
 
-    for r, p, mp in other_rates:
-        rfilter = pyna.rates.RateFilter(reactants=r, products=p)
-        _library = reaclib_lib.filter(rfilter)
-        r = _library.get_rates()[0]
-        r.modify_products(mp)
-        subch += _library
+    for r, mp in other_rates:
+        _r = reaclib_lib.get_rate_by_name(r)
+        _r.modify_products(mp)
+        subch += pyna.Library(rates=[_r])
+
+    # finally, the aprox nets don't include the reverse rates for
+    # C12+C12, C12+O16, and O16+O16, so remove those
+
+    for r in subch.get_rates():
+        if sorted(r.products) in [[pyna.Nucleus("c12"), pyna.Nucleus("c12")],
+                                  [pyna.Nucleus("c12"), pyna.Nucleus("o16")],
+                                  [pyna.Nucleus("o16"), pyna.Nucleus("o16")]]:
+            subch.remove_rate(r)
+
+    # C12+Ne20 and reverse
+    # (a,g) links between Na23 and Al27
+    # (a,g) links between Al27 and P31
+
+    rates_to_remove = ["p31(p,c12)ne20",
+                       "si28(a,c12)ne20",
+                       "ne20(c12,p)p31",
+                       "ne20(c12,a)si28",
+                       "na23(a,g)al27",
+                       "al27(g,a)na23",
+                       "al27(a,g)p31",
+                       "p31(g,a)al27"]
+
+    for r in rates_to_remove:
+        print("removing: ", r)
+        _r = subch.get_rate_by_name(r)
+        subch.remove_rate(_r)
+
+    if DO_DERIVED_RATES:
+        rates_to_derive = []
+        for r in subch.get_rates():
+            if r.reverse:
+                # this rate was computed using detailed balance, regardless
+                # of whether Q < 0 or not.  We want to remove it and then
+                # recompute it
+                rates_to_derive.append(r)
+
+        # now for each of those derived rates, look to see if the pair exists
+
+        for r in rates_to_derive:
+            fr = subch.get_rate_by_nuclei(r.products, r.reactants)
+            if fr:
+                print(f"modifying {r} from {fr}")
+                subch.remove_rate(r)
+                d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+                subch.add_rate(d)
 
     return subch
 
@@ -38,8 +84,8 @@ def doit():
 
     # these are the rates that we are going to allow to be optionally
     # zeroed
-    r1 = subch.get_rate("p_c12__n13")
-    r2 = subch.get_rate("he4_n13__p_o16")
+    r1 = subch.get_rate_by_name("c12(p,g)n13")
+    r2 = subch.get_rate_by_name("n13(he4,p)o16")
 
     net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=True, disable_rate_params=[r1, r2])
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
@@ -47,70 +93,6 @@ def doit():
 
     # finally, the aprox nets don't include the reverse rates for
     # C12+C12, C12+O16, and O16+O16, so remove those
-
-    rates_to_remove = []
-    for r in net.rates:
-        if sorted(r.products) in [[pyna.Nucleus("c12"), pyna.Nucleus("c12")],
-                                  [pyna.Nucleus("c12"), pyna.Nucleus("o16")],
-                                  [pyna.Nucleus("o16"), pyna.Nucleus("o16")]]:
-            rates_to_remove.append(r)
-
-        # Q = 1.9
-        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")])):
-        #     rates_to_remove.append(r)
-
-        # C12+Ne20 and reverse
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("p"), pyna.Nucleus("p31")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("si28")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("c12"), pyna.Nucleus("ne20")])):
-            rates_to_remove.append(r)
-
-        # (a,g) links between Na23 and Al27
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("na23")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("al27")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("na23")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("al27")])):
-            rates_to_remove.append(r)
-
-        # (a,g) links between Al27 and P31
-        if (sorted(r.reactants) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("al27")]) and
-            sorted(r.products) == sorted([pyna.Nucleus("p31")])):
-            rates_to_remove.append(r)
-
-        if (sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("al27")]) and
-            sorted(r.reactants) == sorted([pyna.Nucleus("p31")])):
-            rates_to_remove.append(r)
-
-        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("al27")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("mg24")])):
-        #     rates_to_remove.append(r)
-
-        # If (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("ne21")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("f18")])):
-        #     rates_to_remove.append(r)
-
-        # if (sorted(r.reactants) == sorted([pyna.Nucleus("p"), pyna.Nucleus("o16")]) and
-        #     sorted(r.products) == sorted([pyna.Nucleus("he4"), pyna.Nucleus("n13")])):
-        #     rates_to_remove.append(r)
-
-    for r in rates_to_remove:
-        print("removing: ", r)
-
-    net.remove_rates(rates_to_remove)
 
     print(f"number of nuclei: {len(net.unique_nuclei)}")
     print(f"number of rates: {len(net.rates)}")

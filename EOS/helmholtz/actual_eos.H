@@ -1,5 +1,5 @@
-#ifndef _actual_eos_H_
-#define _actual_eos_H_
+#ifndef ACTUAL_EOS_H
+#define ACTUAL_EOS_H
 
 #include <string>
 #include <iostream>
@@ -13,6 +13,7 @@
 #include <eos_data.H>
 #include <actual_eos_data.H>
 #include <cmath>
+#include <vector>
 
 // Frank Timmes Helmholtz based Equation of State
 // http://cococubed.asu.edu/
@@ -676,7 +677,7 @@ void apply_coulomb_corrections (T& state)
 
     // uniform background corrections only
     // from yakovlev & shalybkov 1989
-    // lami is the average ion seperation
+    // lami is the average ion separation
     // plasg is the plasma coupling parameter
 
     Real ytot1 = 1.0e0_rt / state.abar;
@@ -1435,10 +1436,10 @@ void actual_eos_init ()
 
     }
 
-    amrex::ParallelDescriptor::Bcast(&f_local[0],    9 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&dpdf_local[0], 4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&ef_local[0],   4 * imax * jmax);
-    amrex::ParallelDescriptor::Bcast(&xf_local[0],   4 * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(f_local.data(),    static_cast<size_t>(9 * imax * jmax));
+    amrex::ParallelDescriptor::Bcast(dpdf_local.data(), static_cast<size_t>(4 * imax * jmax));
+    amrex::ParallelDescriptor::Bcast(ef_local.data(),   static_cast<size_t>(4 * imax * jmax));
+    amrex::ParallelDescriptor::Bcast(xf_local.data(),   static_cast<size_t>(4 * imax * jmax));
 
     // now copy into managed memory
     int idx = 0;
