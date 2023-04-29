@@ -5,7 +5,7 @@ essentially the network described in Appendix C of Wallace & Woosley,
 ApJS 45, 389 (1981) but with updated reaction rates from ReacLib.
 
 The default setup is for burning in a neutron star atmosphere.  If you
-want a setup at lower density, you need to change the Lweak paramter
+want a setup at lower density, you need to change the Lweak parameter
 in actual_rhs.f90.
 
 This network was used in:
