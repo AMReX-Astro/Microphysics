@@ -181,7 +181,7 @@ network.  In particular, it can attain a lower <span class="math notranslate noh
 composition quantities in the EOS directly from <code class="docutils literal notranslate"><span class="pre">eos_state.aux[]</span></code>
 instead of from <code class="docutils literal notranslate"><span class="pre">eos_state.xn[]</span></code>.  The <code class="docutils literal notranslate"><span class="pre">AUX_THERMO</span></code> preprocessor
 variable is enabled in this case, and the equations of state interpret
-this to use the auxillary data for the composition.  This is described in <a class="reference internal" href="eos.html#aux-eos-comp"><span class="std std-ref">Auxillary Composition</span></a>.</p>
+this to use the auxiliary data for the composition.  This is described in <a class="reference internal" href="eos.html#aux-eos-comp"><span class="std std-ref">Auxiliary Composition</span></a>.</p>
 </section>
 <section id="nse-table-outputs">
 <h3>NSE Table Outputs<a class="headerlink" href="#nse-table-outputs" title="Permalink to this heading"></a></h3>
@@ -191,7 +191,7 @@ resulting from the full 125 nuclei network.   It also provides a set of 19
 <span class="math notranslate nohighlight">\(X_k\)</span> that map into the isotopes carried by <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>.</p>
 <p>These three quantities are stored as <code class="docutils literal notranslate"><span class="pre">aux</span></code> data in the network and
 are indexed as <code class="docutils literal notranslate"><span class="pre">iye</span></code>, <code class="docutils literal notranslate"><span class="pre">iabar</span></code>, and <code class="docutils literal notranslate"><span class="pre">ibea</span></code>.  Additionally, when
-coupling to hydrodynamics, we need to advect these auxillary
+coupling to hydrodynamics, we need to advect these auxiliary
 quantities.</p>
 <p>For Strang split coupling of hydro and reactions, <span class="math notranslate nohighlight">\(DX_k/Dt = 0\)</span>,
 and our evolution equations are:</p>
@@ -201,7 +201,7 @@ and our evolution equations are:</p>
 \frac{D}{Dt} \frac{1}{\bar{A}} &amp;= - \frac{1}{\bar{A}^2} \frac{D\bar{A}}{Dt} = \sum_k \frac{1}{A_k} \frac{DX_k}{Dt} = 0 \rightarrow \frac{D\bar{A}}{Dt} = 0 \\
 \frac{D}{Dt} \left (\frac{B}{A} \right ) &amp;= \sum_k \frac{B_k}{A_k} \frac{DX_k}{Dt} = 0
 \end{align*}\end{split}\]</div>
-<p>Therefore each of these auxillar equations obeys an advection equation
+<p>Therefore each of these auxiliary equations obeys an advection equation
 in the hydro part of the advancement.</p>
 </section>
 <section id="nse-flow">
@@ -318,7 +318,7 @@ simulation cell.</p>
 \[\isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
 (\alpha, \gamma) \isotm{S}{32}\]</div>
 <p>The general approach to this is to start iterations from the heavy to the light nuclei to
-use them as the starting point of the cycle. Then the algorithmn checks if isotopes involved
+use them as the starting point of the cycle. Then the algorithm checks if isotopes involved
 in the network can actually form a cycle using the combination reactions above. If such cycle
 is formed, then we check the rates of these reactions to see if they satisfy the condition
 mention previously. If there are no isotope present in the network that would form
@@ -352,7 +352,7 @@ can be used to group the nuclei involved, which are:</p>
 <li><p>There are exactly two isotopes involved in reaction, <span class="math notranslate nohighlight">\(k\)</span>, that are not in the
 light-isotope-group. In this case, if the reaction passes the two criteria mentioned above,
 we merge the groups containing those two isotopes if they’re not yet in the same group.</p></li>
-<li><p>There is only one isotope involed in reaction, <span class="math notranslate nohighlight">\(k\)</span>, that is not in the
+<li><p>There is only one isotope involved in reaction, <span class="math notranslate nohighlight">\(k\)</span>, that is not in the
 light-isotope-group, which is not necessarily isotope <span class="math notranslate nohighlight">\(i\)</span> that passes the
 first criteria. In this case, we merge the isotope that is not in LIG into LIG.</p></li>
 </ul>
@@ -380,7 +380,7 @@ nse check:</p>
 the dependency on the cell size, <code class="docutils literal notranslate"><span class="pre">dx</span></code>, which calculates the sound crossing time, <code class="docutils literal notranslate"><span class="pre">t_s</span></code>.
 Naturally, we require the timescale of the rates to be smaller than <code class="docutils literal notranslate"><span class="pre">t_s</span></code> to ensure the
 states have time to achieve equilibrium. However, sometimes this check can be difficult
-to acheive, so we leave this as an option for the user to explore.</p></li>
+to achieve, so we leave this as an option for the user to explore.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_molar_independent</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file allows the user to use the nse mass
 fractions for nse check after the first check (the one that ensures we’re close enough
 to the nse mass fractions to get reasonable results) is passed. This allows the subsequent

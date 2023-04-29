@@ -68,7 +68,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and Modes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#auxillary-composition">Auxillary Composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#auxiliary-composition">Auxiliary Composition</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#initialization-and-cutoff-values">Initialization and Cutoff Values</a></li>
@@ -318,11 +318,11 @@ compile type (via C++ templating) for <code class="docutils literal notranslate"
 <p class="admonition-title">Note</p>
 <p>All of these modes require composition as an input.  Usually this is
 via the set of mass fractions, <code class="docutils literal notranslate"><span class="pre">eos_t.xn[]</span></code>, but if <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO</span></code>
-is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, then we instead use the auxillary quantities
+is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, then we instead use the auxiliary quantities
 stored in <code class="docutils literal notranslate"><span class="pre">eos_t.aux[]</span></code>.</p>
 </div>
-<section id="auxillary-composition">
-<span id="aux-eos-comp"></span><h3>Auxillary Composition<a class="headerlink" href="#auxillary-composition" title="Permalink to this heading"></a></h3>
+<section id="auxiliary-composition">
+<span id="aux-eos-comp"></span><h3>Auxiliary Composition<a class="headerlink" href="#auxiliary-composition" title="Permalink to this heading"></a></h3>
 <p>With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
 The auxiliary variables are</p>
 <ul>
