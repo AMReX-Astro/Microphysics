@@ -37,7 +37,7 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-// these indicies represent the order that the conserved state comes
+// these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
 // they also represent the order of the advective sources
@@ -175,7 +175,11 @@ struct burn_t
   Real mu_p;
   Real mu_n;
 #endif
-  
+
+#ifdef NSE
+  bool nse;
+#endif
+
   // diagnostics
   int n_rhs, n_jac, n_step;
 
@@ -191,14 +195,14 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";
-  for (int n = 0; n < NumSpec; ++n) {
-    o << burn_state.xn[n] << " ";
+  for (double X : burn_state.xn) {
+    o << X << " ";
   }
   o << std::endl;
 #if NAUX_NET > 0
   o << "aux = ";
-  for (int n = 0; n < NumAux; ++n) {
-    o << burn_state.aux[n] << " ";
+  for (double A : burn_state.aux) {
+    o << A << " ";
   }
   o << std::endl;
 #endif
