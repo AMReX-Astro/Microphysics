@@ -20,7 +20,7 @@ The equations we integrate to do a nuclear burn are:
    \frac{de}{dt} = f(\rho,X_k,T)
    :label: eq:enuc_integrate
 
-Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specifc
+Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specific
 nuclear energy created through reactions. Also needed are density :math:`\rho`,
 temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the 
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
@@ -79,7 +79,7 @@ The input is a ``burn_t``.
    corresponding to this input state through the equation of state
    before integrating.
 
-When integrating the system, we often need auxillary information to
+When integrating the system, we often need auxiliary information to
 close the system.  This is kept in the original ``burn_t`` that was
 passed into the integration routines.  For this reason, we often need
 to pass both the specific integrator's type (e.g. ``dvode_t``) and
@@ -93,7 +93,7 @@ The overall flow of the integrator is (using VODE as the example):
    ``dvode_t``.
 
 #. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
-   ``burn_t`` --- as noted above, the auxillary information that is
+   ``burn_t`` --- as noted above, the auxiliary information that is
    not part of the integration state will be obtained from the
    ``burn_t``.
 
@@ -109,7 +109,7 @@ The overall flow of the integrator is (using VODE as the example):
    Upon exit, ``burn_t burn_state.e`` is the energy *released* during
    the burn, and not the actual internal energy of the state.
 
-   Optionally, by settting ``integrator.subtract_internal_energy=0``
+   Optionally, by setting ``integrator.subtract_internal_energy=0``
    the output will be the total internal energy, including that released
    burning the burn.
 
@@ -386,7 +386,7 @@ For this investigation, it was assumed that a run with a tolerance of :math:`10^
 corresponded to an exact result,
 so it is used as the basis for the rest of the tests.
 From the figure, one can infer that the :math:`10^{-3}` and :math:`10^{-6}` tolerances
-do not yeild the most accurate results
+do not yield the most accurate results
 because their relative error values are fairly large.
 However, the test with a tolerance of :math:`10^{-9}` is accurate
 and not so low that it takes incredible amounts of computer time,

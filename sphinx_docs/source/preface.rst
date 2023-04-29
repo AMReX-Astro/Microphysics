@@ -16,7 +16,7 @@ currently deal with are the equation of state (EOS) and the nuclear
 burning network.
 
 Microphysics is not a stand-alone code. It is intended to be used in
-conjuction with a simulation code. At the moment, the interfaces and
+conjunction with a simulation code. At the moment, the interfaces and
 build stubs are compatible with the AMReX codes. In many cases we
 will provide test modules that demonstrate a minimal working example
 for how to run the modules (leveraging the AMReX build system). The
