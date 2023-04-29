@@ -303,7 +303,7 @@ This involves an EOS call and is the default behavior of the integration.
 
 If desired, the EOS call can be skipped and the temperature kept
 frozen over the entire time interval of the integration.  This is done
-bu setting ``integrator.call_eos_in_rhs = 0``.
+by setting ``integrator.call_eos_in_rhs = 0``.
 
 Note also that for the Jacobian, we need the specific heat, :math:`c_v`, since we
 usually calculate derivatives with respect to temperature (as this is the form
