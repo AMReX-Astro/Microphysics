@@ -17,7 +17,7 @@ typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
-// CCMXJ  = Threshhold on DRC for updating the Jacobian
+// CCMXJ  = Threshold on DRC for updating the Jacobian
 const amrex::Real CCMXJ = 0.2e0_rt;
 
 const amrex::Real HMIN = 0.0_rt;

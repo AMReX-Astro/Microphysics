@@ -677,7 +677,7 @@ void apply_coulomb_corrections (T& state)
 
     // uniform background corrections only
     // from yakovlev & shalybkov 1989
-    // lami is the average ion seperation
+    // lami is the average ion separation
     // plasg is the plasma coupling parameter
 
     Real ytot1 = 1.0e0_rt / state.abar;
