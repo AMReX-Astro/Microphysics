@@ -653,7 +653,7 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int get_pair_rate_index(const int& rate_index){
 
-  // This funciton finds the pair rate index given a rate.
+  // This function finds the pair rate index given a rate.
   // For example given forward rate index, return reverse rate index, vice versa
 
   int pair_rate_index = -1;
@@ -949,7 +949,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     merge_indices(2) = -1;
     fastest_t = std::numeric_limits<amrex::Real>::max();
 
-    // Find the fastest time scale of the avaliable reaction
+    // Find the fastest time scale of the available reaction
 
     for (int n = 1; n <= Rates::NumRates; ++n){
 
@@ -1002,7 +1002,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   }
 
   // We can do a further approximation where we use the NSE mass fractions
-  // instead of the current mass fractions. This makes the check soley dependent on
+  // instead of the current mass fractions. This makes the check solely dependent on
   // the thermodynamic condition.
   // Note we only do this after the first check, which should tell us whether
   // our current mass fractions are in the ballpark of NSE mass fractions.
@@ -1067,7 +1067,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   ydot(NumSpec + 1) = enuc - sneut;
 
   // Now we look through the network and see if there are fast reaction cycles
-  // Need to separate forward and reverse rate and detemine each step is fast enough.
+  // Need to separate forward and reverse rate and determine each step is fast enough.
   // use vectors for now
 
   bool found_fast_reaction_cycle = false;

@@ -13,7 +13,12 @@
 #include <nse_check.H>
 #endif
 #ifdef NSE
-#include <nse_update.H>
+#ifdef STRANG
+#include <nse_update_strang.H>
+#endif
+#ifdef SIMPLIFIED_SDC
+#include <nse_update_simplified_sdc.H>
+#endif
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
