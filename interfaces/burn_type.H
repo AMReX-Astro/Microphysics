@@ -37,7 +37,7 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
 #if defined(SDC_EVOLVE_ENERGY)
 
-// these indicies represent the order that the conserved state comes
+// these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
 // they also represent the order of the advective sources

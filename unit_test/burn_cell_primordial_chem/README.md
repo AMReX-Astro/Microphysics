@@ -15,7 +15,7 @@
   because our equations are very stiff (stiffness ratios are as high as 1e31)
   because y/ydot (natural timescale for a species abundance to vary) can be 
   very different (by factors ~ 1e30) for different species.
-  However, state.rho still conatins the density in g/cm^3, and state.e 
+  However, state.rho still contains the density in g/cm^3, and state.e 
   still contains the specific internal energy in erg/g/K.
 
 # continuous integration
