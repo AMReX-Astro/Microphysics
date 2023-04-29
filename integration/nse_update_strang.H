@@ -61,7 +61,7 @@ void nse_burn(burn_t& state, const Real dt) {
 
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
-  // in terms of the auxillary composition, Ye, abar, and B/A
+  // in terms of the auxiliary composition, Ye, abar, and B/A
 
   bool skip_X_fill = true;
   nse_interp(T_in, state.rho, state.aux[iye],
@@ -73,13 +73,14 @@ void nse_burn(burn_t& state, const Real dt) {
 
   for (int iter = 0; iter < nse_substeps; ++iter) {
 
+
       skip_X_fill = (iter == nse_substeps-1) ? false : true;
 
       // update Ye
 
       state.aux[iye] += dt_sub * dyedt;
 
-      // now get the composition from the table using the upated Ye
+      // now get the composition from the table using the updated Ye
 
       Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 

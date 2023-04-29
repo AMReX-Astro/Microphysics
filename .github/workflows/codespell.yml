@@ -1,4 +1,4 @@
-name: docs build
+name: codespell
 
 on:
   push:
@@ -10,16 +10,13 @@ on:
       - development
 
 jobs:
-  docs:
+  codespell:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install pandoc and doxygen
-        run: |
-          sudo apt install pandoc doxygen
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -36,14 +33,9 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install dependencies
-        run: pip install -r ./requirements.txt
+        run: pip install codespell
 
-      - name: Build docs
+      - name: Run codespell
         run: |
-          cd sphinx_docs/
-          make SPHINXOPTS=-v html
+          codespell
 
-      - name: Link check
-        run: |
-          cd sphinx_docs/
-          make SPHINXOPTS=-v linkcheck
