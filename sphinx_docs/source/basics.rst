@@ -130,7 +130,7 @@ of the species defined by the network to interpret the state.
 
 We try to maximize code reuse in the Microphysics source, so the
 solvers (ODE integration for the network and Newton-Raphson root
-finding for the EOS) is separated from the specific implmentations of
+finding for the EOS) is separated from the specific implementations of
 the microphysics.
 
 **All quantities are assumed to be in CGS units**, unless otherwise
