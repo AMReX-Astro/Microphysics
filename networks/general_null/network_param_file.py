@@ -1,4 +1,4 @@
-"""core functions for deailing with a network file"""
+"""core functions for dealing with a network file"""
 
 import sys
 
@@ -17,13 +17,13 @@ class Species:
 
 
 class AuxVar:
-    """convenience class for an auxilliary variable"""
+    """convenience class for an auxiliary variable"""
     def __init__(self):
         self.name = ""
         self.preprocessor = None
 
     def __str__(self):
-        return f"auxillary variable {self.name}"
+        return f"auxiliary variable {self.name}"
 
 
 class UnusedVar:
@@ -151,7 +151,7 @@ def parse_network_object(fields, defines):
         ret = AuxVar()
         ret.name = fields[0][6:]
         # we can put a preprocessor variable after the aux name to
-        # require that it be set in order to define the auxillary
+        # require that it be set in order to define the auxiliary
         # variable
         try:
             ret.preprocessor = fields[1]
@@ -159,7 +159,7 @@ def parse_network_object(fields, defines):
             ret.preprocessor = None
 
         # we can put a preprocessor variable after the aux name to
-        # require that it be set in order to define the auxillary
+        # require that it be set in order to define the auxiliary
         # variable
         try:
             ret.preprocessor = fields[1]
@@ -173,7 +173,7 @@ def parse_network_object(fields, defines):
                 ret = UnusedVar()
 
         # we can put a preprocessor variable after the aux name to
-        # require that it be set in order to define the auxillary
+        # require that it be set in order to define the auxiliary
         # variable
         try:
             ret.preprocessor = fields[1]

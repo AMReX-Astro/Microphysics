@@ -285,7 +285,7 @@ void sneut5(const Real temp, const Real den,
     // theta is sin**2(theta_weinberg) = 0.2319 plus/minus 0.00005 (1996)
     // xnufam is the number of neutrino flavors = 3.02 plus/minus 0.005 (1998)
     // change theta and xnufam if need be, and the changes will automatically
-    // propagate through the routine. cv and ca are the vektor and axial currents.
+    // propagate through the routine. cv and ca are the vector and axial currents.
 
     constexpr Real theta  = 0.2319e0_rt;
     constexpr Real xnufam = 3.0e0_rt;
