@@ -75,7 +75,7 @@ The input is a ``burn_t``.
 .. note::
 
    For the thermodynamic state, only the density, temperature, and
-   mass fractions -- we explicitly compute the internal energy
+   mass fractions are used directly&mdash;we compute the internal energy
    corresponding to this input state through the equation of state
    before integrating.
 
@@ -335,8 +335,8 @@ Stiff ODE Solvers
 =================
 
 We use a high-order implicit ODE solver for integrating the reaction
-system.  As an alternative, a first order explicit integrator is also
-provided.  Internally, the integrators uses different data structures
+system.  A few alternatives, including first order implicit and explicit integrators are also
+provided.  Internally, the integrators use different data structures
 to store the integration progress, and each integrator needs to
 provide a routine to convert from the integrator’s internal
 representation to the ``burn_t`` type required by the ``actual_rhs``
@@ -366,6 +366,11 @@ the allowed options are:
 We recommend that you use the VODE solver, as it is the most
 robust.
 
+.. important::
+
+   The integrator will not abort if it encounters trouble.  Instead it will
+   set ``burn_t burn_state.success = false`` on exit.  It is up to the 
+   application code to handle the failure.
 
 Tolerances
 ----------
