@@ -173,7 +173,7 @@ routine (at the moment this can be <code class="docutils literal notranslate"><s
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For the thermodynamic state, only the density, temperature, and
-mass fractions – we explicitly compute the internal energy
+mass fractions are used directly&amp;mdash;we compute the internal energy
 corresponding to this input state through the equation of state
 before integrating.</p>
 </div>
@@ -383,8 +383,8 @@ that the mass fractions stay positive and larger than some floor
 <section id="stiff-ode-solvers">
 <span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Permalink to this heading"></a></h2>
 <p>We use a high-order implicit ODE solver for integrating the reaction
-system.  As an alternative, a first order explicit integrator is also
-provided.  Internally, the integrators uses different data structures
+system.  A few alternatives, including first order implicit and explicit integrators are also
+provided.  Internally, the integrators use different data structures
 to store the integration progress, and each integrator needs to
 provide a routine to convert from the integrator’s internal
 representation to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>
@@ -409,6 +409,12 @@ integrator to C++ and removed the non-stiff integration code paths.</p></li>
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The integrator will not abort if it encounters trouble.  Instead it will
+set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
+application code to handle the failure.</p>
+</div>
 <section id="tolerances">
 <h3>Tolerances<a class="headerlink" href="#tolerances" title="Permalink to this heading"></a></h3>
 <p>Tolerances dictate how accurate the ODE solver must be while solving

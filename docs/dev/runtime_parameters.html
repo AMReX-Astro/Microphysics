@@ -810,16 +810,12 @@ the species and energy equations.</p></td>
 <td></td>
 <td><p>1.d-6</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code></p></td>
-<td><p>Should we abort the run when the burn fails?</p></td>
-<td><p>.true.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
 <td><p>Whether to renormalize the mass fractions at each step
 in the evolution so that they sum to unity.</p></td>
 <td><p>.false.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></p></td>
 <td><p>The absolute cutoff for species – note that this might
 be larger than <code class="docutils literal notranslate"><span class="pre">small_x</span></code>, but the issue is that we
 need to prevent underflow issues and keep mass
@@ -828,62 +824,62 @@ increase the floor to, e.g. 1.d-20 if your rates are
 large.</p></td>
 <td><p>1.0d-30</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></p></td>
 <td><p>The maximum temperature for reactions in the
 integration.</p></td>
 <td><p>1.0d11</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></p></td>
 <td><p>boost the reaction rates by a factor &gt; 1</p></td>
 <td><p>-1.d0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
 <td><p>maximum number of timesteps for the integrator</p></td>
 <td><p>150000</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_dt</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_dt</span></code></p></td>
 <td><p>maximum timestep for the integrator</p></td>
 <td><p>1.d30</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
 <td><p>Whether to use Jacobian caching in VODE</p></td>
 <td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_i</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_i</span></code></p></td>
 <td><p>Inputs for generating a Nonaka Plot (TM)</p></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_j</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_j</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_k</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_k</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_level</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_level</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_file</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_file</span></code></p></td>
 <td></td>
 <td><p>“nonaka_plot.dat”</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">do_species_clip</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_species_clip</span></code></p></td>
 <td><p>in the clean_state process, do we clip the species such
 that they are in [0, 1]?</p></td>
 <td><p>1</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_number_densities</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_number_densities</span></code></p></td>
 <td><p>flag for turning on the use of number densities for all
 species</p></td>
 <td><p>.false.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">subtract_internal_energy</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subtract_internal_energy</span></code></p></td>
 <td><p>flag for tuning on the subtraction of internal energy</p></td>
 <td><p>.true.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sdc_burn_tol_factor</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sdc_burn_tol_factor</span></code></p></td>
 <td><p>SDC iteration tolerance adjustment factor</p></td>
 <td><p>1.d0</p></td>
 </tr>
