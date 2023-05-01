@@ -129,7 +129,7 @@ default mode of coupling burning to application codes.</p>
 <span class="eqno">(1)<a class="headerlink" href="#equation-eq-spec-integrate" title="Permalink to this equation"></a></span>\[\frac{dX_k}{dt} = \dot{\omega}_k(\rho,X_k,T)\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-enuc-integrate">
 <span class="eqno">(2)<a class="headerlink" href="#equation-eq-enuc-integrate" title="Permalink to this equation"></a></span>\[\frac{de}{dt} = f(\rho,X_k,T)\]</div>
-<p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(e\)</span> is the specifc
+<p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(e\)</span> is the specific
 nuclear energy created through reactions. Also needed are density <span class="math notranslate nohighlight">\(\rho\)</span>,
 temperature <span class="math notranslate nohighlight">\(T\)</span>, and the specific heat. The function <span class="math notranslate nohighlight">\(f\)</span> provides the energy release from reactions and can often be expressed in terms of the
 instantaneous reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous
@@ -173,11 +173,11 @@ routine (at the moment this can be <code class="docutils literal notranslate"><s
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For the thermodynamic state, only the density, temperature, and
-mass fractions – we explicitly compute the internal energy
+mass fractions are used directly&amp;mdash;we compute the internal energy
 corresponding to this input state through the equation of state
 before integrating.</p>
 </div>
-<p>When integrating the system, we often need auxillary information to
+<p>When integrating the system, we often need auxiliary information to
 close the system.  This is kept in the original <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> that was
 passed into the integration routines.  For this reason, we often need
 to pass both the specific integrator’s type (e.g. <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code>) and
@@ -188,7 +188,7 @@ to pass both the specific integrator’s type (e.g. <code class="docutils litera
 <li><p>Fill the integrator type by calling <code class="docutils literal notranslate"><span class="pre">burn_to_integrator()</span></code> to create a
 <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code>.</p></li>
 <li><p>call the ODE integrator, <code class="docutils literal notranslate"><span class="pre">dvode()</span></code>, passing in the <code class="docutils literal notranslate"><span class="pre">dvode_t</span></code> _and_ the
-<code class="docutils literal notranslate"><span class="pre">burn_t</span></code> — as noted above, the auxillary information that is
+<code class="docutils literal notranslate"><span class="pre">burn_t</span></code> — as noted above, the auxiliary information that is
 not part of the integration state will be obtained from the
 <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>.</p></li>
 <li><p>subtract off the energy offset—we now store just the energy released
@@ -200,7 +200,7 @@ in the <code class="docutils literal notranslate"><span class="pre">dvode_t</spa
 <p class="admonition-title">Note</p>
 <p>Upon exit, <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.e</span></code> is the energy <em>released</em> during
 the burn, and not the actual internal energy of the state.</p>
-<p>Optionally, by settting <code class="docutils literal notranslate"><span class="pre">integrator.subtract_internal_energy=0</span></code>
+<p>Optionally, by setting <code class="docutils literal notranslate"><span class="pre">integrator.subtract_internal_energy=0</span></code>
 the output will be the total internal energy, including that released
 burning the burn.</p>
 </div>
@@ -359,7 +359,7 @@ requires an evaluation of the temperature at each integration step
 This involves an EOS call and is the default behavior of the integration.</p>
 <p>If desired, the EOS call can be skipped and the temperature kept
 frozen over the entire time interval of the integration.  This is done
-bu setting <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
+by setting <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
 <p>Note also that for the Jacobian, we need the specific heat, <span class="math notranslate nohighlight">\(c_v\)</span>, since we
 usually calculate derivatives with respect to temperature (as this is the form
 the rates are commonly provided in). We use the specific heat at constant volume
@@ -383,8 +383,8 @@ that the mass fractions stay positive and larger than some floor
 <section id="stiff-ode-solvers">
 <span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Permalink to this heading"></a></h2>
 <p>We use a high-order implicit ODE solver for integrating the reaction
-system.  As an alternative, a first order explicit integrator is also
-provided.  Internally, the integrators uses different data structures
+system.  A few alternatives, including first order implicit and explicit integrators are also
+provided.  Internally, the integrators use different data structures
 to store the integration progress, and each integrator needs to
 provide a routine to convert from the integrator’s internal
 representation to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>
@@ -409,6 +409,12 @@ integrator to C++ and removed the non-stiff integration code paths.</p></li>
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The integrator will not abort if it encounters trouble.  Instead it will
+set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
+application code to handle the failure.</p>
+</div>
 <section id="tolerances">
 <h3>Tolerances<a class="headerlink" href="#tolerances" title="Permalink to this heading"></a></h3>
 <p>Tolerances dictate how accurate the ODE solver must be while solving
@@ -426,7 +432,7 @@ For this investigation, it was assumed that a run with a tolerance of <span clas
 corresponded to an exact result,
 so it is used as the basis for the rest of the tests.
 From the figure, one can infer that the <span class="math notranslate nohighlight">\(10^{-3}\)</span> and <span class="math notranslate nohighlight">\(10^{-6}\)</span> tolerances
-do not yeild the most accurate results
+do not yield the most accurate results
 because their relative error values are fairly large.
 However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
 and not so low that it takes incredible amounts of computer time,
