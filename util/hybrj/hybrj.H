@@ -12,26 +12,45 @@
 #include <AMReX_GpuUtility.H>
 
 template<int neqs, typename T>
+AMREX_GPU_HOST_DEVICE
+void fcn(amrex::Array1D<Real, 1, neqs>& x,
+	 amrex::Array1D<Real, 1, neqs>& fvec,
+	 const T& data, int& iflag);
+
+template<int neqs, typename T>
+AMREX_GPU_HOST_DEVICE
+void jcn(amrex::Array1D<Real, 1, neqs>& x,
+	 amrex::Array2D<Real, 1, neqs, 1, neqs>& fjac,
+	 const T& data, int& iflag);
+
+template<int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void hybrj(hybrj_t<neqs>& hj,
-           const T& data,
-           std::function<void(amrex::Array1D<Real, 1, neqs>&,
-                              amrex::Array1D<Real, 1, neqs>&,
-                              const T&, int&)> fcn,
-           std::function<void(amrex::Array1D<Real, 1, neqs>&,
-                              amrex::Array2D<Real, 1, neqs, 1, neqs>&,
-                              const T&, int&)> jcn) {
+           const T& data
+	   //,
+           // std::function<void(amrex::Array1D<Real, 1, neqs>&,
+           //                    amrex::Array1D<Real, 1, neqs>&,
+           //                    const T&, int&)> fcn,
+           // std::function<void(amrex::Array1D<Real, 1, neqs>&,
+           //                    amrex::Array2D<Real, 1, neqs, 1, neqs>&,
+           //                    const T&, int&)> jcn
+	   ) {
 
     // the purpose of hybrj is to find a zero of a system of
     // n nonlinear functions in n variables by a modification
     // of the powell hybrid method. the user must provide a
     // subroutine which calculates the functions and the jacobian.
     //
+    // Supposely we ask user to supply fcn and jcn, where
     // fcn jcn are the names of the user-supplied subroutine which
     // calculates the functions and the jacobian.
     //
     // void fcn(Array1D<Real, 1, neqs>& x, Array1D<Real, 1, neqs>& fvec, int& iflag)
     // void jcn(Array1D<Real, 1, neqs>& x, Array2D<Real, 1, neqs, 1, neqs> fjac, int& iflag)
+    //
+    // However, right now we run into issues when compiling GPU.
+    // So right now we use global function fcn and jcn to represent calculate
+    // the function and the jacobian.
     //
     // the value of iflag should not be changed by fcn unless
     // the user wants to terminate execution of hybrj.

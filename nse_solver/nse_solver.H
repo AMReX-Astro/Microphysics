@@ -335,8 +335,7 @@ T get_nse_state(const T& state)
 // constraint equation
 
 template<typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
+void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
 
     T current_state = state;
@@ -366,8 +365,7 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 // constraint jacobian
 
 template<typename T>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
+void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
 
     T current_state = state;
@@ -446,9 +444,10 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 	hj.x(1) = inner_x(1);
 	hj.x(2) = inner_x(2);
 
-	hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+	// hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+	hybrj<2, T>(hj, state);
 
-	fcn_hybrid(hj.x, f, state, flag);
+	fcn(hj.x, f, state, flag);
 
 	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps){
 
@@ -508,8 +507,8 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
   x(1) = state.mu_p;
   x(2) = state.mu_n;
 
-  jcn_hybrid(x, jac, state, flag);
-  fcn_hybrid(x, f, state,flag);
+  jcn(x, jac, state, flag);
+  fcn(x, f, state,flag);
 
   amrex::Real det;                                            // store determinant for finding inverse jac
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;        // store inverse jacobian
@@ -580,8 +579,8 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // update constraint
 
-    jcn_hybrid(x, jac, state, flag);
-    fcn_hybrid(x, f, state, flag);
+    jcn(x, jac, state, flag);
+    fcn(x, f, state, flag);
   }
 
   if (!converged){

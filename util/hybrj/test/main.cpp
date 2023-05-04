@@ -60,7 +60,8 @@ int main() {
 
     Real x{-3.14159};
 
-    hybrj(hj, x, fcn<neqs, Real>, jcn<neqs, Real>);
+    // hybrj(hj, x, fcn<neqs, Real>, jcn<neqs, Real>);
+    hybrj(hj, x);
 
     std::cout << "done! solution = " << std::endl;
     for (int j = 1; j <= neqs; ++j) {
