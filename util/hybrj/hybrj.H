@@ -37,7 +37,7 @@ void hybrj(hybrj_t<neqs>& hj,
     // void jcn(Array1D<Real, 1, neqs>& x, Array2D<Real, 1, neqs, 1, neqs> fjac, int& iflag)
     //
     // However, right now we run into issues when compiling GPU.
-    // So right now we use global function fcn and jcn to represent calculate
+    // So right now we use global function fcn and jcn to calculate
     // the function and the jacobian.
     //
     // the value of iflag should not be changed by fcn unless
