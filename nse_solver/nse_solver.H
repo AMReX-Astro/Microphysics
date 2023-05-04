@@ -335,6 +335,7 @@ T get_nse_state(const T& state)
 // constraint equation
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
 
@@ -365,6 +366,7 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 // constraint jacobian
 
 template<typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
 
@@ -445,7 +447,7 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 	hj.x(2) = inner_x(2);
 
 	// hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
-	hybrj<2, T>(hj, state);
+	hybrj(hj, state);
 
 	fcn(hj.x, f, state, flag);
 

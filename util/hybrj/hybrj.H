@@ -12,18 +12,6 @@
 #include <AMReX_GpuUtility.H>
 
 template<int neqs, typename T>
-AMREX_GPU_HOST_DEVICE
-void fcn(amrex::Array1D<Real, 1, neqs>& x,
-	 amrex::Array1D<Real, 1, neqs>& fvec,
-	 const T& data, int& iflag);
-
-template<int neqs, typename T>
-AMREX_GPU_HOST_DEVICE
-void jcn(amrex::Array1D<Real, 1, neqs>& x,
-	 amrex::Array2D<Real, 1, neqs, 1, neqs>& fjac,
-	 const T& data, int& iflag);
-
-template<int neqs, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void hybrj(hybrj_t<neqs>& hj,
            const T& data
