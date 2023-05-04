@@ -12,6 +12,7 @@
 #include <AMReX_GpuUtility.H>
 
 template<int neqs, typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void hybrj(hybrj_t<neqs>& hj,
            const T& data,
            std::function<void(amrex::Array1D<Real, 1, neqs>&,

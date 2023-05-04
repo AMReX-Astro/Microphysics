@@ -42,6 +42,7 @@
 //  burton s. garbow, kenneth e. hillstrom, jorge j. more
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
             amrex::Array1D<Real, 1, neqs>& diag,
             amrex::Array1D<Real, 1, neqs>& qtb,

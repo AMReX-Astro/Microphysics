@@ -446,7 +446,7 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 	hj.x(1) = inner_x(1);
 	hj.x(2) = inner_x(2);
 
-	hybrj(hj, state, fcn_hybrid<2, T>, jcn_hybrid<2, T>);
+	hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
 
 	fcn_hybrid(hj.x, f, state, flag);
 
