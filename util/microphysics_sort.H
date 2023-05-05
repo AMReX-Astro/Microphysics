@@ -1,7 +1,7 @@
 #ifndef MICROPHYSICS_SORT_H
 #define MICROPHYSICS_SORT_H
 template <int l, int m>
-AMREX_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
 
   // a simple bubble sort, for sorting Array1D
