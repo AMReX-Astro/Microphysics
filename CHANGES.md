@@ -1,3 +1,7 @@
+# 23.05
+
+  * The abort_on_failure runtime parameter has been removed (#1174)
+
 # 23.04
 
   * added preliminary CMake support (#1151, #1164, #1166)
@@ -66,7 +70,7 @@
 
 # 22.11
 
-  * use of the auxillary state to define composition is now enabled
+  * use of the auxiliary state to define composition is now enabled
     via USE_AUX_THERMO and the preprocessor variable AUX_THERMO
     (#1003)
 
@@ -175,7 +179,7 @@
     breakout reactions (#751)
 
   * Some fixes to the NSE bailout in aprox19 (#739, #753, #755) and
-    the relaxation check on the NSE critera (#754)
+    the relaxation check on the NSE criteria (#754)
 
   * Added a new unit test for single-zone SDC (burn_cell_sdc) (#744)
 
@@ -560,7 +564,7 @@
     corresponding inverse from the work of Deboer et al. 2017
     (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007).
     To use the new rate, user must set `use_c12ag_deboer17` to `true`.
-    This rate is only useable in the `aprox13`, `aprox19`, `aprox21`,
+    This rate is only usable in the `aprox13`, `aprox19`, `aprox21`,
     and `iso7` reaction rate networks. Closes issue #44.
 
   * a routine util/cj_detonation was added to compute the
@@ -582,7 +586,7 @@
 
    * we now disable some composition derivatives in the EOS
      by default, for performance and memory reasons.  They can
-     be reenabled by defining the preprocessor variable
+     be re-enabled by defining the preprocessor variable
      EXTRA_THERMO (PR #59)
 
 # 17.10

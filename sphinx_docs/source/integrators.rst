@@ -20,7 +20,7 @@ The equations we integrate to do a nuclear burn are:
    \frac{de}{dt} = f(\rho,X_k,T)
    :label: eq:enuc_integrate
 
-Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specifc
+Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specific
 nuclear energy created through reactions. Also needed are density :math:`\rho`,
 temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the 
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
@@ -75,11 +75,11 @@ The input is a ``burn_t``.
 .. note::
 
    For the thermodynamic state, only the density, temperature, and
-   mass fractions -- we explicitly compute the internal energy
+   mass fractions are used directly&mdash;we compute the internal energy
    corresponding to this input state through the equation of state
    before integrating.
 
-When integrating the system, we often need auxillary information to
+When integrating the system, we often need auxiliary information to
 close the system.  This is kept in the original ``burn_t`` that was
 passed into the integration routines.  For this reason, we often need
 to pass both the specific integrator's type (e.g. ``dvode_t``) and
@@ -93,7 +93,7 @@ The overall flow of the integrator is (using VODE as the example):
    ``dvode_t``.
 
 #. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
-   ``burn_t`` --- as noted above, the auxillary information that is
+   ``burn_t`` --- as noted above, the auxiliary information that is
    not part of the integration state will be obtained from the
    ``burn_t``.
 
@@ -109,7 +109,7 @@ The overall flow of the integrator is (using VODE as the example):
    Upon exit, ``burn_t burn_state.e`` is the energy *released* during
    the burn, and not the actual internal energy of the state.
 
-   Optionally, by settting ``integrator.subtract_internal_energy=0``
+   Optionally, by setting ``integrator.subtract_internal_energy=0``
    the output will be the total internal energy, including that released
    burning the burn.
 
@@ -303,7 +303,7 @@ This involves an EOS call and is the default behavior of the integration.
 
 If desired, the EOS call can be skipped and the temperature kept
 frozen over the entire time interval of the integration.  This is done
-bu setting ``integrator.call_eos_in_rhs = 0``.
+by setting ``integrator.call_eos_in_rhs = 0``.
 
 Note also that for the Jacobian, we need the specific heat, :math:`c_v`, since we
 usually calculate derivatives with respect to temperature (as this is the form
@@ -335,8 +335,8 @@ Stiff ODE Solvers
 =================
 
 We use a high-order implicit ODE solver for integrating the reaction
-system.  As an alternative, a first order explicit integrator is also
-provided.  Internally, the integrators uses different data structures
+system.  A few alternatives, including first order implicit and explicit integrators are also
+provided.  Internally, the integrators use different data structures
 to store the integration progress, and each integrator needs to
 provide a routine to convert from the integrator’s internal
 representation to the ``burn_t`` type required by the ``actual_rhs``
@@ -366,6 +366,11 @@ the allowed options are:
 We recommend that you use the VODE solver, as it is the most
 robust.
 
+.. important::
+
+   The integrator will not abort if it encounters trouble.  Instead it will
+   set ``burn_t burn_state.success = false`` on exit.  It is up to the 
+   application code to handle the failure.
 
 Tolerances
 ----------
@@ -386,7 +391,7 @@ For this investigation, it was assumed that a run with a tolerance of :math:`10^
 corresponded to an exact result,
 so it is used as the basis for the rest of the tests.
 From the figure, one can infer that the :math:`10^{-3}` and :math:`10^{-6}` tolerances
-do not yeild the most accurate results
+do not yield the most accurate results
 because their relative error values are fairly large.
 However, the test with a tolerance of :math:`10^{-9}` is accurate
 and not so low that it takes incredible amounts of computer time,
