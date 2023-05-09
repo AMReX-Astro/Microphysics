@@ -154,6 +154,7 @@ void actual_eos (I input, T& state)
     }
 
     sum_Abarinv *= protonmass/rhotot;
+    state.mu = 1.0 / sum_Abarinv;
     sum_gammasinv /= sum_Abarinv;
 
     //-------------------------------------------------------------------------
