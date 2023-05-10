@@ -68,7 +68,13 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
   set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
   if (${network_name} STREQUAL "gamma_law")
-	 set(${AN_ARGUMENT}_PARENT "Dummy var - not implemented yet" PARENT_SCOPE)
+    set(paramfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/test_eos/_parameters")
+    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law/_parameters")
+
+    set (gamma_law_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants PARENT_SCOPE)
 
   elseif (${network_name} STREQUAL "primordial_chem")
     #need these to write extern_parameters.H
@@ -86,7 +92,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks 
-                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null PARENT_SCOPE)
 
     #we need to have extern_parameters.cpp be available at configure time
