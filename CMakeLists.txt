@@ -68,48 +68,48 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     #note, execute_process only works on 'cmake' and not 'make'
     #so, if any of the _parameter files are changed, one needs to re-run 'cmake'
     #to generate updated header files
-    set(paramfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/burn_cell_primordial_chem/_parameters")
-    set(EOSparamfile "${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/_parameters")
-    set(networkpcparamfile "${output_file}/networks/primordial_chem/_parameters")
-    set(networkparamfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/_parameters")
-    set(VODEparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE/_parameters")
-    set(integrationparamfile "${CMAKE_CURRENT_SOURCE_DIR}/integration/_parameters")
-    set(unittestparamfile "${CMAKE_CURRENT_SOURCE_DIR}/unit_test/_parameters")
+    set(paramfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/burn_cell_primordial_chem/_parameters")
+    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/_parameters")
+    set(networkpcparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/_parameters")
+    set(networkparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/_parameters")
+    set(VODEparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE/_parameters")
+    set(integrationparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/_parameters")
+    set(unittestparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/_parameters")
 
     #similarly, we want network_properties.H
     set(networkpropfile "${output_dir}/network_properties.H")
-    set(networkfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/pynucastro.net")
-    set(networkdir "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/")
-    set(networkpropertiesfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
-    set(networkheadertemplatefile "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/network_header.template")
+    set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/pynucastro.net")
+    set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/")
+    set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
+    set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
     message("CMAKE_CURRENT_FUNCTION_LIST_DIR - " ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
     message("CMAKE_CURRENT_LIST_DIR - " ${CMAKE_CURRENT_LIST_DIR})
     message("CMAKE_CURRENT_SOURCE_DIR - " ${CMAKE_CURRENT_SOURCE_DIR})
     message("CMAKE_SOURCE_DIR - " ${CMAKE_SOURCE_DIR})
 
-    execute_process(COMMAND python3 "${CMAKE_CURRENT_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
-    set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                             ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/interfaces ${CMAKE_CURRENT_SOURCE_DIR}/constants 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${output_dir}/)
+    set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null PARENT_SCOPE)
 
-    set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
-                               ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
-                               ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+    set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+                               ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                               ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/actual_eos_data.cpp
                                ${CMAKE_BINARY_DIR}/extern_parameters.cpp PARENT_SCOPE)
 
 
   endif()
 
-  execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}" WORKING_DIRECTORY ${output_dir}/)
+  execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}" WORKING_DIRECTORY ${output_dir}/)
   #below for NAUX
-  execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/" WORKING_DIRECTORY ${output_dir}/)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
   #below to update headers
-  execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_SOURCE_DIR}/networks/update_headers.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_SOURCE_DIR}/" --odir "${CMAKE_BINARY_DIR}" WORKING_DIRECTORY ${output_dir}/)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/update_headers.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" --odir "${output_dir}" WORKING_DIRECTORY ${output_dir}/)
 
 endfunction()
 
