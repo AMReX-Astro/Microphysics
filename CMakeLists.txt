@@ -58,11 +58,11 @@ set_target_properties(Microphysics PROPERTIES
 #build Microphysics using different EOS for different test problems in external codes
 #function below is only used by external codes
 function(setup_target_for_microphysics_compilation network_name output_dir)
-  if (network_name == "gamma_law")
+  if (${network_name} STREQUAL "gamma_law")
 	 set(${AN_ARGUMENT}_LOCAL "I'm in the local scope")
 	 set(${AN_ARGUMENT}_PARENT "I'm in the parent scope" PARENT_SCOPE)
 
-  elseif (network_name == "primordial_chem")
+  elseif (${network_name} STREQUAL "primordial_chem")
     #we need to have extern_parameters.cpp be available at configure time
     #the script write_probin.py writes this .cpp file so we call it here
     #note, execute_process only works on 'cmake' and not 'make'
