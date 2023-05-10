@@ -83,7 +83,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(networkpropertiesfile "${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
     set(networkheadertemplatefile "${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null/network_header.template")
 
-    execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
     set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
