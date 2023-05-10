@@ -55,8 +55,23 @@ set_target_properties(Microphysics PROPERTIES
     VERSION ${PROJECT_VERSION}
     LINKER_LANGUAGE CXX)
 
-#use this function to build Microphysics using different EOS for different test problems in external codes
 
+#set a cache variable that controls whether
+#we want to build the unit test or not
+set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
+message("Building unit test -- ${BUILD_UNIT_TEST}")
+
+#setting sourcefiles and directories needed to make the test here
+#so that they are accessible to codes using
+#Microphysics as a submodule
+#include parent_scope for sourcefiles and directories
+#when built as a submodule in an external code
+#otherwise these are not visible to the external code
+#this will generate a warning but it will build successfully
+#do not need unit_test paramfiles when unit_test is not built
+
+
+#use this function to build Microphysics using different EOS for different test problems in external codes
 function(setup_target_for_microphysics_compilation network_name output_dir)
 
   set(networkparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/_parameters")
@@ -68,13 +83,17 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
   set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
   if (${network_name} STREQUAL "gamma_law")
-    set(paramfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/test_eos/_parameters")
     set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law/_parameters")
 
     set (gamma_law_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants PARENT_SCOPE)
+
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile}" WORKING_DIRECTORY ${output_dir}/)
+
+    set(gamma_law_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+                          ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
   elseif (${network_name} STREQUAL "primordial_chem")
     #need these to write extern_parameters.H
@@ -150,21 +169,6 @@ if(BUILD_AMREX)
 else()
    message("Not building and fetching amrex in Microphysics")
 endif()
-
-#set a cache variable that controls whether
-#we want to build the unit test or not
-set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
-message("Building unit test -- ${BUILD_UNIT_TEST}")
-
-
-#setting sourcefiles and directories needed to make the test here
-#so that they are accessible to codes using
-#Microphysics as a submodule
-#include parent_scope for sourcefiles and directories
-#when built as a submodule in an external code
-#otherwise these are not visible to the external code
-#this will generate a warning but it will build successfully
-#do not need unit_test paramfiles when unit_test is not built
 
 
 if(BUILD_UNIT_TEST)
