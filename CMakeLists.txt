@@ -81,11 +81,6 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/")
     set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
 
-    message("CMAKE_CURRENT_FUNCTION_LIST_DIR - " ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
-    message("CMAKE_CURRENT_LIST_DIR - " ${CMAKE_CURRENT_LIST_DIR})
-    message("CMAKE_CURRENT_SOURCE_DIR - " ${CMAKE_CURRENT_SOURCE_DIR})
-    message("CMAKE_SOURCE_DIR - " ${CMAKE_SOURCE_DIR})
-
     set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
