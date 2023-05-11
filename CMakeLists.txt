@@ -98,6 +98,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
                     ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${output_dir}/)
 
     set(gamma_law_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+                          ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
                           ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
   elseif (${network_name} STREQUAL "primordial_chem")
