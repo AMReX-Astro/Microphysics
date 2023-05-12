@@ -91,118 +91,120 @@ def write_network(header_template,
                 elif keyword == "NAUX":
                     fout.write(line.replace("@@NAUX@@", str(len(aux_vars))))
 
-                elif keyword == "SPEC_NAMES":
-                    for n, spec in enumerate(species):
-                        fout.write(f"{indent}\"{spec.name}\",   // {n} \n")
+                if len(species) > 0:
 
-                    for n, spec in enumerate(extra_species):
-                        fout.write(f"{indent}\"{spec.name}\",   // {n + len(species)} \n")
-
-                elif keyword == "SHORT_SPEC_NAMES":
-                    for n, spec in enumerate(species):
-                        fout.write(f"{indent}\"{spec.short_name}\",   // {n} \n")
-
-                    for n, spec in enumerate(extra_species):
-                        fout.write(f"{indent}\"{spec.short_name}\",   // {n + len(species)} \n")
-
-                elif keyword == "AION":
-                    for n, spec in enumerate(species):
-                        fout.write(f"{indent}{spec.A},   // {n} \n")
-
-                    for n, spec in enumerate(extra_species):
-                        fout.write(f"{indent}{spec.A},   // {n + len(species)} \n")
-
-                elif keyword == "AION_CONSTEXPR":
-                    if lang == "C++":
-                        fout.write("\n")
+                    if keyword == "SPEC_NAMES":
                         for n, spec in enumerate(species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n+1}\n")
-                            fout.write(f"{indent}{{\n")
-                            fout.write(f"{indent}    a = {spec.A};\n")
-                            fout.write(f"{indent}    break;\n")
-                            fout.write(f"{indent}}}\n\n")
+                            fout.write(f"{indent}\"{spec.name}\",   // {n} \n")
 
                         for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species) + 1}\n")
-                            fout.write(f"{indent}{{\n")
-                            fout.write(f"{indent}    a = {spec.A};\n")
-                            fout.write(f"{indent}    break;\n")
-                            fout.write(f"{indent}}}\n\n")
+                            fout.write(f"{indent}\"{spec.name}\",   // {n + len(species)} \n")
 
-                elif keyword == "AION_INV":
-                    for n, spec in enumerate(species):
-                        fout.write(f"{indent}1.0/{spec.A},   // {n} \n")
-
-                    for n, spec in enumerate(extra_species):
-                        fout.write(f"{indent}1.0/{spec.A},   // {n + len(species)} \n")
-
-                elif keyword == "ZION":
-                    for n, spec in enumerate(species):
-                        fout.write(f"{indent}{spec.Z},   // {n}\n")
-
-                    for n, spec in enumerate(extra_species):
-                        fout.write(f"{indent}{spec.Z},   // {n + len(species)}\n")
-
-                elif keyword == "ZION_CONSTEXPR":
-                    if lang == "C++":
-                        fout.write("\n")
+                    elif keyword == "SHORT_SPEC_NAMES":
                         for n, spec in enumerate(species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n+1}\n")
-                            fout.write(f"{indent}{{\n")
-                            fout.write(f"{indent}    z = {spec.Z};\n")
-                            fout.write(f"{indent}    break;\n")
-                            fout.write(f"{indent}}}\n\n")
+                            fout.write(f"{indent}\"{spec.short_name}\",   // {n} \n")
 
                         for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species) + 1}\n")
-                            fout.write(f"{indent}{{\n")
-                            fout.write(f"{indent}    z = {spec.Z};\n")
-                            fout.write(f"{indent}    break;\n")
-                            fout.write(f"{indent}}}\n\n")
+                            fout.write(f"{indent}\"{spec.short_name}\",   // {n + len(species)} \n")
 
-                elif keyword == "AUX_NAMES":
-                    for n, aux in enumerate(aux_vars):
-                        fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
-
-                elif keyword == "SHORT_AUX_NAMES":
-                    for n, aux in enumerate(aux_vars):
-                        fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
-
-                elif keyword == "PROPERTIES":
-                    if lang == "C++":
-                        for p in properties:
-                            print(p)
-                            fout.write(f"{indent}constexpr int {p} = {properties[p]};\n")
-
-                elif keyword == "SPECIES_ENUM":
-                    if lang == "C++":
+                    elif keyword == "AION":
                         for n, spec in enumerate(species):
-                            if n == 0:
-                                fout.write(f"{indent}{spec.short_name.capitalize()}=1,\n")
-                            else:
-                                fout.write(f"{indent}{spec.short_name.capitalize()},\n")
-                        if len(extra_species) > 0:
-                            fout.write(f"{indent}NumberSpecies={species[-1].short_name.capitalize()},\n")
-                        else:
-                            fout.write(f"{indent}NumberSpecies={species[-1].short_name.capitalize()}\n")
+                            fout.write(f"{indent}{spec.A},   // {n} \n")
 
                         for n, spec in enumerate(extra_species):
-                            fout.write(f"{indent}{spec.short_name.capitalize()},\n")
-                        if len(extra_species) > 0:
-                            fout.write("{}NumberExtraSpecies={}-{},\n".format(indent,
-                                                                              extra_species[-1].short_name.capitalize(),
-                                                                              species[-1].short_name.capitalize()))
-                            fout.write(f"{indent}NumberTotalSpecies={extra_species[-1].short_name.capitalize()}\n")
+                            fout.write(f"{indent}{spec.A},   // {n + len(species)} \n")
 
-                elif keyword == "AUXZERO_ENUM":
-                    if lang == "C++":
-                        if aux_vars:
-                            for n, aux in enumerate(aux_vars):
+                    elif keyword == "AION_CONSTEXPR":
+                        if lang == "C++":
+                            fout.write("\n")
+                            for n, spec in enumerate(species):
+                                fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n+1}\n")
+                                fout.write(f"{indent}{{\n")
+                                fout.write(f"{indent}    a = {spec.A};\n")
+                                fout.write(f"{indent}    break;\n")
+                                fout.write(f"{indent}}}\n\n")
+
+                            for n, spec in enumerate(extra_species):
+                                fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species) + 1}\n")
+                                fout.write(f"{indent}{{\n")
+                                fout.write(f"{indent}    a = {spec.A};\n")
+                                fout.write(f"{indent}    break;\n")
+                                fout.write(f"{indent}}}\n\n")
+
+                    elif keyword == "AION_INV":
+                        for n, spec in enumerate(species):
+                            fout.write(f"{indent}1.0/{spec.A},   // {n} \n")
+
+                        for n, spec in enumerate(extra_species):
+                            fout.write(f"{indent}1.0/{spec.A},   // {n + len(species)} \n")
+
+                    elif keyword == "ZION":
+                        for n, spec in enumerate(species):
+                            fout.write(f"{indent}{spec.Z},   // {n}\n")
+
+                        for n, spec in enumerate(extra_species):
+                            fout.write(f"{indent}{spec.Z},   // {n + len(species)}\n")
+
+                    elif keyword == "ZION_CONSTEXPR":
+                        if lang == "C++":
+                            fout.write("\n")
+                            for n, spec in enumerate(species):
+                                fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n+1}\n")
+                                fout.write(f"{indent}{{\n")
+                                fout.write(f"{indent}    z = {spec.Z};\n")
+                                fout.write(f"{indent}    break;\n")
+                                fout.write(f"{indent}}}\n\n")
+
+                            for n, spec in enumerate(extra_species):
+                                fout.write(f"{indent}case {spec.short_name.capitalize()}:   // {n + len(species) + 1}\n")
+                                fout.write(f"{indent}{{\n")
+                                fout.write(f"{indent}    z = {spec.Z};\n")
+                                fout.write(f"{indent}    break;\n")
+                                fout.write(f"{indent}}}\n\n")
+
+                    elif keyword == "AUX_NAMES":
+                        for n, aux in enumerate(aux_vars):
+                            fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
+
+                    elif keyword == "SHORT_AUX_NAMES":
+                        for n, aux in enumerate(aux_vars):
+                            fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
+
+                    elif keyword == "PROPERTIES":
+                        if lang == "C++":
+                            for p in properties:
+                                print(p)
+                                fout.write(f"{indent}constexpr int {p} = {properties[p]};\n")
+
+                    elif keyword == "SPECIES_ENUM":
+                        if lang == "C++":
+                            for n, spec in enumerate(species):
                                 if n == 0:
-                                    fout.write(f"{indent}i{aux.name.lower()}=0,\n")
+                                    fout.write(f"{indent}{spec.short_name.capitalize()}=1,\n")
                                 else:
-                                    fout.write(f"{indent}i{aux.name.lower()},\n")
-                            fout.write(f"{indent}NumberAux=i{aux_vars[-1].name.lower()}\n")
+                                    fout.write(f"{indent}{spec.short_name.capitalize()},\n")
+                            if len(extra_species) > 0:
+                                fout.write(f"{indent}NumberSpecies={species[-1].short_name.capitalize()},\n")
+                            else:
+                                fout.write(f"{indent}NumberSpecies={species[-1].short_name.capitalize()}\n")
+
+                            for n, spec in enumerate(extra_species):
+                                fout.write(f"{indent}{spec.short_name.capitalize()},\n")
+                            if len(extra_species) > 0:
+                                fout.write("{}NumberExtraSpecies={}-{},\n".format(indent,
+                                                                                  extra_species[-1].short_name.capitalize(),
+                                                                                  species[-1].short_name.capitalize()))
+                                fout.write(f"{indent}NumberTotalSpecies={extra_species[-1].short_name.capitalize()}\n")
+
+                    elif keyword == "AUXZERO_ENUM":
+                        if lang == "C++":
+                            if aux_vars:
+                                for n, aux in enumerate(aux_vars):
+                                    if n == 0:
+                                        fout.write(f"{indent}i{aux.name.lower()}=0,\n")
+                                    else:
+                                        fout.write(f"{indent}i{aux.name.lower()},\n")
+                                fout.write(f"{indent}NumberAux=i{aux_vars[-1].name.lower()}\n")
 
             else:
                 fout.write(line)
