@@ -84,13 +84,13 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
   if (${network_name} STREQUAL "gamma_law")
     set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law/_parameters")
 
-    set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/gammalaw.net")
+    set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/empty.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/")
     set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/NETWORK_PROPERTIES")
 
     set (gamma_law_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
-                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null  
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants PARENT_SCOPE)
 
