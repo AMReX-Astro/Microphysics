@@ -21,7 +21,6 @@ add_library(Microphysics SHARED) # initialized below
 #----------------------------------------------------------------------------------------------------------------------
 
 set(sources
-    EOS/eos_composition.H
     integration/integrator.H
     integration/integrator_data.H
     integration/integrator_rhs_strang.H
