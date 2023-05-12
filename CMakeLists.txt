@@ -90,7 +90,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     set (gamma_law_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
-                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null  
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants PARENT_SCOPE)
 
