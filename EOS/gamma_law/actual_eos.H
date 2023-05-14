@@ -126,6 +126,7 @@ void actual_eos (I input, T& state)
 
           if constexpr (has_energy<T>::value) {
               state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / C::k_B;
+              std::cout <<"in micro eos vals are " << state.e << " " << state.mu << " " << eos_gamma << " " << m_nucleon << " " << C::k_B << std::endl;
           }
 
           break;
