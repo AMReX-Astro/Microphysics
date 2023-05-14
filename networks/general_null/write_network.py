@@ -206,6 +206,8 @@ def write_network(header_template,
                                         fout.write(f"{indent}i{aux.name.lower()},\n")
                                 fout.write(f"{indent}NumberAux=i{aux_vars[-1].name.lower()}\n")
 
+                else:
+                    break
             else:
                 fout.write(line)
 
