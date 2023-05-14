@@ -79,7 +79,6 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
   set(unittestparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/_parameters")
 
   set(networkpropfile "${output_dir}/network_properties.H")
-  set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
   if (${network_name} STREQUAL "gamma_law")
     set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law/_parameters")
@@ -87,6 +86,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/empty.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/")
     set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/NETWORK_PROPERTIES")
+    set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header_nospecies.template")
 
     set (gamma_law_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
@@ -111,6 +111,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/pynucastro.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/")
     set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
+    set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
     set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils 
