@@ -1,0 +1,30 @@
+name: "compiler warnings"
+
+on: [pull_request]
+jobs:
+  compiler_warnings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get submodules
+        run: |
+          git submodule update --init
+          cd external/Microphysics
+          git fetch; git checkout development
+          cd ../amrex
+          git fetch; git checkout development
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl g++>=9.3.0
+
+      - name: Compile burn_cell
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 2
