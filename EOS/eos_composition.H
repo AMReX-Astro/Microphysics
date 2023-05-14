@@ -65,22 +65,24 @@ void composition (T& state)
 
 #else
 
-  Real sum = 0;
-  for (int n = 0; n < NumSpec; n++) {
-    sum += state.xn[n] * zion[n] * aion_inv[n];
+  if (NumSpec > 0) {
+    Real sum = 0;
+    for (int n = 0; n < NumSpec; n++) {
+      sum += state.xn[n] * zion[n] * aion_inv[n];
+    }
+
+    state.mu_e = 1.0 / sum;
+    state.y_e = sum;
+
+    sum = 0;
+
+    for (int n = 0; n < NumSpec; n++) {
+      sum += state.xn[n] * aion_inv[n];
+    }
+
+    state.abar = 1.0 / sum;
+    state.zbar = state.abar * state.y_e;
   }
-
-  state.mu_e = 1.0 / sum;
-  state.y_e = sum;
-
-  sum = 0;
-
-  for (int n = 0; n < NumSpec; n++) {
-    sum += state.xn[n] * aion_inv[n];
-  }
-
-  state.abar = 1.0 / sum;
-  state.zbar = state.abar * state.y_e;
 #endif
 }
 
