@@ -54,19 +54,22 @@ void actual_eos (I input, T& state)
     const Real m_nucleon = 1.0 / C::n_A;
     const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
-    if (eos_assume_neutral) {
-        state.mu = state.abar;
+    if (NumSpec > 0) {
 
-    } else {
-        if (NumSpec > 0) {
-          Real sum = 0.0;
-          for (int n = 0; n < NumSpec; n++) {
-              sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
-          }
-          state.mu = 1.0 / sum;
-        }
+      if (eos_assume_neutral) {
+          state.mu = state.abar;
+
+      } else {
+            Real sum = 0.0;
+            for (int n = 0; n < NumSpec; n++) {
+                sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+            }
+            state.mu = 1.0 / sum;
+      }
+
     }
 
+    std::cout << "in actual_eos mu is " << state.mu << std::endl;
     // For all EOS input modes EXCEPT eos_input_rt, first compute dens
     // and temp as needed from the inputs.
 
