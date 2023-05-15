@@ -31,3 +31,15 @@ jobs:
           cd unit_test/burn_cell
           make realclean
           make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 2
+
+      - name: Compile test_eos
+        run: |
+          cd unit_test/test_eos
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE EOS_DIR=gamma_law -j 2
+
+      - name: Compile test_sdc
+        run: |
+          cd unit_test/test_sdc
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 2
