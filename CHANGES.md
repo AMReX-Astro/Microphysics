@@ -1,3 +1,7 @@
+# 23.05
+
+  * The abort_on_failure runtime parameter has been removed (#1174)
+
 # 23.04
 
   * added preliminary CMake support (#1151, #1164, #1166)
