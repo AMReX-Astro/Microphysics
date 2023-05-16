@@ -23,6 +23,7 @@
 // burton s. garbow, kenneth e. hillstrom, jorge j. more
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
 
     // note: n <= neqs

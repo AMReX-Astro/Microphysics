@@ -7,7 +7,7 @@
 
 namespace NSE_INDEX
 {
-  extern bool initialized;
+  extern AMREX_GPU_MANAGED bool initialized;
 
   //store photoionization proton
   extern AMREX_GPU_MANAGED int p_index;

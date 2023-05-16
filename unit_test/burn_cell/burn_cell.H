@@ -89,8 +89,6 @@ void burn_cell_c()
     }
 
     // output initial burn type data
-    Real time = 0.0_rt;
-
     std::ofstream state_over_time("state_over_time.txt");
 
     // we will divide the total integration time into nsteps that are
