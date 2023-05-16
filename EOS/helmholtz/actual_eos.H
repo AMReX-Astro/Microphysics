@@ -1269,8 +1269,8 @@ void actual_eos (I input, T& state)
     const int max_newton = 100;
 
     bool single_iter, converged;
-    int var, dvar, var1, var2;
-    Real v_want, v1_want, v2_want;
+    int var{}, dvar{}, var1, var2;
+    Real v_want{}, v1_want{}, v2_want{};
 
     prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2);
 
