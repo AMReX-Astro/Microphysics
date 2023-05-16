@@ -111,6 +111,7 @@ endif()
 set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
 message("Building unit test -- ${BUILD_UNIT_TEST}")
 
+add_compile_options(-Werror -Wall -Wextra)
 
 #setting sourcefiles and directories needed to make the test here
 #so that they are accessible to codes using
