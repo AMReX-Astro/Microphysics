@@ -68,7 +68,6 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     // density and momentum have no reactive sources
     Real rho_old = state.y[SRHO];
     Real rho_bea_old = state.y[SFX+ibea];
-    Real rho_abar_old = state.y[SFX+iabar];
 
     state.y[SRHO] += dt * state.ydot_a[SRHO];
     state.y[SMX] += dt * state.ydot_a[SMX];
@@ -88,7 +87,6 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     Real rhoe_new;
     Real rho_aux_new[NumAux];
-    Real dq;
     Real rho_enucdot = 0.0_rt;
 
     Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
