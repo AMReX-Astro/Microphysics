@@ -17,6 +17,7 @@
 // * Split into 2 versions, one takes an nxn matrix and one takes a vector of length n
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void r1mpyq(amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
             amrex::Array1D<Real, 1, neqs>& v,
             amrex::Array1D<Real, 1, neqs>& w) {
@@ -86,6 +87,7 @@ void r1mpyq(amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
 
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void r1mpyq(amrex::Array1D<Real, 1, neqs>& a,
             amrex::Array1D<Real, 1, neqs>& v,
             amrex::Array1D<Real, 1, neqs>& w) {

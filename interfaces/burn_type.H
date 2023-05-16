@@ -199,6 +199,7 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
     o << X << " ";
   }
   o << std::endl;
+  o << "(i, j, k) = " << burn_state.i << " " << burn_state.j << " " << burn_state.k << std::endl;
 #if NAUX_NET > 0
   o << "aux = ";
   for (double A : burn_state.aux) {
