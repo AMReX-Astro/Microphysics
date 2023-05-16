@@ -20,7 +20,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs_specie(const burn_t& state,
              Array1D<Real, 1, neqs>& ydot,
              const Array1D<Real, 0, NumSpec-1>& X,
-             Real const z) {
+             Real const /*z*/) {
 
     using namespace Rates;
 
