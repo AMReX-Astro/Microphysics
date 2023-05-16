@@ -162,7 +162,9 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens, eint;
+    Real temp = NAN;
+    Real dens = NAN;
+    Real eint = NAN;
 
     switch (input) {
 
