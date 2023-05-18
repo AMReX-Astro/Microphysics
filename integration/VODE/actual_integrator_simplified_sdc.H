@@ -18,7 +18,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (burn_t& state, Real dt)
 {
 
-    dvode_t vode_state;
+    dvode_t vode_state{};
 
     // set the Jacobian type
     vode_state.jacobian_type = jacobian;
