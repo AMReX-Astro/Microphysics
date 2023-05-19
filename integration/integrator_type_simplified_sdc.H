@@ -9,6 +9,7 @@
 #include <maestro_params.H>
 #endif
 
+using namespace integrator_rp;
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE

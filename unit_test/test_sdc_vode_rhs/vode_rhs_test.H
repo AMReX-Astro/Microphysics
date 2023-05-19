@@ -13,6 +13,8 @@
 #include <integrator_rhs_simplified_sdc.H>
 #include <react_util.H>
 
+using namespace unit_test_rp;
+
 void do_vode_rhs()
 {
 

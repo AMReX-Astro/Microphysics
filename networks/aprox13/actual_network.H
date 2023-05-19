@@ -16,6 +16,9 @@ using namespace amrex;
 #include <tfactors.H>
 #include <aprox_rates.H>
 
+using namespace network_rp;
+
+
 void actual_network_init();
 
 const std::string network_name = "aprox13";

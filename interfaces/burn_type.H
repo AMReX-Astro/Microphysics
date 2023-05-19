@@ -13,6 +13,7 @@
 #include <ArrayUtilities.H>
 
 using namespace amrex;
+using namespace network_rp;
 
 // A generic structure holding data necessary to do a nuclear burn.
 

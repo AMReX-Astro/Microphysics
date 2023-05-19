@@ -8,6 +8,8 @@
 #include <nse_solver.H>
 #include <cmath>
 
+using namespace unit_test_rp;
+
 void burn_cell_c()
 {
 

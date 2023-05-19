@@ -159,7 +159,7 @@ $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H: $(EXTERN_PARAMETERS) $(EXTE
 	@if [ ! -d $(MICROPHYSICS_AUTO_SOURCE_DIR) ]; then mkdir -p $(MICROPHYSICS_AUTO_SOURCE_DIR); fi
 	$(MICROPHYSICS_HOME)/util/build_scripts/write_probin.py \
            --cxx_prefix $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern \
-           --pa "$(EXTERN_PARAMETERS)"
+           --pa "$(EXTERN_PARAMETERS)" --use_namespace
 
 # for debugging
 test_extern_params: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp
