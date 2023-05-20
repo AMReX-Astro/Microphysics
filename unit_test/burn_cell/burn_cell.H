@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <react_util.H>
 
+using namespace unit_test_rp;
+
 void burn_cell_c()
 {
 

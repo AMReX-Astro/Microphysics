@@ -15,6 +15,8 @@
 #include <cmath>
 #include <vector>
 
+using namespace eos_rp;
+
 // Frank Timmes Helmholtz based Equation of State
 // http://cococubed.asu.edu/
   

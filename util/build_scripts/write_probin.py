@@ -65,7 +65,7 @@ def get_next_line(fin):
     return line[:pos]
 
 
-def parse_param_file(params_list, param_file):
+def parse_param_file(params_list, param_file, use_namespace=False):
     """read all the parameters in a given parameter file and add valid
     parameters to the params list.
     """
@@ -107,9 +107,14 @@ def parse_param_file(params_list, param_file):
         dtype = fields[1]
         default = fields[2]
 
+        if use_namespace:
+            skip_namespace_in_declare = False
+        else:
+            skip_namespace_in_declare = True
+
         current_param = runtime_parameters.Param(name, dtype, default,
-                                                 namespace=namespace,
-                                                 skip_namespace_in_declare=True)
+                                                 namespace=namespace, namespace_suffix="_rp",
+                                                 skip_namespace_in_declare=skip_namespace_in_declare)
 
         try:
             current_param.priority = int(fields[3])
@@ -150,8 +155,8 @@ def abort(outfile):
     sys.exit(1)
 
 
-def write_probin(probin_template, param_files,
-                 namelist_name, out_file, cxx_prefix):
+def write_probin(param_files,
+                 out_file, use_namespace, cxx_prefix):
 
     """ write_probin will read through the list of parameter files and
     output the new out_file """
@@ -164,10 +169,12 @@ def write_probin(probin_template, param_files,
     # read the parameters defined in the parameter files
 
     for f in param_files:
-        err = parse_param_file(params, f)
+        err = parse_param_file(params, f, use_namespace=use_namespace)
         if err:
             abort(out_file)
 
+    # find all of the unique namespaces
+    namespaces = {q.namespace for q in params}
 
     # now the main C++ header with the global data
 
@@ -179,8 +186,17 @@ def write_probin(probin_template, param_files,
 
         fout.write(f"  void init_{cxx_base}_parameters();\n\n")
 
-        for p in params:
-            fout.write(f"  {p.get_decl_string()}")
+        for nm in namespaces:
+            params_in_nm = [q for q in params if q.namespace == nm]
+
+            if use_namespace:
+                fout.write(f"  namespace {nm}_rp {{\n")
+
+            for p in params_in_nm:
+                fout.write(f"    {p.get_declare_string(with_extern=True)}")
+
+            if use_namespace:
+                fout.write("  }\n")
 
         fout.write(CXX_FOOTER)
 
@@ -199,8 +215,20 @@ def write_probin(probin_template, param_files,
         fout.write("#include <AMReX_ParmParse.H>\n\n")
         fout.write("#include <AMReX_REAL.H>\n\n")
 
-        for p in params:
-            fout.write(f"  {p.get_declare_string()}")
+        # find all of the unique namespaces
+        namespaces = {q.namespace for q in params}
+
+        for nm in namespaces:
+            params_in_nm = [q for q in params if q.namespace == nm]
+
+            if use_namespace:
+                fout.write(f"  namespace {nm}_rp {{\n")
+
+            for p in params_in_nm:
+                fout.write(f"    {p.get_declare_string()}")
+
+            if use_namespace:
+                fout.write("  }\n")
 
         fout.write("\n")
         fout.write(f"  void init_{cxx_base}_parameters() {{\n")
@@ -231,24 +259,18 @@ def write_probin(probin_template, param_files,
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', type=str, help='probin_template')
     parser.add_argument('-o', type=str, default="", help='out_file')
-    parser.add_argument('-n', type=str, help='namelist_name')
     parser.add_argument('--pa', type=str, help='parameter files')
+    parser.add_argument('--use_namespaces', action="store_true",
+                        help="put parameters in namespaces")
     parser.add_argument('--cxx_prefix', type=str, default="extern",
                         help="a name to use in the C++ file names")
 
     args = parser.parse_args()
 
-    probin_template = args.t
-    out_file = args.o
-    namelist_name = args.n
-    param_files_str = args.pa
+    param_files = args.pa.split()
 
-    param_files = param_files_str.split()
-
-    write_probin(probin_template, param_files,
-                 namelist_name, out_file, args.cxx_prefix)
+    write_probin(param_files, args.o, args.use_namespaces, args.cxx_prefix)
 
 if __name__ == "__main__":
     main()
