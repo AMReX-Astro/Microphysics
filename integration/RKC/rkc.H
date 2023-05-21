@@ -79,7 +79,7 @@ void step (burn_t& state, rkc_t& rstate, const Real h, const int m)
         // Shift the data for the next stage.
 
         if (j < m) {
-            for (int i = 1; i < RKC_NEQS; ++i) {
+            for (int i = 1; i <= RKC_NEQS; ++i) {
                 rstate.vtemp2(i) = rstate.vtemp1(i);
                 rstate.vtemp1(i) = rstate.y(i);
             }
@@ -152,12 +152,12 @@ Real rkcrho (burn_t& state, rkc_t& rstate)
         }
     } else if (vnrm != 0.0_rt) {
         dynrm = UROUND;
-        for (int i = 1; i < RKC_NEQS; ++i) {
+        for (int i = 1; i <= RKC_NEQS; ++i) {
             rstate.vtemp1(i) = rstate.vtemp1(i) * (dynrm / vnrm);
         }
     } else {
         dynrm = UROUND;
-        for (int i = 1; i < RKC_NEQS; ++i) {
+        for (int i = 1; i <= RKC_NEQS; ++i) {
             rstate.vtemp1(i) = dynrm;
         }
     }
@@ -168,6 +168,8 @@ Real rkcrho (burn_t& state, rkc_t& rstate)
     Real sprad{};
 
     for (int iter = 0; iter < itmax; ++iter) {
+        std::cout << "iter = " << iter << " " << sprad << std::endl;
+
         // we want to call the RHS with vtemp1() as the input, so we need to copy
         // this temporarily into vstate.y()
         RArray1D ysav;
@@ -417,7 +419,7 @@ int rkclow (burn_t& state, rkc_t& rstate)
         }
 
         // Update the data for interpolation stored in work(*).
-        for (int i = 1; i < RKC_NEQS; ++i) {
+        for (int i = 1; i <= RKC_NEQS; ++i) {
             Real ylast = rstate.yn(i);
             Real yplast = rstate.fn(i);
             rstate.yn(i) = rstate.y(i);
