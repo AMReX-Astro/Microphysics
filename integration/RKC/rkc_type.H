@@ -22,7 +22,7 @@ struct rkc_t {
     // The initial point of the integration.
    amrex::Real t
 
-   // The end of the interval of integation.
+   // The end of the interval of integration.
    amrex::Real tend;
 
     // Integration array
