@@ -73,11 +73,11 @@ struct rkc_t {
 
     amrex::Real hmax;
 
-    RArray1D work_yn;
-    RArray1D work_fn;
-    RArray1D work_vtemp1;
-    RArray1D work_vtemp2;
-    RArray1D work_sprad;
+    RArray1D yn;
+    RArray1D fn;
+    RArray1D vtemp1;
+    RArray1D vtemp2;
+    RArray1D sprad;
 
     // set IDID = 0 for initialization
     short idid;

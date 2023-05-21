@@ -52,7 +52,6 @@ int rkclow (burn_t& state, rkc_t rstate)
     // RKC is an interface to RKCLOW where the actual solution takes place.
 
     const Real onep1 = 1.1_rt;
-    const Real onep54 = 1.54_rt;
     const Real p1 = 0.1_rt;
     const Real p4 = 0.4_rt;
     const Real p8 = 0.8_rt;
@@ -73,164 +72,186 @@ int rkclow (burn_t& state, rkc_t rstate)
     call f(neqn,t,yn,fn);
 
     rstate.nfe++;
-    int tdir = std::copysign(1.0_rt, tend - t);
+    int tdir = std::copysign(1.0_rt, rstate.tend - rstate.t);
     rstate.hmax = std::abs(tend - t);
 
-    int hmin = 10.0_rt * uround * std::max(std::abs(t), hmax);
+    int hmin = 10.0_rt * uround * std::max(std::abs(t), rstate.hmax);
+    Real sprad{};
+    Real absh{};
+    Real errold{};
+    Real h{};
+    Real hold{};
 
-c------------------------------------      
-c  Start of loop for taking one step.  
-c------------------------------------
-20    continue      
-c----------------------------------------------
-c  Estimate the spectral radius of the Jacobian 
-c  when newspc = .true..  A convergence failure 
-c  in rkcrho is reported by idid = 6.
-c----------------------------------------------
-      if(newspc) then
-        if(info(2) .eq. 1) then
-          sprad = spcrad(neqn,t,yn)
-        else
-          call rkcrho(neqn,t,f,yn,fn,vtemp1,vtemp2,work,sprad,idid)
-          if(idid .eq. 6) return
-        endif
-        jacatt = .true.
-      endif
-c-------------------------------
-c  Compute an initial step size.
-c-------------------------------        
-      if(nsteps .eq. 0) then
-        absh = hmax
-        if(sprad*absh .gt. one) absh = one/sprad
-        absh = max(absh,hmin)
-        do 30 i = 1,neqn
-          vtemp1(i) = yn(i) + absh*fn(i)
-30      continue   
-        call f(neqn,t+absh,vtemp1,vtemp2)
-        nfe = nfe + 1
-        est = zero
-        at = atol(1)
-        do 40 i = 1,neqn
-          if(array) at = atol(i)
-          wt = at + rtol*abs(yn(i))
-          if(wt .eq. zero) then
-            idid = 3
-            return
-          endif
-          est = est + ((vtemp2(i) - fn(i))/wt)**2
-40      continue          
-        est = absh*sqrt(est/neqn)
-        if(p1*absh .lt. hmax*sqrt(est)) then
-          absh = max(p1*absh/sqrt(est), hmin)
-        else 
-          absh = hmax
-        endif
-      endif        
-c------------------------------------------------------------
-c  Adjust the step size and determine the number of stages m.
-c------------------------------------------------------------      
-      last = .false.
-      if(onep1*absh .ge. abs(tend - t)) then
-        absh = abs(tend - t)
-        last = .true.
-      endif
-      m = 1 + int(sqrt(onep54*absh*sprad + one))
-c----------------------------------------------------------
-c  Limit m to mmax to control the growth of roundoff error.
-c----------------------------------------------------------
-      if(m .gt. mmax) then
-        m = mmax
-        absh = (m**2 - 1)/(onep54*sprad)
-        last = .false.
-      endif
-      maxm = max(m,maxm)
-c--------------------------------------------
-c  A tentative solution at t+h is returned in
-c  y and its slope is evaluated in vtemp1(*).
-c--------------------------------------------
-      h = tdir*absh
-      hmin = ten*uround*max(abs(t),abs(t + h))
-      call step(neqn,f,t,yn,fn,h,m,y,vtemp1,vtemp2)
-      call f(neqn,t+h,y,vtemp1)
-      nfe = nfe + m
-      nsteps = nsteps + 1
-c-------------------------------------------------------------
-c  Estimate the local error and compute its weighted RMS norm.
-c-------------------------------------------------------------
-      err = zero
-      at = atol(1)
-      do 50 i = 1, neqn
-        if(array) at = atol(i)
-        wt = at + rtol*max(abs(y(i)),abs(yn(i)))
-        if(wt .eq. zero) then
-          idid = 3
-          return
-        endif
-        est = p8*(yn(i) - y(i)) + p4*h*(fn(i) + vtemp1(i))
-        err = err + (est/wt)**2
-50    continue
-      err = sqrt(err/neqn)
-c
-      if(err .gt. one) then
-c-------------------
-c  Step is rejected.
-c-------------------
-        nrejct = nrejct + 1
-        absh = p8*absh/(err**one3rd)
-        if(absh .lt. hmin) then
-          idid = 4
-          return
-        else
-          newspc = .not. jacatt
-          goto 20
-        endif
-      endif
-c-------------------
-c  Step is accepted.
-c-------------------
-      naccpt = naccpt + 1
-      t = t + h
-      jacatt = info(3) .eq. 1
-      nstsig = mod(nstsig+1,25)
-      newspc = .false.
-      if((info(2) .eq. 1) .or. (nstsig .eq. 0)) newspc = .not. jacatt
-c------------------------------------------------------
-c  Update the data for interpolation stored in work(*).
-c------------------------------------------------------      
-      work(1) = h
-      work(2) = t
-      do 60 i = 1, neqn
-         ylast = yn(i)
-         yplast = fn(i)
-         yn(i) = y(i)
-         fn(i) = vtemp1(i)
-         vtemp1(i) = ylast
-         vtemp2(i) = yplast
-60    continue
-      fac = ten
-      if(naccpt .eq. 1) then
-        temp2 = err**one3rd
-        if(p8 .lt. fac*temp2) fac = p8/temp2
-      else
-        temp1 = p8*absh*errold**one3rd
-        temp2 = abs(hold)*err**two3rd
-        if(temp1 .lt. fac*temp2) fac = temp1/temp2
-      endif
-      absh = max(p1,fac)*absh
-      absh = max(hmin,min(hmax,absh))
-      errold = err
-      hold = h
-      h = tdir*absh
-      if(last) then
-        idid = 1
-        return
-      elseif(info(1) .eq. 0) then
-        idid = 2
-        return
-      else
-        goto 20
-      endif
-      end
+    // Start of loop for taking one step.
+    while (true) {
+
+        // Estimate the spectral radius of the Jacobian
+        // when newspc = .true..  A convergence failure
+        // in rkcrho is reported by idid = 6.
+
+        if (newspc) {
+            sprad = rkcrho(state, rstate);
+            if (rstate.idid == 6) {
+                return rstate.idid;
+            }
+
+            jacatt = true;
+        }
+
+
+        // Compute an initial step size.
+
+        if (rstate.nsteps == 0) {
+            absh = rstate.hmax;
+            if (sprad * absh > 1.0_rt) {
+                absh = 1.0_rt / sprad;
+            }
+            absh = std::max(absh, hmin);
+
+            for (int i = 1; i <= RKC_NEQS; ++i) {
+                rstate.vtemp1(i) = rstate.yn(i) + absh * rstate.fn(i);
+            }
+
+            call f(neqn,t+absh,vtemp1,vtemp2);
+
+            rstate.nfe++;
+            Real est{};
+
+            // compute the weights using the tolerances
+            for (int i = 1; i <= RKC_NEQS; ++i) {
+                Real wt{};
+                if (i <= NumSpec) {
+                    wt = rstate.rtol_spec * std::abs(rstate.yn(i)) + rstate.atol_spec;
+                } else {
+                    wt = rstate.rtol_enuc * std::abs(rstate.yn(i)) + rstate.atol_enuc;
+                }
+                if (wt == zero) {
+                    rstate.idid = 3;
+                    return rstate.idid;
+                }
+                est += std::pow((rstate.vtemp2(i) - rstate.fn(i)) / wt, 2);
+            }
+            est = absh * std::sqrt(est / RKC_NEQS);
+
+            if (p1 * absh < rstate.hmax * std::sqrt(est)) {
+                absh = std::max(p1 * absh / std::sqrt(est), hmin);
+            } else {
+                absh = rstate.hmax;
+            }
+        }
+
+        // Adjust the step size and determine the number of stages m.
+
+        bool last = false;
+        if (onep1 * absh >=  std::abs(rstate.tend - rstate.t)) {
+            absh = std::abs(rstate.tend - rstate.t);
+            last = true;
+        }
+        m = 1 + static_cast<int>(std::sqrt(1.54_rt * absh * sprad + 1.0_rt));
+
+        // Limit m to mmax to control the growth of roundoff error.
+
+        if (m > rstate.mmax) {
+            m = rstate.mmax;
+            absh = static_cast<Real>(m * m - 1) / (1.54_rt * sprad);
+            last = false;
+        }
+        rstate.maxm = std::max(m, rstate.maxm);
+
+        // A tentative solution at t+h is returned in
+        // y and its slope is evaluated in vtemp1(*).
+
+        h = tdir * absh;
+        hmin = 10.0_rt * uround * std::max(std::abs(rstate.t),
+                                           std::abs(rstate.t + h));
+        step(state, rstate, h, m);
+        call f(neqn,t+h,y,vtemp1);
+        rstate.nfe += m;
+        rstate.nsteps++;
+
+        // Estimate the local error and compute its weighted RMS norm.
+
+        Real err{};
+        for (int i = 1; i <= RKC_NEQS; ++i) {
+            if (i <= NumSpec) {
+                wt = rstate.rtol_spec * std::max(std::abs(rstate.yn(i)),
+                                                 std::abs(rstate.y(i))) +
+                    rstate.atol_spec;
+            } else {
+                wt = rstate.rtol_enuc * std::max(std::abs(rstate.yn(i)),
+                                                 std::abs(rstate.y(i))) +
+                    rstate.atol_enuc;
+            }
+            if (wt == 0.0_rt) {
+                rstate.idid = 3;
+                return rstate.idid;
+            }
+            est = p8 * (rstate.yn(i) - rstate.y(i)) +
+                  p4 * h * (rstate.fn(i) + rstate.vtemp1(i));
+            err += std::pow(est / wt, 2);
+        }
+
+        err = std::sqrt(err / RKC_NEQS);
+
+        if (err > 1.0_rt) {
+            // Step is rejected.
+            rstate.nrejct++;
+            absh = p8 * absh / std::pow(err, one3rd);
+            if (absh < hmin) {
+                rstate.idid = 4;
+                return rstate.idid;
+            } else {
+                newspc = ! jacatt;
+                continue;
+            }
+        }
+
+        // Step is accepted.
+
+        rstate.naccpt++;
+        rstate.t += h;
+        jacatt = false;
+        nstsig = nstsig+1 % 25;
+        newspc = false;
+        if (nstsig == 0) {
+            newspc = ! jacatt;
+        }
+
+        // Update the data for interpolation stored in work(*).
+        for (int i = 1; i < RKC_NEQS; ++i) {
+            Real ylast = rstate.yn(i);
+            Real yplast = rstate.fn(i);
+            rstate.yn(i) = rstate.y(i);
+            rstate.fn(i) = rstate.vtemp1(i);
+            rstate.vtemp1(i) = ylast;
+            rstate.vtemp2(i) = yplast;
+        }
+        Real fac = 10.0_rt;
+        if (rstate.naccpt == 1) {
+            Real temp2 = std::pow(err, one3rd);
+            if (p8 < fac * temp2) {
+                fac = p8/temp2;
+            }
+        } else {
+            temp1 = p8 * absh * std::pow(errold, one3rd);
+            temp2 = std::abs(hold) * std::pow(err, two3rd);
+            if (temp1 < fac * temp2) {
+                fac = temp1 / temp2;
+            }
+        }
+        absh = std::max(p1, fac) * absh;
+        absh = std::max(hmin, std::min(rstate.hmax, absh));
+        errold = err;
+        hold = h;
+        h = tdir * absh;
+
+        if (last) {
+            rstate.idid = 1;
+            return rstate.idid;
+        }
+    }
+}
+
 
       subroutine step(neqn,f,t,yn,fn,h,m,y,yjm1,yjm2)
 c--------------------------------------------------
@@ -240,7 +261,7 @@ c--------------------------------------------------
       double precision t,yn(neqn),fn(neqn),h,
      &                 y(neqn),yjm1(neqn),yjm2(neqn)
       external         f
-c      
+c
       double precision one,two,four,c13,zero
       parameter       (one=1d0,two=2d0,four=4d0,c13=13d0,zero=0d0)
       integer          i,j
@@ -287,7 +308,7 @@ c------------------------------
         nu   = - bj/bjm2
         mus  =   mu*w1/w0
 c---------------------------------------------
-c  Use the y array for temporary storage here.         
+c  Use the y array for temporary storage here.
 c---------------------------------------------
         call f(neqn,t + h*thjm1,yjm1,y)
         do 30 i = 1, neqn
@@ -329,7 +350,7 @@ c---------------------------------------------------------------
       double precision t,yn(neqn),fn(neqn),v(neqn),fv(neqn),work(*),
      &                 sprad
       external         f
-c      
+c
       integer          itmax
       parameter       (itmax=50)
       double precision zero,one,onep2,p01
@@ -342,7 +363,7 @@ c
 c
 c------------------------------------------------------------
 c  hmax = work(6).  sprad smaller than small = 1/hmax are not
-c  interesting because they do not constrain the step size.  
+c  interesting because they do not constrain the step size.
 c------------------------------------------------------------
       small = one/work(6)
 c---------------------------------------------------------
@@ -358,14 +379,14 @@ c---------------------------------------------------------
           v(i) = fn(i)
 10      continue
       else
-        do 20 i = 1,neqn          
+        do 20 i = 1,neqn
           v(i) = work(ptr5+i-1)
 20      continue
       endif
       ynrm = zero
       vnrm = zero
       do 30 i = 1,neqn
-        ynrm = ynrm + yn(i)**2     
+        ynrm = ynrm + yn(i)**2
         vnrm = vnrm + v(i)**2
 30    continue
       ynrm = sqrt(ynrm)
@@ -374,7 +395,7 @@ c---------------------------------------------------------
         dynrm = ynrm*sqrtu
         do 40 i = 1,neqn
           v(i) = yn(i) + v(i)*(dynrm/vnrm)
-40      continue          
+40      continue
       elseif(ynrm .ne. zero) then
         dynrm = ynrm*sqrtu
         do 50 i = 1, neqn
@@ -385,11 +406,11 @@ c---------------------------------------------------------
         do 60 i = 1,neqn
           v(i) = v(i)*(dynrm/vnrm)
 60      continue
-      else          
+      else
         dynrm = uround
         do 70 i = 1,neqn
           v(i) = dynrm
-70      continue          
+70      continue
       endif
 c--------------------------------------------
 c  Now iterate with a nonlinear power method.
@@ -401,18 +422,18 @@ c--------------------------------------------
         dfnrm = zero
         do 80 i = 1, neqn
           dfnrm = dfnrm + (fv(i) - fn(i))**2
-80      continue   
+80      continue
         dfnrm = sqrt(dfnrm)
         sigmal = sigma
         sigma = dfnrm/dynrm
 c----------------------------------------------------------
-c  sprad is a little bigger than the estimate sigma of the 
+c  sprad is a little bigger than the estimate sigma of the
 c  spectral radius, so is more likely to be an upper bound.
 c----------------------------------------------------------
         sprad = onep2*sigma
         if(iter .ge. 2 .and.
      &     abs(sigma - sigmal) .le. max(sigma,small)*p01) then
-          do 90 i = 1,neqn          
+          do 90 i = 1,neqn
             work(ptr5+i-1) = v(i) - yn(i)
 90        continue
           return
@@ -424,11 +445,11 @@ c--------------------------------------
         if(dfnrm .ne. zero) then
           do 100 i = 1,neqn
             v(i) = yn(i) + (fv(i) - fn(i))*(dynrm/dfnrm)
-100       continue           
+100       continue
         else
 c-------------------------------------------------------
-c  The new v(*) degenerated to yn(*)--"randomly" perturb 
-c  current approximation to the eigenvector by changing 
+c  The new v(*) degenerated to yn(*)--"randomly" perturb
+c  current approximation to the eigenvector by changing
 c  the sign of one component.
 c-------------------------------------------------------
           index = 1 + mod(iter,neqn)
@@ -439,7 +460,7 @@ c-------------------------------------------
 c  Set flag to report a convergence failure.
 c-------------------------------------------
       idid = 6
-      return 
+      return
       end
 
 #endif
