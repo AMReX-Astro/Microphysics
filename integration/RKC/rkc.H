@@ -3,129 +3,81 @@
 
 #include <rkc_type.H>
 
-      subroutine rkc(neqn,f,y,t,tend,rtol,atol,info,work,idid)
-      integer          neqn,info(*),idid
-      double precision y(neqn),t,tend,rtol,atol(*),work(*)
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int rkc (burn_t& state, rkc_t rstate)
+{
 
-      constexpr Real uround = std::numeric_limits<Real>::min();
+    const Real rmax = 0.1_rt;
+    const Real rmin = 10.0_rt * UROUND;
 
-      double precision zero,rmax,rmin
-      parameter       (zero=0d0,rmax=0.1d0,rmin=10d0*uround)
-      integer          i,ptr1,ptr2,ptr3,ptr4
-      logical          array,valid
-      save
-      integer          nfe,nsteps,naccpt,nrejct,nfesig,maxm
-      common /rkcdid/  nfe,nsteps,naccpt,nrejct,nfesig,maxm
-      external         f
-c
-      if(idid .eq. 0) then
-c----------------------
-c  Test the input data.
-c----------------------  
-         array = info(4) .eq. 1
-         valid = neqn .gt. 0
-         if((rtol .gt. rmax) .or. (rtol .lt. rmin)) valid = .false.
-         if(atol(1) .lt. zero) valid = .false.
-         if(array) then
-           do 10 i = 2, neqn
-             if(atol(i) .lt. zero) valid = .false.
-10         continue     
-         endif      
-         if(.not. valid) then
-           idid = 5
-           return
-         endif
-c-----------------------------------
-c  Initialize counters and pointers.
-c-----------------------------------
-         nfe = 0
-         nsteps = 0
-         naccpt = 0
-         nrejct = 0
-         nfesig = 0
-         maxm = 0
-c-----------------------------------------------------------
-c  work(*) contains information needed for interpolation,
-c  continuation after a return, and working storage. Items
-c  relevant here are:
-c
-c  The last step taken, hlast, is work(1).
-c  The current t is work(2).
-c  The number of equations, neqn, is work(3).
-c  The unit roundoff, uround, is work(4).
-c  The square root of uround, sqrtu, is work(5).
-c  The maximum step size, hmax, is work(6).
-c  The base address for the solution is ptr1 = nint(work(7)).
-c  The solution at t starts at ptr1.
-c  The derivative of the solution at t starts at ptr2.
-c  The solution at t-hlast starts at ptr3.
-c  The derivative of the solution at t-hlast starts at ptr4.
-c  The estimated dominant eigenvector starts at ptr4 + neqn.
-c------------------------------------------------------------
-        work(2) = t
-        work(3) = neqn
-        work(4) = uround
-        work(5) = sqrt(uround)
-        ptr1 = 8
-        work(7) = ptr1
-        ptr2 = ptr1 + neqn
-        ptr3 = ptr2 + neqn
-        ptr4 = ptr3 + neqn
-      elseif(idid .ne. 2) then
-        write(*,*) ' RKC was called with an illegal value of IDID.'
-        stop
-      endif
-c           
-      call rkclow(neqn,t,tend,y,f,info,rtol,atol,work,
-     &            work(ptr1),work(ptr2),work(ptr3),work(ptr4),idid)
-      return
-      end
-      
-      subroutine rkclow(neqn,t,tend,y,f,info,rtol,atol,work,
-     &                  yn,fn,vtemp1,vtemp2,idid)
-c----------------------------------------------------------------------
-c  RKC is an interface to RKCLOW where the actual solution takes place.
-c----------------------------------------------------------------------     
-      integer          neqn,info(*),idid
-      double precision t,tend,y(*),rtol,atol(*),work(*),
-     &                 yn(*),fn(*),vtemp1(*),vtemp2(*)
-      external         f
-c     
-      double precision one,onep1,onep54,p1,p4,p8,
-     &                 ten,zero,one3rd,two3rd
-      parameter       (one=1d0,onep1=1.1d0,onep54=1.54d0,
-     &                 p1=0.1d0,p4=0.4d0,p8=0.8d0,ten=10d0,
-     &                 zero=0d0,one3rd=1d0/3d0,two3rd=2d0/3d0)
-      integer          i,m,mmax,nstsig
-      double precision absh,est,err,errold,fac,h,hmax,hmin,hold,
-     &                 spcrad,sprad,tdir,temp1,temp2,
-     &                 uround,wt,ylast,yplast,at
-      logical          array,last,newspc,jacatt
-      save
-      integer          nfe,nsteps,naccpt,nrejct,nfesig,maxm
-      common /rkcdid/  nfe,nsteps,naccpt,nrejct,nfesig,maxm
-c
-c---------------------------------
-c    Initialize on the first call.
-c---------------------------------
-      if(idid .eq. 0) then
-        array = info(4) .eq. 1
-        uround = work(4)
-        mmax = nint(sqrt(rtol/(10d0*uround)))
-        mmax = max(mmax,2)
-        newspc = .true.
-        jacatt = .false.
-        nstsig = 0
-        do 10 i = 1, neqn
-          yn(i) = y(i)
-10      continue
-        call f(neqn,t,yn,fn)
-        nfe = nfe + 1
-        tdir = sign(one,tend - t)
-        hmax = abs(tend - t)
-        work(6) = hmax
-        hmin = ten*uround*max(abs(t),hmax)
-      endif
+    // the original rkc.f checked on the input value of idid, but we
+    // only work for idid = 0, which is a new integration (not a
+    // continuation)
+
+    // Test the input data.
+    bool valid = true;
+
+    if ((rtol_spec > rmax) || (rtol_enuc > rmax) ||
+        (rtol_spec < rmin) || (rtol_spec < rmin)) {
+        valid = false;
+    }
+
+    if (atol_spec < 0.0_rt || atol_enuc < 0.0_rt) {
+        valid = false;
+    }
+
+    if (! valid) {
+        rstate.idid = 5;  // TODO: remove idid from rstate
+        return rstate.idid;
+    }
+
+    // Initialize counters and pointers.
+
+    rstate.nfe = 0;
+    rstate.nsteps = 0;
+    rstate.naccpt = 0;
+    rstate.nrejct = 0;
+    rstate.nfesig = 0;
+    rstate.maxm = 0;
+
+    rkclow(state, rstate);
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+int rkclow (burn_t& state, rkc_t rstate)
+{
+
+
+    // RKC is an interface to RKCLOW where the actual solution takes place.
+
+    const Real onep1 = 1.1_rt;
+    const Real onep54 = 1.54_rt;
+    const Real p1 = 0.1_rt;
+    const Real p4 = 0.4_rt;
+    const Real p8 = 0.8_rt;
+    const Real one3rd = 1.0_rt/3.0_rt;
+    const Real two3rd = 2.0_rt/3.0_rt;
+
+    // Initialize on the first call.
+
+    rstate.mmax = std::round(std::sqrt(rtol/(10.0_rt * uround)));
+    rstate.mmax = std::max(rstate.mmax, 2);
+    bool newspc = true;
+    bool jacatt = false;
+    int nstsig = 0;
+    for (int i = 1; i <= RKC_NEQS; ++i) {
+        rstate.work.yn(i) = rstate.y(i);
+    }
+
+    call f(neqn,t,yn,fn);
+
+    rstate.nfe++;
+    int tdir = std::copysign(1.0_rt, tend - t);
+    rstate.hmax = std::abs(tend - t);
+
+    int hmin = 10.0_rt * uround * std::max(std::abs(t), hmax);
+
 c------------------------------------      
 c  Start of loop for taking one step.  
 c------------------------------------
@@ -366,69 +318,6 @@ c------------------------------------
       return
       end
 
-      subroutine rkcint(work,arg,yarg)
-c-------------------------------------------------------------------------
-c  RKCINT is used to compute approximate solutions at specific t and to 
-c  compute cheaply the large number of approximations that may be needed
-c  for plotting or locating when events occur.
-c
-c  After a step to T, RKC provides HLAST, the step just taken, in WORK(1).
-c  In other entries of WORK(*) it provides the data needed to interpolate 
-c  anywhere in [T-HLAST, T]. YARG(*), the approximate solution at t = ARG 
-c  computed by interpolation in RKCINT has the same order of accuracy as 
-c  the Y(*) computed directly by RKC.
-c  
-c  INPUT:
-c
-c    WORK(*)   Double precision array returned by RKC.
-c
-c    ARG       The point at which a solution is desired. Double precision.
-c
-c  OUTPUT:
-c
-c    YARG(*)   The approximate solution at t = ARG.  Double precision
-c              array of length neqn.
-c--------------------------------------------------------------------------
-      double precision work(*),arg,yarg(*)
-c
-      double precision one,two,three
-      parameter       (one=1d0,two=2d0,three=3d0)
-      integer          i,neqn,ptr1,ptr2,ptr3,ptr4
-      double precision a1,a2,b1,b2,s,hlast,t,tlast
-c      
-c---------------------------------------------------------------------
-c  The data needed for interpolation are stored in work(*) as follows:
-c
-c  The last step taken, hlast, is work(1).
-c  The current t is work(2).
-c  The number of equations, neqn, is work(3).
-c  The base address for the solution is ptr1 = nint(work(7))
-c  The solution at t starts at ptr1.
-c  The derivative of the solution at t starts at ptr2.
-c  The solution at t-hlast starts at ptr3.
-c  The derivative of the solution at t-hlast starts at ptr4.
-c---------------------------------------------------------------------
-      hlast = work(1)
-      t = work(2)
-      tlast = t - hlast
-      neqn = nint(work(3))
-      ptr1 = nint(work(7))
-      ptr2 = ptr1 + neqn
-      ptr3 = ptr2 + neqn
-      ptr4 = ptr3 + neqn
-c
-      s  = (arg - tlast)/hlast
-      a1 = (one + two*s)*(s - one)**2
-      a2 = (three - two*s)*s**2
-      b1 = hlast*s*(s - one)**2
-      b2 = hlast*(s - one)*s**2
-c
-      do 10 i = 1, neqn
-        yarg(i) = a1*work(ptr3+i-1) + a2*work(ptr1+i-1) +
-     &            b1*work(ptr4+i-1) + b2*work(ptr2+i-1)
-10    continue
-      return
-      end
 
       subroutine rkcrho(neqn,t,f,yn,fn,v,fv,work,sprad,idid)
 c---------------------------------------------------------------
@@ -451,8 +340,6 @@ c
       integer          nfe,nsteps,naccpt,nrejct,nfesig,maxm
       common /rkcdid/  nfe,nsteps,naccpt,nrejct,nfesig,maxm
 c
-      uround = work(4)
-      sqrtu = work(5)
 c------------------------------------------------------------
 c  hmax = work(6).  sprad smaller than small = 1/hmax are not
 c  interesting because they do not constrain the step size.  
