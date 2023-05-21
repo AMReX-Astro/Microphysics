@@ -9,7 +9,7 @@
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void step (burn_t& state, rkc_t rstate, const Real h, const int m)
+void step (burn_t& state, rkc_t& rstate, const Real h, const int m)
 {
 
     // Take a step of size H from T to T+H to get Y(*).
@@ -98,7 +98,7 @@ void step (burn_t& state, rkc_t rstate, const Real h, const int m)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rkcrho (burn_t& state, rkc_t rstate)
+Real rkcrho (burn_t& state, rkc_t& rstate)
 {
 
     // RKCRHO attempts to compute a close upper bound, SPRAD, on
@@ -228,7 +228,7 @@ Real rkcrho (burn_t& state, rkc_t rstate)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkclow (burn_t& state, rkc_t rstate)
+int rkclow (burn_t& state, rkc_t& rstate)
 {
 
 
@@ -342,6 +342,7 @@ int rkclow (burn_t& state, rkc_t rstate)
         bool last = false;
         if (onep1 * absh >=  std::abs(rstate.tend - rstate.t)) {
             absh = std::abs(rstate.tend - rstate.t);
+            std::cout << "made it into last!!!!!!" << std::endl;
             last = true;
         }
         int m = 1 + static_cast<int>(std::sqrt(1.54_rt * absh * sprad + 1.0_rt));
@@ -444,6 +445,7 @@ int rkclow (burn_t& state, rkc_t rstate)
         h = tdir * absh;
 
         if (last) {
+            std::cout << "setting idid in last" << std::endl;
             rstate.idid = 1;
             return rstate.idid;
         }
@@ -451,7 +453,7 @@ int rkclow (burn_t& state, rkc_t rstate)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkc (burn_t& state, rkc_t rstate)
+int rkc (burn_t& state, rkc_t& rstate)
 {
 
     const Real rmax = 0.1_rt;
@@ -487,8 +489,11 @@ int rkc (burn_t& state, rkc_t rstate)
     rstate.nfesig = 0;
     rstate.maxm = 0;
 
+    std::cout << "calling rkclow" << std::endl;
+
     rkclow(state, rstate);
 
+    std::cout << rstate.idid << std::endl;
     return rstate.idid;
 }
 
