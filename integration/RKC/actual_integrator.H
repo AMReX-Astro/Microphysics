@@ -76,7 +76,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = rkc_state.NFE;
+    state.n_rhs = rkc_state.nfe;
     state.n_jac = 0;
     state.n_step = rkc_state.nsteps;
 

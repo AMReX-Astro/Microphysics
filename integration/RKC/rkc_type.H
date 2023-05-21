@@ -20,7 +20,7 @@ const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 struct rkc_t {
 
     // The initial point of the integration.
-   amrex::Real t
+   amrex::Real t;
 
    // The end of the interval of integration.
    amrex::Real tend;
@@ -86,7 +86,7 @@ struct rkc_t {
     // block
 
     // number of function evaluations
-    int NFE;
+    int nfe;
 
     // number of integration stesp
     int nsteps;

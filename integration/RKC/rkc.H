@@ -5,10 +5,11 @@
 #include <burn_type.H>
 #ifdef STRANG
 #include <integrator_type_strang.H>
+#include <integrator_rhs_strang.H>
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void state (burn_t& state, rkc_t rstate, const Real h, const int m)
+void step (burn_t& state, rkc_t rstate, const Real h, const int m)
 {
 
     // Take a step of size H from T to T+H to get Y(*).
@@ -26,11 +27,11 @@ void state (burn_t& state, rkc_t rstate, const Real h, const int m)
     // Evaluate the first stage.
 
     for (int i = 1; i <= RKC_NEQS; ++i) {
-        rstate.ytemp2(i) = rstate.yn(i);
+        rstate.vtemp2(i) = rstate.yn(i);
     }
     Real mus = w1 * bjm1;
     for (int i = 1; i <= RKC_NEQS; ++i) {
-        rstate.vtemp2(i) = rstate.yn(i) + h * mus * rstate.fn(i);
+        rstate.vtemp1(i) = rstate.yn(i) + h * mus * rstate.fn(i);
     }
 
     Real thjm2{};
@@ -65,7 +66,7 @@ void state (burn_t& state, rkc_t rstate, const Real h, const int m)
             rstate.y(i) = rstate.vtemp1(i);
         }
         RArray1D ydot;
-        call rhs(t + h*thjm1, state, rstate, ydot);
+        rhs(rstate.t + h*thjm1, state, rstate, ydot);
 
         for (int i = 1; i <= RKC_NEQS; ++i) {
             rstate.y(i) = mu * rstate.vtemp1(i) +
@@ -174,7 +175,7 @@ Real rkcrho (burn_t& state, rkc_t rstate)
             ysav(i) = rstate.y(i);
             rstate.y(i) = rstate.vtemp1(i);
         }
-        call f(rstate.t, state, rstate, v, rstate.vtemp2);
+        rhs(rstate.t, state, rstate, rstate.vtemp2);
         for (int i = 1; i <= RKC_NEQS; ++i) {
             rstate.y(i) = ysav(i);
         }
@@ -242,8 +243,11 @@ int rkclow (burn_t& state, rkc_t rstate)
 
     // Initialize on the first call.
 
-    rstate.mmax = std::round(std::sqrt(rtol/(10.0_rt * uround)));
-    rstate.mmax = std::max(rstate.mmax, 2);
+    // note: the original Fortran code only had a single rtol, so
+    // I needed to generalize this
+    int mmax = std::round(std::sqrt(std::max(rstate.rtol_spec, rstate.rtol_enuc) /
+                                    (10.0_rt * UROUND)));
+    mmax = std::max(mmax, 2);
     bool newspc = true;
     bool jacatt = false;
     int nstsig = 0;
@@ -256,9 +260,9 @@ int rkclow (burn_t& state, rkc_t rstate)
 
     rstate.nfe++;
     int tdir = std::copysign(1.0_rt, rstate.tend - rstate.t);
-    rstate.hmax = std::abs(tend - t);
+    rstate.hmax = std::abs(rstate.tend - rstate.t);
 
-    int hmin = 10.0_rt * uround * std::max(std::abs(t), rstate.hmax);
+    Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), rstate.hmax);
     Real sprad{};
     Real absh{};
     Real errold{};
@@ -298,12 +302,12 @@ int rkclow (burn_t& state, rkc_t rstate)
             // we want to call with vtemp1 as the input, so we need to stash the
             // current y
             RArray1D ysav;
-            for (int i = 1; i <= NEQS; ++i) {
+            for (int i = 1; i <= RKC_NEQS; ++i) {
                 ysav(i) = rstate.y(i);
                 rstate.y(i) = rstate.vtemp1(i);
             }
-            call f(rstate.t+absh, state, rstate rstate.vtemp2);
-            for (int i = 1; i <= NEQS; ++i) {
+            rhs(rstate.t+absh, state, rstate, rstate.vtemp2);
+            for (int i = 1; i <= RKC_NEQS; ++i) {
                 rstate.y(i) = ysav(i);
             }
 
@@ -318,7 +322,7 @@ int rkclow (burn_t& state, rkc_t rstate)
                 } else {
                     wt = rstate.rtol_enuc * std::abs(rstate.yn(i)) + rstate.atol_enuc;
                 }
-                if (wt == zero) {
+                if (wt == 0.0_rt) {
                     rstate.idid = 3;
                     return rstate.idid;
                 }
@@ -340,12 +344,12 @@ int rkclow (burn_t& state, rkc_t rstate)
             absh = std::abs(rstate.tend - rstate.t);
             last = true;
         }
-        m = 1 + static_cast<int>(std::sqrt(1.54_rt * absh * sprad + 1.0_rt));
+        int m = 1 + static_cast<int>(std::sqrt(1.54_rt * absh * sprad + 1.0_rt));
 
         // Limit m to mmax to control the growth of roundoff error.
 
-        if (m > rstate.mmax) {
-            m = rstate.mmax;
+        if (m > mmax) {
+            m = mmax;
             absh = static_cast<Real>(m * m - 1) / (1.54_rt * sprad);
             last = false;
         }
@@ -355,7 +359,7 @@ int rkclow (burn_t& state, rkc_t rstate)
         // y and its slope is evaluated in vtemp1(*).
 
         h = tdir * absh;
-        hmin = 10.0_rt * uround * std::max(std::abs(rstate.t),
+        hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t),
                                            std::abs(rstate.t + h));
         step(state, rstate, h, m);
         rhs(rstate.t+h, state, rstate, rstate.vtemp1);
@@ -366,6 +370,7 @@ int rkclow (burn_t& state, rkc_t rstate)
 
         Real err{};
         for (int i = 1; i <= RKC_NEQS; ++i) {
+            Real wt{};
             if (i <= NumSpec) {
                 wt = rstate.rtol_spec * std::max(std::abs(rstate.yn(i)),
                                                  std::abs(rstate.y(i))) +
@@ -379,8 +384,8 @@ int rkclow (burn_t& state, rkc_t rstate)
                 rstate.idid = 3;
                 return rstate.idid;
             }
-            est = p8 * (rstate.yn(i) - rstate.y(i)) +
-                  p4 * h * (rstate.fn(i) + rstate.vtemp1(i));
+            Real est = p8 * (rstate.yn(i) - rstate.y(i)) +
+                       p4 * h * (rstate.fn(i) + rstate.vtemp1(i));
             err += std::pow(est / wt, 2);
         }
 
@@ -426,8 +431,8 @@ int rkclow (burn_t& state, rkc_t rstate)
                 fac = p8/temp2;
             }
         } else {
-            temp1 = p8 * absh * std::pow(errold, one3rd);
-            temp2 = std::abs(hold) * std::pow(err, two3rd);
+            Real temp1 = p8 * absh * std::pow(errold, one3rd);
+            Real temp2 = std::abs(hold) * std::pow(err, two3rd);
             if (temp1 < fac * temp2) {
                 fac = temp1 / temp2;
             }
@@ -484,6 +489,7 @@ int rkc (burn_t& state, rkc_t rstate)
 
     rkclow(state, rstate);
 
+    return rstate.idid;
 }
 
 #endif
