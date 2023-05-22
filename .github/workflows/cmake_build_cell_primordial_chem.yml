@@ -24,12 +24,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -y -qq
-          sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
+          sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0 libopenmpi-dev
 
       - name: Compile and run
         run: |
           mkdir build && cd build
           cmake .. -DBUILD_UNIT_TEST=true -DBUILD_AMREX=true
-          ninja
+	  make -j2
 
 
