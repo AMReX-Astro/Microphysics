@@ -14,6 +14,8 @@
 #include <ArrayUtilities.H>
 #include <variables.H>
 
+using namespace unit_test_rp;
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t& p)
 {
