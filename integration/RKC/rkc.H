@@ -7,6 +7,10 @@
 #include <integrator_type_strang.H>
 #include <integrator_rhs_strang.H>
 #endif
+#ifdef SIMPLIFIED_SDC
+#include <integrator_type_simplified_sdc.H>
+#include <integrator_rhs_simplified_sdc.H>
+#endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void step (burn_t& state, rkc_t& rstate, const Real h, const int m)

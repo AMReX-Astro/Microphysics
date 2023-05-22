@@ -84,6 +84,34 @@ void actual_integrator (burn_t& state, Real dt)
         state.success = false;
     }
 
+    // VODE does not always fail even though it can lead to unphysical states.
+    // Add some checks that indicate a burn fail even if VODE thinks the
+    // integration was successful.
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (rkc_state.y(n) < -rkc_failure_tolerance) {
+            state.success = false;
+        }
+
+        // Don't enforce the condition below
+        // for primordial chem
+        if (!use_number_densities) {
+            if (rkc_state.y(n) > 1.0_rt + rkc_failure_tolerance) {
+                state.success = false;
+            }
+        }
+    }
+
+#ifndef AMREX_USE_GPU
+    if (burner_verbose) {
+        // Print out some integration statistics, if desired.
+        std::cout <<  "integration summary: " << std::endl;
+        std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
+        std::cout << " energy released: " << state.e << std::endl;
+        std::cout <<  "number of steps taken: " << rkc_state.nsteps << std::endl;
+        std::cout <<  "number of f evaluations: " << rkc_state.nfe << std::endl;
+    }
+#endif
 
     // If we failed, print out the current state of the integration.
 
