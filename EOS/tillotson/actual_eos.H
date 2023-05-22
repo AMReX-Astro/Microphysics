@@ -7,6 +7,8 @@
 #include <eos_data.H>
 #include <cmath>
 
+using namespace eos_rp;
+
 const std::string eos_name = "tillotson";
 
 inline

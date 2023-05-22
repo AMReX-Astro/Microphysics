@@ -19,11 +19,10 @@ USE_EXTRA_THERMO = TRUE
 
 BL_NO_FORT = TRUE
 
-# define the location of the CASTRO top directory
+# define the location of the Microphysics top directory
 MICROPHYSICS_HOME  := ../..
 
-# This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
-# you'll need to use gamma_law_general
+# This sets the EOS directory
 EOS_DIR     := helmholtz
 
 NETWORK_DIR := aprox19

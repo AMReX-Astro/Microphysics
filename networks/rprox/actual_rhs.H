@@ -14,6 +14,7 @@
 
 using namespace amrex;
 using namespace ArrayUtil;
+using namespace network_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,

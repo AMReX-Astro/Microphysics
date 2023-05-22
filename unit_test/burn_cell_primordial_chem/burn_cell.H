@@ -10,6 +10,8 @@ Real grav_constant = 6.674e-8;
 void burn_cell_c()
 {
 
+    using namespace unit_test_rp;
+
     burn_t state;
 
     Real numdens[NumSpec] = {-1.0};
