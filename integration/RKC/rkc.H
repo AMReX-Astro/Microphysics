@@ -172,7 +172,6 @@ Real rkcrho (burn_t& state, rkc_t& rstate)
     Real sprad{};
 
     for (int iter = 0; iter < itmax; ++iter) {
-        std::cout << "iter = " << iter << " " << sprad << std::endl;
 
         // we want to call the RHS with vtemp1() as the input, so we need to copy
         // this temporarily into vstate.y()
@@ -348,7 +347,6 @@ int rkclow (burn_t& state, rkc_t& rstate)
         bool last = false;
         if (onep1 * absh >=  std::abs(rstate.tend - rstate.t)) {
             absh = std::abs(rstate.tend - rstate.t);
-            std::cout << "made it into last!!!!!!" << std::endl;
             last = true;
         }
         int m = 1 + static_cast<int>(std::sqrt(1.54_rt * absh * sprad + 1.0_rt));
@@ -451,7 +449,6 @@ int rkclow (burn_t& state, rkc_t& rstate)
         h = tdir * absh;
 
         if (last) {
-            std::cout << "setting idid in last" << std::endl;
             rstate.idid = 1;
             return rstate.idid;
         }
@@ -495,11 +492,7 @@ int rkc (burn_t& state, rkc_t& rstate)
     rstate.nfesig = 0;
     rstate.maxm = 0;
 
-    std::cout << "calling rkclow" << std::endl;
-
     rkclow(state, rstate);
-
-    std::cout << rstate.idid << std::endl;
     return rstate.idid;
 }
 
