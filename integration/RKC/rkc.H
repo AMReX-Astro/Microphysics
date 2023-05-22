@@ -261,7 +261,7 @@ int rkclow (burn_t& state, rkc_t& rstate)
     rhs(rstate.t, state, rstate, rstate.fn);
 
     rstate.nfe++;
-    int tdir = std::copysign(1.0_rt, rstate.tend - rstate.t);
+    Real tdir = std::copysign(1.0_rt, rstate.tend - rstate.t);
     rstate.hmax = std::abs(rstate.tend - rstate.t);
 
     Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), rstate.hmax);
