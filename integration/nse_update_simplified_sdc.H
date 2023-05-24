@@ -183,8 +183,6 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sdc_nse_burn(burn_t& state, const Real dt) {
 
-    using namespace AuxZero;
-
     state.success = true;
     state.n_rhs = 0;
     state.n_jac = 0;
@@ -240,7 +238,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     burn_t burn_state;
     burn_state.T = 1.e6_rt; // initial guess
 
-    Real rhoX_source[NumSpec] = {0.0_r};
+    Real rhoX_source[NumSpec] = {0.0_rt};
 
     Real rhoX_new[NumSpec];
 
@@ -267,14 +265,14 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
         burn_state.rho = state.y[SRHO];
         burn_state.e = rhoe_new / state.y[SRHO];
         for (int n = 0; n < NumAux; n++) {
-            burn_state.aux[n] = rhoX_new[n] / state.y[SRHO];
+            burn_state.xn[n] = rhoX_new[n] / state.y[SRHO];
         }
 
         if (state.T_fixed > 0) {
             T_new = state.T_fixed;
         } else {
-            eos(eos_input_re, eos_state);
-            T_new = eos_state.T;
+            eos(eos_input_re, burn_state);
+            T_new = burn_state.T;
         }
         burn_state.T = T_new;
 
@@ -300,7 +298,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
             ydot_a_BA += network::bion(n+1) * aion_inv[n] * state.ydot_a[SFS+n];
         }
 
-        Real rho_bea_tilde = state.y[SRHO] * dq_out - dt * ydot_a_BA
+        Real rho_bea_tilde = state.y[SRHO] * dq_out - dt * ydot_a_BA;
         Real rho_dBEA = rho_bea_tilde - rho_bea_old;  // this is MeV / nucleon * g / cm**3
 
         // convert the energy to erg / cm**3
