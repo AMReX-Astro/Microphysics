@@ -51,7 +51,7 @@ integrator.rtol_spec = 1.0e-4
 integrator.atol_spec = 1.0e-4
 
 #assumed redshift for Pop III star formation
-network.pc_redshift = 30.0
+network.redshift = 30.0
 
 # amrex runtime parameters
 # these params help debug the code
