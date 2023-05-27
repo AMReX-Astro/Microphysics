@@ -1184,7 +1184,7 @@ Real rhs_eint(const burn_t& state,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
-    Real z = 30.;
+    Real z = redshift;
 
     Array1D<Real, 0, NumSpec-1> X;
     for (int i = 0; i < NumSpec; ++i) {
@@ -6652,7 +6652,7 @@ template<class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_jac(const burn_t& state, MatrixType& jac)
 {
-    Real const z = 30.;
+    Real z = redshift;
 
     Array1D<Real, 0, NumSpec-1> X;
     for (int i = 0; i < NumSpec; ++i) {
