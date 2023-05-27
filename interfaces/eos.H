@@ -416,9 +416,11 @@ void eos (const I input, T& state, bool use_raw_inputs = false)
     use_composition_routine = false;
   }
 
-  if (use_composition_routine) {
-    // Get abar, zbar, etc.
-    composition(state);
+  if constexpr (has_xn<T>::value) {
+      if (use_composition_routine) {
+          // Get abar, zbar, etc.
+          composition(state);
+      }
   }
 
   // Force the inputs to be valid.
