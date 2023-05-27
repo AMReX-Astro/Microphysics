@@ -199,6 +199,14 @@ struct has_conductivity<T, typename std::enable_if<(sizeof(((T*)0)->conductivity
     : std::true_type {};
 
 template <typename T, typename Enable = void>
+struct has_xn
+    : std::false_type {};
+
+template <typename T>
+struct has_xn<T, typename std::enable_if<(sizeof(((T*)0)->xn) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
 struct has_base_variables
     : std::false_type {};
 
