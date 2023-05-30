@@ -169,7 +169,7 @@ void burn_cell_c()
         break; }
 
         // stop the test if we have reached very high densities
-        if (dd > 3e-6) {
+        if (dd > 2e-6) {
         break; }
 
         std::cout<<"step "<<n<<" done"<<std::endl;
