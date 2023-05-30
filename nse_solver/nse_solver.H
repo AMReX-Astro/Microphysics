@@ -101,7 +101,6 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
     }
   }
 
-
   i = 1;
   while ((pos = product_names.find('_')) != std::string::npos){
 
@@ -138,13 +137,14 @@ AMREX_INLINE
 void init_nse_net() {
   // Initialization for nse, check whether network is valid and stores indices
 
-  for (int n = 0; n < NumSpec; ++n){
+  for (int n = 0; n < NumSpec; ++n) {
 
     // store index of photoionization proton by looking for Z=1 but
     // exclude h1 which is always at index=0 for aprox networks
+
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    if (zion[n] == 1 && aion[n] == 1){
-      if (n == 0){
+    if (zion[n] == 1 && aion[n] == 1) {
+      if (n == 0) {
 	NSE_INDEX::h1_index = n;
       }
       else {
@@ -152,14 +152,14 @@ void init_nse_net() {
       }
     }
 #else
-    if (zion[n] == 1 && aion[n]== 1){
+    if (zion[n] == 1 && aion[n]== 1) {
       NSE_INDEX::p_index = n;
     }
 #endif
-    else if (zion[n] == 0){
+    else if (zion[n] == 0) {
       NSE_INDEX::n_index = n;
     }
-    else if (zion[n] == 2 && aion[n] == 4){
+    else if (zion[n] == 2 && aion[n] == 4) {
       NSE_INDEX::he4_index = n;
     }
   }
@@ -167,18 +167,19 @@ void init_nse_net() {
   // Check if network results in singular jacobian first, require at
   // least one nuclei that nuclei.Z != nuclei.N.  Some examples include
   // aprox13 and iso7. If use hybrj solver, this is no longer an issue.
-  if (!use_hybrid_solver){
+
+  if (!use_hybrid_solver) {
     bool singular_network = true;
-    for (int n = 0; n < NumSpec; ++n){
+    for (int n = 0; n < NumSpec; ++n) {
       if (n == NSE_INDEX::h1_index){
 	continue;
       }
-      if (zion[n] != aion[n] - zion[n]){
+      if (zion[n] != aion[n] - zion[n]) {
 	singular_network = false;
       }
     }
 
-    if (singular_network == true){
+    if (singular_network == true) {
       amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
     }
   }
@@ -518,12 +519,12 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
   amrex::Real d_mu_n = std::numeric_limits<Real>::max();      // difference in chemical potential of neutron
 
   // begin newton-raphson
-  for (int i = 0; i < max_nse_iters; ++i){
+  for (int i = 0; i < max_nse_iters; ++i) {
 
     // check if current state fulfills constraint equation
 
     if (std::abs(d_mu_p) < eps * std::abs(x(1)) &&
-        std::abs(d_mu_n) < eps * std::abs(x(2))){
+        std::abs(d_mu_n) < eps * std::abs(x(2))) {
       converged = true;
       state.mu_p = x(1);
       state.mu_n = x(2);
@@ -536,7 +537,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // if jacobians are small, then no need for scaling
 
-    if (scale_fac < 1.0e150){
+    if (scale_fac < 1.0e150) {
       scale_fac = 1.0_rt;
     }
 
@@ -546,7 +547,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // check if determinant is 0
 
-    if (det == 0.0_rt){
+    if (det == 0.0_rt) {
       amrex::Error("Jacobian is a singular matrix! Try a different initial guess!");
     }
 
@@ -564,7 +565,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // if diff goes beyond 1.0e3_rt, likely that its not making good progress..
 
-    if (std::abs(d_mu_p) > 1.0e3_rt || std::abs(d_mu_n) > 1.0e3_rt){
+    if (std::abs(d_mu_p) > 1.0e3_rt || std::abs(d_mu_n) > 1.0e3_rt) {
       amrex::Error("Not making good progress, breaking");
     }
 
@@ -575,7 +576,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // check whether solution results in nan
 
-    if (std::isnan(x(1)) || std::isnan(x(2))){
+    if (std::isnan(x(1)) || std::isnan(x(2))) {
 	amrex::Error("Nan encountered, likely due to overflow in digits or not making good progress");
       }
 
@@ -585,7 +586,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
     fcn(x, f, state, flag);
   }
 
-  if (!converged){
+  if (!converged) {
     amrex::Error("NSE solver failed to converge!");
   }
 }
@@ -594,22 +595,22 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
-                       bool input_ye_is_valid=false){
+                       bool input_ye_is_valid=false) {
 
   // Check whether initialized or not
-  if (!NSE_INDEX::initialized){
-    amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
+  if (!NSE_INDEX::initialized) {
+    amrex::Error("NSE uninitialized! Need to call init_nse_net()");
   }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
   amrex::Real ye_hi = 0.0_rt;
 
-  for (int n = 0; n < NumSpec; ++n){
+  for (int n = 0; n < NumSpec; ++n) {
     ye_lo = amrex::min(zion[n] * aion_inv[n], ye_lo);
     ye_hi = amrex::max(zion[n] * aion_inv[n], ye_hi);
   }
 
-  if (state.y_e < ye_lo || state.y_e > ye_hi){
+  if (state.y_e < ye_lo || state.y_e > ye_hi) {
     input_ye_is_valid = false;
   }
 
@@ -622,7 +623,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
   if (use_hybrid_solver) {
     nse_hybrid_solver(state, eps);
   }
-  else{
+  else {
     nse_nr_solver(state, eps);
   }
 
