@@ -164,7 +164,7 @@ appropriate Jacobian terms) by the specified constant amount.</p>
 <h3><code class="docutils literal notranslate"><span class="pre">burner</span></code><a class="headerlink" href="#burner" title="Permalink to this heading"></a></h3>
 <p>The main entry point for C++ is <code class="docutils literal notranslate"><span class="pre">burner()</span></code> in
 <code class="docutils literal notranslate"><span class="pre">interfaces/burner.H</span></code>.  This simply calls the <code class="docutils literal notranslate"><span class="pre">integrator()</span></code>
-routine (at the moment this can be <code class="docutils literal notranslate"><span class="pre">VODE</span></code>, <code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>, or <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>).</p>
+routine (at the moment this can be <code class="docutils literal notranslate"><span class="pre">VODE</span></code>, <code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>, <code class="docutils literal notranslate"><span class="pre">QSS</span></code>, or <code class="docutils literal notranslate"><span class="pre">RKC</span></code>).</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_FORCE_INLINE</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">burner</span><span class="w"> </span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">Real</span><span class="w"> </span><span class="n">dt</span><span class="p">)</span>
 </pre></div>
@@ -398,13 +398,17 @@ method.  An error estimate is done by taking 2 half steps and
 comparing to a single full step.  This error is then used to control
 the timestep by using the local truncation error scaling.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
-meant for testing purposes only.</p></li>
+meant for testing purposes only.  No Jacobian is needed.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. URL: https://www.sciencedirect.com/science/article/pii/S0021999100966051, doi:https://doi.org/10.1006/jcph.2000.6605.">MOvanLeer00</a>]</span> (see also
 <span id="id2">[<a class="reference internal" href="zreferences.html#id38" title="M W Guidry and J A Harris. Explicit integration of extremely stiff reaction networks: quasi-steady-state methods. Computational Science &amp; Discovery, 6(1):015002, jan 2013. URL: https://dx.doi.org/10.1088/1749-4699/6/1/015002, doi:10.1088/1749-4699/6/1/015002.">GH13</a>]</span>). This uses a second-order predictor-corrector method,
 and is designed specifically for handling coupled ODE systems for chemical
 and nuclear reactions. However, this integrator has difficulty near NSE,
 so we don’t recommend its use in production for nuclear astrophysics.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE (<span id="id3">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span>) integration package.  We ported this
+<li><p><code class="docutils literal notranslate"><span class="pre">RKC</span></code>: a stabilized explicit Runge-Kutta-Chebyshev integrator based
+on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">SSV98</a>]</span>.  This does not require a Jacobian, but
+does need to estimate the spectral radius of the system, which is
+done internally.  This works for moderately stiff problems.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span> integration package.  We ported this
 integrator to C++ and removed the non-stiff integration code paths.</p></li>
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
@@ -437,11 +441,11 @@ because their relative error values are fairly large.
 However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
 and not so low that it takes incredible amounts of computer time,
 so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
-<figure class="align-default" id="id4">
+<figure class="align-default" id="id5">
 <span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
 <figcaption>
 <p><span class="caption-number">Fig. 1 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
-to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
 <p>The integration tolerances for the burn are controlled by
