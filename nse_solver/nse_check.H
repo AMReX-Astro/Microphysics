@@ -44,19 +44,33 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check){
   // Check if n,p,a are in equilibrium
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
 
-  for (int n = 0; n < NumSpec; ++n){
+#ifdef STRANG
+  for (int n = 0; n < NumSpec; ++n) {
 
-    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index){
+    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index) {
       r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
       r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
     }
 
-    else if (n == NSE_INDEX::he4_index){
+    else if (n == NSE_INDEX::he4_index) {
       r *= state.xn[n] * aion_inv[n];
       r_nse *= nse_state.xn[n] * aion_inv[n];
     }
   }
+#else
+  for (int n = 0; n < NumSpec; ++n){
 
+    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index){
+      r /= std::pow(state.y[SFS+n] * aion_inv[n] / state.y[SRHO], 2);
+      r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
+    }
+
+    else if (n == NSE_INDEX::he4_index){
+      r *= state.y[SFS+n] * aion_inv[n] / state.y[SRHO];
+      r_nse *= nse_state.xn[n] * aion_inv[n];
+    }
+  }
+#endif
   // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
   // Eq. 14 in Kushnir paper
 
@@ -1020,10 +1034,17 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   amrex::Array1D<amrex::Real, 1, NumSpec> Y;
   amrex::Array1D<amrex::Real, 1, NumSpec + 1> ydot;
 
+#ifdef STRANG
   for (int n = 1; n <= NumSpec; ++n){
     Y(n) = state.xn[n-1] * aion_inv[n-1];
     ydot(n) = 0.0_rt;
   }
+#else
+  for (int n = 1; n <= NumSpec; ++n){
+    Y(n) = state.y[SFS+n-1] * aion_inv[n-1] / state.y[SRHO];
+    ydot(n) = 0.0_rt;
+  }
+#endif
 
   rate_t rate_eval;
   constexpr int do_T_derivatives = 0;
