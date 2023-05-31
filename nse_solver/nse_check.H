@@ -1074,8 +1074,19 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   ener_gener_rate(ydot, enuc);
 
 #ifdef NEUTRINOS
+
   // get abar and zbar
+#ifdef STRANG
   composition(state);
+#else
+  amrex::Real sum = 0.0_rt;
+  for (int n = 0; n < NumSpec; n++) {
+    sum += state.y[SFS+n] * aion_inv[n];
+  }
+
+  state.abar = 1.0_rt / sum;
+  state.zbar = state.abar * state.y_e;
+#endif
   
   amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
   sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
