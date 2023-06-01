@@ -221,10 +221,10 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     // density and momentum have no reactive sources
     Real rho_old = state.y[SRHO];
 
-    // compute the original B/A of the composition
+    // compute the original rho (B/A) of the composition
     Real rho_bea_old = 0.0;
     for (int n = 0; n < NumSpec; ++n) {
-        rho_bea_old += state.y[SFS+n] / rho_old * network::bion(n+1) * aion_inv[n];
+        rho_bea_old += state.y[SFS+n] * network::bion(n+1) * aion_inv[n];
     }
 
     state.y[SRHO] += dt * state.ydot_a[SRHO];
@@ -264,8 +264,9 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
         Real T_new;
         burn_state.rho = state.y[SRHO];
         burn_state.e = rhoe_new / state.y[SRHO];
-        for (int n = 0; n < NumAux; n++) {
+        for (int n = 0; n < NumSpec; n++) {
             burn_state.xn[n] = rhoX_new[n] / state.y[SRHO];
+            state.y[SFS+n] = rhoX_new[n];
         }
 
         if (state.T_fixed > 0) {
@@ -304,10 +305,12 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
         // convert the energy to erg / cm**3
         rho_enucdot  = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
 
-        // update the new state for the next pass
+        // update the new state for the next pass -- this should
+        // already implicitly have the advective portion included,
+        // since it was there when we called the NSE state
 
         for (int n = 0; n < NumSpec; n++) {
-            rhoX_new[n] = nse_state.xn[n];
+            rhoX_new[n] = state.y[SRHO] * nse_state.xn[n];
         }
 
     }
@@ -337,6 +340,10 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     state.y[SEINT] += dt * state.ydot_a[SEINT] + dt * rho_enucdot;
     state.y[SEDEN] += dt * state.ydot_a[SEDEN] + dt * rho_enucdot;
+
+    // store the chemical potentials
+    state.mu_p = nse_state.mu_p;
+    state.mu_n = nse_state.mu_n;
 
 }
 #endif
