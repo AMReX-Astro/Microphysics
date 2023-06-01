@@ -996,7 +996,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 #ifndef STRANG
   // if not strang, store mass fractions
   for (int n = 0; n < NumSpec; ++n) {
-    state.xn[n] = current_state.y[SFS+n] / current_state.y[SRHO];
+    state.xn[n] = current_state.y[SFS+n] / current_state.rho;
   }
 #endif
   

@@ -623,7 +623,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     state.y_e = 0.0_rt;
 
     for (int n = 0; n < NumSpec; ++n) {
-      state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n] / state.y[SRHO];
+      state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n] / state.rho;
     }
 #endif
   }
