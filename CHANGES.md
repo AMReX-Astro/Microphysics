@@ -1,3 +1,15 @@
+# 23.06
+
+  * Added a new Runge-Kutta-Chebyshev integrator (#1191)
+
+  * Lots of clean-up to the primordial chem network (#1180, #1181
+    #1198)
+
+  * Namespaces for the runtime parameters are now required in C++ (
+
+  * The SDC+NSE update for tabular NSE was fixed -- we were previously
+    computing the energy release incorrectly (#1092)
+
 # 23.05
 
   * The abort_on_failure runtime parameter has been removed (#1174)

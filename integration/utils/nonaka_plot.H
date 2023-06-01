@@ -9,6 +9,8 @@
 #include <burn_type.H>
 #include <network.H>
 
+using namespace integrator_rp;
+
 const int FIELD_WIDTH=14;
 
 // this supports outputting the integration state at each RHS

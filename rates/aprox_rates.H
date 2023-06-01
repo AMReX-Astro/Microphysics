@@ -6,6 +6,7 @@
 #include <cmath>
 
 using namespace amrex;
+using namespace network_rp;
 
 inline 
 void rates_init()
