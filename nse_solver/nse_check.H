@@ -1019,6 +1019,11 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   if (nse_molar_independent) {
     state = nse_state;
     state.dx = current_state.dx;
+#ifndef STRANG
+    for (int n = 0; n < NumSpec; ++n) {
+      state.y[SFS+n] = nse_state.xn[n] * nse_state.rho;
+    }
+#endif
   }
 
   // set molar fractions
