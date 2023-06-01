@@ -26,7 +26,9 @@ jobs:
           sudo apt-get update -y -qq
           sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
 
-      - name: Compile
+      - name: Compile and run
         run: |
           cd unit_test/burn_cell_primordial_chem
           make -j 2
+          ./main1d.gnu.DEBUG.ex inputs_primordial_chem
+

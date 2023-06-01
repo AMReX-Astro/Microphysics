@@ -22,6 +22,7 @@ using namespace Rates;
 
 using namespace rate_tables;
 
+using namespace network_rp;
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -58,7 +59,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     // Calculate Reaclib rates
 
-    plasma_state_t pstate;
+    plasma_state_t pstate{};
     fill_plasma_state(pstate, state.T, state.rho, Y);
 
     tf_t tfactors = evaluate_tfactors(state.T);

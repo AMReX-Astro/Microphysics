@@ -111,6 +111,7 @@ endif()
 set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
 message("Building unit test -- ${BUILD_UNIT_TEST}")
 
+add_compile_options(-Werror -Wall -Wextra)
 
 #setting sourcefiles and directories needed to make the test here
 #so that they are accessible to codes using
@@ -122,7 +123,7 @@ message("Building unit test -- ${BUILD_UNIT_TEST}")
 #do not need unit_test paramfiles when unit_test is not built
 
 if(BUILD_UNIT_TEST)
-   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespaces WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
    set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
@@ -143,7 +144,7 @@ if(BUILD_UNIT_TEST)
    message("Building primordial chem unit test")
 
 else()
-   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
+   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespaces WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
    set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
                              ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces

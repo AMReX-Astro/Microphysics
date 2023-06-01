@@ -12,6 +12,8 @@
 #include <cmath>
 #include <actual_eos_data.H>
 
+using namespace eos_rp;
+
 const std::string eos_name = "multigamma";
 
 inline
@@ -154,6 +156,7 @@ void actual_eos (I input, T& state)
     }
 
     sum_Abarinv *= protonmass/rhotot;
+    state.mu = 1.0 / sum_Abarinv;
     sum_gammasinv /= sum_Abarinv;
 
     //-------------------------------------------------------------------------
@@ -161,7 +164,9 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens, eint;
+    Real temp = NAN;
+    Real dens = NAN;
+    Real eint = NAN;
 
     switch (input) {
 

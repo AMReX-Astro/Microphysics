@@ -17,6 +17,8 @@
 #include <cctype>
 #include <algorithm>
 
+using namespace nse_rp;
+
 AMREX_INLINE
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){

@@ -10,6 +10,8 @@ Real grav_constant = 6.674e-8;
 void burn_cell_c()
 {
 
+    using namespace unit_test_rp;
+
     burn_t state;
 
     Real numdens[NumSpec] = {-1.0};
@@ -167,7 +169,7 @@ void burn_cell_c()
         break; }
 
         // stop the test if we have reached very high densities
-        if (dd > 3e-6) {
+        if (dd > 2e-6) {
         break; }
 
         std::cout<<"step "<<n<<" done"<<std::endl;

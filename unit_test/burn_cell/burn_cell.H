@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <react_util.H>
 
+using namespace unit_test_rp;
+
 void burn_cell_c()
 {
 
@@ -89,8 +91,6 @@ void burn_cell_c()
     }
 
     // output initial burn type data
-    Real time = 0.0_rt;
-
     std::ofstream state_over_time("state_over_time.txt");
 
     // we will divide the total integration time into nsteps that are
