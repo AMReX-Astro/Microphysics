@@ -1,5 +1,5 @@
-#ifndef _vode_dvhin_H_
-#define _vode_dvhin_H_
+#ifndef VODE_DVHIN_H
+#define VODE_DVHIN_H
 
 #ifdef STRANG
 #include <integrator_rhs_strang.H>

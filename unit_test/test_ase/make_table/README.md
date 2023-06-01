@@ -1,6 +1,6 @@
 # NSE check tables
 
-This test is used to have a table that has a variety of differen rho,
+This test is used to have a table that has a variety of different rho,
 T, and Y_e, to test the valitidy of the function `in_nse`.
 
 We solve for the NSE state for variety of different conditions, and update

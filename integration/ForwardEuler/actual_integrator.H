@@ -11,6 +11,8 @@
 #include <eos.H>
 #include <extern_parameters.H>
 
+using namespace integrator_rp;
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real calculate_dt (burn_t& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
 {

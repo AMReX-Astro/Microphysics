@@ -1,5 +1,5 @@
-#ifndef _screen_H_
-#define _screen_H_
+#ifndef SCREEN_H
+#define SCREEN_H
 
 #include <AMReX.H>
 #include <AMReX_Algorithm.H>
@@ -14,6 +14,7 @@
 #include <extern_parameters.H>
 
 using namespace amrex;
+using namespace integrator_rp;
 
 #if SCREEN_METHOD == 0
 const std::string screen_name = "screen5";
@@ -890,7 +891,7 @@ void chabrier1998 (const plasma_state_t& state,
   }
   
   // Now we add quantum correction terms discussed in Alastuey 1978.
-  // Notice in Alastuey 1978, they have a differnt classical term,
+  // Notice in Alastuey 1978, they have a different classical term,
   // which is implemented in the strong screening limit of our screen5 routine.
 
   // See Wallace1982, Eq. A13

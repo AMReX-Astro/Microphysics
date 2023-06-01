@@ -1,5 +1,5 @@
-#ifndef _integrator_rhs_strang_H_
-#define _integrator_rhs_strang_H_
+#ifndef INTEGRATOR_RHS_STRANG_H
+#define INTEGRATOR_RHS_STRANG_H
 
 #include <network.H>
 #include <actual_network.H>
@@ -15,6 +15,8 @@
 #ifdef NONAKA_PLOT
 #include <nonaka_plot.H>
 #endif
+
+using namespace integrator_rp;
 
 // The rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
@@ -36,7 +38,7 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, [[maybe_
     // network
 
     // Fix the state as necessary -- this ensures that the mass
-    // fractions that enter are valud (and optionally normalized)
+    // fractions that enter are valid (and optionally normalized)
 
     clean_state(int_state);
 

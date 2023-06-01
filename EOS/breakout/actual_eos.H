@@ -1,5 +1,5 @@
-#ifndef _actual_eos_H_
-#define _actual_eos_H_
+#ifndef ACTUAL_EOS_H
+#define ACTUAL_EOS_H
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
@@ -7,6 +7,8 @@
 #include <fundamental_constants.H>
 #include <network.H>
 #include <actual_eos_data.H>
+
+using namespace eos_rp;
 
 const std::string eos_name = "breakout";
 

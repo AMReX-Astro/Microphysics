@@ -17,6 +17,8 @@
 #include <cctype>
 #include <algorithm>
 
+using namespace nse_rp;
+
 AMREX_INLINE
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
@@ -210,6 +212,12 @@ void init_nse_net() {
   }
 #endif
 
+  // make sure nse_molar_independent is used if nse_skip_molar is enabled
+
+  if (nse_skip_molar) {
+    nse_molar_independent = true;
+  }
+  
   NSE_INDEX::initialized = true;
 }
 
@@ -253,7 +261,7 @@ T get_nse_state(const T& state)
 
   Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
-#ifdef TFACTORS_H
+#ifndef NEW_NETWORK_IMPLEMENTATION
   auto tfactors = evaluate_tfactors(T_in);
 #endif
 
@@ -283,7 +291,7 @@ T get_nse_state(const T& state)
 
       // fill partition function and get spin
 
-#ifdef PARTITION_FUNCTIONS_H
+#ifndef NEW_NETWORK_IMPLEMENTATION
       spin = get_spin_state(n+1);
       get_partition_function(n+1, tfactors, pf, dpf_dT);
 #endif
@@ -318,7 +326,9 @@ T get_nse_state(const T& state)
 
   nse_state.T = T_in;
   nse_state.rho = state.rho;
-
+  nse_state.mu_p = state.mu_p;
+  nse_state.mu_n = state.mu_n;
+  
   return nse_state;
 }
 
@@ -328,7 +338,7 @@ T get_nse_state(const T& state)
 
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
+void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
 
     T current_state = state;
@@ -359,7 +369,7 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
+void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
 
     T current_state = state;
@@ -438,9 +448,10 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 	hj.x(1) = inner_x(1);
 	hj.x(2) = inner_x(2);
 
-	hybrj(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+	// hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+	hybrj(hj, state);
 
-	fcn_hybrid(hj.x, f, state, flag);
+	fcn(hj.x, f, state, flag);
 
 	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps){
 
@@ -500,8 +511,8 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
   x(1) = state.mu_p;
   x(2) = state.mu_n;
 
-  jcn_hybrid(x, jac, state, flag);
-  fcn_hybrid(x, f, state,flag);
+  jcn(x, jac, state, flag);
+  fcn(x, f, state,flag);
 
   amrex::Real det;                                            // store determinant for finding inverse jac
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;        // store inverse jacobian
@@ -572,8 +583,8 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // update constraint
 
-    jcn_hybrid(x, jac, state, flag);
-    fcn_hybrid(x, f, state, flag);
+    jcn(x, jac, state, flag);
+    fcn(x, f, state, flag);
   }
 
   if (!converged){

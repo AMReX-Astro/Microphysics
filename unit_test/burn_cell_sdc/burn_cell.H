@@ -9,6 +9,8 @@
 #include <iostream>
 #include <react_util.H>
 
+using namespace unit_test_rp;
+
 void burn_cell_c()
 {
 
@@ -257,12 +259,6 @@ void burn_cell_c()
     burn_state.p0 = eos_state.p;
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
-    Real rhoe_old = burn_state.y[SEINT];
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    Real rhoh_old = burn_state.y[SENTH];
-#endif
-
     // now initialize the advective terms -- the only ones that are
     // actually used during the integration are for rho, (rho X), and
     // (rho e)
@@ -339,7 +335,7 @@ void burn_cell_c()
     state_over_time << std::setw(12) << "Density";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
-	std::string element = short_spec_names_cxx[x];
+	const std::string& element = short_spec_names_cxx[x];
 	state_over_time << std::setw(12) << element; 
     }
     state_over_time << std::endl;
@@ -354,11 +350,6 @@ void burn_cell_c()
     }
     state_over_time << std::endl;
 
-
-    // store the initial internal energy -- we'll update this after
-    // each substep
-
-    Real energy_initial = burn_state.e;
 
     // loop over steps, burn, and output the current state
 

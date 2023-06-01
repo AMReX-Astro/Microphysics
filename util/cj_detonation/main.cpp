@@ -13,6 +13,8 @@ using namespace amrex;
 #include <unit_test.H>
 #include <actual_rhs.H>
 
+using namespace unit_test_rp;
+
 int main(int argc, char *argv[]) {
 
   amrex::Initialize(argc, argv);

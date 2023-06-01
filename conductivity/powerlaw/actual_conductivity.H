@@ -1,10 +1,12 @@
-#ifndef _actual_conductivity_H_
-#define _actual_conductivity_H_
+#ifndef ACTUAL_CONDUCTIVITY_H
+#define ACTUAL_CONDUCTIVITY_H
 
 #include <cmath>
 #include <eos_type.H>
 #include <network.H>
 #include <extern_parameters.H>
+
+using namespace conductivity_rp;
 
 const std::string cond_name = "powerlaw";
 

@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <react_util.H>
 
+using namespace unit_test_rp;
+
 void burn_cell_c()
 {
 
@@ -84,13 +86,11 @@ void burn_cell_c()
 
     std::cout << "RHS at t = 0" << std::endl;
     for(int n = 0; n < NumSpec; ++n){
-        std::string element = short_spec_names_cxx[n];
+        const std::string& element = short_spec_names_cxx[n];
         std::cout << std::setw(6) << element << " " << ydot(n+1) << std::endl;
     }
 
     // output initial burn type data
-    Real time = 0.0_rt;
-
     std::ofstream state_over_time("state_over_time.txt");
 
     // we will divide the total integration time into nsteps that are
@@ -121,7 +121,7 @@ void burn_cell_c()
     state_over_time << std::setw(25) << "# Time";
     state_over_time << std::setw(25) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
-        std::string element = short_spec_names_cxx[x];
+        const std::string& element = short_spec_names_cxx[x];
 	state_over_time << std::setw(25) << element;
     }
     state_over_time << std::endl;
@@ -131,8 +131,8 @@ void burn_cell_c()
 
     state_over_time << std::setw(25) << t;
     state_over_time << std::setw(25) << burn_state.T;
-    for (int x = 0; x < NumSpec; ++x){
-        state_over_time << std::setw(25) << burn_state.xn[x];
+    for (double X : burn_state.xn) {
+        state_over_time << std::setw(25) << X;
     }
     state_over_time << std::endl;
 
@@ -176,8 +176,8 @@ void burn_cell_c()
 
 	state_over_time << std::setw(25) << t;
 	state_over_time << std::setw(25) << burn_state.T;
-	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(25) << burn_state.xn[x];
+	for (double X : burn_state.xn) {
+	     state_over_time << std::setw(25) << X;
 	}
 	state_over_time << std::endl;
     }
@@ -200,7 +200,7 @@ void burn_cell_c()
     std::cout << "------------------------------------" << std::endl;
     std::cout << "new mass fractions: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::string element = short_spec_names_cxx[n];
+        const std::string& element = short_spec_names_cxx[n];
         std::cout << element << " " << burn_state.xn[n] << std::endl;
     }
 

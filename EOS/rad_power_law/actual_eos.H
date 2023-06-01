@@ -1,5 +1,5 @@
-#ifndef _actual_eos_H_
-#define _actual_eos_H_
+#ifndef ACTUAL_EOS_H
+#define ACTUAL_EOS_H
 
 // This is an artificial equation of state used primarily for radiation tests.
 //
@@ -17,6 +17,8 @@
 #include <extern_parameters.H>
 #include <eos_type.H>
 #include <cmath>
+
+using namespace eos_rp;
 
 const std::string eos_name = "rad_power_law";
 

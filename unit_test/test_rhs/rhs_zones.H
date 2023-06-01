@@ -1,5 +1,5 @@
-#ifndef _react_zones_H_
-#define _react_zones_H_
+#ifndef RHS_ZONES_H
+#define RHS_ZONES_H
 
 #include <variables.H>
 #include <network.H>
@@ -13,6 +13,8 @@
 #include <extern_parameters.H>
 #include <ArrayUtilities.H>
 #include <variables.H>
+
+using namespace unit_test_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_rhs (int i, int j, int k, Array4<Real> const& state, const plot_t& p)

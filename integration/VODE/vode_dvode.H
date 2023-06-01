@@ -1,5 +1,5 @@
-#ifndef _vode_dvode_H_
-#define _vode_dvode_H_
+#ifndef VODE_DVODE_H
+#define VODE_DVODE_H
 
 #include <vode_type.H>
 #include <vode_dvhin.H>
@@ -187,8 +187,6 @@ int dvode (burn_t& state, dvode_t& vstate)
        TOLSF = UROUND * std::sqrt(TOLSF / VODE_NEQS);
 
        if (TOLSF > 1.0_rt) {
-
-           TOLSF *= 2.0_rt;
 
            if (vstate.NST == 0) {
 #ifndef AMREX_USE_GPU

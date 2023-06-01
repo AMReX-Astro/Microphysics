@@ -1,5 +1,5 @@
-#ifndef _burner_H_
-#define _burner_H_
+#ifndef BURNER_H
+#define BURNER_H
 
 #include <burn_type.H>
 #include <integrator.H>
@@ -13,7 +13,12 @@
 #include <nse_check.H>
 #endif
 #ifdef NSE
-#include <nse_update.H>
+#ifdef STRANG
+#include <nse_update_strang.H>
+#endif
+#ifdef SIMPLIFIED_SDC
+#include <nse_update_simplified_sdc.H>
+#endif
 #endif
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -59,7 +64,7 @@ void burner (burn_t& state, Real dt)
 #ifdef NSE_TABLE
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
 #else
-	if (in_nse(state) && state.success == false && dt_remaining > 0.0) {
+	if (in_nse(state, nse_skip_molar) && state.success == false && dt_remaining > 0.0) {
 #endif
 
 #ifndef AMREX_USE_GPU
@@ -73,15 +78,16 @@ void burner (burn_t& state, Real dt)
 #else
             nse_burn(state, dt_remaining);
 #endif
-        } else if (state.success == false && abort_on_failure) {
-#ifndef AMREX_USE_GPU
-            std::cout << "failure \n";
-            std::cout << state << std::endl;
-            amrex::Error("integration failed in burner");
-#endif
         }
     }
 
+#ifndef AMREX_USE_GPU
+    if (! state.success) {
+        std::cout << state << std::endl;
+        std::cout << in_nse(state) << std::endl;
+        amrex::Error("unsuccessful burn");
+    }
+#endif
 #else
     // we did not compile with NSE
     integrator(state, dt);

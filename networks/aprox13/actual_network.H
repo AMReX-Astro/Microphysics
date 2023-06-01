@@ -1,5 +1,5 @@
-#ifndef _actual_network_H_
-#define _actual_network_H_
+#ifndef ACTUAL_NETWORK_H
+#define ACTUAL_NETWORK_H
 
 #define NEW_NETWORK_IMPLEMENTATION
 
@@ -15,6 +15,9 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <tfactors.H>
 #include <aprox_rates.H>
+
+using namespace network_rp;
+
 
 void actual_network_init();
 

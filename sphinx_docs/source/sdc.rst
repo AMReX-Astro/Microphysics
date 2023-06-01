@@ -119,7 +119,7 @@ system we are integrating, including the advective terms.
 
    a. Update the density (this may be redundant).
 
-   b. Fill the ``burn_t``'s ``xn[]``, auxillary data, internal energy,
+   b. Fill the ``burn_t``'s ``xn[]``, auxiliary data, internal energy,
       and call the EOS to get the temperature.
 
 #. Call the ``actual_rhs()`` routine to get just the reaction sources

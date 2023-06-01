@@ -1,5 +1,5 @@
-#ifndef _react_zones_H_
-#define _react_zones_H_
+#ifndef REACT_ZONES_H
+#define REACT_ZONES_H
 
 #include <variables.H>
 #include <network.H>
@@ -8,6 +8,8 @@
 #include <burn_type.H>
 #include <burner.H>
 #include <extern_parameters.H>
+
+using namespace unit_test_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_react (int i, int j, int k, Array4<Real> const& state,

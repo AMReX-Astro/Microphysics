@@ -77,7 +77,7 @@ For this reason, when we are using the NSE network, we always take the
 composition quantities in the EOS directly from ``eos_state.aux[]``
 instead of from ``eos_state.xn[]``.  The ``AUX_THERMO`` preprocessor
 variable is enabled in this case, and the equations of state interpret
-this to use the auxillary data for the composition.  This is described in :ref:`aux_eos_comp`.
+this to use the auxiliary data for the composition.  This is described in :ref:`aux_eos_comp`.
 
 
 NSE Table Outputs
@@ -91,7 +91,7 @@ resulting from the full 125 nuclei network.   It also provides a set of 19
 
 These three quantities are stored as ``aux`` data in the network and
 are indexed as ``iye``, ``iabar``, and ``ibea``.  Additionally, when
-coupling to hydrodynamics, we need to advect these auxillary
+coupling to hydrodynamics, we need to advect these auxiliary
 quantities.
 
 For Strang split coupling of hydro and reactions, :math:`DX_k/Dt = 0`,
@@ -105,7 +105,7 @@ and our evolution equations are:
    \frac{D}{Dt} \left (\frac{B}{A} \right ) &= \sum_k \frac{B_k}{A_k} \frac{DX_k}{Dt} = 0
    \end{align*}
 
-Therefore each of these auxillar equations obeys an advection equation
+Therefore each of these auxiliary equations obeys an advection equation
 in the hydro part of the advancement.
 
 
@@ -221,6 +221,8 @@ is outlined in :cite:`Kushnir_2020`. The overall usage comes down to a single fu
 ``in_nse(state)``. By supplying the current state, this function returns a boolean that
 tells us whether we're in NSE or not. The current status of this functionality only
 works for pynucastro-generated network since aprox networks have slightly different syntax.
+Note that we ignore this check when ``T < 2.0e9``, since we don't expect NSE to occur when
+temperature is below 2 billion Kelvin.
 
 There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
@@ -257,7 +259,7 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
      (\alpha, \gamma) \isotm{S}{32}
 
   The general approach to this is to start iterations from the heavy to the light nuclei to
-  use them as the starting point of the cycle. Then algorithmn checks if isotopes involved
+  use them as the starting point of the cycle. Then the algorithm checks if isotopes involved
   in the network can actually form a cycle using the combination reactions above. If such cycle
   is formed, then we check the rates of these reactions to see if they satisfy the condition
   mention previously. If there are no isotope present in the network that would form
@@ -294,7 +296,7 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
     light-isotope-group. In this case, if the reaction passes the two criteria mentioned above,
     we merge the groups containing those two isotopes if they're not yet in the same group.
 
-  * There is only one isotope involed in reaction, :math:`k`, that is not in the
+  * There is only one isotope involved in reaction, :math:`k`, that is not in the
     light-isotope-group, which is not necessarily isotope :math:`i` that passes the
     first criteria. In this case, we merge the isotope that is not in LIG into LIG.
 
@@ -314,6 +316,30 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
   when there is only a single group left, or there are two groups left where
   1 of them is the light-isotope-group.
 
+Additional Options
+------------------
+
+Here we have some runtime options to allow a more cruel estimation to the self-consistent
+nse check:
+
+* ``nse.nse_dx_independent = 1`` in the input file allows the nse check to ignore
+  the dependency on the cell size, ``dx``, which calculates the sound crossing time, ``t_s``.
+  Naturally, we require the timescale of the rates to be smaller than ``t_s`` to ensure the
+  states have time to achieve equilibrium. However, sometimes this check can be difficult
+  to achieve, so we leave this as an option for the user to explore.
+
+* ``nse.nse_molar_independent = 1`` in the input file allows the user to use the nse mass
+  fractions for nse check after the first check (the one that ensures we're close enough
+  to the nse mass fractions to get reasonable results) is passed. This allows the subsequent
+  checks to only rely on the thermodynamic conditions instead of mass fractions.
+
+* ``nse.nse_skip_molar = 1`` in the input file allows the user to skip the molar fraction
+  check after the integration has failed. This option is used to completely forgo the
+  requirement on molar fractions and allow the check to only dependent on the thermodynamic
+  conditions. By only applying this after option after the integration failure, we hope the
+  integrator has evolved the system to the NSE state the best it can. By turning on this
+  option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
+  which is likely the case.
 
 .. rubric:: Footnotes
 
