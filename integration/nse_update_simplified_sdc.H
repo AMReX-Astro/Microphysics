@@ -268,7 +268,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
         burn_state.e = rhoe_new / state.y[SRHO];
         for (int n = 0; n < NumSpec; n++) {
             burn_state.xn[n] = rhoX_new[n] / state.y[SRHO];
-            state.y[SFS+n] = rhoX_new[n];
+            burn_state.y[SFS+n] = rhoX_new[n];
         }
 
         if (state.T_fixed > 0) {
