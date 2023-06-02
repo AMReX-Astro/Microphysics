@@ -237,6 +237,8 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 
     burn_t burn_state;
     burn_state.T = 1.e6_rt; // initial guess
+    burn_state.mu_p = state.mu_p;
+    burn_state.mu_n = state.mu_n;
 
     Real rhoX_source[NumSpec] = {0.0_rt};
 
