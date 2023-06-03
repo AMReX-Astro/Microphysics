@@ -30,8 +30,9 @@ using namespace amrex;
 /// update the state due to NSE changes for the simplified-SDC case
 /// this version works with the tabulated NSE and requires AUX_THERMO
 ///
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void sdc_nse_burn(burn_t& state, const Real dt) {
+void sdc_nse_burn(BurnT& state, const Real dt) {
 
     using namespace AuxZero;
 
@@ -180,8 +181,9 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
 /// update the state due to NSE changes for the simplified-SDC case
 /// this version works with the self-consistent NSE
 ///
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void sdc_nse_burn(burn_t& state, const Real dt) {
+void sdc_nse_burn(BurnT& state, const Real dt) {
 
     state.success = true;
     state.n_rhs = 0;
@@ -201,7 +203,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
     // We will get initial NSE prediction using the input X's
-    burn_t nse_state_in{state};
+    BurnT nse_state_in{state};
     nse_state_in.T = T_in;
 
     // solve for the NSE state directly -- we'll have it compute
@@ -235,7 +237,7 @@ void sdc_nse_burn(burn_t& state, const Real dt) {
     // predict the U^{n+1,*} state with only estimates of the X
     // updates with advection to dt
 
-    burn_t burn_state;
+    BurnT burn_state;
     burn_state.T = 1.e6_rt; // initial guess
     burn_state.mu_p = state.mu_p;
     burn_state.mu_n = state.mu_n;
