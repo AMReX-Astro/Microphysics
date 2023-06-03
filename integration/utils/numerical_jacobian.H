@@ -35,8 +35,9 @@ struct jac_info_t {
 
 const amrex::Real U = std::numeric_limits<amrex::Real>::epsilon();
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac)
+void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 {
 
     // we already come in with a cleaned state, and density updated to
@@ -54,7 +55,7 @@ void numerical_jac(burn_t& state, const jac_info_t& jac_info, JacNetArray2D& jac
     // note: we assume that coming into the numerical jacobian that
     // state is thermodynamically consistent (T matches e)
 
-    burn_t state_delp = state;
+    BurnT state_delp = state;
 
     // default -- plus convert the dY/dt into dX/dt
 
