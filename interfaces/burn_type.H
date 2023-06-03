@@ -252,9 +252,9 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 
 // Given an eos type, copy the data relevant to the burn type.
 
-template <typename T>
+template <typename T, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void eos_to_burn (const T& eos_state, burn_t& burn_state)
+void eos_to_burn (const T& eos_state, BurnT& burn_state)
 {
     burn_state.rho  = eos_state.rho;
     burn_state.T    = eos_state.T;
@@ -289,9 +289,9 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
 // contribution from the advection term. However this is useful
 // for instantaneous RHS evaluations.
 
-template <typename T>
+template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burn_to_eos (const burn_t& burn_state, T& eos_state)
+void burn_to_eos (const BurnT& burn_state, T& eos_state)
 {
     eos_state.rho  = burn_state.rho;
     eos_state.T    = burn_state.T;
@@ -320,9 +320,9 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
 
 
 #ifdef SIMPLIFIED_SDC
-template <typename T>
+template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void sdc_burn_to_eos (const burn_t& state, T& eos_state)
+void sdc_burn_to_eos (const BurnT& state, T& eos_state)
 {
 #if defined(SDC_EVOLVE_ENERGY)
     eos_state.rho = state.y[SRHO];
@@ -354,8 +354,9 @@ void sdc_burn_to_eos (const burn_t& state, T& eos_state)
     // will do that for us
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void normalize_abundances_sdc_burn(burn_t& state)
+void normalize_abundances_sdc_burn (BurnT& state)
 {
 
     // Constrain the partial densities in burn_t state to sum to the 
@@ -401,8 +402,9 @@ void normalize_abundances_sdc_burn(burn_t& state)
 }
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void normalize_abundances_burn (burn_t& state)
+void normalize_abundances_burn (BurnT& state)
 {
 
     Real sum = 0.0_rt;

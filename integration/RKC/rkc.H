@@ -12,8 +12,9 @@
 #include <integrator_rhs_simplified_sdc.H>
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void step (burn_t& state, rkc_t& rstate, const Real h, const int m)
+void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
 {
 
     // Take a step of size H from T to T+H to get Y(*).
@@ -101,8 +102,9 @@ void step (burn_t& state, rkc_t& rstate, const Real h, const int m)
     }
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rkcrho (burn_t& state, rkc_t& rstate)
+Real rkcrho (BurnT& state, rkc_t& rstate)
 {
 
     // RKCRHO attempts to compute a close upper bound, SPRAD, on
@@ -232,8 +234,9 @@ Real rkcrho (burn_t& state, rkc_t& rstate)
     return sprad;
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkclow (burn_t& state, rkc_t& rstate)
+int rkclow (BurnT& state, rkc_t& rstate)
 {
 
 
@@ -455,8 +458,9 @@ int rkclow (burn_t& state, rkc_t& rstate)
     }
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkc (burn_t& state, rkc_t& rstate)
+int rkc (BurnT& state, rkc_t& rstate)
 {
 
     const Real rmax = 0.1_rt;
