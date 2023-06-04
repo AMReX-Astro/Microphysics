@@ -16,8 +16,9 @@
 
 using namespace integrator_rp;
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+void actual_integrator (BurnT& state, Real dt)
 {
     dvode_t vode_state{};
 
