@@ -10,7 +10,6 @@
 #include <integrator_data.H>
 
 typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
-typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
@@ -56,7 +55,7 @@ struct rock4_t {
     // We have our own tolerances
 
     // work array -- we break the original Fortran work array up into
-    // 7 separate arrays, each of length INT_NEQS.
+    // 8 separate arrays, each of length INT_NEQS.
 
     amrex::Real hmax;
 
@@ -67,6 +66,11 @@ struct rock4_t {
     RArray1D yjm2;
     RArray1D yjm3;
     RArray1D yjm4;
+    RArray1D sprad;
+
+    int mdeg;
+
+    amrex::Array1D<int, 1, 2> mp;
 
     // set IDID = 0 for initialization
     short idid;
@@ -90,7 +94,7 @@ struct rock4_t {
     int nfesig;
 
     // maximum number of stages used
-    int maxm;
+    int max_stages;
 
     // maximum value of the spectral radius (nearest int)
     int max_rho;

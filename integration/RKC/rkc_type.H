@@ -12,7 +12,6 @@
 const int RKC_NEQS = INT_NEQS;
 
 typedef amrex::Array1D<Real, 1, RKC_NEQS> RArray1D;
-typedef amrex::Array1D<Real, 1, RKC_NEQS> RArray1D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
