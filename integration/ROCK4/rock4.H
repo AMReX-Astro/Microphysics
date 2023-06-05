@@ -118,6 +118,9 @@ int rockfcore (BurnT& state, rock4_t& rstate)
         if (nrho == 0) {
             // Computed internally by rockfrho
             eigmax = rockfrho(state, rstate);
+            if (rstate.idid == -3) {
+                return rstate.idid;
+            }
             rstate.max_rho = std::max(rstate.max_rho, std::round(eigmax));
             rstate.min_rho = std::min(rstate.min_rho, std::round(eigmax));
         }
@@ -241,7 +244,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
 
     Real temp2, temp3, temp4, temp5;
 
-    for (int i = 1; i < INT_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yjm2(i) = rstate.yn(i);
         rstate.yjm1(i) = rstate.yn(i) + temp1 * rstate.fn(i);
         if (rstate.mdeg < 2) {
@@ -257,7 +260,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
         temp2 = 1.0_rt - temp3;
         call f(neqn,ci1,yjm1,y);
         ci1 = temp1 + temp2 * ci2 + temp3 * ci3;
-        for (int j = 1; j < INT_NEQS; ++j) {
+        for (int j = 1; j <= INT_NEQS; ++j) {
             rstate.y(j) = temp1 * rstate.y(j) + temp2 * rstate.yjm1(j) + temp3 * rstate.yjm2(j);
 
             // Shift the value "y" for the next stage.
@@ -284,7 +287,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     temp1 = rstate.h * fpa(mz,2);
     temp2 = rstate.h * fpa(mz,3);
     call f(neqn,ci2,yjm3,yjm2);
-    for (int k = 1; j < INT_NEQS; ++j) {
+    for (int k = 1; j <= INT_NEQS; ++j) {
         rstate.yjm4(j) = rstate.y(j) + temp1 * rstate.yjm1(j) + temp2 * rstate.yjm2(j);
     }
 
@@ -294,7 +297,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     temp2 = rstate.h * fpa(mz,5);
     temp3 = rstate.h * fpa(mz,6);
     call f(neqn,ci2,yjm4,yjm3);
-    for (int j = 1; j < INT_NEQS; ++j) {
+    for (int j = 1; j <= INT_NEQS; ++j) {
         rstate.fnt(j) = rstate.y(j) + temp1 * rstate.yjm1(j) + temp2 * rstate.yjm2(j) + temp3 * rstate.yjm3(j);
     }
 
@@ -450,6 +453,10 @@ Real rockfrho (BurnT& state, rkc_t& rstate)
 
     Real eigmax{};
 
+    int ntest{};
+    int nind{};
+    int ind{};
+
     for (int iter = 0; iter < maxiter; ++iter) {
         call f(neqn,t,z,rstate.yjm2);
         rstate.nfesig++;
@@ -460,50 +467,45 @@ Real rockfrho (BurnT& state, rkc_t& rstate)
         }
         dfzfn = std::sqrt(dfzfn);
 
-        eigmaxo=eigmax
-        eigmax=dfzfn/dzyn
-        eigmax=safe*eigmax
-c ------ The stopping criteria is based on a 
-c        relative error between two succesive
-c        estimation ``eigmax'' of the spectral
-c        radius. 
-c
-        if (iter.ge.1.and.dabs(eigmax-eigmaxo)
-     &    .le.(eigmax*0.05d0)) then
-c ----- The last eigenvector is stored.-------- 
-          do i=1,neqn
-            work(n8+i)=rstate.yjm1(i)-yn(i)
-          end do
-          return
-        end if
-c ----- The next z is defined by -------- 
-c       z_new=yn+coef*(fz-fn) where
-c       coef is choosen so that
-c       norm(z_new-yn)=norm(z_old-yn)
-c
-        if (dfzfn.ne.0.d0) then
-          quot=dzyn/dfzfn
-          do i=1,neqn
-            rstate.yjm1(i)=yn(i)+(rstate.yjm2(i)-fn(i))*quot
-          end do
-        else
-c ----- The new z is defined by an arbitrary --------
-c       perturbation of the current approximation
-c       of the eigenvector.
-c
-          nind=neqn
-          ntest=0
-          ind=1+mod(iter+1,nind)
-          if (rstate.yjm1(ind).ne.yn(ind).or.ntest.eq.10) then
-            rstate.yjm1(ind)=yn(ind)-(rstate.yjm1(ind)-yn(ind))
-          else 
-            nind=neqn+ind
-            ntest=ntest+1
-          end if
-        end if
-      end do
-      write(6,*) 'convergence failure in the 
-     & spectral radius computation'
-      idid=-3
-      return
-      end
+        Real eigmaxo = eigmax;
+        eigmax = dfzfn / dzyn;
+        eigmax = safe * eigmax;
+
+        // The stopping criteria is based on a relative error between
+        // two succesive estimation ``eigmax'' of the spectral radius.
+
+        if (iter >= 1 ** std::abs(eigmax-eigmaxo) <= (eigmax*0.05_rt)) {
+            // The last eigenvector is stored.
+            for (int i = 1; i <= INT_NEQS; ++i) {
+                rstate.sprad(i) = rstate.yjm1(i) - rstate.yn(i);
+            }
+            return eigmax;
+        }
+
+        // The next z is defined by z_new=yn+coef*(fz-fn) where coef
+        // is choosen so that norm(z_new-yn)=norm(z_old-yn)
+
+        if (dfzfn != 0.0_rt) {
+            Real quot = dzyn / dfzfn;
+            for (int i = 1; i <= INT_NEQS; ++i) {
+                rstate.yjm1(i) = rstate.yn(i) + (rstate.yjm2(i) - rstate.fn(i)) * quot;
+            }
+        } else {
+            // The new z is defined by an arbitrary perturbation of
+            // the current approximation of the eigenvector.
+            ntest = 0;
+            nind = INT_NEQS;
+            ind = 1 + iter+1 % nind;
+            if (rstate.yjm1(ind) != rstate.yn(ind) || ntest == 10) {
+                rstate.yjm1(ind) = rstate.yn(ind) - (rstate.yjm1(ind) - rstate.yn(ind));
+            } else {
+                nind = INT_NEQS + ind;
+                ntest++;
+            }
+        }
+    }
+
+    // if we made it here, we failed, and the caller will abort
+    rstate.idid = -3;
+    return 0.0_rt;
+}
