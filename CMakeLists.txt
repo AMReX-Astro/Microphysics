@@ -67,12 +67,12 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
   set(networkpropfile "${output_dir}/network_properties.H")
 
   if (${network_name} STREQUAL "gamma_law")
-    #set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law/_parameters")
+    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law/_parameters")
 
-    #set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/empty.net")
-    #set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/")
-    #set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/NETWORK_PROPERTIES")
-    #set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
+    set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/gammalaw.net")
+    set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/")
+    set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/NETWORK_PROPERTIES")
+    set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
     set (gamma_law_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
@@ -80,12 +80,12 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null  
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants PARENT_SCOPE)
 
-    #execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkparamfile} 
-    #                ${VODEparamfile} ${integrationparamfile} " WORKING_DIRECTORY ${output_dir}/)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkparamfile} 
+                    ${VODEparamfile} ${integrationparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
 
-    #set(gamma_law_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
-    #                      ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
-    #                      ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+    set(gamma_law_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+                          ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                          ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
   elseif (${network_name} STREQUAL "primordial_chem")
     #need these to write extern_parameters.H
