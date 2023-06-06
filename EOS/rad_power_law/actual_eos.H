@@ -18,6 +18,8 @@
 #include <eos_type.H>
 #include <cmath>
 
+using namespace eos_rp;
+
 const std::string eos_name = "rad_power_law";
 
 inline

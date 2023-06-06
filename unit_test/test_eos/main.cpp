@@ -19,6 +19,8 @@ using namespace amrex;
 #include <cmath>
 #include <unit_test.H>
 
+using namespace unit_test_rp;
+
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);

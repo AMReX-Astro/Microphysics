@@ -9,6 +9,8 @@
 #include <burner.H>
 #include <extern_parameters.H>
 
+using namespace unit_test_rp;
+
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_react (int i, int j, int k, Array4<Real> const& state,
                burn_t& burn_state, Array4<int> const& n_rhs, const plot_t& p)

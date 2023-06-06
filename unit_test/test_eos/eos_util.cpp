@@ -15,6 +15,7 @@
 #include <cmath>
 
 using namespace amrex;
+using namespace unit_test_rp;
 
 void eos_test_C(const Box& bx,
                 const Real dlogrho, const Real dlogT, const Real dmetal,
