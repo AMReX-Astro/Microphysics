@@ -51,26 +51,28 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
   // Separate product name from reactant names
 
-  pos = rate_name_mod.find("__");
+  pos = rate_name_mod.find("_to_");
   std::string reactant_names = rate_name_mod.substr(0, pos);
-  std::string product_names = rate_name_mod.substr(pos+2);
-
-  // Remove suffix in the product name
-
-  std::string suffix;
-
-  pos = product_names.find("__");
-  if (pos != std::string::npos){
-    suffix = product_names.substr(pos);
-    product_names.erase(pos);
-  }
+  std::string product_names = rate_name_mod.substr(pos+4);
 
   // check whether if this rate is removed from the network
   // let its reactant and product all to be -1 if rate is removed
 
-  pos = suffix.find("removed");
-  if (pos != std::string::npos){
+  pos = product_names.find("_removed");
+  if (pos != std::string::npos) {
     return;
+  }
+
+  // remove other suffixes
+
+  std::vector<std::string> suffixes {"_approx", "_derived", "_modified"};
+
+  for (std::string suffix : suffixes) {
+    pos = product_names.find(suffix);
+
+    if (pos != std::string::npos) {
+      product_names.erase(pos);
+    }
   }
 
   std::string _temp;

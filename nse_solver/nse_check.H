@@ -1084,9 +1084,9 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // If we care about checking the timescale of the rate to be smaller than t_s, then:
 
   if (!nse_dx_independent) {
-    burn_to_eos<eos_t>(state, eos_state);
+    burn_to_eos(state, eos_state);
     eos(eos_input_rt, eos_state);
-
+    
     // a parameter to characterize whether a rate is fast enough
     t_s = state.dx / eos_state.cs;
   }
