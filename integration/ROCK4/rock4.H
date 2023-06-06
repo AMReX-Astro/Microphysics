@@ -326,7 +326,7 @@ Real rockfrho (BurnT& state, rock4_t& rstate)
         eigmax = safe * eigmax;
 
         // The stopping criteria is based on a relative error between
-        // two succesive estimation ``eigmax'' of the spectral radius.
+        // two successive estimation ``eigmax'' of the spectral radius.
 
         if (iter >= 1 && std::abs(eigmax-eigmaxo) <= (eigmax*0.05_rt)) {
             // The last eigenvector is stored.
@@ -337,7 +337,7 @@ Real rockfrho (BurnT& state, rock4_t& rstate)
         }
 
         // The next z is defined by z_new=yn+coef*(fz-fn) where coef
-        // is choosen so that norm(z_new-yn)=norm(z_old-yn)
+        // is chosen so that norm(z_new-yn)=norm(z_old-yn)
 
         if (dfzfn != 0.0_rt) {
             Real quot = dzyn / dfzfn;
