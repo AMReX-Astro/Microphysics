@@ -1,26 +1,29 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
-#include <be_type.H>
-#include <be_integrator.H>
+#include <iomanip>
+
+#include <network.H>
+#include <burn_type.H>
+#include <eos_type.H>
+#include <eos.H>
+#include <extern_parameters.H>
+#include <rkc_type.H>
+#include <rkc.H>
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, const Real dt)
+void actual_integrator (BurnT& state, Real dt)
 {
-
-    be_t be;
+    rkc_t rkc_state{};
 
     // Set the tolerances.
 
-    be.atol_spec = atol_spec;  // mass fractions
-    be.atol_enuc = atol_enuc;  // energy generated
+    rkc_state.atol_spec = atol_spec; // mass fractions
+    rkc_state.atol_enuc = atol_enuc; // energy generated
 
-    be.rtol_spec = rtol_spec;  // mass fractions
-    be.rtol_enuc = rtol_enuc;  // energy generated
-
-    // set the Jacobian type
-    be.jacobian_type = jacobian;
+    rkc_state.rtol_spec = rtol_spec; // mass fractions
+    rkc_state.rtol_enuc = rtol_enuc; // energy generated
 
     // Start off by assuming a successful burn.
 
@@ -28,9 +31,8 @@ void actual_integrator (BurnT& state, const Real dt)
 
     // Initialize the integration time.
 
-    be.t = 0.0_rt;
-    be.tout = dt;
-
+    rkc_state.t = 0.0_rt;
+    rkc_state.tend = dt;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -39,7 +41,7 @@ void actual_integrator (BurnT& state, const Real dt)
 
     // Fill in the initial integration state.
 
-    burn_to_integrator(state, be);
+    burn_to_integrator(state, rkc_state);
 
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
@@ -54,53 +56,72 @@ void actual_integrator (BurnT& state, const Real dt)
 
     // Call the integration routine.
 
-    int istate = be_integrator(state, be);
+    int ierr = rkc(state, rkc_state);
 
     // Copy the integration data back to the burn state.
 
-    integrator_to_burn(be, state);
+    integrator_to_burn(rkc_state, state);
 
-    // Subtract off the initial energy if the application codes expect
-    // to get back only the generated energy during the burn.
+    // Subtract off the initial energy (the application codes expect
+    // to get back only the generated energy during the burn).
+    // Don't subtract it for primordial chem
     if (subtract_internal_energy) {
         state.e -= e_in;
     }
 
     // Normalize the final abundances.
-
+    // Don't normalize for primordial chem
     if (!use_number_densities) {
         normalize_abundances_burn(state);
     }
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = be.n_rhs;
-    state.n_jac = be.n_jac;
-    state.n_step = be.n_step;
+    state.n_rhs = rkc_state.nfe;
+    state.n_jac = 0;
+    state.n_step = rkc_state.nsteps;
 
-    if (istate < 0) {
+    if (ierr > 2) {
         state.success = false;
     }
 
-#ifndef AMREX_USE_CUDA
+    // VODE does not always fail even though it can lead to unphysical states.
+    // Add some checks that indicate a burn fail even if VODE thinks the
+    // integration was successful.
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (rkc_state.y(n) < -rkc_failure_tolerance) {
+            state.success = false;
+        }
+
+        // Don't enforce the condition below
+        // for primordial chem
+        if (!use_number_densities) {
+            if (rkc_state.y(n) > 1.0_rt + rkc_failure_tolerance) {
+                state.success = false;
+            }
+        }
+    }
+
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << state.n_step << std::endl;
-        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
+        std::cout << " energy released: " << state.e << std::endl;
+        std::cout <<  "number of steps taken: " << rkc_state.nsteps << std::endl;
+        std::cout <<  "number of f evaluations: " << rkc_state.nfe << std::endl;
     }
 #endif
 
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
-        std::cout << "istate = " << istate << std::endl;
+        std::cout << "ierr = " << ierr << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-        std::cout << "time = " << be.t << std::endl;
+        std::cout << "time = " << rkc_state.t << std::endl;
         std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
         std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
         std::cout << "xn start = ";
@@ -118,7 +139,6 @@ void actual_integrator (BurnT& state, const Real dt)
         std::cout << "energy generated = " << state.e << std::endl;
 #endif
     }
-
 }
 
 #endif
