@@ -29,7 +29,6 @@ EOS_DIR     := helmholtz
 # This sets the network directory
 NETWORK_DIR := aprox19
 INTEGRATOR_DIR =  VODE
-DEFINES += -DSDC_EVOLVE_ENERGY
 
 CONDUCTIVITY_DIR := stellar
 
