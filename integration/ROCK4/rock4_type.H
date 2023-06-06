@@ -28,7 +28,7 @@ struct rock4_t {
     amrex::Real h;
 
    // The end of the interval of integration.
-   amrex::Real tend;
+   amrex::Real tout;
 
     // Integration array
     RArray1D y;
@@ -67,6 +67,11 @@ struct rock4_t {
     RArray1D yjm3;
     RArray1D yjm4;
     RArray1D sprad;
+
+    // because our rhs wrapper requires that rock4_t rstate.y() hold the state
+    // that is used for evaluating the RHS, we need to create an additional
+    // temporary to backup the contents of y
+    RArray1D y_backup;
 
     int mdeg;
 

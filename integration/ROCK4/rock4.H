@@ -11,7 +11,7 @@
 #include <integrator_type_simplified_sdc.H>
 #include <integrator_rhs_simplified_sdc.H>
 #endif
-
+#include <initial_timestep.H>
 #include <rock4_coefficients.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -339,7 +339,7 @@ int rockfcore (BurnT& state, rock4_t& rstate)
     for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yn(i) = rstate.y(i);
     }
-    rhs(rstate.t, state, rstate, rstate.fn);
+    rhs(rstate.t, state, rstate, rstate.fn);   // TODO: I think this can be removed -- we already filled for finding rstate.h
 
     rstate.nfe++;
     Real errp = err;
@@ -349,8 +349,8 @@ int rockfcore (BurnT& state, rock4_t& rstate)
 
         // Step-size is adjusted.
 
-        if (1.01_rt * rstate.h >= std::abs(rstate.tend - rstate.t)) {
-            rstate.h = std::abs(rstate.tend - rstate.t);
+        if (1.01_rt * rstate.h >= std::abs(rstate.tout - rstate.t)) {
+            rstate.h = std::abs(rstate.tout - rstate.t);
             last = true;
         }
 
@@ -422,7 +422,7 @@ int rockfcore (BurnT& state, rock4_t& rstate)
             rstate.t += rstate.h;
             if (reject) {
                 hnew = std::min(hnew, rstate.h);
-                if (rstate.tend < rstate.t) {
+                if (rstate.tout < rstate.t) {
                     hnew = std::max(hnew, rstate.h);
                 }
                 reject = false;
@@ -481,7 +481,11 @@ int rock4 (BurnT& state, rock4_t& rstate)
 
     // initializations
 
-    // TODO: get the initial set size
+    // get the initial timestep
+
+    rhs(rstate.t, state, rstate, rstate.fn);
+
+    rstate.h = initial_dt(state, rstate, rstate.fn);
 
     // Test the initial step size and tolerances.
 
