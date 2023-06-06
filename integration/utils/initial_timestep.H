@@ -2,6 +2,9 @@
 #define INITIAL_TIMESTEP_H
 
 #include <AMReX_REAL.H>
+#include <actual_network.H>
+#include <actual_rhs.H>
+#include <burn_type.H>
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
