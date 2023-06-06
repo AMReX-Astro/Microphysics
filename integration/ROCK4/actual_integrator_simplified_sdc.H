@@ -124,7 +124,6 @@ void actual_integrator (BurnT& state, Real dt)
         state.success = false;
     }
 
-#if defined(SDC_EVOLVE_ENERGY)
     if (rock_state.y(SEINT+1) < 0.0_rt) {
         state.success = false;
     }
@@ -138,19 +137,6 @@ void actual_integrator (BurnT& state, Real dt)
             state.success = false;
         }
     }
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    for (int n = 1; n <= NumSpec; ++n) {
-        if (rock_state.y(SFS+n) / state.rho < -rock4_failure_tolerance) {
-            state.success = false;
-        }
-
-        if (rock_state.y(SFS+n) / state.rho > 1.0_rt + rock4_failure_tolerance) {
-            state.success = false;
-        }
-    }
-
-#endif
 
 
 #ifndef AMREX_USE_GPU
@@ -202,9 +188,7 @@ void actual_integrator (BurnT& state, Real dt)
         }
         std::cout << std::endl;
 #endif
-#if defined(SDC_EVOLVE_ENERGY)
         std::cout << "A(rho) = " << std::setprecision(16) << state.ydot_a[SRHO] << std::endl;
-#endif
         std::cout << "A(rho e) = " << std::setprecision(16) << state.ydot_a[SEINT] << std::endl;
         std::cout << "A(rho X_k) = ";
         for (int n = 0; n < NumSpec; n++) {
