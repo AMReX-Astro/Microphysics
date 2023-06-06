@@ -36,8 +36,6 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
 #ifdef SIMPLIFIED_SDC
 
-#if defined(SDC_EVOLVE_ENERGY)
-
 // these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
@@ -58,18 +56,6 @@ const int SEDEN = SMZ+1;
 
 const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
-// integrate rho*X (species masses) and rho*h (enthalpy)
-// carry pressure for EOS calls in RHS
-
-const int SFS = 0;
-const int SENTH = SFS + NumSpec;
-const int SVAR  = SENTH+1;
-const int SVAR_EVOLVE = SVAR;
-
-#endif
 
 #endif
 
@@ -129,18 +115,11 @@ struct burn_t
   // handle the non-evolved state evolution
   Real rho_orig;
 
-#if defined(SDC_EVOLVE_ENERGY)
   Real rhoe_orig;
-#endif
 
   // ydot_a are the advective terms that will modify the state y due
   // to hydrodynamics over the timestep.
   Real ydot_a[SVAR];
-
-#if defined(SDC_EVOLVE_ENTHALPY)
-  // Pressure in case we wish to use it for EOS calls
-  Real p0;
-#endif
 
   int sdc_iter;
   int num_sdc_iters;
@@ -210,9 +189,7 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 #endif
 
 #ifdef SIMPLIFIED_SDC
-#if defined(SDC_EVOLVE_ENERGY)
   o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
-#endif
   o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
 
   o << "y[SFS:] = ";
@@ -324,16 +301,7 @@ template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void sdc_burn_to_eos (const BurnT& state, T& eos_state)
 {
-#if defined(SDC_EVOLVE_ENERGY)
     eos_state.rho = state.y[SRHO];
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    eos_state.rho = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.rho += state.y[SFS+n];
-    }
-#endif
-
     eos_state.T = state.T;
 
     // species
@@ -365,8 +333,6 @@ void normalize_abundances_sdc_burn (BurnT& state)
     // This is meant to be used upon exit, and we assume that
     // vode_to_burn was already called
 
-#ifdef SDC_EVOLVE_ENERGY
-
     // we have state.y[SRHO] to constrain to
 
     Real rhoX_sum = 0.0_rt;
@@ -395,8 +361,6 @@ void normalize_abundances_sdc_burn (BurnT& state)
     for (int n = 0; n < NumAux; n++) {
         state.y[SFX+n] = state.y[SRHO] * eos_state.aux[n];
     }
-#endif
-
 #endif
 
 }
