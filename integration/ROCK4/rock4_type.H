@@ -88,7 +88,7 @@ struct rock4_t {
     int naccpt;
 
     // number of rejected steps
-    int nrejct;
+    int nreject;
 
     // number of evaluations of F used to estimate the spectral radius
     int nfesig;

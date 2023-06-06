@@ -130,22 +130,22 @@ void actual_integrator (BurnT& state, Real dt)
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rock_state.y(SFS+n) / state.y[SRHO] < -rock_failure_tolerance) {
+        if (rock_state.y(SFS+n) / state.y[SRHO] < -rock4_failure_tolerance) {
             state.success = false;
         }
 
-        if (rock_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + rock_failure_tolerance) {
+        if (rock_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + rock4_failure_tolerance) {
             state.success = false;
         }
     }
 
 #elif defined(SDC_EVOLVE_ENTHALPY)
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rock_state.y(SFS+n) / state.rho < -rock_failure_tolerance) {
+        if (rock_state.y(SFS+n) / state.rho < -rock4_failure_tolerance) {
             state.success = false;
         }
 
-        if (rock_state.y(SFS+n) / state.rho > 1.0_rt + rock_failure_tolerance) {
+        if (rock_state.y(SFS+n) / state.rho > 1.0_rt + rock4_failure_tolerance) {
             state.success = false;
         }
     }
