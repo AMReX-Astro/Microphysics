@@ -713,10 +713,11 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
   // This function checks whether all isotopes are either in the LIG group
   // or in another single group.
-
-  int nonLIG_index = -1;
   
   int LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind);
+
+  int nonLIG_index_1 = -1;
+  int nonLIG_index_2 = -1;
 
   // only LIG group if there are proton, neutron
 
@@ -741,12 +742,23 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
       continue;
     }
 
-    if (nonLIG_index == -1) {
-      nonLIG_index = get_root_index(n, group_ind);
+    if (nonLIG_index_1 == -1) {
+      nonLIG_index_1 = get_root_index(n, group_ind);
+      continue;
     }
 
-    else if (get_root_index(n, group_ind) != nonLIG_index) {
-      return false;
+    if (get_root_index(n, group_ind) != nonLIG_index_1
+	&& get_root_index(n, group_ind) != nonLIG_index_2) {
+
+      // if there is no neutron in the network allow a second nonLIG network
+
+      if (NSE_INDEX::n_index == -1 && nonLIG_index_2 == -1) {
+	nonLIG_index_2 = get_root_index(n, group_ind);	
+      }
+      
+      else {
+	return false;
+      }
     }
 
   }
