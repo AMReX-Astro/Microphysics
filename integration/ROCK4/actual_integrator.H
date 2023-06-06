@@ -32,7 +32,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Initialize the integration time.
 
     rock_state.t = 0.0_rt;
-    rock_state.tend = dt;
+    rock_state.tout = dt;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -81,7 +81,7 @@ void actual_integrator (BurnT& state, Real dt)
     state.n_jac = 0;
     state.n_step = rock_state.nsteps;
 
-    if (ierr > 2) {
+    if (ierr != 1) {
         state.success = false;
     }
 

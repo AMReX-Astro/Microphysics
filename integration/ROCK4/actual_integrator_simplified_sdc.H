@@ -30,7 +30,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Initialize the integration time.
 
     rock_state.t = 0.0_rt;
-    rock_state.tend = dt;
+    rock_state.tout = dt;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -120,7 +120,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Add some checks that indicate a burn fail even if ROCK4 thinks the
     // integration was successful.
 
-    if (ierr > 2) {
+    if (ierr != 1) {
         state.success = false;
     }
 

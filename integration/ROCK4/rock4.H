@@ -73,7 +73,16 @@ Real rfstep (BurnT& state, rock4_t& rstate)
         temp1 = rstate.h * recf(mr+2*(i-2)+1);
         temp3 = -recf(mr+2*(i-2)+2);
         temp2 = 1.0_rt - temp3;
-        //call f(neqn,ci1,yjm1,y);
+        // we want to use rstate.yjm1 as input and store ydot in the original y
+        // so we simply need to copy rstate.yjm1 to y here and use y_backup
+        // to store the RHS and then copy it after the call
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            rstate.y(j) = rstate.yjm1(j);
+        }
+        rhs(ci1, state, rstate, rstate.y_backup);
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            rstate.y(j) = rstate.y_backup(j);
+        }
         ci1 = temp1 + temp2 * ci2 + temp3 * ci3;
         for (int j = 1; j <= INT_NEQS; ++j) {
             rstate.y(j) = temp1 * rstate.y(j) + temp2 * rstate.yjm1(j) + temp3 * rstate.yjm2(j);
@@ -92,7 +101,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
 
     // stage 1
     temp1 = rstate.h * fpa(mz, 1);
-    //call f(neqn,ci1,y,yjm1);
+    rhs(ci1, state, rstate, rstate.yjm1);
     for (int j = 1; j <= INT_NEQS; ++j) {
         rstate.yjm3(j) = rstate.y(j) + temp1 * rstate.yjm1(j);
     }
@@ -101,17 +110,37 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     ci2 = ci1 + temp1;
     temp1 = rstate.h * fpa(mz,2);
     temp2 = rstate.h * fpa(mz,3);
-    //call f(neqn,ci2,yjm3,yjm2);
+
+    // call the RHS with yjm3 as input and store the output in yjm2
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.y_backup(i) = rstate.y(i);
+        rstate.y(i) = rstate.yjm3(i);
+    }
+    rhs(ci2, state, rstate, rstate.yjm2);
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.y(i) = rstate.y_backup(i);
+    }
+
     for (int j = 1; j <= INT_NEQS; ++j) {
         rstate.yjm4(j) = rstate.y(j) + temp1 * rstate.yjm1(j) + temp2 * rstate.yjm2(j);
     }
 
-    // state 3
+    // stage 3
     ci2 = ci1 + temp1 + temp2;
     temp1 = rstate.h * fpa(mz,4);
     temp2 = rstate.h * fpa(mz,5);
     temp3 = rstate.h * fpa(mz,6);
-    //call f(neqn,ci2,yjm4,yjm3);
+
+    // call the RHS with yjm4 as input and store the output in yjm3
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        // this is still backed-up: rstate.y_backup(i) = rstate.y(i);
+        rstate.y(i) = rstate.yjm4(i);
+    }
+    rhs(ci2, state, rstate, rstate.yjm3);
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.y(i) = rstate.y_backup(i);
+    }
+
     for (int j = 1; j <= INT_NEQS; ++j) {
         rstate.fnt(j) = rstate.y(j) + temp1 * rstate.yjm1(j) + temp2 * rstate.yjm2(j) + temp3 * rstate.yjm3(j);
     }
@@ -122,7 +151,17 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     temp2 = rstate.h * fpb(mz,2);
     temp3 = rstate.h * fpb(mz,3);
     temp4 = rstate.h * fpb(mz,4);
-    //call f(neqn,ci2,fnt,yjm4);
+
+    // call the RHS with fnt as the input and store the output in yjm4
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        // this is still backed-up: rstate.y_backup(i) = rstate.y(i);
+        rstate.y(i) = rstate.fnt(i);
+    }
+    rhs(ci2, state, rstate, rstate.yjm4);
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.y(i) = rstate.y_backup(i);
+    }
+
     for (int j = 1; j <= INT_NEQS; ++j) {
         rstate.y(j) = rstate.y(j) + temp1 * rstate.yjm1(j) + temp2 * rstate.yjm2(j)
                                   + temp3 * rstate.yjm3(j) + temp4 * rstate.yjm4(j);
@@ -134,7 +173,8 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     temp3 = rstate.h * fpbe(mz,3) - temp3;
     temp4 = rstate.h * fpbe(mz,4) - temp4;
     temp5 = rstate.h * fpbe(mz,5);
-    //call f(neqn,t+h,y,fnt);
+
+    rhs(rstate.t + rstate.h, state, rstate, rstate.fnt);
 
 
     Real err{};
@@ -189,7 +229,15 @@ Real rockfrho (BurnT& state, rock4_t& rstate)
         for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm2(i) = rstate.fn(i);
         }
-        //call f(neqn,t,rstate.yjm2,z);
+        // call the RHS with yjm2 as input and yjm1 as output
+        for (int i = 1; i <= INT_NEQS; ++i) {
+            rstate.y_backup(i) = rstate.y(i);
+            rstate.y(i) = rstate.yjm2(i);
+        }
+        rhs(rstate.t, state, rstate, rstate.yjm1);
+        for (int i = 1; i <= INT_NEQS; ++i) {
+            rstate.y(i) = rstate.y_backup(i);
+        }
         rstate.nfesig++;
     } else {
         for (int i = 1; i <= INT_NEQS; ++i) {
@@ -247,7 +295,17 @@ Real rockfrho (BurnT& state, rock4_t& rstate)
     int ind{};
 
     for (int iter = 0; iter < maxiter; ++iter) {
-        //call f(neqn,t,z,rstate.yjm2);
+        // call RHS with yjm1 as input and store the output as yjm2
+
+        for (int i = 1; i <= INT_NEQS; ++i) {
+            rstate.y_backup(i) = rstate.y(i);
+            rstate.y(i) = rstate.yjm1(i);
+        }
+        rhs(rstate.t, state, rstate, rstate.yjm2);
+        for (int i = 1; i <= INT_NEQS; ++i) {
+            rstate.y(i) = rstate.y_backup(i);
+        }
+
         rstate.nfesig++;
 
         Real dfzfn{};
@@ -487,12 +545,16 @@ int rock4 (BurnT& state, rock4_t& rstate)
 
     rstate.h = initial_dt(state, rstate, rstate.fn);
 
+    std::cout << "initial timestep = " << rstate.h << std::endl;
+
     // Test the initial step size and tolerances.
 
+#if 0
     if (rstate.h < 10.0_rt * UROUND) {
         rstate.idid = -1;
         return rstate.idid;
     }
+#endif
 
     bool valid = true;
 
