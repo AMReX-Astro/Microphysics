@@ -18,6 +18,12 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void mdegre(rock4_t& rstate)
 {
 
+    constexpr amrex::Array1D<int, 1, 50> ms = {
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    22, 24, 26, 28, 30, 32, 34, 36, 38, 41, 44, 47, 50, 53, 56, 59, 63, 67, 71,
+    76, 81, 86, 92, 98, 105, 112, 120, 129, 138, 148};
+
+
     // Find the optimal degree.
     // MP(1): pointer which select the degree in ms(i)\1,2,..
     //        such that mdeg<=ms(i).
@@ -205,6 +211,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real rockfrho (BurnT& state, rock4_t& rstate)
 {
 
+
     // Rockfrho compute eigmax, a close upper bound of the spectral
     // radius of the Jacobian matrix using a power method
     // (J.N. Franklin (matrix theory).  The algorithm used is a small
@@ -378,6 +385,7 @@ int rockfcore (BurnT& state, rock4_t& rstate)
 
     rstate.idid = 1;
 
+
     Real facmax{5.0_rt};
     Real told{0.0_rt};
     Real err{0.0_rt};
@@ -390,7 +398,6 @@ int rockfcore (BurnT& state, rock4_t& rstate)
 
     bool last{false};
     bool reject{false};
-
 
     // initialization of the integration step.
 
@@ -412,10 +419,12 @@ int rockfcore (BurnT& state, rock4_t& rstate)
             last = true;
         }
 
+#if 0
         if (rstate.h < 10.0_rt * UROUND) {
             rstate.idid = -2;
             return rstate.idid;
         }
+#endif
 
         // Spectral radius.
 
