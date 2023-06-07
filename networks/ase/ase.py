@@ -59,8 +59,9 @@ def get_library():
         
     # additional neutron rates to remove
     for r in subch.get_rates():
-        if (r == subch.get_rate_by_name("mg24(n,a)ne21") or r == subch.get_rate_by_name("na22(n,g)na23")
-        or r == subch.get_rate_by_name("ne21(a,n)mg24") or r == subch.get_rate_by_name("na23(g,n)na22")):
+        if (r == subch.get_rate_by_name("mg24(n,a)ne21") or r == subch.get_rate_by_name("ne21(a,n)mg24")
+            or r == subch.get_rate_by_name("na22(n,g)na23") or r == subch.get_rate_by_name("na23(g,n)na22")
+            or r == subch.get_rate_by_name("ne21(g,n)ne20") or r == subch.get_rate_by_name("ne20(n,g)ne21")):
             continue
     
         if pyna.Nucleus("n") in r.reactants or pyna.Nucleus("n") in r.products:
@@ -112,7 +113,7 @@ def doit():
     comp.set_nuc("he4", 0.95)
     comp.normalize()
 
-    net.plot(outfile="ase.png", rho=1.e6, T=1.e9, comp=comp,
+    net.plot(outfile="ase.png", rho=1.e7, T=6.e9, comp=comp,
              rotated=True, hide_xalpha=True, curved_edges=True,
              size=(1500, 450),
              node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
