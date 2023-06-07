@@ -1041,7 +1041,9 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   constexpr int do_T_derivatives = 0;
   evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
 
-  eos_t eos_state;                             // need eos_state for speed of sound
+  // need eos_state for speed of sound
+
+  eos_t eos_state;
 
   // Initialize t_s, sound crossing timescale for a single zone to be max
 
@@ -1052,7 +1054,10 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   if (!nse_dx_independent) {
     burn_to_eos(state, eos_state);
     eos(eos_input_rt, eos_state);
-    t_s = state.dx / eos_state.cs;   // a parameter to characterize whether a rate is fast enough
+    
+    // a parameter to characterize whether a rate is fast enough
+
+    t_s = state.dx / eos_state.cs;
   }
 
   // Find ydot
