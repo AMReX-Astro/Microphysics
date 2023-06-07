@@ -188,9 +188,9 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     for (int j = 1; j <= INT_NEQS; ++j) {
         Real wt{};
         if (j <= NumSpec) {
-            wt = rstate.rtol_spec * std::abs(rstate.yn(j)) + rstate.atol_spec;
+            wt = rstate.rtol_spec * std::abs(rstate.y(j)) + rstate.atol_spec;
         } else {
-            wt = rstate.rtol_enuc * std::abs(rstate.yn(j)) + rstate.atol_enuc;
+            wt = rstate.rtol_enuc * std::abs(rstate.y(j)) + rstate.atol_enuc;
         }
 
         err += std::pow((temp1 * rstate.yjm1(j) +
