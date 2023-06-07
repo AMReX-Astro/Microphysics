@@ -20,8 +20,9 @@
 #include <nse_check.H>
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int dvode (burn_t& state, dvode_t& vstate)
+int dvode (BurnT& state, dvode_t& vstate)
 {
 
     // Local variables

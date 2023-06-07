@@ -16,8 +16,9 @@
 
 using namespace integrator_rp;
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+void actual_integrator (BurnT& state, Real dt)
 {
 
     rkc_t rkc_state{};
@@ -123,7 +124,6 @@ void actual_integrator (burn_t& state, Real dt)
         state.success = false;
     }
 
-#if defined(SDC_EVOLVE_ENERGY)
     if (rkc_state.y(SEINT+1) < 0.0_rt) {
         state.success = false;
     }
@@ -137,19 +137,6 @@ void actual_integrator (burn_t& state, Real dt)
             state.success = false;
         }
     }
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    for (int n = 1; n <= NumSpec; ++n) {
-        if (rkc_state.y(SFS+n) / state.rho < -rkc_failure_tolerance) {
-            state.success = false;
-        }
-
-        if (rkc_state.y(SFS+n) / state.rho > 1.0_rt + rkc_failure_tolerance) {
-            state.success = false;
-        }
-    }
-
-#endif
 
 
 #ifndef AMREX_USE_GPU
@@ -201,9 +188,7 @@ void actual_integrator (burn_t& state, Real dt)
         }
         std::cout << std::endl;
 #endif
-#if defined(SDC_EVOLVE_ENERGY)
         std::cout << "A(rho) = " << std::setprecision(16) << state.ydot_a[SRHO] << std::endl;
-#endif
         std::cout << "A(rho e) = " << std::setprecision(16) << state.ydot_a[SEINT] << std::endl;
         std::cout << "A(rho X_k) = ";
         for (int n = 0; n < NumSpec; n++) {
