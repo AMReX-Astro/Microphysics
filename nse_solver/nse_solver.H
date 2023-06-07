@@ -599,32 +599,40 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
                        bool input_ye_is_valid=false){
 
   // Check whether initialized or not
-  if (!NSE_INDEX::initialized){
+  if (!NSE_INDEX::initialized) {
     amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
   }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
   amrex::Real ye_hi = 0.0_rt;
 
-  for (int n = 0; n < NumSpec; ++n){
+  for (int n = 0; n < NumSpec; ++n) {
     ye_lo = amrex::min(zion[n] * aion_inv[n], ye_lo);
     ye_hi = amrex::max(zion[n] * aion_inv[n], ye_hi);
   }
 
-  if (state.y_e < ye_lo || state.y_e > ye_hi){
+  if (state.y_e < ye_lo || state.y_e > ye_hi) {
     input_ye_is_valid = false;
   }
 
   if (!input_ye_is_valid) {
     // ensure Ye is valid
+#ifdef STRANG
     composition(state);
+#else
+    state.y_e = 0.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n) {
+      state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n] / state.rho;
+    }
+#endif
   }
 
-  // invoke newton-raphson to solve chemical potential of proton and neutron
+  // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
   if (use_hybrid_solver) {
     nse_hybrid_solver(state, eps);
   }
-  else{
+  else {
     nse_nr_solver(state, eps);
   }
 
