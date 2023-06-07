@@ -20,9 +20,9 @@
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
-template <typename T>
+template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs(const Real time, burn_t& state, T& int_state, RArray1D& ydot,
+void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
          [[maybe_unused]] const bool in_jacobian=false)
 {
 
@@ -84,9 +84,9 @@ void rhs(const Real time, burn_t& state, T& int_state, RArray1D& ydot,
 
 // Analytical Jacobian
 
-template<typename T, class MatrixType>
+template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
+void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
     // update rho, rho*u, ... in the burn_t state

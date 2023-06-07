@@ -11,8 +11,9 @@
 #include <vode_rhs_true_sdc.H>
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
+void dvhin (BurnT& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
 {
     // This routine computes the step size, H0, to be attempted on the
     // first step, when the user has not supplied a value for this.
