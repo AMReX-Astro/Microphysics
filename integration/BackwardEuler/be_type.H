@@ -46,7 +46,7 @@ struct be_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    Array1D<Real, 1, BE_INT> y;
+    Array1D<Real, 1, INT_NEQS> y;
     JacNetArray2D jac;
 
     short jacobian_type;
