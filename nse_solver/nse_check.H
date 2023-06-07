@@ -44,14 +44,14 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check){
   // Check if n,p,a are in equilibrium
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
 
-  for (int n = 0; n < NumSpec; ++n){
+  for (int n = 0; n < NumSpec; ++n) {
 
-    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index){
+    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index) {
       r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
       r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
     }
 
-    else if (n == NSE_INDEX::he4_index){
+    else if (n == NSE_INDEX::he4_index) {
       r *= state.xn[n] * aion_inv[n];
       r_nse *= nse_state.xn[n] * aion_inv[n];
     }
@@ -991,11 +991,20 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   const auto nse_state = get_actual_nse_state(current_state);
 
+  burn_t state = current_state;
+
+#ifndef STRANG
+  // if not strang, store mass fractions
+  for (int n = 0; n < NumSpec; ++n) {
+    state.xn[n] = current_state.y[SFS+n] / current_state.rho;
+  }
+#endif
+  
   // Check whether state is in the ballpark of NSE
 
   if (!skip_molar_check) {
 
-    check_nse_molar(current_state, nse_state, current_state.nse);    
+    check_nse_molar(state, nse_state, current_state.nse);
     if (!current_state.nse) {
       return current_state.nse;
     }
@@ -1006,12 +1015,15 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // the thermodynamic condition.
   // Note we only do this after the first check, which should tell us whether
   // our current mass fractions are in the ballpark of NSE mass fractions.
-
-  burn_t state = current_state;
-
+  
   if (nse_molar_independent) {
     state = nse_state;
     state.dx = current_state.dx;
+#ifndef STRANG
+    for (int n = 0; n < NumSpec; ++n) {
+      state.y[SFS+n] = nse_state.xn[n] * nse_state.rho;
+    }
+#endif
   }
 
   // set molar fractions
@@ -1060,7 +1072,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 #ifdef NEUTRINOS
   // get abar and zbar
   composition(state);
-  
+
   amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
   sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 #else
