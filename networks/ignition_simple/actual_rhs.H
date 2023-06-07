@@ -8,6 +8,7 @@
 #include <screen.H>
 
 using namespace amrex;
+using namespace network;
 
 void actual_rhs_init ();
 
@@ -69,7 +70,7 @@ void ener_gener_rate (const Real& dydt, Real& enuc)
 {
     using namespace Species;
     using namespace C::Legacy;
-    using namespace network;
+    using namespace network_rp;
 
     // This is basically e = m c**2
 

@@ -63,7 +63,7 @@ The interfaces to all of the networks and integrators are written in C++.
 
 The main entry point for C++ is ``burner()`` in
 ``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE``, ``BackwardEuler``, or ``ForwardEuler``).
+routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, or ``RKC``).
 
 .. code-block:: c++
 
@@ -352,7 +352,7 @@ the allowed options are:
   the timestep by using the local truncation error scaling.
 
 * ``ForwardEuler``: an explicit first-order forward-Euler method.  This is
-  meant for testing purposes only.
+  meant for testing purposes only.  No Jacobian is needed.
 
 * ``QSS``: the quasi-steady-state method of :cite:`mott_qss` (see also
   :cite:`guidry_qss`). This uses a second-order predictor-corrector method,
@@ -360,7 +360,12 @@ the allowed options are:
   and nuclear reactions. However, this integrator has difficulty near NSE,
   so we don't recommend its use in production for nuclear astrophysics.
 
-* ``VODE``: the VODE (:cite:`vode`) integration package.  We ported this
+* ``RKC``: a stabilized explicit Runge-Kutta-Chebyshev integrator based
+  on :cite:`sommeijer_rkc_1998`.  This does not require a Jacobian, but
+  does need to estimate the spectral radius of the system, which is
+  done internally.  This works for moderately stiff problems.
+
+* ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
 We recommend that you use the VODE solver, as it is the most

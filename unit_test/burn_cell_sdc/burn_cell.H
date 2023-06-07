@@ -9,6 +9,8 @@
 #include <iostream>
 #include <react_util.H>
 
+using namespace unit_test_rp;
+
 void burn_cell_c()
 {
 
@@ -241,7 +243,6 @@ void burn_cell_c()
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = density;
 
     burn_state.y[SMX] = 0.0;
@@ -250,12 +251,6 @@ void burn_cell_c()
 
     burn_state.y[SEINT] = rhoe;
     burn_state.y[SEDEN] = burn_state.y[SEINT];
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    burn_state.y[SENTH] = burn_state.rho * eos_state.h;
-
-    burn_state.p0 = eos_state.p;
-#endif
 
     // now initialize the advective terms -- the only ones that are
     // actually used during the integration are for rho, (rho X), and

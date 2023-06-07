@@ -16,13 +16,15 @@
 #include <nonaka_plot.H>
 #endif
 
+using namespace integrator_rp;
+
 // The rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
-template <typename T>
+template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
+void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
 {
 
     // We are integrating a system of
@@ -105,9 +107,9 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, [[maybe_
 
 
 // Analytical Jacobian
-template<typename T, class MatrixType>
+template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac ([[maybe_unused]] const Real time, burn_t& state, T& int_state, MatrixType& pd)
+void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
     // Only do the burn if the incoming temperature is within the temperature

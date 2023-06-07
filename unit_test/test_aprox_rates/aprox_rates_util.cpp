@@ -14,6 +14,7 @@
 #include <cmath>
 
 using namespace amrex;
+using namespace unit_test_rp;
 
 void aprox_rates_test(const Box& bx,
                       const Real dlogrho, const Real dlogT, const Real dNi,

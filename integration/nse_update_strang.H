@@ -28,8 +28,9 @@ using namespace amrex;
 ///
 /// update the state due to NSE changes for the Strang-split case
 ///
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_burn(burn_t& state, const Real dt) {
+void nse_burn(BurnT& state, const Real dt) {
 
   // get the energy -- we are assuming that rho, T are valid on input
 
