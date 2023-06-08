@@ -2,6 +2,7 @@
 #define RKC_H
 
 #include <rkc_type.H>
+#include <rkc_util.H>
 #include <burn_type.H>
 #ifdef STRANG
 #include <integrator_type_strang.H>
@@ -135,6 +136,7 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
 
     Real small = 1.0_rt / rstate.hmax;
 
+
     // The initial slope is used as guess when nsteps = 0 and
     // thereafter the last computed eigenvector.  Some care
     // is needed to deal with special cases. Approximations to
@@ -258,7 +260,6 @@ int rkclow (BurnT& state, rkc_t& rstate)
     // RKC is an interface to RKCLOW where the actual solution takes place.
 
     const Real onep1 = 1.1_rt;
-    const Real p1 = 0.1_rt;
     const Real p4 = 0.4_rt;
     const Real p8 = 0.8_rt;
     const Real one3rd = 1.0_rt/3.0_rt;
@@ -285,7 +286,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
     Real tdir = std::copysign(1.0_rt, rstate.tend - rstate.t);
     rstate.hmax = std::abs(rstate.tend - rstate.t);
 
-    Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), rstate.hmax);
+    Real hmin{};
     Real sprad{};
     Real absh{};
     Real errold{};
@@ -312,52 +313,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // Compute an initial step size.
 
         if (rstate.nsteps == 0) {
-            absh = rstate.hmax;
-            if (sprad * absh > 1.0_rt) {
-                absh = 1.0_rt / sprad;
-            }
-            absh = std::max(absh, hmin);
-
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                rstate.vtemp1(i) = rstate.yn(i) + absh * rstate.fn(i);
-            }
-
-            // we want to call with vtemp1 as the input, so we need to stash the
-            // current y
-            RArray1D ysav;
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                ysav(i) = rstate.y(i);
-                rstate.y(i) = rstate.vtemp1(i);
-            }
-            rhs(rstate.t+absh, state, rstate, rstate.vtemp2);
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                rstate.y(i) = ysav(i);
-            }
-
-            rstate.nfe++;
-            Real est{};
-
-            // compute the weights using the tolerances
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                Real wt{};
-                if (i <= NumSpec) {
-                    wt = rstate.rtol_spec * std::abs(rstate.yn(i)) + rstate.atol_spec;
-                } else {
-                    wt = rstate.rtol_enuc * std::abs(rstate.yn(i)) + rstate.atol_enuc;
-                }
-                if (wt == 0.0_rt) {
-                    rstate.idid = 3;
-                    return rstate.idid;
-                }
-                est += std::pow((rstate.vtemp2(i) - rstate.fn(i)) / wt, 2);
-            }
-            est = absh * std::sqrt(est / RKC_NEQS);
-
-            if (p1 * absh < rstate.hmax * std::sqrt(est)) {
-                absh = std::max(p1 * absh / std::sqrt(est), hmin);
-            } else {
-                absh = rstate.hmax;
-            }
+            absh = rkc_init_dt(state, rstate, rstate.hmax, sprad);
         }
 
         // Adjust the step size and determine the number of stages m.
@@ -460,7 +416,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
                 fac = temp1 / temp2;
             }
         }
-        absh = std::max(p1, fac) * absh;
+        absh = std::max(0.1_rt, fac) * absh;
         absh = std::max(hmin, std::min(rstate.hmax, absh));
         errold = err;
         hold = h;
