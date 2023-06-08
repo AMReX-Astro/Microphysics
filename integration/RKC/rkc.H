@@ -111,6 +111,21 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
     // the spectral radius of the Jacobian matrix using a nonlinear
     // power method.  A convergence failure is reported by IDID = 6.
 
+    // for the start (nsteps == 0), this works off of the initial
+    // function evaluation, rstate.fn(i), which has units of dy/dt
+    //
+    // for other steps, with works off of rstate.sprad, which is the
+    // eigenvector from the previous solve.  It also has units of
+    // y
+    //
+    // this means that the caller needs to initialize
+    //
+    // rstate.yn to the old-timesolution
+    // rstate.fn to the RHS called with yn for nsteps == 0
+    // rstate.sprad to the previous eigenvector for nsteps > 0
+    //
+    // we use rstate.vtemp1 and rstate.vtemp2 as internal storage
+
     constexpr int itmax{50};
     constexpr Real onep2{1.2_rt};
     constexpr Real p01{0.01_rt};
