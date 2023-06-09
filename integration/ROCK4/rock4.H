@@ -13,6 +13,7 @@
 #endif
 #include <initial_timestep.H>
 #include <rock4_coefficients.H>
+#include <rkc_util.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void mdegre(rock4_t& rstate)
@@ -549,10 +550,16 @@ int rock4 (BurnT& state, rock4_t& rstate)
     // initializations
 
     // get the initial timestep
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.yn(i) = rstate.y(i);
+    }
 
     rhs(rstate.t, state, rstate, rstate.fn);
 
-    rstate.h = initial_dt(state, rstate, rstate.fn);
+    Real sprad = rkcrho(state, rstate, rstate.tend);
+    
+    //rstate.h = initial_dt(state, rstate, rstate.fn);
+    rstate.h = rkc_init_dt(state, rstate, rstate.tend, sprad);
 
     std::cout << "initial timestep = " << rstate.h << std::endl;
 
