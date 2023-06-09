@@ -1,5 +1,5 @@
-#ifndef RKC_UTIL
-#define RKC_UTIL
+#ifndef RKC_UTIL_H
+#define RKC_UTIL_H
 
 #include <rkc_type.H>
 
