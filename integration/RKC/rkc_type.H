@@ -80,8 +80,8 @@ struct rkc_t {
 
     RArray1D yn;
     RArray1D fn;
-    RArray1D vtemp1;
-    RArray1D vtemp2;
+    RArray1D yjm1;    // sometimes called vtemp1 in rkc.f
+    RArray1D yjm2;    // sometimes called vtemp2 in rkc.f
     RArray1D sprad;
 
     // set IDID = 0 for initialization
