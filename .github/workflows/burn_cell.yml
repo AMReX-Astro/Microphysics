@@ -90,4 +90,20 @@ jobs:
           cd unit_test/burn_cell
           diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_QSS_unit_test.out
 
+      - name: Compile, burn_cell (RKC, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=aprox13 INTEGRATOR_DIR=RKC -j 4
+
+      - name: Run burn_cell (RKC, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=2.e9 > test.out
+
+      - name: Compare to stored output (RKC, aprox13)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_RKC_unit_test.out
+
 
