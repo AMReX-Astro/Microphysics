@@ -31,11 +31,11 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
 
     // Evaluate the first stage.
 
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.vtemp2(i) = rstate.yn(i);
     }
     Real mus = w1 * bjm1;
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.vtemp1(i) = rstate.yn(i) + h * mus * rstate.fn(i);
     }
 
@@ -67,13 +67,13 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
         // the original Fortran code stored the output temporarily
         // in rstate.y(), but we need that for input
 
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.y(i) = rstate.vtemp1(i);
         }
         RArray1D ydot;
         rhs(rstate.t + h*thjm1, state, rstate, ydot);
 
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.y(i) = mu * rstate.vtemp1(i) +
                           nu * rstate.vtemp2(i) +
                           (1.0_rt - mu - nu) * rstate.yn(i) +
@@ -84,7 +84,7 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
         // Shift the data for the next stage.
 
         if (j < m) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.vtemp2(i) = rstate.vtemp1(i);
                 rstate.vtemp1(i) = rstate.y(i);
             }
@@ -127,18 +127,18 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
     // norm has the constant value dynrm.
 
     if (rstate.nsteps == 0) {
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.vtemp1(i) = rstate.fn(i);
         }
     } else {
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.vtemp1(i) = rstate.sprad(i);
         }
     }
 
     Real ynrm{};
     Real vnrm{};
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         ynrm += std::pow(rstate.yn(i), 2);
         vnrm += std::pow(rstate.vtemp1(i), 2);
     }
@@ -148,22 +148,22 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
     Real dynrm{};
     if (ynrm != 0.0_rt && vnrm != 0.0_rt) {
         dynrm = ynrm * std::sqrt(UROUND);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.vtemp1(i) = rstate.yn(i) + rstate.vtemp1(i) * (dynrm / vnrm);
         }
     } else if (ynrm != 0.0_rt) {
         dynrm = ynrm * std::sqrt(UROUND);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.vtemp1(i) = rstate.yn(i) + rstate.yn(i) * std::sqrt(UROUND);
         }
     } else if (vnrm != 0.0_rt) {
         dynrm = UROUND;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.vtemp1(i) = rstate.vtemp1(i) * (dynrm / vnrm);
         }
     } else {
         dynrm = UROUND;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.vtemp1(i) = dynrm;
         }
     }
@@ -178,17 +178,17 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
         // we want to call the RHS with vtemp1() as the input, so we need to copy
         // this temporarily into vstate.y()
         RArray1D ysav;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             ysav(i) = rstate.y(i);
             rstate.y(i) = rstate.vtemp1(i);
         }
         rhs(rstate.t, state, rstate, rstate.vtemp2);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.y(i) = ysav(i);
         }
         rstate.nfesig++;
         Real dfnrm{};
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             dfnrm += std::pow(rstate.vtemp2(i) - rstate.fn(i), 2);
         }
         dfnrm = std::sqrt(dfnrm);
@@ -202,7 +202,7 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
 
         if (iter >= 1 &&
             std::abs(sigma - sigmal) <= std::max(sigma, small) * p01) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.sprad(i) = rstate.vtemp1(i) - rstate.yn(i);
             }
             return sprad;
@@ -212,7 +212,7 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
         // scaled so that norm(v - yn) = dynrm.
 
         if (dfnrm != 0.0_rt) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.vtemp1(i) = rstate.yn(i) +
                     (rstate.vtemp2(i) - rstate.fn(i)) * (dynrm / dfnrm);
             }
@@ -222,7 +222,7 @@ Real rkcrho (BurnT& state, rkc_t& rstate)
             // current approximation to the eigenvector by changing
             // the sign of one component.
 
-            int index = 1 + (iter + 1) % RKC_NEQS;
+            int index = 1 + (iter + 1) % INT_NEQS;
             rstate.vtemp1(index) = rstate.yn(index) -
                 (rstate.vtemp1(index) - rstate.yn(index));
         }
@@ -259,7 +259,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
     bool newspc = true;
     bool jacatt = false;
     int nstsig = 0;
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yn(i) = rstate.y(i);
     }
 
@@ -303,19 +303,19 @@ int rkclow (BurnT& state, rkc_t& rstate)
             }
             absh = std::max(absh, hmin);
 
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.vtemp1(i) = rstate.yn(i) + absh * rstate.fn(i);
             }
 
             // we want to call with vtemp1 as the input, so we need to stash the
             // current y
             RArray1D ysav;
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 ysav(i) = rstate.y(i);
                 rstate.y(i) = rstate.vtemp1(i);
             }
             rhs(rstate.t+absh, state, rstate, rstate.vtemp2);
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.y(i) = ysav(i);
             }
 
@@ -323,7 +323,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
             Real est{};
 
             // compute the weights using the tolerances
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 Real wt{};
                 if (i <= NumSpec) {
                     wt = rstate.rtol_spec * std::abs(rstate.yn(i)) + rstate.atol_spec;
@@ -336,7 +336,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
                 }
                 est += std::pow((rstate.vtemp2(i) - rstate.fn(i)) / wt, 2);
             }
-            est = absh * std::sqrt(est / RKC_NEQS);
+            est = absh * std::sqrt(est / INT_NEQS);
 
             if (p1 * absh < rstate.hmax * std::sqrt(est)) {
                 absh = std::max(p1 * absh / std::sqrt(est), hmin);
@@ -377,7 +377,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // Estimate the local error and compute its weighted RMS norm.
 
         Real err{};
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             Real wt{};
             if (i <= NumSpec) {
                 wt = rstate.rtol_spec * std::max(std::abs(rstate.yn(i)),
@@ -397,7 +397,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
             err += std::pow(est / wt, 2);
         }
 
-        err = std::sqrt(err / RKC_NEQS);
+        err = std::sqrt(err / INT_NEQS);
 
         if (err > 1.0_rt) {
             // Step is rejected.
@@ -424,7 +424,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         }
 
         // Update the data for interpolation stored in work(*).
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             Real ylast = rstate.yn(i);
             Real yplast = rstate.fn(i);
             rstate.yn(i) = rstate.y(i);
