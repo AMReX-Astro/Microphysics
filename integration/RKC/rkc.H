@@ -2,6 +2,7 @@
 #define RKC_H
 
 #include <rkc_type.H>
+#include <rkc_util.H>
 #include <burn_type.H>
 #ifdef STRANG
 #include <integrator_type_strang.H>
@@ -32,11 +33,11 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
     // Evaluate the first stage.
 
     for (int i = 1; i <= RKC_NEQS; ++i) {
-        rstate.vtemp2(i) = rstate.yn(i);
+        rstate.yjm2(i) = rstate.yn(i);
     }
     Real mus = w1 * bjm1;
     for (int i = 1; i <= RKC_NEQS; ++i) {
-        rstate.vtemp1(i) = rstate.yn(i) + h * mus * rstate.fn(i);
+        rstate.yjm1(i) = rstate.yn(i) + h * mus * rstate.fn(i);
     }
 
     Real thjm2{};
@@ -63,19 +64,19 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
         // Use the y array for temporary storage here.
 
         // for this call
-        // we want rstate.vtemp1() to be the input y
+        // we want rstate.yjm1() to be the input y
         // the original Fortran code stored the output temporarily
         // in rstate.y(), but we need that for input
 
         for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.y(i) = rstate.vtemp1(i);
+            rstate.y(i) = rstate.yjm1(i);
         }
         RArray1D ydot;
         rhs(rstate.t + h*thjm1, state, rstate, ydot);
 
         for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.y(i) = mu * rstate.vtemp1(i) +
-                          nu * rstate.vtemp2(i) +
+            rstate.y(i) = mu * rstate.yjm1(i) +
+                          nu * rstate.yjm2(i) +
                           (1.0_rt - mu - nu) * rstate.yn(i) +
                           h * mus * (ydot(i) - ajm1 * rstate.fn(i));
         }
@@ -85,8 +86,8 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
 
         if (j < m) {
             for (int i = 1; i <= RKC_NEQS; ++i) {
-                rstate.vtemp2(i) = rstate.vtemp1(i);
-                rstate.vtemp1(i) = rstate.y(i);
+                rstate.yjm2(i) = rstate.yjm1(i);
+                rstate.yjm1(i) = rstate.y(i);
             }
             thjm2 = thjm1;
             thjm1 = thj;
@@ -102,137 +103,6 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
     }
 }
 
-template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rkcrho (BurnT& state, rkc_t& rstate)
-{
-
-    // RKCRHO attempts to compute a close upper bound, SPRAD, on
-    // the spectral radius of the Jacobian matrix using a nonlinear
-    // power method.  A convergence failure is reported by IDID = 6.
-
-    constexpr int itmax{50};
-    constexpr Real onep2{1.2_rt};
-    constexpr Real p01{0.01_rt};
-
-    // sprad smaller than small = 1/hmax are not
-    // interesting because they do not constrain the step size.
-
-    Real small = 1.0_rt / rstate.hmax;
-
-    // The initial slope is used as guess when nsteps = 0 and
-    // thereafter the last computed eigenvector.  Some care
-    // is needed to deal with special cases. Approximations to
-    // the eigenvector are normalized so that their Euclidean
-    // norm has the constant value dynrm.
-
-    if (rstate.nsteps == 0) {
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.vtemp1(i) = rstate.fn(i);
-        }
-    } else {
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.vtemp1(i) = rstate.sprad(i);
-        }
-    }
-
-    Real ynrm{};
-    Real vnrm{};
-    for (int i = 1; i <= RKC_NEQS; ++i) {
-        ynrm += std::pow(rstate.yn(i), 2);
-        vnrm += std::pow(rstate.vtemp1(i), 2);
-    }
-    ynrm = std::sqrt(ynrm);
-    vnrm = std::sqrt(vnrm);
-
-    Real dynrm{};
-    if (ynrm != 0.0_rt && vnrm != 0.0_rt) {
-        dynrm = ynrm * std::sqrt(UROUND);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.vtemp1(i) = rstate.yn(i) + rstate.vtemp1(i) * (dynrm / vnrm);
-        }
-    } else if (ynrm != 0.0_rt) {
-        dynrm = ynrm * std::sqrt(UROUND);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.vtemp1(i) = rstate.yn(i) + rstate.yn(i) * std::sqrt(UROUND);
-        }
-    } else if (vnrm != 0.0_rt) {
-        dynrm = UROUND;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.vtemp1(i) = rstate.vtemp1(i) * (dynrm / vnrm);
-        }
-    } else {
-        dynrm = UROUND;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.vtemp1(i) = dynrm;
-        }
-    }
-
-    // Now iterate with a nonlinear power method.
-
-    Real sigma{};
-    Real sprad{};
-
-    for (int iter = 0; iter < itmax; ++iter) {
-
-        // we want to call the RHS with vtemp1() as the input, so we need to copy
-        // this temporarily into vstate.y()
-        RArray1D ysav;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            ysav(i) = rstate.y(i);
-            rstate.y(i) = rstate.vtemp1(i);
-        }
-        rhs(rstate.t, state, rstate, rstate.vtemp2);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            rstate.y(i) = ysav(i);
-        }
-        rstate.nfesig++;
-        Real dfnrm{};
-        for (int i = 1; i <= RKC_NEQS; ++i) {
-            dfnrm += std::pow(rstate.vtemp2(i) - rstate.fn(i), 2);
-        }
-        dfnrm = std::sqrt(dfnrm);
-        Real sigmal = sigma;
-        sigma = dfnrm / dynrm;
-
-        // sprad is a little bigger than the estimate sigma of the
-        // spectral radius, so is more likely to be an upper bound.
-
-        sprad = onep2 * sigma;
-
-        if (iter >= 1 &&
-            std::abs(sigma - sigmal) <= std::max(sigma, small) * p01) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                rstate.sprad(i) = rstate.vtemp1(i) - rstate.yn(i);
-            }
-            return sprad;
-        }
-
-        // The next vtemp1(*) is the change in f
-        // scaled so that norm(v - yn) = dynrm.
-
-        if (dfnrm != 0.0_rt) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                rstate.vtemp1(i) = rstate.yn(i) +
-                    (rstate.vtemp2(i) - rstate.fn(i)) * (dynrm / dfnrm);
-            }
-        } else {
-
-            // The new v(*) degenerated to yn(*)--"randomly" perturb
-            // current approximation to the eigenvector by changing
-            // the sign of one component.
-
-            int index = 1 + (iter + 1) % RKC_NEQS;
-            rstate.vtemp1(index) = rstate.yn(index) -
-                (rstate.vtemp1(index) - rstate.yn(index));
-        }
-    }
-
-    // Set flag to report a convergence failure.
-
-    rstate.idid = 6;
-    return sprad;
-}
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -243,7 +113,6 @@ int rkclow (BurnT& state, rkc_t& rstate)
     // RKC is an interface to RKCLOW where the actual solution takes place.
 
     const Real onep1 = 1.1_rt;
-    const Real p1 = 0.1_rt;
     const Real p4 = 0.4_rt;
     const Real p8 = 0.8_rt;
     const Real one3rd = 1.0_rt/3.0_rt;
@@ -270,7 +139,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
     Real tdir = std::copysign(1.0_rt, rstate.tend - rstate.t);
     rstate.hmax = std::abs(rstate.tend - rstate.t);
 
-    Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), rstate.hmax);
+    Real hmin{};
     Real sprad{};
     Real absh{};
     Real errold{};
@@ -285,7 +154,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // in rkcrho is reported by idid = 6.
 
         if (newspc) {
-            sprad = rkcrho(state, rstate);
+            sprad = rkcrho(state, rstate, rstate.hmax);
             if (rstate.idid == 6) {
                 return rstate.idid;
             }
@@ -297,52 +166,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // Compute an initial step size.
 
         if (rstate.nsteps == 0) {
-            absh = rstate.hmax;
-            if (sprad * absh > 1.0_rt) {
-                absh = 1.0_rt / sprad;
-            }
-            absh = std::max(absh, hmin);
-
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                rstate.vtemp1(i) = rstate.yn(i) + absh * rstate.fn(i);
-            }
-
-            // we want to call with vtemp1 as the input, so we need to stash the
-            // current y
-            RArray1D ysav;
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                ysav(i) = rstate.y(i);
-                rstate.y(i) = rstate.vtemp1(i);
-            }
-            rhs(rstate.t+absh, state, rstate, rstate.vtemp2);
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                rstate.y(i) = ysav(i);
-            }
-
-            rstate.nfe++;
-            Real est{};
-
-            // compute the weights using the tolerances
-            for (int i = 1; i <= RKC_NEQS; ++i) {
-                Real wt{};
-                if (i <= NumSpec) {
-                    wt = rstate.rtol_spec * std::abs(rstate.yn(i)) + rstate.atol_spec;
-                } else {
-                    wt = rstate.rtol_enuc * std::abs(rstate.yn(i)) + rstate.atol_enuc;
-                }
-                if (wt == 0.0_rt) {
-                    rstate.idid = 3;
-                    return rstate.idid;
-                }
-                est += std::pow((rstate.vtemp2(i) - rstate.fn(i)) / wt, 2);
-            }
-            est = absh * std::sqrt(est / RKC_NEQS);
-
-            if (p1 * absh < rstate.hmax * std::sqrt(est)) {
-                absh = std::max(p1 * absh / std::sqrt(est), hmin);
-            } else {
-                absh = rstate.hmax;
-            }
+            absh = rkc_init_dt(state, rstate, rstate.hmax, sprad);
         }
 
         // Adjust the step size and determine the number of stages m.
@@ -364,13 +188,13 @@ int rkclow (BurnT& state, rkc_t& rstate)
         rstate.maxm = std::max(m, rstate.maxm);
 
         // A tentative solution at t+h is returned in
-        // y and its slope is evaluated in vtemp1(*).
+        // y and its slope is evaluated in yjm1(*).
 
         h = tdir * absh;
         hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t),
                                            std::abs(rstate.t + h));
         step(state, rstate, h, m);
-        rhs(rstate.t+h, state, rstate, rstate.vtemp1);
+        rhs(rstate.t+h, state, rstate, rstate.yjm1);
         rstate.nfe += m;
         rstate.nsteps++;
 
@@ -393,7 +217,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
                 return rstate.idid;
             }
             Real est = p8 * (rstate.yn(i) - rstate.y(i)) +
-                       p4 * h * (rstate.fn(i) + rstate.vtemp1(i));
+                       p4 * h * (rstate.fn(i) + rstate.yjm1(i));
             err += std::pow(est / wt, 2);
         }
 
@@ -428,9 +252,9 @@ int rkclow (BurnT& state, rkc_t& rstate)
             Real ylast = rstate.yn(i);
             Real yplast = rstate.fn(i);
             rstate.yn(i) = rstate.y(i);
-            rstate.fn(i) = rstate.vtemp1(i);
-            rstate.vtemp1(i) = ylast;
-            rstate.vtemp2(i) = yplast;
+            rstate.fn(i) = rstate.yjm1(i);
+            rstate.yjm1(i) = ylast;
+            rstate.yjm2(i) = yplast;
         }
         Real fac = 10.0_rt;
         if (rstate.naccpt == 1) {
@@ -445,7 +269,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
                 fac = temp1 / temp2;
             }
         }
-        absh = std::max(p1, fac) * absh;
+        absh = std::max(0.1_rt, fac) * absh;
         absh = std::max(hmin, std::min(rstate.hmax, absh));
         errold = err;
         hold = h;
