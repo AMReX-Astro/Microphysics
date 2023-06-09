@@ -1,9 +1,6 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
-// Common variables and routines for burners
-// that use VODE for their integration.
-
 #include <iomanip>
 
 #include <network.H>
