@@ -109,18 +109,18 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
     // norm has the constant value dynrm.
 
     if (rstate.nsteps == 0) {
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = rstate.fn(i);
         }
     } else {
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = rstate.sprad(i);
         }
     }
 
     Real ynrm{};
     Real vnrm{};
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         ynrm += std::pow(rstate.yn(i), 2);
         vnrm += std::pow(rstate.yjm1(i), 2);
     }
@@ -130,22 +130,22 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
     Real dynrm{};
     if (ynrm != 0.0_rt && vnrm != 0.0_rt) {
         dynrm = ynrm * std::sqrt(UROUND);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = rstate.yn(i) + rstate.yjm1(i) * (dynrm / vnrm);
         }
     } else if (ynrm != 0.0_rt) {
         dynrm = ynrm * std::sqrt(UROUND);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = rstate.yn(i) + rstate.yn(i) * std::sqrt(UROUND);
         }
     } else if (vnrm != 0.0_rt) {
         dynrm = UROUND;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = rstate.yjm1(i) * (dynrm / vnrm);
         }
     } else {
         dynrm = UROUND;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = dynrm;
         }
     }
@@ -160,17 +160,17 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
         // we want to call the RHS with yjm1() as the input, so we need to copy
         // this temporarily into vstate.y()
         RArray1D ysav;
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             ysav(i) = rstate.y(i);
             rstate.y(i) = rstate.yjm1(i);
         }
         rhs(rstate.t, state, rstate, rstate.yjm2);
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.y(i) = ysav(i);
         }
         rstate.nfesig++;
         Real dfnrm{};
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             dfnrm += std::pow(rstate.yjm2(i) - rstate.fn(i), 2);
         }
         dfnrm = std::sqrt(dfnrm);
@@ -184,7 +184,7 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
 
         if (iter >= 1 &&
             std::abs(sigma - sigmal) <= std::max(sigma, small) * 0.01_rt) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.sprad(i) = rstate.yjm1(i) - rstate.yn(i);
             }
             return sprad;
@@ -194,7 +194,7 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
         // scaled so that norm(v - yn) = dynrm.
 
         if (dfnrm != 0.0_rt) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.yjm1(i) = rstate.yn(i) +
                     (rstate.yjm2(i) - rstate.fn(i)) * (dynrm / dfnrm);
             }
@@ -204,7 +204,7 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
             // current approximation to the eigenvector by changing
             // the sign of one component.
 
-            int index = 1 + (iter + 1) % RKC_NEQS;
+            int index = 1 + (iter + 1) % INT_NEQS;
             rstate.yjm1(index) = rstate.yn(index) -
                 (rstate.yjm1(index) - rstate.yn(index));
         }

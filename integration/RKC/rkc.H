@@ -32,11 +32,11 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
 
     // Evaluate the first stage.
 
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yjm2(i) = rstate.yn(i);
     }
     Real mus = w1 * bjm1;
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yjm1(i) = rstate.yn(i) + h * mus * rstate.fn(i);
     }
 
@@ -68,13 +68,13 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
         // the original Fortran code stored the output temporarily
         // in rstate.y(), but we need that for input
 
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.y(i) = rstate.yjm1(i);
         }
         RArray1D ydot;
         rhs(rstate.t + h*thjm1, state, rstate, ydot);
 
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.y(i) = mu * rstate.yjm1(i) +
                           nu * rstate.yjm2(i) +
                           (1.0_rt - mu - nu) * rstate.yn(i) +
@@ -85,7 +85,7 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
         // Shift the data for the next stage.
 
         if (j < m) {
-            for (int i = 1; i <= RKC_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.yjm2(i) = rstate.yjm1(i);
                 rstate.yjm1(i) = rstate.y(i);
             }
@@ -128,7 +128,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
     bool newspc = true;
     bool jacatt = false;
     int nstsig = 0;
-    for (int i = 1; i <= RKC_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         rstate.yn(i) = rstate.y(i);
     }
 
@@ -201,7 +201,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // Estimate the local error and compute its weighted RMS norm.
 
         Real err{};
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             Real wt{};
             if (i <= NumSpec) {
                 wt = rstate.rtol_spec * std::max(std::abs(rstate.yn(i)),
@@ -221,7 +221,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
             err += std::pow(est / wt, 2);
         }
 
-        err = std::sqrt(err / RKC_NEQS);
+        err = std::sqrt(err / INT_NEQS);
 
         if (err > 1.0_rt) {
             // Step is rejected.
@@ -248,7 +248,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         }
 
         // Update the data for interpolation stored in work(*).
-        for (int i = 1; i <= RKC_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             Real ylast = rstate.yn(i);
             Real yplast = rstate.fn(i);
             rstate.yn(i) = rstate.y(i);
