@@ -46,9 +46,9 @@ jobs:
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' test.out)
             value2=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution.out)
 
-            ratio=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", val1 / val2 }')
-
-            if (( $(echo "$ratio/$value1 > $threshold" | bc -l) )); then
+            difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val1 }')
+            
+            if (( $(echo "$difference > $threshold" | bc -l) )); then
               echo "Line number: $line_number"
               echo "Value in test.out: $value1"
               echo "Value in reference_solution.out: $value2"
