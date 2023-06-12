@@ -35,8 +35,8 @@ jobs:
           ./main1d.gnu.DEBUG.ex inputs_primordial_chem > test.out
 
       - name: Compare to stored output
-        id: compare_output
         run: |
+          set -e
           cd unit_test/burn_cell_primordial_chem
           line_numbers=(456 458 460 463 465 471 476)
           threshold=100
@@ -55,10 +55,6 @@ jobs:
             fi
           done
           if [[ $error_found == true ]]; then
-            echo "::set-output name=error_status::true"
+            exit 1
           fi
-
-      - name: Check run action
-        if: steps.compare_output.outputs.error_status == 'true'
-        run: exit 1
 
