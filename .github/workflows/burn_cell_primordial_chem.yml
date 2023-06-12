@@ -30,5 +30,9 @@ jobs:
         run: |
           cd unit_test/burn_cell_primordial_chem
           make -j 2
-          ./main1d.gnu.DEBUG.ex inputs_primordial_chem
+          ./main1d.gnu.DEBUG.ex inputs_primordial_chem > test.out
 
+      - name: Compare to stored output
+        run: |
+          cd unit_test/burn_cell_primordial_chem
+          diff -I "^AMReX" -I "^burn_cell_primordial_chem" -I "^Start testing" -I "^End testing" test.out reference_solution.out
