@@ -14,103 +14,16 @@
 #ifdef SIMPLIFIED_SDC
 #include <integrator_rhs_simplified_sdc.H>
 #endif
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real initial_dt (burn_t& state, be_t& be,
-                 Array1D<Real, 1, BE_NEQS>& ydot)
-{
-    // this is a version of the initial timestep estimator from VODE
-    // we come in with be.y() storing the initial solution
-
-    // initial lower and upper bounds on the timestep
-
-    Real hL = 100.0_rt * std::numeric_limits<Real>::epsilon() * be.tout;
-    Real hU = 0.1_rt * be.tout;
-
-    // initial guess for the itteraction
-
-    Real h = std::sqrt(hL * hU);
-    Real h_old = 10.0_rt * h;
-
-    // Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
-
-    Array1D<Real, 1, BE_NEQS> ewt;
-    Array1D<Real, 1, BE_NEQS> ydot_temp;
-    Array1D<Real, 1, BE_NEQS> ddydtt;
-
-    // save the old state and update the stored state
-    Array1D<Real, 1, BE_NEQS> y_old;
-    for (int n = 1; n <= BE_NEQS; ++n) {
-        y_old(n) = be.y(n);
-    }
-
-    for (int n = 1; n <= 4; n++) {
-
-       h_old = h;
-
-       // Get the error weighting -- this is similar to VODE's dewset
-       // routine
-
-       for (int ii = 1; ii <= NumSpec; ii++) {
-           ewt(ii) = be.rtol_spec * std::abs(y_old(ii)) + be.atol_spec;
-       }
-       ewt(net_ienuc) = be.rtol_enuc * std::abs(y_old(net_ienuc)) + be.atol_enuc;
-
-       // Construct the trial point.
-
-       for (int ii = 1; ii <= BE_NEQS; ii++) {
-           be.y(ii) = y_old(ii) + h * ydot(ii);
-       }
-
-       // Call the RHS, then estimate the finite difference.
-
-       rhs(be.t, state, be, ydot_temp);
-
-       for (int ii = 1; ii <= BE_NEQS; ii++) {
-           ddydtt(ii) = (ydot_temp(ii) - ydot(ii)) / h;
-       }
-
-       Real yddnorm = 0.0_rt;
-       for (int ii = 1; ii <= BE_NEQS; ii++) {
-           yddnorm += std::pow(ddydtt(ii) * ewt(ii), 2);
-       }
-       yddnorm = std::sqrt(yddnorm / BE_NEQS);
-
-       if (yddnorm*hU*hU > 2.0_rt) {
-          h = std::sqrt(2.0_rt / yddnorm);
-       } else {
-          h = std::sqrt(h * hU);
-       }
-
-       if (h_old < 2.0_rt * h && h_old > 0.5_rt * h) {
-           break;
-       }
-
-    }
-
-    // Save the final timestep, with a bias factor.
-
-    Real dt = h / 2.0_rt;
-    dt = amrex::min(amrex::max(h, hL), hU);
-
-    dt = amrex::min(dt, ode_max_dt);
-
-    // restore the old time solution
-    for (int n = 1; n <= BE_NEQS; ++n) {
-        be.y(n) = y_old(n);
-    }
-
-    return dt;
-}
-
+#include <initial_timestep.H>
 
 ///
 /// update state.xn[] and state.e through a timestep dt
 /// state is updated in place -- if we are unsuccessful, we reset it
 /// we return an error code
 ///
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int single_step (burn_t& state, be_t& be, const Real dt)
+int single_step (BurnT& state, be_t& be, const Real dt)
 {
 
     int ierr = BE_SUCCESS;
@@ -125,9 +38,9 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
     be.n_rhs += 1;
 
-    Array1D<Real, 1, BE_NEQS> y_old;
+    Array1D<Real, 1, INT_NEQS> y_old;
 
-    for (int n = 1; n <= BE_NEQS; n++) {
+    for (int n = 1; n <= INT_NEQS; n++) {
         y_old(n) = be.y(n);
         be.y(n) = be.y(n) + dt * ydot(n);
     }
@@ -157,7 +70,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
         be.n_jac++;
 
         if (!integrate_energy) {
-            for (int j = 1; j <= BE_NEQS; j++) {
+            for (int j = 1; j <= INT_NEQS; j++) {
                 be.jac(net_ienuc, j) = 0.0_rt;
             }
         }
@@ -165,8 +78,8 @@ int single_step (burn_t& state, be_t& be, const Real dt)
         // construct the matrix for the linear system
         // (I - dt J) dy^{n+1} = rhs
 
-        for (int m  = 1; m <= BE_NEQS; m++) {
-            for (int n = 1; n <= BE_NEQS; n++) {
+        for (int m  = 1; m <= INT_NEQS; m++) {
+            for (int n = 1; n <= INT_NEQS; n++) {
                 be.jac(m, n) *= -dt;
                 if (m == n) {
                     be.jac(m, n) = 1.0_rt + be.jac(m, n);
@@ -176,8 +89,8 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         // construct the RHS of our linear system
 
-        Array1D<Real, 1, BE_NEQS> b;
-        for (int n = 1; n <= BE_NEQS; n++) {
+        Array1D<Real, 1, INT_NEQS> b;
+        for (int n = 1; n <= INT_NEQS; n++) {
             b(n) = y_old(n) - be.y(n) + dt * ydot(n);
         }
 
@@ -185,18 +98,18 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         int ierr_linpack;
         IArray1D pivot;
-        dgefa<BE_NEQS>(be.jac, pivot, ierr_linpack);
+        dgefa<INT_NEQS>(be.jac, pivot, ierr_linpack);
 
         if (ierr_linpack != 0) {
             ierr = BE_LU_DECOMPOSITION_ERROR;
             break;
         }
 
-        dgesl<BE_NEQS>(be.jac, pivot, b);
+        dgesl<INT_NEQS>(be.jac, pivot, b);
 
         // update our current guess for the solution
 
-        for (int n = 1; n <= BE_NEQS; n++) {
+        for (int n = 1; n <= INT_NEQS; n++) {
             be.y(n) += b(n);
         }
 
@@ -205,12 +118,12 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
         Real y_norm = 0.0;
         Real b_norm = 0.0;
-        for (int n = 1; n <= BE_NEQS; n++) {
+        for (int n = 1; n <= INT_NEQS; n++) {
             y_norm += be.y(n) * be.y(n);
             b_norm += b(n) * b(n);
         }
-        y_norm = std::sqrt(y_norm / BE_NEQS);
-        b_norm = std::sqrt(b_norm / BE_NEQS);
+        y_norm = std::sqrt(y_norm / INT_NEQS);
+        b_norm = std::sqrt(b_norm / INT_NEQS);
 
         if (b_norm < tol * y_norm) {
             converged = true;
@@ -231,7 +144,7 @@ int single_step (burn_t& state, be_t& be, const Real dt)
             ierr = BE_NONCONVERGENCE;
 
             // reset the solution to the original
-            for (int n = 1; n <= BE_NEQS; n++) {
+            for (int n = 1; n <= INT_NEQS; n++) {
                 be.y(n) = y_old(n);
             }
 
@@ -243,8 +156,9 @@ int single_step (burn_t& state, be_t& be, const Real dt)
 
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int be_integrator (burn_t& state, be_t& be)
+int be_integrator (BurnT& state, be_t& be)
 {
 
     be.n_rhs = 0;
@@ -268,8 +182,8 @@ int be_integrator (burn_t& state, be_t& be)
            be.n_step < ode_max_steps) {
 
         // store the current solution -- we'll revert to this if a step fails
-        Array1D<Real, 1, BE_NEQS> y_old;
-        for (int n = 1; n <= BE_NEQS; ++n) {
+        Array1D<Real, 1, INT_NEQS> y_old;
+        for (int n = 1; n <= INT_NEQS; ++n) {
             y_old(n) = be.y(n);
         }
 
@@ -287,7 +201,7 @@ int be_integrator (burn_t& state, be_t& be)
 
         // first do 2 (fine) dt/2 steps
 
-        Array1D<Real, 1, BE_NEQS> y_fine;
+        Array1D<Real, 1, INT_NEQS> y_fine;
 
         ierr = single_step(state, be, dt_sub/2);
         if (ierr == BE_SUCCESS) {
@@ -295,13 +209,13 @@ int be_integrator (burn_t& state, be_t& be)
 
             // store the fine dt solution
 
-            for (int n = 1; n <= BE_NEQS; ++n) {
+            for (int n = 1; n <= INT_NEQS; ++n) {
                 y_fine(n) = be.y(n);
             }
 
             // now that single (coarse) dt step
             // first reset the solution
-            for (int n = 1; n <= BE_NEQS; ++n) {
+            for (int n = 1; n <= INT_NEQS; ++n) {
                 be.y(n) = y_old(n);
             }
             ierr = single_step(state, be, dt_sub);
@@ -309,7 +223,7 @@ int be_integrator (burn_t& state, be_t& be)
 
         // define a weight for each variable to use in checking the error
 
-        Array1D<Real, 1, BE_NEQS> w;
+        Array1D<Real, 1, INT_NEQS> w;
         for (int n = 1; n <= NumSpec; n++) {
             w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
         }
@@ -338,7 +252,7 @@ int be_integrator (burn_t& state, be_t& be)
 
             be.t += dt_sub;
 
-            for (int n = 1; n <= BE_NEQS; ++n) {
+            for (int n = 1; n <= INT_NEQS; ++n) {
                 be.y(n) = y_fine(n);
             }
 
@@ -351,7 +265,7 @@ int be_integrator (burn_t& state, be_t& be)
         } else {
 
             // roll back the solution
-            for (int n = 1; n <= BE_NEQS; ++n) {
+            for (int n = 1; n <= INT_NEQS; ++n) {
                 be.y(n) = y_old(n);
             }
 
