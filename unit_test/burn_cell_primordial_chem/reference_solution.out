@@ -1,15 +1,4 @@
-Start testing: Jun 12 10:09 CEST
-----------------------------------------------------------
-1/1 Testing: burn_cell_primordial_chem
-1/1 Test: burn_cell_primordial_chem
-Command: "/Users/psharda/Documents/Microphysics/build/unit_test/burn_cell_primordial_chem/test_burn_cell_primordial_chem" "inputs_primordial_chem"
-Directory: /Users/psharda/Documents/Microphysics/unit_test/burn_cell_primordial_chem
-"burn_cell_primordial_chem" start time: Jun 12 10:09 CEST
-Output:
-----------------------------------------------------------
-MPI initialized with 1 MPI processes
-MPI initialized with thread support level 0
-AMReX (23.06-15-gcc7a5c1171bb) initialized
+AMReX (23.05-10-g1e2154f614e5) initialized
 starting the single zone burn...
 Maximum Time (s): 7e+20
 State Temperature (K): 100
@@ -464,34 +453,25 @@ step 432 done
 successful? 1
 ------------------------------------
 T initial = 100
-T final =   3032.999542
+T final =   3032.996043
 Eint initial = 1.025450408e+10
-Eint final =   2.721848162e+11
+Eint final =   2.721844122e+11
 rho initial = 2.192338259e-24
 rho final =   1.836285633e-06
 ------------------------------------
 New number densities: 
-19927.52399
-19913.11917
-1.619238327e+17
-1.781825428
-2.748251132e-13
-1.452107143
-16.18664859
-1.492522733e-17
-3.378769483e+17
+19919.8081
+19905.40886
+1.61922269e+17
+1.781134345
 1e-100
-13.89562395
-2.621449053e-60
-6.368968268e-12
-6.49134028e+16
-AMReX (23.06-15-gcc7a5c1171bb) finalized
-<end of output>
-Test time =   2.36 sec
-----------------------------------------------------------
-Test Passed.
-"burn_cell_primordial_chem" end time: Jun 12 10:09 CEST
-"burn_cell_primordial_chem" time elapsed: 00:00:02
-----------------------------------------------------------
-
-End testing: Jun 12 10:09 CEST
+1.44999796
+16.18037372
+1.48979141e-17
+3.378777297e+17
+1e-100
+13.87559962
+2.615599603e-60
+6.366378203e-12
+6.491340305e+16
+AMReX (23.05-10-g1e2154f614e5) finalized
