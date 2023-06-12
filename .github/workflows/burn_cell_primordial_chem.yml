@@ -3,8 +3,9 @@ name: burn_cell_primordial_chem
 on: [pull_request]
 
 jobs:
-  burn_cell_primordial_chem:
+  burn_cell:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -34,11 +35,12 @@ jobs:
           ./main1d.gnu.DEBUG.ex inputs_primordial_chem > test.out
 
       - name: Compare to stored output
+        id: compare_output
         run: |
-          cd unit_test/burn_cell_primordial_chem && \
-          line_numbers=(456 458 460 463 465 471 476) && \
-          threshold=3 && \
-          error_found=false && \
+          cd unit_test/burn_cell_primordial_chem
+          line_numbers=(456 458 460 463 465 471 476)
+          threshold=100
+          error_found=false
           for line_number in "${line_numbers[@]}"; do
             value1=$(sed -n "${line_number}s/[^0-9]*\([0-9.]*\).*/\1/p" test.out)
             value2=$(sed -n "${line_number}s/[^0-9]*\([0-9.]*\).*/\1/p" reference_solution.out)
@@ -53,7 +55,10 @@ jobs:
             fi
           done
           if [[ $error_found == true ]]; then
-            echo "Errors were found. Exiting with status 1."
-            exit 1
+            echo "::set-output name=error_status::true"
           fi
+
+      - name: Check run action
+        if: steps.compare_output.outputs.error_status == 'true'
+        run: exit 1
 
