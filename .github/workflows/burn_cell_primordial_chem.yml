@@ -1,6 +1,7 @@
 name: burn_cell_primordial_chem
 
 on: [pull_request]
+
 jobs:
   burn_cell:
     runs-on: ubuntu-latest
@@ -32,27 +33,27 @@ jobs:
           make -j 2
           ./main1d.gnu.DEBUG.ex inputs_primordial_chem > test.out
 
-     - name: Compare to stored output
+      - name: Compare to stored output
         run: |
           cd unit_test/burn_cell_primordial_chem && \
           line_numbers=(456 458 460 463 465 471 476) && \
           threshold=100 && \
           error_found=false && \
           for line_number in "${line_numbers[@]}"; do
-              value1=$(sed -n "${line_number}s/[^0-9]*\([0-9.]*\).*/\1/p" test.out)
-              value2=$(sed -n "${line_number}s/[^0-9]*\([0-9.]*\).*/\1/p" reference_solution.out)
-              ratio=$(awk "BEGIN {printf \"%.2f\", $value1 / $value2}")
-              if (( $(echo "$ratio > $threshold" | bc -l) )); then
-                  echo "Line number: $line_number"
-                  echo "Value in test.out: $value1"
-                  echo "Value in reference_solution.out: $value2"
-                  echo "Difference: $difference"
-                  echo
-                  error_found=true
-              fi
+            value1=$(sed -n "${line_number}s/[^0-9]*\([0-9.]*\).*/\1/p" test.out)
+            value2=$(sed -n "${line_number}s/[^0-9]*\([0-9.]*\).*/\1/p" reference_solution.out)
+            ratio=$(awk "BEGIN {printf \"%.2f\", $value1 / $value2}")
+            if (( $(echo "$ratio > $threshold" | bc -l) )); then
+              echo "Line number: $line_number"
+              echo "Value in test.out: $value1"
+              echo "Value in reference_solution.out: $value2"
+              echo "Ratio: $ratio"
+              echo
+              error_found=true
+            fi
           done
           if $error_found; then
-              echo "Errors were found. Exiting with status 1."
-              exit 1
+            echo "Errors were found. Exiting with status 1."
+            exit 1
           fi
 
