@@ -1,0 +1,497 @@
+Start testing: Jun 12 10:09 CEST
+----------------------------------------------------------
+1/1 Testing: burn_cell_primordial_chem
+1/1 Test: burn_cell_primordial_chem
+Command: "/Users/psharda/Documents/Microphysics/build/unit_test/burn_cell_primordial_chem/test_burn_cell_primordial_chem" "inputs_primordial_chem"
+Directory: /Users/psharda/Documents/Microphysics/unit_test/burn_cell_primordial_chem
+"burn_cell_primordial_chem" start time: Jun 12 10:09 CEST
+Output:
+----------------------------------------------------------
+MPI initialized with 1 MPI processes
+MPI initialized with thread support level 0
+AMReX (23.06-15-gcc7a5c1171bb) initialized
+starting the single zone burn...
+Maximum Time (s): 7e+20
+State Temperature (K): 100
+Number Density input (E): 0.0001
+Number Density input (Hp): 0.0001
+Number Density input (H): 1
+Number Density input (Hm): 1e-40
+Number Density input (Dp): 1e-40
+Number Density input (D): 1e-40
+Number Density input (H2p): 1e-40
+Number Density input (Dm): 1e-40
+Number Density input (H2): 1e-06
+Number Density input (HDp): 1e-40
+Number Density input (HD): 1e-40
+Number Density input (HEpp): 1e-40
+Number Density input (HEp): 1e-40
+Number Density input (HE): 0.0775
+step 0 done
+step 1 done
+step 2 done
+step 3 done
+step 4 done
+step 5 done
+step 6 done
+step 7 done
+step 8 done
+step 9 done
+step 10 done
+step 11 done
+step 12 done
+step 13 done
+step 14 done
+step 15 done
+step 16 done
+step 17 done
+step 18 done
+step 19 done
+step 20 done
+step 21 done
+step 22 done
+step 23 done
+step 24 done
+step 25 done
+step 26 done
+step 27 done
+step 28 done
+step 29 done
+step 30 done
+step 31 done
+step 32 done
+step 33 done
+step 34 done
+step 35 done
+step 36 done
+step 37 done
+step 38 done
+step 39 done
+step 40 done
+step 41 done
+step 42 done
+step 43 done
+step 44 done
+step 45 done
+step 46 done
+step 47 done
+step 48 done
+step 49 done
+step 50 done
+step 51 done
+step 52 done
+step 53 done
+step 54 done
+step 55 done
+step 56 done
+step 57 done
+step 58 done
+step 59 done
+step 60 done
+step 61 done
+step 62 done
+step 63 done
+step 64 done
+step 65 done
+step 66 done
+step 67 done
+step 68 done
+step 69 done
+step 70 done
+step 71 done
+step 72 done
+step 73 done
+step 74 done
+step 75 done
+step 76 done
+step 77 done
+step 78 done
+step 79 done
+step 80 done
+step 81 done
+step 82 done
+step 83 done
+step 84 done
+step 85 done
+step 86 done
+step 87 done
+step 88 done
+step 89 done
+step 90 done
+step 91 done
+step 92 done
+step 93 done
+step 94 done
+step 95 done
+step 96 done
+step 97 done
+step 98 done
+step 99 done
+step 100 done
+step 101 done
+step 102 done
+step 103 done
+step 104 done
+step 105 done
+step 106 done
+step 107 done
+step 108 done
+step 109 done
+step 110 done
+step 111 done
+step 112 done
+step 113 done
+step 114 done
+step 115 done
+step 116 done
+step 117 done
+step 118 done
+step 119 done
+step 120 done
+step 121 done
+step 122 done
+step 123 done
+step 124 done
+step 125 done
+step 126 done
+step 127 done
+step 128 done
+step 129 done
+step 130 done
+step 131 done
+step 132 done
+step 133 done
+step 134 done
+step 135 done
+step 136 done
+step 137 done
+step 138 done
+step 139 done
+step 140 done
+step 141 done
+step 142 done
+step 143 done
+step 144 done
+step 145 done
+step 146 done
+step 147 done
+step 148 done
+step 149 done
+step 150 done
+step 151 done
+step 152 done
+step 153 done
+step 154 done
+step 155 done
+step 156 done
+step 157 done
+step 158 done
+step 159 done
+step 160 done
+step 161 done
+step 162 done
+step 163 done
+step 164 done
+step 165 done
+step 166 done
+step 167 done
+step 168 done
+step 169 done
+step 170 done
+step 171 done
+step 172 done
+step 173 done
+step 174 done
+step 175 done
+step 176 done
+step 177 done
+step 178 done
+step 179 done
+step 180 done
+step 181 done
+step 182 done
+step 183 done
+step 184 done
+step 185 done
+step 186 done
+step 187 done
+step 188 done
+step 189 done
+step 190 done
+step 191 done
+step 192 done
+step 193 done
+step 194 done
+step 195 done
+step 196 done
+step 197 done
+step 198 done
+step 199 done
+step 200 done
+step 201 done
+step 202 done
+step 203 done
+step 204 done
+step 205 done
+step 206 done
+step 207 done
+step 208 done
+step 209 done
+step 210 done
+step 211 done
+step 212 done
+step 213 done
+step 214 done
+step 215 done
+step 216 done
+step 217 done
+step 218 done
+step 219 done
+step 220 done
+step 221 done
+step 222 done
+step 223 done
+step 224 done
+step 225 done
+step 226 done
+step 227 done
+step 228 done
+step 229 done
+step 230 done
+step 231 done
+step 232 done
+step 233 done
+step 234 done
+step 235 done
+step 236 done
+step 237 done
+step 238 done
+step 239 done
+step 240 done
+step 241 done
+step 242 done
+step 243 done
+step 244 done
+step 245 done
+step 246 done
+step 247 done
+step 248 done
+step 249 done
+step 250 done
+step 251 done
+step 252 done
+step 253 done
+step 254 done
+step 255 done
+step 256 done
+step 257 done
+step 258 done
+step 259 done
+step 260 done
+step 261 done
+step 262 done
+step 263 done
+step 264 done
+step 265 done
+step 266 done
+step 267 done
+step 268 done
+step 269 done
+step 270 done
+step 271 done
+step 272 done
+step 273 done
+step 274 done
+step 275 done
+step 276 done
+step 277 done
+step 278 done
+step 279 done
+step 280 done
+step 281 done
+step 282 done
+step 283 done
+step 284 done
+step 285 done
+step 286 done
+step 287 done
+step 288 done
+step 289 done
+step 290 done
+step 291 done
+step 292 done
+step 293 done
+step 294 done
+step 295 done
+step 296 done
+step 297 done
+step 298 done
+step 299 done
+step 300 done
+step 301 done
+step 302 done
+step 303 done
+step 304 done
+step 305 done
+step 306 done
+step 307 done
+step 308 done
+step 309 done
+step 310 done
+step 311 done
+step 312 done
+step 313 done
+step 314 done
+step 315 done
+step 316 done
+step 317 done
+step 318 done
+step 319 done
+step 320 done
+step 321 done
+step 322 done
+step 323 done
+step 324 done
+step 325 done
+step 326 done
+step 327 done
+step 328 done
+step 329 done
+step 330 done
+step 331 done
+step 332 done
+step 333 done
+step 334 done
+step 335 done
+step 336 done
+step 337 done
+step 338 done
+step 339 done
+step 340 done
+step 341 done
+step 342 done
+step 343 done
+step 344 done
+step 345 done
+step 346 done
+step 347 done
+step 348 done
+step 349 done
+step 350 done
+step 351 done
+step 352 done
+step 353 done
+step 354 done
+step 355 done
+step 356 done
+step 357 done
+step 358 done
+step 359 done
+step 360 done
+step 361 done
+step 362 done
+step 363 done
+step 364 done
+step 365 done
+step 366 done
+step 367 done
+step 368 done
+step 369 done
+step 370 done
+step 371 done
+step 372 done
+step 373 done
+step 374 done
+step 375 done
+step 376 done
+step 377 done
+step 378 done
+step 379 done
+step 380 done
+step 381 done
+step 382 done
+step 383 done
+step 384 done
+step 385 done
+step 386 done
+step 387 done
+step 388 done
+step 389 done
+step 390 done
+step 391 done
+step 392 done
+step 393 done
+step 394 done
+step 395 done
+step 396 done
+step 397 done
+step 398 done
+step 399 done
+step 400 done
+step 401 done
+step 402 done
+step 403 done
+step 404 done
+step 405 done
+step 406 done
+step 407 done
+step 408 done
+step 409 done
+step 410 done
+step 411 done
+step 412 done
+step 413 done
+step 414 done
+step 415 done
+step 416 done
+step 417 done
+step 418 done
+step 419 done
+step 420 done
+step 421 done
+step 422 done
+step 423 done
+step 424 done
+step 425 done
+step 426 done
+step 427 done
+step 428 done
+step 429 done
+step 430 done
+step 431 done
+step 432 done
+------------------------------------
+successful? 1
+------------------------------------
+T initial = 100
+T final =   3032.999542
+Eint initial = 1.025450408e+10
+Eint final =   2.721848162e+11
+rho initial = 2.192338259e-24
+rho final =   1.836285633e-06
+------------------------------------
+New number densities: 
+19927.52399
+19913.11917
+1.619238327e+17
+1.781825428
+2.748251132e-13
+1.452107143
+16.18664859
+1.492522733e-17
+3.378769483e+17
+1e-100
+13.89562395
+2.621449053e-60
+6.368968268e-12
+6.49134028e+16
+AMReX (23.06-15-gcc7a5c1171bb) finalized
+<end of output>
+Test time =   2.36 sec
+----------------------------------------------------------
+Test Passed.
+"burn_cell_primordial_chem" end time: Jun 12 10:09 CEST
+"burn_cell_primordial_chem" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Jun 12 10:09 CEST
