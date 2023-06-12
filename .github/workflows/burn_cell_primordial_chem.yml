@@ -42,8 +42,8 @@ jobs:
           threshold=100
           error_found=false
           for line_number in "${line_numbers[@]}"; do
-            value1=$(sed -n "${line_number}s/[^0-9eE.-]*\([0-9eE.-]*\).*/\1/p" test.out)
-            value2=$(sed -n "${line_number}s/[^0-9eE.-]*\([0-9eE.-]*\).*/\1/p" reference_solution.out)
+            value1=$(sed -n "${line_number}s/[^0-9eE.-]*\([-+]*[0-9]*\.*[0-9]*[eE][-+]*[0-9]*\).*/\1/p" test.out)
+            value2=$(sed -n "${line_number}s/[^0-9eE.-]*\([-+]*[0-9]*\.*[0-9]*[eE][-+]*[0-9]*\).*/\1/p" reference_solution.out)
             echo "Values are: $value1 $value2"
             ratio=$(awk "BEGIN {printf \"%.2f\", $value1 / $value2}")
             echo "Ratio of stored and output values: $ratio"
