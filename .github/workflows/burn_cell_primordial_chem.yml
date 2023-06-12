@@ -46,15 +46,13 @@ jobs:
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' test.out)
             value2=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution.out)
 
-            echo "Values are: $value1 $value2"
             ratio=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", val1 / val2 }')
-            echo "Ratio of stored and output values: $ratio"
 
             if (( $(echo "$ratio > $threshold" | bc -l) )); then
               echo "Line number: $line_number"
               echo "Value in test.out: $value1"
               echo "Value in reference_solution.out: $value2"
-              echo "Ratio: $ratio"
+              echo "Ratio: $ratio is more than allowed threshold of $threshold"
               echo
               error_found=true
             fi
