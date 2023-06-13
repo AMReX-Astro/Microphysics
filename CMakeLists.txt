@@ -123,9 +123,9 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     endif()
 
     set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
-                               ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
-                               ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-                               ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                                ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
 
     #below to update headers
