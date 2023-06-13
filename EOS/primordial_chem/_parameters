@@ -1,5 +1,9 @@
 @namespace: eos
 
+eos_gamma            real     5.d0/3.d0
+eos_assume_neutral   logical  .true.
+
+
 eos_gamma_default       real          1.4
 
 # define the specie names, and their masses and gammas
