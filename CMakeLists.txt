@@ -102,7 +102,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
-                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem 
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null PARENT_SCOPE)
