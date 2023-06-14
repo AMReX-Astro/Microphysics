@@ -186,7 +186,7 @@ def write_probin(param_files,
 
         fout.write(f"  void init_{cxx_base}_parameters();\n\n")
 
-        for nm in namespaces:
+        for nm in sorted(namespaces):
             params_in_nm = [q for q in params if q.namespace == nm]
 
             if use_namespace:
@@ -218,7 +218,7 @@ def write_probin(param_files,
         # find all of the unique namespaces
         namespaces = {q.namespace for q in params}
 
-        for nm in namespaces:
+        for nm in sorted(namespaces):
             params_in_nm = [q for q in params if q.namespace == nm]
 
             if use_namespace:
