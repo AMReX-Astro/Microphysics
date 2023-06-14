@@ -120,6 +120,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
       #do not need paramfile and unittestparamfile
       execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} 
                       ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
+      execute_process(COMMAND mv extern_parameters.cpp extern_parameters_primordial_chem.cpp WORKING_DIRECTORY ${output_dir}/)
     endif()
 
     set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
