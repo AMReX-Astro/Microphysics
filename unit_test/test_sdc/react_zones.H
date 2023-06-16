@@ -52,7 +52,6 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = state(i, j, k, p.irho);
 
     // we will pick velocities to be 10% of the sound speed
@@ -66,12 +65,6 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
                 burn_state.y[SMY] * burn_state.y[SMY] +
                 burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
 
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    burn_state.y[SENTH] = burn_state.rho * eos_state.h;
-
-    burn_state.p0 = eos_state.p;
-#endif
-
     // normalize
     Real sum_spec = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
@@ -81,11 +74,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
       burn_state.y[SFS+n] /= sum_spec;
     }
 
-#if defined(SDC_EVOLVE_ENERGY)
     Real rhoe_old = burn_state.y[SEINT];
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    Real rhoh_old = burn_state.y[SENTH];
-#endif
 
     // zero out the advective terms
 
@@ -122,11 +111,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
     state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / tmax;
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SENTH] - rhoh_old) / tmax;
-#endif
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
 
