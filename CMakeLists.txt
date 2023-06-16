@@ -13,47 +13,7 @@ find_package (Python COMPONENTS Interpreter Development)
 find_package(Threads)
 
 include(CTest)
-
-add_library(Microphysics SHARED) # initialized below
-
-#----------------------------------------------------------------------------------------------------------------------
-# mylib sources
-#----------------------------------------------------------------------------------------------------------------------
-
-set(sources
-    EOS/eos_composition.H
-    integration/integrator.H
-    integration/integrator_data.H
-    integration/integrator_rhs_strang.H
-    integration/integrator_type_strang.H
-    interfaces/ArrayUtilities.H
-    interfaces/burner.H
-    interfaces/burn_type.H
-    interfaces/eos.H
-    interfaces/eos_data.H
-    interfaces/eos_type.H
-    interfaces/eos_override.H
-    interfaces/network.H
-    interfaces/rhs_type.H
-    networks/rate_type.H
-    networks/rhs.H
-    unit_test/unit_test.H)
-
-#----------------------------------------------------------------------------------------------------------------------
-# mylib target
-#----------------------------------------------------------------------------------------------------------------------
-
 include(CMakePackageConfigHelpers)
-
-target_sources(Microphysics PUBLIC ${sources})
-#below line will add NAUX_NET and STRANG compiler flags
-#these are needed for preprocessor variables
-target_compile_definitions(Microphysics PUBLIC NAUX_NET STRANG)
-
-set_target_properties(Microphysics PROPERTIES
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    VERSION ${PROJECT_VERSION}
-    LINKER_LANGUAGE CXX)
 
 
 #use this function to build Microphysics using different EOS for different test problems in external codes
