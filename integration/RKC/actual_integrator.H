@@ -11,8 +11,9 @@
 #include <rkc_type.H>
 #include <rkc.H>
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+void actual_integrator (BurnT& state, Real dt)
 {
     rkc_t rkc_state{};
 
@@ -84,8 +85,8 @@ void actual_integrator (burn_t& state, Real dt)
         state.success = false;
     }
 
-    // VODE does not always fail even though it can lead to unphysical states.
-    // Add some checks that indicate a burn fail even if VODE thinks the
+    // We may not fail even though we generate unphysical states.
+    // Add some checks that indicate a burn fail even if RKC thinks the
     // integration was successful.
 
     for (int n = 1; n <= NumSpec; ++n) {

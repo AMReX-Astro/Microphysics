@@ -21,8 +21,9 @@
 #endif
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burner (burn_t& state, Real dt)
+void burner (BurnT& state, Real dt)
 {
 
 #ifndef TRUE_SDC

@@ -42,8 +42,9 @@ void retract_nordsieck (dvode_t& vstate)
 }
 
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int dvstep (burn_t& state, dvode_t& vstate)
+int dvstep (BurnT& state, dvode_t& vstate)
 {
 
     // dvstep performs one step of the integration of an initial value
@@ -217,7 +218,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         bool valid_update = true;
 
 #ifdef SIMPLIFIED_SDC
-#if defined(SDC_EVOLVE_ENERGY)
 	if (vstate.y(SEINT+1) < 0.0_rt) {
 	    valid_update = false;
 	}
@@ -227,7 +227,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
         if (rho_current < 0.0_rt) {
             valid_update = false;
         }
-#endif
 #endif
 
         for (int i = 1; i <= NumSpec; ++i) {
@@ -287,7 +286,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
                 break;
             }
 
-#if defined(SDC_EVOLVE_ENERGY)
             if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
                 valid_update = false;
             }
@@ -295,7 +293,6 @@ int dvstep (burn_t& state, dvode_t& vstate)
             if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
                 valid_update = false;
             }
-#endif
 
 #endif
 

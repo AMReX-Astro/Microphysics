@@ -9,10 +9,7 @@
 
 #include <integrator_data.H>
 
-const int RKC_NEQS = INT_NEQS;
-
-typedef amrex::Array1D<Real, 1, RKC_NEQS> RArray1D;
-typedef amrex::Array1D<Real, 1, RKC_NEQS> RArray1D;
+typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
@@ -55,7 +52,7 @@ struct rkc_t {
     // We have our own tolerances
 
     // work array -- we break the original Fortran work array up into
-    // 5 separate arrays, each of length RKC_NEQS.  We don't need the
+    // 5 separate arrays, each of length INT_NEQS.  We don't need the
     // 8 other pieces of data that were stored in the Fortran version.
     //
     // for reference, the Fortran version was:
@@ -80,8 +77,8 @@ struct rkc_t {
 
     RArray1D yn;
     RArray1D fn;
-    RArray1D vtemp1;
-    RArray1D vtemp2;
+    RArray1D yjm1;    // sometimes called vtemp1 in rkc.f
+    RArray1D yjm2;    // sometimes called vtemp2 in rkc.f
     RArray1D sprad;
 
     // set IDID = 0 for initialization

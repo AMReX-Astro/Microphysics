@@ -7,8 +7,9 @@
 #include <actual_integrator.H>
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void integrator (burn_t& state, Real dt)
+void integrator (BurnT& state, Real dt)
 {
     actual_integrator(state, dt);
 }
