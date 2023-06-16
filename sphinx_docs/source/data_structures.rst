@@ -70,7 +70,7 @@ the user will only need to fill/use the following information:
    derive the temperature via the EOS.
 
    Upon exit of the integration, the initial internal energy (offset)
-   is subtracted off, and e now represents the specifc nuclear
+   is subtracted off, and e now represents the specific nuclear
    energy release from the reactions.
 
 * ``burn_state.xn[]``: the mass fractions
@@ -107,7 +107,7 @@ to access the different components of the state:
 
    It is assumed that the first ``nspec`` are the species.
 
-* ``net_ienuc`` : the index of the specifc internal energy in the solution vector
+* ``net_ienuc`` : the index of the specific internal energy in the solution vector
 
 Integrators
 ===========

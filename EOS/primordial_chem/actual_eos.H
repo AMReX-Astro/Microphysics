@@ -1,5 +1,5 @@
-#ifndef _actual_eos_H_
-#define _actual_eos_H_
+#ifndef ACTUAL_EOS_H
+#define ACTUAL_EOS_H
 
 // This is a mult-gamma EOS for primordial ISM chemistry.
 // Each species can have its own gamma, but
@@ -11,6 +11,8 @@
 #include <extern_parameters.H>
 #include <cmath>
 #include <actual_eos_data.H>
+
+using namespace eos_rp;
 
 const std::string eos_name = "multigamma";
 
@@ -154,6 +156,7 @@ void actual_eos (I input, T& state)
     }
 
     sum_Abarinv *= protonmass/rhotot;
+    state.mu = 1.0 / sum_Abarinv;
     sum_gammasinv /= sum_Abarinv;
 
     //-------------------------------------------------------------------------
@@ -161,7 +164,9 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens, eint;
+    Real temp = NAN;
+    Real dens = NAN;
+    Real eint = NAN;
 
     switch (input) {
 

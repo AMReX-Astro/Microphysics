@@ -14,11 +14,14 @@
 #include <vode_type.H>
 #include <vode_dvode.H>
 
+using namespace integrator_rp;
+
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 {
 
-    dvode_t vode_state;
+    dvode_t vode_state{};
 
     // Start off by assuming a successful burn.
 
@@ -143,7 +146,6 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
         state.success = false;
     }
 
-#if defined(SDC_EVOLVE_ENERGY)
     if (vode_state.y(SEINT+1) < 0.0_rt) {
         state.success = false;
     }
@@ -157,19 +159,6 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
             state.success = false;
         }
     }
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(SFS+n) / state.rho < -vode_failure_tolerance) {
-            state.success = false;
-        }
-
-        if (vode_state.y(SFS+n) / state.rho > 1.0_rt + vode_failure_tolerance) {
-            state.success = false;
-        }
-    }
-
-#endif
 
 
 #ifndef AMREX_USE_GPU
@@ -225,9 +214,7 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
             }
             std::cout << std::endl;
 #endif
-#if defined(SDC_EVOLVE_ENERGY)
             std::cout << "A(rho) = " << std::setprecision(16) << state.ydot_a[SRHO] << std::endl;
-#endif
             std::cout << "A(rho e) = " << std::setprecision(16) << state.ydot_a[SEINT] << std::endl;
             std::cout << "A(rho X_k) = ";
             for (int n = 0; n < NumSpec; n++) {

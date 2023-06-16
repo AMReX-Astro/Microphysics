@@ -17,6 +17,8 @@
 #include <cctype>
 #include <algorithm>
 
+using namespace nse_rp;
+
 AMREX_INLINE
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
@@ -49,26 +51,28 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
   // Separate product name from reactant names
 
-  pos = rate_name_mod.find("__");
+  pos = rate_name_mod.find("_to_");
   std::string reactant_names = rate_name_mod.substr(0, pos);
-  std::string product_names = rate_name_mod.substr(pos+2);
-
-  // Remove suffix in the product name
-
-  std::string suffix;
-
-  pos = product_names.find("__");
-  if (pos != std::string::npos){
-    suffix = product_names.substr(pos);
-    product_names.erase(pos);
-  }
+  std::string product_names = rate_name_mod.substr(pos+4);
 
   // check whether if this rate is removed from the network
   // let its reactant and product all to be -1 if rate is removed
 
-  pos = suffix.find("removed");
-  if (pos != std::string::npos){
+  pos = product_names.find("_removed");
+  if (pos != std::string::npos) {
     return;
+  }
+
+  // remove other suffixes
+
+  std::vector<std::string> suffixes {"_approx", "_derived", "_modified"};
+
+  for (std::string suffix : suffixes) {
+    pos = product_names.find(suffix);
+
+    if (pos != std::string::npos) {
+      product_names.erase(pos);
+    }
   }
 
   std::string _temp;
@@ -210,6 +214,12 @@ void init_nse_net() {
   }
 #endif
 
+  // make sure nse_molar_independent is used if nse_skip_molar is enabled
+
+  if (nse_skip_molar) {
+    nse_molar_independent = true;
+  }
+  
   NSE_INDEX::initialized = true;
 }
 
@@ -223,47 +233,58 @@ T get_nse_state(const T& state)
   // three unit-less constants for calculating coulomb correction term
   // See Calder 2007, doi:10.1086/510709 paper for more detail
 
-  const amrex::Real A1 = -0.9052_rt;
-  const amrex::Real A2 = 0.6322_rt;
-  const amrex::Real A3 = -0.5_rt * std::sqrt(3.0_rt) - A1 / std::sqrt(A2);
 
   // Store nse_state
   T nse_state;
 
-  // Find n_e for original state;
+  // Get the required terms to calculate coulomb correction term, u_c
+  // if we use a non-null screening method.
+  
+#if SCREEN_METHOD != 3
+  const amrex::Real A1 = -0.9052_rt;
+  const amrex::Real A2 = 0.6322_rt;
+  const amrex::Real A3 = -0.5_rt * std::sqrt(3.0_rt) - A1 / std::sqrt(A2);
 
+  // Find n_e for original state;
   const amrex::Real n_e = state.rho * state.y_e / C::m_u;
   amrex::Real gamma;
-  amrex::Real u_c;
+#endif
 
+  amrex::Real u_c = 0.0_rt;
+  
   // set partition function and spin
 
   amrex::Real pf = 1.0_rt;
   amrex::Real dpf_dT;
   amrex::Real spin = 1.0_rt;
 
-#ifdef TFACTORS_H
-  auto tfactors = evaluate_tfactors(state.T);
+  // if we are doing drive_initial_convection, we want to use
+  // the temperature that comes in through T_fixed
+
+  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
+#ifndef NEW_NETWORK_IMPLEMENTATION
+  auto tfactors = evaluate_tfactors(T_in);
 #endif
 
   for (int n = 0; n < NumSpec; ++n){
       if (n == NSE_INDEX::h1_index){
+          nse_state.xn[n] = 0.0;
           continue;
       }
 
       // term for calculating u_c
 
-      // if null screening, set u_c = 0
-#if SCREEN_METHOD == 3
-      u_c = 0.0_rt;
-#else
+      // if use non-null screening, calculate the coulomb correction term
+
+#if SCREEN_METHOD != 3
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) *
           C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) /
-          (C::k_B * state.T);
+          (C::k_B * T_in);
 
       // chemical potential for coulomb correction
 
-      u_c = C::k_B * state.T / C::Legacy::MeV2erg *
+      u_c = C::k_B * T_in / C::Legacy::MeV2erg *
           (A1 * (std::sqrt(gamma * (A2 + gamma)) -
                  A2 * std::log(std::sqrt(gamma / A2) +
                                std::sqrt(1.0_rt + gamma / A2))) +
@@ -272,7 +293,7 @@ T get_nse_state(const T& state)
 
       // fill partition function and get spin
 
-#ifdef PARTITION_FUNCTIONS_H
+#ifndef NEW_NETWORK_IMPLEMENTATION
       spin = get_spin_state(n+1);
       get_partition_function(n+1, tfactors, pf, dpf_dT);
 #endif
@@ -285,11 +306,11 @@ T get_nse_state(const T& state)
       Real exponent = amrex::min(500.0_rt,
                                  (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
                                   - u_c + network::bion(n+1)) /
-                                 C::k_B / state.T * C::Legacy::MeV2erg);
+                                 C::k_B / T_in * C::Legacy::MeV2erg);
 
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
           std::pow(2.0 * M_PI * network::mion(n+1) *
-                   C::k_B * state.T / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
+                   C::k_B * T_in / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
           std::exp(exponent);
   }
 
@@ -305,9 +326,11 @@ T get_nse_state(const T& state)
     nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
   }
 
-  nse_state.T = state.T;
+  nse_state.T = T_in;
   nse_state.rho = state.rho;
-
+  nse_state.mu_p = state.mu_p;
+  nse_state.mu_n = state.mu_n;
+  
   return nse_state;
 }
 
@@ -317,7 +340,7 @@ T get_nse_state(const T& state)
 
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
+void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
 
     T current_state = state;
@@ -348,7 +371,7 @@ void fcn_hybrid(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
+void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
 
     T current_state = state;
@@ -364,15 +387,20 @@ void jcn_hybrid(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
     fjac(2, 1) = 0.0_rt;
     fjac(2, 2) = 0.0_rt;
 
+    // if we are doing drive_initial_convection, we want to use
+    // the temperature that comes in through T_fixed
+
+    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
     for (int n = 0; n < NumSpec; ++n){
         if (n == NSE_INDEX::h1_index){
             continue;
         }
 
-        fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / state.T * C::Legacy::MeV2erg ;
-        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / state.T * C::Legacy::MeV2erg;
-        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
-        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / state.T * C::Legacy::MeV2erg;
+        fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / T_in * C::Legacy::MeV2erg ;
+        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / T_in * C::Legacy::MeV2erg;
+        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / T_in * C::Legacy::MeV2erg;
+        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / T_in * C::Legacy::MeV2erg;
     }
 
 }
@@ -422,9 +450,10 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 	hj.x(1) = inner_x(1);
 	hj.x(2) = inner_x(2);
 
-	hybrj(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+	// hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+	hybrj(hj, state);
 
-	fcn_hybrid(hj.x, f, state, flag);
+	fcn(hj.x, f, state, flag);
 
 	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps){
 
@@ -484,8 +513,8 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
   x(1) = state.mu_p;
   x(2) = state.mu_n;
 
-  jcn_hybrid(x, jac, state, flag);
-  fcn_hybrid(x, f, state,flag);
+  jcn(x, jac, state, flag);
+  fcn(x, f, state,flag);
 
   amrex::Real det;                                            // store determinant for finding inverse jac
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;        // store inverse jacobian
@@ -556,8 +585,8 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // update constraint
 
-    jcn_hybrid(x, jac, state, flag);
-    fcn_hybrid(x, f, state, flag);
+    jcn(x, jac, state, flag);
+    fcn(x, f, state, flag);
   }
 
   if (!converged){
@@ -569,35 +598,43 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
-                       bool input_ye_is_valid=true){
+                       bool input_ye_is_valid=false){
 
   // Check whether initialized or not
-  if (!NSE_INDEX::initialized){
+  if (!NSE_INDEX::initialized) {
     amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
   }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
   amrex::Real ye_hi = 0.0_rt;
 
-  for (int n = 0; n < NumSpec; ++n){
+  for (int n = 0; n < NumSpec; ++n) {
     ye_lo = amrex::min(zion[n] * aion_inv[n], ye_lo);
     ye_hi = amrex::max(zion[n] * aion_inv[n], ye_hi);
   }
 
-  if (state.y_e < ye_lo || state.y_e > ye_hi){
+  if (state.y_e < ye_lo || state.y_e > ye_hi) {
     input_ye_is_valid = false;
   }
 
   if (!input_ye_is_valid) {
     // ensure Ye is valid
+#ifdef STRANG
     composition(state);
+#else
+    state.y_e = 0.0_rt;
+
+    for (int n = 0; n < NumSpec; ++n) {
+      state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n] / state.rho;
+    }
+#endif
   }
 
-  // invoke newton-raphson to solve chemical potential of proton and neutron
+  // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
   if (use_hybrid_solver) {
     nse_hybrid_solver(state, eps);
   }
-  else{
+  else {
     nse_nr_solver(state, eps);
   }
 

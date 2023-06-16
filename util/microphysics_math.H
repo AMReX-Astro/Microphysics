@@ -1,5 +1,5 @@
-#ifndef _microphysics_math_H
-#define _microphysics_math_H
+#ifndef MICROPHYSICS_MATH_H
+#define MICROPHYSICS_MATH_H
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>

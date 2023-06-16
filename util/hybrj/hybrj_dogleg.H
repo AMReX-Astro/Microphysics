@@ -42,6 +42,7 @@
 //  burton s. garbow, kenneth e. hillstrom, jorge j. more
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
             amrex::Array1D<Real, 1, neqs>& diag,
             amrex::Array1D<Real, 1, neqs>& qtb,
@@ -80,6 +81,7 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
                 temp = epsmch;
             }
         }
+
         x(j) = (qtb(j) - sum) / temp;
     }
 
@@ -100,10 +102,18 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
     for (int j = 1; j <= neqs; ++j) {
         Real temp = qtb(j);
         for (int i = j; i <= neqs; ++i) {
+
             wa1(i) += r(l) * temp;
             l++;
+	    if ( amrex::isnan(wa1(i)) || amrex::isinf(wa1(i)) ) {
+	      return;
+	  }
         }
         wa1(j) /= diag(j);
+
+	if ( amrex::isnan(wa1(j)) || amrex::isinf(wa1(j)) ) {
+	  return;
+	}
     }
 
     // calculate the norm of the scaled gradient and test for
@@ -153,11 +163,11 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
         }
     }
 
-
     // form appropriate convex combination of the gauss-newton
     // direction and the scaled gradient direction.
 
     Real temp = (1.0_rt - alpha) * amrex::min(sgnorm, delta);
+
     for (int j = 1; j <= neqs; ++j) {
         x(j) = temp * wa1(j) + alpha * x(j);
     }

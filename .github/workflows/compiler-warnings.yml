@@ -1,0 +1,63 @@
+name: "compiler warnings"
+
+on: [pull_request]
+jobs:
+  compiler_warnings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl g++>=9.3.0
+
+      - name: Compile burn_cell w/ debug
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 2
+
+      - name: Compile burn_cell w/o debug
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 2
+
+      - name: Compile test_eos w/ debug
+        run: |
+          cd unit_test/test_eos
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE EOS_DIR=gamma_law -j 2
+
+      - name: Compile test_eos w/o debug
+        run: |
+          cd unit_test/test_eos
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE EOS_DIR=gamma_law -j 2
+
+      - name: Compile test_sdc w/ debug
+        run: |
+          cd unit_test/test_sdc
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 2
+
+      - name: Compile test_sdc w/o debug
+        run: |
+          cd unit_test/test_sdc
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 2

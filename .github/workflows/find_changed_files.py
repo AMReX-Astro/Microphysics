@@ -1,8 +1,9 @@
+import argparse
+import os
 import subprocess
 import sys
-import argparse
 from contextlib import contextmanager
-import os
+
 
 @contextmanager
 def cd(newdir):
@@ -52,10 +53,6 @@ def run(SHAs=None, make_options=''):
 
     if len(networks) == 0:
         networks = ['aprox13']
-
-    # primordial_chem times out in the github actions
-    if "primordial_chem" in networks:
-        networks.remove("primordial_chem")
 
     GITHUB_WORKSPACE = os.environ.get('GITHUB_WORKSPACE')
 

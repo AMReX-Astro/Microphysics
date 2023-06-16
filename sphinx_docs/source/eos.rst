@@ -252,12 +252,12 @@ compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
 
    All of these modes require composition as an input.  Usually this is
    via the set of mass fractions, ``eos_t.xn[]``, but if ``USE_AUX_THERMO``
-   is set to ``TRUE``, then we instead use the auxillary quantities
+   is set to ``TRUE``, then we instead use the auxiliary quantities
    stored in ``eos_t.aux[]``.
 
 .. _aux_eos_comp:
 
-Auxillary Composition
+Auxiliary Composition
 ---------------------
 
 

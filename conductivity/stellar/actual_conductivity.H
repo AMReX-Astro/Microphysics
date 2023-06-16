@@ -1,5 +1,5 @@
-#ifndef _actual_conductivity_H_
-#define _actual_conductivity_H_
+#ifndef ACTUAL_CONDUCTIVITY_H
+#define ACTUAL_CONDUCTIVITY_H
 
 #include <cmath>
 #include <eos_type.H>

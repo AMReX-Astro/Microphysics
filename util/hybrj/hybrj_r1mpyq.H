@@ -17,6 +17,7 @@
 // * Split into 2 versions, one takes an nxn matrix and one takes a vector of length n
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void r1mpyq(amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
             amrex::Array1D<Real, 1, neqs>& v,
             amrex::Array1D<Real, 1, neqs>& w) {
@@ -50,7 +51,8 @@ void r1mpyq(amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
                 fcos = 1.0_rt / v(j);
                 fsin = std::sqrt(1.0_rt - fcos*fcos);
             }
-            if (std::abs(v(j)) <= 1.0_rt) {
+	    else {
+            // if (std::abs(v(j)) <= 1.0_rt) {
                 fsin = v(j);
                 fcos = std::sqrt(1.0_rt - fsin*fsin);
             }
@@ -68,7 +70,8 @@ void r1mpyq(amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
                 fcos = 1.0_rt / w(j);
                 fsin = std::sqrt(1.0_rt - fcos*fcos);
             }
-            if (std::abs(w(j)) <= 1.0_rt) {
+	    else {
+            // if (std::abs(w(j)) <= 1.0_rt) {
                 fsin = w(j);
                 fcos = std::sqrt(1.0_rt - fsin*fsin);
             }
@@ -84,6 +87,7 @@ void r1mpyq(amrex::Array2D<Real, 1, neqs, 1, neqs>& a,
 
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void r1mpyq(amrex::Array1D<Real, 1, neqs>& a,
             amrex::Array1D<Real, 1, neqs>& v,
             amrex::Array1D<Real, 1, neqs>& w) {
@@ -117,7 +121,8 @@ void r1mpyq(amrex::Array1D<Real, 1, neqs>& a,
                 fcos = 1.0_rt / v(j);
                 fsin = std::sqrt(1.0_rt - fcos*fcos);
             }
-            if (std::abs(v(j)) <= 1.0_rt) {
+	    else {
+            // if (std::abs(v(j)) <= 1.0_rt) {
                 fsin = v(j);
                 fcos = std::sqrt(1.0_rt - fsin*fsin);
             }
@@ -133,7 +138,8 @@ void r1mpyq(amrex::Array1D<Real, 1, neqs>& a,
                 fcos = 1.0_rt / w(j);
                 fsin = std::sqrt(1.0_rt - fcos*fcos);
             }
-            if (std::abs(w(j)) <= 1.0_rt) {
+	    else {
+            // if (std::abs(w(j)) <= 1.0_rt) {
                 fsin = w(j);
                 fcos = std::sqrt(1.0_rt - fsin*fsin);
             }

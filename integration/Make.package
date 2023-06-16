@@ -26,7 +26,13 @@ else
 endif
 
 ifeq ($(USE_NSE_TABLE), TRUE)
-  CEXE_headers += nse.H
+  ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+    CEXE_headers += nse_update_simplified_sdc.H
+  else
+    ifneq ($(USE_TRUE_SDC), TRUE)
+      CEXE_headers += nse_update_strang.H
+    endif
+  endif
 endif
 
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/integration/utils

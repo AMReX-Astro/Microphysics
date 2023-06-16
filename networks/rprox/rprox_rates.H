@@ -88,7 +88,7 @@ void rate_f17_to_p_o16 (const tf_t& tfactors, Real& rate, Real& dratedt)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_f17_to_o17 (const tf_t& tfactors, Real& rate, Real& dratedt)
+void rate_f17_to_o17 ([[maybe_unused]] const tf_t& tfactors, Real& rate, Real& dratedt)
 {
     rate = std::exp(-4.53302e0_rt);
     dratedt = 0.0_rt;
@@ -386,7 +386,7 @@ void rate_he4_ne18_to_p_na21 (const tf_t& tfactors, Real& rate, Real& dratedt)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ne18_to_f18 (const tf_t& tfactors, Real& rate, Real& dratedt)
+void rate_ne18_to_f18 ([[maybe_unused]] const tf_t& tfactors, Real& rate, Real& dratedt)
 {
     rate = std::exp(-0.880534e0_rt);
     dratedt = 0.0_rt;
@@ -394,7 +394,7 @@ void rate_ne18_to_f18 (const tf_t& tfactors, Real& rate, Real& dratedt)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_ne19_to_f19 (const tf_t& tfactors, Real& rate, Real& dratedt)
+void rate_ne19_to_f19 ([[maybe_unused]] const tf_t& tfactors, Real& rate, Real& dratedt)
 {
     rate = std::exp(-3.21258e0_rt);
     dratedt = 0.0_rt;
@@ -531,7 +531,7 @@ void rate_he4_o14_to_p_f17 (const tf_t& tfactors, Real& rate, Real& dratedt)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_o14_to_n14 (const tf_t& tfactors, Real& rate, Real& dratedt)
+void rate_o14_to_n14 ([[maybe_unused]] const tf_t& tfactors, Real& rate, Real& dratedt)
 {
     rate = std::exp(-4.62412e0_rt);
     dratedt = 0.0_rt;
@@ -595,7 +595,7 @@ void rate_he4_o15_to_ne19 (const tf_t& tfactors, Real& rate, Real& dratedt)
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_o15_to_n15 (const tf_t& tfactors, Real& rate, Real& dratedt)
+void rate_o15_to_n15 ([[maybe_unused]] const tf_t& tfactors, Real& rate, Real& dratedt)
 {
     rate = std::exp(-5.1725e0_rt);
     dratedt = 0.0_rt;

@@ -1,11 +1,13 @@
-#ifndef _actual_eos_H_
-#define _actual_eos_H_
+#ifndef ACTUAL_EOS_H
+#define ACTUAL_EOS_H
 
 #include <string>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <eos_data.H>
 #include <cmath>
+
+using namespace eos_rp;
 
 const std::string eos_name = "tillotson";
 

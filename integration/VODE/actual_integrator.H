@@ -14,10 +14,13 @@
 #include <vode_type.H>
 #include <vode_dvode.H>
 
+using namespace integrator_rp;
+
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 {
-    dvode_t vode_state;
+    dvode_t vode_state{};
 
     // Set the tolerances.
 
@@ -88,7 +91,7 @@ void actual_integrator (burn_t& state, Real dt, bool is_retry=false)
     // this in case we failed in our burn here because we entered NSE
 
 #ifdef AUX_THERMO
-    // need to sync the auxilary data up with the new mass fractions
+    // need to sync the auxiliary data up with the new mass fractions
     set_aux_comp_from_X(state);
 #endif
 

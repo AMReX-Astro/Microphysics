@@ -4,8 +4,9 @@
 #include <be_type.H>
 #include <be_integrator.H>
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, const Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
 {
 
     be_t be;

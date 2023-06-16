@@ -1,7 +1,10 @@
 #ifndef REACT_UTIL_H
 #define REACT_UTIL_H
 
+#include <extern_parameters.H>
+
 using namespace amrex;
+using namespace unit_test_rp;
 
 struct init_t {
     int nprim;

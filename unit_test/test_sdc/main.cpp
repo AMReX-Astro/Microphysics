@@ -117,7 +117,7 @@ void main_main ()
     // time = starting time in the simulation
     Real time = 0.0;
 
-    // How Boxes are distrubuted among MPI processes
+    // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
 
     // we allocate our main multifabs
@@ -161,7 +161,7 @@ void main_main ()
                     amrex::max(xn[n], 1.e-10_rt);
             }
 
-            // initialize the auxillary state (in particular, for NSE)
+            // initialize the auxiliary state (in particular, for NSE)
 #ifdef AUX_THERMO
             eos_t eos_state;
             for (int n = 0; n < NumSpec; n++) {
@@ -210,6 +210,10 @@ void main_main ()
 
     aa_num_failed.copyToHost(&num_failed, 1);
     Gpu::synchronize();
+
+    if (num_failed > 0) {
+        amrex::Abort("Integration failed");
+    }
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors

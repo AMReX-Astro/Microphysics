@@ -49,6 +49,7 @@
 // burton s. garbow, kenneth e. hillstrom, jorge j. more
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void qrfac(Array2D<Real, 1, neqs, 1, neqs>& a,
            Array1D<Real, 1, neqs>& rdiag,
            Array1D<Real, 1, neqs>& acnorm,

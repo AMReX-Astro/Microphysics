@@ -40,10 +40,11 @@ ydot_a[SFS:] = 2.62815610774e-25 6.73232655207e-07 -2008.84530074 312.862723324 
 
 import sys
 
+
 def doit(string):
     """break down the SDC VODE integration failure message"""
 
-    # figure out if it is the VODE failre or burn_t that was provided
+    # figure out if it is the VODE failure or burn_t that was provided
 
     is_vode = False
     rhoe = None

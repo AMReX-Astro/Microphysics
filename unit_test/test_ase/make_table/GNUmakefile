@@ -15,14 +15,13 @@ USE_REACT = TRUE
 USE_NSE_NET = TRUE
 EBASE = main
 
-# define the location of the CASTRO top directory
+# define the location of the Microphysics top directory
 MICROPHYSICS_HOME  := ../../../
 
-# This sets the EOS directory in Castro/EOS -- note: gamma_law will not work,
-# you'll need to use gamma_law_general
+# This sets the EOS directory
 EOS_DIR     := helmholtz
 
-# This sets the network directory in Castro/Networks
+# This sets the network directory
 NETWORK_DIR := ase
 
 # SCREEN_METHOD := null

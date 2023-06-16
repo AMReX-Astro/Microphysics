@@ -186,7 +186,8 @@ namespace part_fun {
 // main interface
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function(const int inuc, const tf_t& tfactors, Real& pf, Real& dpf_dT) {
+void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactors,
+                            Real& pf, Real& dpf_dT) {
 
     // inuc is the 1-based index for the species
 
@@ -224,23 +225,23 @@ constexpr Real get_spin_state(const int inuc) {
     switch (inuc) {
 
     case H1:
-        spin = 2.0;
+        spin = 2;
         break;
 
     case He4:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Fe52:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Co55:
-        spin = 8.0;
+        spin = 8;
         break;
 
     case Ni56:
-        spin = 1.0;
+        spin = 1;
         break;
 
 

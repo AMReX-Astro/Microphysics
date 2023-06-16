@@ -1,5 +1,5 @@
-#ifndef _rate_type_H_
-#define _rate_type_H_
+#ifndef RATE_TYPE_H
+#define RATE_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>

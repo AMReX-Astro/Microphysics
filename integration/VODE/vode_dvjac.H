@@ -1,5 +1,5 @@
-#ifndef _vode_dvjac_H_
-#define _vode_dvjac_H_
+#ifndef VODE_DVJAC_H
+#define VODE_DVJAC_H
 
 #include <vode_type.H>
 #ifndef NEW_NETWORK_IMPLEMENTATION
@@ -15,8 +15,9 @@
 #include <vode_rhs_true_sdc.H>
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
+void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, dvode_t& vstate)
 {
 
     // dvjac is called by dvnlsd to compute and process the matrix
@@ -170,6 +171,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, burn_t& state, dvode_t& vstate)
     int IER;
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
+    amrex::ignore_unused(pivot);
     RHS::dgefa(vstate.jac);
     IER = 0;
 #else

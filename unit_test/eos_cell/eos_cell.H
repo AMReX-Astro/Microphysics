@@ -6,6 +6,8 @@
 #include <iostream>
 #include <react_util.H>
 
+using namespace unit_test_rp;
+
 void eos_cell_c()
 {
 

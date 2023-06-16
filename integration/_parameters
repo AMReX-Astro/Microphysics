@@ -28,9 +28,6 @@ rtol_enuc                real      1.d-6
 atol_spec                real      1.d-8
 atol_enuc                real      1.d-6
 
-# Should we abort the run when the burn fails?
-abort_on_failure         logical   .true.
-
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
 renormalize_abundances   logical   .false.

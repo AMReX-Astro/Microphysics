@@ -322,7 +322,7 @@ The basic flow is:
 #. Compute all of the intermediate rates.
 
    Since these rates are used multiple times, we compute them once and cache them.
-   This is done soley for performance reasons, since computing the rates is expensive.
+   This is done solely for performance reasons, since computing the rates is expensive.
 
 #. Loop over rates
 

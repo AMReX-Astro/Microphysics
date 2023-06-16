@@ -3,9 +3,11 @@
 
 #include <eos.H>
 
-template <typename I>
+using namespace integrator_rp;
+
+template <typename I, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void integrator_to_burn (const I& int_state, burn_t& state)
+void integrator_to_burn (const I& int_state, BurnT& state)
 {
     // Copy the integration data to the burn state.
 
@@ -19,9 +21,9 @@ void integrator_to_burn (const I& int_state, burn_t& state)
 }
 
 
-template <typename I>
+template <typename BurnT, typename I>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burn_to_integrator (const burn_t& state, I& int_state)
+void burn_to_integrator (const BurnT& state, I& int_state)
 {
     // Copy the integration data from the burn state.
 
@@ -83,9 +85,9 @@ void clean_state (I& int_state)
 /// we also pass in the int_state so we get the latest values of the mass fractions,
 /// temperature, and internal energy
 ///
-template <typename I>
+template <typename BurnT, typename I>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_thermodynamics (burn_t& state, const I& int_state)
+void update_thermodynamics (BurnT& state, const I& int_state)
 {
 #ifdef AUX_THERMO
     // we are handling the thermodynamics via the aux quantities, which
@@ -117,6 +119,13 @@ void update_thermodynamics (burn_t& state, const I& int_state)
     if (call_eos_in_rhs) {
         eos(eos_input_re, state);
     }
+
+    // override T if we are fixing it (e.g. due to
+    // drive_initial_convection)
+    if (state.T_fixed > 0.0_rt) {
+        state.T = state.T_fixed;
+    }
+
 }
 
 #endif

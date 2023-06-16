@@ -153,7 +153,8 @@ locate_intermediate_rate_index (int intermediate_rate)
 {
     constexpr int num_intermediate = num_intermediate_reactions();
 
-    int indices[num_intermediate] = {0};
+    // num_intermediate may be 0, so use amrex::Array instead of a C-style array
+    amrex::Array<int, num_intermediate> indices = {};
 
     // We loop through all rates and add their intermediate
     // rates to the temporary storage array, skipping ones
@@ -632,17 +633,15 @@ void tabulate_rates ()
             [[maybe_unused]] constexpr int rate = n;
 
             rate_t rates;
+            rates.fr = 0.0_rt;
+            rates.rr = 0.0_rt;
+            rates.frdt = 0.0_rt;
+            rates.rrdt = 0.0_rt;
 
             constexpr rhs_t data = RHS::rhs_data(rate);
 
             if constexpr (data.rate_can_be_tabulated) {
                 evaluate_analytical_rate<rate>(state, rates);
-            }
-            else {
-                rates.fr = 0.0_rt;
-                rates.rr = 0.0_rt;
-                rates.frdt = 0.0_rt;
-                rates.rrdt = 0.0_rt;
             }
 
             rattab(rate, 1, i)    = rates.fr;

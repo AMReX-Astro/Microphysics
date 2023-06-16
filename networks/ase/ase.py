@@ -11,7 +11,7 @@ def get_library():
 
     reaclib_lib = pyna.ReacLibLibrary()
 
-    all_reactants = ["p", "n", 
+    all_reactants = ["p", "n",
                      "he4", "c12", "o16", "ne20", "mg24", "si28", "s32",
                      "ar36", "ca40", "ti44", "cr48", "fe52", "ni56",
                      "al27", "p31", "cl35", "k39", "sc43", "v47", "mn51", "co55",
@@ -56,6 +56,17 @@ def get_library():
         print("removing: ", r)
         _r = subch.get_rate_by_name(r)
         subch.remove_rate(_r)
+        
+    # additional neutron rates to remove
+    for r in subch.get_rates():
+        if (r == subch.get_rate_by_name("mg24(n,a)ne21") or r == subch.get_rate_by_name("ne21(a,n)mg24")
+            or r == subch.get_rate_by_name("na22(n,g)na23") or r == subch.get_rate_by_name("na23(g,n)na22")
+            or r == subch.get_rate_by_name("ne21(g,n)ne20") or r == subch.get_rate_by_name("ne20(n,g)ne21")):
+            continue
+    
+        if pyna.Nucleus("n") in r.reactants or pyna.Nucleus("n") in r.products:
+            print("removing neutron rates: ", r)
+            subch.remove_rate(r)
 
     if DO_DERIVED_RATES:
         rates_to_derive = []
@@ -66,15 +77,15 @@ def get_library():
                 # recompute it
                 rates_to_derive.append(r)
 
-    # now for each of those derived rates, look to see if the pair exists
+        # now for each of those derived rates, look to see if the pair exists
 
-    for r in rates_to_derive:
-        fr = subch.get_rate_by_nuclei(r.products, r.reactants)
-        if fr:
-            print(f"modifying {r} from {fr}")
-            subch.remove_rate(r)
-            d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
-            subch.add_rate(d)
+        for r in rates_to_derive:
+            fr = subch.get_rate_by_nuclei(r.products, r.reactants)
+            if fr:
+                print(f"modifying {r} from {fr}")
+                subch.remove_rate(r)
+                d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+                subch.add_rate(d)
 
     return subch
 
@@ -85,30 +96,24 @@ def doit():
     # these are the rates that we are going to allow to be optionally
     # zeroed
     r1 = subch.get_rate_by_name("c12(p,g)n13")
-    r2 = subch.get_rate_by_name("n13(a,p)o16")
+    r2 = subch.get_rate_by_name("n13(he4,p)o16")
 
-    # at this point we have a library with all the rates that we want.
-    # We can create the network now.
-
-    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False,
-                               disable_rate_params=[r1, r2])
-
-    # now we do the (a,p)(p,g) approximation
-
+    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False, disable_rate_params=[r1, r2])
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
 
+    # finally, the aprox nets don't include the reverse rates for
+    # C12+C12, C12+O16, and O16+O16, so remove those
+
     print(f"number of nuclei: {len(net.unique_nuclei)}")
     print(f"number of rates: {len(net.rates)}")
-
-
 
     comp = pyna.Composition(net.get_nuclei())
     comp.set_all(0.1)
     comp.set_nuc("he4", 0.95)
     comp.normalize()
 
-    net.plot(outfile="subch_simple.png", rho=1.e6, T=1.e9, comp=comp,
+    net.plot(outfile="ase.png", rho=1.e7, T=6.e9, comp=comp,
              rotated=True, hide_xalpha=True, curved_edges=True,
              size=(1500, 450),
              node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",

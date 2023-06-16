@@ -17,6 +17,7 @@ class Param:
     def __init__(self, name, dtype, default,
                  cpp_var_name=None,
                  namespace=None,
+                 namespace_suffix="",
                  skip_namespace_in_declare=False,
                  debug_default=None,
                  priority=0,
@@ -45,6 +46,8 @@ class Param:
         else:
             self.namespace = namespace
 
+        self.namespace_suffix = namespace_suffix
+
         # if this is true, then we use the namespace when we read the var
         # (e.g., via ParmParse), but we do not declare the C++
         # parameter to be in a namespace
@@ -60,7 +63,7 @@ class Param:
         if self.namespace is None or self.namespace == "" or self.skip_namespace_in_declare:
             self.nm_pre = ""
         else:
-            self.nm_pre = f"{self.namespace}::"
+            self.nm_pre = f"{self.namespace}{self.namespace_suffix}::"
 
     def get_cxx_decl(self):
         """ get the C++ declaration """
@@ -73,33 +76,22 @@ class Param:
 
         return "int"
 
-    def get_declare_string(self):
+    def get_declare_string(self, with_extern=False):
         """this is the line that goes into, e.g., castro_declares.H included
         into Castro.cpp"""
 
+        extern = ""
+        if with_extern:
+            extern = "extern "
+
         if self.dtype != "string":
-            tstr = f"AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.nm_pre}{self.cpp_var_name}"
+            tstr = f"{extern}AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.cpp_var_name}"
         elif self.dtype == "string":
-            tstr = f"std::string {self.nm_pre}{self.cpp_var_name}"
+            tstr = f"{extern}std::string {self.cpp_var_name}"
         else:
             sys.exit(f"invalid data type for parameter {self.name}")
 
         return f"{tstr};\n"
-
-    def get_decl_string(self):
-        """this is the line that goes into, e.g., castro_params.H included
-        into Castro.H"""
-
-        tstr = ""
-
-        if self.dtype != "string":
-            tstr = f"extern AMREX_GPU_MANAGED {self.get_cxx_decl()} {self.cpp_var_name};\n"
-        elif self.dtype == "string":
-            tstr = f"extern std::string {self.cpp_var_name};\n"
-        else:
-            sys.exit(f"invalid data type for parameter {self.name}")
-
-        return tstr
 
     def get_default_string(self):
         """this is the line that goes into, e.g., castro_declares.H included
@@ -170,9 +162,14 @@ class Param:
     def get_job_info_test(self):
         """this is the output in C++ in the job_info writing"""
 
+        value = self.default_format(lang="C++")
+        if self.dtype == "string" and  value.strip() == '\"\"':
+            test = f"{self.nm_pre}{self.cpp_var_name}.empty()"
+        else:
+            test = f"{self.nm_pre}{self.cpp_var_name} == {value}"
+
         ostr = (
-            f'jobInfoFile << ({self.nm_pre}{self.cpp_var_name} == {self.default_format(lang="C++")} ? "    "' +
-            f': "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
+            f'jobInfoFile << ({test} ? "    ": "[*] ") << "{self.namespace}.{self.cpp_var_name} = "' +
             f'<< {self.nm_pre}{self.cpp_var_name} << std::endl;\n')
 
         return ostr

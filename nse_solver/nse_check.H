@@ -20,9 +20,8 @@
 
 // First check to see if we're in the ballpark of nse state
 
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
+void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check){
 
   // This function gives the first estimate whether we're in the nse or not
   // it checks whether the molar fractions of n,p,a are approximately in NSE
@@ -45,14 +44,14 @@ void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
   // Check if n,p,a are in equilibrium
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
 
-  for (int n = 0; n < NumSpec; ++n){
+  for (int n = 0; n < NumSpec; ++n) {
 
-    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index){
+    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index) {
       r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
       r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
     }
 
-    else if (n == NSE_INDEX::he4_index){
+    else if (n == NSE_INDEX::he4_index) {
       r *= state.xn[n] * aion_inv[n];
       r_nse *= nse_state.xn[n] * aion_inv[n];
     }
@@ -61,7 +60,7 @@ void first_check_in_nse(T& state, const T& nse_state, bool& nse_check){
   // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
   // Eq. 14 in Kushnir paper
 
-  if (std::abs((r - r_nse) / r_nse) < 0.5){
+  if (std::abs((r - r_nse) / r_nse) < 0.5_rt){
     nse_check = true;
   }
   else{
@@ -140,25 +139,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indices,
 		     amrex::Array1D<int, 1, 3> products_indices){
 
-  // fill in the corresponding rate_index by providing array of reactants and products indices
-
   rate_index = -1;
-
-  bool valid_rate = false;
-
-  // if all -1 then return, since its an invalid rate
-
-  for (int n = 1; n <= 6; ++n){
-    if (NSE_INDEX::rate_indices(rate_index, n) != -1){
-      valid_rate = true;
-      break;
-    }
-  }
-
-  if (!valid_rate){
-    return;
-  }
-
   bool found_index = false;
 
   // sort indices just to make sure
@@ -167,6 +148,7 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
   sort_Array1D<1, 3>(products_indices);
 
   // check for which rate matches these input indices
+  // fill in the corresponding rate_index by providing array of reactants and products indices
 
   for (int i = 1; i <= Rates::NumRates; ++i){
     for (int j = 1; j <= 3; ++j){
@@ -183,18 +165,15 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
       rate_index = i;
       return;
     }
-
   }
 
 }
 
 
-template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
-			const amrex::Array1D<amrex::Real, 1, NumSpec+1>& ydot,
 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-			const T& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
+			const burn_t& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle){
 
   // This function finds the fast reaction cycle of a given nuclei.
   // This is done to satisfy Section 4.4.3 of Kushnir
@@ -380,6 +359,13 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  // skip if there is no such rate.
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -409,6 +395,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -438,6 +429,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -467,6 +463,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -496,6 +497,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
+
+	  if (rate_index == -1){
+	    continue;
+	  }
+
 	  b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
 	  get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
@@ -523,10 +529,12 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	// It didn't mention it in in the paragraph in section 4.4.3, but listed it in Eq. 12
 	// It didn't have a significant difference, but I'll leave it here for future reference
 
-	if ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
-	    || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s)
-	    // && ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol)
-	  ){
+	if (
+	    ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol)
+	    &&
+	    ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
+	     || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s))
+	  ) {
 
 	  // store nuclei index to fast_reaction if pass the condition
 
@@ -575,7 +583,6 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 }
 
 
-
 // After all preliminary checks are successful, lets do nse grouping.
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -601,7 +608,6 @@ int get_root_index(const int nuc_ind,
   }
 
 }
-
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -645,14 +651,13 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
+int get_pair_rate_index(const int& rate_index){
 
-  // This funciton finds the pair rate index given a rate.
+  // This function finds the pair rate index given a rate.
   // For example given forward rate index, return reverse rate index, vice versa
 
-  pair_rate_index = -1;
+  int pair_rate_index = -1;
   bool found_reverse_rate = false;
-
   bool valid_rate = false;
 
   // if all -1 then return, since its an invalid rate
@@ -665,29 +670,30 @@ void fill_pair_rate_index(int& pair_rate_index, const int& rate_index){
   }
 
   if (!valid_rate){
-    return;
+    return pair_rate_index;
   }
 
 
-  for (int n = 1; n <= Rates::NumRates; ++n){
-    for (int i = 1; i <= 3; ++i){
+  for (int n = 1; n <= Rates::NumRates; ++n) {
+    for (int i = 1; i <= 3; ++i) {
       if (NSE_INDEX::rate_indices(n, i) == NSE_INDEX::rate_indices(rate_index, i+3)
 	  && NSE_INDEX::rate_indices(n, i+3) == NSE_INDEX::rate_indices(rate_index, i)
-	  ){
+	  ) {
 	found_reverse_rate = true;
       }
-      else{
+      else {
 	found_reverse_rate = false;
 	break;
       }
     }
 
-    if (found_reverse_rate){
+    if (found_reverse_rate) {
       pair_rate_index = n;
       break;
     }
-
   }
+
+  return pair_rate_index;
 }
 
 
@@ -720,14 +726,13 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind){
 }
 
 
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 		     amrex::Real& fastest_t, const int current_rate,
-		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const T& state,
+		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
 		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
-		     const amrex::Real& t_s){
+		     const amrex::Real& t_s) {
 
   // This function determines whether current_rate has a faster timescale than
   // the provided time scale, current fastest_t.
@@ -735,7 +740,6 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // It also skips current_rate if certain condition is met.
 
-  int pair_rate_index;
   int root_index;
   int num_nonLIG = 0;
   int nonLIG_root = -1;
@@ -756,7 +760,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // find the reverse rate index of the current rate
 
-  fill_pair_rate_index(pair_rate_index, current_rate);
+  int pair_rate_index = get_pair_rate_index(current_rate);
 
   // Check if there are > 2 isotopes or 0 isotopes in LIG (light isotope group) in this reaction
 
@@ -888,9 +892,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
   // to see whether the forward and balance rates are in equilibrium
   // see Eq. 17 again
 
-  if (scratch_t < ase_tol * t_s
-      && 2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol
-      ){
+  if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
+      && (scratch_t < ase_tol * t_s) ) {
 
     fastest_t = scratch_t;
 
@@ -913,10 +916,8 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 }
 
 
-
-template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
+void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& state,
 		  const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
 		  const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
 		  const amrex::Real& t_s){
@@ -948,7 +949,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
     merge_indices(2) = -1;
     fastest_t = std::numeric_limits<amrex::Real>::max();
 
-    // Find the fastest time scale of the avaliable reaction
+    // Find the fastest time scale of the available reaction
 
     for (int n = 1; n <= Rates::NumRates; ++n){
 
@@ -971,24 +972,58 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const T& state,
 }
 #endif
 
-template <typename T>
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-bool in_nse(T& state){
+bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
   
 #ifndef NEW_NETWORK_IMPLEMENTATION
-  // Get the nse state which is used to compare nse molar fractions.
-  const auto nse_state = get_actual_nse_state(state);
 
+  current_state.nse = false;
+
+  if (current_state.T < 2.0e9_rt) {
+    return current_state.nse;
+  }
+    
+  // Get the nse state which is used to compare nse molar fractions.
+
+  const auto nse_state = get_actual_nse_state(current_state);
+
+  burn_t state = current_state;
+
+#ifndef STRANG
+  // if not strang, store mass fractions
+  for (int n = 0; n < NumSpec; ++n) {
+    state.xn[n] = current_state.y[SFS+n] / current_state.rho;
+  }
+#endif
+  
   // Check whether state is in the ballpark of NSE
 
-  bool nse_check = false;
+  if (!skip_molar_check) {
 
-  first_check_in_nse(state, nse_state, nse_check);
-  if (!nse_check){
-    return nse_check;
+    check_nse_molar(state, nse_state, current_state.nse);
+    if (!current_state.nse) {
+      return current_state.nse;
+    }
+  }
+
+  // We can do a further approximation where we use the NSE mass fractions
+  // instead of the current mass fractions. This makes the check solely dependent on
+  // the thermodynamic condition.
+  // Note we only do this after the first check, which should tell us whether
+  // our current mass fractions are in the ballpark of NSE mass fractions.
+  
+  if (nse_molar_independent) {
+    state = nse_state;
+    state.dx = current_state.dx;
+#ifndef STRANG
+    for (int n = 0; n < NumSpec; ++n) {
+      state.y[SFS+n] = nse_state.xn[n] * nse_state.rho;
+    }
+#endif
   }
 
   // set molar fractions
@@ -1006,25 +1041,22 @@ bool in_nse(T& state){
   constexpr int do_T_derivatives = 0;
   evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
 
-  eos_t eos_state;                             // need eos_state for speed of sound
-  amrex::Real t_s;                             // a parameter to characterize whether a rate is fast enough
+  // need eos_state for speed of sound
 
-  // Here we need to find t_s, sound crossing timescale for a single zone
+  eos_t eos_state;
 
-  if constexpr (std::is_same<T, eos_t>::value){
+  // Initialize t_s, sound crossing timescale for a single zone to be max
 
-    // if state is already in eos, then assume eos() is called
+  amrex::Real t_s = std::numeric_limits<amrex::Real>::max();
 
-    // see Section 3 in Kushnir
-    t_s = state.dx / state.cs;
+  // If we care about checking the timescale of the rate to be smaller than t_s, then:
 
-  }
-  else{
-
-    // if state is burn_t then convert to eos_t and call eos()
-
-    burn_to_eos<eos_t>(state, eos_state);
+  if (!nse_dx_independent) {
+    burn_to_eos(state, eos_state);
     eos(eos_input_rt, eos_state);
+    
+    // a parameter to characterize whether a rate is fast enough
+
     t_s = state.dx / eos_state.cs;
   }
 
@@ -1038,6 +1070,9 @@ bool in_nse(T& state){
   ener_gener_rate(ydot, enuc);
 
 #ifdef NEUTRINOS
+  // get abar and zbar
+  composition(state);
+
   amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
   sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 #else
@@ -1049,7 +1084,7 @@ bool in_nse(T& state){
   ydot(NumSpec + 1) = enuc - sneut;
 
   // Now we look through the network and see if there are fast reaction cycles
-  // Need to separate forward and reverse rate and detemine each step is fast enough.
+  // Need to separate forward and reverse rate and determine each step is fast enough.
   // use vectors for now
 
   bool found_fast_reaction_cycle = false;
@@ -1061,9 +1096,8 @@ bool in_nse(T& state){
       break;
     }
 
-    find_fast_reaction_cycle(n, Y, ydot, rate_eval.screened_rates, state, t_s, found_fast_reaction_cycle);
+    find_fast_reaction_cycle(n, Y, rate_eval.screened_rates, state, t_s, found_fast_reaction_cycle);
   }
-
 
   // Do nse grouping if found fast reaction cycle.
 
@@ -1075,7 +1109,7 @@ bool in_nse(T& state){
   // if not found_fast_reaction_cycle, state not in nse
 
   if (!found_fast_reaction_cycle){
-    nse_check = false;
+    current_state.nse = false;
   }
   else{
 
@@ -1085,16 +1119,14 @@ bool in_nse(T& state){
 
     // Check if we result in a single group after grouping
 
-    if (in_single_group(group_ind)){
-      nse_check = true;
-    }
-    else{
-      nse_check = false;
-    }
+    current_state.nse = false;
 
+    if (in_single_group(group_ind)){
+      current_state.nse = true;
+    }
   }
 
-  return nse_check;
+  return current_state.nse;
 
 #else
   amrex::Error("in_nse() is currently not supported for aprox networks!");

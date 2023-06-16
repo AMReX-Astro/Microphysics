@@ -1,5 +1,5 @@
-#ifndef _burn_type_H_
-#define _burn_type_H_
+#ifndef BURN_TYPE_H
+#define BURN_TYPE_H
 
 #include <iomanip>
 
@@ -13,6 +13,7 @@
 #include <ArrayUtilities.H>
 
 using namespace amrex;
+using namespace network_rp;
 
 // A generic structure holding data necessary to do a nuclear burn.
 
@@ -35,9 +36,7 @@ typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
 #ifdef SIMPLIFIED_SDC
 
-#if defined(SDC_EVOLVE_ENERGY)
-
-// these indicies represent the order that the conserved state comes
+// these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
 // they also represent the order of the advective sources
@@ -57,18 +56,6 @@ const int SEDEN = SMZ+1;
 
 const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-
-// integrate rho*X (species masses) and rho*h (enthalpy)
-// carry pressure for EOS calls in RHS
-
-const int SFS = 0;
-const int SENTH = SFS + NumSpec;
-const int SVAR  = SENTH+1;
-const int SVAR_EVOLVE = SVAR;
-
-#endif
 
 #endif
 
@@ -128,28 +115,21 @@ struct burn_t
   // handle the non-evolved state evolution
   Real rho_orig;
 
-#if defined(SDC_EVOLVE_ENERGY)
   Real rhoe_orig;
-#endif
 
   // ydot_a are the advective terms that will modify the state y due
   // to hydrodynamics over the timestep.
   Real ydot_a[SVAR];
 
-#if defined(SDC_EVOLVE_ENTHALPY)
-  // Pressure in case we wish to use it for EOS calls
-  Real p0;
-#endif
-
   int sdc_iter;
   int num_sdc_iters;
+
+#endif
 
   // for drive_initial_convection, we will fix T during the
   // integration to a passed in value.  We will interpret a positive
   // T_fixed as setting this feature.
-  Real T_fixed;
-
-#endif
+  Real T_fixed{-1.0};
 
   // all coupling types need the specific heats to transform the
   // reaction Jacobian elements from T to e
@@ -175,7 +155,11 @@ struct burn_t
   Real mu_p;
   Real mu_n;
 #endif
-  
+
+#ifdef NSE
+  bool nse;
+#endif
+
   // diagnostics
   int n_rhs, n_jac, n_step;
 
@@ -191,22 +175,21 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << "rho = " << burn_state.rho << std::endl;
   o << "T =   " << burn_state.T << std::endl;
   o << "xn = ";
-  for (int n = 0; n < NumSpec; ++n) {
-    o << burn_state.xn[n] << " ";
+  for (double X : burn_state.xn) {
+    o << X << " ";
   }
   o << std::endl;
+  o << "(i, j, k) = " << burn_state.i << " " << burn_state.j << " " << burn_state.k << std::endl;
 #if NAUX_NET > 0
   o << "aux = ";
-  for (int n = 0; n < NumAux; ++n) {
-    o << burn_state.aux[n] << " ";
+  for (double A : burn_state.aux) {
+    o << A << " ";
   }
   o << std::endl;
 #endif
 
 #ifdef SIMPLIFIED_SDC
-#if defined(SDC_EVOLVE_ENERGY)
   o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
-#endif
   o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
 
   o << "y[SFS:] = ";
@@ -246,9 +229,9 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
 
 // Given an eos type, copy the data relevant to the burn type.
 
-template <typename T>
+template <typename T, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void eos_to_burn (const T& eos_state, burn_t& burn_state)
+void eos_to_burn (const T& eos_state, BurnT& burn_state)
 {
     burn_state.rho  = eos_state.rho;
     burn_state.T    = eos_state.T;
@@ -283,9 +266,9 @@ void eos_to_burn (const T& eos_state, burn_t& burn_state)
 // contribution from the advection term. However this is useful
 // for instantaneous RHS evaluations.
 
-template <typename T>
+template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burn_to_eos (const burn_t& burn_state, T& eos_state)
+void burn_to_eos (const BurnT& burn_state, T& eos_state)
 {
     eos_state.rho  = burn_state.rho;
     eos_state.T    = burn_state.T;
@@ -314,20 +297,11 @@ void burn_to_eos (const burn_t& burn_state, T& eos_state)
 
 
 #ifdef SIMPLIFIED_SDC
-template <typename T>
+template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void sdc_burn_to_eos (const burn_t& state, T& eos_state)
+void sdc_burn_to_eos (const BurnT& state, T& eos_state)
 {
-#if defined(SDC_EVOLVE_ENERGY)
     eos_state.rho = state.y[SRHO];
-
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    eos_state.rho = 0.0_rt;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.rho += state.y[SFS+n];
-    }
-#endif
-
     eos_state.T = state.T;
 
     // species
@@ -348,8 +322,9 @@ void sdc_burn_to_eos (const burn_t& state, T& eos_state)
     // will do that for us
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void normalize_abundances_sdc_burn(burn_t& state)
+void normalize_abundances_sdc_burn (BurnT& state)
 {
 
     // Constrain the partial densities in burn_t state to sum to the 
@@ -357,8 +332,6 @@ void normalize_abundances_sdc_burn(burn_t& state)
     //
     // This is meant to be used upon exit, and we assume that
     // vode_to_burn was already called
-
-#ifdef SDC_EVOLVE_ENERGY
 
     // we have state.y[SRHO] to constrain to
 
@@ -390,13 +363,12 @@ void normalize_abundances_sdc_burn(burn_t& state)
     }
 #endif
 
-#endif
-
 }
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void normalize_abundances_burn (burn_t& state)
+void normalize_abundances_burn (BurnT& state)
 {
 
     Real sum = 0.0_rt;

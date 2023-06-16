@@ -1,5 +1,5 @@
-#ifndef _integrator_rhs_strang_H_
-#define _integrator_rhs_strang_H_
+#ifndef INTEGRATOR_RHS_STRANG_H
+#define INTEGRATOR_RHS_STRANG_H
 
 #include <network.H>
 #include <actual_network.H>
@@ -16,13 +16,15 @@
 #include <nonaka_plot.H>
 #endif
 
+using namespace integrator_rp;
+
 // The rhs routine provides the right-hand-side for the DVODE solver.
 // This is a generic interface that calls the specific RHS routine in the
 // network you're actually using.
 
-template <typename T>
+template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bool in_jacobian=false)
+void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
 {
 
     // We are integrating a system of
@@ -36,7 +38,7 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bo
     // network
 
     // Fix the state as necessary -- this ensures that the mass
-    // fractions that enter are valud (and optionally normalized)
+    // fractions that enter are valid (and optionally normalized)
 
     clean_state(int_state);
 
@@ -59,7 +61,7 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bo
 
     }
 
-    state.time = int_state.t;
+    state.time = time;
 
     // at this point, the (burn_t) state is synchronized with the integrator
     // and is thermodynamically consistent.
@@ -105,9 +107,9 @@ void rhs (const Real time, burn_t& state, T& int_state, RArray1D& ydot, const bo
 
 
 // Analytical Jacobian
-template<typename T, class MatrixType>
+template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (const Real time, burn_t& state, T& int_state, MatrixType& pd)
+void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
     // Only do the burn if the incoming temperature is within the temperature

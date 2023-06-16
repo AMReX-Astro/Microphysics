@@ -23,4 +23,3 @@ CEXE_headers += vode_dvjust.H
 CEXE_headers += vode_dvnlsd.H
 CEXE_headers += vode_dvset.H
 CEXE_headers += vode_dvstep.H
-CEXE_headers += vode_parameters.H

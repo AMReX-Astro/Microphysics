@@ -200,7 +200,7 @@ variables define absolute tolerances of the ordinary differential
 equations and the ``rtol`` variables define the relative tolerances.  The
 second section of the input file collects the inputs that ``main.f90``
 asks for so that the user does not have to input all 5+
-parameters that are required everytime the test is run.  Each input
+parameters that are required every time the test is run.  Each input
 required is defined and initialized on the lines following
 ``&cellparams``.  The use of the parameters is show below:
 
@@ -250,11 +250,11 @@ logarithmic scales, for all species involved in the simulation.  An
 example of this graph is shown below.
 
 .. figure:: react_aprox13_logX.png
-   :alt: An example of a plot output by the burn_cell unit test. This is the logX output cooresponding to the network aprox13.
+   :alt: An example of a plot output by the burn_cell unit test. This is the logX output corresponding to the network aprox13.
    :width: 4.5in
 
    An example of a plot output by the burn_cell unit test. This is the
-   logX output cooresponding to the network aprox13.
+   logX output corresponding to the network aprox13.
 
 
 

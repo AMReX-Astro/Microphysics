@@ -23,7 +23,7 @@ from Stan:
 > Probably all the code needs for hydrodynamics and energy generation
 > is abar and Ye (given rho and T) so to follow explosions you can use
 > the smaller table. It also gives crude measures of nucleosyntheis in
-> n+p+helium, si-ca, fe group. Probaly good enough for NSE
+> n+p+helium, si-ca, fe group. Probably good enough for NSE
 >
 > If you are following bufk nucleosynthesis you can use the larger table
 > which gives 125 isotopes packaged into 19 (CASTRO used to use the 19
@@ -48,7 +48,7 @@ The mapping of the nuclei from the large network to the 19 we carry is:
 * 13: 44Ti
 * 14: 48Cr
 * 15: 52Fe
-* 16: all oher iron group except 56Ni
+* 16: all other iron group except 56Ni
 * 17: 56Ni
 * 18: neutrons
 * 19: protons

@@ -49,6 +49,7 @@
 // john l. nazareth
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
             amrex::Array1D<Real, 1, neqs>& u,
             amrex::Array1D<Real, 1, neqs>& v,

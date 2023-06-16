@@ -1,5 +1,5 @@
-#ifndef _sneut5_H_
-#define _sneut5_H_
+#ifndef SNEUT5_H
+#define SNEUT5_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
@@ -226,12 +226,6 @@ void sneut5(const Real temp, const Real den,
     dsnudz = derivative of snu with zbar
     */
 
-    Real spair,spairdt,spairda,spairdz,
-         splas,splasdt,splasda,splasdz,
-         sphot,sphotdt,sphotda,sphotdz,
-         sbrem,sbremdt,sbremda,sbremdz,
-         sreco,srecodt,srecoda,srecodz;
-
     Real t9,xl,xldt,xlp5,xl2,xl3,xl4,xl5,xl6,xl7,xl8,xl9,
          xlmp5,xlm1,xlm2,xlm3,xlm4,xlnt,cc,den6,tfermi,
          a0,a1,a2,a3,b1,b2,c00,c01,c02,c03,c04,c05,c06,
@@ -291,7 +285,7 @@ void sneut5(const Real temp, const Real den,
     // theta is sin**2(theta_weinberg) = 0.2319 plus/minus 0.00005 (1996)
     // xnufam is the number of neutrino flavors = 3.02 plus/minus 0.005 (1998)
     // change theta and xnufam if need be, and the changes will automatically
-    // propagate through the routine. cv and ca are the vektor and axial currents.
+    // propagate through the routine. cv and ca are the vector and axial currents.
 
     constexpr Real theta  = 0.2319e0_rt;
     constexpr Real xnufam = 3.0e0_rt;
@@ -307,30 +301,30 @@ void sneut5(const Real temp, const Real den,
     constexpr Real tfac6  = cv*cv + 1.5e0_rt*ca*ca + (xnufam - 1.0e0_rt)*(cvp*cvp + 1.5e0_rt*cap*cap);
 
     // initialize
-    spair   = 0.0e0_rt;
-    spairdt = 0.0e0_rt;
-    spairda = 0.0e0_rt;
-    spairdz = 0.0e0_rt;
+    Real spair{0.0e0_rt};
+    Real spairdt{0.0e0_rt};
+    Real spairda{0.0e0_rt};
+    Real spairdz{0.0e0_rt};
 
-    splas   = 0.0e0_rt;
-    splasdt = 0.0e0_rt;
-    splasda = 0.0e0_rt;
-    splasdz = 0.0e0_rt;
+    Real splas{0.0e0_rt};
+    Real splasdt{0.0e0_rt};
+    Real splasda{0.0e0_rt};
+    Real splasdz{0.0e0_rt};
 
-    sphot   = 0.0e0_rt;
-    sphotdt = 0.0e0_rt;
-    sphotda = 0.0e0_rt;
-    sphotdz = 0.0e0_rt;
+    Real sphot{0.0e0_rt};
+    Real sphotdt{0.0e0_rt};
+    Real sphotda{0.0e0_rt};
+    Real sphotdz{0.0e0_rt};
 
-    sbrem   = 0.0e0_rt;
-    sbremdt = 0.0e0_rt;
-    sbremda = 0.0e0_rt;
-    sbremdz = 0.0e0_rt;
+    Real sbrem{0.0e0_rt};
+    Real sbremdt{0.0e0_rt};
+    Real sbremda{0.0e0_rt};
+    Real sbremdz{0.0e0_rt};
 
-    sreco   = 0.0e0_rt;
-    srecodt = 0.0e0_rt;
-    srecoda = 0.0e0_rt;
-    srecodz = 0.0e0_rt;
+    Real sreco{0.0e0_rt};
+    Real srecodt{0.0e0_rt};
+    Real srecoda{0.0e0_rt};
+    Real srecodz{0.0e0_rt};
 
     snu     = 0.0e0_rt;
     dsnudt  = 0.0e0_rt;
@@ -1008,7 +1002,7 @@ void sneut5(const Real temp, const Real den,
     } else {
 
        u     = fac3 * (std::log10(den) - 3.0e0_rt);
-       a0    = iln10*fac3*deni;
+       //a0    = iln10*fac3*deni;
 
        // compute the expensive trig functions of equation 5.21 only once
        cos1 = std::cos(u);
@@ -1021,7 +1015,7 @@ void sneut5(const Real temp, const Real den,
        sin2 = std::sin(2.0e0_rt*u);
        sin3 = std::sin(3.0e0_rt*u);
        sin4 = std::sin(4.0e0_rt*u);
-       sin5 = std::sin(5.0e0_rt*u);
+       //sin5 = std::sin(5.0e0_rt*u);
 
        // equation 5.21
        fb =  0.5e0_rt * 0.17946e0_rt  + 0.00945e0_rt*u + 0.34529e0_rt
@@ -1031,12 +1025,12 @@ void sneut5(const Real temp, const Real den,
             - 0.00656e0_rt*cos4 - 0.00281e0_rt*sin4
             - 0.00519e0_rt*cos5;
 
-       c00 =  a0*(0.00945e0_rt
-            + 0.05821e0_rt*sin1       - 0.04969e0_rt*cos1
-            + 0.01089e0_rt*sin2*2.0e0_rt - 0.01584e0_rt*cos2*2.0e0_rt
-            + 0.01147e0_rt*sin3*3.0e0_rt - 0.00504e0_rt*cos3*3.0e0_rt
-            + 0.00656e0_rt*sin4*4.0e0_rt - 0.00281e0_rt*cos4*4.0e0_rt
-            + 0.00519e0_rt*sin5*5.0e0_rt);
+       // c00 =  a0*(0.00945e0_rt
+       //      + 0.05821e0_rt*sin1       - 0.04969e0_rt*cos1
+       //      + 0.01089e0_rt*sin2*2.0e0_rt - 0.01584e0_rt*cos2*2.0e0_rt
+       //      + 0.01147e0_rt*sin3*3.0e0_rt - 0.00504e0_rt*cos3*3.0e0_rt
+       //      + 0.00656e0_rt*sin4*4.0e0_rt - 0.00281e0_rt*cos4*4.0e0_rt
+       //      + 0.00519e0_rt*sin5*5.0e0_rt);
 
        // equation 5.22
        ft =  0.5e0_rt * 0.06781e0_rt - 0.02342e0_rt*u + 0.24819e0_rt
@@ -1046,12 +1040,12 @@ void sneut5(const Real temp, const Real den,
             - 0.00404e0_rt*cos4 - 0.00131e0_rt*sin4
             - 0.00330e0_rt*cos5;
 
-       c01 = a0*(-0.02342e0_rt
-            + 0.00944e0_rt*sin1       - 0.02213e0_rt*cos1
-            + 0.01289e0_rt*sin2*2.0e0_rt - 0.01136e0_rt*cos2*2.0e0_rt
-            + 0.00589e0_rt*sin3*3.0e0_rt - 0.00467e0_rt*cos3*3.0e0_rt
-            + 0.00404e0_rt*sin4*4.0e0_rt - 0.00131e0_rt*cos4*4.0e0_rt
-            + 0.00330e0_rt*sin5*5.0e0_rt);
+       // c01 = a0*(-0.02342e0_rt
+       //      + 0.00944e0_rt*sin1       - 0.02213e0_rt*cos1
+       //      + 0.01289e0_rt*sin2*2.0e0_rt - 0.01136e0_rt*cos2*2.0e0_rt
+       //      + 0.00589e0_rt*sin3*3.0e0_rt - 0.00467e0_rt*cos3*3.0e0_rt
+       //      + 0.00404e0_rt*sin4*4.0e0_rt - 0.00131e0_rt*cos4*4.0e0_rt
+       //      + 0.00330e0_rt*sin5*5.0e0_rt);
 
        // equation 5.23
        gb =  0.5e0_rt * 0.00766e0_rt - 0.01259e0_rt*u + 0.07917e0_rt
@@ -1061,12 +1055,12 @@ void sneut5(const Real temp, const Real den,
             + 0.00044e0_rt*cos4 - 0.00089e0_rt*sin4
             + 0.00158e0_rt*cos5;
 
-       c02 = a0*(-0.01259e0_rt
-            + 0.00710e0_rt*sin1       + 0.02300e0_rt*cos1
-            + 0.00028e0_rt*sin2*2.0e0_rt - 0.01078e0_rt*cos2*2.0e0_rt
-            - 0.00232e0_rt*sin3*3.0e0_rt + 0.00118e0_rt*cos3*3.0e0_rt
-            - 0.00044e0_rt*sin4*4.0e0_rt - 0.00089e0_rt*cos4*4.0e0_rt
-            - 0.00158e0_rt*sin5*5.0e0_rt);
+       // c02 = a0*(-0.01259e0_rt
+       //      + 0.00710e0_rt*sin1       + 0.02300e0_rt*cos1
+       //      + 0.00028e0_rt*sin2*2.0e0_rt - 0.01078e0_rt*cos2*2.0e0_rt
+       //      - 0.00232e0_rt*sin3*3.0e0_rt + 0.00118e0_rt*cos3*3.0e0_rt
+       //      - 0.00044e0_rt*sin4*4.0e0_rt - 0.00089e0_rt*cos4*4.0e0_rt
+       //      - 0.00158e0_rt*sin5*5.0e0_rt);
 
        // equation 5.24
        gt =  -0.5e0_rt * 0.00769e0_rt  - 0.00829e0_rt*u + 0.05211e0_rt
@@ -1076,12 +1070,12 @@ void sneut5(const Real temp, const Real den,
             + 0.00031e0_rt*cos4 - 0.00018e0_rt*sin4
             + 0.00069e0_rt*cos5;
 
-       c03 = a0*(-0.00829e0_rt
-            - 0.00356e0_rt*sin1       + 0.01052e0_rt*cos1
-            + 0.00184e0_rt*sin2*2.0e0_rt - 0.00354e0_rt*cos2*2.0e0_rt
-            - 0.00146e0_rt*sin3*3.0e0_rt - 0.00014e0_rt*cos3*3.0e0_rt
-            - 0.00031e0_rt*sin4*4.0e0_rt - 0.00018e0_rt*cos4*4.0e0_rt
-            - 0.00069e0_rt*sin5*5.0e0_rt);
+       // c03 = a0*(-0.00829e0_rt
+       //      - 0.00356e0_rt*sin1       + 0.01052e0_rt*cos1
+       //      + 0.00184e0_rt*sin2*2.0e0_rt - 0.00354e0_rt*cos2*2.0e0_rt
+       //      - 0.00146e0_rt*sin3*3.0e0_rt - 0.00014e0_rt*cos3*3.0e0_rt
+       //      - 0.00031e0_rt*sin4*4.0e0_rt - 0.00018e0_rt*cos4*4.0e0_rt
+       //      - 0.00069e0_rt*sin5*5.0e0_rt);
 
        dum   = 2.275e-1_rt * zbar * zbar*t8m1 * std::pow(den6*abari, oneth);
        dumdt = -dum*tempi;

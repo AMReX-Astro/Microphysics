@@ -42,3 +42,8 @@ jobs:
         run: |
           cd sphinx_docs/
           make SPHINXOPTS=-v html
+
+      - name: Link check
+        run: |
+          cd sphinx_docs/
+          make SPHINXOPTS=-v linkcheck

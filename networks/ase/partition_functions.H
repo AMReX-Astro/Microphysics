@@ -1006,7 +1006,8 @@ namespace part_fun {
 // main interface
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function(const int inuc, const tf_t& tfactors, Real& pf, Real& dpf_dT) {
+void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactors,
+                            Real& pf, Real& dpf_dT) {
 
     // inuc is the 1-based index for the species
 
@@ -1124,119 +1125,119 @@ constexpr Real get_spin_state(const int inuc) {
     switch (inuc) {
 
     case N:
-        spin = 2.0;
+        spin = 2;
         break;
 
     case H1:
-        spin = 2.0;
+        spin = 2;
         break;
 
     case He4:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case C12:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case N13:
-        spin = 2.0;
+        spin = 2;
         break;
 
     case N14:
-        spin = 3.0;
+        spin = 3;
         break;
 
     case O16:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case F18:
-        spin = 3.0;
+        spin = 3;
         break;
 
     case Ne20:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Ne21:
-        spin = 4.0;
+        spin = 4;
         break;
 
     case Na22:
-        spin = 7.0;
+        spin = 7;
         break;
 
     case Na23:
-        spin = 4.0;
+        spin = 4;
         break;
 
     case Mg24:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Al27:
-        spin = 6.0;
+        spin = 6;
         break;
 
     case Si28:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case P31:
-        spin = 2.0;
+        spin = 2;
         break;
 
     case S32:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Ar36:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Ca40:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Ti44:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Cr48:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Fe52:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Ni56:
-        spin = 1.0;
+        spin = 1;
         break;
 
     case Cl35:
-        spin = 4.0;
+        spin = 4;
         break;
 
     case K39:
-        spin = 4.0;
+        spin = 4;
         break;
 
     case Sc43:
-        spin = 8.0;
+        spin = 8;
         break;
 
     case V47:
-        spin = 4.0;
+        spin = 4;
         break;
 
     case Mn51:
-        spin = 6.0;
+        spin = 6;
         break;
 
     case Co55:
-        spin = 8.0;
+        spin = 8;
         break;
 
 

@@ -1,5 +1,5 @@
-#ifndef _be_type_H_
-#define _be_type_H_
+#ifndef BE_TYPE_H
+#define BE_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
@@ -18,8 +18,6 @@
 #ifdef NETWORK_SOLVER
 #include <actual_matrix.H>
 #endif
-
-const int BE_NEQS = INT_NEQS;
 
 const int BE_SUCCESS = 0;
 const int BE_NONCONVERGENCE = -100;
@@ -48,7 +46,7 @@ struct be_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    Array1D<Real, 1, BE_NEQS> y;
+    Array1D<Real, 1, INT_NEQS> y;
     JacNetArray2D jac;
 
     short jacobian_type;

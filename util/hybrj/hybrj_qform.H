@@ -14,6 +14,7 @@
 // originally, this routine supported an mxn matrix, but we assume m=n
 
 template<int neqs>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void qform(amrex::Array2D<Real, 1, neqs, 1, neqs>& q,
            amrex::Array1D<Real, 1, neqs>& wa) {
 

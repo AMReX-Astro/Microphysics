@@ -105,7 +105,7 @@ powerlaw
 This is a simple single-step reaction rate.
 We will consider only two species, fuel, :math:`f`, and ash, :math:`a`, through
 the reaction: :math:`f + f \rightarrow a + \gamma`. Baryon conservation
-requres that :math:`A_f = A_a/2`, and charge conservation requires that :math:`Z_f
+requires that :math:`A_f = A_a/2`, and charge conservation requires that :math:`Z_f
 = Z_a/2`. We take
 our reaction rate to be a powerlaw in temperature. The standard way
 to write this is in terms of the number densities, in which case we
