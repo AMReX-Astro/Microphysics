@@ -64,7 +64,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
 
-    // we use 1-based indexing inside of ROCK4, so we need to shift the
+    // we use 1-based indexing inside of ROCK, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
     Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
@@ -81,7 +81,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     // Call the integration routine.
 
-    int ierr = rock4(state, rock_state);
+    int ierr = rock(state, rock_state);
 
     // Get the number of RHS and Jacobian evaluations.
 
@@ -116,8 +116,8 @@ void actual_integrator (BurnT& state, Real dt)
 
     normalize_abundances_sdc_burn(state);
 
-    // ROCK4 does not always fail even though it can lead to unphysical states.
-    // Add some checks that indicate a burn fail even if ROCK4 thinks the
+    // ROCK does not always fail even though it can lead to unphysical states.
+    // Add some checks that indicate a burn fail even if ROCK thinks the
     // integration was successful.
 
     if (ierr != 1) {

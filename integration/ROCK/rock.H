@@ -357,9 +357,6 @@ int rockcore (BurnT& state, rock_t& rstate)
     rstate.max_rho = 0;
     rstate.min_rho = std::numeric_limits<decltype(rstate.min_rho)>::max();
 
-    rstate.idid = 1;
-
-
     Real facmax{5.0_rt};
     Real told{0.0_rt};
     Real err{0.0_rt};
@@ -384,7 +381,7 @@ int rockcore (BurnT& state, rock_t& rstate)
     Real errp = err;
     Real eigmax{};
 
-    while (true) {
+    while (rstate.nsteps < integrator_rp::ode_max_steps) {
 
         // Step-size is adjusted.
 
@@ -396,16 +393,15 @@ int rockcore (BurnT& state, rock_t& rstate)
         // did we underflow?
 
         if (rstate.t + rstate.h == rstate.t) {
-            rstate.idid = -2;
-            return rstate.idid;
+            return IERR_DT_UNDERFLOW;
         }
 
         // Spectral radius.
 
         if (nrho == 0) {
-            eigmax = rkcrho(state, rstate, rstate.tout);
-            if (rstate.idid == -3) {
-                return rstate.idid;
+            int ierr = rkcrho(state, rstate, rstate.tout, eigmax);
+            if (ierr != 0) {
+                return IERR_SPRAD_CONVERGENCE;
             }
             rstate.max_rho = std::max(rstate.max_rho, static_cast<int>(std::round(eigmax)));
             rstate.min_rho = std::min(rstate.min_rho, static_cast<int>(std::round(eigmax)));
@@ -510,7 +506,7 @@ int rockcore (BurnT& state, rock_t& rstate)
             int rho_cycle = rock_order == 2 ? 25 : 10;
             nrho = nrho+1 % rho_cycle;
             if (last) {
-                return rstate.idid;
+                return IERR_SUCCESS;
             } else {
                 for (int i = 1; i <= INT_NEQS; ++i) {
                     rstate.yn(i) = rstate.y(i);
@@ -544,13 +540,13 @@ int rockcore (BurnT& state, rock_t& rstate)
         continue;
     }
 
-    return rstate.idid;
+    return IERR_TOO_MANY_STEPS;
 }
 
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rock4 (BurnT& state, rock_t& rstate)
+int rock (BurnT& state, rock_t& rstate)
 {
 
     using namespace integrator_rp;
@@ -567,7 +563,11 @@ int rock4 (BurnT& state, rock_t& rstate)
 
     rhs(rstate.t, state, rstate, rstate.fn);
 
-    Real sprad = rkcrho(state, rstate, rstate.tout);
+    Real sprad{};
+    int ierr = rkcrho(state, rstate, rstate.tout, sprad);
+    if (ierr != 0) {
+        return IERR_SPRAD_CONVERGENCE;
+    }
 
     //rstate.h = initial_dt(state, rstate, rstate.fn);
     rstate.h = rkc_init_dt(state, rstate, rstate.tout, sprad);
@@ -587,15 +587,14 @@ int rock4 (BurnT& state, rock_t& rstate)
     }
 
     if (! valid) {
-        rstate.idid = -1;  // TODO: remove idid from rstate
-        return rstate.idid;
+        return IERR_BAD_INPUTS;
     }
 
     // call the integrator
 
-    rockcore(state, rstate);
+    ierr = rockcore(state, rstate);
 
-    return rstate.idid;
+    return ierr;
 }
 
 #endif

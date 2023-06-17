@@ -59,7 +59,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     // Call the integration routine.
 
-    int ierr = rock4(state, rock_state);
+    int ierr = rock(state, rock_state);
 
     // Copy the integration data back to the burn state.
 
@@ -88,8 +88,8 @@ void actual_integrator (BurnT& state, Real dt)
         state.success = false;
     }
 
-    // ROCK4 does not always fail even though it can lead to unphysical states.
-    // Add some checks that indicate a burn fail even if ROCK4 thinks the
+    // ROCK does not always fail even though it can lead to unphysical states.
+    // Add some checks that indicate a burn fail even if ROCK thinks the
     // integration was successful.
 
     for (int n = 1; n <= NumSpec; ++n) {
