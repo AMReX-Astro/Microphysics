@@ -32,7 +32,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Initialize the integration time.
 
     rkc_state.t = 0.0_rt;
-    rkc_state.tend = dt;
+    rkc_state.tout = dt;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -85,8 +85,8 @@ void actual_integrator (BurnT& state, Real dt)
         state.success = false;
     }
 
-    // VODE does not always fail even though it can lead to unphysical states.
-    // Add some checks that indicate a burn fail even if VODE thinks the
+    // We may not fail even though we generate unphysical states.
+    // Add some checks that indicate a burn fail even if RKC thinks the
     // integration was successful.
 
     for (int n = 1; n <= NumSpec; ++n) {
