@@ -43,7 +43,7 @@ void dvhin (BurnT& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
     Real HUB = PT1 * TDIST;
 
 #ifdef TRUE_SDC
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         Real atol;
         if (i == 1) {
             atol = vstate.atol_dens;
@@ -60,7 +60,7 @@ void dvhin (BurnT& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
     }
 
 #else
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
         Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
         Real AFI = std::abs(vstate.yh(i,2));
@@ -89,7 +89,7 @@ void dvhin (BurnT& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
 
             // Estimate the second derivative as a difference quotient in f.
             Real H = std::copysign(HG, vstate.tout - vstate.t);
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 vstate.y(i) = vstate.yh(i,1) + H * vstate.yh(i,2);
             }
 
@@ -97,15 +97,15 @@ void dvhin (BurnT& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
 
             rhs(t1, state, vstate, vstate.acor);
 
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 vstate.acor(i) = (vstate.acor(i) - vstate.yh(i,2)) / H;
             }
 
             Real YDDNRM = 0.0_rt;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 YDDNRM += (vstate.acor(i) * vstate.ewt(i)) * (vstate.acor(i) * vstate.ewt(i));
             }
-            YDDNRM = std::sqrt(YDDNRM / VODE_NEQS);
+            YDDNRM = std::sqrt(YDDNRM / INT_NEQS);
 
             // Get the corresponding new value of h.
             if (YDDNRM * HUB * HUB > 2.0_rt) {

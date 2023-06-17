@@ -9,11 +9,9 @@
 
 #include <integrator_data.H>
 
-const int VODE_NEQS = INT_NEQS;
-
-typedef amrex::Array1D<short, 1, VODE_NEQS> IArray1D;
-typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
+typedef amrex::Array1D<short, 1, INT_NEQS> IArray1D;
+typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
+typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
 
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
@@ -167,7 +165,7 @@ struct dvode_t
 #endif
 
     // the Nordsieck history array
-    amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_LMAX> yh;
+    amrex::Array2D<Real, 1, INT_NEQS, 1, VODE_LMAX> yh;
 
     RArray1D ewt, savf;
 
@@ -226,25 +224,25 @@ void print_state(dvode_t& dvode_state)
     std::cout << "NSLJ = " << dvode_state.NSLJ << std::endl;
     std::cout << "NSLP = " << dvode_state.NSLP << std::endl;
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         std::cout << "y(" << i << ") = " << dvode_state.y(i) << std::endl;
     }
 
     for (int j = 1; j <= VODE_LMAX; ++j) {
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             std::cout << "yh(" << i << "," << j << ") = " << dvode_state.yh(i,j) << std::endl;
         }
     }
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         std::cout << "ewt(" << i << ") = " << dvode_state.ewt(i) << std::endl;
     }
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         std::cout << "savf(" << i << ") = " << dvode_state.savf(i) << std::endl;
     }
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         std::cout << "acor(" << i << ") = " << dvode_state.acor(i) << std::endl;
     }
 
