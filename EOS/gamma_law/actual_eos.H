@@ -54,7 +54,6 @@ void actual_eos (I input, T& state)
 
     // Get the mass of a nucleon from Avogadro's number.
     const Real m_nucleon = 1.0 / C::n_A;
-    const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
     if (eos_assume_neutral) {
         state.mu = state.abar;
@@ -215,6 +214,8 @@ void actual_eos (I input, T& state)
     // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
     // NOTE: this expression is only valid for gamma = 5/3.
     if constexpr (has_entropy<T>::value) {
+        const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
+
         state.s = (C::k_B / (state.mu * m_nucleon)) *
                   (2.5 + std::log((std::pow(state.mu * m_nucleon, 2.5) * rhoinv) *
                                   std::pow(C::k_B * state.T, 1.5) * fac));
