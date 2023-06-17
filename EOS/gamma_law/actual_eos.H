@@ -55,15 +55,16 @@ void actual_eos (I input, T& state)
     // Get the mass of a nucleon from Avogadro's number.
     const Real m_nucleon = 1.0 / C::n_A;
 
-    if (eos_assume_neutral) {
-        state.mu = state.abar;
-
-    } else {
-        Real sum = 0.0;
-        for (int n = 0; n < NumSpec; n++) {
-            sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+    if constexpr (has_xn<T>::value) {
+        if (eos_assume_neutral) {
+            state.mu = state.abar;
+        } else {
+            Real sum = 0.0;
+            for (int n = 0; n < NumSpec; n++) {
+                sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+            }
+            state.mu = 1.0 / sum;
         }
-        state.mu = 1.0 / sum;
     }
 
     // For all EOS input modes EXCEPT eos_input_rt, first compute dens

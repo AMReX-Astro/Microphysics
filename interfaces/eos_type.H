@@ -133,6 +133,27 @@ struct eos_rep_t:eos_base_t {
 #endif
 };
 
+struct chem_eos_t:eos_base_t {
+    amrex::Real rho{};
+    amrex::Real T{};
+    amrex::Real p{};
+    amrex::Real e{};
+    amrex::Real dpdT{};
+    amrex::Real dpdr{};
+    amrex::Real dpde{};
+    amrex::Real dpdr_e{};
+    amrex::Real dedT{};
+    amrex::Real dedr{};
+
+    amrex::Real mu{};
+    amrex::Real cs{};
+
+    amrex::Real cv{};
+    amrex::Real cp{};
+
+    amrex::Real gam1{};
+};
+
 
 template <typename T, typename Enable = void>
 struct has_energy
@@ -196,6 +217,14 @@ struct has_conductivity
 
 template <typename T>
 struct has_conductivity<T, typename std::enable_if<(sizeof(((T*)0)->conductivity) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_xn
+    : std::false_type {};
+
+template <typename T>
+struct has_xn<T, typename std::enable_if<(sizeof(((T*)0)->xn) > 0)>::type>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
