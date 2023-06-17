@@ -1,8 +1,6 @@
 #ifndef RKC_UTIL_H
 #define RKC_UTIL_H
 
-#include <rkc_type.H>
-
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real sprad)
