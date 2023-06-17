@@ -13,7 +13,7 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real spra
     // this requires that yn hold the initial state and fn the corresponding RHS
     // it also requires temporary space yjm1 and yjm2
     // finally, we require the initial spectral radius, sprad, and the maximum
-    // timestep (tend - tstart), max_dt.
+    // timestep (tout - tstart), max_dt.
 
     Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), max_dt);
 
@@ -91,7 +91,7 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
     // rstate.fn to the RHS called with yn for nsteps == 0
     // rstate.sprad to the previous eigenvector for nsteps > 0
     //
-    // max_dt is the maximum timestep, typically tend - tbegin
+    // max_dt is the maximum timestep, typically tout - tbegin
     //
     // we use rstate.yjm1 and rstate.yjm2 as internal storage
 
