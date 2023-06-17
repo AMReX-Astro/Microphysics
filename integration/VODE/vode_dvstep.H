@@ -15,7 +15,7 @@ void advance_nordsieck (dvode_t& vstate)
 
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 vstate.yh(i,j) += vstate.yh(i,j+1);
             }
         }
@@ -33,7 +33,7 @@ void retract_nordsieck (dvode_t& vstate)
 
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 vstate.yh(i,j) -= vstate.yh(i,j+1);
             }
         }
@@ -114,7 +114,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
 
         for (int j = 2; j <= vstate.L; ++j) {
             R *= vstate.ETA;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 vstate.yh(i,j) *= R;
             }
         }
@@ -136,15 +136,15 @@ int dvstep (BurnT& state, dvode_t& vstate)
     // We will use this saved value to determine if any
     // constraints were violated in the update.
 
-    Array1D<Real, 1, VODE_NEQS> y_save;
+    Array1D<Real, 1, INT_NEQS> y_save;
 #ifdef STRANG
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         y_save(i) = vstate.y(i);
     }
 #endif
 #ifdef SIMPLIFIED_SDC
     Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         y_save(i) = vstate.y(i);
     }
     for (int i = 1; i <= NumSpec; ++i) {
@@ -200,7 +200,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= INT_NEQS; ++i) {
                     vstate.yh(i,j) *= R;
                 }
             }
@@ -336,14 +336,14 @@ int dvstep (BurnT& state, dvode_t& vstate)
 
             vstate.tau(1) = vstate.H;
             for (int j = 1; j <= vstate.L; ++j) {
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= INT_NEQS; ++i) {
                     vstate.yh(i,j) += vstate.el(j) * vstate.acor(i);
                 }
             }
 
             vstate.NQWAIT -= 1;
             if ((vstate.L != VODE_LMAX) && (vstate.NQWAIT == 1)) {
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= INT_NEQS; ++i) {
                     vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
                 vstate.CONP = vstate.tq(5);
@@ -366,7 +366,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
             }
 
             R = 1.0_rt / vstate.tq(2);
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 vstate.acor(i) *= R;
             }
 
@@ -409,7 +409,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= INT_NEQS; ++i) {
                     vstate.yh(i,j) *= R;
                 }
             }
@@ -446,7 +446,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
 
             for (int j = 2; j <= vstate.L; ++j) {
                 R *= vstate.ETA;
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= INT_NEQS; ++i) {
                     vstate.yh(i,j) *= R;
                 }
             }
@@ -465,7 +465,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
         vstate.tau(1) = vstate.H;
         rhs(vstate.tn, state, vstate, vstate.savf);
         vstate.NFE += 1;
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             vstate.yh(i,2) = vstate.H * vstate.savf(i);
         }
 
@@ -495,10 +495,10 @@ int dvstep (BurnT& state, dvode_t& vstate)
         if (vstate.NQ != 1) {
             // Compute ratio of new H to current H at the current order less one.
             DDN = 0.0_rt;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 DDN += (vstate.yh(i,vstate.L) * vstate.ewt(i)) * (vstate.yh(i,vstate.L) * vstate.ewt(i));
             }
-            DDN = std::sqrt(DDN / VODE_NEQS) / vstate.tq(1);
+            DDN = std::sqrt(DDN / INT_NEQS) / vstate.tq(1);
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
@@ -507,14 +507,14 @@ int dvstep (BurnT& state, dvode_t& vstate)
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
             CNQUOT = (vstate.tq(5) / vstate.CONP) * std::pow(vstate.H / vstate.tau(2), vstate.L);
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 vstate.savf(i) = vstate.acor(i) - CNQUOT * vstate.yh(i,VODE_LMAX);
             }
             DUP = 0.0_rt;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= INT_NEQS; ++i) {
                 DUP += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
-            DUP = std::sqrt(DUP / VODE_NEQS) / vstate.tq(3);
+            DUP = std::sqrt(DUP / INT_NEQS) / vstate.tq(3);
             ETAQP1 = 1.0_rt / (std::pow(BIAS3 * DUP, 1.0_rt / (FLOTL + 1.0_rt)) + ADDON);
         }
 
@@ -522,7 +522,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
             if (ETAQP1 > ETAQM1) {
                 vstate.ETA = ETAQP1;
                 vstate.NEWQ = static_cast<short>(vstate.NQ + 1);
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= INT_NEQS; ++i) {
                     vstate.yh(i,VODE_LMAX) = vstate.acor(i);
                 }
             }
@@ -556,7 +556,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
             vstate.ETAMAX = ETAMX2;
         }
         R = 1.0_rt / vstate.tq(2);
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= INT_NEQS; ++i) {
             vstate.acor(i) *= R;
         }
         return kflag;
@@ -570,7 +570,7 @@ int dvstep (BurnT& state, dvode_t& vstate)
         vstate.ETAMAX = ETAMX2;
     }
     R = 1.0_rt / vstate.tq(2);
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= INT_NEQS; ++i) {
         vstate.acor(i) *= R;
     }
 
