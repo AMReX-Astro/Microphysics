@@ -393,12 +393,12 @@ int rockcore (BurnT& state, rock_t& rstate)
             last = true;
         }
 
-#if 0
-        if (rstate.h < 10.0_rt * UROUND) {
+        // did we underflow?
+
+        if (rstate.t + rstate.h == rstate.t) {
             rstate.idid = -2;
             return rstate.idid;
         }
-#endif
 
         // Spectral radius.
 
@@ -568,7 +568,7 @@ int rock4 (BurnT& state, rock_t& rstate)
     rhs(rstate.t, state, rstate, rstate.fn);
 
     Real sprad = rkcrho(state, rstate, rstate.tout);
-    
+
     //rstate.h = initial_dt(state, rstate, rstate.fn);
     rstate.h = rkc_init_dt(state, rstate, rstate.tout, sprad);
 
@@ -576,12 +576,6 @@ int rock4 (BurnT& state, rock_t& rstate)
 
     // Test the initial step size and tolerances.
 
-#if 0
-    if (rstate.h < 10.0_rt * UROUND) {
-        rstate.idid = -1;
-        return rstate.idid;
-    }
-#endif
 
     bool valid = true;
 

@@ -32,11 +32,24 @@ changes:
 
   or `4` for the 4th order version.
 
+* We don't abort if the timestep is smaller than UROUND, since t is often
+  quite small itself.  Instead we check if t + dt = t
+
 * There is a single derived type that works for both integrators.
   Note that some of the scratch memory is not used for ROCK2.
 
 The Fortran implementations were originally downloaded from:
 http://www.unige.ch/~hairer/software.html
+
+
+## Return codes
+
+The return code from the integrator has the following meanings:
+
+  * 1: successful computation
+  * -1: Invalid input parameters.
+  * -2: Stepsize becomes to small.
+  * -3: Failure estimating spectral radius
 
 
 
