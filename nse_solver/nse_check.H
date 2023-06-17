@@ -31,31 +31,29 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   nse_check = false;
 
-  // if there are no neutron, proton, and helium in the network:
+  // raise error if no proton or helium-4 in the network.
 
-  if (NSE_INDEX::p_index == -1 && NSE_INDEX::n_index == -1 && NSE_INDEX::he4_index == -1) {
-
-    r = 0.0_rt;
-
-    // Use the L2 error to check molar fractions
-
-    for (int n = 0; n < NumSpec; ++n) {
-      r += std::pow(std::abs(state.xn[n] - nse_state.xn[n]) * aion_inv[n], 2);
-    }
-
-    r /= NumSpec;
-
-    if (r < 1.0e-4_rt) {
-      nse_check = true;
-      return;
-    }
-
+  if (NSE_INDEX::p_index == -1 || NSE_INDEX::he4_index == -1) {
+    amrex::Error("Need proton and helium-4 in the network for NSE_NET to work");
   }
-
-  // If there are neutron, proton, or helium in the network
+  
+  // If there are proton, or helium in the network
 
   // Check if n,p,a are in equilibrium
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
+
+  // amrex::Real sum = 0.0_rt;
+  
+  // for (int n = 0; n < NumSpec; ++n) {
+  //   sum += std::pow(state.xn[n] - nse_state.xn[n], 2);
+  // }
+
+  // sum = std::sqrt(sum / NumSpec);
+  // std::cout << "sum is: " << sum << std::endl;
+  // if (sum < 0.01_rt) {
+  //   std::cout << "in here" << std::endl;
+  //   nse_check = true;
+  // }
 
   for (int n = 0; n < NumSpec; ++n) {
 
@@ -654,8 +652,7 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
   if (group_a_size >= group_b_size) {
     group_ind(root_index_b) = group_ind(root_index_a);
   }
-
-  else{
+  else {
     group_ind(root_index_a) = group_ind(root_index_b);
   }
 }
@@ -716,8 +713,12 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   
   int LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind);
 
-  int nonLIG_index_1 = -1;
-  int nonLIG_index_2 = -1;
+  // int nonLIG_index_1 = -1;
+  // int nonLIG_index_2 = -1;
+  int nonLIG_index = -1;
+  int si28_index = -1;
+
+  bool in_single_group = true;
 
   // only LIG group if there are proton, neutron
 
@@ -725,45 +726,91 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   //   LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind);
   // }
 
-  std::cout << "final root indices: ";
-  for (int n = 0; n < NumSpec; ++n) {
-    std::cout << get_root_index(n, group_ind) << ", ";
-  }
-  std::cout << std::endl;
+  // std::cout << "final root indices: ";
+  // for (int n = 0; n < NumSpec; ++n) {
+  //   std::cout << get_root_index(n, group_ind) << ", ";
+  // }
+  // std::cout << std::endl;
 
-  std::cout << "final group indices: ";
-  for (int n = 0; n < NumSpec; ++n) {
-    std::cout << group_ind(n + 1) << ", ";
-  }
-  std::cout << std::endl;
-  for (int n = 0; n < NumSpec; ++n) {
+  // std::cout << "final group indices: ";
+  // for (int n = 0; n < NumSpec; ++n) {
+  //   std::cout << group_ind(n + 1) << ", ";
+  // }
+  // std::cout << std::endl;
 
+
+  // Consider NSE when there is a single group with an optional LIG group
+
+  for (int n = 0; n < NumSpec; ++n) {
     if (get_root_index(n, group_ind) == LIG_root_index) {
       continue;
     }
 
-    if (nonLIG_index_1 == -1) {
-      nonLIG_index_1 = get_root_index(n, group_ind);
+    if (nonLIG_index == -1) {
+      nonLIG_index = get_root_index(n, group_ind);
       continue;
     }
 
-    if (get_root_index(n, group_ind) != nonLIG_index_1
-	&& get_root_index(n, group_ind) != nonLIG_index_2) {
-
-      // if there is no neutron in the network allow a second nonLIG network
-
-      if (NSE_INDEX::n_index == -1 && nonLIG_index_2 == -1) {
-	nonLIG_index_2 = get_root_index(n, group_ind);	
-      }
-      
-      else {
-	return false;
-      }
+    if (get_root_index(n, group_ind) != nonLIG_index) {
+      in_single_group = false;
+      break;
     }
-
+    
   }
 
-  return true;
+  // If there no neutrons are in the network and original condition failed
+  // Consider a looser condition: NSE if isotopes heavier than Si28 are grouped together
+  
+  if (NSE_INDEX::n_index == -1 && !in_single_group) {
+
+    in_single_group = true;
+
+    for (int n = 0; n < NumSpec; ++n) {
+
+      if (aion[n] >= 28 && zion[n] >= 14) {
+	if (si28_index == -1) {
+	  si28_index = get_root_index(n, group_ind);
+	  continue;
+	}
+
+	if (si28_index != get_root_index(n, group_ind)) {
+	  in_single_group = false;
+	  break;
+	}
+      }
+
+    }
+  }
+
+  return in_single_group;
+  // for (int n = 0; n < NumSpec; ++n) {
+
+  //   if (get_root_index(n, group_ind) == LIG_root_index) {
+  //     continue;
+  //   }
+
+  //   if (nonLIG_index_1 == -1) {
+  //     nonLIG_index_1 = get_root_index(n, group_ind);
+  //     continue;
+  //   }
+
+  //   if (get_root_index(n, group_ind) != nonLIG_index_1
+  // 	&& get_root_index(n, group_ind) != nonLIG_index_2) {
+
+  //     // if there is no neutron in the network allow a second nonLIG network
+
+  //     if (NSE_INDEX::n_index == -1 && nonLIG_index_2 == -1) {
+  // 	nonLIG_index_2 = get_root_index(n, group_ind);	
+  //     }
+      
+  //     else {
+  // 	return false;
+  //     }
+  //   }
+
+  // }
+
+  // return true;
 }
 
 
@@ -986,11 +1033,11 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     }
   }
 
-  std::cout << "initial group indices: ";
-  for (int n = 0; n < NumSpec; ++n) {
-    std::cout << group_ind(n + 1) << ", ";
-  }
-  std::cout << std::endl;
+  // std::cout << "initial group indices: ";
+  // for (int n = 0; n < NumSpec; ++n) {
+  //   std::cout << group_ind(n + 1) << ", ";
+  // }
+  // std::cout << std::endl;
   
   amrex::Array1D<int, 1, 2> merge_indices;
   amrex::Real fastest_t;
@@ -1010,8 +1057,8 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
       // Check if current rate is the faster rate than previous rate
       
       is_fastest_rate(merge_indices, fastest_t, n, Y, state, screened_rates, group_ind, t_s);
-      std::cout << "current rate is " << n << "with merge indices: " << std::endl;
-      std::cout << merge_indices(1) << " and " << merge_indices(2) << std::endl;
+      // std::cout << "current rate is " << n << "with merge indices: " << std::endl;
+      // std::cout << merge_indices(1) << " and " << merge_indices(2) << std::endl;
     }
 
     // if there are no reaction satisfy conditions, break
@@ -1039,9 +1086,14 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   current_state.nse = false;
 
-  if (current_state.T < 2.0e9_rt) {
+  if (current_state.T < 3.5e9_rt) {
     return current_state.nse;
   }
+
+  // if (current_state.T > 7.0e9_rt) {
+  //   current_state.nse = true;
+  //   return current_state.nse;
+  // }
     
   // Get the nse state which is used to compare nse molar fractions.
 
@@ -1137,21 +1189,18 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // fill in energy generation rate to ydot
 
   ydot(NumSpec + 1) = enuc - sneut;
+  
+  bool found_fast_reaction_cycle = true;
 
-  // If there are neutron, proton, and helium in network then:
+  // Additional constraint if there is neutron in the network:
 
   // Now we look through the network and see if there are fast reaction cycles
   // Need to separate forward and reverse rate and determine each step is fast enough.
-  // use vectors for now
 
-  bool found_fast_reaction_cycle = true;
-
-  if (NSE_INDEX::p_index != -1 && NSE_INDEX::n_index != -1 && NSE_INDEX::he4_index != -1) {
+  if (NSE_INDEX::n_index != -1) {
+    found_fast_reaction_cycle = false;
 
     // Do a reverse for loop to start from heaviest nuclei
-    std::cout << "in second check" << std::endl;
-	
-    found_fast_reaction_cycle = false;
 
     for (int n = NumSpec-1; n >= 0; --n) {
       if (found_fast_reaction_cycle) {
@@ -1178,7 +1227,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   else {
 
     // Do nse grouping if found_fast_reaction_cycle
-    std::cout << "above nse_grouping" << std::endl;
+
     nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
 
     // Check if we result in a single group after grouping
@@ -1186,7 +1235,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     current_state.nse = false;
 
     if (in_single_group(group_ind)) {
-      std::cout << "inside in_single_group" << std::endl;
       current_state.nse = true;
     }
   }
