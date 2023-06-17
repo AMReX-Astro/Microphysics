@@ -7,7 +7,9 @@ ROCK2 was originally described in Abdulle & Medovikov, 2001,
 Numerische Mathematik, 90, 1
 (https://link.springer.com/article/10.1007/s002110100292)
 
-ROCK4 was originally described in
+ROCK4 was originally described in Abdulle, 2002, SIAM Journal
+of Scientific Computing, 23, 6, 2041
+(https://epubs.siam.org/doi/abs/10.1137/S1064827500379549)
 
 
 The original sources for these integrators were provided by the
@@ -29,6 +31,9 @@ changes:
   ```
 
   or `4` for the 4th order version.
+
+* There is a single derived type that works for both integrators.
+  Note that some of the scratch memory is not used for ROCK2.
 
 The Fortran implementations were originally downloaded from:
 http://www.unige.ch/~hairer/software.html

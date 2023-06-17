@@ -22,7 +22,7 @@ The equations we integrate to do a nuclear burn are:
 
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specific
 nuclear energy created through reactions. Also needed are density :math:`\rho`,
-temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the 
+temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
 section, this is implemented in a network-specific manner.
 
@@ -63,14 +63,14 @@ The interfaces to all of the networks and integrators are written in C++.
 
 The main entry point for C++ is ``burner()`` in
 ``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, or ``RKC``).
+routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, ``RKC``, or ``ROCK``).
 
 .. code-block:: c++
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     void burner (burn_t& state, Real dt)
 
-The input is a ``burn_t``.  
+The input is a ``burn_t``.
 
 .. note::
 
@@ -365,6 +365,21 @@ the allowed options are:
   does need to estimate the spectral radius of the system, which is
   done internally.  This works for moderately stiff problems.
 
+* ``ROCK``: a stabilized explicit integrator.  Two variants, a second
+  order method (:cite:`rock2`) and a fourth order method (:cite:`rock4`) are
+  implemented based on the original Fortran source code.  The order
+  is selected via the runtime parameter:
+
+  ::
+
+      integrator.rock_order = 2
+
+  (e.g. for 2nd order).  This does not require a Jacobian, but does
+  need to estimate the spectral radius of the system, which is done
+  internally.  This works for moderately stiff problems.  Our
+  implementation uses the timestep estimator and spectral radius power
+  method from the ``RKC`` integrator.
+
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
@@ -374,7 +389,7 @@ robust.
 .. important::
 
    The integrator will not abort if it encounters trouble.  Instead it will
-   set ``burn_t burn_state.success = false`` on exit.  It is up to the 
+   set ``burn_t burn_state.success = false`` on exit.  It is up to the
    application code to handle the failure.
 
 Tolerances
@@ -436,4 +451,3 @@ encountered by the scripts writing the runtime parameter header files, the value
 of the parameter with the highest priority is used. So picking a large
 integer value for the priority in a network’s ``_parameter`` file will
 ensure that it takes precedence.
-
