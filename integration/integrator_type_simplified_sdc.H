@@ -24,7 +24,7 @@ void update_density_in_time(const Real time, BurnT& state, [[maybe_unused]] cons
 
     // we are always integrating from t = 0, so there is no offset
     // time needed here.  The indexing of ydot_a is based on
-    // the indices in burn_t and is 0-based    
+    // the indices in burn_t and is 0-based
     state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
 
     // for consistency
@@ -111,7 +111,7 @@ void burn_to_int(BurnT& state, T& int_state)
 }
 
 
-template <typename T, typename BurnT>
+template <bool do_copy, typename T, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void int_to_burn(const Real time, const T& int_state, BurnT& state)
 {
@@ -121,9 +121,12 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
 
     state.time = time;
 
-    for (int n = 0; n < SVAR_EVOLVE; n++) {
-        // note int_state uses 1-based indexing
-        state.y[n] = int_state.y(n+1);
+    if constexpr(do_copy) {
+        for (int n = 0; n < SVAR_EVOLVE; n++) {
+            // note int_state uses 1-based indexing
+                state.y[n] = int_state.y(n+1);
+        }
+
     }
 
     // update rho in the burn_t state

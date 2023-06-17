@@ -38,7 +38,8 @@ void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state
 
-    int_to_burn(time, int_state, state);
+    constexpr bool do_copy = false;
+    int_to_burn<do_copy, T>(time, int_state, state);
 
     // make sure that the temperature is valid
 
@@ -101,7 +102,8 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
     // convert to the burn_t -- this does an EOS call to get T
     // and populates the (burn_t) state
 
-    int_to_burn(time, int_state, state);
+    constexpr bool do_copy = false;
+    int_to_burn<do_copy, T>(time, int_state, state);
 
 
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
