@@ -32,7 +32,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Initialize the integration time.
 
     rkc_state.t = 0.0_rt;
-    rkc_state.tend = dt;
+    rkc_state.tout = dt;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.

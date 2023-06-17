@@ -25,7 +25,7 @@ struct rkc_t {
    amrex::Real t;
 
    // The end of the interval of integration.
-   amrex::Real tend;
+   amrex::Real tout;
 
     // Integration array
     RArray1D y;
