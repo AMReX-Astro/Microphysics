@@ -17,6 +17,38 @@
 #include <rkc_util.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void mdegre2(rock_t& rstate)
+{
+
+    // this is the ROCK2 version
+
+    constexpr amrex::Array1D<int, 1, 46> ms = {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        22, 24, 26, 28, 30, 33, 36, 39, 43, 47, 51, 56, 61, 66, 72, 78, 85, 93,
+        102, 112, 123, 135, 148, 163, 180, 198};
+
+    // Find the optimal degree.
+    // MP(1): pointer which select the degree in ms(i)\1,2,..
+    //        such that mdeg<=ms(i).
+    // MP(2): pointer which gives the corresponding position
+    //        of a_1 in the data recf for the selected degree.
+
+    rstate.mp(2) = 1;
+
+    // Find the degree
+
+    for (int i = 1; i <= 46; ++i) {
+        if ((ms(i) / rstate.mdeg) >= 1) {
+            rstate.mdeg = ms(i);
+            rstate.mp(1) = i;
+            return;
+        }
+        rstate.mp(2) += ms(i)*2 - 1;
+    }
+    return;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void mdegre4(rock_t& rstate)
 {
 
@@ -49,6 +81,103 @@ void mdegre4(rock_t& rstate)
     return;
 }
 
+
+template <typename BurnT>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+Real r2step (BurnT& state, rock_t& rstate)
+{
+
+    // Solut. at t+h by an explicit (mdeg+2)-stages formula.
+
+    int mz = rstate.mp(1);
+    int mr = rstate.mp(2);
+
+    // First stage
+
+    Real temp1 = rstate.h * rock2_coeffs::recf(mr);
+    Real ci1 = rstate.t + temp1;
+    Real ci2 = rstate.t + temp1;
+    Real ci3 = rstate.t;
+
+    Real temp2, temp3;
+
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.yjm2(i) = rstate.yn(i);
+        rstate.yjm1(i) = rstate.yn(i) + temp1 * rstate.fn(i);
+        if (rstate.mdeg < 2) {
+            rstate.y(i) = rstate.yjm1(i);
+        }
+    }
+
+    // Stage for j=2..mdeg.
+
+    for (int i = 2; i <= rstate.mdeg; ++i) {
+        temp1 = rstate.h * rock2_coeffs::recf(mr+2*(i-2)+1);
+        temp3 = -rock2_coeffs::recf(mr+2*(i-2)+2);
+        temp2 = 1.0_rt - temp3;
+        // we want to use rstate.yjm1 as input and store ydot in the original y
+        // so we simply need to copy rstate.yjm1 to y here and use y_backup
+        // to store the RHS and then copy it after the call
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            rstate.y(j) = rstate.yjm1(j);
+        }
+        rhs(ci1, state, rstate, rstate.y_backup);
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            rstate.y(j) = rstate.y_backup(j);
+        }
+        ci1 = temp1 + temp2 * ci2 + temp3 * ci3;
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            rstate.y(j) = temp1 * rstate.y(j) + temp2 * rstate.yjm1(j) + temp3 * rstate.yjm2(j);
+
+            // Shift the value "y" for the next stage.
+            if (i < rstate.mdeg) {
+                rstate.yjm2(j) = rstate.yjm1(j);
+                rstate.yjm1(j) = rstate.y(j);
+            }
+        }
+        ci3 = ci2;
+        ci2 = ci1;
+    }
+
+    // The finishing procedure
+
+    temp1 = rstate.h * rock2_coeffs::fp1(mz);
+    temp2 = rstate.h * rock2_coeffs::fp2(mz);
+    rhs(ci1, state, rstate, rstate.yjm2);
+    for (int j = 1; j <= INT_NEQS; ++j) {
+        rstate.yjm1(j) = rstate.y(j) + temp1 * rstate.yjm2(j);
+    }
+
+    ci1 += temp1;
+
+    // call the RHS with yjm1 as the input and store the output in y
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.y(i) = rstate.yjm1(i);
+    }
+    rhs(ci1, state, rstate, rstate.y_backup);
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        rstate.y(i) = rstate.y_backup(i);
+    }
+
+    Real err{};
+
+    for (int j = 1; j <= INT_NEQS; ++j) {
+        temp3 = temp2 * (rstate.y(j) - rstate.yjm2(j));
+        rstate.y(j) = rstate.yjm1(j) + temp1 * rstate.y(j) + temp3;
+        Real wt{};
+        if (j <= NumSpec) {
+            wt = rstate.rtol_spec * std::abs(rstate.y(j)) + rstate.atol_spec;
+        } else {
+            wt = rstate.rtol_enuc * std::abs(rstate.y(j)) + rstate.atol_enuc;
+        }
+
+        err += std::pow(temp3 / wt, 2);
+    }
+
+    err = std::sqrt(err / static_cast<Real>(INT_NEQS));
+
+    return err;
+}
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -212,7 +341,7 @@ Real r4step (BurnT& state, rock_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rockfrho (BurnT& state, rock_t& rstate)
+Real rockrho (BurnT& state, rock_t& rstate)
 {
 
 
@@ -371,7 +500,7 @@ Real rockfrho (BurnT& state, rock_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rock4core (BurnT& state, rock_t& rstate)
+int rockcore (BurnT& state, rock_t& rstate)
 {
 
     // Core integrator for ROCK4.
@@ -434,7 +563,7 @@ int rock4core (BurnT& state, rock_t& rstate)
 
         if (nrho == 0) {
             // Computed internally by rockfrho
-            eigmax = rockfrho(state, rstate);
+            eigmax = rockrho(state, rstate);
             if (rstate.idid == -3) {
                 return rstate.idid;
             }
@@ -538,7 +667,7 @@ int rock4core (BurnT& state, rock_t& rstate)
             hp = rstate.h;
             rstate.h = hnew;
             nrho++;
-            Real rho_cycle = rock_order == 2 ? 25 : 10;
+            int rho_cycle = rock_order == 2 ? 25 : 10;
             nrho = nrho+1 % rho_cycle;
             if (last) {
                 return rstate.idid;
@@ -632,11 +761,7 @@ int rock4 (BurnT& state, rock_t& rstate)
 
     // call the integrator
 
-    if (rock_order == 2) {
-        rock2core(state, rstate);
-    } else {
-        rock4core(state, rstate);
-    }
+    rockcore(state, rstate);
 
     return rstate.idid;
 }

@@ -12,7 +12,7 @@
 #include <eos.H>
 #include <extern_parameters.H>
 #include <rock_type.H>
-#include <rock4.H>
+#include <rock.H>
 
 using namespace integrator_rp;
 

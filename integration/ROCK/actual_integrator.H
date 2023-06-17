@@ -9,7 +9,7 @@
 #include <eos.H>
 #include <extern_parameters.H>
 #include <rock_type.H>
-#include <rock4.H>
+#include <rock.H>
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
