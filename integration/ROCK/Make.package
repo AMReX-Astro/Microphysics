@@ -7,5 +7,6 @@ else
 endif
 
 CEXE_headers += rock_type.H
+CEXE_headers += rock2_coefficients.H
 CEXE_headers += rock4_coefficients.H
 CEXE_headers += rock4.H

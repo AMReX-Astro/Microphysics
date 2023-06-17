@@ -1,5 +1,5 @@
-#ifndef ROCK4_H
-#define ROCK4_H
+#ifndef ROCK_H
+#define ROCK_H
 
 #include <rock_type.H>
 #include <burn_type.H>
@@ -12,12 +12,15 @@
 #include <integrator_rhs_simplified_sdc.H>
 #endif
 #include <initial_timestep.H>
+#include <rock2_coefficients.H>
 #include <rock4_coefficients.H>
 #include <rkc_util.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void mdegre(rock_t& rstate)
+void mdegre4(rock_t& rstate)
 {
+
+    // this is the ROCK4 version
 
     constexpr amrex::Array1D<int, 1, 50> ms = {
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
@@ -49,7 +52,7 @@ void mdegre(rock_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rfstep (BurnT& state, rock_t& rstate)
+Real r4step (BurnT& state, rock_t& rstate)
 {
 
     // Solut. at t+h by an explicit (mdeg+4)-stages formula.
@@ -368,7 +371,7 @@ Real rockfrho (BurnT& state, rock_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rockfcore (BurnT& state, rock_t& rstate)
+int rock4core (BurnT& state, rock_t& rstate)
 {
 
     // Core integrator for ROCK4.
@@ -439,41 +442,77 @@ int rockfcore (BurnT& state, rock_t& rstate)
             rstate.min_rho = std::min(rstate.min_rho, static_cast<int>(std::round(eigmax)));
         }
 
-        // The number of stages.
+        // The number of stages
+        if (rock_order == 2) {
+            rstate.mdeg = static_cast<int>(std::sqrt((1.5_rt + rstate.h * eigmax) / 0.811_rt)) + 1;
 
-        rstate.mdeg = static_cast<int>(std::sqrt((3.0_rt + rstate.h * eigmax) / 0.353_rt)) + 1;
+            if (rstate.mdeg > 200) {
+                rstate.h = 0.8_rt * (std::pow(200.0_rt, 2) * 0.811_rt - 1.5_rt) / eigmax;
+                rstate.mdeg = 200;
+                last = false;
+            }
 
-        if (rstate.mdeg > 152) {
-            rstate.h = 0.8_rt * (std::pow(152.0_rt, 2) * 0.353_rt - 3.0_rt) / eigmax;
-            rstate.mdeg = 152;
-            last = false;
-        }
+            rstate.mdeg = std::max(rstate.mdeg, 3) - 2;
 
-        rstate.mdeg = std::max(rstate.mdeg, 5) - 4;
+            if (rstate.mdeg != mdego) {
+                mdegre2(rstate);
+            }
 
-        if (rstate.mdeg != mdego) {
-            mdegre(rstate);
-        }
+            if (rstate.mdeg + 2 > rstate.max_stages) {
+                rstate.max_stages = rstate.mdeg + 2;
+            }
 
-        if (rstate.mdeg + 4 > rstate.max_stages) {
-            rstate.max_stages = rstate.mdeg + 4;
+        } else {
+            rstate.mdeg = static_cast<int>(std::sqrt((3.0_rt + rstate.h * eigmax) / 0.353_rt)) + 1;
+
+            if (rstate.mdeg > 152) {
+                rstate.h = 0.8_rt * (std::pow(152.0_rt, 2) * 0.353_rt - 3.0_rt) / eigmax;
+                rstate.mdeg = 152;
+                last = false;
+            }
+
+            rstate.mdeg = std::max(rstate.mdeg, 5) - 4;
+
+            if (rstate.mdeg != mdego) {
+                mdegre4(rstate);
+            }
+
+            if (rstate.mdeg + 4 > rstate.max_stages) {
+                rstate.max_stages = rstate.mdeg + 4;
+            }
         }
 
         // Computation of an integration step.
 
-        err = rfstep(state, rstate);
+        if (rock_order == 2) {
+            err = r2step(state, rstate);
+            rstate.nfe += rstate.mdeg + 1;
+        } else {
+            err = r4step(state, rstate);
+            rstate.nfe += rstate.mdeg + 4;
+        }
 
         mdego = rstate.mdeg;
         rstate.nsteps++;
-        rstate.nfe += rstate.mdeg + 4;
 
         // Error control procedure.
 
-        Real fac = std::pow(1.0_rt / err, 0.25_rt);
+        Real fac;
+        if (rock_order == 2) {
+            fac = std::pow(1.0_rt / err, 0.5_rt);
 
-        if (errp != 0.0_rt && ! reject) {
-            Real facp = std::pow(errp, 0.25_rt) * fac * fac * (rstate.h / hp);
-            fac = std::min(fac, facp);
+            if (errp != 0.0_rt && ! reject) {
+                Real facp = std::pow(errp, 0.5_rt) * fac * fac * (rstate.h / hp);
+                fac = std::min(fac, facp);
+            }
+
+        } else {
+            fac = std::pow(1.0_rt / err, 0.25_rt);
+
+            if (errp != 0.0_rt && ! reject) {
+                Real facp = std::pow(errp, 0.25_rt) * fac * fac * (rstate.h / hp);
+                fac = std::min(fac, facp);
+            }
         }
 
         if (reject) {
@@ -499,7 +538,8 @@ int rockfcore (BurnT& state, rock_t& rstate)
             hp = rstate.h;
             rstate.h = hnew;
             nrho++;
-            nrho = nrho+1 % 10;
+            Real rho_cycle = rock_order == 2 ? 25 : 10;
+            nrho = nrho+1 % rho_cycle;
             if (last) {
                 return rstate.idid;
             } else {
@@ -543,6 +583,8 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int rock4 (BurnT& state, rock_t& rstate)
 {
+
+    using namespace integrator_rp;
 
     const Real rmax = 0.1_rt;
     const Real rmin = 10.0_rt * UROUND;
@@ -590,7 +632,11 @@ int rock4 (BurnT& state, rock_t& rstate)
 
     // call the integrator
 
-    rockfcore(state, rstate);
+    if (rock_order == 2) {
+        rock2core(state, rstate);
+    } else {
+        rock4core(state, rstate);
+    }
 
     return rstate.idid;
 }

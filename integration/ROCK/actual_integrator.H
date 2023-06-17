@@ -15,6 +15,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
+
+    using namespace integrator_rp;
+
     rock_t rock_state{};
 
     // Set the tolerances.

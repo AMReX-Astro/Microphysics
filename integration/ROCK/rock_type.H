@@ -61,11 +61,11 @@ struct rock_t {
 
     RArray1D yn;
     RArray1D fn;
-    RArray1D fnt;
     RArray1D yjm1;
     RArray1D yjm2;
 
-    // these 2 arrays are only needed for ROCK4
+    // these 3 arrays are only needed for ROCK4
+    RArray1D fnt;
     RArray1D yjm3;
     RArray1D yjm4;
 
