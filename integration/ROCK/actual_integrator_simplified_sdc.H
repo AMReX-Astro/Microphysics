@@ -11,7 +11,7 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
-#include <rock4_type.H>
+#include <rock_type.H>
 #include <rock4.H>
 
 using namespace integrator_rp;
@@ -129,11 +129,11 @@ void actual_integrator (BurnT& state, Real dt)
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rock_state.y(SFS+n) / state.y[SRHO] < -rock4_failure_tolerance) {
+        if (rock_state.y(SFS+n) / state.y[SRHO] < -rock_failure_tolerance) {
             state.success = false;
         }
 
-        if (rock_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + rock4_failure_tolerance) {
+        if (rock_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + rock_failure_tolerance) {
             state.success = false;
         }
     }

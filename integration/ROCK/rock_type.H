@@ -1,5 +1,5 @@
-#ifndef ROCK4_TYPE_H
-#define ROCK4_TYPE_H
+#ifndef ROCK_TYPE_H
+#define ROCK_TYPE_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
@@ -16,10 +16,10 @@ const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 // We will use this parameter to determine if a given species abundance
 // is unreasonably small or large (each X must satisfy
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
-const Real rock4_failure_tolerance = 1.e-2_rt;
+const Real rock_failure_tolerance = 1.e-2_rt;
 
 
-struct rock4_t {
+struct rock_t {
 
     // The initial point of the integration.
    amrex::Real t;
@@ -64,11 +64,15 @@ struct rock4_t {
     RArray1D fnt;
     RArray1D yjm1;
     RArray1D yjm2;
+
+    // these 2 arrays are only needed for ROCK4
     RArray1D yjm3;
     RArray1D yjm4;
+
+    // this is used by the spectral radius power method
     RArray1D sprad;
 
-    // because our rhs wrapper requires that rock4_t rstate.y() hold the state
+    // because our rhs wrapper requires that rock_t rstate.y() hold the state
     // that is used for evaluating the RHS, we need to create an additional
     // temporary to backup the contents of y
     RArray1D y_backup;

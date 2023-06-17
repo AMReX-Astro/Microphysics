@@ -1,7 +1,7 @@
 #ifndef ROCK4_H
 #define ROCK4_H
 
-#include <rock4_type.H>
+#include <rock_type.H>
 #include <burn_type.H>
 #ifdef STRANG
 #include <integrator_type_strang.H>
@@ -16,7 +16,7 @@
 #include <rkc_util.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void mdegre(rock4_t& rstate)
+void mdegre(rock_t& rstate)
 {
 
     constexpr amrex::Array1D<int, 1, 50> ms = {
@@ -49,7 +49,7 @@ void mdegre(rock4_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rfstep (BurnT& state, rock4_t& rstate)
+Real rfstep (BurnT& state, rock_t& rstate)
 {
 
     // Solut. at t+h by an explicit (mdeg+4)-stages formula.
@@ -59,7 +59,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
 
     // First stage
 
-    Real temp1 = rstate.h * recf(mr);
+    Real temp1 = rstate.h * rock4_coeffs::recf(mr);
     Real ci1 = rstate.t + temp1;
     Real ci2 = rstate.t + temp1;
     Real ci3 = rstate.t;
@@ -77,8 +77,8 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     // Stage for j=2..mdeg.
 
     for (int i = 2; i <= rstate.mdeg; ++i) {
-        temp1 = rstate.h * recf(mr+2*(i-2)+1);
-        temp3 = -recf(mr+2*(i-2)+2);
+        temp1 = rstate.h * rock4_coeffs::recf(mr+2*(i-2)+1);
+        temp3 = -rock4_coeffs::recf(mr+2*(i-2)+2);
         temp2 = 1.0_rt - temp3;
         // we want to use rstate.yjm1 as input and store ydot in the original y
         // so we simply need to copy rstate.yjm1 to y here and use y_backup
@@ -107,7 +107,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     // The finishing procedure (4-stage method)
 
     // stage 1
-    temp1 = rstate.h * fpa(mz, 1);
+    temp1 = rstate.h * rock4_coeffs::fpa(mz, 1);
     rhs(ci1, state, rstate, rstate.yjm1);
     for (int j = 1; j <= INT_NEQS; ++j) {
         rstate.yjm3(j) = rstate.y(j) + temp1 * rstate.yjm1(j);
@@ -115,8 +115,8 @@ Real rfstep (BurnT& state, rock4_t& rstate)
 
     // stage 2
     ci2 = ci1 + temp1;
-    temp1 = rstate.h * fpa(mz,2);
-    temp2 = rstate.h * fpa(mz,3);
+    temp1 = rstate.h * rock4_coeffs::fpa(mz,2);
+    temp2 = rstate.h * rock4_coeffs::fpa(mz,3);
 
     // call the RHS with yjm3 as input and store the output in yjm2
     for (int i = 1; i <= INT_NEQS; ++i) {
@@ -134,9 +134,9 @@ Real rfstep (BurnT& state, rock4_t& rstate)
 
     // stage 3
     ci2 = ci1 + temp1 + temp2;
-    temp1 = rstate.h * fpa(mz,4);
-    temp2 = rstate.h * fpa(mz,5);
-    temp3 = rstate.h * fpa(mz,6);
+    temp1 = rstate.h * rock4_coeffs::fpa(mz,4);
+    temp2 = rstate.h * rock4_coeffs::fpa(mz,5);
+    temp3 = rstate.h * rock4_coeffs::fpa(mz,6);
 
     // call the RHS with yjm4 as input and store the output in yjm3
     for (int i = 1; i <= INT_NEQS; ++i) {
@@ -154,10 +154,10 @@ Real rfstep (BurnT& state, rock4_t& rstate)
 
     // stage 4
     ci2 = ci1 + temp1 + temp2 + temp3;
-    temp1 = rstate.h * fpb(mz,1);
-    temp2 = rstate.h * fpb(mz,2);
-    temp3 = rstate.h * fpb(mz,3);
-    temp4 = rstate.h * fpb(mz,4);
+    temp1 = rstate.h * rock4_coeffs::fpb(mz,1);
+    temp2 = rstate.h * rock4_coeffs::fpb(mz,2);
+    temp3 = rstate.h * rock4_coeffs::fpb(mz,3);
+    temp4 = rstate.h * rock4_coeffs::fpb(mz,4);
 
     // call the RHS with fnt as the input and store the output in yjm4
     for (int i = 1; i <= INT_NEQS; ++i) {
@@ -175,11 +175,11 @@ Real rfstep (BurnT& state, rock4_t& rstate)
     }
 
     // Error evaluation (embedded method of order 3).
-    temp1 = rstate.h * fpbe(mz,1) - temp1;
-    temp2 = rstate.h * fpbe(mz,2) - temp2;
-    temp3 = rstate.h * fpbe(mz,3) - temp3;
-    temp4 = rstate.h * fpbe(mz,4) - temp4;
-    temp5 = rstate.h * fpbe(mz,5);
+    temp1 = rstate.h * rock4_coeffs::fpbe(mz,1) - temp1;
+    temp2 = rstate.h * rock4_coeffs::fpbe(mz,2) - temp2;
+    temp3 = rstate.h * rock4_coeffs::fpbe(mz,3) - temp3;
+    temp4 = rstate.h * rock4_coeffs::fpbe(mz,4) - temp4;
+    temp5 = rstate.h * rock4_coeffs::fpbe(mz,5);
 
     rhs(rstate.t + rstate.h, state, rstate, rstate.fnt);
 
@@ -209,7 +209,7 @@ Real rfstep (BurnT& state, rock4_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rockfrho (BurnT& state, rock4_t& rstate)
+Real rockfrho (BurnT& state, rock_t& rstate)
 {
 
 
@@ -368,7 +368,7 @@ Real rockfrho (BurnT& state, rock4_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rockfcore (BurnT& state, rock4_t& rstate)
+int rockfcore (BurnT& state, rock_t& rstate)
 {
 
     // Core integrator for ROCK4.
@@ -541,7 +541,7 @@ int rockfcore (BurnT& state, rock4_t& rstate)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rock4 (BurnT& state, rock4_t& rstate)
+int rock4 (BurnT& state, rock_t& rstate)
 {
 
     const Real rmax = 0.1_rt;
@@ -556,10 +556,10 @@ int rock4 (BurnT& state, rock4_t& rstate)
 
     rhs(rstate.t, state, rstate, rstate.fn);
 
-    Real sprad = rkcrho(state, rstate, rstate.tend);
+    Real sprad = rkcrho(state, rstate, rstate.tout);
     
     //rstate.h = initial_dt(state, rstate, rstate.fn);
-    rstate.h = rkc_init_dt(state, rstate, rstate.tend, sprad);
+    rstate.h = rkc_init_dt(state, rstate, rstate.tout, sprad);
 
     std::cout << "initial timestep = " << rstate.h << std::endl;
 

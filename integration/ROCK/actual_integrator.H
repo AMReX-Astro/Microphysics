@@ -8,14 +8,14 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
-#include <rock4_type.H>
+#include <rock_type.H>
 #include <rock4.H>
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
-    rock4_t rock_state{};
+    rock_t rock_state{};
 
     // Set the tolerances.
 
@@ -90,14 +90,14 @@ void actual_integrator (BurnT& state, Real dt)
     // integration was successful.
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rock_state.y(n) < -rock4_failure_tolerance) {
+        if (rock_state.y(n) < -rock_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce the condition below
         // for primordial chem
         if (!use_number_densities) {
-            if (rock_state.y(n) > 1.0_rt + rock4_failure_tolerance) {
+            if (rock_state.y(n) > 1.0_rt + rock_failure_tolerance) {
                 state.success = false;
             }
         }
