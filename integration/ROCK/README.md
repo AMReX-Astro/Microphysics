@@ -259,9 +259,9 @@ c
 
    Embedded method: ge_{s}
 
-   Datas (finish. proced.): fp1(ms) =sigma
-                            fp2(ms) =-sigma(1-(sigma/tau)
-                            ms=1,3,5,..
+   Data (finish. proced.): fp1(ms) =sigma
+                           fp2(ms) =-sigma(1-(sigma/tau)
+                           ms=1,3,5,..
 
    Chosen degrees: s=3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,
    20,21,22,24,26,28,30,32,35,38,41,45,49,53,58,63,68,74,80,87,95,
