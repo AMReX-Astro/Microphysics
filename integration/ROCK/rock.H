@@ -572,8 +572,6 @@ int rock4 (BurnT& state, rock_t& rstate)
     //rstate.h = initial_dt(state, rstate, rstate.fn);
     rstate.h = rkc_init_dt(state, rstate, rstate.tout, sprad);
 
-    std::cout << "initial timestep = " << rstate.h << std::endl;
-
     // Test the initial step size and tolerances.
 
 
