@@ -136,8 +136,8 @@ int rkclow (BurnT& state, rkc_t& rstate)
     rhs(rstate.t, state, rstate, rstate.fn);
 
     rstate.nfe++;
-    Real tdir = std::copysign(1.0_rt, rstate.tend - rstate.t);
-    rstate.hmax = std::abs(rstate.tend - rstate.t);
+    Real tdir = std::copysign(1.0_rt, rstate.tout - rstate.t);
+    rstate.hmax = std::abs(rstate.tout - rstate.t);
 
     Real hmin{};
     Real sprad{};
@@ -172,8 +172,8 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // Adjust the step size and determine the number of stages m.
 
         bool last = false;
-        if (onep1 * absh >=  std::abs(rstate.tend - rstate.t)) {
-            absh = std::abs(rstate.tend - rstate.t);
+        if (onep1 * absh >=  std::abs(rstate.tout - rstate.t)) {
+            absh = std::abs(rstate.tout - rstate.t);
             last = true;
         }
         int m = 1 + static_cast<int>(std::sqrt(1.54_rt * absh * sprad + 1.0_rt));
