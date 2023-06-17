@@ -9,10 +9,6 @@
 
 #include <integrator_data.H>
 
-typedef amrex::Array1D<short, 1, INT_NEQS> IArray1D;
-typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
-
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
 // CCMXJ  = Threshold on DRC for updating the Jacobian
@@ -44,8 +40,12 @@ const int MIN_NSE_BAILOUT_STEPS = 10;
 #endif
 
 // Type dvode_t contains the integration solution and control variables
+template<int neqs>
 struct dvode_t
 {
+    // Number of equations
+    static const int NEQS = neqs;
+
     // CONP   = The saved value of TQ(5)
     amrex::Real CONP;
 
@@ -154,34 +154,34 @@ struct dvode_t
     amrex::Real t, tout;
 
     // Integration array
-    RArray1D y;
+    Array1D<Real, 1, neqs> y;
 
     // Jacobian
-    RArray2D jac;
+    ArrayUtil::MathArray2D<1, neqs, 1, neqs> jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
-    RArray2D jac_save;
+    ArrayUtil::MathArray2D<1, neqs, 1, neqs> jac_save;
 #endif
 
     // the Nordsieck history array
-    amrex::Array2D<Real, 1, INT_NEQS, 1, VODE_LMAX> yh;
+    amrex::Array2D<Real, 1, neqs, 1, VODE_LMAX> yh;
 
-    RArray1D ewt, savf;
+    Array1D<Real, 1, neqs> ewt, savf;
 
     // Array of size NEQ used for the accumulated corrections on each
     // step, scaled in the output to represent the estimated local
     // error in Y on the last step.  This is the vector e in the
     // description of the error control.  It is defined only on a
     // successful return from DVODE.
-    RArray1D acor;
+    Array1D<Real, 1, neqs> acor;
 };
 
 #ifndef AMREX_USE_GPU
+template <int neqs>
 AMREX_FORCE_INLINE
-void print_state(dvode_t& dvode_state)
+void print_state(dvode_t<neqs>& dvode_state)
 {
-
     std::cout << "CONP = " << dvode_state.CONP << std::endl;
     std::cout << "CRATE = " << dvode_state.CRATE << std::endl;
     std::cout << "DRC = " << dvode_state.DRC << std::endl;
@@ -224,28 +224,27 @@ void print_state(dvode_t& dvode_state)
     std::cout << "NSLJ = " << dvode_state.NSLJ << std::endl;
     std::cout << "NSLP = " << dvode_state.NSLP << std::endl;
 
-    for (int i = 1; i <= INT_NEQS; ++i) {
+    for (int i = 1; i <= neqs; ++i) {
         std::cout << "y(" << i << ") = " << dvode_state.y(i) << std::endl;
     }
 
     for (int j = 1; j <= VODE_LMAX; ++j) {
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= neqs; ++i) {
             std::cout << "yh(" << i << "," << j << ") = " << dvode_state.yh(i,j) << std::endl;
         }
     }
 
-    for (int i = 1; i <= INT_NEQS; ++i) {
+    for (int i = 1; i <= neqs; ++i) {
         std::cout << "ewt(" << i << ") = " << dvode_state.ewt(i) << std::endl;
     }
 
-    for (int i = 1; i <= INT_NEQS; ++i) {
+    for (int i = 1; i <= neqs; ++i) {
         std::cout << "savf(" << i << ") = " << dvode_state.savf(i) << std::endl;
     }
 
-    for (int i = 1; i <= INT_NEQS; ++i) {
+    for (int i = 1; i <= neqs; ++i) {
         std::cout << "acor(" << i << ") = " << dvode_state.acor(i) << std::endl;
     }
-
 }
 #endif
 

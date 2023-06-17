@@ -20,8 +20,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
+    constexpr int neqs = integrator_neqs<BurnT>();
 
-    dvode_t vode_state{};
+    dvode_t<neqs> vode_state{};
 
     // set the Jacobian type
     vode_state.jacobian_type = jacobian;
