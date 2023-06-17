@@ -155,6 +155,10 @@ void burn_cell_c()
 
     	burner(burn_state, dt);
 
+        if (! burn_state.success) {
+            amrex::Error("integration failed");
+        }
+
         nstep_int += burn_state.n_step;
 
         // state.e represents the change in energy over the burn (for
