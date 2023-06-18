@@ -12,7 +12,7 @@
 #include <integrator_type_simplified_sdc.H>
 #include <integrator_rhs_simplified_sdc.H>
 #endif
-
+#include <circle_theorem.H>
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
@@ -154,12 +154,14 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // in rkcrho is reported by idid = 6.
 
         if (newspc) {
-            int ierr = rkcrho(state, rstate, rstate.hmax, sprad);
-            if (ierr != 0) {
-                rstate.idid == 6;
-                return rstate.idid;
+            if (integrator_rp::use_circle_theorem) {
+                circle_theorem_sprad(rstate.t, state, rstate, sprad);
+            } else {
+                int ierr = rkcrho(state, rstate, rstate.hmax, sprad);
+                if (ierr !=0) {
+                    return rstate.idid;
+                }
             }
-
             jacatt = true;
         }
 
