@@ -9,8 +9,6 @@
 
 #include <integrator_data.H>
 
-typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
-
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
 // We will use this parameter to determine if a given species abundance
@@ -18,7 +16,7 @@ const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
 const Real rkc_failure_tolerance = 1.e-2_rt;
 
-
+template <int int_neqs>
 struct rkc_t {
 
     // The initial point of the integration.
@@ -28,7 +26,7 @@ struct rkc_t {
    amrex::Real tout;
 
     // Integration array
-    RArray1D y;
+    Array1D<Real, 1, int_neqs> y;
 
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
@@ -52,7 +50,7 @@ struct rkc_t {
     // We have our own tolerances
 
     // work array -- we break the original Fortran work array up into
-    // 5 separate arrays, each of length INT_NEQS.  We don't need the
+    // 5 separate arrays, each of length int_neqs.  We don't need the
     // 8 other pieces of data that were stored in the Fortran version.
     //
     // for reference, the Fortran version was:
@@ -75,11 +73,11 @@ struct rkc_t {
 
     amrex::Real hmax;
 
-    RArray1D yn;
-    RArray1D fn;
-    RArray1D yjm1;    // sometimes called vtemp1 in rkc.f
-    RArray1D yjm2;    // sometimes called vtemp2 in rkc.f
-    RArray1D sprad;
+    Array1D<Real, 1, int_neqs> yn;
+    Array1D<Real, 1, int_neqs> fn;
+    Array1D<Real, 1, int_neqs> yjm1;    // sometimes called vtemp1 in rkc.f
+    Array1D<Real, 1, int_neqs> yjm2;    // sometimes called vtemp2 in rkc.f
+    Array1D<Real, 1, int_neqs> sprad;
 
     // set IDID = 0 for initialization
     short idid;
