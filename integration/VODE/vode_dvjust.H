@@ -7,6 +7,8 @@ template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dvjust (int IORD, BurnT& state, DvodeT& vstate)
 {
+    amrex::ignore_unused(state);
+
     // This subroutine adjusts the YH array on reduction of order,
     // and also when the order is increased.
 

@@ -10,6 +10,8 @@ template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void advance_nordsieck (BurnT& state, DvodeT& vstate)
 {
+    amrex::ignore_unused(state);
+
     // Effectively multiplies the Nordsieck history
     // array by the Pascal triangle matrix.
 
@@ -29,6 +31,8 @@ template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void retract_nordsieck (BurnT& state, DvodeT& vstate)
 {
+    amrex::ignore_unused(state);
+
     // Undoes the Pascal triangle matrix multiplication
     // implemented in subroutine advance_nordsieck.
 
