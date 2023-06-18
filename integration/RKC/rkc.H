@@ -154,8 +154,9 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // in rkcrho is reported by idid = 6.
 
         if (newspc) {
-            sprad = rkcrho(state, rstate, rstate.hmax);
-            if (rstate.idid == 6) {
+            int ierr = rkcrho(state, rstate, rstate.hmax, sprad);
+            if (ierr != 0) {
+                rstate.idid == 6;
                 return rstate.idid;
             }
 

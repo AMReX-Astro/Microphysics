@@ -7,5 +7,4 @@ else
 endif
 
 CEXE_headers += rkc_type.H
-CEXE_headers += rkc_util.H
 CEXE_headers += rkc.H
