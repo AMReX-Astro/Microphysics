@@ -90,7 +90,7 @@ void actual_integrator (BurnT& state, Real dt)
     state.n_jac = 0;
     state.n_step = rkc_state.nsteps;
 
-    if (ierr != 1) {
+    if (ierr != IERR_SUCCESS) {
         state.success = false;
     }
 
