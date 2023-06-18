@@ -379,7 +379,7 @@ robust.
 
 .. note::
 
-   For Strang split integration, the runtime paramter ``integrator.scale_system``
+   For Strang split integration, the runtime parameter ``integrator.scale_system``
    will scale the internal energy that the integrator sees by the initial
    value of :math:`e` to make the system :math:`\mathcal{O}(1)`.  The value
    of ``atol_enuc`` will likewise be scaled.
