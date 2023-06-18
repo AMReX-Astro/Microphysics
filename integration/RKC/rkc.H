@@ -224,7 +224,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
             rstate.nrejct++;
             absh = p8 * absh / std::pow(err, one3rd);
             if (absh < hmin) {
-                return IERR_DT_UNDERFLOW
+                return IERR_DT_UNDERFLOW;
             } else {
                 newspc = ! jacatt;
                 continue;
