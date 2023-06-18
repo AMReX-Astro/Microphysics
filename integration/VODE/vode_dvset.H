@@ -3,10 +3,10 @@
 
 #include <vode_type.H>
 
+template<typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvset (dvode_t& vstate)
+void dvset (DvodeT& vstate)
 {
-
     // dvset is called by dvstep and sets coefficients for use there.
     //
     // For each order NQ, the coefficients in EL are calculated by use of
@@ -81,7 +81,6 @@ void dvset (dvode_t& vstate)
     }
 
     vstate.tq(4) = CORTES * vstate.tq(2);
-
 }
 
 #endif
