@@ -43,9 +43,6 @@ const int MIN_NSE_BAILOUT_STEPS = 10;
 template<int int_neqs>
 struct dvode_t
 {
-    // Number of equations
-    static const int NEQS = int_neqs;
-
     // CONP   = The saved value of TQ(5)
     amrex::Real CONP;
 

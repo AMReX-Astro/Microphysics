@@ -3,9 +3,9 @@
 
 #include <vode_type.H>
 
-template <typename DvodeT>
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjust (int IORD, DvodeT& vstate)
+void dvjust (int IORD, BurnT& state, DvodeT& vstate)
 {
     // This subroutine adjusts the YH array on reduction of order,
     // and also when the order is increased.
@@ -13,7 +13,7 @@ void dvjust (int IORD, DvodeT& vstate)
     //  IORD  = An integer flag used to indicate an order
     //          increase (IORD = +1) or an order decrease (IORD = -1).
 
-    constexpr int int_neqs = vstate.NEQS;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     if ((vstate.NQ == 2) && (IORD != 1)) {
         return;

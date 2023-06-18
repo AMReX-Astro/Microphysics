@@ -6,14 +6,14 @@
 #include <vode_dvjust.H>
 #include <vode_dvnlsd.H>
 
-template<typename DvodeT>
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void advance_nordsieck (DvodeT& vstate)
+void advance_nordsieck (BurnT& state, DvodeT& vstate)
 {
     // Effectively multiplies the Nordsieck history
     // array by the Pascal triangle matrix.
 
-    constexpr int int_neqs = vstate.NEQS;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
@@ -25,14 +25,14 @@ void advance_nordsieck (DvodeT& vstate)
 }
 
 
-template<typename DvodeT>
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void retract_nordsieck (DvodeT& vstate)
+void retract_nordsieck (BurnT& state, DvodeT& vstate)
 {
     // Undoes the Pascal triangle matrix multiplication
     // implemented in subroutine advance_nordsieck.
 
-    constexpr int int_neqs = vstate.NEQS;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     for (int k = vstate.NQ; k >= 1; --k) {
         for (int j = k; j <= vstate.NQ; ++j) {
@@ -99,13 +99,13 @@ int dvstep (BurnT& state, DvodeT& vstate)
     if (vstate.NEWH != 0) {
 
         if (vstate.NEWQ < vstate.NQ) {
-            dvjust(-1, vstate);
+            dvjust(-1, state, vstate);
             vstate.NQ = vstate.NEWQ;
             vstate.L = static_cast<short>(vstate.NQ + 1);
             vstate.NQWAIT = vstate.L;
         }
         else if (vstate.NEWQ > vstate.NQ) {
-            dvjust(1, vstate);
+            dvjust(1, state, vstate);
             vstate.NQ = vstate.NEWQ;
             vstate.L = static_cast<short>(vstate.NQ + 1);
             vstate.NQWAIT = vstate.L;
@@ -159,7 +159,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         vstate.tn += vstate.H;
 
-        advance_nordsieck(vstate);
+        advance_nordsieck(state, vstate);
 
         dvset(vstate);
 
@@ -183,7 +183,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             vstate.ETAMAX = 1.0_rt;
             vstate.tn = TOLD;
 
-            retract_nordsieck(vstate);
+            retract_nordsieck(state, vstate);
 
             if (std::abs(vstate.H) <= HMIN * ONEPSM) {
                 kflag = -2;
@@ -388,7 +388,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         NFLAG = -2;
         vstate.tn = TOLD;
 
-        retract_nordsieck(vstate);
+        retract_nordsieck(state, vstate);
 
         if (std::abs(vstate.H) <= HMIN * ONEPSM) {
             kflag = -1;
@@ -439,7 +439,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         if (vstate.NQ != 1) {
             vstate.ETA = amrex::max(ETAMIN, HMIN / std::abs(vstate.H));
-            dvjust(-1, vstate);
+            dvjust(-1, state, vstate);
             vstate.L = vstate.NQ;
             vstate.NQ -= 1;
             vstate.NQWAIT = vstate.L;
