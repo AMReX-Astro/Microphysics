@@ -7,10 +7,11 @@
 #endif
 #include <vode_dvjac.H>
 
-template <typename BurnT>
+template <typename IArray1D, typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, dvode_t& vstate)
+Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     Real ACNRM = 1.e10_rt;
 
@@ -61,7 +62,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, dvode_t& vstate)
         M = 0;
         Real DELP = 0.0_rt;
 
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             vstate.y(i) = vstate.yh(i,1);
         }
 
@@ -92,7 +93,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, dvode_t& vstate)
 
         }
 
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             vstate.acor(i) = 0.0_rt;
         }
 
@@ -105,7 +106,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, dvode_t& vstate)
             // correction is scaled by the factor 2/(1+RC) to account for
             // changes in h*rl1 since the last dvjac call.
 
-            for (int i = 1; i <= INT_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.y(i) = (vstate.RL1 * vstate.H) * vstate.savf(i) -
                               (vstate.RL1 * vstate.yh(i,2) + vstate.acor(i));
             }
@@ -113,27 +114,27 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, dvode_t& vstate)
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
-            dgesl<INT_NEQS>(vstate.jac, pivot, vstate.y);
+            dgesl<int_neqs>(vstate.jac, pivot, vstate.y);
 #endif
 
             if (vstate.RC != 1.0_rt) {
                 Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
-                for (int i = 1; i <= INT_NEQS; ++i) {
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.y(i) *= CSCALE;
                 }
             }
 
             DEL = 0.0_rt;
-            for (int i = 1; i <= INT_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 DEL += (vstate.y(i) * vstate.ewt(i)) * (vstate.y(i) * vstate.ewt(i));
             }
-            DEL = std::sqrt(DEL / INT_NEQS);
+            DEL = std::sqrt(DEL / int_neqs);
 
-            for (int i = 1; i <= INT_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.acor(i) += vstate.y(i);
             }
 
-            for (int i = 1; i <= INT_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.y(i) = vstate.yh(i,1) + vstate.acor(i);
             }
 
@@ -194,14 +195,13 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, dvode_t& vstate)
 
     if (M > 0) {
         ACNRM = 0.0_rt;
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             ACNRM += (vstate.acor(i) * vstate.ewt(i)) * (vstate.acor(i) * vstate.ewt(i));
         }
-        ACNRM = std::sqrt(ACNRM / INT_NEQS);
+        ACNRM = std::sqrt(ACNRM / int_neqs);
     }
 
     return ACNRM;
-
 }
 
 #endif
