@@ -202,6 +202,13 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
         }
     }
 
+    // scale the energy derivatives
+    if (scale_system) {
+        for (int n = 1; n <= INT_NEQS; ++n) {
+            jac(net_ienuc, n) /= state.e_scale;
+        }
+    }
+
     // apply boosting factor:
 
     if (react_boost > 0.0_rt) {
@@ -215,6 +222,8 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
             jac(net_ienuc, n) = 0.0_rt;
         }
     }
+
+
 
 }
 #endif
