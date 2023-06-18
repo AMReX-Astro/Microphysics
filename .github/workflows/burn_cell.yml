@@ -99,7 +99,7 @@ jobs:
       - name: Run burn_cell (RKC, aprox13)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=2.e9 > test.out
+          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=1.e9 > test.out
 
       - name: Compare to stored output (RKC, aprox13)
         run: |
