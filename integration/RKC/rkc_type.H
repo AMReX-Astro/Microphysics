@@ -18,6 +18,12 @@ const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
 const Real rkc_failure_tolerance = 1.e-2_rt;
 
+enum rkc_errors {
+    IERR_SUCCESS = 1,
+    IERR_BAD_INPUTS = -1,
+    IERR_DT_UNDERFLOW = -2,
+    IERR_SPRAD_CONVERGENCE = -3,
+    IERR_TOO_MANY_STEPS = -4};
 
 struct rkc_t {
 
@@ -80,9 +86,6 @@ struct rkc_t {
     RArray1D yjm1;    // sometimes called vtemp1 in rkc.f
     RArray1D yjm2;    // sometimes called vtemp2 in rkc.f
     RArray1D sprad;
-
-    // set IDID = 0 for initialization
-    short idid;
 
     // the following a variables that were in the RKCDID common
     // block
