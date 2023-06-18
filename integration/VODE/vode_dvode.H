@@ -24,7 +24,7 @@ template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int dvode (BurnT& state, DvodeT& vstate)
 {
-    constexpr int neqs = integrator_neqs<BurnT>();
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // Local variables
     Real H0, S;
@@ -52,11 +52,11 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     // Initial call to the RHS.
 
-    Array1D<Real, 1, neqs> f_init;
+    Array1D<Real, 1, int_neqs> f_init;
 
     rhs(vstate.t, state, vstate, f_init);
 
-    for (int i = 1; i <= neqs; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         vstate.yh(i,2) = f_init(i);
     }
 
@@ -64,7 +64,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     // Load the initial value array in yh.
 
-    for (int i = 1; i <= neqs; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         vstate.yh(i,1) = vstate.y(i);
     }
 
@@ -106,7 +106,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     // Load H with H0 and scale yh(:,2) by H0.
     vstate.H = H0;
-    for (int i = 1; i <= neqs; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         vstate.yh(i,2) *= H0;
     }
 
@@ -147,7 +147,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 #ifndef AMREX_USE_GPU
                std::cout << Font::Bold << FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << ResetDisplay << std::endl;
 #endif
-               for (int i = 1; i <= neqs; ++i) {
+               for (int i = 1; i <= int_neqs; ++i) {
                    vstate.y(i) = vstate.yh(i,1);
                }
 
@@ -183,10 +183,10 @@ int dvode (BurnT& state, DvodeT& vstate)
        }
 
        Real TOLSF = 0.0_rt;
-       for (int i = 1; i <= neqs; ++i) {
+       for (int i = 1; i <= int_neqs; ++i) {
            TOLSF += (vstate.yh(i,1) * vstate.ewt(i)) * (vstate.yh(i,1) * vstate.ewt(i));
        }
-       TOLSF = UROUND * std::sqrt(TOLSF / neqs);
+       TOLSF = UROUND * std::sqrt(TOLSF / int_neqs);
 
        if (TOLSF > 1.0_rt) {
 
@@ -202,7 +202,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 #ifndef AMREX_USE_GPU
            std::cout << "DVODE: too much accuracy requested" << std::endl;
 #endif
-           for (int i = 1; i <= neqs; ++i) {
+           for (int i = 1; i <= int_neqs; ++i) {
                vstate.y(i) = vstate.yh(i,1);
            }
 
@@ -224,7 +224,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            std::cout << Font::Bold << FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
-           for (int i = 1; i <= neqs; ++i) {
+           for (int i = 1; i <= int_neqs; ++i) {
                vstate.y(i) = vstate.yh(i,1);
            }
 
@@ -240,7 +240,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            std::cout << Font::Bold << FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
-           for (int i = 1; i <= neqs; ++i) {
+           for (int i = 1; i <= int_neqs; ++i) {
                vstate.y(i) = vstate.yh(i,1);
            }
 
@@ -287,7 +287,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
        // If TOUT has been reached, interpolate.
 
-       for (int i = 1; i <= neqs; ++i) {
+       for (int i = 1; i <= int_neqs; ++i) {
            vstate.y(i) = vstate.yh(i,vstate.L);
        }
 
@@ -295,7 +295,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
        for (int jb = 1; jb <= vstate.NQ; ++jb) {
            int j = vstate.NQ - jb;
-           for (int i = 1; i <= neqs; ++i) {
+           for (int i = 1; i <= int_neqs; ++i) {
                vstate.y(i) = vstate.yh(i,j+1) + S * vstate.y(i);
            }
        }

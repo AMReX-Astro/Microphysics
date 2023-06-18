@@ -20,27 +20,27 @@ const int INT_NEQS = NumSpec + 2;
 template<typename BurnT>
 constexpr int integrator_neqs ()
 {
-    int neqs = 0;
+    int int_neqs = 0;
 
 #ifdef STRANG
     if constexpr (has_xn<BurnT>::value) {
-        neqs += NumSpec;
+        int_neqs += NumSpec;
     }
 
     if constexpr (has_energy<BurnT>::value) {
-        neqs += 1;
+        int_neqs += 1;
     }
 #endif
 
 #ifdef SIMPLIFIED_SDC
-    neqs = SVAR_EVOLVE;
+    int_neqs = SVAR_EVOLVE;
 #endif
 
 #ifdef TRUE_SDC
-    neqs = NumSpec + 2;
+    int_neqs = NumSpec + 2;
 #endif
 
-    return neqs;
+    return int_neqs;
 }
 
 typedef amrex::Array1D<short, 1, INT_NEQS> IArray1D;

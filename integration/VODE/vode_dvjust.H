@@ -13,7 +13,7 @@ void dvjust (int IORD, DvodeT& vstate)
     //  IORD  = An integer flag used to indicate an order
     //          increase (IORD = +1) or an order decrease (IORD = -1).
 
-    constexpr int neqs = vstate.NEQS;
+    constexpr int int_neqs = vstate.NEQS;
 
     if ((vstate.NQ == 2) && (IORD != 1)) {
         return;
@@ -46,7 +46,7 @@ void dvjust (int IORD, DvodeT& vstate)
 
         // Subtract correction terms from YH array.
         for (int j = 3; j <= vstate.NQ; ++j) {
-            for (int i = 1; i <= neqs; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) -= vstate.yh(i,vstate.L) * vstate.el(j);
             }
         }
@@ -84,13 +84,13 @@ void dvjust (int IORD, DvodeT& vstate)
 
         T1 = (-ALPH0 - ALPH1) / PROD;
         // Load column L + 1 in YH array.
-        for (int i = 1; i <= neqs; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             vstate.yh(i,vstate.L+1) = T1 * vstate.yh(i,VODE_LMAX);
         }
 
         // Add correction terms to YH array.
         for (int j = 3; j <= vstate.NQ + 1; ++j) {
-            for (int i = 1; i <= neqs; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) += vstate.el(j) * vstate.yh(i,vstate.L+1);
             }
         }
