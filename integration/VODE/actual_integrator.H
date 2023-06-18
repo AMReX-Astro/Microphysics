@@ -51,6 +51,9 @@ void actual_integrator (BurnT& state, Real dt)
 
     eos(eos_input_rt, state);
 
+    // set the scaling for energy if we integrate it dimensionlessly
+    state.e_scale = state.e
+
     // Fill in the initial integration state.
 
     burn_to_integrator(state, vode_state);
