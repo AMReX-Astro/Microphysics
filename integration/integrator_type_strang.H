@@ -17,7 +17,7 @@ void integrator_to_burn (const I& int_state, BurnT& state)
 
     state.e = int_state.y(net_ienuc);
 
-    if (scale_energy) {
+    if (scale_system) {
         state.e *= state.e_scale;
     }
 
@@ -37,7 +37,7 @@ void burn_to_integrator (const BurnT& state, I& int_state)
 
     int_state.y(net_ienuc) = state.e;
 
-    if (scale_energy) {
+    if (scale_system) {
         int_state.y(net_ienuc) /= state.e_scale;
     }
 }
@@ -122,7 +122,7 @@ void update_thermodynamics (BurnT& state, const I& int_state)
     }
     state.e = int_state.y(net_ienuc);
 
-    if (scale_energy) {
+    if (scale_system) {
         state.e *= state.e_scale;
     }
 

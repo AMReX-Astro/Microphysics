@@ -73,6 +73,7 @@ subtract_internal_energy   logical       .true.
 # SDC iteration tolerance adjustment factor
 sdc_burn_tol_factor          real         1.d0
 
-# do we scale the energy we integrate by the initial energy?
-scale_energy              integer         0
+# do we scale the ODE system we integrate to make it O(1)?
+# for Strang, this simply means scaling e by the initial energy?
+scale_system              integer         0
 

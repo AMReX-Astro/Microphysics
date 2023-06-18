@@ -54,7 +54,7 @@ void actual_integrator (BurnT& state, Real dt)
     // set the scaling for energy if we integrate it dimensionlessly
     state.e_scale = state.e;
 
-    if (scale_energy) {
+    if (scale_system) {
         // the absolute tol for energy needs to reflect the scaled
         // energy the integrator sees
         vode_state.atol_enuc /= state.e_scale;

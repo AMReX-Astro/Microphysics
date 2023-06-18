@@ -89,7 +89,7 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
     }
 
     // scale the energy
-    if (scale_energy) {
+    if (scale_system) {
         ydot(net_ienuc) /= state.e_scale;
     }
 
@@ -154,7 +154,7 @@ void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixTy
     }
 
     // scale the energy derivatives
-    if (scale_energy) {
+    if (scale_system) {
         for (int j = 1; j <= INT_NEQS; ++j) {
             pd(net_ienuc,j) /= state.e_scale;
         }
