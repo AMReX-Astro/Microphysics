@@ -173,7 +173,7 @@ routine (at the moment this can be <code class="docutils literal notranslate"><s
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For the thermodynamic state, only the density, temperature, and
-mass fractions are used directly&amp;mdash;we compute the internal energy
+mass fractions are used directly–we compute the internal energy
 corresponding to this input state through the equation of state
 before integrating.</p>
 </div>
@@ -418,6 +418,17 @@ robust.</p>
 <p>The integrator will not abort if it encounters trouble.  Instead it will
 set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
 application code to handle the failure.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For Strang split integration, the runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
+will scale the internal energy that the integrator sees by the initial
+value of <span class="math notranslate nohighlight">\(e\)</span> to make the system <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>.  The value
+of <code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code> will likewise be scaled.</p>
+<p>For most integrators this algebraic change should not affect the output
+to more than roundoff, but the option is included to allow for some
+different integration approaches in the future.</p>
+<p>This option currently does not work with the ForwardEuler or QSS integrators.</p>
 </div>
 <section id="tolerances">
 <h3>Tolerances<a class="headerlink" href="#tolerances" title="Permalink to this heading"></a></h3>
