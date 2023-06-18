@@ -149,17 +149,15 @@ int rkclow (BurnT& state, RkcT& rstate)
     Real hold{};
 
     // Start of loop for taking one step.
-    while (true) {
+    while (rstate.nsteps < integrator_rp::ode_max_steps) {
 
         // Estimate the spectral radius of the Jacobian
-        // when newspc = .true..  A convergence failure
-        // in rkcrho is reported by idid = 6.
+        // when newspc = .true..
 
         if (newspc) {
             int ierr = rkcrho(state, rstate, rstate.hmax, sprad);
             if (ierr != 0) {
-                rstate.idid == 6;
-                return rstate.idid;
+                return IERR_SPRAD_CONVERGENCE;
             }
 
             jacatt = true;
@@ -215,10 +213,7 @@ int rkclow (BurnT& state, RkcT& rstate)
                                                  std::abs(rstate.y(i))) +
                     rstate.atol_enuc;
             }
-            if (wt == 0.0_rt) {
-                rstate.idid = 3;
-                return rstate.idid;
-            }
+
             Real est = p8 * (rstate.yn(i) - rstate.y(i)) +
                        p4 * h * (rstate.fn(i) + rstate.yjm1(i));
             err += std::pow(est / wt, 2);
@@ -231,8 +226,7 @@ int rkclow (BurnT& state, RkcT& rstate)
             rstate.nrejct++;
             absh = p8 * absh / std::pow(err, one3rd);
             if (absh < hmin) {
-                rstate.idid = 4;
-                return rstate.idid;
+                return IERR_DT_UNDERFLOW;
             } else {
                 newspc = ! jacatt;
                 continue;
@@ -279,10 +273,11 @@ int rkclow (BurnT& state, RkcT& rstate)
         h = tdir * absh;
 
         if (last) {
-            rstate.idid = 1;
-            return rstate.idid;
+            return IERR_SUCCESS;
         }
     }
+
+    return IERR_TOO_MANY_STEPS;
 }
 
 template <typename BurnT, typename RkcT>
@@ -291,10 +286,6 @@ int rkc (BurnT& state, RkcT& rstate)
 {
     const Real rmax = 0.1_rt;
     const Real rmin = 10.0_rt * UROUND;
-
-    // the original rkc.f checked on the input value of idid, but we
-    // only work for idid = 0, which is a new integration (not a
-    // continuation)
 
     // Test the input data.
     bool valid = true;
@@ -309,8 +300,7 @@ int rkc (BurnT& state, RkcT& rstate)
     }
 
     if (! valid) {
-        rstate.idid = 5;  // TODO: remove idid from rstate
-        return rstate.idid;
+        return IERR_BAD_INPUTS;
     }
 
     // Initialize counters and pointers.
@@ -322,8 +312,8 @@ int rkc (BurnT& state, RkcT& rstate)
     rstate.nfesig = 0;
     rstate.maxm = 0;
 
-    rkclow(state, rstate);
-    return rstate.idid;
+    int ierr = rkclow(state, rstate);
+    return ierr;
 }
 
 #endif

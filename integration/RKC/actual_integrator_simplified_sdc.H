@@ -117,7 +117,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Add some checks that indicate a burn fail even if RKC thinks the
     // integration was successful.
 
-    if (ierr > 2) {
+    if (ierr != IERR_SUCCESS) {
         state.success = false;
     }
 

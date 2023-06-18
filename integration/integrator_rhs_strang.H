@@ -88,6 +88,11 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
         }
     }
 
+    // scale the energy
+    if (scale_system) {
+        ydot(net_ienuc) /= state.e_scale;
+    }
+
     // Allow energy integration to be disabled.
 
     if (!integrate_energy) {
@@ -145,6 +150,13 @@ void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixTy
                 pd.mul(j, i, aion[j-1]);
                 pd.mul(i, j, aion_inv[j-1]);
             }
+        }
+    }
+
+    // scale the energy derivatives
+    if (scale_system) {
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            pd(net_ienuc,j) /= state.e_scale;
         }
     }
 
