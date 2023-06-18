@@ -39,6 +39,7 @@ void burn_to_integrator (const BurnT& state, I& int_state)
 
     if (scale_energy) {
         int_state.y(net_ienuc) /= state.e_scale;
+    }
 }
 
 
