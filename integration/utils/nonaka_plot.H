@@ -108,7 +108,8 @@ void nonaka_rhs(const Real time, const BurnT& state, const YdotNetArray1D& ydot_
 
         // energy
 
-        nf << std::setw(FIELD_WIDTH) << ydot_react(net_ienuc) << std::endl;
+        auto e_out = scale_system ? ydot_react(net_ienuc) * state.e_scale : ydot_react(net_ienuc);
+        nf << std::setw(FIELD_WIDTH) << e_out << std::endl;
 
         nf.close();
     }

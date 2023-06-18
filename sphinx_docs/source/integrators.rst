@@ -75,7 +75,7 @@ The input is a ``burn_t``.
 .. note::
 
    For the thermodynamic state, only the density, temperature, and
-   mass fractions are used directly&mdash;we compute the internal energy
+   mass fractions are used directly--we compute the internal energy
    corresponding to this input state through the equation of state
    before integrating.
 
@@ -391,6 +391,19 @@ robust.
    The integrator will not abort if it encounters trouble.  Instead it will
    set ``burn_t burn_state.success = false`` on exit.  It is up to the
    application code to handle the failure.
+
+.. note::
+
+   For Strang split integration, the runtime parameter ``integrator.scale_system``
+   will scale the internal energy that the integrator sees by the initial
+   value of :math:`e` to make the system :math:`\mathcal{O}(1)`.  The value
+   of ``atol_enuc`` will likewise be scaled.
+
+   For most integrators this algebraic change should not affect the output
+   to more than roundoff, but the option is included to allow for some
+   different integration approaches in the future.
+
+   This option currently does not work with the ForwardEuler or QSS integrators.
 
 Tolerances
 ----------
