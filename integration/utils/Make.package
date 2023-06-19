@@ -4,4 +4,5 @@ endif
 CEXE_headers += jacobian_utilities.H
 CEXE_headers += numerical_jacobian.H
 CEXE_headers += initial_timestep.H
+CEXE_headers += circle_theorem.H
 CEXE_headers += rkc_util.H
