@@ -126,14 +126,14 @@ void actual_integrator (BurnT& state, Real dt)
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(n) < -vode_failure_tolerance) {
+        if (vode_state.y(n) < -species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce the condition below
         // for primordial chem
         if (!use_number_densities) {
-            if (vode_state.y(n) > 1.0_rt + vode_failure_tolerance) {
+            if (vode_state.y(n) > 1.0_rt + species_failure_tolerance) {
                 state.success = false;
             }
         }

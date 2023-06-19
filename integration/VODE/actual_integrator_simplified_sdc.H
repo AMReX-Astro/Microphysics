@@ -132,11 +132,11 @@ void actual_integrator (BurnT& state, Real dt)
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(SFS+n) / state.y[SRHO] < -vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.y[SRHO] < -species_failure_tolerance) {
             state.success = false;
         }
 
-        if (vode_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + species_failure_tolerance) {
             state.success = false;
         }
     }
