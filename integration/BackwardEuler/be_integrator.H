@@ -1,4 +1,4 @@
-#ifndef BE_INTEGRATOR_H
+ifndef BE_INTEGRATOR_H
 #define BE_INTEGRATOR_H
 
 #include <be_type.H>
@@ -28,7 +28,7 @@ int single_step (BurnT& state, BeT& be, const Real dt)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    int ierr = BE_SUCCESS;
+    int ierr = IERR_SUCCESS;
     bool converged = false;
 
     // create our current guess for the solution -- just as a first
@@ -97,7 +97,7 @@ int single_step (BurnT& state, BeT& be, const Real dt)
         dgefa<int_neqs>(be.jac, pivot, ierr_linpack);
 
         if (ierr_linpack != 0) {
-            ierr = BE_LU_DECOMPOSITION_ERROR;
+            ierr = IERR_LU_DECOMPOSITION_ERROR;
             break;
         }
 
@@ -132,12 +132,12 @@ int single_step (BurnT& state, BeT& be, const Real dt)
 
     if (! converged) {
 
-        if (ierr == BE_SUCCESS) {
+        if (ierr == IERR_SUCCESS) {
 
             // if we didn't set another error, then we probably ran
             // out of iterations, so set nonconvergence
 
-            ierr = BE_NONCONVERGENCE;
+            ierr = IERR_CORRECTOR_CONVERGENCE;
 
             // reset the solution to the original
             for (int n = 1; n <= int_neqs; n++) {
@@ -201,7 +201,7 @@ int be_integrator (BurnT& state, BeT& be)
         Array1D<Real, 1, int_neqs> y_fine;
 
         ierr = single_step(state, be, dt_sub/2);
-        if (ierr == BE_SUCCESS) {
+        if (ierr == IERR_SUCCESS) {
             ierr = single_step(state, be, dt_sub/2);
 
             // store the fine dt solution
@@ -239,7 +239,7 @@ int be_integrator (BurnT& state, BeT& be)
             step_success = true;
         }
 
-        if (ierr == BE_SUCCESS && step_success) {
+        if (ierr == IERR_SUCCESS && step_success) {
 
             // there were no problems with the mechanics of the step
             // (linear algebra, etc.) and we met our error
@@ -277,7 +277,7 @@ int be_integrator (BurnT& state, BeT& be)
     }
 
     if (be.n_step >= ode_max_steps) {
-        ierr = BE_TOO_MANY_STEPS;
+        ierr = IERR_TOO_MANY_STEPS;
     }
 
     return ierr;
