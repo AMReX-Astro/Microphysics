@@ -50,7 +50,7 @@ jobs:
         ccache -z
 
         export AMREX_HOME=${PWD}/amrex
-        export MICROPHYSICS_HOME=${PWD}/Microphysics
+        export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/flame_wave/
         make -j2 CCACHE=ccache USE_MPI=FALSE
