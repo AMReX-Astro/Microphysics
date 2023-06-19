@@ -12,6 +12,7 @@
 #include <integrator_type_simplified_sdc.H>
 #include <integrator_rhs_simplified_sdc.H>
 #endif
+#include <circle_theorem.H>
 #include <integrator_data.H>
 
 template <typename BurnT, typename RkcT>
@@ -155,11 +156,14 @@ int rkclow (BurnT& state, RkcT& rstate)
         // when newspc = .true..
 
         if (newspc) {
-            int ierr = rkcrho(state, rstate, rstate.hmax, sprad);
-            if (ierr != 0) {
-                return IERR_SPRAD_CONVERGENCE;
+            if (integrator_rp::use_circle_theorem) {
+                circle_theorem_sprad(rstate.t, state, rstate, sprad);
+            } else {
+                int ierr = rkcrho(state, rstate, rstate.hmax, sprad);
+                if (ierr !=0) {
+                    return IERR_SPRAD_CONVERGENCE;
+                }
             }
-
             jacatt = true;
         }
 
