@@ -15,8 +15,6 @@ USE_CONDUCTIVITY = TRUE
 
 EBASE = main
 
-USE_EXTRA_THERMO = TRUE
-
 # define the location of the Microphysics top directory
 MICROPHYSICS_HOME  := ../..
 

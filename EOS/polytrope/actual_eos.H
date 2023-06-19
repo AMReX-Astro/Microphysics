@@ -312,19 +312,21 @@ void actual_eos (I input, T& state)
         state.gam1 = gamma_const;
     }
 
-#ifdef EXTRA_THERMO
     // Compute dpdX, dedX, dhdX.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_dpdA<T>::value) {
         state.dpdA = - state.p / state.abar;
+    }
+    if constexpr (has_dpdZ<T>::value) {
         state.dpdZ =   state.p / (1.0_rt + state.zbar);
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_dedA<T>::value) {
         state.dedA = - state.e / state.abar;
+    }
+    if constexpr (has_dedZ<T>::value) {
         state.dedZ =   state.e / (1.0_rt + state.zbar);
     }
-#endif
 
     // sound speed
     if constexpr (has_pressure<T>::value && has_energy<T>::value) {

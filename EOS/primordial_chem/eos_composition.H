@@ -44,7 +44,6 @@ void subroutine (T& state)
 
 // Compute thermodynamic derivatives with respect to xn(:)
 
-#ifdef EXTRA_THERMO
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 eos_x_derivs_t composition_derivatives (const T& state)
@@ -65,6 +64,5 @@ eos_x_derivs_t composition_derivatives (const T& state)
 
     return state_xderivs;
 }
-#endif
 
 #endif

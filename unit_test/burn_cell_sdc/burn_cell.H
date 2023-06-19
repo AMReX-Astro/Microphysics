@@ -208,7 +208,7 @@ void burn_cell_c()
 
     burn_t burn_state;
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
     eos_state.rho = density;
     eos_state.T = temperature;
 
