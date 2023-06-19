@@ -13,10 +13,13 @@
 #include <integrator_rhs_simplified_sdc.H>
 #endif
 #include <circle_theorem.H>
-template <typename BurnT>
+#include <integrator_data.H>
+
+template <typename BurnT, typename RkcT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
+void step (BurnT& state, RkcT& rstate, const Real h, const int m)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // Take a step of size H from T to T+H to get Y(*).
 
@@ -32,11 +35,11 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
 
     // Evaluate the first stage.
 
-    for (int i = 1; i <= INT_NEQS; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         rstate.yjm2(i) = rstate.yn(i);
     }
     Real mus = w1 * bjm1;
-    for (int i = 1; i <= INT_NEQS; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         rstate.yjm1(i) = rstate.yn(i) + h * mus * rstate.fn(i);
     }
 
@@ -68,13 +71,13 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
         // the original Fortran code stored the output temporarily
         // in rstate.y(), but we need that for input
 
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             rstate.y(i) = rstate.yjm1(i);
         }
         RArray1D ydot;
         rhs(rstate.t + h*thjm1, state, rstate, ydot);
 
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             rstate.y(i) = mu * rstate.yjm1(i) +
                           nu * rstate.yjm2(i) +
                           (1.0_rt - mu - nu) * rstate.yn(i) +
@@ -85,7 +88,7 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
         // Shift the data for the next stage.
 
         if (j < m) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 rstate.yjm2(i) = rstate.yjm1(i);
                 rstate.yjm1(i) = rstate.y(i);
             }
@@ -104,11 +107,11 @@ void step (BurnT& state, rkc_t& rstate, const Real h, const int m)
 }
 
 
-template <typename BurnT>
+template <typename BurnT, typename RkcT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkclow (BurnT& state, rkc_t& rstate)
+int rkclow (BurnT& state, RkcT& rstate)
 {
-
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // RKC is an interface to RKCLOW where the actual solution takes place.
 
@@ -128,7 +131,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
     bool newspc = true;
     bool jacatt = false;
     int nstsig = 0;
-    for (int i = 1; i <= INT_NEQS; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         rstate.yn(i) = rstate.y(i);
     }
 
@@ -203,7 +206,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         // Estimate the local error and compute its weighted RMS norm.
 
         Real err{};
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             Real wt{};
             if (i <= NumSpec) {
                 wt = rstate.rtol_spec * std::max(std::abs(rstate.yn(i)),
@@ -220,7 +223,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
             err += std::pow(est / wt, 2);
         }
 
-        err = std::sqrt(err / INT_NEQS);
+        err = std::sqrt(err / int_neqs);
 
         if (err > 1.0_rt) {
             // Step is rejected.
@@ -246,7 +249,7 @@ int rkclow (BurnT& state, rkc_t& rstate)
         }
 
         // Update the data for interpolation stored in work(*).
-        for (int i = 1; i <= INT_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             Real ylast = rstate.yn(i);
             Real yplast = rstate.fn(i);
             rstate.yn(i) = rstate.y(i);
@@ -281,11 +284,10 @@ int rkclow (BurnT& state, rkc_t& rstate)
     return IERR_TOO_MANY_STEPS;
 }
 
-template <typename BurnT>
+template <typename BurnT, typename RkcT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkc (BurnT& state, rkc_t& rstate)
+int rkc (BurnT& state, RkcT& rstate)
 {
-
     const Real rmax = 0.1_rt;
     const Real rmin = 10.0_rt * UROUND;
 

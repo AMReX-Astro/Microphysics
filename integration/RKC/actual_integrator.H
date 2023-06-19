@@ -15,7 +15,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
-    rkc_t rkc_state{};
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    rkc_t<int_neqs> rkc_state{};
 
     // Set the tolerances.
 

@@ -56,7 +56,9 @@ void evaluate_rhs (BurnT& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Rea
     // Call the RHS with a special array that will record both the positive and negative
     // contributions to each integration quantity.
 
-    Array1D<Real, 1, 2 * neqs> ydot;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    Array1D<Real, 1, 2 * int_neqs> ydot;
     RHS::rhs(state, ydot);
 
     // Now unpack the positive and negative contributions.
