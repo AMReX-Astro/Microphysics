@@ -217,9 +217,9 @@ void init_nse_net() {
 
   // make sure nse_molar_independent is used if nse_skip_molar is enabled
 
-  if (nse_skip_molar) {
-    nse_molar_independent = true;
-  }
+  // if (nse_skip_molar) {
+  //   nse_molar_independent = true;
+  // }
   
   NSE_INDEX::initialized = true;
 }
@@ -493,6 +493,13 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
     // if (hj.info != 1) {
     //     amrex::Error("failed to solve");
     // }
+#ifndef AMREX_USE_GPU
+    std::cout << "NSE solver failed with these conditions: " << std::endl;
+    std::cout << "Temperature: " << state.T << std::endl;
+    std::cout << "Density: " << state.rho << std::endl;
+    std::cout << "Ye: " << state.y_e << std::endl;
+    std::cout << "Initial mu_p and mu_n: " << state.mu_p << ", " << state.mu_n << std::endl;
+#endif
 
     amrex::Error("failed to solve");
 }
@@ -515,7 +522,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
   x(2) = state.mu_n;
 
   jcn(x, jac, state, flag);
-  fcn(x, f, state,flag);
+  fcn(x, f, state, flag);
 
   amrex::Real det;                                            // store determinant for finding inverse jac
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;        // store inverse jacobian
@@ -628,6 +635,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     for (int n = 0; n < NumSpec; ++n) {
       state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n] / state.rho;
     }
+
 #endif
   }
 
