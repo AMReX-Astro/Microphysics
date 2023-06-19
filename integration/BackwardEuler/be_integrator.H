@@ -1,4 +1,4 @@
-ifndef BE_INTEGRATOR_H
+#ifndef BE_INTEGRATOR_H
 #define BE_INTEGRATOR_H
 
 #include <be_type.H>
