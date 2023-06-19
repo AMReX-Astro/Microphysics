@@ -58,6 +58,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">BackwardEuler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#forwardeuler">ForwardEuler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#qss">QSS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rkc">RKC</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vode">VODE</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#aprox19">aprox19</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ase">ase</a></li>
@@ -227,6 +228,25 @@ reject it</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dt_init_fraction</span></code></p></td>
 <td><p>Scale factor for initial timestep</p></td>
 <td><p>0.01</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rkc">
+<h1>RKC<a class="headerlink" href="#rkc" title="Permalink to this heading"></a></h1>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_circle_theorem</span></code></p></td>
+<td><p>use the Gershgorin circle theorem to estimate the
+spectral radius? note: requires integrator.scale_system
+= 1</p></td>
+<td><p>0</p></td>
 </tr>
 </tbody>
 </table>
