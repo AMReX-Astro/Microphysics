@@ -26,7 +26,7 @@ void aprox_rates_test(const Box& bx,
   AMREX_PARALLEL_FOR_3D(bx, i, j, k,
   {
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
 
     Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
     eos_state.T = temp_zone;
@@ -446,7 +446,7 @@ void aprox_rates_extra_c12ag(const Box& bx,
     AMREX_PARALLEL_FOR_3D(bx, i, j, k,
     {
 
-        eos_t eos_state;
+        eos_extra_t eos_state;
 
         Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
         eos_state.T = temp_zone;

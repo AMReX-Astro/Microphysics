@@ -269,18 +269,20 @@ void actual_eos (I input, T& state)
         state.dpde   = state.dpdT / state.dedT;
     }
 
-#ifdef EXTRA_THERMO
     // These need to be worked out.
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_dpdA<T>::value) {
         state.dpdA = 0.0_rt;
+    }
+    if constexpr (has_dpdZ<T>::value) {
         state.dpdZ = 0.0_rt;
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_dedA<T>::value) {
         state.dedA = 0.0_rt;
+    }
+    if constexpr (has_dedZ<T>::value) {
         state.dedZ = 0.0_rt;
     }
-#endif
 
     // Sound speed
     if constexpr (has_pressure<T>::value && has_energy<T>::value) {
