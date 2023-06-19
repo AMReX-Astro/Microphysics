@@ -15,8 +15,6 @@ USE_SIMPLIFIED_SDC = TRUE
 
 EBASE = main
 
-USE_EXTRA_THERMO = TRUE
-
 BL_NO_FORT = TRUE
 
 # define the location of the Microphysics top directory

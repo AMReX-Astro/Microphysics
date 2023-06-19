@@ -1,3 +1,10 @@
+# 23.07
+
+  * The preprocessor variable EXTRA_THERMO has been removed.
+    Use cases that depend on dpdA/dpdZ or dedA/dedZ should use
+    eos_extra_t, which is a container that holds all of the
+    entities in eos_t as well as these derivatives wrt A and Z. (#1229)
+
 # 23.06
 
   * Added a new Runge-Kutta-Chebyshev integrator (#1191)
