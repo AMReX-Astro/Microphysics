@@ -125,8 +125,8 @@ int rkclow (BurnT& state, RkcT& rstate)
 
     // note: the original Fortran code only had a single rtol, so
     // I needed to generalize this
-    int mmax = std::round(std::sqrt(std::max(rstate.rtol_spec, rstate.rtol_enuc) /
-                                    (10.0_rt * UROUND)));
+    int mmax = static_cast<int>(std::round(std::sqrt(std::max(rstate.rtol_spec, rstate.rtol_enuc) /
+                                                     (10.0_rt * UROUND))));
     mmax = std::max(mmax, 2);
     bool newspc = true;
     bool jacatt = false;
