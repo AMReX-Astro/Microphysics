@@ -268,30 +268,28 @@ void actual_eos (I input, T& state)
         }
     }
 
-#ifdef EXTRA_THERMO
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_dpdA<T>::value) {
         state.dpdA = - state.p * (1.0 / state.abar);
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_dedA<T>::value) {
         state.dedA = - state.e * (1.0 / state.abar);
     }
 
     if (eos_assume_neutral) {
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_dpdZ<T>::value) {
             state.dpdZ = 0.0;
         }
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_dedZ<T>::value) {
             state.dedZ = 0.0;
         }
     } else {
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_dpdZ<T>::value) {
             state.dpdZ = state.p * (1.0 / (1.0 + state.zbar));
         }
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_dedZ<T>::value) {
             state.dedZ = state.e * (1.0/(1.0 + state.zbar));
         }
     }
-#endif
 }
 
 inline

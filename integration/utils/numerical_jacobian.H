@@ -170,7 +170,7 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // back to the original state, get the thermodynamics -- in particular, we need c_v and e_X
 
-    eos_re_t eos_state;
+    eos_re_extra_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = state.T;
     eos_state.e = state.e;

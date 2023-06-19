@@ -154,7 +154,7 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    eos_re_t eos_state;
+    eos_re_extra_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = state.T;
     eos_state.e = state.e;
