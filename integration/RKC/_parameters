@@ -1,1 +1,5 @@
 @namespace: integrator
+
+# use the Gershgorin circle theorem to estimate the spectral radius?
+# note: requires integrator.scale_system = 1
+use_circle_theorem       integer    0
