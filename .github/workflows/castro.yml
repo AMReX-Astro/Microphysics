@@ -41,7 +41,7 @@ jobs:
         key: ccache-${{ github.workflow }}-${{ github.job }}-git-${{ github.sha }}
         restore-keys: |
              ccache-${{ github.workflow }}-${{ github.job }}-git-
-    - name: Build
+    - name: Build flame_wave
       run: |
         export CCACHE_COMPRESS=1
         export CCACHE_COMPRESSLEVEL=10
@@ -54,6 +54,20 @@ jobs:
 
         cd Castro/Exec/science/flame_wave/
         make -j2 CCACHE=ccache USE_MPI=FALSE
+
+        ccache -s
+        du -hs ~/.cache/ccache
+
+    - name: Build subchandra
+      run: |
+        export CCACHE_COMPRESS=1
+        export CCACHE_COMPRESSLEVEL=10
+        export CCACHE_MAXSIZE=75M
+        export CCACHE_LOGFILE=${{ github.workspace }}/ccache.log.txt
+        ccache -z
+
+        export AMREX_HOME=${PWD}/amrex
+        export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/subchandra/
         make -j2 CCACHE=ccache USE_MPI=FALSE
