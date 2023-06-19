@@ -1,5 +1,5 @@
-#ifndef actual_integrator_H
-#define actual_integrator_H
+#ifndef core_integrator_H
+#define core_integrator_H
 
 // Common variables and routines for burners
 // that use VODE for their integration.
@@ -11,43 +11,76 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
-#include <vode_type.H>
-#include <vode_dvode.H>
 
 using namespace integrator_rp;
 
+template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void setup_integrator_type (dvode_T& vode_state) {
-
-    // set the Jacobian type
-
-    vode_state.jacobian_type = jacobian;
-
-    // Set the (inverse of the) timestep limiter.
-
-    vode_state.HMXI = 1.0_rt / ode_max_dt;
-
-}
-
-template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int do_integration (BurnT& state, dvode_t& vode_state) {
-
-    return dvode(state, vode_state);
-}
-
-template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt)
+void core_integrator (BurnT& state, Real dt)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    core_integrator<dvode_t>(state, dt);
+    IntT<int_neqs> int_state{};
 
-    int istate = 
+    // Set the tolerances.
+
+    int_state.atol_spec = atol_spec; // mass fractions
+    int_state.atol_enuc = atol_enuc; // energy generated
+
+    int_state.rtol_spec = rtol_spec; // mass fractions
+    int_state.rtol_enuc = rtol_enuc; // energy generated
+
+    // do integrator-specific setup
+
+    setup_integrator_type(int_state);
+
+    // Start off by assuming a successful burn.
+
+    state.success = true;
+
+    // Initialize the integration time.
+
+    int_state.t = 0.0_rt;
+    int_state.tout = dt;
+
+    // We assume that (rho, T) coming in are valid, do an EOS call
+    // to fill the rest of the thermodynamic variables.
+
+    eos(eos_input_rt, state);
+
+    // set the scaling for energy if we integrate it dimensionlessly
+
+    state.e_scale = state.e;
+
+    if (scale_system) {
+        // the absolute tol for energy needs to reflect the scaled
+        // energy the integrator sees
+
+        int_state.atol_enuc /= state.e_scale;
+    }
+
+    // Fill in the initial integration state.
+
+    burn_to_integrator(state, int_state);
+
+    // Save the initial composition, temperature, and energy for our later diagnostics.
+
+#ifndef AMREX_USE_GPU
+    Real xn_in[NumSpec];
+    for (int n = 0; n < NumSpec; ++n) {
+        xn_in[n] = state.xn[n];
+    }
+    Real T_in = state.T;
+#endif
+    Real e_in = state.e;
+
+    // Call the integration routine.
+
+    int istate = do_integration(state, int_state);
 
     // Copy the integration data back to the burn state.
 
-    integrator_to_burn(vode_state, state);
+    integrator_to_burn(int_state, state);
 
 #ifdef NSE
     // compute the temperature based on the energy release -- we need 
