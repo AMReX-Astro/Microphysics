@@ -1,9 +1,6 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
-// Common variables and routines for burners
-// that use VODE for their integration.
-
 #include <iomanip>
 
 #include <network.H>
@@ -11,6 +8,7 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 #include <rkc_type.H>
 #include <rkc.H>
 
@@ -20,8 +18,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    rkc_t rkc_state{};
+    rkc_t<int_neqs> rkc_state{};
 
     // Start off by assuming a successful burn.
 
@@ -30,7 +29,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Initialize the integration time.
 
     rkc_state.t = 0.0_rt;
-    rkc_state.tend = dt;
+    rkc_state.tout = dt;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -120,7 +119,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Add some checks that indicate a burn fail even if RKC thinks the
     // integration was successful.
 
-    if (ierr > 2) {
+    if (ierr != IERR_SUCCESS) {
         state.success = false;
     }
 

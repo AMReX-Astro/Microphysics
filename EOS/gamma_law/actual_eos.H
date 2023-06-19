@@ -54,17 +54,17 @@ void actual_eos (I input, T& state)
 
     // Get the mass of a nucleon from Avogadro's number.
     const Real m_nucleon = 1.0 / C::n_A;
-    const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
-    if (eos_assume_neutral) {
-        state.mu = state.abar;
-
-    } else {
-        Real sum = 0.0;
-        for (int n = 0; n < NumSpec; n++) {
-            sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+    if constexpr (has_xn<T>::value) {
+        if (eos_assume_neutral) {
+            state.mu = state.abar;
+        } else {
+            Real sum = 0.0;
+            for (int n = 0; n < NumSpec; n++) {
+                sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
+            }
+            state.mu = 1.0 / sum;
         }
-        state.mu = 1.0 / sum;
     }
 
     // For all EOS input modes EXCEPT eos_input_rt, first compute dens
@@ -215,6 +215,8 @@ void actual_eos (I input, T& state)
     // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
     // NOTE: this expression is only valid for gamma = 5/3.
     if constexpr (has_entropy<T>::value) {
+        const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
+
         state.s = (C::k_B / (state.mu * m_nucleon)) *
                   (2.5 + std::log((std::pow(state.mu * m_nucleon, 2.5) * rhoinv) *
                                   std::pow(C::k_B * state.T, 1.5) * fac));
@@ -266,30 +268,28 @@ void actual_eos (I input, T& state)
         }
     }
 
-#ifdef EXTRA_THERMO
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_dpdA<T>::value) {
         state.dpdA = - state.p * (1.0 / state.abar);
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_dedA<T>::value) {
         state.dedA = - state.e * (1.0 / state.abar);
     }
 
     if (eos_assume_neutral) {
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_dpdZ<T>::value) {
             state.dpdZ = 0.0;
         }
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_dedZ<T>::value) {
             state.dedZ = 0.0;
         }
     } else {
-        if constexpr (has_pressure<T>::value) {
+        if constexpr (has_dpdZ<T>::value) {
             state.dpdZ = state.p * (1.0 / (1.0 + state.zbar));
         }
-        if constexpr (has_energy<T>::value) {
+        if constexpr (has_dedZ<T>::value) {
             state.dedZ = state.e * (1.0/(1.0 + state.zbar));
         }
     }
-#endif
 }
 
 inline

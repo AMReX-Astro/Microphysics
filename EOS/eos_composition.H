@@ -84,7 +84,6 @@ void composition (T& state)
 #endif
 }
 
-#ifdef EXTRA_THERMO
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 eos_xderivs_t composition_derivatives (const T& state)
@@ -92,16 +91,22 @@ eos_xderivs_t composition_derivatives (const T& state)
   eos_xderivs_t state_xderivs;
 
   for (int n = 0; n < NumSpec; n++) {
-      if constexpr (has_pressure<T>::value) {
+      if constexpr (has_dpdA<T>::value && has_dpdZ<T>::value) {
           state_xderivs.dpdX[n] =
               state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
               state.dpdZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
       }
+      else {
+          state_xderivs.dpdX[n] = 0.0_rt;
+      }
 
-      if constexpr (has_energy<T>::value) {
+      if constexpr (has_dedA<T>::value && has_dedZ<T>::value) {
           state_xderivs.dedX[n] =
               state.dedA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
               state.dedZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
+      }
+      else {
+          state_xderivs.dedX[n] = 0.0_rt;
       }
 
       if constexpr (has_pressure<T>::value) {
@@ -113,11 +118,12 @@ eos_xderivs_t composition_derivatives (const T& state)
 
           }
       }
+      else {
+          state_xderivs.dhdX[n] = 0.0_rt;
+      }
   }
 
   return state_xderivs;
 }
-#endif
-
 
 #endif

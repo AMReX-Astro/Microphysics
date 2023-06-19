@@ -42,6 +42,8 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
   // Check if n,p,a are in equilibrium
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
 
+
+<<<<<<< HEAD
   // amrex::Real sum = 0.0_rt;
   
   // for (int n = 0; n < NumSpec; ++n) {
@@ -1164,6 +1166,10 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     eos(eos_input_rt, eos_state);
     
     // a parameter to characterize whether a rate is fast enough
+<<<<<<< HEAD
+=======
+
+>>>>>>> development
     t_s = state.dx / eos_state.cs;
   }
 

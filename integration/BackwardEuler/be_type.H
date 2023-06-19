@@ -19,8 +19,6 @@
 #include <actual_matrix.H>
 #endif
 
-const int BE_NEQS = INT_NEQS;
-
 const int BE_SUCCESS = 0;
 const int BE_NONCONVERGENCE = -100;
 const int BE_LU_DECOMPOSITION_ERROR = -101;
@@ -33,6 +31,7 @@ const Real timestep_safety_factor = 1.0e-12_rt;
 
 #define VODELIKE_ERROR 1
 
+template <int int_neqs>
 struct be_t {
 
     amrex::Real t;      // the starting time
@@ -48,8 +47,8 @@ struct be_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    Array1D<Real, 1, BE_NEQS> y;
-    JacNetArray2D jac;
+    Array1D<Real, 1, int_neqs> y;
+    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
 
     short jacobian_type;
 };
