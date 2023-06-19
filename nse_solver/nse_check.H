@@ -43,7 +43,6 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
 
 
-<<<<<<< HEAD
   // amrex::Real sum = 0.0_rt;
   
   // for (int n = 0; n < NumSpec; ++n) {
@@ -718,7 +717,9 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   // int nonLIG_index_1 = -1;
   // int nonLIG_index_2 = -1;
   int nonLIG_index = -1;
-  int si28_index = -1;
+  
+  int oddN_group = -1;
+  int evenN_group = -1;
 
   bool in_single_group = true;
 
@@ -761,7 +762,10 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   }
 
   // If there no neutrons are in the network and original condition failed
-  // Consider a looser condition: NSE if isotopes heavier than Si28 are grouped together
+  // Consider a looser condition by looking at nuclei heavier than Si28
+  // There seems to be two big groups after Si28 in NSE:
+  // 1) isotopes with even N
+  // 2) isotopes with odd N
   
   if (NSE_INDEX::n_index == -1 && !in_single_group) {
 
@@ -769,13 +773,22 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
     for (int n = 0; n < NumSpec; ++n) {
 
-      if (aion[n] >= 28 && zion[n] >= 14) {
-	if (si28_index == -1) {
-	  si28_index = get_root_index(n, group_ind);
+      if (zion[n] >= 14) {
+
+	// Get even N group index
+	if (evenN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 0.0_rt) {
+	  evenN_group = get_root_index(n, group_ind);
 	  continue;
 	}
 
-	if (si28_index != get_root_index(n, group_ind)) {
+	// Get odd N group index	
+	if (oddN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 1.0_rt) {
+	  oddN_group = get_root_index(n, group_ind);
+	  continue;
+	}
+	
+	if ((std::fmod(aion[n] - zion[n], 2) == 0.0_rt && evenN_group != get_root_index(n, group_ind)) ||
+	    (std::fmod(aion[n] - zion[n], 2) == 1.0_rt && oddN_group != get_root_index(n, group_ind))) {
 	  in_single_group = false;
 	  break;
 	}
@@ -1088,7 +1101,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   current_state.nse = false;
 
-  if (current_state.T < 3.5e9_rt) {
+  if (current_state.T < 2.0e9_rt) {
     return current_state.nse;
   }
 
@@ -1126,7 +1139,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // Note we only do this after the first check, which should tell us whether
   // our current mass fractions are in the ballpark of NSE mass fractions.
   
-  if (nse_molar_independent) {
+  if (nse_molar_independent || skip_molar_check) {
     state = nse_state;
     state.dx = current_state.dx;
 #ifndef STRANG
@@ -1166,10 +1179,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     eos(eos_input_rt, eos_state);
     
     // a parameter to characterize whether a rate is fast enough
-<<<<<<< HEAD
-=======
 
->>>>>>> development
     t_s = state.dx / eos_state.cs;
   }
 
