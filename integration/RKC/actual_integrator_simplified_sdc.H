@@ -8,6 +8,7 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 #include <rkc_type.H>
 #include <rkc.H>
 
@@ -17,8 +18,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    rkc_t rkc_state{};
+    rkc_t<int_neqs> rkc_state{};
 
     // Start off by assuming a successful burn.
 
