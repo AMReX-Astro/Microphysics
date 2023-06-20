@@ -42,20 +42,6 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
   // Check if n,p,a are in equilibrium
   // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
 
-
-  // amrex::Real sum = 0.0_rt;
-  
-  // for (int n = 0; n < NumSpec; ++n) {
-  //   sum += std::pow(state.xn[n] - nse_state.xn[n], 2);
-  // }
-
-  // sum = std::sqrt(sum / NumSpec);
-  // std::cout << "sum is: " << sum << std::endl;
-  // if (sum < 0.01_rt) {
-  //   std::cout << "in here" << std::endl;
-  //   nse_check = true;
-  // }
-
   for (int n = 0; n < NumSpec; ++n) {
 
     if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index) {
@@ -127,7 +113,7 @@ void find_max_nucs(int& max_nucs, const int current_nuc_ind) {
 	||
 	(aion[n] == aion[current_nuc_ind]-3 &&
 	 (zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2))
-	){
+	) {
 
       ++max_nucs;
     }
@@ -137,7 +123,7 @@ void find_max_nucs(int& max_nucs, const int current_nuc_ind) {
 	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
 	||
 	(aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2)
-	){
+	) {
 
       ++max_nucs;
     }
@@ -162,10 +148,10 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 
   for (int i = 1; i <= Rates::NumRates; ++i) {
     for (int j = 1; j <= 3; ++j) {
-      if (NSE_INDEX::rate_indices(i, j) == reactants_indices(j) && NSE_INDEX::rate_indices(i, j+3) == products_indices(j)){
+      if (NSE_INDEX::rate_indices(i, j) == reactants_indices(j) && NSE_INDEX::rate_indices(i, j+3) == products_indices(j)) {
 	found_index = true;
       }
-      else{
+      else {
 	found_index = false;
 	break;
       }
@@ -211,8 +197,8 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
   // initialize reactions and fast_reactions to -1
 
-  for (int i = 1; i <= 6; ++i){
-    for (int j = 1; j <= max_nucs; ++j){
+  for (int i = 1; i <= 6; ++i) {
+    for (int j = 1; j <= max_nucs; ++j) {
       reactions(i, j) = -1;
       fast_reactions(i, j) = -1;
     }
@@ -241,7 +227,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	    (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
 	||
 	(aion[n] == aion[current_nuc_ind]+4 && zion[n] == zion[current_nuc_ind]+2)
-	){
+	) {
 
       reactions(2, inter_nuc_ind1) = n;
       ++inter_nuc_ind1;
@@ -258,7 +244,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	 (aion[n] == aion[current_nuc_ind]-2 &&
 	  (zion[n] == zion[current_nuc_ind]-2 || zion[n] == zion[current_nuc_ind]-1
 	   || zion[n] == zion[current_nuc_ind]))
-	){
+	) {
 
       reactions(3, inter_nuc_ind2) = n;
       ++inter_nuc_ind2;
@@ -274,7 +260,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	||
 	(aion[n] == aion[current_nuc_ind]-3 &&
 	 (zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2))
-	){
+	) {
 
       reactions(4, inter_nuc_ind3) = n;
       ++inter_nuc_ind3;
@@ -285,7 +271,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	 (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
 	||
 	(aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2)
-	){
+	) {
 
       reactions(5, inter_nuc_ind4) = n;
 	++inter_nuc_ind4;
@@ -714,20 +700,12 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   
   int LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind);
 
-  // int nonLIG_index_1 = -1;
-  // int nonLIG_index_2 = -1;
   int nonLIG_index = -1;
   
   int oddN_group = -1;
   int evenN_group = -1;
 
   bool in_single_group = true;
-
-  // only LIG group if there are proton, neutron
-
-  // if (NSE_INDEX::p_index != -1 && NSE_INDEX::n_index != -1 && NSE_INDEX::he4_index != -1) {
-  //   LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind);
-  // }
 
   // std::cout << "final root indices: ";
   // for (int n = 0; n < NumSpec; ++n) {
@@ -798,34 +776,6 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   }
 
   return in_single_group;
-  // for (int n = 0; n < NumSpec; ++n) {
-
-  //   if (get_root_index(n, group_ind) == LIG_root_index) {
-  //     continue;
-  //   }
-
-  //   if (nonLIG_index_1 == -1) {
-  //     nonLIG_index_1 = get_root_index(n, group_ind);
-  //     continue;
-  //   }
-
-  //   if (get_root_index(n, group_ind) != nonLIG_index_1
-  // 	&& get_root_index(n, group_ind) != nonLIG_index_2) {
-
-  //     // if there is no neutron in the network allow a second nonLIG network
-
-  //     if (NSE_INDEX::n_index == -1 && nonLIG_index_2 == -1) {
-  // 	nonLIG_index_2 = get_root_index(n, group_ind);	
-  //     }
-      
-  //     else {
-  // 	return false;
-  //     }
-  //   }
-
-  // }
-
-  // return true;
 }
 
 
@@ -1047,12 +997,6 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
       group_ind(i) = 1;
     }
   }
-
-  // std::cout << "initial group indices: ";
-  // for (int n = 0; n < NumSpec; ++n) {
-  //   std::cout << group_ind(n + 1) << ", ";
-  // }
-  // std::cout << std::endl;
   
   amrex::Array1D<int, 1, 2> merge_indices;
   amrex::Real fastest_t;
@@ -1072,8 +1016,6 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
       // Check if current rate is the faster rate than previous rate
       
       is_fastest_rate(merge_indices, fastest_t, n, Y, state, screened_rates, group_ind, t_s);
-      // std::cout << "current rate is " << n << "with merge indices: " << std::endl;
-      // std::cout << merge_indices(1) << " and " << merge_indices(2) << std::endl;
     }
 
     // if there are no reaction satisfy conditions, break
@@ -1104,11 +1046,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   if (current_state.T < 2.0e9_rt) {
     return current_state.nse;
   }
-
-  // if (current_state.T > 7.0e9_rt) {
-  //   current_state.nse = true;
-  //   return current_state.nse;
-  // }
     
   // Get the nse state which is used to compare nse molar fractions.
 

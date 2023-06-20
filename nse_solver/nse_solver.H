@@ -21,12 +21,12 @@ using namespace nse_rp;
 
 AMREX_INLINE
 void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
-		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name){
+		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name) {
 
   // fill the corresponding reactant and product indices of a given rate name
   // used during initialization
 
-  for (int n = 1; n <= 3; ++n){
+  for (int n = 1; n <= 3; ++n) {
     reactant_indices(n) = -1;
     product_indices(n) = -1;
   }
@@ -39,10 +39,10 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
   size_t pos;
 
-  while (true){
+  while (true) {
     pos = rate_name_mod.find("p_");
 
-    if (pos == std::string::npos){
+    if (pos == std::string::npos) {
       break;
     }
 
@@ -80,7 +80,7 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
   // Find the index of reactants and products in short_spec_names
 
   int i = 1;
-  while ((pos = reactant_names.find('_')) != std::string::npos){
+  while ((pos = reactant_names.find('_')) != std::string::npos) {
 
     _temp = reactant_names.substr(0, pos);
     // aprox network need capitalize
@@ -88,8 +88,8 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
     // cap_first_letter(reactant);
 
-    for (int n = 0; n < NumSpec; ++n){
-      if (short_spec_names_cxx[n] == _temp){
+    for (int n = 0; n < NumSpec; ++n) {
+      if (short_spec_names_cxx[n] == _temp) {
 	reactant_indices(i) = n;
 	++i;
       }
@@ -99,20 +99,20 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
   }
 
   // cap_first_letter(reactant_names);
-  for (int n = 0; n < NumSpec; ++n){
-    if (short_spec_names_cxx[n] == reactant_names){
+  for (int n = 0; n < NumSpec; ++n) {
+    if (short_spec_names_cxx[n] == reactant_names) {
       reactant_indices(i) = n;
     }
   }
 
   i = 1;
-  while ((pos = product_names.find('_')) != std::string::npos){
+  while ((pos = product_names.find('_')) != std::string::npos) {
 
     _temp = product_names.substr(0, pos);
     // cap_first_letter(product);
 
-    for (int n = 0; n < NumSpec; ++n){
-      if (short_spec_names_cxx[n] == _temp){
+    for (int n = 0; n < NumSpec; ++n) {
+      if (short_spec_names_cxx[n] == _temp) {
 	product_indices(i) = n;
 	++i;
       }
@@ -123,8 +123,8 @@ void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
 
   // cap_first_letter(product_names);
 
-  for (int n = 0; n < NumSpec; ++n){
-    if (short_spec_names_cxx[n] == product_names){
+  for (int n = 0; n < NumSpec; ++n) {
+    if (short_spec_names_cxx[n] == product_names) {
       product_indices(i) = n;
     }
   }
@@ -175,7 +175,7 @@ void init_nse_net() {
   if (!use_hybrid_solver) {
     bool singular_network = true;
     for (int n = 0; n < NumSpec; ++n) {
-      if (n == NSE_INDEX::h1_index){
+      if (n == NSE_INDEX::h1_index) {
 	continue;
       }
       if (zion[n] != aion[n] - zion[n]) {
@@ -198,7 +198,7 @@ void init_nse_net() {
   amrex::Array1D<int, 1, 3> product_indices;
   std::string current_rate_name;
 
-  for (int n = 1; n <= Rates::NumRates; ++n){
+  for (int n = 1; n <= Rates::NumRates; ++n) {
 
     // get current name of the rate
     current_rate_name = Rates::rate_names[n];
@@ -207,7 +207,7 @@ void init_nse_net() {
     find_rate_indices(reactant_indices, product_indices, current_rate_name);
 
     // fill in rate_indices
-    for (int i = 1; i <= 3; ++i){
+    for (int i = 1; i <= 3; ++i) {
       NSE_INDEX::rate_indices(n, i) = reactant_indices(i);
       NSE_INDEX::rate_indices(n, i+3) = product_indices(i);
     }
@@ -268,8 +268,8 @@ T get_nse_state(const T& state)
   auto tfactors = evaluate_tfactors(T_in);
 #endif
 
-  for (int n = 0; n < NumSpec; ++n){
-      if (n == NSE_INDEX::h1_index){
+  for (int n = 0; n < NumSpec; ++n) {
+      if (n == NSE_INDEX::h1_index) {
           nse_state.xn[n] = 0.0;
           continue;
       }
@@ -317,8 +317,8 @@ T get_nse_state(const T& state)
 
   nse_state.y_e = 0.0_rt;
 
-  for (int n = 0; n < NumSpec; ++n){
-    if (n == NSE_INDEX::h1_index){
+  for (int n = 0; n < NumSpec; ++n) {
+    if (n == NSE_INDEX::h1_index) {
       continue;
     }
 
@@ -352,8 +352,8 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 
     fvec(1) = -1.0_rt;
 
-    for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::h1_index){
+    for (int n = 0; n < NumSpec; ++n) {
+        if (n == NSE_INDEX::h1_index) {
             continue;
         }
 
@@ -393,8 +393,8 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
 
     Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
-    for (int n = 0; n < NumSpec; ++n){
-        if (n == NSE_INDEX::h1_index){
+    for (int n = 0; n < NumSpec; ++n) {
+        if (n == NSE_INDEX::h1_index) {
             continue;
         }
 
@@ -440,13 +440,13 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
     // fine tuning initial guesses
 
-    for (int i = 0; i < 20; ++i){
+    for (int i = 0; i < 20; ++i) {
 
       dx = 0.5_rt;
       inner_x(1) = outer_x(1);
       inner_x(2) = outer_x(2);
 
-      for (int j = 0; j < 20; ++j){
+      for (int j = 0; j < 20; ++j) {
 
 	hj.x(1) = inner_x(1);
 	hj.x(2) = inner_x(2);
@@ -456,25 +456,25 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
 	fcn(hj.x, f, state, flag);
 
-	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps){
+	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
 
 	  state.mu_p = hj.x(1);
 	  state.mu_n = hj.x(2);
 	  return;
 	}
 
-	if (f(1) > 0.0_rt && f(2) > 0.0_rt){
+	if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
 	  is_pos_new = true;
 	}
 	else{
 	  is_pos_new = false;
 	}
 
-	if (is_pos_old != is_pos_new){
+	if (is_pos_old != is_pos_new) {
 	  dx *= 0.8_rt;
 	}
 
-	if (is_pos_new){
+	if (is_pos_new) {
 	  inner_x(1) -= dx;
 	  inner_x(2) -= dx;
 	}
