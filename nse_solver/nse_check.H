@@ -984,7 +984,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
       group_ind(i) = 1;
     }
   }
-  
+
   amrex::Array1D<int, 1, 2> merge_indices;
   amrex::Real fastest_t;
 
