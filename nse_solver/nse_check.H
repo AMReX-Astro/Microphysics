@@ -1001,7 +1001,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     for (int n = 1; n <= Rates::NumRates; ++n) {
 
       // Check if current rate is the faster rate than previous rate
-      
+
       is_fastest_rate(merge_indices, fastest_t, n, Y, state, screened_rates, group_ind, t_s);
     }
 
