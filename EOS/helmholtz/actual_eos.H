@@ -9,6 +9,7 @@
 #include <AMReX_ParallelDescriptor.H>
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
+#include <microphysics_math.H>
 #include <eos_type.H>
 #include <eos_data.H>
 #include <actual_eos_data.H>
@@ -40,64 +41,6 @@ using namespace eos_rp;
 
 const std::string eos_name = "helmholtz";
 
-// quintic hermite polynomial functions
-// psi0 and its derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real psi0 (Real z)
-{
-    return z * z * z * (z * (-6.0e0_rt * z + 15.0e0_rt) -10.0e0_rt) + 1.0e0_rt;
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real dpsi0 (Real z)
-{
-    return z * z * (z * (-30.0e0_rt*z + 60.0e0_rt) - 30.0e0_rt);
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real ddpsi0 (Real z)
-{
-    return z * (z * (-120.0e0_rt * z + 180.0e0_rt) - 60.0e0_rt);
-}
-
-// psi1 and its derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real psi1 (Real z)
-{
-    return z * ( z * z * (z * (-3.0e0_rt * z + 8.0e0_rt) - 6.0e0_rt) + 1.0e0_rt);
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real dpsi1 (Real z)
-{
-    return z * z * ( z * (-15.0e0_rt * z + 32.0e0_rt) - 18.0e0_rt) + 1.0e0_rt;
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real ddpsi1 (Real z)
-{
-    return z * (z * (-60.0e0_rt * z + 96.0e0_rt) - 36.0e0_rt);
-}
-
-// psi2 and its derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real psi2 (Real z)
-{
-    return 0.5e0_rt * z * z * ( z * ( z * (-z + 3.0e0_rt) - 3.0e0_rt) + 1.0e0_rt);
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real dpsi2 (Real z)
-{
-    return 0.5e0_rt * z * (z * (z * (-5.0e0_rt * z + 12.0e0_rt) - 9.0e0_rt) + 2.0e0_rt);
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real ddpsi2 (Real z)
-{
-    return 0.5e0_rt * (z * ( z * (-20.0e0_rt * z + 36.0e0_rt) - 18.0e0_rt) + 2.0e0_rt);
-}
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fwt (const Real* fi, const Real* wt, Real* fwtr)
 {
@@ -108,35 +51,6 @@ void fwt (const Real* fi, const Real* wt, Real* fwtr)
     fwtr[4] = fi[12]*wt[0] + fi[14]*wt[1] + fi[16]*wt[2] + fi[30]*wt[3] + fi[32]*wt[4] + fi[34]*wt[5];
     fwtr[5] = fi[13]*wt[0] + fi[15]*wt[1] + fi[17]*wt[2] + fi[31]*wt[3] + fi[33]*wt[4] + fi[35]*wt[5];
 }
-
-// cubic hermite polynomial functions
-// psi0 & derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real xpsi0(Real z)
-{
-    return z * z * (2.0e0_rt * z - 3.0e0_rt) + 1.0_rt;
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real xdpsi0(Real z)
-{
-    return z * (6.0e0_rt * z - 6.0e0_rt);
-}
-
-// psi1 & derivatives
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real xpsi1(Real z)
-{
-    return z * (z * (z - 2.0e0_rt) + 1.0e0_rt);
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real xdpsi1(Real z)
-{
-    return z * (3.0e0_rt * z - 4.0e0_rt) + 1.0e0_rt;
-}
-
-
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -178,55 +92,55 @@ void apply_electrons (T& state)
     // the six density and six temperature basis functions
     Real sit[6];
 
-    sit[0] = psi0(xt);
-    sit[1] = psi1(xt) * dt_sav[jat];
-    sit[2] = psi2(xt) * dt2_sav[jat];
+    sit[0] = microphysics_math::psi0(xt);
+    sit[1] = microphysics_math::psi1(xt) * dt_sav[jat];
+    sit[2] = microphysics_math::psi2(xt) * dt2_sav[jat];
 
-    sit[3] =  psi0(mxt);
-    sit[4] = -psi1(mxt) * dt_sav[jat];
-    sit[5] =  psi2(mxt) * dt2_sav[jat];
+    sit[3] =  microphysics_math::psi0(mxt);
+    sit[4] = -microphysics_math::psi1(mxt) * dt_sav[jat];
+    sit[5] =  microphysics_math::psi2(mxt) * dt2_sav[jat];
 
     Real sid[6];
 
-    sid[0] =  psi0(xd);
-    sid[1] =  psi1(xd) * dd_sav[iat];
-    sid[2] =  psi2(xd) * dd2_sav[iat];
+    sid[0] =  microphysics_math::psi0(xd);
+    sid[1] =  microphysics_math::psi1(xd) * dd_sav[iat];
+    sid[2] =  microphysics_math::psi2(xd) * dd2_sav[iat];
 
-    sid[3] =  psi0(mxd);
-    sid[4] = -psi1(mxd) * dd_sav[iat];
-    sid[5] =  psi2(mxd) * dd2_sav[iat];
+    sid[3] =  microphysics_math::psi0(mxd);
+    sid[4] = -microphysics_math::psi1(mxd) * dd_sav[iat];
+    sid[5] =  microphysics_math::psi2(mxd) * dd2_sav[iat];
 
     // derivatives of the weight functions
     Real dsit[6];
 
-    dsit[0] =  dpsi0(xt) * dti_sav[jat];
-    dsit[1] =  dpsi1(xt);
-    dsit[2] =  dpsi2(xt) * dt_sav[jat];
+    dsit[0] =  microphysics_math::dpsi0(xt) * dti_sav[jat];
+    dsit[1] =  microphysics_math::dpsi1(xt);
+    dsit[2] =  microphysics_math::dpsi2(xt) * dt_sav[jat];
 
-    dsit[3] = -dpsi0(mxt) * dti_sav[jat];
-    dsit[4] =  dpsi1(mxt);
-    dsit[5] = -dpsi2(mxt) * dt_sav[jat];
+    dsit[3] = -microphysics_math::dpsi0(mxt) * dti_sav[jat];
+    dsit[4] =  microphysics_math::dpsi1(mxt);
+    dsit[5] = -microphysics_math::dpsi2(mxt) * dt_sav[jat];
 
     Real dsid[6];
 
-    dsid[0] =  dpsi0(xd) * ddi_sav[iat];
-    dsid[1] =  dpsi1(xd);
-    dsid[2] =  dpsi2(xd) * dd_sav[iat];
+    dsid[0] =  microphysics_math::dpsi0(xd) * ddi_sav[iat];
+    dsid[1] =  microphysics_math::dpsi1(xd);
+    dsid[2] =  microphysics_math::dpsi2(xd) * dd_sav[iat];
 
-    dsid[3] = -dpsi0(mxd) * ddi_sav[iat];
-    dsid[4] =  dpsi1(mxd);
-    dsid[5] = -dpsi2(mxd) * dd_sav[iat];
+    dsid[3] = -microphysics_math::dpsi0(mxd) * ddi_sav[iat];
+    dsid[4] =  microphysics_math::dpsi1(mxd);
+    dsid[5] = -microphysics_math::dpsi2(mxd) * dd_sav[iat];
 
     // second derivatives of the weight functions
     Real ddsit[6];
 
-    ddsit[0] =  ddpsi0(xt) * dt2i_sav[jat];
-    ddsit[1] =  ddpsi1(xt) * dti_sav[jat];
-    ddsit[2] =  ddpsi2(xt);
+    ddsit[0] =  microphysics_math::ddpsi0(xt) * dt2i_sav[jat];
+    ddsit[1] =  microphysics_math::ddpsi1(xt) * dti_sav[jat];
+    ddsit[2] =  microphysics_math::ddpsi2(xt);
 
-    ddsit[3] =  ddpsi0(mxt) * dt2i_sav[jat];
-    ddsit[4] = -ddpsi1(mxt) * dti_sav[jat];
-    ddsit[5] =  ddpsi2(mxt);
+    ddsit[3] =  microphysics_math::ddpsi0(mxt) * dt2i_sav[jat];
+    ddsit[4] = -microphysics_math::ddpsi1(mxt) * dti_sav[jat];
+    ddsit[5] =  microphysics_math::ddpsi2(mxt);
 
     // This array saves some subexpressions that go into
     // computing the biquintic polynomial. Instead of explicitly
@@ -273,30 +187,30 @@ void apply_electrons (T& state)
     // now get the pressure derivative with density, chemical potential, and
     // electron positron number densities
     // get the interpolation weight functions
-    sit[0] = xpsi0(xt);
-    sit[1] = xpsi1(xt) * dt_sav[jat];
+    sit[0] = microphysics_math::xpsi0(xt);
+    sit[1] = microphysics_math::xpsi1(xt) * dt_sav[jat];
 
-    sit[2] = xpsi0(mxt);
-    sit[3] = -xpsi1(mxt) * dt_sav[jat];
+    sit[2] = microphysics_math::xpsi0(mxt);
+    sit[3] = -microphysics_math::xpsi1(mxt) * dt_sav[jat];
 
-    sid[0] = xpsi0(xd);
-    sid[1] = xpsi1(xd) * dd_sav[iat];
+    sid[0] = microphysics_math::xpsi0(xd);
+    sid[1] = microphysics_math::xpsi1(xd) * dd_sav[iat];
 
-    sid[2] = xpsi0(mxd);
-    sid[3] = -xpsi1(mxd) * dd_sav[iat];
+    sid[2] = microphysics_math::xpsi0(mxd);
+    sid[3] = -microphysics_math::xpsi1(mxd) * dd_sav[iat];
 
     // derivatives of weight functions
-    dsit[0] = xdpsi0(xt) * dti_sav[jat];
-    dsit[1] = xdpsi1(xt);
+    dsit[0] = microphysics_math::xdpsi0(xt) * dti_sav[jat];
+    dsit[1] = microphysics_math::xdpsi1(xt);
 
-    dsit[2] = -xdpsi0(mxt) * dti_sav[jat];
-    dsit[3] = xdpsi1(mxt);
+    dsit[2] = -microphysics_math::xdpsi0(mxt) * dti_sav[jat];
+    dsit[3] = microphysics_math::xdpsi1(mxt);
 
-    dsid[0] = xdpsi0(xd) * ddi_sav[iat];
-    dsid[1] = xdpsi1(xd);
+    dsid[0] = microphysics_math::xdpsi0(xd) * ddi_sav[iat];
+    dsid[1] = microphysics_math::xdpsi1(xd);
 
-    dsid[2] = -xdpsi0(mxd) * ddi_sav[iat];
-    dsid[3] = xdpsi1(mxd);
+    dsid[2] = -microphysics_math::xdpsi0(mxd) * ddi_sav[iat];
+    dsid[3] = microphysics_math::xdpsi1(mxd);
 
     // Reuse subexpressions that would go into computing the
     // cubic interpolation.
