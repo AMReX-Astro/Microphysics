@@ -16,11 +16,8 @@ using namespace integrator_rp;
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void core_integrator (BurnT& state, Real dt)
+void core_integrator (BurnT& state, IntT& int_state, Real dt)
 {
-    constexpr int int_neqs = integrator_neqs<BurnT>();
-
-    IntT<int_neqs> int_state{};
 
     // Set the tolerances.
 
@@ -83,7 +80,7 @@ void core_integrator (BurnT& state, Real dt)
     integrator_to_burn(int_state, state);
 
 #ifdef NSE
-    // compute the temperature based on the energy release -- we need 
+    // compute the temperature based on the energy release -- we need
     // this in case we failed in our burn here because we entered NSE
 
 #ifdef AUX_THERMO
@@ -108,29 +105,25 @@ void core_integrator (BurnT& state, Real dt)
         normalize_abundances_burn(state);
     }
 
-    // Get the number of RHS and Jacobian evaluations.
+    teardown_integrator_type(state, int_state);
 
-    state.n_rhs = vode_state.NFE;
-    state.n_jac = vode_state.NJE;
-    state.n_step = vode_state.NST;
-
-    // VODE does not always fail even though it can lead to unphysical states.
-    // Add some checks that indicate a burn fail even if VODE thinks the
-    // integration was successful.
+    // the integrator does not always fail even though it can lead to
+    // unphysical states.  Add some checks that indicate a burn fail
+    // even if the integrator thinks the integration was successful.
 
     if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(n) < -species_failure_tolerance) {
+        if (int_state.y(n) < -species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce the condition below
         // for primordial chem
         if (!use_number_densities) {
-            if (vode_state.y(n) > 1.0_rt + species_failure_tolerance) {
+            if (int_state.y(n) > 1.0_rt + species_failure_tolerance) {
                 state.success = false;
             }
         }
@@ -142,8 +135,8 @@ void core_integrator (BurnT& state, Real dt)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout << " energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << vode_state.NST << std::endl;
-        std::cout <<  "number of f evaluations: " << vode_state.NFE << std::endl;
+        std::cout <<  "number of steps taken: " << state.n_step << std::endl;
+        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
 #endif
 
@@ -154,11 +147,11 @@ void core_integrator (BurnT& state, Real dt)
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
-            if (istate == 2) {
-                std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
+            if (istate == IERR_SUCCESS) {
+                std::cout << "  integrator exited successfully, but a check on the data values failed" << std::endl;
             }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-            std::cout << "time = " << vode_state.t << std::endl;
+            std::cout << "time = " << int_state.t << std::endl;
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "xn start = ";
@@ -177,7 +170,7 @@ void core_integrator (BurnT& state, Real dt)
 #endif
         } else {
 #ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
         }
     }
