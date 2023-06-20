@@ -707,19 +707,6 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
   bool in_single_group = true;
 
-  // std::cout << "final root indices: ";
-  // for (int n = 0; n < NumSpec; ++n) {
-  //   std::cout << get_root_index(n, group_ind) << ", ";
-  // }
-  // std::cout << std::endl;
-
-  // std::cout << "final group indices: ";
-  // for (int n = 0; n < NumSpec; ++n) {
-  //   std::cout << group_ind(n + 1) << ", ";
-  // }
-  // std::cout << std::endl;
-
-
   // Consider NSE when there is a single group with an optional LIG group
 
   for (int n = 0; n < NumSpec; ++n) {
