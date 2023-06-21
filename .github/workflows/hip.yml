@@ -27,7 +27,7 @@ jobs:
           cd ../..
 
       - name: Dependencies
-        run: .github/workflows/dependencies_hip.sh
+        run: .github/workflows/dependencies/dependencies_hip.sh
 
       - name: compile test_react with HIP (aprox13)
         run: |

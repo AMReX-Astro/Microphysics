@@ -17,6 +17,10 @@ void integrator_to_burn (const I& int_state, BurnT& state)
 
     state.e = int_state.y(net_ienuc);
 
+    if (scale_system) {
+        state.e *= state.e_scale;
+    }
+
     state.time = int_state.t;
 }
 
@@ -32,6 +36,10 @@ void burn_to_integrator (const BurnT& state, I& int_state)
     }
 
     int_state.y(net_ienuc) = state.e;
+
+    if (scale_system) {
+        int_state.y(net_ienuc) /= state.e_scale;
+    }
 }
 
 
@@ -113,6 +121,10 @@ void update_thermodynamics (BurnT& state, const I& int_state)
         state.xn[n-1] = int_state.y(n);
     }
     state.e = int_state.y(net_ienuc);
+
+    if (scale_system) {
+        state.e *= state.e_scale;
+    }
 
     // Get T from e (also updates composition quantities).
 

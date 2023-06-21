@@ -10,6 +10,7 @@
 #else
 #include <actual_rhs.H>
 #endif
+#include <integrator_data.H>
 
 using namespace integrator_rp;
 
@@ -43,8 +44,10 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
     // we already come in with a cleaned state, and density updated to
     // the current time
 
-    //for (int i = 1; i <= neqs; i++) {
-    //    for (int j = 1; j <= neqs; j++) {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    //for (int i = 1; i <= int_neqs; i++) {
+    //    for (int j = 1; j <= int_neqs; j++) {
     //        jac(i,j) = 0.0_rt;
     //    }
     //}
@@ -80,11 +83,11 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     w = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_enuc);
     fac += (ydotm(net_ienuc) * w) * (ydotm(net_ienuc) * w);
-    fac = std::sqrt(fac / neqs);
+    fac = std::sqrt(fac / int_neqs);
 
     // now compute r0, defined in the LSODE paper, Eq. 3.34
 
-    Real r0 = 1000.0_rt * std::abs(jac_info.h) * U * neqs * fac;
+    Real r0 = 1000.0_rt * std::abs(jac_info.h) * U * int_neqs * fac;
     if (r0 == 0.0_rt) {
         r0 = 1.0_rt;
     }
@@ -118,7 +121,7 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
         // now fill in all of the rows for this column X_n
 
-        for (int m = 1; m <= neqs; m++) {
+        for (int m = 1; m <= int_neqs; m++) {
             jac(m, n) = (ydotp(m) - ydotm(m)) / dy;
         }
 
@@ -135,8 +138,8 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     if (state_delp.T <= EOSData::mintemp || state_delp.T >= MAX_TEMP) {
 
-        for (int i = 1; i <= neqs; i++) {
-            for (int j = 1; j <= neqs; j++) {
+        for (int i = 1; i <= int_neqs; i++) {
+            for (int j = 1; j <= int_neqs; j++) {
                 jac(i,j) = 0.0_rt;
             }
         }
@@ -161,13 +164,13 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // first fill just the last column with dy/dT
 
-    for (int m = 1; m <= neqs; m++) {
+    for (int m = 1; m <= int_neqs; m++) {
         jac(m, net_ienuc) = (ydotp(m) - ydotm(m)) / dy;
     }
 
     // back to the original state, get the thermodynamics -- in particular, we need c_v and e_X
 
-    eos_re_t eos_state;
+    eos_re_extra_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = state.T;
     eos_state.e = state.e;
@@ -186,18 +189,40 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
     // now correct the energy column, since we differenced with
     // respect to T above
 
-    for (int m = 1; m <= neqs; m++) {
+    for (int m = 1; m <= int_neqs; m++) {
         jac(m, net_ienuc) *= 1.0_rt / eos_state.cv;
     }
 
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    for (int m = 1; m <= neqs; m++) {
+    for (int m = 1; m <= int_neqs; m++) {
         for (int n = 1; n <= NumSpec; n++) {
             jac(m, n) -= eos_xderivs.dedX[n-1] * jac(m, net_ienuc);
         }
     }
+
+    // scale the energy derivatives
+    if (scale_system) {
+        for (int n = 1; n <= INT_NEQS; ++n) {
+            jac(net_ienuc, n) /= state.e_scale;
+        }
+    }
+
+    // apply boosting factor:
+
+    if (react_boost > 0.0_rt) {
+        jac.mul(react_boost);
+    }
+
+    // Allow temperature and energy integration to be disabled.
+
+    if (!integrate_energy) {
+        for (int n = 1; n <= int_neqs; ++n) {
+            jac(net_ienuc, n) = 0.0_rt;
+        }
+    }
+
 
 
 }

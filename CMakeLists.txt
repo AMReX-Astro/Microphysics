@@ -15,7 +15,6 @@ find_package(Threads)
 include(CTest)
 include(CMakePackageConfigHelpers)
 
-
 #use this function to build Microphysics using different EOS for different test problems in external codes
 function(setup_target_for_microphysics_compilation network_name output_dir)
 
@@ -104,13 +103,6 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 endfunction()
 
 
-#we need to have extern_parameters.cpp be available at configure time
-#the script write_probin.py writes this .cpp file so we call it here
-#note, execute_process only works on 'cmake' and not 'make'
-#so, if any of the _parameter files are changed, one needs to re-run 'cmake'
-#to generate updated header files
-
-
 #set a cache variable that controls whether
 #we want to fetch and link amrex or not
 set(BUILD_AMREX false CACHE BOOL "Do you want to build and link amrex? (true/false)")
@@ -153,7 +145,6 @@ add_compile_options(-Werror -Wall -Wextra)
 #do not need unit_test paramfiles when unit_test is not built
 
 if(BUILD_UNIT_TEST)
-<<<<<<< HEAD
   setup_target_for_microphysics_compilation("primordial_chem" ${CMAKE_BINARY_DIR})
 
   include_directories(${primordial_chem_dirs})
@@ -165,44 +156,6 @@ if(BUILD_UNIT_TEST)
 else()
 
   message("Not building primordial chem unit test")
-=======
-   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
-   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                             ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/interfaces ${CMAKE_CURRENT_SOURCE_DIR}/constants 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null)
-
-   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
-                               ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
-                               ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-                               ${CMAKE_BINARY_DIR}/extern_parameters.cpp)
-
-   include_directories(${primordial_chem_dirs})
-
-   #adding unit_test as subdirectories
-   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
-   message("Building primordial chem unit test")
-
-else()
-   execute_process(COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/)
-   set (primordial_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/util/gcem/include 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/integration/VODE ${CMAKE_CURRENT_SOURCE_DIR}/integration/utils 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/integration ${CMAKE_CURRENT_SOURCE_DIR}/interfaces
-                             ${CMAKE_CURRENT_SOURCE_DIR}/EOS ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/primordial_chem ${CMAKE_CURRENT_SOURCE_DIR}/networks 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/interfaces ${CMAKE_CURRENT_SOURCE_DIR}/constants 
-                             ${CMAKE_CURRENT_SOURCE_DIR}/networks/general_null PARENT_SCOPE)
-
-   set(primordial_chem_sources ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/eos_data.cpp
-                               ${CMAKE_CURRENT_SOURCE_DIR}/interfaces/network_initialization.cpp
-                               ${CMAKE_CURRENT_SOURCE_DIR}/EOS/primordial_chem/actual_eos_data.cpp
-                               ${CMAKE_BINARY_DIR}/extern_parameters.cpp PARENT_SCOPE)
-
-   message("Not building primordial chem unit test")
->>>>>>> origin/development
 endif()
 
 

@@ -1,8 +1,6 @@
 #ifndef RKC_UTIL_H
 #define RKC_UTIL_H
 
-#include <rkc_type.H>
-
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real sprad)
@@ -13,7 +11,7 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real spra
     // this requires that yn hold the initial state and fn the corresponding RHS
     // it also requires temporary space yjm1 and yjm2
     // finally, we require the initial spectral radius, sprad, and the maximum
-    // timestep (tend - tstart), max_dt.
+    // timestep (tout - tstart), max_dt.
 
     Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), max_dt);
 
@@ -51,10 +49,6 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real spra
         } else {
             wt = rstate.rtol_enuc * std::abs(rstate.yn(i)) + rstate.atol_enuc;
         }
-        if (wt == 0.0_rt) {
-            rstate.idid = 3;
-            return rstate.idid;
-        }
         est += std::pow((rstate.yjm2(i) - rstate.fn(i)) / wt, 2);
     }
     est = absh * std::sqrt(est / INT_NEQS);
@@ -71,12 +65,12 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real spra
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
+int rkcrho (BurnT& state, IntT& rstate, const Real max_dt, Real& sprad)
 {
 
     // RKCRHO attempts to compute a close upper bound, SPRAD, on
     // the spectral radius of the Jacobian matrix using a nonlinear
-    // power method.  A convergence failure is reported by IDID = 6.
+    // power method.  A convergence failure is reported by ierr != 0
 
     // for the start (nsteps == 0), this works off of the initial
     // function evaluation, rstate.fn(i), which has units of dy/dt
@@ -91,7 +85,7 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
     // rstate.fn to the RHS called with yn for nsteps == 0
     // rstate.sprad to the previous eigenvector for nsteps > 0
     //
-    // max_dt is the maximum timestep, typically tend - tbegin
+    // max_dt is the maximum timestep, typically tout - tbegin
     //
     // we use rstate.yjm1 and rstate.yjm2 as internal storage
 
@@ -153,7 +147,6 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
     // Now iterate with a nonlinear power method.
 
     Real sigma{};
-    Real sprad{};
 
     for (int iter = 0; iter < itmax; ++iter) {
 
@@ -187,7 +180,7 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
             for (int i = 1; i <= INT_NEQS; ++i) {
                 rstate.sprad(i) = rstate.yjm1(i) - rstate.yn(i);
             }
-            return sprad;
+            return 0;
         }
 
         // The next yjm1(*) is the change in f
@@ -211,9 +204,7 @@ Real rkcrho (BurnT& state, IntT& rstate, const Real max_dt)
     }
 
     // Set flag to report a convergence failure.
-
-    rstate.idid = 6;
-    return sprad;
+    return -1;
 }
 
 

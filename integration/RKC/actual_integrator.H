@@ -15,7 +15,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
-    rkc_t rkc_state{};
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    rkc_t<int_neqs> rkc_state{};
 
     // Set the tolerances.
 
@@ -32,12 +34,21 @@ void actual_integrator (BurnT& state, Real dt)
     // Initialize the integration time.
 
     rkc_state.t = 0.0_rt;
-    rkc_state.tend = dt;
+    rkc_state.tout = dt;
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
     eos(eos_input_rt, state);
+
+    // set the scaling for energy if we integrate it dimensionlessly
+    state.e_scale = state.e;
+
+    if (scale_system) {
+        // the absolute tol for energy needs to reflect the scaled
+        // energy the integrator sees
+        rkc_state.atol_enuc /= state.e_scale;
+    }
 
     // Fill in the initial integration state.
 
@@ -81,7 +92,7 @@ void actual_integrator (BurnT& state, Real dt)
     state.n_jac = 0;
     state.n_step = rkc_state.nsteps;
 
-    if (ierr > 2) {
+    if (ierr != IERR_SUCCESS) {
         state.success = false;
     }
 

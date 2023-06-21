@@ -20,7 +20,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
-    dvode_t vode_state{};
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    dvode_t<int_neqs> vode_state{};
 
     // Set the tolerances.
 
@@ -50,6 +52,15 @@ void actual_integrator (BurnT& state, Real dt)
     // to fill the rest of the thermodynamic variables.
 
     eos(eos_input_rt, state);
+
+    // set the scaling for energy if we integrate it dimensionlessly
+    state.e_scale = state.e;
+
+    if (scale_system) {
+        // the absolute tol for energy needs to reflect the scaled
+        // energy the integrator sees
+        vode_state.atol_enuc /= state.e_scale;
+    }
 
     // Fill in the initial integration state.
 

@@ -44,12 +44,6 @@ struct eos_t:eos_base_t {
     amrex::Real abar{};
     amrex::Real zbar{};
 
-#ifdef EXTRA_THERMO
-    amrex::Real dpdA{};
-    amrex::Real dpdZ{};
-    amrex::Real dedA{};
-    amrex::Real dedZ{};
-#endif
     amrex::Real conductivity{};
 
 #ifdef NSE_NET
@@ -78,11 +72,6 @@ struct eos_re_t:eos_base_t {
 
     amrex::Real abar{};
     amrex::Real zbar{};
-
-#ifdef EXTRA_THERMO
-    amrex::Real dedA{};
-    amrex::Real dedZ{};
-#endif
 
 #ifdef NSE_NET
     amrex::Real mu_p{};   //chemical potential of proton
@@ -119,18 +108,30 @@ struct eos_rep_t:eos_base_t {
 
     amrex::Real abar{};
     amrex::Real zbar{};
-
-#ifdef EXTRA_THERMO
-    amrex::Real dpdA{};
-    amrex::Real dpdZ{};
-    amrex::Real dedA{};
-    amrex::Real dedZ{};
-#endif
   
 #ifdef NSE_NET
     amrex::Real mu_p{};   //chemical potential of proton
     amrex::Real mu_n{};   //chemical potential of neutron
 #endif
+};
+
+struct eos_extra_t:eos_t {
+    amrex::Real dpdA{};
+    amrex::Real dpdZ{};
+    amrex::Real dedA{};
+    amrex::Real dedZ{};
+};
+
+struct eos_re_extra_t:eos_re_t {
+    amrex::Real dedA{};
+    amrex::Real dedZ{};
+};
+
+struct eos_rep_extra_t:eos_rep_t {
+    amrex::Real dpdA{};
+    amrex::Real dpdZ{};
+    amrex::Real dedA{};
+    amrex::Real dedZ{};
 };
 
 struct chem_eos_t:eos_base_t {
@@ -185,6 +186,38 @@ struct has_pressure
 
 template <typename T>
 struct has_pressure<T, typename std::enable_if<(sizeof(((T*)0)->p) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_dpdA
+    : std::false_type {};
+
+template <typename T>
+struct has_dpdA<T, typename std::enable_if<(sizeof(((T*)0)->dpdA) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_dpdZ
+    : std::false_type {};
+
+template <typename T>
+struct has_dpdZ<T, typename std::enable_if<(sizeof(((T*)0)->dpdZ) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_dedA
+    : std::false_type {};
+
+template <typename T>
+struct has_dedA<T, typename std::enable_if<(sizeof(((T*)0)->dedA) > 0)>::type>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
+struct has_dedZ
+    : std::false_type {};
+
+template <typename T>
+struct has_dedZ<T, typename std::enable_if<(sizeof(((T*)0)->dedZ) > 0)>::type>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -321,16 +354,18 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
         o << "zbar = " << eos_state.zbar << std::endl;
     }
 
-#ifdef EXTRA_THERMO
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_dpdA<T>::value) {
         o << "dpdA = " << eos_state.dpdA << std::endl;
+    }
+    if constexpr (has_dpdZ<T>::value) {
         o << "dpdZ = " << eos_state.dpdZ << std::endl;
     }
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_dedA<T>::value) {
         o << "dedA = " << eos_state.dedA << std::endl;
+    }
+    if constexpr (has_dedZ<T>::value) {
         o << "dedZ = " << eos_state.dedZ << std::endl;
     }
-#endif
 #ifdef CONDUCTIVITY
     if constexpr (has_conductivity<T>::value) {
         o << "conductivity = " << eos_state.conductivity << std::endl;

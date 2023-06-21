@@ -15,17 +15,18 @@
 #include <vode_rhs_true_sdc.H>
 #endif
 
-template <typename BurnT>
+template <typename IArray1D, typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, dvode_t& vstate)
+void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, DvodeT& vstate)
 {
-
     // dvjac is called by dvnlsd to compute and process the matrix
     // P = I - h*rl1*J , where J is an approximation to the Jacobian
     // that we obtain either through direct evaluation or caching from
     // a previous evaluation. P is then subjected to LU decomposition
     // in preparation for later solution of linear systems with P as
     // coefficient matrix. This is done by DGEFA.
+
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
     IERPJ = 0;
 
@@ -108,18 +109,18 @@ void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, dvode_t& vstate)
             vstate.JCUR = 1;
 
             Real fac = 0.0_rt;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 fac += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
-            fac = std::sqrt(fac / VODE_NEQS);
+            fac = std::sqrt(fac / int_neqs);
 
-            Real R0 = 1000.0_rt * std::abs(vstate.H) * UROUND * VODE_NEQS * fac;
+            Real R0 = 1000.0_rt * std::abs(vstate.H) * UROUND * int_neqs * fac;
             if (R0 == 0.0_rt) {
                 R0 = 1.0_rt;
             }
 
             bool in_jacobian = true;
-            for (int j = 1; j <= VODE_NEQS; ++j) {
+            for (int j = 1; j <= int_neqs; ++j) {
                 Real yj = vstate.y(j);
 
                 Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / vstate.ewt(j));
@@ -127,7 +128,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, dvode_t& vstate)
                 fac = 1.0_rt / R;
 
                 rhs(vstate.tn, state, vstate, vstate.acor, in_jacobian);
-                for (int i = 1; i <= VODE_NEQS; ++i) {
+                for (int i = 1; i <= int_neqs; ++i) {
                     vstate.jac.set(i, j, (vstate.acor(i) - vstate.savf(i)) * fac);
                 }
 
@@ -135,7 +136,7 @@ void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, dvode_t& vstate)
             }
 
             // Increment the RHS evaluation counter by N.
-            vstate.NFE += VODE_NEQS;
+            vstate.NFE += int_neqs;
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
@@ -175,13 +176,12 @@ void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, dvode_t& vstate)
     RHS::dgefa(vstate.jac);
     IER = 0;
 #else
-    dgefa<VODE_NEQS>(vstate.jac, pivot, IER);
+    dgefa<int_neqs>(vstate.jac, pivot, IER);
 #endif
 
     if (IER != 0) {
         IERPJ = 1;
     }
-
 }
 
 #endif

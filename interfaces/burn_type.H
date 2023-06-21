@@ -81,13 +81,14 @@ struct burn_t
   Real aux[NumAux];
 #endif
 
+  // scaling used to make e we integrate dimensionless
+  Real e_scale;
+
   // derivatives needed for calling the EOS
   Real dedr;
   Real dedT;
-#ifdef EXTRA_THERMO
   Real dedA;
   Real dedZ;
-#endif
 
   // for diagnostics / error reporting
 
