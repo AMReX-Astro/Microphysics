@@ -6,7 +6,7 @@ target_include_directories(test_burn_cell_primordial_chem PUBLIC ${CMAKE_CURRENT
                            ${CMAKE_CURRENT_SOURCE_DIR}/../ "includes/unit_test.H" ${CMAKE_BINARY_DIR} "includes/extern_parameters.H")
 #below line will add NAUX_NET and STRANG compiler flags
 #these are needed for preprocessor variables
-target_compile_definitions(Microphysics PUBLIC NAUX_NET STRANG)
+target_compile_definitions(test_burn_cell_primordial_chem PUBLIC NAUX_NET STRANG)
 
 
 if(AMReX_GPU_BACKEND MATCHES "CUDA")
