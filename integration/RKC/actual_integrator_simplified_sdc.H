@@ -128,11 +128,11 @@ void actual_integrator (BurnT& state, Real dt)
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rkc_state.y(SFS+n) / state.y[SRHO] < -rkc_failure_tolerance) {
+        if (rkc_state.y(SFS+n) / state.y[SRHO] < -species_failure_tolerance) {
             state.success = false;
         }
 
-        if (rkc_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + rkc_failure_tolerance) {
+        if (rkc_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + species_failure_tolerance) {
             state.success = false;
         }
     }

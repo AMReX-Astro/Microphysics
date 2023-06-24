@@ -16,11 +16,6 @@ const amrex::Real CCMXJ = 0.2e0_rt;
 
 const amrex::Real HMIN = 0.0_rt;
 
-// We will use this parameter to determine if a given species abundance
-// is unreasonably small or large (each X must satisfy
-// -failure_tolerance <= X <= 1.0 + failure_tolerance).
-const Real vode_failure_tolerance = 1.e-2_rt;
-
 // For each species whose abundance is above a certain threshold, we do
 // not allow its mass fraction to change by more than a certain amount
 // in any integration step.

@@ -121,19 +121,19 @@ void actual_integrator (BurnT& state, Real dt)
     // Add some checks that indicate a burn fail even if VODE thinks the
     // integration was successful.
 
-    if (istate < 0) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(n) < -vode_failure_tolerance) {
+        if (vode_state.y(n) < -species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce the condition below
         // for primordial chem
         if (!use_number_densities) {
-            if (vode_state.y(n) > 1.0_rt + vode_failure_tolerance) {
+            if (vode_state.y(n) > 1.0_rt + species_failure_tolerance) {
                 state.success = false;
             }
         }
@@ -153,7 +153,7 @@ void actual_integrator (BurnT& state, Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-        if (istate != -100) {
+        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
