@@ -13,7 +13,6 @@ void actual_integrator (BurnT& state, Real dt)
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     dvode_t<int_neqs> int_state{};
-
     core_integrator(state, int_state, dt);
 }
 
