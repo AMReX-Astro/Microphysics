@@ -115,6 +115,12 @@ void initialize_state (BurnT& state)
     state.success = true;
 
     state.n_rhs = 0;
+
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 }
 
 template <typename BurnT>
