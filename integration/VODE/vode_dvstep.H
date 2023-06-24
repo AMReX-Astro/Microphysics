@@ -257,14 +257,14 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             // Constrain abundances such that they are not negative (within a tolerance)
             // or greater than one (within a tolerance).
-            if (vstate.y(i) < -vode_failure_tolerance) {
+            if (vstate.y(i) < -species_failure_tolerance) {
                 valid_update = false;
             }
 
             // Don't enforce the condition below if
             // vstate.y contains number densities
             if (!use_number_densities) {
-                if (vstate.y(i) > 1.0_rt + vode_failure_tolerance) {
+                if (vstate.y(i) > 1.0_rt + species_failure_tolerance) {
                     valid_update = false;
                 }
             }
@@ -293,11 +293,11 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 break;
             }
 
-            if (vstate.y(SFS+i) < -vode_failure_tolerance * rho_current) {
+            if (vstate.y(SFS+i) < -species_failure_tolerance * rho_current) {
                 valid_update = false;
             }
 
-            if (vstate.y(SFS+i) > (1.0_rt + vode_failure_tolerance) * rho_current) {
+            if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
                 valid_update = false;
             }
 
@@ -311,11 +311,11 @@ int dvstep (BurnT& state, DvodeT& vstate)
             //  y(2:2+NumSpec-1) = rho X
             //  y(NumSpec+2) = rho e
 
-            if (vstate.y(1+i) < -vode_failure_tolerance * vstate.y(1)) {
+            if (vstate.y(1+i) < -species_failure_tolerance * vstate.y(1)) {
                 valid_update = false;
             }
 
-            if (vstate.y(1+i) > (1.0_rt + vode_failure_tolerance) * vstate.y(1)) {
+            if (vstate.y(1+i) > (1.0_rt + species_failure_tolerance) * vstate.y(1)) {
                 valid_update = false;
             }
 #endif

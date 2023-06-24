@@ -32,7 +32,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     // Flag determining if we were successful.
 
-    int istate = 1;
+    int istate = IERR_SUCCESS;
 
     // Return if the final time matches the starting time.
 
@@ -153,8 +153,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
                vstate.t = vstate.tn;
 
-               istate = -1;
-               return istate;
+               return IERR_TOO_MANY_STEPS;
 
            }
 
@@ -194,8 +193,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 #ifndef AMREX_USE_GPU
                std::cout << Font::Bold << FGColor::Red << "DVODE: too much accuracy requested at start of integration" << ResetDisplay << std::endl;
 #endif
-               istate = -3;
-               return istate;
+               return IERR_TOO_MUCH_ACCURACY_REQUESTED;
            }
 
            // Too much accuracy requested for machine precision.
@@ -208,8 +206,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
            vstate.t = vstate.tn;
 
-           istate = -2;
-           return istate;
+           return IERR_TOO_MUCH_ACCURACY_REQUESTED;
 
        }
 
@@ -229,9 +226,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            }
 
            vstate.t = vstate.tn;
-
-           istate = -4;
-           return istate;
+           return IERR_DT_UNDERFLOW;
 
        }
        else if (kflag == -2) {
@@ -245,9 +240,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            }
 
            vstate.t = vstate.tn;
-
-           istate = -5;
-           return istate;
+           return IERR_CORRECTOR_CONVERGENCE;
 
        }
 
@@ -272,9 +265,8 @@ int dvode (BurnT& state, DvodeT& vstate)
 #endif
 
            if (in_nse(state)) {
-               istate = -100;
                vstate.t = vstate.tn;
-               return istate;
+               return IERR_ENTERED_NSE;
            }
        }
 #endif
@@ -302,8 +294,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
        vstate.t = vstate.tout;
 
-       istate = 2;
-       return istate;
+       return IERR_SUCCESS;
 
     }
 }
