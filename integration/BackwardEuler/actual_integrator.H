@@ -88,7 +88,7 @@ void actual_integrator (BurnT& state, const Real dt)
     state.n_jac = be.n_jac;
     state.n_step = be.n_step;
 
-    if (istate < 0) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
