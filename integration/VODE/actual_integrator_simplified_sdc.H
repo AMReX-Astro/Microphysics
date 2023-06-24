@@ -123,7 +123,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Add some checks that indicate a burn fail even if VODE thinks the
     // integration was successful.
 
-    if (istate < 0) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
@@ -132,11 +132,11 @@ void actual_integrator (BurnT& state, Real dt)
     }
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(SFS+n) / state.y[SRHO] < -vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.y[SRHO] < -species_failure_tolerance) {
             state.success = false;
         }
 
-        if (vode_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + vode_failure_tolerance) {
+        if (vode_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + species_failure_tolerance) {
             state.success = false;
         }
     }
@@ -156,7 +156,7 @@ void actual_integrator (BurnT& state, Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-        if (istate != -100) {
+        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;

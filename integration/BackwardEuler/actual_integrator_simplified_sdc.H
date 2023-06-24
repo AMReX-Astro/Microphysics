@@ -107,7 +107,7 @@ void actual_integrator (BurnT& state, const Real dt)
 
     normalize_abundances_sdc_burn(state);
 
-    if (istate < 0) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
