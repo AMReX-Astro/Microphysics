@@ -52,8 +52,8 @@ void actual_eos (I input, T& state)
 {
     static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
-    // Get the mass of a nucleon from Avogadro's number.
-    const Real m_nucleon = 1.0 / C::n_A;
+    // Get the mass of a nucleon from m_u.
+    const Real m_nucleon = C::m_u;
 
     if constexpr (has_xn<T>::value) {
         if (eos_assume_neutral) {
