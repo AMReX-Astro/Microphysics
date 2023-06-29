@@ -114,6 +114,14 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
         state.y[n] = int_state.y(n+1);
     }
 
+    // undo any scaling
+    if (scale_system) {
+        state.y[SEINT] *= state.rho_scale * state.e_scale;
+        for (int n = 0; n < NumSpecs; ++n) {
+            state.y[SFS+n] *= state.rho_scale;
+        }
+    }
+
     // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
