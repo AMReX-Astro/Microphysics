@@ -32,6 +32,11 @@ void actual_integrator (BurnT& state, const Real dt)
     be.t = 0.0_rt;
     be.tout = dt;
 
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
