@@ -82,6 +82,12 @@ void actual_integrator (BurnT& state, Real dt)
     vode_state.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
     vode_state.rtol_spec = rtol_spec * sdc_tol_fac;
 
+    // if we are scaling the system, then update the atols accordingly
+    if (scale_system) {
+        vode_state.atol_enuc /= (state.rho_scale * state.e_scale);
+        vode_state.atol_spec /= state.rho_scale;
+    }
+
     // Call the integration routine.
 
     int istate = dvode(state, vode_state);

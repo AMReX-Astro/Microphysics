@@ -81,8 +81,20 @@ void burn_to_int(BurnT& state, T& int_state)
 
     // store the original rho and rho e
     state.rho_orig = state.y[SRHO];
-
     state.rhoe_orig = state.y[SEINT];
+
+    // normalize
+    state.e_scale = state.rhoe_orig / state.rho_orig;
+    state.rho_scale = state.rho_orig;
+
+    if (scale_system) {
+        // we are integrating (rho X, rho e), so normalize by the
+        // initial scale
+        int_state.y(net_ienuc) /= (state.rho_scale * state.e_scale);
+        for (int n = 1; n <= NumSpec; ++n) {
+            int_state.y(n) /= state.rho;
+        }
+    }
 
 }
 
