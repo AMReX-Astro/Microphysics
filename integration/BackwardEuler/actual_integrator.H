@@ -43,8 +43,9 @@ void actual_integrator (BurnT& state, const Real dt)
 
     eos(eos_input_rt, state);
 
-    // set the scaling for energy if we integrate it dimensionlessly
+    // set the scaling for density / energy if we integrate it dimensionlessly
     state.e_scale = state.e;
+    state.rho_scale = state.rho;
 
     if (scale_system) {
         // the absolute tol for energy needs to reflect the scaled
