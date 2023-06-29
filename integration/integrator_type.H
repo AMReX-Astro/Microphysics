@@ -7,7 +7,7 @@ using namespace integrator_rp;
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_density_in_time(const Real time, BurnT& state, [[maybe_unused]] const T& int_state)
+void update_density_in_time(const Real time, BurnT& state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -16,9 +16,6 @@ void update_density_in_time(const Real time, BurnT& state, [[maybe_unused]] cons
     // Note: we don't update the aux data here based on the X's -- that
     // needs to be done separately.
     //
-    // Also note: int_state is only used as input for the case where
-    // we need to construct rho from (rho X).
-
     // we are always integrating from t = 0, so there is no offset
     // time needed here.  The indexing of ydot_a is based on
     // the indices in burn_t and is 0-based    
