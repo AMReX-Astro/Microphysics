@@ -5,7 +5,7 @@
 
 using namespace integrator_rp;
 
-template <typename BurnT, typename T>
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void update_density_in_time(const Real time, BurnT& state)
 {
