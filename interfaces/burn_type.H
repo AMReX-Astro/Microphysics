@@ -77,8 +77,9 @@ struct burn_t
   Real aux[NumAux];
 #endif
 
-  // scaling used to make e we integrate dimensionless
+  // scaling used to make e or (rho e) we integrate dimensionless
   Real e_scale;
+  Real rho_scale;
 
   // derivatives needed for calling the EOS
   Real dedr;
