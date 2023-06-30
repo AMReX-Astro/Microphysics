@@ -23,7 +23,7 @@ void renormalize_species(const Real time, BurnT& state, T& int_state)
 
     // update rho, rho*u, etc.
 
-    update_density_in_time(time, state, int_state);
+    update_density_in_time(time, state);
 
     Real nspec_sum = 0.0_rt;
     for (int n = 1; n <= NumSpec; n++) {
@@ -105,7 +105,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
     // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
-    update_density_in_time(time, state, int_state);
+    update_density_in_time(time, state);
 
     Real rhoInv = 1.0_rt / state.rho;
 
