@@ -180,16 +180,21 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     if (scale_system) {
 
-        // scale the energy derivatives, d(edot) / d ...
+        // scale the derivatives of energy wrt species, d(edot) / dX ...
 
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            pd(net_ienuc,j) /= state.e_scale;
+        for (int j = 1; j <= NumSpec; ++j) {
+            pd(net_ienuc, j) /= state.e_scale;
         }
-        // but d(edot)/de already is scaled by the current energy, so the
-        // actual scaling it should see is (e / e_scale)
-        pd(net_ienuc, net_ienuc) *= state.e;
 
-        // now scale the species
+        // scale the derivatives of species wrt energy
+
+        for (int i = 1; i <= NumSpec; ++i) {
+            pd(i, net_ienuc) *= state.e_scale;
+        }
+
+
+        // d(edot) / de is unscaled
+
     }
 
 }
