@@ -11,42 +11,8 @@ using namespace integrator_rp;
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void renormalize_species(const Real time, BurnT& state, T& int_state)
-{
-
-    // Constrain the partial densities in int_state to sum to the
-    // density.  This does not update the burn_t state.
-    //
-    // We only renormalize species when evolving energy because
-    // when we evolve enthalpy, we define the density as
-    // the sum of the partial densities rho*X for each species.
-
-    // update rho, rho*u, etc.
-
-    update_density_in_time(time, state);
-
-    Real nspec_sum = 0.0_rt;
-    for (int n = 1; n <= NumSpec; n++) {
-        // use 1-based indexing
-        nspec_sum += int_state.y(SFS+n);
-    }
-    nspec_sum /= state.y[SRHO];
-
-    for (int n = 1; n <= NumSpec; n++) {
-        int_state.y(SFS+n) /= nspec_sum;
-    }
-
-    // note: we don't carry the auxiliary data in int_state, so there
-    // is no update to them done here
-
-}
-
-
-template <typename BurnT, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state(const Real time, BurnT& state, T& int_state)
 {
-
     // Ensure that mass fractions always stay positive.
 
     if (do_species_clip) {
@@ -60,9 +26,24 @@ void clean_state(const Real time, BurnT& state, T& int_state)
     // renormalize abundances as necessary
 
     if (renormalize_abundances) {
-        renormalize_species(time, state, int_state);
-    }
+        // update rho, rho*u, etc.
 
+        update_density_in_time(time, state);
+
+        // Constrain the partial densities in int_state to sum to the
+        // density.  This does not update the burn_t state.
+
+        Real nspec_sum = 0.0_rt;
+        for (int n = 1; n <= NumSpec; n++) {
+            // use 1-based indexing
+            nspec_sum += int_state.y(SFS+n);
+        }
+        nspec_sum /= state.y[SRHO];
+
+        for (int n = 1; n <= NumSpec; n++) {
+            int_state.y(SFS+n) /= nspec_sum;
+        }
+    }
 }
 
 
@@ -91,7 +72,6 @@ template <typename T, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void int_to_burn(const Real time, const T& int_state, BurnT& state)
 {
-
     // this makes burn_t represent the current integration state.  The
     // main thing this really does is compute the current temperature
 
