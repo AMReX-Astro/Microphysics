@@ -5,6 +5,14 @@
     eos_extra_t, which is a container that holds all of the
     entities in eos_t as well as these derivatives wrt A and Z. (#1229)
 
+  * added the ability to scale the energy we integrate by
+    the initial energy in the ODE integration (#1224)
+
+  * added an implementation of the Gershgorin circle theorem
+    for estimating the spectral radius of our ODE system (#1222)
+
+  * removed SDC_EVOLVE_ENTHALPY -- this was not being used (#1204)
+  
 # 23.06
 
   * Added a new Runge-Kutta-Chebyshev integrator (#1191)
