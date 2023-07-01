@@ -5,33 +5,9 @@
 #include <eos_composition.H>
 #include <burn_type.H>
 #include <actual_rhs.H>
+#include <integrator_type.H>
 
 using namespace integrator_rp;
-
-template <typename BurnT, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_density_in_time(const Real time, BurnT& state, [[maybe_unused]] const T& int_state)
-{
-
-    // some quantities are only advected.  Here we update those state
-    // variables in burn_t's y[] array due only to advection.
-    //
-    // Note: we don't update the aux data here based on the X's -- that
-    // needs to be done separately.
-    //
-    // Also note: int_state is only used as input for the case where
-    // we need to construct rho from (rho X).
-
-    // we are always integrating from t = 0, so there is no offset
-    // time needed here.  The indexing of ydot_a is based on
-    // the indices in burn_t and is 0-based    
-    state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
-
-    // for consistency
-    state.rho = state.y[SRHO];
-
-}
-
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -47,7 +23,7 @@ void renormalize_species(const Real time, BurnT& state, T& int_state)
 
     // update rho, rho*u, etc.
 
-    update_density_in_time(time, state, int_state);
+    update_density_in_time(time, state);
 
     Real nspec_sum = 0.0_rt;
     for (int n = 1; n <= NumSpec; n++) {
@@ -129,7 +105,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
     // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
-    update_density_in_time(time, state, int_state);
+    update_density_in_time(time, state);
 
     Real rhoInv = 1.0_rt / state.rho;
 
