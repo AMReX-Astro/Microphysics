@@ -16,10 +16,13 @@ void clean_state(const Real time, BurnT& state, T& int_state)
     // Ensure that mass fractions always stay positive.
 
     if (do_species_clip) {
+
+        // if we are scaling the system, then the species are (rho / rho_scale) * X_k
+        Real rho_ref = scale_system ? state.rho / state.rho_scale : state.rho;
         for (int n = 1; n <= NumSpec; ++n) {
             // we use 1-based indexing, so we need to offset SFS
-            int_state.y(SFS+n) = amrex::max(amrex::min(int_state.y(SFS+n), state.rho),
-                                            state.rho * SMALL_X_SAFE);
+            int_state.y(SFS+n) = amrex::max(amrex::min(int_state.y(SFS+n), rho_ref),
+                                            rho_ref * SMALL_X_SAFE);
         }
     }
 
@@ -38,7 +41,13 @@ void clean_state(const Real time, BurnT& state, T& int_state)
             // use 1-based indexing
             nspec_sum += int_state.y(SFS+n);
         }
+
+        // if we are doing scale_system, then we summed (rho / rho_scale) X_k,
+        // so the normalization is rho_scale / rho
         nspec_sum /= state.y[SRHO];
+        if (scale_system) {
+            nspec_sum *= state.rho_scale;
+        }
 
         for (int n = 1; n <= NumSpec; n++) {
             int_state.y(SFS+n) /= nspec_sum;
@@ -97,7 +106,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
     // undo any scaling
     if (scale_system) {
         state.y[SEINT] *= state.rho_scale * state.e_scale;
-        for (int n = 0; n < NumSpecs; ++n) {
+        for (int n = 0; n < NumSpec; ++n) {
             state.y[SFS+n] *= state.rho_scale;
         }
     }
@@ -110,8 +119,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
     Real rhoInv = 1.0_rt / state.rho;
 
     for (int n = 0; n < NumSpec; n++) {
-        // int_state uses 1-based indexing
-        state.xn[n] = int_state.y(SFS+1+n) * rhoInv;
+        state.xn[n] = state.y[SFS+n] * rhoInv;
     }
 
 #ifdef AUX_THERMO
@@ -126,7 +134,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
 
     // set internal energy for EOS call
 
-    state.e = int_state.y(SEINT+1) * rhoInv;
+    state.e = state.y[SEINT] * rhoInv;
 
     state.T = state.T;  // initial guess
 
@@ -154,7 +162,7 @@ void rhs_to_int([[maybe_unused]] const Real time,
     // reaction network.  Note that these are in terms of dY/dt
     // we will convert these in place to the form needed for SDC
 
-    // convert from dY/dt to dX/dt. The species derivatives are the
+    // convert from dY/dt to rho dX/dt. The species derivatives are the
     // first NumSpec components of ydot coming from the reaction network
 
     BL_ASSERT(SFS == 0);
@@ -177,6 +185,15 @@ void rhs_to_int([[maybe_unused]] const Real time,
 
     for (int n = 0; n < SVAR_EVOLVE; n++) {
         ydot(n+1) += state.ydot_a[n];
+    }
+
+    // finally scale the ydots if we are doing scale_system
+
+    if (scale_system) {
+        for (int n = 1; n <= NumSpec; ++n) {
+            ydot(n) /=  state.rho_scale;
+        }
+        ydot(SEINT+1) /= (state.rho_scale * state.e_scale);
     }
 
 }

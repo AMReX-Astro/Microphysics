@@ -74,7 +74,7 @@ void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
     }
 
     // convert back to the form needed by the integrator -- this will
-    // add the advective terms
+    // add the advective terms and apply any scaling via scale_system
 
     rhs_to_int(time, state, ydot);
 
@@ -174,6 +174,27 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
         for (int n = 1; n <= NumSpec; n++) {
             pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
         }
+    }
+
+    // apply scaling via scale_system
+
+    if (scale_system) {
+
+        // scale the derivatives of energy wrt species, d(edot) / dX ...
+
+        for (int j = 1; j <= NumSpec; ++j) {
+            pd(net_ienuc, j) /= state.e_scale;
+        }
+
+        // scale the derivatives of species wrt energy
+
+        for (int i = 1; i <= NumSpec; ++i) {
+            pd(i, net_ienuc) *= state.e_scale;
+        }
+
+
+        // d(edot) / de is unscaled
+
     }
 
 }
