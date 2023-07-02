@@ -82,7 +82,7 @@ void burn_to_int(BurnT& state, T& int_state)
         // initial scale
         int_state.y(net_ienuc) /= (state.rho_scale * state.e_scale);
         for (int n = 1; n <= NumSpec; ++n) {
-            int_state.y(n) /= state.rho;
+            int_state.y(n) /= state.rho_scale;
         }
     }
 
