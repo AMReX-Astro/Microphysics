@@ -16,4 +16,4 @@ call first, to enforce the consistency.
 
 .. [1]
    this code comes from Frank Timmes’ website,
-   http://cococubed.asu.edu/code_pages/kap.shtml
+   https://cococubed.com/code_pages/kap.shtml

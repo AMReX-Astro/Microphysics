@@ -43,27 +43,12 @@ void burn_to_integrator (const BurnT& state, I& int_state)
     }
 }
 
-
-template <typename I>
+template <typename BurnT, typename I>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void renormalize_species (I& int_state)
+void clean_state (const Real time, BurnT& state, I& int_state)
 {
-    Real sum = 0.0_rt;
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        sum += int_state.y(n);
-    }
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        int_state.y(n) /= sum;
-    }
-}
-
-
-template <typename I>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (I& int_state)
-{
+    amrex::ignore_unused(time);
+    amrex::ignore_unused(state);
 
     // Ensure that mass fractions always stay positive and less than or
     // equal to 1.
@@ -84,9 +69,16 @@ void clean_state (I& int_state)
     // Renormalize the abundances as necessary.
 
     if (renormalize_abundances) {
-        renormalize_species(int_state);
-    }
+        Real sum = 0.0_rt;
 
+        for (int n = 1; n <= NumSpec; ++n) {
+            sum += int_state.y(n);
+        }
+
+        for (int n = 1; n <= NumSpec; ++n) {
+            int_state.y(n) /= sum;
+        }
+    }
 }
 
 #endif
