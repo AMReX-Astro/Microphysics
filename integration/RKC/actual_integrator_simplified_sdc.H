@@ -31,11 +31,6 @@ void actual_integrator (BurnT& state, Real dt)
     rkc_state.t = 0.0_rt;
     rkc_state.tout = dt;
 
-    // We assume that (rho, T) coming in are valid, do an EOS call
-    // to fill the rest of the thermodynamic variables.
-
-    eos(eos_input_rt, state);
-
     // Fill in the initial integration state.
 
     burn_to_int(state, rkc_state);
