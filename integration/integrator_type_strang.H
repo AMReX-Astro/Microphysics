@@ -43,10 +43,13 @@ void burn_to_integrator (const BurnT& state, I& int_state)
     }
 }
 
-template <typename I>
+template <typename BurnT, typename I>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (I& int_state)
+void clean_state (const Real time, BurnT& state, I& int_state)
 {
+    amrex::ignore_unused(time);
+    amrex::ignore_unused(state);
+
     // Ensure that mass fractions always stay positive and less than or
     // equal to 1.
 
