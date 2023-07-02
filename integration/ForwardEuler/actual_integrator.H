@@ -143,17 +143,12 @@ void initialize_int_state (IntT& int_state)
     int_state.rtol_spec = rtol_spec;  // mass fractions
     int_state.rtol_enuc = rtol_enuc;  // energy generated
 
-    // Set the Jacobian type
-
-    int_state.jacobian_type = jacobian;
-
     // Initialize the integration time.
 
     int_state.t = 0.0_rt;
 
     int_state.n_step = 0;
     int_state.n_rhs = 0;
-    int_state.n_jac = 0;
 }
 
 template <typename BurnT>
@@ -222,7 +217,7 @@ void actual_integrator (BurnT& state, Real dt)
     state.time = fe.t;
     state.n_step = fe.n_step;
     state.n_rhs = fe.n_rhs;
-    state.n_jac = fe.n_jac;
+    state.n_jac = 0;
 
 #ifndef AMREX_USE_GPU
     if (burner_verbose) {
