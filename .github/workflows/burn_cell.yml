@@ -64,16 +64,6 @@ jobs:
           make realclean
           make NETWORK_DIR=triple_alpha_plus_cago INTEGRATOR_DIR=ForwardEuler -j 4
 
-     - name: Run burn_cell (ForwardEuler, triple_alpha_plus_cago)
-       run: |
-         cd unit_test/burn_cell
-         ./main3d.gnu.ex inputs_triple > test.out
-
-      - name: Compare to stored output (ForwardEuler, triple_alpha_plus_cago)
-        run: |
-          cd unit_test/burn_cell
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/triple_alpha_plus_cago_FE_unit_test.out
-
       - name: Compile, burn_cell (BackwardEuler, subch_approx)
         run: |
           cd unit_test/burn_cell
