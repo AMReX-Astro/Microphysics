@@ -40,7 +40,7 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
     // Fix the state as necessary -- this ensures that the mass
     // fractions that enter are valid (and optionally normalized)
 
-    clean_state(int_state);
+    clean_state(time, state, int_state);
 
     // Update the thermodynamics as necessary -- this primarily takes
     // the information in int_state (X and e), copies it to the
