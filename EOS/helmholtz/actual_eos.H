@@ -18,8 +18,8 @@
 using namespace eos_rp;
 
 // Frank Timmes Helmholtz based Equation of State
-// http://cococubed.asu.edu/
-  
+// https://cococubed.com/
+
 // given a temperature temp [K], density den [g/cm**3], and a composition
 // characterized by abar and zbar, this routine returns most of the other
 // thermodynamic quantities. of prime interest is the pressure [erg/cm**3],
