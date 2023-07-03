@@ -170,7 +170,7 @@ void rhs_to_int([[maybe_unused]] const Real time,
 
     // finally scale the ydots if we are doing scale_system
 
-    if (state_system) {
+    if (scale_system) {
         ydot(SEINT+1) /= state.e_scale;
     }
 
