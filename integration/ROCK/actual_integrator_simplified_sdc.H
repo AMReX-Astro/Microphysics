@@ -1,9 +1,6 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
-// Common variables and routines for burners
-// that use VODE for their integration.
-
 #include <iomanip>
 
 #include <network.H>
@@ -11,6 +8,7 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 #include <rock_type.H>
 #include <rock.H>
 
@@ -20,8 +18,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    rock_t rock_state{};
+    rock_t<int_neqs> rock_state{};
 
     // Start off by assuming a successful burn.
 
@@ -31,11 +30,6 @@ void actual_integrator (BurnT& state, Real dt)
 
     rock_state.t = 0.0_rt;
     rock_state.tout = dt;
-
-    // We assume that (rho, T) coming in are valid, do an EOS call
-    // to fill the rest of the thermodynamic variables.
-
-    eos(eos_input_rt, state);
 
     // Fill in the initial integration state.
 
@@ -99,7 +93,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     Real rho_Sdot = 0.0_rt;
     if (state.time > 0) {
-        rho_Sdot = (rock_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+        rho_Sdot = (state.y[SEINT] - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
     }
 
     state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
@@ -124,16 +118,16 @@ void actual_integrator (BurnT& state, Real dt)
         state.success = false;
     }
 
-    if (rock_state.y(SEINT+1) < 0.0_rt) {
+    if (state.y[SEINT] < 0.0_rt) {
         state.success = false;
     }
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        if (rock_state.y(SFS+n) / state.y[SRHO] < -rock_failure_tolerance) {
+    for (int n = 0; n < NumSpec; ++n) {
+        if (state.y[SFS+n] / state.rho < -species_failure_tolerance) {
             state.success = false;
         }
 
-        if (rock_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + rock_failure_tolerance) {
+        if (state.y[SFS+n] / state.rho > 1.0_rt + species_failure_tolerance) {
             state.success = false;
         }
     }
@@ -145,8 +139,8 @@ void actual_integrator (BurnT& state, Real dt)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout << " energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << rock_state.nsteps << std::endl;
-        std::cout <<  "number of f evaluations: " << rock_state.nfe << std::endl;
+        std::cout <<  "number of steps taken: " << state.n_step << std::endl;
+        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
 #endif
 
@@ -157,7 +151,7 @@ void actual_integrator (BurnT& state, Real dt)
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
         std::cout << "ierr = " << ierr << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-        std::cout << "time = " << rock_state.t << std::endl;
+        std::cout << "time = " << state.time << std::endl;
         std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
         std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
         std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;

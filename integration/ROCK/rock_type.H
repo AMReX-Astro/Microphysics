@@ -9,22 +9,9 @@
 
 #include <integrator_data.H>
 
-typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
-
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
-// We will use this parameter to determine if a given species abundance
-// is unreasonably small or large (each X must satisfy
-// -failure_tolerance <= X <= 1.0 + failure_tolerance).
-const Real rock_failure_tolerance = 1.e-2_rt;
-
-enum rock_errors {
-    IERR_SUCCESS = 1,
-    IERR_BAD_INPUTS = -1,
-    IERR_DT_UNDERFLOW = -2,
-    IERR_SPRAD_CONVERGENCE = -3,
-    IERR_TOO_MANY_STEPS = -4};
-
+template <int int_neqs>
 struct rock_t {
 
     // The initial point of the integration.
@@ -37,7 +24,7 @@ struct rock_t {
    amrex::Real tout;
 
     // Integration array
-    RArray1D y;
+    Array1D<Real, 1, int_neqs> y;
 
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
@@ -65,23 +52,23 @@ struct rock_t {
 
     amrex::Real hmax;
 
-    RArray1D yn;
-    RArray1D fn;
-    RArray1D yjm1;
-    RArray1D yjm2;
+    Array1D<Real, 1, int_neqs> yn;
+    Array1D<Real, 1, int_neqs> fn;
+    Array1D<Real, 1, int_neqs> yjm1;
+    Array1D<Real, 1, int_neqs> yjm2;
 
     // these 3 arrays are only needed for ROCK4
-    RArray1D fnt;
-    RArray1D yjm3;
-    RArray1D yjm4;
+    Array1D<Real, 1, int_neqs> fnt;
+    Array1D<Real, 1, int_neqs> yjm3;
+    Array1D<Real, 1, int_neqs> yjm4;
 
     // this is used by the spectral radius power method
-    RArray1D sprad;
+    Array1D<Real, 1, int_neqs> sprad;
 
     // because our rhs wrapper requires that rock_t rstate.y() hold the state
     // that is used for evaluating the RHS, we need to create an additional
     // temporary to backup the contents of y
-    RArray1D y_backup;
+    Array1D<Real, 1, int_neqs> y_backup;
 
     int mdeg;
 

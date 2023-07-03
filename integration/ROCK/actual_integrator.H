@@ -18,7 +18,9 @@ void actual_integrator (BurnT& state, Real dt)
 
     using namespace integrator_rp;
 
-    rock_t rock_state{};
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    rock_t<int_neqs> rock_state{};
 
     // Set the tolerances.
 
@@ -36,6 +38,12 @@ void actual_integrator (BurnT& state, Real dt)
 
     rock_state.t = 0.0_rt;
     rock_state.tout = dt;
+
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -102,14 +110,14 @@ void actual_integrator (BurnT& state, Real dt)
     // integration was successful.
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rock_state.y(n) < -rock_failure_tolerance) {
+        if (rock_state.y(n) < -species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce the condition below
         // for primordial chem
         if (!use_number_densities) {
-            if (rock_state.y(n) > 1.0_rt + rock_failure_tolerance) {
+            if (rock_state.y(n) > 1.0_rt + species_failure_tolerance) {
                 state.success = false;
             }
         }

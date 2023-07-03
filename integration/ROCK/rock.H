@@ -15,9 +15,12 @@
 #include <rock2_coefficients.H>
 #include <rock4_coefficients.H>
 #include <rkc_util.H>
+#include <circle_theorem.H>
+#include <integrator_data.H>
 
+template <typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void mdegre2(rock_t& rstate)
+void mdegre2(RockT& rstate)
 {
 
     // this is the ROCK2 version
@@ -48,8 +51,10 @@ void mdegre2(rock_t& rstate)
     return;
 }
 
+
+template <typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void mdegre4(rock_t& rstate)
+void mdegre4(RockT& rstate)
 {
 
     // this is the ROCK4 version
@@ -82,9 +87,9 @@ void mdegre4(rock_t& rstate)
 }
 
 
-template <typename BurnT>
+template <typename BurnT, typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real r2step (BurnT& state, rock_t& rstate)
+Real r2step (BurnT& state, RockT& rstate)
 {
 
     // Solut. at t+h by an explicit (mdeg+2)-stages formula.
@@ -179,9 +184,9 @@ Real r2step (BurnT& state, rock_t& rstate)
     return err;
 }
 
-template <typename BurnT>
+template <typename BurnT, typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real r4step (BurnT& state, rock_t& rstate)
+Real r4step (BurnT& state, RockT& rstate)
 {
 
     // Solut. at t+h by an explicit (mdeg+4)-stages formula.
@@ -339,9 +344,9 @@ Real r4step (BurnT& state, rock_t& rstate)
 }
 
 
-template <typename BurnT>
+template <typename BurnT, typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rockcore (BurnT& state, rock_t& rstate)
+int rockcore (BurnT& state, RockT& rstate)
 {
 
     // Core integrator for ROCK4.
@@ -399,9 +404,13 @@ int rockcore (BurnT& state, rock_t& rstate)
         // Spectral radius.
 
         if (nrho == 0) {
-            int ierr = rkcrho(state, rstate, rstate.tout, eigmax);
-            if (ierr != 0) {
-                return IERR_SPRAD_CONVERGENCE;
+            if (integrator_rp::use_circle_theorem) {
+                circle_theorem_sprad(rstate.t, state, rstate, eigmax);
+            } else {
+                int ierr = rkcrho(state, rstate, rstate.tout, eigmax);
+                if (ierr != 0) {
+                    return IERR_SPRAD_CONVERGENCE;
+                }
             }
             rstate.max_rho = std::max(rstate.max_rho, static_cast<int>(std::round(eigmax)));
             rstate.min_rho = std::min(rstate.min_rho, static_cast<int>(std::round(eigmax)));
@@ -544,9 +553,9 @@ int rockcore (BurnT& state, rock_t& rstate)
 }
 
 
-template <typename BurnT>
+template <typename BurnT, typename RockT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rock (BurnT& state, rock_t& rstate)
+int rock (BurnT& state, RockT& rstate)
 {
 
     using namespace integrator_rp;
@@ -564,9 +573,13 @@ int rock (BurnT& state, rock_t& rstate)
     rhs(rstate.t, state, rstate, rstate.fn);
 
     Real sprad{};
-    int ierr = rkcrho(state, rstate, rstate.tout, sprad);
-    if (ierr != 0) {
-        return IERR_SPRAD_CONVERGENCE;
+    if (integrator_rp::use_circle_theorem) {
+        circle_theorem_sprad(rstate.t, state, rstate, sprad);
+    } else {
+        int ierr = rkcrho(state, rstate, rstate.tout, sprad);
+        if (ierr != 0) {
+            return IERR_SPRAD_CONVERGENCE;
+        }
     }
 
     //rstate.h = initial_dt(state, rstate, rstate.fn);
@@ -592,7 +605,7 @@ int rock (BurnT& state, rock_t& rstate)
 
     // call the integrator
 
-    ierr = rockcore(state, rstate);
+    int ierr = rockcore(state, rstate);
 
     return ierr;
 }
