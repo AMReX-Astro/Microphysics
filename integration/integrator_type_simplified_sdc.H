@@ -134,8 +134,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
     Real rhoInv = 1.0_rt / state.rho;
 
     for (int n = 0; n < NumSpec; n++) {
-        // int_state uses 1-based indexing
-        state.xn[n] = int_state.y(SFS+1+n) * rhoInv;
+        state.xn[n] = state.y[SFS+n] * rhoInv;
     }
 
 #ifdef AUX_THERMO
@@ -150,7 +149,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
 
     // set internal energy for EOS call
 
-    state.e = int_state.y(SEINT+1) * rhoInv;
+    state.e = state.y[SEINT] * rhoInv;
 
     state.T = state.T;  // initial guess
 
