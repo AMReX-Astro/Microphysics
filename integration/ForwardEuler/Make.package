@@ -1,1 +1,2 @@
 CEXE_headers += actual_integrator.H
+CEXE_headers += fe_type.H
