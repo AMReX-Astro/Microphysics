@@ -36,6 +36,12 @@ void actual_integrator (BurnT& state, Real dt)
     rkc_state.t = 0.0_rt;
     rkc_state.tout = dt;
 
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
+
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
@@ -101,14 +107,14 @@ void actual_integrator (BurnT& state, Real dt)
     // integration was successful.
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rkc_state.y(n) < -rkc_failure_tolerance) {
+        if (rkc_state.y(n) < -species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce the condition below
         // for primordial chem
         if (!use_number_densities) {
-            if (rkc_state.y(n) > 1.0_rt + rkc_failure_tolerance) {
+            if (rkc_state.y(n) > 1.0_rt + species_failure_tolerance) {
                 state.success = false;
             }
         }

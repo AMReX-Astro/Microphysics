@@ -90,7 +90,7 @@ void actual_integrator (BurnT& state, const Real dt)
 
     Real rho_Sdot = 0.0_rt;
     if (state.time > 0) {
-        rho_Sdot = (be.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+        rho_Sdot = (state.y[SEINT] - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
     }
 
     state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
@@ -107,7 +107,7 @@ void actual_integrator (BurnT& state, const Real dt)
 
     normalize_abundances_sdc_burn(state);
 
-    if (istate < 0) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
@@ -130,7 +130,7 @@ void actual_integrator (BurnT& state, const Real dt)
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
         std::cout << "istate = " << istate << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-        std::cout << "time = " << be.t << std::endl;
+        std::cout << "time = " << state.time << std::endl;
         std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
         std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
         std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;

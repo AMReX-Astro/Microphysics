@@ -5,72 +5,14 @@
 #include <eos_composition.H>
 #include <burn_type.H>
 #include <actual_rhs.H>
+#include <integrator_type.H>
 
 using namespace integrator_rp;
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_density_in_time(const Real time, BurnT& state, [[maybe_unused]] const T& int_state)
-{
-
-    // some quantities are only advected.  Here we update those state
-    // variables in burn_t's y[] array due only to advection.
-    //
-    // Note: we don't update the aux data here based on the X's -- that
-    // needs to be done separately.
-    //
-    // Also note: int_state is only used as input for the case where
-    // we need to construct rho from (rho X).
-
-    // we are always integrating from t = 0, so there is no offset
-    // time needed here.  The indexing of ydot_a is based on
-    // the indices in burn_t and is 0-based    
-    state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
-
-    // for consistency
-    state.rho = state.y[SRHO];
-
-}
-
-
-template <typename BurnT, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void renormalize_species(const Real time, BurnT& state, T& int_state)
-{
-
-    // Constrain the partial densities in int_state to sum to the
-    // density.  This does not update the burn_t state.
-    //
-    // We only renormalize species when evolving energy because
-    // when we evolve enthalpy, we define the density as
-    // the sum of the partial densities rho*X for each species.
-
-    // update rho, rho*u, etc.
-
-    update_density_in_time(time, state, int_state);
-
-    Real nspec_sum = 0.0_rt;
-    for (int n = 1; n <= NumSpec; n++) {
-        // use 1-based indexing
-        nspec_sum += int_state.y(SFS+n);
-    }
-    nspec_sum /= state.y[SRHO];
-
-    for (int n = 1; n <= NumSpec; n++) {
-        int_state.y(SFS+n) /= nspec_sum;
-    }
-
-    // note: we don't carry the auxiliary data in int_state, so there
-    // is no update to them done here
-
-}
-
-
-template <typename BurnT, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state(const Real time, BurnT& state, T& int_state)
 {
-
     // Ensure that mass fractions always stay positive.
 
     if (do_species_clip) {
@@ -84,9 +26,24 @@ void clean_state(const Real time, BurnT& state, T& int_state)
     // renormalize abundances as necessary
 
     if (renormalize_abundances) {
-        renormalize_species(time, state, int_state);
-    }
+        // update rho, rho*u, etc.
 
+        update_density_in_time(time, state);
+
+        // Constrain the partial densities in int_state to sum to the
+        // density.  This does not update the burn_t state.
+
+        Real nspec_sum = 0.0_rt;
+        for (int n = 1; n <= NumSpec; n++) {
+            // use 1-based indexing
+            nspec_sum += int_state.y(SFS+n);
+        }
+        nspec_sum /= state.y[SRHO];
+
+        for (int n = 1; n <= NumSpec; n++) {
+            int_state.y(SFS+n) /= nspec_sum;
+        }
+    }
 }
 
 
@@ -115,7 +72,6 @@ template <typename T, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void int_to_burn(const Real time, const T& int_state, BurnT& state)
 {
-
     // this makes burn_t represent the current integration state.  The
     // main thing this really does is compute the current temperature
 
@@ -129,7 +85,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
     // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
-    update_density_in_time(time, state, int_state);
+    update_density_in_time(time, state);
 
     Real rhoInv = 1.0_rt / state.rho;
 

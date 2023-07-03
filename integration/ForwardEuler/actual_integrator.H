@@ -6,17 +6,19 @@
 #include <rhs.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
-#include <rate_type.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <fe_type.H>
 
 using namespace integrator_rp;
 
-template <typename BurnT>
+template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real calculate_dt (BurnT& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
+Real calculate_dt (IntT& int_state, BurnT& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
 {
+    using namespace microphysics::forward_euler;
+
     // Our timestepping strategy is to prevent any quantity
     // from changing by more than a certain factor in any
     // timestep. We ignore this for species below atol_spec.
@@ -62,10 +64,12 @@ Real calculate_dt (BurnT& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener
     return dt;
 }
 
-template <typename BurnT>
+template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (BurnT& state)
+void clean_state (const Real time, IntT& int_state, BurnT& state)
 {
+    using namespace microphysics::forward_euler;
+
     // Renormalize the abundances.
 
     normalize_abundances_burn(state);
@@ -82,17 +86,19 @@ void clean_state (BurnT& state)
 
 }
 
-template <typename BurnT>
+template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_rhs (BurnT& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
+void evaluate_rhs (IntT& int_state, BurnT& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
 {
+    using namespace microphysics::forward_euler;
+
     // Evaluate the RHS.
 
     Array1D<Real, 1, neqs> ydot;
 
     actual_rhs(state, ydot);
 
-    state.n_rhs += 1;
+    int_state.n_rhs += 1;
 
     // Scale species terms by A (they come from the RHS in terms of Y, not X).
 
@@ -107,6 +113,8 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void initialize_state (BurnT& state)
 {
+    using namespace microphysics::forward_euler;
+
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
@@ -114,14 +122,50 @@ void initialize_state (BurnT& state)
 
     state.success = true;
 
-    state.n_rhs = 0;
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
+}
+
+template <typename IntT>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void initialize_int_state (IntT& int_state)
+{
+    using namespace microphysics::forward_euler;
+
+    // Set the tolerances.
+
+    int_state.atol_spec = atol_spec;  // mass fractions
+    int_state.atol_enuc = atol_enuc;  // energy generated
+
+    int_state.rtol_spec = rtol_spec;  // mass fractions
+    int_state.rtol_enuc = rtol_enuc;  // energy generated
+
+    // Initialize the integration time.
+
+    int_state.t = 0.0_rt;
+
+    int_state.n_step = 0;
+    int_state.n_rhs = 0;
 }
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
+    using namespace microphysics::forward_euler;
+
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    fe_t<int_neqs> fe;
+
     initialize_state(state);
+
+    initialize_int_state(fe);
+
+    fe.tout = dt;
 
     Real T_in = state.T;
     Real e_in = state.e;
@@ -130,57 +174,50 @@ void actual_integrator (BurnT& state, Real dt)
         xn_in[n] = state.xn[n];
     }
 
-    Real t = 0.0;
-
-    // When checking the integration time to see if we're done,
-    // be careful with roundoff issues.
-
-    const Real timestep_safety_factor = 1.0e-12_rt;
-
-    int num_timesteps = 0;
-
-    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps) {
-
+    while (fe.t < (1.0_rt - timestep_safety_factor) * dt && fe.n_step < ode_max_steps) {
         // Evaluate the RHS.
 
         Array1D<Real, 1, NumSpec> spec_rhs;
         Real ener_rhs;
 
-        evaluate_rhs(state, spec_rhs, ener_rhs);
+        evaluate_rhs(fe, state, spec_rhs, ener_rhs);
 
        // Calculate the timestep.
 
-        Real dt_sub = calculate_dt(state, spec_rhs, ener_rhs);
+        Real dt_sub = calculate_dt(fe, state, spec_rhs, ener_rhs);
 
         // Prevent the timestep from overshooting the final time.
 
-        if (t + dt_sub > dt) {
-            dt_sub = dt - t;
+        if (fe.t + dt_sub > dt) {
+            dt_sub = dt - fe.t;
         }
 
         // Apply the update.
 
         for (int n = 1; n <= NumSpec; ++n) {
+            fe.y(n) += spec_rhs(n) * dt_sub;
             state.xn[n-1] += spec_rhs(n) * dt_sub;
         }
 
         if (integrate_energy) {
+            fe.y(net_ienuc) += ener_rhs * dt_sub;
             state.e += ener_rhs * dt_sub;
         }
 
-        clean_state(state);
+        fe.t += dt_sub;
+        ++fe.n_step;
 
-        t += dt_sub;
-        ++num_timesteps;
-
+        clean_state(fe.t, fe, state);
     }
 
-    if (num_timesteps >= ode_max_steps) {
+    if (fe.n_step >= ode_max_steps) {
         state.success = false;
     }
 
-    state.n_step = num_timesteps;
-    state.time = t;
+    state.time = fe.t;
+    state.n_step = fe.n_step;
+    state.n_rhs = fe.n_rhs;
+    state.n_jac = 0;
 
 #ifndef AMREX_USE_GPU
     if (burner_verbose) {
@@ -188,7 +225,7 @@ void actual_integrator (BurnT& state, Real dt)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout <<  "energy released: " << state.e - e_in << std::endl;
-        std::cout <<  "number of steps taken: " << num_timesteps << std::endl;
+        std::cout <<  "number of steps taken: " << state.n_step << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
 #endif
@@ -198,7 +235,7 @@ void actual_integrator (BurnT& state, Real dt)
     if (!state.success) {
 #ifndef AMREX_USE_GPU
         std::cout << "ERROR: integration failed in net" << std::endl;
-        std::cout << "time = " << t << std::endl;
+        std::cout << "time = " << state.time << std::endl;
         std::cout << "dens = " << state.rho << std::endl;
         std::cout << "temp start = " << T_in << std::endl;
         std::cout << "xn start = ";

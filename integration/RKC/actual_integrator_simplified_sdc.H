@@ -31,11 +31,6 @@ void actual_integrator (BurnT& state, Real dt)
     rkc_state.t = 0.0_rt;
     rkc_state.tout = dt;
 
-    // We assume that (rho, T) coming in are valid, do an EOS call
-    // to fill the rest of the thermodynamic variables.
-
-    eos(eos_input_rt, state);
-
     // Fill in the initial integration state.
 
     burn_to_int(state, rkc_state);
@@ -98,7 +93,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     Real rho_Sdot = 0.0_rt;
     if (state.time > 0) {
-        rho_Sdot = (rkc_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+        rho_Sdot = (state.y[SEINT] - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
     }
 
     state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
@@ -123,16 +118,16 @@ void actual_integrator (BurnT& state, Real dt)
         state.success = false;
     }
 
-    if (rkc_state.y(SEINT+1) < 0.0_rt) {
+    if (state.y[SEINT] < 0.0_rt) {
         state.success = false;
     }
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        if (rkc_state.y(SFS+n) / state.y[SRHO] < -rkc_failure_tolerance) {
+    for (int n = 0; n < NumSpec; ++n) {
+        if (state.y[SFS+n] / state.rho < -species_failure_tolerance) {
             state.success = false;
         }
 
-        if (rkc_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + rkc_failure_tolerance) {
+        if (state.y[SFS+n] / state.rho > 1.0_rt + species_failure_tolerance) {
             state.success = false;
         }
     }
@@ -144,8 +139,8 @@ void actual_integrator (BurnT& state, Real dt)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout << " energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << rkc_state.nsteps << std::endl;
-        std::cout <<  "number of f evaluations: " << rkc_state.nfe << std::endl;
+        std::cout <<  "number of steps taken: " << state.n_step << std::endl;
+        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
 #endif
 
@@ -156,7 +151,7 @@ void actual_integrator (BurnT& state, Real dt)
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
         std::cout << "ierr = " << ierr << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-        std::cout << "time = " << rkc_state.t << std::endl;
+        std::cout << "time = " << state.time << std::endl;
         std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
         std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
         std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;

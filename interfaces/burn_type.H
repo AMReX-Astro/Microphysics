@@ -34,8 +34,6 @@ const int net_ienuc = NumSpec + 1;
 // RHS of the network, regardless of Strang or SDC
 typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
-#ifdef SIMPLIFIED_SDC
-
 // these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
@@ -56,8 +54,6 @@ const int SEDEN = SMZ+1;
 
 const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
-
-#endif
 
 // this is the data type of the dense Jacobian that the network wants.
 // it is not the same size as the Jacobian that VODE cares about when
@@ -105,8 +101,6 @@ struct burn_t
 
   // now come the bits that we need for SDC or Strang evolution
 
-#ifdef SIMPLIFIED_SDC
-
   // y is the input conserved state.  We will keep this state updated
   // in time as we integrate, such that upon output it will be the
   // final conserved state.
@@ -124,8 +118,6 @@ struct burn_t
 
   int sdc_iter;
   int num_sdc_iters;
-
-#endif
 
   // for drive_initial_convection, we will fix T during the
   // integration to a passed in value.  We will interpret a positive
@@ -189,7 +181,6 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << std::endl;
 #endif
 
-#ifdef SIMPLIFIED_SDC
   o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
   o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
 
@@ -222,7 +213,6 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
       o << burn_state.ydot_a[SFX+n] << " ";
   }
   o << std::endl;
-#endif
 #endif
   return o;
 }
@@ -297,7 +287,6 @@ void burn_to_eos (const BurnT& burn_state, T& eos_state)
 }
 
 
-#ifdef SIMPLIFIED_SDC
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void sdc_burn_to_eos (const BurnT& state, T& eos_state)
@@ -365,7 +354,6 @@ void normalize_abundances_sdc_burn (BurnT& state)
 #endif
 
 }
-#endif
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
