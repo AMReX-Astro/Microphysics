@@ -10,6 +10,7 @@
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 
 using namespace integrator_rp;
 
@@ -42,6 +43,7 @@ void initialize_state (BurnT& state)
     eos(eos_input_rt, state);
 
     state.success = true;
+    state.error_code = IERR_SUCCESS;
 
     state.time = 0.0;
     state.n_rhs = 0;
@@ -374,6 +376,7 @@ void actual_integrator (BurnT& state, Real dt)
 
         if (timestep_iter >= num_timestep_iters) {
             state.success = false;
+            state.error_code = IERR_CORRECTOR_CONVERGENCE;
             break;
         }
 
@@ -386,6 +389,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     if (num_timesteps >= ode_max_steps) {
         state.success = false;
+        state.error_code = IERR_TOO_MANY_STEPS;
     }
 
     state.time = t;

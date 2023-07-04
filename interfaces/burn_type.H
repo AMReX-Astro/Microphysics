@@ -158,6 +158,10 @@ struct burn_t
 
   // Was the burn successful?
   bool success;
+
+  // integrator error code
+  short error_code;
+
 };
 
 
