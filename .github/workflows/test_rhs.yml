@@ -41,7 +41,7 @@ jobs:
         run: |
           cd unit_test/test_rhs
           ./main3d.gnu.ex inputs_ignition_simple
-          ../../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_ignition_simple_test_rhs.VODE > test.out
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_ignition_simple_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, ignition_simple)
         run: |
