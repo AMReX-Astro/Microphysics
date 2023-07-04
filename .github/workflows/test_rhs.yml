@@ -2,7 +2,7 @@ name: test_rhs
 
 on: [pull_request]
 jobs:
-  burn_cell:
+  test_rhs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
