@@ -10,6 +10,7 @@
 #include <eos.H>
 #include <extern_parameters.H>
 #include <fe_type.H>
+#include <integrator_data.H>
 
 using namespace integrator_rp;
 
@@ -121,6 +122,7 @@ void initialize_state (BurnT& state)
     eos(eos_input_rt, state);
 
     state.success = true;
+    state.error_code = IERR_SUCCESS;
 
     // Initialize ydot to zero for Strang burn.
 
@@ -212,6 +214,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     if (fe.n_step >= ode_max_steps) {
         state.success = false;
+        state.error_code = IERR_TOO_MANY_STEPS;
     }
 
     state.time = fe.t;
