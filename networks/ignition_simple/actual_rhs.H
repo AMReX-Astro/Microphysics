@@ -162,7 +162,7 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     // carbon jacobian elements
     jac(C12, C12) = -(1.0_rt / 6.0_rt) * dens * rate * xc12tmp;
-    jac(Mg24, C12) = -jac(C12, C12);
+    jac(Mg24, C12) = -0.5_rt * jac(C12, C12);
 
     // add the temperature derivatives: df(y_i) / dT
     Real jac_C12_T = -(1.0_rt / 12.0_rt) * (dens * dratedt * xc12tmp * xc12tmp);
@@ -174,12 +174,13 @@ void actual_jac (burn_t& state, MatrixType& jac)
 
     // Now store as df(y_i) / de
     jac(C12, net_ienuc) = temperature_to_energy_jacobian(state, jac_C12_T);
+    jac(Mg24, net_ienuc) = temperature_to_energy_jacobian(state, -0.5_rt * jac_C12_T);
 
     // Energy generation rate Jacobian elements with respect to species
     ener_gener_rate(jac(C12, C12), jac(net_ienuc, C12));
 
     // Energy generation rate Jacobian element with respect to energy
-    ener_gener_rate(jac(net_ienuc, net_ienuc), jac_C12_T);
+    ener_gener_rate(jac(C12, net_ienuc), jac(net_ienuc, net_ienuc));
 }
 
 #endif
