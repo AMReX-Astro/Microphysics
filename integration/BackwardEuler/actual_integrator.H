@@ -70,6 +70,7 @@ void actual_integrator (BurnT& state, const Real dt)
     // Call the integration routine.
 
     int istate = be_integrator(state, be);
+    state.error_code = istate;
 
     // Copy the integration data back to the burn state.
 
