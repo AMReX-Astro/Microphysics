@@ -21,7 +21,7 @@
  J_carbon-12_magnesium-24                      0                      0
  J_oxygen-16_magnesium-24                      0                      0
  J_magnesium-24_magnesium-24                      0                      0
- J_E_magnesium-24                            0                      0
+ J_E_magnesium-24                           -0                     -0
  J_carbon-12_E               -3.0258460306e-08       -5.079112025e-85
  J_oxygen-16_E                               0                      0
  J_magnesium-24_E             2.5395560125e-85       1.5129230153e-08
