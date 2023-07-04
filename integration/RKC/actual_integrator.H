@@ -74,6 +74,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Call the integration routine.
 
     int ierr = rkc(state, rkc_state);
+    state.error_code = ierr;
 
     // Copy the integration data back to the burn state.
 
