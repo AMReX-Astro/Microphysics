@@ -92,7 +92,6 @@ namespace RHS
             // This network doesn't allow the reverse reaction
             data.reverse_branching_ratio = 0.0_rt;
             break;
-
         }
 
         return data;
