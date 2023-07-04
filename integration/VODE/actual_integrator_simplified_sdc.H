@@ -85,6 +85,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Call the integration routine.
 
     int istate = dvode(state, vode_state);
+    state.error_code = istate;
 
     // Get the number of RHS and Jacobian evaluations.
 

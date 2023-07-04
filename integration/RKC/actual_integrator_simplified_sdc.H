@@ -76,6 +76,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Call the integration routine.
 
     int ierr = rkc(state, rkc_state);
+    state.error_code = ierr;
 
     // Get the number of RHS and Jacobian evaluations.
 
