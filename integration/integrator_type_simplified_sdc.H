@@ -62,8 +62,15 @@ void burn_to_int(BurnT& state, T& int_state)
 
     // store the original rho and rho e
     state.rho_orig = state.y[SRHO];
-
     state.rhoe_orig = state.y[SEINT];
+
+    // store the energy scaling
+    state.e_scale = state.rhoe_orig / state.rho_orig;
+
+    // scale the integrator energy
+    if (scale_system) {
+        int_state.y(SEINT+1) /= state.e_scale;
+    }
 
 }
 
@@ -82,6 +89,12 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
         state.y[n] = int_state.y(n+1);
     }
 
+    // correct energy for scaling
+
+    if (scale_system) {
+        state.y[SEINT] *= state.e_scale;
+    }
+
     // update rho in the burn_t state
     // this may be redundant, but better to be safe
 
@@ -90,8 +103,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
     Real rhoInv = 1.0_rt / state.rho;
 
     for (int n = 0; n < NumSpec; n++) {
-        // int_state uses 1-based indexing
-        state.xn[n] = int_state.y(SFS+1+n) * rhoInv;
+        state.xn[n] = state.y[SFS+n] * rhoInv;
     }
 
 #ifdef AUX_THERMO
@@ -106,9 +118,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
 
     // set internal energy for EOS call
 
-    state.e = int_state.y(SEINT+1) * rhoInv;
-
-    state.T = state.T;  // initial guess
+    state.e = state.y[SEINT] * rhoInv;
 
     eos(eos_input_re, state);
 
@@ -149,7 +159,6 @@ void rhs_to_int([[maybe_unused]] const Real time,
 
     ydot(SEINT+1) *= state.rho;
 
-
     // now add the contribution from the non-reacting sources --
     // including advection
 
@@ -157,6 +166,12 @@ void rhs_to_int([[maybe_unused]] const Real time,
 
     for (int n = 0; n < SVAR_EVOLVE; n++) {
         ydot(n+1) += state.ydot_a[n];
+    }
+
+    // finally scale the ydots if we are doing scale_system
+
+    if (scale_system) {
+        ydot(SEINT+1) /= state.e_scale;
     }
 
 }

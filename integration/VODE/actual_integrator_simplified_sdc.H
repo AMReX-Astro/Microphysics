@@ -75,6 +75,12 @@ void actual_integrator (BurnT& state, Real dt)
     vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
     vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
 
+    if (scale_system) {
+        // the absolute tol for energy needs to reflect the scaled
+        // energy the integrator sees
+        vode_state.atol_enuc /= state.e_scale;
+    }
+
     // Note: we define the input atol for species to refer only to the
     // mass fraction part, and we multiply by a representative density
     // so that atol becomes an absolutely tolerance on (rho X)
