@@ -176,6 +176,27 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
         }
     }
 
+    // apply scale_system scaling (if needed)
+
+    if (scale_system) {
+
+        // do the dX/de terms
+
+        for (int irow = 1; irow <= NumSpec; ++irow) {
+            pd(irow, net_ienuc) *= state.e_scale;
+        }
+
+        // do the de/dX terms
+
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            pd(net_ienuc, jcol) /= state.e_scale;
+        }
+
+       // de/de is unscaled
+
+    }
+
+
 }
 
 #endif
