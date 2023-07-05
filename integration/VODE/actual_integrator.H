@@ -44,6 +44,12 @@ void actual_integrator (BurnT& state, Real dt)
     vode_state.t = 0.0_rt;
     vode_state.tout = dt;
 
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
+
     // Set the (inverse of the) timestep limiter.
 
     vode_state.HMXI = 1.0_rt / ode_max_dt;
@@ -80,6 +86,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Call the integration routine.
 
     int istate = dvode(state, vode_state);
+    state.error_code = istate;
 
     // Copy the integration data back to the burn state.
 
