@@ -242,11 +242,17 @@ reject it</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_circle_theorem</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scale_system</span></code></p></td>
+<td><p>do we scale the ODE system we integrate to make it
+O(1)? for Strang, this simply means scaling e by the
+initial energy?</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_circle_theorem</span></code></p></td>
 <td><p>use the Gershgorin circle theorem to estimate the
 spectral radius? note: requires integrator.scale_system
 = 1</p></td>
-<td><p>0</p></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>

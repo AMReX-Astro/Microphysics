@@ -59,7 +59,11 @@ RKC
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | parameter                             | description                                             | default value      |
 +=======================================+=========================================================+====================+
-| ``use_circle_theorem``                | use the Gershgorin circle theorem to estimate the       | 0                  |
+| ``scale_system``                      | do we scale the ODE system we integrate to make it      | 1                  |
+|                                       | O(1)? for Strang, this simply means scaling e by the    |                    |
+|                                       | initial energy?                                         |                    |
++---------------------------------------+---------------------------------------------------------+--------------------+
+| ``use_circle_theorem``                | use the Gershgorin circle theorem to estimate the       | 1                  |
 |                                       | spectral radius? note: requires integrator.scale_system |                    |
 |                                       | = 1                                                     |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
