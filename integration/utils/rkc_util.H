@@ -3,7 +3,7 @@
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real sprad)
+Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_timestep, const Real sprad)
 {
 
     // estimate the initial timestep
@@ -11,11 +11,11 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real spra
     // this requires that yn hold the initial state and fn the corresponding RHS
     // it also requires temporary space yjm1 and yjm2
     // finally, we require the initial spectral radius, sprad, and the maximum
-    // timestep (tout - tstart), max_dt.
+    // timestep (tout - tstart), max_timestep.
 
-    Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), max_dt);
+    Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), max_timestep);
 
-    Real absh = max_dt;
+    Real absh = max_timestep;
 
     if (sprad * absh > 1.0_rt) {
         absh = 1.0_rt / sprad;
@@ -53,10 +53,10 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real spra
     }
     est = absh * std::sqrt(est / INT_NEQS);
 
-    if (0.1_rt * absh < max_dt * std::sqrt(est)) {
+    if (0.1_rt * absh < max_timestep * std::sqrt(est)) {
         absh = std::max(0.1_rt * absh / std::sqrt(est), hmin);
     } else {
-        absh = max_dt;
+        absh = max_timestep;
     }
 
     return absh;
@@ -65,7 +65,7 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_dt, const Real spra
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkcrho (BurnT& state, IntT& rstate, const Real max_dt, Real& sprad)
+int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
 {
 
     // RKCRHO attempts to compute a close upper bound, SPRAD, on
@@ -85,7 +85,7 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_dt, Real& sprad)
     // rstate.fn to the RHS called with yn for nsteps == 0
     // rstate.sprad to the previous eigenvector for nsteps > 0
     //
-    // max_dt is the maximum timestep, typically tout - tbegin
+    // max_timestep is the maximum timestep, typically tout - tbegin
     //
     // we use rstate.yjm1 and rstate.yjm2 as internal storage
 
@@ -94,7 +94,7 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_dt, Real& sprad)
     // sprad smaller than small = 1/hmax are not
     // interesting because they do not constrain the step size.
 
-    Real small = 1.0_rt / max_dt;
+    Real small = 1.0_rt / max_timestep;
 
     // The initial slope is used as guess when nsteps = 0 and
     // thereafter the last computed eigenvector.  Some care
