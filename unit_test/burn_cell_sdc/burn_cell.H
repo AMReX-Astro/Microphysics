@@ -293,11 +293,6 @@ void burn_cell_c()
 
     burn_state.T_fixed = -1.0;
 
-
-    // output initial burn type data
-    Real time = 0.0_rt;
-
-
     std::ofstream state_over_time("state_over_time.txt");
 
     // we will divide the total integration time into nsteps that are
@@ -316,11 +311,6 @@ void burn_cell_c()
     } else {
         dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
     }
-
-    // save the initial state -- we'll use this to determine
-    // how much things changed over the entire burn
-
-    burn_t state_in = burn_state;
 
     // output the data in columns, one line per timestep
 
