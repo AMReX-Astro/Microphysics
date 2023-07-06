@@ -86,6 +86,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Call the integration routine.
 
     int istate = dvode(state, vode_state);
+    state.error_code = istate;
 
     // Copy the integration data back to the burn state.
 
