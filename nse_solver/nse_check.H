@@ -58,10 +58,17 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
   // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
   // Eq. 14 in Kushnir paper
 
-  if (std::abs((r - r_nse) / r_nse) < 0.5_rt) {
+  // if there is neutron in the network
+
+  if ((std::abs((r - r_nse) / r_nse) < 0.5_rt) && (NSE_INDEX::n_index != -1)) {
     nse_check = true;
   }
 
+  // if there is no neutron in the network
+
+  if ((std::abs((r - r_nse) / r_nse) < 0.25_rt) && (NSE_INDEX::n_index -= -1)) {
+    nse_check = true;
+  }
 }
 
 
@@ -1030,7 +1037,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   current_state.nse = false;
 
-  if (current_state.T < 2.0e9_rt) {
+  if (current_state.T < 2.5e9_rt) {
     return current_state.nse;
   }
     
