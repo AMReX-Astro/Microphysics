@@ -1,4 +1,4 @@
-AMReX (23.07-3-g22a1a3a1d4b0) initialized
+AMReX (23.07-7-g88f03408f18a) initialized
 starting the single zone burn...
 Maximum Time (s): 0.001
 State Density (g/cm^3): 1000000
@@ -10,7 +10,7 @@ Mass Fraction (Fe56): 0
 RHS at t = 0
    He4 -1.897392574
    C12 0.6324641915
-   O16 1.844542224e-27
+   O16 1.767918298e-27
   Fe56 0
 ------------------------------------
 successful? 1
@@ -22,18 +22,18 @@ e initial = 1.389440599e+18
 e final =   1.121022454e+34
 ------------------------------------
 new mass fractions: 
-He4 0.9976922702
-C12 7.565668024e-05
-O16 0.002232073101
+He4 0.9994356028
+C12 1.497617246e-05
+O16 0.0005494210118
 Fe56 1e-30
 ------------------------------------
 species creation rates: 
-omegadot(He4): -2.307729781
-omegadot(C12): 0.07565668024
-omegadot(O16): 2.232073101
+omegadot(He4): -0.5643971843
+omegadot(C12): 0.01497617246
+omegadot(O16): 0.5494210118
 omegadot(Fe56): 0
-number of steps taken: 204653
+number of steps taken: 85669
 Unused ParmParse Variables:
   [TOP]::unit_test.x4(nvals = 1)  :: [0.0]
 
-AMReX (23.07-3-g22a1a3a1d4b0) finalized
+AMReX (23.07-7-g88f03408f18a) finalized
