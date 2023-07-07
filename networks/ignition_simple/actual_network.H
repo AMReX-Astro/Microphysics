@@ -13,14 +13,45 @@ using namespace amrex;
 #include <rhs_type.H>
 #include <aprox_rates.H>
 
-void actual_network_init();
+AMREX_INLINE
+void actual_network_init() {}
 
 const std::string network_name = "ignition_simple";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real bion () {
+        using namespace Species;
+
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        // Set the binding energy of the element
+        if constexpr (spec == C12) {
+            return 92.16294e0_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 127.62093e0_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 198.25790e0_rt;
+        }
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real mion () {
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        constexpr Real A = NetworkProperties::aion(spec);
+        constexpr Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
 }
 
 namespace Rates
@@ -124,7 +155,7 @@ namespace RHS
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     Real ener_gener_rate (Real const& dydt)
     {
-        return dydt * network::mion(spec) * C::Legacy::enuc_conv2;
+        return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }
 } // namespace RHS
 
