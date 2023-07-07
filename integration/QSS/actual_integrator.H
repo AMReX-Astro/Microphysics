@@ -6,7 +6,6 @@
 #include <rhs.H>
 #include <actual_rhs.H>
 #include <burn_type.H>
-#include <rate_type.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
