@@ -11,7 +11,6 @@
 #include <microphysics_math.H>
 #include <actual_network.H>
 #include <burn_type.H>
-#include <rate_type.H>
 #include <screen.H>
 #include <jacobian_utilities.H>
 #include <fundamental_constants.H>
