@@ -89,6 +89,9 @@ namespace RHS {
 
             data.exponent_A = 3;
             data.exponent_D = 1;
+
+            // This network doesn't allow the reverse reaction
+            data.reverse_branching_ratio = 0.0_rt;
             break;
 
         case C12_He4_to_O16:
@@ -103,6 +106,9 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+
+            // This network doesn't allow the reverse reaction
+            data.reverse_branching_ratio = 0.0_rt;
             break;
 
         }
