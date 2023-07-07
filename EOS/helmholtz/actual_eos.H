@@ -1486,6 +1486,8 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
+  amrex::ignore_unused(input);
+
   static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
