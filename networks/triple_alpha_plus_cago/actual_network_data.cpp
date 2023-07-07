@@ -4,6 +4,7 @@
 namespace network
 {
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
 }
 
 void actual_network_init ()
@@ -19,4 +20,9 @@ void actual_network_init ()
     bion(C12)  = 92.16294_rt; // MeV / nucleus
     bion(O16)  = 127.62093_rt; // MeV / nucleus
     bion(Fe56) = 492.25389_rt; // MeV / nucleus
+
+    // Set the mass
+    for (int i = 1; i <= NumSpec; ++i) {
+        mion(i) = (aion[i-1] - zion[i-1]) * C::Legacy::m_n + zion[i-1] * (C::Legacy::m_p + C::Legacy::m_e) - bion(i) * C::Legacy::MeV2gr;
+    }
 }
