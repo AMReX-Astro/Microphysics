@@ -14,14 +14,47 @@
 
 using namespace amrex;
 
-void actual_network_init();
+AMREX_INLINE
+void actual_network_init() {}
 
 const std::string network_name = "triple_alpha_plus_cago";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        // our convention is that binding energy is negative.  The following are
+        // the binding energies per unit mass (erg / g) obtained by converting
+        // the energies in MeV to erg then multiplying by (N_A / aion) where
+        // N_A = 6.0221415e23 is Avogadro's number
+
+        if (spec == He4) {
+            return 28.29603_rt;
+        }
+        else if (spec == C12) {
+            return 92.16294_rt;
+        }
+        else if (spec == O16) {
+            return 127.62093_rt;
+        }
+        else if (spec == Fe56) {
+            return 492.25389_rt;
+        }
+
+        // Return zero if we don't recognize the species.
+
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real mion (int spec) {
+        Real A = NetworkProperties::aion(spec);
+        Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion(spec) * C::Legacy::MeV2gr;
+    }
 }
 
 namespace Rates
