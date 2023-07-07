@@ -2,6 +2,7 @@
 #define EOS_COMPOSITION_H
 
 #include <AMReX_BLFort.H>
+#include <constexpr_for.H>
 #include <network.H>
 #include <eos_type.H>
 
@@ -36,11 +37,23 @@ void set_aux_comp_from_X(state_t& state) {
   state.aux[iabar] = 0.0_rt;
   state.aux[ibea] = 0.0_rt;
 
-  for (int n = 0; n < NumSpec; n++) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
+  constexpr_for<1, NumSpec>([&] (auto n) {
+      constexpr Real A_inv = 1.0_rt / NetworkProperties::aion(n);
+      constexpr Real Z = NetworkProperties::zion(n);
+
+      state.aux[iye] += state.xn[n] * Z * A_inv;
+      state.aux[iabar] += state.xn[n] * A_inv;
+      state.aux[ibea] += state.xn[n] * network::bion<n>() * A_inv;
+  });
+#else
+  for (int n = 0; n < NumSpec; ++n) {
     state.aux[iye] += state.xn[n] * zion[n] * aion_inv[n];
     state.aux[iabar] += state.xn[n] * aion_inv[n];
     state.aux[ibea] += state.xn[n] * network::bion(n+1) * aion_inv[n];
   }
+#endif
+
   state.aux[iabar] = 1.0_rt/state.aux[iabar];
 
 }
