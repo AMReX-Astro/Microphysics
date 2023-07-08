@@ -57,39 +57,6 @@ namespace network
         return 0.0_rt;
     }
 
-    // Legacy (non-templated) interface
-
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real bion (int spec) {
-        using namespace Species;
-
-        // Set the binding energy of the element
-        if (spec == He4) {
-            return bion<He4>();
-        }
-        else if (spec == C12) {
-            return bion<C12>();
-        }
-        else if (spec == O16) {
-            return bion<O16>();
-        }
-        else if (spec == Ne20) {
-            return bion<Ne20>();
-        }
-        else if (spec == Mg24) {
-            return bion<Mg24>();
-        }
-        else if (spec == Si28) {
-            return bion<Si28>();
-        }
-        else if (spec == Ni56) {
-            return bion<Ni56>();
-        }
-
-        // Return zero if we don't recognize the species.
-        return 0.0_rt;
-    }
-
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr Real mion () {
@@ -99,6 +66,37 @@ namespace network
         constexpr Real Z = NetworkProperties::zion(spec);
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                return bion<n>();
+            }
+        });
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real mion (int spec) {
+        using namespace Species;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                return mion<n>();
+            }
+        });
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
     }
 }
 
