@@ -57,6 +57,39 @@ namespace network
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
     }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        Real b = 0.0_rt;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                b = bion<n>();
+            }
+        });
+
+        return b;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real mion (int spec) {
+        using namespace Species;
+
+        Real m = 0.0_rt;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                m = mion<n>();
+            }
+        });
+
+        return m;
+    }
 }
 
 namespace Rates
