@@ -42,6 +42,27 @@ namespace network
         return 0.0_rt;
     }
 
+    // Legacy (non-templated) interface
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        // Set the binding energy of the element
+        if (spec == C12) {
+            return bion<C12>();
+        }
+        else if (spec == O16) {
+            return bion<O16>();
+        }
+        else if (spec == Mg24) {
+            return bion<Mg24>();
+        }
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr Real mion () {

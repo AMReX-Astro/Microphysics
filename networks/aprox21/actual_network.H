@@ -101,6 +101,81 @@ namespace network
         return 0.0_rt;
     }
 
+    // Legacy (non-templated) interface
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        // Set the binding energy of the element
+        if (spec == H1) {
+            return bion<H1>();
+        }
+        else if (spec == He3) {
+            return bion<He3>();
+        }
+        else if (spec == He4) {
+            return bion<He4>();
+        }
+        else if (spec == C12) {
+            return bion<C12>();
+        }
+        else if (spec == N14) {
+            return bion<N14>();
+        }
+        else if (spec == O16) {
+            return bion<O16>();
+        }
+        else if (spec == Ne20) {
+            return bion<Ne20>();
+        }
+        else if (spec == Mg24) {
+            return bion<Mg24>();
+        }
+        else if (spec == Si28) {
+            return bion<Si28>();
+        }
+        else if (spec == S32) {
+            return bion<S32>();
+        }
+        else if (spec == Ar36) {
+            return bion<Ar36>();
+        }
+        else if (spec == Ca40) {
+            return bion<Ca40>();
+        }
+        else if (spec == Ti44) {
+            return bion<Ti44>();
+        }
+        else if (spec == Cr48) {
+            return bion<Cr48>();
+        }
+        else if (spec == Cr56) {
+            return bion<Cr56>();
+        }
+        else if (spec == Fe52) {
+            return bion<Fe52>();
+        }
+        else if (spec == Fe54) {
+            return bion<Fe54>();
+        }
+        else if (spec == Fe56) {
+            return bion<Fe56>();
+        }
+        else if (spec == Ni56) {
+            return bion<Ni56>();
+        }
+        else if (spec == N) {
+            return bion<N>();
+        }
+        else if (spec == P) {
+            return bion<P>();
+        }
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr Real mion () {
