@@ -4,7 +4,6 @@
 #include <extern_parameters.H>
 #include <actual_network.H>
 #include <jacobian_utilities.H>
-#include <rate_type.H>
 
 using namespace amrex;
 using namespace network_rp;
