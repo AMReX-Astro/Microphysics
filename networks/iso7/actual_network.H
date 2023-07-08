@@ -74,29 +74,31 @@ namespace network
     Real bion (int spec) {
         using namespace Species;
 
+        Real b = 0.0_rt;
+
         // Set the binding energy of the element
         constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
-                return bion<n>();
+                b = bion<n>();
             }
         });
 
-        // Return zero if we don't recognize the species.
-        return 0.0_rt;
+        return b;
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     Real mion (int spec) {
         using namespace Species;
 
+        Real m = 0.0_rt;
+
         constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
-                return mion<n>();
+                m = mion<n>();
             }
         });
 
-        // Return zero if we don't recognize the species.
-        return 0.0_rt;
+        return m;
     }
 }
 
