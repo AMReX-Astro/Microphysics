@@ -1,4 +1,4 @@
- plotfile = react_powerlaw_test_rhs.VODE/
+ plotfile = react_powerlaw_test_rhs.VODE
  time = 0
               variables          minimum value          maximum value
  density                                   0.1                      2
