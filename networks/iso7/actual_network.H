@@ -27,6 +27,18 @@ namespace network
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> wion;
 }
 
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    // p_index is for photoionization proton
+    extern AMREX_GPU_MANAGED int p_index;
+    extern AMREX_GPU_MANAGED int h1_index;
+    extern AMREX_GPU_MANAGED int n_index;
+    extern AMREX_GPU_MANAGED int he4_index;
+    extern AMREX_GPU_MANAGED bool initialized;
+}
+#endif
+
 namespace Rates {
     enum NetworkRates {
         C12_He4_to_O16 = 1,

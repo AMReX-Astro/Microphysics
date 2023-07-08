@@ -23,6 +23,18 @@ namespace table
 }
 #endif
 
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    // p_index is for photoionization proton
+    AMREX_GPU_MANAGED int p_index = 18;
+    AMREX_GPU_MANAGED int h1_index = 0;
+    AMREX_GPU_MANAGED int n_index = 17;
+    AMREX_GPU_MANAGED int he4_index = 2;
+    AMREX_GPU_MANAGED bool initialized = false;
+}
+#endif
+
 void actual_network_init()
 {
     using namespace Species;

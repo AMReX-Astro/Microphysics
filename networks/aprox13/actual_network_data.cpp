@@ -7,6 +7,18 @@ namespace network
     AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
 }
 
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    // p_index is for photoionization proton
+    AMREX_GPU_MANAGED int p_index = -1;
+    AMREX_GPU_MANAGED int h1_index = -1;
+    AMREX_GPU_MANAGED int n_index = -1;
+    AMREX_GPU_MANAGED int he4_index = 0;
+    AMREX_GPU_MANAGED bool initialized = false;
+}
+#endif
+
 void actual_network_init()
 {
     using namespace Species;
