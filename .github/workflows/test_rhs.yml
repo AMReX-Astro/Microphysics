@@ -149,3 +149,20 @@ jobs:
         run: |
           cd unit_test/test_rhs
           diff test.out ci-benchmarks/powerlaw.out
+
+      - name: Compile, test_rhs (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=triple_alpha_plus_cago -j 4
+
+      - name: Run test_rhs (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_triple_alpha_plus_cago
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_triple_alpha_plus_cago_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/triple_alpha_plus_cago.out
