@@ -450,7 +450,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
   if (state.y_e < ye_lo || state.y_e > ye_hi) {
 #ifndef AMREX_USE_GPU
-    std::cout << "Warning: input Ye is out of range. Ye is recalulated based on Composition" << std::endl;
+    std::cout << "Warning: input Ye is " << state.y_e << ", which is out of range. Ye is recalulated based on Composition" << std::endl;
 #endif
     input_ye_is_valid = false;
   }
