@@ -11,11 +11,6 @@ namespace network
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    // p_index is for photoionization proton
-    AMREX_GPU_MANAGED int p_index = -1;
-    AMREX_GPU_MANAGED int h1_index = -1;
-    AMREX_GPU_MANAGED int n_index = -1;
-    AMREX_GPU_MANAGED int he4_index = 0;
     AMREX_GPU_MANAGED bool initialized = false;
 }
 #endif
