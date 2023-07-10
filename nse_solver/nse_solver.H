@@ -30,11 +30,13 @@ void init_nse_net() {
   if (!use_hybrid_solver) {
     bool singular_network = true;
     for (int n = 0; n < NumSpec; ++n) {
+
 #ifdef NEW_NETWORK_IMPLEMENTATION
       if (n == NSE_INDEX::h1_index) {
 	continue;
       }
 #endif
+
       if (zion[n] != aion[n] - zion[n]) {
 	singular_network = false;
       }
