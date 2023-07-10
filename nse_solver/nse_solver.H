@@ -67,7 +67,9 @@ T get_nse_state(const T& state) {
 #if SCREEN_METHOD != 3
   const amrex::Real A1 = -0.9052_rt;
   const amrex::Real A2 = 0.6322_rt;
-  const amrex::Real A3 = -0.5_rt * std::sqrt(3.0_rt) - A1 / std::sqrt(A2);
+  
+  // A3 = -0.5 * sqrt(3) - A1/sqrt(A2)
+  const amrex::Real A3 = 0.272433346667;
 
   // Find n_e for original state;
   const amrex::Real n_e = state.rho * state.y_e / C::m_u;
@@ -103,8 +105,8 @@ T get_nse_state(const T& state) {
       // if use non-null screening, calculate the coulomb correction term
 
 #if SCREEN_METHOD != 3
-      gamma = std::pow(zion[n], 5.0_rt/3.0_rt) *
-          C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) /
+      Real z53 = std::cbrt(zion[n] * zion[n] * zion[n] * zion[n] * zion[n]);
+      gamma = z53 * C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) /
           (C::k_B * T_in);
 
       // chemical potential for coulomb correction
@@ -133,10 +135,14 @@ T get_nse_state(const T& state) {
                                   - u_c + network::bion(n+1)) /
                                  C::k_B / T_in * C::Legacy::MeV2erg);
 
+      Real power = 2.0 * M_PI * network::mion(n+1) *
+	C::k_B * T_in / (C::hplanck * C::hplanck);
+      // nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
+      //     std::pow(2.0 * M_PI * network::mion(n+1) *
+      //              C::k_B * T_in / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
+      //     std::exp(exponent);
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-          std::pow(2.0 * M_PI * network::mion(n+1) *
-                   C::k_B * T_in / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
-          std::exp(exponent);
+	std::sqrt(power * power * power) * std::exp(exponent);
   }
 
   nse_state.y_e = 0.0_rt;
