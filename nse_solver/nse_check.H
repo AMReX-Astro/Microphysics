@@ -984,12 +984,20 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
       ++num_nonLIG;
 
       // return if nonLIG_root index is repeated, meaning these isotope already merged
+      if (root_index != nonLIG_root) {
+	nonLIG_root = root_index;
+      }
 
-      if (root_index == nonLIG_root) {
+      // return if nonLIG_root index is repeated, meaning these isotope already merged
+
+      else{
 	return;
       }
+      // if (root_index == nonLIG_root) {
+      // 	return;
+      // }
       
-      nonLIG_root = root_index;
+      // nonLIG_root = root_index;
     }
   }
 
