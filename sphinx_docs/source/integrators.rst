@@ -360,10 +360,17 @@ the allowed options are:
   and nuclear reactions. However, this integrator has difficulty near NSE,
   so we don't recommend its use in production for nuclear astrophysics.
 
+.. index:: integrator.use_circle_theorem
+
 * ``RKC``: a stabilized explicit Runge-Kutta-Chebyshev integrator based
   on :cite:`sommeijer_rkc_1998`.  This does not require a Jacobian, but
   does need to estimate the spectral radius of the system, which is
   done internally.  This works for moderately stiff problems.
+
+  The spectral radius is estimated by default using the power method,
+  built into RKC.  Alternately, by setting ``integrator.use_circle_theorem=1``,
+  the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_ 
+  is used instead.
 
 * ``ROCK``: a stabilized explicit integrator.  Two variants, a second
   order method (:cite:`rock2`) and a fourth order method (:cite:`rock4`) are
@@ -386,6 +393,8 @@ the allowed options are:
 We recommend that you use the VODE solver, as it is the most
 robust.
 
+.. index:: integrator.scale_system
+
 .. important::
 
    The integrator will not abort if it encounters trouble.  Instead it will
@@ -394,10 +403,12 @@ robust.
 
 .. note::
 
-   For Strang split integration, the runtime parameter ``integrator.scale_system``
+   The runtime parameter ``integrator.scale_system``
    will scale the internal energy that the integrator sees by the initial
    value of :math:`e` to make the system :math:`\mathcal{O}(1)`.  The value
-   of ``atol_enuc`` will likewise be scaled.
+   of ``atol_enuc`` will likewise be scaled.  This works for both Strang
+   and simplified-SDC.  For the ``RKC`` integrator, this is enabled by
+   default.
 
    For most integrators this algebraic change should not affect the output
    to more than roundoff, but the option is included to allow for some
