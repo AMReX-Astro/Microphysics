@@ -819,44 +819,64 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     }
     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
     
-    // let LIG group use their own Y instead of Y_group. (not sure if this is true)    
-    if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
-	Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
-    }
-    else {    
-      for (int n = 0; n < NumSpec; ++n) {
+    // let LIG group use their own Y instead of Y_group. (not sure if this is true)
+    
+    // if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
+    // 	Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
+    // }
+    // else {    
+    for (int n = 0; n < NumSpec; ++n) {
       
-	// if nuclei have the same root_index, then they are the same group
-	if (root_index == get_root_index(n, group_ind)) {
-	  Y_group(k) += Y(n + 1);
-	}
+      // if nuclei have the same root_index, then they are the same group
+
+      if (root_index == get_root_index(n, group_ind)) {
+	Y_group(k) += Y(n + 1);
       }
+      // }
     }
 
   }
 
-  // Find the rates
+  // find the rates
 
   amrex::Real b_f;
   amrex::Real b_r;
 
-  b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 3) + 1);
-  b_r = screened_rates(reverse_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
+  // b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 3) + 1);
+  // b_r = screened_rates(reverse_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
+
+  // if (NSE_INDEX::rate_indices(current_rate, 2) != -1) {
+  //   if (NSE_INDEX::rate_indices(current_rate, 2) == NSE_INDEX::rate_indices(current_rate, 3)) {
+  //     b_f *= 0.5_rt;
+  //   }
+  //   b_f *= Y(NSE_INDEX::rate_indices(current_rate, 2) + 1) * state.rho;
+  // }
+
+  // if (NSE_INDEX::rate_indices(current_rate, 5) != -1) {
+  //   if (NSE_INDEX::rate_indices(current_rate, 5) == NSE_INDEX::rate_indices(current_rate, 6)) {
+  //     b_r *= 0.5_rt;
+  //   }
+  //   b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
+  // }
+
+  b_f = screened_rates(current_rate) * Y_group(3);
+  b_r = screened_rates(reverse_rate_index) * Y_group(6);
 
   if (NSE_INDEX::rate_indices(current_rate, 2) != -1) {
     if (NSE_INDEX::rate_indices(current_rate, 2) == NSE_INDEX::rate_indices(current_rate, 3)) {
       b_f *= 0.5_rt;
     }
-    b_f *= Y(NSE_INDEX::rate_indices(current_rate, 2) + 1) * state.rho;
+    b_f *= Y_group(2) * state.rho;
   }
 
   if (NSE_INDEX::rate_indices(current_rate, 5) != -1) {
     if (NSE_INDEX::rate_indices(current_rate, 5) == NSE_INDEX::rate_indices(current_rate, 6)) {
       b_r *= 0.5_rt;
     }
-    b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
+    b_r *= Y_group(5) * state.rho;
   }
 
+  
   // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
 
   amrex::Real t_i = Y_group(nonNPA_ind(1)) / amrex::min(b_f, b_r);
