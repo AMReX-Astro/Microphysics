@@ -945,7 +945,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
   amrex::Array1D<int, 1, 2> nonNPA_ind {-1, -1};
   int m = 1;
-
+  std::cout << "I'm here, before m" << std::endl;  
   for (int k = 2; k <= 5; ++k) {
 
     // 3) skip if there are more than 2 non neutron, proton, or helium-4 in the rate
@@ -969,7 +969,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   int root_index;
   int num_nonLIG = 0;
   int nonLIG_root = -1;
-  
+  std::cout << "I'm here, before nonLIG" << std::endl;  
   for (int k = 2; k <= 5; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
@@ -984,20 +984,12 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
       ++num_nonLIG;
 
       // return if nonLIG_root index is repeated, meaning these isotope already merged
-      if (root_index != nonLIG_root) {
-	nonLIG_root = root_index;
-      }
 
-      // return if nonLIG_root index is repeated, meaning these isotope already merged
-
-      else{
+      if (root_index == nonLIG_root) {
 	return;
       }
-      // if (root_index == nonLIG_root) {
-      // 	return;
-      // }
       
-      // nonLIG_root = root_index;
+      nonLIG_root = root_index;
     }
   }
 
@@ -1013,7 +1005,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
   amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
 					       0.0_rt, 0.0_rt, 0.0_rt};
-
+  std::cout << "I'm here, before Y_group" << std::endl;
   for (int k = 2; k <= 5; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
@@ -1037,7 +1029,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   }
 
   // Find the rates
-
+  std::cout << "I'm here, before rates" << std::endl;
   amrex::Real b_f;
   amrex::Real b_r;
 
