@@ -947,17 +947,17 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   int m = 1;
 
   for (int k = 2; k <= 5; ++k) {
+
+    // 3) skip if there are more than 2 non neutron, proton, or helium-4 in the rate
+
+    if (m > 2) {
+      return;
+    }
+
     if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
 	) {
-
-      // 3) skip if there are more than 2 non neutron, proton, or helium-4 in the rate
-
-      if (m > 2) {
-	return;
-      }
-
       nonNPA_ind(m) = k;
       ++m;
     }
