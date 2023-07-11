@@ -231,7 +231,7 @@ namespace rock4_coeffs {
 
   // Recurrence parameters
 
-  AMREX_GPU_MANAGED amrex::Array1D<Real, 1, 4382> recf{
+  inline AMREX_GPU_MANAGED amrex::Array1D<Real, 1, 4382> recf{
         .1762962957651941e+00, .1067131485543800e+00,
         .1296319693918818e+00, .6097984609869632e-02, .7296375286357569e-01,
         .8749824867149327e-01, .6126949805354446e-02, .1026802330400501e+00,
