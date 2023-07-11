@@ -750,7 +750,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   // Get index of non neutron, proton, or he4 in the rate
 
   amrex::Array1D<int, 1, 2> nonNPA_ind {-1, -1};
-  int m = 1;
+  int m = 0;
 
   for (int k = 2; k <= 6; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
