@@ -1058,7 +1058,8 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   }
 
   // return if current rate timescale is larger (slower) than previous time scale.
-
+  std::cout << "I'm here, before fastest_t" << std::endl;
+  
   if (fastest_t < t_i) {
     return;
   }
@@ -1066,7 +1067,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   // if current rate timescale is smaller (faster), have additional checks
   // to see whether the forward and balance rates are in equilibrium
   // see Eq. 17 again
-
+  std::cout << "I'm here, before equilibrium" << std::endl;
   if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
       && (t_i < ase_tol * t_s) ) {
 
@@ -1087,7 +1088,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     }
 
   }
-
+  std::cout << "I'm here, after equilibrium" << std::endl;
 }
 
 
