@@ -32,10 +32,10 @@ namespace network
 namespace NSE_INDEX
 {
     // p_index is for photoionization proton
-    extern AMREX_GPU_MANAGED int p_index;
-    extern AMREX_GPU_MANAGED int h1_index;
-    extern AMREX_GPU_MANAGED int n_index;
-    extern AMREX_GPU_MANAGED int he4_index;
+    constexpr int p_index = 20;
+    constexpr int h1_index = 0;
+    constexpr int n_index = 19;
+    constexpr int he4_index = 2;
     extern AMREX_GPU_MANAGED bool initialized;
 }
 #endif
