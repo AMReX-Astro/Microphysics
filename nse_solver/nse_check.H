@@ -1070,7 +1070,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   std::cout << "I'm here, before equilibrium" << std::endl;
   if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
       && (t_i < ase_tol * t_s) ) {
-
+    std::cout << "I'm here, in equilibrium" << std::endl;
     fastest_t = t_i;
 
     // get merge indices for nonNPA isotopes
@@ -1088,7 +1088,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     }
 
   }
-  std::cout << "I'm here, after equilibrium" << std::endl;
+
 }
 
 
