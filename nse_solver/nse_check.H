@@ -1006,6 +1006,9 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 					       0.0_rt, 0.0_rt, 0.0_rt};
 
   for (int k = 1; k <= 6; ++k) {
+    if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
+      continue;
+    }
     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
     
     // let LIG group use their own Y instead of Y_group. (not sure if this is true)    
