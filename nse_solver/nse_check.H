@@ -994,7 +994,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // skip if number of LIG is greater than 2 or equal to 0
 
-  if (non_numLIG == 0 || non_numLIG > 2) {
+  if (num_nonLIG == 0 || num_nonLIG > 2) {
     return;
   }
   
