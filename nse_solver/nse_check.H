@@ -946,7 +946,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   amrex::Array1D<int, 1, 2> nonNPA_ind {-1, -1};
   int m = 0;
 
-  for (int k = 1; k <= 6; ++k) {
+  for (int k = 2; k <= 5; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
@@ -969,7 +969,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   int num_nonLIG = 0;
   int nonLIG_root = -1;
   
-  for (int k = 1; k <= 6; ++k) {
+  for (int k = 2; k <= 5; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
     }
@@ -1005,7 +1005,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
 					       0.0_rt, 0.0_rt, 0.0_rt};
 
-  for (int k = 1; k <= 6; ++k) {
+  for (int k = 2; k <= 5; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
     }
@@ -1134,7 +1134,6 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
   // Go through each reaction and perform grouping
 
   while(true) {
-
     merge_indices(1) = -1;
     merge_indices(2) = -1;
     fastest_t = std::numeric_limits<amrex::Real>::max();
