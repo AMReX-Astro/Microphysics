@@ -1125,7 +1125,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
   // Now do the grouping based on the timescale.
 
   
-  amrex::Array1D<int, 1, 2> merge_indices
+  amrex::Array1D<int, 1, 2> merge_indices;
   amrex::Real fastest_t;
  
   // Go through each reaction and perform grouping
