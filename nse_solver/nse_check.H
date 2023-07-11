@@ -724,255 +724,56 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
-		     amrex::Real& fastest_t, const int current_rate,
-		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
-		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
-		     const amrex::Real& t_s) {
-
-  // This function determines whether current_rate has a faster timescale than
-  // the provided time scale, current fastest_t.
-  // Updates the timescale once if the current rate has a faster timescale
-
-  // It also skips current_rate if certain condition is met.
-
-  int root_index;
-  int num_nonLIG = 0;
-  int nonLIG_root = -1;
-
-  // Find the Y_group of the nuclei involved in the net
-  // Y_group are the group molar fractions corresponding to the reactants and products
-
-  // first 3 is for reactants, last 3 for products
-
-  amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
-					       0.0_rt, 0.0_rt, 0.0_rt};
-
-  // Here Y_nonNPA represent 2 group isotopes that are not n,p,a
-  // there can be at most 2 nonNPA isotopes in a reaction for it to be valid
-
-  amrex::Array1D<int, 1, 2> nonNPA_ind = {-1, -1};
-
-  // m is counts the number of nonNPA isotope detected.
-
-  int m = 1;
-
-  // find the reverse rate index of the current rate
-
-  int pair_rate_index = NSE_INDEX::rate_indices(current_rate, 7);
-
-  // Check if there are > 2 isotopes or 0 isotopes in LIG (light isotope group) in this reaction
-
-  for (int k = 1; k <= 6; ++k) {
-
-    // skip if current isotope is -1, which means null
-
-    if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
-      continue;
-    }
-
-    // Find the root index of this isotope
-
-    root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
-
-    // Determine number of nonLIG isotopes
-    // also check whether nonLIG isotopes are already merged
-
-    if (root_index != get_root_index(NSE_INDEX::he4_index, group_ind)) {
-
-      ++num_nonLIG;
-
-      if (root_index != nonLIG_root) {
-	nonLIG_root = root_index;
-      }
-
-      // return if nonLIG_root index is repeated, meaning these isotope already merged
-
-      else{
-	return;
-      }
-    }
-
-    // Find the group molar fraction of the current isotope
-
-    // let LIG group use their own Y instead of Y_group. (not sure if this is true)
-
-    if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
-
-	Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
-    }
-
-    else {
-
-      for (int n = 0; n < NumSpec; ++n) {
-
-	// if nuclei have the same root_index, then they are the same group
-
-	if (get_root_index(n, group_ind) == root_index) {
-	  Y_group(k) += Y(n + 1);
-	}
-
-      }
-    }
-
-    // Find indices that are non n,p,a
-
-    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
-	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
-	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
-	) {
-
-      // return if there are more than 2 nonNPA nuclei involved in the network
-
-      if (m > 2) {
-	return;
-      }
-
-      nonNPA_ind(m) = k;
-      ++m;
-    }
-
-  }
-
-  // 3 other conditions to skip current rate:
-  //
-  // 1) skip if there is no reverse rate involved.
-  // 2) skip when reaction has more than 3 reactants or products involved
-  // 3) number of nonLIG isotopes are more than 2 or none.
-
-  if ( (pair_rate_index == -1)
-       || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
-       || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
-       || (num_nonLIG > 2)
-       || (num_nonLIG == 0)
-      ) {
-    return;
-  }
-
-  // Find the rates
-
-  amrex::Real b_f;
-  amrex::Real b_r;
-
-  b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 3) + 1);
-  b_r = screened_rates(pair_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
-
-  if (NSE_INDEX::rate_indices(current_rate, 2) != -1) {
-
-    if (NSE_INDEX::rate_indices(current_rate, 2) == NSE_INDEX::rate_indices(current_rate, 3)) {
-      b_f *= 0.5_rt;
-    }
-
-    b_f *= Y(NSE_INDEX::rate_indices(current_rate, 2) + 1) * state.rho;
-  }
-
-  if (NSE_INDEX::rate_indices(current_rate, 5) != -1) {
-
-    if (NSE_INDEX::rate_indices(current_rate, 5) == NSE_INDEX::rate_indices(current_rate, 6)) {
-      b_r *= 0.5_rt;
-    }
-
-    b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
-  }
-
-  // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
-
-  amrex::Real scratch_t = Y_group(nonNPA_ind(1)) / amrex::min(b_f, b_r);
-  if (nonNPA_ind(2) != -1) {
-    scratch_t = amrex::min(scratch_t, Y_group(nonNPA_ind(2)) / amrex::min(b_f, b_r));
-  }
-
-  // return if current rate timescale is larger than previous time scale
-
-  if (fastest_t < scratch_t) {
-    return;
-  }
-
-  // if current rate timescale is smaller (faster), have additional checks
-  // to see whether the forward and balance rates are in equilibrium
-  // see Eq. 17 again
-
-  if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
-      && (scratch_t < ase_tol * t_s) ) {
-
-    fastest_t = scratch_t;
-
-    // get merge indices for nonNPA isotopes
-
-    for (int n = 1; n <= 2; ++n) {
-
-      // If nonNPA index is -1, meaning null, then use LIG index
-
-      if (nonNPA_ind(n) == -1) {
-	merge_indices(n) = get_root_index(NSE_INDEX::he4_index, group_ind);
-      }
-      else {
-	merge_indices(n) = NSE_INDEX::rate_indices(current_rate, nonNPA_ind(n));
-      }
-    }
-
-  }
-
-}
-
-
 // AMREX_GPU_HOST_DEVICE AMREX_INLINE
 // void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
-// 			amrex::Real& fastest_t, const int current_rate,
-// 			const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
-// 			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-// 			const amrex::Array1D<int, 1, NumSpec>& group_ind,
-// 			const amrex::Real& t_s) {
+// 		     amrex::Real& fastest_t, const int current_rate,
+// 		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
+// 		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
+// 		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
+// 		     const amrex::Real& t_s) {
 
+//   // This function determines whether current_rate has a faster timescale than
+//   // the provided time scale, current fastest_t.
+//   // Updates the timescale once if the current rate has a faster timescale
 
-//   // Few conditions to check before proceed to finding the index
-
-//   // 1) skip if there is no reverse rate involved.
-//   // 2) skip when reaction has more than 3 reactants or products involved
-
-//   int reverse_rate_index = NSE_INDEX::rate_indices(current_rate, 7);
-      
-//   if ( (reverse_rate_index == -1)
-//        || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
-//        || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
-//        ) {
-//     return;
-//   }
-
-//   // Get index of non neutron, proton, or he4 in the rate
-
-//   amrex::Array1D<int, 1, 2> nonNPA_ind {-1, -1};
-//   int m = 1;
-
-//   for (int k = 2; k <= 5; ++k) {
-
-//     // 3) skip if there are more than 2 non neutron, proton, or helium-4 in the rate
-
-//     if (m > 2) {
-//       return;
-//     }
-
-//     if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
-// 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
-// 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
-// 	) {
-//       nonNPA_ind(m) = k;
-//       ++m;
-//     }
-//   }
-
-//   // Check whether nonNPA isotopes are already merged
+//   // It also skips current_rate if certain condition is met.
 
 //   int root_index;
 //   int num_nonLIG = 0;
 //   int nonLIG_root = -1;
-  
-//   for (int k = 2; k <= 5; ++k) {
+
+//   // Find the Y_group of the nuclei involved in the net
+//   // Y_group are the group molar fractions corresponding to the reactants and products
+
+//   // first 3 is for reactants, last 3 for products
+
+//   amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
+// 					       0.0_rt, 0.0_rt, 0.0_rt};
+
+//   // Here Y_nonNPA represent 2 group isotopes that are not n,p,a
+//   // there can be at most 2 nonNPA isotopes in a reaction for it to be valid
+
+//   amrex::Array1D<int, 1, 2> nonNPA_ind = {-1, -1};
+
+//   // m is counts the number of nonNPA isotope detected.
+
+//   int m = 1;
+
+//   // find the reverse rate index of the current rate
+
+//   int pair_rate_index = NSE_INDEX::rate_indices(current_rate, 7);
+
+//   // Check if there are > 2 isotopes or 0 isotopes in LIG (light isotope group) in this reaction
+
+//   for (int k = 1; k <= 6; ++k) {
+
+//     // skip if current isotope is -1, which means null
+
 //     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
 //       continue;
 //     }
+
+//     // Find the root index of this isotope
 
 //     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
 
@@ -980,51 +781,74 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 //     // also check whether nonLIG isotopes are already merged
 
 //     if (root_index != get_root_index(NSE_INDEX::he4_index, group_ind)) {
+
 //       ++num_nonLIG;
+
+//       if (root_index != nonLIG_root) {
+// 	nonLIG_root = root_index;
+//       }
 
 //       // return if nonLIG_root index is repeated, meaning these isotope already merged
 
-//       if (root_index == nonLIG_root) {
+//       else{
 // 	return;
 //       }
-      
-//       nonLIG_root = root_index;
 //     }
-//   }
 
-//   // skip if number of LIG is greater than 2 or equal to 0
+//     // Find the group molar fraction of the current isotope
 
-//   if (num_nonLIG == 0 || num_nonLIG > 2) {
-//     return;
-//   }
-  
-//   // Find the Y_group of the nuclei involved in the net
-//   // Y_group are the group molar fractions corresponding to the reactants and products
-//   // first 3 for reactants, last 3 for products
+//     // let LIG group use their own Y instead of Y_group. (not sure if this is true)
 
-//   amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
-// 					       0.0_rt, 0.0_rt, 0.0_rt};
-
-//   for (int k = 2; k <= 5; ++k) {
-//     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
-//       continue;
-//     }
-//     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
-    
-//     // let LIG group use their own Y instead of Y_group. (not sure if this is true)    
 //     if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
+
 // 	Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
 //     }
-//     else {    
+
+//     else {
+
 //       for (int n = 0; n < NumSpec; ++n) {
-      
+
 // 	// if nuclei have the same root_index, then they are the same group
-// 	if (root_index == get_root_index(n, group_ind)) {
+
+// 	if (get_root_index(n, group_ind) == root_index) {
 // 	  Y_group(k) += Y(n + 1);
 // 	}
+
 //       }
 //     }
 
+//     // Find indices that are non n,p,a
+
+//     if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
+// 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
+// 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
+// 	) {
+
+//       // return if there are more than 2 nonNPA nuclei involved in the network
+
+//       if (m > 2) {
+// 	return;
+//       }
+
+//       nonNPA_ind(m) = k;
+//       ++m;
+//     }
+
+//   }
+
+//   // 3 other conditions to skip current rate:
+//   //
+//   // 1) skip if there is no reverse rate involved.
+//   // 2) skip when reaction has more than 3 reactants or products involved
+//   // 3) number of nonLIG isotopes are more than 2 or none.
+
+//   if ( (pair_rate_index == -1)
+//        || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
+//        || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
+//        || (num_nonLIG > 2)
+//        || (num_nonLIG == 0)
+//       ) {
+//     return;
 //   }
 
 //   // Find the rates
@@ -1033,32 +857,36 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 //   amrex::Real b_r;
 
 //   b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 3) + 1);
-//   b_r = screened_rates(reverse_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
+//   b_r = screened_rates(pair_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
 
 //   if (NSE_INDEX::rate_indices(current_rate, 2) != -1) {
+
 //     if (NSE_INDEX::rate_indices(current_rate, 2) == NSE_INDEX::rate_indices(current_rate, 3)) {
 //       b_f *= 0.5_rt;
 //     }
+
 //     b_f *= Y(NSE_INDEX::rate_indices(current_rate, 2) + 1) * state.rho;
 //   }
 
 //   if (NSE_INDEX::rate_indices(current_rate, 5) != -1) {
+
 //     if (NSE_INDEX::rate_indices(current_rate, 5) == NSE_INDEX::rate_indices(current_rate, 6)) {
 //       b_r *= 0.5_rt;
 //     }
+
 //     b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
 //   }
 
 //   // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
 
-//   amrex::Real t_i = Y_group(nonNPA_ind(1)) / amrex::min(b_f, b_r);
+//   amrex::Real scratch_t = Y_group(nonNPA_ind(1)) / amrex::min(b_f, b_r);
 //   if (nonNPA_ind(2) != -1) {
-//     t_i = amrex::min(t_i, Y_group(nonNPA_ind(2)) / amrex::min(b_f, b_r));
+//     scratch_t = amrex::min(scratch_t, Y_group(nonNPA_ind(2)) / amrex::min(b_f, b_r));
 //   }
 
-//   // return if current rate timescale is larger (slower) than previous time scale.
+//   // return if current rate timescale is larger than previous time scale
 
-//   if (fastest_t < t_i) {
+//   if (fastest_t < scratch_t) {
 //     return;
 //   }
 
@@ -1067,9 +895,9 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 //   // see Eq. 17 again
 
 //   if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
-//       && (t_i < ase_tol * t_s) ) {
+//       && (scratch_t < ase_tol * t_s) ) {
 
-//     fastest_t = t_i;
+//     fastest_t = scratch_t;
 
 //     // get merge indices for nonNPA isotopes
 
@@ -1088,6 +916,179 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 //   }
 
 // }
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
+			amrex::Real& fastest_t, const int current_rate,
+			const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
+			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
+			const amrex::Array1D<int, 1, NumSpec>& group_ind,
+			const amrex::Real& t_s) {
+
+
+  // Few conditions to check before proceed to finding the index
+
+  // 1) skip if there is no reverse rate involved.
+  // 2) skip when reaction has more than 3 reactants or products involved
+
+  int reverse_rate_index = NSE_INDEX::rate_indices(current_rate, 7);
+      
+  if ( (reverse_rate_index == -1)
+       || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
+       || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
+       ) {
+    return;
+  }
+
+  // Get index of non neutron, proton, or he4 in the rate
+
+  amrex::Array1D<int, 1, 2> nonNPA_ind {-1, -1};
+  int m = 1;
+
+  for (int k = 2; k <= 5; ++k) {
+
+    // 3) skip if there are more than 2 non neutron, proton, or helium-4 in the rate
+
+    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
+	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
+	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
+	) {
+      nonNPA_ind(m) = k;
+      ++m;
+
+      
+      if (m > 2) {
+	return;
+      }
+    }
+  }
+
+  // Check whether nonNPA isotopes are already merged
+
+  int root_index;
+  int num_nonLIG = 0;
+  int nonLIG_root = -1;
+  
+  for (int k = 2; k <= 5; ++k) {
+    if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
+      continue;
+    }
+
+    root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
+
+    // Determine number of nonLIG isotopes
+    // also check whether nonLIG isotopes are already merged
+
+    if (root_index != get_root_index(NSE_INDEX::he4_index, group_ind)) {
+      ++num_nonLIG;
+
+      // return if nonLIG_root index is repeated, meaning these isotope already merged
+
+      if (root_index == nonLIG_root) {
+	return;
+      }
+      
+      nonLIG_root = root_index;
+    }
+  }
+
+  // skip if number of LIG is greater than 2 or equal to 0
+
+  if (num_nonLIG == 0 || num_nonLIG > 2) {
+    return;
+  }
+  
+  // Find the Y_group of the nuclei involved in the net
+  // Y_group are the group molar fractions corresponding to the reactants and products
+  // first 3 for reactants, last 3 for products
+
+  amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
+					       0.0_rt, 0.0_rt, 0.0_rt};
+
+  for (int k = 2; k <= 5; ++k) {
+    if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
+      continue;
+    }
+    root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
+    
+    // let LIG group use their own Y instead of Y_group. (not sure if this is true)    
+    if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
+	Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
+    }
+    else {    
+      for (int n = 0; n < NumSpec; ++n) {
+      
+	// if nuclei have the same root_index, then they are the same group
+	if (root_index == get_root_index(n, group_ind)) {
+	  Y_group(k) += Y(n + 1);
+	}
+      }
+    }
+
+  }
+
+  // Find the rates
+
+  amrex::Real b_f;
+  amrex::Real b_r;
+
+  b_f = screened_rates(current_rate) * Y(NSE_INDEX::rate_indices(current_rate, 3) + 1);
+  b_r = screened_rates(reverse_rate_index) * Y(NSE_INDEX::rate_indices(current_rate, 6) + 1);
+
+  if (NSE_INDEX::rate_indices(current_rate, 2) != -1) {
+    if (NSE_INDEX::rate_indices(current_rate, 2) == NSE_INDEX::rate_indices(current_rate, 3)) {
+      b_f *= 0.5_rt;
+    }
+    b_f *= Y(NSE_INDEX::rate_indices(current_rate, 2) + 1) * state.rho;
+  }
+
+  if (NSE_INDEX::rate_indices(current_rate, 5) != -1) {
+    if (NSE_INDEX::rate_indices(current_rate, 5) == NSE_INDEX::rate_indices(current_rate, 6)) {
+      b_r *= 0.5_rt;
+    }
+    b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
+  }
+
+  // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
+
+  amrex::Real t_i = Y_group(nonNPA_ind(1)) / amrex::min(b_f, b_r);
+  if (nonNPA_ind(2) != -1) {
+    t_i = amrex::min(t_i, Y_group(nonNPA_ind(2)) / amrex::min(b_f, b_r));
+  }
+
+  // return if current rate timescale is larger (slower) than previous time scale.
+
+  if (fastest_t < t_i) {
+    return;
+  }
+
+  // if current rate timescale is smaller (faster), have additional checks
+  // to see whether the forward and balance rates are in equilibrium
+  // see Eq. 17 again
+
+  if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
+      && (t_i < ase_tol * t_s) ) {
+
+    fastest_t = t_i;
+
+    // get merge indices for nonNPA isotopes
+
+    for (int n = 1; n <= 2; ++n) {
+
+      // If nonNPA index is -1, meaning null, then use LIG index
+
+      if (nonNPA_ind(n) == -1) {
+	merge_indices(n) = get_root_index(NSE_INDEX::he4_index, group_ind);
+      }
+      else {
+	merge_indices(n) = NSE_INDEX::rate_indices(current_rate, nonNPA_ind(n));
+      }
+    }
+
+  }
+
+}
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
