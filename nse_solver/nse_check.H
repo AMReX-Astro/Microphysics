@@ -933,7 +933,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   // 2) skip when reaction has more than 3 reactants or products involved
 
   int reverse_rate_index = NSE_INDEX::rate_indices(current_rate, 7);
-      
+  std::cout << "I'm here, before first if" << std::endl;        
   if ( (reverse_rate_index == -1)
        || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
        || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
