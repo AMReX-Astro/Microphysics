@@ -1012,19 +1012,20 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
     
     // let LIG group use their own Y instead of Y_group. (not sure if this is true)    
-    // if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
-    // 	Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
-    // }
-    // else {
-    
-    for (int n = 0; n < NumSpec; ++n) {
-      
-      // if nuclei have the same root_index, then they are the same group
-      if (get_root_index(n, group_ind) == root_index) {
-	Y_group(k) += Y(n + 1);
-      }
-      
+    if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
+	Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
     }
+    else {
+    
+      for (int n = 0; n < NumSpec; ++n) {
+      
+	// if nuclei have the same root_index, then they are the same group
+	if (get_root_index(n, group_ind) == root_index) {
+	  Y_group(k) += Y(n + 1);
+	}
+      }
+    }
+
   }
 
   // Find the rates
