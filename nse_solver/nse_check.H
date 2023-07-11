@@ -932,7 +932,6 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   // 2) skip when reaction has more than 3 reactants or products involved
 
   int reverse_rate_index = NSE_INDEX::rate_indices(current_rate, 7);
-  std::cout << "I'm here, before first if" << std::endl;        
   if ( (reverse_rate_index == -1)
        || (NSE_INDEX::rate_indices(current_rate, 1) != -1)
        || (NSE_INDEX::rate_indices(current_rate, 4) != -1)
@@ -943,19 +942,19 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   // Get index of non neutron, proton, or he4 in the rate
 
   amrex::Array1D<int, 1, 2> nonNPA_ind {-1, -1};
-  int m = 1;
-  std::cout << "I'm here, before m" << std::endl;  
-  for (int k = 2; k <= 5; ++k) {
+  int m = 0;
 
-    // 3) skip if there are more than 2 non neutron, proton, or helium-4 in the rate
+  for (int k = 2; k <= 6; ++k) {
 
     if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
 	) {
-      nonNPA_ind(m) = k;
-      ++m;
 
+      ++m;
+      nonNPA_ind(m) = k;
+
+      // skip if there are more than 2 non neutron, proton, or helium-4 in the rate
       
       if (m > 2) {
 	return;
@@ -968,8 +967,8 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   int root_index;
   int num_nonLIG = 0;
   int nonLIG_root = -1;
-  std::cout << "I'm here, before nonLIG" << std::endl;  
-  for (int k = 2; k <= 5; ++k) {
+
+  for (int k = 2; k <= 6; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
     }
@@ -1004,8 +1003,8 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
   amrex::Array1D<amrex::Real, 1, 6> Y_group = {0.0_rt, 0.0_rt, 0.0_rt,
 					       0.0_rt, 0.0_rt, 0.0_rt};
-  std::cout << "I'm here, before Y_group" << std::endl;
-  for (int k = 2; k <= 5; ++k) {
+
+  for (int k = 2; k <= 6; ++k) {
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
     }
@@ -1028,7 +1027,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   }
 
   // Find the rates
-  std::cout << "I'm here, before rates" << std::endl;
+
   amrex::Real b_f;
   amrex::Real b_r;
 
@@ -1057,7 +1056,6 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   }
 
   // return if current rate timescale is larger (slower) than previous time scale.
-  std::cout << "I'm here, before fastest_t" << std::endl;
   
   if (fastest_t < t_i) {
     return;
@@ -1066,10 +1064,10 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   // if current rate timescale is smaller (faster), have additional checks
   // to see whether the forward and balance rates are in equilibrium
   // see Eq. 17 again
-  std::cout << "I'm here, before equilibrium" << std::endl;
+
   if ( (2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol)
       && (t_i < ase_tol * t_s) ) {
-    std::cout << "I'm here, in equilibrium" << std::endl;
+
     fastest_t = t_i;
 
     // get merge indices for nonNPA isotopes
@@ -1146,7 +1144,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     }
 
     // if there are no reaction satisfy conditions, break
-    std::cout << "merge_indices are" << merge_indices(1) << " and " << merge_indices(2) << std::endl;
+
     if (merge_indices(1) == -1 && merge_indices(2) == -1) {
       break;
     }
