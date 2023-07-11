@@ -761,14 +761,14 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
 	) {
-      nonNPA_ind(m) = k;
       ++m;
-    }
-    
-    // skip if there are more than 2 non neutron, proton, or helium-4 in the rate
+          
+      // skip if there are more than 2 non neutron, proton, or helium-4 in the rate
       
-    if (m > 2) {
-      return;
+      if (m > 2) {
+	return;
+      }
+      nonNPA_ind(m) = k;
     }
   }
 
@@ -782,7 +782,6 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
     }
-
     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
 
     // Determine number of nonLIG isotopes
