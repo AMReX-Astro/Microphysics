@@ -920,12 +920,11 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
-			amrex::Real& fastest_t, const int current_rate,
-			const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
-			const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-			const amrex::Array1D<int, 1, NumSpec>& group_ind,
-			const amrex::Real& t_s) {
-
+		     amrex::Real& fastest_t, const int current_rate,
+		     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y, const burn_t& state,
+		     const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
+		     const amrex::Array1D<int, 1, NumSpec>& group_ind,
+		     const amrex::Real& t_s) {
 
   // Few conditions to check before proceed to finding the index
 
@@ -1147,7 +1146,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     }
 
     // if there are no reaction satisfy conditions, break
-
+    std::cout << "merge_indices are" << merge_indices(1) << " and " << merge_indices(2) << std::endl;
     if (merge_indices(1) == -1 && merge_indices(2) == -1) {
       break;
     }
