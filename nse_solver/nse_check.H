@@ -857,8 +857,6 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     }
     b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
   }
-
-
   
   // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
 
@@ -895,7 +893,6 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 	merge_indices(n) = NSE_INDEX::rate_indices(current_rate, nonNPA_ind(n));
       }
     }
-
   }
 
 }
