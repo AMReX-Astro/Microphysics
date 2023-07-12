@@ -11,7 +11,6 @@
 #include <actual_network.H>
 #include <eos_composition.H>
 #include <microphysics_sort.H>
-#include <nse_index.H>
 #include <nse_solver.H>
 
 // Currently doesn't support aprox networks, only networks produced by pynucastro
@@ -33,7 +32,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   // raise error if no proton or helium-4 in the network.
 
-  if (NSE_INDEX::p_index == -1 || NSE_INDEX::he4_index == -1) {
+  if (NSE_INDEX::h1_index == -1 || NSE_INDEX::he4_index == -1) {
     amrex::Error("Need proton and helium-4 in the network for NSE_NET to work");
   }
   
@@ -44,7 +43,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   for (int n = 0; n < NumSpec; ++n) {
 
-    if (n == NSE_INDEX::p_index || n == NSE_INDEX::n_index) {
+    if (n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index) {
       r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
       r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
     }
@@ -428,7 +427,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(3) = -1;
 
 	  product_scratch(1) = reactions(i+1, k);
-	  product_scratch(2) = NSE_INDEX::p_index;
+	  product_scratch(2) = NSE_INDEX::h1_index;
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -446,10 +445,10 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	    continue;
 	  }
 
-	  b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
+	  b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 
 	  Y_i(1) = Y(NSE_INDEX::he4_index + 1);
-	  Y_i(2) = Y(NSE_INDEX::p_index + 1);
+	  Y_i(2) = Y(NSE_INDEX::h1_index + 1);
 	}
 
 	else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] + 1 &&
@@ -496,7 +495,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	  reaction_scratch(3) = -1;
 
 	  product_scratch(1) = reactions(i+1, k);
-	  product_scratch(2) = NSE_INDEX::p_index;
+	  product_scratch(2) = NSE_INDEX::h1_index;
 	  product_scratch(3) = -1;
 
 	  get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -514,9 +513,9 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 	    continue;
 	  }
 
-	  b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::p_index + 1) * state.rho;
+	  b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
 
-	  Y_i(1) = Y(NSE_INDEX::p_index + 1);
+	  Y_i(1) = Y(NSE_INDEX::h1_index + 1);
 	  Y_i(2) = 0.0_rt;
 	}
 
@@ -651,54 +650,6 @@ void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, 
   }
 }
 
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-int get_pair_rate_index(const int& rate_index) {
-
-  // This function finds the pair rate index given a rate.
-  // For example given forward rate index, return reverse rate index, vice versa
-
-  int pair_rate_index = -1;
-  bool found_reverse_rate = false;
-  bool valid_rate = false;
-
-  // if all -1 then return, since its an invalid rate
-
-  for (int n = 1; n <= 6; ++n) {
-    if (NSE_INDEX::rate_indices(rate_index, n) != -1) {
-      valid_rate = true;
-      break;
-    }
-  }
-
-  if (!valid_rate) {
-    return pair_rate_index;
-  }
-
-
-  for (int n = 1; n <= Rates::NumRates; ++n) {
-    for (int i = 1; i <= 3; ++i) {
-      if (NSE_INDEX::rate_indices(n, i) == NSE_INDEX::rate_indices(rate_index, i+3)
-	  && NSE_INDEX::rate_indices(n, i+3) == NSE_INDEX::rate_indices(rate_index, i)
-	  ) {
-	found_reverse_rate = true;
-      }
-      else {
-	found_reverse_rate = false;
-	break;
-      }
-    }
-
-    if (found_reverse_rate) {
-      pair_rate_index = n;
-      break;
-    }
-  }
-
-  return pair_rate_index;
-}
-
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
@@ -810,7 +761,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
   // find the reverse rate index of the current rate
 
-  int pair_rate_index = get_pair_rate_index(current_rate);
+  int pair_rate_index = NSE_INDEX::rate_indices(current_rate, 7);
 
   // Check if there are > 2 isotopes or 0 isotopes in LIG (light isotope group) in this reaction
 
@@ -868,7 +819,7 @@ void is_fastest_rate(amrex::Array1D<int, 1, 2>& merge_indices,
 
     // Find indices that are non n,p,a
 
-    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::p_index
+    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
 	&& NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
 	) {
@@ -983,7 +934,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
 
     // let n,p,a form the same group (LIG) initially, let 1 be index of LIG
 
-    if (i == NSE_INDEX::p_index + 1 || i == NSE_INDEX::n_index + 1
+    if (i == NSE_INDEX::h1_index + 1 || i == NSE_INDEX::n_index + 1
 	|| i == NSE_INDEX::he4_index + 1) {
 
       // group_ind(i) = NSE_INDEX::he4_index;
@@ -994,7 +945,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
 
   amrex::Array1D<int, 1, 2> merge_indices;
   amrex::Real fastest_t;
-
+ 
   // Go through each reaction and perform grouping
 
   while(true) {
