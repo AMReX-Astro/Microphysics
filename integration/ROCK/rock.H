@@ -11,7 +11,6 @@
 #include <integrator_type_simplified_sdc.H>
 #include <integrator_rhs_simplified_sdc.H>
 #endif
-#include <initial_timestep.H>
 #include <rock2_coefficients.H>
 #include <rock4_coefficients.H>
 #include <rkc_util.H>
