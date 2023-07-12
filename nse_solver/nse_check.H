@@ -794,8 +794,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
       if (root_index == nonLIG_root) {
 	return;
-      }
-      
+      } 
       nonLIG_root = root_index;
     }
   }
