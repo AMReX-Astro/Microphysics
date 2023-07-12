@@ -23,6 +23,13 @@ namespace table
 }
 #endif
 
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    AMREX_GPU_MANAGED bool initialized = false;
+}
+#endif
+
 void actual_network_init()
 {
     using namespace Species;
