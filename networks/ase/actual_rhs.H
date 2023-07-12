@@ -71,7 +71,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         }
         rate_eval.screened_rates(k_n13_to_p_c12_derived) = 0.0;
         if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_n13_to_p_c12_derived) = 0.0;
+            rate_eval.dscreened_rates_dT(k_n13_to_p_c12_derived) = 0.0;
         }
     }
 
@@ -82,7 +82,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         }
         rate_eval.screened_rates(k_p_o16_to_he4_n13_derived) = 0.0;
         if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_o16_to_he4_n13_derived) = 0.0;
+            rate_eval.dscreened_rates_dT(k_p_o16_to_he4_n13_derived) = 0.0;
         }
     }
 
