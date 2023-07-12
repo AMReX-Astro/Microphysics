@@ -6,3 +6,4 @@ ase_tol                 real       0.1_rt
 nse_dx_independent      logical    .false.
 nse_molar_independent   logical    .false.
 nse_skip_molar          logical    .false.
+T_nse_net               real       -1.0_rt
