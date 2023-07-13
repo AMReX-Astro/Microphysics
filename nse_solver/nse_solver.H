@@ -16,6 +16,8 @@
 #include <hybrj.H>
 #include <cctype>
 #include <algorithm>
+#include <chrono>
+#include "gcem.hpp"
 
 using namespace nse_rp;
 
@@ -90,11 +92,17 @@ T get_nse_state(const T& state) {
   // the temperature that comes in through T_fixed
 
   Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+  
+  auto start = std::chrono::high_resolution_clock::now();
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
   auto tfactors = evaluate_tfactors(T_in);
 #endif
 
+  auto end = std::chrono::high_resolution_clock::now();
+  auto duration1 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+  std::cout << "time for evaluating tfactors is " << duration1 << std::endl;
+  
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
       if (n == NSE_INDEX::h1_index) {
@@ -105,7 +113,7 @@ T get_nse_state(const T& state) {
       // term for calculating u_c
 
       // if use non-null screening, calculate the coulomb correction term
-
+      start = std::chrono::high_resolution_clock::now();
 #if SCREEN_METHOD != 3
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * C::q_e * C::q_e *
 	std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) / (C::k_B * T_in);
@@ -118,31 +126,57 @@ T get_nse_state(const T& state) {
                                std::sqrt(1.0_rt + gamma / A2))) +
            2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
 #endif
-
+      end = std::chrono::high_resolution_clock::now();
+      auto duration2 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+      std::cout << "time for evaluating gamma is " << duration1 << std::endl;
+  
       // fill partition function and get spin
-
+      start = std::chrono::high_resolution_clock::now();
 #ifndef NEW_NETWORK_IMPLEMENTATION
       spin = get_spin_state(n+1);
       get_partition_function(n+1, tfactors, pf, dpf_dT);
 #endif
-
+      end = std::chrono::high_resolution_clock::now();
+      auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+      std::cout << "time for get_partition_function is " << duration3 << std::endl;
+      
       // find nse mass frac
 
       // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
       // iteration will make it happy again
-
-      Real exponent = amrex::min(500.0_rt,
-                                 (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
+      start = std::chrono::high_resolution_clock::now();
+      // Real exponent = amrex::min(500.0_rt,
+      //                            (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
+      //                             - u_c + network::bion(n+1)) /
+      //                            C::k_B / T_in * C::Legacy::MeV2erg);
+      Real exponent = (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
                                   - u_c + network::bion(n+1)) /
-                                 C::k_B / T_in * C::Legacy::MeV2erg);
+                                 C::k_B / T_in * C::Legacy::MeV2erg;
+      if (exponent > 500_rt) {
+	exponent = 500_rt;
+      }
+      
+      end = std::chrono::high_resolution_clock::now();
+      auto duration4 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+      std::cout << "time for calculating exponent is " << duration4 << std::endl;
 
+      
+      start = std::chrono::high_resolution_clock::now();
       Real power = 2.0 * M_PI * network::mion(n+1) *
 	C::k_B * T_in / (C::hplanck * C::hplanck);
-
+      end = std::chrono::high_resolution_clock::now();
+      auto duration5 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+      std::cout << "time for calculating power is " << duration5 << std::endl;
+      
+      start = std::chrono::high_resolution_clock::now();
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
 	std::sqrt(power * power * power) * std::exp(exponent);
-  }
 
+      end = std::chrono::high_resolution_clock::now();
+      auto duration6 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+      std::cout << "time for calculating xn is " << duration6 << std::endl;
+  }
+  
   nse_state.y_e = 0.0_rt;
 
   for (int n = 0; n < NumSpec; ++n) {
