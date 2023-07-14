@@ -108,12 +108,8 @@ T get_nonexponent_nse_state(const T& state) {
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void apply_nse_exponent(T& nse_state) {
-  // This function calculates a portion of the nse_state that is dependents
+  // This function calculates a portion of the nse_state that dependents
   // on the chemical potential.
-  
-  // Get the required terms to calculate coulomb correction term, u_c
-  // if we use a non-null screening method.
-  
   // The input nse_state should be the result from get_nonexponent_nse_state
 
   // if we are doing drive_initial_convection, we want to use
@@ -122,7 +118,14 @@ void apply_nse_exponent(T& nse_state) {
   Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
   Real exponent;
 
+  // if we use a non-null screening method.
+  // Get the required terms to calculate coulomb correction term, u_c
+
 #if SCREEN_METHOD != 3
+
+  // three unit-less constants for calculating coulomb correction term
+  // see Calder 2007, doi:10.1086/510709 for more detail
+
   const amrex::Real A1 = -0.9052_rt;
   const amrex::Real A2 = 0.6322_rt;
   
@@ -265,7 +268,7 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
-    // here state is the nse_state from get_nonexponent_nse_state
+    // state is the nse_state from get_nonexponent_nse_state
 
     hybrj_t<2> hj;
 
@@ -367,9 +370,11 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 template<typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
-  // here state is the nse_state from get_nonexponent_nse_state
-  
-  bool converged = false;                                     // whether nse solver converged or not
+  // state is the nse_state from get_nonexponent_nse_state
+
+  // whether nse solver converged or not
+
+  bool converged = false;
 
   amrex::Array1D<amrex::Real, 1, 2> f;
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> jac;
@@ -382,10 +387,15 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
   jcn(x, jac, state, flag);
   fcn(x, f, state, flag);
 
-  amrex::Real det;                                            // store determinant for finding inverse jac
-  amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;        // store inverse jacobian
-  amrex::Real d_mu_p = std::numeric_limits<Real>::max();      // difference in chemical potential of proton
-  amrex::Real d_mu_n = std::numeric_limits<Real>::max();      // difference in chemical potential of neutron
+  // store determinant for finding inverse jac
+  amrex::Real det;
+  
+  // store inverse jacobian
+  amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;
+  
+  // difference in chemical potential of proton and neutron
+  amrex::Real d_mu_p = std::numeric_limits<Real>::max();
+  amrex::Real d_mu_n = std::numeric_limits<Real>::max();
 
   // begin newton-raphson
   for (int i = 0; i < max_nse_iters; ++i) {
@@ -507,6 +517,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
   // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
   // which are the exponent part of the nse mass fraction calculation
+
   if (use_hybrid_solver) {
     nse_hybrid_solver(nse_state, eps);
   }
