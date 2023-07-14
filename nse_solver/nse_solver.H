@@ -318,12 +318,12 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
   
-    T current_state = state;
-    current_state.mu_p = x(1);
-    current_state.mu_n = x(2);
+    T nse_state = state;
+    nse_state.mu_p = x(1);
+    nse_state.mu_n = x(2);
 
     // Apply exponent component for calculating nse mass fractions
-    apply_nse_exponent(current_state);
+    apply_nse_exponent(nse_state);
     // auto nse_state = get_nse_state(current_state);
 
     fvec(1) = -1.0_rt;
@@ -353,11 +353,11 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
   
-    T current_state = state;
-    current_state.mu_p = x(1);
-    current_state.mu_n = x(2);
+    T nse_state = state;
+    nse_state.mu_p = x(1);
+    nse_state.mu_n = x(2);
 
-    apply_nse_exponent(current_state);
+    apply_nse_exponent(nse_state);
     // auto nse_state = get_nse_state(current_state);
 
     // evaluate jacobian of the constraint
