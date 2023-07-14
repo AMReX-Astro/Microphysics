@@ -166,8 +166,8 @@ void apply_nse_exponent(T& nse_state) {
       // iteration will make it happy again
 
       Real exponent = amrex::min(500.0_rt,
-                                 (zion[n] * state.mu_p + (aion[n] - zion[n]) * state.mu_n
-                                  - u_c + network::bion(n+1)) /
+                                 (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
+				  nse_state.mu_n - u_c + network::bion(n+1)) /
                                  C::k_B / T_in * C::Legacy::MeV2erg);
 
       nse_state.xn[n] *= std::exp(exponent);
