@@ -631,7 +631,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
   }
 
   // auto nse_state = get_nse_state(state);
-
+  apply_nse_exponent(nse_state);
   return nse_state;
 }
 #endif
