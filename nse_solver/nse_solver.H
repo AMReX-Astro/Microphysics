@@ -16,8 +16,6 @@
 #include <hybrj.H>
 #include <cctype>
 #include <algorithm>
-#include <chrono>
-#include "gcem.hpp"
 
 using namespace nse_rp;
 
@@ -143,7 +141,7 @@ T get_nse_state(const T& state) {
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
 	std::sqrt(power * power * power) * std::exp(exponent);
   }
-  
+
   nse_state.y_e = 0.0_rt;
 
   for (int n = 0; n < NumSpec; ++n) {
