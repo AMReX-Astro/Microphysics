@@ -62,7 +62,7 @@ T get_nonexponent_nse_state(const T& state) {
 
   // This function returns an incomplete nse_state where the xn lacks the exponent term.
 
-  T nse_state;
+  T nse_state = state;
 
   // set partition function and spin
   
@@ -103,14 +103,6 @@ T get_nonexponent_nse_state(const T& state) {
 	std::sqrt(power * power * power);
   }
 
-  // updated necessary information
-
-  nse_state.T = T_in;
-  nse_state.rho = state.rho;
-  nse_state.y_e = state.y_e;
-  nse_state.mu_p = state.mu_p;
-  nse_state.mu_n = state.mu_n;
-  
   return nse_state;
 }
 
@@ -143,7 +135,7 @@ void apply_nse_exponent(T& nse_state) {
   // if we are doing drive_initial_convection, we want to use
   // the temperature that comes in through T_fixed
 
-  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+  Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
 
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
