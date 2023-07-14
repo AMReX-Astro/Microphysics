@@ -991,18 +991,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     }
   }
 
-  // A simple temperature criteria after molar fraction check for determining NSE state
-  // By default, T_nse_net = -1.0
-  // So this is only enabled if the user provides value in the input file
-  
-  if (T_nse_net != -1.0_rt) {
-    current_state.nse = false;
-    if (current_state.T > T_nse_net) {
-      current_state.nse = true;
-    }
-    return current_state.nse;
-  }
-
   // We can do a further approximation where we use the NSE mass fractions
   // instead of the current mass fractions. This makes the check solely dependent on
   // the thermodynamic condition.
