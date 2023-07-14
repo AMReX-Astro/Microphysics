@@ -16,8 +16,6 @@
 #include <hybrj.H>
 #include <cctype>
 #include <algorithm>
-#include <chrono>
-#include "gcem.hpp"
 
 using namespace nse_rp;
 
@@ -136,6 +134,7 @@ void apply_nse_exponent(T& nse_state) {
   // the temperature that comes in through T_fixed
 
   Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+  Real exponent;
 
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -165,10 +164,10 @@ void apply_nse_exponent(T& nse_state) {
       // prevent an overflow on exp by capping the exponent -- we hope that a subsequent
       // iteration will make it happy again
 
-      Real exponent = amrex::min(500.0_rt,
-                                 (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-				  nse_state.mu_n - u_c + network::bion(n+1)) /
-                                 C::k_B / T_in * C::Legacy::MeV2erg);
+      exponent = amrex::min(500.0_rt,
+			    (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
+			     nse_state.mu_n - u_c + network::bion(n+1)) /
+			    C::k_B / T_in * C::Legacy::MeV2erg);
 
       nse_state.xn[n] *= std::exp(exponent);
   }
@@ -630,8 +629,15 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     nse_nr_solver(nse_state, eps);
   }
 
-  // auto nse_state = get_nse_state(state);
+  // Apply exponent for calculating nse mass fractions
+
   apply_nse_exponent(nse_state);
+
+  // update mu_n and mu_p to input state
+
+  state.mu_p = nse_state.mu_p;
+  state.mu_n = nse_state.mu_n;
+ 
   return nse_state;
 }
 #endif
