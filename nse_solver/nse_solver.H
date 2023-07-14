@@ -134,7 +134,7 @@ void apply_nse_exponent(T& nse_state) {
   const amrex::Real A3 = 0.272433346667;
 
   // Find n_e for original state;
-  const amrex::Real n_e = state.rho * state.y_e / C::m_u;
+  const amrex::Real n_e = nse_state.rho * nse_state.y_e / C::m_u;
   amrex::Real gamma;
 #endif
 
@@ -627,7 +627,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
   // Get nse_state without the exponent term
 
-  nse_state = get_nonexponent_nse_state(state);
+  auto nse_state = get_nonexponent_nse_state(state);
 
   // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
   // which are the exponent part of the nse mass fraction calculation
@@ -638,7 +638,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     nse_nr_solver(nse_state, eps);
   }
 
-  auto nse_state = get_nse_state(state);
+  // auto nse_state = get_nse_state(state);
 
   return nse_state;
 }
