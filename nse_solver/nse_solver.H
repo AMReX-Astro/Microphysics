@@ -116,6 +116,12 @@ void apply_nse_exponent(T& nse_state) {
   
   // The input nse_state should be the result from get_nonexponent_nse_state
 
+  // if we are doing drive_initial_convection, we want to use
+  // the temperature that comes in through T_fixed
+
+  Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+  Real exponent;
+
 #if SCREEN_METHOD != 3
   const amrex::Real A1 = -0.9052_rt;
   const amrex::Real A2 = 0.6322_rt;
@@ -125,17 +131,13 @@ void apply_nse_exponent(T& nse_state) {
 
   // Find n_e for original state;
   const amrex::Real n_e = nse_state.rho * nse_state.y_e / C::m_u;
+  const amrex::Real Gamma_e = C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt)
+                       / (C::k_B * T_in);
   amrex::Real gamma;
 #endif
 
   amrex::Real u_c = 0.0_rt;
-
-  // if we are doing drive_initial_convection, we want to use
-  // the temperature that comes in through T_fixed
-
-  Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-  Real exponent;
-
+  
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
       if (n == NSE_INDEX::h1_index) {
@@ -147,8 +149,7 @@ void apply_nse_exponent(T& nse_state) {
 
       // if use non-null screening, calculate the coulomb correction term
 #if SCREEN_METHOD != 3
-      gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * C::q_e * C::q_e *
-	std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) / (C::k_B * T_in);
+      gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
 
       // chemical potential for coulomb correction
 
