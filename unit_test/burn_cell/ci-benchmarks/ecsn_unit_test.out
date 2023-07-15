@@ -1,4 +1,4 @@
-AMReX (22.11-34-g88fe04f00600) initialized
+AMReX (22.07-181-ga232be4e275b-dirty) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 0.01
@@ -19,8 +19,8 @@ RHS at t = 0
     h1 -171061600.5
    he4 164121259.9
    o16 -67273.73352
-   o20 -1.464466368e-05
-   f20 -1.411421393e-05
+   o20 -1.464466382e-05
+   f20 -1.411421432e-05
   ne20 -447648.0568
   mg24 68871335.21
   al27 -73391041.15
@@ -29,37 +29,37 @@ RHS at t = 0
    s32 1323519.174
 ------------------------------------
 successful? 1
- - Hnuc = 4.917984919e+19
- - added e = 4.917984919e+17
- - final T = 6891813958
+ - Hnuc = 4.676007958e+19
+ - added e = 4.676007958e+17
+ - final T = 6789323342
 ------------------------------------
 e initial = 5.995956082e+17
-e final =   1.0913941e+18
+e final =   1.067196404e+18
 ------------------------------------
 new mass fractions: 
-h1 0.008951623223
-he4 9.999999993e-31
-o16 5.980162213e-07
-o20 0.009864195874
-f20 0.009866431149
-ne20 7.934626675e-14
-mg24 1.96749631e-06
-al27 3.682279658e-18
-si28 0.2886297106
-p31 9.999999993e-31
-s32 0.6826854736
+h1 0.008739044404
+he4 5.665613974e-13
+o16 6.886319932e-07
+o20 0.009757537444
+f20 0.009758038238
+ne20 9.560172968e-14
+mg24 1.623590418e-11
+al27 9.999999976e-31
+si28 0.2427040308
+p31 9.999999976e-31
+s32 0.7290406605
 ------------------------------------
 species creation rates: 
-omegadot(h1): -0.1048376777
+omegadot(h1): -0.1260955596
 omegadot(he4): -3
-omegadot(o16): -49.9999402
-omegadot(o20): -0.01358041263
-omegadot(f20): -0.01335688512
+omegadot(o16): -49.99993114
+omegadot(o20): -0.02424625563
+omegadot(f20): -0.02419617621
 omegadot(ne20): -30
-omegadot(mg24): -9.99980325
+omegadot(mg24): -9.999999998
 omegadot(al27): -1
-omegadot(si28): 27.86297106
+omegadot(si28): 23.27040308
 omegadot(p31): -1
-omegadot(s32): 67.26854736
-number of steps taken: 28233
-AMReX (22.11-34-g88fe04f00600) finalized
+omegadot(s32): 71.90406605
+number of steps taken: 13417
+AMReX (22.07-181-ga232be4e275b-dirty) finalized
