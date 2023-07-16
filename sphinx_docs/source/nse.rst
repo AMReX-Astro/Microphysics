@@ -348,6 +348,14 @@ nse check:
   option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
   which is likely the case.
 
+* ``nse.T_nse_net`` in the input file allows the user to define a simple temperature threshold
+  to determine the NSE state instead of using the complicated procedure that looks for a
+  balance between the forward and the reverse rates. Once this quantity is set to a positive
+  value, then ``in_nse`` returns ``true`` if the current temperature is higher than ``T_nse_net``,
+  and ``false`` if the current temperature is lower than ``T_nse_net``.
+  Note that we still perform a simple molar fraction check to ensure that the current state
+  is close enough to the NSE state.
+
 .. rubric:: Footnotes
 
 .. [#fY] The table actually provides the weak rate, which is the sum
