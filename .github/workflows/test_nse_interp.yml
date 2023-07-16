@@ -2,7 +2,7 @@ name: test_nse_interp
 
 on: [pull_request]
 jobs:
-  nse_table:
+  test_nse_interp:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
