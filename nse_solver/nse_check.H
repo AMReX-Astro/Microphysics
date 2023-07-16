@@ -965,7 +965,9 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   current_state.nse = false;
 
-  if (current_state.T < 2.5e9_rt) {
+  amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
+  if (T_in < 2.5e9_rt) {
     return current_state.nse;
   }
 
@@ -995,9 +997,9 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // By default, T_nse_net = -1.0
   // So this is only enabled if the user provides value in the input file
   
-  if (T_nse_net != -1.0_rt) {
+  if (T_nse_net > 0.0_rt) {
     current_state.nse = false;
-    if (current_state.T > T_nse_net) {
+    if (T_in > T_nse_net) {
       current_state.nse = true;
     }
     return current_state.nse;
