@@ -47,3 +47,122 @@ jobs:
         run: |
           cd unit_test/test_rhs
           diff test.out ci-benchmarks/ignition_simple.out
+
+      - name: Compile, test_rhs (VODE, iso7)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=iso7 -j 4
+
+      - name: Run test_rhs (VODE, iso7)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_iso7
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_iso7_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, iso7)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/iso7.out
+
+      - name: Compile, test_rhs (VODE, aprox13)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=aprox13 -j 4
+
+      - name: Run test_rhs (VODE, aprox13)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_aprox13
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox13_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, aprox13)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/aprox13.out
+
+      - name: Compile, test_rhs (VODE, aprox19)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=aprox19 -j 4
+
+      - name: Run test_rhs (VODE, aprox19)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_aprox19
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox19_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, aprox19)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/aprox19.out
+
+      - name: Compile, test_rhs (VODE, aprox21)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=aprox21 -j 4
+
+      - name: Run test_rhs (VODE, aprox21)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_aprox21
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox21_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, aprox21)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/aprox21.out
+
+      - name: Compile, test_rhs (VODE, rprox)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=rprox -j 4
+
+      - name: Run test_rhs (VODE, rprox)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_rprox
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_rprox_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, rprox)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/rprox.out
+
+      - name: Compile, test_rhs (VODE, powerlaw)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=powerlaw -j 4
+
+      - name: Run test_rhs (VODE, powerlaw)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_powerlaw
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_powerlaw_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, powerlaw)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/powerlaw.out
+
+      - name: Compile, test_rhs (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=triple_alpha_plus_cago -j 4
+
+      - name: Run test_rhs (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_triple_alpha_plus_cago
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_triple_alpha_plus_cago_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/triple_alpha_plus_cago.out
