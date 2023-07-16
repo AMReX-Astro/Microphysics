@@ -28,10 +28,6 @@ nonaka_init();
     actual_rhs_init();
 #endif
 
-#ifdef NSE_NET
-    init_nse_net();
-#endif
-
 #endif
 
 }
