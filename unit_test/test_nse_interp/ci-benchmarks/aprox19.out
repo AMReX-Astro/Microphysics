@@ -1,0 +1,34 @@
+AMReX (23.07-24-g01b750d909b0) initialized
+starting the single zone burn...
+reading the NSE table (C++) ...
+rho, T, Ye = 1230000000 5180000000 0.472
+density value brackets: 9 9.089905111 9.1
+temperature value brackets: 9.7 9.71432976 9.72
+Ye value brackets: 0.475 0.472 0.47
+
+4 rho values: 
+8.9 54.9803
+9 55.0422
+9.1 55.0953
+9.2 55.1412
+
+cubic interpolated value: 55.09029299
+
+4 T values: 
+9.68 54.9803
+9.7 54.6648
+9.72 54.0643
+9.74 52.9617
+
+cubic interpolated value: 54.27611164
+
+4 Ye values: 
+0.48 54.9803
+0.475 55.2187
+0.47 55.492
+0.465 55.7118
+
+cubic interpolated value: 55.3841496
+
+tricubic interpolated value: 55.09772364
+AMReX (23.07-24-g01b750d909b0) finalized

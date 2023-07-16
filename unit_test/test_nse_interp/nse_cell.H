@@ -8,6 +8,8 @@
 
 #include <nse_table.H>
 
+using namespace unit_test_rp;
+
 void nse_cell_c()
 {
 

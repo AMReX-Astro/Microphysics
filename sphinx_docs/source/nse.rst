@@ -249,7 +249,7 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
   participated in this step, where :math:`b_f` and :math:`b_r`
   are the forward and reverse rate of the reaction, :math:`\epsilon` is a tolerance which
   has a default value of :math:`0.1`, and :math:`t_s` is the sound crossing time of a
-  simulation cell.
+  simulation cell. Note: we skip this check when there is no neutron involved in the network.
 
   An example of such reaction cycle would be:
 
@@ -258,12 +258,12 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
      \isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
      (\alpha, \gamma) \isotm{S}{32}
 
-  The general approach to this is to start iterations from the heavy to the light nuclei to
-  use them as the starting point of the cycle. Then the algorithm checks if isotopes involved
-  in the network can actually form a cycle using the combination reactions above. If such cycle
-  is formed, then we check the rates of these reactions to see if they satisfy the condition
-  mention previously. If there are no isotope present in the network that would form
-  a closed-cycle, we move on to the next nuclei. We break out of the iteration once we found
+  The general approach to this is to start iterations from the heaviest to the lightest
+  nuclei. Then the algorithm checks if isotopes involved in the network can actually form
+  a cycle using the combination reactions above. If such cycle is formed, then we check the
+  rates of these reactions to see if they satisfy the condition mention previously.
+  If there are no isotope present in the network that would form a closed-cycle,
+  we move on to the next nuclei. We break out of the iteration once we found
   a fast reaction cycle.
     
 * If the previous two check pass, we proceed to nuclei grouping. Initially,
@@ -284,7 +284,7 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
        t_{i,k} < \epsilon t_s
        
-    *
+  *
 
     .. math::
 
@@ -312,9 +312,16 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
     This means that the non-LIG nuclei have already merged.
 
   And the iteration stops once there are no reactions that can satisfy the above criteria.
-  At the end of the iterations, we define that the current state  have reached NSE
+  At the end of the iterations, we define that the current state have reached NSE
   when there is only a single group left, or there are two groups left where
   1 of them is the light-isotope-group.
+
+  When there is no neutron in the network, it can be difficult for isotopes to form
+  a single group due to the missing neutron rates. Therefore, there is an alternative
+  criteria of defining a "single group" when neutron is not present in the network:
+  for isotopes, :math:`Z >= 14`, isotopes with odd and even :math:`N` form two
+  distinct groups. 
+  
 
 Additional Options
 ------------------
@@ -340,6 +347,14 @@ nse check:
   integrator has evolved the system to the NSE state the best it can. By turning on this
   option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
   which is likely the case.
+
+* ``nse.T_nse_net`` in the input file allows the user to define a simple temperature threshold
+  to determine the NSE state instead of using the complicated procedure that looks for a
+  balance between the forward and the reverse rates. Once this quantity is set to a positive
+  value, then ``in_nse`` returns ``true`` if the current temperature is higher than ``T_nse_net``,
+  and ``false`` if the current temperature is lower than ``T_nse_net``.
+  Note that we still perform a simple molar fraction check to ensure that the current state
+  is close enough to the NSE state.
 
 .. rubric:: Footnotes
 
