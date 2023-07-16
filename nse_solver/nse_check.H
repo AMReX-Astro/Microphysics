@@ -965,7 +965,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   current_state.nse = false;
 
-  amrex::Real T_in = current_state.T_fixed > 0.0_rt ? current_state.T_fixed : state.T;
+  amrex::Real T_in = current_state.T_fixed > 0.0_rt ? current_state.T_fixed : current_state.T;
 
   if (T_in < 2.5e9_rt) {
     return current_state.nse;
