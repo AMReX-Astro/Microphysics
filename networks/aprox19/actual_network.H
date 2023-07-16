@@ -62,7 +62,6 @@ namespace NSE_INDEX
     constexpr int h1_index = 0;
     constexpr int n_index = 17;
     constexpr int he4_index = 2;
-    extern AMREX_GPU_MANAGED bool initialized;
 }
 #endif
 

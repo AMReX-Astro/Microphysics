@@ -19,38 +19,6 @@
 
 using namespace nse_rp;
 
-AMREX_INLINE
-void init_nse_net() {
-  // Initialization for nse
-
-  // Check if network results in singular jacobian first, require at
-  // least one nuclei that nuclei.Z != nuclei.N.  Some examples include
-  // aprox13 and iso7. If use hybrj solver, this is no longer an issue.
-
-  if (!use_hybrid_solver) {
-    bool singular_network = true;
-    for (int n = 0; n < NumSpec; ++n) {
-
-#ifdef NEW_NETWORK_IMPLEMENTATION
-      if (n == NSE_INDEX::h1_index) {
-	continue;
-      }
-#endif
-
-      if (zion[n] != aion[n] - zion[n]) {
-	singular_network = false;
-      }
-    }
-
-    if (singular_network == true) {
-      amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
-    }
-  }
-
-  NSE_INDEX::initialized = true;
-}
-
-
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_nse_state(const T& state) {
@@ -439,10 +407,6 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
                        bool input_ye_is_valid=false) {
 
-  // Check whether initialized or not
-  if (!NSE_INDEX::initialized) {
-    amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
-  }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
   amrex::Real ye_hi = 0.0_rt;
@@ -480,6 +444,22 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     nse_hybrid_solver(state, eps);
   }
   else {
+    bool singular_network = true;
+    for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
+      if (n == NSE_INDEX::h1_index) {
+	continue;
+      }
+#endif
+      if (zion[n] != aion[n] - zion[n]) {
+	singular_network = false;
+      }
+    }
+
+    if (singular_network == true) {
+      amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
+    }
+
     nse_nr_solver(state, eps);
   }
 
