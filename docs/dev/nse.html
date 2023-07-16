@@ -395,6 +395,13 @@ conditions. By only applying this after option after the integration failure, we
 integrator has evolved the system to the NSE state the best it can. By turning on this
 option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
 which is likely the case.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.T_nse_net</span></code> in the input file allows the user to define a simple temperature threshold
+to determine the NSE state instead of using the complicated procedure that looks for a
+balance between the forward and the reverse rates. Once this quantity is set to a positive
+value, then <code class="docutils literal notranslate"><span class="pre">in_nse</span></code> returns <code class="docutils literal notranslate"><span class="pre">true</span></code> if the current temperature is higher than <code class="docutils literal notranslate"><span class="pre">T_nse_net</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">false</span></code> if the current temperature is lower than <code class="docutils literal notranslate"><span class="pre">T_nse_net</span></code>.
+Note that we still perform a simple molar fraction check to ensure that the current state
+is close enough to the NSE state.</p></li>
 </ul>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
