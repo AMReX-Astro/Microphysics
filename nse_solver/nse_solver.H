@@ -10,219 +10,18 @@
 #include <cmath>
 #include <AMReX_Array.H>
 #include <actual_network.H>
+#include <actual_rhs.H>
 #include <eos_composition.H>
 #include <microphysics_sort.H>
-#include <nse_index.H>
 #include <hybrj.H>
 #include <cctype>
 #include <algorithm>
 
 using namespace nse_rp;
 
-AMREX_INLINE
-void find_rate_indices(amrex::Array1D<int, 1, 3>& reactant_indices,
-		       amrex::Array1D<int, 1, 3>& product_indices, const std::string& rate_name) {
-
-  // fill the corresponding reactant and product indices of a given rate name
-  // used during initialization
-
-  for (int n = 1; n <= 3; ++n) {
-    reactant_indices(n) = -1;
-    product_indices(n) = -1;
-  }
-
-  std::string rate_name_mod = rate_name;
-
-  // Process rate_name to find the reactants and products
-
-  // replace p with h1 to match with short_spec_name_cxx
-
-  size_t pos;
-
-  while (true) {
-    pos = rate_name_mod.find("p_");
-
-    if (pos == std::string::npos) {
-      break;
-    }
-
-    rate_name_mod.replace(pos, 2, "h1_");
-  }
-
-  // Separate product name from reactant names
-
-  pos = rate_name_mod.find("_to_");
-  std::string reactant_names = rate_name_mod.substr(0, pos);
-  std::string product_names = rate_name_mod.substr(pos+4);
-
-  // check whether if this rate is removed from the network
-  // let its reactant and product all to be -1 if rate is removed
-
-  pos = product_names.find("_removed");
-  if (pos != std::string::npos) {
-    return;
-  }
-
-  // remove other suffixes
-
-  std::vector<std::string> suffixes {"_approx", "_derived", "_modified"};
-
-  for (std::string suffix : suffixes) {
-    pos = product_names.find(suffix);
-
-    if (pos != std::string::npos) {
-      product_names.erase(pos);
-    }
-  }
-
-  std::string _temp;
-
-  // Find the index of reactants and products in short_spec_names
-
-  int i = 1;
-  while ((pos = reactant_names.find('_')) != std::string::npos) {
-
-    _temp = reactant_names.substr(0, pos);
-    // aprox network need capitalize
-    // but we only work with pynucastro networks for now.
-
-    // cap_first_letter(reactant);
-
-    for (int n = 0; n < NumSpec; ++n) {
-      if (short_spec_names_cxx[n] == _temp) {
-	reactant_indices(i) = n;
-	++i;
-      }
-    }
-
-    reactant_names.erase(0, pos+1);
-  }
-
-  // cap_first_letter(reactant_names);
-  for (int n = 0; n < NumSpec; ++n) {
-    if (short_spec_names_cxx[n] == reactant_names) {
-      reactant_indices(i) = n;
-    }
-  }
-
-  i = 1;
-  while ((pos = product_names.find('_')) != std::string::npos) {
-
-    _temp = product_names.substr(0, pos);
-    // cap_first_letter(product);
-
-    for (int n = 0; n < NumSpec; ++n) {
-      if (short_spec_names_cxx[n] == _temp) {
-	product_indices(i) = n;
-	++i;
-      }
-    }
-
-    product_names.erase(0, pos+1);
-  }
-
-  // cap_first_letter(product_names);
-
-  for (int n = 0; n < NumSpec; ++n) {
-    if (short_spec_names_cxx[n] == product_names) {
-      product_indices(i) = n;
-    }
-  }
-
-  // Sort rate_indices.
-
-  sort_Array1D<1, 3>(reactant_indices);
-  sort_Array1D<1, 3>(product_indices);
-
-}
-
-
-AMREX_INLINE
-void init_nse_net() {
-  // Initialization for nse, check whether network is valid and stores indices
-
-  for (int n = 0; n < NumSpec; ++n) {
-
-    // store index of photoionization proton by looking for Z=1 but
-    // exclude h1 which is always at index=0 for aprox networks
-
-#ifdef NEW_NETWORK_IMPLEMENTATION
-    if (zion[n] == 1 && aion[n] == 1) {
-      if (n == 0) {
-	NSE_INDEX::h1_index = n;
-      }
-      else {
-	NSE_INDEX::p_index = n;
-      }
-    }
-#else
-    if (zion[n] == 1 && aion[n]== 1) {
-      NSE_INDEX::p_index = n;
-    }
-#endif
-    else if (zion[n] == 0) {
-      NSE_INDEX::n_index = n;
-    }
-    else if (zion[n] == 2 && aion[n] == 4) {
-      NSE_INDEX::he4_index = n;
-    }
-  }
-
-  // Check if network results in singular jacobian first, require at
-  // least one nuclei that nuclei.Z != nuclei.N.  Some examples include
-  // aprox13 and iso7. If use hybrj solver, this is no longer an issue.
-
-  if (!use_hybrid_solver) {
-    bool singular_network = true;
-    for (int n = 0; n < NumSpec; ++n) {
-      if (n == NSE_INDEX::h1_index) {
-	continue;
-      }
-      if (zion[n] != aion[n] - zion[n]) {
-	singular_network = false;
-      }
-    }
-
-    if (singular_network == true) {
-      amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
-    }
-  }
-
-#ifndef NEW_NETWORK_IMPLEMENTATION
-  // rate names initialization for non aprox networks...
-
-  // Fill in rate_indices<int, 1, NumRates, 1, 6>
-  // used for referencing rate by nuclei indices
-
-  amrex::Array1D<int, 1, 3> reactant_indices;
-  amrex::Array1D<int, 1, 3> product_indices;
-  std::string current_rate_name;
-
-  for (int n = 1; n <= Rates::NumRates; ++n) {
-
-    // get current name of the rate
-    current_rate_name = Rates::rate_names[n];
-
-    // fill in reactant_indices and product indices
-    find_rate_indices(reactant_indices, product_indices, current_rate_name);
-
-    // fill in rate_indices
-    for (int i = 1; i <= 3; ++i) {
-      NSE_INDEX::rate_indices(n, i) = reactant_indices(i);
-      NSE_INDEX::rate_indices(n, i+3) = product_indices(i);
-    }
-
-  }
-#endif
-  
-  NSE_INDEX::initialized = true;
-}
-
-
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-T get_nse_state(const T& state)
-{
+T get_nse_state(const T& state) {
   // This function finds the nse state given the burn state or eos state
 
   // three unit-less constants for calculating coulomb correction term
@@ -238,7 +37,9 @@ T get_nse_state(const T& state)
 #if SCREEN_METHOD != 3
   const amrex::Real A1 = -0.9052_rt;
   const amrex::Real A2 = 0.6322_rt;
-  const amrex::Real A3 = -0.5_rt * std::sqrt(3.0_rt) - A1 / std::sqrt(A2);
+  
+  // A3 = -0.5 * sqrt(3) - A1/sqrt(A2)
+  const amrex::Real A3 = 0.272433346667;
 
   // Find n_e for original state;
   const amrex::Real n_e = state.rho * state.y_e / C::m_u;
@@ -263,19 +64,19 @@ T get_nse_state(const T& state)
 #endif
 
   for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
       if (n == NSE_INDEX::h1_index) {
           nse_state.xn[n] = 0.0;
           continue;
       }
-
+#endif
       // term for calculating u_c
 
       // if use non-null screening, calculate the coulomb correction term
 
 #if SCREEN_METHOD != 3
-      gamma = std::pow(zion[n], 5.0_rt/3.0_rt) *
-          C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) /
-          (C::k_B * T_in);
+      gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * C::q_e * C::q_e *
+	std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) / (C::k_B * T_in);
 
       // chemical potential for coulomb correction
 
@@ -303,19 +104,21 @@ T get_nse_state(const T& state)
                                   - u_c + network::bion(n+1)) /
                                  C::k_B / T_in * C::Legacy::MeV2erg);
 
+      Real power = 2.0 * M_PI * network::mion(n+1) *
+	C::k_B * T_in / (C::hplanck * C::hplanck);
+
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-          std::pow(2.0 * M_PI * network::mion(n+1) *
-                   C::k_B * T_in / std::pow(C::hplanck, 2.0_rt), 3.0_rt/2.0_rt) *
-          std::exp(exponent);
+	std::sqrt(power * power * power) * std::exp(exponent);
   }
 
   nse_state.y_e = 0.0_rt;
 
   for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
     if (n == NSE_INDEX::h1_index) {
       continue;
     }
-
+#endif
     // constraint equation 1, mass fraction sum to 1
 
     nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
@@ -347,10 +150,11 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
     fvec(1) = -1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
         if (n == NSE_INDEX::h1_index) {
             continue;
         }
-
+#endif
         // constraint equation 1, mass fraction sum to 1
 
         fvec(1) += nse_state.xn[n];
@@ -388,10 +192,11 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
     Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
     for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
         if (n == NSE_INDEX::h1_index) {
             continue;
         }
-
+#endif
         fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / T_in * C::Legacy::MeV2erg ;
         fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / T_in * C::Legacy::MeV2erg;
         fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / T_in * C::Legacy::MeV2erg;
@@ -602,10 +407,6 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
                        bool input_ye_is_valid=false) {
 
-  // Check whether initialized or not
-  if (!NSE_INDEX::initialized) {
-    amrex::Error("NSE uninitialized! Need to call init_nse_net() ");
-  }
   // Check whether input ye is actually valid
   amrex::Real ye_lo = 1.0_rt;
   amrex::Real ye_hi = 0.0_rt;
@@ -616,6 +417,11 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
   }
 
   if (state.y_e < ye_lo || state.y_e > ye_hi) {
+#ifndef AMREX_USE_GPU
+    if (state.y_e != -1.0_rt) {
+      std::cout << "Warning: input Ye is " << state.y_e << ", which is out of range. Ye is recalulated based on Composition" << std::endl;
+    }
+#endif
     input_ye_is_valid = false;
   }
 
@@ -638,6 +444,22 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     nse_hybrid_solver(state, eps);
   }
   else {
+    bool singular_network = true;
+    for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
+      if (n == NSE_INDEX::h1_index) {
+	continue;
+      }
+#endif
+      if (zion[n] != aion[n] - zion[n]) {
+	singular_network = false;
+      }
+    }
+
+    if (singular_network == true) {
+      amrex::Error("This network always results in singular jacobian matrix, thus can't find nse mass fraction using nr!");
+    }
+
     nse_nr_solver(state, eps);
   }
 
