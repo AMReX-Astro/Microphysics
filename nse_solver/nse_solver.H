@@ -105,6 +105,7 @@ T get_nse_state(const T& state) {
       // term for calculating u_c
 
       // if use non-null screening, calculate the coulomb correction term
+
 #if SCREEN_METHOD != 3
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * C::q_e * C::q_e *
 	std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) / (C::k_B * T_in);
