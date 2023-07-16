@@ -1,4 +1,4 @@
-AMReX (22.07-181-ga232be4e275b-dirty) initialized
+AMReX (22.07-398-g01b750d909b0-dirty) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 0.01
@@ -62,4 +62,4 @@ omegadot(si28): 26.70958815
 omegadot(p31): -1
 omegadot(s32): 68.5327845
 number of steps taken: 15438
-AMReX (22.07-181-ga232be4e275b-dirty) finalized
+AMReX (22.07-398-g01b750d909b0-dirty) finalized
