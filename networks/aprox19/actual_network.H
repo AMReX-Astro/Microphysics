@@ -18,7 +18,12 @@ using namespace amrex;
 
 using namespace network_rp;
 
-void actual_network_init();
+AMREX_INLINE
+void actual_network_init() {
+#ifdef NSE_TABLE
+    init_nse();
+#endif
+}
 
 #ifndef NSE
 const std::string network_name = "aprox19";
