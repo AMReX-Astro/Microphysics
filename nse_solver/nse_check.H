@@ -967,13 +967,14 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   amrex::Real T_in = current_state.T_fixed > 0.0_rt ? current_state.T_fixed : current_state.T;
 
-  if (T_in < 2.5e9_rt) {
+  // If temperature is below 2.5e9 K
+  // Or if we enable direct by a simple temperature threshold,
+  // so T_nse_net > 0.0 but T_in < T_nse_net, we abort early to avoid computing cost.
+
+  if ((T_in < 2.5e9_rt) || (T_nse_net > 0.0_rt && T_in < T_nse_net)) {
     return current_state.nse;
   }
 
-  if (T_nse_net > 0.0_rt && T_in < T_nse_net) {
-    return current_state.nse;
-  }
   // Get the nse state which is used to compare nse molar fractions.
 
   const auto nse_state = get_actual_nse_state(current_state);
