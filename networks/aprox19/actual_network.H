@@ -32,28 +32,6 @@ namespace network
     extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
 }
 
-namespace table
-{
-
-
-  constexpr int ntemp = 71;
-  constexpr int nden = 31;
-  constexpr int nye = 21;
-
-  constexpr int npts = ntemp * nden * nye;
-
-  constexpr Real dlogT = 0.02_rt;
-  constexpr Real dlogrho = 0.10_rt;
-  constexpr Real dye = 0.005_rt;
-
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> abartab;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> ebtab;
-  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> wratetab;
-
-  extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;
-
-}
-
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
@@ -62,7 +40,6 @@ namespace NSE_INDEX
     constexpr int h1_index = 0;
     constexpr int n_index = 17;
     constexpr int he4_index = 2;
-    extern AMREX_GPU_MANAGED bool initialized;
 }
 #endif
 
