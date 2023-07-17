@@ -15,6 +15,9 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <tfactors.H>
 #include <aprox_rates.H>
+#ifdef NSE_TABLE
+#include <nse_table.H>
+#endif
 
 using namespace network_rp;
 
