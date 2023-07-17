@@ -15,6 +15,7 @@
 
 #include <burn_type.H>
 #include <eos.H>
+#include <nse_table_data.H>
 
 using namespace amrex;
 using namespace network_rp;
@@ -29,24 +30,24 @@ void init_nse() {
 
   amrex::Print() << "reading the NSE table (C++) ..." << std::endl;
 
-  nse_table.open("nse19.tbl", std::ios::in);
+  nse_table.open("nse.tbl", std::ios::in);
   if (nse_table.fail()) {
-      amrex::Error("unable to open nse19.tbl");
+      amrex::Error("unable to open nse.tbl");
   }
 
   Real the, tsi, tfe;
   Real ttemp, tdens, tye;
 
-  for (int irho = 1; irho <= table::nden; irho++) {
-    for (int it9 = 1; it9 <= table::ntemp; it9++) {
-      for (int iye = 1; iye <= table::nye; iye++) {
-        int j = (irho-1)*table::ntemp*table::nye + (it9-1)*table::nye + iye;
+  for (int irho = 1; irho <= nse_table::nden; irho++) {
+    for (int it9 = 1; it9 <= nse_table::ntemp; it9++) {
+      for (int iye = 1; iye <= nse_table::nye; iye++) {
+        int j = (irho-1)*nse_table::ntemp*nse_table::nye + (it9-1)*nse_table::nye + iye;
 
         nse_table >> ttemp >> tdens >> tye;
         nse_table >> the >> tsi >> tfe;
-        nse_table >> table::abartab(j) >> table::ebtab(j) >> table::wratetab(j);
+        nse_table >> nse_table::abartab(j) >> nse_table::ebtab(j) >> nse_table::wratetab(j);
         for (int n = 1; n <= NumSpec; n++) {
-          nse_table >> table::massfractab(n, j);
+          nse_table >> nse_table::massfractab(n, j);
         }
       }
     }
@@ -57,22 +58,22 @@ void init_nse() {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_idx(const int ir, const int it, const int ic) {
     // this uses a 1-based indexing
-    return (ir-1) * table::ntemp * table::nye + (it-1) * table::nye + ic;
+    return (ir-1) * nse_table::ntemp * nse_table::nye + (it-1) * nse_table::nye + ic;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real nse_table_logT(const int it) {
-    return 9.0_rt + static_cast<Real>(it-1) * table::dlogT;
+    return 9.0_rt + static_cast<Real>(it-1) * nse_table::dlogT;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real nse_table_logrho(const int ir) {
-    return 7.0_rt + static_cast<Real>(ir-1) * table::dlogrho;
+    return 7.0_rt + static_cast<Real>(ir-1) * nse_table::dlogrho;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real nse_table_ye(const int ic) {
-    return 0.50_rt - static_cast<Real>(ic-1) * table::dye;
+    return 0.50_rt - static_cast<Real>(ic-1) * nse_table::dye;
 }
 
 // return the index in the table such that logrho[irho] < input density
@@ -80,7 +81,7 @@ Real nse_table_ye(const int ic) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_get_logrho_index(const Real logrho) {
 
-    int ir0 = static_cast<int>((logrho - 7.0_rt) / table::dlogrho - 1.e-6_rt);
+    int ir0 = static_cast<int>((logrho - 7.0_rt) / nse_table::dlogrho - 1.e-6_rt);
     return ir0 + 1;
 }
 
@@ -89,7 +90,7 @@ int nse_get_logrho_index(const Real logrho) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_get_logT_index(const Real logT) {
 
-    int it0 = static_cast<int>((logT - 9.0_rt) / table::dlogT - 1.e-6_rt);
+    int it0 = static_cast<int>((logT - 9.0_rt) / nse_table::dlogT - 1.e-6_rt);
     return it0 + 1;
 }
 
@@ -98,7 +99,7 @@ int nse_get_logT_index(const Real logT) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_get_ye_index(const Real ye) {
 
-    int ic0 = static_cast<int>((0.50_rt - ye) / table::dye - 1.0e-6_rt);
+    int ic0 = static_cast<int>((0.50_rt - ye) / nse_table::dye - 1.0e-6_rt);
     return ic0 + 1;
 }
 
@@ -139,9 +140,9 @@ Real trilinear(const int ir1, const int it1, const int ic1,
     Real r0 = nse_table_logrho(ir1);
     Real x0 = nse_table_ye(ic1);
 
-    Real td = (temp - t0) / table::dlogT;
-    Real rd = (rho - r0) / table::dlogrho;
-    Real xd = (x0 - ye) / table::dye;
+    Real td = (temp - t0) / nse_table::dlogT;
+    Real rd = (rho - r0) / nse_table::dlogrho;
+    Real xd = (x0 - ye) / nse_table::dye;
     xd = amrex::max(0.0_rt, xd);
 
     Real omtd = 1.0_rt - td;
@@ -195,7 +196,7 @@ Real tricubic(const int ir0, const int it0, const int ic0,
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -table::dye, ye);
+            d1[ii][jj] = cubic(yes, _d, -nse_table::dye, ye);
         }
     }
 
@@ -206,12 +207,12 @@ Real tricubic(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
 
         Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
-        d2[ii] = cubic(Ts, _d, table::dlogT, temp);
+        d2[ii] = cubic(Ts, _d, nse_table::dlogT, temp);
     }
 
     // finally do the remaining interpolation over rho
 
-    Real val = cubic(rhos, d2, table::dlogrho, rho);
+    Real val = cubic(rhos, d2, nse_table::dlogrho, rho);
 
     return val;
 
@@ -223,7 +224,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
 
     // if skip_X_fill = true then we don't fill X[] with the mass fractions.
 
-    using namespace table;
+    using namespace nse_table;
     using namespace AuxZero;
 
     Real rholog = amrex::max(7.0_rt, amrex::min(10.0_rt, std::log10(rho)));
@@ -265,13 +266,13 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         // so we offset one to the left and also ensure that we don't go off the table
 
         int ir0 = nse_get_logrho_index(rholog) - 1;
-        ir0 = amrex::max(1, amrex::min(table::nden-3, ir0));
+        ir0 = amrex::max(1, amrex::min(nse_table::nden-3, ir0));
 
         int it0 = nse_get_logT_index(tlog) - 1;
-        it0 = amrex::max(1, amrex::min(table::ntemp-3, it0));
+        it0 = amrex::max(1, amrex::min(nse_table::ntemp-3, it0));
 
         int ic0 = nse_get_ye_index(yet) - 1;
-        ic0 = amrex::max(1, amrex::min(table::nye-3, ic0));
+        ic0 = amrex::max(1, amrex::min(nse_table::nye-3, ic0));
 
         abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
         dq = tricubic(ir0, it0, ic0, rholog, tlog, yet, ebtab);

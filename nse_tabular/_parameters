@@ -1,0 +1,15 @@
+@namespace: network
+
+rho_nse      real    3.e8
+T_nse        real    3.e9
+C_nse        real    0.01
+O_nse        real    0.01
+Si_nse       real    0.01
+He_Fe_nse    real    0.88
+
+# factor (< 1) by which to relax the criteria for entering NSE.
+# This is only applied after a failed burn.
+nse_relax_factor  real   1.0
+
+# do we do tri-linear or tri-cubic interpolation on the table?
+nse_table_interp_linear   integer    1
