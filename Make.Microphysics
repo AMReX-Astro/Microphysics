@@ -20,6 +20,7 @@ TOP := $(MICROPHYSICS_HOME)
 EOS_HOME ?= $(TOP)/EOS
 NETWORK_HOME ?= $(TOP)/networks
 CONDUCTIVITY_HOME ?= $(TOP)/conductivity
+NSE_TABULAR_HOME ?= $(TOP)/nse_tabular
 
 EBASE ?= main
 
