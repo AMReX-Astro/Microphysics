@@ -971,6 +971,9 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     return current_state.nse;
   }
 
+  if (T_nse_net > 0.0_rt && T_in < T_nse_net) {
+    return current_state.nse;
+  }
   // Get the nse state which is used to compare nse molar fractions.
 
   const auto nse_state = get_actual_nse_state(current_state);
@@ -997,11 +1000,8 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // By default, T_nse_net = -1.0
   // So this is only enabled if the user provides value in the input file
   
-  if (T_nse_net > 0.0_rt) {
-    current_state.nse = false;
-    if (T_in > T_nse_net) {
+  if (T_nse_net > 0.0_rt && T_in > T_nse_net) {
       current_state.nse = true;
-    }
     return current_state.nse;
   }
 
