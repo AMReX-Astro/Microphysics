@@ -40,13 +40,13 @@ void nse_cell_c()
     // need to offset the indices one to the left
 
     ir0--;
-    ir0 = amrex::max(1, amrex::min(table::nden-3, ir0));
+    ir0 = amrex::max(1, amrex::min(nse_table::nden-3, ir0));
 
     it0--;
-    it0 = amrex::max(1, amrex::min(table::ntemp-3, it0));
+    it0 = amrex::max(1, amrex::min(nse_table::ntemp-3, it0));
 
     ic0--;
-    ic0 = amrex::max(1, amrex::min(table::nye-3, ic0));
+    ic0 = amrex::max(1, amrex::min(nse_table::nye-3, ic0));
 
 
     Real rhos[] = {nse_table_logrho(ir0),
@@ -68,10 +68,10 @@ void nse_cell_c()
     {
         std::cout << "4 rho values: " << std::endl;
 
-        Real _d[] = {table::abartab(nse_idx(ir0, it0, ic0)),
-                     table::abartab(nse_idx(ir0+1, it0, ic0)),
-                     table::abartab(nse_idx(ir0+2, it0, ic0)),
-                     table::abartab(nse_idx(ir0+3, it0, ic0))};
+        Real _d[] = {nse_table::abartab(nse_idx(ir0, it0, ic0)),
+                     nse_table::abartab(nse_idx(ir0+1, it0, ic0)),
+                     nse_table::abartab(nse_idx(ir0+2, it0, ic0)),
+                     nse_table::abartab(nse_idx(ir0+3, it0, ic0))};
 
         for (int ii = 0; ii < 4; ++ii) {
             std::cout << rhos[ii] << " " << _d[ii] << std::endl;
@@ -79,16 +79,16 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(rhos, _d, table::dlogrho, logrho) << std::endl << std::endl;
+            cubic(rhos, _d, nse_table::dlogrho, logrho) << std::endl << std::endl;
     }
 
     {
         std::cout << "4 T values: " << std::endl;
 
-        Real _d[] = {table::abartab(nse_idx(ir0, it0, ic0)),
-                     table::abartab(nse_idx(ir0, it0+1, ic0)),
-                     table::abartab(nse_idx(ir0, it0+2, ic0)),
-                     table::abartab(nse_idx(ir0, it0+3, ic0))};
+        Real _d[] = {nse_table::abartab(nse_idx(ir0, it0, ic0)),
+                     nse_table::abartab(nse_idx(ir0, it0+1, ic0)),
+                     nse_table::abartab(nse_idx(ir0, it0+2, ic0)),
+                     nse_table::abartab(nse_idx(ir0, it0+3, ic0))};
 
         for (int ii = 0; ii < 4; ++ii) {
             std::cout << Ts[ii] << " " << _d[ii] << std::endl;
@@ -96,17 +96,17 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(Ts, _d, table::dlogT, logT) << std::endl << std::endl;
+            cubic(Ts, _d, nse_table::dlogT, logT) << std::endl << std::endl;
 
     }
 
     {
         std::cout << "4 Ye values: " << std::endl;
 
-        Real _d[] = {table::abartab(nse_idx(ir0, it0, ic0)),
-                     table::abartab(nse_idx(ir0, it0, ic0+1)),
-                     table::abartab(nse_idx(ir0, it0, ic0+2)),
-                     table::abartab(nse_idx(ir0, it0, ic0+3))};
+        Real _d[] = {nse_table::abartab(nse_idx(ir0, it0, ic0)),
+                     nse_table::abartab(nse_idx(ir0, it0, ic0+1)),
+                     nse_table::abartab(nse_idx(ir0, it0, ic0+2)),
+                     nse_table::abartab(nse_idx(ir0, it0, ic0+3))};
 
         for (int ii = 0; ii < 4; ++ii) {
             std::cout << yes[ii] << " " << _d[ii] << std::endl;
@@ -114,11 +114,11 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(yes, _d, -table::dye, ye) << std::endl << std::endl;
+            cubic(yes, _d, -nse_table::dye, ye) << std::endl << std::endl;
 
     }
 
     std::cout << "tricubic interpolated value: " <<
-        tricubic(ir0, it0, ic0, logrho, logT, ye, table::abartab) << std::endl;
+        tricubic(ir0, it0, ic0, logrho, logT, ye, nse_table::abartab) << std::endl;
 
 }
