@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <actual_network.H>
 
 #include <AMReX.H>
 #include <AMReX_Print.H>
@@ -12,9 +11,6 @@
 #include <AMReX_REAL.H>
 
 #include <extern_parameters.H>
-
-#include <burn_type.H>
-#include <eos.H>
 #include <nse_table_data.H>
 
 using namespace amrex;
