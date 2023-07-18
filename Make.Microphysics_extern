@@ -77,13 +77,15 @@ table:
 
 # NSE networks need the table
 ifeq ($(USE_NSE_TABLE),TRUE)
+  NSE_TABULAR_HOME ?= $(MICROPHYSICS_HOME)/nse_tabular
+  EXTERN_CORE += $(NSE_TABULAR_HOME)
   ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
      all: nsetable
   endif
 endif
 
 nsetable:
-	@if [ ! -f nse19.tbl ]; then echo Linking nse19.tbl; ln -s $(NETWORK_PATH)/nse19.tbl .; fi
+	@if [ ! -f nse.tbl ]; then echo Linking nse.tbl; ln -s $(NETWORK_PATH)/nse.tbl .; fi
 
 
 # include the network
