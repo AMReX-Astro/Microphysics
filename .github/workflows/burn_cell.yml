@@ -53,10 +53,26 @@ jobs:
           cd unit_test/burn_cell
           ./main3d.gnu.ex inputs_ecsn > test.out
 
-      - name: Compare to stored output (ECSN)
+      - name: Compare to stored output (VODE, ECSN)
         run: |
           cd unit_test/burn_cell
           diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/ecsn_unit_test.out
+
+      - name: Compile, burn_cell (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=ignition_chamulak -j 4
+
+      - name: Run burn_cell (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_ignition_chamulak > test.out
+
+      - name: Compare to stored output (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/chamulak_VODE_unit_test.out
 
       - name: Compile, burn_cell (ForwardEuler, triple_alpha_plus_cago)
         run: |
@@ -121,5 +137,3 @@ jobs:
         run: |
           cd unit_test/burn_cell
           diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_RKC_unit_test.out
-
-
