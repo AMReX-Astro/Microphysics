@@ -1,4 +1,4 @@
- plotfile = react_chamulak_test_rhs.VODE/
+ plotfile = react_chamulak_test_rhs.VODE
  time = 0
               variables          minimum value          maximum value
  density                                 10000              100000000
