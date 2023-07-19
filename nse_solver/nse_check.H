@@ -967,7 +967,11 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   amrex::Real T_in = current_state.T_fixed > 0.0_rt ? current_state.T_fixed : current_state.T;
 
-  if (T_in < 2.5e9_rt) {
+  // If temperature is below 2.5e9 K
+  // Or if we enable direct by a simple temperature threshold,
+  // so T_nse_net > 0.0 but T_in < T_nse_net, we abort early to avoid computing cost.
+
+  if ((T_in < 2.5e9_rt) || (T_nse_net > 0.0_rt && T_in < T_nse_net)) {
     return current_state.nse;
   }
 
@@ -997,11 +1001,8 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // By default, T_nse_net = -1.0
   // So this is only enabled if the user provides value in the input file
   
-  if (T_nse_net > 0.0_rt) {
-    current_state.nse = false;
-    if (T_in > T_nse_net) {
+  if (T_nse_net > 0.0_rt && T_in > T_nse_net) {
       current_state.nse = true;
-    }
     return current_state.nse;
   }
 
