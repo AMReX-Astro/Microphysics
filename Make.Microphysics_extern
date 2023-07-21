@@ -15,13 +15,13 @@ ifeq ($(USE_NONAKA_PLOT),TRUE)
 endif
 
 SCREEN_METHOD ?= screen5
-ifeq ($(SCREEN_METHOD), screen5)
+ifeq ($(SCREEN_METHOD), null)
   DEFINES += -DSCREEN_METHOD=0
-else ifeq ($(SCREEN_METHOD), chugunov2007)
+else ifeq ($(SCREEN_METHOD), screen5)
   DEFINES += -DSCREEN_METHOD=1
-else ifeq ($(SCREEN_METHOD), chugunov2009)
+else ifeq ($(SCREEN_METHOD), chugunov2007)
   DEFINES += -DSCREEN_METHOD=2
-else ifeq ($(SCREEN_METHOD), null)
+else ifeq ($(SCREEN_METHOD), chugunov2009)
   DEFINES += -DSCREEN_METHOD=3
 else ifeq ($(SCREEN_METHOD), chabrier1998)
   DEFINES += -DSCREEN_METHOD=4
