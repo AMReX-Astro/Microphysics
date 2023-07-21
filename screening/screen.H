@@ -17,13 +17,13 @@ using namespace amrex;
 using namespace integrator_rp;
 
 #if SCREEN_METHOD == 0
-const std::string screen_name = "screen5";
-#elif SCREEN_METHOD == 1
-const std::string screen_name = "chugunov2007";
-#elif SCREEN_METHOD == 2
-const std::string screen_name = "chugunov2009";
-#elif SCREEN_METHOD == 3
 const std::string screen_name = "null";
+#elif SCREEN_METHOD == 1
+const std::string screen_name = "screen5";
+#elif SCREEN_METHOD == 2
+const std::string screen_name = "chugunov2007";
+#elif SCREEN_METHOD == 3
+const std::string screen_name = "chugunov2009";
 #elif SCREEN_METHOD == 4
 const std::string screen_name = "chabrier1998";
 #endif
@@ -977,16 +977,16 @@ void actual_screen(const plasma_state_t& state,
                    Real& scor, Real& scordt)
 {
 #if SCREEN_METHOD == 0
-    actual_screen5<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 1
-    chugunov2007<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 2
-    chugunov2009<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 3
     // null screening
     amrex::ignore_unused(state, scn_fac);
     scor = 1.0_rt;
     scordt = 0.0_rt;
+#elif SCREEN_METHOD == 1
+    actual_screen5<do_T_derivatives>(state, scn_fac, scor, scordt);
+#elif SCREEN_METHOD == 2
+    chugunov2007<do_T_derivatives>(state, scn_fac, scor, scordt);
+#elif SCREEN_METHOD == 3
+    chugunov2009<do_T_derivatives>(state, scn_fac, scor, scordt);
 #elif SCREEN_METHOD == 4
     chabrier1998<do_T_derivatives>(state, scn_fac, scor, scordt);
 #endif

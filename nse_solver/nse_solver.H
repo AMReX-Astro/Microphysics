@@ -89,7 +89,7 @@ void apply_nse_exponent(T& nse_state) {
   // if we use a non-null screening method.
   // Get the required terms to calculate coulomb correction term, u_c
 
-#if SCREEN_METHOD != 3
+#if SCREEN_METHOD != 0
 
   // three unit-less constants for calculating coulomb correction term
   // see Calder 2007, doi:10.1086/510709 for more detail
@@ -119,7 +119,7 @@ void apply_nse_exponent(T& nse_state) {
       // term for calculating u_c
 
       // if use non-null screening, calculate the coulomb correction term
-#if SCREEN_METHOD != 3
+#if SCREEN_METHOD != 0
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
 
       // chemical potential for coulomb correction
