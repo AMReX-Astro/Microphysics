@@ -139,8 +139,8 @@ void actual_eos (I input, T& state)
 {
     static_assert(std::is_same<I, eos_input_t>::value, "input must be either eos_input_rt or eos_input_re");
 
-    const Real gasconstant = 8.3144725e7;
-    const Real protonmass = 1.672621637e-24;
+    const Real gasconstant = C::n_A * C::k_B;
+    const Real protonmass = C::m_p;
     // Special gamma factors
     Real sum_Abarinv = 0.0_rt;
     Real sum_gammasinv = 0.0_rt;
