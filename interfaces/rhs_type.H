@@ -72,6 +72,36 @@ struct rhs_t {
     int additional_reaction_1;
     int additional_reaction_2;
     int additional_reaction_3;
+
+    constexpr rhs_t ()
+        : species_A(-1),
+          species_B(-1),
+          species_C(-1),
+          species_D(-1),
+          species_E(-1),
+          species_F(-1),
+          number_A(0),
+          number_B(0),
+          number_C(0),
+          number_D(0),
+          number_E(0),
+          number_F(0),
+          exponent_A(0),
+          exponent_B(0),
+          exponent_C(0),
+          exponent_D(0),
+          exponent_E(0),
+          exponent_F(0),
+          forward_branching_ratio(1.0_rt),
+          reverse_branching_ratio(1.0_rt),
+          apply_identical_particle_factor(1),
+          rate_can_be_tabulated(1),
+          screen_forward_reaction(1),
+          screen_reverse_reaction(1),
+          additional_reaction_1(-1),
+          additional_reaction_2(-1),
+          additional_reaction_3(-1)
+        {}
 };
 
 constexpr amrex::Real tab_tlo = 6.0e0_rt;
