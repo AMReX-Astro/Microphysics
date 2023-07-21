@@ -237,42 +237,7 @@ namespace RHS {
         using namespace Species;
         using namespace Rates;
 
-        rhs_t data{};
-
-        data.species_A = -1;
-        data.species_B = -1;
-        data.species_C = -1;
-        data.species_D = -1;
-        data.species_E = -1;
-        data.species_F = -1;
-
-        data.number_A = 0;
-        data.number_B = 0;
-        data.number_C = 0;
-        data.number_D = 0;
-        data.number_E = 0;
-        data.number_F = 0;
-
-        data.exponent_A = 0;
-        data.exponent_B = 0;
-        data.exponent_C = 0;
-        data.exponent_D = 0;
-        data.exponent_E = 0;
-        data.exponent_F = 0;
-
-        data.forward_branching_ratio = 1.0;
-        data.reverse_branching_ratio = 1.0;
-
-        data.apply_identical_particle_factor = 1;
-
-        data.rate_can_be_tabulated = 1;
-
-        data.screen_forward_reaction = 1;
-        data.screen_reverse_reaction = 1;
-
-        data.additional_reaction_1 = -1;
-        data.additional_reaction_2 = -1;
-        data.additional_reaction_3 = -1;
+        rhs_t data;
 
         switch (rate) {
 
