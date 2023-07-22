@@ -1419,7 +1419,7 @@ void actual_eos_init ()
 
     // now copy into managed memory
     int idx = 0;
-    for (int j = 0; j < jmax; ++j) {
+    for (int j = 0; j < jmax; ++j) {  // NOLINT(modernize-loop-convert)
         for (int i = 0; i < imax; ++i) {
             for (int m = 0; m < 9; ++m) {
                 f[j][i][m] = f_local[idx];
