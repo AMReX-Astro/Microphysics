@@ -1220,7 +1220,9 @@ void fill_additional_rates (const Arr& intermediate_rates, rate_t& rates1, rate_
 AMREX_INLINE
 void rhs_init ()
 {
+#ifdef RATES
     rates_init();
+#endif
 
     if (use_tables)
     {
@@ -1250,8 +1252,10 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
         rhs_state.y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
+#ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
     fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
+#endif
 
     // Initialize the rate temperature term.
     rhs_state.tf = get_tfactors(burn_state.T);
@@ -1389,8 +1393,10 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         rhs_state.y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
+#ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
     fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
+#endif
 
     // Initialize the rate temperature term.
     rhs_state.tf = get_tfactors(burn_state.T);
