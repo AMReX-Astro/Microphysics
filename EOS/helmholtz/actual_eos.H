@@ -1341,10 +1341,10 @@ void actual_eos_init ()
     // buffer, broadcast that, and then copy that into the managed
     // memory.
 
-    amrex::Vector<Real> f_local(jmax * imax * 9);
-    amrex::Vector<Real> dpdf_local(jmax * imax * 4);
-    amrex::Vector<Real> ef_local(jmax * imax * 4);
-    amrex::Vector<Real> xf_local(jmax * imax * 4);
+    amrex::Vector<Real> f_local(static_cast<size_t>(9) * imax * jmax);
+    amrex::Vector<Real> dpdf_local(static_cast<size_t>(4) * imax * jmax);
+    amrex::Vector<Real> ef_local(static_cast<size_t>(4) * imax * jmax);
+    amrex::Vector<Real> xf_local(static_cast<size_t>(4) * imax * jmax);
 
     if (amrex::ParallelDescriptor::IOProcessor()) {
 
@@ -1412,14 +1412,14 @@ void actual_eos_init ()
 
     }
 
-    amrex::ParallelDescriptor::Bcast(f_local.data(),    static_cast<size_t>(9 * imax * jmax));
-    amrex::ParallelDescriptor::Bcast(dpdf_local.data(), static_cast<size_t>(4 * imax * jmax));
-    amrex::ParallelDescriptor::Bcast(ef_local.data(),   static_cast<size_t>(4 * imax * jmax));
-    amrex::ParallelDescriptor::Bcast(xf_local.data(),   static_cast<size_t>(4 * imax * jmax));
+    amrex::ParallelDescriptor::Bcast(f_local.data(),    static_cast<size_t>(9) * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(dpdf_local.data(), static_cast<size_t>(4) * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(ef_local.data(),   static_cast<size_t>(4) * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(xf_local.data(),   static_cast<size_t>(4) * imax * jmax);
 
     // now copy into managed memory
     int idx = 0;
-    for (int j = 0; j < jmax; ++j) {
+    for (int j = 0; j < jmax; ++j) {  // NOLINT(modernize-loop-convert)
         for (int i = 0; i < imax; ++i) {
             for (int m = 0; m < 9; ++m) {
                 f[j][i][m] = f_local[idx];

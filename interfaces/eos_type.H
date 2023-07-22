@@ -161,7 +161,7 @@ struct has_energy
     : std::false_type {};
 
 template <typename T>
-struct has_energy<T, typename std::enable_if<(sizeof(((T*)0)->e) > 0)>::type>
+struct has_energy<T, decltype((void)T::e, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -169,7 +169,7 @@ struct has_enthalpy
     : std::false_type {};
 
 template <typename T>
-struct has_enthalpy<T, typename std::enable_if<(sizeof(((T*)0)->h) > 0)>::type>
+struct has_enthalpy<T, decltype((void)T::h, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -177,7 +177,7 @@ struct has_entropy
     : std::false_type {};
 
 template <typename T>
-struct has_entropy<T, typename std::enable_if<(sizeof(((T*)0)->s) > 0)>::type>
+struct has_entropy<T, decltype((void)T::s, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -185,7 +185,7 @@ struct has_pressure
     : std::false_type {};
 
 template <typename T>
-struct has_pressure<T, typename std::enable_if<(sizeof(((T*)0)->p) > 0)>::type>
+struct has_pressure<T, decltype((void)T::p, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -193,7 +193,7 @@ struct has_dpdA
     : std::false_type {};
 
 template <typename T>
-struct has_dpdA<T, typename std::enable_if<(sizeof(((T*)0)->dpdA) > 0)>::type>
+struct has_dpdA<T, decltype((void)T::dpdA, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -201,7 +201,7 @@ struct has_dpdZ
     : std::false_type {};
 
 template <typename T>
-struct has_dpdZ<T, typename std::enable_if<(sizeof(((T*)0)->dpdZ) > 0)>::type>
+struct has_dpdZ<T, decltype((void)T::dpdZ, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -209,7 +209,7 @@ struct has_dedA
     : std::false_type {};
 
 template <typename T>
-struct has_dedA<T, typename std::enable_if<(sizeof(((T*)0)->dedA) > 0)>::type>
+struct has_dedA<T, decltype((void)T::dedA, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -217,7 +217,7 @@ struct has_dedZ
     : std::false_type {};
 
 template <typename T>
-struct has_dedZ<T, typename std::enable_if<(sizeof(((T*)0)->dedZ) > 0)>::type>
+struct has_dedZ<T, decltype((void)T::dedZ, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -225,7 +225,7 @@ struct has_pele_ppos
     : std::false_type {};
 
 template <typename T>
-struct has_pele_ppos<T, typename std::enable_if<(sizeof(((T*)0)->pele) > 0)>::type>
+struct has_pele_ppos<T, decltype((void)T::pele, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -233,7 +233,7 @@ struct has_xne_xnp
     : std::false_type {};
 
 template <typename T>
-struct has_xne_xnp<T, typename std::enable_if<(sizeof(((T*)0)->xne) > 0)>::type>
+struct has_xne_xnp<T, decltype((void)T::xne, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -241,7 +241,7 @@ struct has_eta
     : std::false_type {};
 
 template <typename T>
-struct has_eta<T, typename std::enable_if<(sizeof(((T*)0)->eta) > 0)>::type>
+struct has_eta<T, decltype((void)T::eta, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -249,7 +249,7 @@ struct has_conductivity
     : std::false_type {};
 
 template <typename T>
-struct has_conductivity<T, typename std::enable_if<(sizeof(((T*)0)->conductivity) > 0)>::type>
+struct has_conductivity<T, decltype((void)T::conductivity, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -257,7 +257,7 @@ struct has_xn
     : std::false_type {};
 
 template <typename T>
-struct has_xn<T, typename std::enable_if<(sizeof(((T*)0)->xn) > 0)>::type>
+struct has_xn<T, decltype((void)T::xn, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
@@ -265,7 +265,7 @@ struct has_base_variables
     : std::false_type {};
 
 template <typename T>
-struct has_base_variables<T, typename std::enable_if<(sizeof(((T*)0)->rho) > 0)>::type>
+struct has_base_variables<T, decltype((void)T::rho, void())>
     : std::true_type {};
 
 template <typename T>
