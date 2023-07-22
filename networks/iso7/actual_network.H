@@ -329,10 +329,7 @@ namespace RHS {
         else if constexpr (rate == C12_C12_to_Ne20_He4) {
             rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
-        else if constexpr (rate == C12_O16_to_Mg24_He4) {
-            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
-        }
-        else if constexpr (rate == C12_O16_to_Si28) {
+        else if constexpr (rate == C12_O16_to_Mg24_He4 || rate == C12_O16_to_Si28) {
             rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == O16_O16_to_Si28_He4) {
