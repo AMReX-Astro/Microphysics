@@ -1348,9 +1348,9 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
 
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
     sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, snuda, snudz);
+           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
     Real sneut = 0.0;
 #endif
@@ -1494,11 +1494,12 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
     sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, snuda, snudz);
+           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
-    Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, snuda = 0.0, snudz = 0.0;
+    Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, dsnuda = 0.0, dsnudz = 0.0;
+    amrex::ignore_unused(sneut, dsneutdd);
 #endif
 
     jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(burn_state, dsneutdt);
@@ -1508,7 +1509,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         constexpr int species = j;
 
         // Energy generation rate Jacobian elements with respect to species.
-        Real b1 = (-burn_state.abar * burn_state.abar * snuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * snudz);
+        Real b1 = (-burn_state.abar * burn_state.abar * dsnuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * dsnudz);
         jac(net_ienuc, species) = -b1;
 
         constexpr_for<1, NumSpec+1>([&] (auto i)

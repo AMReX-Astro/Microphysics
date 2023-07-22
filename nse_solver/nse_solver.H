@@ -33,7 +33,7 @@ T get_nonexponent_nse_state(const T& state) {
   // set partition function and spin
   
   amrex::Real pf = 1.0_rt;
-  amrex::Real dpf_dT;
+  [[maybe_unused]] amrex::Real dpf_dT;
   amrex::Real spin = 1.0_rt;
 
   // if we are doing drive_initial_convection, we want to use
@@ -165,6 +165,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
+    amrex::ignore_unused(iflag);
   
     T nse_state = state;
     nse_state.mu_p = x(1);
@@ -200,6 +201,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
+    amrex::ignore_unused(iflag);
   
     T nse_state = state;
     nse_state.mu_p = x(1);

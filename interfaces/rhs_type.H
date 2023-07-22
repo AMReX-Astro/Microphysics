@@ -38,70 +38,40 @@ namespace RHS
 {
 
 struct rhs_t {
-    int species_A;
-    int species_B;
-    int species_C;
-    int species_D;
-    int species_E;
-    int species_F;
+    int species_A{-1};
+    int species_B{-1};
+    int species_C{-1};
+    int species_D{-1};
+    int species_E{-1};
+    int species_F{-1};
 
-    int number_A;
-    int number_B;
-    int number_C;
-    int number_D;
-    int number_E;
-    int number_F;
+    int number_A{0};
+    int number_B{0};
+    int number_C{0};
+    int number_D{0};
+    int number_E{0};
+    int number_F{0};
 
-    int exponent_A;
-    int exponent_B;
-    int exponent_C;
-    int exponent_D;
-    int exponent_E;
-    int exponent_F;
+    int exponent_A{0};
+    int exponent_B{0};
+    int exponent_C{0};
+    int exponent_D{0};
+    int exponent_E{0};
+    int exponent_F{0};
 
-    amrex::Real forward_branching_ratio;
-    amrex::Real reverse_branching_ratio;
+    amrex::Real forward_branching_ratio{1.0_rt};
+    amrex::Real reverse_branching_ratio{1.0_rt};
 
-    int apply_identical_particle_factor;
+    int apply_identical_particle_factor{1};
 
-    int rate_can_be_tabulated;
+    int rate_can_be_tabulated{1};
 
-    int screen_forward_reaction;
-    int screen_reverse_reaction;
+    int screen_forward_reaction{1};
+    int screen_reverse_reaction{1};
 
-    int additional_reaction_1;
-    int additional_reaction_2;
-    int additional_reaction_3;
-
-    constexpr rhs_t ()
-        : species_A(-1),
-          species_B(-1),
-          species_C(-1),
-          species_D(-1),
-          species_E(-1),
-          species_F(-1),
-          number_A(0),
-          number_B(0),
-          number_C(0),
-          number_D(0),
-          number_E(0),
-          number_F(0),
-          exponent_A(0),
-          exponent_B(0),
-          exponent_C(0),
-          exponent_D(0),
-          exponent_E(0),
-          exponent_F(0),
-          forward_branching_ratio(1.0_rt),
-          reverse_branching_ratio(1.0_rt),
-          apply_identical_particle_factor(1),
-          rate_can_be_tabulated(1),
-          screen_forward_reaction(1),
-          screen_reverse_reaction(1),
-          additional_reaction_1(-1),
-          additional_reaction_2(-1),
-          additional_reaction_3(-1)
-        {}
+    int additional_reaction_1{-1};
+    int additional_reaction_2{-1};
+    int additional_reaction_3{-1};
 };
 
 constexpr amrex::Real tab_tlo = 6.0e0_rt;
