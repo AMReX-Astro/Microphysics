@@ -272,13 +272,14 @@ void main_main ()
         // Tell the I/O Processor to write out the "run time"
         amrex::Print() << "Run time = " << stop_time << std::endl;
 
+        long n_cell_cubed = static_cast<long>(n_cell) * n_cell * n_cell;
         // print statistics
         std::cout << "min number of rhs calls: " << n_rhs_min << std::endl;
-        std::cout << "avg number of rhs calls: " << n_rhs_sum / (n_cell*n_cell*n_cell) << std::endl;
+        std::cout << "avg number of rhs calls: " << n_rhs_sum / n_cell_cubed << std::endl;
         std::cout << "max number of rhs calls: " << n_rhs_max << std::endl;
 
         std::cout << "min number of steps: " << n_step_min << std::endl;
-        std::cout << "avg number of steps: " << n_step_sum / (n_cell*n_cell*n_cell) << std::endl;
+        std::cout << "avg number of steps: " << n_step_sum / n_cell_cubed << std::endl;
         std::cout << "max number of steps: " << n_step_max << std::endl;
 
     }
