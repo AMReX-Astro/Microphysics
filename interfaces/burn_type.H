@@ -365,12 +365,12 @@ void normalize_abundances_burn (BurnT& state)
 {
 
     Real sum = 0.0_rt;
-    for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] = amrex::max(small_x, amrex::min(1.0_rt, state.xn[n]));
-        sum += state.xn[n];
+    for (double &x : state.xn) {
+        x = amrex::max(small_x, amrex::min(1.0_rt, x));
+        sum += x;
     }
-    for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] /= sum;
+    for (double &x : state.xn) {
+        x /= sum;
     }
 
 }

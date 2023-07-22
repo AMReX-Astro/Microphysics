@@ -12,7 +12,6 @@
 #include <burner.H>
 #include <extern_parameters.H>
 #include <ArrayUtilities.H>
-#include <variables.H>
 
 using namespace unit_test_rp;
 

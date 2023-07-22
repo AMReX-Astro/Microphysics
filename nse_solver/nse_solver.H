@@ -33,7 +33,7 @@ T get_nonexponent_nse_state(const T& state) {
   // set partition function and spin
   
   amrex::Real pf = 1.0_rt;
-  amrex::Real dpf_dT;
+  [[maybe_unused]] amrex::Real dpf_dT;
   amrex::Real spin = 1.0_rt;
 
   // if we are doing drive_initial_convection, we want to use
@@ -89,7 +89,7 @@ void apply_nse_exponent(T& nse_state) {
   // if we use a non-null screening method.
   // Get the required terms to calculate coulomb correction term, u_c
 
-#if SCREEN_METHOD != 3
+#if SCREEN_METHOD != 0
 
   // three unit-less constants for calculating coulomb correction term
   // see Calder 2007, doi:10.1086/510709 for more detail
@@ -119,7 +119,7 @@ void apply_nse_exponent(T& nse_state) {
       // term for calculating u_c
 
       // if use non-null screening, calculate the coulomb correction term
-#if SCREEN_METHOD != 3
+#if SCREEN_METHOD != 0
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
 
       // chemical potential for coulomb correction
@@ -165,6 +165,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
+    amrex::ignore_unused(iflag);
   
     T nse_state = state;
     nse_state.mu_p = x(1);
@@ -200,6 +201,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
+    amrex::ignore_unused(iflag);
   
     T nse_state = state;
     nse_state.mu_p = x(1);
