@@ -33,7 +33,7 @@ namespace network
         static_assert(spec >= 1 && spec <= NumSpec);
 
         // Set the binding energy of the element
-        if constexpr (spec == H1) {
+        if constexpr (spec == H1 || spec == N || spec == P) {
             return 0.0_rt;
         }
         else if constexpr (spec == He3) {
@@ -89,12 +89,6 @@ namespace network
         }
         else if constexpr (spec == Ni56) {
             return 484.00300e0_rt;
-        }
-        else if constexpr (spec == N) {
-            return 0.0_rt;
-        }
-        else if constexpr (spec == P) {
-            return 0.0_rt;
         }
 
         // Return zero if we don't recognize the species.

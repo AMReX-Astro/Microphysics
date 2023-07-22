@@ -32,8 +32,9 @@ namespace scrn {
       amrex::Real aznut = 0.0;
       amrex::Real ztilde = 0.0;
 
+      [[nodiscard]]
       bool validate_nuclei(const amrex::Real z1_pass, const amrex::Real a1_pass,
-                           const amrex::Real z2_pass, const amrex::Real a2_pass) {
+                           const amrex::Real z2_pass, const amrex::Real a2_pass) const {
         // a simple function for unit testing / debug runs to
         // ensure that we are accessing the proper screening info
 
