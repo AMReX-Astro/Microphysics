@@ -89,632 +89,194 @@ constexpr Real get_spin_state(const int inuc) {
 
     switch (inuc) {
 
-    case N:
-        spin = 2;
+    case He4:
+    case C12:
+    case C14:
+    case O14:
+    case O16:
+    case O18:
+    case Ne18:
+    case Ne20:
+    case Ne22:
+    case Mg24:
+    case Mg26:
+    case Si28:
+    case Si30:
+    case Si32:
+    case S32:
+    case S34:
+    case S36:
+    case Cl34:
+    case Ar36:
+    case Ar38:
+    case Ar40:
+    case Ca40:
+    case Ca42:
+    case Ca44:
+    case Ca46:
+    case Ca48:
+    case Ti44:
+    case Ti46:
+    case Ti48:
+    case Ti50:
+    case V46:
+    case Cr48:
+    case Cr50:
+    case Cr52:
+    case Cr54:
+    case Mn50:
+    case Fe52:
+    case Fe54:
+    case Fe56:
+    case Fe58:
+    case Co54:
+    case Ni56:
+    case Ni58:
+    case Ni60:
+    case Ni62:
+    case Ni64:
+    case Zn60:
+    case Zn62:
+    case Zn64:
+    case Zn66:
+    case Ga62:
+    case Ge64:
+        spin = 1;
         break;
 
+    case N:
     case H1:
+    case He3:
+    case C13:
+    case N13:
+    case N15:
+    case O15:
+    case F19:
+    case Ne19:
+    case Si29:
+    case P29:
+    case P31:
+    case P33:
+    case Fe57:
+    case Ni63:
         spin = 2;
         break;
 
     case H2:
-        spin = 3;
-        break;
-
-    case He3:
-        spin = 2;
-        break;
-
-    case He4:
-        spin = 1;
-        break;
-
     case Li6:
+    case N14:
+    case F18:
+    case P30:
+    case P32:
+    case Cu58:
+    case Cu62:
+    case Cu64:
         spin = 3;
         break;
 
     case Li7:
-        spin = 4;
-        break;
-
     case Be7:
-        spin = 4;
-        break;
-
     case Be9:
+    case B11:
+    case Ne21:
+    case Na21:
+    case Na23:
+    case Mg23:
+    case Si31:
+    case S33:
+    case S35:
+    case Cl33:
+    case Cl35:
+    case Cl37:
+    case Ar37:
+    case K37:
+    case K39:
+    case K41:
+    case Ti51:
+    case V47:
+    case Cr53:
+    case Fe55:
+    case Ni57:
+    case Ni59:
+    case Ni61:
+    case Cu57:
+    case Cu59:
+    case Cu61:
+    case Cu63:
+    case Cu65:
+    case Zn59:
+    case Zn61:
+    case Zn63:
+    case Ga63:
         spin = 4;
         break;
 
     case B8:
+    case Cl36:
+    case Sc44:
+    case Co58:
+    case Cu60:
         spin = 5;
         break;
 
-    case B10:
-        spin = 7;
-        break;
-
-    case B11:
-        spin = 4;
-        break;
-
-    case C12:
-        spin = 1;
-        break;
-
-    case C13:
-        spin = 2;
-        break;
-
-    case C14:
-        spin = 1;
-        break;
-
-    case N13:
-        spin = 2;
-        break;
-
-    case N14:
-        spin = 3;
-        break;
-
-    case N15:
-        spin = 2;
-        break;
-
-    case O14:
-        spin = 1;
-        break;
-
-    case O15:
-        spin = 2;
-        break;
-
-    case O16:
-        spin = 1;
-        break;
-
     case O17:
-        spin = 6;
-        break;
-
-    case O18:
-        spin = 1;
-        break;
-
     case F17:
+    case Mg25:
+    case Al25:
+    case Al27:
+    case Ti47:
+    case Cr49:
+    case Mn51:
+    case Mn55:
+    case Zn65:
         spin = 6;
         break;
 
-    case F18:
-        spin = 3;
-        break;
-
-    case F19:
-        spin = 2;
-        break;
-
-    case Ne18:
-        spin = 1;
-        break;
-
-    case Ne19:
-        spin = 2;
-        break;
-
-    case Ne20:
-        spin = 1;
-        break;
-
-    case Ne21:
-        spin = 4;
-        break;
-
-    case Ne22:
-        spin = 1;
-        break;
-
-    case Na21:
-        spin = 4;
-        break;
-
+    case B10:
     case Na22:
+    case K38:
+    case V52:
+    case Mn54:
         spin = 7;
         break;
 
-    case Na23:
-        spin = 4;
+    case Ar39:
+    case Ca41:
+    case Ca43:
+    case Ca45:
+    case Ca47:
+    case Sc43:
+    case Sc45:
+    case Sc47:
+    case Sc49:
+    case Ti45:
+    case Ti49:
+    case V49:
+    case V51:
+    case Cr51:
+    case Mn53:
+    case Fe53:
+    case Co55:
+    case Co57:
+    case Co59:
+        spin = 8;
         break;
 
-    case Mg23:
-        spin = 4;
-        break;
-
-    case Mg24:
-        spin = 1;
-        break;
-
-    case Mg25:
-        spin = 6;
-        break;
-
-    case Mg26:
-        spin = 1;
-        break;
-
-    case Al25:
-        spin = 6;
+    case K40:
+    case Sc46:
+    case V48:
+    case Co56:
+        spin = 9;
         break;
 
     case Al26:
         spin = 11;
         break;
 
-    case Al27:
-        spin = 6;
-        break;
-
-    case Si28:
-        spin = 1;
-        break;
-
-    case Si29:
-        spin = 2;
-        break;
-
-    case Si30:
-        spin = 1;
-        break;
-
-    case Si31:
-        spin = 4;
-        break;
-
-    case Si32:
-        spin = 1;
-        break;
-
-    case P29:
-        spin = 2;
-        break;
-
-    case P30:
-        spin = 3;
-        break;
-
-    case P31:
-        spin = 2;
-        break;
-
-    case P32:
-        spin = 3;
-        break;
-
-    case P33:
-        spin = 2;
-        break;
-
-    case S32:
-        spin = 1;
-        break;
-
-    case S33:
-        spin = 4;
-        break;
-
-    case S34:
-        spin = 1;
-        break;
-
-    case S35:
-        spin = 4;
-        break;
-
-    case S36:
-        spin = 1;
-        break;
-
-    case Cl33:
-        spin = 4;
-        break;
-
-    case Cl34:
-        spin = 1;
-        break;
-
-    case Cl35:
-        spin = 4;
-        break;
-
-    case Cl36:
-        spin = 5;
-        break;
-
-    case Cl37:
-        spin = 4;
-        break;
-
-    case Ar36:
-        spin = 1;
-        break;
-
-    case Ar37:
-        spin = 4;
-        break;
-
-    case Ar38:
-        spin = 1;
-        break;
-
-    case Ar39:
-        spin = 8;
-        break;
-
-    case Ar40:
-        spin = 1;
-        break;
-
-    case K37:
-        spin = 4;
-        break;
-
-    case K38:
-        spin = 7;
-        break;
-
-    case K39:
-        spin = 4;
-        break;
-
-    case K40:
-        spin = 9;
-        break;
-
-    case K41:
-        spin = 4;
-        break;
-
-    case Ca40:
-        spin = 1;
-        break;
-
-    case Ca41:
-        spin = 8;
-        break;
-
-    case Ca42:
-        spin = 1;
-        break;
-
-    case Ca43:
-        spin = 8;
-        break;
-
-    case Ca44:
-        spin = 1;
-        break;
-
-    case Ca45:
-        spin = 8;
-        break;
-
-    case Ca46:
-        spin = 1;
-        break;
-
-    case Ca47:
-        spin = 8;
-        break;
-
-    case Ca48:
-        spin = 1;
-        break;
-
-    case Sc43:
-        spin = 8;
-        break;
-
-    case Sc44:
-        spin = 5;
-        break;
-
-    case Sc45:
-        spin = 8;
-        break;
-
-    case Sc46:
-        spin = 9;
-        break;
-
-    case Sc47:
-        spin = 8;
-        break;
-
     case Sc48:
-        spin = 13;
-        break;
-
-    case Sc49:
-        spin = 8;
-        break;
-
-    case Ti44:
-        spin = 1;
-        break;
-
-    case Ti45:
-        spin = 8;
-        break;
-
-    case Ti46:
-        spin = 1;
-        break;
-
-    case Ti47:
-        spin = 6;
-        break;
-
-    case Ti48:
-        spin = 1;
-        break;
-
-    case Ti49:
-        spin = 8;
-        break;
-
-    case Ti50:
-        spin = 1;
-        break;
-
-    case Ti51:
-        spin = 4;
-        break;
-
-    case V46:
-        spin = 1;
-        break;
-
-    case V47:
-        spin = 4;
-        break;
-
-    case V48:
-        spin = 9;
-        break;
-
-    case V49:
-        spin = 8;
-        break;
-
     case V50:
-        spin = 13;
-        break;
-
-    case V51:
-        spin = 8;
-        break;
-
-    case V52:
-        spin = 7;
-        break;
-
-    case Cr48:
-        spin = 1;
-        break;
-
-    case Cr49:
-        spin = 6;
-        break;
-
-    case Cr50:
-        spin = 1;
-        break;
-
-    case Cr51:
-        spin = 8;
-        break;
-
-    case Cr52:
-        spin = 1;
-        break;
-
-    case Cr53:
-        spin = 4;
-        break;
-
-    case Cr54:
-        spin = 1;
-        break;
-
-    case Mn50:
-        spin = 1;
-        break;
-
-    case Mn51:
-        spin = 6;
-        break;
-
     case Mn52:
         spin = 13;
-        break;
-
-    case Mn53:
-        spin = 8;
-        break;
-
-    case Mn54:
-        spin = 7;
-        break;
-
-    case Mn55:
-        spin = 6;
-        break;
-
-    case Fe52:
-        spin = 1;
-        break;
-
-    case Fe53:
-        spin = 8;
-        break;
-
-    case Fe54:
-        spin = 1;
-        break;
-
-    case Fe55:
-        spin = 4;
-        break;
-
-    case Fe56:
-        spin = 1;
-        break;
-
-    case Fe57:
-        spin = 2;
-        break;
-
-    case Fe58:
-        spin = 1;
-        break;
-
-    case Co54:
-        spin = 1;
-        break;
-
-    case Co55:
-        spin = 8;
-        break;
-
-    case Co56:
-        spin = 9;
-        break;
-
-    case Co57:
-        spin = 8;
-        break;
-
-    case Co58:
-        spin = 5;
-        break;
-
-    case Co59:
-        spin = 8;
-        break;
-
-    case Ni56:
-        spin = 1;
-        break;
-
-    case Ni57:
-        spin = 4;
-        break;
-
-    case Ni58:
-        spin = 1;
-        break;
-
-    case Ni59:
-        spin = 4;
-        break;
-
-    case Ni60:
-        spin = 1;
-        break;
-
-    case Ni61:
-        spin = 4;
-        break;
-
-    case Ni62:
-        spin = 1;
-        break;
-
-    case Ni63:
-        spin = 2;
-        break;
-
-    case Ni64:
-        spin = 1;
-        break;
-
-    case Cu57:
-        spin = 4;
-        break;
-
-    case Cu58:
-        spin = 3;
-        break;
-
-    case Cu59:
-        spin = 4;
-        break;
-
-    case Cu60:
-        spin = 5;
-        break;
-
-    case Cu61:
-        spin = 4;
-        break;
-
-    case Cu62:
-        spin = 3;
-        break;
-
-    case Cu63:
-        spin = 4;
-        break;
-
-    case Cu64:
-        spin = 3;
-        break;
-
-    case Cu65:
-        spin = 4;
-        break;
-
-    case Zn59:
-        spin = 4;
-        break;
-
-    case Zn60:
-        spin = 1;
-        break;
-
-    case Zn61:
-        spin = 4;
-        break;
-
-    case Zn62:
-        spin = 1;
-        break;
-
-    case Zn63:
-        spin = 4;
-        break;
-
-    case Zn64:
-        spin = 1;
-        break;
-
-    case Zn65:
-        spin = 6;
-        break;
-
-    case Zn66:
-        spin = 1;
-        break;
-
-    case Ga62:
-        spin = 1;
-        break;
-
-    case Ga63:
-        spin = 4;
-        break;
-
-    case Ge64:
-        spin = 1;
         break;
 
 

@@ -4615,8 +4615,8 @@ void
 fill_approx_rates([[maybe_unused]] const tf_t& tfactors, T& rate_eval)
 {
 
-    Real rate;
-    Real drate_dT;
+    Real rate{};
+    Real drate_dT{};
 
     rate_s32_he4_to_ar36_approx<T>(rate_eval, rate, drate_dT);
     rate_eval.screened_rates(k_s32_he4_to_ar36_approx) = rate;

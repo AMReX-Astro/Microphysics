@@ -89,20 +89,26 @@ constexpr Real get_spin_state(const int inuc) {
 
     switch (inuc) {
 
+    case He4:
+    case C12:
+    case O14:
+    case O16:
+        spin = 1;
+        break;
+
     case H1:
+    case He3:
+    case C13:
+    case N13:
+    case N15:
+    case O15:
         spin = 2;
         break;
 
     case H2:
+    case N14:
+    case F18:
         spin = 3;
-        break;
-
-    case He3:
-        spin = 2;
-        break;
-
-    case He4:
-        spin = 1;
         break;
 
     case Be7:
@@ -113,48 +119,9 @@ constexpr Real get_spin_state(const int inuc) {
         spin = 5;
         break;
 
-    case C12:
-        spin = 1;
-        break;
-
-    case C13:
-        spin = 2;
-        break;
-
-    case N13:
-        spin = 2;
-        break;
-
-    case N14:
-        spin = 3;
-        break;
-
-    case N15:
-        spin = 2;
-        break;
-
-    case O14:
-        spin = 1;
-        break;
-
-    case O15:
-        spin = 2;
-        break;
-
-    case O16:
-        spin = 1;
-        break;
-
     case O17:
-        spin = 6;
-        break;
-
     case F17:
         spin = 6;
-        break;
-
-    case F18:
-        spin = 3;
         break;
 
 

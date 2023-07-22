@@ -315,6 +315,7 @@ void rate_n_ne20_to_ne21(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // ka02n
     ln_set_rate =  8.57651;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -5944,8 +5945,8 @@ void
 fill_approx_rates([[maybe_unused]] const tf_t& tfactors, T& rate_eval)
 {
 
-    Real rate;
-    Real drate_dT;
+    Real rate{};
+    Real drate_dT{};
 
     rate_s32_he4_to_ar36_approx<T>(rate_eval, rate, drate_dT);
     rate_eval.screened_rates(k_s32_he4_to_ar36_approx) = rate;

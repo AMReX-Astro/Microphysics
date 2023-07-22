@@ -36,6 +36,7 @@ void rate_n13_to_c13_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -6.7601;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -66,6 +67,7 @@ void rate_o14_to_n14_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -4.62354;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -96,6 +98,7 @@ void rate_o15_to_n15_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -5.17053;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -126,6 +129,7 @@ void rate_f17_to_o17_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -4.53318;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1248,9 +1252,10 @@ void
 fill_approx_rates([[maybe_unused]] const tf_t& tfactors, T& rate_eval)
 {
 
-    Real rate;
-    Real drate_dT;
+    Real rate{};
+    Real drate_dT{};
 
+    amrex::ignore_unused(rate, drate_dT, rate_eval);
 
 }
 

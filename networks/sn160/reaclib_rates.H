@@ -36,6 +36,7 @@ void rate_n_to_p_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // wc12w
     ln_set_rate =  -6.78161;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -98,6 +99,7 @@ void rate_c14_to_n14_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -26.2827;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -128,6 +130,7 @@ void rate_n13_to_c13_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -6.7601;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -158,6 +161,7 @@ void rate_o14_to_n14_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -4.62354;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -188,6 +192,7 @@ void rate_o15_to_n15_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -5.17053;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -218,6 +223,7 @@ void rate_f17_to_o17_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -4.53318;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -248,6 +254,7 @@ void rate_f18_to_o18_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -9.15982;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -278,6 +285,7 @@ void rate_ne18_to_f18_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -0.879336;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -308,6 +316,7 @@ void rate_ne19_to_f19_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -3.21142;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -338,6 +347,7 @@ void rate_na21_to_ne21_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -3.48003;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -368,6 +378,7 @@ void rate_na22_to_ne22_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -18.59;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -398,6 +409,7 @@ void rate_mg23_to_na23_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -2.79132;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -428,6 +440,7 @@ void rate_al25_to_mg25_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -2.33781;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -490,6 +503,7 @@ void rate_si31_to_p31_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -9.51922;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -520,6 +534,7 @@ void rate_si32_to_p32_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -22.6646;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -550,6 +565,7 @@ void rate_p29_to_si29_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -1.78721;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -580,6 +596,7 @@ void rate_p30_to_si30_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -5.37715;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -610,6 +627,7 @@ void rate_p32_to_s32_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -14.389;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -640,6 +658,7 @@ void rate_p33_to_s33_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -14.9659;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -670,6 +689,7 @@ void rate_s35_to_cl35_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -16.2036;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -700,6 +720,7 @@ void rate_cl33_to_s33_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -1.2868;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -730,6 +751,7 @@ void rate_cl34_to_s34_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -0.791781;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -760,6 +782,7 @@ void rate_cl36_to_ar36_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -30.268;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -790,6 +813,7 @@ void rate_cl36_to_s36_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -34.2121;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -820,6 +844,7 @@ void rate_ar37_to_cl37_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -15.2906;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -850,6 +875,7 @@ void rate_ar39_to_k39_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -23.2287;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -880,6 +906,7 @@ void rate_k37_to_ar37_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -0.573527;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -910,6 +937,7 @@ void rate_k38_to_ar38_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -6.49338;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -940,6 +968,7 @@ void rate_k40_to_ca40_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -38.6925;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -970,6 +999,7 @@ void rate_k40_to_ar40_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -40.8121;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1000,6 +1030,7 @@ void rate_ca41_to_k41_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -29.1669;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1030,6 +1061,7 @@ void rate_ca45_to_sc45_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -16.8211;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1060,6 +1092,7 @@ void rate_ca47_to_sc47_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -13.2455;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1090,6 +1123,7 @@ void rate_ca48_to_sc48_weak_mo03(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // mo03w
     ln_set_rate =  -20.9981;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1120,6 +1154,7 @@ void rate_sc43_to_ca43_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -9.91333;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1150,6 +1185,7 @@ void rate_sc44_to_ca44_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -9.93453;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1180,6 +1216,7 @@ void rate_sc46_to_ti46_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -16.1616;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1210,6 +1247,7 @@ void rate_sc47_to_ti47_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -12.9407;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1240,6 +1278,7 @@ void rate_sc48_to_ti48_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -12.3305;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1270,6 +1309,7 @@ void rate_sc49_to_ti49_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -8.50683;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1300,6 +1340,7 @@ void rate_ti44_to_sc44_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -21.7264;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1330,6 +1371,7 @@ void rate_ti45_to_sc45_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -9.68121;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1360,6 +1402,7 @@ void rate_ti51_to_v51_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -6.21295;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1390,6 +1433,7 @@ void rate_v46_to_ti46_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  0.49387;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1420,6 +1464,7 @@ void rate_v47_to_ti47_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -7.94721;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1450,6 +1495,7 @@ void rate_v48_to_ti48_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -14.5041;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1480,6 +1526,7 @@ void rate_v49_to_ti49_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -17.5319;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1510,6 +1557,7 @@ void rate_v50_to_ti50_weak_mo03(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // mo03w
     ln_set_rate =  -16.3221;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1540,6 +1588,7 @@ void rate_v52_to_cr52_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -5.78261;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1570,6 +1619,7 @@ void rate_cr48_to_v48_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -11.6258;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1600,6 +1650,7 @@ void rate_cr49_to_v49_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -8.20643;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1630,6 +1681,7 @@ void rate_cr51_to_v51_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT
 
     // wc12w
     ln_set_rate =  -15.0533;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1660,6 +1712,7 @@ void rate_mn50_to_cr50_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  0.895796;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1690,6 +1743,7 @@ void rate_mn51_to_cr51_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -8.29312;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1720,6 +1774,7 @@ void rate_mn52_to_cr52_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -13.4543;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1750,6 +1805,7 @@ void rate_mn53_to_cr53_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -32.7682;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1780,6 +1836,7 @@ void rate_mn54_to_cr54_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -17.4779;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1810,6 +1867,7 @@ void rate_fe52_to_mn52_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -10.6688;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1840,6 +1898,7 @@ void rate_fe53_to_mn53_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -6.60288;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1870,6 +1929,7 @@ void rate_fe55_to_mn55_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -18.6433;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1900,6 +1960,7 @@ void rate_co53_to_fe53_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  1.0606;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1930,6 +1991,7 @@ void rate_co54_to_fe54_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  1.27855;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1960,6 +2022,7 @@ void rate_co55_to_fe55_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -11.419;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -1990,6 +2053,7 @@ void rate_co56_to_fe56_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -16.0796;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2020,6 +2084,7 @@ void rate_co57_to_fe57_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -17.339;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2050,6 +2115,7 @@ void rate_co58_to_fe58_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -15.9936;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2080,6 +2146,7 @@ void rate_ni56_to_co56_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -13.5377;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2110,6 +2177,7 @@ void rate_ni57_to_co57_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -12.1263;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2140,6 +2208,7 @@ void rate_ni59_to_co59_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -28.873;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2170,6 +2239,7 @@ void rate_ni63_to_cu63_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -22.2498;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2200,6 +2270,7 @@ void rate_cu57_to_ni57_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  1.26313;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2230,6 +2301,7 @@ void rate_cu58_to_ni58_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -1.52966;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2260,6 +2332,7 @@ void rate_cu59_to_ni59_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -4.76712;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2290,6 +2363,7 @@ void rate_cu60_to_ni60_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -7.62493;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2320,6 +2394,7 @@ void rate_cu61_to_ni61_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -9.75918;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2350,6 +2425,7 @@ void rate_cu62_to_ni62_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -6.72954;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2380,6 +2456,7 @@ void rate_cu64_to_ni64_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -11.5825;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2410,6 +2487,7 @@ void rate_cu64_to_zn64_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -12.0509;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2440,6 +2518,7 @@ void rate_zn59_to_cu59_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  1.33624;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2470,6 +2549,7 @@ void rate_zn60_to_cu60_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -5.32936;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2500,6 +2580,7 @@ void rate_zn61_to_cu61_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -4.85627;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2530,6 +2611,7 @@ void rate_zn62_to_cu62_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -10.7738;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2560,6 +2642,7 @@ void rate_zn63_to_cu63_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -8.11152;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2590,6 +2673,7 @@ void rate_zn65_to_cu65_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -17.2313;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2620,6 +2704,7 @@ void rate_ga62_to_zn62_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  1.78765;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2650,6 +2735,7 @@ void rate_ga63_to_zn63_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -3.84467;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2680,6 +2766,7 @@ void rate_ga64_to_zn64_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -5.42911;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2710,6 +2797,7 @@ void rate_ge63_to_ga63_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  1.53061;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -2740,6 +2828,7 @@ void rate_ge64_to_ga64_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_d
 
     // wc12w
     ln_set_rate =  -4.5207;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -3173,6 +3262,7 @@ void rate_b8_to_he4_he4_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_
 
     // wc12w
     ln_set_rate =  -0.105148;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -15688,6 +15778,7 @@ void rate_zn59_to_p_ni58_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate
 
     // wc12w
     ln_set_rate =  -5.57052;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -17383,6 +17474,7 @@ void rate_n_he3_to_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // ka02n
     ln_set_rate =  5.51711;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -17494,6 +17586,7 @@ void rate_n_li6_to_li7(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // jz10n
     ln_set_rate =  9.04782;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -19799,6 +19892,7 @@ void rate_n_ne20_to_ne21(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // ka02n
     ln_set_rate =  8.57651;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -21318,6 +21412,7 @@ void rate_n_si28_to_si29(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // ka02 
     ln_set_rate =  8.77553;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -32384,6 +32479,7 @@ void rate_n_b10_to_he4_li7(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // cf88n
     ln_set_rate =  20.0438;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -34781,6 +34877,7 @@ void rate_n_o17_to_he4_c14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // kg91n
     ln_set_rate =  10.345;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -35184,6 +35281,7 @@ void rate_n_f17_to_p_o17(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     //  wagn
     ln_set_rate =  19.0085;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -35395,6 +35493,7 @@ void rate_n_f18_to_p_o18(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     //  wagn
     ln_set_rate =  19.0085;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -65711,9 +65810,10 @@ void
 fill_approx_rates([[maybe_unused]] const tf_t& tfactors, T& rate_eval)
 {
 
-    Real rate;
-    Real drate_dT;
+    Real rate{};
+    Real drate_dT{};
 
+    amrex::ignore_unused(rate, drate_dT, rate_eval);
 
 }
 

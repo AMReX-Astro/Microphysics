@@ -89,114 +89,51 @@ constexpr Real get_spin_state(const int inuc) {
 
     switch (inuc) {
 
-    case H1:
-        spin = 2;
-        break;
-
     case He4:
-        spin = 1;
-        break;
-
     case C12:
+    case O16:
+    case Ne20:
+    case Mg24:
+    case Si28:
+    case S32:
+    case Ar36:
+    case Ca40:
+    case Ti44:
+    case Cr48:
+    case Fe52:
+    case Ni56:
         spin = 1;
         break;
 
+    case H1:
     case N13:
+    case P31:
         spin = 2;
         break;
 
     case N14:
-        spin = 3;
-        break;
-
-    case O16:
-        spin = 1;
-        break;
-
     case F18:
         spin = 3;
         break;
 
-    case Ne20:
-        spin = 1;
+    case Ne21:
+    case Na23:
+    case Cl35:
+    case K39:
+    case V47:
+        spin = 4;
         break;
 
-    case Ne21:
-        spin = 4;
+    case Al27:
+    case Mn51:
+        spin = 6;
         break;
 
     case Na22:
         spin = 7;
         break;
 
-    case Na23:
-        spin = 4;
-        break;
-
-    case Mg24:
-        spin = 1;
-        break;
-
-    case Al27:
-        spin = 6;
-        break;
-
-    case Si28:
-        spin = 1;
-        break;
-
-    case P31:
-        spin = 2;
-        break;
-
-    case S32:
-        spin = 1;
-        break;
-
-    case Ar36:
-        spin = 1;
-        break;
-
-    case Ca40:
-        spin = 1;
-        break;
-
-    case Ti44:
-        spin = 1;
-        break;
-
-    case Cr48:
-        spin = 1;
-        break;
-
-    case Fe52:
-        spin = 1;
-        break;
-
-    case Ni56:
-        spin = 1;
-        break;
-
-    case Cl35:
-        spin = 4;
-        break;
-
-    case K39:
-        spin = 4;
-        break;
-
     case Sc43:
-        spin = 8;
-        break;
-
-    case V47:
-        spin = 4;
-        break;
-
-    case Mn51:
-        spin = 6;
-        break;
-
     case Co55:
         spin = 8;
         break;
