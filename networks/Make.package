@@ -44,6 +44,8 @@ endif
 
 ifeq ($(USE_RATES), TRUE)
 
+  DEFINES += -DRATES
+
   RATE_PATH := $(MICROPHYSICS_HOME)/rates
 
   INCLUDE_LOCATIONS += $(RATE_PATH)
