@@ -39,8 +39,8 @@ namespace RHS {
             data.species_A = Fuel;
             data.species_D = Ash;
 
-            data.number_A = 2;
-            data.number_D = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
