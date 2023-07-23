@@ -117,8 +117,8 @@ namespace RHS {
             data.species_A = He4;
             data.species_D = C12;
 
-            data.number_A = 3;
-            data.number_D = 1;
+            data.number_A = 3.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 3;
             data.exponent_D = 1;
@@ -132,9 +132,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = O16;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
