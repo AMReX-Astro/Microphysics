@@ -10,10 +10,10 @@
  Xold_ash                                 0.05                    0.4
  Xold_inert                               0.05                    0.4
  Edot                                  2.5e+17            3.88962e+24
- J_fuel_fuel                                 0                      0
- J_ash_fuel                                  0                      0
+ J_fuel_fuel                       -8.6436e+23               -2.5e+17
+ J_ash_fuel                           1.25e+17             4.3218e+23
  J_inert_fuel                                0                      0
- J_E_fuel                                    0                      0
+ J_E_fuel                                5e+18            1.72872e+25
  J_fuel_ash                                  0                      0
  J_ash_ash                                   0                      0
  J_inert_ash                                 0                      0
