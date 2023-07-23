@@ -184,10 +184,13 @@ void actual_jac (burn_t& state, MatrixType& jac)
                            (dens * rate * xc12tmp * xc12tmp * dsc1212dt +
                             dens * sc1212 * xc12tmp * xc12tmp * dratedt);
 
+    jac(Ash, net_ienuc) = -jac(C12, net_ienuc);
+
     // Convert back to molar form
 
     for (int i = 1; i <= neqs; ++i) {
         for (int j = 1; j <= NumSpec; ++j) {
+            jac(i,j) *= aion[j-1];
             jac(j,i) *= aion_inv[j-1];
         }
     }
@@ -207,6 +210,7 @@ void actual_jac (burn_t& state, MatrixType& jac)
     // Convert to d / de
 
     jac(C12, net_ienuc) = temperature_to_energy_jacobian(state, jac(C12, net_ienuc));
+    jac(Ash, net_ienuc) = temperature_to_energy_jacobian(state, jac(Ash, net_ienuc));
     jac(net_ienuc, net_ienuc) = temperature_to_energy_jacobian(state, jac(net_ienuc, net_ienuc));
 }
 
