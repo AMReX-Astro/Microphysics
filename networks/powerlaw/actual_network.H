@@ -83,7 +83,7 @@ namespace RHS {
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate (Real const& dydt)
+    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
     {
         if constexpr (spec == 2) {
             return dydt * NetworkProperties::aion(spec) * network_rp::specific_q_burn;
