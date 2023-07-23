@@ -1369,11 +1369,11 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
         constexpr int species = n;
 
         if constexpr (nrhs == 2 * neqs) {
-            ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(ydot(2 * species - 1));
-            ydot(2 * net_ienuc    ) += ener_gener_rate<species>(ydot(2 * species    ));
+            ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(rhs_state, ydot(2 * species - 1));
+            ydot(2 * net_ienuc    ) += ener_gener_rate<species>(rhs_state, ydot(2 * species    ));
         }
         else {
-            ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
+            ydot(net_ienuc) += ener_gener_rate<species>(rhs_state, ydot(species));
         }
     });
 }
@@ -1516,14 +1516,14 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         {
             constexpr int s = i;
 
-            jac(net_ienuc, species) += ener_gener_rate<s>(jac(s, species));
+            jac(net_ienuc, species) += ener_gener_rate<s>(rhs_state, jac(s, species));
         });
 
         // Convert previously computed terms from d/dT to d/de.
         jac(species, net_ienuc) = temperature_to_energy_jacobian(burn_state, jac(species, net_ienuc));
 
         // Compute df(e) / de term.
-        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(jac(species, net_ienuc));
+        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(rhs_state, jac(species, net_ienuc));
     });
 }
 

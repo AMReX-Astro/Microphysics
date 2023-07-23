@@ -117,9 +117,9 @@ For example, consider the reaction :math:`\isotm{He}{4} + \isotm{C}{12} \rightar
    data.species_B = He4;
    data.species_D = O16;
 
-   data.number_A = 1;
-   data.number_B = 1;
-   data.number_D = 1;
+   data.number_A = 1.0_rt;
+   data.number_B = 1.0_rt;
+   data.number_D = 1.0_rt;
 
    data.exponent_A = 1;
    data.exponent_B = 1;
@@ -149,10 +149,10 @@ special cases (e.g., for approximate nets):
           data.species_D = Mg24;
           data.species_E = He4;
 
-          data.number_A = 1;
-          data.number_B = 1;
-          data.number_D = 1;
-          data.number_E = 1;
+          data.number_A = 1.0_rt;
+          data.number_B = 1.0_rt;
+          data.number_D = 1.0_rt;
+          data.number_E = 1.0_rt;
 
           data.exponent_A = 1;
           data.exponent_B = 1;
@@ -167,9 +167,9 @@ special cases (e.g., for approximate nets):
           data.species_B = O16;
           data.species_D = Si28;
 
-          data.number_A = 1;
-          data.number_B = 1;
-          data.number_D = 1;
+          data.number_A = 1.0_rt;
+          data.number_B = 1.0_rt;
+          data.number_D = 1.0_rt;
 
           data.exponent_A = 1;
           data.exponent_B = 1;
@@ -278,9 +278,9 @@ special cases (e.g., for approximate nets):
          data.species_B = He4;
          data.species_D = Si28;
 
-         data.number_A = 1;
-         data.number_B = 1;
-         data.number_D = 1;
+         data.number_A = 1.0_rt;
+         data.number_B = 1.0_rt;
+         data.number_D = 1.0_rt;
 
          data.exponent_A = 1;
          data.exponent_B = 1;
