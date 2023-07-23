@@ -148,8 +148,8 @@ namespace RHS {
             data.species_A = He4;
             data.species_D = C12;
 
-            data.number_A = 3;
-            data.number_D = 1;
+            data.number_A = 3.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 3;
             data.exponent_D = 1;
@@ -160,9 +160,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = O16;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -174,9 +174,9 @@ namespace RHS {
             data.species_D = Ne20;
             data.species_E = He4;
 
-            data.number_A = 2;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -189,10 +189,10 @@ namespace RHS {
             data.species_D = Mg24;
             data.species_E = He4;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -208,9 +208,9 @@ namespace RHS {
             data.species_B = O16;
             data.species_D = Si28;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -225,9 +225,9 @@ namespace RHS {
             data.species_D = Si28;
             data.species_E = He4;
 
-            data.number_A = 2;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -239,9 +239,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ne20;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -253,9 +253,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Mg24;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -267,9 +267,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Si28;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -281,9 +281,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ti44;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -295,9 +295,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ni56;
 
-            data.number_A = 1;
-            data.number_B = 7;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 7.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;

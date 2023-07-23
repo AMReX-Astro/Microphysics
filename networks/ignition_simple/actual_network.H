@@ -123,8 +123,8 @@ namespace RHS
             data.species_A = C12;
             data.species_D = Mg24;
 
-            data.number_A = 2;
-            data.number_D = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
