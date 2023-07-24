@@ -232,6 +232,7 @@ namespace RHS {
             data.number_B = 2.0_rt;
             data.number_D = 1.0_rt;
 
+            // A factor of y(He4) will be added into the rate if we are taking this path
             data.exponent_A = 1;
             data.exponent_B = 0;
             data.exponent_D = 1;
@@ -288,6 +289,7 @@ namespace RHS {
             data.number_B = 6.5_rt;
             data.number_D = 1.0_rt;
 
+            // A factor of y(He4) will be added into the rate if we are taking this path
             data.exponent_A = 1;
             data.exponent_B = 0;
             data.exponent_D = 1;
