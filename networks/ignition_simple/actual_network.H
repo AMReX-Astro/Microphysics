@@ -115,42 +115,7 @@ namespace RHS
         using namespace Species;
         using namespace Rates;
 
-        rhs_t data{};
-
-        data.species_A = -1;
-        data.species_B = -1;
-        data.species_C = -1;
-        data.species_D = -1;
-        data.species_E = -1;
-        data.species_F = -1;
-
-        data.number_A = 0;
-        data.number_B = 0;
-        data.number_C = 0;
-        data.number_D = 0;
-        data.number_E = 0;
-        data.number_F = 0;
-
-        data.exponent_A = 0;
-        data.exponent_B = 0;
-        data.exponent_C = 0;
-        data.exponent_D = 0;
-        data.exponent_E = 0;
-        data.exponent_F = 0;
-
-        data.forward_branching_ratio = 1.0_rt;
-        data.reverse_branching_ratio = 1.0_rt;
-
-        data.apply_identical_particle_factor = 1;
-
-        data.rate_can_be_tabulated = 1;
-
-        data.screen_forward_reaction = 1;
-        data.screen_reverse_reaction = 1;
-
-        data.additional_reaction_1 = -1;
-        data.additional_reaction_2 = -1;
-        data.additional_reaction_3 = -1;
+        rhs_t data;
 
         switch (rate) {
 
@@ -158,8 +123,8 @@ namespace RHS
             data.species_A = C12;
             data.species_D = Mg24;
 
-            data.number_A = 2;
-            data.number_D = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -197,7 +162,7 @@ namespace RHS
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate (Real const& dydt)
+    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }

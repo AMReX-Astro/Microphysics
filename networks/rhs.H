@@ -1220,7 +1220,9 @@ void fill_additional_rates (const Arr& intermediate_rates, rate_t& rates1, rate_
 AMREX_INLINE
 void rhs_init ()
 {
+#ifdef RATES
     rates_init();
+#endif
 
     if (use_tables)
     {
@@ -1250,8 +1252,10 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
         rhs_state.y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
+#ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
     fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
+#endif
 
     // Initialize the rate temperature term.
     rhs_state.tf = get_tfactors(burn_state.T);
@@ -1344,9 +1348,9 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
 
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
     sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, snuda, snudz);
+           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
     Real sneut = 0.0;
 #endif
@@ -1365,11 +1369,11 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
         constexpr int species = n;
 
         if constexpr (nrhs == 2 * neqs) {
-            ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(ydot(2 * species - 1));
-            ydot(2 * net_ienuc    ) += ener_gener_rate<species>(ydot(2 * species    ));
+            ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(rhs_state, ydot(2 * species - 1));
+            ydot(2 * net_ienuc    ) += ener_gener_rate<species>(rhs_state, ydot(2 * species    ));
         }
         else {
-            ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
+            ydot(net_ienuc) += ener_gener_rate<species>(rhs_state, ydot(species));
         }
     });
 }
@@ -1389,8 +1393,10 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         rhs_state.y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
+#ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
     fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
+#endif
 
     // Initialize the rate temperature term.
     rhs_state.tf = get_tfactors(burn_state.T);
@@ -1488,11 +1494,12 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
     sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, snuda, snudz);
+           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
-    Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, snuda = 0.0, snudz = 0.0;
+    Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, dsnuda = 0.0, dsnudz = 0.0;
+    amrex::ignore_unused(sneut, dsneutdd);
 #endif
 
     jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(burn_state, dsneutdt);
@@ -1502,21 +1509,21 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         constexpr int species = j;
 
         // Energy generation rate Jacobian elements with respect to species.
-        Real b1 = (-burn_state.abar * burn_state.abar * snuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * snudz);
+        Real b1 = (-burn_state.abar * burn_state.abar * dsnuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * dsnudz);
         jac(net_ienuc, species) = -b1;
 
         constexpr_for<1, NumSpec+1>([&] (auto i)
         {
             constexpr int s = i;
 
-            jac(net_ienuc, species) += ener_gener_rate<s>(jac(s, species));
+            jac(net_ienuc, species) += ener_gener_rate<s>(rhs_state, jac(s, species));
         });
 
         // Convert previously computed terms from d/dT to d/de.
         jac(species, net_ienuc) = temperature_to_energy_jacobian(burn_state, jac(species, net_ienuc));
 
         // Compute df(e) / de term.
-        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(jac(species, net_ienuc));
+        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(rhs_state, jac(species, net_ienuc));
     });
 }
 

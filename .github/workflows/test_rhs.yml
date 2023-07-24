@@ -48,6 +48,23 @@ jobs:
           cd unit_test/test_rhs
           diff test.out ci-benchmarks/ignition_simple.out
 
+      - name: Compile, test_rhs (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=ignition_chamulak -j 4
+
+      - name: Run test_rhs (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_chamulak
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_chamulak_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/chamulak.out
+
       - name: Compile, test_rhs (VODE, iso7)
         run: |
           cd unit_test/test_rhs

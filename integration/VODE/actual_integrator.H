@@ -33,7 +33,7 @@ void actual_integrator (BurnT& state, Real dt)
     vode_state.rtol_enuc = rtol_enuc; // energy generated
 
     // set the Jacobian type
-    vode_state.jacobian_type = jacobian;
+    vode_state.jacobian_type = static_cast<short>(jacobian);
 
     // Start off by assuming a successful burn.
 
@@ -172,15 +172,15 @@ void actual_integrator (BurnT& state, Real dt)
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "xn start = ";
-            for (int n = 0; n < NumSpec; ++n) {
-                std::cout << std::setprecision(16) << xn_in[n] << " ";
+            for (double x : xn_in) {
+                std::cout << std::setprecision(16) << x << " ";
             }
             std::cout << std::endl;
             std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
             std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
             std::cout << "xn current = ";
-            for (int n = 0; n < NumSpec; ++n) {
-                std::cout << std::setprecision(16) << state.xn[n] << " ";
+            for (double x : state.xn) {
+                std::cout << std::setprecision(16) << x << " ";
             }
             std::cout << std::endl;
             std::cout << "energy generated = " << state.e << std::endl;

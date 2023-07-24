@@ -138,42 +138,9 @@ namespace RHS {
         using namespace Species;
         using namespace Rates;
 
-        rhs_t data{};
+        rhs_t data;
 
-        data.species_A = -1;
-        data.species_B = -1;
-        data.species_C = -1;
-        data.species_D = -1;
-        data.species_E = -1;
-        data.species_F = -1;
-
-        data.number_A = 0;
-        data.number_B = 0;
-        data.number_C = 0;
-        data.number_D = 0;
-        data.number_E = 0;
-        data.number_F = 0;
-
-        data.exponent_A = 0;
-        data.exponent_B = 0;
-        data.exponent_C = 0;
-        data.exponent_D = 0;
-        data.exponent_E = 0;
-        data.exponent_F = 0;
-
-        data.forward_branching_ratio = 1.0_rt;
-        data.reverse_branching_ratio = 1.0_rt;
-
-        data.apply_identical_particle_factor = 1;
-
-        data.rate_can_be_tabulated = 1;
-
-        data.screen_forward_reaction = 1;
         data.screen_reverse_reaction = 0; // For consistency with original iso7
-
-        data.additional_reaction_1 = -1;
-        data.additional_reaction_2 = -1;
-        data.additional_reaction_3 = -1;
 
         switch (rate) {
 
@@ -181,8 +148,8 @@ namespace RHS {
             data.species_A = He4;
             data.species_D = C12;
 
-            data.number_A = 3;
-            data.number_D = 1;
+            data.number_A = 3.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 3;
             data.exponent_D = 1;
@@ -193,9 +160,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = O16;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -207,9 +174,9 @@ namespace RHS {
             data.species_D = Ne20;
             data.species_E = He4;
 
-            data.number_A = 2;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -222,10 +189,10 @@ namespace RHS {
             data.species_D = Mg24;
             data.species_E = He4;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -241,9 +208,9 @@ namespace RHS {
             data.species_B = O16;
             data.species_D = Si28;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -258,9 +225,9 @@ namespace RHS {
             data.species_D = Si28;
             data.species_E = He4;
 
-            data.number_A = 2;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -272,9 +239,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ne20;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -286,9 +253,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Mg24;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -300,9 +267,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Si28;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -314,9 +281,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ti44;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -328,9 +295,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ni56;
 
-            data.number_A = 1;
-            data.number_B = 7;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 7.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -362,10 +329,7 @@ namespace RHS {
         else if constexpr (rate == C12_C12_to_Ne20_He4) {
             rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
-        else if constexpr (rate == C12_O16_to_Mg24_He4) {
-            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
-        }
-        else if constexpr (rate == C12_O16_to_Si28) {
+        else if constexpr (rate == C12_O16_to_Mg24_He4 || rate == C12_O16_to_Si28) {
             rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == O16_O16_to_Si28_He4) {
@@ -426,7 +390,7 @@ namespace RHS {
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate (Real const& dydt)
+    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }
