@@ -1,6 +1,10 @@
 #ifndef actual_rhs_H
 #define actual_rhs_H
 
+#include <actual_network.H>
+
+/*
+
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 
@@ -681,6 +685,6 @@ void actual_rhs_init () {
 
 }
 
-
+*/
 
 #endif
