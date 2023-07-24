@@ -233,7 +233,7 @@ namespace RHS {
             data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
-            data.exponent_B = 1;
+            data.exponent_B = 0;
             data.exponent_D = 1;
 
             data.rate_can_be_tabulated = 0;
@@ -252,7 +252,7 @@ namespace RHS {
             data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
-            data.exponent_B = 1;
+            data.exponent_B = 0;
             data.exponent_D = 1;
 
             data.rate_can_be_tabulated = 0;
@@ -289,7 +289,7 @@ namespace RHS {
             data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
-            data.exponent_B = 1;
+            data.exponent_B = 0;
             data.exponent_D = 1;
 
             data.rate_can_be_tabulated = 0;
@@ -308,7 +308,7 @@ namespace RHS {
             data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
-            data.exponent_B = 1;
+            data.exponent_B = 0;
             data.exponent_D = 1;
 
             data.rate_can_be_tabulated = 0;
@@ -395,18 +395,18 @@ namespace RHS {
             constexpr Real Lweak = 1.05e0_rt; // this is for NS
             // constexpr Real Lweak = 0.107e0_rt; // this is for lower densities
 
-            if (Lweak / state.y(He4) > rates1.fr) {
+            if (Lweak > state.y(He4) * rates1.fr) {
                 // Proton capture case
                 if constexpr (rate == Mg22_8H1_to_S30) {
-                    rates.fr = Lweak / state.y(He4);
+                    rates.fr = Lweak;
                     rates.frdt = 0.0_rt;
                 }
             }
             else {
                 // Alpha capture case
                 if constexpr (rate == Mg22_2He4_to_S30) {
-                    rates.fr = rates1.fr;
-                    rates.frdt = rates1.frdt;
+                    rates.fr = state.y(He4) * rates1.fr;
+                    rates.frdt = state.y(He4) * rates1.frdt;
                 }
             }
         }
@@ -418,18 +418,18 @@ namespace RHS {
 
             constexpr Real la2 = 1.0_rt / 15.0_rt; // mean rate from 30s to 56ni from p-capture and beta decays
 
-            if (la2 / state.y(He4) > rates1.fr) {
+            if (la2 > state.y(He4) * rates1.fr) {
                 // Proton capture case
                 if constexpr (rate == S30_26H1_to_Ni56) {
-                    rates.fr = la2 / state.y(He4);
+                    rates.fr = la2;
                     rates.frdt = 0.0_rt;
                 }
             }
             else {
                 // Alpha capture case
                 if constexpr (rate == S30_6_5He4_to_Ni56) {
-                    rates.fr = rates1.fr;
-                    rates.frdt = rates1.frdt;
+                    rates.fr = state.y(He4) * rates1.fr;
+                    rates.frdt = state.y(He4) * rates1.frdt;
                 }
             }
         }
