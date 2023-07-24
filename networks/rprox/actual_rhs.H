@@ -179,7 +179,6 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
                                         rate * dens * sc1a * y(H1));
     if (rr(1).rates(irlambCNO) < rr(1).rates(irwk15o)) {
         rr(2).rates(irlambCNO) = dens * y(H1) * (dratedt * sc1a + rate * sc1adt);
-        rr(3).rates(dlambCNOdh1) = rate * dens * sc1a;
     }
 
     // 22mg(...)30s
@@ -197,7 +196,6 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
                                         dens * y(He4) * rate * sc1a);
     if (rr(1).rates(irlambda1) > rr(1).rates(irLweak)) {
         rr(2).rates(irlambda1) = dens * y(He4) * (dratedt * sc1a + rate *  sc1adt);
-        rr(3).rates(dlambda1dhe4) = dens * rate * sc1a;
         // use the sign of state.rates(1, irlambda1) to indicate the value of delta1 in WW81
         // if delta1 = 1, then we multiply the rate by -1
         rr(1).rates(irlambda1) = -1.0_rt * rr(1).rates(irlambda1);
@@ -218,7 +216,6 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
                                         dens * y(He4) * rate * sc1a);
     if (rr(1).rates(irlambda2) > rr(1).rates(irla2)) {
         rr(2).rates(irlambda2) = dens * y(He4) * (dratedt * sc1a + rate * sc1adt);
-        rr(3).rates(dlambda2dhe4) = dens * rate * sc1a;
         // use the sign of rr(1).rates(irlambda2) to indicate the value of delta2
         // if delta2 = 1, then we multiply the rate by -1
         rr(1).rates(irlambda2) = -1.0_rt * rr(1).rates(irlambda2);
@@ -237,8 +234,6 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rr(1).rates(irs1) = wk18ne / (wk18ne + dens * y(He4) * rate * sc1a);
     rr(2).rates(irs1) = -rr(1).rates(irs1) * dens * y(He4) * (dratedt * sc1a + rate * sc1adt)
                          / (wk18ne + dens * y(He4) * rate * sc1a);
-    rr(3).rates(drs1dhe4) = -rr(1).rates(irs1) * dens * rate * sc1a
-                             / (wk18ne + dens * y(He4) * rate * sc1a);
 
     // form r1 from WW81; ranching ratio for 19ne beta decay (wk19ne) vs (p,g)
     // store result in irr1
@@ -253,8 +248,6 @@ void make_rates (const Real& T9, const Real& dens, Array1D<Real, 1, NumSpec>& y,
     rr(1).rates(irr1) = wk19ne / (wk19ne + dens * y(H1) * rate * sc1a);
     rr(2).rates(irr1) = -rr(1).rates(irr1) * dens * y(H1) * (dratedt * sc1a + rate * sc1adt)
                          / (wk19ne + dens * y(H1) * rate * sc1a);
-    rr(3).rates(drr1dh1) = -rr(1).rates(irr1) * dens * rate * sc1a
-                            / (wk19ne + dens * y(H1) * rate * sc1a);
 
 
     //....
