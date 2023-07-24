@@ -228,7 +228,7 @@ void actual_eos (I input, T& state)
         state.dpdr = state.p * rhoinv;
     }
     if constexpr (has_energy<T>::value) {
-        state.dedT = state.e * Tinv;
+        state.dedT = (C::k_B / (state.mu * m_nucleon)) / (eos_gamma - 1.0);
         state.dedr = 0.0;
     }
     if constexpr (has_entropy<T>::value) {
