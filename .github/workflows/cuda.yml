@@ -40,3 +40,9 @@ jobs:
           cd unit_test/test_react
           make realclean
           make NETWORK_DIR=subch_simple USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 2
+
+      - name: compile test_ase (ase)
+        run: |
+          export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+          cd unit_test/test_ase
+          make USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 2
