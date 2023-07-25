@@ -34,6 +34,7 @@ namespace Rates
         O15_H1_to_C12_He4,
         O15_to_N15,
         O15_He4_3H1_to_Mg22,
+        O15_H1_to_O16,
         O15_He4_to_Ne19,
         O16_H1_to_F17,
         O16_He4_to_Ne20,
@@ -131,6 +132,40 @@ namespace RHS {
 
             data.additional_reaction_1 = N14_H1_to_O15;
             data.additional_reaction_2 = O15_to_N15;
+            break;
+
+        // This corresponds to what WW81 call O15 + p. But it is more
+        // complicated than that: the rate is constructed constructed from
+        // an alpha capture on O15, followed by beta decay from Ne19 to
+        // F19, followed by proton capture to Na20, followed by alpha
+        // decay to O16. The net result is indeed O15 + p -> O16 catalyzed
+        // by an alpha, but in our reactions scheme the effective rate depends
+        // only explicitly on y(He4), but not on y(H1) (which is hidden in the
+        // reaction rate), so we need to involve helium here as a "reactant."
+        case O15_H1_to_O16:
+            data.species_A = O15;
+            data.species_B = He4;
+            data.species_C = H1;
+            data.species_D = O16;
+            data.species_E = He4;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 0.0_rt;
+            data.number_C = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 0.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_C = 0;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = O15_He4_to_Ne19;
+            data.additional_reaction_2 = Ne19_to_F19;
+            data.additional_reaction_3 = Ne19_H1_to_Na20;
             break;
 
         case O15_He4_3H1_to_Mg22:
@@ -509,6 +544,17 @@ namespace RHS {
                 // Cold CNO case
                 rates.frdt = rates1.frdt;
             }
+        }
+        else if constexpr (rate == O15_H1_to_O16) {
+            // Rate 1 == O15_He4_to_Ne19
+            // Rate 2 == Ne19_to_F19
+            // Rate 3 == Ne19_H1_to_Na20
+
+            Real rate_irr1 = rates2.fr / (rates2.fr + state.y(H1) * rates3.fr);
+            Real dratedt_irr1 = -rate_irr1 * state.y(H1) * rates3.frdt / (rates2.fr + state.y(H1) * rates3.fr);
+
+            rates.fr = rates3.fr * rate_irr1;
+            rates.frdt = rates3.frdt * rate_irr1 + rates3.fr * dratedt_irr1;
         }
         else if constexpr (rate == O15_He4_3H1_to_Mg22) {
             // Rate 1 == Ne19_to_F19 (wk19ne in the original rprox)
