@@ -4,6 +4,7 @@
   hydrogen-1             H1           1.0      1.0
   helium-4               He4          4.0      2.0
   carbon-12              C12         12.0      6.0
+  __extra_nitrogen-13    N13         13.0      7.0
   __extra_nitrogen-14    N14         14.0      7.0
   __extra_nitrogen-15    N15         15.0      7.0
   oxygen-14              O14         14.0      8.0

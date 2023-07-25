@@ -29,7 +29,11 @@ namespace Rates
 {
     enum NetworkRates
     {
-        N14_H1_to_O15 = 1,
+        C12_H1_to_N13 = 1,
+        C12_2H1_to_O14,
+        N14_H1_to_O15,
+        O14_to_N14,
+        O14_H1_to_O15,
         O14_He4_to_F17_H1,
         O15_H1_to_C12_He4,
         O15_to_N15,
@@ -66,6 +70,68 @@ namespace RHS {
         rhs_t data;
 
         switch (rate) {
+
+        case C12_H1_to_N13:
+            data.species_A = C12;
+            data.species_B = H1;
+            data.species_D = N13;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case C12_2H1_to_O14:
+            data.species_A = C12;
+            data.species_B = H1;
+            data.species_D = O14;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 2.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = C12_H1_to_N13;
+            break;
+
+        // Beta decay of O14 -> N14
+        case O14_to_N14:
+            data.species_A = O14;
+            data.species_D = N14;
+
+            data.number_A = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+            break;
+
+        case O14_H1_to_O15:
+            data.species_A = O14;
+            data.species_B = H1;
+            data.species_D = O15;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 0;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = O14_to_N14;
+            break;
 
         // Proton capture on N14 -> O15
         case N14_H1_to_O15:
@@ -483,8 +549,14 @@ namespace RHS {
         using namespace Species;
         using namespace Rates;
 
-        if constexpr (rate == N14_H1_to_O15) {
+        if constexpr (rate == C12_H1_to_N13) {
+            rate_p_c12_to_n13(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == N14_H1_to_O15) {
             rate_p_n14_to_o15(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == O14_to_N14) {
+            rate_o14_to_n14(state.tf, rates.fr, rates.frdt);
         }
         else if constexpr (rate == O14_He4_to_F17_H1) {
             rate_he4_o14_to_p_f17(state.tf, rates.fr, rates.frdt);
@@ -530,7 +602,19 @@ namespace RHS {
         using namespace Species;
         using namespace Rates;
 
-        if constexpr (rate == O15_H1_to_C12_He4) {
+        if constexpr (rate == C12_2H1_to_O14) {
+            // Rate 1 == C12_H1_to_N13
+
+            rates.fr = rates1.fr;
+            rates.frdt = rates1.frdt;
+        }
+        else if constexpr (rate == O14_H1_to_O15) {
+            // Rate 1 == O14_to_N14
+
+            rates.fr = rates1.fr;
+            rates.frdt = rates1.frdt;
+        }
+        else if constexpr (rate == O15_H1_to_C12_He4) {
             // Set as the minimum of the cold CNO and hot CNO cases respectively
             rates.fr = amrex::min(rates1.fr, rates2.fr);
 
