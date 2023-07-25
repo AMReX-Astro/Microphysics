@@ -10,9 +10,13 @@
   oxygen-15              O15         15.0      8.0
   oxygen-16              O16         16.0      8.0
   fluorine-17            F17         17.0      9.0
+  __extra_fluorine-18    F18         18.0      9.0
   __extra_fluorine-19    F19         19.0      9.0
+  __extra_neon-18        Ne18        18.0     10.0
   __extra_neon-19        Ne19        19.0     10.0
+  __extra_neon-20        Ne20        20.0     10.0
   __extra_sodium-20      Na20        20.0     11.0
+  __extra_sodium-21      Na21        21.0     11.0
   magnesium-22           Mg22        22.0     12.0
   __extra_silicon-26     Si26        26.0     14.0
   __extra_phosphorus-29  P29         29.0     15.0

@@ -34,6 +34,12 @@ namespace Rates
         O15_to_N15,
         O15_He4_3H1_to_Mg22,
         O15_He4_to_Ne19,
+        O16_He4_to_Ne20,
+        O16_He4_2H1_to_Mg22,
+        F17_H1_to_Ne18,
+        F17_He4_H1_to_Mg22,
+        Ne18_to_F18,
+        Ne18_He4_to_Na21_H1,
         Ne19_to_F19,
         Ne19_H1_to_Na20,
         Si26_He4_to_P29_H1,
@@ -43,38 +49,7 @@ namespace Rates
         S30_6_5He4_to_Ni56,
         S30_26H1_to_Ni56,
         NumRates = S30_26H1_to_Ni56
-        // irlambCNO = 1,
-        // irag15o   = 2,
-        // irr1      = 3,
-        // irag16o   = 4,
-        // irpg16o   = 5,
-        // irpg17f   = 6,
-        // irgp17f   = 7,
-        // irlambda2 = 8,
-        // irap14o   = 9,
-        // irs1      = 10,
-        // irlambda1 = 11,
-        // ir3a      = 12,
-        // irpg12c   = 13,
-        // irwk14o   = 14,
-        // irwk17f   = 15,
-        // irwk15o   = 16,
-        // irLweak   = 17,
-        // irla2     = 18,
-        // NumRates  = irla2
     };
-
-    const int NumGroups = 3;
-
-    constexpr int dlambCNOdh1   = 1;
-    constexpr int drs1dhe4      = 2;
-    constexpr int drr1dh1       = 3;
-    constexpr int dlambda1dhe4  = 4;
-    constexpr int dlambda2dhe4  = 5;
-    constexpr int delta1        = 6;
-    constexpr int delta2        = 7;
-    constexpr int r56eff        = 8;
-    constexpr int dr56effdt     = 9;
 };
 
 namespace RHS {
@@ -175,6 +150,113 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+            break;
+
+        // Alpha capture on O16
+        case O16_He4_to_Ne20:
+            data.species_A = O16;
+            data.species_B = He4;
+            data.species_D = Ne20;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case O16_He4_2H1_to_Mg22:
+            data.species_A = O16;
+            data.species_B = He4;
+            data.species_C = H1;
+            data.species_D = Mg22;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_C = 2.0_rt;
+            data.number_D = 1.0_rt;
+
+            // It is assumed that the slow rate is the alpha capture,
+            // and the proton captures happen instantaneously afterward.
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_C = 0;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = O16_He4_to_Ne20;
+            break;
+
+        // Proton capture on F17
+        case F17_H1_to_Ne18:
+            data.species_A = F17;
+            data.species_B = H1;
+            data.species_D = Ne18;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1.0_rt;
+            data.exponent_B = 1.0_rt;
+            data.exponent_D = 1.0_rt;
+            break;
+
+        case F17_He4_H1_to_Mg22:
+            data.species_A = F17;
+            data.species_B = He4;
+            data.species_C = H1;
+            data.species_D = Mg22;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_C = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            // A factor of y(He4) will be added into the rate if we are taking this path
+            data.exponent_A = 1;
+            data.exponent_B = 0;
+            data.exponent_C = 1;
+            data.exponent_D = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = F17_H1_to_Ne18;
+            data.additional_reaction_2 = Ne18_to_F18;
+            data.additional_reaction_3 = Ne18_He4_to_Na21_H1;
+            break;
+
+        // Beta decay of Ne18 -> F18; contributes to former irs1
+        case Ne18_to_F18:
+            data.species_A = Ne18;
+            data.species_D = F18;
+
+            data.number_A = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+            break;
+
+        // Alpha capture on Ne18; contributes to former irs1
+        case Ne18_He4_to_Na21_H1:
+            data.species_A = Ne18;
+            data.species_B = He4;
+            data.species_D = Na21;
+            data.species_E = H1;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
             break;
 
         // Beta decay of Ne19 -> F19; contributes to former irr1
@@ -336,14 +418,23 @@ namespace RHS {
         else if constexpr (rate == O15_to_N15) {
             rate_o15_to_n15(state.tf, rates.fr, rates.frdt);
         }
+        else if constexpr (rate == O15_He4_to_Ne19) {
+            rate_he4_o15_to_ne19(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == O16_He4_to_Ne20) {
+            rate_he4_o16_to_ne20(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == F17_H1_to_Ne18) {
+            rate_p_f17_to_ne18(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == Ne18_He4_to_Na21_H1) {
+            rate_he4_ne18_to_p_na21(state.tf, rates.fr, rates.frdt);
+        }
         else if constexpr (rate == Ne19_to_F19) {
             rate_ne19_to_f19(state.tf, rates.fr, rates.frdt);
         }
         else if constexpr (rate == Ne19_H1_to_Na20) {
             rate_p_ne19_to_na20(state.tf, rates.fr, rates.frdt);
-        }
-        else if constexpr (rate == O15_He4_to_Ne19) {
-            rate_he4_o15_to_ne19(state.tf, rates.fr, rates.frdt);
         }
         else if constexpr (rate == Si26_He4_to_P29_H1) {
             rate_he4_si26_to_p_p29(state.tf, rates.fr, rates.frdt);
@@ -387,6 +478,23 @@ namespace RHS {
             rates.fr = rates3.fr * (1.0_rt - rate_irr1);
             rates.frdt = rates3.frdt * (1.0_rt - rate_irr1) - rates3.fr * dratedt_irr1;
         }
+        else if constexpr (rate == O16_He4_2H1_to_Mg22) {
+            // Rate 1 == O16_He4_to_Ne20
+
+            rates.fr = rates1.fr;
+            rates.frdt = rates1.frdt;
+        }
+        else if constexpr (rate == F17_He4_H1_to_Mg22) {
+            // Rate 1 == F17_H1_to_Ne18
+            // Rate 2 == Ne18_to_F18
+            // Rate 3 == Ne18_He4_to_Na21_H1
+
+            Real rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
+            Real dratedt_irs1 = -rate_irs1 * state.y(He4) * rates3.frdt / (rates2.fr + state.y(He4) * rates3.fr);
+
+            rates.fr = rates1.fr * (1.0_rt - rate_irs1);
+            rates.frdt = rates1.frdt * (1.0_rt - rate_irs1) - rates1.fr * dratedt_irs1;
+        }
         else if constexpr (rate == Mg22_2He4_to_S30 || rate == Mg22_8H1_to_S30) {
             // Rate 1 == Si26_He4_to_P29_H1
 
@@ -397,18 +505,24 @@ namespace RHS {
             constexpr Real Lweak = 1.05e0_rt; // this is for NS
             // constexpr Real Lweak = 0.107e0_rt; // this is for lower densities
 
-            if (Lweak > state.y(He4) * rates1.fr) {
+            rates.fr = amrex::max(Lweak, state.y(He4) * rates1.fr);
+
+            if (rates.fr == Lweak) {
                 // Proton capture case
                 if constexpr (rate == Mg22_8H1_to_S30) {
-                    rates.fr = Lweak;
                     rates.frdt = 0.0_rt;
+                }
+                else {
+                    rates.fr = 0.0_rt;
                 }
             }
             else {
                 // Alpha capture case
                 if constexpr (rate == Mg22_2He4_to_S30) {
-                    rates.fr = state.y(He4) * rates1.fr;
                     rates.frdt = state.y(He4) * rates1.frdt;
+                }
+                else {
+                    rates.fr = 0.0_rt;
                 }
             }
         }
@@ -420,18 +534,24 @@ namespace RHS {
 
             constexpr Real la2 = 1.0_rt / 15.0_rt; // mean rate from 30s to 56ni from p-capture and beta decays
 
-            if (la2 > state.y(He4) * rates1.fr) {
+            rates.fr = amrex::max(la2, state.y(He4) * rates1.fr);
+
+            if (rates.fr == la2) {
                 // Proton capture case
                 if constexpr (rate == S30_26H1_to_Ni56) {
-                    rates.fr = la2;
                     rates.frdt = 0.0_rt;
+                }
+                else {
+                    rates.fr = 0.0_rt;
                 }
             }
             else {
                 // Alpha capture case
                 if constexpr (rate == S30_6_5He4_to_Ni56) {
-                    rates.fr = state.y(He4) * rates1.fr;
                     rates.frdt = state.y(He4) * rates1.frdt;
+                }
+                else {
+                    rates.fr = 0.0_rt;
                 }
             }
         }
