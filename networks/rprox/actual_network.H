@@ -29,11 +29,13 @@ namespace Rates
 {
     enum NetworkRates
     {
-        O15_H1_to_C12_He4 = 1,
-        N14_H1_to_O15,
+        N14_H1_to_O15 = 1,
+        O14_He4_to_F17_H1,
+        O15_H1_to_C12_He4,
         O15_to_N15,
         O15_He4_3H1_to_Mg22,
         O15_He4_to_Ne19,
+        O16_H1_to_F17,
         O16_He4_to_Ne20,
         O16_He4_2H1_to_Mg22,
         F17_H1_to_Ne18,
@@ -64,6 +66,50 @@ namespace RHS {
 
         switch (rate) {
 
+        // Proton capture on N14 -> O15
+        case N14_H1_to_O15:
+            data.species_A = N14;
+            data.species_B = H1;
+            data.species_D = O15;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            break;
+
+        case O14_He4_to_F17_H1:
+            data.species_A = O14;
+            data.species_B = He4;
+            data.species_D = F17;
+            data.species_E = H1;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+            break;
+
+        // Beta decay of O15 -> N15; corresponds to former irwk15o
+        case O15_to_N15:
+            data.species_A = O15;
+            data.species_D = N15;
+
+            data.number_A = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+            break;
+
         // Corresponds to lambda_CNO from WW81 (row 4 of Table 13)
         case O15_H1_to_C12_He4:
             data.species_A = O15;
@@ -85,33 +131,6 @@ namespace RHS {
 
             data.additional_reaction_1 = N14_H1_to_O15;
             data.additional_reaction_2 = O15_to_N15;
-            break;
-
-        // Proton capture on N14 -> O15
-        case N14_H1_to_O15:
-            data.species_A = N14;
-            data.species_B = H1;
-            data.species_D = O15;
-
-            data.number_A = 1.0_rt;
-            data.number_B = 1.0_rt;
-            data.number_D = 1.0_rt;
-
-            data.exponent_A = 1;
-            data.exponent_B = 1;
-            data.exponent_D = 1;
-            break;
-
-        // Beta decay of O15 -> N15; corresponds to former irwk15o
-        case O15_to_N15:
-            data.species_A = O15;
-            data.species_D = N15;
-
-            data.number_A = 1.0_rt;
-            data.number_D = 1.0_rt;
-
-            data.exponent_A = 1;
-            data.exponent_D = 1;
             break;
 
         case O15_He4_3H1_to_Mg22:
@@ -150,6 +169,23 @@ namespace RHS {
             data.exponent_A = 1;
             data.exponent_B = 1;
             data.exponent_D = 1;
+            break;
+
+        // Proton capture on O16
+        case O16_H1_to_F17:
+            data.species_A = O16;
+            data.species_B = H1;
+            data.species_D = F17;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+
+            data.screen_reverse_reaction = 0; // For consistency with original rprox
             break;
 
         // Alpha capture on O16
@@ -415,11 +451,18 @@ namespace RHS {
         if constexpr (rate == N14_H1_to_O15) {
             rate_p_n14_to_o15(state.tf, rates.fr, rates.frdt);
         }
+        else if constexpr (rate == O14_He4_to_F17_H1) {
+            rate_he4_o14_to_p_f17(state.tf, rates.fr, rates.frdt);
+        }
         else if constexpr (rate == O15_to_N15) {
             rate_o15_to_n15(state.tf, rates.fr, rates.frdt);
         }
         else if constexpr (rate == O15_He4_to_Ne19) {
             rate_he4_o15_to_ne19(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == O16_H1_to_F17) {
+            rate_p_o16_to_f17(state.tf, rates.fr, rates.frdt);
+            rate_f17_to_p_o16(state.tf, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
             rate_he4_o16_to_ne20(state.tf, rates.fr, rates.frdt);
