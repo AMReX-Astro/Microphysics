@@ -47,6 +47,7 @@ namespace Rates
         F17_to_O17,
         F17_H1_to_Ne18,
         F17_2H1_to_O15_He4,
+        F17_2H1_to_O15_He4_weak,
         F17_He4_H1_to_Mg22,
         Ne18_to_F18,
         Ne18_He4_to_Na21_H1,
@@ -391,6 +392,30 @@ namespace RHS {
             data.additional_reaction_3 = Ne18_He4_to_Na21_H1;
             break;
 
+        // Alternate path to the above that initially proceeds via
+        // F17 beta decay to O17. As a result, y(H1) does not appear
+        // in the resulting RHS term.
+        case F17_2H1_to_O15_He4_weak:
+            data.species_A = F17;
+            data.species_B = H1;
+            data.species_D = O15;
+            data.species_E = He4;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 0;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = F17_to_O17;
+            break;
+
         case F17_He4_H1_to_Mg22:
             data.species_A = F17;
             data.species_B = He4;
@@ -725,6 +750,12 @@ namespace RHS {
 
             rates.fr = rates1.fr * rate_irs1;
             rates.frdt = rates1.frdt * rate_irs1 + rates1.fr * dratedt_irs1;
+        }
+        else if constexpr (rate == F17_2H1_to_O15_He4_weak) {
+            // Rate 1 == F17_to_O17
+
+            rates.fr = rates1.fr;
+            rates.frdt = rates1.frdt;
         }
         else if constexpr (rate == F17_He4_H1_to_Mg22) {
             // Rate 1 == F17_H1_to_Ne18
