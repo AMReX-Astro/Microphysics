@@ -22,7 +22,92 @@ const std::string network_name = "rprox";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> ebin;
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real bion () {
+        using namespace Species;
+
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        // Set the binding energy of the element
+        if constexpr (spec == H1) {
+            return 0.0_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 28.29599e0_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 92.16279e0_rt;
+        }
+        else if constexpr (spec == O14) {
+            return 98.7325_rt;
+        }
+        else if constexpr (spec == O15) {
+            return 111.9569_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 127.6207_rt;
+        }
+        else if constexpr (spec == F17) {
+            return 128.2211_rt;
+        }
+        else if constexpr (spec == Mg22) {
+            return 168.5768_rt;
+        }
+        else if constexpr (spec == S30) {
+            return 243.6866_rt;
+        }
+        else if constexpr (spec == Ni56) {
+            return 483.995_rt;
+        }
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real mion () {
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        constexpr Real A = NetworkProperties::aion(spec);
+        constexpr Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        Real b = 0.0_rt;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                b = bion<n>();
+            }
+        });
+
+        return b;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real mion (int spec) {
+        using namespace Species;
+
+        Real m = 0.0_rt;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                m = mion<n>();
+            }
+        });
+
+        return m;
+    }
 }
 
 namespace Rates
@@ -834,8 +919,7 @@ namespace RHS {
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
     {
-        //return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
-        return 0.0_rt;
+        return dydt * network::bion<spec>() * C::Legacy::n_A * C::Legacy::MeV2erg;
     }
 
 } // namespace RHS
