@@ -29,7 +29,8 @@ namespace Rates
 {
     enum NetworkRates
     {
-        C12_H1_to_N13 = 1,
+        He4_He4_He4_to_C12 = 1,
+        C12_H1_to_N13,
         C12_2H1_to_O14,
         N14_H1_to_O15,
         O14_to_N14,
@@ -70,6 +71,17 @@ namespace RHS {
         rhs_t data;
 
         switch (rate) {
+
+        case He4_He4_He4_to_C12:
+            data.species_A = He4;
+            data.species_D = C12;
+
+            data.number_A = 3.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 3;
+            data.exponent_D = 1;
+            break;
 
         case C12_H1_to_N13:
             data.species_A = C12;
@@ -549,7 +561,10 @@ namespace RHS {
         using namespace Species;
         using namespace Rates;
 
-        if constexpr (rate == C12_H1_to_N13) {
+        if constexpr (rate == He4_He4_He4_to_C12) {
+            rate_he4_he4_he4_to_c12(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == C12_H1_to_N13) {
             rate_p_c12_to_n13(state.tf, rates.fr, rates.frdt);
         }
         else if constexpr (rate == N14_H1_to_O15) {
