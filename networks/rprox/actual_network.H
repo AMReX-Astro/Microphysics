@@ -350,9 +350,9 @@ namespace RHS {
             data.number_B = 1.0_rt;
             data.number_D = 1.0_rt;
 
-            data.exponent_A = 1.0_rt;
-            data.exponent_B = 1.0_rt;
-            data.exponent_D = 1.0_rt;
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
             break;
 
         case F17_2H1_to_O15_He4:
