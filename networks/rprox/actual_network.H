@@ -45,6 +45,7 @@ namespace Rates
         O16_He4_to_Ne20,
         O16_He4_2H1_to_Mg22,
         F17_H1_to_Ne18,
+        F17_2H1_to_O15_He4,
         F17_He4_H1_to_Mg22,
         Ne18_to_F18,
         Ne18_He4_to_Na21_H1,
@@ -352,6 +353,29 @@ namespace RHS {
             data.exponent_A = 1.0_rt;
             data.exponent_B = 1.0_rt;
             data.exponent_D = 1.0_rt;
+            break;
+
+        case F17_2H1_to_O15_He4:
+            data.species_A = F17;
+            data.species_B = H1;
+            data.species_D = O15;
+            data.species_E = He4;
+
+            data.number_A = 1.0_rt;
+            data.number_B = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_B = 1;
+            data.exponent_D = 1;
+            data.exponent_E = 1;
+
+            data.rate_can_be_tabulated = 0;
+
+            data.additional_reaction_1 = F17_H1_to_Ne18;
+            data.additional_reaction_2 = Ne18_to_F18;
+            data.additional_reaction_3 = Ne18_He4_to_Na21_H1;
             break;
 
         case F17_He4_H1_to_Mg22:
@@ -671,6 +695,17 @@ namespace RHS {
 
             rates.fr = rates1.fr;
             rates.frdt = rates1.frdt;
+        }
+        else if constexpr (rate == F17_2H1_to_O15_He4) {
+            // Rate 1 == F17_H1_to_Ne18
+            // Rate 2 == Ne18_to_F18
+            // Rate 3 == Ne18_He4_to_Na21_H1
+
+            Real rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
+            Real dratedt_irs1 = -rate_irs1 * state.y(He4) * rates3.frdt / (rates2.fr + state.y(He4) * rates3.fr);
+
+            rates.fr = rates1.fr * rate_irs1;
+            rates.frdt = rates1.frdt * rate_irs1 + rates1.fr * dratedt_irs1;
         }
         else if constexpr (rate == F17_He4_H1_to_Mg22) {
             // Rate 1 == F17_H1_to_Ne18
