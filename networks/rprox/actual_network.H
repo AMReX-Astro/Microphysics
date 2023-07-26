@@ -44,6 +44,7 @@ namespace Rates
         O16_H1_to_F17,
         O16_He4_to_Ne20,
         O16_He4_2H1_to_Mg22,
+        F17_to_O17,
         F17_H1_to_Ne18,
         F17_2H1_to_O15_He4,
         F17_He4_H1_to_Mg22,
@@ -340,6 +341,18 @@ namespace RHS {
             data.additional_reaction_1 = O16_He4_to_Ne20;
             break;
 
+        // Beta decay of F17 -> O17
+        case F17_to_O17:
+            data.species_A = F17;
+            data.species_D = O17;
+
+            data.number_A = 1.0_rt;
+            data.number_D = 1.0_rt;
+
+            data.exponent_A = 1;
+            data.exponent_D = 1;
+            break;
+
         // Proton capture on F17
         case F17_H1_to_Ne18:
             data.species_A = F17;
@@ -612,6 +625,9 @@ namespace RHS {
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
             rate_he4_o16_to_ne20(state.tf, rates.fr, rates.frdt);
+        }
+        else if constexpr (rate == F17_to_O17) {
+            rate_f17_to_o17(state.tf, rates.fr, rates.frdt);
         }
         else if constexpr (rate == F17_H1_to_Ne18) {
             rate_p_f17_to_ne18(state.tf, rates.fr, rates.frdt);
