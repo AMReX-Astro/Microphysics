@@ -652,8 +652,8 @@ namespace RHS {
             Real rate_irr1 = rates2.fr / (rates2.fr + state.y(H1) * rates3.fr);
             Real dratedt_irr1 = -rate_irr1 * state.y(H1) * rates3.frdt / (rates2.fr + state.y(H1) * rates3.fr);
 
-            rates.fr = rates3.fr * rate_irr1;
-            rates.frdt = rates3.frdt * rate_irr1 + rates3.fr * dratedt_irr1;
+            rates.fr = rates1.fr * rate_irr1;
+            rates.frdt = rates1.frdt * rate_irr1 + rates1.fr * dratedt_irr1;
         }
         else if constexpr (rate == O15_He4_3H1_to_Mg22) {
             // Rate 1 == Ne19_to_F19 (wk19ne in the original rprox)
