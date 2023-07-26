@@ -616,6 +616,9 @@ namespace RHS {
         else if constexpr (rate == F17_H1_to_Ne18) {
             rate_p_f17_to_ne18(state.tf, rates.fr, rates.frdt);
         }
+        else if constexpr (rate == Ne18_to_F18) {
+            rate_ne18_to_f18(state.tf, rates.fr, rates.frdt);
+        }
         else if constexpr (rate == Ne18_He4_to_Na21_H1) {
             rate_he4_ne18_to_p_na21(state.tf, rates.fr, rates.frdt);
         }
