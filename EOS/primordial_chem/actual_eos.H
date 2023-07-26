@@ -266,6 +266,11 @@ void actual_eos (I input, T& state)
         state.e = eint;
     }
 
+    Real pressure = state.rho * eint / sum_gammasinv;
+    if constexpr (has_pressure<T>::value) {
+        state.p = pressure;
+    }
+
     Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
     if constexpr (has_energy<T>::value) {
         state.dedT = dedT;
