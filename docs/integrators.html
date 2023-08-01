@@ -404,16 +404,23 @@ meant for testing purposes only.  No Jacobian is needed.</p></li>
 and is designed specifically for handling coupled ODE systems for chemical
 and nuclear reactions. However, this integrator has difficulty near NSE,
 so we don’t recommend its use in production for nuclear astrophysics.</p></li>
+</ul>
+<ul id="index-1">
 <li><p><code class="docutils literal notranslate"><span class="pre">RKC</span></code>: a stabilized explicit Runge-Kutta-Chebyshev integrator based
 on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">SSV98</a>]</span>.  This does not require a Jacobian, but
 does need to estimate the spectral radius of the system, which is
-done internally.  This works for moderately stiff problems.</p></li>
+done internally.  This works for moderately stiff problems.</p>
+<p>The spectral radius is estimated by default using the power method,
+built into RKC.  Alternately, by setting <code class="docutils literal notranslate"><span class="pre">integrator.use_circle_theorem=1</span></code>,
+the <a class="reference external" href="https://en.wikipedia.org/wiki/Gershgorin_circle_theorem">Gershgorin circle theorem</a>
+is used instead.</p>
+</li>
 <li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span> integration package.  We ported this
 integrator to C++ and removed the non-stiff integration code paths.</p></li>
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
-<div class="admonition important">
+<div class="admonition important" id="index-2">
 <p class="admonition-title">Important</p>
 <p>The integrator will not abort if it encounters trouble.  Instead it will
 set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
@@ -421,10 +428,12 @@ application code to handle the failure.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For Strang split integration, the runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
+<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
 will scale the internal energy that the integrator sees by the initial
 value of <span class="math notranslate nohighlight">\(e\)</span> to make the system <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>.  The value
-of <code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code> will likewise be scaled.</p>
+of <code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code> will likewise be scaled.  This works for both Strang
+and simplified-SDC.  For the <code class="docutils literal notranslate"><span class="pre">RKC</span></code> integrator, this is enabled by
+default.</p>
 <p>For most integrators this algebraic change should not affect the output
 to more than roundoff, but the option is included to allow for some
 different integration approaches in the future.</p>
