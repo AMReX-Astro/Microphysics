@@ -278,7 +278,7 @@ void actual_eos (I input, T& state)
         state.dpdT = pressure / temp;
         state.dpdr = pressure / dens;
         state.cs = std::sqrt((1.0 + 1.0/sum_gammasinv) * state.p /state.rho);
-        state.G = 0.5 * (1.0 + (state.rho / state.p) * state.cs * state.cs);
+        state.G = 0.5 * (1.0 + (1.0 + 1.0/sum_gammasinv));
     }
 
     Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
