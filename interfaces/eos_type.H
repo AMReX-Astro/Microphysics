@@ -27,7 +27,7 @@ struct eos_t:eos_base_t {
     amrex::Real dsdr{};
     amrex::Real dpde{};
     amrex::Real dpdr_e{};
-    amrex::Real G{}; // fundmental derivative (Thompson 1971)
+    amrex::Real G{}; // fundamental derivative (Thompson 1971), we use equation 2.24 of Menikoff & Plohr 1989
 
     amrex::Real cv{};
     amrex::Real cp{};
