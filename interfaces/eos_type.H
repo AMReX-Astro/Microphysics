@@ -27,7 +27,7 @@ struct eos_t:eos_base_t {
     amrex::Real dsdr{};
     amrex::Real dpde{};
     amrex::Real dpdr_e{};
-    amrex::Real d2pdr2_s{};
+    amrex::Real G{}; // fundmental derivative (Thompson 1971)
 
     amrex::Real cv{};
     amrex::Real cp{};
@@ -146,7 +146,7 @@ struct chem_eos_t:eos_base_t {
     amrex::Real dpdr_e{};
     amrex::Real dedT{};
     amrex::Real dedr{};
-    amrex::Real d2pdr2_s{};
+    amrex::Real G{};
 
     amrex::Real mu{};
     amrex::Real cs{};
