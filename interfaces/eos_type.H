@@ -199,6 +199,14 @@ struct has_dpdA<T, decltype((void)T::dpdA, void())>
     : std::true_type {};
 
 template <typename T, typename Enable = void>
+struct has_G
+    : std::false_type {};
+
+template <typename T>
+struct has_G<T, decltype((void)T::G, void())>
+    : std::true_type {};
+
+template <typename T, typename Enable = void>
 struct has_dpdZ
     : std::false_type {};
 
