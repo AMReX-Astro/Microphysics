@@ -14,15 +14,13 @@ jobs:
     - uses: actions/checkout@v3
     - name: Get Latest Release Tag
       run: |
-        CASTRO_TAG=$(wget https://github.com/AMReX-Astro/Castro/releases/latest 2>&1 | grep Location: | awk '{print $2}' | awk -F/ '{print $NF}')
-        echo "CASTRO_TAG=$CASTRO_TAG" >> $GITHUB_ENV
         AMREX_TAG=$(wget https://github.com/AMReX-Codes/amrex/releases/latest 2>&1 | grep Location: | awk '{print $2}' | awk -F/ '{print $NF}')
         echo "AMREX_TAG=$AMREX_TAG" >> $GITHUB_ENV
     - name: Download Castro
       uses: actions/checkout@v3
       with:
         repository: 'AMReX-Astro/Castro'
-        ref: ${{env.CASTRO_TAG}}
+        ref: development
         path: 'Castro'
     - name: Download AMReX
       uses: actions/checkout@v3
