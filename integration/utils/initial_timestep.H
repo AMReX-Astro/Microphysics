@@ -3,7 +3,11 @@
 
 #include <AMReX_REAL.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 #include <burn_type.H>
 
 template <typename BurnT, typename IntT>

@@ -11,7 +11,9 @@ using namespace amrex;
 #include <network.H>
 #include <cj_det.H>
 #include <unit_test.H>
+#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <actual_rhs.H>
+#endif
 
 using namespace unit_test_rp;
 
