@@ -4,7 +4,9 @@
 #include <be_type.H>
 #include <network.H>
 #include <actual_network.H>
+#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <actual_rhs.H>
+#endif
 #include <burn_type.H>
 #include <linpack.H>
 #include <numerical_jacobian.H>
