@@ -10,7 +10,9 @@
 #include <cmath>
 #include <AMReX_Array.H>
 #include <actual_network.H>
+#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <actual_rhs.H>
+#endif
 #include <eos_composition.H>
 #include <microphysics_sort.H>
 #include <hybrj.H>

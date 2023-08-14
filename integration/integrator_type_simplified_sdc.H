@@ -4,7 +4,10 @@
 #include <eos.H>
 #include <eos_composition.H>
 #include <burn_type.H>
+#include <actual_network.H>
+#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <actual_rhs.H>
+#endif
 #include <integrator_type.H>
 
 using namespace integrator_rp;
