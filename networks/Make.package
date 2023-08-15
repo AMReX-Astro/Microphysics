@@ -5,8 +5,6 @@ VPATH_LOCATIONS   += $(MICROPHYSICS_UTIL_PATH)
 
 include $(MICROPHYSICS_UTIL_PATH)/Make.package
 
-include $(MICROPHYSICS_HOME)/networks/$(NETWORK_DIR)/NETWORK_PROPERTIES
-
 ifeq ($(USE_REACT), TRUE)
 
   # for backwards compatibility
@@ -67,7 +65,6 @@ ifeq ($(USE_SCREENING), TRUE)
   include $(SCREEN_PATH)/Make.package
 
   DEFINES += -DSCREENING
-  DEFINES += -DNUMSCREEN=$(NSCREEN)
 
 endif
 
