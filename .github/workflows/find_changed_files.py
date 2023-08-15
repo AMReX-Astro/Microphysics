@@ -35,10 +35,10 @@ def find_files(SHAs=None):
     # see which directories contain changed files
     changed_networks = set()
     for f in files:
-        # check for the NETWORK_PROPERTIES file in each parent directory
+        # check for the Make.package file in each parent directory
         parts = f.split('/')
         while parts:
-            if os.path.exists(os.path.join(*parts, 'NETWORK_PROPERTIES')):
+            if os.path.exists(os.path.join(*parts, 'Make.package')):
                 # remove networks/
                 changed_networks.add(os.path.join(*parts[1:]))
                 break
