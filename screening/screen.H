@@ -78,35 +78,6 @@ screening_finalize() {
 
 }
 
-
-AMREX_FORCE_INLINE
-void add_screening_factor(const int i,
-                          const Real z1, const Real a1, const Real z2, const Real a2)
-{
-  using namespace scrn;
-
-  BL_ASSERT(i < NSCREEN);
-
-  scn_facs[i].z1 = z1;
-  scn_facs[i].z2 = z2;
-  scn_facs[i].a1 = a1;
-  scn_facs[i].a2 = a2;
-
-  scn_facs[i].zs13 = std::cbrt(z1 + z2);
-  scn_facs[i].zs13inv = 1.0_rt/scn_facs[i].zs13;
-  scn_facs[i].zhat = std::pow(z1 + z2, 5.0_rt/3.0_rt) -
-                     std::pow(z1, 5.0_rt/3.0_rt) -
-                     std::pow(z2, 5.0_rt/3.0_rt);
-  scn_facs[i].zhat2 = std::pow(z1 + z2, 5.0_rt/12.0_rt) -
-                      std::pow(z1, 5.0_rt/12.0_rt) -
-                      std::pow(z2, 5.0_rt/12.0_rt);
-  scn_facs[i].lzav = (5.0_rt/3.0_rt) * std::log(z1 * z2 / (z1 + z2));
-  scn_facs[i].aznut = std::cbrt(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2));
-  scn_facs[i].ztilde = 0.5_rt * (std::cbrt(z1) + std::cbrt(z2));
-
-}
-
-
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
@@ -1005,32 +976,6 @@ void actual_screen(const plasma_state_t& state,
         actual_screen<do_T_derivatives>(state, scn_fac, scor, scordt);
         scordt = 0.0_rt;
     }
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void screen(const plasma_state_t& state,
-            const int jscreen,
-            MICROPHYSICS_UNUSED const Real z1_screen, MICROPHYSICS_UNUSED const Real a1_screen,
-            MICROPHYSICS_UNUSED const Real z2_screen, MICROPHYSICS_UNUSED const Real a2_screen,
-            Real& scor, Real& scordt, Real& /*scordd*/)
-{
-    using namespace scrn;
-
-#ifndef AMREX_USE_GPU
-    AMREX_ASSERT(scn_facs[jscreen].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
-#endif
-
-    actual_screen(state, scn_facs[jscreen], scor, scordt);
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void screen(const plasma_state_t& state,
-            const scrn::screen_factors_t& scn_fac,
-            Real& scor, Real& scordt, Real& /*scordd*/)
-{
-    using namespace scrn;
-
-    actual_screen(state, scn_fac, scor, scordt);
 }
 
 #endif
