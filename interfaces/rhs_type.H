@@ -45,12 +45,12 @@ struct rhs_t {
     int species_E{-1};
     int species_F{-1};
 
-    int number_A{0};
-    int number_B{0};
-    int number_C{0};
-    int number_D{0};
-    int number_E{0};
-    int number_F{0};
+    Real number_A{0.0_rt};
+    Real number_B{0.0_rt};
+    Real number_C{0.0_rt};
+    Real number_D{0.0_rt};
+    Real number_E{0.0_rt};
+    Real number_F{0.0_rt};
 
     int exponent_A{0};
     int exponent_B{0};

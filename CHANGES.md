@@ -1,3 +1,8 @@
+# 23.09
+
+  * The file NETWORK_PROPERTIES has been removed from each network,
+    as the legacy screening method is no longer used. (#1310)
+
 # 23.07
 
   * The preprocessor variable EXTRA_THERMO has been removed.

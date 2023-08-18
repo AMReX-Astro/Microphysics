@@ -198,7 +198,7 @@ void actual_eos (I input, T& state)
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
-    Real pressure = state.rho * state.T * (C::k_B / (state.mu * m_nucleon));
+    Real pressure = state.rho * state.T * C::k_B / (state.mu * m_nucleon);
     Real energy = pressure / (eos_gamma - 1.0) * rhoinv;
     if constexpr (has_pressure<T>::value) {
         state.p = pressure;
@@ -265,6 +265,9 @@ void actual_eos (I input, T& state)
 
             // sound speed
             state.cs = std::sqrt(eos_gamma * state.p * rhoinv);
+            if constexpr (has_G<T>::value) {
+                state.G = 0.5 * (1.0 + eos_gamma);
+            }
         }
     }
 
