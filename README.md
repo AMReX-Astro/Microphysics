@@ -6,6 +6,11 @@
 
 There are several core types of microphysics routines hosted here:
 
+* `conductivity/`: stellar conducitivities needed for modeling thermal
+  diffusion processes.
+
+* `constants/`: fundamental physical constants.
+
 * `EOS/`: these are the equations of state. All of them accept a struct
   called `eos_t` to pass the thermodynamic state information in
   and out, though in C++ they are templated such that they can accept
@@ -25,6 +30,15 @@ There are several core types of microphysics routines hosted here:
 * `neutrinos/`: this holds the plasma neutrino cooling routines used
   in the reaction networks.
 
+* `nse_solver/`: a solver for nuclear statistical equilibrium that
+  finds the equilibrium state for the nuclei represented by the
+  network.
+
+* `nse_tabular/`: a tabulation of the NSE state from a large network
+  that can be used together with the `aprox19` network.
+
+* `opacity/`: radiative opacities used for radiation solvers.
+
 * `rates/`: this contains some common rate routines used by the
   various `aprox` networks, and could be expanded to contain other
   collections of rates in the future
@@ -35,10 +49,15 @@ There are several core types of microphysics routines hosted here:
 * `unit_test/`: code specific to unit tests within this repo. In
   particular,
 
-  - `test_eos` will test an equation of state by first calling
-    it will (rho, T), and then calling it with other inputs
-	to recover rho and/or T. A cube of data, with rho, T, and
-	X is tested.
+  - `burn_cell` will do a single zone burn given (rho, T)
+    and a composition
+
+  - `burn_cell_sdc` will do a single zone burn in the simplified-SDC
+    framework.
+
+  - `test_eos` will test an equation of state by first calling it will
+    (rho, T), and then calling it with other inputs to recover rho
+    and/or T. A cube of data, with rho, T, and X is tested.
 
   - `test_react` will call a reaction network on a cube of
     data (rho, T, X).
@@ -47,7 +66,7 @@ There are several core types of microphysics routines hosted here:
     without integrating it.
 
   - `test_sdc` tests integration using the set of variables for
-    simplified SDC.
+    simplified-SDC.
 
   - `test_jac` evaluates the Jacobian for comparison between the
     analytical and numerical Jacobians.
