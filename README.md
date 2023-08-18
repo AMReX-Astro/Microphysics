@@ -6,7 +6,7 @@
 
 There are several core types of microphysics routines hosted here:
 
-* `conductivity/`: stellar conducitivities needed for modeling thermal
+* `conductivity/`: stellar conductivities needed for modeling thermal
   diffusion processes.
 
 * `constants/`: fundamental physical constants.
