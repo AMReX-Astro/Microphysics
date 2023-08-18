@@ -55,7 +55,7 @@ There are several core types of microphysics routines hosted here:
   - `burn_cell_sdc` will do a single zone burn in the simplified-SDC
     framework.
 
-  - `test_eos` will test an equation of state by first calling it will
+  - `test_eos` will test an equation of state by first calling it with
     (rho, T), and then calling it with other inputs to recover rho
     and/or T. A cube of data, with rho, T, and X is tested.
 
