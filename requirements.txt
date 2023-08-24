@@ -1,6 +1,4 @@
-# breathe is incompatible with Sphinx 7.2
-# waiting on https://github.com/breathe-doc/breathe/issues/943 to be fixed
-Sphinx<7.2.0
+Sphinx
 sphinx_rtd_theme
 breathe
 sphinxcontrib_bibtex
