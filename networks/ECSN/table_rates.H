@@ -112,6 +112,10 @@ void init_tab_info(const table_t& tf, const std::string& file, R& rhoy, T& temp,
             }
 
             if (1 == j) {
+                if (temp(i) > 33.0_rt){
+                    amrex::Error("init_tab_info: Table data needs to be updated");
+                }
+
                 temp(i) = std::pow(10.0_rt, temp(i));
             }
 
@@ -151,11 +155,11 @@ int vector_index_lu(const int vlen, const V& vector, const Real fvar)
             } else {
                 ndn = j;
             }
-          if (((nup - ndn) == 1)) {
-              index = ndn;
-              return index;
-          }
+            if ((nup - ndn) == 1) {
+                break;
+            }
         }
+        index = ndn;
     }
 
     return index;
@@ -256,6 +260,7 @@ get_entries(const table_t& table_meta,
                                data(itemp_hi, irhoy_hi, ivar),
                                temp);
 
+        // NOLINTNEXTLINE(readability-suspicious-call-argument)
         entries(ivar) = bl_extrap(rhoy_lo, rhoy_hi, f_i, f_ip1, rhoy);
     }
 
