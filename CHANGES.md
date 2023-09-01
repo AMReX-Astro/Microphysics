@@ -3,6 +3,11 @@
   * The file NETWORK_PROPERTIES has been removed from each network,
     as the legacy screening method is no longer used. (#1310)
 
+  * The rprox network was updated and the Jacobian was fixed (#1300)
+
+  * The primordial_chem EOS now can take density and pressure as
+    inputs (#1302)
+
 # 23.07
 
   * The preprocessor variable EXTRA_THERMO has been removed.
@@ -17,7 +22,7 @@
     for estimating the spectral radius of our ODE system (#1222)
 
   * removed SDC_EVOLVE_ENTHALPY -- this was not being used (#1204)
-  
+
 # 23.06
 
   * Added a new Runge-Kutta-Chebyshev integrator (#1191)
