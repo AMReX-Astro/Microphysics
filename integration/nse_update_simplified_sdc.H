@@ -73,7 +73,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // reaction terms and advection to dt
 
     eos_re_t eos_state;
-    eos_state.T = 1.e6_rt; // initial guess
+    eos_state.T = T_in; // initial guess
 
     // initial aux_sources
     Real aux_source[NumAux] = {0.0_rt};
@@ -238,7 +238,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // updates with advection to dt
 
     BurnT burn_state;
-    burn_state.T = 1.e6_rt; // initial guess
+    burn_state.T = T_in; // initial guess
     burn_state.mu_p = state.mu_p;
     burn_state.mu_n = state.mu_n;
 
