@@ -808,32 +808,35 @@ void sneut5(const Real temp, const Real den,
          + c01*cos1 + dd01*sin1 + c02*cos2 + dd02*sin2
          + c03*cos3 + dd03*sin3 + c04*cos4 + dd04*sin4
          + c05*cos5 + dd05*sin5 + 0.5e0_rt*c06*last;
-
-    f0 =  taudt*fac1*(-c01*sin1 + dd01*cos1 - c02*sin2*2.0e0_rt
-         + dd02*cos2*2.0e0_rt - c03*sin3*3.0e0_rt + dd03*cos3*3.0e0_rt
-         - c04*sin4*4.0e0_rt + dd04*cos4*4.0e0_rt
-         - c05*sin5*5.0e0_rt + dd05*cos5*5.0e0_rt)
-         - 0.5e0_rt*c06*xast*fac2*taudt;
-
     a1 = 0.5e0_rt*c10
          + c11*cos1 + dd11*sin1 + c12*cos2 + dd12*sin2
          + c13*cos3 + dd13*sin3 + c14*cos4 + dd14*sin4
          + c15*cos5 + dd15*sin5 + 0.5e0_rt*c16*last;
 
-    f1 = taudt*fac1*(-c11*sin1 + dd11*cos1 - c12*sin2*2.0e0_rt
-         + dd12*cos2*2.0e0_rt - c13*sin3*3.0e0_rt + dd13*cos3*3.0e0_rt
-         - c14*sin4*4.0e0_rt + dd14*cos4*4.0e0_rt - c15*sin5*5.0e0_rt
-         + dd15*cos5*5.0e0_rt) - 0.5e0_rt*c16*xast*fac2*taudt;
 
     a2 = 0.5e0_rt*c20
          + c21*cos1 + dd21*sin1 + c22*cos2 + dd22*sin2
          + c23*cos3 + dd23*sin3 + c24*cos4 + dd24*sin4
          + c25*cos5 + dd25*sin5 + 0.5e0_rt*c26*last;
 
-    f2 = taudt*fac1*(-c21*sin1 + dd21*cos1 - c22*sin2*2.0e0_rt
-         + dd22*cos2*2.0e0_rt - c23*sin3*3.0e0_rt + dd23*cos3*3.0e0_rt
-         - c24*sin4*4.0e0_rt + dd24*cos4*4.0e0_rt - c25*sin5*5.0e0_rt
-         + dd25*cos5*5.0e0_rt) - 0.5e0_rt*c26*xast*fac2*taudt;
+    if constexpr (do_derivatives) {
+        f0 =  taudt*fac1*(-c01*sin1 + dd01*cos1 - c02*sin2*2.0e0_rt
+                          + dd02*cos2*2.0e0_rt - c03*sin3*3.0e0_rt + dd03*cos3*3.0e0_rt
+                          - c04*sin4*4.0e0_rt + dd04*cos4*4.0e0_rt
+                          - c05*sin5*5.0e0_rt + dd05*cos5*5.0e0_rt)
+            - 0.5e0_rt*c06*xast*fac2*taudt;
+
+        f1 = taudt*fac1*(-c11*sin1 + dd11*cos1 - c12*sin2*2.0e0_rt
+                         + dd12*cos2*2.0e0_rt - c13*sin3*3.0e0_rt + dd13*cos3*3.0e0_rt
+                         - c14*sin4*4.0e0_rt + dd14*cos4*4.0e0_rt - c15*sin5*5.0e0_rt
+                         + dd15*cos5*5.0e0_rt) - 0.5e0_rt*c16*xast*fac2*taudt;
+
+        f2 = taudt*fac1*(-c21*sin1 + dd21*cos1 - c22*sin2*2.0e0_rt
+                         + dd22*cos2*2.0e0_rt - c23*sin3*3.0e0_rt + dd23*cos3*3.0e0_rt
+                         - c24*sin4*4.0e0_rt + dd24*cos4*4.0e0_rt - c25*sin5*5.0e0_rt
+                         + dd25*cos5*5.0e0_rt) - 0.5e0_rt*c26*xast*fac2*taudt;
+    }
+
 
     // equation 3.4
     dum   = a0 + a1*zeta + a2*zeta2;
@@ -1039,13 +1042,15 @@ void sneut5(const Real temp, const Real den,
        }
 
        c00   = 7.75e5_rt*t832 + 247.0e0_rt * std::pow(t8, 3.85e0_rt);
-       dd00  = (1.5e0_rt*7.75e5_rt*t812 + 3.85e0_rt*247.0e0_rt*std::pow(t8, 2.85e0_rt))*1.0e-8_rt;
-
        c01   = 4.07e0_rt + 0.0240e0_rt * std::pow(t8, 1.4e0_rt);
-       dd01  = 1.4e0_rt*0.0240e0_rt * std::pow(t8, 0.4e0_rt)*1.0e-8_rt;
-
        c02   = 4.59e-5_rt * std::pow(t8, -0.110e0_rt);
-       dd02  = -0.11e0_rt*4.59e-5_rt * std::pow(t8, -1.11e0_rt)*1.0e-8_rt;
+
+       if constexpr (do_derivatives) {
+           dd00  = (1.5e0_rt*7.75e5_rt*t812 + 3.85e0_rt*247.0e0_rt*std::pow(t8, 2.85e0_rt))*1.0e-8_rt;
+
+           dd01  = 1.4e0_rt*0.0240e0_rt * std::pow(t8, 0.4e0_rt)*1.0e-8_rt;
+           dd02  = -0.11e0_rt*4.59e-5_rt * std::pow(t8, -1.11e0_rt)*1.0e-8_rt;
+       }
 
        z     = std::pow(den, 0.656e0_rt);
        dum   = c00*rmi  + c01  + c02*z;
