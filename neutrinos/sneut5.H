@@ -391,10 +391,10 @@ void sneut5(const Real temp, const Real den,
     a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt*zeta;
 
     if (t9 < 10.0_rt) {
-       b1     = exp(-5.5924e0_rt*zeta);
+       b1     = std::exp(-5.5924e0_rt*zeta);
        b2     = -b1*5.5924e0_rt;
     } else {
-       b1     = exp(-4.9924e0_rt*zeta);
+       b1     = std::exp(-4.9924e0_rt*zeta);
        b2     = -b1*4.9924e0_rt;
     }
 
