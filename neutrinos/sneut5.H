@@ -25,7 +25,8 @@ Real ifermi12(const Real f)
     // the return value
     Real ifermi12r;
 
-    // load the coefficients of the expansion
+    // load the coefficients of the expansion from Table 8 of Antia
+
     an = 0.5e0_rt;
     m1 = 4;
     k1 = 3;
@@ -132,7 +133,8 @@ Real zfermim12(const Real x)
     // return value
     Real zfermim12r;
 
-    // load the coefficients of the expansion
+    // load the coefficients of the expansion from Table 2 of Antia
+
     m1 = 7;
     k1 = 7;
     m2 = 11;
