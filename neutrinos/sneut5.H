@@ -233,8 +233,8 @@ void sneut5(const Real temp, const Real den,
          a0,a1,a2,a3,b1,b2,c00,c01,c02,c03,c04,c05,c06,
          c10,c11,c12,c13,c14,c15,c16,c20,c21,c22,c23,c24,
          c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12,
-         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d,f0,
-         f1,deni,tempi,abari,zbari,f2,f3,z,ye,
+         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d{0.0},f0,
+         f1{0.0},deni,tempi,abari,zbari,f2,f3,z,ye,
          dum,dumdt,gum,gumdt,dumda,dumdz,gumda,gumdz;
 
     // pair production
@@ -599,9 +599,9 @@ void sneut5(const Real temp, const Real den,
        a3  = c/d;
        c00 = std::exp(-a3*a3);
 
-       f1  = -c00*2.0e0_rt*a3/d;
        fxy   = 1.05e0_rt + (a1 - b1)*c00;
        if constexpr (do_derivatives) {
+           f1  = -c00*2.0e0_rt*a3/d;
            c01 = f1*(dumdt + a3*0.25e0_rt*xnumdt);
            c03 = f1*(dumda + a3*0.25e0_rt*xnumda);
            c04 = f1*(dumdz + a3*0.25e0_rt*xnumdz);

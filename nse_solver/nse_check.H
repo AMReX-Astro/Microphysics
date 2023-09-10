@@ -1070,7 +1070,8 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   composition(state);
 
   amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-  sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+  constexpr int do_derivatives{0};
+  sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
 #else
   amrex::Real sneut = 0.0_rt;
 #endif
