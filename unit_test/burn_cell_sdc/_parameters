@@ -69,3 +69,5 @@ Adv_Aux3          real       0.0e0
 
 
 
+mu_p              real       -5.0
+mu_n              real      -12.0

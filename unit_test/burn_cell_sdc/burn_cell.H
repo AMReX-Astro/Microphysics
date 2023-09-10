@@ -293,6 +293,12 @@ void burn_cell_c()
 
     burn_state.T_fixed = -1.0;
 
+#ifdef NSE_NET
+    burn_state.mu_p = unit_test_rp::mu_p;
+    burn_state.mu_n = unit_test_rp::mu_n;
+    burn_state.y_e = -1.0;
+#endif
+
     std::ofstream state_over_time("state_over_time.txt");
 
     // we will divide the total integration time into nsteps that are
