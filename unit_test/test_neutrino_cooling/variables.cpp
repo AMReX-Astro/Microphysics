@@ -28,9 +28,9 @@ void get_varnames(const plot_t& p, amrex::Vector<std::string>& names) {
   }
 
   names[p.isneut] = "sneut";
-  names[p.isneut] = "dsneutdt";
-  names[p.isneut] = "dsneutda";
-  names[p.isneut] = "dsneutdz";
+  names[p.isneutdt] = "dsneutdt";
+  names[p.isneutda] = "dsneutda";
+  names[p.isneutdz] = "dsneutdz";
 }
 
 
