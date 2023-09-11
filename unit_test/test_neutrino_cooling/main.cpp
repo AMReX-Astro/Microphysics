@@ -9,12 +9,12 @@
 
 using namespace amrex;
 
-#include <test_screen.H>
+#include <test_sneut.H>
 #include <AMReX_buildInfo.H>
 
 #include <network.H>
 #include <eos.H>
-#include <screen.H>
+#include <sneut5.H>
 
 #include <variables.H>
 
@@ -100,8 +100,6 @@ void main_main ()
 
     network_init();
 
-    screening_init();
-
     plot_t vars;
 
     vars = init_variables();
@@ -144,7 +142,7 @@ void main_main ()
 
       Array4<Real> const sp = state.array(mfi);
 
-      screen_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
+      neut_test_C(bx, dlogrho, dlogT, dmetal, vars, sp);
 
     }
 
@@ -155,7 +153,7 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
 
-    std::string name = "test_screening." + screen_name;
+    std::string name = "test_sneut5";
 
     // Write a plotfile
     WriteSingleLevelPlotfile(name, state, names, geom, time, 0);

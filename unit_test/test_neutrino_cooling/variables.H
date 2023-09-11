@@ -14,7 +14,10 @@ public:
   int irho = -1;
   int itemp = -1;
   int ispec = -1;
-  int isneuc = -1;
+  int isneut = -1;
+  int isneutdt = -1;
+  int isneutda = -1;
+  int isneutdz = -1;
 
   int n_plot_comps = 0;
 

@@ -9,6 +9,9 @@ plot_t init_variables() {
   p.itemp = p.next_index(1);
   p.ispec = p.next_index(NumSpec);
   p.isneut = p.next_index(1);
+  p.isneutdt = p.next_index(1);
+  p.isneutda = p.next_index(1);
+  p.isneutdz = p.next_index(1);
 
   return p;
 }
@@ -25,6 +28,9 @@ void get_varnames(const plot_t& p, amrex::Vector<std::string>& names) {
   }
 
   names[p.isneut] = "sneut";
+  names[p.isneut] = "dsneutdt";
+  names[p.isneut] = "dsneutda";
+  names[p.isneut] = "dsneutdz";
 }
 
 
