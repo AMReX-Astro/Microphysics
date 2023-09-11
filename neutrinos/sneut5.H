@@ -374,8 +374,8 @@ void sneut5(const Real temp, const Real den,
     zeta   = a1 * xlm1;
 
     if constexpr (do_derivatives) {
-        zetadt = -a1 * xlm2 * xldt;
         a2     = oneth * a1*rmi * xlm1;
+        zetadt = -a1 * xlm2 * xldt;
         zetada = a2 * rmda;
         zetadz = a2 * rmdz;
     }
@@ -395,18 +395,22 @@ void sneut5(const Real temp, const Real den,
     // equation 2.7
 
     a1     = 6.002e19_rt + 2.084e20_rt*zeta + 1.872e21_rt*zeta2;
-    a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt*zeta;
 
     if (t9 < 10.0_rt) {
        b1     = exp(-5.5924e0_rt*zeta);
-       b2     = -b1*5.5924e0_rt;
+       if constexpr (do_derivatives) {
+           b2     = -b1*5.5924e0_rt;
+       }
     } else {
        b1     = exp(-4.9924e0_rt*zeta);
-       b2     = -b1*4.9924e0_rt;
+       if constexpr (do_derivatives) {
+           b2     = -b1*4.9924e0_rt;
+       }
     }
 
     xnum   = a1 * b1;
     if constexpr (do_derivatives) {
+        a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt*zeta;
         c      = a2*b1 + a1*b2;
         xnumdt = c*zetadt;
         xnumda = c*zetada;
@@ -415,10 +419,14 @@ void sneut5(const Real temp, const Real den,
 
     if (t9 < 10.0_rt) {
        a1   = 9.383e-1_rt*xlm1 - 4.141e-1_rt*xlm2 + 5.829e-2_rt*xlm3;
-       a2   = -9.383e-1_rt*xlm2 + 2.0e0_rt*4.141e-1_rt*xlm3 - 3.0e0_rt*5.829e-2_rt*xlm4;
+       if constexpr (do_derivatives) {
+           a2   = -9.383e-1_rt*xlm2 + 2.0e0_rt*4.141e-1_rt*xlm3 - 3.0e0_rt*5.829e-2_rt*xlm4;
+       }
     } else {
        a1   = 1.2383e0_rt*xlm1 - 8.141e-1_rt*xlm2;
-       a2   = -1.2383e0_rt*xlm2 + 2.0e0_rt*8.141e-1_rt*xlm3;
+       if constexpr (do_derivatives) {
+           a2   = -1.2383e0_rt*xlm2 + 2.0e0_rt*8.141e-1_rt*xlm3;
+       }
     }
 
     xden   = zeta3 + a1;
@@ -439,18 +447,19 @@ void sneut5(const Real temp, const Real den,
 
     // equation 2.6
     a1     = 10.7480e0_rt*xl2 + 0.3967e0_rt*xlp5 + 1.005e0_rt;
-    a2     = xldt*(2.0e0_rt*10.7480e0_rt*xl + 0.5e0_rt*0.3967e0_rt*xlmp5);
     xnum   = 1.0e0_rt/a1;
-    xnumdt = -xnum*xnum*a2;
+    if constexpr (do_derivatives) {
+        a2     = xldt*(2.0e0_rt*10.7480e0_rt*xl + 0.5e0_rt*0.3967e0_rt*xlmp5);
+        xnumdt = -xnum*xnum*a2;
+    }
 
     a1     = 7.692e7_rt*xl3 + 9.715e6_rt*xlp5;
-    a2     = xldt*(3.0e0_rt*7.692e7_rt*xl2 + 0.5e0_rt*9.715e6_rt*xlmp5);
-
     c      = 1.0e0_rt/a1;
     b1     = 1.0e0_rt + rm*c;
 
     xden   = std::pow(b1, -0.3e0_rt);
     if constexpr (do_derivatives) {
+        a2     = xldt*(3.0e0_rt*7.692e7_rt*xl2 + 0.5e0_rt*9.715e6_rt*xlmp5);
         d      = -0.3e0_rt*xden/b1;
         xdendt = -d*rm*c*c*a2;
         xdenda = d*rmda*c;
@@ -484,11 +493,11 @@ void sneut5(const Real temp, const Real den,
     }
 
     a1      = tfac4*(1.0e0_rt + tfac3 * qpair);
-    a2      = tfac4*tfac3;
 
     a3      = spair;
     spair   = a1*a3;
     if constexpr (do_derivatives) {
+        a2      = tfac4*tfac3;
         spairdt = a1*spairdt + a2*qpairdt*a3;
         spairda = a1*spairda + a2*qpairda*a3;
         spairdz = a1*spairdz + a2*qpairdz*a3;
@@ -500,16 +509,16 @@ void sneut5(const Real temp, const Real den,
 
     a1   = 1.019e-6_rt*rm;
     a2   = std::pow(a1, twoth);
-    a3   = twoth*a2/a1;
 
     b1   = std::sqrt(1.0e0_rt + a2);
-    b2   = 1.0e0_rt/b1;
 
     c00  = 1.0e0_rt/(temp*temp*b1);
 
     gl2   = 1.1095e11_rt * rm * c00;
 
     if constexpr (do_derivatives) {
+        a3   = twoth*a2/a1;
+        b2   = 1.0e0_rt/b1;
         gl2dt = -2.0e0_rt*gl2*tempi;
         d     = rm*c00*b2*0.5e0_rt*b2*a3*1.019e-6_rt;
         gl2da = 1.1095e11_rt * (rmda*c00  - d*rmda);
@@ -534,15 +543,15 @@ void sneut5(const Real temp, const Real den,
 
     // equation 4.8
     a1   = 8.6e0_rt*gl2 + 1.35e0_rt*gl72;
-    a2   = 8.6e0_rt + 1.75e0_rt*1.35e0_rt*gl72*gum;
 
     b1   = 225.0e0_rt - 17.0e0_rt*gl + gl2;
-    b2   = -0.5e0_rt*17.0e0_rt*gl*gum + 1.0e0_rt;
 
     c    = 1.0e0_rt/b1;
     fl   = a1*c;
 
     if constexpr (do_derivatives) {
+        a2   = 8.6e0_rt + 1.75e0_rt*1.35e0_rt*gl72*gum;
+        b2   = -0.5e0_rt*17.0e0_rt*gl*gum + 1.0e0_rt;
         d    = (a2 - fl*b2)*c;
         fldt = d*gl2dt;
         flda = d*gl2da;
@@ -577,13 +586,14 @@ void sneut5(const Real temp, const Real den,
     } else {
 
        a1  = 0.39e0_rt - 1.25e0_rt*xnum - 0.35e0_rt*std::sin(4.5e0_rt*xnum);
-       a2  = -1.25e0_rt - 4.5e0_rt*0.35e0_rt*std::cos(4.5e0_rt*xnum);
 
        b1  = 0.3e0_rt * std::exp(-std::pow(4.5e0_rt*xnum + 0.9e0_rt, 2.0_rt));
-       b2  = -b1*2.0e0_rt*(4.5e0_rt*xnum + 0.9e0_rt)*4.5e0_rt;
 
        c   = amrex::min(0.0e0_rt, xden - 1.6e0_rt + 1.25e0_rt*xnum);
+
        if constexpr (do_derivatives) {
+           a2  = -1.25e0_rt - 4.5e0_rt*0.35e0_rt*std::cos(4.5e0_rt*xnum);
+           b2  = -b1*2.0e0_rt*(4.5e0_rt*xnum + 0.9e0_rt)*4.5e0_rt;
            if (c == 0.0_rt) {
                dumdt = 0.0e0_rt;
                dumda = 0.0e0_rt;
@@ -621,33 +631,33 @@ void sneut5(const Real temp, const Real den,
     }
 
     a2      = std::exp(-gl);
-    a3      = -0.5e0_rt*a2*gl*gum;
 
     a1      = splas;
     splas   = a2*a1;
     if constexpr (do_derivatives) {
+        a3      = -0.5e0_rt*a2*gl*gum;
         splasdt = a2*splasdt + a3*gl2dt*a1;
         splasda = a2*splasda + a3*gl2da*a1;
         splasdz = a2*splasdz + a3*gl2dz*a1;
     }
 
     a2      = gl6;
-    a3      = 3.0e0_rt*gl6*gum;
 
     a1      = splas;
     splas   = a2*a1;
     if constexpr (do_derivatives) {
+        a3      = 3.0e0_rt*gl6*gum;
         splasdt = a2*splasdt + a3*gl2dt*a1;
         splasda = a2*splasda + a3*gl2da*a1;
         splasdz = a2*splasdz + a3*gl2dz*a1;
     }
 
     a2      = 0.93153e0_rt * 3.0e21_rt * xl9;
-    a3      = 0.93153e0_rt * 3.0e21_rt * 9.0e0_rt*xl8*xldt;
 
     a1      = splas;
     splas   = a2*a1;
     if constexpr (do_derivatives) {
+        a3      = 0.93153e0_rt * 3.0e21_rt * 9.0e0_rt*xl8*xldt;
         splasdt = a2*splasdt + a3*a1;
         splasda = a2*splasda;
         splasdz = a2*splasdz;
@@ -921,11 +931,11 @@ void sneut5(const Real temp, const Real den,
     }
 
     a1      = tfac4*(1.0e0_rt - tfac3 * qphot);
-    a2      = -tfac4*tfac3;
 
     a3      = sphot;
     sphot   = a1*a3;
     if constexpr (do_derivatives) {
+        a2      = -tfac4*tfac3;
         sphotdt = a1*sphotdt + a2*qphotdt*a3;
         sphotda = a1*sphotda + a2*qphotda*a3;
         sphotdz = a1*sphotdz + a2*qphotdz*a3;
