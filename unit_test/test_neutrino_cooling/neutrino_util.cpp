@@ -83,8 +83,6 @@ void neut_test_C(const Box& bx,
     sneut5(temp_zone, dens_zone, abar, zbar,
            snu, dsnudt, dsnudd, dsnuda, dsnudz);
 
-    std::cout << "storing: " << snu << " " << dsnudt << " " << dsnudt << " " << dsnudz << std::endl;
-
     sp(i, j, k, vars.isneut) = snu;
     sp(i, j, k, vars.isneutdt) = dsnudt;
     sp(i, j, k, vars.isneutda) = dsnuda;
