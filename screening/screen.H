@@ -613,7 +613,7 @@ void chugunov2007 (const plasma_state_t& state,
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
+void chugunov2009_f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
 {
     // Calculates the free energy per ion in a OCP, from Chugunov and DeWitt 2009
     // equation 24.
@@ -742,9 +742,9 @@ void chugunov2009 (const plasma_state_t& state,
     // values similar to those from Chugunov 2007.
     Real term1, term2, term3;
     Real dterm1_dT = 0.0_rt, dterm2_dT = 0.0_rt, dterm3_dT = 0.0_rt;
-    f0<do_T_derivatives>(Gamma_1 / t_12, dlog_dT, term1, dterm1_dT);
-    f0<do_T_derivatives>(Gamma_2 / t_12, dlog_dT, term2, dterm2_dT);
-    f0<do_T_derivatives>(Gamma_comp / t_12, dlog_dT, term3, dterm3_dT);
+    chugunov2009_f0<do_T_derivatives>(Gamma_1 / t_12, dlog_dT, term1, dterm1_dT);
+    chugunov2009_f0<do_T_derivatives>(Gamma_2 / t_12, dlog_dT, term2, dterm2_dT);
+    chugunov2009_f0<do_T_derivatives>(Gamma_comp / t_12, dlog_dT, term3, dterm3_dT);
     Real h_fit = term1 + term2 - term3;
     Real dh_fit_dT;
     if constexpr (do_T_derivatives) {
@@ -780,6 +780,35 @@ void chugunov2009 (const plasma_state_t& state,
     }
 }
 
+template <int do_T_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, Real& df_dT) {
+  // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
+
+  // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
+  constexpr Real A_1 = -0.9052_rt;
+  constexpr Real A_2 = 0.6322_rt;
+  constexpr Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / gcem::sqrt(A_2);
+
+  // Precompute some expressions that are reused in the derivative
+  const Real sqrt_gamma = std::sqrt(gamma);
+  const Real sqrt_1_gamma_A2 = std::sqrt(1.0_rt + gamma/A_2);
+  const Real sqrt_gamma_A2_gamma = std::sqrt(gamma * (A_2 + gamma));
+  const Real sqrt_gamma_A2 = std::sqrt(gamma/A_2);
+
+  f = A_1 * (sqrt_gamma_A2_gamma -
+             A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2))
+      + 2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
+
+  if constexpr (do_T_derivatives) {
+    df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma)
+                        - 0.5_rt / (sqrt_gamma_A2 + sqrt_1_gamma_A2)
+                        * (1.0_rt / sqrt_gamma_A2 + 1.0_rt / sqrt_1_gamma_A2))
+            + A_3 / sqrt_gamma * (1.0_rt - 1.0_rt / (1.0_rt + gamma));
+
+    df_dT *= dgamma_dT;
+  }
+}
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -809,57 +838,22 @@ void chabrier1998 (const plasma_state_t& state,
   Real Gamma2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
   Real Gamma12 = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
 
-  [[maybe_unused]] Real Gamma1dT, Gamma2dT, Gamma12dT;
+  Real Gamma1dT{}, Gamma2dT{}, Gamma12dT{};
   
   if constexpr (do_T_derivatives) {
     Gamma1dT = -Gamma1 / state.temp;
     Gamma2dT = -Gamma2 / state.temp;
     Gamma12dT = -Gamma12 / state.temp;
   }
-  // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
-  
-  const Real A_1 = -0.9052_rt;
-  const Real A_2 = 0.6322_rt;
-  const Real A_3 = -0.5_rt * std::sqrt(3.0_rt) - A_1 / std::sqrt(A_2);
-    
-  // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
-  Real f1 = A_1 * (std::sqrt(Gamma1 * (A_2 + Gamma1)) -
-		   A_2 * std::log(std::sqrt(Gamma1/A_2) + std::sqrt(1.0_rt + Gamma1/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma1) - std::atan(std::sqrt(Gamma1)));
-  
-  Real f2 = A_1 * (std::sqrt(Gamma2 * (A_2 + Gamma2)) -
-		   A_2 * std::log(std::sqrt(Gamma2/A_2) + std::sqrt(1.0_rt + Gamma2/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma2) - std::atan(std::sqrt(Gamma2)));
-  
-  Real f12 = A_1 * (std::sqrt(Gamma12 * (A_2 + Gamma12)) -
-		   A_2 * std::log(std::sqrt(Gamma12/A_2) + std::sqrt(1.0_rt + Gamma12/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma12) - std::atan(std::sqrt(Gamma12)));
+  // Helmholtz free energy
 
-  [[maybe_unused]] Real f1dT, f2dT, f12dT;
-  
-  if constexpr (do_T_derivatives) {
-    f1dT = A_1 * ((A_2 + 2.0_rt * Gamma1) / (2.0_rt * std::sqrt(Gamma1 * (A_2 + Gamma1)))
-		       - 0.5_rt / (std::sqrt(Gamma1 / A_2) + std::sqrt(1.0_rt + Gamma1 / A_2))
-		       * (1.0_rt / std::sqrt(Gamma1 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma1 / A_2)))
-      + A_3 / std::sqrt(Gamma1) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma1));
+  Real f1, f2, f12;
+  Real f1dT, f2dT, f12dT;
 
-    f1dT *= Gamma1dT;
-
-    f2dT = A_1 * ((A_2 + 2.0_rt * Gamma2) / (2.0_rt * std::sqrt(Gamma2 * (A_2 + Gamma2)))
-		       - 0.5_rt / (std::sqrt(Gamma2 / A_2) + std::sqrt(1.0_rt + Gamma2 / A_2))
-		       * (1.0_rt / std::sqrt(Gamma2 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma2 / A_2)))
-      + A_3 / std::sqrt(Gamma2) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma2));
-
-    f2dT *= Gamma2dT;
-
-    f12dT = A_1 * ((A_2 + 2.0_rt * Gamma12) / (2.0_rt * std::sqrt(Gamma12 * (A_2 + Gamma12)))
-		       - 0.5_rt / (std::sqrt(Gamma12 / A_2) + std::sqrt(1.0_rt + Gamma12 / A_2))
-		       * (1.0_rt / std::sqrt(Gamma12 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma12 / A_2)))
-      + A_3 / std::sqrt(Gamma12) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma12));
-
-    f12dT *= Gamma12dT;
-  }
+  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma1, Gamma1dT, f1, f1dT);
+  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma2, Gamma2dT, f2, f2dT);
+  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma12, Gamma12dT, f12, f12dT);
   
   // Now we add quantum correction terms discussed in Alastuey 1978.
   // Notice in Alastuey 1978, they have a different classical term,
