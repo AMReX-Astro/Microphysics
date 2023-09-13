@@ -16,6 +16,7 @@
 #include <eos_composition.H>
 #include <microphysics_sort.H>
 #include <hybrj.H>
+#include <screen.H>
 #include <cctype>
 #include <algorithm>
 
@@ -93,15 +94,6 @@ void apply_nse_exponent(T& nse_state) {
 
 #if SCREEN_METHOD != 0
 
-  // three unit-less constants for calculating coulomb correction term
-  // see Calder 2007, doi:10.1086/510709 for more detail
-
-  const amrex::Real A1 = -0.9052_rt;
-  const amrex::Real A2 = 0.6322_rt;
-  
-  // A3 = -0.5 * sqrt(3) - A1/sqrt(A2)
-  const amrex::Real A3 = 0.272433346667;
-
   // Find n_e for original state;
   const amrex::Real n_e = nse_state.rho * nse_state.y_e / C::m_u;
   const amrex::Real Gamma_e = C::q_e * C::q_e * std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt)
@@ -125,12 +117,14 @@ void apply_nse_exponent(T& nse_state) {
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
 
       // chemical potential for coulomb correction
+      // see appendix of Calder 2007, doi:10.1086/510709 for more detail
 
-      u_c = C::k_B * T_in / C::Legacy::MeV2erg *
-          (A1 * (std::sqrt(gamma * (A2 + gamma)) -
-                 A2 * std::log(std::sqrt(gamma / A2) +
-                               std::sqrt(1.0_rt + gamma / A2))) +
-           2.0_rt * A3 * (std::sqrt(gamma) - std::atan(std::sqrt(gamma))));
+      // reuse existing implementation from screening routine
+      Real f, df;
+      constexpr int do_T_derivatives = 0;
+      chabrier1998_helmholtz_F<do_T_derivatives>(gamma, 0.0_rt, f, df);
+
+      u_c = C::k_B * T_in / C::Legacy::MeV2erg * f;
 #endif
 
       // find nse mass frac
