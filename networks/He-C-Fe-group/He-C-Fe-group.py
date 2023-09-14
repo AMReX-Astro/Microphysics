@@ -1,6 +1,8 @@
 import pynucastro as pyna
 from pynucastro.rates import ReacLibRate, TabularRate
 
+DO_DERIVED_RATES = True
+
 reaclib_lib = pyna.ReacLibLibrary()
 weak_lib = pyna.TabularLibrary()
 
@@ -29,6 +31,33 @@ for r, mp in other_rates:
     _r.modify_products(mp)
     core_lib.add_rate(_r)
 
+# finally, the aprox nets don't include the reverse rates for
+# C12+C12, C12+O16, and O16+O16, so remove those
+
+for r in core_lib.get_rates():
+    if sorted(r.products) in [[pyna.Nucleus("c12"), pyna.Nucleus("c12")],
+                              [pyna.Nucleus("c12"), pyna.Nucleus("o16")],
+                              [pyna.Nucleus("o16"), pyna.Nucleus("o16")]]:
+        core_lib.remove_rate(r)
+
+# C12+Ne20 and reverse
+# (a,g) links between Na23 and Al27
+# (a,g) links between Al27 and P31
+
+rates_to_remove = ["p31(p,c12)ne20",
+                   "si28(a,c12)ne20",
+                   "ne20(c12,p)p31",
+                   "ne20(c12,a)si28",
+                   "na23(a,g)al27",
+                   "al27(g,a)na23",
+                   "al27(a,g)p31",
+                   "p31(g,a)al27"]
+
+for r in rates_to_remove:
+    print("removing: ", r)
+    _r = core_lib.get_rate_by_name(r)
+    core_lib.remove_rate(_r)
+
 # now create a list of iron group nuclei and find both the
 # ReacLib and weak / tabular rates linking these.
 
@@ -43,9 +72,32 @@ iron_reaclib = reaclib_lib.linking_nuclei(iron_peak)
 
 iron_weak_lib = weak_lib.linking_nuclei(iron_peak)
 
+# add the libraries
+
+all_lib = core_lib + iron_reaclib + iron_weak_lib
+
+if DO_DERIVED_RATES:
+    rates_to_derive = []
+    for r in all_lib.get_rates():
+        if r.reverse:
+            # this rate was computed using detailed balance, regardless
+            # of whether Q < 0 or not.  We want to remove it and then
+            # recompute it
+            rates_to_derive.append(r)
+
+    # now for each of those derived rates, look to see if the pair exists
+
+    for r in rates_to_derive:
+        fr = all_lib.get_rate_by_nuclei(r.products, r.reactants)
+        if fr:
+            print(f"modifying {r} from {fr}")
+            all_lib.remove_rate(r)
+            d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
+            all_lib.add_rate(d)
+
 # combine all three libraries into a single network
 
-net = pyna.AmrexAstroCxxNetwork(libraries=[core_lib, iron_reaclib, iron_weak_lib],
+net = pyna.AmrexAstroCxxNetwork(libraries=[all_lib],
                                 symmetric_screening=False)
 
 # we will have duplicate rates -- we want to remove any ReacLib rates
