@@ -80,8 +80,10 @@ void neut_test_C(const Box& bx,
     Real dsnuda;
     Real dsnudz;
 
-    sneut5(temp_zone, dens_zone, abar, zbar,
-           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    constexpr int do_derivatives{1};
+
+    sneut5<do_derivatives>(temp_zone, dens_zone, abar, zbar,
+                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
 
     sp(i, j, k, vars.isneut) = snu;
     sp(i, j, k, vars.isneutdt) = dsnudt;
