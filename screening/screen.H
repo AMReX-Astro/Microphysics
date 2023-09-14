@@ -78,35 +78,6 @@ screening_finalize() {
 
 }
 
-
-AMREX_FORCE_INLINE
-void add_screening_factor(const int i,
-                          const Real z1, const Real a1, const Real z2, const Real a2)
-{
-  using namespace scrn;
-
-  BL_ASSERT(i < NSCREEN);
-
-  scn_facs[i].z1 = z1;
-  scn_facs[i].z2 = z2;
-  scn_facs[i].a1 = a1;
-  scn_facs[i].a2 = a2;
-
-  scn_facs[i].zs13 = std::cbrt(z1 + z2);
-  scn_facs[i].zs13inv = 1.0_rt/scn_facs[i].zs13;
-  scn_facs[i].zhat = std::pow(z1 + z2, 5.0_rt/3.0_rt) -
-                     std::pow(z1, 5.0_rt/3.0_rt) -
-                     std::pow(z2, 5.0_rt/3.0_rt);
-  scn_facs[i].zhat2 = std::pow(z1 + z2, 5.0_rt/12.0_rt) -
-                      std::pow(z1, 5.0_rt/12.0_rt) -
-                      std::pow(z2, 5.0_rt/12.0_rt);
-  scn_facs[i].lzav = (5.0_rt/3.0_rt) * std::log(z1 * z2 / (z1 + z2));
-  scn_facs[i].aznut = std::cbrt(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2));
-  scn_facs[i].ztilde = 0.5_rt * (std::cbrt(z1) + std::cbrt(z2));
-
-}
-
-
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
@@ -642,7 +613,7 @@ void chugunov2007 (const plasma_state_t& state,
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
+void chugunov2009_f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
 {
     // Calculates the free energy per ion in a OCP, from Chugunov and DeWitt 2009
     // equation 24.
@@ -771,9 +742,9 @@ void chugunov2009 (const plasma_state_t& state,
     // values similar to those from Chugunov 2007.
     Real term1, term2, term3;
     Real dterm1_dT = 0.0_rt, dterm2_dT = 0.0_rt, dterm3_dT = 0.0_rt;
-    f0<do_T_derivatives>(Gamma_1 / t_12, dlog_dT, term1, dterm1_dT);
-    f0<do_T_derivatives>(Gamma_2 / t_12, dlog_dT, term2, dterm2_dT);
-    f0<do_T_derivatives>(Gamma_comp / t_12, dlog_dT, term3, dterm3_dT);
+    chugunov2009_f0<do_T_derivatives>(Gamma_1 / t_12, dlog_dT, term1, dterm1_dT);
+    chugunov2009_f0<do_T_derivatives>(Gamma_2 / t_12, dlog_dT, term2, dterm2_dT);
+    chugunov2009_f0<do_T_derivatives>(Gamma_comp / t_12, dlog_dT, term3, dterm3_dT);
     Real h_fit = term1 + term2 - term3;
     Real dh_fit_dT;
     if constexpr (do_T_derivatives) {
@@ -809,6 +780,35 @@ void chugunov2009 (const plasma_state_t& state,
     }
 }
 
+template <int do_T_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, Real& df_dT) {
+  // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
+
+  // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
+  constexpr Real A_1 = -0.9052_rt;
+  constexpr Real A_2 = 0.6322_rt;
+  constexpr Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / gcem::sqrt(A_2);
+
+  // Precompute some expressions that are reused in the derivative
+  const Real sqrt_gamma = std::sqrt(gamma);
+  const Real sqrt_1_gamma_A2 = std::sqrt(1.0_rt + gamma/A_2);
+  const Real sqrt_gamma_A2_gamma = std::sqrt(gamma * (A_2 + gamma));
+  const Real sqrt_gamma_A2 = std::sqrt(gamma/A_2);
+
+  f = A_1 * (sqrt_gamma_A2_gamma -
+             A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2))
+      + 2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
+
+  if constexpr (do_T_derivatives) {
+    df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma)
+                        - 0.5_rt / (sqrt_gamma_A2 + sqrt_1_gamma_A2)
+                        * (1.0_rt / sqrt_gamma_A2 + 1.0_rt / sqrt_1_gamma_A2))
+            + A_3 / sqrt_gamma * (1.0_rt - 1.0_rt / (1.0_rt + gamma));
+
+    df_dT *= dgamma_dT;
+  }
+}
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -838,57 +838,22 @@ void chabrier1998 (const plasma_state_t& state,
   Real Gamma2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
   Real Gamma12 = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
 
-  [[maybe_unused]] Real Gamma1dT, Gamma2dT, Gamma12dT;
+  Real Gamma1dT{}, Gamma2dT{}, Gamma12dT{};
   
   if constexpr (do_T_derivatives) {
     Gamma1dT = -Gamma1 / state.temp;
     Gamma2dT = -Gamma2 / state.temp;
     Gamma12dT = -Gamma12 / state.temp;
   }
-  // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
-  
-  const Real A_1 = -0.9052_rt;
-  const Real A_2 = 0.6322_rt;
-  const Real A_3 = -0.5_rt * std::sqrt(3.0_rt) - A_1 / std::sqrt(A_2);
-    
-  // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
-  Real f1 = A_1 * (std::sqrt(Gamma1 * (A_2 + Gamma1)) -
-		   A_2 * std::log(std::sqrt(Gamma1/A_2) + std::sqrt(1.0_rt + Gamma1/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma1) - std::atan(std::sqrt(Gamma1)));
-  
-  Real f2 = A_1 * (std::sqrt(Gamma2 * (A_2 + Gamma2)) -
-		   A_2 * std::log(std::sqrt(Gamma2/A_2) + std::sqrt(1.0_rt + Gamma2/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma2) - std::atan(std::sqrt(Gamma2)));
-  
-  Real f12 = A_1 * (std::sqrt(Gamma12 * (A_2 + Gamma12)) -
-		   A_2 * std::log(std::sqrt(Gamma12/A_2) + std::sqrt(1.0_rt + Gamma12/A_2)))
-    + 2.0_rt * A_3 * (std::sqrt(Gamma12) - std::atan(std::sqrt(Gamma12)));
+  // Helmholtz free energy
 
-  [[maybe_unused]] Real f1dT, f2dT, f12dT;
-  
-  if constexpr (do_T_derivatives) {
-    f1dT = A_1 * ((A_2 + 2.0_rt * Gamma1) / (2.0_rt * std::sqrt(Gamma1 * (A_2 + Gamma1)))
-		       - 0.5_rt / (std::sqrt(Gamma1 / A_2) + std::sqrt(1.0_rt + Gamma1 / A_2))
-		       * (1.0_rt / std::sqrt(Gamma1 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma1 / A_2)))
-      + A_3 / std::sqrt(Gamma1) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma1));
+  Real f1, f2, f12;
+  Real f1dT, f2dT, f12dT;
 
-    f1dT *= Gamma1dT;
-
-    f2dT = A_1 * ((A_2 + 2.0_rt * Gamma2) / (2.0_rt * std::sqrt(Gamma2 * (A_2 + Gamma2)))
-		       - 0.5_rt / (std::sqrt(Gamma2 / A_2) + std::sqrt(1.0_rt + Gamma2 / A_2))
-		       * (1.0_rt / std::sqrt(Gamma2 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma2 / A_2)))
-      + A_3 / std::sqrt(Gamma2) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma2));
-
-    f2dT *= Gamma2dT;
-
-    f12dT = A_1 * ((A_2 + 2.0_rt * Gamma12) / (2.0_rt * std::sqrt(Gamma12 * (A_2 + Gamma12)))
-		       - 0.5_rt / (std::sqrt(Gamma12 / A_2) + std::sqrt(1.0_rt + Gamma12 / A_2))
-		       * (1.0_rt / std::sqrt(Gamma12 / A_2) + 1.0_rt / std::sqrt(1.0_rt + Gamma12 / A_2)))
-      + A_3 / std::sqrt(Gamma12) * (1.0_rt - 1.0_rt / (1.0_rt + Gamma12));
-
-    f12dT *= Gamma12dT;
-  }
+  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma1, Gamma1dT, f1, f1dT);
+  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma2, Gamma2dT, f2, f2dT);
+  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma12, Gamma12dT, f12, f12dT);
   
   // Now we add quantum correction terms discussed in Alastuey 1978.
   // Notice in Alastuey 1978, they have a different classical term,
@@ -1005,32 +970,6 @@ void actual_screen(const plasma_state_t& state,
         actual_screen<do_T_derivatives>(state, scn_fac, scor, scordt);
         scordt = 0.0_rt;
     }
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void screen(const plasma_state_t& state,
-            const int jscreen,
-            MICROPHYSICS_UNUSED const Real z1_screen, MICROPHYSICS_UNUSED const Real a1_screen,
-            MICROPHYSICS_UNUSED const Real z2_screen, MICROPHYSICS_UNUSED const Real a2_screen,
-            Real& scor, Real& scordt, Real& /*scordd*/)
-{
-    using namespace scrn;
-
-#ifndef AMREX_USE_GPU
-    AMREX_ASSERT(scn_facs[jscreen].validate_nuclei(z1_screen, a1_screen, z2_screen, a2_screen));
-#endif
-
-    actual_screen(state, scn_facs[jscreen], scor, scordt);
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void screen(const plasma_state_t& state,
-            const scrn::screen_factors_t& scn_fac,
-            Real& scor, Real& scordt, Real& /*scordd*/)
-{
-    using namespace scrn;
-
-    actual_screen(state, scn_fac, scor, scordt);
 }
 
 #endif

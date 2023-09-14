@@ -183,3 +183,20 @@ jobs:
         run: |
           cd unit_test/test_rhs
           diff test.out ci-benchmarks/triple_alpha_plus_cago.out
+
+      - name: Compile, test_rhs (VODE, ECSN)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=ECSN -j 4
+
+      - name: Run test_rhs (VODE, ECSN)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_ecsn
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_ecsn_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, ECSN)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/ecsn.out

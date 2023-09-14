@@ -20,7 +20,6 @@ $(NETWORK_OUTPUT_PATH)/network_properties.H: $(GENERAL_NET_INPUTS)
 	@if [ ! -d $(NETWORK_OUTPUT_PATH) ]; then mkdir -p $(NETWORK_OUTPUT_PATH); fi
 	$(MICROPHYSICS_HOME)/networks/general_null/write_network.py \
             -s $(GENERAL_NET_INPUTS) \
-            --other_properties $(MICROPHYSICS_HOME)/networks/general_null/NETWORK_PROPERTIES \
             --header_template $(MICROPHYSICS_HOME)/networks/general_null/network_header.template \
             --header_output $(NETWORK_OUTPUT_PATH)/network_properties.H \
             --defines "$(DEFINES)"

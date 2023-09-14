@@ -30,7 +30,6 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/gammalaw.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/")
-    set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/NETWORK_PROPERTIES")
     set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
     set (gamma_law_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include 
@@ -55,7 +54,6 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     #similarly, we want network_properties.H
     set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/pynucastro.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/")
-    set(networkpropertiesfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/NETWORK_PROPERTIES")
     set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
 
     #DO NOT change the order of the directories below!
@@ -88,8 +86,6 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
                                 ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
 
-    #below to update headers
-    execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/update_headers.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" --odir "${output_dir}" WORKING_DIRECTORY ${output_dir}/)
     #below for NAUX
     execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
 
@@ -98,24 +94,24 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
   endif()
 
-  execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" --other_properties "${networkpropertiesfile}" WORKING_DIRECTORY ${output_dir}/)
+  execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
 
 endfunction()
 
 
 #set a cache variable that controls whether
 #we want to fetch and link amrex or not
-set(BUILD_AMREX false CACHE BOOL "Do you want to build and link amrex? (true/false)")
-message("Building and linking amrex -- ${BUILD_AMREX}")
+set(BUILD_AMReX false CACHE BOOL "Do you want to build and link amrex? (true/false)")
+message("Building and linking amrex -- ${BUILD_AMReX}")
 
-if(BUILD_AMREX)
+if(BUILD_AMReX)
    #fetching amrex
-   set (AMREX_TAG "development")
+   set (AMReX_TAG "development")
    include(FetchContent)
    FetchContent_Declare(
      amrex
      GIT_REPOSITORY https://github.com/AMReX-Codes/amrex
-     GIT_TAG "${AMREX_TAG}"
+     GIT_TAG "${AMReX_TAG}"
    )
 
    # CMake 3.14+
