@@ -2,7 +2,7 @@ name: test_neutrinos
 
 on: [pull_request]
 jobs:
-  test_rhs:
+  test_neutrinos:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
