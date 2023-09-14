@@ -1,0 +1,49 @@
+name: test_neutrinos
+
+on: [pull_request]
+jobs:
+  test_rhs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
+
+      - name: Build the fextrema tool
+        run: |
+          cd external/amrex/Tools/Plotfile
+          make programs=fextrema -j 2
+
+      - name: Compile
+        run: |
+          cd unit_test/test_neutrino_cooling
+          make realclean
+          make -j 4
+
+      - name: Run test_neutrino_cooling
+        run: |
+          cd unit_test/test_neutrino_cooling
+          ./main3d.gnu.ex inputs
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex test_sneut5 > test.out
+
+      - name: Compare to stored output
+        run: |
+          cd unit_test/test_neutrino_cooling
+          diff test.out ci-benchmarks/test_sneut5.out
