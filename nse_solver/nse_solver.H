@@ -66,10 +66,10 @@ T get_nonexponent_nse_state(const T& state) {
       // find nse mass frac without the exponent term.
 
       Real power = 2.0 * M_PI * network::mion(n+1) *
-	C::k_B * T_in / (C::hplanck * C::hplanck);
+        C::k_B * T_in / (C::hplanck * C::hplanck);
 
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-	std::sqrt(power * power * power);
+        std::sqrt(power * power * power);
   }
 
   return nse_state;
@@ -133,9 +133,9 @@ void apply_nse_exponent(T& nse_state) {
       // iteration will make it happy again
 
       exponent = amrex::min(500.0_rt,
-			    (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-			     nse_state.mu_n - u_c + network::bion(n+1)) /
-			    C::k_B / T_in * C::Legacy::MeV2erg);
+                            (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
+                             nse_state.mu_n - u_c + network::bion(n+1)) /
+                            C::k_B / T_in * C::Legacy::MeV2erg);
 
       nse_state.xn[n] *= std::exp(exponent);
   }
@@ -274,42 +274,42 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
       for (int j = 0; j < 20; ++j) {
 
-	hj.x(1) = inner_x(1);
-	hj.x(2) = inner_x(2);
+        hj.x(1) = inner_x(1);
+        hj.x(2) = inner_x(2);
 
-	// hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
-	hybrj(hj, state);
+        // hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+        hybrj(hj, state);
 
-	fcn(hj.x, f, state, flag);
+        fcn(hj.x, f, state, flag);
 
-	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
+        if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
 
-	  state.mu_p = hj.x(1);
-	  state.mu_n = hj.x(2);
-	  return;
-	}
+          state.mu_p = hj.x(1);
+          state.mu_n = hj.x(2);
+          return;
+        }
 
-	if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
-	  is_pos_new = true;
-	}
-	else{
-	  is_pos_new = false;
-	}
+        if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
+          is_pos_new = true;
+        }
+        else{
+          is_pos_new = false;
+        }
 
-	if (is_pos_old != is_pos_new) {
-	  dx *= 0.8_rt;
-	}
+        if (is_pos_old != is_pos_new) {
+          dx *= 0.8_rt;
+        }
 
-	if (is_pos_new) {
-	  inner_x(1) -= dx;
-	  inner_x(2) -= dx;
-	}
-	else{
-	  inner_x(1) += dx;
-	  inner_x(2) += dx;
-	}
+        if (is_pos_new) {
+          inner_x(1) -= dx;
+          inner_x(2) -= dx;
+        }
+        else{
+          inner_x(1) += dx;
+          inner_x(2) += dx;
+        }
 
-	is_pos_old = is_pos_new;
+        is_pos_old = is_pos_new;
       }
 
       outer_x(1) -= 0.5_rt;
@@ -422,7 +422,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
     // check whether solution results in nan
 
     if (std::isnan(x(1)) || std::isnan(x(2))) {
-	amrex::Error("Nan encountered, likely due to overflow in digits or not making good progress");
+        amrex::Error("Nan encountered, likely due to overflow in digits or not making good progress");
       }
 
     // update constraint
@@ -488,11 +488,11 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
       if (n == NSE_INDEX::h1_index) {
-	continue;
+        continue;
       }
 #endif
       if (zion[n] != aion[n] - zion[n]) {
-	singular_network = false;
+        singular_network = false;
       }
     }
 

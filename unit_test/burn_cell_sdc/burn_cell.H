@@ -324,8 +324,8 @@ void burn_cell_c()
     state_over_time << std::setw(12) << "Density";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
-	const std::string& element = short_spec_names_cxx[x];
-	state_over_time << std::setw(12) << element; 
+        const std::string& element = short_spec_names_cxx[x];
+        state_over_time << std::setw(12) << element; 
     }
     state_over_time << std::endl;
 
@@ -355,19 +355,19 @@ void burn_cell_c()
 
         std::cout << "burning for dt = " << dt << std::endl;
 
-    	burner(burn_state, dt);
+        burner(burn_state, dt);
 
         nstep_int += burn_state.n_step;
 
         t += dt;
 
-	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << burn_state.rho;
-	state_over_time << std::setw(12) << burn_state.T;
-	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(12) << burn_state.y[SFS+x] / burn_state.rho; 
-	}
-	state_over_time << std::endl;
+        state_over_time << std::setw(10) << t;
+        state_over_time << std::setw(12) << burn_state.rho;
+        state_over_time << std::setw(12) << burn_state.T;
+        for (int x = 0; x < NumSpec; ++x){
+             state_over_time << std::setw(12) << burn_state.y[SFS+x] / burn_state.rho; 
+        }
+        state_over_time << std::endl;
     }
     state_over_time.close();
 

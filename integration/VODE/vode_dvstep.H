@@ -225,9 +225,9 @@ int dvstep (BurnT& state, DvodeT& vstate)
         bool valid_update = true;
 
 #ifdef SDC
-	if (vstate.y(SEINT+1) < 0.0_rt) {
-	    valid_update = false;
-	}
+        if (vstate.y(SEINT+1) < 0.0_rt) {
+            valid_update = false;
+        }
 
         Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
