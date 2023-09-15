@@ -8,7 +8,7 @@
 using namespace amrex;
 using namespace network_rp;
 
-inline 
+inline
 void rates_init()
 {
     // store rates
@@ -65,10 +65,10 @@ void rates_init()
     }
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_c12ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_c12ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     if (use_c12ag_deboer17) {
         // This version computes the nuclear reaction rate for 12C(a,g)16O and its inverse
@@ -209,9 +209,9 @@ void rate_c12ag(const tf_t& tf, const Real den, Real& fr,
 
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_triplealf(const tf_t& tf, const Real den, Real& fr, 
-                  Real& dfrdt, Real& rr, Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_triplealf(const tf_t& tf, const Real den, Real& fr,
+                  Real& dfrdt, Real& rr, Real& drrdt)
 {
     const Real rc28 = 0.1_rt;
     const Real q1 = 1.0_rt / 0.009604e0_rt;
@@ -294,10 +294,10 @@ void rate_triplealf(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_c12c12(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_c12c12(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // c12 + c12 reaction
     // this is the C12(C12,g)Mg24 rate from Caughlin & Fowler (1988)
@@ -328,10 +328,10 @@ void rate_c12c12(const tf_t& tf, const Real den, Real& fr,
     drrdt = 0.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_c12o16(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_c12o16(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // c12 + o16 reaction; see cf88 references 47-4
     Real term, dtermdt;
@@ -363,7 +363,7 @@ void rate_c12o16(const tf_t& tf, const Real den, Real& fr,
 
         zz      = 1.0e0_rt/cc;
         term    = 1.72e31_rt * t9a56 * tf.t9i32 * std::exp(-106.594_rt/t9a13) * zz;
-        dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf.t9i 
+        dtermdt = term*(dt9a56/t9a56 - 1.5e0_rt*tf.t9i
                         + 106.594_rt/t9a23*dt9a13 - zz*dcc);
 
     } else {
@@ -380,20 +380,20 @@ void rate_c12o16(const tf_t& tf, const Real den, Real& fr,
     drrdt = 0.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_o16o16(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_o16o16(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // o16 + o16
     // this is the O16(O16,g)S32 rate from Caughlin & Fowler (1988)
 
     const Real term  = 7.10e36_rt * tf.t9i23 *
-         std::exp(-135.93_rt * tf.t9i13 - 0.629_rt*tf.t923 
+         std::exp(-135.93_rt * tf.t9i13 - 0.629_rt*tf.t923
          - 0.445_rt*tf.t943 + 0.0103_rt*tf.t9*tf.t9);
 
     const Real dtermdt = -2.0_rt/3.0_rt*term*tf.t9i
-         + term * (1.0_rt/3.0_rt*135.93_rt*tf.t9i43 - 2.0_rt/3.0_rt*0.629_rt*tf.t9i13 
+         + term * (1.0_rt/3.0_rt*135.93_rt*tf.t9i43 - 2.0_rt/3.0_rt*0.629_rt*tf.t9i13
          - 4.0_rt/3.0_rt*0.445_rt*tf.t913 + 0.0206_rt*tf.t9);
 
     // rates
@@ -404,10 +404,10 @@ void rate_o16o16(const tf_t& tf, const Real den, Real& fr,
     drrdt = 0.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_o16ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_o16ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real q1 = 1.0e0_rt/2.515396e0_rt;
 
@@ -441,10 +441,10 @@ void rate_o16ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_ne20ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_ne20ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real rc102 = 0.1_rt;
     const Real q1 = 1.0e0_rt/4.923961e0_rt;
@@ -500,10 +500,10 @@ void rate_ne20ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_mg24ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_mg24ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real rc121 = 0.1e0_rt;
 
@@ -546,10 +546,10 @@ void rate_mg24ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_mg24ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_mg24ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real rc148 = 0.1_rt;
     const Real q1 = 1.0_rt / 0.024649e0_rt;
@@ -604,10 +604,10 @@ void rate_mg24ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * dtermdt * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_al27pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_al27pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // al27(p,g)si28
     // champagne 1996
@@ -647,10 +647,10 @@ void rate_al27pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_al27pg_old(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_al27pg_old(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real rc147 = 0.1_rt;
     const Real q1 = 1.0e0_rt/0.024025e0_rt;
@@ -706,10 +706,10 @@ void rate_al27pg_old(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_si28ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_si28ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // si28(a,g)s32
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -725,7 +725,7 @@ void rate_si28ag(const tf_t& tf, const Real den, Real& fr,
 
     const Real term    = 4.82e22_rt * tf.t9i23 * std::exp(-61.015_rt * tf.t9i13 * aa);
     const Real dtermdt = term*(-2.0_rt/3.0_rt*tf.t9i + 61.015_rt*tf.t9i13*(1.0_rt/3.0_rt*tf.t9i*aa - daa));
-  
+
     // the rates
     fr    = den * term;
     dfrdt = den * dtermdt * 1.0e-9_rt;
@@ -737,10 +737,10 @@ void rate_si28ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_si28ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_si28ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // si28(a,p)p31
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -769,10 +769,10 @@ void rate_si28ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * dtermdt * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_p31pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_p31pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // p31(p,g)s32
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -800,10 +800,10 @@ void rate_p31pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_s32ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_s32ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // s32(a,g)ar36
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -831,10 +831,10 @@ void rate_s32ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_s32ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_s32ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // s32(a,p)cl35
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -862,15 +862,15 @@ void rate_s32ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * dtermdt * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_cl35pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_cl35pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // cl35(p,g)ar36
     const Real aa    = 1.0e0_rt + 1.761e-1_rt*tf.t9 - 1.322e-2_rt*tf.t92 + 5.245e-4_rt*tf.t93;
     const Real daa   = 1.761e-1_rt - 2.0e0_rt*1.322e-2_rt*tf.t9 + 3.0e0_rt*5.245e-4_rt*tf.t92;
-  
+
     const Real term    =  4.48e16_rt * tf.t9i23 * std::exp(-29.483_rt * tf.t9i13 * aa);
     const Real dtermdt = term*(-2.0_rt/3.0_rt*tf.t9i + 29.483_rt*tf.t9i13*(1.0_rt/3.0_rt*tf.t9i*aa - daa));
 
@@ -885,10 +885,10 @@ void rate_cl35pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_ar36ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_ar36ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // ar36(a,g)ca40
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -916,10 +916,10 @@ void rate_ar36ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_ar36ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_ar36ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // ar36(a,p)k39
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -947,10 +947,10 @@ void rate_ar36ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * dtermdt * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_k39pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_k39pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // k39(p,g)ca40
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -978,10 +978,10 @@ void rate_k39pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_ca40ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_ca40ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // ca40(a,g)ti44
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1009,10 +1009,10 @@ void rate_ca40ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_ca40ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_ca40ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // ca40(a,p)sc43
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1040,10 +1040,10 @@ void rate_ca40ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * dtermdt * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_sc43pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_sc43pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // sc43(p,g)ca40
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1071,10 +1071,10 @@ void rate_sc43pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_ti44ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_ti44ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // ti44(a,g)cr48
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1102,10 +1102,10 @@ void rate_ti44ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_ti44ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_ti44ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // ti44(a,p)v47
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1133,10 +1133,10 @@ void rate_ti44ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * dtermdt * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_v47pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_v47pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // v47(p,g)cr48
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1164,10 +1164,10 @@ void rate_v47pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_cr48ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_cr48ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // cr48(a,g)fe52
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1195,10 +1195,10 @@ void rate_cr48ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_cr48ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_cr48ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // cr48(a,p)mn51
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1226,10 +1226,10 @@ void rate_cr48ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_mn51pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_mn51pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // mn51(p,g)fe52
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1257,10 +1257,10 @@ void rate_mn51pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe52ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe52ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe52(a,g)ni56
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1288,10 +1288,10 @@ void rate_fe52ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe52ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe52ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe52(a,p)co55
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1319,10 +1319,10 @@ void rate_fe52ap(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_co55pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_co55pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // co55(p,g)ni56
     const Real z     = amrex::min(tf.t9, 10.0e0_rt);
@@ -1350,10 +1350,10 @@ void rate_co55pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_pp(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_pp(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // p(p,e+nu)d
     Real term, dtermdt;
@@ -1380,10 +1380,10 @@ void rate_pp(const tf_t& tf, const Real den, Real& fr,
     drrdt = 0.0e0_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_png(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_png(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // p(n,g)d
     // smith,kawano,malany 1992
@@ -1417,10 +1417,10 @@ void rate_png(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_dpg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_dpg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // d(p,g)he3
     const Real aa      = 2.24e3_rt * tf.t9i23 * std::exp(-3.720_rt*tf.t9i13);
@@ -1443,10 +1443,10 @@ void rate_dpg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_he3ng(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_he3ng(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // he3(n,g)he4
     const Real term    = 6.62_rt * (1.0e0_rt + 905.0_rt*tf.t9);
@@ -1463,10 +1463,10 @@ void rate_he3ng(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_he3he3(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_he3he3(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // he3(he3,2p)he4
     const Real aa   = 6.04e10_rt * tf.t9i23 * std::exp(-12.276_rt*tf.t9i13);
@@ -1491,10 +1491,10 @@ void rate_he3he3(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * den * (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_he3he4(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_he3he4(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // he3(he4,g)be7
     const Real aa      = 1.0e0_rt + 0.0495_rt*tf.t9;
@@ -1526,10 +1526,10 @@ void rate_he3he4(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_c12pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_c12pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real q1 = 1.0e0_rt/2.25e0_rt;
 
@@ -1565,11 +1565,11 @@ void rate_c12pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_n14pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
-{   
+AMREX_GPU_HOST_DEVICE inline
+void rate_n14pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
+{
     const Real q1 = 1.0e0_rt/10.850436e0_rt;
 
     // n14(p,g)o15
@@ -1604,10 +1604,10 @@ void rate_n14pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_n15pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_n15pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real q1 = 1.0_rt / 0.2025_rt;
 
@@ -1646,10 +1646,10 @@ void rate_n15pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_n15pa(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_n15pa(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real theta = 0.1_rt;
     const Real q1 = 1.0_rt / 0.272484_rt;
@@ -1692,10 +1692,10 @@ void rate_n15pa(const tf_t& tf, const Real den, Real& fr,
     drrdt = den * (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_o16pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_o16pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // o16(p,g)f17
     const Real aa  = std::exp(-0.728_rt*tf.t923);
@@ -1728,10 +1728,10 @@ void rate_o16pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_n14ag(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_n14ag(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     const Real q1 = 1.0e0_rt/0.776161e0_rt;
 
@@ -1770,10 +1770,10 @@ void rate_n14ag(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt*term + rev*dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe52ng(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe52ng(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe52(n,g)fe53
     const Real tq2     = tf.t9 - 0.348e0_rt;
@@ -1791,10 +1791,10 @@ void rate_fe52ng(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe53ng(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe53ng(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe53(n,g)fe54
     const Real tq1   = tf.t9/0.348_rt;
@@ -1816,10 +1816,10 @@ void rate_fe53ng(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe54ng(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe54ng(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe54(n,g)fe55
     const Real aa   =  2.307390e1_rt - 7.931795e-02_rt * tf.t9i + 7.535681e0_rt * tf.t9i13
@@ -1851,10 +1851,10 @@ void rate_fe54ng(const tf_t& tf, const Real den, Real& fr,
     dfrdt = dtermdt*den;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe54pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe54pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe54(p,g)co55
     const Real z     = amrex::min(tf.t9,10.0e0_rt);
@@ -1882,10 +1882,10 @@ void rate_fe54pg(const tf_t& tf, const Real den, Real& fr,
     drrdt = (drevdt * term + rev * dtermdt) * 1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe54ap(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe54ap(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe54(a,p)co57
     const Real aa   =  3.97474900e1_rt - 6.06543100e0_rt * tf.t9i + 1.63239600e2_rt * tf.t9i13
@@ -1917,10 +1917,10 @@ void rate_fe54ap(const tf_t& tf, const Real den, Real& fr,
     dfrdt = drrdt*bb + rr*dbb*1.0e-9_rt;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe55ng(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe55ng(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe55(n,g)fe56
     const Real aa   =  1.954115e1_rt - 6.834029e-02_rt * tf.t9i + 5.379859e0_rt * tf.t9i13
@@ -1952,10 +1952,10 @@ void rate_fe55ng(const tf_t& tf, const Real den, Real& fr,
     dfrdt = dtermdt*den;
 }
 
-AMREX_GPU_HOST_DEVICE inline 
-void rate_fe56pg(const tf_t& tf, const Real den, Real& fr, 
-                Real& dfrdt, Real& rr, 
-                Real& drrdt) 
+AMREX_GPU_HOST_DEVICE inline
+void rate_fe56pg(const tf_t& tf, const Real den, Real& fr,
+                Real& dfrdt, Real& rr,
+                Real& drrdt)
 {
     // fe56(p,g)co57
 
@@ -1999,10 +1999,10 @@ void rate_fe56pg(const tf_t& tf, const Real den, Real& fr,
 // output:
 // rn56ec = ni56 electron capture rate
 // sn56ec = ni56 neutrino loss rate
-AMREX_GPU_HOST_DEVICE inline 
-void langanke(const Real btemp, const Real bden, 
-              const Real y56, const Real ye, 
-              Real& rn56ec, Real& sn56ec) 
+AMREX_GPU_HOST_DEVICE inline
+void langanke(const Real btemp, const Real bden,
+              const Real y56, const Real ye,
+              Real& rn56ec, Real& sn56ec)
 {
     // calculate ni56 electron capture and neutrino loss rates
     rn56ec = 0.0_rt;
@@ -2056,10 +2056,10 @@ void langanke(const Real btemp, const Real bden,
 // positron capture on neutrons rnep (captures/sec/neutron),
 // and their associated neutrino energy loss rates
 // spenc (erg/sec/proton) and snepc (erg/sec/neutron)
-AMREX_GPU_HOST_DEVICE inline 
-void ecapnuc(const Real etakep, const Real temp, 
-             Real& rpen, Real& rnep, 
-             Real& spenc, Real& snepc) 
+AMREX_GPU_HOST_DEVICE inline
+void ecapnuc(const Real etakep, const Real temp,
+             Real& rpen, Real& rnep,
+             Real& spenc, Real& snepc)
 {
     const Real qn1    = -2.0716446e-06_rt;
     const Real ftinv  = 1.0e0_rt/1083.9269e0_rt;

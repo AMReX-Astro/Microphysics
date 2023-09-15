@@ -34,7 +34,7 @@ T get_nonexponent_nse_state(const T& state) {
   T nse_state = state;
 
   // set partition function and spin
-  
+
   amrex::Real pf = 1.0_rt;
   [[maybe_unused]] amrex::Real dpf_dT;
   amrex::Real spin = 1.0_rt;
@@ -102,7 +102,7 @@ void apply_nse_exponent(T& nse_state) {
 #endif
 
   amrex::Real u_c = 0.0_rt;
-  
+
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
       if (n == NSE_INDEX::h1_index) {
@@ -162,7 +162,7 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
     amrex::ignore_unused(iflag);
-  
+
     T nse_state = state;
     nse_state.mu_p = x(1);
     nse_state.mu_n = x(2);
@@ -198,7 +198,7 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
     amrex::ignore_unused(iflag);
-  
+
     T nse_state = state;
     nse_state.mu_p = x(1);
     nse_state.mu_n = x(2);
@@ -355,10 +355,10 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
   // store determinant for finding inverse jac
   amrex::Real det;
-  
+
   // store inverse jacobian
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;
-  
+
   // difference in chemical potential of proton and neutron
   amrex::Real d_mu_p = std::numeric_limits<Real>::max();
   amrex::Real d_mu_n = std::numeric_limits<Real>::max();
@@ -511,7 +511,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
   state.mu_p = nse_state.mu_p;
   state.mu_n = nse_state.mu_n;
- 
+
   return nse_state;
 }
 #endif

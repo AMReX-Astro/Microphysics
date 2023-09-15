@@ -247,7 +247,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
 #ifdef MICROPHYSICS_DEBUG
-#ifndef AMREX_USE_GPU 
+#ifndef AMREX_USE_GPU
                std::cout << "rejecting step based on species " << i << " from " << y_save(i) << " to " << vstate.y(i) << std::endl;
 #endif
 #endif

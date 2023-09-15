@@ -93,7 +93,7 @@ void actual_integrator (BurnT& state, Real dt)
     integrator_to_burn(vode_state, state);
 
 #ifdef NSE
-    // compute the temperature based on the energy release -- we need 
+    // compute the temperature based on the energy release -- we need
     // this in case we failed in our burn here because we entered NSE
 
 #ifdef AUX_THERMO

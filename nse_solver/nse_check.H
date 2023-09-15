@@ -35,7 +35,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
   if (NSE_INDEX::h1_index == -1 || NSE_INDEX::he4_index == -1) {
     amrex::Error("Need proton and helium-4 in the network for NSE_NET to work");
   }
-  
+
   // If there are proton, or helium in the network
 
   // Check if n,p,a are in equilibrium
@@ -655,11 +655,11 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
   // This function checks whether all isotopes are either in the LIG group
   // or in another single group.
-  
+
   int LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind);
 
   int nonLIG_index = -1;
-  
+
   int oddN_group = -1;
   int evenN_group = -1;
 
@@ -681,7 +681,7 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
       in_single_group = false;
       break;
     }
-    
+
   }
 
   // If there no neutrons are in the network and original condition failed
@@ -689,7 +689,7 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   // There seems to be two big groups after Si28 in NSE:
   // 1) isotopes with even N
   // 2) isotopes with odd N
-  
+
   if (NSE_INDEX::n_index == -1 && !in_single_group) {
 
     in_single_group = true;
@@ -731,7 +731,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
                      const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
                      const amrex::Array1D<int, 1, NumSpec>& group_ind,
                      const amrex::Real& t_s) {
-  
+
   // This function fills in the merge index of the current rate.
   // The timescale of the current rate must be shorter (faster) than fastest_t
 
@@ -756,15 +756,15 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     if (NSE_INDEX::rate_indices(current_rate, k) == -1) {
       continue;
     }
-    
+
     if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
         && NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
         && NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
         ) {
       ++m;
-          
+
       // skip if there are more than 2 non neutron, proton, or helium-4 in the rate
-      
+
       if (m > 2) {
         return;
       }
@@ -794,7 +794,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
       if (root_index == nonLIG_root) {
         return;
-      } 
+      }
       nonLIG_root = root_index;
     }
   }
@@ -804,7 +804,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   if (num_nonLIG == 0 || num_nonLIG > 2) {
     return;
   }
-  
+
   // Find the Y_group of the nuclei involved in the net
   // Y_group are the group molar fractions corresponding to the reactants and products
   // first 3 for reactants, last 3 for products
@@ -817,9 +817,9 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
       continue;
     }
     root_index = get_root_index(NSE_INDEX::rate_indices(current_rate, k), group_ind);
-    
+
     // let LIG group use their own Y instead of Y_group. (not sure if this is true)
-    
+
     if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
         Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
     }
@@ -856,7 +856,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     }
     b_r *= Y(NSE_INDEX::rate_indices(current_rate, 5) + 1) * state.rho;
   }
-  
+
   // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
 
   amrex::Real t_i = Y_group(nonNPA_ind(1)) / amrex::min(b_f, b_r);
@@ -865,7 +865,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
   }
 
   // return if current rate timescale is larger (slower) than previous time scale.
-  
+
   if (fastest_t < t_i) {
     return;
   }
@@ -921,12 +921,12 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
       group_ind(i) = 1;
     }
   }
-  
+
   // Now do the grouping based on the timescale.
-  
+
   amrex::Array1D<int, 1, 2> merge_indices;
   amrex::Real fastest_t;
- 
+
   // Go through each reaction and perform grouping
 
   while(true) {
@@ -960,7 +960,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
   // This function returns the boolean that tells whether we're in nse or not
   // Note that it only works with pynucastro network for now.
-  
+
 #ifndef NEW_NETWORK_IMPLEMENTATION
 
   current_state.nse = false;
@@ -987,7 +987,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     state.xn[n] = current_state.y[SFS+n] / current_state.rho;
   }
 #endif
-  
+
   // Check whether state is in the ballpark of NSE
 
   if (!skip_molar_check) {
@@ -1000,7 +1000,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // A simple temperature criteria after molar fraction check for determining NSE state
   // By default, T_nse_net = -1.0
   // So this is only enabled if the user provides value in the input file
-  
+
   if (T_nse_net > 0.0_rt && T_in > T_nse_net) {
       current_state.nse = true;
     return current_state.nse;
@@ -1011,7 +1011,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // the thermodynamic condition.
   // Note we only do this after the first check, which should tell us whether
   // our current mass fractions are in the ballpark of NSE mass fractions.
-  
+
   if (nse_molar_independent || skip_molar_check) {
     state = nse_state;
     state.dx = current_state.dx;
@@ -1050,7 +1050,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   if (!nse_dx_independent) {
     burn_to_eos(state, eos_state);
     eos(eos_input_rt, eos_state);
-    
+
     // a parameter to characterize whether a rate is fast enough
 
     t_s = state.dx / eos_state.cs;
@@ -1079,7 +1079,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // fill in energy generation rate to ydot
 
   ydot(NumSpec + 1) = enuc - sneut;
-  
+
   bool found_fast_reaction_cycle = true;
 
   // Additional constraint if there is neutron in the network:

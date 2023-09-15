@@ -18,7 +18,7 @@ void update_density_in_time(const Real time, BurnT& state)
     //
     // we are always integrating from t = 0, so there is no offset
     // time needed here.  The indexing of ydot_a is based on
-    // the indices in burn_t and is 0-based    
+    // the indices in burn_t and is 0-based
     state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
 
     // for consistency
