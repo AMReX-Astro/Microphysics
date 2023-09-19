@@ -25,7 +25,8 @@ Real ifermi12(const Real f)
     // the return value
     Real ifermi12r;
 
-    // load the coefficients of the expansion
+    // load the coefficients of the expansion from Table 8 of Antia
+
     an = 0.5e0_rt;
     m1 = 4;
     k1 = 3;
@@ -60,36 +61,55 @@ Real ifermi12(const Real f)
 
     if (f < 4.0e0_rt) {
 
-       rn  = f + a1(m1);
+        // build sum_{i=0, m1} a_i x**i.  This is the numerator
+        // in Eq. 4 of Antia.
+        //
+        // with our 1-based indexing, this expression is
+        // a[1] + a[2] * f + a[3] * f**2 + ... a[m1+1] * f**m1
+        //
+        // we do the sum starting with the largest term and working
+        // on a single power of f each iteration.
+        //
+        // in the starting rn here, the leading f is actually
+        // a1(m1+1) * f, but that element is 1
+        rn  = f + a1(m1);
 
-       for (int i = m1 - 1; i >= 1; --i) {
-          rn  = rn*f + a1(i);
-       }
+        for (int i = m1 - 1; i >= 1; --i) {
+            rn  = rn*f + a1(i);
+        }
 
-       den = b1(k1+1);
+        // now we do the denominator in Eq. 4.  None of the coefficients
+        // are 1, so we loop over all
+        den = b1(k1+1);
 
-       for (int i = k1; i >= 1; --i) {
-          den = den*f + b1(i);
-       }
+        for (int i = k1; i >= 1; --i) {
+            den = den*f + b1(i);
+        }
 
-       ifermi12r = std::log(f * rn/den);
+        // Eq. 6 of Antia
+
+        ifermi12r = std::log(f * rn/den);
 
     } else {
 
-       ff = 1.0e0_rt/std::pow(f, 1.0e0_rt/(1.0e0_rt + an));
-       rn = ff + a2(m2);
+        ff = 1.0e0_rt/std::pow(f, 1.0e0_rt/(1.0e0_rt + an));
 
-       for (int i = m2 - 1; i >= 1; --i) {
-          rn = rn*ff + a2(i);
-       }
+        // this construction is the same as above, but using the
+        // second set of coefficients
 
-       den = b2(k2+1);
+        rn = ff + a2(m2);
 
-       for (int i = k2; i >= 1; --i) {
-          den = den*ff + b2(i);
-       }
+        for (int i = m2 - 1; i >= 1; --i) {
+            rn = rn*ff + a2(i);
+        }
 
-       ifermi12r = rn/(den*ff);
+        den = b2(k2+1);
+
+        for (int i = k2; i >= 1; --i) {
+            den = den*ff + b2(i);
+        }
+
+        ifermi12r = rn/(den*ff);
 
     }
 
@@ -113,7 +133,8 @@ Real zfermim12(const Real x)
     // return value
     Real zfermim12r;
 
-    // load the coefficients of the expansion
+    // load the coefficients of the expansion from Table 2 of Antia
+
     m1 = 7;
     k1 = 7;
     m2 = 11;
