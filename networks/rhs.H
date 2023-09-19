@@ -1348,9 +1348,10 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
 
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
+    constexpr int do_derivatives{0};
     Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
-    sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
+    sneut5<do_derivatives>(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
+                           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
     Real sneut = 0.0;
 #endif
@@ -1495,8 +1496,9 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
     Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
-    sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
+    constexpr int do_derivatives{1};
+    sneut5<do_derivatives>(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
+                           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
     Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, dsnuda = 0.0, dsnudz = 0.0;
     amrex::ignore_unused(sneut, dsneutdd);
