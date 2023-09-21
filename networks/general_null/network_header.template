@@ -23,9 +23,7 @@
 
 constexpr int NumSpec = @@NSPEC@@;
 
-#define NUM_EXTRA_SPECIES @@NEXTRASPEC@@
-
-constexpr int NumSpecExtra = NUM_EXTRA_SPECIES;
+constexpr int NumSpecExtra = @@NEXTRASPEC@@;
 
 constexpr int NumSpecTotal = NumSpec + NumSpecExtra;
 

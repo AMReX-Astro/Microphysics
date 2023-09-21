@@ -14,7 +14,7 @@ const int INT_NEQS = SVAR_EVOLVE;
 #endif
 
 #ifdef TRUE_SDC
-const int INT_NEQS = NumSpec + 2;
+const int INT_NEQS = NumSpec + 1;
 #endif
 
 
@@ -56,7 +56,7 @@ constexpr int integrator_neqs ()
 #endif
 
 #ifdef TRUE_SDC
-    int_neqs = NumSpec + 2;
+    int_neqs = NumSpec + 1;
 #endif
 
     return int_neqs;
