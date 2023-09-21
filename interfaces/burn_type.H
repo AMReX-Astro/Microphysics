@@ -131,12 +131,6 @@ struct burn_t
   // dx is useful for estimating timescales for equilibriation
   Real dx;
 
-#ifdef TRUE_SDC
-  Real E_var;
-  Real mom[3];
-  Real f_source[NumSpec+2];
-#endif
-
   Real mu;
   Real mu_e;
   Real y_e;
