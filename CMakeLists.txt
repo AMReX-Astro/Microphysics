@@ -63,7 +63,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks 
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants 
-                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null PARENT_SCOPE)
+                             PARENT_SCOPE)
 
     #we need to have extern_parameters.cpp be available at configure time
     #the script write_probin.py writes this .cpp file so we call it here
