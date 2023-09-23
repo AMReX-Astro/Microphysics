@@ -123,7 +123,7 @@ void actual_eos (I input, T& state)
                 state.gam1 = gamma_const;
 
                 // sound speed
-                state.cs = sqrt(gamma_const * poverrho);
+                state.cs = std::sqrt(gamma_const * poverrho);
 
                 state.dpdr_e = poverrho;
                 state.dpde = (gamma_const - 1.0_rt) * state.rho;

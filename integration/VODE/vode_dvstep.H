@@ -149,7 +149,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         y_save(i) = vstate.y(i);
     }
 #endif
-#ifdef SIMPLIFIED_SDC
+#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
     Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
@@ -224,7 +224,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         bool valid_update = true;
 
-#ifdef SIMPLIFIED_SDC
+#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
 	if (vstate.y(SEINT+1) < 0.0_rt) {
 	    valid_update = false;
 	}
@@ -271,7 +271,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
 #endif
 
-#ifdef SIMPLIFIED_SDC
+#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
 
             // these are basically the same checks as with Strang
             // above, except now we are evolving rhoX instead of X.
@@ -302,24 +302,6 @@ int dvstep (BurnT& state, DvodeT& vstate)
             }
 
 #endif
-
-#ifdef TRUE_SDC
-            // as above, we want to make sure that the mass fractions stay bounded, but we are
-            // evolving:
-            //
-            //  y(1) = density
-            //  y(2:2+NumSpec-1) = rho X
-            //  y(NumSpec+2) = rho e
-
-            if (vstate.y(1+i) < -species_failure_tolerance * vstate.y(1)) {
-                valid_update = false;
-            }
-
-            if (vstate.y(1+i) > (1.0_rt + species_failure_tolerance) * vstate.y(1)) {
-                valid_update = false;
-            }
-#endif
-
 
         }
 
