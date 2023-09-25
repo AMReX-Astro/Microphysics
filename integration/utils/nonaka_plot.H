@@ -25,7 +25,7 @@ void nonaka_init() {
     std::stringstream ss;
     ss << std::setw(FIELD_WIDTH) << "time" << " ";
 
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
     ss << std::setw(FIELD_WIDTH) << "sdc-iter" << " ";
 #endif
 
@@ -80,7 +80,7 @@ void nonaka_rhs(const Real time, const BurnT& state, const YdotNetArray1D& ydot_
 
         nf << std::setw(FIELD_WIDTH) << simulation_time << " ";
 
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
         nf << std::setw(FIELD_WIDTH) << state.sdc_iter << " ";
 #endif
 

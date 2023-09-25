@@ -149,7 +149,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         y_save(i) = vstate.y(i);
     }
 #endif
-#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
+#ifdef SDC
     Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
@@ -224,7 +224,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         bool valid_update = true;
 
-#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
+#ifdef SDC
 	if (vstate.y(SEINT+1) < 0.0_rt) {
 	    valid_update = false;
 	}
@@ -271,7 +271,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
 #endif
 
-#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
+#ifdef SDC
 
             // these are basically the same checks as with Strang
             // above, except now we are evolving rhoX instead of X.
