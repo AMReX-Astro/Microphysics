@@ -26,9 +26,6 @@ struct rkc_t {
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
     amrex::Real rtol_enuc, atol_enuc;
-#ifdef TRUE_SDC
-    amrex::Real rtol_dens, atol_dens;
-#endif
 
     // RKC had an info array with 4 elements
 
