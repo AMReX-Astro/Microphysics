@@ -12,7 +12,6 @@
 #include <sneut5.H>
 #include <reaclib_rates.H>
 #include <table_rates.H>
-#include <extern_parameters.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
@@ -22,7 +21,6 @@ using namespace Rates;
 
 using namespace rate_tables;
 
-using namespace network_rp;
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -59,7 +57,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     // Calculate Reaclib rates
 
-    plasma_state_t pstate;
+    plasma_state_t pstate{};
     fill_plasma_state(pstate, state.T, state.rho, Y);
 
     tf_t tfactors = evaluate_tfactors(state.T);
@@ -72,7 +70,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     Real ratraw, dratraw_dT;
     Real scor, dscor_dt;
-    Real scor2, dscor2_dt;
+    [[maybe_unused]] Real scor2, dscor2_dt;
 
 
     {
@@ -86,25 +84,25 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     }
 
 
-    ratraw = rate_eval.screened_rates(k_c12_c12__he4_ne20);
-    rate_eval.screened_rates(k_c12_c12__he4_ne20) *= scor;
+    ratraw = rate_eval.screened_rates(k_c12_c12_to_he4_ne20);
+    rate_eval.screened_rates(k_c12_c12_to_he4_ne20) *= scor;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__he4_ne20);
-        rate_eval.dscreened_rates_dT(k_c12_c12__he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12_to_he4_ne20);
+        rate_eval.dscreened_rates_dT(k_c12_c12_to_he4_ne20) = ratraw * dscor_dt + dratraw_dT * scor;
     }
 
-    ratraw = rate_eval.screened_rates(k_c12_c12__n_mg23);
-    rate_eval.screened_rates(k_c12_c12__n_mg23) *= scor;
+    ratraw = rate_eval.screened_rates(k_c12_c12_to_n_mg23);
+    rate_eval.screened_rates(k_c12_c12_to_n_mg23) *= scor;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__n_mg23);
-        rate_eval.dscreened_rates_dT(k_c12_c12__n_mg23) = ratraw * dscor_dt + dratraw_dT * scor;
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12_to_n_mg23);
+        rate_eval.dscreened_rates_dT(k_c12_c12_to_n_mg23) = ratraw * dscor_dt + dratraw_dT * scor;
     }
 
-    ratraw = rate_eval.screened_rates(k_c12_c12__p_na23);
-    rate_eval.screened_rates(k_c12_c12__p_na23) *= scor;
+    ratraw = rate_eval.screened_rates(k_c12_c12_to_p_na23);
+    rate_eval.screened_rates(k_c12_c12_to_p_na23) *= scor;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12__p_na23);
-        rate_eval.dscreened_rates_dT(k_c12_c12__p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_c12_c12_to_p_na23);
+        rate_eval.dscreened_rates_dT(k_c12_c12_to_p_na23) = ratraw * dscor_dt + dratraw_dT * scor;
     }
 
 
@@ -119,11 +117,11 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     }
 
 
-    ratraw = rate_eval.screened_rates(k_he4_c12__o16);
-    rate_eval.screened_rates(k_he4_c12__o16) *= scor;
+    ratraw = rate_eval.screened_rates(k_he4_c12_to_o16);
+    rate_eval.screened_rates(k_he4_c12_to_o16) *= scor;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_c12__o16);
-        rate_eval.dscreened_rates_dT(k_he4_c12__o16) = ratraw * dscor_dt + dratraw_dT * scor;
+        dratraw_dT = rate_eval.dscreened_rates_dT(k_he4_c12_to_o16);
+        rate_eval.dscreened_rates_dT(k_he4_c12_to_o16) = ratraw * dscor_dt + dratraw_dT * scor;
     }
 
 
@@ -147,34 +145,34 @@ void rhs_nuc(const burn_t& state,
     using namespace Rates;
 
     ydot_nuc(N) =
-        -screened_rates(k_n__p__weak__wc12)*Y(N) +
-        0.5*screened_rates(k_c12_c12__n_mg23)*std::pow(Y(C12), 2)*state.rho;
+        -screened_rates(k_n_to_p_weak_wc12)*Y(N) +
+        0.5*screened_rates(k_c12_c12_to_n_mg23)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(H1) =
-        0.5*screened_rates(k_c12_c12__p_na23)*std::pow(Y(C12), 2)*state.rho +
-        screened_rates(k_n__p__weak__wc12)*Y(N);
+        0.5*screened_rates(k_c12_c12_to_p_na23)*std::pow(Y(C12), 2)*state.rho +
+        screened_rates(k_n_to_p_weak_wc12)*Y(N);
 
     ydot_nuc(He4) =
-        0.5*screened_rates(k_c12_c12__he4_ne20)*std::pow(Y(C12), 2)*state.rho +
-        -screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho;
+        0.5*screened_rates(k_c12_c12_to_he4_ne20)*std::pow(Y(C12), 2)*state.rho +
+        -screened_rates(k_he4_c12_to_o16)*Y(C12)*Y(He4)*state.rho;
 
     ydot_nuc(C12) =
-        -screened_rates(k_c12_c12__he4_ne20)*std::pow(Y(C12), 2)*state.rho +
-        -screened_rates(k_c12_c12__p_na23)*std::pow(Y(C12), 2)*state.rho +
-        -screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho +
-        -screened_rates(k_c12_c12__n_mg23)*std::pow(Y(C12), 2)*state.rho;
+        -screened_rates(k_c12_c12_to_he4_ne20)*std::pow(Y(C12), 2)*state.rho +
+        -screened_rates(k_c12_c12_to_p_na23)*std::pow(Y(C12), 2)*state.rho +
+        -screened_rates(k_he4_c12_to_o16)*Y(C12)*Y(He4)*state.rho +
+        -screened_rates(k_c12_c12_to_n_mg23)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(O16) =
-        screened_rates(k_he4_c12__o16)*Y(C12)*Y(He4)*state.rho;
+        screened_rates(k_he4_c12_to_o16)*Y(C12)*Y(He4)*state.rho;
 
     ydot_nuc(Ne20) =
-        0.5*screened_rates(k_c12_c12__he4_ne20)*std::pow(Y(C12), 2)*state.rho;
+        0.5*screened_rates(k_c12_c12_to_he4_ne20)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(Na23) =
-        0.5*screened_rates(k_c12_c12__p_na23)*std::pow(Y(C12), 2)*state.rho;
+        0.5*screened_rates(k_c12_c12_to_p_na23)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(Mg23) =
-        0.5*screened_rates(k_c12_c12__n_mg23)*std::pow(Y(C12), 2)*state.rho;
+        0.5*screened_rates(k_c12_c12_to_n_mg23)*std::pow(Y(C12), 2)*state.rho;
 
 }
 
@@ -211,9 +209,9 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // Get the thermal neutrino losses
 
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
     constexpr int do_derivatives{0};
-    sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+    sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 
     // Append the energy equation (this is erg/g/s)
 
@@ -232,43 +230,43 @@ void jac_nuc(const burn_t& state,
 
     Real scratch;
 
-    scratch = -screened_rates(k_n__p__weak__wc12);
+    scratch = -screened_rates(k_n_to_p_weak_wc12);
     jac.set(N, N, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12__n_mg23)*Y(C12)*state.rho;
+    scratch = 1.0*screened_rates(k_c12_c12_to_n_mg23)*Y(C12)*state.rho;
     jac.set(N, C12, scratch);
 
-    scratch = screened_rates(k_n__p__weak__wc12);
+    scratch = screened_rates(k_n_to_p_weak_wc12);
     jac.set(H1, N, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12__p_na23)*Y(C12)*state.rho;
+    scratch = 1.0*screened_rates(k_c12_c12_to_p_na23)*Y(C12)*state.rho;
     jac.set(H1, C12, scratch);
 
-    scratch = -screened_rates(k_he4_c12__o16)*Y(C12)*state.rho;
+    scratch = -screened_rates(k_he4_c12_to_o16)*Y(C12)*state.rho;
     jac.set(He4, He4, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12__he4_ne20)*Y(C12)*state.rho - screened_rates(k_he4_c12__o16)*Y(He4)*state.rho;
+    scratch = 1.0*screened_rates(k_c12_c12_to_he4_ne20)*Y(C12)*state.rho - screened_rates(k_he4_c12_to_o16)*Y(He4)*state.rho;
     jac.set(He4, C12, scratch);
 
-    scratch = -screened_rates(k_he4_c12__o16)*Y(C12)*state.rho;
+    scratch = -screened_rates(k_he4_c12_to_o16)*Y(C12)*state.rho;
     jac.set(C12, He4, scratch);
 
-    scratch = -2.0*screened_rates(k_c12_c12__he4_ne20)*Y(C12)*state.rho - 2.0*screened_rates(k_c12_c12__n_mg23)*Y(C12)*state.rho - 2.0*screened_rates(k_c12_c12__p_na23)*Y(C12)*state.rho - screened_rates(k_he4_c12__o16)*Y(He4)*state.rho;
+    scratch = -2.0*screened_rates(k_c12_c12_to_he4_ne20)*Y(C12)*state.rho - 2.0*screened_rates(k_c12_c12_to_n_mg23)*Y(C12)*state.rho - 2.0*screened_rates(k_c12_c12_to_p_na23)*Y(C12)*state.rho - screened_rates(k_he4_c12_to_o16)*Y(He4)*state.rho;
     jac.set(C12, C12, scratch);
 
-    scratch = screened_rates(k_he4_c12__o16)*Y(C12)*state.rho;
+    scratch = screened_rates(k_he4_c12_to_o16)*Y(C12)*state.rho;
     jac.set(O16, He4, scratch);
 
-    scratch = screened_rates(k_he4_c12__o16)*Y(He4)*state.rho;
+    scratch = screened_rates(k_he4_c12_to_o16)*Y(He4)*state.rho;
     jac.set(O16, C12, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12__he4_ne20)*Y(C12)*state.rho;
+    scratch = 1.0*screened_rates(k_c12_c12_to_he4_ne20)*Y(C12)*state.rho;
     jac.set(Ne20, C12, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12__p_na23)*Y(C12)*state.rho;
+    scratch = 1.0*screened_rates(k_c12_c12_to_p_na23)*Y(C12)*state.rho;
     jac.set(Na23, C12, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12__n_mg23)*Y(C12)*state.rho;
+    scratch = 1.0*screened_rates(k_c12_c12_to_n_mg23)*Y(C12)*state.rho;
     jac.set(Mg23, C12, scratch);
 
 
@@ -308,12 +306,12 @@ void actual_jac(const burn_t& state, MatrixType& jac)
 
     // Account for the thermal neutrino losses
 
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
     constexpr int do_derivatives{1};
-    sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
+    sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 
     for (int j = 1; j <= NumSpec; ++j) {
-       Real b1 = (-state.abar * state.abar * snuda + (zion[j-1] - state.zbar) * state.abar * snudz);
+       Real b1 = (-state.abar * state.abar * dsnuda + (zion[j-1] - state.zbar) * state.abar * dsnudz);
        jac.add(net_ienuc, j, -b1);
     }
 
