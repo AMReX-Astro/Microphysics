@@ -341,9 +341,9 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_f20_to_ne20)*Y(F20) + screened_rates(k_ne20_to_f20)*Y(Ne20));
 
     ydot_nuc(Ne20) =
+        (screened_rates(k_f20_to_ne20)*Y(F20) + -screened_rates(k_ne20_to_f20)*Y(Ne20)) +
         (screened_rates(k_he4_o16_to_ne20)*Y(He4)*Y(O16)*state.rho + -screened_rates(k_ne20_to_he4_o16)*Y(Ne20)) +
-        -screened_rates(k_he4_ne20_to_mg24)*Y(He4)*Y(Ne20)*state.rho +
-        (screened_rates(k_f20_to_ne20)*Y(F20) + -screened_rates(k_ne20_to_f20)*Y(Ne20));
+        -screened_rates(k_he4_ne20_to_mg24)*Y(He4)*Y(Ne20)*state.rho;
 
     ydot_nuc(Mg24) =
         screened_rates(k_he4_ne20_to_mg24)*Y(He4)*Y(Ne20)*state.rho +
@@ -412,8 +412,8 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Get the thermal neutrino losses
 
     Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
-
-    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
+    constexpr int do_derivatives{0};
+    sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 
     // Append the energy equation (this is erg/g/s)
 
@@ -629,7 +629,8 @@ void actual_jac(const burn_t& state, MatrixType& jac)
     // Account for the thermal neutrino losses
 
     Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
-    sneut5(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
+    constexpr int do_derivatives{1};
+    sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 
     for (int j = 1; j <= NumSpec; ++j) {
        Real b1 = (-state.abar * state.abar * dsnuda + (zion[j-1] - state.zbar) * state.abar * dsnudz);
