@@ -1,4 +1,4 @@
-AMReX (23.07-25-g10b6cb26d0ac) initialized
+AMReX (23.07-106-gde7c6189623b-dirty) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 0.01
@@ -19,8 +19,8 @@ RHS at t = 0
     h1 -171061600.5
    he4 164121259.9
    o16 -67273.73352
-   o20 -1.464466382e-05
-   f20 -1.411421432e-05
+   o20 -8.667258977e-06
+   f20 -1.789563135e-05
   ne20 -447648.0568
   mg24 68871335.21
   al27 -73391041.15
@@ -29,37 +29,37 @@ RHS at t = 0
    s32 1323519.174
 ------------------------------------
 successful? 1
- - Hnuc = 4.507738894e+19
- - added e = 4.507738894e+17
- - final T = 6708131443
+ - Hnuc = 4.716248406e+19
+ - added e = 4.716248406e+17
+ - final T = 6804058463
 ------------------------------------
 e initial = 5.995956082e+17
-e final =   1.050369498e+18
+e final =   1.071220449e+18
 ------------------------------------
 new mass fractions: 
-h1 0.00922960741
-he4 4.715429852e-13
-o16 7.250111572e-07
-o20 0.009919749348
-f20 0.009922327306
-ne20 1.140222993e-13
-mg24 9.704248909e-07
-al27 9.999999967e-31
-si28 0.2993239027
-p31 1.015716717e-13
-s32 0.6716027178
+h1 0.009032124504
+he4 4.003293528e-13
+o16 5.888714278e-07
+o20 0.00985678636
+f20 0.009855432543
+ne20 7.501479981e-14
+mg24 1.21710929e-09
+al27 1.951815457e-21
+si28 0.26794899
+p31 8.245884489e-14
+s32 0.7033060765
 ------------------------------------
 species creation rates: 
-omegadot(h1): -0.077039259
+omegadot(h1): -0.0967875496
 omegadot(he4): -3
-omegadot(o16): -49.9999275
-omegadot(o20): -0.008025065203
-omegadot(f20): -0.007767269383
+omegadot(o16): -49.99994111
+omegadot(o20): -0.01432136399
+omegadot(f20): -0.0144567457
 omegadot(ne20): -30
-omegadot(mg24): -9.999902958
+omegadot(mg24): -9.999999878
 omegadot(al27): -1
-omegadot(si28): 28.93239027
+omegadot(si28): 25.794899
 omegadot(p31): -1
-omegadot(s32): 66.16027178
-number of steps taken: 14344
-AMReX (23.07-25-g10b6cb26d0ac) finalized
+omegadot(s32): 69.33060765
+number of steps taken: 31502
+AMReX (23.07-106-gde7c6189623b-dirty) finalized
