@@ -5,18 +5,7 @@
 
 // Define the size of the ODE system that VODE will integrate
 
-#ifdef STRANG
 const int INT_NEQS = NumSpec + 1;
-#endif
-
-#ifdef SIMPLIFIED_SDC
-const int INT_NEQS = SVAR_EVOLVE;
-#endif
-
-#ifdef TRUE_SDC
-const int INT_NEQS = NumSpec + 1;
-#endif
-
 
 // We will use this parameter to determine if a given species
 // abundance is unreasonably small or large (each X must satisfy
@@ -49,13 +38,7 @@ constexpr int integrator_neqs ()
     if constexpr (has_energy<BurnT>::value) {
         int_neqs += 1;
     }
-#endif
-
-#ifdef SIMPLIFIED_SDC
-    int_neqs = SVAR_EVOLVE;
-#endif
-
-#ifdef TRUE_SDC
+#else
     int_neqs = NumSpec + 1;
 #endif
 
