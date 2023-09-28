@@ -259,6 +259,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // or greater than one (within a tolerance).
             if (vstate.y(i) < -species_failure_tolerance) {
                 valid_update = false;
+                break;
             }
 
             // Don't enforce the condition below if
@@ -266,6 +267,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             if (!use_number_densities) {
                 if (vstate.y(i) > 1.0_rt + species_failure_tolerance) {
                     valid_update = false;
+                    break;
                 }
             }
 
@@ -295,10 +297,12 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             if (vstate.y(SFS+i) < -species_failure_tolerance * rho_current) {
                 valid_update = false;
+                break;
             }
 
             if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
                 valid_update = false;
+                break;
             }
 
 #endif
