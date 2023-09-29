@@ -8,7 +8,7 @@
 #include <integrator_type_strang.H>
 #include <integrator_rhs_strang.H>
 #endif
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
 #include <integrator_type_simplified_sdc.H>
 #include <integrator_rhs_simplified_sdc.H>
 #endif

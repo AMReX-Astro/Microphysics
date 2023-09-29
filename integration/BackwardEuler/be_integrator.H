@@ -13,7 +13,7 @@
 #ifdef STRANG
 #include <integrator_rhs_strang.H>
 #endif
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
 #include <integrator_rhs_simplified_sdc.H>
 #endif
 #include <integrator_data.H>

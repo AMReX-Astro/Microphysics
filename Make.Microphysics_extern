@@ -1,10 +1,17 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
+# for common code paths between simplified-SDC and true-SDC, we'll
+# use the SDC define
+
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   DEFINES += -DSIMPLIFIED_SDC
+  DEFINES += -DSDC
+  USE_ALL_SDC := TRUE
 else ifeq ($(USE_TRUE_SDC), TRUE)
   DEFINES += -DTRUE_SDC
+  DEFINES += -DSDC
+  USE_ALL_SDC := TRUE
 else
   DEFINES += -DSTRANG
 endif
