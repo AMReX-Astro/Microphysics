@@ -1,9 +1,7 @@
-ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
+ifeq ($(USE_ALL_SDC), TRUE)
   CEXE_headers += actual_integrator_simplified_sdc.H
 else
-  ifneq ($(USE_TRUE_SDC), TRUE)
-    CEXE_headers += actual_integrator.H
-  endif
+  CEXE_headers += actual_integrator.H
 endif
 
 CEXE_headers += be_integrator.H
