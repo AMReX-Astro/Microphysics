@@ -1,3 +1,16 @@
+# 23.10
+
+  * The simplified-SDC and true-SDC code paths for integration
+    have been merged (#1338,  #1340, #1341).
+
+  * All pynucastro networks have been updated with the latest
+    version of pynucastro (2.1.0) (#1342)
+
+  * The neutrino cooling terms now use templating on derivatives
+    (#1329)
+
+  * `NUM_EXTRA_SPECIES` was removed (#1321)
+
 # 23.09
 
   * The file NETWORK_PROPERTIES has been removed from each network,
