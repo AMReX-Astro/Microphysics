@@ -173,7 +173,7 @@ int be_integrator (BurnT& state, BeT& be)
 
     be.n_rhs += 1;
 
-    Real dt_sub = initial_dt(state, be, ydot);
+    Real dt_sub = initial_react_dt(state, be, ydot);
 
     // main timestepping loop
 
