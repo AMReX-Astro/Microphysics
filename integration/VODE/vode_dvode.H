@@ -7,11 +7,8 @@
 #ifdef STRANG
 #include <integrator_rhs_strang.H>
 #endif
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
 #include <integrator_rhs_simplified_sdc.H>
-#endif
-#ifdef TRUE_SDC
-#include <vode_rhs_true_sdc.H>
 #endif
 #ifdef NSE_TABLE
 #include <nse_table_check.H>
@@ -236,7 +233,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 #ifdef STRANG
            update_thermodynamics(state, vstate);
 #endif
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
            int_to_burn(vstate.tn, vstate, state);
 #endif
 

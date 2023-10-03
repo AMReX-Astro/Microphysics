@@ -238,7 +238,7 @@ void print_state(dvode_t<int_neqs>& dvode_state)
 }
 #endif
 
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
 #include <integrator_type_simplified_sdc.H>
 #endif
 #ifdef STRANG
