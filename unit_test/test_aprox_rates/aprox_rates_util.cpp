@@ -139,7 +139,7 @@ void aprox_rates_test(const Box& bx,
     sp(i, j, k, vars.isi28ag+1) = dfrdt;
     sp(i, j, k, vars.isi28ag+2) = rr;
     sp(i, j, k, vars.isi28ag+3) = drrdt;
-            
+
     rate_si28ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
     sp(i, j, k, vars.isi28ap) = fr;
@@ -415,7 +415,7 @@ void aprox_rates_test(const Box& bx,
 
     Real rn56ec;
     Real sn56ec;
-    langanke(temp_zone, dens_zone, eos_state.xn[ini56], 
+    langanke(temp_zone, dens_zone, eos_state.xn[ini56],
              eos_state.y_e, rn56ec, sn56ec);
 
     sp(i, j, k, vars.ilanganke) = rn56ec;

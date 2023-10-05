@@ -29,7 +29,7 @@ def run_skynet(args):
 
     strongReactionLibrary = REACLIBReactionLibrary(SkyNetRoot + "/data/reaclib",
       ReactionType.Strong, True, LeptonMode.TreatAllAsDecayExceptLabelEC,
-	  "Strong reactions", nuclib, opts, True)
+          "Strong reactions", nuclib, opts, True)
     symmetricFission = REACLIBReactionLibrary(SkyNetRoot
       + "/data/netsu_panov_symmetric_0neut", ReactionType.Strong, False,
       LeptonMode.TreatAllAsDecayExceptLabelEC,
@@ -42,8 +42,8 @@ def run_skynet(args):
 
     # use only REACLIB weak rates
     weakReactionLibrary = REACLIBReactionLibrary(SkyNetRoot + "/data/reaclib",
-	    ReactionType.Weak, False, LeptonMode.TreatAllAsDecayExceptLabelEC,
-	    "Weak reactions", nuclib, opts, True)
+            ReactionType.Weak, False, LeptonMode.TreatAllAsDecayExceptLabelEC,
+            "Weak reactions", nuclib, opts, True)
     reactionLibraries = [strongReactionLibrary, symmetricFission,
             spontaneousFission, weakReactionLibrary]
 
@@ -59,7 +59,7 @@ def run_skynet(args):
     #Y0[nuclib.NuclideIdsVsNames()["ne23"]] = 4e-4 / 23.0 # above threshold
     Y0[nuclib.NuclideIdsVsNames()["na23"]] = 4e-4 / 23.0  # below threshold
 
-    #XRB 
+    #XRB
     #Y0[nuclib.NuclideIdsVsNames()["he4"]]  = 1.0 / 4.0
 
     #SubCh
@@ -74,12 +74,12 @@ def run_skynet(args):
     #s = 10.0    # initial entropy in k_B / baryon
     #tau = 7.1   # expansion timescale in ms
 
-    time = np.linspace(0.0, 1e9) 
+    time = np.linspace(0.0, 1e9)
     density_vs_time = ConstantFunction(rho) #isochoric
 
     # run through network, will save as "prefix".h5 and .log files
     output = net.EvolveSelfHeatingWithInitialTemperature(Y0, 0.0, 1.0E1,
-		T0, density_vs_time, "urca_isoc_belowthresh")
+                T0, density_vs_time, "urca_isoc_belowthresh")
 
     # save some additional information, not necessary as all will be
     # contained in h5 file
@@ -87,37 +87,37 @@ def run_skynet(args):
     A = np.arange(len(YvsA))
 
     np.savetxt("urca_isoc_belowthresh.txt", np.array([A, YvsA]).transpose(),
-	"%6i  %30.20E")
+        "%6i  %30.20E")
 
     return
 
 
 if __name__ == '__main__':
 
-  num_cores = multiprocessing.cpu_count()
-  print "Running with %i worker threads" % num_cores
-  pool = multiprocessing.Pool(num_cores)
-  num_done.value = 0
+    num_cores = multiprocessing.cpu_count()
+    print "Running with %i worker threads" % num_cores
+    pool = multiprocessing.Pool(num_cores)
+    num_done.value = 0
 
-  # use if you have trajectory files to read
-  #files = os.listdir(input_dir)
+    # use if you have trajectory files to read
+    #files = os.listdir(input_dir)
 
-  # otherwise, give the initial density
-  #densities = [1e6, 5e6, 1e7, 5e7, 1e8, 5e8, 1e9] # multiple
-  densities = [1.0e9] # URCA
-  #densities = [2e6] #XRB Aprox13
-  #densities = [1e6] #SubCh
-  
-  # number of jobs to run
-  size = len(densities)
-  args = [(r, size) for r in densities]
-  
-  # run skynet in parallel
-  pool.map_async(run_skynet, args)
+    # otherwise, give the initial density
+    #densities = [1e6, 5e6, 1e7, 5e7, 1e8, 5e8, 1e9] # multiple
+    densities = [1.0e9] # URCA
+    #densities = [2e6] #XRB Aprox13
+    #densities = [1e6] #SubCh
 
-  # done submitting jobs
-  pool.close()
-  pool.join()
+    # number of jobs to run
+    size = len(densities)
+    args = [(r, size) for r in densities]
+
+    # run skynet in parallel
+    pool.map_async(run_skynet, args)
+
+    # done submitting jobs
+    pool.close()
+    pool.join()
 
 # monitor progress with
 # $ cd work_dir

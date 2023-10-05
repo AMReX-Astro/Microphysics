@@ -29,13 +29,13 @@ using namespace eos_rp;
 // derivatives), number density of electrons and positron pair (along
 // with their derivatives), adiabatic indices, specific heats, and
 // relativistically correct sound speed are also returned.
-// 
+//
 // this routine assumes planckian photons, an ideal gas of ions,
 // and an electron-positron gas with an arbitrary degree of relativity
 // and degeneracy. interpolation in a table of the helmholtz free energy
 // is used to return the electron-positron thermodynamic quantities.
 // all other derivatives are analytic.
-// 
+//
 // references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
 const std::string eos_name = "helmholtz";
@@ -510,7 +510,7 @@ void apply_ions (T& state)
     Real sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
     Real dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
                    kergavo * deni * ytot1;
-    Real dsiondt = (dpiondt * deni + deiondt) * tempi -  
+    Real dsiondt = (dpiondt * deni + deiondt) * tempi -
                    (pion * deni + eion) * tempi * tempi +
                    1.5e0_rt * kergavo * tempi * ytot1;
 
@@ -759,7 +759,7 @@ void apply_coulomb_corrections (T& state)
         decoulda = s * dpcoulda;
         decouldz = s * dpcouldz;
 
-        s        = -avo_eos * kerg / (state.abar * plasg) * 
+        s        = -avo_eos * kerg / (state.abar * plasg) *
                     (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
         dscouldd = s * plasgdd;
         dscouldt = s * plasgdt;

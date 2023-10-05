@@ -41,7 +41,7 @@ actual_conductivity (T& state)
   // ocond  = conductive contribution to the opacity (in cm**2/g)
   // opac   = the total opacity (in cm**2/g)
   // conductivity = thermal conductivity (in erg/cm/K/sec)
-  // 
+  //
 
     // various physical and derived constants
     // con2 = con1*sqrt(4*pi*e*e/me)

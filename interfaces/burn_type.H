@@ -249,7 +249,7 @@ void eos_to_burn (const T& eos_state, BurnT& burn_state)
 
 
 
-// Given a burn type, copy the data relevant to the eos type. 
+// Given a burn type, copy the data relevant to the eos type.
 // Note that when doing simplified SDC integration, we should
 // avoid using this interface because the energy includes a
 // contribution from the advection term. However this is useful
@@ -315,7 +315,7 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void normalize_abundances_sdc_burn (BurnT& state)
 {
 
-    // Constrain the partial densities in burn_t state to sum to the 
+    // Constrain the partial densities in burn_t state to sum to the
     // density.
     //
     // This is meant to be used upon exit, and we assume that

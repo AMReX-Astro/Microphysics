@@ -31,32 +31,32 @@ void burn_cell_c()
                 state.rho = rho;
                 state.y_e = Ye;
 
-		if (state.y_e > 0.52_rt){
-		  state.mu_p = -1.0_rt;
-		  state.mu_n = -16.0_rt;
-		}
-		else if (state.y_e > 0.48_rt){
-		  state.mu_p = -6.0_rt;
-		  state.mu_n = -11.0_rt;
-		}
-		else if (state.y_e > 0.4_rt){
-		  state.mu_p = -10.0_rt;
-		  state.mu_n = -7.0_rt;
-		}
-		else{
-		  state.mu_p = -18.0;
-		  state.mu_n = -1.0;
-		}		
+                if (state.y_e > 0.52_rt){
+                  state.mu_p = -1.0_rt;
+                  state.mu_n = -16.0_rt;
+                }
+                else if (state.y_e > 0.48_rt){
+                  state.mu_p = -6.0_rt;
+                  state.mu_n = -11.0_rt;
+                }
+                else if (state.y_e > 0.4_rt){
+                  state.mu_p = -10.0_rt;
+                  state.mu_n = -7.0_rt;
+                }
+                else{
+                  state.mu_p = -18.0;
+                  state.mu_n = -1.0;
+                }
 
                 // find the  nse state
 
                 const bool assume_ye_is_valid = true;
                 Real eps = 1.e-10;
-		use_hybrid_solver = 1;
-		
+                use_hybrid_solver = 1;
+
                 auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
 
-		std::cout << std::scientific;
+                std::cout << std::scientific;
                 std::cout << std::setw(20) << state.rho << " "
                           << std::setw(20) << state.T << " " << std::fixed
                           << std::setw(20) << state.y_e << " "
