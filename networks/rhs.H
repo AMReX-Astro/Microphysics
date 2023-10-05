@@ -78,7 +78,7 @@ constexpr int is_rate_used ()
 
 // Determine the index of a given intermediate reaction. We use the
 // order of the original rate definitions
-    
+
 // Counts up the number of intermediate reactions. An intermediate
 // reaction is defined as any reaction which contributes to the
 // construction of some other reaction. Note that an intermediate

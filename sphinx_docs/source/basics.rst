@@ -38,7 +38,7 @@ This will create an executable called ``main3d.gnu.ex``.  Then you can run it as
    ./main3d.gnu.ex inputs_aprox21
 
 By default, the test is built with the 21-isotope ``aprox21`` network.
-Here ``inputs_aprox21`` is the inputs file that sets options. 
+Here ``inputs_aprox21`` is the inputs file that sets options.
 
 
 

@@ -38,12 +38,12 @@ Basic idea:
                         ---            ---
 
      this means that 60% of the time, we will create Ne20 + O16 and
-     40% of the time we will create Na23 + C13.  
+     40% of the time we will create Na23 + C13.
 
      So the number of nuclei made from consuming 6 C12 is
      ~ 1.2 Ne20, 1.2 O16, 0.8 Na23, 0.8 C13.
 
-     
+
      Doing this, the ash has an A = 18 and a Z = 8.8
 
      We also note that since we are operating in a high temperature
@@ -61,4 +61,4 @@ Basic idea:
      release per C12 consumed), as a function of density.
 
 
-     
+

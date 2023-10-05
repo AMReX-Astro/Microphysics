@@ -53,7 +53,7 @@ void screen_test_C(const Box& bx,
   const int is32 = network_spec_index("sulfur-32");
   if (is32 < 0) amrex::Error("Error: is32 not found");
 
-  const int iar36 = network_spec_index("argon-36");    
+  const int iar36 = network_spec_index("argon-36");
   if (iar36 < 0) amrex::Error("Error: iar36 not found");
 
   const int ica40 = network_spec_index("calcium-40");

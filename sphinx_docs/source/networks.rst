@@ -158,7 +158,7 @@ X_a / (A_a m_u)`, our rate equation is
 
    \begin{align}
     \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
-    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu 
+    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
    \end{align}
 
 We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
@@ -287,6 +287,6 @@ to disable rates:
   :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
   disabled.
 
-Together, these parameters allow us to turn off the sequence 
+Together, these parameters allow us to turn off the sequence
 :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
 acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.

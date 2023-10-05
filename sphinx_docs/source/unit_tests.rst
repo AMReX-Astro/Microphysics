@@ -164,7 +164,7 @@ Screening Test
 routine, using the ``aprox21`` reaction network.
 This uses the same basic ideas as the tests above---a cube of data is
 setup and the rates are evaluated using each zone's thermodynamic
-conditions. 
+conditions.
 
 This works for both the Fortran and C++ implementations (via ``do_cxx``).
 
