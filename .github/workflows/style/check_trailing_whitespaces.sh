@@ -6,6 +6,7 @@ find . -type d \( -name .git \
                   -o -path ./paper \
                   -o -name build -o -name install \
                   -o -name tmp_build_dir -o -name tmp_install_dir \
+                  -o -path ./util/gcem \
                \) -prune -o \
        -type f \( \( -name "*.H" -o -name "*.h" -o -name "*.hh" -o -name "*.hpp" \
                   -o -name "*.c" -o -name "*.cc" -o -name "*.cpp" -o -name "*.cxx" \
@@ -17,7 +18,8 @@ find . -type d \( -name .git \
                   -o -name "*.txt" \
                   -o -name "*.yml" \) \
                  -a \( ! -name "*.tab.h" -a ! -name "*.tab.nolint.H" \
-                    -a ! -name "*.lex.h" -a ! -name "*.lex.nolint.H" \) \
+                    -a ! -name "*.lex.h" -a ! -name "*.lex.nolint.H" \
+                    -a ! -path "./networks/*/reaclib_rates.H" \) \
                \) \
     -exec grep -Iq . {} \; \
     -exec sed -i 's/[[:blank:]]\+$//g' {} +
