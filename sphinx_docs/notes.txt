@@ -6,10 +6,10 @@
 
    https://stackoverflow.com/questions/11347505/what-are-some-approaches-to-outputting-a-python-data-structure-to-restructuredte
 
-   
+
 
 ** index:
 
-  use 
+  use
 
 ..index:: burn_t
