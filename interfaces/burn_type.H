@@ -285,31 +285,6 @@ void burn_to_eos (const BurnT& burn_state, T& eos_state)
 }
 
 
-template <typename BurnT, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void sdc_burn_to_eos (const BurnT& state, T& eos_state)
-{
-    eos_state.rho = state.y[SRHO];
-    eos_state.T = state.T;
-
-    // species
-
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.y[SFS+n] / eos_state.rho;
-    }
-
-#if NAUX_NET > 0
-    // aux
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
-    }
-    //set_nse_aux_from_X(eos_state);
-#endif
-
-    // we don't bother filling the other fields, since the EOS call
-    // will do that for us
-}
-
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void normalize_abundances_sdc_burn (BurnT& state)
