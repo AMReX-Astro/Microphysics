@@ -62,7 +62,7 @@ for r in rates_to_remove:
 # ReacLib and weak / tabular rates linking these.
 
 iron_peak = ["n", "p", "he4",
-             "mn51",
+             "mn51", "mn55",
              "fe52", "fe53", "fe54", "fe55", "fe56",
              "co55", "co56", "co57",
              "ni56", "ni57", "ni58",
@@ -115,8 +115,8 @@ net.remove_rates(rates_to_remove)
 
 # now we approximate some (alpha, p)(p, gamma) links
 
-net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47"]) #, "mn51"])
-net.remove_nuclei(["cl35", "k39", "sc43", "v47"]) #, "mn51"])
+net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47"])
+net.remove_nuclei(["cl35", "k39", "sc43", "v47"])
 
 # let's make a figure
 

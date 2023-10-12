@@ -33,10 +33,20 @@ namespace rate_tables
     AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_fe55_co55_rhoy;
     AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_fe55_co55_temp;
 
+    AMREX_GPU_MANAGED table_t j_fe55_mn55_meta;
+    AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_fe55_mn55_data;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_fe55_mn55_rhoy;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_fe55_mn55_temp;
+
     AMREX_GPU_MANAGED table_t j_fe56_co56_meta;
     AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_fe56_co56_data;
     AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_fe56_co56_rhoy;
     AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_fe56_co56_temp;
+
+    AMREX_GPU_MANAGED table_t j_mn55_fe55_meta;
+    AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_mn55_fe55_data;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_mn55_fe55_rhoy;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_mn55_fe55_temp;
 
     AMREX_GPU_MANAGED table_t j_ni56_co56_meta;
     AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_ni56_co56_data;
@@ -99,12 +109,28 @@ void init_tabular()
     init_tab_info(j_fe55_co55_meta, "55fe-55co_betadecay.dat", j_fe55_co55_rhoy, j_fe55_co55_temp, j_fe55_co55_data);
 
 
+    j_fe55_mn55_meta.ntemp = 13;
+    j_fe55_mn55_meta.nrhoy = 11;
+    j_fe55_mn55_meta.nvars = 6;
+    j_fe55_mn55_meta.nheader = 5;
+
+    init_tab_info(j_fe55_mn55_meta, "55fe-55mn_electroncapture.dat", j_fe55_mn55_rhoy, j_fe55_mn55_temp, j_fe55_mn55_data);
+
+
     j_fe56_co56_meta.ntemp = 13;
     j_fe56_co56_meta.nrhoy = 11;
     j_fe56_co56_meta.nvars = 6;
     j_fe56_co56_meta.nheader = 5;
 
     init_tab_info(j_fe56_co56_meta, "56fe-56co_betadecay.dat", j_fe56_co56_rhoy, j_fe56_co56_temp, j_fe56_co56_data);
+
+
+    j_mn55_fe55_meta.ntemp = 13;
+    j_mn55_fe55_meta.nrhoy = 11;
+    j_mn55_fe55_meta.nvars = 6;
+    j_mn55_fe55_meta.nheader = 5;
+
+    init_tab_info(j_mn55_fe55_meta, "55mn-55fe_betadecay.dat", j_mn55_fe55_rhoy, j_mn55_fe55_temp, j_mn55_fe55_data);
 
 
     j_ni56_co56_meta.ntemp = 13;

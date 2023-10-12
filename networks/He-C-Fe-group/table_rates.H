@@ -20,7 +20,7 @@ void init_tabular();
 // Log(g/cm^3)   Log(K)   erg   erg   erg   Log(1/s)          Log(erg/s)           Log(erg/s)
 //
 
-const int num_tables = 8;
+const int num_tables = 10;
 
 enum TableVars
 {
@@ -80,10 +80,20 @@ namespace rate_tables
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_fe55_co55_rhoy;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_fe55_co55_temp;
 
+    extern AMREX_GPU_MANAGED table_t j_fe55_mn55_meta;
+    extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_fe55_mn55_data;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_fe55_mn55_rhoy;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_fe55_mn55_temp;
+
     extern AMREX_GPU_MANAGED table_t j_fe56_co56_meta;
     extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_fe56_co56_data;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_fe56_co56_rhoy;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_fe56_co56_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_mn55_fe55_meta;
+    extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_mn55_fe55_data;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_mn55_fe55_rhoy;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_mn55_fe55_temp;
 
     extern AMREX_GPU_MANAGED table_t j_ni56_co56_meta;
     extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_ni56_co56_data;
