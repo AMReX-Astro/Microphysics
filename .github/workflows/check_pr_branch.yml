@@ -1,0 +1,13 @@
+name: check PR branch
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-PR-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs should not target main
+        run: exit 1
