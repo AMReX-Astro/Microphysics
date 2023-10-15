@@ -7,7 +7,7 @@ jobs:
     steps:
       - name: PRs should not target main
         run: |
-          if [[ "${{ github.event.pull_request_target }}" == "main" ]]; then
+          if [[ "${{ github.event.pull_request_target.head.ref }}" == "main" ]]; then
             echo "Pull requests must not be made against main. Please target development instead."
             exit 1
           fi
