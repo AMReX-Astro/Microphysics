@@ -5,9 +5,14 @@ jobs:
   check-PR-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: PRs should not target main
-        run: |
-          if [[ "${{ github.base_ref }}" == "main" ]]; then
-            echo "Pull requests must not be made against main. Please target development instead."
-            exit 1
-          fi
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth 0
+
+      - name: Get PR target branch
+        id: get-target-branch
+        run: bash .github/workflows/get_pr_target_branch.sh
+
+      - name: No PRs should target the main branch; use development instead
+        if: ${{ steps.get-target-branch.outputs.target_branch == 'main' }}
+        run: exit 1
