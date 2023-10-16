@@ -1,15 +1,13 @@
 name: check PR branch
 
-on: [pull_request]
+on:
+  pull_request:
+    branches:
+      - main
+
 jobs:
   check-PR-branch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
+      - name: PRs should not target main
+        run: exit 1
