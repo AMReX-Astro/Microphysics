@@ -9,5 +9,5 @@ jobs:
   check-PR-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: PRs should not target main
+      - name: PRs should not target main. Use development instead.
         run: exit 1
