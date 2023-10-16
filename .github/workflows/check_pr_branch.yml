@@ -9,10 +9,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get PR target branch
-        id: get-target-branch
-        run: bash .github/workflows/get_pr_target_branch.sh
-
-      - name: No PRs should target the main branch; use development instead
-        if: ${{ steps.get-target-branch.outputs.target_branch == 'main' }}
-        run: exit 1
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
