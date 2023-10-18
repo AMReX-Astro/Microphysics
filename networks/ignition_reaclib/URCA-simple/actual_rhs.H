@@ -149,6 +149,22 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     }
     rate_eval.add_energy_rate(k_ne23_to_na23) = edot_nu + edot_gamma;
 
+    tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_n_to_p) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_n_to_p) = drate_dt;
+    }
+    rate_eval.add_energy_rate(k_n_to_p) = edot_nu + edot_gamma;
+
+    tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_p_to_n) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_p_to_n) = drate_dt;
+    }
+    rate_eval.add_energy_rate(k_p_to_n) = edot_nu + edot_gamma;
+
 
 }
 
@@ -161,12 +177,14 @@ void rhs_nuc(const burn_t& state,
     using namespace Rates;
 
     ydot_nuc(N) =
-        -screened_rates(k_n_to_p_weak_wc12)*Y(N) +
+        -screened_rates(k_n_to_p)*Y(N) +
+        screened_rates(k_p_to_n)*Y(H1) +
         0.5*screened_rates(k_c12_c12_to_n_mg23)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(H1) =
         0.5*screened_rates(k_c12_c12_to_p_na23)*std::pow(Y(C12), 2)*state.rho +
-        screened_rates(k_n_to_p_weak_wc12)*Y(N);
+        screened_rates(k_n_to_p)*Y(N) +
+        -screened_rates(k_p_to_n)*Y(H1);
 
     ydot_nuc(He4) =
         0.5*screened_rates(k_c12_c12_to_he4_ne20)*std::pow(Y(C12), 2)*state.rho +
@@ -228,6 +246,8 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // include reaction neutrino losses (non-thermal) and gamma heating
     enuc += C::Legacy::n_A * Y(Na23) * rate_eval.add_energy_rate(k_na23_to_ne23);
     enuc += C::Legacy::n_A * Y(Ne23) * rate_eval.add_energy_rate(k_ne23_to_na23);
+    enuc += C::Legacy::n_A * Y(N) * rate_eval.add_energy_rate(k_n_to_p);
+    enuc += C::Legacy::n_A * Y(H1) * rate_eval.add_energy_rate(k_p_to_n);
 
     // Get the thermal neutrino losses
 
@@ -252,14 +272,20 @@ void jac_nuc(const burn_t& state,
 
     Real scratch;
 
-    scratch = -screened_rates(k_n_to_p_weak_wc12);
+    scratch = -screened_rates(k_n_to_p);
     jac.set(N, N, scratch);
+
+    scratch = screened_rates(k_p_to_n);
+    jac.set(N, H1, scratch);
 
     scratch = 1.0*screened_rates(k_c12_c12_to_n_mg23)*Y(C12)*state.rho;
     jac.set(N, C12, scratch);
 
-    scratch = screened_rates(k_n_to_p_weak_wc12);
+    scratch = screened_rates(k_n_to_p);
     jac.set(H1, N, scratch);
+
+    scratch = -screened_rates(k_p_to_n);
+    jac.set(H1, H1, scratch);
 
     scratch = 1.0*screened_rates(k_c12_c12_to_p_na23)*Y(C12)*state.rho;
     jac.set(H1, C12, scratch);
