@@ -149,5 +149,4 @@ clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
 	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
 	@if [ -L nse.tbl ]; then rm -f nse.tbl; fi
-	$(foreach t, $(wildcard *_betadecay.dat), $(shell if [ -L $t ]; then rm -f $t; fi))
-	$(foreach t, $(wildcard *_electroncapture.dat), $(shell if [ -L $t ]; then rm -f $t; fi))
+	$(foreach t, $(wildcard *_betadecay.dat *_electroncapture.dat), $(shell if [ -L $t ]; then rm -f $t; fi))
