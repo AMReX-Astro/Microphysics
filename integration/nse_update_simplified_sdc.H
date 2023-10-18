@@ -58,6 +58,21 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     nse_interp(T_in, state.rho, ye_in,
                abar_out, dq_out, dyedt, X);
 
+    // get the neutrino loss term
+    Real snu{0.0};
+    Real dsnudt{0.0};
+    Real dsnudd{0.0};
+    Real dsnuda{0.0};
+    Real dsnudz{0.0};
+
+    Real zbar = abar_out * ye_in;
+
+    constexpr int do_derivatives = 0;
+    sneut5<do_derivatives>(T_in, state.rho, abar_out, zbar,
+                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+
+    Real snu_old = snu;
+
     Real dyedt_old = dyedt;
 
     // density and momentum have no reactive sources
@@ -82,7 +97,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real rho_aux_new[NumAux];
 
     Real rhoe_new;
-    Real rho_enucdot = 0.0_rt;
+    Real rho_enucdot = -state.rho * snu;
 
     Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
 
@@ -130,7 +145,14 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         Real rho_dBEA = rho_bea_tilde - rho_bea_old;  // this is MeV / nucleon * g / cm**3
 
         // convert the energy to erg / cm**3
-        rho_enucdot  = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+        rho_enucdot = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+
+        // now get the updated neutrino term
+        zbar = abar_out * eos_state.aux[iye];
+        sneut5<do_derivatives>(T_new, eos_state.rho, abar_out, zbar,
+                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
+
+        rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
 
         // update the new state for the next pass
 
