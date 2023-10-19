@@ -58,6 +58,16 @@ namespace rate_tables
     AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_ni57_co57_rhoy;
     AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_ni57_co57_temp;
 
+    AMREX_GPU_MANAGED table_t j_n_p_meta;
+    AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_n_p_rhoy;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_n_p_temp;
+
+    AMREX_GPU_MANAGED table_t j_p_n_meta;
+    AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_p_n_data;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_p_n_rhoy;
+    AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_p_n_temp;
+
 
 }
 
@@ -147,6 +157,22 @@ void init_tabular()
     j_ni57_co57_meta.nheader = 5;
 
     init_tab_info(j_ni57_co57_meta, "57ni-57co_electroncapture.dat", j_ni57_co57_rhoy, j_ni57_co57_temp, j_ni57_co57_data);
+
+
+    j_n_p_meta.ntemp = 13;
+    j_n_p_meta.nrhoy = 11;
+    j_n_p_meta.nvars = 6;
+    j_n_p_meta.nheader = 5;
+
+    init_tab_info(j_n_p_meta, "n-p_betadecay.dat", j_n_p_rhoy, j_n_p_temp, j_n_p_data);
+
+
+    j_p_n_meta.ntemp = 13;
+    j_p_n_meta.nrhoy = 11;
+    j_p_n_meta.nvars = 6;
+    j_p_n_meta.nheader = 5;
+
+    init_tab_info(j_p_n_meta, "p-n_electroncapture.dat", j_p_n_rhoy, j_p_n_temp, j_p_n_data);
 
 
 
