@@ -1269,6 +1269,14 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     [[maybe_unused]] Real rate, drate_dt, edot_nu, edot_gamma;
 
+    tabular_evaluate(j_Co55_Fe55_meta, j_Co55_Fe55_rhoy, j_Co55_Fe55_temp, j_Co55_Fe55_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Co55_to_Fe55) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_Co55_to_Fe55) = drate_dt;
+    }
+    rate_eval.add_energy_rate(k_Co55_to_Fe55) = edot_nu + edot_gamma;
+
     tabular_evaluate(j_Co56_Fe56_meta, j_Co56_Fe56_rhoy, j_Co56_Fe56_temp, j_Co56_Fe56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Co56_to_Fe56) = rate;
@@ -1276,30 +1284,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         rate_eval.dscreened_rates_dT(k_Co56_to_Fe56) = drate_dt;
     }
     rate_eval.add_energy_rate(k_Co56_to_Fe56) = edot_nu + edot_gamma;
-
-    tabular_evaluate(j_Co57_Ni57_meta, j_Co57_Ni57_rhoy, j_Co57_Ni57_temp, j_Co57_Ni57_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_Co57_to_Ni57) = rate;
-    if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_Co57_to_Ni57) = drate_dt;
-    }
-    rate_eval.add_energy_rate(k_Co57_to_Ni57) = edot_nu + edot_gamma;
-
-    tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_p_to_n) = rate;
-    if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_to_n) = drate_dt;
-    }
-    rate_eval.add_energy_rate(k_p_to_n) = edot_nu + edot_gamma;
-
-    tabular_evaluate(j_Mn55_Fe55_meta, j_Mn55_Fe55_rhoy, j_Mn55_Fe55_temp, j_Mn55_Fe55_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_Mn55_to_Fe55) = rate;
-    if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_Mn55_to_Fe55) = drate_dt;
-    }
-    rate_eval.add_energy_rate(k_Mn55_to_Fe55) = edot_nu + edot_gamma;
 
     tabular_evaluate(j_Co56_Ni56_meta, j_Co56_Ni56_rhoy, j_Co56_Ni56_temp, j_Co56_Ni56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1309,6 +1293,14 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     }
     rate_eval.add_energy_rate(k_Co56_to_Ni56) = edot_nu + edot_gamma;
 
+    tabular_evaluate(j_Co57_Ni57_meta, j_Co57_Ni57_rhoy, j_Co57_Ni57_temp, j_Co57_Ni57_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Co57_to_Ni57) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_Co57_to_Ni57) = drate_dt;
+    }
+    rate_eval.add_energy_rate(k_Co57_to_Ni57) = edot_nu + edot_gamma;
+
     tabular_evaluate(j_Fe55_Co55_meta, j_Fe55_Co55_rhoy, j_Fe55_Co55_temp, j_Fe55_Co55_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_Fe55_to_Co55) = rate;
@@ -1316,14 +1308,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         rate_eval.dscreened_rates_dT(k_Fe55_to_Co55) = drate_dt;
     }
     rate_eval.add_energy_rate(k_Fe55_to_Co55) = edot_nu + edot_gamma;
-
-    tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_n_to_p) = rate;
-    if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_n_to_p) = drate_dt;
-    }
-    rate_eval.add_energy_rate(k_n_to_p) = edot_nu + edot_gamma;
 
     tabular_evaluate(j_Fe55_Mn55_meta, j_Fe55_Mn55_rhoy, j_Fe55_Mn55_temp, j_Fe55_Mn55_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1333,13 +1317,29 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     }
     rate_eval.add_energy_rate(k_Fe55_to_Mn55) = edot_nu + edot_gamma;
 
-    tabular_evaluate(j_Co55_Fe55_meta, j_Co55_Fe55_rhoy, j_Co55_Fe55_temp, j_Co55_Fe55_data,
+    tabular_evaluate(j_Fe56_Co56_meta, j_Fe56_Co56_rhoy, j_Fe56_Co56_temp, j_Fe56_Co56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_Co55_to_Fe55) = rate;
+    rate_eval.screened_rates(k_Fe56_to_Co56) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_Co55_to_Fe55) = drate_dt;
+        rate_eval.dscreened_rates_dT(k_Fe56_to_Co56) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_Co55_to_Fe55) = edot_nu + edot_gamma;
+    rate_eval.add_energy_rate(k_Fe56_to_Co56) = edot_nu + edot_gamma;
+
+    tabular_evaluate(j_Mn55_Fe55_meta, j_Mn55_Fe55_rhoy, j_Mn55_Fe55_temp, j_Mn55_Fe55_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Mn55_to_Fe55) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_Mn55_to_Fe55) = drate_dt;
+    }
+    rate_eval.add_energy_rate(k_Mn55_to_Fe55) = edot_nu + edot_gamma;
+
+    tabular_evaluate(j_Ni56_Co56_meta, j_Ni56_Co56_rhoy, j_Ni56_Co56_temp, j_Ni56_Co56_data,
+                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
+    rate_eval.screened_rates(k_Ni56_to_Co56) = rate;
+    if constexpr (std::is_same<T, rate_derivs_t>::value) {
+        rate_eval.dscreened_rates_dT(k_Ni56_to_Co56) = drate_dt;
+    }
+    rate_eval.add_energy_rate(k_Ni56_to_Co56) = edot_nu + edot_gamma;
 
     tabular_evaluate(j_Ni57_Co57_meta, j_Ni57_Co57_rhoy, j_Ni57_Co57_temp, j_Ni57_Co57_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1349,21 +1349,21 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     }
     rate_eval.add_energy_rate(k_Ni57_to_Co57) = edot_nu + edot_gamma;
 
-    tabular_evaluate(j_Fe56_Co56_meta, j_Fe56_Co56_rhoy, j_Fe56_Co56_temp, j_Fe56_Co56_data,
+    tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_Fe56_to_Co56) = rate;
+    rate_eval.screened_rates(k_n_to_p) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_Fe56_to_Co56) = drate_dt;
+        rate_eval.dscreened_rates_dT(k_n_to_p) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_Fe56_to_Co56) = edot_nu + edot_gamma;
+    rate_eval.add_energy_rate(k_n_to_p) = edot_nu + edot_gamma;
 
-    tabular_evaluate(j_Ni56_Co56_meta, j_Ni56_Co56_rhoy, j_Ni56_Co56_temp, j_Ni56_Co56_data,
+    tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_Ni56_to_Co56) = rate;
+    rate_eval.screened_rates(k_p_to_n) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_Ni56_to_Co56) = drate_dt;
+        rate_eval.dscreened_rates_dT(k_p_to_n) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_Ni56_to_Co56) = edot_nu + edot_gamma;
+    rate_eval.add_energy_rate(k_p_to_n) = edot_nu + edot_gamma;
 
 
 }
@@ -1395,8 +1395,8 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_n_Ni58_to_He4_Fe55)*Y(Ni58)*Y(N)*state.rho + screened_rates(k_He4_Fe55_to_n_Ni58_derived)*Y(Fe55)*Y(He4)*state.rho) +
         (-screened_rates(k_n_Cu59_to_He4_Co56)*Y(Cu59)*Y(N)*state.rho + screened_rates(k_He4_Co56_to_n_Cu59_derived)*Y(Co56)*Y(He4)*state.rho) +
         (-screened_rates(k_n_Zn60_to_He4_Ni57)*Y(Zn60)*Y(N)*state.rho + screened_rates(k_He4_Ni57_to_n_Zn60_derived)*Y(He4)*Y(Ni57)*state.rho) +
-        screened_rates(k_p_to_n)*Y(H1) +
-        -screened_rates(k_n_to_p)*Y(N);
+        -screened_rates(k_n_to_p)*Y(N) +
+        screened_rates(k_p_to_n)*Y(H1);
 
     ydot_nuc(H1) =
         (-screened_rates(k_p_C12_to_N13)*Y(C12)*Y(H1)*state.rho + screened_rates(k_N13_to_p_C12_derived)*Y(N13)) +
@@ -1434,8 +1434,8 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_p_Co57_to_He4_Fe54)*Y(Co57)*Y(H1)*state.rho + screened_rates(k_He4_Fe54_to_p_Co57_derived)*Y(Fe54)*Y(He4)*state.rho) +
         (screened_rates(k_n_Ni56_to_p_Co56)*Y(Ni56)*Y(N)*state.rho + -screened_rates(k_p_Co56_to_n_Ni56_derived)*Y(Co56)*Y(H1)*state.rho) +
         (screened_rates(k_n_Ni57_to_p_Co57)*Y(Ni57)*Y(N)*state.rho + -screened_rates(k_p_Co57_to_n_Ni57_derived)*Y(Co57)*Y(H1)*state.rho) +
-        -screened_rates(k_p_to_n)*Y(H1) +
-        screened_rates(k_n_to_p)*Y(N);
+        screened_rates(k_n_to_p)*Y(N) +
+        -screened_rates(k_p_to_n)*Y(H1);
 
     ydot_nuc(He4) =
         (-screened_rates(k_He4_C12_to_O16)*Y(C12)*Y(He4)*state.rho + screened_rates(k_O16_to_He4_C12_derived)*Y(O16)) +
@@ -1621,8 +1621,8 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_n_Fe55_to_p_Mn55)*Y(Fe55)*Y(N)*state.rho + screened_rates(k_p_Mn55_to_n_Fe55_derived)*Y(Mn55)*Y(H1)*state.rho) +
         (screened_rates(k_n_Co55_to_p_Fe55)*Y(Co55)*Y(N)*state.rho + -screened_rates(k_p_Fe55_to_n_Co55_derived)*Y(Fe55)*Y(H1)*state.rho) +
         (screened_rates(k_n_Ni58_to_He4_Fe55)*Y(Ni58)*Y(N)*state.rho + -screened_rates(k_He4_Fe55_to_n_Ni58_derived)*Y(Fe55)*Y(He4)*state.rho) +
-        (-screened_rates(k_Fe55_to_Mn55)*Y(Fe55) + screened_rates(k_Mn55_to_Fe55)*Y(Mn55)) +
-        (screened_rates(k_Co55_to_Fe55)*Y(Co55) + -screened_rates(k_Fe55_to_Co55)*Y(Fe55));
+        (screened_rates(k_Co55_to_Fe55)*Y(Co55) + -screened_rates(k_Fe55_to_Co55)*Y(Fe55)) +
+        (-screened_rates(k_Fe55_to_Mn55)*Y(Fe55) + screened_rates(k_Mn55_to_Fe55)*Y(Mn55));
 
     ydot_nuc(Fe56) =
         (screened_rates(k_p_Mn55_to_Fe56)*Y(Mn55)*Y(H1)*state.rho + -screened_rates(k_Fe56_to_p_Mn55_derived)*Y(Fe56)) +
@@ -1734,18 +1734,18 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     ener_gener_rate(ydot, enuc);
 
     // include reaction neutrino losses (non-thermal) and gamma heating
-    enuc += C::Legacy::n_A * Y(Co56) * rate_eval.add_energy_rate(k_Co56_to_Fe56);
-    enuc += C::Legacy::n_A * Y(Co57) * rate_eval.add_energy_rate(k_Co57_to_Ni57);
-    enuc += C::Legacy::n_A * Y(H1) * rate_eval.add_energy_rate(k_p_to_n);
-    enuc += C::Legacy::n_A * Y(Mn55) * rate_eval.add_energy_rate(k_Mn55_to_Fe55);
-    enuc += C::Legacy::n_A * Y(Co56) * rate_eval.add_energy_rate(k_Co56_to_Ni56);
-    enuc += C::Legacy::n_A * Y(Fe55) * rate_eval.add_energy_rate(k_Fe55_to_Co55);
-    enuc += C::Legacy::n_A * Y(N) * rate_eval.add_energy_rate(k_n_to_p);
-    enuc += C::Legacy::n_A * Y(Fe55) * rate_eval.add_energy_rate(k_Fe55_to_Mn55);
     enuc += C::Legacy::n_A * Y(Co55) * rate_eval.add_energy_rate(k_Co55_to_Fe55);
-    enuc += C::Legacy::n_A * Y(Ni57) * rate_eval.add_energy_rate(k_Ni57_to_Co57);
+    enuc += C::Legacy::n_A * Y(Co56) * rate_eval.add_energy_rate(k_Co56_to_Fe56);
+    enuc += C::Legacy::n_A * Y(Co56) * rate_eval.add_energy_rate(k_Co56_to_Ni56);
+    enuc += C::Legacy::n_A * Y(Co57) * rate_eval.add_energy_rate(k_Co57_to_Ni57);
+    enuc += C::Legacy::n_A * Y(Fe55) * rate_eval.add_energy_rate(k_Fe55_to_Co55);
+    enuc += C::Legacy::n_A * Y(Fe55) * rate_eval.add_energy_rate(k_Fe55_to_Mn55);
     enuc += C::Legacy::n_A * Y(Fe56) * rate_eval.add_energy_rate(k_Fe56_to_Co56);
+    enuc += C::Legacy::n_A * Y(Mn55) * rate_eval.add_energy_rate(k_Mn55_to_Fe55);
     enuc += C::Legacy::n_A * Y(Ni56) * rate_eval.add_energy_rate(k_Ni56_to_Co56);
+    enuc += C::Legacy::n_A * Y(Ni57) * rate_eval.add_energy_rate(k_Ni57_to_Co57);
+    enuc += C::Legacy::n_A * Y(N) * rate_eval.add_energy_rate(k_n_to_p);
+    enuc += C::Legacy::n_A * Y(H1) * rate_eval.add_energy_rate(k_p_to_n);
 
     // Get the thermal neutrino losses
 
