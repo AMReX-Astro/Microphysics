@@ -138,8 +138,8 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
 
         for (int n = 0; n < NumSpec; n++) {
             if (n == cd.is1 ||
-                (n == cd.is2 && cd.nprim >= 2) ||
-                (n == cd.is3 && cd.nprim >= 3)) {
+                (cd.nprim >= 2 && n == cd.is2) ||
+                (cd.nprim >= 3 && n == cd.is3)) {
                 continue;
             }
 
@@ -286,4 +286,3 @@ Real get_xn(const int index) {
 }
 
 #endif
-
