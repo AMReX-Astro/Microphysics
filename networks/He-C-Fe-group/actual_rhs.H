@@ -1269,13 +1269,15 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     [[maybe_unused]] Real rate, drate_dt, edot_nu, edot_gamma;
 
+    rate_eval.enuc_weak = 0.0;
+
     tabular_evaluate(j_co55_fe55_meta, j_co55_fe55_rhoy, j_co55_fe55_temp, j_co55_fe55_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
     rate_eval.screened_rates(k_co55_to_fe55) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_co55_to_fe55) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_co55_to_fe55) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Co55) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_co56_fe56_meta, j_co56_fe56_rhoy, j_co56_fe56_temp, j_co56_fe56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1283,7 +1285,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_co56_to_fe56) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_co56_to_fe56) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Co56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_co56_ni56_meta, j_co56_ni56_rhoy, j_co56_ni56_temp, j_co56_ni56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1291,7 +1293,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_co56_to_ni56) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_co56_to_ni56) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Co56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_co57_ni57_meta, j_co57_ni57_rhoy, j_co57_ni57_temp, j_co57_ni57_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1299,7 +1301,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_co57_to_ni57) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_co57_to_ni57) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Co57) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_fe55_co55_meta, j_fe55_co55_rhoy, j_fe55_co55_temp, j_fe55_co55_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1307,7 +1309,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_fe55_to_co55) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_fe55_to_co55) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Fe55) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_fe55_mn55_meta, j_fe55_mn55_rhoy, j_fe55_mn55_temp, j_fe55_mn55_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1315,7 +1317,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_fe55_to_mn55) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_fe55_to_mn55) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Fe55) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_fe56_co56_meta, j_fe56_co56_rhoy, j_fe56_co56_temp, j_fe56_co56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1323,7 +1325,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_fe56_to_co56) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_fe56_to_co56) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Fe56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_mn55_fe55_meta, j_mn55_fe55_rhoy, j_mn55_fe55_temp, j_mn55_fe55_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1331,7 +1333,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_mn55_to_fe55) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_mn55_to_fe55) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Mn55) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_ni56_co56_meta, j_ni56_co56_rhoy, j_ni56_co56_temp, j_ni56_co56_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1339,7 +1341,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_ni56_to_co56) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_ni56_to_co56) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Ni56) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_ni57_co57_meta, j_ni57_co57_rhoy, j_ni57_co57_temp, j_ni57_co57_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1347,7 +1349,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_ni57_to_co57) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_ni57_to_co57) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(Ni57) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1355,7 +1357,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_n_to_p) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_n_to_p) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(N) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -1363,7 +1365,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_p_to_n) = drate_dt;
     }
-    rate_eval.add_energy_rate(k_p_to_n) = edot_nu + edot_gamma;
+    rate_eval.enuc_weak += C::Legacy::n_A * Y(H1) * (edot_nu + edot_gamma);
 
 
 }
@@ -1724,6 +1726,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     rate_t rate_eval;
 
     constexpr int do_T_derivatives = 0;
+
     evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
 
     rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
@@ -1733,19 +1736,8 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     Real enuc;
     ener_gener_rate(ydot, enuc);
 
-    // include reaction neutrino losses (non-thermal) and gamma heating
-    enuc += C::Legacy::n_A * Y(Co55) * rate_eval.add_energy_rate(k_co55_to_fe55);
-    enuc += C::Legacy::n_A * Y(Co56) * rate_eval.add_energy_rate(k_co56_to_fe56);
-    enuc += C::Legacy::n_A * Y(Co56) * rate_eval.add_energy_rate(k_co56_to_ni56);
-    enuc += C::Legacy::n_A * Y(Co57) * rate_eval.add_energy_rate(k_co57_to_ni57);
-    enuc += C::Legacy::n_A * Y(Fe55) * rate_eval.add_energy_rate(k_fe55_to_co55);
-    enuc += C::Legacy::n_A * Y(Fe55) * rate_eval.add_energy_rate(k_fe55_to_mn55);
-    enuc += C::Legacy::n_A * Y(Fe56) * rate_eval.add_energy_rate(k_fe56_to_co56);
-    enuc += C::Legacy::n_A * Y(Mn55) * rate_eval.add_energy_rate(k_mn55_to_fe55);
-    enuc += C::Legacy::n_A * Y(Ni56) * rate_eval.add_energy_rate(k_ni56_to_co56);
-    enuc += C::Legacy::n_A * Y(Ni57) * rate_eval.add_energy_rate(k_ni57_to_co57);
-    enuc += C::Legacy::n_A * Y(N) * rate_eval.add_energy_rate(k_n_to_p);
-    enuc += C::Legacy::n_A * Y(H1) * rate_eval.add_energy_rate(k_p_to_n);
+    // include any weak rate neutrino losses
+    enuc += rate_eval.enuc_weak;
 
     // Get the thermal neutrino losses
 
@@ -2770,6 +2762,7 @@ void actual_jac(const burn_t& state, MatrixType& jac)
     rate_derivs_t rate_eval;
 
     constexpr int do_T_derivatives = 1;
+
     evaluate_rates<do_T_derivatives, rate_derivs_t>(state, rate_eval);
 
     // Species Jacobian elements with respect to other species

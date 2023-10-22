@@ -13,13 +13,13 @@ using namespace Species;
 
 struct rate_t {
     Array1D<Real, 1, NumRates>  screened_rates;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
+    Real enuc_weak;
 };
 
 struct rate_derivs_t {
     Array1D<Real, 1, NumRates>  screened_rates;
     Array1D<Real, 1, NumRates>  dscreened_rates_dT;
-    Array1D<Real, NrateReaclib+1, NrateReaclib+NrateTabular> add_energy_rate;
+    Real enuc_weak;
 };
 
 
@@ -5031,7 +5031,7 @@ void rate_he4_mg24_to_p_al27_derived(const tf_t& tfactors, Real& rate, Real& dra
     Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  -6.445750338407261 + -22.82086933218981 * tfactors.T9i + 18.0416 * tfactors.T913
+    ln_set_rate =  -6.445750338407262 + -22.82086933218981 * tfactors.T9i + 18.0416 * tfactors.T913
                          + -1.54137 * tfactors.T9 + 0.0847506 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -5065,7 +5065,7 @@ void rate_he4_mg24_to_p_al27_derived(const tf_t& tfactors, Real& rate, Real& dra
     }
 
     // il10c
-    ln_set_rate =  30.03973966159274 + -18.578369332189812 * tfactors.T9i + -26.4162 * tfactors.T913i
+    ln_set_rate =  30.039739661592737 + -18.578369332189812 * tfactors.T9i + -26.4162 * tfactors.T913i
                          + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -5223,7 +5223,7 @@ void rate_p_mn51_to_he4_cr48_derived(const tf_t& tfactors, Real& rate, Real& dra
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  58.73119795916718 + -6.476551190854941 * tfactors.T9i + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
+    ln_set_rate =  58.73119795916719 + -6.476551190854941 * tfactors.T9i + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
                          + -1.15757 * tfactors.T9 + 0.0877546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -5865,7 +5865,7 @@ void rate_co57_to_n_co56_derived(const tf_t& tfactors, Real& rate, Real& drate_d
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  41.15219049522236 + -132.01531905660212 * tfactors.T9i + -1.37855 * tfactors.T913
+    ln_set_rate =  41.15219049522237 + -132.01531905660212 * tfactors.T9i + -1.37855 * tfactors.T913
                          + 0.299896 * tfactors.T9 + -0.04382 * tfactors.T953 + 1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -6036,7 +6036,7 @@ void rate_ni57_to_p_co56_derived(const tf_t& tfactors, Real& rate, Real& drate_d
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  60.083837675782306 + -85.07956901620872 * tfactors.T9i + -38.1094 * tfactors.T913i + 2.57091 * tfactors.T913
+    ln_set_rate =  60.08383767578231 + -85.07956901620872 * tfactors.T9i + -38.1094 * tfactors.T913i + 2.57091 * tfactors.T913
                          + -2.07795 * tfactors.T9 + 0.20757 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -6440,7 +6440,7 @@ void rate_he4_fe53_to_n_ni56_derived(const tf_t& tfactors, Real& rate, Real& dra
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  -11.227076237025187 + -31.193524937158223 * tfactors.T9i + 6.43259 * tfactors.T913
+    ln_set_rate =  -11.227076237025186 + -31.193524937158223 * tfactors.T9i + 6.43259 * tfactors.T913
                          + 2.29591 * tfactors.T9 + -0.254724 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
@@ -6626,7 +6626,7 @@ void rate_he4_fe54_to_p_co57_derived(const tf_t& tfactors, Real& rate, Real& dra
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  -1.4219519875346398 + -20.56680351235092 * tfactors.T9i + -38.1133 * tfactors.T913i + 29.3541 * tfactors.T913
+    ln_set_rate =  -1.4219519875346407 + -20.56680351235092 * tfactors.T9i + -38.1133 * tfactors.T913i + 29.3541 * tfactors.T913
                          + -4.75966 * tfactors.T9 + 0.40418 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
@@ -6998,7 +6998,7 @@ void rate_he4_co56_to_n_cu59_derived(const tf_t& tfactors, Real& rate, Real& dra
     Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  8.891854052419637 + -61.835022947265 * tfactors.T9i + -1.00882 * tfactors.T913
+    ln_set_rate =  8.891854052419635 + -61.835022947265 * tfactors.T9i + -1.00882 * tfactors.T913
                          + 1.88993 * tfactors.T9 + -0.202319 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
