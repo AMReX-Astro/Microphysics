@@ -75,7 +75,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real zbar = abar * ye_in;
 
     constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T_in, state.rho, abar, zbar,
+    sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
 
     Real snu_old = snu;
@@ -88,7 +88,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real dyedt;
     Real X[NumSpec];
 
-    nse_interp(T_in, state.rho, ye_in,
+    nse_interp(T_in, rho_old, ye_in,
                abar_out, dq_out, dyedt, X);
 
     Real dyedt_old = dyedt;
@@ -107,7 +107,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real rho_aux_new[NumAux];
 
     Real rhoe_new;
-    Real rho_enucdot = -state.rho * snu;
+    Real rho_enucdot = -rho_old * snu;
 
     Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
 
@@ -245,6 +245,26 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     // get the neutrino loss term -- we want to use the state that we
     // came in here with, so the original Abar and Zbar
+    Real snu{0.0};
+    Real dsnudt{0.0};
+    Real dsnudd{0.0};
+    Real dsnuda{0.0};
+    Real dsnudz{0.0};
+
+    Real abar{0.0};
+    Real zbar{0.0};
+    for (int n = 0; n < NumSpec; ++n) {
+        abar += X_old[n] * aion_inv[n];
+        zbar += X_old[n] * zion[n] * aion_inv[n];
+    }
+    abar = 1.0 / abar;
+    zbar *= abar;
+
+    constexpr int do_derivatives = 0;
+    sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
+                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+
+    Real snu_old = snu;
 
 
     // if our network could return the evolution of Ye due to the
@@ -268,7 +288,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real rhoX_new[NumSpec];
 
     Real rhoe_new;
-    Real rho_enucdot = 0.0_rt;
+    Real rho_enucdot = -rho_old * snu;
 
     Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
 
@@ -329,7 +349,20 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         rho_enucdot *= C::Legacy::enuc_conv2;
 
         // now get the updated neutrino term
+        abar = 0.0;
+        zbar = 0.0;
+        for (int n = 0; n < NumSpec; ++n) {
+            abar += nse_state.xn[n] * aion_inv[n];
+            zbar += nse_state.xn[n] * zion[n] * aion_inv[n];
+        }
+        abar = 1.0 / abar;
+        zbar *= abar;
 
+        constexpr int do_derivatives = 0;
+        sneut5<do_derivatives>(T_new, state.y[SRHO], abar, zbar,
+                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
+
+        rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
 
         // update the new state for the next pass -- this should
         // already implicitly have the advective portion included,
