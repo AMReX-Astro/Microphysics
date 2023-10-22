@@ -40,49 +40,59 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     state.n_rhs = 0;
     state.n_jac = 0;
 
-    // call the NSE table to get (dYe/dt)^n
-    Real abar_out;
-    Real dq_out;
-    Real dyedt;
-    Real X[NumSpec];
-
+    // we need the initial Ye to get the NSE state.  We also
+    // want the initial rho <B/A> since we may not be entering
+    // this routine already in NSE.  This means that there will
+    // be an energy release from us instantaneously adjusting
+    // into NSE (the first call to nse_interp) + an energy
+    // release from the evolution of NSE over the timestep
     Real ye_in = state.y[SFX+iye] / state.rho;
+    Real rho_bea_old = state.y[SFX+ibea];
+
+    // density and momentum have no reactive sources
+    Real rho_old = state.y[SRHO];
+
+    state.y[SRHO] += dt * state.ydot_a[SRHO];
+    state.y[SMX] += dt * state.ydot_a[SMX];
+    state.y[SMY] += dt * state.ydot_a[SMY];
+    state.y[SMZ] += dt * state.ydot_a[SMZ];
 
     // if we are doing drive_initial_convection, we want to use
     // the temperature that comes in through T_fixed
 
     Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
-    // get the current NSE state from the table
+    // get the neutrino loss term -- we want to use the state that we
+    // came in here with, so the original Abar and Zbar
 
-    nse_interp(T_in, state.rho, ye_in,
-               abar_out, dq_out, dyedt, X);
-
-    // get the neutrino loss term
     Real snu{0.0};
     Real dsnudt{0.0};
     Real dsnudd{0.0};
     Real dsnuda{0.0};
     Real dsnudz{0.0};
 
-    Real zbar = abar_out * ye_in;
+    Real abar = state.y[SFX+iabar] / rho_old;
+    Real zbar = abar * ye_in;
 
     constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T_in, state.rho, abar_out, zbar,
+    sneut5<do_derivatives>(T_in, state.rho, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
 
     Real snu_old = snu;
 
+    // get the current NSE state from the table -- this will be used
+    // to compute the NSE evolution sources
+
+    Real abar_out;
+    Real dq_out;
+    Real dyedt;
+    Real X[NumSpec];
+
+    nse_interp(T_in, state.rho, ye_in,
+               abar_out, dq_out, dyedt, X);
+
     Real dyedt_old = dyedt;
 
-    // density and momentum have no reactive sources
-    Real rho_old = state.y[SRHO];
-    Real rho_bea_old = state.y[SFX+ibea];
-
-    state.y[SRHO] += dt * state.ydot_a[SRHO];
-    state.y[SMX] += dt * state.ydot_a[SMX];
-    state.y[SMY] += dt * state.ydot_a[SMY];
-    state.y[SMZ] += dt * state.ydot_a[SMZ];
 
     // predict the U^{n+1,*} state with only estimates of the aux
     // reaction terms and advection to dt
@@ -211,53 +221,42 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     state.n_rhs = 0;
     state.n_jac = 0;
 
-    // call the NSE table to get (dYe/dt)^n
-    Real abar_out;
-    Real dq_out;
-    Real dyedt;
-    Real X[NumSpec];
+    // store the initial mass fractions -- we will need these
+    // to compute the energy release.
 
-    // TODO: are state.y[SFS:] and state.xn[:] synced?
+    Real X_old[NumSpec];
 
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-
-    // We will get initial NSE prediction using the input X's
-    BurnT nse_state_in{state};
-    nse_state_in.T = T_in;
-
-    // solve for the NSE state directly -- we'll have it compute
-    // ye from the input Xs
-    auto nse_state = get_actual_nse_state(nse_state_in);
-
-    // compute the new binding energy (B/A) and dyedt
-    dq_out = 0.0;
     for (int n = 0; n < NumSpec; ++n) {
-        dq_out += nse_state.xn[n] * network::bion(n+1) * aion_inv[n];
+        X_old[n] = state.y[SFS+n] / state.y[SRHO];
     }
-
-    dyedt = 0.0;   // we can update this in the future by calling actual_rhs()
-
-    Real dyedt_old = dyedt;
 
     // density and momentum have no reactive sources
     Real rho_old = state.y[SRHO];
-
-    // compute the original rho (B/A) of the composition
-    Real rho_bea_old = 0.0;
-    for (int n = 0; n < NumSpec; ++n) {
-        rho_bea_old += state.y[SFS+n] * network::bion(n+1) * aion_inv[n];
-    }
 
     state.y[SRHO] += dt * state.ydot_a[SRHO];
     state.y[SMX] += dt * state.ydot_a[SMX];
     state.y[SMY] += dt * state.ydot_a[SMY];
     state.y[SMZ] += dt * state.ydot_a[SMZ];
 
+    // if we are doing drive_initial_convection, we want to use
+    // the temperature that comes in through T_fixed
+
+    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+
+    // get the neutrino loss term -- we want to use the state that we
+    // came in here with, so the original Abar and Zbar
+
+
+    // if our network could return the evolution of Ye due to the
+    // weak interactions, we would evaluate the NSE state here and
+    // get dYe/dt.
+
+    Real dyedt_old = 0.0;
+
+
     // predict the U^{n+1,*} state with only estimates of the X
-    // updates with advection to dt
+    // updates with advection to dt and the neutrino loss term in
+    // energy
 
     BurnT burn_state;
     burn_state.T = T_in; // initial guess
@@ -309,27 +308,25 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
         nse_state = get_actual_nse_state(burn_state);
 
-        // compute (B/A) and dyedt
-        dq_out = 0.0;
+        // compute the energy release.  The mass fractions in nse_state.xn[]
+        // include the advective parts, so first we need to remove that.
+
+        Real rhoX_tilde[NumSpec];
         for (int n = 0; n < NumSpec; ++n) {
-            dq_out += nse_state.xn[n] * network::bion(n+1) * aion_inv[n];
+            rhoX_tilde[n] = state.y[SRHO] * nse_state.xn[n] - dt * state.ydot_a[SFS+n];
         }
 
         dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
 
-        // compute the energy release -- we need to remove the
-        // advective part.  To do this, we must first compute the
-        // advective update for B/A from those of the mass fractions
-        Real ydot_a_BA = 0.0_rt;
+        // we want to compute (rho eps) = - N_A c^2 sum{m_i (rhoX_tilde - rhoX_old) / A_i}
+        rho_enucdot = 0.0;
         for (int n = 0; n < NumSpec; ++n) {
-            ydot_a_BA += network::bion(n+1) * aion_inv[n] * state.ydot_a[SFS+n];
+            rho_enucdot += (rhoX_tilde[n] - rho_old * X_old[n]) *
+                network::mion(n+1) * aion_inv(n+1);
         }
+        rho_enucdot *= C::Legacy::enuc_conv2;
 
-        Real rho_bea_tilde = state.y[SRHO] * dq_out - dt * ydot_a_BA;
-        Real rho_dBEA = rho_bea_tilde - rho_bea_old;  // this is MeV / nucleon * g / cm**3
-
-        // convert the energy to erg / cm**3
-        rho_enucdot  = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+        // now get the updated neutrino term
 
         // update the new state for the next pass -- this should
         // already implicitly have the advective portion included,
