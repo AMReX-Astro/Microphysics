@@ -279,6 +279,8 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         rhoX_new[n] = state.y[SFS+n] + dt * state.ydot_a[SFS+n] + dt * rhoX_source[n];
     }
 
+    burn_t nse_state;
+
     for (int iter = 0; iter < 3; iter++) {
 
         // update (rho e)^{n+1} based on the new energy generation rate
@@ -316,17 +318,18 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
             rhoX_tilde[n] = state.y[SRHO] * nse_state.xn[n] - dt * state.ydot_a[SFS+n];
         }
 
-        dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
+        Real dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
 
         // we want to compute (rho eps) = - N_A c^2 sum{m_i (rhoX_tilde - rhoX_old) / A_i}
         rho_enucdot = 0.0;
         for (int n = 0; n < NumSpec; ++n) {
             rho_enucdot += (rhoX_tilde[n] - rho_old * X_old[n]) *
-                network::mion(n+1) * aion_inv(n+1);
+                network::mion(n+1) * aion_inv[n];
         }
         rho_enucdot *= C::Legacy::enuc_conv2;
 
         // now get the updated neutrino term
+
 
         // update the new state for the next pass -- this should
         // already implicitly have the advective portion included,
@@ -343,6 +346,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // the new mass fractions are just those that come from the table
     // make sure they are normalized
     Real sum_X{0.0_rt};
+    Real X[NumSpec] = {0.0_rt};
     for (int n = 0; n < NumSpec; ++n) {
         X[n] = amrex::max(small_x, amrex::min(1.0_rt, nse_state.xn[n]));
         sum_X += X[n];
