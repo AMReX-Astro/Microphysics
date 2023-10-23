@@ -1,4 +1,4 @@
-AMReX (22.11-30-ged095ca21072) initialized
+AMReX (23.05-4-ga393d7ff7e32) initialized
 starting the single zone burn...
 reading in network electron-capture / beta-decay tables...
 Maximum Time (s): 1e-05
@@ -106,4 +106,4 @@ omegadot(Cr48): 66.43598898
 omegadot(Fe52): 1.284019674
 omegadot(Ni56): 0.004684206046
 number of steps taken: 9600
-AMReX (22.11-30-ged095ca21072) finalized
+AMReX (23.05-4-ga393d7ff7e32) finalized
