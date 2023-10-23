@@ -32,7 +32,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   // raise error if no proton or helium-4 in the network.
 
-  if (NSE_INDEX::h1_index == -1 || NSE_INDEX::he4_index == -1) {
+  if (NSE_INDEX::H1_index == -1 || NSE_INDEX::He4_index == -1) {
     amrex::Error("Need proton and helium-4 in the network for NSE_NET to work");
   }
 
@@ -43,12 +43,12 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   for (int n = 0; n < NumSpec; ++n) {
 
-    if (n == NSE_INDEX::h1_index || n == NSE_INDEX::n_index) {
+    if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
       r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
       r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
     }
 
-    else if (n == NSE_INDEX::he4_index) {
+    else if (n == NSE_INDEX::He4_index) {
       r *= state.xn[n] * aion_inv[n];
       r_nse *= nse_state.xn[n] * aion_inv[n];
     }
@@ -59,13 +59,13 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   // if there is neutron in the network
 
-  if ((std::abs((r - r_nse) / r_nse) < 0.5_rt) && (NSE_INDEX::n_index != -1)) {
+  if ((std::abs((r - r_nse) / r_nse) < 0.5_rt) && (NSE_INDEX::N_index != -1)) {
     nse_check = true;
   }
 
   // if there is no neutron in the network
 
-  if ((std::abs((r - r_nse) / r_nse) < 0.25_rt) && (NSE_INDEX::n_index == -1)) {
+  if ((std::abs((r - r_nse) / r_nse) < 0.25_rt) && (NSE_INDEX::N_index == -1)) {
     nse_check = true;
   }
 }
@@ -79,7 +79,7 @@ void find_max_nucs(int& max_nucs, const int current_nuc_ind) {
 
   max_nucs = 0;
 
-  for (int n = NumSpec-1; n > NSE_INDEX::he4_index; --n) {
+  for (int n = NumSpec-1; n > NSE_INDEX::He4_index; --n) {
     if (
         (aion[n] == aion[current_nuc_ind]-1 &&
          (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1))
@@ -223,7 +223,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
   // Now store all possible nuclei involved in a reaction cycle started by nuclei: current_nuc_ind
 
-  for (int n = NumSpec-1; n > NSE_INDEX::he4_index; --n) {
+  for (int n = NumSpec-1; n > NSE_INDEX::He4_index; --n) {
 
     if (
         (aion[n] == aion[current_nuc_ind]-1 &&
@@ -353,7 +353,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
           // implies reactants are he4, reactions(i, j) and product is (reactions(i+1, k)
 
           reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = NSE_INDEX::he4_index;
+          reaction_scratch(2) = NSE_INDEX::He4_index;
           reaction_scratch(3) = -1;
 
           product_scratch(1) = reactions(i+1, k);
@@ -368,7 +368,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
             continue;
           }
 
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
+          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::He4_index + 1) * state.rho;
           get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
           // skip if there are no both forward and reverse rate
@@ -379,7 +379,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
           b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
 
-          Y_i(1) = Y(NSE_INDEX::he4_index + 1);
+          Y_i(1) = Y(NSE_INDEX::He4_index + 1);
           Y_i(2) = 0.0_rt;
         }
 
@@ -389,11 +389,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
           // (alpha, n) reaction
 
           reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = NSE_INDEX::he4_index;
+          reaction_scratch(2) = NSE_INDEX::He4_index;
           reaction_scratch(3) = -1;
 
           product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::n_index;
+          product_scratch(2) = NSE_INDEX::N_index;
           product_scratch(3) = -1;
 
           get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -402,7 +402,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
             continue;
           }
 
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
+          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::He4_index + 1) * state.rho;
           get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
           // skip if there are no both forward and reverse rate
@@ -411,10 +411,10 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
             continue;
           }
 
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
+          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::N_index + 1) * state.rho;
 
-          Y_i(1) = Y(NSE_INDEX::he4_index + 1);
-          Y_i(2) = Y(NSE_INDEX::n_index + 1);
+          Y_i(1) = Y(NSE_INDEX::He4_index + 1);
+          Y_i(2) = Y(NSE_INDEX::N_index + 1);
         }
 
         else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
@@ -423,11 +423,11 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
           // (alpha, p) reaction
 
           reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = NSE_INDEX::he4_index;
+          reaction_scratch(2) = NSE_INDEX::He4_index;
           reaction_scratch(3) = -1;
 
           product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::h1_index;
+          product_scratch(2) = NSE_INDEX::H1_index;
           product_scratch(3) = -1;
 
           get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -436,7 +436,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
             continue;
           }
 
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::he4_index + 1) * state.rho;
+          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::He4_index + 1) * state.rho;
           get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
 
           // skip if there are no both forward and reverse rate
@@ -445,10 +445,10 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
             continue;
           }
 
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
+          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::H1_index + 1) * state.rho;
 
-          Y_i(1) = Y(NSE_INDEX::he4_index + 1);
-          Y_i(2) = Y(NSE_INDEX::h1_index + 1);
+          Y_i(1) = Y(NSE_INDEX::He4_index + 1);
+          Y_i(2) = Y(NSE_INDEX::H1_index + 1);
         }
 
         else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] + 1 &&
@@ -461,7 +461,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
           reaction_scratch(3) = -1;
 
           product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::n_index;
+          product_scratch(2) = NSE_INDEX::N_index;
           product_scratch(3) = -1;
 
           get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -479,9 +479,9 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
             continue;
           }
 
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::n_index + 1) * state.rho;
+          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::N_index + 1) * state.rho;
 
-          Y_i(1) = Y(NSE_INDEX::n_index + 1);
+          Y_i(1) = Y(NSE_INDEX::N_index + 1);
           Y_i(2) = 0.0_rt;
         }
 
@@ -495,7 +495,7 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
           reaction_scratch(3) = -1;
 
           product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::h1_index;
+          product_scratch(2) = NSE_INDEX::H1_index;
           product_scratch(3) = -1;
 
           get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
@@ -513,9 +513,9 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
             continue;
           }
 
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::h1_index + 1) * state.rho;
+          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::H1_index + 1) * state.rho;
 
-          Y_i(1) = Y(NSE_INDEX::h1_index + 1);
+          Y_i(1) = Y(NSE_INDEX::H1_index + 1);
           Y_i(2) = 0.0_rt;
         }
 
@@ -656,7 +656,7 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   // This function checks whether all isotopes are either in the LIG group
   // or in another single group.
 
-  int LIG_root_index = get_root_index(NSE_INDEX::he4_index, group_ind);
+  int LIG_root_index = get_root_index(NSE_INDEX::He4_index, group_ind);
 
   int nonLIG_index = -1;
 
@@ -690,7 +690,7 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   // 1) isotopes with even N
   // 2) isotopes with odd N
 
-  if (NSE_INDEX::n_index == -1 && !in_single_group) {
+  if (NSE_INDEX::N_index == -1 && !in_single_group) {
 
     in_single_group = true;
 
@@ -757,9 +757,9 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
       continue;
     }
 
-    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::h1_index
-        && NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::n_index
-        && NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::he4_index
+    if (NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::H1_index
+        && NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::N_index
+        && NSE_INDEX::rate_indices(current_rate, k) != NSE_INDEX::He4_index
         ) {
       ++m;
 
@@ -787,7 +787,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     // Determine number of nonLIG isotopes
     // also check whether nonLIG isotopes are already merged
 
-    if (root_index != get_root_index(NSE_INDEX::he4_index, group_ind)) {
+    if (root_index != get_root_index(NSE_INDEX::He4_index, group_ind)) {
       ++num_nonLIG;
 
       // return if nonLIG_root index is repeated, meaning these isotope already merged
@@ -820,7 +820,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
     // let LIG group use their own Y instead of Y_group. (not sure if this is true)
 
-    if (root_index == get_root_index(NSE_INDEX::he4_index, group_ind)) {
+    if (root_index == get_root_index(NSE_INDEX::He4_index, group_ind)) {
         Y_group(k) = Y(NSE_INDEX::rate_indices(current_rate, k) + 1);
     }
     else {
@@ -886,7 +886,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
       // If nonNPA index is -1, meaning null, then use LIG index
 
       if (nonNPA_ind(n) == -1) {
-        merge_indices(n) = get_root_index(NSE_INDEX::he4_index, group_ind);
+        merge_indices(n) = get_root_index(NSE_INDEX::He4_index, group_ind);
       }
       else {
         merge_indices(n) = NSE_INDEX::rate_indices(current_rate, nonNPA_ind(n));
@@ -913,10 +913,10 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
 
     // let n,p,a form the same group (LIG) initially, let 1 be index of LIG
 
-    if (i == NSE_INDEX::h1_index + 1 || i == NSE_INDEX::n_index + 1
-        || i == NSE_INDEX::he4_index + 1) {
+    if (i == NSE_INDEX::H1_index + 1 || i == NSE_INDEX::N_index + 1
+        || i == NSE_INDEX::He4_index + 1) {
 
-      // group_ind(i) = NSE_INDEX::he4_index;
+      // group_ind(i) = NSE_INDEX::He4_index;
 
       group_ind(i) = 1;
     }
@@ -1087,7 +1087,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   // Now we look through the network and see if there are fast reaction cycles
   // Need to separate forward and reverse rate and determine each step is fast enough.
 
-  if (NSE_INDEX::n_index != -1) {
+  if (NSE_INDEX::N_index != -1) {
     found_fast_reaction_cycle = false;
 
     // Do a reverse for loop to start from heaviest nuclei
