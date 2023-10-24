@@ -43,9 +43,9 @@ Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
     for (int i = 1; i <= n; ++i) {
         Real xabs = std::abs(x(i));
 
-	if ( amrex::isnan(xabs) || amrex::isinf(xabs) ) {
-	  return 0.0_rt;
-	}
+        if ( amrex::isnan(xabs) || amrex::isinf(xabs) ) {
+          return 0.0_rt;
+        }
         if (xabs <= rdwarf || xabs >= agiant) {
             if (xabs > rdwarf) {
 

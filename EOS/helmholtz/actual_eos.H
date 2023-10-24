@@ -29,13 +29,13 @@ using namespace eos_rp;
 // derivatives), number density of electrons and positron pair (along
 // with their derivatives), adiabatic indices, specific heats, and
 // relativistically correct sound speed are also returned.
-// 
+//
 // this routine assumes planckian photons, an ideal gas of ions,
 // and an electron-positron gas with an arbitrary degree of relativity
 // and degeneracy. interpolation in a table of the helmholtz free energy
 // is used to return the electron-positron thermodynamic quantities.
 // all other derivatives are analytic.
-// 
+//
 // references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
 const std::string eos_name = "helmholtz";
@@ -510,7 +510,7 @@ void apply_ions (T& state)
     Real sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
     Real dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
                    kergavo * deni * ytot1;
-    Real dsiondt = (dpiondt * deni + deiondt) * tempi -  
+    Real dsiondt = (dpiondt * deni + deiondt) * tempi -
                    (pion * deni + eion) * tempi * tempi +
                    1.5e0_rt * kergavo * tempi * ytot1;
 
@@ -759,7 +759,7 @@ void apply_coulomb_corrections (T& state)
         decoulda = s * dpcoulda;
         decouldz = s * dpcouldz;
 
-        s        = -avo_eos * kerg / (state.abar * plasg) * 
+        s        = -avo_eos * kerg / (state.abar * plasg) *
                     (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
         dscouldd = s * plasgdd;
         dscouldt = s * plasgdt;
@@ -1364,6 +1364,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading free energy from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> f_local[idx] >> f_local[idx+3] >> f_local[idx+1]
                      >> f_local[idx+4] >> f_local[idx+2] >> f_local[idx+5]
@@ -1377,6 +1380,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading pressure derivative from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> dpdf_local[idx] >> dpdf_local[idx+2]
                      >> dpdf_local[idx+1] >> dpdf_local[idx+3];
@@ -1389,6 +1395,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading electron chemical potential from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> ef_local[idx] >> ef_local[idx+2]
                      >> ef_local[idx+1] >> ef_local[idx+3];
@@ -1401,6 +1410,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading number density from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> xf_local[idx] >> xf_local[idx+2]
                      >> xf_local[idx+1] >> xf_local[idx+3];

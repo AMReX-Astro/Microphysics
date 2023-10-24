@@ -22,7 +22,7 @@ The equations we integrate to do a nuclear burn are:
 
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specific
 nuclear energy created through reactions. Also needed are density :math:`\rho`,
-temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the 
+temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
 section, this is implemented in a network-specific manner.
 
@@ -70,7 +70,7 @@ routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     void burner (burn_t& state, Real dt)
 
-The input is a ``burn_t``.  
+The input is a ``burn_t``.
 
 .. note::
 
@@ -369,7 +369,7 @@ the allowed options are:
 
   The spectral radius is estimated by default using the power method,
   built into RKC.  Alternately, by setting ``integrator.use_circle_theorem=1``,
-  the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_ 
+  the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
@@ -383,7 +383,7 @@ robust.
 .. important::
 
    The integrator will not abort if it encounters trouble.  Instead it will
-   set ``burn_t burn_state.success = false`` on exit.  It is up to the 
+   set ``burn_t burn_state.success = false`` on exit.  It is up to the
    application code to handle the failure.
 
 .. note::

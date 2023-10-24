@@ -226,7 +226,7 @@ namespace Rates {
 }
 
 namespace RHS {
-    
+
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr rhs_t rhs_data (int rate)
     {
