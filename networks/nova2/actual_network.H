@@ -24,38 +24,38 @@ namespace Rates
 
     enum NetworkRates
     {
-        k_n13_to_c13_weak_wc12 = 1,
-        k_o14_to_n14_weak_wc12 = 2,
-        k_o15_to_n15_weak_wc12 = 3,
-        k_f17_to_o17_weak_wc12 = 4,
-        k_b8_to_he4_he4_weak_wc12 = 5,
+        k_N13_to_C13_weak_wc12 = 1,
+        k_O14_to_N14_weak_wc12 = 2,
+        k_O15_to_N15_weak_wc12 = 3,
+        k_F17_to_O17_weak_wc12 = 4,
+        k_B8_to_He4_He4_weak_wc12 = 5,
         k_p_p_to_d_weak_bet_pos_ = 6,
         k_p_p_to_d_weak_electron_capture = 7,
-        k_p_d_to_he3 = 8,
-        k_d_d_to_he4 = 9,
-        k_p_he3_to_he4_weak_bet_pos_ = 10,
-        k_he4_he3_to_be7 = 11,
-        k_p_be7_to_b8 = 12,
-        k_p_c12_to_n13 = 13,
-        k_he4_c12_to_o16 = 14,
-        k_p_c13_to_n14 = 15,
-        k_p_n13_to_o14 = 16,
-        k_p_n14_to_o15 = 17,
-        k_he4_n14_to_f18 = 18,
-        k_p_n15_to_o16 = 19,
-        k_p_o16_to_f17 = 20,
-        k_p_o17_to_f18 = 21,
-        k_d_he3_to_p_he4 = 22,
-        k_he4_n13_to_p_o16 = 23,
-        k_p_n15_to_he4_c12 = 24,
-        k_he4_o14_to_p_f17 = 25,
-        k_p_o17_to_he4_n14 = 26,
-        k_p_f18_to_he4_o15 = 27,
-        k_he3_he3_to_p_p_he4 = 28,
-        k_d_be7_to_p_he4_he4 = 29,
-        k_he3_be7_to_p_p_he4_he4 = 30,
-        k_he4_he4_he4_to_c12 = 31,
-        NumRates = k_he4_he4_he4_to_c12
+        k_p_d_to_He3 = 8,
+        k_d_d_to_He4 = 9,
+        k_p_He3_to_He4_weak_bet_pos_ = 10,
+        k_He4_He3_to_Be7 = 11,
+        k_p_Be7_to_B8 = 12,
+        k_p_C12_to_N13 = 13,
+        k_He4_C12_to_O16 = 14,
+        k_p_C13_to_N14 = 15,
+        k_p_N13_to_O14 = 16,
+        k_p_N14_to_O15 = 17,
+        k_He4_N14_to_F18 = 18,
+        k_p_N15_to_O16 = 19,
+        k_p_O16_to_F17 = 20,
+        k_p_O17_to_F18 = 21,
+        k_d_He3_to_p_He4 = 22,
+        k_He4_N13_to_p_O16 = 23,
+        k_p_N15_to_He4_C12 = 24,
+        k_He4_O14_to_p_F17 = 25,
+        k_p_O17_to_He4_N14 = 26,
+        k_p_F18_to_He4_O15 = 27,
+        k_He3_He3_to_p_p_He4 = 28,
+        k_d_Be7_to_p_He4_He4 = 29,
+        k_He3_Be7_to_p_p_He4_He4 = 30,
+        k_He4_He4_He4_to_C12 = 31,
+        NumRates = k_He4_He4_He4_to_C12
     };
 
     // number of reaclib rates
@@ -72,37 +72,37 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "n13_to_c13_weak_wc12",  // 1,
-        "o14_to_n14_weak_wc12",  // 2,
-        "o15_to_n15_weak_wc12",  // 3,
-        "f17_to_o17_weak_wc12",  // 4,
-        "b8_to_he4_he4_weak_wc12",  // 5,
+        "N13_to_C13_weak_wc12",  // 1,
+        "O14_to_N14_weak_wc12",  // 2,
+        "O15_to_N15_weak_wc12",  // 3,
+        "F17_to_O17_weak_wc12",  // 4,
+        "B8_to_He4_He4_weak_wc12",  // 5,
         "p_p_to_d_weak_bet_pos_",  // 6,
         "p_p_to_d_weak_electron_capture",  // 7,
-        "p_d_to_he3",  // 8,
-        "d_d_to_he4",  // 9,
-        "p_he3_to_he4_weak_bet_pos_",  // 10,
-        "he4_he3_to_be7",  // 11,
-        "p_be7_to_b8",  // 12,
-        "p_c12_to_n13",  // 13,
-        "he4_c12_to_o16",  // 14,
-        "p_c13_to_n14",  // 15,
-        "p_n13_to_o14",  // 16,
-        "p_n14_to_o15",  // 17,
-        "he4_n14_to_f18",  // 18,
-        "p_n15_to_o16",  // 19,
-        "p_o16_to_f17",  // 20,
-        "p_o17_to_f18",  // 21,
-        "d_he3_to_p_he4",  // 22,
-        "he4_n13_to_p_o16",  // 23,
-        "p_n15_to_he4_c12",  // 24,
-        "he4_o14_to_p_f17",  // 25,
-        "p_o17_to_he4_n14",  // 26,
-        "p_f18_to_he4_o15",  // 27,
-        "he3_he3_to_p_p_he4",  // 28,
-        "d_be7_to_p_he4_he4",  // 29,
-        "he3_be7_to_p_p_he4_he4",  // 30,
-        "he4_he4_he4_to_c12"  // 31,
+        "p_d_to_He3",  // 8,
+        "d_d_to_He4",  // 9,
+        "p_He3_to_He4_weak_bet_pos_",  // 10,
+        "He4_He3_to_Be7",  // 11,
+        "p_Be7_to_B8",  // 12,
+        "p_C12_to_N13",  // 13,
+        "He4_C12_to_O16",  // 14,
+        "p_C13_to_N14",  // 15,
+        "p_N13_to_O14",  // 16,
+        "p_N14_to_O15",  // 17,
+        "He4_N14_to_F18",  // 18,
+        "p_N15_to_O16",  // 19,
+        "p_O16_to_F17",  // 20,
+        "p_O17_to_F18",  // 21,
+        "d_He3_to_p_He4",  // 22,
+        "He4_N13_to_p_O16",  // 23,
+        "p_N15_to_He4_C12",  // 24,
+        "He4_O14_to_p_F17",  // 25,
+        "p_O17_to_He4_N14",  // 26,
+        "p_F18_to_He4_O15",  // 27,
+        "He3_He3_to_p_p_He4",  // 28,
+        "d_Be7_to_p_He4_He4",  // 29,
+        "He3_Be7_to_p_p_He4_He4",  // 30,
+        "He4_He4_He4_to_C12"  // 31,
     };
 
 }
@@ -110,9 +110,9 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int h1_index = 0;
-    constexpr int n_index = -1;
-    constexpr int he4_index = 3;
+    constexpr int H1_index = 0;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 3;
 
     // Each row corresponds to the rate in NetworkRates enum
     // First 3 row indices for reactants, followed by 3 product indices
