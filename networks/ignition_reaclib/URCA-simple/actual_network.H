@@ -24,6 +24,7 @@ namespace Rates
 
     enum NetworkRates
     {
+<<<<<<< HEAD
         k_c12_c12_to_he4_ne20 = 1,
         k_c12_c12_to_n_mg23 = 2,
         k_c12_c12_to_p_na23 = 3,
@@ -33,6 +34,16 @@ namespace Rates
         k_n_to_p = 7,
         k_p_to_n = 8,
         NumRates = k_p_to_n
+=======
+        k_C12_C12_to_He4_Ne20 = 1,
+        k_C12_C12_to_n_Mg23 = 2,
+        k_C12_C12_to_p_Na23 = 3,
+        k_He4_C12_to_O16 = 4,
+        k_n_to_p_weak_wc12 = 5,
+        k_Na23_to_Ne23 = 6,
+        k_Ne23_to_Na23 = 7,
+        NumRates = k_Ne23_to_Na23
+>>>>>>> development
     };
 
     // number of reaclib rates
@@ -49,6 +60,7 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
+<<<<<<< HEAD
         "c12_c12_to_he4_ne20",  // 1,
         "c12_c12_to_n_mg23",  // 2,
         "c12_c12_to_p_na23",  // 3,
@@ -57,6 +69,15 @@ namespace Rates
         "ne23_to_na23",  // 6,
         "n_to_p",  // 7,
         "p_to_n"  // 8,
+=======
+        "C12_C12_to_He4_Ne20",  // 1,
+        "C12_C12_to_n_Mg23",  // 2,
+        "C12_C12_to_p_Na23",  // 3,
+        "He4_C12_to_O16",  // 4,
+        "n_to_p_weak_wc12",  // 5,
+        "Na23_to_Ne23",  // 6,
+        "Ne23_to_Na23"  // 7,
+>>>>>>> development
     };
 
 }
@@ -64,9 +85,9 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int h1_index = 1;
-    constexpr int n_index = 0;
-    constexpr int he4_index = 2;
+    constexpr int H1_index = 1;
+    constexpr int N_index = 0;
+    constexpr int He4_index = 2;
 
     // Each row corresponds to the rate in NetworkRates enum
     // First 3 row indices for reactants, followed by 3 product indices
