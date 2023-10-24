@@ -39,10 +39,18 @@ namespace Rates
         k_C12_C12_to_n_Mg23 = 2,
         k_C12_C12_to_p_Na23 = 3,
         k_He4_C12_to_O16 = 4,
+<<<<<<< HEAD
         k_n_to_p_weak_wc12 = 5,
         k_Na23_to_Ne23 = 6,
         k_Ne23_to_Na23 = 7,
         NumRates = k_Ne23_to_Na23
+>>>>>>> development
+=======
+        k_Na23_to_Ne23 = 5,
+        k_Ne23_to_Na23 = 6,
+        k_n_to_p = 7,
+        k_p_to_n = 8,
+        NumRates = k_p_to_n
 >>>>>>> development
     };
 
@@ -74,9 +82,16 @@ namespace Rates
         "C12_C12_to_n_Mg23",  // 2,
         "C12_C12_to_p_Na23",  // 3,
         "He4_C12_to_O16",  // 4,
+<<<<<<< HEAD
         "n_to_p_weak_wc12",  // 5,
         "Na23_to_Ne23",  // 6,
         "Ne23_to_Na23"  // 7,
+>>>>>>> development
+=======
+        "Na23_to_Ne23",  // 5,
+        "Ne23_to_Na23",  // 6,
+        "n_to_p",  // 7,
+        "p_to_n"  // 8,
 >>>>>>> development
     };
 
