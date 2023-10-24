@@ -95,15 +95,10 @@ if DO_DERIVED_RATES:
             d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
             all_lib.add_rate(d)
 
-# combine all three libraries into a single network
-
-net = pyna.AmrexAstroCxxNetwork(libraries=[all_lib],
-                                symmetric_screening=False)
-
 # we will have duplicate rates -- we want to remove any ReacLib rates
 # that we have tabular rates for
 
-dupes = net.find_duplicate_links()
+dupes = all_lib.find_duplicate_links()
 
 rates_to_remove = []
 for d in dupes:
@@ -111,7 +106,14 @@ for d in dupes:
         if isinstance(r, ReacLibRate):
             rates_to_remove.append(r)
 
-net.remove_rates(rates_to_remove)
+for r in rates_to_remove:
+    all_lib.remove_rate(r)
+
+# combine all three libraries into a single network
+
+net = pyna.AmrexAstroCxxNetwork(libraries=[all_lib],
+                                symmetric_screening=False)
+
 
 # now we approximate some (alpha, p)(p, gamma) links
 
