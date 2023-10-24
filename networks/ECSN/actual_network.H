@@ -24,25 +24,25 @@ namespace Rates
 
     enum NetworkRates
     {
-        k_ne20_to_he4_o16 = 1,
-        k_he4_o16_to_ne20 = 2,
-        k_he4_ne20_to_mg24 = 3,
-        k_he4_mg24_to_si28 = 4,
-        k_p_al27_to_si28 = 5,
-        k_he4_al27_to_p31 = 6,
-        k_he4_si28_to_s32 = 7,
-        k_p_p31_to_s32 = 8,
-        k_o16_o16_to_p_p31 = 9,
-        k_o16_o16_to_he4_si28 = 10,
-        k_he4_mg24_to_p_al27 = 11,
-        k_p_al27_to_he4_mg24 = 12,
-        k_he4_si28_to_p_p31 = 13,
-        k_p_p31_to_he4_si28 = 14,
-        k_f20_to_o20 = 15,
-        k_ne20_to_f20 = 16,
-        k_o20_to_f20 = 17,
-        k_f20_to_ne20 = 18,
-        NumRates = k_f20_to_ne20
+        k_Ne20_to_He4_O16 = 1,
+        k_He4_O16_to_Ne20 = 2,
+        k_He4_Ne20_to_Mg24 = 3,
+        k_He4_Mg24_to_Si28 = 4,
+        k_p_Al27_to_Si28 = 5,
+        k_He4_Al27_to_P31 = 6,
+        k_He4_Si28_to_S32 = 7,
+        k_p_P31_to_S32 = 8,
+        k_O16_O16_to_p_P31 = 9,
+        k_O16_O16_to_He4_Si28 = 10,
+        k_He4_Mg24_to_p_Al27 = 11,
+        k_p_Al27_to_He4_Mg24 = 12,
+        k_He4_Si28_to_p_P31 = 13,
+        k_p_P31_to_He4_Si28 = 14,
+        k_F20_to_O20 = 15,
+        k_Ne20_to_F20 = 16,
+        k_O20_to_F20 = 17,
+        k_F20_to_Ne20 = 18,
+        NumRates = k_F20_to_Ne20
     };
 
     // number of reaclib rates
@@ -59,24 +59,24 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "ne20_to_he4_o16",  // 1,
-        "he4_o16_to_ne20",  // 2,
-        "he4_ne20_to_mg24",  // 3,
-        "he4_mg24_to_si28",  // 4,
-        "p_al27_to_si28",  // 5,
-        "he4_al27_to_p31",  // 6,
-        "he4_si28_to_s32",  // 7,
-        "p_p31_to_s32",  // 8,
-        "o16_o16_to_p_p31",  // 9,
-        "o16_o16_to_he4_si28",  // 10,
-        "he4_mg24_to_p_al27",  // 11,
-        "p_al27_to_he4_mg24",  // 12,
-        "he4_si28_to_p_p31",  // 13,
-        "p_p31_to_he4_si28",  // 14,
-        "f20_to_o20",  // 15,
-        "ne20_to_f20",  // 16,
-        "o20_to_f20",  // 17,
-        "f20_to_ne20"  // 18,
+        "Ne20_to_He4_O16",  // 1,
+        "He4_O16_to_Ne20",  // 2,
+        "He4_Ne20_to_Mg24",  // 3,
+        "He4_Mg24_to_Si28",  // 4,
+        "p_Al27_to_Si28",  // 5,
+        "He4_Al27_to_P31",  // 6,
+        "He4_Si28_to_S32",  // 7,
+        "p_P31_to_S32",  // 8,
+        "O16_O16_to_p_P31",  // 9,
+        "O16_O16_to_He4_Si28",  // 10,
+        "He4_Mg24_to_p_Al27",  // 11,
+        "p_Al27_to_He4_Mg24",  // 12,
+        "He4_Si28_to_p_P31",  // 13,
+        "p_P31_to_He4_Si28",  // 14,
+        "F20_to_O20",  // 15,
+        "Ne20_to_F20",  // 16,
+        "O20_to_F20",  // 17,
+        "F20_to_Ne20"  // 18,
     };
 
 }
@@ -84,9 +84,9 @@ namespace Rates
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    constexpr int h1_index = 0;
-    constexpr int n_index = -1;
-    constexpr int he4_index = 1;
+    constexpr int H1_index = 0;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 1;
 
     // Each row corresponds to the rate in NetworkRates enum
     // First 3 row indices for reactants, followed by 3 product indices
