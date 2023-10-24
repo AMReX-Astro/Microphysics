@@ -181,7 +181,7 @@ special cases (e.g., for approximate nets):
   This indicates that each branch happens 50% of the time.
 
 
-* ``apply_identical_particle_factor`` : 
+* ``apply_identical_particle_factor`` :
 
    Normally for rates involving identical nuclei, we divide
    the rate by a factor (:math:`n!`, where `n` is the number of the same nuclei participating).  This
@@ -216,7 +216,7 @@ special cases (e.g., for approximate nets):
 
   To save on computation, we can create a table of reaction rates
   by evaluating over a grid of temperature and then interpolating
-  in temperature as needed.  This operates only on the 
+  in temperature as needed.  This operates only on the
   :math:`N_A \langle \sigma v \rangle` portion of the rate.
 
   Some rates are more complex than fits into the rate tabulation

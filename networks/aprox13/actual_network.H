@@ -125,11 +125,11 @@ namespace network
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    // p_index is for photoionization proton
-    constexpr int p_index= -1;
-    constexpr int h1_index = -1;
-    constexpr int n_index = -1;
-    constexpr int he4_index = 0;
+    // P_index is for photoionization proton
+    constexpr int P_index= -1;
+    constexpr int H1_index = -1;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 0;
 }
 #endif
 
@@ -174,7 +174,7 @@ namespace Rates {
 }
 
 namespace RHS {
-    
+
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr rhs_t rhs_data (int rate)
     {

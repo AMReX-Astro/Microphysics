@@ -56,14 +56,14 @@ def get_library():
         print("removing: ", r)
         _r = subch.get_rate_by_name(r)
         subch.remove_rate(_r)
-        
+
     # additional neutron rates to remove
     for r in subch.get_rates():
         if (r == subch.get_rate_by_name("mg24(n,a)ne21") or r == subch.get_rate_by_name("ne21(a,n)mg24")
             or r == subch.get_rate_by_name("na22(n,g)na23") or r == subch.get_rate_by_name("na23(g,n)na22")
             or r == subch.get_rate_by_name("ne21(g,n)ne20") or r == subch.get_rate_by_name("ne20(n,g)ne21")):
             continue
-    
+
         if pyna.Nucleus("n") in r.reactants or pyna.Nucleus("n") in r.products:
             print("removing neutron rates: ", r)
             subch.remove_rate(r)

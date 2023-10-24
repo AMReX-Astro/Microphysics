@@ -109,7 +109,7 @@ struct eos_rep_t:eos_base_t {
 
     amrex::Real abar{};
     amrex::Real zbar{};
-  
+
 #ifdef NSE_NET
     amrex::Real mu_p{};   //chemical potential of proton
     amrex::Real mu_n{};   //chemical potential of neutron

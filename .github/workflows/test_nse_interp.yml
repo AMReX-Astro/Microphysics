@@ -40,4 +40,4 @@ jobs:
       - name: Compare to stored output (NSE, aprox19)
         run: |
           cd unit_test/test_nse_interp
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox19.out
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox19.out

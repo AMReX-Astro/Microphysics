@@ -34,7 +34,7 @@ T get_nonexponent_nse_state(const T& state) {
   T nse_state = state;
 
   // set partition function and spin
-  
+
   amrex::Real pf = 1.0_rt;
   [[maybe_unused]] amrex::Real dpf_dT;
   amrex::Real spin = 1.0_rt;
@@ -50,7 +50,7 @@ T get_nonexponent_nse_state(const T& state) {
 
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-      if (n == NSE_INDEX::h1_index) {
+      if (n == NSE_INDEX::H1_index) {
           nse_state.xn[n] = 0.0;
           continue;
       }
@@ -66,10 +66,10 @@ T get_nonexponent_nse_state(const T& state) {
       // find nse mass frac without the exponent term.
 
       Real power = 2.0 * M_PI * network::mion(n+1) *
-	C::k_B * T_in / (C::hplanck * C::hplanck);
+        C::k_B * T_in / (C::hplanck * C::hplanck);
 
       nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-	std::sqrt(power * power * power);
+        std::sqrt(power * power * power);
   }
 
   return nse_state;
@@ -102,10 +102,10 @@ void apply_nse_exponent(T& nse_state) {
 #endif
 
   amrex::Real u_c = 0.0_rt;
-  
+
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-      if (n == NSE_INDEX::h1_index) {
+      if (n == NSE_INDEX::H1_index) {
           nse_state.xn[n] = 0.0;
           continue;
       }
@@ -133,9 +133,9 @@ void apply_nse_exponent(T& nse_state) {
       // iteration will make it happy again
 
       exponent = amrex::min(500.0_rt,
-			    (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-			     nse_state.mu_n - u_c + network::bion(n+1)) /
-			    C::k_B / T_in * C::Legacy::MeV2erg);
+                            (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
+                             nse_state.mu_n - u_c + network::bion(n+1)) /
+                            C::k_B / T_in * C::Legacy::MeV2erg);
 
       nse_state.xn[n] *= std::exp(exponent);
   }
@@ -144,7 +144,7 @@ void apply_nse_exponent(T& nse_state) {
 
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    if (n == NSE_INDEX::h1_index) {
+    if (n == NSE_INDEX::H1_index) {
       continue;
     }
 #endif
@@ -162,7 +162,7 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
     amrex::ignore_unused(iflag);
-  
+
     T nse_state = state;
     nse_state.mu_p = x(1);
     nse_state.mu_n = x(2);
@@ -175,7 +175,7 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::h1_index) {
+        if (n == NSE_INDEX::H1_index) {
             continue;
         }
 #endif
@@ -198,7 +198,7 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
                 const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
     amrex::ignore_unused(iflag);
-  
+
     T nse_state = state;
     nse_state.mu_p = x(1);
     nse_state.mu_n = x(2);
@@ -219,7 +219,7 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::h1_index) {
+        if (n == NSE_INDEX::H1_index) {
             continue;
         }
 #endif
@@ -274,42 +274,42 @@ void nse_hybrid_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
       for (int j = 0; j < 20; ++j) {
 
-	hj.x(1) = inner_x(1);
-	hj.x(2) = inner_x(2);
+        hj.x(1) = inner_x(1);
+        hj.x(2) = inner_x(2);
 
-	// hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
-	hybrj(hj, state);
+        // hybrj<2, T>(hj, state, fcn_hybrid<T>, jcn_hybrid<T>);
+        hybrj(hj, state);
 
-	fcn(hj.x, f, state, flag);
+        fcn(hj.x, f, state, flag);
 
-	if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
+        if (std::abs(f(1)) < eps && std::abs(f(2)) < eps) {
 
-	  state.mu_p = hj.x(1);
-	  state.mu_n = hj.x(2);
-	  return;
-	}
+          state.mu_p = hj.x(1);
+          state.mu_n = hj.x(2);
+          return;
+        }
 
-	if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
-	  is_pos_new = true;
-	}
-	else{
-	  is_pos_new = false;
-	}
+        if (f(1) > 0.0_rt && f(2) > 0.0_rt) {
+          is_pos_new = true;
+        }
+        else{
+          is_pos_new = false;
+        }
 
-	if (is_pos_old != is_pos_new) {
-	  dx *= 0.8_rt;
-	}
+        if (is_pos_old != is_pos_new) {
+          dx *= 0.8_rt;
+        }
 
-	if (is_pos_new) {
-	  inner_x(1) -= dx;
-	  inner_x(2) -= dx;
-	}
-	else{
-	  inner_x(1) += dx;
-	  inner_x(2) += dx;
-	}
+        if (is_pos_new) {
+          inner_x(1) -= dx;
+          inner_x(2) -= dx;
+        }
+        else{
+          inner_x(1) += dx;
+          inner_x(2) += dx;
+        }
 
-	is_pos_old = is_pos_new;
+        is_pos_old = is_pos_new;
       }
 
       outer_x(1) -= 0.5_rt;
@@ -355,10 +355,10 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
   // store determinant for finding inverse jac
   amrex::Real det;
-  
+
   // store inverse jacobian
   amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;
-  
+
   // difference in chemical potential of proton and neutron
   amrex::Real d_mu_p = std::numeric_limits<Real>::max();
   amrex::Real d_mu_n = std::numeric_limits<Real>::max();
@@ -422,7 +422,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
     // check whether solution results in nan
 
     if (std::isnan(x(1)) || std::isnan(x(2))) {
-	amrex::Error("Nan encountered, likely due to overflow in digits or not making good progress");
+        amrex::Error("Nan encountered, likely due to overflow in digits or not making good progress");
       }
 
     // update constraint
@@ -487,12 +487,12 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     bool singular_network = true;
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-      if (n == NSE_INDEX::h1_index) {
-	continue;
+      if (n == NSE_INDEX::H1_index) {
+        continue;
       }
 #endif
       if (zion[n] != aion[n] - zion[n]) {
-	singular_network = false;
+        singular_network = false;
       }
     }
 
@@ -511,7 +511,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
   state.mu_p = nse_state.mu_p;
   state.mu_n = nse_state.mu_n;
- 
+
   return nse_state;
 }
 #endif

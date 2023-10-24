@@ -28,7 +28,7 @@ def find_files(SHAs=None):
     if stderr is not None:
         raise Exception('git diff encountered an error')
 
-    files = [f for f in stdout.decode('utf-8').strip().split('\n') 
+    files = [f for f in stdout.decode('utf-8').strip().split('\n')
              if f.startswith('networks/')]
     print(files)
 

@@ -369,7 +369,7 @@ the allowed options are:
 
   The spectral radius is estimated by default using the power method,
   built into RKC.  Alternately, by setting ``integrator.use_circle_theorem=1``,
-  the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_ 
+  the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
 * ``ROCK``: a stabilized explicit integrator.  Two variants, a second

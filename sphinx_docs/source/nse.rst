@@ -254,7 +254,7 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
   An example of such reaction cycle would be:
 
   .. math::
-     
+
      \isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
      (\alpha, \gamma) \isotm{S}{32}
 
@@ -265,11 +265,11 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
   If there are no isotope present in the network that would form a closed-cycle,
   we move on to the next nuclei. We break out of the iteration once we found
   a fast reaction cycle.
-    
+
 * If the previous two check pass, we proceed to nuclei grouping. Initially,
   :math:`p`, :math:`n`, and :math:`\alpha` are grouped into a single group called
   the light-isotope-group, or LIG. Other isotopes belong to their own group,
-  which only contains themselves. During each iteration, we find all valid reaction, 
+  which only contains themselves. During each iteration, we find all valid reaction,
   :math:`k`, that has the fastest time-scale,
   :math:`t_{i,k} = \tilde{Y}_i/\textbf{min}(b_f(k), b_r(k))`, for :math:`i` to be the isotope
   involved with the reaction that is different from :math:`p`, :math:`n`, and :math:`\alpha`.
@@ -283,13 +283,13 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
     .. math::
 
        t_{i,k} < \epsilon t_s
-       
+
   *
 
     .. math::
 
       2|b_f(k) - b_r(k)|/(b_f(k) + b_r(k) < \epsilon
-    
+
   Here we only consider two cases of reactions:
 
   * There are exactly two isotopes involved in reaction, :math:`k`, that are not in the
@@ -307,7 +307,7 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
   * Reactions that involve more than 2 reactants and products
 
   * Reactions that have more than 2 non-light-isotope-group.
-    
+
   * The nuclei that participate in the reaction is either in LIG or in another group.
     This means that the non-LIG nuclei have already merged.
 
@@ -320,8 +320,8 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
   a single group due to the missing neutron rates. Therefore, there is an alternative
   criteria of defining a "single group" when neutron is not present in the network:
   for isotopes, :math:`Z >= 14`, isotopes with odd and even :math:`N` form two
-  distinct groups. 
-  
+  distinct groups.
+
 
 Additional Options
 ------------------

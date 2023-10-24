@@ -39,7 +39,7 @@ void actual_eos_init ()
     // Available pre-defined polytrope options:
 
     // 1: Non-relativistic, fully degenerate electron gas
-    // 2: Relativistic, fully degenerate electron gas 
+    // 2: Relativistic, fully degenerate electron gas
 
     if (polytrope_type > 0) {
         mu_e = polytrope_mu_e;
@@ -88,7 +88,7 @@ bool is_input_valid (I input)
 
 
 //---------------------------------------------------------------------------
-// Public interfaces 
+// Public interfaces
 //---------------------------------------------------------------------------
 
 inline

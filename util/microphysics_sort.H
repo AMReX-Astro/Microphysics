@@ -12,9 +12,9 @@ void sort_Array1D(amrex::Array1D<int, l, m>& array_1d){
   for (int i = l; i <= m; ++i){
     for (int j = l; j <= m-i; ++j){
       if (array_1d(j) > array_1d(j+1)){
-	scratch = array_1d(j);
-	array_1d(j) = array_1d(j+1);
-	array_1d(j+1) = scratch;
+        scratch = array_1d(j);
+        array_1d(j) = array_1d(j+1);
+        array_1d(j+1) = scratch;
       }
     }
   }

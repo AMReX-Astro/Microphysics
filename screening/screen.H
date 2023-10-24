@@ -133,7 +133,7 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
   if constexpr (do_T_derivatives) {
     state.taufacdt = -(1.0_rt/3.0_rt) * state.taufac * tempi;
   }
-  
+
   Real xni = std::cbrt(rr * zbar);
 
   // Part of Eq.4 in Itoh:1979
@@ -211,11 +211,11 @@ void actual_screen5 (const plasma_state_t& state,
 
     // In Eq.4 in Itoh:1979, this term is 2*Z_1*Z_2/(Z_1^(1/3) + Z_2^(1/3))
     // However here we follow Wallace:1982 Eq. A13, which is Z_1*Z_2*(2/(Z_1+Z_2))^(1/3)
-    
+
     Real qq = fact * bb * scn_fac.zs13inv;
 
     // Full Equation of Wallace:1982 Eq. A13
-    
+
     Real gamef = qq * gamp;
     [[maybe_unused]] Real gamefdt;
     if constexpr (do_T_derivatives) {
@@ -225,7 +225,7 @@ void actual_screen5 (const plasma_state_t& state,
     // Full version of Eq.6 in Itoh:1979 with extra 1/3 factor
     // the extra 1/3 factor is there for convenience.
     // tau12 = Eq.6 / 3
-    
+
     Real tau12 = state.taufac * scn_fac.aznut;
     [[maybe_unused]] Real tau12dt;
     if constexpr (do_T_derivatives) {
@@ -235,7 +235,7 @@ void actual_screen5 (const plasma_state_t& state,
     qq = 1.0_rt/tau12;
 
     // alph12 = 3*gamma_ij/tau_ij
-    
+
     Real alph12 = gamef * qq;
     [[maybe_unused]] Real alph12dt;
     if constexpr (do_T_derivatives) {
@@ -253,8 +253,8 @@ void actual_screen5 (const plasma_state_t& state,
             alph12dt = 0.0_rt;
         }
 
-	// redetermine previous factors if 3*gamma_ij/tau_ij > 1.6
-	
+        // redetermine previous factors if 3*gamma_ij/tau_ij > 1.6
+
         gamef    = 1.6e0_rt * tau12;
         if constexpr (do_T_derivatives) {
             gamefdt  = 1.6e0_rt * tau12dt;
@@ -270,7 +270,7 @@ void actual_screen5 (const plasma_state_t& state,
     // weak screening regime
     // Full version of Eq. 19 in Graboske:1973 by considering weak regime
     // and Wallace:1982 Eq. A14. Here the degeneracy factor is assumed to be 1.
-    
+
     Real h12w = bb * state.qlam0z;
     [[maybe_unused]] Real dh12wdt;
     if constexpr (do_T_derivatives) {
@@ -284,16 +284,16 @@ void actual_screen5 (const plasma_state_t& state,
     }
 
     // intermediate and strong sceening regime
-    
+
     if (gamef > gamefx) {
 
       // gamma_ij^(1/4)
-      
+
         Real gamp14 = std::pow(gamp, 0.25_rt);
         Real rr = 1.0_rt/gamp;
 
-	// Here we follow Eq. A9 in Wallace:1982
-	// See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
+        // Here we follow Eq. A9 in Wallace:1982
+        // See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
         Real cc = 0.896434e0_rt * gamp * scn_fac.zhat
             - 3.44740e0_rt * gamp14 * scn_fac.zhat2
             - 0.5551e0_rt * (std::log(gamp) + scn_fac.lzav)
@@ -308,14 +308,14 @@ void actual_screen5 (const plasma_state_t& state,
                 - 0.5551e0_rt *rr * gampdt;
         }
 
-	// (3gamma_ij/tau_ij)^3
+        // (3gamma_ij/tau_ij)^3
         Real a3 = alph12 * alph12 * alph12;
         Real da3 = 3.0e0_rt * alph12 * alph12;
 
-	// Part of Eq. 28 in Alastuey:1978
+        // Part of Eq. 28 in Alastuey:1978
         qq = 0.014e0_rt + 0.0128e0_rt*alph12;
 
-	// Part of Eq. 28 in Alastuey:1978
+        // Part of Eq. 28 in Alastuey:1978
         rr = (5.0_rt/32.0_rt) - alph12*qq;
         [[maybe_unused]] Real drrdt;
         if constexpr (do_T_derivatives) {
@@ -323,20 +323,20 @@ void actual_screen5 (const plasma_state_t& state,
             drrdt  = -(alph12dt*qq + alph12*dqqdt);
         }
 
-	// Part of Eq. 28 in Alastuey:1978
+        // Part of Eq. 28 in Alastuey:1978
         Real ss = tau12*rr;
 
-	// Part of Eq. 31 in Alastuey:1978
+        // Part of Eq. 31 in Alastuey:1978
         Real tt = -0.0098e0_rt + 0.0048e0_rt*alph12;
 
-	// Part of Eq. 31 in Alastuey:1978
+        // Part of Eq. 31 in Alastuey:1978
         Real uu = 0.0055e0_rt + alph12*tt;
 
-	// Part of Eq. 31 in Alastuey:1978
+        // Part of Eq. 31 in Alastuey:1978
         Real vv = gamef * alph12 * uu;
 
-	// Exponent of Eq. 32 in Alastuey:1978, which uses Eq.28 and Eq.31
-	// Strong screening factor
+        // Exponent of Eq. 32 in Alastuey:1978, which uses Eq.28 and Eq.31
+        // Strong screening factor
         h12 = cc - a3 * (ss + vv);
         if constexpr (do_T_derivatives) {
             Real dssdt  = tau12dt*rr + tau12*drrdt;
@@ -347,8 +347,8 @@ void actual_screen5 (const plasma_state_t& state,
             dh12dt  = dccdt - rr*alph12dt - a3*(dssdt + dvvdt);
         }
 
-	// See conclusion and Eq. 34 in Alastuey:1978
-	// This is an extra factor to account for quantum effects
+        // See conclusion and Eq. 34 in Alastuey:1978
+        // This is an extra factor to account for quantum effects
         rr = 1.0_rt - 0.0562e0_rt*a3;
         if constexpr (do_T_derivatives) {
             ss = -0.0562e0_rt*da3;
@@ -358,7 +358,7 @@ void actual_screen5 (const plasma_state_t& state,
         Real xlgfac;
         [[maybe_unused]] Real dxlgfacdt;
 
-	// In extreme case, rr is 0.77, see conclusion in Alastuey:1978
+        // In extreme case, rr is 0.77, see conclusion in Alastuey:1978
         if (rr >= 0.77e0_rt) {
             xlgfac = rr;
             if constexpr (do_T_derivatives) {
@@ -371,15 +371,15 @@ void actual_screen5 (const plasma_state_t& state,
             }
         }
 
-	// Include the extra factor that accounts for quantum effects
+        // Include the extra factor that accounts for quantum effects
         h12 = std::log(xlgfac) + h12;
         rr = 1.0_rt/xlgfac;
         if constexpr (do_T_derivatives) {
             dh12dt = rr*dxlgfacdt + dh12dt;
         }
 
-	// If gamma_ij < upper limit of intermediate regime
-	// then it is in the intermediate regime, else strong screening.
+        // If gamma_ij < upper limit of intermediate regime
+        // then it is in the intermediate regime, else strong screening.
         if (gamef <= gamefs) {
             Real dgamma = 1.0e0_rt/(gamefs - gamefx);
 
@@ -389,8 +389,8 @@ void actual_screen5 (const plasma_state_t& state,
 
             vv = h12;
 
-	    // Then the screening factor is a combination
-	    // of the strong and weak screening factor.
+            // Then the screening factor is a combination
+            // of the strong and weak screening factor.
             h12 = h12w*rr + vv*ss;
             if constexpr (do_T_derivatives) {
                 drrdt  = -dgamma*gamefdt;
@@ -818,7 +818,7 @@ void chabrier1998 (const plasma_state_t& state,
 {
   // Calculates screening factors based on Chabrier & Potekhin 1998,
   // Calder2007 and partly screen5 routine mentioned in Alastuey 1978.
-  
+
   // This screening is valid for weak screening: Gamma < 0.1
   // and strong screening: 1 <= Gamma <= 160
   // Reference:
@@ -828,18 +828,18 @@ void chabrier1998 (const plasma_state_t& state,
   //            Alastuey 1978
 
   // Eq. 2 in Chabrier & Potekhin 1998
-  
+
   Real Gamma_e = state.gamma_e_fac / state.temp;
   Real zcomp = scn_fac.z1 + scn_fac.z2;
 
   // See Calder2007 appendix Eq. A9
-  
+
   Real Gamma1 = Gamma_e * std::pow(scn_fac.z1, 5.0_rt/3.0_rt);
   Real Gamma2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
   Real Gamma12 = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
 
   Real Gamma1dT{}, Gamma2dT{}, Gamma12dT{};
-  
+
   if constexpr (do_T_derivatives) {
     Gamma1dT = -Gamma1 / state.temp;
     Gamma2dT = -Gamma2 / state.temp;
@@ -854,33 +854,33 @@ void chabrier1998 (const plasma_state_t& state,
   chabrier1998_helmholtz_F<do_T_derivatives>(Gamma1, Gamma1dT, f1, f1dT);
   chabrier1998_helmholtz_F<do_T_derivatives>(Gamma2, Gamma2dT, f2, f2dT);
   chabrier1998_helmholtz_F<do_T_derivatives>(Gamma12, Gamma12dT, f12, f12dT);
-  
+
   // Now we add quantum correction terms discussed in Alastuey 1978.
   // Notice in Alastuey 1978, they have a different classical term,
   // which is implemented in the strong screening limit of our screen5 routine.
 
   // See Wallace1982, Eq. A13
-  
+
   Real Gamma_eff = std::cbrt(2.0_rt) * scn_fac.z1 * scn_fac.z2 * scn_fac.zs13inv * Gamma_e;
   [[maybe_unused]] Real Gamma_eff_dT;
 
   if constexpr (do_T_derivatives) {
     Gamma_eff_dT = -Gamma_eff / state.temp;
   }
-  
+
   // TAU/3, see Wallace1982, Eq. A2
-  
+
   Real tau12 = state.taufac * scn_fac.aznut;
-  
+
   [[maybe_unused]] Real tau12dT;
   if constexpr (do_T_derivatives) {
     tau12dT = state.taufacdt * scn_fac.aznut;
   }
 
   // see Calder 2007 Eq. A8
-  
+
   Real b_fac = Gamma_eff / tau12;
-  
+
   [[maybe_unused]] Real b_fac_dT;
   if constexpr (do_T_derivatives) {
     b_fac_dT = (Gamma_eff_dT - b_fac * tau12dT) / tau12;
@@ -888,41 +888,41 @@ void chabrier1998 (const plasma_state_t& state,
 
   // Quantum correction terms (same as screen5)
   //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
-  
+
   Real quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * std::pow(b_fac, 3) - 0.014_rt * std::pow(b_fac, 4)
-				  - 0.128_rt * std::pow(b_fac, 5));
-  
+                                  - 0.128_rt * std::pow(b_fac, 5));
+
   Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * std::pow(b_fac, 4) - 0.0098_rt * std::pow(b_fac, 5)
-				      + 0.0048_rt * std::pow(b_fac, 6));
+                                      + 0.0048_rt * std::pow(b_fac, 6));
 
   [[maybe_unused]] Real quantum_corr_1_dT;
   [[maybe_unused]] Real quantum_corr_2_dT;
   if constexpr (do_T_derivatives) {
     quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 * b_fac_dT
       * (15.0_rt/32.0_rt * std::pow(b_fac, 2) - 0.014_rt * 4.0_rt * std::pow(b_fac, 3)
-	 - 0.128_rt * 5.0_rt * std::pow(b_fac, 4));
+         - 0.128_rt * 5.0_rt * std::pow(b_fac, 4));
 
     quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff * b_fac_dT
       * (0.0055_rt * 4.0_rt * std::pow(b_fac, 3) - 0.0098_rt * 5.0_rt
-	 * std::pow(b_fac, 4) + 0.0048_rt * 6.0_rt * std::pow(b_fac, 5));
+         * std::pow(b_fac, 4) + 0.0048_rt * 6.0_rt * std::pow(b_fac, 5));
   }
-  
+
   // See Calder2007 Appendix Eq. A8.
   // f1 + f2 - f12 gives the classical terms
   // The difference between this and strong screening of screen5
   // is that we replaced the classical term which is f1 + f2 - f12
   // using results from Chabrier&Potekhin1998.
-  
+
   Real h12 = f1 + f2 - f12 + quantum_corr_1 + quantum_corr_2;
-  
+
   [[maybe_unused]] Real dh12dT;
   if constexpr (do_T_derivatives) {
     dh12dT = f1dT + f2dT - f12dT + quantum_corr_1_dT + quantum_corr_2_dT;
   }
-  
+
   Real h12_max = 300.0_rt;
   h12 = amrex::min(h12_max, h12);
-  
+
   scor = std::exp(h12);
 
   if constexpr (do_T_derivatives) {
@@ -932,7 +932,7 @@ void chabrier1998 (const plasma_state_t& state,
       scordt = scor * dh12dT;
     }
   }
-    
+
 }
 
 template <int do_T_derivatives>
