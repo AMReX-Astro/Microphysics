@@ -134,17 +134,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     [[maybe_unused]] Real rate, drate_dt, edot_nu, edot_gamma;
 
     rate_eval.enuc_weak = 0.0;
-<<<<<<< HEAD
-
-    tabular_evaluate(j_na23_ne23_meta, j_na23_ne23_rhoy, j_na23_ne23_temp, j_na23_ne23_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_na23_to_ne23) = rate;
-    if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_na23_to_ne23) = drate_dt;
-    }
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(Na23) * (edot_nu + edot_gamma);
-=======
->>>>>>> development
 
     tabular_evaluate(j_Na23_Ne23_meta, j_Na23_Ne23_rhoy, j_Na23_Ne23_temp, j_Na23_Ne23_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -152,25 +141,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
         rate_eval.dscreened_rates_dT(k_Na23_to_Ne23) = drate_dt;
     }
-<<<<<<< HEAD
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(Ne23) * (edot_nu + edot_gamma);
-
-    tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_n_to_p) = rate;
-    if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_n_to_p) = drate_dt;
-    }
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(N) * (edot_nu + edot_gamma);
-
-    tabular_evaluate(j_p_n_meta, j_p_n_rhoy, j_p_n_temp, j_p_n_data,
-                     rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
-    rate_eval.screened_rates(k_p_to_n) = rate;
-    if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_to_n) = drate_dt;
-    }
-    rate_eval.enuc_weak += C::Legacy::n_A * Y(H1) * (edot_nu + edot_gamma);
-=======
     rate_eval.enuc_weak += C::Legacy::n_A * Y(Na23) * (edot_nu + edot_gamma);
 
     tabular_evaluate(j_Ne23_Na23_meta, j_Ne23_Na23_rhoy, j_Ne23_Na23_temp, j_Ne23_Na23_data,
@@ -180,7 +150,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         rate_eval.dscreened_rates_dT(k_Ne23_to_Na23) = drate_dt;
     }
     rate_eval.enuc_weak += C::Legacy::n_A * Y(Ne23) * (edot_nu + edot_gamma);
->>>>>>> development
 
     tabular_evaluate(j_n_p_meta, j_n_p_rhoy, j_n_p_temp, j_n_p_data,
                      rhoy, state.T, rate, drate_dt, edot_nu, edot_gamma);
@@ -210,33 +179,14 @@ void rhs_nuc(const burn_t& state,
     using namespace Rates;
 
     ydot_nuc(N) =
-<<<<<<< HEAD
-<<<<<<< HEAD
         -screened_rates(k_n_to_p)*Y(N) +
         screened_rates(k_p_to_n)*Y(H1) +
-        0.5*screened_rates(k_c12_c12_to_n_mg23)*std::pow(Y(C12), 2)*state.rho;
-
-    ydot_nuc(H1) =
-        0.5*screened_rates(k_c12_c12_to_p_na23)*std::pow(Y(C12), 2)*state.rho +
-        screened_rates(k_n_to_p)*Y(N) +
-        -screened_rates(k_p_to_n)*Y(H1);
-=======
-        -screened_rates(k_n_to_p_weak_wc12)*Y(N) +
-=======
-        -screened_rates(k_n_to_p)*Y(N) +
-        screened_rates(k_p_to_n)*Y(H1) +
->>>>>>> development
         0.5*screened_rates(k_C12_C12_to_n_Mg23)*std::pow(Y(C12), 2)*state.rho;
 
     ydot_nuc(H1) =
         0.5*screened_rates(k_C12_C12_to_p_Na23)*std::pow(Y(C12), 2)*state.rho +
-<<<<<<< HEAD
-        screened_rates(k_n_to_p_weak_wc12)*Y(N);
->>>>>>> development
-=======
         screened_rates(k_n_to_p)*Y(N) +
         -screened_rates(k_p_to_n)*Y(H1);
->>>>>>> development
 
     ydot_nuc(He4) =
         0.5*screened_rates(k_C12_C12_to_He4_Ne20)*std::pow(Y(C12), 2)*state.rho +
@@ -325,39 +275,19 @@ void jac_nuc(const burn_t& state,
     scratch = -screened_rates(k_n_to_p);
     jac.set(N, N, scratch);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     scratch = screened_rates(k_p_to_n);
     jac.set(N, H1, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12_to_n_mg23)*Y(C12)*state.rho;
-=======
-=======
-    scratch = screened_rates(k_p_to_n);
-    jac.set(N, H1, scratch);
-
->>>>>>> development
     scratch = 1.0*screened_rates(k_C12_C12_to_n_Mg23)*Y(C12)*state.rho;
->>>>>>> development
     jac.set(N, C12, scratch);
 
     scratch = screened_rates(k_n_to_p);
     jac.set(H1, N, scratch);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     scratch = -screened_rates(k_p_to_n);
     jac.set(H1, H1, scratch);
 
-    scratch = 1.0*screened_rates(k_c12_c12_to_p_na23)*Y(C12)*state.rho;
-=======
-=======
-    scratch = -screened_rates(k_p_to_n);
-    jac.set(H1, H1, scratch);
-
->>>>>>> development
     scratch = 1.0*screened_rates(k_C12_C12_to_p_Na23)*Y(C12)*state.rho;
->>>>>>> development
     jac.set(H1, C12, scratch);
 
     scratch = -screened_rates(k_He4_C12_to_O16)*Y(C12)*state.rho;
