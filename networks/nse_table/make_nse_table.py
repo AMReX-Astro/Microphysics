@@ -1,17 +1,31 @@
+import numpy as np
+
+# needs progressbar2
+import progressbar
+
 import pynucastro as pyna
 from pynucastro import Nucleus
 
 
 class NSEState:
-    def __init__(self, rho, T, comp, rc):
+    def __init__(self, rho, T, Ye, comp, rc):
         self.rho = rho
         self.T = T
+        self.Ye = Ye
+
         self.comp = comp
-        self.rc = rc
 
         self.ydots = rc.evaluate_ydots(self.rho, self.T, self.comp,
                                        screen_func=pyna.screening.potekhin_1998,
                                        rate_filter=lambda r: isinstance(r, pyna.rates.TabularRate))
+
+        _, enu = rc.evaluate_energy_generation(self.rho, self.T, self.comp,
+                                               screen_func=pyna.screening.potekhin_1998,
+                                               return_enu=True)
+        self.enu = enu
+
+    def __str__(self):
+        return f"({self.rho:12.6g}, {self.T:12.6g}, {self.Ye:6.4f}): {self.get_abar():6.4f}  {self.get_bea():6.4f}  {self.get_dyedt():12.6g}  {self.get_enu():12.6g}"
 
     def get_abar(self):
         return self.comp.eval_abar()
@@ -27,10 +41,7 @@ class NSEState:
         return -abar**2 * sum(self.ydots[q] for q in self.comp.X)
 
     def get_enu(self):
-        _, enu = self.rc.evaluate_energy_generation(self.rho, self.T, self.comp,
-                                                    screen_func=pyna.screening.potekhin_1998,
-                                                    return_enu=True)
-        return enu
+        return self.enu
 
     def get_aprox19_comp(self):
         aprox19_comp = [Nucleus("he3"), Nucleus("he4"), Nucleus("c12"), Nucleus("n14"),
@@ -116,3 +127,40 @@ def make_nse_network():
 
     rc = pyna.RateCollection(libraries=[all_lib])
 
+    return rc
+
+def generate_table():
+
+    rc = make_nse_network()
+
+    Ts = np.logspace(np.log10(3.e9), np.log10(2.e10), 51)
+    rhos = np.logspace(7, 10, 31)
+    yes = np.linspace(0.43, 0.5, 15)
+
+    mu_p0 = -3.5
+    mu_n0 = -15.0
+
+    mu_p = np.ones((len(rhos), len(yes)), dtype=np.float64) * mu_p0
+    mu_n = np.ones((len(rhos), len(yes)), dtype=np.float64) * mu_n0
+
+    nse_states = []
+    for T in reversed(Ts):
+        for irho, rho in enumerate(reversed(rhos)):
+            for iye, ye in enumerate(reversed(yes)):
+                initial_guess = (mu_p[irho, iye], mu_n[irho, iye])
+                try:
+                    comp, sol = rc.get_comp_nse(rho, T, ye, use_coulomb_corr=True,
+                                                init_guess=initial_guess, return_sol=True)
+                except ValueError:
+                    initial_guess = (-3.5, -15)
+                    comp, sol = rc.get_comp_nse(rho, T, ye, use_coulomb_corr=True,
+                                                init_guess=initial_guess, return_sol=True)
+
+                mu_p[irho, iye] = sol[0]
+                mu_n[irho, iye] = sol[1]
+
+                nse_states.append(NSEState(rho, T, ye, comp, rc))
+                print(nse_states[-1])
+
+if __name__ == "__main__":
+    generate_table()
