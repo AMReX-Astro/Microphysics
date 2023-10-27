@@ -50,7 +50,7 @@ T get_nonexponent_nse_state(const T& state) {
 
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-      if (n == NSE_INDEX::h1_index) {
+      if (n == NSE_INDEX::H1_index) {
           nse_state.xn[n] = 0.0;
           continue;
       }
@@ -105,7 +105,7 @@ void apply_nse_exponent(T& nse_state) {
 
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-      if (n == NSE_INDEX::h1_index) {
+      if (n == NSE_INDEX::H1_index) {
           nse_state.xn[n] = 0.0;
           continue;
       }
@@ -144,7 +144,7 @@ void apply_nse_exponent(T& nse_state) {
 
   for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    if (n == NSE_INDEX::h1_index) {
+    if (n == NSE_INDEX::H1_index) {
       continue;
     }
 #endif
@@ -175,7 +175,7 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::h1_index) {
+        if (n == NSE_INDEX::H1_index) {
             continue;
         }
 #endif
@@ -219,7 +219,7 @@ void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-        if (n == NSE_INDEX::h1_index) {
+        if (n == NSE_INDEX::H1_index) {
             continue;
         }
 #endif
@@ -487,7 +487,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     bool singular_network = true;
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
-      if (n == NSE_INDEX::h1_index) {
+      if (n == NSE_INDEX::H1_index) {
         continue;
       }
 #endif

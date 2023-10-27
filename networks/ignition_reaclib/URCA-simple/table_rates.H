@@ -20,7 +20,7 @@ void init_tabular();
 // Log(g/cm^3)   Log(K)   erg   erg   erg   Log(1/s)          Log(erg/s)           Log(erg/s)
 //
 
-const int num_tables = 2;
+const int num_tables = 4;
 
 enum TableVars
 {
@@ -55,15 +55,25 @@ const int add_vars              = 1;  // 1 Additional Var in entries
 
 namespace rate_tables
 {
-    extern AMREX_GPU_MANAGED table_t j_na23_ne23_meta;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_na23_ne23_data;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_na23_ne23_rhoy;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_na23_ne23_temp;
+    extern AMREX_GPU_MANAGED table_t j_Na23_Ne23_meta;
+    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_Na23_Ne23_data;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_Na23_Ne23_rhoy;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_Na23_Ne23_temp;
 
-    extern AMREX_GPU_MANAGED table_t j_ne23_na23_meta;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_ne23_na23_data;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_ne23_na23_rhoy;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_ne23_na23_temp;
+    extern AMREX_GPU_MANAGED table_t j_Ne23_Na23_meta;
+    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_Ne23_Na23_data;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_Ne23_Na23_rhoy;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_Ne23_Na23_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
+    extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_n_p_rhoy;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_n_p_temp;
+
+    extern AMREX_GPU_MANAGED table_t j_p_n_meta;
+    extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_p_n_data;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_p_n_rhoy;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_p_n_temp;
 
 }
 
@@ -75,6 +85,11 @@ void init_tab_info(const table_t& tf, const std::string& file, R& log_rhoy_table
 
     std::ifstream table;
     table.open(file);
+
+    if (!table.is_open()) {
+        // the table was not present or we could not open it; abort
+        amrex::Error("table could not be opened");
+    }
 
     std::string line;
 
@@ -89,6 +104,10 @@ void init_tab_info(const table_t& tf, const std::string& file, R& log_rhoy_table
     for (int j = 1; j <= tf.nrhoy; ++j) {
         for (int i = 1; i <= tf.ntemp; ++i) {
             std::getline(table, line);
+            if (line.empty()) {
+                amrex::Error("Error reading table data");
+            }
+
             std::istringstream sdata(line);
 
             sdata >> log_rhoy_table(j) >> log_temp_table(i);
@@ -255,8 +274,8 @@ evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& l
         // Finally, we perform a 1d-linear interpolation between dlogr_dlogt_ip1
         // and dlogr_dlogt_i to compute dlogr_dlogt
 
-        Real log_rhoy_lo = log_temp_table(irhoy_lo);
-        Real log_rhoy_hi = log_temp_table(irhoy_hi);
+        Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
+        Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
 
         Real log_temp_lo = log_temp_table(jtemp_lo);
         Real log_temp_hi = log_temp_table(jtemp_hi);
