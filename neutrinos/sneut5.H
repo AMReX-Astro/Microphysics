@@ -6,6 +6,90 @@
 
 using namespace amrex;
 
+namespace ifermi12_coeffs {
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 5> a1 = {
+        1.999266880833e4_rt,
+        5.702479099336e3_rt,
+        6.610132843877e2_rt,
+        3.818838129486e1_rt,
+        1.0e0_rt};
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 4> b1 = {
+        1.771804140488e4_rt,
+        -2.014785161019e3_rt,
+        9.130355392717e1_rt,
+        -1.670718177489e0_rt};
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 7> a2 = {
+        -1.277060388085e-2_rt,
+        7.187946804945e-2_rt,
+        -4.262314235106e-1_rt,
+        4.997559426872e-1_rt,
+        -1.285579118012e0_rt,
+        -3.930805454272e-1_rt,
+        1.0e0_rt};
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 6> b2 = {
+        -9.745794806288e-3_rt,
+        5.485432756838e-2_rt,
+        -3.299466243260e-1_rt,
+        4.077841975923e-1_rt,
+        -1.145531476975e0_rt,
+        -6.067091689181e-2_rt};
+};
+
+namespace zfermim12_coeffs {
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 8> a1 = {
+        1.71446374704454e7_rt,
+        3.88148302324068e7_rt,
+        3.16743385304962e7_rt,
+        1.14587609192151e7_rt,
+        1.83696370756153e6_rt,
+        1.14980998186874e5_rt,
+        1.98276889924768e3_rt,
+        1.0e0_rt};
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 8> b1 = {
+        9.67282587452899e6_rt,
+        2.87386436731785e7_rt,
+        3.26070130734158e7_rt,
+        1.77657027846367e7_rt,
+        4.81648022267831e6_rt,
+        6.13709569333207e5_rt,
+        3.13595854332114e4_rt,
+        4.35061725080755e2_rt};
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 12> a2 = {
+        -4.46620341924942e-15_rt,
+        -1.58654991146236e-12_rt,
+        -4.44467627042232e-10_rt,
+        -6.84738791621745e-8_rt,
+        -6.64932238528105e-6_rt,
+        -3.69976170193942e-4_rt,
+        -1.12295393687006e-2_rt,
+        -1.60926102124442e-1_rt,
+        -8.52408612877447e-1_rt,
+        -7.45519953763928e-1_rt,
+        2.98435207466372e0_rt,
+        1.0e0_rt};
+
+    HIP_CONSTEXPR static AMREX_GPU_MANAGED Array1D<Real, 1, 12> b2 = {
+        -2.23310170962369e-15_rt,
+        -7.94193282071464e-13_rt,
+        -2.22564376956228e-10_rt,
+        -3.43299431079845e-8_rt,
+        -3.33919612678907e-6_rt,
+        -1.86432212187088e-4_rt,
+        -5.69764436880529e-3_rt,
+        -8.34904593067194e-2_rt,
+        -4.78770844009440e-1_rt,
+        -4.99759250374148e-1_rt,
+        1.86795964993052e0_rt,
+        4.16485970495288e-1_rt};
+};
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ifermi12(const Real f)
 {
@@ -17,10 +101,6 @@ Real ifermi12(const Real f)
     // declare work variables
     int m1,k1,m2,k2;
     Real an,rn,den,ff;
-    Array1D<Real, 1, 5> a1;
-    Array1D<Real, 1, 4> b1;
-    Array1D<Real, 1, 7> a2;
-    Array1D<Real, 1, 6> b2;
 
     // the return value
     Real ifermi12r;
@@ -32,32 +112,6 @@ Real ifermi12(const Real f)
     k1 = 3;
     m2 = 6;
     k2 = 5;
-
-    a1(1) = 1.999266880833e4_rt;
-    a1(2) = 5.702479099336e3_rt;
-    a1(3) = 6.610132843877e2_rt;
-    a1(4) = 3.818838129486e1_rt;
-    a1(5) = 1.0e0_rt;
-
-    b1(1) = 1.771804140488e4_rt;
-    b1(2) = -2.014785161019e3_rt;
-    b1(3) = 9.130355392717e1_rt;
-    b1(4) = -1.670718177489e0_rt;
-
-    a2(1) = -1.277060388085e-2_rt;
-    a2(2) = 7.187946804945e-2_rt;
-    a2(3) = -4.262314235106e-1_rt;
-    a2(4) = 4.997559426872e-1_rt;
-    a2(5) = -1.285579118012e0_rt;
-    a2(6) = -3.930805454272e-1_rt;
-    a2(7) = 1.0e0_rt;
-
-    b2(1) = -9.745794806288e-3_rt;
-    b2(2) = 5.485432756838e-2_rt;
-    b2(3) = -3.299466243260e-1_rt;
-    b2(4) = 4.077841975923e-1_rt;
-    b2(5) = -1.145531476975e0_rt;
-    b2(6) = -6.067091689181e-2_rt;
 
     if (f < 4.0e0_rt) {
 
@@ -72,18 +126,18 @@ Real ifermi12(const Real f)
         //
         // in the starting rn here, the leading f is actually
         // a1(m1+1) * f, but that element is 1
-        rn  = f + a1(m1);
+        rn  = f + ifermi12_coeffs::a1(m1);
 
         for (int i = m1 - 1; i >= 1; --i) {
-            rn  = rn*f + a1(i);
+            rn  = rn*f + ifermi12_coeffs::a1(i);
         }
 
         // now we do the denominator in Eq. 4.  None of the coefficients
         // are 1, so we loop over all
-        den = b1(k1+1);
+        den = ifermi12_coeffs::b1(k1+1);
 
         for (int i = k1; i >= 1; --i) {
-            den = den*f + b1(i);
+            den = den*f + ifermi12_coeffs::b1(i);
         }
 
         // Eq. 6 of Antia
@@ -97,16 +151,16 @@ Real ifermi12(const Real f)
         // this construction is the same as above, but using the
         // second set of coefficients
 
-        rn = ff + a2(m2);
+        rn = ff + ifermi12_coeffs::a2(m2);
 
         for (int i = m2 - 1; i >= 1; --i) {
-            rn = rn*ff + a2(i);
+            rn = rn*ff + ifermi12_coeffs::a2(i);
         }
 
-        den = b2(k2+1);
+        den = ifermi12_coeffs::b2(k2+1);
 
         for (int i = k2; i >= 1; --i) {
-            den = den*ff + b2(i);
+            den = den*ff + ifermi12_coeffs::b2(i);
         }
 
         ifermi12r = rn/(den*ff);
@@ -127,8 +181,6 @@ Real zfermim12(const Real x)
     // declare work variables
     int m1,k1,m2,k2;
     Real rn,den,xx;
-    Array1D<Real, 1, 8> a1,b1;
-    Array1D<Real, 1, 12> a2,b2;
 
     // return value
     Real zfermim12r;
@@ -140,63 +192,19 @@ Real zfermim12(const Real x)
     m2 = 11;
     k2 = 11;
 
-    a1(1) = 1.71446374704454e7_rt;
-    a1(2) = 3.88148302324068e7_rt;
-    a1(3) = 3.16743385304962e7_rt;
-    a1(4) = 1.14587609192151e7_rt;
-    a1(5) = 1.83696370756153e6_rt;
-    a1(6) = 1.14980998186874e5_rt;
-    a1(7) = 1.98276889924768e3_rt;
-    a1(8) = 1.0e0_rt;
-
-    b1(1) = 9.67282587452899e6_rt;
-    b1(2) = 2.87386436731785e7_rt;
-    b1(3) = 3.26070130734158e7_rt;
-    b1(4) = 1.77657027846367e7_rt;
-    b1(5) = 4.81648022267831e6_rt;
-    b1(6) = 6.13709569333207e5_rt;
-    b1(7) = 3.13595854332114e4_rt;
-    b1(8) = 4.35061725080755e2_rt;
-
-    a2(1) = -4.46620341924942e-15_rt;
-    a2(2) = -1.58654991146236e-12_rt;
-    a2(3) = -4.44467627042232e-10_rt;
-    a2(4) = -6.84738791621745e-8_rt;
-    a2(5) = -6.64932238528105e-6_rt;
-    a2(6) = -3.69976170193942e-4_rt;
-    a2(7) = -1.12295393687006e-2_rt;
-    a2(8) = -1.60926102124442e-1_rt;
-    a2(9) = -8.52408612877447e-1_rt;
-    a2(10) = -7.45519953763928e-1_rt;
-    a2(11) =  2.98435207466372e0_rt;
-    a2(12) = 1.0e0_rt;
-
-    b2(1) = -2.23310170962369e-15_rt;
-    b2(2) = -7.94193282071464e-13_rt;
-    b2(3) = -2.22564376956228e-10_rt;
-    b2(4) = -3.43299431079845e-8_rt;
-    b2(5) = -3.33919612678907e-6_rt;
-    b2(6) = -1.86432212187088e-4_rt;
-    b2(7) = -5.69764436880529e-3_rt;
-    b2(8) = -8.34904593067194e-2_rt;
-    b2(9) = -4.78770844009440e-1_rt;
-    b2(10) = -4.99759250374148e-1_rt;
-    b2(11) =  1.86795964993052e0_rt;
-    b2(12) =  4.16485970495288e-1_rt;
-
     if (x < 2.0e0_rt) {
 
        xx = std::exp(x);
-       rn = xx + a1(m1);
+       rn = xx + zfermim12_coeffs::a1(m1);
 
        for (int i = m1 - 1; i >= 1; --i) {
-          rn = rn*xx + a1(i);
+          rn = rn*xx + zfermim12_coeffs::a1(i);
        }
 
-       den = b1(k1+1);
+       den = zfermim12_coeffs::b1(k1+1);
 
        for (int i = k1; i >= 1; --i) {
-          den = den*xx + b1(i);
+          den = den*xx + zfermim12_coeffs::b1(i);
        }
 
        zfermim12r = xx * rn/den;
@@ -204,16 +212,16 @@ Real zfermim12(const Real x)
     } else {
 
        xx = 1.0e0_rt/(x*x);
-       rn = xx + a2(m2);
+       rn = xx + zfermim12_coeffs::a2(m2);
 
        for (int i = m2 - 1; i >= 1; --i) {
-          rn = rn*xx + a2(i);
+          rn = rn*xx + zfermim12_coeffs::a2(i);
        }
 
-       den = b2(k2+1);
+       den = zfermim12_coeffs::b2(k2+1);
 
        for (int i = k2; i >= 1; --i) {
-          den = den*xx + b2(i);
+          den = den*xx + zfermim12_coeffs::b2(i);
        }
 
        zfermim12r = std::sqrt(x)*rn/den;
