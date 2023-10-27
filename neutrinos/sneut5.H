@@ -338,7 +338,7 @@ void sneut5(const Real temp, const Real den,
          c10,c11,c12,c13,c14,c15,c16,c20,c21,c22,c23,c24,
          c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12,
          dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d{0.0},f0,
-         f1{0.0},f2,f3,z,ye,
+         f1{0.0},f2,f3,z,
          dum,dumdt,gum,gumdt,dumda,dumdz,gumda,gumdz;
 
     // pair production
