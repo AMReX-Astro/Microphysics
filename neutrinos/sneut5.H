@@ -99,19 +99,18 @@ Real ifermi12(const Real f)
     // maximum error is 4.19e-9_rt.   reference: antia apjs 84,101 1993
 
     // declare work variables
-    int m1,k1,m2,k2;
-    Real an,rn,den,ff;
+    Real rn,den,ff;
 
     // the return value
     Real ifermi12r;
 
     // load the coefficients of the expansion from Table 8 of Antia
 
-    an = 0.5e0_rt;
-    m1 = 4;
-    k1 = 3;
-    m2 = 6;
-    k2 = 5;
+    constexpr Real an{0.5e0_rt};
+    constexpr int m1{4};
+    constexpr int k1{3};
+    constexpr int m2{6};
+    constexpr int k2{5};
 
     if (f < 4.0e0_rt) {
 
@@ -179,7 +178,6 @@ Real zfermim12(const Real x)
     // reference: antia apjs 84,101 1993
 
     // declare work variables
-    int m1,k1,m2,k2;
     Real rn,den,xx;
 
     // return value
@@ -187,10 +185,10 @@ Real zfermim12(const Real x)
 
     // load the coefficients of the expansion from Table 2 of Antia
 
-    m1 = 7;
-    k1 = 7;
-    m2 = 11;
-    k2 = 11;
+    constexpr int m1{7};
+    constexpr int k1{7};
+    constexpr int m2{11};
+    constexpr int k2{11};
 
     if (x < 2.0e0_rt) {
 
