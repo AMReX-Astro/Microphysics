@@ -297,9 +297,16 @@ struct sneutf_t {
     Real rmdz;
     Real rmi;
 
+    Real zeta;
+    Real zeta2;
+    Real zeta3;
+    Real zetadt;
+    Real zetada;
+    Real zetadz;
 };
 
 
+template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE inline
 sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
 
@@ -345,8 +352,340 @@ sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
     sf.rmdz   = den * sf.abari;
     sf.rmi    = 1.0e0_rt / sf.rm;
 
+    Real a0 = sf.rm * 1.0e-9_rt;
+    Real a1 = std::pow(a0, nu_constants::oneth);
+    sf.zeta = a1 * sf.xlm1;
+
+    if constexpr (do_derivatives) {
+        Real a2 = nu_constants::oneth * a1 * sf.rmi * sf.xlm1;
+        sf.zetadt = -a1 * sf.xlm2 * sf.xldt;
+        sf.zetada = a2 * sf.rmda;
+        sf.zetadz = a2 * sf.rmdz;
+    }
+
+    sf.zeta2 = sf.zeta * sf.zeta;
+    sf.zeta3 = sf.zeta2 * sf.zeta;
+
     return sf;
 
+}
+
+template <int do_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void nu_photo(const sneutf_t& sf,
+              Real& sphot, Real& sphotdt, Real& sphotda, Real& sphotdz) {
+
+    // photoneutrino process section
+    // for reactions like e- + gamma => e- + nu_e + nubar_e
+    //                    e+ + gamma => e+ + nu_e + nubar_e
+    // equation 3.8 for tau, equation 3.6 for cc,
+    // and table 2 written out for speed
+
+    Real tau;
+    Real cc;
+    Real c00, c01, c02, c03, c04, c05, c06;
+    Real c10, c11, c12, c13, c14, c15, c16;
+    Real c20, c21, c22, c23, c24, c25, c26;
+    Real dd01, dd02, dd03, dd04, dd05;
+    Real dd11, dd12, dd13, dd14, dd15;
+    Real dd21, dd22, dd23, dd24, dd25;
+
+    if (sf.temp < 1.0e8_rt) {
+
+        // note: we already bailed above for T < 1.e7, so this is really 1.e7 <= T < 1.e8
+
+        tau  =  std::log10(sf.temp * 1.0e-7_rt);
+        cc   =  0.5654e0_rt + tau;
+        c00  =  1.008e11_rt;
+        c01  =  0.0e0_rt;
+        c02  =  0.0e0_rt;
+        c03  =  0.0e0_rt;
+        c04  =  0.0e0_rt;
+        c05  =  0.0e0_rt;
+        c06  =  0.0e0_rt;
+        c10  =  8.156e10_rt;
+        c11  =  9.728e8_rt;
+        c12  = -3.806e9_rt;
+        c13  = -4.384e9_rt;
+        c14  = -5.774e9_rt;
+        c15  = -5.249e9_rt;
+        c16  = -5.153e9_rt;
+        c20  =  1.067e11_rt;
+        c21  = -9.782e9_rt;
+        c22  = -7.193e9_rt;
+        c23  = -6.936e9_rt;
+        c24  = -6.893e9_rt;
+        c25  = -7.041e9_rt;
+        c26  = -7.193e9_rt;
+        dd01 =  0.0e0_rt;
+        dd02 =  0.0e0_rt;
+        dd03 =  0.0e0_rt;
+        dd04 =  0.0e0_rt;
+        dd05 =  0.0e0_rt;
+        dd11 = -1.879e10_rt;
+        dd12 = -9.667e9_rt;
+        dd13 = -5.602e9_rt;
+        dd14 = -3.370e9_rt;
+        dd15 = -1.825e9_rt;
+        dd21 = -2.919e10_rt;
+        dd22 = -1.185e10_rt;
+        dd23 = -7.270e9_rt;
+        dd24 = -4.222e9_rt;
+        dd25 = -1.560e9_rt;
+
+    } else if (sf.temp >= 1.0e8_rt && sf.temp < 1.0e9_rt) {
+
+        tau  =  std::log10(sf.temp * 1.0e-8_rt);
+        cc   =  1.5654e0_rt;
+        c00  =  9.889e10_rt;
+        c01  = -4.524e8_rt;
+        c02  = -6.088e6_rt;
+        c03  =  4.269e7_rt;
+        c04  =  5.172e7_rt;
+        c05  =  4.910e7_rt;
+        c06  =  4.388e7_rt;
+        c10  =  1.813e11_rt;
+        c11  = -7.556e9_rt;
+        c12  = -3.304e9_rt;
+        c13  = -1.031e9_rt;
+        c14  = -1.764e9_rt;
+        c15  = -1.851e9_rt;
+        c16  = -1.928e9_rt;
+        c20  =  9.750e10_rt;
+        c21  =  3.484e10_rt;
+        c22  =  5.199e9_rt;
+        c23  = -1.695e9_rt;
+        c24  = -2.865e9_rt;
+        c25  = -3.395e9_rt;
+        c26  = -3.418e9_rt;
+        dd01 = -1.135e8_rt;
+        dd02 =  1.256e8_rt;
+        dd03 =  5.149e7_rt;
+        dd04 =  3.436e7_rt;
+        dd05 =  1.005e7_rt;
+        dd11 =  1.652e9_rt;
+        dd12 = -3.119e9_rt;
+        dd13 = -1.839e9_rt;
+        dd14 = -1.458e9_rt;
+        dd15 = -8.956e8_rt;
+        dd21 = -1.548e10_rt;
+        dd22 = -9.338e9_rt;
+        dd23 = -5.899e9_rt;
+        dd24 = -3.035e9_rt;
+        dd25 = -1.598e9_rt;
+
+    } else {
+
+        // T > 1.e9
+
+        tau  =  std::log10(sf.t9);
+        cc   =  1.5654e0_rt;
+        c00  =  9.581e10_rt;
+        c01  =  4.107e8_rt;
+        c02  =  2.305e8_rt;
+        c03  =  2.236e8_rt;
+        c04  =  1.580e8_rt;
+        c05  =  2.165e8_rt;
+        c06  =  1.721e8_rt;
+        c10  =  1.459e12_rt;
+        c11  =  1.314e11_rt;
+        c12  = -1.169e11_rt;
+        c13  = -1.765e11_rt;
+        c14  = -1.867e11_rt;
+        c15  = -1.983e11_rt;
+        c16  = -1.896e11_rt;
+        c20  =  2.424e11_rt;
+        c21  = -3.669e9_rt;
+        c22  = -8.691e9_rt;
+        c23  = -7.967e9_rt;
+        c24  = -7.932e9_rt;
+        c25  = -7.987e9_rt;
+        c26  = -8.333e9_rt;
+        dd01 =  4.724e8_rt;
+        dd02 =  2.976e8_rt;
+        dd03 =  2.242e8_rt;
+        dd04 =  7.937e7_rt;
+        dd05 =  4.859e7_rt;
+        dd11 = -7.094e11_rt;
+        dd12 = -3.697e11_rt;
+        dd13 = -2.189e11_rt;
+        dd14 = -1.273e11_rt;
+        dd15 = -5.705e10_rt;
+        dd21 = -2.254e10_rt;
+        dd22 = -1.551e10_rt;
+        dd23 = -7.793e9_rt;
+        dd24 = -4.489e9_rt;
+        dd25 = -2.185e9_rt;
+
+    }
+
+    Real taudt = nu_constants::iln10 * sf.tempi;
+
+    // equation 3.7, compute the expensive trig functions only one time
+
+    Real cos1 = std::cos(nu_constants::fac1 * tau);
+    Real cos2 = std::cos(nu_constants::fac1 * 2.0e0_rt * tau);
+    Real cos3 = std::cos(nu_constants::fac1 * 3.0e0_rt * tau);
+    Real cos4 = std::cos(nu_constants::fac1 * 4.0e0_rt * tau);
+    Real cos5 = std::cos(nu_constants::fac1 * 5.0e0_rt * tau);
+    Real last = std::cos(nu_constants::fac2 * tau);
+
+    Real sin1 = std::sin(nu_constants::fac1*tau);
+    Real sin2 = std::sin(nu_constants::fac1*2.0e0_rt*tau);
+    Real sin3 = std::sin(nu_constants::fac1*3.0e0_rt*tau);
+    Real sin4 = std::sin(nu_constants::fac1*4.0e0_rt*tau);
+    Real sin5 = std::sin(nu_constants::fac1*5.0e0_rt*tau);
+    Real xast = std::sin(nu_constants::fac2*tau);
+
+    Real a0 = 0.5e0_rt * c00
+        + c01 * cos1 + dd01 * sin1 + c02 * cos2 + dd02 * sin2
+        + c03 * cos3 + dd03 * sin3 + c04 * cos4 + dd04 * sin4
+        + c05 * cos5 + dd05 * sin5 + 0.5e0_rt * c06 * last;
+    Real a1 = 0.5e0_rt * c10
+        + c11 * cos1 + dd11 * sin1 + c12 * cos2 + dd12 * sin2
+        + c13 * cos3 + dd13 * sin3 + c14 * cos4 + dd14 * sin4
+        + c15 * cos5 + dd15 * sin5 + 0.5e0_rt * c16 * last;
+    Real a2 = 0.5e0_rt * c20
+        + c21 * cos1 + dd21 * sin1 + c22 * cos2 + dd22 * sin2
+        + c23 * cos3 + dd23 * sin3 + c24 * cos4 + dd24 * sin4
+        + c25 * cos5 + dd25 * sin5 + 0.5e0_rt * c26 * last;
+
+    Real f0, f1, f2;
+    if constexpr (do_derivatives) {
+        f0 =  taudt * nu_constants::fac1 *
+            (-c01 * sin1 + dd01 * cos1
+             - c02 * sin2 * 2.0e0_rt + dd02 * cos2 * 2.0e0_rt
+             - c03 * sin3 * 3.0e0_rt + dd03 * cos3 * 3.0e0_rt
+             - c04 * sin4 * 4.0e0_rt + dd04 * cos4 * 4.0e0_rt
+             - c05 * sin5 * 5.0e0_rt + dd05 * cos5 * 5.0e0_rt)
+            - 0.5e0_rt * c06 * xast * nu_constants::fac2 * taudt;
+
+        f1 = taudt * nu_constants::fac1 *
+            (-c11 * sin1 + dd11 * cos1
+             - c12 * sin2 * 2.0e0_rt + dd12 * cos2 * 2.0e0_rt
+             - c13 * sin3 * 3.0e0_rt + dd13 * cos3 * 3.0e0_rt
+             - c14 * sin4 * 4.0e0_rt + dd14 * cos4 * 4.0e0_rt
+             - c15 * sin5 * 5.0e0_rt + dd15*cos5*5.0e0_rt)
+            - 0.5e0_rt*c16*xast*nu_constants::fac2*taudt;
+
+        f2 = taudt * nu_constants::fac1 *
+            (-c21 * sin1 + dd21 * cos1
+             - c22 * sin2 * 2.0e0_rt + dd22 * cos2 * 2.0e0_rt
+             - c23 * sin3 * 3.0e0_rt + dd23 * cos3 * 3.0e0_rt
+             - c24 * sin4 * 4.0e0_rt + dd24 * cos4 * 4.0e0_rt
+             - c25 * sin5 * 5.0e0_rt + dd25 * cos5 * 5.0e0_rt)
+            - 0.5e0_rt * c26 * xast * nu_constants::fac2 * taudt;
+    }
+
+    // equation 3.4
+    Real dum = a0 + a1 * sf.zeta + a2 * sf.zeta2;
+    Real dumdt, dumda, dumdz;
+    if constexpr (do_derivatives) {
+        dumdt = f0 + f1 * sf.zeta + a1 * sf.zetadt + f2 * sf.zeta2 + 2.0e0_rt * a2 * sf.zeta * sf.zetadt;
+        dumda = a1 * sf.zetada + 2.0e0_rt * a2 * sf.zeta * sf.zetada;
+        dumdz = a1 * sf.zetadz + 2.0e0_rt * a2 * sf.zeta * sf.zetadz;
+    }
+
+    Real z = std::exp(-cc * sf.zeta);
+
+    Real xnum = dum * z;
+    Real xnumdt, xnumda, xnumdz;
+    if constexpr (do_derivatives) {
+        xnumdt = dumdt * z - dum * z * cc * sf.zetadt;
+        xnumda = dumda * z - dum * z * cc * sf.zetada;
+        xnumdz = dumdz * z - dum * z * cc * sf.zetadz;
+    }
+
+    Real xden = sf.zeta3 + 6.290e-3_rt * sf.xlm1 + 7.483e-3_rt * sf.xlm2 + 3.061e-4_rt * sf.xlm3;
+
+    dum  = 3.0e0_rt * sf.zeta2;
+    Real xdendt, xdenda, xdendz;
+    if constexpr (do_derivatives) {
+        xdendt = dum * sf.zetadt - sf.xldt * (6.290e-3_rt * sf.xlm2
+                                           + 2.0e0_rt * 7.483e-3_rt * sf.xlm3
+                                           + 3.0e0_rt * 3.061e-4_rt * sf.xlm4);
+        xdenda = dum * sf.zetada;
+        xdendz = dum * sf.zetadz;
+    }
+    dum = 1.0e0_rt / xden;
+    Real fphot = xnum * dum;
+    Real fphotdt, fphotda, fphotdz;
+    if constexpr (do_derivatives) {
+        fphotdt = (xnumdt - fphot * xdendt) * dum;
+        fphotda = (xnumda - fphot * xdenda) * dum;
+        fphotdz = (xnumdz - fphot * xdendz) * dum;
+    }
+
+    // equation 3.3
+    a0 = 1.0e0_rt + 2.045e0_rt * sf.xl;
+    xnum = 0.666e0_rt * std::pow(a0, -2.066e0_rt);
+    if constexpr (do_derivatives) {
+        xnumdt = -2.066e0_rt * xnum / a0 * 2.045e0_rt * sf.xldt;
+    }
+
+    dum = 1.875e8_rt * sf.xl + 1.653e8_rt * sf.xl2 + 8.499e8_rt * sf.xl3 - 1.604e8_rt * sf.xl4;
+    if constexpr (do_derivatives) {
+        dumdt = sf.xldt * (1.875e8_rt
+                           + 2.0e0_rt * 1.653e8_rt * sf.xl
+                           + 3.0e0_rt * 8.499e8_rt * sf.xl2
+                           - 4.0e0_rt * 1.604e8_rt * sf.xl3);
+    }
+
+    z  = 1.0e0_rt / dum;
+    xden = 1.0e0_rt + sf.rm * z;
+    if constexpr (do_derivatives) {
+        xdendt = -sf.rm * z * z * dumdt;
+        xdenda = sf.rmda * z;
+        xdendz = sf.rmdz * z;
+    }
+
+    z  = 1.0e0_rt / xden;
+    Real qphot = xnum * z;
+    Real qphotdt;
+    if constexpr (do_derivatives) {
+        qphotdt = (xnumdt - qphot * xdendt) * z;
+    }
+    dum = -qphot * z;
+    Real qphotda, qphotdz;
+    if constexpr (do_derivatives) {
+        qphotda = dum * xdenda;
+        qphotdz = dum * xdendz;
+    }
+
+    // equation 3.2
+    sphot = sf.xl5 * fphot;
+    if constexpr (do_derivatives) {
+        sphotdt = 5.0e0_rt * sf.xl4 * sf.xldt * fphot + sf.xl5 * fphotdt;
+        sphotda = sf.xl5 * fphotda;
+        sphotdz = sf.xl5 * fphotdz;
+    }
+
+    a1  = sphot;
+    sphot = sf.rm * a1;
+    if constexpr (do_derivatives) {
+        sphotdt = sf.rm * sphotdt;
+        sphotda = sf.rm * sphotda + sf.rmda * a1;
+        sphotdz = sf.rm * sphotdz + sf.rmdz * a1;
+    }
+
+    a1 = nu_constants::tfac4 * (1.0e0_rt - nu_constants::tfac3 * qphot);
+    Real a3 = sphot;
+    sphot = a1 * a3;
+    if constexpr (do_derivatives) {
+        a2 = -nu_constants::tfac4 * nu_constants::tfac3;
+        sphotdt = a1 * sphotdt + a2 * qphotdt * a3;
+        sphotda = a1 * sphotda + a2 * qphotda * a3;
+        sphotdz = a1 * sphotdz + a2 * qphotdz * a3;
+    }
+
+    if (sphot <= 0.0_rt) {
+       sphot   = 0.0e0_rt;
+       if constexpr (do_derivatives) {
+           sphotdt = 0.0e0_rt;
+           sphotda = 0.0e0_rt;
+           sphotdz = 0.0e0_rt;
+       }
+    }
 }
 
 template <int do_derivatives>
@@ -762,16 +1101,16 @@ void nu_recomb(const sneutf_t& sf,
         }
 
         // equation 6.5
-        z     = std::exp(zeta + nu);
+        z     = std::exp(sf.zeta + nu);
         dum   = 1.0e0_rt + z;
         a1    = 1.0e0_rt/dum;
         a2    = 1.0e0_rt/bigj;
 
         sreco   = nu_constants::tfac6 * 2.649e-18_rt * sf.ye * std::pow(sf.zbar, 13.0_rt) * sf.den * bigj * a1;
         if constexpr (do_derivatives) {
-            srecodt = sreco * (bigjdt * a2 - z * (zetadt + nudt) * a1);
-            srecoda = sreco * (-1.0e0_rt * sf.abari + bigjda * a2 - z * (zetada + nuda) * a1);
-            srecodz = sreco * (14.0e0_rt * sf.zbari + bigjdz * a2 - z * (zetadz + nudz) * a1);
+            srecodt = sreco * (bigjdt * a2 - z * (sf.zetadt + nudt) * a1);
+            srecoda = sreco * (-1.0e0_rt * sf.abari + bigjda * a2 - z * (sf.zetada + nuda) * a1);
+            srecodz = sreco * (14.0e0_rt * sf.zbari + bigjdz * a2 - z * (sf.zetadz + nudz) * a1);
         }
     }
 
@@ -812,11 +1151,9 @@ void sneut5(const Real temp, const Real den,
 
     // pair production
     Real gl,gldt,
-         zeta,zetadt,zeta2,zeta3,
          xnum,xnumdt,xden,xdendt,
          fpair,fpairdt,qpair,qpairdt,
          fpairda,fpairdz,qpairda,qpairdz,
-         zetada,zetadz,
          xnumda,xnumdz,xdenda,xdendz;
 
     // plasma
@@ -825,11 +1162,6 @@ void sneut5(const Real temp, const Real den,
          flda,fldz,ftda,ftdz,
          fxyda,fxydz,gl2da,gl2dz;
 
-    // photo
-    Real tau,taudt,cos1,cos2,cos3,cos4,cos5,sin1,sin2,
-         sin3,sin4,sin5,last,xast,
-         fphot,fphotdt,qphot,qphotdt,
-         fphotda,fphotdz,qphotda,qphotdz;
 
     // initialize
     Real spair{0.0e0_rt};
@@ -865,21 +1197,7 @@ void sneut5(const Real temp, const Real den,
 
     if (temp < 1.0e7_rt) return;
 
-    auto sf = get_sneut_factors(den, temp, abar, zbar);
-
-    a0     = sf.rm * 1.0e-9_rt;
-    a1     = std::pow(a0, nu_constants::oneth);
-    zeta   = a1 * sf.xlm1;
-
-    if constexpr (do_derivatives) {
-        a2     = nu_constants::oneth * a1*sf.rmi * sf.xlm1;
-        zetadt = -a1 * sf.xlm2 * sf.xldt;
-        zetada = a2 * sf.rmda;
-        zetadz = a2 * sf.rmdz;
-    }
-
-    zeta2 = zeta * zeta;
-    zeta3 = zeta2 * zeta;
+    auto sf = get_sneut_factors<do_derivatives>(den, temp, abar, zbar);
 
     // pair neutrino section
     // for reactions like e+ + e- => nu_e + nubar_e
@@ -892,15 +1210,15 @@ void sneut5(const Real temp, const Real den,
 
     // equation 2.7
 
-    a1     = 6.002e19_rt + 2.084e20_rt*zeta + 1.872e21_rt*zeta2;
+    a1     = 6.002e19_rt + 2.084e20_rt * sf.zeta + 1.872e21_rt * sf.zeta2;
 
     if (sf.t9 < 10.0_rt) {
-       b1     = std::exp(-5.5924e0_rt*zeta);
+       b1     = std::exp(-5.5924e0_rt * sf.zeta);
        if constexpr (do_derivatives) {
            b2     = -b1*5.5924e0_rt;
        }
     } else {
-       b1     = std::exp(-4.9924e0_rt*zeta);
+       b1     = std::exp(-4.9924e0_rt * sf.zeta);
        if constexpr (do_derivatives) {
            b2     = -b1*4.9924e0_rt;
        }
@@ -908,11 +1226,11 @@ void sneut5(const Real temp, const Real den,
 
     xnum   = a1 * b1;
     if constexpr (do_derivatives) {
-        a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt*zeta;
+        a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt * sf.zeta;
         c      = a2*b1 + a1*b2;
-        xnumdt = c*zetadt;
-        xnumda = c*zetada;
-        xnumdz = c*zetadz;
+        xnumdt = c * sf.zetadt;
+        xnumda = c * sf.zetada;
+        xnumdz = c * sf.zetadz;
     }
 
     if (sf.t9 < 10.0_rt) {
@@ -927,12 +1245,12 @@ void sneut5(const Real temp, const Real den,
        }
     }
 
-    xden   = zeta3 + a1;
+    xden   = sf.zeta3 + a1;
     if constexpr (do_derivatives) {
-        b1   = 3.0e0_rt*zeta2;
-        xdendt = b1*zetadt + a2*sf.xldt;
-        xdenda = b1*zetada;
-        xdendz = b1*zetadz;
+        b1   = 3.0e0_rt*sf.zeta2;
+        xdendt = b1*sf.zetadt + a2*sf.xldt;
+        xdenda = b1*sf.zetada;
+        xdendz = b1*sf.zetadz;
     }
 
     a1      = 1.0e0_rt/xden;
@@ -1161,292 +1479,7 @@ void sneut5(const Real temp, const Real den,
         splasdz = a2*splasdz;
     }
 
-    // photoneutrino process section
-    // for reactions like e- + gamma => e- + nu_e + nubar_e
-    //                    e+ + gamma => e+ + nu_e + nubar_e
-    // equation 3.8 for tau, equation 3.6 for cc,
-    // and table 2 written out for speed
-    if (temp < 1.0e8_rt) {
-
-        // note: we already bailed above for T < 1.e7, so this is really 1.e7 <= T < 1.e8
-
-       tau  =  std::log10(temp * 1.0e-7_rt);
-       cc   =  0.5654e0_rt + tau;
-       c00  =  1.008e11_rt;
-       c01  =  0.0e0_rt;
-       c02  =  0.0e0_rt;
-       c03  =  0.0e0_rt;
-       c04  =  0.0e0_rt;
-       c05  =  0.0e0_rt;
-       c06  =  0.0e0_rt;
-       c10  =  8.156e10_rt;
-       c11  =  9.728e8_rt;
-       c12  = -3.806e9_rt;
-       c13  = -4.384e9_rt;
-       c14  = -5.774e9_rt;
-       c15  = -5.249e9_rt;
-       c16  = -5.153e9_rt;
-       c20  =  1.067e11_rt;
-       c21  = -9.782e9_rt;
-       c22  = -7.193e9_rt;
-       c23  = -6.936e9_rt;
-       c24  = -6.893e9_rt;
-       c25  = -7.041e9_rt;
-       c26  = -7.193e9_rt;
-       dd01 =  0.0e0_rt;
-       dd02 =  0.0e0_rt;
-       dd03 =  0.0e0_rt;
-       dd04 =  0.0e0_rt;
-       dd05 =  0.0e0_rt;
-       dd11 = -1.879e10_rt;
-       dd12 = -9.667e9_rt;
-       dd13 = -5.602e9_rt;
-       dd14 = -3.370e9_rt;
-       dd15 = -1.825e9_rt;
-       dd21 = -2.919e10_rt;
-       dd22 = -1.185e10_rt;
-       dd23 = -7.270e9_rt;
-       dd24 = -4.222e9_rt;
-       dd25 = -1.560e9_rt;
-
-    } else if (temp >= 1.0e8_rt && temp < 1.0e9_rt) {
-
-       tau  =  std::log10(temp * 1.0e-8_rt);
-       cc   =  1.5654e0_rt;
-       c00  =  9.889e10_rt;
-       c01  = -4.524e8_rt;
-       c02  = -6.088e6_rt;
-       c03  =  4.269e7_rt;
-       c04  =  5.172e7_rt;
-       c05  =  4.910e7_rt;
-       c06  =  4.388e7_rt;
-       c10  =  1.813e11_rt;
-       c11  = -7.556e9_rt;
-       c12  = -3.304e9_rt;
-       c13  = -1.031e9_rt;
-       c14  = -1.764e9_rt;
-       c15  = -1.851e9_rt;
-       c16  = -1.928e9_rt;
-       c20  =  9.750e10_rt;
-       c21  =  3.484e10_rt;
-       c22  =  5.199e9_rt;
-       c23  = -1.695e9_rt;
-       c24  = -2.865e9_rt;
-       c25  = -3.395e9_rt;
-       c26  = -3.418e9_rt;
-       dd01 = -1.135e8_rt;
-       dd02 =  1.256e8_rt;
-       dd03 =  5.149e7_rt;
-       dd04 =  3.436e7_rt;
-       dd05 =  1.005e7_rt;
-       dd11 =  1.652e9_rt;
-       dd12 = -3.119e9_rt;
-       dd13 = -1.839e9_rt;
-       dd14 = -1.458e9_rt;
-       dd15 = -8.956e8_rt;
-       dd21 = -1.548e10_rt;
-       dd22 = -9.338e9_rt;
-       dd23 = -5.899e9_rt;
-       dd24 = -3.035e9_rt;
-       dd25 = -1.598e9_rt;
-
-    } else {
-
-        // T > 1.e9
-
-       tau  =  std::log10(sf.t9);
-       cc   =  1.5654e0_rt;
-       c00  =  9.581e10_rt;
-       c01  =  4.107e8_rt;
-       c02  =  2.305e8_rt;
-       c03  =  2.236e8_rt;
-       c04  =  1.580e8_rt;
-       c05  =  2.165e8_rt;
-       c06  =  1.721e8_rt;
-       c10  =  1.459e12_rt;
-       c11  =  1.314e11_rt;
-       c12  = -1.169e11_rt;
-       c13  = -1.765e11_rt;
-       c14  = -1.867e11_rt;
-       c15  = -1.983e11_rt;
-       c16  = -1.896e11_rt;
-       c20  =  2.424e11_rt;
-       c21  = -3.669e9_rt;
-       c22  = -8.691e9_rt;
-       c23  = -7.967e9_rt;
-       c24  = -7.932e9_rt;
-       c25  = -7.987e9_rt;
-       c26  = -8.333e9_rt;
-       dd01 =  4.724e8_rt;
-       dd02 =  2.976e8_rt;
-       dd03 =  2.242e8_rt;
-       dd04 =  7.937e7_rt;
-       dd05 =  4.859e7_rt;
-       dd11 = -7.094e11_rt;
-       dd12 = -3.697e11_rt;
-       dd13 = -2.189e11_rt;
-       dd14 = -1.273e11_rt;
-       dd15 = -5.705e10_rt;
-       dd21 = -2.254e10_rt;
-       dd22 = -1.551e10_rt;
-       dd23 = -7.793e9_rt;
-       dd24 = -4.489e9_rt;
-       dd25 = -2.185e9_rt;
-
-    }
-
-    taudt = nu_constants::iln10*sf.tempi;
-
-    // equation 3.7, compute the expensive trig functions only one time
-    cos1 = std::cos(nu_constants::fac1*tau);
-    cos2 = std::cos(nu_constants::fac1*2.0e0_rt*tau);
-    cos3 = std::cos(nu_constants::fac1*3.0e0_rt*tau);
-    cos4 = std::cos(nu_constants::fac1*4.0e0_rt*tau);
-    cos5 = std::cos(nu_constants::fac1*5.0e0_rt*tau);
-    last = std::cos(nu_constants::fac2*tau);
-
-    sin1 = std::sin(nu_constants::fac1*tau);
-    sin2 = std::sin(nu_constants::fac1*2.0e0_rt*tau);
-    sin3 = std::sin(nu_constants::fac1*3.0e0_rt*tau);
-    sin4 = std::sin(nu_constants::fac1*4.0e0_rt*tau);
-    sin5 = std::sin(nu_constants::fac1*5.0e0_rt*tau);
-    xast = std::sin(nu_constants::fac2*tau);
-
-    a0 = 0.5e0_rt*c00
-         + c01*cos1 + dd01*sin1 + c02*cos2 + dd02*sin2
-         + c03*cos3 + dd03*sin3 + c04*cos4 + dd04*sin4
-         + c05*cos5 + dd05*sin5 + 0.5e0_rt*c06*last;
-    a1 = 0.5e0_rt*c10
-         + c11*cos1 + dd11*sin1 + c12*cos2 + dd12*sin2
-         + c13*cos3 + dd13*sin3 + c14*cos4 + dd14*sin4
-         + c15*cos5 + dd15*sin5 + 0.5e0_rt*c16*last;
-
-
-    a2 = 0.5e0_rt*c20
-         + c21*cos1 + dd21*sin1 + c22*cos2 + dd22*sin2
-         + c23*cos3 + dd23*sin3 + c24*cos4 + dd24*sin4
-         + c25*cos5 + dd25*sin5 + 0.5e0_rt*c26*last;
-
-    if constexpr (do_derivatives) {
-        f0 =  taudt*nu_constants::fac1*(-c01*sin1 + dd01*cos1 - c02*sin2*2.0e0_rt
-                          + dd02*cos2*2.0e0_rt - c03*sin3*3.0e0_rt + dd03*cos3*3.0e0_rt
-                          - c04*sin4*4.0e0_rt + dd04*cos4*4.0e0_rt
-                          - c05*sin5*5.0e0_rt + dd05*cos5*5.0e0_rt)
-            - 0.5e0_rt*c06*xast*nu_constants::fac2*taudt;
-
-        f1 = taudt*nu_constants::fac1*(-c11*sin1 + dd11*cos1 - c12*sin2*2.0e0_rt
-                         + dd12*cos2*2.0e0_rt - c13*sin3*3.0e0_rt + dd13*cos3*3.0e0_rt
-                         - c14*sin4*4.0e0_rt + dd14*cos4*4.0e0_rt - c15*sin5*5.0e0_rt
-                         + dd15*cos5*5.0e0_rt) - 0.5e0_rt*c16*xast*nu_constants::fac2*taudt;
-
-        f2 = taudt*nu_constants::fac1*(-c21*sin1 + dd21*cos1 - c22*sin2*2.0e0_rt
-                         + dd22*cos2*2.0e0_rt - c23*sin3*3.0e0_rt + dd23*cos3*3.0e0_rt
-                         - c24*sin4*4.0e0_rt + dd24*cos4*4.0e0_rt - c25*sin5*5.0e0_rt
-                         + dd25*cos5*5.0e0_rt) - 0.5e0_rt*c26*xast*nu_constants::fac2*taudt;
-    }
-
-
-    // equation 3.4
-    dum   = a0 + a1*zeta + a2*zeta2;
-    if constexpr (do_derivatives) {
-        dumdt = f0 + f1*zeta + a1*zetadt + f2*zeta2 + 2.0e0_rt*a2*zeta*zetadt;
-        dumda = a1*zetada + 2.0e0_rt*a2*zeta*zetada;
-        dumdz = a1*zetadz + 2.0e0_rt*a2*zeta*zetadz;
-    }
-
-    z      = std::exp(-cc*zeta);
-
-    xnum   = dum*z;
-    if constexpr (do_derivatives) {
-        xnumdt = dumdt*z - dum*z*cc*zetadt;
-        xnumda = dumda*z - dum*z*cc*zetada;
-        xnumdz = dumdz*z - dum*z*cc*zetadz;
-    }
-
-    xden   = zeta3 + 6.290e-3_rt*sf.xlm1 + 7.483e-3_rt*sf.xlm2 + 3.061e-4_rt*sf.xlm3;
-
-    dum    = 3.0e0_rt*zeta2;
-    if constexpr (do_derivatives) {
-        xdendt = dum*zetadt - sf.xldt*(6.290e-3_rt*sf.xlm2
-                                    + 2.0e0_rt*7.483e-3_rt*sf.xlm3 + 3.0e0_rt*3.061e-4_rt*sf.xlm4);
-        xdenda = dum*zetada;
-        xdendz = dum*zetadz;
-    }
-    dum      = 1.0e0_rt/xden;
-    fphot   = xnum*dum;
-    if constexpr (do_derivatives) {
-        fphotdt = (xnumdt - fphot*xdendt)*dum;
-        fphotda = (xnumda - fphot*xdenda)*dum;
-        fphotdz = (xnumdz - fphot*xdendz)*dum;
-    }
-
-    // equation 3.3
-    a0     = 1.0e0_rt + 2.045e0_rt * sf.xl;
-    xnum   = 0.666e0_rt*std::pow(a0, -2.066e0_rt);
-    if constexpr (do_derivatives) {
-        xnumdt = -2.066e0_rt*xnum/a0 * 2.045e0_rt*sf.xldt;
-    }
-
-    dum    = 1.875e8_rt*sf.xl + 1.653e8_rt*sf.xl2 + 8.499e8_rt*sf.xl3 - 1.604e8_rt*sf.xl4;
-    if constexpr (do_derivatives) {
-        dumdt  = sf.xldt*(1.875e8_rt + 2.0e0_rt*1.653e8_rt*sf.xl + 3.0e0_rt*8.499e8_rt*sf.xl2
-                       - 4.0e0_rt*1.604e8_rt*sf.xl3);
-    }
-
-    z      = 1.0e0_rt/dum;
-    xden   = 1.0e0_rt + sf.rm*z;
-    if constexpr (do_derivatives) {
-        xdendt =  -sf.rm*z*z*dumdt;
-        xdenda =  sf.rmda*z;
-        xdendz =  sf.rmdz*z;
-    }
-
-    z      = 1.0e0_rt/xden;
-    qphot = xnum*z;
-    if constexpr (do_derivatives) {
-        qphotdt = (xnumdt - qphot*xdendt)*z;
-    }
-    dum      = -qphot*z;
-    if constexpr (do_derivatives) {
-        qphotda = dum*xdenda;
-        qphotdz = dum*xdendz;
-    }
-
-    // equation 3.2
-    sphot   = sf.xl5 * fphot;
-    if constexpr (do_derivatives) {
-        sphotdt = 5.0e0_rt*sf.xl4*sf.xldt*fphot + sf.xl5*fphotdt;
-        sphotda = sf.xl5*fphotda;
-        sphotdz = sf.xl5*fphotdz;
-    }
-
-    a1      = sphot;
-    sphot   = sf.rm*a1;
-    if constexpr (do_derivatives) {
-        sphotdt = sf.rm*sphotdt;
-        sphotda = sf.rm*sphotda + sf.rmda*a1;
-        sphotdz = sf.rm*sphotdz + sf.rmdz*a1;
-    }
-
-    a1      = nu_constants::tfac4*(1.0e0_rt - nu_constants::tfac3 * qphot);
-
-    a3      = sphot;
-    sphot   = a1*a3;
-    if constexpr (do_derivatives) {
-        a2      = -nu_constants::tfac4*nu_constants::tfac3;
-        sphotdt = a1*sphotdt + a2*qphotdt*a3;
-        sphotda = a1*sphotda + a2*qphotda*a3;
-        sphotdz = a1*sphotdz + a2*qphotdz*a3;
-    }
-
-    if (sphot <= 0.0_rt) {
-       sphot   = 0.0e0_rt;
-       if constexpr (do_derivatives) {
-           sphotdt = 0.0e0_rt;
-           sphotda = 0.0e0_rt;
-           sphotdz = 0.0e0_rt;
-       }
-    }
+    nu_photo<do_derivatives>(sf, sphot, sphotdt, sphotda, sphotdz);
 
     nu_brem<do_derivatives>(sf, sbrem, sbremdt, sbremda, sbremdz);
 
