@@ -477,6 +477,9 @@ integration
 |                                       | O(1)? for Strang, this simply means scaling e by the    |                    |
 |                                       | initial energy?                                         |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
+| ``nse_iters``                         | for the NSE update predictor-corrector, how many        | 3                  |
+|                                       | iterations do we take to get the new time NSE state     |                    |
++---------------------------------------+---------------------------------------------------------+--------------------+
 
 
 
