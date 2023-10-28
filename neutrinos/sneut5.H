@@ -784,16 +784,16 @@ void nu_recomb(const sneutf_t& sf,
         }
 
         // equation 6.5
-        z     = std::exp(zeta + nu);
+        z     = std::exp(sf.zeta + nu);
         dum   = 1.0e0_rt + z;
         a1    = 1.0e0_rt/dum;
         a2    = 1.0e0_rt/bigj;
 
         sreco   = nu_constants::tfac6 * 2.649e-18_rt * sf.ye * std::pow(sf.zbar, 13.0_rt) * sf.den * bigj * a1;
         if constexpr (do_derivatives) {
-            srecodt = sreco * (bigjdt * a2 - z * (zetadt + nudt) * a1);
-            srecoda = sreco * (-1.0e0_rt * sf.abari + bigjda * a2 - z * (zetada + nuda) * a1);
-            srecodz = sreco * (14.0e0_rt * sf.zbari + bigjdz * a2 - z * (zetadz + nudz) * a1);
+            srecodt = sreco * (bigjdt * a2 - z * (sf.zetadt + nudt) * a1);
+            srecoda = sreco * (-1.0e0_rt * sf.abari + bigjda * a2 - z * (sf.zetada + nuda) * a1);
+            srecodz = sreco * (14.0e0_rt * sf.zbari + bigjdz * a2 - z * (sf.zetadz + nudz) * a1);
         }
     }
 
@@ -899,15 +899,15 @@ void sneut5(const Real temp, const Real den,
 
     // equation 2.7
 
-    a1     = 6.002e19_rt + 2.084e20_rt*zeta + 1.872e21_rt*zeta2;
+    a1     = 6.002e19_rt + 2.084e20_rt*sf.zeta + 1.872e21_rt*sf.zeta2;
 
     if (sf.t9 < 10.0_rt) {
-       b1     = std::exp(-5.5924e0_rt*zeta);
+       b1     = std::exp(-5.5924e0_rt*sf.zeta);
        if constexpr (do_derivatives) {
            b2     = -b1*5.5924e0_rt;
        }
     } else {
-       b1     = std::exp(-4.9924e0_rt*zeta);
+       b1     = std::exp(-4.9924e0_rt*sf.zeta);
        if constexpr (do_derivatives) {
            b2     = -b1*4.9924e0_rt;
        }
@@ -915,11 +915,11 @@ void sneut5(const Real temp, const Real den,
 
     xnum   = a1 * b1;
     if constexpr (do_derivatives) {
-        a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt*zeta;
+        a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt*sf.zeta;
         c      = a2*b1 + a1*b2;
-        xnumdt = c*zetadt;
-        xnumda = c*zetada;
-        xnumdz = c*zetadz;
+        xnumdt = c*sf.zetadt;
+        xnumda = c*sf.zetada;
+        xnumdz = c*sf.zetadz;
     }
 
     if (sf.t9 < 10.0_rt) {
@@ -934,12 +934,12 @@ void sneut5(const Real temp, const Real den,
        }
     }
 
-    xden   = zeta3 + a1;
+    xden   = sf.zeta3 + a1;
     if constexpr (do_derivatives) {
-        b1   = 3.0e0_rt*zeta2;
-        xdendt = b1*zetadt + a2*sf.xldt;
-        xdenda = b1*zetada;
-        xdendz = b1*zetadz;
+        b1   = 3.0e0_rt*sf.zeta2;
+        xdendt = b1*sf.zetadt + a2*sf.xldt;
+        xdenda = b1*sf.zetada;
+        xdendz = b1*sf.zetadz;
     }
 
     a1      = 1.0e0_rt/xden;
@@ -1354,30 +1354,30 @@ void sneut5(const Real temp, const Real den,
 
 
     // equation 3.4
-    dum   = a0 + a1*zeta + a2*zeta2;
+    dum   = a0 + a1*sf.zeta + a2*sf.zeta2;
     if constexpr (do_derivatives) {
-        dumdt = f0 + f1*zeta + a1*zetadt + f2*zeta2 + 2.0e0_rt*a2*zeta*zetadt;
-        dumda = a1*zetada + 2.0e0_rt*a2*zeta*zetada;
-        dumdz = a1*zetadz + 2.0e0_rt*a2*zeta*zetadz;
+        dumdt = f0 + f1*sf.zeta + a1*sf.zetadt + f2*sf.zeta2 + 2.0e0_rt*a2*sf.zeta*sf.zetadt;
+        dumda = a1*sf.zetada + 2.0e0_rt*a2*sf.zeta*sf.zetada;
+        dumdz = a1*sf.zetadz + 2.0e0_rt*a2*sf.zeta*sf.zetadz;
     }
 
-    z      = std::exp(-cc*zeta);
+    z      = std::exp(-cc*sf.zeta);
 
     xnum   = dum*z;
     if constexpr (do_derivatives) {
-        xnumdt = dumdt*z - dum*z*cc*zetadt;
-        xnumda = dumda*z - dum*z*cc*zetada;
-        xnumdz = dumdz*z - dum*z*cc*zetadz;
+        xnumdt = dumdt*z - dum*z*cc*sf.zetadt;
+        xnumda = dumda*z - dum*z*cc*sf.zetada;
+        xnumdz = dumdz*z - dum*z*cc*sf.zetadz;
     }
 
-    xden   = zeta3 + 6.290e-3_rt*sf.xlm1 + 7.483e-3_rt*sf.xlm2 + 3.061e-4_rt*sf.xlm3;
+    xden   = sf.zeta3 + 6.290e-3_rt*sf.xlm1 + 7.483e-3_rt*sf.xlm2 + 3.061e-4_rt*sf.xlm3;
 
-    dum    = 3.0e0_rt*zeta2;
+    dum    = 3.0e0_rt*sf.zeta2;
     if constexpr (do_derivatives) {
-        xdendt = dum*zetadt - sf.xldt*(6.290e-3_rt*sf.xlm2
+        xdendt = dum*sf.zetadt - sf.xldt*(6.290e-3_rt*sf.xlm2
                                     + 2.0e0_rt*7.483e-3_rt*sf.xlm3 + 3.0e0_rt*3.061e-4_rt*sf.xlm4);
-        xdenda = dum*zetada;
-        xdendz = dum*zetadz;
+        xdenda = dum*sf.zetada;
+        xdendz = dum*sf.zetadz;
     }
     dum      = 1.0e0_rt/xden;
     fphot   = xnum*dum;
