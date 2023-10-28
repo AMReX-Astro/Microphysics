@@ -6,6 +6,39 @@
 
 using namespace amrex;
 
+namespace nu_constants {
+
+    // numerical constants
+    constexpr Real fac1   = 5.0e0_rt * M_PI / 3.0e0_rt;
+    constexpr Real fac2   = 10.0e0_rt * M_PI;
+    constexpr Real fac3   = M_PI / 5.0e0_rt;
+    constexpr Real oneth  = 1.0e0_rt/3.0e0_rt;
+    constexpr Real twoth  = 2.0e0_rt/3.0e0_rt;
+    constexpr Real sixth  = 1.0e0_rt/6.0e0_rt;
+    constexpr Real iln10  = 4.342944819032518e-1_rt;
+
+    // theta is sin**2(theta_weinberg) = 0.2319 plus/minus 0.00005 (1996)
+    // xnufam is the number of neutrino flavors = 3.02 plus/minus 0.005 (1998)
+    // change theta and xnufam if need be, and the changes will automatically
+    // propagate through the routine. cv and ca are the vector and axial currents.
+
+    constexpr Real theta  = 0.2319e0_rt;
+    constexpr Real xnufam = 3.0e0_rt;
+    constexpr Real cv     = 0.5e0_rt + 2.0e0_rt * theta;
+    constexpr Real cvp    = 1.0e0_rt - cv;
+    constexpr Real ca     = 0.5e0_rt;
+    constexpr Real cap    = 1.0e0_rt - ca;
+    constexpr Real tfac1  = cv*cv + ca*ca + (xnufam-1.0e0_rt) * (cvp*cvp+cap*cap);
+    constexpr Real tfac2  = cv*cv - ca*ca + (xnufam-1.0e0_rt) * (cvp*cvp - cap*cap);
+    constexpr Real tfac3  = tfac2/tfac1;
+    constexpr Real tfac4  = 0.5e0_rt * tfac1;
+    constexpr Real tfac5  = 0.5e0_rt * tfac2;
+    constexpr Real tfac6  = cv*cv + 1.5e0_rt*ca*ca + (xnufam - 1.0e0_rt)*(cvp*cvp + 1.5e0_rt*cap*cap);
+
+
+}
+
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ifermi12(const Real f)
 {
@@ -225,6 +258,11 @@ Real zfermim12(const Real x)
 
 struct sneutf_t {
 
+    Real den;
+    Real temp;
+    Real abar;
+    Real zbar;
+
     Real deni;
     Real tempi;
     Real abari;
@@ -263,6 +301,11 @@ sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
     constexpr Real con1   = 1.0e0_rt/5.9302e0_rt;
 
     sneutf_t sf;
+
+    sf.den = den;
+    sf.temp = temp;
+    sf.abar = abar;
+    sf.zbar = zbar;
 
     // to avoid lots of divisions
     sf.deni  = 1.0e0_rt / den;
@@ -304,6 +347,130 @@ sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
 
 template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void nu_recomb(const sneutf_t& sf,
+               Real& sreco, Real& srecodt, Real& srecoda, Real& srecodz) {
+
+
+    // recombination neutrino section
+    // for reactions like e- (continuum) => e- (bound) + nu_e + nubar_e
+    // equation 6.11 solved for nu
+
+    Real xnum   = 1.10520e8_rt * sf.den * sf.ye / (sf.temp * std::sqrt(sf.temp));
+    Real xnumdt{0.0};
+    Real xnumda{0.0};
+    Real xnumdz{0.0};
+
+    if constexpr (do_derivatives) {
+        xnumdt = -1.50e0_rt*xnum*sf.tempi;
+        xnumda = -xnum*sf.abari;
+        xnumdz = xnum*sf.zbari;
+    }
+
+    // the chemical potential
+    Real nu   = ifermi12(xnum);
+
+    // a0 is d(nu)/d(xnum)
+    Real a0 = 1.0e0_rt/(0.5e0_rt*zfermim12(nu));
+    Real nudt, nuda, nudz;
+    if constexpr (do_derivatives) {
+        nudt = a0*xnumdt;
+        nuda = a0*xnumda;
+        nudz = a0*xnumdz;
+    }
+    Real nu2  = nu * nu;
+    Real nu3  = nu2 * nu;
+
+    Real a1, a2, a3, b, c, d, f1, f2, f3;
+
+    // table 12
+    if (nu >= -20.0_rt && nu < 0.0_rt) {
+       a1 = 1.51e-2_rt;
+       a2 = 2.42e-1_rt;
+       a3 = 1.21e0_rt;
+       b  = 3.71e-2_rt;
+       c  = 9.06e-1_rt;
+       d  = 9.28e-1_rt;
+       f1 = 0.0e0_rt;
+       f2 = 0.0e0_rt;
+       f3 = 0.0e0_rt;
+    } else if (nu >= 0.0_rt && nu <= 10.0_rt) {
+       a1 = 1.23e-2_rt;
+       a2 = 2.66e-1_rt;
+       a3 = 1.30e0_rt;
+       b  = 1.17e-1_rt;
+       c  = 8.97e-1_rt;
+       d  = 1.77e-1_rt;
+       f1 = -1.20e-2_rt;
+       f2 = 2.29e-2_rt;
+       f3 = -1.04e-3_rt;
+    }
+
+    // equation 6.7, 6.13 and 6.14
+    if (nu >= -20.0_rt &&  nu <= 10.0_rt) {
+
+        Real zeta   = 1.579e5_rt * sf.zbar * sf.zbar * sf.tempi;
+        Real zetadt, zetada, zetadz;
+        if constexpr (do_derivatives) {
+            zetadt = -zeta * sf.tempi;
+            zetada = 0.0e0_rt;
+            zetadz = 2.0e0_rt * zeta * sf.zbari;
+        }
+
+        Real c00 = 1.0e0_rt / (1.0e0_rt + f1 * nu + f2 * nu2 + f3 * nu3);
+        Real c01 = f1 + f2 * 2.0e0_rt * nu + f3 * 3.0e0_rt * nu2;
+        Real dum = zeta * c00;
+        Real dumdt, dumda, dumdz;
+        if constexpr (do_derivatives) {
+            dumdt = zetadt * c00 + zeta * c01 * nudt;
+            dumda = zeta * c01 * nuda;
+            dumdz = zetadz * c00 + zeta * c01 * nudz;
+        }
+
+        Real z = 1.0e0_rt / dum;
+        Real dd00 = std::pow(dum, -2.25_rt);
+        Real dd01 = std::pow(dum, -4.55_rt);
+        c00  = a1 * z + a2 * dd00 + a3 * dd01;
+        c01 = -(a1 * z + 2.25_rt * a2 * dd00 + 4.55_rt * a3 * dd01) * z;
+
+        z = std::exp(c * nu);
+        dd00 = b * z * (1.0e0_rt + d * dum);
+        Real gum = 1.0e0_rt + dd00;
+        Real gumdt, gumda, gumdz;
+        if constexpr (do_derivatives) {
+            gumdt  = dd00 * c * nudt + b * z * d * dumdt;
+            gumda  = dd00 * c * nuda + b * z * d * dumda;
+            gumdz  = dd00 * c * nudz + b * z * d * dumdz;
+        }
+
+        z   = std::exp(nu);
+        a1  = 1.0e0_rt / gum;
+
+        Real bigj = c00 * z * a1;
+        Real bigjdt, bigjda, bigjdz;
+        if constexpr (do_derivatives) {
+            bigjdt = c01 * dumdt * z * a1 + c00 * z * nudt * a1 - c00 * z * a1 * a1 * gumdt;
+            bigjda = c01 * dumda * z * a1 + c00 * z * nuda * a1 - c00 * z * a1 * a1 * gumda;
+            bigjdz = c01 * dumdz * z * a1 + c00 * z * nudz * a1 - c00 * z * a1 * a1 * gumdz;
+        }
+
+        // equation 6.5
+        z     = std::exp(zeta + nu);
+        dum   = 1.0e0_rt + z;
+        a1    = 1.0e0_rt/dum;
+        a2    = 1.0e0_rt/bigj;
+
+        sreco   = nu_constants::tfac6 * 2.649e-18_rt * sf.ye * std::pow(sf.zbar, 13.0_rt) * sf.den * bigj * a1;
+        if constexpr (do_derivatives) {
+            srecodt = sreco * (bigjdt * a2 - z * (zetadt + nudt) * a1);
+            srecoda = sreco * (-1.0e0_rt * sf.abari + bigjda * a2 - z * (zetada + nuda) * a1);
+            srecodz = sreco * (14.0e0_rt * sf.zbari + bigjdz * a2 - z * (zetadz + nudz) * a1);
+        }
+    }
+
+}
+
+template <int do_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sneut5(const Real temp, const Real den,
             const Real abar, const Real zbar,
             Real& snu, Real& dsnudt, Real& dsnudd,
@@ -331,9 +498,9 @@ void sneut5(const Real temp, const Real den,
          a0,a1,a2,a3,b1,b2,c00,c01,c02,c03,c04,c05,c06,
          c10,c11,c12,c13,c14,c15,c16,c20,c21,c22,c23,c24,
          c25,c26,dd00,dd01,dd02,dd03,dd04,dd05,dd11,dd12,
-         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,b,c,d{0.0},f0,
-         f1{0.0},f2,f3,z,
-         dum,dumdt,gum,gumdt,dumda,dumdz,gumda,gumdz;
+         dd13,dd14,dd15,dd21,dd22,dd23,dd24,dd25,c,d{0.0},f0,
+         f1{0.0},f2,z,
+         dum,dumdt,gum,dumda,dumdz;
 
     // pair production
     Real gl,gldt,
@@ -367,37 +534,6 @@ void sneut5(const Real temp, const Real den,
          etada,etadz,
          fbremda,fbremdz,gbremda,gbremdz,
          fliqda,fliqdz,gliqda,gliqdz;
-
-    // recomb
-    Real nu,nudt,nu2,nu3,bigj,bigjdt,nuda,nudz,bigjda,bigjdz;
-
-
-    // numerical constants
-    constexpr Real fac1   = 5.0e0_rt * M_PI / 3.0e0_rt;
-    constexpr Real fac2   = 10.0e0_rt * M_PI;
-    constexpr Real fac3   = M_PI / 5.0e0_rt;
-    constexpr Real oneth  = 1.0e0_rt/3.0e0_rt;
-    constexpr Real twoth  = 2.0e0_rt/3.0e0_rt;
-    constexpr Real sixth  = 1.0e0_rt/6.0e0_rt;
-    constexpr Real iln10  = 4.342944819032518e-1_rt;
-
-    // theta is sin**2(theta_weinberg) = 0.2319 plus/minus 0.00005 (1996)
-    // xnufam is the number of neutrino flavors = 3.02 plus/minus 0.005 (1998)
-    // change theta and xnufam if need be, and the changes will automatically
-    // propagate through the routine. cv and ca are the vector and axial currents.
-
-    constexpr Real theta  = 0.2319e0_rt;
-    constexpr Real xnufam = 3.0e0_rt;
-    constexpr Real cv     = 0.5e0_rt + 2.0e0_rt * theta;
-    constexpr Real cvp    = 1.0e0_rt - cv;
-    constexpr Real ca     = 0.5e0_rt;
-    constexpr Real cap    = 1.0e0_rt - ca;
-    constexpr Real tfac1  = cv*cv + ca*ca + (xnufam-1.0e0_rt) * (cvp*cvp+cap*cap);
-    constexpr Real tfac2  = cv*cv - ca*ca + (xnufam-1.0e0_rt) * (cvp*cvp - cap*cap);
-    constexpr Real tfac3  = tfac2/tfac1;
-    constexpr Real tfac4  = 0.5e0_rt * tfac1;
-    constexpr Real tfac5  = 0.5e0_rt * tfac2;
-    constexpr Real tfac6  = cv*cv + 1.5e0_rt*ca*ca + (xnufam - 1.0e0_rt)*(cvp*cvp + 1.5e0_rt*cap*cap);
 
     // initialize
     Real spair{0.0e0_rt};
@@ -436,11 +572,11 @@ void sneut5(const Real temp, const Real den,
     auto sf = get_sneut_factors(den, temp, abar, zbar);
 
     a0     = sf.rm * 1.0e-9_rt;
-    a1     = std::pow(a0, oneth);
+    a1     = std::pow(a0, nu_constants::oneth);
     zeta   = a1 * sf.xlm1;
 
     if constexpr (do_derivatives) {
-        a2     = oneth * a1*sf.rmi * sf.xlm1;
+        a2     = nu_constants::oneth * a1*sf.rmi * sf.xlm1;
         zetadt = -a1 * sf.xlm2 * sf.xldt;
         zetada = a2 * sf.rmda;
         zetadz = a2 * sf.rmdz;
@@ -558,12 +694,12 @@ void sneut5(const Real temp, const Real den,
         spairdz = gl*spairdz;
     }
 
-    a1      = tfac4*(1.0e0_rt + tfac3 * qpair);
+    a1      = nu_constants::tfac4*(1.0e0_rt + nu_constants::tfac3 * qpair);
 
     a3      = spair;
     spair   = a1*a3;
     if constexpr (do_derivatives) {
-        a2      = tfac4*tfac3;
+        a2      = nu_constants::tfac4 * nu_constants::tfac3;
         spairdt = a1*spairdt + a2*qpairdt*a3;
         spairda = a1*spairda + a2*qpairda*a3;
         spairdz = a1*spairdz + a2*qpairdz*a3;
@@ -574,7 +710,7 @@ void sneut5(const Real temp, const Real den,
     // equation 4.6
 
     a1   = 1.019e-6_rt*sf.rm;
-    a2   = std::pow(a1, twoth);
+    a2   = std::pow(a1, nu_constants::twoth);
 
     b1   = std::sqrt(1.0e0_rt + a2);
 
@@ -583,7 +719,7 @@ void sneut5(const Real temp, const Real den,
     gl2   = 1.1095e11_rt * sf.rm * c00;
 
     if constexpr (do_derivatives) {
-        a3   = twoth*a2/a1;
+        a3   = nu_constants::twoth*a2/a1;
         b2   = 1.0e0_rt/b1;
         gl2dt = -2.0e0_rt*gl2*sf.tempi;
         d     = sf.rm*c00*b2*0.5e0_rt*b2*a3*1.019e-6_rt;
@@ -628,15 +764,15 @@ void sneut5(const Real temp, const Real den,
     cc   = std::log10(2.0e0_rt*sf.rm);
     xlnt = std::log10(temp);
 
-    xnum   = sixth * (17.5e0_rt + cc - 3.0e0_rt*xlnt);
-    xden   = sixth * (-24.5e0_rt + cc + 3.0e0_rt*xlnt);
+    xnum   = nu_constants::sixth * (17.5e0_rt + cc - 3.0e0_rt*xlnt);
+    xden   = nu_constants::sixth * (-24.5e0_rt + cc + 3.0e0_rt*xlnt);
     if constexpr (do_derivatives) {
-        xnumdt = -iln10*0.5e0_rt*sf.tempi;
-        a2     = iln10*sixth*sf.rmi;
+        xnumdt = -nu_constants::iln10*0.5e0_rt*sf.tempi;
+        a2     = nu_constants::iln10*nu_constants::sixth*sf.rmi;
         xnumda = a2*sf.rmda;
         xnumdz = a2*sf.rmdz;
 
-        xdendt = iln10*0.5e0_rt*sf.tempi;
+        xdendt = nu_constants::iln10*0.5e0_rt*sf.tempi;
         xdenda = a2*sf.rmda;
         xdendz = a2*sf.rmdz;
     }
@@ -863,22 +999,22 @@ void sneut5(const Real temp, const Real den,
 
     }
 
-    taudt = iln10*sf.tempi;
+    taudt = nu_constants::iln10*sf.tempi;
 
     // equation 3.7, compute the expensive trig functions only one time
-    cos1 = std::cos(fac1*tau);
-    cos2 = std::cos(fac1*2.0e0_rt*tau);
-    cos3 = std::cos(fac1*3.0e0_rt*tau);
-    cos4 = std::cos(fac1*4.0e0_rt*tau);
-    cos5 = std::cos(fac1*5.0e0_rt*tau);
-    last = std::cos(fac2*tau);
+    cos1 = std::cos(nu_constants::fac1*tau);
+    cos2 = std::cos(nu_constants::fac1*2.0e0_rt*tau);
+    cos3 = std::cos(nu_constants::fac1*3.0e0_rt*tau);
+    cos4 = std::cos(nu_constants::fac1*4.0e0_rt*tau);
+    cos5 = std::cos(nu_constants::fac1*5.0e0_rt*tau);
+    last = std::cos(nu_constants::fac2*tau);
 
-    sin1 = std::sin(fac1*tau);
-    sin2 = std::sin(fac1*2.0e0_rt*tau);
-    sin3 = std::sin(fac1*3.0e0_rt*tau);
-    sin4 = std::sin(fac1*4.0e0_rt*tau);
-    sin5 = std::sin(fac1*5.0e0_rt*tau);
-    xast = std::sin(fac2*tau);
+    sin1 = std::sin(nu_constants::fac1*tau);
+    sin2 = std::sin(nu_constants::fac1*2.0e0_rt*tau);
+    sin3 = std::sin(nu_constants::fac1*3.0e0_rt*tau);
+    sin4 = std::sin(nu_constants::fac1*4.0e0_rt*tau);
+    sin5 = std::sin(nu_constants::fac1*5.0e0_rt*tau);
+    xast = std::sin(nu_constants::fac2*tau);
 
     a0 = 0.5e0_rt*c00
          + c01*cos1 + dd01*sin1 + c02*cos2 + dd02*sin2
@@ -896,21 +1032,21 @@ void sneut5(const Real temp, const Real den,
          + c25*cos5 + dd25*sin5 + 0.5e0_rt*c26*last;
 
     if constexpr (do_derivatives) {
-        f0 =  taudt*fac1*(-c01*sin1 + dd01*cos1 - c02*sin2*2.0e0_rt
+        f0 =  taudt*nu_constants::fac1*(-c01*sin1 + dd01*cos1 - c02*sin2*2.0e0_rt
                           + dd02*cos2*2.0e0_rt - c03*sin3*3.0e0_rt + dd03*cos3*3.0e0_rt
                           - c04*sin4*4.0e0_rt + dd04*cos4*4.0e0_rt
                           - c05*sin5*5.0e0_rt + dd05*cos5*5.0e0_rt)
-            - 0.5e0_rt*c06*xast*fac2*taudt;
+            - 0.5e0_rt*c06*xast*nu_constants::fac2*taudt;
 
-        f1 = taudt*fac1*(-c11*sin1 + dd11*cos1 - c12*sin2*2.0e0_rt
+        f1 = taudt*nu_constants::fac1*(-c11*sin1 + dd11*cos1 - c12*sin2*2.0e0_rt
                          + dd12*cos2*2.0e0_rt - c13*sin3*3.0e0_rt + dd13*cos3*3.0e0_rt
                          - c14*sin4*4.0e0_rt + dd14*cos4*4.0e0_rt - c15*sin5*5.0e0_rt
-                         + dd15*cos5*5.0e0_rt) - 0.5e0_rt*c16*xast*fac2*taudt;
+                         + dd15*cos5*5.0e0_rt) - 0.5e0_rt*c16*xast*nu_constants::fac2*taudt;
 
-        f2 = taudt*fac1*(-c21*sin1 + dd21*cos1 - c22*sin2*2.0e0_rt
+        f2 = taudt*nu_constants::fac1*(-c21*sin1 + dd21*cos1 - c22*sin2*2.0e0_rt
                          + dd22*cos2*2.0e0_rt - c23*sin3*3.0e0_rt + dd23*cos3*3.0e0_rt
                          - c24*sin4*4.0e0_rt + dd24*cos4*4.0e0_rt - c25*sin5*5.0e0_rt
-                         + dd25*cos5*5.0e0_rt) - 0.5e0_rt*c26*xast*fac2*taudt;
+                         + dd25*cos5*5.0e0_rt) - 0.5e0_rt*c26*xast*nu_constants::fac2*taudt;
     }
 
 
@@ -996,12 +1132,12 @@ void sneut5(const Real temp, const Real den,
         sphotdz = sf.rm*sphotdz + sf.rmdz*a1;
     }
 
-    a1      = tfac4*(1.0e0_rt - tfac3 * qphot);
+    a1      = nu_constants::tfac4*(1.0e0_rt - nu_constants::tfac3 * qphot);
 
     a3      = sphot;
     sphot   = a1*a3;
     if constexpr (do_derivatives) {
-        a2      = -tfac4*tfac3;
+        a2      = -nu_constants::tfac4*nu_constants::tfac3;
         sphotdt = a1*sphotdt + a2*qphotdt*a3;
         sphotda = a1*sphotda + a2*qphotda*a3;
         sphotdz = a1*sphotdz + a2*qphotdz*a3;
@@ -1037,7 +1173,7 @@ void sneut5(const Real temp, const Real den,
     t8m6   = t8m5*t8m1;
 
 
-    tfermi = 5.9302e9_rt*(std::sqrt(1.0e0_rt+1.018e0_rt*std::pow(den6*sf.ye, twoth))-1.0e0_rt);
+    tfermi = 5.9302e9_rt*(std::sqrt(1.0e0_rt+1.018e0_rt*std::pow(den6*sf.ye, nu_constants::twoth))-1.0e0_rt);
 
     // "weak" degenerate electrons only
     if (temp > 0.3e0_rt * tfermi) {
@@ -1160,12 +1296,12 @@ void sneut5(const Real temp, const Real den,
            dumdz  = 0.5738e0_rt*2.0e0_rt*sf.ye*t86*den;
        }
 
-       z       = tfac4*fbrem - tfac5*gbrem;
+       z       = nu_constants::tfac4*fbrem - nu_constants::tfac5*gbrem;
        sbrem   = dum * z;
        if constexpr (do_derivatives) {
-           sbremdt = dumdt*z + dum*(tfac4*fbremdt - tfac5*gbremdt);
-           sbremda = dumda*z + dum*(tfac4*fbremda - tfac5*gbremda);
-           sbremdz = dumdz*z + dum*(tfac4*fbremdz - tfac5*gbremdz);
+           sbremdt = dumdt*z + dum*(nu_constants::tfac4*fbremdt - nu_constants::tfac5*gbremdt);
+           sbremda = dumda*z + dum*(nu_constants::tfac4*fbremda - nu_constants::tfac5*gbremda);
+           sbremdz = dumdz*z + dum*(nu_constants::tfac4*fbremdz - nu_constants::tfac5*gbremdz);
        }
 
        // liquid metal with c12 parameters (not too different for other elements)
@@ -1173,7 +1309,7 @@ void sneut5(const Real temp, const Real den,
 
     } else {
 
-       u     = fac3 * (std::log10(den) - 3.0e0_rt);
+       u     = nu_constants::fac3 * (std::log10(den) - 3.0e0_rt);
        //a0    = iln10*fac3*sf.deni;
 
        // compute the expensive trig functions of equation 5.21 only once
@@ -1249,26 +1385,26 @@ void sneut5(const Real temp, const Real den,
        //      - 0.00031e0_rt*sin4*4.0e0_rt - 0.00018e0_rt*cos4*4.0e0_rt
        //      - 0.00069e0_rt*sin5*5.0e0_rt);
 
-       dum   = 2.275e-1_rt * zbar * zbar*t8m1 * std::pow(den6*sf.abari, oneth);
+       dum   = 2.275e-1_rt * zbar * zbar*t8m1 * std::pow(den6*sf.abari, nu_constants::oneth);
        if constexpr (do_derivatives) {
            dumdt = -dum*sf.tempi;
-           dumda = -oneth*dum*sf.abari;
+           dumda = -nu_constants::oneth*dum*sf.abari;
            dumdz = 2.0e0_rt*dum*sf.zbari;
        }
 
        gm1   = 1.0e0_rt/dum;
        gm2   = gm1*gm1;
-       gm13  = std::pow(gm1, oneth);
+       gm13  = std::pow(gm1, nu_constants::oneth);
        gm23  = gm13 * gm13;
        gm43  = gm13*gm1;
        gm53  = gm23*gm1;
 
        // equation 5.25 and 5.26
        v  = -0.05483e0_rt - 0.01946e0_rt*gm13 + 1.86310e0_rt*gm23 - 0.78873e0_rt*gm1;
-       a0 = oneth*0.01946e0_rt*gm43 - twoth*1.86310e0_rt*gm53 + 0.78873e0_rt*gm2;
+       a0 = nu_constants::oneth*0.01946e0_rt*gm43 - nu_constants::twoth*1.86310e0_rt*gm53 + 0.78873e0_rt*gm2;
 
        w  = -0.06711e0_rt + 0.06859e0_rt*gm13 + 1.74360e0_rt*gm23 - 0.74498e0_rt*gm1;
-       a1 = -oneth*0.06859e0_rt*gm43 - twoth*1.74360e0_rt*gm53 + 0.74498e0_rt*gm2;
+       a1 = -nu_constants::oneth*0.06859e0_rt*gm43 - nu_constants::twoth*1.74360e0_rt*gm53 + 0.74498e0_rt*gm2;
 
        // equation 5.19 and 5.20
        fliq   = v*fb + (1.0e0_rt - v)*ft;
@@ -1293,118 +1429,16 @@ void sneut5(const Real temp, const Real den,
            dumdz  = 0.5738e0_rt*2.0e0_rt*sf.ye*t86*den;
        }
 
-       z       = tfac4*fliq - tfac5*gliq;
+       z       = nu_constants::tfac4*fliq - nu_constants::tfac5*gliq;
        sbrem   = dum * z;
        if constexpr (do_derivatives) {
-           sbremdt = dumdt*z + dum*(tfac4*fliqdt - tfac5*gliqdt);
-           sbremda = dumda*z + dum*(tfac4*fliqda - tfac5*gliqda);
-           sbremdz = dumdz*z + dum*(tfac4*fliqdz - tfac5*gliqdz);
+           sbremdt = dumdt*z + dum*(nu_constants::tfac4*fliqdt - nu_constants::tfac5*gliqdt);
+           sbremda = dumda*z + dum*(nu_constants::tfac4*fliqda - nu_constants::tfac5*gliqda);
+           sbremdz = dumdz*z + dum*(nu_constants::tfac4*fliqdz - nu_constants::tfac5*gliqdz);
        }
     }
 
-    // recombination neutrino section
-    // for reactions like e- (continuum) => e- (bound) + nu_e + nubar_e
-    // equation 6.11 solved for nu
-    xnum   = 1.10520e8_rt * den * sf.ye /(temp*std::sqrt(temp));
-    if constexpr (do_derivatives) {
-        xnumdt = -1.50e0_rt*xnum*sf.tempi;
-        xnumda = -xnum*sf.abari;
-        xnumdz = xnum*sf.zbari;
-    }
-
-    // the chemical potential
-    nu   = ifermi12(xnum);
-
-    // a0 is d(nu)/d(xnum)
-    a0 = 1.0e0_rt/(0.5e0_rt*zfermim12(nu));
-    if constexpr (do_derivatives) {
-        nudt = a0*xnumdt;
-        nuda = a0*xnumda;
-        nudz = a0*xnumdz;
-    }
-    nu2  = nu * nu;
-    nu3  = nu2 * nu;
-
-    // table 12
-    if (nu >= -20.0_rt && nu < 0.0_rt) {
-       a1 = 1.51e-2_rt;
-       a2 = 2.42e-1_rt;
-       a3 = 1.21e0_rt;
-       b  = 3.71e-2_rt;
-       c  = 9.06e-1_rt;
-       d  = 9.28e-1_rt;
-       f1 = 0.0e0_rt;
-       f2 = 0.0e0_rt;
-       f3 = 0.0e0_rt;
-    } else if (nu >= 0.0_rt && nu <= 10.0_rt) {
-       a1 = 1.23e-2_rt;
-       a2 = 2.66e-1_rt;
-       a3 = 1.30e0_rt;
-       b  = 1.17e-1_rt;
-       c  = 8.97e-1_rt;
-       d  = 1.77e-1_rt;
-       f1 = -1.20e-2_rt;
-       f2 = 2.29e-2_rt;
-       f3 = -1.04e-3_rt;
-    }
-
-    // equation 6.7, 6.13 and 6.14
-    if (nu >= -20.0_rt &&  nu <= 10.0_rt) {
-
-       zeta   = 1.579e5_rt*zbar*zbar*sf.tempi;
-       if constexpr (do_derivatives) {
-           zetadt = -zeta*sf.tempi;
-           zetada = 0.0e0_rt;
-           zetadz = 2.0e0_rt*zeta*sf.zbari;
-       }
-
-       c00    = 1.0e0_rt/(1.0e0_rt + f1*nu + f2*nu2 + f3*nu3);
-       c01    = f1 + f2*2.0e0_rt*nu + f3*3.0e0_rt*nu2;
-       dum    = zeta*c00;
-       if constexpr (do_derivatives) {
-           dumdt  = zetadt*c00 + zeta*c01*nudt;
-           dumda  = zeta*c01*nuda;
-           dumdz  = zetadz*c00 + zeta*c01*nudz;
-       }
-
-       z      = 1.0e0_rt/dum;
-       dd00   = std::pow(dum, -2.25_rt);
-       dd01   = std::pow(dum, -4.55_rt);
-       c00    = a1*z + a2*dd00 + a3*dd01;
-       c01    = -(a1*z + 2.25_rt*a2*dd00 + 4.55_rt*a3*dd01)*z;
-
-       z      = std::exp(c*nu);
-       dd00   = b*z*(1.0e0_rt + d*dum);
-       gum    = 1.0e0_rt + dd00;
-       if constexpr (do_derivatives) {
-           gumdt  = dd00*c*nudt + b*z*d*dumdt;
-           gumda  = dd00*c*nuda + b*z*d*dumda;
-           gumdz  = dd00*c*nudz + b*z*d*dumdz;
-       }
-
-       z   = std::exp(nu);
-       a1  = 1.0e0_rt/gum;
-
-       bigj   = c00 * z * a1;
-       if constexpr (do_derivatives) {
-           bigjdt = c01*dumdt*z*a1 + c00*z*nudt*a1 - c00*z*a1*a1 * gumdt;
-           bigjda = c01*dumda*z*a1 + c00*z*nuda*a1 - c00*z*a1*a1 * gumda;
-           bigjdz = c01*dumdz*z*a1 + c00*z*nudz*a1 - c00*z*a1*a1 * gumdz;
-       }
-
-       // equation 6.5
-       z     = std::exp(zeta + nu);
-       dum   = 1.0e0_rt + z;
-       a1    = 1.0e0_rt/dum;
-       a2    = 1.0e0_rt/bigj;
-
-       sreco   = tfac6 * 2.649e-18_rt * sf.ye * std::pow(zbar, 13.0_rt) * den * bigj*a1;
-       if constexpr (do_derivatives) {
-           srecodt = sreco*(bigjdt*a2 - z*(zetadt + nudt)*a1);
-           srecoda = sreco*(-1.0e0_rt*sf.abari + bigjda*a2 - z*(zetada+nuda)*a1);
-           srecodz = sreco*(14.0e0_rt*sf.zbari + bigjdz*a2 - z*(zetadz+nudz)*a1);
-       }
-    }
+    nu_recomb<do_derivatives>(sf, sreco, srecodt, srecoda, srecodz);
 
     // convert from erg/cm^3/s to erg/g/s
     // comment these out to duplicate the itoh et al plots
