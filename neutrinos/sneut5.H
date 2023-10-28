@@ -308,6 +308,7 @@ struct sneutf_t {
 };
 
 
+template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE inline
 sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
 
@@ -357,8 +358,8 @@ sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
     Real a1 = std::pow(a0, nu_constants::oneth);
 
     sf.zeta = a1 * sf.xlm1;
-    sf,zeta2 = zeta * zeta;
-    sf.zeta3 = zeta2 * zeta;
+    sf.zeta2 = sf.zeta * sf.zeta;
+    sf.zeta3 = sf.zeta2 * sf.zeta;
 
     if constexpr (do_derivatives) {
         Real a2 = nu_constants::oneth * a1*sf.rmi * sf.xlm1;
@@ -885,7 +886,7 @@ void sneut5(const Real temp, const Real den,
 
     if (temp < 1.0e7_rt) return;
 
-    auto sf = get_sneut_factors(den, temp, abar, zbar);
+    auto sf = get_sneut_factors<do_derivatives>(den, temp, abar, zbar);
 
 
     // pair neutrino section
