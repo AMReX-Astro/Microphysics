@@ -4,7 +4,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 
-
+using namespace amrex;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real ifermi12(const Real f)
