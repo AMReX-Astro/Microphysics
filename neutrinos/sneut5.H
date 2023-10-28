@@ -297,6 +297,14 @@ struct sneutf_t {
     Real rmdz;
     Real rmi;
 
+    Real zeta;
+    Real zeta2;
+    Real zeta3;
+
+    Real zetadt;
+    Real zetada;
+    Real zetadz;
+
 };
 
 
@@ -344,6 +352,20 @@ sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
     sf.rmda   = -sf.rm * sf.abari;
     sf.rmdz   = den * sf.abari;
     sf.rmi    = 1.0e0_rt / sf.rm;
+
+    Real a0 = sf.rm * 1.0e-9_rt;
+    Real a1 = std::pow(a0, nu_constants::oneth);
+
+    sf.zeta = a1 * sf.xlm1;
+    sf,zeta2 = zeta * zeta;
+    sf.zeta3 = zeta2 * zeta;
+
+    if constexpr (do_derivatives) {
+        Real a2 = nu_constants::oneth * a1*sf.rmi * sf.xlm1;
+        sf.zetadt = -a1 * sf.xlm2 * sf.xldt;
+        sf.zetada = a2 * sf.rmda;
+        sf.zetadz = a2 * sf.rmdz;
+    }
 
     return sf;
 
@@ -812,11 +834,9 @@ void sneut5(const Real temp, const Real den,
 
     // pair production
     Real gl,gldt,
-         zeta,zetadt,zeta2,zeta3,
          xnum,xnumdt,xden,xdendt,
          fpair,fpairdt,qpair,qpairdt,
          fpairda,fpairdz,qpairda,qpairdz,
-         zetada,zetadz,
          xnumda,xnumdz,xdenda,xdendz;
 
     // plasma
@@ -867,19 +887,6 @@ void sneut5(const Real temp, const Real den,
 
     auto sf = get_sneut_factors(den, temp, abar, zbar);
 
-    a0     = sf.rm * 1.0e-9_rt;
-    a1     = std::pow(a0, nu_constants::oneth);
-    zeta   = a1 * sf.xlm1;
-
-    if constexpr (do_derivatives) {
-        a2     = nu_constants::oneth * a1*sf.rmi * sf.xlm1;
-        zetadt = -a1 * sf.xlm2 * sf.xldt;
-        zetada = a2 * sf.rmda;
-        zetadz = a2 * sf.rmdz;
-    }
-
-    zeta2 = zeta * zeta;
-    zeta3 = zeta2 * zeta;
 
     // pair neutrino section
     // for reactions like e+ + e- => nu_e + nubar_e
