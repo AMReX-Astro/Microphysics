@@ -118,7 +118,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * aux_source[n];
     }
 
-    for (int iter = 0; iter < 3; iter++) {
+    for (int iter = 0; iter < integrator_rp::nse_iters; iter++) {
 
         // update (rho e)^{n+1} based on the new energy generation rate
         rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_enucdot;
@@ -301,7 +301,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     burn_t nse_state;
 
-    for (int iter = 0; iter < 3; iter++) {
+    for (int iter = 0; iter < integrator_rp::nse_iters; iter++) {
 
         // update (rho e)^{n+1} based on the new energy generation rate
         rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_enucdot;
