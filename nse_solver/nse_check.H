@@ -1065,6 +1065,9 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
   amrex::Real enuc;
   ener_gener_rate(ydot, enuc);
 
+  // include any weak rate neutrino losses
+  enuc += rate_eval.enuc_weak;
+
 #ifdef NEUTRINOS
   // get abar and zbar
   composition(state);
