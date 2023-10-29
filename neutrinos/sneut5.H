@@ -1309,11 +1309,9 @@ void sneut5(const Real temp, const Real den,
     dsnudz = derivative of snu with zbar
     */
 
-    Real xlnt,cc,
-         a1,a2,a3,b1,b2,c00,c01,c03,c04,
-         c,d{0.0},
-         f1{0.0},
-         dumdt,gum,dumda,dumdz;
+    Real a1,a2,a3,b1,b2,
+         c,d{0.0};
+
 
     // pair production
     Real gl,gldt,
@@ -1321,13 +1319,6 @@ void sneut5(const Real temp, const Real den,
          fpair,fpairdt,qpair,qpairdt,
          fpairda,fpairdz,qpairda,qpairdz,
          xnumda,xnumdz,xdenda,xdendz;
-
-    // plasma
-    Real gl2,gl2dt,gl12,gl32,gl72,gl6,
-         ft,ftdt,fl,fldt,fxy,fxydt,
-         flda,fldz,ftda,ftdz,
-         fxyda,fxydz,gl2da,gl2dz;
-
 
     // initialize
     Real spair{0.0e0_rt};
