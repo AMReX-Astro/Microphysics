@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Math.H>
 
 using namespace amrex;
 
@@ -826,7 +827,7 @@ void nu_photo(const sneutf_t& sf,
 
     // equation 3.7
 
-    const Real [cos1, sin1] = amrex::sincos(nu_constants::fac1 * tau);
+    const auto [cos1, sin1] = amrex::Math::sincos(nu_constants::fac1 * tau);
 
     // double, triple, etc. angle formulas
     // sin/cos (2 fac1 tau)
@@ -842,10 +843,10 @@ void nu_photo(const sneutf_t& sf,
     const Real cos4 = 2.0_rt * cos2 * cos2 - 1.0_rt;
 
     // sin/cos (5 fac1 tau)
-    const Real sin5 = 5.0_rt * sin1 - 20.0_rt * sin1 * sin1 * sin1 + 16.0_rt * sin1 * sin1 * sin1 * sin1 * sin;
+    const Real sin5 = 5.0_rt * sin1 - 20.0_rt * sin1 * sin1 * sin1 + 16.0_rt * sin1 * sin1 * sin1 * sin1 * sin1;
     const Real cos5 = 16.0_rt * cos1 * cos1 * cos1 * cos1 * cos1 - 20.0_rt * cos1 * cos1 * cos1 + 5.0_rt * cos1;
 
-    const Real [xast, last] = amrex::sincos(fac2 * tau);
+    const auto [xast, last] = amrex::Math::sincos(nu_constants::fac2 * tau);
 
     Real a0 = 0.5e0_rt * c00
         + c01 * cos1 + dd01 * sin1 + c02 * cos2 + dd02 * sin2
