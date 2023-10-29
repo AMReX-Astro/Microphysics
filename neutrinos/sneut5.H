@@ -1095,16 +1095,16 @@ void nu_recomb(const sneutf_t& sf,
         }
 
         // equation 6.5
-        z     = std::exp(sf.zeta + nu);
+        z     = std::exp(zeta + nu);
         dum   = 1.0e0_rt + z;
         a1    = 1.0e0_rt/dum;
         a2    = 1.0e0_rt/bigj;
 
         sreco   = nu_constants::tfac6 * 2.649e-18_rt * sf.ye * std::pow(sf.zbar, 13.0_rt) * sf.den * bigj * a1;
         if constexpr (do_derivatives) {
-            srecodt = sreco * (bigjdt * a2 - z * (sf.zetadt + nudt) * a1);
-            srecoda = sreco * (-1.0e0_rt * sf.abari + bigjda * a2 - z * (sf.zetada + nuda) * a1);
-            srecodz = sreco * (14.0e0_rt * sf.zbari + bigjdz * a2 - z * (sf.zetadz + nudz) * a1);
+            srecodt = sreco * (bigjdt * a2 - z * (zetadt + nudt) * a1);
+            srecoda = sreco * (-1.0e0_rt * sf.abari + bigjda * a2 - z * (zetada + nuda) * a1);
+            srecodz = sreco * (14.0e0_rt * sf.zbari + bigjdz * a2 - z * (zetadz + nudz) * a1);
         }
     }
 
