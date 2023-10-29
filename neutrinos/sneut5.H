@@ -365,6 +365,141 @@ sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
 }
 
 
+
+template <int do_derivatives>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void nu_pair(const sneutf_t& sf,
+             Real& spair, Real& spairdt, Real& spairda, Real& spairdz) {
+
+    // pair neutrino section
+    // for reactions like e+ + e- => nu_e + nubar_e
+
+    // equation 2.8
+    Real gl = 1.0e0_rt - 13.04e0_rt * sf.xl2 +133.5e0_rt * sf.xl4 +1534.0e0_rt * sf.xl6 + 918.6e0_rt * sf.xl8;
+    Real gldt;
+    if constexpr (do_derivatives) {
+        gldt = sf.xldt*(-26.08e0_rt * sf.xl + 534.0e0_rt * sf.xl3 + 9204.0e0_rt * sf.xl5 + 7348.8e0_rt * sf.xl7);
+    }
+
+    // equation 2.7
+
+    Real a1 = 6.002e19_rt + 2.084e20_rt * sf.zeta + 1.872e21_rt * sf.zeta2;
+    Real b1, b2;
+    if (sf.t9 < 10.0_rt) {
+        b1 = std::exp(-5.5924e0_rt * sf.zeta);
+        if constexpr (do_derivatives) {
+            b2 = -b1 * 5.5924e0_rt;
+        }
+    } else {
+        b1 = std::exp(-4.9924e0_rt * sf.zeta);
+        if constexpr (do_derivatives) {
+            b2 = -b1 * 4.9924e0_rt;
+        }
+    }
+
+    Real a2, c;
+
+    Real xnum = a1 * b1;
+    Real xnumdt, xnumda, xnumdz;
+    if constexpr (do_derivatives) {
+        a2 = 2.084e20_rt + 2.0e0_rt * 1.872e21_rt * sf.zeta;
+        c = a2 * b1 + a1 * b2;
+        xnumdt = c * sf.zetadt;
+        xnumda = c * sf.zetada;
+        xnumdz = c * sf.zetadz;
+    }
+
+    if (sf.t9 < 10.0_rt) {
+        a1 = 9.383e-1_rt * sf.xlm1 - 4.141e-1_rt * sf.xlm2 + 5.829e-2_rt * sf.xlm3;
+        if constexpr (do_derivatives) {
+            a2 = -9.383e-1_rt * sf.xlm2 + 2.0e0_rt * 4.141e-1_rt * sf.xlm3 - 3.0e0_rt * 5.829e-2_rt * sf.xlm4;
+        }
+    } else {
+        a1 = 1.2383e0_rt * sf.xlm1 - 8.141e-1_rt * sf.xlm2;
+        if constexpr (do_derivatives) {
+            a2 = -1.2383e0_rt * sf.xlm2 + 2.0e0_rt * 8.141e-1_rt * sf.xlm3;
+        }
+    }
+
+    Real xden = sf.zeta3 + a1;
+    Real xdendt, xdenda, xdendz;
+    if constexpr (do_derivatives) {
+        b1 = 3.0e0_rt * sf.zeta2;
+        xdendt = b1 * sf.zetadt + a2 * sf.xldt;
+        xdenda = b1 * sf.zetada;
+        xdendz = b1 * sf.zetadz;
+    }
+
+    a1 = 1.0e0_rt / xden;
+    Real fpair = xnum * a1;
+    Real fpairdt, fpairda, fpairdz;
+    if constexpr (do_derivatives) {
+        fpairdt = (xnumdt - fpair * xdendt) * a1;
+        fpairda = (xnumda - fpair * xdenda) * a1;
+        fpairdz = (xnumdz - fpair * xdendz) * a1;
+    }
+
+    // equation 2.6
+    a1 = 10.7480e0_rt * sf.xl2 + 0.3967e0_rt * sf.xlp5 + 1.005e0_rt;
+    xnum = 1.0e0_rt / a1;
+    if constexpr (do_derivatives) {
+        a2 = sf.xldt * (2.0e0_rt * 10.7480e0_rt * sf.xl + 0.5e0_rt * 0.3967e0_rt * sf.xlmp5);
+        xnumdt = -xnum * xnum * a2;
+    }
+
+    a1 = 7.692e7_rt * sf.xl3 + 9.715e6_rt * sf.xlp5;
+    c = 1.0e0_rt / a1;
+    b1 = 1.0e0_rt + sf.rm * c;
+
+    xden = std::pow(b1, -0.3e0_rt);
+    if constexpr (do_derivatives) {
+        a2 = sf.xldt * (3.0e0_rt * 7.692e7_rt * sf.xl2 + 0.5e0_rt * 9.715e6_rt * sf.xlmp5);
+        Real d = -0.3e0_rt * xden / b1;
+        xdendt = -d * sf.rm * c * c * a2;
+        xdenda = d * sf.rmda * c;
+        xdendz = d * sf.rmdz * c;
+    }
+
+    Real qpair = xnum * xden;
+    Real qpairdt, qpairda, qpairdz;
+    if constexpr (do_derivatives) {
+        qpairdt = xnumdt * xden + xnum * xdendt;
+        qpairda = xnum * xdenda;
+        qpairdz = xnum * xdendz;
+    }
+
+    // equation 2.5
+    a1 = std::exp(-2.0e0_rt * sf.xlm1);
+
+    spair = a1 * fpair;
+    if constexpr (do_derivatives) {
+        a2 = a1 * 2.0e0_rt * sf.xlm2 * sf.xldt;
+        spairdt = a2 * fpair + a1 * fpairdt;
+        spairda = a1 * fpairda;
+        spairdz = a1 * fpairdz;
+    }
+
+    a1 = spair;
+    spair = gl*a1;
+    if constexpr (do_derivatives) {
+        spairdt = gl * spairdt + gldt * a1;
+        spairda = gl * spairda;
+        spairdz = gl * spairdz;
+    }
+
+    a1 = nu_constants::tfac4 * (1.0e0_rt + nu_constants::tfac3 * qpair);
+
+    Real a3 = spair;
+    spair = a1 * a3;
+    if constexpr (do_derivatives) {
+        a2 = nu_constants::tfac4 * nu_constants::tfac3;
+        spairdt = a1 * spairdt + a2 * qpairdt * a3;
+        spairda = a1 * spairda + a2 * qpairda * a3;
+        spairdz = a1 * spairdz + a2 * qpairdz * a3;
+    }
+
+}
+
 template <int do_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nu_plasma(const sneutf_t& sf,
@@ -1309,17 +1444,6 @@ void sneut5(const Real temp, const Real den,
     dsnudz = derivative of snu with zbar
     */
 
-    Real a1,a2,a3,b1,b2,
-         c,d{0.0};
-
-
-    // pair production
-    Real gl,gldt,
-         xnum,xnumdt,xden,xdendt,
-         fpair,fpairdt,qpair,qpairdt,
-         fpairda,fpairdz,qpairda,qpairdz,
-         xnumda,xnumdz,xdenda,xdendz;
-
     // initialize
     Real spair{0.0e0_rt};
     Real spairdt{0.0e0_rt};
@@ -1356,126 +1480,7 @@ void sneut5(const Real temp, const Real den,
 
     auto sf = get_sneut_factors<do_derivatives>(den, temp, abar, zbar);
 
-    // pair neutrino section
-    // for reactions like e+ + e- => nu_e + nubar_e
-
-    // equation 2.8
-    gl   = 1.0e0_rt - 13.04e0_rt*sf.xl2 +133.5e0_rt*sf.xl4 +1534.0e0_rt*sf.xl6 +918.6e0_rt*sf.xl8;
-    if constexpr (do_derivatives) {
-        gldt = sf.xldt*(-26.08e0_rt*sf.xl +534.0e0_rt*sf.xl3 +9204.0e0_rt*sf.xl5 +7348.8e0_rt*sf.xl7);
-    }
-
-    // equation 2.7
-
-    a1     = 6.002e19_rt + 2.084e20_rt * sf.zeta + 1.872e21_rt * sf.zeta2;
-
-    if (sf.t9 < 10.0_rt) {
-       b1     = std::exp(-5.5924e0_rt * sf.zeta);
-       if constexpr (do_derivatives) {
-           b2     = -b1*5.5924e0_rt;
-       }
-    } else {
-       b1     = std::exp(-4.9924e0_rt * sf.zeta);
-       if constexpr (do_derivatives) {
-           b2     = -b1*4.9924e0_rt;
-       }
-    }
-
-    xnum   = a1 * b1;
-    if constexpr (do_derivatives) {
-        a2     = 2.084e20_rt + 2.0e0_rt*1.872e21_rt * sf.zeta;
-        c      = a2*b1 + a1*b2;
-        xnumdt = c * sf.zetadt;
-        xnumda = c * sf.zetada;
-        xnumdz = c * sf.zetadz;
-    }
-
-    if (sf.t9 < 10.0_rt) {
-       a1   = 9.383e-1_rt*sf.xlm1 - 4.141e-1_rt*sf.xlm2 + 5.829e-2_rt*sf.xlm3;
-       if constexpr (do_derivatives) {
-           a2   = -9.383e-1_rt*sf.xlm2 + 2.0e0_rt*4.141e-1_rt*sf.xlm3 - 3.0e0_rt*5.829e-2_rt*sf.xlm4;
-       }
-    } else {
-       a1   = 1.2383e0_rt*sf.xlm1 - 8.141e-1_rt*sf.xlm2;
-       if constexpr (do_derivatives) {
-           a2   = -1.2383e0_rt*sf.xlm2 + 2.0e0_rt*8.141e-1_rt*sf.xlm3;
-       }
-    }
-
-    xden   = sf.zeta3 + a1;
-    if constexpr (do_derivatives) {
-        b1   = 3.0e0_rt*sf.zeta2;
-        xdendt = b1*sf.zetadt + a2*sf.xldt;
-        xdenda = b1*sf.zetada;
-        xdendz = b1*sf.zetadz;
-    }
-
-    a1      = 1.0e0_rt/xden;
-    fpair   = xnum*a1;
-    if constexpr (do_derivatives) {
-        fpairdt = (xnumdt - fpair*xdendt)*a1;
-        fpairda = (xnumda - fpair*xdenda)*a1;
-        fpairdz = (xnumdz - fpair*xdendz)*a1;
-    }
-
-    // equation 2.6
-    a1     = 10.7480e0_rt*sf.xl2 + 0.3967e0_rt*sf.xlp5 + 1.005e0_rt;
-    xnum   = 1.0e0_rt/a1;
-    if constexpr (do_derivatives) {
-        a2     = sf.xldt*(2.0e0_rt*10.7480e0_rt*sf.xl + 0.5e0_rt*0.3967e0_rt*sf.xlmp5);
-        xnumdt = -xnum*xnum*a2;
-    }
-
-    a1     = 7.692e7_rt*sf.xl3 + 9.715e6_rt*sf.xlp5;
-    c      = 1.0e0_rt/a1;
-    b1     = 1.0e0_rt + sf.rm*c;
-
-    xden   = std::pow(b1, -0.3e0_rt);
-    if constexpr (do_derivatives) {
-        a2     = sf.xldt*(3.0e0_rt*7.692e7_rt*sf.xl2 + 0.5e0_rt*9.715e6_rt*sf.xlmp5);
-        d      = -0.3e0_rt*xden/b1;
-        xdendt = -d*sf.rm*c*c*a2;
-        xdenda = d*sf.rmda*c;
-        xdendz = d*sf.rmdz*c;
-    }
-
-    qpair   = xnum*xden;
-    if constexpr (do_derivatives) {
-        qpairdt = xnumdt*xden + xnum*xdendt;
-        qpairda = xnum*xdenda;
-        qpairdz = xnum*xdendz;
-    }
-
-    // equation 2.5
-    a1    = std::exp(-2.0e0_rt*sf.xlm1);
-
-    spair   = a1*fpair;
-    if constexpr (do_derivatives) {
-        a2    = a1*2.0e0_rt*sf.xlm2*sf.xldt;
-        spairdt = a2*fpair + a1*fpairdt;
-        spairda = a1*fpairda;
-        spairdz = a1*fpairdz;
-    }
-
-    a1      = spair;
-    spair   = gl*a1;
-    if constexpr (do_derivatives) {
-        spairdt = gl*spairdt + gldt*a1;
-        spairda = gl*spairda;
-        spairdz = gl*spairdz;
-    }
-
-    a1      = nu_constants::tfac4*(1.0e0_rt + nu_constants::tfac3 * qpair);
-
-    a3      = spair;
-    spair   = a1*a3;
-    if constexpr (do_derivatives) {
-        a2      = nu_constants::tfac4 * nu_constants::tfac3;
-        spairdt = a1*spairdt + a2*qpairdt*a3;
-        spairda = a1*spairda + a2*qpairda*a3;
-        spairdz = a1*spairdz + a2*qpairdz*a3;
-    }
-
+    nu_pair<do_derivatives>(sf, spair, spairdt, spairda, spairdz);
 
     nu_plasma<do_derivatives>(sf, splas, splasdt, splasda, splasdz);
 
