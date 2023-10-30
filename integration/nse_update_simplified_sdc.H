@@ -44,6 +44,8 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real abar_out;
     Real dq_out;
     Real dyedt;
+    Real dabardt;
+    Real enu;
     Real X[NumSpec];
 
     Real ye_in = state.y[SFX+iye] / state.rho;
@@ -56,7 +58,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // get the current NSE state from the table
 
     nse_interp(T_in, state.rho, ye_in,
-               abar_out, dq_out, dyedt, X);
+               abar_out, dq_out, dyedt, dabardt, enu, X);
 
     Real dyedt_old = dyedt;
 
@@ -118,7 +120,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         // source estimates
 
         nse_interp(T_new, eos_state.rho, eos_state.aux[iye],
-                   abar_out, dq_out, dyedt, X);
+                   abar_out, dq_out, dyedt, dabardt, enu, X);
 
         // note that the abar, dq (B/A), and X here have all already
         // seen advection implicitly
