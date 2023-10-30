@@ -1191,7 +1191,7 @@ void nu_brem(const sneutf_t& sf,
         const Real cos4 = 2.0_rt * cos2 * cos2 - 1.0_rt;
 
         // sin/cos (5 fac1 tau)
-        //const Real sin5 = sin1 * (5.0_rt - sin1 * sin1 * (20.0_rt + 16.0_rt * sin1 * sin1));
+        //const Real sin5 = sin1 * (5.0_rt - sin1 * sin1 * (20.0_rt - 16.0_rt * sin1 * sin1));
         const Real cos5 = cos1 * (cos1 * cos1 * (16.0_rt * cos1 * cos1 - 20.0_rt) + 5.0_rt);
 
         // equation 5.21
