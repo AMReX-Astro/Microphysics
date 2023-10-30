@@ -26,13 +26,13 @@ void nse_cell_c()
     int ic0 = nse_get_ye_index(ye);
 
     std::cout << "density value brackets: "
-              << nse_table_logrho(ir0) << " " << logrho << " " << nse_table_logrho(ir0+1) << std::endl;
+              << nse_table_logrho(ir0) << " < " << logrho << " < " << nse_table_logrho(ir0+1) << std::endl;
 
     std::cout << "temperature value brackets: "
-              << nse_table_logT(it0) << " " << logT << " " << nse_table_logT(it0+1) << std::endl;
+              << nse_table_logT(it0) << " < " << logT << " < " << nse_table_logT(it0+1) << std::endl;
 
     std::cout << "Ye value brackets: "
-              << nse_table_ye(ic0) << " " << ye << " " << nse_table_ye(ic0+1) << std::endl;
+              << nse_table_ye(ic0) << " < " << ye << " < " << nse_table_ye(ic0+1) << std::endl;
 
     std::cout << std::endl;
 

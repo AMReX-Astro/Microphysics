@@ -44,16 +44,22 @@ void init_nse() {
   for (int irho = 1; irho <= nse_table_size::nden; irho++) {
       for (int it = 1; it <= nse_table_size::ntemp; it++) {
           for (int iye = 1; iye <= nse_table_size::nye; iye++) {
-              int j = (irho-1) * nse_table_size::ntemp * nse_table_size::nye + (it-1) * nse_table_size::nye + iye;
+              int j = (irho-1) * nse_table_size::ntemp * nse_table_size::nye +
+                  (it-1) * nse_table_size::nye + iye;
 
-              nse_table >> ttemp >> tdens >> tye;
-              nse_table >> nse_table::abartab(j)
-                        >> nse_table::beatab(j)
-                        >> nse_table::dyedttab(j)
-                        >> nse_table::dabardttab(j)
-                        >> nse_table::enutab(j);
+              std::getline(nse_table, line);
+              if (line.empty()) {
+                  amrex::Error("Error reading from the NSE table");
+              }
+              std::istringstream data(line);
+              data >> ttemp >> tdens >> tye;
+              data >> nse_table::abartab(j)
+                   >> nse_table::beatab(j)
+                   >> nse_table::dyedttab(j)
+                   >> nse_table::dabardttab(j)
+                   >> nse_table::enutab(j);
               for (int n = 1; n <= NumSpec; n++) {
-                  nse_table >> nse_table::massfractab(n, j);
+                  data >> nse_table::massfractab(n, j);
               }
           }
       }
