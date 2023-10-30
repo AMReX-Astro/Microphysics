@@ -77,3 +77,6 @@ sdc_burn_tol_factor          real         1.d0
 # for Strang, this simply means scaling e by the initial energy?
 scale_system              integer         0
 
+# for the NSE update predictor-corrector, how many iterations
+# do we take to get the new time NSE state
+nse_iters                 integer         3

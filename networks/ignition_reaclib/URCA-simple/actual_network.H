@@ -28,19 +28,20 @@ namespace Rates
         k_C12_C12_to_n_Mg23 = 2,
         k_C12_C12_to_p_Na23 = 3,
         k_He4_C12_to_O16 = 4,
-        k_n_to_p_weak_wc12 = 5,
-        k_Na23_to_Ne23 = 6,
-        k_Ne23_to_Na23 = 7,
-        NumRates = k_Ne23_to_Na23
+        k_Na23_to_Ne23 = 5,
+        k_Ne23_to_Na23 = 6,
+        k_n_to_p = 7,
+        k_p_to_n = 8,
+        NumRates = k_p_to_n
     };
 
     // number of reaclib rates
 
-    const int NrateReaclib = 5;
+    const int NrateReaclib = 4;
 
     // number of tabular rates
 
-    const int NrateTabular = 2;
+    const int NrateTabular = 4;
 
     // rate names -- note: the rates are 1-based, not zero-based, so we pad
     // this vector with rate_names[0] = "" so the indices line up with the
@@ -52,9 +53,10 @@ namespace Rates
         "C12_C12_to_n_Mg23",  // 2,
         "C12_C12_to_p_Na23",  // 3,
         "He4_C12_to_O16",  // 4,
-        "n_to_p_weak_wc12",  // 5,
-        "Na23_to_Ne23",  // 6,
-        "Ne23_to_Na23"  // 7,
+        "Na23_to_Ne23",  // 5,
+        "Ne23_to_Na23",  // 6,
+        "n_to_p",  // 7,
+        "p_to_n"  // 8,
     };
 
 }
