@@ -1,8 +1,5 @@
 import numpy as np
 
-# needs progressbar2
-import progressbar
-
 import pynucastro as pyna
 from pynucastro import Nucleus
 
@@ -94,13 +91,44 @@ def make_nse_network():
 
     return rc
 
+def output_header(Ts, rhos, yes):
+
+    with open("nse_table_size.H", "w") as nse_h:
+
+        nse_h.write("#ifndef NSE_TABLE_SIZE_H\n")
+        nse_h.write("#define NSE_TABLE_SIZE_H\n\n")
+
+        nse_h.write("namespace nse_table_size {\n\n")
+
+        nse_h.write(f"    constexpr int ntemp = {len(Ts)};\n")
+        nse_h.write(f"    constexpr int nden = {len(rhos)};\n")
+        nse_h.write(f"    constexpr int nye = {len(yes)};\n\n")
+
+        nse_h.write(f"    constexpr Real logT_min = {np.log10(Ts.min())};\n")
+        nse_h.write(f"    constexpr Real logT_max = {np.log10(Ts.max())};\n")
+        nse_h.write(f"    constexpr Real dlogT = {(np.log10(Ts.max()) - np.log10(Ts.min())) / (len(Ts) - 1)}\n\n")
+
+        nse_h.write(f"    constexpr Real logrho_min = {np.log10(rhos.min())};\n")
+        nse_h.write(f"    constexpr Real logrhon_max = {np.log10(rhos.max())};\n")
+        nse_h.write(f"    constexpr Real dlogrho = {(np.log10(rhos.max()) - np.log10(rhos.min())) / (len(rhos) - 1)}\n\n")
+
+        nse_h.write(f"    constexpr Real ye_min = {yes.min()};\n")
+        nse_h.write(f"    constexpr Real ye_max = {yes.max()};\n")
+        nse_h.write(f"    constexpr Real dye = {(yes.max() - yes.min()) / (len(yes) - 1)}\n\n")
+
+        nse_h.write("}\n")
+        nse_h.write("#endif\n")
+
+
 def generate_table():
 
     nse_net = make_nse_network()
 
-    Ts = np.logspace(np.log10(3.e9), np.log10(2.e10), 51)
+    Ts = np.logspace(9.4, 10.4, 51)
     rhos = np.logspace(7, 10, 31)
     yes = np.linspace(0.43, 0.5, 15)
+
+    output_header(Ts, rhos, yes)
 
     mu_p0 = -3.5
     mu_n0 = -15.0

@@ -1,4 +1,5 @@
 CEXE_headers += network_properties.H
+CEXE_headers += nse_table_size.H
 
 ifeq ($(USE_REACT),TRUE)
   CEXE_headers += actual_network.H
