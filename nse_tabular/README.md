@@ -79,12 +79,14 @@ The script will take a long time to run.  Upon completion, the
 following should be copied into the on-grid network's subdirectory
 (e.g. `networks/aprox19/`):
 
-* `nse.tbl` : this is the table itself.  *It needs to be renamed to
-  the form* `nse_<network>.tbl`, where `<network>` is replaced by the
-  network name, e.g. `aprox19`.
+* `nse.tbl` : this is the table itself.  *It should really be renamed
+  do something like* `nse_<network>.tbl`, where `<network>` is
+  replaced by the network name, e.g. `aprox19`.
 
-* `nse_table_size.H` : this contains the information about the table size needed
-  to allocate the memory to store the table and to index into it.
+* `nse_table_size.H` : this contains the information about the table
+  size needed to allocate the memory to store the table and to index
+  into it.  Note the `table_name` string in the header should be
+  updated to reflect the new name of the table.
 
 The data is ordered such that rho varies the slowest (from low to
 high), T varies the next slowest (from low to high), and Ye varies the

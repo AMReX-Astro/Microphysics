@@ -26,15 +26,20 @@ void init_nse() {
 
   amrex::Print() << "reading the NSE table (C++) ..." << std::endl;
 
-  std::string table_name = "nse." + network_name + ".tbl";
-
-  nse_table.open(table_name, std::ios::in);
+  nse_table.open(nse_table_size::table_name, std::ios::in);
   if (nse_table.fail()) {
-      amrex::Error("unable to open NSE table: " + table_name);
+      amrex::Error("unable to open NSE table: " + nse_table_size::table_name);
   }
 
   Real the, tsi, tfe;
   Real ttemp, tdens, tye;
+
+  // skip the header -- it is 4 lines
+  std::string line;
+  std::getline(nse_table, line);
+  std::getline(nse_table, line);
+  std::getline(nse_table, line);
+  std::getline(nse_table, line);
 
   for (int irho = 1; irho <= nse_table_size::nden; irho++) {
       for (int it = 1; it <= nse_table_size::ntemp; it++) {
@@ -44,7 +49,7 @@ void init_nse() {
               nse_table >> ttemp >> tdens >> tye;
               nse_table >> nse_table::abartab(j)
                         >> nse_table::beatab(j)
-                        >> nse_table::dydttab(j)
+                        >> nse_table::dyedttab(j)
                         >> nse_table::dabardttab(j)
                         >> nse_table::enutab(j);
               for (int n = 1; n <= NumSpec; n++) {
@@ -270,13 +275,13 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         // so we offset one to the left and also ensure that we don't go off the table
 
         int ir0 = nse_get_logrho_index(rholog) - 1;
-        ir0 = amrex::max(1, amrex::min(nse_table::nden-3, ir0));
+        ir0 = amrex::max(1, amrex::min(nse_table_size::nden-3, ir0));
 
         int it0 = nse_get_logT_index(tlog) - 1;
-        it0 = amrex::max(1, amrex::min(nse_table::ntemp-3, it0));
+        it0 = amrex::max(1, amrex::min(nse_table_size::ntemp-3, it0));
 
         int ic0 = nse_get_ye_index(yet) - 1;
-        ic0 = amrex::max(1, amrex::min(nse_table::nye-3, ic0));
+        ic0 = amrex::max(1, amrex::min(nse_table_size::nye-3, ic0));
 
         abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
         bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);

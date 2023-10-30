@@ -40,13 +40,13 @@ void nse_cell_c()
     // need to offset the indices one to the left
 
     ir0--;
-    ir0 = amrex::max(1, amrex::min(nse_table::nden-3, ir0));
+    ir0 = amrex::max(1, amrex::min(nse_table_size::nden-3, ir0));
 
     it0--;
-    it0 = amrex::max(1, amrex::min(nse_table::ntemp-3, it0));
+    it0 = amrex::max(1, amrex::min(nse_table_size::ntemp-3, it0));
 
     ic0--;
-    ic0 = amrex::max(1, amrex::min(nse_table::nye-3, ic0));
+    ic0 = amrex::max(1, amrex::min(nse_table_size::nye-3, ic0));
 
 
     Real rhos[] = {nse_table_logrho(ir0),
@@ -79,7 +79,7 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(rhos, _d, nse_table::dlogrho, logrho) << std::endl << std::endl;
+            cubic(rhos, _d, nse_table_size::dlogrho, logrho) << std::endl << std::endl;
     }
 
     {
@@ -96,7 +96,7 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(Ts, _d, nse_table::dlogT, logT) << std::endl << std::endl;
+            cubic(Ts, _d, nse_table_size::dlogT, logT) << std::endl << std::endl;
 
     }
 
@@ -114,7 +114,7 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(yes, _d, -nse_table::dye, ye) << std::endl << std::endl;
+            cubic(yes, _d, -nse_table_size::dye, ye) << std::endl << std::endl;
 
     }
 

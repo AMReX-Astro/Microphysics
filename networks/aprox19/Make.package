@@ -8,3 +8,5 @@ ifeq ($(USE_REACT),TRUE)
   USE_SCREENING   = TRUE
   USE_NEUTRINOS   = TRUE
 endif
+
+NSE_TABLE_NAME := nse_aprox19.tbl
