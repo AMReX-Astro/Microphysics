@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Math.H>
 
 using namespace amrex;
 
@@ -824,21 +825,28 @@ void nu_photo(const sneutf_t& sf,
 
     Real taudt = nu_constants::iln10 * sf.tempi;
 
-    // equation 3.7, compute the expensive trig functions only one time
+    // equation 3.7
 
-    Real cos1 = std::cos(nu_constants::fac1 * tau);
-    Real cos2 = std::cos(nu_constants::fac1 * 2.0e0_rt * tau);
-    Real cos3 = std::cos(nu_constants::fac1 * 3.0e0_rt * tau);
-    Real cos4 = std::cos(nu_constants::fac1 * 4.0e0_rt * tau);
-    Real cos5 = std::cos(nu_constants::fac1 * 5.0e0_rt * tau);
-    Real last = std::cos(nu_constants::fac2 * tau);
+    const auto [cos1, sin1] = amrex::Math::sincos(nu_constants::fac1 * tau);
 
-    Real sin1 = std::sin(nu_constants::fac1*tau);
-    Real sin2 = std::sin(nu_constants::fac1*2.0e0_rt*tau);
-    Real sin3 = std::sin(nu_constants::fac1*3.0e0_rt*tau);
-    Real sin4 = std::sin(nu_constants::fac1*4.0e0_rt*tau);
-    Real sin5 = std::sin(nu_constants::fac1*5.0e0_rt*tau);
-    Real xast = std::sin(nu_constants::fac2*tau);
+    // double, triple, etc. angle formulas
+    // sin/cos (2 fac1 tau)
+    const Real sin2 = 2.0_rt * sin1 * cos1;
+    const Real cos2 = 2.0_rt * cos1 * cos1 - 1.0_rt;
+
+    // sin/cos (3 fac1 tau)
+    const Real sin3 = sin1 * (3.0_rt - 4.0_rt * sin1 * sin1);
+    const Real cos3 = cos1 * (4.0_rt * cos1 * cos1 - 3.0_rt);
+
+    // sin/cos (4 fac1 tau) -- use double angle on sin2/cos2
+    const Real sin4 = 2.0_rt * sin2 * cos2;
+    const Real cos4 = 2.0_rt * cos2 * cos2 - 1.0_rt;
+
+    // sin/cos (5 fac1 tau)
+    const Real sin5 = sin1 * (5.0_rt - sin1 * sin1 * (20.0_rt - 16.0_rt * sin1 * sin1));
+    const Real cos5 = cos1 * (cos1 * cos1 * (16.0_rt * cos1 * cos1 - 20.0_rt) + 5.0_rt);
+
+    const auto [xast, last] = amrex::Math::sincos(nu_constants::fac2 * tau);
 
     Real a0 = 0.5e0_rt * c00
         + c01 * cos1 + dd01 * sin1 + c02 * cos2 + dd02 * sin2
@@ -1166,17 +1174,25 @@ void nu_brem(const sneutf_t& sf,
         //a0    = iln10*fac3*sf.deni;
 
         // compute the expensive trig functions of equation 5.21 only once
-        Real cos1 = std::cos(u);
-        Real cos2 = std::cos(2.0e0_rt*u);
-        Real cos3 = std::cos(3.0e0_rt*u);
-        Real cos4 = std::cos(4.0e0_rt*u);
-        Real cos5 = std::cos(5.0e0_rt*u);
 
-        Real sin1 = std::sin(u);
-        Real sin2 = std::sin(2.0e0_rt*u);
-        Real sin3 = std::sin(3.0e0_rt*u);
-        Real sin4 = std::sin(4.0e0_rt*u);
-        //sin5 = std::sin(5.0e0_rt*u);
+        const auto [cos1, sin1] = amrex::Math::sincos(u);
+
+        // double, triple, etc. angle formulas
+        // sin/cos (2 fac1 tau)
+        const Real sin2 = 2.0_rt * sin1 * cos1;
+        const Real cos2 = 2.0_rt * cos1 * cos1 - 1.0_rt;
+
+        // sin/cos (3 fac1 tau)
+        const Real sin3 = sin1 * (3.0_rt - 4.0_rt * sin1 * sin1);
+        const Real cos3 = cos1 * (4.0_rt * cos1 * cos1 - 3.0_rt);
+
+        // sin/cos (4 fac1 tau) -- use double angle on sin2/cos2
+        const Real sin4 = 2.0_rt * sin2 * cos2;
+        const Real cos4 = 2.0_rt * cos2 * cos2 - 1.0_rt;
+
+        // sin/cos (5 fac1 tau)
+        //const Real sin5 = sin1 * (5.0_rt - sin1 * sin1 * (20.0_rt - 16.0_rt * sin1 * sin1));
+        const Real cos5 = cos1 * (cos1 * cos1 * (16.0_rt * cos1 * cos1 - 20.0_rt) + 5.0_rt);
 
         // equation 5.21
         Real fb = 0.5e0_rt * 0.17946e0_rt + 0.00945e0_rt * u + 0.34529e0_rt
