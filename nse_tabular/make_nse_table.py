@@ -109,7 +109,7 @@ def output_header(Ts, rhos, yes):
         nse_h.write(f"    constexpr Real dlogT = {(np.log10(Ts.max()) - np.log10(Ts.min())) / (len(Ts) - 1)}\n\n")
 
         nse_h.write(f"    constexpr Real logrho_min = {np.log10(rhos.min())};\n")
-        nse_h.write(f"    constexpr Real logrhon_max = {np.log10(rhos.max())};\n")
+        nse_h.write(f"    constexpr Real logrho_max = {np.log10(rhos.max())};\n")
         nse_h.write(f"    constexpr Real dlogrho = {(np.log10(rhos.max()) - np.log10(rhos.min())) / (len(rhos) - 1)}\n\n")
 
         nse_h.write(f"    constexpr Real ye_min = {yes.min()};\n")
@@ -127,6 +127,10 @@ def generate_table():
     Ts = np.logspace(9.4, 10.4, 51)
     rhos = np.logspace(7, 10, 31)
     yes = np.linspace(0.43, 0.5, 15)
+
+    #Ts = np.logspace(9.4, 10.4, 26)
+    #rhos = np.logspace(7, 10, 16)
+    #yes = np.linspace(0.43, 0.5, 8)
 
     output_header(Ts, rhos, yes)
 
