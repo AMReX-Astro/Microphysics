@@ -31,7 +31,6 @@ void init_nse() {
       amrex::Error("unable to open NSE table: " + nse_table_size::table_name);
   }
 
-  Real the, tsi, tfe;
   Real ttemp, tdens, tye;
 
   // skip the header -- it is 4 lines
