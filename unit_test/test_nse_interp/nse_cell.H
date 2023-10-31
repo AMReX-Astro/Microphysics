@@ -118,7 +118,26 @@ void nse_cell_c()
 
     }
 
-    std::cout << "tricubic interpolated value: " <<
-        tricubic(ir0, it0, ic0, logrho, logT, ye, nse_table::abartab) << std::endl;
+    std::cout << "tricubic interpolated values: " << std::endl;
+
+    Real abar;
+    Real bea;
+    Real dyedt;
+    Real dabardt;
+    Real e_nu;
+    Real X[NumSpec];
+
+    nse_interp(temperature, density, ye,
+               abar, bea, dyedt, dabardt, e_nu, X);
+
+    std::cout << "abar    = " << abar << std::endl;
+    std::cout << "bea     = " << bea << std::endl;
+    std::cout << "dyedt   = " << dyedt << std::endl;
+    std::cout << "dabardt = " << dabardt << std::endl;
+    std::cout << "e_nu    = " << e_nu << std::endl;
+    for (int n = 0; n < NumSpec; ++n) {
+        std::cout << "X(" << short_spec_names_cxx[n] << ") = " << X[n] << std::endl;
+    }
+
 
 }
