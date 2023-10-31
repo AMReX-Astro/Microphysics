@@ -127,7 +127,7 @@ def generate_table():
 
     nse_net = make_nse_network()
 
-    Ts = np.logspace(9.4, 10.4, 51)
+    Ts = np.logspace(9.4, 10.4, 101)
     rhos = np.logspace(7, 10, 31)
     yes = np.linspace(0.43, 0.5, 15)
 

@@ -7,13 +7,13 @@ namespace nse_table_size {
 
     const std::string table_name{"nse_aprox19.tbl"};
 
-    constexpr int ntemp = 51;
+    constexpr int ntemp = 101;
     constexpr int nden = 31;
     constexpr int nye = 15;
 
     constexpr Real logT_min = 9.4;
     constexpr Real logT_max = 10.4;
-    constexpr Real dlogT = 0.02;
+    constexpr Real dlogT = 0.01;
 
     constexpr Real logrho_min = 7.0;
     constexpr Real logrho_max = 10.0;
