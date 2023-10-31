@@ -1,5 +1,4 @@
 import numpy as np
-
 import pynucastro as pyna
 from pynucastro import Nucleus
 
@@ -102,7 +101,7 @@ def output_header(Ts, rhos, yes):
 
         nse_h.write("namespace nse_table_size {\n\n")
 
-        nse_h.write('const std::string table_name{"nse.tbl"};\n\n')
+        nse_h.write('    const std::string table_name{"nse.tbl"};\n\n')
 
         nse_h.write(f"    constexpr int ntemp = {len(Ts)};\n")
         nse_h.write(f"    constexpr int nden = {len(rhos)};\n")
