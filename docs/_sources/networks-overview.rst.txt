@@ -42,7 +42,7 @@ for the ability to swap integrators as desired. We discuss the
 integrators in a later section.
 
 A network is defined by a ``.net`` file which provides a list of species
-and some data about each species (its name and some isotopic data). 
+and some data about each species (its name and some isotopic data).
 
 An example is ``Microphysics/networks/iso7/iso7.net``:
 
