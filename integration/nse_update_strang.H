@@ -41,6 +41,7 @@ void nse_burn(BurnT& state, const Real dt) {
   Real dq_out;
   Real dyedt;
   Real dabardt;
+  Real dbeadt;
   Real enu;
   Real X[NumSpec];
 
@@ -58,7 +59,7 @@ void nse_burn(BurnT& state, const Real dt) {
   // in terms of the auxiliary composition, Ye, abar, and B/A
 
   nse_interp(T_in, state.rho, state.aux[iye],
-             abar_out, dq_out, dyedt, dabardt, enu, X);
+             abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
 
   // update Ye
 
@@ -67,7 +68,7 @@ void nse_burn(BurnT& state, const Real dt) {
   // now get the composition from the table using the updated Ye
 
   nse_interp(T_in, state.rho, state.aux[iye],
-             abar_out, dq_out, dyedt, dabardt, enu, X);
+             abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
 
 
   // this is MeV / nucleon -- here aux has not yet been updated, so we

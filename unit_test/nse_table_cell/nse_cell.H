@@ -19,14 +19,19 @@ void nse_cell_c()
     Real abar{};
     Real dq{};
     Real dyedt{};
+    Real dabardt{};
+    Real dbeadt{};
+    Real e_nu{};
     Real X[NumSpec] = {};
 
-    nse_interp(density, temperature, ye,
-               abar, dq, dyedt, X);
+    nse_interp(temperature, density, ye,
+               abar, dq, dyedt, dabardt, dbeadt, e_nu, X);
 
-    std::cout << "abar = " << abar << std::endl;
-    std::cout << "B/A = " << dq << std::endl;
+    std::cout << "Abar = " << abar << std::endl;
+    std::cout << "<B/A> = " << dq << std::endl;
     std::cout << "dYe/dt = " << dyedt << std::endl;
+    std::cout << "dAbar/dt = " << dabardt << std::endl;
+    std::cout << "d<B/A>/dt = " << dbeadt << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "X(" << short_spec_names_cxx[n] << ") = " << X[n] << std::endl;
     }
