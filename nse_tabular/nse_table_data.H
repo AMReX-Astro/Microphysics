@@ -18,6 +18,7 @@ namespace nse_table
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> beatab;
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> dyedttab;
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> dabardttab;
+  extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> dbeadttab;
   extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, npts> enutab;
 
   extern AMREX_GPU_MANAGED amrex::Array2D<amrex::Real, 1, NumSpec, 1, npts> massfractab;

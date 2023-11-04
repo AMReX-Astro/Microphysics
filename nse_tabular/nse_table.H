@@ -56,6 +56,7 @@ void init_nse() {
                    >> nse_table::beatab(j)
                    >> nse_table::dyedttab(j)
                    >> nse_table::dabardttab(j)
+                   >> nse_table::dbeadttab(j)
                    >> nse_table::enutab(j);
               for (int n = 1; n <= NumSpec; n++) {
                   data >> nse_table::massfractab(n, j);
@@ -234,7 +235,7 @@ Real tricubic(const int ir0, const int it0, const int ic0,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,
-                Real& abar, Real& bea, Real& dyedt, Real& dabardt, Real& e_nu,
+                Real& abar, Real& bea, Real& dyedt, Real& dabardt, Real& dbeadt, Real& e_nu,
                 Real* X, bool skip_X_fill=false) {
 
     // if skip_X_fill = true then we don't fill X[] with the mass fractions.
@@ -259,6 +260,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         bea = trilinear(ir1, it1, ic1, rholog, tlog, yet, beatab);
         dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dyedttab);
         dabardt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dabardttab);
+        dbeadt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dbeadttab);
         e_nu = trilinear(ir1, it1, ic1, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
@@ -292,6 +294,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
         dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dyedttab);
         dabardt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dabardttab);
+        dbeadt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dbeadttab);
         e_nu = tricubic(ir0, it0, ic0, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
