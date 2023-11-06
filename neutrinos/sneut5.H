@@ -827,7 +827,7 @@ void nu_photo(const sneutf_t& sf,
 
     // equation 3.7
 
-    const auto [cos1, sin1] = amrex::Math::sincos(nu_constants::fac1 * tau);
+    const auto [sin1, cos1] = amrex::Math::sincos(nu_constants::fac1 * tau);
 
     // double, triple, etc. angle formulas
     // sin/cos (2 fac1 tau)
@@ -1175,7 +1175,7 @@ void nu_brem(const sneutf_t& sf,
 
         // compute the expensive trig functions of equation 5.21 only once
 
-        const auto [cos1, sin1] = amrex::Math::sincos(u);
+        const auto [sin1, cos1] = amrex::Math::sincos(u);
 
         // double, triple, etc. angle formulas
         // sin/cos (2 fac1 tau)

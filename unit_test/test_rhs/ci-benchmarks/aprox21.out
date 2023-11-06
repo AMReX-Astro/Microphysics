@@ -221,7 +221,7 @@
  J_nickel-56_magnesium-24                      0                      0
  J_neutron_magnesium-24                      0                      0
  J_proton_magnesium-24                       0                      0
- J_E_magnesium-24                -71764.239466       1.6357279567e+29
+ J_E_magnesium-24                -71759.536816       1.6357279567e+29
  J_hydrogen-1_silicon-28                      0                      0
  J_helium-3_silicon-28                       0                      0
  J_helium-4_silicon-28           -2525055183.6           20658.704958
@@ -243,7 +243,7 @@
  J_nickel-56_silicon-28                      0                      0
  J_neutron_silicon-28                        0                      0
  J_proton_silicon-28                         0                      0
- J_E_silicon-28              -2.9044167998e+23       1.6928685775e+28
+ J_E_silicon-28              -2.9044167997e+23       1.6928685775e+28
  J_hydrogen-1_sulfur-32                      0                      0
  J_helium-3_sulfur-32                        0                      0
  J_helium-4_sulfur-32            -4194578244.6           8879072.2185
@@ -375,7 +375,7 @@
  J_nickel-56_chromium-56                      0                      0
  J_neutron_chromium-56                       0                      0
  J_proton_chromium-56                        0                      0
- J_E_chromium-56             -1.8292382081e+15       2.2563985305e+17
+ J_E_chromium-56             -1.8093693678e+15        2.256453157e+17
  J_hydrogen-1_iron-52                        0                      0
  J_helium-3_iron-52                          0                      0
  J_helium-4_iron-52              -743179296.84           493082.01674
@@ -397,7 +397,7 @@
  J_nickel-56_iron-52          4.5459700269e-78           539742599.12
  J_neutron_iron-52           -5.7770422246e+12                      0
  J_proton_iron-52                            0           463978849.94
- J_E_iron-52                 -2.4468743487e+11       6.7059665045e+31
+ J_E_iron-52                 -2.4561809471e+11       6.7059665045e+31
  J_hydrogen-1_iron-54                        0                      0
  J_helium-3_iron-54                          0                      0
  J_helium-4_iron-54              -416714108.26           89938.022334
@@ -419,7 +419,7 @@
  J_nickel-56_iron-54                         0            12628008866
  J_neutron_iron-54           -5.8420788754e+13                      0
  J_proton_iron-54                 -25242800365           49264281.385
- J_E_iron-54                  -2.529102122e+11       5.7722247891e+32
+ J_E_iron-54                 -2.5384087204e+11       5.7722247891e+32
  J_hydrogen-1_iron-56                        0                      0
  J_helium-3_iron-56                          0                      0
  J_helium-4_iron-56                          0       1.0853220404e+11
@@ -463,7 +463,7 @@
  J_nickel-56_nickel-56           -247303719.77                      0
  J_neutron_nickel-56                         0                      0
  J_proton_nickel-56                          0              494604136
- J_E_nickel-56               -2.9190272674e+27        3.863053733e+17
+ J_E_nickel-56               -2.9190272674e+27       3.8630535107e+17
  J_hydrogen-1_neutron                        0                      0
  J_helium-3_neutron                          0                      0
  J_helium-4_neutron                          0       1.3482425469e+11
@@ -507,7 +507,7 @@
  J_nickel-56_proton                          0           467704032.09
  J_neutron_proton            -2.6964850938e+11         0.034588911424
  J_proton_proton             -2.6983923086e+11      -2.7428164302e-87
- J_E_proton                  -2.6108991386e+16       3.6817330507e+30
+ J_E_proton                  -2.6108991385e+16       3.6817330507e+30
  J_hydrogen-1_E              -1.0006504976e-07       4.2872891104e-06
  J_helium-3_E                -4.2866803458e-06      -7.5769167747e-20
  J_helium-4_E                 3.7850094111e-20       2.1441607162e-06
