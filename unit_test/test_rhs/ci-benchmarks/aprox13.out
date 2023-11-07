@@ -43,7 +43,7 @@
  J_chromium-48_helium-4       6.8935846419e-69           5498823.3125
  J_iron-52_helium-4           5.1159900994e-72           9496238.1457
  J_nickel-56_helium-4         1.2369463711e-79           6465258.5107
- J_E_helium-4                    -37.961886363       5.6963666435e+27
+ J_E_helium-4                     -37.96418269       5.6963666435e+27
  J_helium-4_carbon-12            -549068.13437            16350655002
  J_carbon-12_carbon-12            -32736863803      -4.3536076636e-25
  J_oxygen-16_carbon-12           -215702563.02           53050483.792
@@ -57,7 +57,7 @@
  J_chromium-48_carbon-12                      0                      0
  J_iron-52_carbon-12                         0                      0
  J_nickel-56_carbon-12                       0                      0
- J_E_carbon-12               -7.4476136443e+22       7.3277248697e+28
+ J_E_carbon-12               -7.4476136442e+22       7.3277248697e+28
  J_helium-4_oxygen-16            -196341285.62           116442916.35
  J_carbon-12_oxygen-16            -295329776.6           144805.77929
  J_oxygen-16_oxygen-16           -328244197.95      -5.8277893387e-34
@@ -71,7 +71,7 @@
  J_chromium-48_oxygen-16                      0                      0
  J_iron-52_oxygen-16                         0                      0
  J_nickel-56_oxygen-16                       0                      0
- J_E_oxygen-16               -9.7641101939e+23        3.501361507e+27
+ J_E_oxygen-16               -9.7641101938e+23        3.501361507e+27
  J_helium-4_neon-20               -10923354794           114705723.28
  J_carbon-12_neon-20                         0                      0
  J_oxygen-16_neon-20                         0           144408911.44
@@ -99,7 +99,7 @@
  J_chromium-48_magnesium-24                      0                      0
  J_iron-52_magnesium-24                      0                      0
  J_nickel-56_magnesium-24                      0                      0
- J_E_magnesium-24                -65734.443865        1.652673424e+29
+ J_E_magnesium-24                -65676.173201        1.652673424e+29
  J_helium-4_silicon-28           -2556508974.5            20661.78792
  J_carbon-12_silicon-28                      0                      0
  J_oxygen-16_silicon-28                      0                      0
@@ -113,7 +113,7 @@
  J_chromium-48_silicon-28                      0                      0
  J_iron-52_silicon-28                        0                      0
  J_nickel-56_silicon-28                      0                      0
- J_E_silicon-28              -2.9049441941e+23       1.7139561264e+28
+ J_E_silicon-28               -2.904944194e+23       1.7139561264e+28
  J_helium-4_sulfur-32            -4251265603.3           8881309.5672
  J_carbon-12_sulfur-32                       0                      0
  J_oxygen-16_sulfur-32                       0                      0
@@ -211,7 +211,7 @@
  J_chromium-48_nickel-56                      0                      0
  J_iron-52_nickel-56                         0           381082.60535
  J_nickel-56_nickel-56           -381082.60535                      0
- J_E_nickel-56               -2.9411320544e+24       8.0550862785e+14
+ J_E_nickel-56               -2.9411320544e+24       8.0628253938e+14
  J_helium-4_E                 -1.375359511e-10       9.1794090251e-09
  J_carbon-12_E               -1.8412378137e-08       6.8308749195e-13
  J_oxygen-16_E               -4.9194133409e-11        4.971951643e-12
