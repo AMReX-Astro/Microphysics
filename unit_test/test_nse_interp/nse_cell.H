@@ -26,13 +26,13 @@ void nse_cell_c()
     int ic0 = nse_get_ye_index(ye);
 
     std::cout << "density value brackets: "
-              << nse_table_logrho(ir0) << " " << logrho << " " << nse_table_logrho(ir0+1) << std::endl;
+              << nse_table_logrho(ir0) << " < " << logrho << " < " << nse_table_logrho(ir0+1) << std::endl;
 
     std::cout << "temperature value brackets: "
-              << nse_table_logT(it0) << " " << logT << " " << nse_table_logT(it0+1) << std::endl;
+              << nse_table_logT(it0) << " < " << logT << " < " << nse_table_logT(it0+1) << std::endl;
 
     std::cout << "Ye value brackets: "
-              << nse_table_ye(ic0) << " " << ye << " " << nse_table_ye(ic0+1) << std::endl;
+              << nse_table_ye(ic0) << " < " << ye << " < " << nse_table_ye(ic0+1) << std::endl;
 
     std::cout << std::endl;
 
@@ -40,13 +40,13 @@ void nse_cell_c()
     // need to offset the indices one to the left
 
     ir0--;
-    ir0 = amrex::max(1, amrex::min(nse_table::nden-3, ir0));
+    ir0 = amrex::max(1, amrex::min(nse_table_size::nden-3, ir0));
 
     it0--;
-    it0 = amrex::max(1, amrex::min(nse_table::ntemp-3, it0));
+    it0 = amrex::max(1, amrex::min(nse_table_size::ntemp-3, it0));
 
     ic0--;
-    ic0 = amrex::max(1, amrex::min(nse_table::nye-3, ic0));
+    ic0 = amrex::max(1, amrex::min(nse_table_size::nye-3, ic0));
 
 
     Real rhos[] = {nse_table_logrho(ir0),
@@ -79,7 +79,7 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(rhos, _d, nse_table::dlogrho, logrho) << std::endl << std::endl;
+            cubic(rhos, _d, nse_table_size::dlogrho, logrho) << std::endl << std::endl;
     }
 
     {
@@ -96,7 +96,7 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(Ts, _d, nse_table::dlogT, logT) << std::endl << std::endl;
+            cubic(Ts, _d, nse_table_size::dlogT, logT) << std::endl << std::endl;
 
     }
 
@@ -114,11 +114,32 @@ void nse_cell_c()
         std::cout << std::endl;
 
         std::cout << "cubic interpolated value: " <<
-            cubic(yes, _d, -nse_table::dye, ye) << std::endl << std::endl;
+            cubic(yes, _d, -nse_table_size::dye, ye) << std::endl << std::endl;
 
     }
 
-    std::cout << "tricubic interpolated value: " <<
-        tricubic(ir0, it0, ic0, logrho, logT, ye, nse_table::abartab) << std::endl;
+    std::cout << "tricubic interpolated values: " << std::endl;
+
+    Real abar;
+    Real bea;
+    Real dyedt;
+    Real dabardt;
+    Real dbeadt;
+    Real e_nu;
+    Real X[NumSpec];
+
+    nse_interp(temperature, density, ye,
+               abar, bea, dyedt, dabardt, dbeadt, e_nu, X);
+
+    std::cout << "abar    = " << abar << std::endl;
+    std::cout << "bea     = " << bea << std::endl;
+    std::cout << "dyedt   = " << dyedt << std::endl;
+    std::cout << "dabardt = " << dabardt << std::endl;
+    std::cout << "dbeadt = " << dbeadt << std::endl;
+    std::cout << "e_nu    = " << e_nu << std::endl;
+    for (int n = 0; n < NumSpec; ++n) {
+        std::cout << "X(" << short_spec_names_cxx[n] << ") = " << X[n] << std::endl;
+    }
+
 
 }
