@@ -9,7 +9,7 @@ elsewhere.
 This requires compiling with
 
 ```
-USE_TABULAR_NSE=TRUE
+USE_NSE_TABLE=TRUE
 ```
 
 This will change the equation of state to work in terms of (Y_e, abar,
@@ -38,6 +38,8 @@ The table provides:
 * dYe/dt : evolution of the electron fraction in 1/s
 
 * dAbar/dt : evolution of Abar in 1/s
+
+* d<B/A>/dt : evolution of <B/A> in MeV/s
 
 * e_nu : weak rate neutrino loss energy in erg/g/s
 
@@ -92,3 +94,12 @@ The data is ordered such that rho varies the slowest (from low to
 high), T varies the next slowest (from low to high), and Ye varies the
 fastest (from high to low).
 
+## Outputting for a different network
+
+At the moment, the script is configured for ``aprox19``.  To change it
+to output to a different network, a new function needs to be added in
+the same form as the ``get_aprox19_comp`` function.  The job of that
+run is to reduce the composition down to that of the network on the
+grid.  The main thing that would need to be done is to change the list
+of nuclei and update the list ``X[]`` to output them in the proper
+order.
