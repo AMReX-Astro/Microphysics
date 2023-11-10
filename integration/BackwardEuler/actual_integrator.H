@@ -8,8 +8,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, const Real dt)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    be_t be;
+    be_t<int_neqs> be;
 
     // Set the tolerances.
 
@@ -31,11 +32,25 @@ void actual_integrator (BurnT& state, const Real dt)
     be.t = 0.0_rt;
     be.tout = dt;
 
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
     eos(eos_input_rt, state);
+
+    // set the scaling for energy if we integrate it dimensionlessly
+    state.e_scale = state.e;
+
+    if (scale_system) {
+        // the absolute tol for energy needs to reflect the scaled
+        // energy the integrator sees
+        be.atol_enuc /= state.e_scale;
+    }
 
     // Fill in the initial integration state.
 
@@ -55,6 +70,7 @@ void actual_integrator (BurnT& state, const Real dt)
     // Call the integration routine.
 
     int istate = be_integrator(state, be);
+    state.error_code = istate;
 
     // Copy the integration data back to the burn state.
 
@@ -78,7 +94,7 @@ void actual_integrator (BurnT& state, const Real dt)
     state.n_jac = be.n_jac;
     state.n_step = be.n_step;
 
-    if (istate < 0) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
@@ -118,7 +134,6 @@ void actual_integrator (BurnT& state, const Real dt)
         std::cout << "energy generated = " << state.e << std::endl;
 #endif
     }
-
 }
 
 #endif

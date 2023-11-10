@@ -9,36 +9,23 @@
 
 #include <integrator_data.H>
 
-const int RKC_NEQS = INT_NEQS;
-
-typedef amrex::Array1D<Real, 1, RKC_NEQS> RArray1D;
-typedef amrex::Array1D<Real, 1, RKC_NEQS> RArray1D;
-
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
-// We will use this parameter to determine if a given species abundance
-// is unreasonably small or large (each X must satisfy
-// -failure_tolerance <= X <= 1.0 + failure_tolerance).
-const Real rkc_failure_tolerance = 1.e-2_rt;
-
-
+template <int int_neqs>
 struct rkc_t {
 
     // The initial point of the integration.
    amrex::Real t;
 
    // The end of the interval of integration.
-   amrex::Real tend;
+   amrex::Real tout;
 
     // Integration array
-    RArray1D y;
+    Array1D<Real, 1, int_neqs> y;
 
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
     amrex::Real rtol_enuc, atol_enuc;
-#ifdef TRUE_SDC
-    amrex::Real rtol_dens, atol_dens;
-#endif
 
     // RKC had an info array with 4 elements
 
@@ -55,7 +42,7 @@ struct rkc_t {
     // We have our own tolerances
 
     // work array -- we break the original Fortran work array up into
-    // 5 separate arrays, each of length RKC_NEQS.  We don't need the
+    // 5 separate arrays, each of length int_neqs.  We don't need the
     // 8 other pieces of data that were stored in the Fortran version.
     //
     // for reference, the Fortran version was:
@@ -78,14 +65,11 @@ struct rkc_t {
 
     amrex::Real hmax;
 
-    RArray1D yn;
-    RArray1D fn;
-    RArray1D vtemp1;
-    RArray1D vtemp2;
-    RArray1D sprad;
-
-    // set IDID = 0 for initialization
-    short idid;
+    Array1D<Real, 1, int_neqs> yn;
+    Array1D<Real, 1, int_neqs> fn;
+    Array1D<Real, 1, int_neqs> yjm1;    // sometimes called vtemp1 in rkc.f
+    Array1D<Real, 1, int_neqs> yjm2;    // sometimes called vtemp2 in rkc.f
+    Array1D<Real, 1, int_neqs> sprad;
 
     // the following a variables that were in the RKCDID common
     // block
@@ -110,7 +94,7 @@ struct rkc_t {
 
 };
 
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
 #include <integrator_type_simplified_sdc.H>
 #endif
 #ifdef STRANG

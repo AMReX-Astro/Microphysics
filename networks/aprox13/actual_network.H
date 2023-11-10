@@ -18,16 +18,120 @@ using namespace amrex;
 
 using namespace network_rp;
 
-
-void actual_network_init();
+AMREX_INLINE
+void actual_network_init() {}
 
 const std::string network_name = "aprox13";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real bion () {
+        using namespace Species;
+
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        // Set the binding energy of the element
+        if constexpr (spec == He4) {
+            return 28.29603e0_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 92.16294e0_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 127.62093e0_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 160.64788e0_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 198.25790e0_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 236.53790e0_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 271.78250e0_rt;
+        }
+        else if constexpr (spec == Ar36) {
+            return 306.72020e0_rt;
+        }
+        else if constexpr (spec == Ca40) {
+            return 342.05680e0_rt;
+        }
+        else if constexpr (spec == Ti44) {
+            return 375.47720e0_rt;
+        }
+        else if constexpr (spec == Cr48) {
+            return 411.46900e0_rt;
+        }
+        else if constexpr (spec == Fe52) {
+            return 447.70800e0_rt;
+        }
+        else if constexpr (spec == Ni56) {
+            return 484.00300e0_rt;
+        }
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real mion () {
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        constexpr Real A = NetworkProperties::aion(spec);
+        constexpr Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        Real b = 0.0_rt;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                b = bion<n>();
+            }
+        });
+
+        return b;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real mion (int spec) {
+        using namespace Species;
+
+        Real m = 0.0_rt;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                m = mion<n>();
+            }
+        });
+
+        return m;
+    }
 }
+
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    // P_index is for photoionization proton
+    constexpr int P_index= -1;
+    constexpr int H1_index = -1;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 0;
+}
+#endif
 
 namespace Rates {
     enum NetworkRates {
@@ -70,49 +174,14 @@ namespace Rates {
 }
 
 namespace RHS {
-    
+
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr rhs_t rhs_data (int rate)
     {
         using namespace Species;
         using namespace Rates;
 
-        rhs_t data{};
-
-        data.species_A = -1;
-        data.species_B = -1;
-        data.species_C = -1;
-        data.species_D = -1;
-        data.species_E = -1;
-        data.species_F = -1;
-
-        data.number_A = 0;
-        data.number_B = 0;
-        data.number_C = 0;
-        data.number_D = 0;
-        data.number_E = 0;
-        data.number_F = 0;
-
-        data.exponent_A = 0;
-        data.exponent_B = 0;
-        data.exponent_C = 0;
-        data.exponent_D = 0;
-        data.exponent_E = 0;
-        data.exponent_F = 0;
-
-        data.forward_branching_ratio = 1.0;
-        data.reverse_branching_ratio = 1.0;
-
-        data.apply_identical_particle_factor = 1;
-
-        data.rate_can_be_tabulated = 1;
-
-        data.screen_forward_reaction = 1;
-        data.screen_reverse_reaction = 1;
-
-        data.additional_reaction_1 = -1;
-        data.additional_reaction_2 = -1;
-        data.additional_reaction_3 = -1;
+        rhs_t data;
 
         switch (rate) {
 
@@ -120,8 +189,8 @@ namespace RHS {
             data.species_A = He4;
             data.species_D = C12;
 
-            data.number_A = 3;
-            data.number_D = 1;
+            data.number_A = 3.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 3;
             data.exponent_D = 1;
@@ -132,9 +201,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = O16;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -146,9 +215,9 @@ namespace RHS {
             data.species_D = Ne20;
             data.species_E = He4;
 
-            data.number_A = 2;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -161,10 +230,10 @@ namespace RHS {
             data.species_D = Mg24;
             data.species_E = He4;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -179,9 +248,9 @@ namespace RHS {
             data.species_B = O16;
             data.species_D = Si28;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -200,9 +269,9 @@ namespace RHS {
             data.species_D = Si28;
             data.species_E = He4;
 
-            data.number_A = 2;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -220,9 +289,9 @@ namespace RHS {
             data.species_D = P31;
             data.species_E = P;
 
-            data.number_A = 2;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -243,8 +312,8 @@ namespace RHS {
             data.species_A = O16;
             data.species_D = S32;
 
-            data.number_A = 2;
-            data.number_D = 1;
+            data.number_A = 2.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 2;
             data.exponent_D = 1;
@@ -261,9 +330,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ne20;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -275,9 +344,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Mg24;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -294,9 +363,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Si28;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -316,9 +385,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = S32;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -338,9 +407,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ar36;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -360,9 +429,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ca40;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -382,9 +451,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ti44;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -404,9 +473,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Cr48;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -426,9 +495,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Fe52;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -448,9 +517,9 @@ namespace RHS {
             data.species_B = He4;
             data.species_D = Ni56;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -466,10 +535,10 @@ namespace RHS {
             data.species_D = Al27;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -482,9 +551,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = Si28;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -497,10 +566,10 @@ namespace RHS {
             data.species_D = P31;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -513,9 +582,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = S32;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -528,10 +597,10 @@ namespace RHS {
             data.species_D = Cl35;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -544,9 +613,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = Ar36;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -559,10 +628,10 @@ namespace RHS {
             data.species_D = K39;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -575,9 +644,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = Ca40;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -590,10 +659,10 @@ namespace RHS {
             data.species_D = Sc43;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -606,9 +675,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = Ti44;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -621,10 +690,10 @@ namespace RHS {
             data.species_D = V47;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -637,9 +706,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = Cr48;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -652,10 +721,10 @@ namespace RHS {
             data.species_D = Mn51;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -668,9 +737,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = Fe52;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -683,10 +752,10 @@ namespace RHS {
             data.species_D = Co55;
             data.species_E = P;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
-            data.number_E = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
+            data.number_E = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -699,9 +768,9 @@ namespace RHS {
             data.species_B = P;
             data.species_D = Ni56;
 
-            data.number_A = 1;
-            data.number_B = 1;
-            data.number_D = 1;
+            data.number_A = 1.0_rt;
+            data.number_B = 1.0_rt;
+            data.number_D = 1.0_rt;
 
             data.exponent_A = 1;
             data.exponent_B = 1;
@@ -729,19 +798,10 @@ namespace RHS {
         else if constexpr (rate == C12_C12_to_Ne20_He4) {
             rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
-        else if constexpr (rate == C12_O16_to_Mg24_He4) {
+        else if constexpr (rate == C12_O16_to_Mg24_He4 || rate == C12_O16_to_Si28) {
             rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
-        else if constexpr (rate == C12_O16_to_Si28) {
-            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
-        }
-        else if constexpr (rate == O16_O16_to_Si28_He4) {
-            rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
-        }
-        else if constexpr (rate == O16_O16_to_P31_P) {
-            rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
-        }
-        else if constexpr (rate == O16_O16_to_S32) {
+        else if constexpr (rate == O16_O16_to_Si28_He4 || rate == O16_O16_to_P31_P || rate == O16_O16_to_S32) {
             rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
@@ -910,9 +970,9 @@ namespace RHS {
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate (Real const& dydt)
+    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
     {
-        return dydt * network::mion(spec) * C::Legacy::enuc_conv2;
+        return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }
 
 } // namespace RHS

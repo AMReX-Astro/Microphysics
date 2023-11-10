@@ -192,7 +192,7 @@ def doit():
     for k, v in sorted(outcomes.items()):
         print("{}: {}".format(k, v))
 
-        
+
 
 if __name__ == "__main__":
     doit()

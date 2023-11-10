@@ -15,7 +15,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
-    rkc_t rkc_state{};
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    rkc_t<int_neqs> rkc_state{};
 
     // Set the tolerances.
 
@@ -32,12 +34,27 @@ void actual_integrator (BurnT& state, Real dt)
     // Initialize the integration time.
 
     rkc_state.t = 0.0_rt;
-    rkc_state.tend = dt;
+    rkc_state.tout = dt;
+
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
     eos(eos_input_rt, state);
+
+    // set the scaling for energy if we integrate it dimensionlessly
+    state.e_scale = state.e;
+
+    if (scale_system) {
+        // the absolute tol for energy needs to reflect the scaled
+        // energy the integrator sees
+        rkc_state.atol_enuc /= state.e_scale;
+    }
 
     // Fill in the initial integration state.
 
@@ -57,6 +74,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Call the integration routine.
 
     int ierr = rkc(state, rkc_state);
+    state.error_code = ierr;
 
     // Copy the integration data back to the burn state.
 
@@ -81,23 +99,23 @@ void actual_integrator (BurnT& state, Real dt)
     state.n_jac = 0;
     state.n_step = rkc_state.nsteps;
 
-    if (ierr > 2) {
+    if (ierr != IERR_SUCCESS) {
         state.success = false;
     }
 
-    // VODE does not always fail even though it can lead to unphysical states.
-    // Add some checks that indicate a burn fail even if VODE thinks the
+    // We may not fail even though we generate unphysical states.
+    // Add some checks that indicate a burn fail even if RKC thinks the
     // integration was successful.
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (rkc_state.y(n) < -rkc_failure_tolerance) {
+        if (rkc_state.y(n) < -species_failure_tolerance) {
             state.success = false;
         }
 
         // Don't enforce the condition below
         // for primordial chem
         if (!use_number_densities) {
-            if (rkc_state.y(n) > 1.0_rt + rkc_failure_tolerance) {
+            if (rkc_state.y(n) > 1.0_rt + species_failure_tolerance) {
                 state.success = false;
             }
         }

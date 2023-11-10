@@ -123,14 +123,14 @@ void actual_eos (I input, T& state)
                 state.gam1 = gamma_const;
 
                 // sound speed
-                state.cs = sqrt(gamma_const * poverrho);
+                state.cs = std::sqrt(gamma_const * poverrho);
 
                 state.dpdr_e = poverrho;
                 state.dpde = (gamma_const - 1.0_rt) * state.rho;
             }
         }
 
-        // Try to avoid the expensive log function.  Since we don't need entropy 
+        // Try to avoid the expensive log function.  Since we don't need entropy
         // in hydro solver, set it to an invalid but "nice" value for the plotfile.
         if constexpr (has_entropy<T>::value) {
             state.s = 1.0_rt;

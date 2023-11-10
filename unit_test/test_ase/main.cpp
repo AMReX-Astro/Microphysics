@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
   ParmParse ppa("amr");
 
   init_unit_test();
-  
+
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
   eos_init(small_temp, small_dens);
 

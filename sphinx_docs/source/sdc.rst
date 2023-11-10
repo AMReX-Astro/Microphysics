@@ -53,9 +53,9 @@ The reactions don’t modify the total density, :math:`\rho`, or momentum,
 
 .. math::
 
-   \frac{d}{dt}\left ( 
-      \begin{array}{c} \rho X_k \\ \rho e \end{array} 
-   \right ) = 
+   \frac{d}{dt}\left (
+      \begin{array}{c} \rho X_k \\ \rho e \end{array}
+   \right ) =
    \left ( \begin{array}{c}
       \Adv{\rho X_k}^{n+1/2} \\ \Adv{\rho e}^{n+1/2} \\
    \end{array} \right ) +

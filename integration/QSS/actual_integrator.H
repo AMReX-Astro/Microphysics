@@ -4,12 +4,14 @@
 #include <network.H>
 #include <actual_network.H>
 #include <rhs.H>
+#ifndef NEW_NETWORK_IMPLEMENTATION
 #include <actual_rhs.H>
+#endif
 #include <burn_type.H>
-#include <rate_type.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 
 using namespace integrator_rp;
 
@@ -42,10 +44,17 @@ void initialize_state (BurnT& state)
     eos(eos_input_rt, state);
 
     state.success = true;
+    state.error_code = IERR_SUCCESS;
 
     state.time = 0.0;
     state.n_rhs = 0;
     state.n_step = 0;
+
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 }
 
 template <typename BurnT>
@@ -56,7 +65,9 @@ void evaluate_rhs (BurnT& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Rea
     // Call the RHS with a special array that will record both the positive and negative
     // contributions to each integration quantity.
 
-    Array1D<Real, 1, 2 * neqs> ydot;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    Array1D<Real, 1, 2 * int_neqs> ydot;
     RHS::rhs(state, ydot);
 
     // Now unpack the positive and negative contributions.
@@ -366,6 +377,7 @@ void actual_integrator (BurnT& state, Real dt)
 
         if (timestep_iter >= num_timestep_iters) {
             state.success = false;
+            state.error_code = IERR_CORRECTOR_CONVERGENCE;
             break;
         }
 
@@ -378,6 +390,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     if (num_timesteps >= ode_max_steps) {
         state.success = false;
+        state.error_code = IERR_TOO_MANY_STEPS;
     }
 
     state.time = t;

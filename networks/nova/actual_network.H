@@ -24,26 +24,26 @@ namespace Rates
 
     enum NetworkRates
     {
-        k_n13__c13__weak__wc12 = 1,
-        k_o14__n14__weak__wc12 = 2,
-        k_o15__n15__weak__wc12 = 3,
-        k_f17__o17__weak__wc12 = 4,
-        k_p_c12__n13 = 5,
-        k_he4_c12__o16 = 6,
-        k_p_c13__n14 = 7,
-        k_p_n13__o14 = 8,
-        k_p_n14__o15 = 9,
-        k_he4_n14__f18 = 10,
-        k_p_n15__o16 = 11,
-        k_p_o16__f17 = 12,
-        k_p_o17__f18 = 13,
-        k_he4_n13__p_o16 = 14,
-        k_p_n15__he4_c12 = 15,
-        k_he4_o14__p_f17 = 16,
-        k_p_o17__he4_n14 = 17,
-        k_p_f18__he4_o15 = 18,
-        k_he4_he4_he4__c12 = 19,
-        NumRates = k_he4_he4_he4__c12
+        k_N13_to_C13_weak_wc12 = 1,
+        k_O14_to_N14_weak_wc12 = 2,
+        k_O15_to_N15_weak_wc12 = 3,
+        k_F17_to_O17_weak_wc12 = 4,
+        k_p_C12_to_N13 = 5,
+        k_He4_C12_to_O16 = 6,
+        k_p_C13_to_N14 = 7,
+        k_p_N13_to_O14 = 8,
+        k_p_N14_to_O15 = 9,
+        k_He4_N14_to_F18 = 10,
+        k_p_N15_to_O16 = 11,
+        k_p_O16_to_F17 = 12,
+        k_p_O17_to_F18 = 13,
+        k_He4_N13_to_p_O16 = 14,
+        k_p_N15_to_He4_C12 = 15,
+        k_He4_O14_to_p_F17 = 16,
+        k_p_O17_to_He4_N14 = 17,
+        k_p_F18_to_He4_O15 = 18,
+        k_He4_He4_He4_to_C12 = 19,
+        NumRates = k_He4_He4_He4_to_C12
     };
 
     // number of reaclib rates
@@ -60,27 +60,42 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "n13__c13__weak__wc12",  // 1,
-        "o14__n14__weak__wc12",  // 2,
-        "o15__n15__weak__wc12",  // 3,
-        "f17__o17__weak__wc12",  // 4,
-        "p_c12__n13",  // 5,
-        "he4_c12__o16",  // 6,
-        "p_c13__n14",  // 7,
-        "p_n13__o14",  // 8,
-        "p_n14__o15",  // 9,
-        "he4_n14__f18",  // 10,
-        "p_n15__o16",  // 11,
-        "p_o16__f17",  // 12,
-        "p_o17__f18",  // 13,
-        "he4_n13__p_o16",  // 14,
-        "p_n15__he4_c12",  // 15,
-        "he4_o14__p_f17",  // 16,
-        "p_o17__he4_n14",  // 17,
-        "p_f18__he4_o15",  // 18,
-        "he4_he4_he4__c12"  // 19,
+        "N13_to_C13_weak_wc12",  // 1,
+        "O14_to_N14_weak_wc12",  // 2,
+        "O15_to_N15_weak_wc12",  // 3,
+        "F17_to_O17_weak_wc12",  // 4,
+        "p_C12_to_N13",  // 5,
+        "He4_C12_to_O16",  // 6,
+        "p_C13_to_N14",  // 7,
+        "p_N13_to_O14",  // 8,
+        "p_N14_to_O15",  // 9,
+        "He4_N14_to_F18",  // 10,
+        "p_N15_to_O16",  // 11,
+        "p_O16_to_F17",  // 12,
+        "p_O17_to_F18",  // 13,
+        "He4_N13_to_p_O16",  // 14,
+        "p_N15_to_He4_C12",  // 15,
+        "He4_O14_to_p_F17",  // 16,
+        "p_O17_to_He4_N14",  // 17,
+        "p_F18_to_He4_O15",  // 18,
+        "He4_He4_He4_to_C12"  // 19,
     };
 
 }
+
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    constexpr int H1_index = 0;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 1;
+
+    // Each row corresponds to the rate in NetworkRates enum
+    // First 3 row indices for reactants, followed by 3 product indices
+    // last index is the corresponding reverse rate index.
+
+    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+}
+#endif
 
 #endif

@@ -44,6 +44,9 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real abar_out;
     Real dq_out;
     Real dyedt;
+    Real dabardt;
+    Real dbeadt;
+    Real enu;
     Real X[NumSpec];
 
     Real ye_in = state.y[SFX+iye] / state.rho;
@@ -56,7 +59,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // get the current NSE state from the table
 
     nse_interp(T_in, state.rho, ye_in,
-               abar_out, dq_out, dyedt, X);
+               abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
 
     Real dyedt_old = dyedt;
 
@@ -73,7 +76,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // reaction terms and advection to dt
 
     eos_re_t eos_state;
-    eos_state.T = 1.e6_rt; // initial guess
+    eos_state.T = T_in; // initial guess
 
     // initial aux_sources
     Real aux_source[NumAux] = {0.0_rt};
@@ -93,7 +96,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * aux_source[n];
     }
 
-    for (int iter = 0; iter < 3; iter++) {
+    for (int iter = 0; iter < integrator_rp::nse_iters; iter++) {
 
         // update (rho e)^{n+1} based on the new energy generation rate
         rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_enucdot;
@@ -118,7 +121,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         // source estimates
 
         nse_interp(T_new, eos_state.rho, eos_state.aux[iye],
-                   abar_out, dq_out, dyedt, X);
+                   abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
 
         // note that the abar, dq (B/A), and X here have all already
         // seen advection implicitly
@@ -147,13 +150,13 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // the new mass fractions are just those that come from the table
     // make sure they are normalized
     Real sum_X{0.0_rt};
-    for (int n = 0; n < NumSpec; ++n) {
-        X[n] = amrex::max(small_x, amrex::min(1.0_rt, X[n]));
-        sum_X += X[n];
+    for (auto & xn : X) {
+        xn = amrex::max(small_x, amrex::min(1.0_rt, xn));
+        sum_X += xn;
     }
 
-    for (int n = 0; n < NumSpec; ++n) {
-        X[n] /= sum_X;
+    for (auto & xn : X) {
+        xn /= sum_X;
     }
 
     for (int n = 0; n < NumSpec; ++n) {
@@ -238,7 +241,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // updates with advection to dt
 
     BurnT burn_state;
-    burn_state.T = 1.e6_rt; // initial guess
+    burn_state.T = T_in; // initial guess
     burn_state.mu_p = state.mu_p;
     burn_state.mu_n = state.mu_n;
 
@@ -258,7 +261,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         rhoX_new[n] = state.y[SFS+n] + dt * state.ydot_a[SFS+n] + dt * rhoX_source[n];
     }
 
-    for (int iter = 0; iter < 3; iter++) {
+    for (int iter = 0; iter < integrator_rp::nse_iters; iter++) {
 
         // update (rho e)^{n+1} based on the new energy generation rate
         rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_enucdot;

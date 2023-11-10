@@ -28,7 +28,7 @@ void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
     // update rho
 
-    update_density_in_time(time, state, int_state);
+    update_density_in_time(time, state);
 
     // ensure that the mass fractions are valid -- only int_state is
     // updated here
@@ -91,7 +91,7 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     // update rho, rho*u, ... in the burn_t state
 
-    update_density_in_time(time, state, int_state);
+    update_density_in_time(time, state);
 
     // ensure that the mass fractions are valid -- only int_state is
     // updated here
@@ -154,7 +154,7 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    eos_re_t eos_state;
+    eos_re_extra_t eos_state;
     eos_state.rho = state.rho;
     eos_state.T = state.T;
     eos_state.e = state.e;
@@ -175,6 +175,27 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
             pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
         }
     }
+
+    // apply scale_system scaling (if needed)
+
+    if (scale_system) {
+
+        // do the dX/de terms
+
+        for (int irow = 1; irow <= NumSpec; ++irow) {
+            pd(irow, net_ienuc) *= state.e_scale;
+        }
+
+        // do the de/dX terms
+
+        for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+            pd(net_ienuc, jcol) /= state.e_scale;
+        }
+
+       // de/de is unscaled
+
+    }
+
 
 }
 

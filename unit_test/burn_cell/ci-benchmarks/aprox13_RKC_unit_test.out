@@ -1,0 +1,72 @@
+AMReX (23.06-6-g1e1c433b401c) initialized
+starting the single zone burn...
+Maximum Time (s): 0.01
+State Density (g/cm^3): 1000000
+State Temperature (K): 1000000000
+Mass Fraction (He4): 1
+Mass Fraction (C12): 0
+Mass Fraction (O16): 0
+Mass Fraction (Ne20): 0
+Mass Fraction (Mg24): 0
+Mass Fraction (Si28): 0
+Mass Fraction (S32): 0
+Mass Fraction (Ar36): 0
+Mass Fraction (Ca40): 0
+Mass Fraction (Ti44): 0
+Mass Fraction (Cr48): 0
+Mass Fraction (Fe52): 0
+Mass Fraction (Ni56): 0
+RHS at t = 0
+   He4 -2.912333127
+   C12 0.970777709
+   O16 -8.298509966e-29
+  Ne20 5.422966807e-29
+  Mg24 1.964435012e-29
+  Si28 9.166136559e-30
+   S32 2.700697496e-32
+  Ar36 3.49632603e-33
+  Ca40 1.208764824e-34
+  Ti44 4.5285495e-36
+  Cr48 1.176042128e-37
+  Fe52 7.858035183e-39
+  Ni56 3.938787868e-40
+------------------------------------
+successful? 1
+ - Hnuc = 8.558390239e+18
+ - added e = 8.558390239e+16
+ - final T = 1516425860
+------------------------------------
+e initial = 1.284393683e+17
+e final =   2.140232707e+17
+------------------------------------
+new mass fractions: 
+He4 0.8760723967
+C12 0.1064099566
+O16 0.0001403204362
+Ne20 8.129701233e-05
+Mg24 0.0002972369574
+Si28 0.01113151728
+S32 0.005297014797
+Ar36 0.0005641483161
+Ca40 6.109847027e-06
+Ti44 2.004306621e-09
+Cr48 3.272104798e-14
+Fe52 7.12614193e-20
+Ni56 1.224820021e-26
+------------------------------------
+species creation rates: 
+omegadot(He4): -12.39276033
+omegadot(C12): 10.64099566
+omegadot(O16): 0.01403204362
+omegadot(Ne20): 0.008129701233
+omegadot(Mg24): 0.02972369574
+omegadot(Si28): 1.113151728
+omegadot(S32): 0.5297014797
+omegadot(Ar36): 0.05641483161
+omegadot(Ca40): 0.0006109847027
+omegadot(Ti44): 2.004306621e-07
+omegadot(Cr48): 3.272104798e-12
+omegadot(Fe52): 7.12614193e-18
+omegadot(Ni56): 1.224720021e-24
+number of steps taken: 255
+AMReX (23.06-6-g1e1c433b401c) finalized

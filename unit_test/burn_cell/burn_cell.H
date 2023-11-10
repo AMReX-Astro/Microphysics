@@ -122,7 +122,7 @@ void burn_cell_c()
     state_over_time << std::setw(25) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
         const std::string& element = short_spec_names_cxx[x];
-	state_over_time << std::setw(25) << element;
+        state_over_time << std::setw(25) << element;
     }
     state_over_time << std::endl;
     state_over_time << std::setprecision(15);
@@ -153,7 +153,11 @@ void burn_cell_c()
         Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
         Real dt = tend - t;
 
-    	burner(burn_state, dt);
+        burner(burn_state, dt);
+
+        if (! burn_state.success) {
+            amrex::Error("integration failed");
+        }
 
         nstep_int += burn_state.n_step;
 
@@ -174,12 +178,12 @@ void burn_cell_c()
 
         t += dt;
 
-	state_over_time << std::setw(25) << t;
-	state_over_time << std::setw(25) << burn_state.T;
-	for (double X : burn_state.xn) {
-	     state_over_time << std::setw(25) << X;
-	}
-	state_over_time << std::endl;
+        state_over_time << std::setw(25) << t;
+        state_over_time << std::setw(25) << burn_state.T;
+        for (double X : burn_state.xn) {
+             state_over_time << std::setw(25) << X;
+        }
+        state_over_time << std::endl;
     }
     state_over_time.close();
 

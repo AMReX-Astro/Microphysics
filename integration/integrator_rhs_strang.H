@@ -40,7 +40,7 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
     // Fix the state as necessary -- this ensures that the mass
     // fractions that enter are valid (and optionally normalized)
 
-    clean_state(int_state);
+    clean_state(time, state, int_state);
 
     // Update the thermodynamics as necessary -- this primarily takes
     // the information in int_state (X and e), copies it to the
@@ -86,6 +86,11 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
         for (int n = 1; n <= NumSpec; ++n) {
             ydot(n) *= aion[n-1];
         }
+    }
+
+    // scale the energy
+    if (scale_system) {
+        ydot(net_ienuc) /= state.e_scale;
     }
 
     // Allow energy integration to be disabled.
@@ -145,6 +150,13 @@ void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixTy
                 pd.mul(j, i, aion[j-1]);
                 pd.mul(i, j, aion_inv[j-1]);
             }
+        }
+    }
+
+    // scale the energy derivatives
+    if (scale_system) {
+        for (int j = 1; j <= INT_NEQS; ++j) {
+            pd(net_ienuc,j) /= state.e_scale;
         }
     }
 

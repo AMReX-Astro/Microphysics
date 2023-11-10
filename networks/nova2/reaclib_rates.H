@@ -13,19 +13,21 @@ using namespace Species;
 
 struct rate_t {
     Array1D<Real, 1, NumRates>  screened_rates;
+    Real enuc_weak;
 };
 
 struct rate_derivs_t {
     Array1D<Real, 1, NumRates>  screened_rates;
     Array1D<Real, 1, NumRates>  dscreened_rates_dT;
+    Real enuc_weak;
 };
 
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_n13__c13__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_N13_to_C13_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // n13 --> c13
+    // N13 --> C13
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -36,6 +38,7 @@ void rate_n13__c13__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -6.7601;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -53,9 +56,9 @@ void rate_n13__c13__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_o14__n14__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_O14_to_N14_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // o14 --> n14
+    // O14 --> N14
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -66,6 +69,7 @@ void rate_o14__n14__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -4.62354;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -83,9 +87,9 @@ void rate_o14__n14__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_o15__n15__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_O15_to_N15_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // o15 --> n15
+    // O15 --> N15
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -96,6 +100,7 @@ void rate_o15__n15__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -5.17053;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -113,9 +118,9 @@ void rate_o15__n15__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_f17__o17__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_F17_to_O17_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // f17 --> o17
+    // F17 --> O17
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -126,6 +131,7 @@ void rate_f17__o17__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
     // wc12w
     ln_set_rate =  -4.53318;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -143,9 +149,9 @@ void rate_f17__o17__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_b8__he4_he4__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_B8_to_He4_He4_weak_wc12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // b8 --> he4 + he4
+    // B8 --> He4 + He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -156,6 +162,7 @@ void rate_b8__he4_he4__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_
 
     // wc12w
     ln_set_rate =  -0.105148;
+    amrex::ignore_unused(tfactors);
 
     if constexpr (do_T_derivatives) {
         dln_set_rate_dT9 = 0.0;
@@ -173,7 +180,7 @@ void rate_b8__he4_he4__weak__wc12(const tf_t& tfactors, Real& rate, Real& drate_
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_p__d__weak__bet_pos_(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_p_to_d_weak_bet_pos_(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // p + p --> d
 
@@ -205,7 +212,7 @@ void rate_p_p__d__weak__bet_pos_(const tf_t& tfactors, Real& rate, Real& drate_d
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_p__d__weak__electron_capture(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_p_to_d_weak_electron_capture(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
     // p + p --> d
 
@@ -237,9 +244,9 @@ void rate_p_p__d__weak__electron_capture(const tf_t& tfactors, Real& rate, Real&
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_d__he3(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_d_to_He3(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // d + p --> he3
+    // d + p --> He3
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -286,9 +293,9 @@ void rate_p_d__he3(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_d_d__he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_d_d_to_He4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // d + d --> he4
+    // d + d --> He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -318,9 +325,9 @@ void rate_d_d__he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_he3__he4__weak__bet_pos_(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_He3_to_He4_weak_bet_pos_(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // he3 + p --> he4
+    // He3 + p --> He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -350,9 +357,9 @@ void rate_p_he3__he4__weak__bet_pos_(const tf_t& tfactors, Real& rate, Real& dra
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_he3__be7(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He4_He3_to_Be7(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // he3 + he4 --> be7
+    // He3 + He4 --> Be7
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -399,9 +406,9 @@ void rate_he4_he3__be7(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_be7__b8(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_Be7_to_B8(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // be7 + p --> b8
+    // Be7 + p --> B8
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -448,9 +455,9 @@ void rate_p_be7__b8(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_c12__n13(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_C12_to_N13(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // c12 + p --> n13
+    // C12 + p --> N13
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -497,9 +504,9 @@ void rate_p_c12__n13(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_c12__o16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He4_C12_to_O16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // c12 + he4 --> o16
+    // C12 + He4 --> O16
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -546,9 +553,9 @@ void rate_he4_c12__o16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_c13__n14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_C13_to_N14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // c13 + p --> n14
+    // C13 + p --> N14
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -612,9 +619,9 @@ void rate_p_c13__n14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_n13__o14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_N13_to_O14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // n13 + p --> o14
+    // N13 + p --> O14
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -661,9 +668,9 @@ void rate_p_n13__o14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_n14__o15(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_N14_to_O15(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // n14 + p --> o15
+    // N14 + p --> O15
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -744,9 +751,9 @@ void rate_p_n14__o15(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_n14__f18(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He4_N14_to_F18(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // n14 + he4 --> f18
+    // N14 + He4 --> F18
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -810,9 +817,9 @@ void rate_he4_n14__f18(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_n15__o16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_N15_to_O16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // n15 + p --> o16
+    // N15 + p --> O16
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -876,9 +883,9 @@ void rate_p_n15__o16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_o16__f17(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_O16_to_F17(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // o16 + p --> f17
+    // O16 + p --> F17
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -908,9 +915,9 @@ void rate_p_o16__f17(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_o17__f18(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_O17_to_F18(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // o17 + p --> f18
+    // O17 + p --> F18
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -974,9 +981,9 @@ void rate_p_o17__f18(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_d_he3__p_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_d_He3_to_p_He4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // he3 + d --> p + he4
+    // He3 + d --> p + He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1023,9 +1030,9 @@ void rate_d_he3__p_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_n13__p_o16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He4_N13_to_p_O16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // n13 + he4 --> p + o16
+    // N13 + He4 --> p + O16
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1055,9 +1062,9 @@ void rate_he4_n13__p_o16(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_n15__he4_c12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_N15_to_He4_C12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // n15 + p --> he4 + c12
+    // N15 + p --> He4 + C12
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1138,9 +1145,9 @@ void rate_p_n15__he4_c12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_o14__p_f17(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He4_O14_to_p_F17(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // o14 + he4 --> p + f17
+    // O14 + He4 --> p + F17
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1255,9 +1262,9 @@ void rate_he4_o14__p_f17(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_o17__he4_n14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_O17_to_He4_N14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // o17 + p --> he4 + n14
+    // O17 + p --> He4 + N14
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1338,9 +1345,9 @@ void rate_p_o17__he4_n14(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_p_f18__he4_o15(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_p_F18_to_He4_O15(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // f18 + p --> he4 + o15
+    // F18 + p --> He4 + O15
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1404,9 +1411,9 @@ void rate_p_f18__he4_o15(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he3_he3__p_p_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He3_He3_to_p_p_He4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // he3 + he3 --> p + p + he4
+    // He3 + He3 --> p + p + He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1436,9 +1443,9 @@ void rate_he3_he3__p_p_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_d_be7__p_he4_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_d_Be7_to_p_He4_He4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // be7 + d --> p + he4 + he4
+    // Be7 + d --> p + He4 + He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1468,9 +1475,9 @@ void rate_d_be7__p_he4_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he3_be7__p_p_he4_he4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He3_Be7_to_p_p_He4_He4(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // be7 + he3 --> p + p + he4 + he4
+    // Be7 + He3 --> p + p + He4 + He4
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1500,9 +1507,9 @@ void rate_he3_be7__p_p_he4_he4(const tf_t& tfactors, Real& rate, Real& drate_dT)
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void rate_he4_he4_he4__c12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
+void rate_He4_He4_He4_to_C12(const tf_t& tfactors, Real& rate, Real& drate_dT) {
 
-    // he4 + he4 + he4 --> c12
+    // He4 + He4 + He4 --> C12
 
     rate = 0.0;
     drate_dT = 0.0;
@@ -1575,190 +1582,190 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
     Real rate;
     Real drate_dT;
 
-    rate_n13__c13__weak__wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_n13__c13__weak__wc12) = rate;
+    rate_N13_to_C13_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_N13_to_C13_weak_wc12) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_n13__c13__weak__wc12) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_N13_to_C13_weak_wc12) = drate_dT;
 
     }
-    rate_o14__n14__weak__wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_o14__n14__weak__wc12) = rate;
+    rate_O14_to_N14_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_O14_to_N14_weak_wc12) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_o14__n14__weak__wc12) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_O14_to_N14_weak_wc12) = drate_dT;
 
     }
-    rate_o15__n15__weak__wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_o15__n15__weak__wc12) = rate;
+    rate_O15_to_N15_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_O15_to_N15_weak_wc12) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_o15__n15__weak__wc12) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_O15_to_N15_weak_wc12) = drate_dT;
 
     }
-    rate_f17__o17__weak__wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_f17__o17__weak__wc12) = rate;
+    rate_F17_to_O17_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_F17_to_O17_weak_wc12) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_f17__o17__weak__wc12) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_F17_to_O17_weak_wc12) = drate_dT;
 
     }
-    rate_b8__he4_he4__weak__wc12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_b8__he4_he4__weak__wc12) = rate;
+    rate_B8_to_He4_He4_weak_wc12<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_B8_to_He4_He4_weak_wc12) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_b8__he4_he4__weak__wc12) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_B8_to_He4_He4_weak_wc12) = drate_dT;
 
     }
-    rate_p_p__d__weak__bet_pos_<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_p__d__weak__bet_pos_) = rate;
+    rate_p_p_to_d_weak_bet_pos_<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_p_to_d_weak_bet_pos_) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_p__d__weak__bet_pos_) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_p_to_d_weak_bet_pos_) = drate_dT;
 
     }
-    rate_p_p__d__weak__electron_capture<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_p__d__weak__electron_capture) = rate;
+    rate_p_p_to_d_weak_electron_capture<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_p_to_d_weak_electron_capture) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_p__d__weak__electron_capture) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_p_to_d_weak_electron_capture) = drate_dT;
 
     }
-    rate_p_d__he3<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_d__he3) = rate;
+    rate_p_d_to_He3<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_d_to_He3) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_d__he3) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_d_to_He3) = drate_dT;
 
     }
-    rate_d_d__he4<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_d_d__he4) = rate;
+    rate_d_d_to_He4<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_d_d_to_He4) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_d_d__he4) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_d_d_to_He4) = drate_dT;
 
     }
-    rate_p_he3__he4__weak__bet_pos_<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_he3__he4__weak__bet_pos_) = rate;
+    rate_p_He3_to_He4_weak_bet_pos_<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_He3_to_He4_weak_bet_pos_) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_he3__he4__weak__bet_pos_) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_He3_to_He4_weak_bet_pos_) = drate_dT;
 
     }
-    rate_he4_he3__be7<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_he3__be7) = rate;
+    rate_He4_He3_to_Be7<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He4_He3_to_Be7) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he4_he3__be7) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He4_He3_to_Be7) = drate_dT;
 
     }
-    rate_p_be7__b8<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_be7__b8) = rate;
+    rate_p_Be7_to_B8<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_Be7_to_B8) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_be7__b8) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_Be7_to_B8) = drate_dT;
 
     }
-    rate_p_c12__n13<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_c12__n13) = rate;
+    rate_p_C12_to_N13<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_C12_to_N13) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_c12__n13) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_C12_to_N13) = drate_dT;
 
     }
-    rate_he4_c12__o16<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_c12__o16) = rate;
+    rate_He4_C12_to_O16<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He4_C12_to_O16) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he4_c12__o16) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He4_C12_to_O16) = drate_dT;
 
     }
-    rate_p_c13__n14<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_c13__n14) = rate;
+    rate_p_C13_to_N14<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_C13_to_N14) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_c13__n14) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_C13_to_N14) = drate_dT;
 
     }
-    rate_p_n13__o14<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_n13__o14) = rate;
+    rate_p_N13_to_O14<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_N13_to_O14) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_n13__o14) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_N13_to_O14) = drate_dT;
 
     }
-    rate_p_n14__o15<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_n14__o15) = rate;
+    rate_p_N14_to_O15<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_N14_to_O15) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_n14__o15) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_N14_to_O15) = drate_dT;
 
     }
-    rate_he4_n14__f18<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_n14__f18) = rate;
+    rate_He4_N14_to_F18<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He4_N14_to_F18) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he4_n14__f18) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He4_N14_to_F18) = drate_dT;
 
     }
-    rate_p_n15__o16<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_n15__o16) = rate;
+    rate_p_N15_to_O16<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_N15_to_O16) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_n15__o16) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_N15_to_O16) = drate_dT;
 
     }
-    rate_p_o16__f17<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_o16__f17) = rate;
+    rate_p_O16_to_F17<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_O16_to_F17) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_o16__f17) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_O16_to_F17) = drate_dT;
 
     }
-    rate_p_o17__f18<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_o17__f18) = rate;
+    rate_p_O17_to_F18<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_O17_to_F18) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_o17__f18) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_O17_to_F18) = drate_dT;
 
     }
-    rate_d_he3__p_he4<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_d_he3__p_he4) = rate;
+    rate_d_He3_to_p_He4<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_d_He3_to_p_He4) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_d_he3__p_he4) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_d_He3_to_p_He4) = drate_dT;
 
     }
-    rate_he4_n13__p_o16<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_n13__p_o16) = rate;
+    rate_He4_N13_to_p_O16<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He4_N13_to_p_O16) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he4_n13__p_o16) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He4_N13_to_p_O16) = drate_dT;
 
     }
-    rate_p_n15__he4_c12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_n15__he4_c12) = rate;
+    rate_p_N15_to_He4_C12<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_N15_to_He4_C12) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_n15__he4_c12) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_N15_to_He4_C12) = drate_dT;
 
     }
-    rate_he4_o14__p_f17<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_o14__p_f17) = rate;
+    rate_He4_O14_to_p_F17<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He4_O14_to_p_F17) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he4_o14__p_f17) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He4_O14_to_p_F17) = drate_dT;
 
     }
-    rate_p_o17__he4_n14<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_o17__he4_n14) = rate;
+    rate_p_O17_to_He4_N14<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_O17_to_He4_N14) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_o17__he4_n14) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_O17_to_He4_N14) = drate_dT;
 
     }
-    rate_p_f18__he4_o15<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_p_f18__he4_o15) = rate;
+    rate_p_F18_to_He4_O15<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_p_F18_to_He4_O15) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_p_f18__he4_o15) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_p_F18_to_He4_O15) = drate_dT;
 
     }
-    rate_he3_he3__p_p_he4<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he3_he3__p_p_he4) = rate;
+    rate_He3_He3_to_p_p_He4<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He3_He3_to_p_p_He4) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he3_he3__p_p_he4) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He3_He3_to_p_p_He4) = drate_dT;
 
     }
-    rate_d_be7__p_he4_he4<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_d_be7__p_he4_he4) = rate;
+    rate_d_Be7_to_p_He4_He4<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_d_Be7_to_p_He4_He4) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_d_be7__p_he4_he4) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_d_Be7_to_p_He4_He4) = drate_dT;
 
     }
-    rate_he3_be7__p_p_he4_he4<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he3_be7__p_p_he4_he4) = rate;
+    rate_He3_Be7_to_p_p_He4_He4<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He3_Be7_to_p_p_He4_He4) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he3_be7__p_p_he4_he4) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He3_Be7_to_p_p_He4_He4) = drate_dT;
 
     }
-    rate_he4_he4_he4__c12<do_T_derivatives>(tfactors, rate, drate_dT);
-    rate_eval.screened_rates(k_he4_he4_he4__c12) = rate;
+    rate_He4_He4_He4_to_C12<do_T_derivatives>(tfactors, rate, drate_dT);
+    rate_eval.screened_rates(k_He4_He4_He4_to_C12) = rate;
     if constexpr (std::is_same<T, rate_derivs_t>::value) {
-        rate_eval.dscreened_rates_dT(k_he4_he4_he4__c12) = drate_dT;
+        rate_eval.dscreened_rates_dT(k_He4_He4_He4_to_C12) = drate_dT;
 
     }
 
@@ -1767,11 +1774,11 @@ fill_reaclib_rates(const tf_t& tfactors, T& rate_eval)
 template <int do_T_derivatives, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void
-fill_approx_rates([[maybe_unused]] const tf_t& tfactors, T& rate_eval)
+fill_approx_rates([[maybe_unused]] const tf_t& tfactors, [[maybe_unused]] T& rate_eval)
 {
 
-    Real rate;
-    Real drate_dT;
+    [[maybe_unused]] Real rate{};
+    [[maybe_unused]] Real drate_dT{};
 
 
 }

@@ -1,3 +1,58 @@
+# 23.11
+
+  * The sneut5 neutrino cooling term was cleaned up (#1371, #1372,
+    #1373, #1374, #1375, #1377, #1378, #1379)
+
+  * The number of predictor-corrector iterations for the SDC+NSE algorithm
+    is now a runtime parameter (#1370)
+
+  * The Urca network now includes a more accurate rate for neutron decay
+    and electon-capture onto a proton. (#1359)
+
+  * The He-C-Fe-group network now includes the positron parts of the
+    weak reaction rates (#1360)
+
+  * A check was added to ensure that the helm_table.dat is valid on
+    reading (#1355)
+
+# 23.10
+
+  * The simplified-SDC and true-SDC code paths for integration
+    have been merged (#1338,  #1340, #1341).
+
+  * All pynucastro networks have been updated with the latest
+    version of pynucastro (2.1.0) (#1342)
+
+  * The neutrino cooling terms now use templating on derivatives
+    (#1329)
+
+  * `NUM_EXTRA_SPECIES` was removed (#1321)
+
+# 23.09
+
+  * The file NETWORK_PROPERTIES has been removed from each network,
+    as the legacy screening method is no longer used. (#1310)
+
+  * The rprox network was updated and the Jacobian was fixed (#1300)
+
+  * The primordial_chem EOS now can take density and pressure as
+    inputs (#1302)
+
+# 23.07
+
+  * The preprocessor variable EXTRA_THERMO has been removed.
+    Use cases that depend on dpdA/dpdZ or dedA/dedZ should use
+    eos_extra_t, which is a container that holds all of the
+    entities in eos_t as well as these derivatives wrt A and Z. (#1229)
+
+  * added the ability to scale the energy we integrate by
+    the initial energy in the ODE integration (#1224)
+
+  * added an implementation of the Gershgorin circle theorem
+    for estimating the spectral radius of our ODE system (#1222)
+
+  * removed SDC_EVOLVE_ENTHALPY -- this was not being used (#1204)
+
 # 23.06
 
   * Added a new Runge-Kutta-Chebyshev integrator (#1191)
@@ -324,7 +379,7 @@
 # 20.08
 
    * Several of the unit tests had separate C++ and Fortran
-     implementions.  These have been unified (#343, #344, #345)
+     implementations.  These have been unified (#343, #344, #345)
 
    * The VBDF integrator was removed (#348)
 

@@ -105,15 +105,15 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
 
             wa1(i) += r(l) * temp;
             l++;
-	    if ( amrex::isnan(wa1(i)) || amrex::isinf(wa1(i)) ) {
-	      return;
-	  }
+            if ( amrex::isnan(wa1(i)) || amrex::isinf(wa1(i)) ) {
+              return;
+            }
         }
         wa1(j) /= diag(j);
 
-	if ( amrex::isnan(wa1(j)) || amrex::isinf(wa1(j)) ) {
-	  return;
-	}
+        if ( amrex::isnan(wa1(j)) || amrex::isinf(wa1(j)) ) {
+          return;
+        }
     }
 
     // calculate the norm of the scaled gradient and test for
@@ -157,9 +157,9 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
             temp = (bnorm/gnorm)*(bnorm/qnorm)*(sgnorm/delta);
             temp = temp - (delta/qnorm) * std::pow(sgnorm/delta, 2.0_rt)
                 + std::sqrt(std::pow(temp-(delta/qnorm), 2.0_rt)
-                            + (1.0_rt-std::pow(delta/qnorm, 2/0_rt)) *
+                            + (1.0_rt-std::pow(delta/qnorm, 2.0_rt)) *
                               (1.0_rt-std::pow(sgnorm/delta, 2.0_rt)));
-            alpha = ((delta/qnorm)*(1.0_rt - std::pow(sgnorm/delta, 2/0_rt))) / temp;
+            alpha = ((delta/qnorm)*(1.0_rt - std::pow(sgnorm/delta, 2.0_rt))) / temp;
         }
     }
 

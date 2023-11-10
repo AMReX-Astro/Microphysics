@@ -117,9 +117,9 @@ For example, consider the reaction :math:`\isotm{He}{4} + \isotm{C}{12} \rightar
    data.species_B = He4;
    data.species_D = O16;
 
-   data.number_A = 1;
-   data.number_B = 1;
-   data.number_D = 1;
+   data.number_A = 1.0_rt;
+   data.number_B = 1.0_rt;
+   data.number_D = 1.0_rt;
 
    data.exponent_A = 1;
    data.exponent_B = 1;
@@ -149,10 +149,10 @@ special cases (e.g., for approximate nets):
           data.species_D = Mg24;
           data.species_E = He4;
 
-          data.number_A = 1;
-          data.number_B = 1;
-          data.number_D = 1;
-          data.number_E = 1;
+          data.number_A = 1.0_rt;
+          data.number_B = 1.0_rt;
+          data.number_D = 1.0_rt;
+          data.number_E = 1.0_rt;
 
           data.exponent_A = 1;
           data.exponent_B = 1;
@@ -167,9 +167,9 @@ special cases (e.g., for approximate nets):
           data.species_B = O16;
           data.species_D = Si28;
 
-          data.number_A = 1;
-          data.number_B = 1;
-          data.number_D = 1;
+          data.number_A = 1.0_rt;
+          data.number_B = 1.0_rt;
+          data.number_D = 1.0_rt;
 
           data.exponent_A = 1;
           data.exponent_B = 1;
@@ -181,7 +181,7 @@ special cases (e.g., for approximate nets):
   This indicates that each branch happens 50% of the time.
 
 
-* ``apply_identical_particle_factor`` : 
+* ``apply_identical_particle_factor`` :
 
    Normally for rates involving identical nuclei, we divide
    the rate by a factor (:math:`n!`, where `n` is the number of the same nuclei participating).  This
@@ -216,7 +216,7 @@ special cases (e.g., for approximate nets):
 
   To save on computation, we can create a table of reaction rates
   by evaluating over a grid of temperature and then interpolating
-  in temperature as needed.  This operates only on the 
+  in temperature as needed.  This operates only on the
   :math:`N_A \langle \sigma v \rangle` portion of the rate.
 
   Some rates are more complex than fits into the rate tabulation
@@ -278,9 +278,9 @@ special cases (e.g., for approximate nets):
          data.species_B = He4;
          data.species_D = Si28;
 
-         data.number_A = 1;
-         data.number_B = 1;
-         data.number_D = 1;
+         data.number_A = 1.0_rt;
+         data.number_B = 1.0_rt;
+         data.number_D = 1.0_rt;
 
          data.exponent_A = 1;
          data.exponent_B = 1;

@@ -16,6 +16,6 @@ extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real,1,4> rfd2;
 extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real,1,12> tfdm;
 extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real,1,12> tfd0;
 extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real,1,12> tfd1;
-extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real,1,12> tfd2;        
+extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real,1,12> tfd2;
 
 #endif

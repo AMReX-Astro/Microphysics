@@ -32,7 +32,7 @@ void eos_test_C(const Box& bx,
     // set the composition -- approximately solar
     Real metalicity = 0.0 + static_cast<Real> (k) * dmetal;
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
 
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = metalicity/(NumSpec - 2);
@@ -58,7 +58,7 @@ void eos_test_C(const Box& bx,
 
     eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    eos_t eos_state_reference;
+    eos_extra_t eos_state_reference;
     eos_state_reference = eos_state;
 
     sp(i, j, k, vars.ih) = eos_state.h;

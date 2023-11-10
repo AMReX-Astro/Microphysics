@@ -34,8 +34,6 @@ const int net_ienuc = NumSpec + 1;
 // RHS of the network, regardless of Strang or SDC
 typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
 
-#ifdef SIMPLIFIED_SDC
-
 // these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
 //
@@ -56,8 +54,6 @@ const int SEDEN = SMZ+1;
 
 const int SVAR  = SEDEN+1;
 const int SVAR_EVOLVE = SFX;
-
-#endif
 
 // this is the data type of the dense Jacobian that the network wants.
 // it is not the same size as the Jacobian that VODE cares about when
@@ -81,13 +77,14 @@ struct burn_t
   Real aux[NumAux];
 #endif
 
+  // scaling used to make e we integrate dimensionless
+  Real e_scale;
+
   // derivatives needed for calling the EOS
   Real dedr;
   Real dedT;
-#ifdef EXTRA_THERMO
   Real dedA;
   Real dedZ;
-#endif
 
   // for diagnostics / error reporting
 
@@ -103,8 +100,6 @@ struct burn_t
 #endif
 
   // now come the bits that we need for SDC or Strang evolution
-
-#ifdef SIMPLIFIED_SDC
 
   // y is the input conserved state.  We will keep this state updated
   // in time as we integrate, such that upon output it will be the
@@ -124,8 +119,6 @@ struct burn_t
   int sdc_iter;
   int num_sdc_iters;
 
-#endif
-
   // for drive_initial_convection, we will fix T during the
   // integration to a passed in value.  We will interpret a positive
   // T_fixed as setting this feature.
@@ -137,12 +130,6 @@ struct burn_t
 
   // dx is useful for estimating timescales for equilibriation
   Real dx;
-
-#ifdef TRUE_SDC
-  Real E_var;
-  Real mom[3];
-  Real f_source[NumSpec+2];
-#endif
 
   Real mu;
   Real mu_e;
@@ -165,6 +152,10 @@ struct burn_t
 
   // Was the burn successful?
   bool success;
+
+  // integrator error code
+  short error_code;
+
 };
 
 
@@ -188,7 +179,6 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
   o << std::endl;
 #endif
 
-#ifdef SIMPLIFIED_SDC
   o << "y[SRHO] = " << burn_state.y[SRHO] << std::endl;
   o << "y[SEINT] = " << burn_state.y[SEINT] << std::endl;
 
@@ -221,7 +211,6 @@ std::ostream& operator<< (std::ostream& o, burn_t const& burn_state)
       o << burn_state.ydot_a[SFX+n] << " ";
   }
   o << std::endl;
-#endif
 #endif
   return o;
 }
@@ -260,7 +249,7 @@ void eos_to_burn (const T& eos_state, BurnT& burn_state)
 
 
 
-// Given a burn type, copy the data relevant to the eos type. 
+// Given a burn type, copy the data relevant to the eos type.
 // Note that when doing simplified SDC integration, we should
 // avoid using this interface because the energy includes a
 // contribution from the advection term. However this is useful
@@ -296,38 +285,12 @@ void burn_to_eos (const BurnT& burn_state, T& eos_state)
 }
 
 
-#ifdef SIMPLIFIED_SDC
-template <typename BurnT, typename T>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void sdc_burn_to_eos (const BurnT& state, T& eos_state)
-{
-    eos_state.rho = state.y[SRHO];
-    eos_state.T = state.T;
-
-    // species
-
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.y[SFS+n] / eos_state.rho;
-    }
-
-#if NAUX_NET > 0
-    // aux
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = state.y[SFX+n] / eos_state.rho;
-    }
-    //set_nse_aux_from_X(eos_state);
-#endif
-
-    // we don't bother filling the other fields, since the EOS call
-    // will do that for us
-}
-
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void normalize_abundances_sdc_burn (BurnT& state)
 {
 
-    // Constrain the partial densities in burn_t state to sum to the 
+    // Constrain the partial densities in burn_t state to sum to the
     // density.
     //
     // This is meant to be used upon exit, and we assume that
@@ -364,7 +327,6 @@ void normalize_abundances_sdc_burn (BurnT& state)
 #endif
 
 }
-#endif
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -372,12 +334,12 @@ void normalize_abundances_burn (BurnT& state)
 {
 
     Real sum = 0.0_rt;
-    for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] = amrex::max(small_x, amrex::min(1.0_rt, state.xn[n]));
-        sum += state.xn[n];
+    for (double &x : state.xn) {
+        x = amrex::max(small_x, amrex::min(1.0_rt, x));
+        sum += x;
     }
-    for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] /= sum;
+    for (double &x : state.xn) {
+        x /= sum;
     }
 
 }

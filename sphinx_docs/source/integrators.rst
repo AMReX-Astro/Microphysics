@@ -22,7 +22,7 @@ The equations we integrate to do a nuclear burn are:
 
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specific
 nuclear energy created through reactions. Also needed are density :math:`\rho`,
-temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the 
+temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the
 instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
 section, this is implemented in a network-specific manner.
 
@@ -70,12 +70,12 @@ routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
     void burner (burn_t& state, Real dt)
 
-The input is a ``burn_t``.  
+The input is a ``burn_t``.
 
 .. note::
 
    For the thermodynamic state, only the density, temperature, and
-   mass fractions are used directly&mdash;we compute the internal energy
+   mass fractions are used directly--we compute the internal energy
    corresponding to this input state through the equation of state
    before integrating.
 
@@ -360,10 +360,17 @@ the allowed options are:
   and nuclear reactions. However, this integrator has difficulty near NSE,
   so we don't recommend its use in production for nuclear astrophysics.
 
+.. index:: integrator.use_circle_theorem
+
 * ``RKC``: a stabilized explicit Runge-Kutta-Chebyshev integrator based
   on :cite:`sommeijer_rkc_1998`.  This does not require a Jacobian, but
   does need to estimate the spectral radius of the system, which is
   done internally.  This works for moderately stiff problems.
+
+  The spectral radius is estimated by default using the power method,
+  built into RKC.  Alternately, by setting ``integrator.use_circle_theorem=1``,
+  the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
+  is used instead.
 
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
@@ -371,11 +378,28 @@ the allowed options are:
 We recommend that you use the VODE solver, as it is the most
 robust.
 
+.. index:: integrator.scale_system
+
 .. important::
 
    The integrator will not abort if it encounters trouble.  Instead it will
-   set ``burn_t burn_state.success = false`` on exit.  It is up to the 
+   set ``burn_t burn_state.success = false`` on exit.  It is up to the
    application code to handle the failure.
+
+.. note::
+
+   The runtime parameter ``integrator.scale_system``
+   will scale the internal energy that the integrator sees by the initial
+   value of :math:`e` to make the system :math:`\mathcal{O}(1)`.  The value
+   of ``atol_enuc`` will likewise be scaled.  This works for both Strang
+   and simplified-SDC.  For the ``RKC`` integrator, this is enabled by
+   default.
+
+   For most integrators this algebraic change should not affect the output
+   to more than roundoff, but the option is included to allow for some
+   different integration approaches in the future.
+
+   This option currently does not work with the ForwardEuler or QSS integrators.
 
 Tolerances
 ----------

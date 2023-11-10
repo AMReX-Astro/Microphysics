@@ -3,13 +3,17 @@
 
 #include <AMReX_REAL.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 #include <burn_type.H>
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real initial_dt (BurnT& burn_state, IntT& int_state,
-                 Array1D<Real, 1, INT_NEQS>& ydot)
+Real initial_react_dt (BurnT& burn_state, IntT& int_state,
+                     Array1D<Real, 1, INT_NEQS>& ydot)
 {
     // this is a version of the initial timestep estimator from VODE
     // we come in with int_state..y() storing the initial solution

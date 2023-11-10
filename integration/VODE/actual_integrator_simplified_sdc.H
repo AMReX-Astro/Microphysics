@@ -20,8 +20,9 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_integrator (BurnT& state, Real dt)
 {
+    constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    dvode_t vode_state{};
+    dvode_t<int_neqs> vode_state{};
 
     // set the Jacobian type
     vode_state.jacobian_type = jacobian;
@@ -74,6 +75,12 @@ void actual_integrator (BurnT& state, Real dt)
     vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
     vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
 
+    if (scale_system) {
+        // the absolute tol for energy needs to reflect the scaled
+        // energy the integrator sees
+        vode_state.atol_enuc /= state.e_scale;
+    }
+
     // Note: we define the input atol for species to refer only to the
     // mass fraction part, and we multiply by a representative density
     // so that atol becomes an absolutely tolerance on (rho X)
@@ -84,6 +91,7 @@ void actual_integrator (BurnT& state, Real dt)
     // Call the integration routine.
 
     int istate = dvode(state, vode_state);
+    state.error_code = istate;
 
     // Get the number of RHS and Jacobian evaluations.
 
@@ -101,7 +109,7 @@ void actual_integrator (BurnT& state, Real dt)
 
     Real rho_Sdot = 0.0_rt;
     if (state.time > 0) {
-        rho_Sdot = (vode_state.y(SEINT+1) - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
+        rho_Sdot = (state.y[SEINT] - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
     }
 
     state.y[SEDEN] += state.time * (state.ydot_a[SEDEN] + rho_Sdot);
@@ -122,20 +130,20 @@ void actual_integrator (BurnT& state, Real dt)
     // Add some checks that indicate a burn fail even if VODE thinks the
     // integration was successful.
 
-    if (istate < 0) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
-    if (vode_state.y(SEINT+1) < 0.0_rt) {
+    if (state.y[SEINT] < 0.0_rt) {
         state.success = false;
     }
 
-    for (int n = 1; n <= NumSpec; ++n) {
-        if (vode_state.y(SFS+n) / state.y[SRHO] < -vode_failure_tolerance) {
+    for (int n = 0; n < NumSpec; ++n) {
+        if (state.y[SFS+n] / state.rho < -species_failure_tolerance) {
             state.success = false;
         }
 
-        if (vode_state.y(SFS+n) / state.y[SRHO] > 1.0_rt + vode_failure_tolerance) {
+        if (state.y[SFS+n] / state.rho > 1.0_rt + species_failure_tolerance) {
             state.success = false;
         }
     }
@@ -147,15 +155,15 @@ void actual_integrator (BurnT& state, Real dt)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout << " energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << vode_state.NST << std::endl;
-        std::cout <<  "number of f evaluations: " << vode_state.NFE << std::endl;
+        std::cout <<  "number of steps taken: " << state.n_step << std::endl;
+        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
 #endif
 
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-        if (istate != -100) {
+        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
@@ -163,20 +171,20 @@ void actual_integrator (BurnT& state, Real dt)
                 std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
             }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-            std::cout << "time = " << vode_state.t << std::endl;
+            std::cout << "time = " << state.time << std::endl;
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
             std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "rhoe start = " << std::setprecision(16) << rhoe_in << std::endl;
             std::cout << "xn start = ";
-            for (int n = 0; n < NumSpec; ++n) {
-                std::cout << std::setprecision(16) << xn_in[n] << " ";
+            for (auto X : xn_in) {
+                std::cout << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
             std::cout << "aux start = ";
-            for (int n = 0; n < NumAux; ++n) {
-                std::cout << std::setprecision(16) << aux_in[n] << " ";
+            for (auto aux : aux_in) {
+                std::cout << std::setprecision(16) << aux << " ";
             }
             std::cout << std::endl;
 #endif
@@ -211,7 +219,7 @@ void actual_integrator (BurnT& state, Real dt)
 #endif
         } else {
 #ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
         }
     }

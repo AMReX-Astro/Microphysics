@@ -1,8 +1,6 @@
 CEXE_headers += network_properties.H
-CEXE_headers += actual_network.H
-CEXE_sources += actual_network_data.cpp
 
 ifeq ($(USE_REACT),TRUE)
+  CEXE_headers += actual_network.H
   CEXE_headers += actual_rhs.H
-  CEXE_sources += actual_rhs_data.cpp
 endif
