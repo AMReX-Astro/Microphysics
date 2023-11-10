@@ -150,13 +150,13 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // the new mass fractions are just those that come from the table
     // make sure they are normalized
     Real sum_X{0.0_rt};
-    for (int n = 0; n < NumSpec; ++n) {
-        X[n] = amrex::max(small_x, amrex::min(1.0_rt, X[n]));
-        sum_X += X[n];
+    for (auto & xn : X) {
+        xn = amrex::max(small_x, amrex::min(1.0_rt, xn));
+        sum_X += xn;
     }
 
-    for (int n = 0; n < NumSpec; ++n) {
-        X[n] /= sum_X;
+    for (auto & xn : X) {
+        xn /= sum_X;
     }
 
     for (int n = 0; n < NumSpec; ++n) {
