@@ -177,14 +177,14 @@ void actual_integrator (BurnT& state, Real dt)
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "rhoe start = " << std::setprecision(16) << rhoe_in << std::endl;
             std::cout << "xn start = ";
-            for (int n = 0; n < NumSpec; ++n) {
-                std::cout << std::setprecision(16) << xn_in[n] << " ";
+            for (auto X : xn_in) {
+                std::cout << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
             std::cout << "aux start = ";
-            for (int n = 0; n < NumAux; ++n) {
-                std::cout << std::setprecision(16) << aux_in[n] << " ";
+            for (auto aux : aux_in) {
+                std::cout << std::setprecision(16) << aux << " ";
             }
             std::cout << std::endl;
 #endif
