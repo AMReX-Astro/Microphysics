@@ -37,7 +37,7 @@
  J_silicon-28_hydrogen-1       1.9049142873e-28       1.4457599197e+16
  J_phosphorus-31_hydrogen-1      -1.4363730396e+16      -2.3890907984e-32
  J_sulfur-32_hydrogen-1       2.3875895211e-32       3.8373494834e+15
- J_E_hydrogen-1               7.3588532259e-07       5.3233598076e+34
+ J_E_hydrogen-1               7.2668109011e-07       5.3233598076e+34
  J_hydrogen-1_helium-4        6.3597516852e-96       2.3050360212e+15
  J_helium-4_helium-4         -2.3251430676e+15      -8.7617347065e-57
  J_oxygen-16_helium-4        -5.9750641231e+12      -8.7617347064e-57
@@ -61,7 +61,7 @@
  J_silicon-28_oxygen-16       5.3544432665e-93       1.4407576856e+26
  J_phosphorus-31_oxygen-16       5.3544432665e-93       1.4407576856e+26
  J_sulfur-32_oxygen-16                       0                      0
- J_E_oxygen-16                   -54556.178444       2.4009435853e+45
+ J_E_oxygen-16                   -54524.316756       2.4009435853e+45
  J_hydrogen-1_oxygen-20                      0                      0
  J_helium-4_oxygen-20                        0                      0
  J_oxygen-16_oxygen-20                       0                      0
@@ -73,7 +73,7 @@
  J_silicon-28_oxygen-20                      0                      0
  J_phosphorus-31_oxygen-20                      0                      0
  J_sulfur-32_oxygen-20                       0                      0
- J_E_oxygen-20               -4.2470934331e+13       1.7103809712e+17
+ J_E_oxygen-20               -4.2481653689e+13       1.7104309459e+17
  J_hydrogen-1_fluorine-20                      0                      0
  J_helium-4_fluorine-20                      0                      0
  J_oxygen-16_fluorine-20                      0                      0
@@ -85,7 +85,7 @@
  J_silicon-28_fluorine-20                      0                      0
  J_phosphorus-31_fluorine-20                      0                      0
  J_sulfur-32_fluorine-20                      0                      0
- J_E_fluorine-20             -1.5940355628e+21       4.7992345557e+17
+ J_E_fluorine-20             -1.5940355629e+21       4.7992907772e+17
  J_hydrogen-1_neon-20                        0                      0
  J_helium-4_neon-20          -3.9073008309e+13           87637435.641
  J_oxygen-16_neon-20         3.8849945775e-100            88180925.52
@@ -121,7 +121,7 @@
  J_silicon-28_aluminum-27       5.1432681704e-27       3.7588755703e+16
  J_phosphorus-31_aluminum-27       6.4778539534e-78       6.4064066131e+13
  J_sulfur-32_aluminum-27                      0                      0
- J_E_aluminum-27             -2.3473767915e-05       4.5339945455e+35
+ J_E_aluminum-27             -2.3076325355e-05       4.5339945455e+35
  J_hydrogen-1_silicon-28       1.3633533854e-95       4.2286361267e+15
  J_helium-4_silicon-28       -4.2420142918e+15      -1.9556484036e-82
  J_oxygen-16_silicon-28                      0                      0
@@ -145,7 +145,7 @@
  J_silicon-28_phosphorus-31       4.6539596654e-34       4.4390283525e+17
  J_phosphorus-31_phosphorus-31      -4.4527564228e+17       -7.406181475e-31
  J_sulfur-32_phosphorus-31       7.4015275153e-31       1.1895783399e+17
- J_E_phosphorus-31           -0.00021865701493       1.1296769894e+36
+ J_E_phosphorus-31           -0.00018025525389       1.1296769894e+36
  J_hydrogen-1_sulfur-32                      0                      0
  J_helium-4_sulfur-32                        0                      0
  J_oxygen-16_sulfur-32                       0                      0
@@ -157,7 +157,7 @@
  J_silicon-28_sulfur-32                      0                      0
  J_phosphorus-31_sulfur-32                      0                      0
  J_sulfur-32_sulfur-32                       0                      0
- J_E_sulfur-32               -1.2200141114e+15        7.734440401e+14
+ J_E_sulfur-32               -1.2066886642e+15       7.8006383744e+14
  J_hydrogen-1_E                 -0.12580793235       1.2089803642e+12
  J_helium-4_E                 -0.0078065301852       1.4905283338e+12
  J_oxygen-16_E               -5.3990173959e+12       1.2739583515e-06

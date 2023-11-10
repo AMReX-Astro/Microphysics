@@ -46,6 +46,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // be an energy release from us instantaneously adjusting
     // into NSE (the first call to nse_interp) + an energy
     // release from the evolution of NSE over the timestep
+
     Real ye_in = state.y[SFX+iye] / state.rho;
     Real rho_bea_old = state.y[SFX+ibea];
 
@@ -86,10 +87,13 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real abar_out;
     Real dq_out;
     Real dyedt;
+    Real dabardt;
+    Real dbeadt;
+    Real enu;
     Real X[NumSpec];
 
-    nse_interp(T_in, rho_old, ye_in,
-               abar_out, dq_out, dyedt, X);
+    nse_interp(T_in, state.rho, ye_in,
+               abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
 
     Real dyedt_old = dyedt;
 
@@ -143,7 +147,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         // source estimates
 
         nse_interp(T_new, eos_state.rho, eos_state.aux[iye],
-                   abar_out, dq_out, dyedt, X);
+                   abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
 
         // note that the abar, dq (B/A), and X here have all already
         // seen advection implicitly
