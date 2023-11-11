@@ -113,7 +113,10 @@ def doit():
     comp.set_nuc("he4", 0.95)
     comp.normalize()
 
-    net.plot(outfile="ase.png", rho=1.e7, T=6.e9, comp=comp,
+    rho = 1.e7
+    T = 6.e9
+
+    net.plot(rho, T, comp, outfile="ase.png",
              rotated=True, hide_xalpha=True, curved_edges=True,
              size=(1500, 450),
              node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",

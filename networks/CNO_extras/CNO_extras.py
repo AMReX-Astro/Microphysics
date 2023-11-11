@@ -19,7 +19,10 @@ rc.write_network()
 comp = pyna.Composition(rc.get_nuclei())
 comp.set_solar_like()
 
-rc.plot(outfile="cno_extras.png", rho=1.e6, T=1.e8, comp=comp, Z_range=[1,13], N_range=[1,13])
-rc.plot(outfile="cno_extras_hide_alpha.png", rho=1.e6, T=1.e8, comp=comp, Z_range=[1,13], N_range=[1,13],
-                    rotated=True, highlight_filter_function=lambda r: r.Q > 0,
-                    curved_edges=True, hide_xalpha=True)
+rho = 1.e6
+T = 1.e8
+
+rc.plot(rho, T, comp, outfile="cno_extras.png", Z_range=[1,13], N_range=[1,13])
+rc.plot(rho, T, comp, outfile="cno_extras_hide_alpha.png", Z_range=[1,13], N_range=[1,13],
+        rotated=True, highlight_filter_function=lambda r: r.Q > 0,
+        curved_edges=True, hide_xalpha=True)
