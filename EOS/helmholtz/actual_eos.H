@@ -1242,7 +1242,7 @@ void actual_eos (I input, T& state)
 
     using namespace helmholtz;
 
-    const int max_newton = 100;
+    constexpr int max_newton = 100;
 
     bool single_iter, converged;
     int var{}, dvar{}, var1, var2;
@@ -1306,7 +1306,6 @@ void actual_eos_init ()
 
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
-    Real tsav, dsav;
 
     // Read in the runtime parameters
 
@@ -1326,10 +1325,10 @@ void actual_eos_init ()
     dstpi = 1.0e0_rt / dstp;
 
     for (int j = 0; j < jmax; ++j) {
-        tsav = tlo + j * tstp;
+        Real tsav = tlo + j * tstp;
         t[j] = std::pow(10.0e0_rt, tsav);
         for (int i = 0; i < imax; ++i) {
-            dsav = dlo + i * dstp;
+            Real dsav = dlo + i * dstp;
             d[i] = std::pow(10.0e0_rt, dsav);
         }
     }
