@@ -155,9 +155,9 @@ void apply_electrons (T& state)
 
     // hash locate this temperature and density
     int jat = int((std::log10(state.T) - tlo) * tstpi) + 1;
-    jat = amrex::max(1, amrex::min(jat, jtmax-1)) - 1;
+    jat = amrex::max(1, amrex::min(jat, jmax-1)) - 1;
     int iat = int((std::log10(din) - dlo) * dstpi) + 1;
-    iat = amrex::max(1, amrex::min(iat, itmax-1)) - 1;
+    iat = amrex::max(1, amrex::min(iat, imax-1)) - 1;
 
     Real fi[36];
 
@@ -1316,8 +1316,6 @@ void actual_eos_init ()
     dtol = eos_dtol;
 
     //    read the helmholtz free energy table
-    itmax = imax;
-    jtmax = jmax;
     tlo   = 3.0e0_rt;
     thi   = 13.0e0_rt;
     tstp  = (thi - tlo) / ((Real) (jmax-1));
@@ -1508,4 +1506,3 @@ bool is_input_valid (I input)
 }
 
 #endif
-
