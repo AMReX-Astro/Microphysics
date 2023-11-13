@@ -6,8 +6,8 @@
 
 namespace helmholtz
 {
-    extern AMREX_GPU_MANAGED bool do_coulomb;
-    extern AMREX_GPU_MANAGED bool input_is_constant;
+    extern AMREX_GPU_MANAGED int do_coulomb;
+    extern AMREX_GPU_MANAGED int input_is_constant;
 
     // for the tables
 
