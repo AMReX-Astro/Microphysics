@@ -128,7 +128,7 @@ comp = pyna.Composition(net.unique_nuclei)
 comp.set_all(1.0)
 comp.normalize()
 
-fig = net.plot(rho=rho, T=T, comp=comp,
+fig = net.plot(rho, T, comp,
                rotated=True, curved_edges=True, hide_xalpha=True,
                size=(1800, 900),
                node_size=500, node_shape="s", node_font_size=10)
