@@ -372,7 +372,7 @@ gamma_law
 +=======================================+=========================================================+====================+
 | ``eos_gamma``                         |                                                         | 5.d0/3.d0          |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``eos_assume_neutral``                |                                                         | .true.             |
+| ``eos_assume_neutral``                |                                                         | 1                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
 
@@ -383,9 +383,9 @@ helmholtz
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | parameter                             | description                                             | default value      |
 +=======================================+=========================================================+====================+
-| ``use_eos_coulomb``                   | use the Coulomb corrections                             | .true.             |
+| ``use_eos_coulomb``                   | use the Coulomb corrections                             | 1                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``eos_input_is_constant``             | Force the EOS output quantities to match input          | .true.             |
+| ``eos_input_is_constant``             | Force the EOS output quantities to match input          | 1                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``eos_ttol``                          | Tolerance for iterations with respect to temperature    | 1.0d-8             |
 +---------------------------------------+---------------------------------------------------------+--------------------+
@@ -406,14 +406,14 @@ integration
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | parameter                             | description                                             | default value      |
 +=======================================+=========================================================+====================+
-| ``call_eos_in_rhs``                   | Normally we update the temperature during a burn to be  | .true.             |
+| ``call_eos_in_rhs``                   | Normally we update the temperature during a burn to be  | 1                  |
 |                                       | consistent with the current internal energy. This is    |                    |
 |                                       | done with an EOS call, which can be turned off if       |                    |
 |                                       | desired. This will freeze the temperature and specific  |                    |
 |                                       | heat to the values at the beginning of the burn, which  |                    |
 |                                       | is inaccurate but cheaper.                              |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``integrate_energy``                  | Allow the energy integration to be disabled by setting  | .true.             |
+| ``integrate_energy``                  | Allow the energy integration to be disabled by setting  | 1                  |
 |                                       | the RHS to zero.                                        |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``jacobian``                          | Whether to use an analytical or numerical Jacobian. 1   | 1                  |
@@ -421,7 +421,7 @@ integration
 |                                       | reactions; analytic for primitive -> conserved          |                    |
 |                                       | (simplified-SDC only)                                   |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``burner_verbose``                    | Should we print out diagnostic output after the solve?  | .false.            |
+| ``burner_verbose``                    | Should we print out diagnostic output after the solve?  | 0                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``rtol_spec``                         | Tolerances for the solver (relative and absolute), for  | 1.d-12             |
 |                                       | the species and energy equations.                       |                    |
@@ -432,7 +432,7 @@ integration
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``atol_enuc``                         |                                                         | 1.d-6              |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``renormalize_abundances``            | Whether to renormalize the mass fractions at each step  | .false.            |
+| ``renormalize_abundances``            | Whether to renormalize the mass fractions at each step  | 0                  |
 |                                       | in the evolution so that they sum to unity.             |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``SMALL_X_SAFE``                      | The absolute cutoff for species -- note that this might | 1.0d-30            |
@@ -451,7 +451,7 @@ integration
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``ode_max_dt``                        | maximum timestep for the integrator                     | 1.d30              |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``use_jacobian_caching``              | Whether to use Jacobian caching in VODE                 | .true.             |
+| ``use_jacobian_caching``              | Whether to use Jacobian caching in VODE                 | 1                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``nonaka_i``                          | Inputs for generating a Nonaka Plot (TM)                | 0                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
@@ -466,10 +466,10 @@ integration
 | ``do_species_clip``                   | in the clean_state process, do we clip the species such | 1                  |
 |                                       | that they are in [0, 1]?                                |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``use_number_densities``              | flag for turning on the use of number densities for all | .false.            |
+| ``use_number_densities``              | flag for turning on the use of number densities for all | 0                  |
 |                                       | species                                                 |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``subtract_internal_energy``          | flag for tuning on the subtraction of internal energy   | .true.             |
+| ``subtract_internal_energy``          | flag for tuning on the subtraction of internal energy   | 1                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``sdc_burn_tol_factor``               | SDC iteration tolerance adjustment factor               | 1.d0               |
 +---------------------------------------+---------------------------------------------------------+--------------------+
@@ -563,10 +563,10 @@ networks
 +=======================================+=========================================================+====================+
 | ``small_x``                           | cutoff for species mass fractions                       | 1.d-30             |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``use_tables``                        | Should we use rate tables if they are present in the    | .false.            |
+| ``use_tables``                        | Should we use rate tables if they are present in the    | 0                  |
 |                                       | network?                                                |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``use_c12ag_deboer17``                | Should we use Deboer + 2017 rate for c12(a,g)o16?       | .false.            |
+| ``use_c12ag_deboer17``                | Should we use Deboer + 2017 rate for c12(a,g)o16?       | 0                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
 
@@ -583,11 +583,11 @@ nse_solver
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``ase_tol``                           |                                                         | 0.1                |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``nse_dx_independent``                |                                                         | .false.            |
+| ``nse_dx_independent``                |                                                         | 0                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``nse_molar_independent``             |                                                         | .false.            |
+| ``nse_molar_independent``             |                                                         | 0                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``nse_skip_molar``                    |                                                         | .false.            |
+| ``nse_skip_molar``                    |                                                         | 0                  |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 | ``T_nse_net``                         |                                                         | -1.0               |
 +---------------------------------------+---------------------------------------------------------+--------------------+

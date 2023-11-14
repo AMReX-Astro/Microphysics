@@ -703,7 +703,7 @@ as given in the inputs?</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></p></td>
 <td></td>
-<td><p>.true.</p></td>
+<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -720,11 +720,11 @@ as given in the inputs?</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_eos_coulomb</span></code></p></td>
 <td><p>use the Coulomb corrections</p></td>
-<td><p>.true.</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code></p></td>
 <td><p>Force the EOS output quantities to match input</p></td>
-<td><p>.true.</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_ttol</span></code></p></td>
 <td><p>Tolerance for iterations with respect to temperature</p></td>
@@ -764,12 +764,12 @@ done with an EOS call, which can be turned off if
 desired. This will freeze the temperature and specific
 heat to the values at the beginning of the burn, which
 is inaccurate but cheaper.</p></td>
-<td><p>.true.</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">integrate_energy</span></code></p></td>
 <td><p>Allow the energy integration to be disabled by setting
 the RHS to zero.</p></td>
-<td><p>.true.</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>Whether to use an analytical or numerical Jacobian. 1
@@ -780,7 +780,7 @@ reactions; analytic for primitive -&gt; conserved
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></p></td>
 <td><p>Should we print out diagnostic output after the solve?</p></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
 <td><p>Tolerances for the solver (relative and absolute), for
@@ -802,7 +802,7 @@ the species and energy equations.</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
 <td><p>Whether to renormalize the mass fractions at each step
 in the evolution so that they sum to unity.</p></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SMALL_X_SAFE</span></code></p></td>
 <td><p>The absolute cutoff for species – note that this might
@@ -832,7 +832,7 @@ integration.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
 <td><p>Whether to use Jacobian caching in VODE</p></td>
-<td><p>.true.</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nonaka_i</span></code></p></td>
 <td><p>Inputs for generating a Nonaka Plot (TM)</p></td>
@@ -862,11 +862,11 @@ that they are in [0, 1]?</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_number_densities</span></code></p></td>
 <td><p>flag for turning on the use of number densities for all
 species</p></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">subtract_internal_energy</span></code></p></td>
 <td><p>flag for tuning on the subtraction of internal energy</p></td>
-<td><p>.true.</p></td>
+<td><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sdc_burn_tol_factor</span></code></p></td>
 <td><p>SDC iteration tolerance adjustment factor</p></td>
@@ -1037,11 +1037,11 @@ iterations do we take to get the new time NSE state</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
 <td><p>Should we use rate tables if they are present in the
 network?</p></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
 <td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1070,15 +1070,15 @@ network?</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_dx_independent</span></code></p></td>
 <td></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_molar_independent</span></code></p></td>
 <td></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_skip_molar</span></code></p></td>
 <td></td>
-<td><p>.false.</p></td>
+<td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse_net</span></code></p></td>
 <td></td>
