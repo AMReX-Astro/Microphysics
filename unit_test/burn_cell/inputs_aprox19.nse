@@ -1,4 +1,4 @@
-unit_test.run_prefix = "react_aprox19_"
+unit_test.run_prefix = "react_aprox19_nse_"
 
 unit_test.small_temp = 1.e5
 unit_test.small_dens = 1.e5
