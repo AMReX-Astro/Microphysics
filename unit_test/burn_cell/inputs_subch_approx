@@ -1,4 +1,4 @@
-unit_test.run_prefix = "react_subch2_"
+unit_test.run_prefix = "react_subch_approx_"
 
 unit_test.small_temp = 1.e5
 unit_test.small_dens = 1.e5
