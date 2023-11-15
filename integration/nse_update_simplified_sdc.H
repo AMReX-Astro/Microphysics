@@ -26,6 +26,93 @@
 using namespace amrex;
 
 #if defined(NSE_TABLE)
+
+///
+/// this acts as the RHS function for the system (rho e, rho aux)
+/// on input, *_source are the reactive sources at time t0 and on output
+/// they are the sources at time t0+dt
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void rhs(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux0,
+         const Real dt, const Real *ydot_a,
+         Real& rhoe_new, Real* rhoaux_new,
+         Real& rhoe_source, Real* rhoaux_source, const int T_fixed) {
+
+    // integrate rho to the new time
+
+    Real rho_new = rho0 + dt * ydot_a[SRHO];
+
+    // integrate rhoe and rhoaux using the input sources
+
+    rhoe_new = rhoe + dt * ydot_a[SEINT] + dt * rhoe_source;
+    for (int n = 0; n < NumAux; n++) {
+        rhoaux_new[n] = rhoaux0[n] + dt * ydot_a[SFX+n] + dt * aux_source[n];
+    }
+
+    // find the temperature at t0 + dt
+
+    eos_t eos_state;
+    eos_state.rho = rho_new;
+    eos_state.e = rhoe_new / rho_new;
+    eos_state.T = T0;
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = rhoaux_new[n] / rho_new;
+    }
+
+    Real T_new;
+    if (T_fixed > 0) {
+        T_new = T0;
+    } else {
+        eos(eos_input_re, eos_state);
+        T_new = eos_state.T;
+    }
+
+    // compute the plasma neutrino losses at t0 + dt
+
+    Real snu{0.0};
+    Real dsnudt{0.0};
+    Real dsnudd{0.0};
+    Real dsnuda{0.0};
+    Real dsnudz{0.0};
+
+    Real abar = eos_state.aux[iabar];
+    Real zbar = abar * eos_state.aux[iye];
+
+    constexpr int do_derivatives = 0;
+    sneut5<do_derivatives>(T_new, rho_new, abar, zbar,
+                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+
+    // call the NSE table
+
+    Real abar_out;
+    Real dq_out;
+    Real dyedt;
+    Real dabardt;
+    Real dbeadt;
+    Real enu;
+    Real X[NumSpec];
+
+    constexpr bool skip_X_fill = true;
+
+    nse_interp(T_new, rho_new, eos_state,aux[iye],
+               abar_out, bea_out, dyedt, dabardt, dbeadt, enu, skip_X_fill);
+
+    // construct the sources at time t0+dt
+
+    // note that abar, (B/A) here have already seen advection
+    // implicitly
+
+    Real rho_bea_tilde = rho_new * bea_out - dt * ydot_a[SFX+ibea];
+    Real rho_dBEA = rho_bea_tilde - rhoaux0[ibea]; // this is MeV / nucleon * g / cm**3
+    Real rhoe_source = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+    rhoe_source -= rho_new * (enu + snu);
+
+    Real rhoaux_source[iabar] = 0.0;
+    Real rhoaux_source[iye] = rho_new * dyedt;
+    Real rhoaux_source[ibea] = rho_dBEA / dt
+;
+}
+
 ///
 /// update the state due to NSE changes for the simplified-SDC case
 /// this version works with the tabulated NSE and requires AUX_THERMO
