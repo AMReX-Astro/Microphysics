@@ -1,6 +1,6 @@
 # this inputs is used for comparing the subch and subch2 networks
 
-unit_test.run_prefix = "react_aprox13_"
+unit_test.run_prefix = "react_subch_compare_"
 
 unit_test.small_temp = 1.e5
 unit_test.small_dens = 1.e5
