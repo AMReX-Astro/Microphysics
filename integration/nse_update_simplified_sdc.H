@@ -45,9 +45,9 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
 
     // integrate rhoe and rhoaux using the input sources
 
-    rhoe_new = rhoe + dt * ydot_a[SEINT] + dt * rhoe_source;
+    rhoe_new = rhoe0 + dt * ydot_a[SEINT] + dt * rhoe_source;
     for (int n = 0; n < NumAux; n++) {
-        rhoaux_new[n] = rhoaux0[n] + dt * ydot_a[SFX+n] + dt * aux_source[n];
+        rhoaux_new[n] = rhoaux0[n] + dt * ydot_a[SFX+n] + dt * rhoaux_source[n];
     }
 
     // find the temperature at t0 + dt
@@ -86,7 +86,7 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
     // call the NSE table
 
     Real abar_out;
-    Real dq_out;
+    Real bea_out;
     Real dyedt;
     Real dabardt;
     Real dbeadt;
@@ -98,8 +98,8 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
                skip_X_fill);
 
     if constexpr (!skip_X_fill) {
-        for (auto & X : rhoX_new) {
-            X *= rho_new;
+        for (int n = 0; n < NumSpec; ++n) {
+            rhoX_new[n] *= rho_new;
         }
     }
 
@@ -110,12 +110,13 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
 
     Real rho_bea_tilde = rho_new * bea_out - dt * ydot_a[SFX+ibea];
     Real rho_dBEA = rho_bea_tilde - rhoaux0[ibea]; // this is MeV / nucleon * g / cm**3
-    Real rhoe_source = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+
+    rhoe_source = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
     rhoe_source -= rho_new * (enu + snu);
 
-    Real rhoaux_source[iabar] = 0.0;
-    Real rhoaux_source[iye] = rho_new * dyedt;
-    Real rhoaux_source[ibea] = rho_dBEA / dt
+    rhoaux_source[iabar] = 0.0;
+    rhoaux_source[iye] = rho_new * dyedt;
+    rhoaux_source[ibea] = rho_dBEA / dt;
 ;
 }
 
@@ -166,6 +167,14 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     // get the instantaneous change in B/A, as well as the source
     // terms for the new evolution.
+
+    Real abar_out{};
+    Real bea_out{};
+    Real dyedt{};
+    Real dabardt{};
+    Real dbeadt{};
+    Real enu{};
+    Real X[NumSpec] = {};
 
     constexpr bool skip_X_fill{true};
 
@@ -230,8 +239,6 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     Real rhoe_new;
     Real rhoaux_new[NumAux];
-    Real rhoe_source;
-    Real rhoaux_source[NumAux];
     Real rhoX_new[NumSpec];
 
     // evolve for dt/2 -- the sources will be overwritten with the
@@ -272,7 +279,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // make sure they are normalized
     Real sum_rhoX{0.0_rt};
     for (auto & rx : rhoX_new) {
-        rx = amrex::max(rho_new*small_x, amrex::min(rho_new, rx));
+        rx = amrex::max(state.y[SRHO] * small_x, amrex::min(state.y[SRHO], rx));
         sum_rhoX += rx;
     }
 
