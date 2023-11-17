@@ -91,7 +91,6 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
     Real dabardt;
     Real dbeadt;
     Real enu;
-    Real X[NumSpec];
 
     nse_interp(T_new, rho_new, eos_state.aux[iye],
                abar_out, bea_out, dyedt, dabardt, dbeadt, enu, rhoX_new,
