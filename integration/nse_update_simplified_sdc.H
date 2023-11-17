@@ -37,7 +37,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux0,
             const Real dt, const Real *ydot_a,
             Real& rhoe_new, Real* rhoaux_new, Real* rhoX_new,
-            Real& rhoe_source, Real* rhoaux_source, const int T_fixed) {
+            Real& rhoe_source, Real* rhoaux_source, const Real T_fixed) {
 
     // integrate rho to the new time
 
@@ -176,10 +176,12 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real enu{};
     Real X[NumSpec] = {};
 
-    constexpr bool skip_X_fill{true};
+    {
+        constexpr bool skip_X_fill{true};
 
-    nse_interp(T_in, state.rho, ye_in,
-               abar_out, bea_out, dyedt, dabardt, dbeadt, enu, X, skip_X_fill);
+        nse_interp(T_in, state.rho, ye_in,
+                   abar_out, bea_out, dyedt, dabardt, dbeadt, enu, X, skip_X_fill);
+    }
 
     // the starting state for integration uses the state that we just
     // adjusted instantaneously into NSE
@@ -251,7 +253,6 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
                             0.5_rt*dt, state.ydot_a,
                             rhoe_new, rhoaux_new, rhoX_new,
                             rhoe_source, rhoaux_source, state.T_fixed);
-
     }
 
     // this gives us the sources at n+1/2.  Now we do the full dt step,
@@ -265,7 +266,6 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
                             dt, state.ydot_a,
                             rhoe_new, rhoaux_new, rhoX_new,
                             rhoe_source, rhoaux_source, state.T_fixed);
-
     }
 
     // done with the integration.  This gave us a second-order
