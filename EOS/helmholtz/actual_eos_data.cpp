@@ -1,7 +1,7 @@
 #include <actual_eos_data.H>
 
-AMREX_GPU_MANAGED bool helmholtz::do_coulomb;
-AMREX_GPU_MANAGED bool helmholtz::input_is_constant;
+AMREX_GPU_MANAGED int helmholtz::do_coulomb;
+AMREX_GPU_MANAGED int helmholtz::input_is_constant;
 
 AMREX_GPU_MANAGED int helmholtz::itmax;
 AMREX_GPU_MANAGED int helmholtz::jtmax;
