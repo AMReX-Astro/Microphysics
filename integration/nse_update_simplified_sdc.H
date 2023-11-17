@@ -62,7 +62,7 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
 
     Real T_new;
     if (T_fixed > 0) {
-        T_new = T0;
+        T_new = T_fixed;
     } else {
         eos(eos_input_re, eos_state);
         T_new = eos_state.T;
@@ -290,7 +290,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         state.y[SFS+n] = rhoX_new[n];
     }
 
-    // aux data comes from the table (except Ye, which we predicted)
+    // aux data comes from the integration
 
     for (int n = 0; n < NumAux; ++n) {
         state.y[SFX+n] = rhoaux_new[n];
