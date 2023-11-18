@@ -116,7 +116,13 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
     rhoaux_source[iabar] = 0.0;
     rhoaux_source[iye] = rho_new * dyedt;
     rhoaux_source[ibea] = rho_dBEA / dt;
-;
+
+    // reset the new <B/A> -- we want to ensure that if we use the
+    // updated T(rho, e, Y_e, Abar) that we get exactly the same B/A,
+    // so there is no instantaneous change in the binding energy
+
+    rhoaux_new[ibea] = rho_new * bea_out;
+
 }
 
 ///
