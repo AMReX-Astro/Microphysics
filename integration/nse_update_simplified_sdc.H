@@ -66,6 +66,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // density and momentum have no reactive sources
     Real rho_old = state.y[SRHO];
     Real rho_bea_old = state.y[SFX+ibea];
+    Real rho_abar_old = state.y[SFX+iabar];
 
     state.y[SRHO] += dt * state.ydot_a[SRHO];
     state.y[SMX] += dt * state.ydot_a[SMX];
@@ -92,11 +93,12 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // predict the new aux for the first iteration -- this is really
     // just including the advection bits
 
-    for (int n = 0; n < NumAux; n++) {
-        rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * aux_source[n];
-    }
 
     for (int iter = 0; iter < integrator_rp::nse_iters; iter++) {
+
+        for (int n = 0; n < NumAux; n++) {
+            rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * aux_source[n];
+        }
 
         // update (rho e)^{n+1} based on the new energy generation rate
         rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_enucdot;
@@ -132,6 +134,9 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         Real rho_bea_tilde = state.y[SRHO] * dq_out - dt * state.ydot_a[SFX+ibea];
         Real rho_dBEA = rho_bea_tilde - rho_bea_old;  // this is MeV / nucleon * g / cm**3
 
+        Real rho_abar_tilde = state.y[SRHO] * abar_out - dt * state.ydot_a[SFX+iabar];
+        Real rho_dabar = rho_abar_tilde - rho_abar_old;  // this is MeV / nucleon * g / cm**3
+
         // convert the energy to erg / cm**3
         rho_enucdot  = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
 
@@ -139,8 +144,9 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
         aux_source[iye] = 0.5_rt * rho_half * (dyedt_old + dyedt);
         aux_source[ibea] = rho_dBEA / dt;
+        aux_source[iabar] = rho_dabar / dt;
 
-        rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * aux_source[iye];
+        //rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * aux_source[iye];
 
         rho_aux_new[iabar] = state.y[SRHO] * abar_out;
         rho_aux_new[ibea] = state.y[SRHO] * dq_out;
