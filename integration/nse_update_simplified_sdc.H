@@ -138,6 +138,8 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         // update the new state for the next pass
 
         aux_source[iye] = 0.5_rt * rho_half * (dyedt_old + dyedt);
+        aux_source[ibea] = rho_dBEA / dt;
+
         rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * aux_source[iye];
 
         rho_aux_new[iabar] = state.y[SRHO] * abar_out;
