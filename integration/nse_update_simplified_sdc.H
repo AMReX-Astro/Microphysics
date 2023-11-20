@@ -122,6 +122,7 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
     // so there is no instantaneous change in the binding energy
 
     rhoaux_new[ibea] = rho_new * bea_out;
+    rhoaux_new[iabar] = rho_new * abar_out;
 
 }
 
