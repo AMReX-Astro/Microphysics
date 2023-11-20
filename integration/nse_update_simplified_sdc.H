@@ -248,6 +248,24 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real rhoaux_new[NumAux];
     Real rhoX_new[NumSpec];
 
+    // evolve for eps dt -- the sources will be overwritten with the
+    // sources at the end point of this integration
+
+    {
+        constexpr bool skip_X_fill{true};
+
+        evolve<skip_X_fill>(rho_old, T_old, rhoe_old, rhoaux_old,
+                            0.05_rt*dt, state.ydot_a,
+                            rhoe_new, rhoaux_new, rhoX_new,
+                            rhoe_source, rhoaux_source, state.T_fixed);
+    }
+
+    //std::cout << "starting integration, dt = " << dt << std::endl;
+    //std::cout << " rhoe: " << rhoe_old << " " << rhoe_source << std::endl;
+    //std::cout << " rhoYe: " << rhoaux_old[iye] << " " << rhoaux_source[iye] << std::endl;
+    //std::cout << " rhoAbar: " << rhoaux_old[iabar] << " " << rhoaux_source[iabar] << std::endl;
+    //std::cout << " rhoBA: " << rhoaux_old[ibea] << " " << rhoaux_source[ibea] << std::endl;
+
     // evolve for dt/2 -- the sources will be overwritten with the
     // sources at the end point of this integration
 
@@ -260,9 +278,33 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
                             rhoe_source, rhoaux_source, state.T_fixed);
     }
 
+    // evolve from dt/2 to dt/2 + eps -- the sources will be overwritten with the
+    // sources at the end point of this integration
+
+    {
+        constexpr bool skip_X_fill{true};
+
+        Real rho_tmp = rho_old + 0.5*dt * state.ydot_a[SRHO];
+        Real rhoe_tmp{rhoe_new};
+        Real rhoaux_tmp[NumAux] = {rhoaux_new[0], rhoaux_new[1], rhoaux_new[2]};
+
+        evolve<skip_X_fill>(rho_tmp, T_old, rhoe_tmp, rhoaux_tmp,
+                            0.05_rt*dt, state.ydot_a,
+                            rhoe_new, rhoaux_new, rhoX_new,
+                            rhoe_source, rhoaux_source, state.T_fixed);
+    }
+
     // this gives us the sources at n+1/2.  Now we do the full dt step,
     // starting again from the beginning, but using the time-centered
     // sources
+
+
+    //std::cout << "second half of integration, dt = " << dt << std::endl;
+    //std::cout << " rhoe: " << rhoe_old << " " << rhoe_source << std::endl;
+    //std::cout << " rhoYe: " << rhoaux_old[iye] << " " << rhoaux_source[iye] << std::endl;
+    //std::cout << " rhoAbar: " << rhoaux_old[iabar] << " " << rhoaux_source[iabar] << std::endl;
+    //std::cout << " rhoBA: " << rhoaux_old[ibea] << " " << rhoaux_source[ibea] << std::endl;
+
 
     {
         constexpr bool skip_X_fill{false};
@@ -277,6 +319,14 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // accurate update to the rhoe and Ye, and the aux data and mass
     // fractions are consistent with the NSE table at the end of the
     // integration
+
+    //std::cout << "done" << std::endl;
+    //std::cout << " rhoe: " << rhoe_new << std::endl;
+    //std::cout << " rhoYe: " << rhoaux_new[iye] << std::endl;
+    //std::cout << " rhoAbar: " << rhoaux_new[iabar] << std::endl;
+    //std::cout << " rhoBA: " << rhoaux_new[ibea] << std::endl;
+
+    //amrex::Error("stop");
 
     // now update the aux quantities
 
