@@ -32,43 +32,30 @@ using namespace amrex;
 /// on input, *_source are the reactive sources at time t0 and on output
 /// they are the sources at time t0+dt
 ///
-template <bool skip_X_fill>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux0,
-            const Real dt, const Real *ydot_a,
-            Real& rhoe_new, Real* rhoaux_new, Real* rhoX_new,
-            Real& rhoe_source, Real* rhoaux_source, const Real T_fixed) {
+void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
+                const Real dt, const Real *ydot_a,
+                Real& drhoedt, Real* drhoauxdt, const Real T_fixed) {
 
-    // integrate rho to the new time
-
-    Real rho_new = rho0 + dt * ydot_a[SRHO];
-
-    // integrate rhoe and rhoaux using the input sources
-
-    rhoe_new = rhoe0 + dt * ydot_a[SEINT] + dt * rhoe_source;
-    for (int n = 0; n < NumAux; n++) {
-        rhoaux_new[n] = rhoaux0[n] + dt * ydot_a[SFX+n] + dt * rhoaux_source[n];
-    }
-
-    // find the temperature at t0 + dt
+    // start with the current state and compute T
 
     eos_t eos_state;
-    eos_state.rho = rho_new;
-    eos_state.e = rhoe_new / rho_new;
-    eos_state.T = T0;
+    eos_state.rho = rho0;
+    eos_state.e = rhoe0 / rho0;
+    eos_state.T = 1.e8;  // guess
     for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = rhoaux_new[n] / rho_new;
+        eos_state.aux[n] = rhoaux0[n] / rho0;
     }
 
-    Real T_new;
+    Real T0;
     if (T_fixed > 0) {
-        T_new = T_fixed;
+        T0 = T_fixed;
     } else {
         eos(eos_input_re, eos_state);
-        T_new = eos_state.T;
+        T0 = eos_state.T;
     }
 
-    // compute the plasma neutrino losses at t0 + dt
+    // compute the plasma neutrino losses at t0
 
     Real snu{0.0};
     Real dsnudt{0.0};
@@ -80,49 +67,87 @@ void evolve(const Real rho0, const Real T0, const Real rhoe0, const Real *rhoaux
     Real zbar = abar * eos_state.aux[iye];
 
     constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T_new, rho_new, abar, zbar,
+    sneut5<do_derivatives>(T0, rho0, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
 
-    // call the NSE table
+    // call the NSE table at t0
 
-    Real abar_out;
-    Real bea_out;
-    Real dyedt;
+    Real abar0_out;
+    Real bea0_out;
+    Real dyedt0;
     Real dabardt;
     Real dbeadt;
     Real enu;
+    Real X[NumSpec];
 
-    nse_interp(T_new, rho_new, eos_state.aux[iye],
-               abar_out, bea_out, dyedt, dabardt, dbeadt, enu, rhoX_new,
+    constexpr bool skip_X_fill{true};
+
+    nse_interp(T0, rho0, eos_state.aux[iye],
+               abar0_out, bea0_out, dyedt0, dabardt, dbeadt, enu, X,
                skip_X_fill);
 
-    if constexpr (!skip_X_fill) {
-        for (int n = 0; n < NumSpec; ++n) {
-            rhoX_new[n] *= rho_new;
-        }
+    // construct initial sources at t0
+
+    Real rhoe_source = -rho0 * (enu + snu);
+    Real rhoaux_source[NumAux];
+    rhoaux_source[iye] = rho0 * dyedt0;
+    rhoaux_source[iabar] = 0.0;
+    rhoaux_source[ibea] = rho0 * dbeadt;
+
+    // evolve for eps * dt;
+
+    Real tau = 0.05 * dt;
+
+    Real rho1 = rho0 + tau * ydot_a[SRHO];
+    Real rhoe1 = rhoe0 + tau * ydot_a[SEINT] + tau * rhoe_source;
+    Real rhoaux1[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        rhoaux1[n] = rhoaux0[n] + tau * ydot_a[SFX+n] + tau * rhoaux_source[n];
     }
 
-    // construct the sources at time t0+dt
+    // compute the temperature at t0 + tau
+
+    eos_state.rho = rho1;
+    eos_state.e = rhoe1 / rho1;
+    eos_state.T = T0;
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = rhoaux1[n] / rho1;
+    }
+
+    Real T1;
+    if (T_fixed > 0) {
+        T1 = T_fixed;
+    } else {
+        eos(eos_input_re, eos_state);
+        T1 = eos_state.T;
+    }
+
+    // call NSE at t0 + tau
+
+    Real abar1_out;
+    Real bea1_out;
+    Real dyedt1;
+
+    nse_interp(T1, rho1, eos_state.aux[iye],
+               abar1_out, bea1_out, dyedt1, dabardt, dbeadt, enu, X,
+               skip_X_fill);
+
 
     // note that abar, (B/A) here have already seen advection
     // implicitly
 
-    Real rho_bea_tilde = rho_new * bea_out - dt * ydot_a[SFX+ibea];
-    Real rho_dBEA = rho_bea_tilde - rhoaux0[ibea]; // this is MeV / nucleon * g / cm**3
+    Real rho_bea_tilde = rho1 * bea1_out - tau * ydot_a[SFX+ibea];
+    Real rho_dBEA = rho_bea_tilde - rho0 * bea0_out; // this is MeV / nucleon * g / cm**3
 
-    rhoe_source = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
-    rhoe_source -= rho_new * (enu + snu);
+    Real rho_abar_tilde = rho1 * abar1_out - tau * ydot_a[SFX+iabar];
+    Real rho_dabar = rho_abar_tilde - rho0 * abar0_out; // this is MeV / nucleon * g / cm**3
 
-    rhoaux_source[iabar] = 0.0;
-    rhoaux_source[iye] = rho_new * dyedt;
-    rhoaux_source[ibea] = rho_dBEA / dt;
+    drhoedt = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+    drhoedt -= rho0 * (enu + snu);
 
-    // reset the new <B/A> -- we want to ensure that if we use the
-    // updated T(rho, e, Y_e, Abar) that we get exactly the same B/A,
-    // so there is no instantaneous change in the binding energy
-
-    rhoaux_new[ibea] = rho_new * bea_out;
-    rhoaux_new[iabar] = rho_new * abar_out;
+    drhoauxdt[iabar] = rho_dabar / dt;
+    drhoauxdt[iye] = rho0 * dyedt0;
+    drhoauxdt[ibea] = rho_dBEA / dt;
 
 }
 
@@ -140,39 +165,80 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     state.n_rhs = 0;
     state.n_jac = 0;
 
-    // we need the initial Ye to get the NSE state.  We also
-    // want the initial rho <B/A> since we may not be entering
-    // this routine already in NSE.  This means that there will
-    // be an energy release from us instantaneously adjusting
-    // into NSE (the first call to nse_interp) + an energy
-    // release from the evolution of NSE over the timestep
+    // store the initial state
 
-    // we will write the energy update as:
-    //
-    // e^new = e^old + dbea_instantantous + dbea_over_dt
-    //
-    // where dbea_over_dt will be an integral over dt using
-    // a simple RK2 method
-
-    Real ye_in = state.y[SFX+iye] / state.rho;
-    Real rho_bea_orig = state.y[SFX+ibea];
-    Real rhoe_orig = state.y[SEINT];
+    Real rho_old = state.y[SRHO];
+    Real rhoe_old = state.y[SEINT];
+    Real rhoaux_old[NumAux];
+    for (int n = 0; n < NumSpec; ++n) {
+        rhoaux_old[n] = state.y[SFX+n];
+    }
 
     // density and momentum have no reactive sources
-    Real rho_old = state.y[SRHO];
 
     state.y[SRHO] += dt * state.ydot_a[SRHO];
     state.y[SMX] += dt * state.ydot_a[SMX];
     state.y[SMY] += dt * state.ydot_a[SMY];
     state.y[SMZ] += dt * state.ydot_a[SMZ];
 
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
+    // do an RK2 integration
 
-    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+    // get the derivatives at t = t^n
 
-    // get the instantaneous change in B/A, as well as the source
-    // terms for the new evolution.
+    Real drhoedt;
+    Real drhoauxdt[NumSpec];
+
+    nse_derivs(rho_old, rhoe_old, rhoaux_old,
+               dt, state.ydot_a,
+               drhoedt, drhoauxdt, state.T_fixed);
+
+    // evolve to the midpoint in time
+
+    Real rho_tmp = rho_old + 0.5_rt * dt * state.ydot_a[SRHO];
+    Real rhoe_tmp = rhoe_old + 0.5_rt * dt * (state.ydot_a[SEINT] + drhoedt);
+    Real rhoaux_tmp[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        rhoaux_tmp[n] = rhoaux_old[n] +
+            0.5_rt * dt * (state.ydot_a[SFX+n] + drhoauxdt[n]);
+    }
+
+    // compute the derivatives at the midpoint in time
+
+    nse_derivs(rho_tmp, rhoe_tmp, rhoaux_tmp,
+               dt, state.ydot_a,
+               drhoedt, drhoauxdt, state.T_fixed);
+
+    // evolve to the new time
+
+    Real rho_new = rho_old + dt * state.ydot_a[SRHO];
+    Real rhoe_new = rhoe_old + dt * (state.ydot_a[SEINT] + drhoedt);
+    Real rhoaux_new[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        rhoaux_tmp[n] = rhoaux_old[n] +
+            dt * (state.ydot_a[SFX+n] + drhoauxdt[n]);
+    }
+
+    // get the new temperature
+
+    eos_t eos_state;
+    eos_state.rho = rho_new;
+    eos_state.e = rhoe_new / rho_new;
+    eos_state.T = 1.e8;  // guess
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = rhoaux_new[n] / rho_new;
+    }
+
+    Real T_new;
+    if (state.T_fixed > 0) {
+        T_new = state.T_fixed;
+    } else {
+        eos(eos_input_re, eos_state);
+        T_new = eos_state.T;
+    }
+
+    // do a final NSE call -- we want the ending B/A to be consistent
+    // with our thermodynamic state here, plus we need to get the mass
+    // fractions
 
     Real abar_out{};
     Real bea_out{};
@@ -182,184 +248,42 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real enu{};
     Real X[NumSpec] = {};
 
-    {
-        constexpr bool skip_X_fill{true};
+    constexpr bool skip_X_fill{false};
 
-        nse_interp(T_in, state.rho, ye_in,
-                   abar_out, bea_out, dyedt, dabardt, dbeadt, enu, X, skip_X_fill);
-    }
+    nse_interp(T_new, rho_new, eos_state.aux[iye],
+               abar_out, bea_out, dyedt, dabardt, dbeadt, enu, X, skip_X_fill);
 
-    // the starting state for integration uses the state that we just
-    // adjusted instantaneously into NSE
-
-    Real rhoaux_old[NumAux];
-    rhoaux_old[iye] = rho_old * ye_in;
-    rhoaux_old[iabar] = rho_old * abar_out;
-    rhoaux_old[ibea] = rho_old * bea_out;
-
-    Real rhoenuc = (rho_old * bea_out - rho_bea_orig) * C::MeV2eV * C::ev2erg * C::n_A;
-    Real rhoe_old = state.y[SEINT] + rhoenuc;
-
-
-    // get the starting temperature
-
-    eos_t eos_state;
-    eos_state.rho = rho_old;
-    eos_state.e = rhoe_old / rho_old;
-    for (int n = 0; n < NumAux; ++n) {
-        eos_state.aux[n] = rhoaux_old[n] / rho_old;
-    }
-    eos_state.T = T_in;
-
-    Real T_old;
-    if (state.T_fixed > 0) {
-        T_old = state.T_fixed;
-    } else {
-        eos(eos_input_re, eos_state);
-        T_old = eos_state.T;
-    }
-
-    // start of integration
-
-    // we want to integrate from t^n to t^{n+1/2}
-    // start by computing the sources
-
-    // the aux sources are just due to weak rates
-    Real rhoaux_source[NumAux];
-    rhoaux_source[iye] = rho_old * dyedt;
-    rhoaux_source[ibea] = rho_old * dbeadt;
-    rhoaux_source[iabar] = 0.0;
-
-    // the energy source is due to plasma neutrinos + weak rate neutrinos
-
-    Real snu{};
-    Real dsnudt{};
-    Real dsnudd{};
-    Real dsnuda{};
-    Real dsnudz{};
-    constexpr int do_derivatives = 0;
-
-    Real zbar = abar_out * ye_in;
-    sneut5<do_derivatives>(T_old, rho_old, abar_out, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
-    Real rhoe_source = -rho_old * (snu + enu);
-
-    Real rhoe_new;
-    Real rhoaux_new[NumAux];
-    Real rhoX_new[NumSpec];
-
-    // evolve for eps dt -- the sources will be overwritten with the
-    // sources at the end point of this integration
-
-    {
-        constexpr bool skip_X_fill{true};
-
-        evolve<skip_X_fill>(rho_old, T_old, rhoe_old, rhoaux_old,
-                            0.05_rt*dt, state.ydot_a,
-                            rhoe_new, rhoaux_new, rhoX_new,
-                            rhoe_source, rhoaux_source, state.T_fixed);
-    }
-
-    //std::cout << "starting integration, dt = " << dt << std::endl;
-    //std::cout << " rhoe: " << rhoe_old << " " << rhoe_source << std::endl;
-    //std::cout << " rhoYe: " << rhoaux_old[iye] << " " << rhoaux_source[iye] << std::endl;
-    //std::cout << " rhoAbar: " << rhoaux_old[iabar] << " " << rhoaux_source[iabar] << std::endl;
-    //std::cout << " rhoBA: " << rhoaux_old[ibea] << " " << rhoaux_source[ibea] << std::endl;
-
-    // evolve for dt/2 -- the sources will be overwritten with the
-    // sources at the end point of this integration
-
-    {
-        constexpr bool skip_X_fill{true};
-
-        evolve<skip_X_fill>(rho_old, T_old, rhoe_old, rhoaux_old,
-                            0.5_rt*dt, state.ydot_a,
-                            rhoe_new, rhoaux_new, rhoX_new,
-                            rhoe_source, rhoaux_source, state.T_fixed);
-    }
-
-    // evolve from dt/2 to dt/2 + eps -- the sources will be overwritten with the
-    // sources at the end point of this integration
-
-    {
-        constexpr bool skip_X_fill{true};
-
-        Real rho_tmp = rho_old + 0.5*dt * state.ydot_a[SRHO];
-        Real rhoe_tmp{rhoe_new};
-        Real rhoaux_tmp[NumAux] = {rhoaux_new[0], rhoaux_new[1], rhoaux_new[2]};
-
-        evolve<skip_X_fill>(rho_tmp, T_old, rhoe_tmp, rhoaux_tmp,
-                            0.05_rt*dt, state.ydot_a,
-                            rhoe_new, rhoaux_new, rhoX_new,
-                            rhoe_source, rhoaux_source, state.T_fixed);
-    }
-
-    // this gives us the sources at n+1/2.  Now we do the full dt step,
-    // starting again from the beginning, but using the time-centered
-    // sources
-
-
-    //std::cout << "second half of integration, dt = " << dt << std::endl;
-    //std::cout << " rhoe: " << rhoe_old << " " << rhoe_source << std::endl;
-    //std::cout << " rhoYe: " << rhoaux_old[iye] << " " << rhoaux_source[iye] << std::endl;
-    //std::cout << " rhoAbar: " << rhoaux_old[iabar] << " " << rhoaux_source[iabar] << std::endl;
-    //std::cout << " rhoBA: " << rhoaux_old[ibea] << " " << rhoaux_source[ibea] << std::endl;
-
-
-    {
-        constexpr bool skip_X_fill{false};
-
-        evolve<skip_X_fill>(rho_old, T_old, rhoe_old, rhoaux_old,
-                            dt, state.ydot_a,
-                            rhoe_new, rhoaux_new, rhoX_new,
-                            rhoe_source, rhoaux_source, state.T_fixed);
-    }
-
-    // done with the integration.  This gave us a second-order
-    // accurate update to the rhoe and Ye, and the aux data and mass
-    // fractions are consistent with the NSE table at the end of the
-    // integration
-
-    //std::cout << "done" << std::endl;
-    //std::cout << " rhoe: " << rhoe_new << std::endl;
-    //std::cout << " rhoYe: " << rhoaux_new[iye] << std::endl;
-    //std::cout << " rhoAbar: " << rhoaux_new[iabar] << std::endl;
-    //std::cout << " rhoBA: " << rhoaux_new[ibea] << std::endl;
-
-    //amrex::Error("stop");
-
-    // now update the aux quantities
+    // store the new state
 
     // the new mass fractions are just those that come from the table
     // make sure they are normalized
-    Real sum_rhoX{0.0_rt};
-    for (auto & rx : rhoX_new) {
-        rx = amrex::max(state.y[SRHO] * small_x, amrex::min(state.y[SRHO], rx));
-        sum_rhoX += rx;
+
+    Real sum_X{0.0_rt};
+    for (auto & xn : X) {
+        xn = amrex::max(small_x, amrex::min(1.0_rt, xn));
+        sum_X += xn;
     }
 
-    for (auto & rx : rhoX_new) {
-        rx /= sum_rhoX;
+    for (auto & xn : X) {
+        xn /= sum_X;
     }
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = rhoX_new[n];
+        state.y[SFS+n] = rho_new * X[n];
     }
 
-    // aux data comes from the integration
+    // aux data comes from the integration or the table
 
-    for (int n = 0; n < NumAux; ++n) {
-        state.y[SFX+n] = rhoaux_new[n];
-    }
-
+    state.y[SFX+iye] = rhoaux_new[iye];
+    state.y[SFX+iabar] = rho_new * abar_out;
+    state.y[SFX+ibea] = rho_new * bea_out;
 
     // density and momenta have already been updated
 
     // get the energy release from the change in rhoe over the timestep
     // excluding any advection, and use that to update the total energy
 
-    Real rho_enucdot = (rhoe_new - rhoe_orig) / dt - state.ydot_a[SEINT];
+    Real rho_enucdot = (rhoe_new - rhoe_old) / dt - state.ydot_a[SEINT];
 
     state.y[SEINT] = rhoe_new;
     state.y[SEDEN] += dt * state.ydot_a[SEDEN] + dt * rho_enucdot;
