@@ -39,7 +39,7 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     // start with the current state and compute T
 
-    eos_t eos_state;
+    eos_re_t eos_state;
     eos_state.rho = rho0;
     eos_state.e = rhoe0 / rho0;
     eos_state.T = 1.e8;  // guess
@@ -214,13 +214,13 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real rhoe_new = rhoe_old + dt * (state.ydot_a[SEINT] + drhoedt);
     Real rhoaux_new[NumAux];
     for (int n = 0; n < NumAux; ++n) {
-        rhoaux_tmp[n] = rhoaux_old[n] +
+        rhoaux_new[n] = rhoaux_old[n] +
             dt * (state.ydot_a[SFX+n] + drhoauxdt[n]);
     }
 
     // get the new temperature
 
-    eos_t eos_state;
+    eos_re_t eos_state;
     eos_state.rho = rho_new;
     eos_state.e = rhoe_new / rho_new;
     eos_state.T = 1.e8;  // guess
