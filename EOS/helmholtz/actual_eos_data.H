@@ -6,13 +6,13 @@
 
 namespace helmholtz
 {
-    extern AMREX_GPU_MANAGED bool do_coulomb;
-    extern AMREX_GPU_MANAGED bool input_is_constant;
+    extern AMREX_GPU_MANAGED int do_coulomb;
+    extern AMREX_GPU_MANAGED int input_is_constant;
 
     // for the tables
 
-    const int imax = 541;
-    const int jmax = 201;
+    constexpr int imax = 541;
+    constexpr int jmax = 201;
 
     extern AMREX_GPU_MANAGED int itmax;
     extern AMREX_GPU_MANAGED int jtmax;
@@ -57,10 +57,10 @@ namespace helmholtz
     extern AMREX_GPU_MANAGED amrex::Real dd2i_sav[imax];
 
     // 2006 CODATA physical constants
-    const amrex::Real h = 6.6260689633e-27;
-    const amrex::Real avo_eos = 6.0221417930e23;
-    const amrex::Real kerg = 1.380650424e-16;
-    const amrex::Real amu = 1.66053878283e-24;
+    constexpr amrex::Real h = 6.6260689633e-27;
+    constexpr amrex::Real avo_eos = 6.0221417930e23;
+    constexpr amrex::Real kerg = 1.380650424e-16;
+    constexpr amrex::Real amu = 1.66053878283e-24;
 }
 
 #endif

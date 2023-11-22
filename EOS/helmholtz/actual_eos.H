@@ -155,9 +155,9 @@ void apply_electrons (T& state)
 
     // hash locate this temperature and density
     int jat = int((std::log10(state.T) - tlo) * tstpi) + 1;
-    jat = amrex::max(1, amrex::min(jat, jtmax-1)) - 1;
+    jat = amrex::max(1, amrex::min(jat, jmax-1)) - 1;
     int iat = int((std::log10(din) - dlo) * dstpi) + 1;
-    iat = amrex::max(1, amrex::min(iat, itmax-1)) - 1;
+    iat = amrex::max(1, amrex::min(iat, imax-1)) - 1;
 
     Real fi[36];
 
@@ -477,9 +477,9 @@ void apply_ions (T& state)
 {
     using namespace helmholtz;
 
-    const Real pi      = 3.1415926535897932384e0_rt;
-    const Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
-    const Real kergavo = kerg * avo_eos;
+    constexpr Real pi      = 3.1415926535897932384e0_rt;
+    constexpr Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
+    constexpr Real kergavo = kerg * avo_eos;
 
     Real deni = 1.0e0_rt / state.rho;
     Real tempi = 1.0e0_rt / state.T;
@@ -553,14 +553,14 @@ void apply_radiation (T& state)
 {
     using namespace helmholtz;
 
-    const Real clight  = 2.99792458e10_rt;
+    constexpr Real clight  = 2.99792458e10_rt;
 #ifdef RADIATION
-    const Real ssol    = 0.0e0_rt;
+    constexpr Real ssol    = 0.0e0_rt;
 #else
-    const Real ssol    = 5.67051e-5_rt;
+    constexpr Real ssol    = 5.67051e-5_rt;
 #endif
-    const Real asol    = 4.0e0_rt * ssol / clight;
-    const Real asoli3  = asol/3.0e0_rt;
+    constexpr Real asol    = 4.0e0_rt * ssol / clight;
+    constexpr Real asoli3  = asol/3.0e0_rt;
 
     Real deni = 1.0e0_rt / state.rho;
     Real tempi = 1.0e0_rt / state.T;
@@ -638,19 +638,19 @@ void apply_coulomb_corrections (T& state)
     using namespace helmholtz;
 
     // Constants used for the Coulomb corrections
-    const Real a1 = -0.898004e0_rt;
-    const Real b1 =  0.96786e0_rt;
-    const Real c1 =  0.220703e0_rt;
-    const Real d1 = -0.86097e0_rt;
-    const Real e1 =  2.5269e0_rt;
-    const Real a2 =  0.29561e0_rt;
-    const Real b2 =  1.9885e0_rt;
-    const Real c2 =  0.288675e0_rt;
-    const Real qe   = 4.8032042712e-10_rt;
-    const Real esqu = qe * qe;
-    const Real onethird = 1.0e0_rt/3.0e0_rt;
-    const Real forth = 4.0e0_rt/3.0e0_rt;
-    const Real pi    = 3.1415926535897932384e0_rt;
+    constexpr Real a1 = -0.898004e0_rt;
+    constexpr Real b1 =  0.96786e0_rt;
+    constexpr Real c1 =  0.220703e0_rt;
+    constexpr Real d1 = -0.86097e0_rt;
+    constexpr Real e1 =  2.5269e0_rt;
+    constexpr Real a2 =  0.29561e0_rt;
+    constexpr Real b2 =  1.9885e0_rt;
+    constexpr Real c2 =  0.288675e0_rt;
+    constexpr Real qe   = 4.8032042712e-10_rt;
+    constexpr Real esqu = qe * qe;
+    constexpr Real onethird = 1.0e0_rt/3.0e0_rt;
+    constexpr Real forth = 4.0e0_rt/3.0e0_rt;
+    constexpr Real pi    = 3.1415926535897932384e0_rt;
 
     [[maybe_unused]] Real pcoul    = 0.e0_rt;
     [[maybe_unused]] Real dpcouldd = 0.e0_rt;
@@ -1242,7 +1242,7 @@ void actual_eos (I input, T& state)
 
     using namespace helmholtz;
 
-    const int max_newton = 100;
+    constexpr int max_newton = 100;
 
     bool single_iter, converged;
     int var{}, dvar{}, var1, var2;
@@ -1306,7 +1306,6 @@ void actual_eos_init ()
 
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
-    Real tsav, dsav;
 
     // Read in the runtime parameters
 
@@ -1316,8 +1315,6 @@ void actual_eos_init ()
     dtol = eos_dtol;
 
     //    read the helmholtz free energy table
-    itmax = imax;
-    jtmax = jmax;
     tlo   = 3.0e0_rt;
     thi   = 13.0e0_rt;
     tstp  = (thi - tlo) / ((Real) (jmax-1));
@@ -1328,10 +1325,10 @@ void actual_eos_init ()
     dstpi = 1.0e0_rt / dstp;
 
     for (int j = 0; j < jmax; ++j) {
-        tsav = tlo + j * tstp;
+        Real tsav = tlo + j * tstp;
         t[j] = std::pow(10.0e0_rt, tsav);
         for (int i = 0; i < imax; ++i) {
-            dsav = dlo + i * dstp;
+            Real dsav = dlo + i * dstp;
             d[i] = std::pow(10.0e0_rt, dsav);
         }
     }
@@ -1508,4 +1505,3 @@ bool is_input_valid (I input)
 }
 
 #endif
-
