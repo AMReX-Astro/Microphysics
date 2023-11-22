@@ -15,9 +15,10 @@ Shen & Bildsten discuss the sequences:
 * n14(a, g)f18(a, p)ne21 is the one they consider important, since it
   produces protons that are then available for c12(p, g)n13(a, p)o16.
 
-  Note that, this leaves ne21 as an endpoint, which we need to connect by including na22.
-  However, adding na22 only makes it as another endpoint, failing to resolve the issue,
-  resulting in a network with a second endpoint other than ni56.
+  Note that, this leaves ne21 as an endpoint, which we need to connect by
+  including na22. However, adding na22 only makes it as another endpoint,
+  failing to resolve the issue, resulting in a network with a second
+  endpoint other than ni56.
 
 For the c12+c12, c12+o16, and o16+o16 rates, we also need to include
 c12(c12,n)mg23(n, g)mg24, o16(o16, n)s31(n, g)s32,
