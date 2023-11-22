@@ -1,12 +1,13 @@
-# The base of subch networks for He/C burning with key rates
+# subch_base network for He/C burning with key rates
 # to bypass the C12(a,g)O16 rate.
 # This is a further simplification of subch_simple by
-# removing N14, F18, Ne21, and Na22
+# removing N14, F18, Ne21, and Na22.
 
 import pynucastro as pyna
 from pynucastro.networks import AmrexAstroCxxNetwork
 
 DO_DERIVED_RATES = True
+
 
 def get_library():
 
@@ -79,6 +80,7 @@ def get_library():
 
     return subch
 
+
 def doit():
 
     subch = get_library()
@@ -110,7 +112,7 @@ def doit():
              rotated=True, hide_xalpha=True, curved_edges=True,
              size=(1500, 450),
              node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
-             Z_range=(1,29))
+             Z_range=(1, 29))
 
     net.write_network()
 
