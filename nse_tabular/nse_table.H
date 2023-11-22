@@ -26,27 +26,43 @@ void init_nse() {
 
   amrex::Print() << "reading the NSE table (C++) ..." << std::endl;
 
-  nse_table.open("nse.tbl", std::ios::in);
+  nse_table.open(nse_table_size::table_name, std::ios::in);
   if (nse_table.fail()) {
-      amrex::Error("unable to open nse.tbl");
+      amrex::Error("unable to open NSE table: " + nse_table_size::table_name);
   }
 
-  Real the, tsi, tfe;
   Real ttemp, tdens, tye;
 
-  for (int irho = 1; irho <= nse_table::nden; irho++) {
-    for (int it9 = 1; it9 <= nse_table::ntemp; it9++) {
-      for (int iye = 1; iye <= nse_table::nye; iye++) {
-        int j = (irho-1)*nse_table::ntemp*nse_table::nye + (it9-1)*nse_table::nye + iye;
+  // skip the header -- it is 4 lines
+  std::string line;
+  std::getline(nse_table, line);
+  std::getline(nse_table, line);
+  std::getline(nse_table, line);
+  std::getline(nse_table, line);
 
-        nse_table >> ttemp >> tdens >> tye;
-        nse_table >> the >> tsi >> tfe;
-        nse_table >> nse_table::abartab(j) >> nse_table::ebtab(j) >> nse_table::wratetab(j);
-        for (int n = 1; n <= NumSpec; n++) {
-          nse_table >> nse_table::massfractab(n, j);
-        }
+  for (int irho = 1; irho <= nse_table_size::nden; irho++) {
+      for (int it = 1; it <= nse_table_size::ntemp; it++) {
+          for (int iye = 1; iye <= nse_table_size::nye; iye++) {
+              int j = (irho-1) * nse_table_size::ntemp * nse_table_size::nye +
+                  (it-1) * nse_table_size::nye + iye;
+
+              std::getline(nse_table, line);
+              if (line.empty()) {
+                  amrex::Error("Error reading from the NSE table");
+              }
+              std::istringstream data(line);
+              data >> ttemp >> tdens >> tye;
+              data >> nse_table::abartab(j)
+                   >> nse_table::beatab(j)
+                   >> nse_table::dyedttab(j)
+                   >> nse_table::dabardttab(j)
+                   >> nse_table::dbeadttab(j)
+                   >> nse_table::enutab(j);
+              for (int n = 1; n <= NumSpec; n++) {
+                  data >> nse_table::massfractab(n, j);
+              }
+          }
       }
-    }
   }
 
 }
@@ -54,22 +70,22 @@ void init_nse() {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_idx(const int ir, const int it, const int ic) {
     // this uses a 1-based indexing
-    return (ir-1) * nse_table::ntemp * nse_table::nye + (it-1) * nse_table::nye + ic;
+    return (ir-1) * nse_table_size::ntemp * nse_table_size::nye + (it-1) * nse_table_size::nye + ic;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real nse_table_logT(const int it) {
-    return 9.0_rt + static_cast<Real>(it-1) * nse_table::dlogT;
+    return nse_table_size::logT_min + static_cast<Real>(it-1) * nse_table_size::dlogT;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real nse_table_logrho(const int ir) {
-    return 7.0_rt + static_cast<Real>(ir-1) * nse_table::dlogrho;
+    return nse_table_size::logrho_min + static_cast<Real>(ir-1) * nse_table_size::dlogrho;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real nse_table_ye(const int ic) {
-    return 0.50_rt - static_cast<Real>(ic-1) * nse_table::dye;
+    return nse_table_size::ye_max - static_cast<Real>(ic-1) * nse_table_size::dye;
 }
 
 // return the index in the table such that logrho[irho] < input density
@@ -77,7 +93,8 @@ Real nse_table_ye(const int ic) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_get_logrho_index(const Real logrho) {
 
-    int ir0 = static_cast<int>((logrho - 7.0_rt) / nse_table::dlogrho - 1.e-6_rt);
+    int ir0 = static_cast<int>((logrho - nse_table_size::logrho_min) /
+                               nse_table_size::dlogrho - 1.e-6_rt);
     return ir0 + 1;
 }
 
@@ -86,7 +103,8 @@ int nse_get_logrho_index(const Real logrho) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_get_logT_index(const Real logT) {
 
-    int it0 = static_cast<int>((logT - 9.0_rt) / nse_table::dlogT - 1.e-6_rt);
+    int it0 = static_cast<int>((logT - nse_table_size::logT_min) /
+                               nse_table_size::dlogT - 1.e-6_rt);
     return it0 + 1;
 }
 
@@ -95,7 +113,8 @@ int nse_get_logT_index(const Real logT) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int nse_get_ye_index(const Real ye) {
 
-    int ic0 = static_cast<int>((0.50_rt - ye) / nse_table::dye - 1.0e-6_rt);
+    int ic0 = static_cast<int>((nse_table_size::ye_max - ye) /
+                               nse_table_size::dye - 1.0e-6_rt);
     return ic0 + 1;
 }
 
@@ -136,9 +155,9 @@ Real trilinear(const int ir1, const int it1, const int ic1,
     Real r0 = nse_table_logrho(ir1);
     Real x0 = nse_table_ye(ic1);
 
-    Real td = (temp - t0) / nse_table::dlogT;
-    Real rd = (rho - r0) / nse_table::dlogrho;
-    Real xd = (x0 - ye) / nse_table::dye;
+    Real td = (temp - t0) / nse_table_size::dlogT;
+    Real rd = (rho - r0) / nse_table_size::dlogrho;
+    Real xd = (x0 - ye) / nse_table_size::dye;
     xd = amrex::max(0.0_rt, xd);
 
     Real omtd = 1.0_rt - td;
@@ -192,7 +211,7 @@ Real tricubic(const int ir0, const int it0, const int ic0,
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
-            d1[ii][jj] = cubic(yes, _d, -nse_table::dye, ye);
+            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye);
         }
     }
 
@@ -203,12 +222,12 @@ Real tricubic(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
 
         Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
-        d2[ii] = cubic(Ts, _d, nse_table::dlogT, temp);
+        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
     }
 
     // finally do the remaining interpolation over rho
 
-    Real val = cubic(rhos, d2, nse_table::dlogrho, rho);
+    Real val = cubic(rhos, d2, nse_table_size::dlogrho, rho);
 
     return val;
 
@@ -216,16 +235,20 @@ Real tricubic(const int ir0, const int it0, const int ic0,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(const Real T, const Real rho, const Real ye,
-                Real& abar, Real& dq, Real& dyedt, Real* X, bool skip_X_fill=false) {
+                Real& abar, Real& bea, Real& dyedt, Real& dabardt, Real& dbeadt, Real& e_nu,
+                Real* X, bool skip_X_fill=false) {
 
     // if skip_X_fill = true then we don't fill X[] with the mass fractions.
 
     using namespace nse_table;
     using namespace AuxZero;
 
-    Real rholog = amrex::max(7.0_rt, amrex::min(10.0_rt, std::log10(rho)));
-    Real tlog = amrex::max(9.0_rt, amrex::min(10.4_rt, std::log10(T)));
-    Real yet = amrex::max(0.40_rt, amrex::min(0.50_rt, ye));
+    Real rholog = amrex::max(nse_table_size::logrho_min,
+                             amrex::min(nse_table_size::logrho_max, std::log10(rho)));
+    Real tlog = amrex::max(nse_table_size::logT_min,
+                           amrex::min(nse_table_size::logT_max, std::log10(T)));
+    Real yet = amrex::max(nse_table_size::ye_min,
+                          amrex::min(nse_table_size::ye_max, ye));
 
     if (nse_table_interp_linear) {
 
@@ -234,14 +257,11 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         int ic1 = nse_get_ye_index(yet);
 
         abar = trilinear(ir1, it1, ic1, rholog, tlog, yet, abartab);
-        dq = trilinear(ir1, it1, ic1, rholog, tlog, yet, ebtab);
-        dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, wratetab);
-
-        // this is actually the sum of all e- capture and e+ decay, so if
-        // e- capture dominates, this quantity is positive, but Ye should
-        // decrease, so we swap the sign here.
-
-        dyedt = -dyedt;
+        bea = trilinear(ir1, it1, ic1, rholog, tlog, yet, beatab);
+        dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dyedttab);
+        dabardt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dabardttab);
+        dbeadt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dbeadttab);
+        e_nu = trilinear(ir1, it1, ic1, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
@@ -262,23 +282,20 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         // so we offset one to the left and also ensure that we don't go off the table
 
         int ir0 = nse_get_logrho_index(rholog) - 1;
-        ir0 = amrex::max(1, amrex::min(nse_table::nden-3, ir0));
+        ir0 = amrex::max(1, amrex::min(nse_table_size::nden-3, ir0));
 
         int it0 = nse_get_logT_index(tlog) - 1;
-        it0 = amrex::max(1, amrex::min(nse_table::ntemp-3, it0));
+        it0 = amrex::max(1, amrex::min(nse_table_size::ntemp-3, it0));
 
         int ic0 = nse_get_ye_index(yet) - 1;
-        ic0 = amrex::max(1, amrex::min(nse_table::nye-3, ic0));
+        ic0 = amrex::max(1, amrex::min(nse_table_size::nye-3, ic0));
 
         abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
-        dq = tricubic(ir0, it0, ic0, rholog, tlog, yet, ebtab);
-        dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, wratetab);
-
-        // this is actually the sum of all e- capture and e+ decay, so if
-        // e- capture dominates, this quantity is positive, but Ye should
-        // decrease, so we swap the sign here.
-
-        dyedt = -dyedt;
+        bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
+        dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dyedttab);
+        dabardt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dabardttab);
+        dbeadt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dbeadttab);
+        e_nu = tricubic(ir0, it0, ic0, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
