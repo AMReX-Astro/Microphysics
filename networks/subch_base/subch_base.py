@@ -1,6 +1,7 @@
-# an approximate network for He/C burning with key rates
-# to bypass the C12(a,g)O16 rate.  This version uses some
-# (a,p)(p,g) approximations.
+# The base of subch networks for He/C burning with key rates
+# to bypass the C12(a,g)O16 rate.
+# This is a further simplification of subch_simple by
+# removing N14, F18, Ne21, and Na22
 
 import pynucastro as pyna
 from pynucastro.networks import AmrexAstroCxxNetwork
