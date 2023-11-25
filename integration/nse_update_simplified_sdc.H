@@ -170,7 +170,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real rho_old = state.y[SRHO];
     Real rhoe_old = state.y[SEINT];
     Real rhoaux_old[NumAux];
-    for (int n = 0; n < NumSpec; ++n) {
+    for (int n = 0; n < NumAux; ++n) {
         rhoaux_old[n] = state.y[SFX+n];
     }
 
