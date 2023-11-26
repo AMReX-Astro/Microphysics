@@ -12,6 +12,7 @@
 
 #include <extern_parameters.H>
 #include <nse_table_data.H>
+#include <nse_table_size.H>
 
 using namespace amrex;
 using namespace network_rp;
@@ -22,12 +23,12 @@ void init_nse() {
   // set table parameters
 
   // read in table
-  std::ifstream nse_table;
+  std::ifstream nse_table_file;
 
   amrex::Print() << "reading the NSE table (C++) ..." << std::endl;
 
-  nse_table.open(nse_table_size::table_name, std::ios::in);
-  if (nse_table.fail()) {
+  nse_table_file.open(nse_table_size::table_name, std::ios::in);
+  if (nse_table_file.fail()) {
       amrex::Error("unable to open NSE table: " + nse_table_size::table_name);
   }
 
@@ -35,10 +36,10 @@ void init_nse() {
 
   // skip the header -- it is 4 lines
   std::string line;
-  std::getline(nse_table, line);
-  std::getline(nse_table, line);
-  std::getline(nse_table, line);
-  std::getline(nse_table, line);
+  std::getline(nse_table_file, line);
+  std::getline(nse_table_file, line);
+  std::getline(nse_table_file, line);
+  std::getline(nse_table_file, line);
 
   for (int irho = 1; irho <= nse_table_size::nden; irho++) {
       for (int it = 1; it <= nse_table_size::ntemp; it++) {
@@ -46,7 +47,7 @@ void init_nse() {
               int j = (irho-1) * nse_table_size::ntemp * nse_table_size::nye +
                   (it-1) * nse_table_size::nye + iye;
 
-              std::getline(nse_table, line);
+              std::getline(nse_table_file, line);
               if (line.empty()) {
                   amrex::Error("Error reading from the NSE table");
               }
@@ -243,12 +244,29 @@ void nse_interp(const Real T, const Real rho, const Real ye,
     using namespace nse_table;
     using namespace AuxZero;
 
-    Real rholog = amrex::max(nse_table_size::logrho_min,
-                             amrex::min(nse_table_size::logrho_max, std::log10(rho)));
-    Real tlog = amrex::max(nse_table_size::logT_min,
-                           amrex::min(nse_table_size::logT_max, std::log10(T)));
-    Real yet = amrex::max(nse_table_size::ye_min,
-                          amrex::min(nse_table_size::ye_max, ye));
+    Real rholog = std::log10(rho);
+    {
+        Real rmin = nse_table_size::logrho_min;
+        Real rmax = nse_table_size::logrho_max;
+
+        rholog = std::max(rmin, std::min(rmax, rholog));
+    }
+
+    Real tlog = std::log10(T);
+    {
+        Real tmin = nse_table_size::logT_min;
+        Real tmax = nse_table_size::logT_max;
+
+        tlog = std::max(tmin, std::min(tmax, tlog));
+    }
+
+    Real yet = ye;
+    {
+        Real yemin = nse_table_size::ye_min;
+        Real yemax = nse_table_size::ye_max;
+
+        yet = std::max(yemin, std::min(yemax, yet));
+    }
 
     if (nse_table_interp_linear) {
 
