@@ -90,14 +90,14 @@ namespace scrn {
 
 #if SCREEN_METHOD == 1
         scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
-        scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
-        scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
+        scn_fac.z1_53 = gcem::pow(z1, 5.0_rt / 3.0_rt);
+        scn_fac.z2_53 = gcem::pow(z2, 5.0_rt / 3.0_rt);
         scn_fac.zs13 = gcem::pow(z1 + z2, 1.0_rt / 3.0_rt);
         scn_fac.zs13inv = 1.0_rt / scn_fac.zs13;
         scn_fac.zhat = scn_fac.zs53 - scn_fac.z1_53 - scn_fac.z2_53;
         scn_fac.zhat2 = gcem::pow(z1 + z2, 5.0_rt / 12.0_rt) -
-                        gcem::pow(z1, 5.0_rt/12.0_rt) -
-                        gcem::pow(z2, 5.0_rt/12.0_rt);
+                        gcem::pow(z1, 5.0_rt / 12.0_rt) -
+                        gcem::pow(z2, 5.0_rt / 12.0_rt);
         scn_fac.lzav = (5.0_rt / 3.0_rt) * gcem::log(z1 * z2 / (z1 + z2));
         scn_fac.aznut = gcem::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
                                   1.0_rt / 3.0_rt);
@@ -111,11 +111,11 @@ namespace scrn {
 
 #elif SCREEN_METHOD == 3
         scn_fac.zs52 = gcem::pow(z1 + z2, 5.0_rt / 2.0_rt);
-        scn_fac.z1_52 = gcem::pow(z1, 5.0_rt/2.0_rt);
-        scn_fac.z2_52 = gcem::pow(z2, 5.0_rt/2.0_rt);
+        scn_fac.z1_52 = gcem::pow(z1, 5.0_rt / 2.0_rt);
+        scn_fac.z2_52 = gcem::pow(z2, 5.0_rt / 2.0_rt);
         scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
-        scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
-        scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
+        scn_fac.z1_53 = gcem::pow(z1, 5.0_rt / 3.0_rt);
+        scn_fac.z2_53 = gcem::pow(z2, 5.0_rt / 3.0_rt);
         scn_fac.aznut = gcem::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
                                   1.0_rt / 3.0_rt);
         scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +

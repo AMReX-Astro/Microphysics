@@ -169,6 +169,7 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
     }
 }
 
+#if SCREEN_METHOD == 1
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_screen5 (const plasma_state_t& state,
@@ -416,6 +417,7 @@ void actual_screen5 (const plasma_state_t& state,
     }
 }
 
+#elif SCREEN_METHOD == 2
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void chugunov2007 (const plasma_state_t& state,
@@ -611,6 +613,7 @@ void chugunov2007 (const plasma_state_t& state,
     }
 }
 
+#elif SCREEN_METHOD == 3
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void chugunov2009_f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
@@ -780,6 +783,7 @@ void chugunov2009 (const plasma_state_t& state,
     }
 }
 
+#elif SCREEN_METHOD == 4
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, Real& df_dT) {
@@ -933,6 +937,7 @@ void chabrier1998 (const plasma_state_t& state,
   }
 
 }
+#endif
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
