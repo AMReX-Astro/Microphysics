@@ -145,7 +145,7 @@ ifeq ($(USE_NSE_TABLE), TRUE)
   endif
 endif
 
-# Only allows null chabrier1998 screening with NSE_NET
+# Only allow null chabrier1998 screening with NSE_NET
 ifeq ($(USE_NSE_NET),TRUE)
   ifneq ($(or $(filter-out null chabrier1998,$(SCREEN_METHOD)),),)
     $(error USE_NSE_NET can only be used with null or chabrier1998 screening)
