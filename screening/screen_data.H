@@ -107,7 +107,7 @@ namespace scrn {
 #elif SCREEN_METHOD == 2
         scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +
                                    gcem::pow(z2, 1.0_rt / 3.0_rt));
-        scn_fac.ztilde = gcem::pow(scn_fac.ztilde, 3);
+        scn_fac.ztilde3 = gcem::pow(scn_fac.ztilde, 3);
 
 #elif SCREEN_METHOD == 3
         scn_fac.zs52 = gcem::pow(z1 + z2, 5.0_rt / 2.0_rt);
