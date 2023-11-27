@@ -16,13 +16,15 @@ USE_NSE_NET = TRUE
 EBASE = main
 
 # define the location of the Microphysics top directory
-MICROPHYSICS_HOME  ?= ../..
+MICROPHYSICS_HOME ?= ../..
 
 # This sets the EOS directory
 EOS_DIR     := helmholtz
 
 # This sets the network directory
-NETWORK_DIR := aprox21
+NETWORK_DIR := subch_base
+
+SCREEN_METHOD = chabrier1998
 
 CONDUCTIVITY_DIR := stellar
 
