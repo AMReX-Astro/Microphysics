@@ -701,7 +701,7 @@ void chugunov2009 (const plasma_state_t& state,
     Real Gamma_1 = Gamma_e * scn_fac.z1_53;
     Real Gamma_2 = Gamma_e * scn_fac.z1_53;
     Real Gamma_comp = Gamma_e * scn_fac.zs53;
-    
+
     Real Gamma_12 = Gamma_e * z1z2 / scn_fac.ztilde;
 
     // Coulomb barrier penetrability, eq. 10

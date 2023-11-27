@@ -89,9 +89,9 @@ namespace scrn {
         scn_fac.a2 = a2;
 
 #if SCREEN_METHOD == 1
-	scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
-	scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
-	scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
+        scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
+        scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
+        scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
         scn_fac.zs13 = gcem::pow(z1 + z2, 1.0_rt / 3.0_rt);
         scn_fac.zs13inv = 1.0_rt / scn_fac.zs13;
         scn_fac.zhat = scn_fac.zs53 - scn_fac.z1_53 - scn_fac.z2_53;
@@ -110,20 +110,21 @@ namespace scrn {
         scn_fac.ztilde = gcem::pow(scn_fac.ztilde, 3);
 
 #elif SCREEN_METHOD == 3
-	scn_fac.zs52 = gcem::pow(z1 + z2, 5.0_rt / 2.0_rt);
-	scn_fac.z1_52 = gcem::pow(z1, 5.0_rt/2.0_rt);
-	scn_fac.z2_52 = gcem::pow(z2, 5.0_rt/2.0_rt);
-	scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
-	scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
-	scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
+        scn_fac.zs52 = gcem::pow(z1 + z2, 5.0_rt / 2.0_rt);
+        scn_fac.z1_52 = gcem::pow(z1, 5.0_rt/2.0_rt);
+        scn_fac.z2_52 = gcem::pow(z2, 5.0_rt/2.0_rt);
+        scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
+        scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
+        scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
         scn_fac.aznut = gcem::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
                                   1.0_rt / 3.0_rt);
         scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +
                                    gcem::pow(z2, 1.0_rt / 3.0_rt));
+
 #elif SCREEN_METHOD == 4
-	scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
-	scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
-	scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
+        scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
+        scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
+        scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
         scn_fac.zs13 = gcem::pow(z1 + z2, 1.0_rt / 3.0_rt);
         scn_fac.zs13inv = 1.0_rt / scn_fac.zs13;
         scn_fac.aznut = gcem::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
