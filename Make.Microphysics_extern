@@ -145,6 +145,13 @@ ifeq ($(USE_NSE_TABLE), TRUE)
   endif
 endif
 
+# Only allows null chabrier1998 screening with NSE_NET
+ifeq ($(USE_NSE_NET),TRUE)
+  ifneq ($(or $(filter-out null chabrier1998,$(SCREEN_METHOD)),),)
+    $(error USE_NSE_NET can only be used with null or chabrier1998 screening)
+  endif
+endif
+
 clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
 	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
