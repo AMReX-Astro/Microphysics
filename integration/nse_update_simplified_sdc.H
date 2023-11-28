@@ -71,7 +71,7 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
     sneut5<do_derivatives>(T0, rho0, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
 #endif
-  
+
     // call the NSE table at t0
 
     Real abar0_out;
