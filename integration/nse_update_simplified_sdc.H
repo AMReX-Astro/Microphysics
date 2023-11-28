@@ -79,9 +79,8 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     constexpr int do_derivatives = 0;
     sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
-    Real snu_old = snu;
 #endif
+    Real snu_old = snu;
 
     // get the current NSE state from the table -- this will be used
     // to compute the NSE evolution sources
