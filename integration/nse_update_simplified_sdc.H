@@ -66,10 +66,12 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
     Real abar = eos_state.aux[iabar];
     Real zbar = abar * eos_state.aux[iye];
 
+#ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
     sneut5<do_derivatives>(T0, rho0, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
+  
     // call the NSE table at t0
 
     Real abar0_out;
@@ -342,10 +344,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     abar = 1.0 / abar;
     zbar *= abar;
 
+#ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
     sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
     Real snu_old = snu;
 
 
@@ -440,9 +443,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         abar = 1.0 / abar;
         zbar *= abar;
 
+#ifdef NEUTRINOS
         constexpr int do_derivatives = 0;
         sneut5<do_derivatives>(T_new, state.y[SRHO], abar, zbar,
                                snu, dsnudt, dsnudd, dsnuda, dsnudz);
+#endif
 
         rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
 
