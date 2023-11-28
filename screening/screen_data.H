@@ -41,7 +41,6 @@ namespace scrn {
       amrex::Real zhat2 = 0.0;
       amrex::Real lzav = 0.0;
       amrex::Real aznut = 0.0;
-      amrex::Real ztilde = 0.0;
 #elif SCREEN_METHOD == 2
       amrex::Real ztilde = 0.0;
       amrex::Real ztilde3 = 0.0;
@@ -101,8 +100,6 @@ namespace scrn {
         scn_fac.lzav = (5.0_rt / 3.0_rt) * gcem::log(z1 * z2 / (z1 + z2));
         scn_fac.aznut = gcem::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
                                   1.0_rt / 3.0_rt);
-        scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +
-                                   gcem::pow(z2, 1.0_rt / 3.0_rt));
 
 #elif SCREEN_METHOD == 2
         scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +
