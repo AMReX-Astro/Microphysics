@@ -75,10 +75,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real abar = state.y[SFX+iabar] / rho_old;
     Real zbar = abar * ye_in;
 
+#ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
     sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
     Real snu_old = snu;
 
     // get the current NSE state from the table -- this will be used
@@ -163,9 +164,10 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
         // now get the updated neutrino term
         zbar = abar_out * eos_state.aux[iye];
+#ifdef NEUTRINOS
         sneut5<do_derivatives>(T_new, eos_state.rho, abar_out, zbar,
                                snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
         rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
 
         // update the new state for the next pass
@@ -264,10 +266,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     abar = 1.0 / abar;
     zbar *= abar;
 
+#ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
     sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
     Real snu_old = snu;
 
 
@@ -362,9 +365,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         abar = 1.0 / abar;
         zbar *= abar;
 
+#ifdef NEUTRINOS
         constexpr int do_derivatives = 0;
         sneut5<do_derivatives>(T_new, state.y[SRHO], abar, zbar,
                                snu, dsnudt, dsnudd, dsnuda, dsnudz);
+#endif
 
         rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
 
