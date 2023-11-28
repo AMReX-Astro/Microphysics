@@ -634,7 +634,7 @@ nse_tabular
 | ``nse_relax_factor``                  | factor (< 1) by which to relax the criteria for         | 1.0                |
 |                                       | entering NSE. This is only applied after a failed burn. |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
-| ``nse_table_interp_linear``           | do we do tri-linear or tri-cubic interpolation on the   | 1                  |
+| ``nse_table_interp_linear``           | do we do tri-linear or tri-cubic interpolation on the   | 0                  |
 |                                       | table?                                                  |                    |
 +---------------------------------------+---------------------------------------------------------+--------------------+
 
