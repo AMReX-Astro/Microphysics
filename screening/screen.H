@@ -1,6 +1,13 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
+// these need to be defined before screen_data.H is included
+#define SCREEN_METHOD_null 0
+#define SCREEN_METHOD_screen5 1
+#define SCREEN_METHOD_chugunov2007 2
+#define SCREEN_METHOD_chugunov2009 3
+#define SCREEN_METHOD_chabrier1998 4
+
 #include <AMReX.H>
 #include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>
@@ -16,15 +23,15 @@
 using namespace amrex;
 using namespace integrator_rp;
 
-#if SCREEN_METHOD == 0
+#if SCREEN_METHOD == SCREEN_METHOD_null
 const std::string screen_name = "null";
-#elif SCREEN_METHOD == 1
+#elif SCREEN_METHOD == SCREEN_METHOD_screen5
 const std::string screen_name = "screen5";
-#elif SCREEN_METHOD == 2
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
 const std::string screen_name = "chugunov2007";
-#elif SCREEN_METHOD == 3
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
 const std::string screen_name = "chugunov2009";
-#elif SCREEN_METHOD == 4
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 const std::string screen_name = "chabrier1998";
 #endif
 
@@ -169,7 +176,7 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
     }
 }
 
-#if SCREEN_METHOD == 1
+#if SCREEN_METHOD == SCREEN_METHOD_screen5
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_screen5 (const plasma_state_t& state,
@@ -417,7 +424,7 @@ void actual_screen5 (const plasma_state_t& state,
     }
 }
 
-#elif SCREEN_METHOD == 2
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void chugunov2007 (const plasma_state_t& state,
@@ -613,7 +620,7 @@ void chugunov2007 (const plasma_state_t& state,
     }
 }
 
-#elif SCREEN_METHOD == 3
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void chugunov2009_f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
@@ -783,7 +790,7 @@ void chugunov2009 (const plasma_state_t& state,
     }
 }
 
-#elif SCREEN_METHOD == 4
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, Real& df_dT) {
@@ -945,18 +952,18 @@ void actual_screen(const plasma_state_t& state,
                    const scrn::screen_factors_t& scn_fac,
                    Real& scor, Real& scordt)
 {
-#if SCREEN_METHOD == 0
+#if SCREEN_METHOD == SCREEN_METHOD_null
     // null screening
     amrex::ignore_unused(state, scn_fac);
     scor = 1.0_rt;
     scordt = 0.0_rt;
-#elif SCREEN_METHOD == 1
+#elif SCREEN_METHOD == SCREEN_METHOD_screen5
     actual_screen5<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 2
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
     chugunov2007<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 3
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
     chugunov2009<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 4
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
     chabrier1998<do_T_derivatives>(state, scn_fac, scor, scordt);
 #endif
 }
