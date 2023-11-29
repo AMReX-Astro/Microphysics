@@ -31,7 +31,7 @@ namespace scrn {
       // ztilde  = effective ion radius factor for a MCP
       // ztilde3 = ztilde**3
 
-#if SCREEN_METHOD == 1
+#if SCREEN_METHOD == SCREEN_METHOD_screen5
       amrex::Real zs53 = 0.0;
       amrex::Real z1_53 = 0.0;
       amrex::Real z2_53 = 0.0;
@@ -41,10 +41,10 @@ namespace scrn {
       amrex::Real zhat2 = 0.0;
       amrex::Real lzav = 0.0;
       amrex::Real aznut = 0.0;
-#elif SCREEN_METHOD == 2
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
       amrex::Real ztilde = 0.0;
       amrex::Real ztilde3 = 0.0;
-#elif SCREEN_METHOD == 3
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
       amrex::Real zs52 = 0.0;
       amrex::Real z1_52 = 0.0;
       amrex::Real z2_52 = 0.0;
@@ -53,7 +53,7 @@ namespace scrn {
       amrex::Real z2_53 = 0.0;
       amrex::Real aznut = 0.0;
       amrex::Real ztilde = 0.0;
-#elif SCREEN_METHOD == 4
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
       amrex::Real zs53 = 0.0;
       amrex::Real z1_53 = 0.0;
       amrex::Real z2_53 = 0.0;
@@ -87,7 +87,7 @@ namespace scrn {
         scn_fac.z2 = z2;
         scn_fac.a2 = a2;
 
-#if SCREEN_METHOD == 1
+#if SCREEN_METHOD == SCREEN_METHOD_screen5
         scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
         scn_fac.z1_53 = gcem::pow(z1, 5.0_rt / 3.0_rt);
         scn_fac.z2_53 = gcem::pow(z2, 5.0_rt / 3.0_rt);
@@ -101,12 +101,12 @@ namespace scrn {
         scn_fac.aznut = gcem::pow(z1 * z1 * z2 * z2 * a1 * a2 / (a1 + a2),
                                   1.0_rt / 3.0_rt);
 
-#elif SCREEN_METHOD == 2
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
         scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +
                                    gcem::pow(z2, 1.0_rt / 3.0_rt));
         scn_fac.ztilde3 = gcem::pow(scn_fac.ztilde, 3);
 
-#elif SCREEN_METHOD == 3
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
         scn_fac.zs52 = gcem::pow(z1 + z2, 5.0_rt / 2.0_rt);
         scn_fac.z1_52 = gcem::pow(z1, 5.0_rt / 2.0_rt);
         scn_fac.z2_52 = gcem::pow(z2, 5.0_rt / 2.0_rt);
@@ -118,7 +118,7 @@ namespace scrn {
         scn_fac.ztilde = 0.5_rt * (gcem::pow(z1, 1.0_rt / 3.0_rt) +
                                    gcem::pow(z2, 1.0_rt / 3.0_rt));
 
-#elif SCREEN_METHOD == 4
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
         scn_fac.zs53 = gcem::pow(z1 + z2, 5.0_rt / 3.0_rt);
         scn_fac.z1_53 = gcem::pow(z1, 5.0_rt/3.0_rt);
         scn_fac.z2_53 = gcem::pow(z2, 5.0_rt/3.0_rt);
