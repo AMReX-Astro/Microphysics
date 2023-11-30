@@ -22,11 +22,6 @@ jobs:
           if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
           cd ../..
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -y -qq
-          sudo apt-get -qq -y install curl clang-tidy cmake jq clang cppcheck clang-format bear g++>=9.3.0
-
       - name: Run cpp linter
         uses: yut23/cpp-linter-action@cppcheck-improvements
         with:
