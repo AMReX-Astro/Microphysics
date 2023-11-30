@@ -23,7 +23,7 @@ jobs:
           cd ../..
 
       - name: Run cpp linter
-        uses: yut23/cpp-linter-action@cppcheck-improvements
+        uses: AMReX-Astro/cpp-linter-action@main
         with:
           build_path: 'unit_test/test_react'
           make_options: '-j 2 USE_OMP=FALSE USE_MPI=FALSE USE_CUDA=FALSE DEBUG=TRUE'
