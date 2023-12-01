@@ -23,15 +23,15 @@ endif
 
 SCREEN_METHOD ?= screen5
 ifeq ($(SCREEN_METHOD), null)
-  DEFINES += -DSCREEN_METHOD=0
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_null
 else ifeq ($(SCREEN_METHOD), screen5)
-  DEFINES += -DSCREEN_METHOD=1
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_screen5
 else ifeq ($(SCREEN_METHOD), chugunov2007)
-  DEFINES += -DSCREEN_METHOD=2
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2007
 else ifeq ($(SCREEN_METHOD), chugunov2009)
-  DEFINES += -DSCREEN_METHOD=3
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2009
 else ifeq ($(SCREEN_METHOD), chabrier1998)
-  DEFINES += -DSCREEN_METHOD=4
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chabrier1998
 else
   $(error Invalid value for SCREEN_METHOD)
 endif
@@ -142,6 +142,13 @@ endif
 ifeq ($(USE_NSE_TABLE), TRUE)
   ifeq ($(USE_NSE_NET), TRUE)
     $(error USE_NSE_TABLE and USE_NSE_NET cannot be used together)
+  endif
+endif
+
+# Only allow null chabrier1998 screening with NSE_NET
+ifeq ($(USE_NSE_NET),TRUE)
+  ifneq ($(or $(filter-out null chabrier1998,$(SCREEN_METHOD)),),)
+    $(error USE_NSE_NET can only be used with null or chabrier1998 screening)
   endif
 endif
 
