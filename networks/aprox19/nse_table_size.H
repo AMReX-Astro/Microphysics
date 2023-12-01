@@ -3,6 +3,10 @@
 
 #include <string>
 
+#include <AMReX_REAL.H>
+
+using namespace amrex;
+
 namespace nse_table_size {
 
     const std::string table_name{"nse_aprox19.tbl"};
