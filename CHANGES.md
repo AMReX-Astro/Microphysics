@@ -1,3 +1,24 @@
+# 23.12
+
+  * The SDC+NSE update now includes plasma neutrino losses (#1357,
+    #1400)
+
+  * The default tabular NSE interpolation is now cubic (#1399)
+
+  * Self-consistent NSE now requires chabrier1998 or null screening
+    (#1398)
+
+  * A new network, subch_base, was added that further simplifies
+    subch_simple (#1393)
+
+  * A slightly larger network for Urca was added (#1365)
+
+  * A new NSE table was added.  This is generated via pynucastro and
+    there is a python script that can be used to regenerate it (#1350)
+
+  * A bug was fixed in the neutrino cooling that was introduced in an
+    optimization last release (#1380)
+
 # 23.11
 
   * The sneut5 neutrino cooling term was cleaned up (#1371, #1372,
