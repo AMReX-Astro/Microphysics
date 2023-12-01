@@ -190,7 +190,7 @@ void do_vode_rhs()
 
     burn_t burn_state;
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
     eos_state.rho = density;
     eos_state.T = temperature;
     for (int n = 0; n < NumSpec; n++) {

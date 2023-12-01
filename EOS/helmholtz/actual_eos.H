@@ -18,8 +18,8 @@
 using namespace eos_rp;
 
 // Frank Timmes Helmholtz based Equation of State
-// http://cococubed.asu.edu/
-  
+// https://cococubed.com/
+
 // given a temperature temp [K], density den [g/cm**3], and a composition
 // characterized by abar and zbar, this routine returns most of the other
 // thermodynamic quantities. of prime interest is the pressure [erg/cm**3],
@@ -29,13 +29,13 @@ using namespace eos_rp;
 // derivatives), number density of electrons and positron pair (along
 // with their derivatives), adiabatic indices, specific heats, and
 // relativistically correct sound speed are also returned.
-// 
+//
 // this routine assumes planckian photons, an ideal gas of ions,
 // and an electron-positron gas with an arbitrary degree of relativity
 // and degeneracy. interpolation in a table of the helmholtz free energy
 // is used to return the electron-positron thermodynamic quantities.
 // all other derivatives are analytic.
-// 
+//
 // references: cox & giuli chapter 24 ; timmes & swesty apj 1999
 
 const std::string eos_name = "helmholtz";
@@ -144,10 +144,8 @@ void apply_electrons (T& state)
 {
     using namespace helmholtz;
 
-#ifdef EXTRA_THERMO
     // assume complete ionization
-    Real ytot1 = 1.0e0_rt / state.abar;
-#endif
+    [[maybe_unused]] Real ytot1 = 1.0e0_rt / state.abar;
 
     // define mu -- the total mean molecular weight including both electrons and ions
     state.mu = 1.0e0_rt / (1.0e0_rt / state.abar + 1.0e0_rt / state.mu_e);
@@ -157,9 +155,9 @@ void apply_electrons (T& state)
 
     // hash locate this temperature and density
     int jat = int((std::log10(state.T) - tlo) * tstpi) + 1;
-    jat = amrex::max(1, amrex::min(jat, jtmax-1)) - 1;
+    jat = amrex::max(1, amrex::min(jat, jmax-1)) - 1;
     int iat = int((std::log10(din) - dlo) * dstpi) + 1;
-    iat = amrex::max(1, amrex::min(iat, itmax-1)) - 1;
+    iat = amrex::max(1, amrex::min(iat, imax-1)) - 1;
 
     Real fi[36];
 
@@ -409,37 +407,33 @@ void apply_electrons (T& state)
     Real x       = din * din;
     Real pele    = x * df_d;
     Real dpepdt  = x * df_dt;
-#ifdef EXTRA_THERMO
-    Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
-    Real dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
-    Real dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
-#endif
+    [[maybe_unused]] Real s       = dpepdd/state.y_e - 2.0e0_rt * din * df_d;
+    [[maybe_unused]] Real dpepda  = -ytot1 * (2.0e0_rt * pele + s * din);
+    [[maybe_unused]] Real dpepdz  = state.rho*ytot1*(2.0e0_rt * din * df_d  +  s);
 
     x            = state.y_e * state.y_e;
     Real sele    = -df_t * state.y_e;
     Real dsepdt  = -df_tt * state.y_e;
     Real dsepdd  = -df_dt * x;
-#ifdef EXTRA_THERMO
-    Real dsepda  = ytot1 * (state.y_e * df_dt * din - sele);
-    Real dsepdz  = -ytot1 * (state.y_e * df_dt * state.rho  + df_t);
-#endif
+    [[maybe_unused]] Real dsepda  = ytot1 * (state.y_e * df_dt * din - sele);
+    [[maybe_unused]] Real dsepdz  = -ytot1 * (state.y_e * df_dt * state.rho  + df_t);
 
     Real eele    = state.y_e*free + state.T * sele;
     Real deepdt  = state.T * dsepdt;
     Real deepdd  = x * df_d + state.T * dsepdd;
-#ifdef EXTRA_THERMO
-    Real deepda  = -state.y_e * ytot1 * (free +  df_d * din) + state.T * dsepda;
-    Real deepdz  = ytot1* (free + state.y_e * df_d * state.rho) + state.T * dsepdz;
-#endif
+    [[maybe_unused]] Real deepda  = -state.y_e * ytot1 * (free +  df_d * din) + state.T * dsepda;
+    [[maybe_unused]] Real deepdz  = ytot1* (free + state.y_e * df_d * state.rho) + state.T * dsepdz;
 
     if constexpr (has_pressure<T>::value) {
         state.p    = state.p + pele;
         state.dpdT = state.dpdT + dpepdt;
         state.dpdr = state.dpdr + dpepdd;
-#ifdef EXTRA_THERMO
-        state.dpdA = state.dpdA + dpepda;
-        state.dpdZ = state.dpdZ + dpepdz;
-#endif
+        if constexpr (has_dpdA<T>::value) {
+            state.dpdA = state.dpdA + dpepda;
+        }
+        if constexpr (has_dpdZ<T>::value) {
+            state.dpdZ = state.dpdZ + dpepdz;
+        }
     }
 
     if constexpr (has_entropy<T>::value) {
@@ -452,10 +446,12 @@ void apply_electrons (T& state)
         state.e    = state.e + eele;
         state.dedT = state.dedT + deepdt;
         state.dedr = state.dedr + deepdd;
-#ifdef EXTRA_THERMO
-        state.dedA = state.dedA + deepda;
-        state.dedZ = state.dedZ + deepdz;
-#endif
+        if constexpr (has_dedA<T>::value) {
+            state.dedA = state.dedA + deepda;
+        }
+        if constexpr (has_dedZ<T>::value) {
+            state.dedZ = state.dedZ + deepdz;
+        }
     }
 
     if constexpr (has_eta<T>::value) {
@@ -481,9 +477,9 @@ void apply_ions (T& state)
 {
     using namespace helmholtz;
 
-    const Real pi      = 3.1415926535897932384e0_rt;
-    const Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
-    const Real kergavo = kerg * avo_eos;
+    constexpr Real pi      = 3.1415926535897932384e0_rt;
+    constexpr Real sioncon = (2.0e0_rt * pi * amu * kerg)/(h*h);
+    constexpr Real kergavo = kerg * avo_eos;
 
     Real deni = 1.0e0_rt / state.rho;
     Real tempi = 1.0e0_rt / state.T;
@@ -491,27 +487,21 @@ void apply_ions (T& state)
     Real ytot1   = 1.0e0_rt / state.abar;
     Real xni     = avo_eos * ytot1 * state.rho;
     Real dxnidd  = avo_eos * ytot1;
-#ifdef EXTRA_THERMO
-    Real dxnida  = -xni * ytot1;
-#endif
+    [[maybe_unused]] Real dxnida  = -xni * ytot1;
 
     Real kt = kerg * state.T;
 
     Real pion    = xni * kt;
     Real dpiondd = dxnidd * kt;
     Real dpiondt = xni * kerg;
-#ifdef EXTRA_THERMO
     [[maybe_unused]] Real dpionda = dxnida * kt;
     [[maybe_unused]] Real dpiondz = 0.0e0_rt;
-#endif
 
     Real eion    = 1.5e0_rt * pion * deni;
     Real deiondd = (1.5e0_rt * dpiondd - eion) * deni;
     Real deiondt = 1.5e0_rt * dpiondt * deni;
-#ifdef EXTRA_THERMO
     [[maybe_unused]] Real deionda = 1.5e0_rt * dpionda * deni;
     [[maybe_unused]] Real deiondz = 0.0e0_rt;
-#endif
 
     Real x       = state.abar * state.abar * std::sqrt(state.abar) * deni / avo_eos;
     Real s       = sioncon * state.T;
@@ -520,7 +510,7 @@ void apply_ions (T& state)
     Real sion    = (pion * deni + eion) * tempi + kergavo * ytot1 * y;
     Real dsiondd = (dpiondd * deni - pion * deni * deni + deiondd) * tempi -
                    kergavo * deni * ytot1;
-    Real dsiondt = (dpiondt * deni + deiondt) * tempi -  
+    Real dsiondt = (dpiondt * deni + deiondt) * tempi -
                    (pion * deni + eion) * tempi * tempi +
                    1.5e0_rt * kergavo * tempi * ytot1;
 
@@ -528,20 +518,24 @@ void apply_ions (T& state)
         state.p    = state.p + pion;
         state.dpdT = state.dpdT + dpiondt;
         state.dpdr = state.dpdr + dpiondd;
-#ifdef EXTRA_THERMO
-        state.dpdA = state.dpdA + dpionda;
-        state.dpdZ = state.dpdZ + dpiondz;
-#endif
+        if constexpr (has_dpdA<T>::value) {
+            state.dpdA = state.dpdA + dpionda;
+        }
+        if constexpr (has_dpdZ<T>::value) {
+            state.dpdZ = state.dpdZ + dpiondz;
+        }
     }
 
     if constexpr (has_energy<T>::value) {
         state.e    = state.e + eion;
         state.dedT = state.dedT + deiondt;
         state.dedr = state.dedr + deiondd;
-#ifdef EXTRA_THERMO
-        state.dedA = state.dedA + deionda;
-        state.dedZ = state.dedZ + deiondz;
-#endif
+        if constexpr (has_dedA<T>::value) {
+            state.dedA = state.dedA + deionda;
+        }
+        if constexpr (has_dedZ<T>::value) {
+            state.dedZ = state.dedZ + deiondz;
+        }
     }
 
     if constexpr (has_entropy<T>::value) {
@@ -559,14 +553,14 @@ void apply_radiation (T& state)
 {
     using namespace helmholtz;
 
-    const Real clight  = 2.99792458e10_rt;
+    constexpr Real clight  = 2.99792458e10_rt;
 #ifdef RADIATION
-    const Real ssol    = 0.0e0_rt;
+    constexpr Real ssol    = 0.0e0_rt;
 #else
-    const Real ssol    = 5.67051e-5_rt;
+    constexpr Real ssol    = 5.67051e-5_rt;
 #endif
-    const Real asol    = 4.0e0_rt * ssol / clight;
-    const Real asoli3  = asol/3.0e0_rt;
+    constexpr Real asol    = 4.0e0_rt * ssol / clight;
+    constexpr Real asoli3  = asol/3.0e0_rt;
 
     Real deni = 1.0e0_rt / state.rho;
     Real tempi = 1.0e0_rt / state.T;
@@ -587,18 +581,14 @@ void apply_radiation (T& state)
 
     Real dpraddd = 0.0e0_rt;
     Real dpraddt = 4.0e0_rt * prad * tempi;
-#ifdef EXTRA_THERMO
     [[maybe_unused]] Real dpradda = 0.0e0_rt;
     [[maybe_unused]] Real dpraddz = 0.0e0_rt;
-#endif
 
     Real erad    = 3.0e0_rt * prad*deni;
     Real deraddd = -erad * deni;
     Real deraddt = 3.0e0_rt * dpraddt * deni;
-#ifdef EXTRA_THERMO
     [[maybe_unused]] Real deradda = 0.0e0_rt;
     [[maybe_unused]] Real deraddz = 0.0e0_rt;
-#endif
 
     Real srad    = (prad * deni + erad) * tempi;
     Real dsraddd = (dpraddd * deni - prad * deni * deni + deraddd) * tempi;
@@ -612,20 +602,24 @@ void apply_radiation (T& state)
         state.p    = prad;
         state.dpdr = dpraddd;
         state.dpdT = dpraddt;
-#ifdef EXTRA_THERMO
-        state.dpdA = dpradda;
-        state.dpdZ = dpraddz;
-#endif
+        if constexpr (has_dpdA<T>::value) {
+            state.dpdA = dpradda;
+        }
+        if constexpr (has_dpdZ<T>::value) {
+            state.dpdZ = dpraddz;
+        }
     }
 
     if constexpr (has_energy<T>::value) {
         state.e    = erad;
         state.dedr = deraddd;
         state.dedT = deraddt;
-#ifdef EXTRA_THERMO
-        state.dedA = deradda;
-        state.dedZ = deraddz;
-#endif
+        if constexpr (has_dedA<T>::value) {
+            state.dedA = deradda;
+        }
+        if constexpr (has_dedZ<T>::value) {
+            state.dedZ = deraddz;
+        }
     }
 
     if constexpr (has_entropy<T>::value) {
@@ -644,19 +638,19 @@ void apply_coulomb_corrections (T& state)
     using namespace helmholtz;
 
     // Constants used for the Coulomb corrections
-    const Real a1 = -0.898004e0_rt;
-    const Real b1 =  0.96786e0_rt;
-    const Real c1 =  0.220703e0_rt;
-    const Real d1 = -0.86097e0_rt;
-    const Real e1 =  2.5269e0_rt;
-    const Real a2 =  0.29561e0_rt;
-    const Real b2 =  1.9885e0_rt;
-    const Real c2 =  0.288675e0_rt;
-    const Real qe   = 4.8032042712e-10_rt;
-    const Real esqu = qe * qe;
-    const Real onethird = 1.0e0_rt/3.0e0_rt;
-    const Real forth = 4.0e0_rt/3.0e0_rt;
-    const Real pi    = 3.1415926535897932384e0_rt;
+    constexpr Real a1 = -0.898004e0_rt;
+    constexpr Real b1 =  0.96786e0_rt;
+    constexpr Real c1 =  0.220703e0_rt;
+    constexpr Real d1 = -0.86097e0_rt;
+    constexpr Real e1 =  2.5269e0_rt;
+    constexpr Real a2 =  0.29561e0_rt;
+    constexpr Real b2 =  1.9885e0_rt;
+    constexpr Real c2 =  0.288675e0_rt;
+    constexpr Real qe   = 4.8032042712e-10_rt;
+    constexpr Real esqu = qe * qe;
+    constexpr Real onethird = 1.0e0_rt/3.0e0_rt;
+    constexpr Real forth = 4.0e0_rt/3.0e0_rt;
+    constexpr Real pi    = 3.1415926535897932384e0_rt;
 
     [[maybe_unused]] Real pcoul    = 0.e0_rt;
     [[maybe_unused]] Real dpcouldd = 0.e0_rt;
@@ -668,12 +662,10 @@ void apply_coulomb_corrections (T& state)
     [[maybe_unused]] Real dscouldd = 0.e0_rt;
     [[maybe_unused]] Real dscouldt = 0.e0_rt;
 
-#ifdef EXTRA_THERMO
     [[maybe_unused]] Real dpcoulda = 0.e0_rt;
     [[maybe_unused]] Real dpcouldz = 0.e0_rt;
     [[maybe_unused]] Real decoulda = 0.e0_rt;
     [[maybe_unused]] Real decouldz = 0.e0_rt;
-#endif
 
     Real s, x, y, z; // temporary variables
 
@@ -685,9 +677,7 @@ void apply_coulomb_corrections (T& state)
     Real ytot1 = 1.0e0_rt / state.abar;
     Real xni     = avo_eos * ytot1 * state.rho;
     Real dxnidd  = avo_eos * ytot1;
-#ifdef EXTRA_THERMO
-    Real dxnida  = -xni * ytot1;
-#endif
+    [[maybe_unused]] Real dxnida  = -xni * ytot1;
 
     Real kt      = kerg * state.T;
     Real ktinv   = 1.0e0_rt / kt;
@@ -695,26 +685,20 @@ void apply_coulomb_corrections (T& state)
     z             = forth * pi;
     s             = z * xni;
     Real dsdd     = z * dxnidd;
-#ifdef EXTRA_THERMO
-    Real dsda     = z * dxnida;
-#endif
+    [[maybe_unused]] Real dsda     = z * dxnida;
 
     Real lami     = 1.0e0_rt / std::pow(s, onethird);
     Real inv_lami = 1.0e0_rt / lami;
     z             = -onethird * lami;
     Real lamidd   = z * dsdd / s;
-#ifdef EXTRA_THERMO
-    Real lamida   = z * dsda / s;
-#endif
+    [[maybe_unused]] Real lamida   = z * dsda / s;
 
     Real plasg    = state.zbar * state.zbar * esqu * ktinv * inv_lami;
     z             = -plasg * inv_lami;
     Real plasgdd  = z * lamidd;
     Real plasgdt  = -plasg*ktinv * kerg;
-#ifdef EXTRA_THERMO
-    Real plasgda  = z * lamida;
-    Real plasgdz  = 2.0e0_rt * plasg/state.zbar;
-#endif
+    [[maybe_unused]] Real plasgda  = z * lamida;
+    [[maybe_unused]] Real plasgdz  = 2.0e0_rt * plasg/state.zbar;
 
     // .yakovlev & shalybkov 1989 equations 82, 85, 86, 87
     if (plasg >= 1.0e0_rt)
@@ -730,19 +714,15 @@ void apply_coulomb_corrections (T& state)
         decouldd = y * plasgdd;
         decouldt = y * plasgdt + ecoul/state.T;
 
-#ifdef EXTRA_THERMO
         decoulda = y * plasgda - ecoul/state.abar;
         decouldz = y * plasgdz;
-#endif
 
         y        = onethird * state.rho;
         dpcouldd = onethird * ecoul + y * decouldd;
         dpcouldt = y * decouldt;
 
-#ifdef EXTRA_THERMO
         dpcoulda = y * decoulda;
         dpcouldz = y * decouldz;
-#endif
 
        y        = -avo_eos * kerg / (state.abar * plasg) *
                    (0.75e0_rt * b1 * x + 1.25e0_rt * c1 / x + d1);
@@ -757,10 +737,8 @@ void apply_coulomb_corrections (T& state)
         Real pion    = xni * kt;
         Real dpiondd = dxnidd * kt;
         Real dpiondt = xni * kerg;
-#ifdef EXTRA_THERMO
         Real dpionda = dxnida * kt;
         Real dpiondz = 0.0e0_rt;
-#endif
 
         x        = plasg * std::sqrt(plasg);
         y        = std::pow(plasg, b2);
@@ -772,20 +750,16 @@ void apply_coulomb_corrections (T& state)
         s        = 1.5e0_rt * c2 * x / plasg - onethird * a2 * b2 * y / plasg;
         dpcouldd = -dpiondd * z - pion * s * plasgdd;
         dpcouldt = -dpiondt * z - pion * s * plasgdt;
-#ifdef EXTRA_THERMO
         dpcoulda = -dpionda * z - pion * s * plasgda;
         dpcouldz = -dpiondz * z - pion * s * plasgdz;
-#endif
 
         s        = 3.0e0_rt / state.rho;
         decouldd = s * dpcouldd - ecoul / state.rho;
         decouldt = s * dpcouldt;
-#ifdef EXTRA_THERMO
         decoulda = s * dpcoulda;
         decouldz = s * dpcouldz;
-#endif
 
-        s        = -avo_eos * kerg / (state.abar * plasg) * 
+        s        = -avo_eos * kerg / (state.abar * plasg) *
                     (1.5e0_rt * c2 * x - a2 * (b2 - 1.0e0_rt) * y);
         dscouldd = s * plasgdd;
         dscouldt = s * plasgdt;
@@ -806,7 +780,6 @@ void apply_coulomb_corrections (T& state)
 
     if (p_temp <= 0.0e0_rt || e_temp <= 0.0e0_rt)
     {
-
         pcoul    = 0.0e0_rt;
         dpcouldd = 0.0e0_rt;
         dpcouldt = 0.0e0_rt;
@@ -817,33 +790,34 @@ void apply_coulomb_corrections (T& state)
         dscouldd = 0.0e0_rt;
         dscouldt = 0.0e0_rt;
 
-#ifdef EXTRA_THERMO
         dpcoulda = 0.0e0_rt;
         dpcouldz = 0.0e0_rt;
         decoulda = 0.0e0_rt;
         decouldz = 0.0e0_rt;
-#endif
-
     }
 
     if constexpr (has_pressure<T>::value) {
         state.p    = state.p + pcoul;
         state.dpdr = state.dpdr + dpcouldd;
         state.dpdT = state.dpdT + dpcouldt;
-#ifdef EXTRA_THERMO
-        state.dpdA = state.dpdA + dpcoulda;
-        state.dpdZ = state.dpdZ + dpcouldz;
-#endif
+        if constexpr (has_dpdA<T>::value) {
+            state.dpdA = state.dpdA + dpcoulda;
+        }
+        if constexpr (has_dpdZ<T>::value) {
+            state.dpdZ = state.dpdZ + dpcouldz;
+        }
     }
 
     if constexpr (has_energy<T>::value) {
         state.e    = state.e + ecoul;
         state.dedr = state.dedr + decouldd;
         state.dedT = state.dedT + decouldt;
-#ifdef EXTRA_THERMO
-        state.dedA = state.dedA + decoulda;
-        state.dedZ = state.dedZ + decouldz;
-#endif
+        if constexpr (has_dedA<T>::value) {
+            state.dedA = state.dedA + decoulda;
+        }
+        if constexpr (has_dedZ<T>::value) {
+            state.dedZ = state.dedZ + decouldz;
+        }
     }
 
     if constexpr (has_entropy<T>::value) {
@@ -1268,7 +1242,7 @@ void actual_eos (I input, T& state)
 
     using namespace helmholtz;
 
-    const int max_newton = 100;
+    constexpr int max_newton = 100;
 
     bool single_iter, converged;
     int var{}, dvar{}, var1, var2;
@@ -1332,7 +1306,6 @@ void actual_eos_init ()
 
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
-    Real tsav, dsav;
 
     // Read in the runtime parameters
 
@@ -1342,8 +1315,6 @@ void actual_eos_init ()
     dtol = eos_dtol;
 
     //    read the helmholtz free energy table
-    itmax = imax;
-    jtmax = jmax;
     tlo   = 3.0e0_rt;
     thi   = 13.0e0_rt;
     tstp  = (thi - tlo) / ((Real) (jmax-1));
@@ -1354,10 +1325,10 @@ void actual_eos_init ()
     dstpi = 1.0e0_rt / dstp;
 
     for (int j = 0; j < jmax; ++j) {
-        tsav = tlo + j * tstp;
+        Real tsav = tlo + j * tstp;
         t[j] = std::pow(10.0e0_rt, tsav);
         for (int i = 0; i < imax; ++i) {
-            dsav = dlo + i * dstp;
+            Real dsav = dlo + i * dstp;
             d[i] = std::pow(10.0e0_rt, dsav);
         }
     }
@@ -1367,10 +1338,10 @@ void actual_eos_init ()
     // buffer, broadcast that, and then copy that into the managed
     // memory.
 
-    amrex::Vector<Real> f_local(jmax * imax * 9);
-    amrex::Vector<Real> dpdf_local(jmax * imax * 4);
-    amrex::Vector<Real> ef_local(jmax * imax * 4);
-    amrex::Vector<Real> xf_local(jmax * imax * 4);
+    amrex::Vector<Real> f_local(static_cast<size_t>(9) * imax * jmax);
+    amrex::Vector<Real> dpdf_local(static_cast<size_t>(4) * imax * jmax);
+    amrex::Vector<Real> ef_local(static_cast<size_t>(4) * imax * jmax);
+    amrex::Vector<Real> xf_local(static_cast<size_t>(4) * imax * jmax);
 
     if (amrex::ParallelDescriptor::IOProcessor()) {
 
@@ -1390,6 +1361,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading free energy from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> f_local[idx] >> f_local[idx+3] >> f_local[idx+1]
                      >> f_local[idx+4] >> f_local[idx+2] >> f_local[idx+5]
@@ -1403,6 +1377,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading pressure derivative from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> dpdf_local[idx] >> dpdf_local[idx+2]
                      >> dpdf_local[idx+1] >> dpdf_local[idx+3];
@@ -1415,6 +1392,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading electron chemical potential from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> ef_local[idx] >> ef_local[idx+2]
                      >> ef_local[idx+1] >> ef_local[idx+3];
@@ -1427,6 +1407,9 @@ void actual_eos_init ()
         for (int j = 0; j < jmax; ++j) {
             for (int i = 0; i < imax; ++i) {
                 std::getline(table, line);
+                if (line.empty()) {
+                    amrex::Error("Error reading number density from helm_table.dat");
+                }
                 std::istringstream data(line);
                 data >> xf_local[idx] >> xf_local[idx+2]
                      >> xf_local[idx+1] >> xf_local[idx+3];
@@ -1438,14 +1421,14 @@ void actual_eos_init ()
 
     }
 
-    amrex::ParallelDescriptor::Bcast(f_local.data(),    static_cast<size_t>(9 * imax * jmax));
-    amrex::ParallelDescriptor::Bcast(dpdf_local.data(), static_cast<size_t>(4 * imax * jmax));
-    amrex::ParallelDescriptor::Bcast(ef_local.data(),   static_cast<size_t>(4 * imax * jmax));
-    amrex::ParallelDescriptor::Bcast(xf_local.data(),   static_cast<size_t>(4 * imax * jmax));
+    amrex::ParallelDescriptor::Bcast(f_local.data(),    static_cast<size_t>(9) * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(dpdf_local.data(), static_cast<size_t>(4) * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(ef_local.data(),   static_cast<size_t>(4) * imax * jmax);
+    amrex::ParallelDescriptor::Bcast(xf_local.data(),   static_cast<size_t>(4) * imax * jmax);
 
     // now copy into managed memory
     int idx = 0;
-    for (int j = 0; j < jmax; ++j) {
+    for (int j = 0; j < jmax; ++j) {  // NOLINT(modernize-loop-convert)
         for (int i = 0; i < imax; ++i) {
             for (int m = 0; m < 9; ++m) {
                 f[j][i][m] = f_local[idx];
@@ -1512,6 +1495,8 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
+  amrex::ignore_unused(input);
+
   static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
   bool valid = true;
@@ -1520,4 +1505,3 @@ bool is_input_valid (I input)
 }
 
 #endif
-

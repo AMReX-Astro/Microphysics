@@ -35,18 +35,49 @@ and :math:`\edotnu` is the neutrino loss term.
 general_null
 ============
 
-``general_null`` is a bare interface for a nuclear reaction network;
-no reactions are enabled, and no auxiliary variables are accepted. The
+``general_null`` is a bare interface for a nuclear reaction network --
+no reactions are enabled. The
 data in the network is defined at compile type by specifying an
 inputs file. For example,
-``Networks/general_null/triple_alpha_plus_o.net`` would describe the
+``networks/general_null/triple_alpha_plus_o.net`` would describe the
 triple-:math:`\alpha` reaction converting helium into carbon, as
-well as oxygen and iron.
+well as oxygen and iron.  This has the form:
 
-At compile time, the network header ``network_properties.H``
-is written using the python script ``write_network.py``.  The make rule
-for this is contained in ``Make.package``. The name of the inputs file
-is specified by the variable ``GENERAL_NET_INPUTS``.
+.. code::
+
+    # name       short name    aion     zion
+    helium-4       He4          4.0      2.0
+    carbon-12      C12         12.0      6.0
+    oxygen-16      O16         16.0      8.0
+    iron-56        Fe56        56.0     26.0
+
+The four columns give the long name of the species, the short form that will be used
+for plotfile variables, and the mass number, :math:`A`, and proton number, :math:`Z`.
+
+The name of the inputs file by one of two make variables:
+
+* ``NETWORK_INPUTS`` : this is simply the name of the "`.net`" file, without
+  any path.  The build system will look for it in the current directory
+  and then in ``$(MICROPHYSICS_HOME)/networks/general_null/``.
+
+  For the example above, we would set:
+
+  ::
+
+    NETWORK_INPUTS := triple_alpha_plus_o.net
+
+* ``GENERAL_NET_INPUTS`` : this is the full path to the file.  For example
+  we could set:
+
+  ::
+
+    GENERAL_NET_INPUTS := /path/to/file/triple_alpha_plus_o.net
+
+At compile time, the "`.net`" file is parsed and a network header
+``network_properties.H`` is written using the python script
+``write_network.py``.  The make rule for this is contained in
+``Make.package``.
+
 
 
 ignition_chamulak
@@ -127,7 +158,7 @@ X_a / (A_a m_u)`, our rate equation is
 
    \begin{align}
     \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
-    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu 
+    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
    \end{align}
 
 We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
@@ -256,6 +287,6 @@ to disable rates:
   :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
   disabled.
 
-Together, these parameters allow us to turn off the sequence 
+Together, these parameters allow us to turn off the sequence
 :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
 acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.

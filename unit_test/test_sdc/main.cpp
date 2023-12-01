@@ -163,7 +163,7 @@ void main_main ()
 
             // initialize the auxiliary state (in particular, for NSE)
 #ifdef AUX_THERMO
-            eos_t eos_state;
+            eos_extra_t eos_state;
             for (int n = 0; n < NumSpec; n++) {
                 eos_state.xn[n] = xn[n];
             }

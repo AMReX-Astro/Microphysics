@@ -188,18 +188,18 @@ void hybrj(hybrj_t<neqs>& hj,
 
             // store the direction p and x + p. calculate the norm of p.
 
-	    bool invalid = false;
+            bool invalid = false;
 
-	    for (int i = 1; i < neqs; ++i) {
-	      if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
-		invalid = true;
-	      }
-	    }
+            for (int i = 1; i < neqs; ++i) {
+              if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
+                invalid = true;
+              }
+            }
 
-	    if (invalid) {
-	      finished = true;
-	      break;
-	    }
+            if (invalid) {
+              finished = true;
+              break;
+            }
 
             for (int j = 1; j <= neqs; ++j) {
                 hj.wa1(j) = -hj.wa1(j);
@@ -344,9 +344,9 @@ void hybrj(hybrj_t<neqs>& hj,
 
             // calculate the rank one modification to the jacobian
             // and update qtf if necessary.
-	    if (pnorm == 0.0_rt) {
-	      break;
-	    }
+            if (pnorm == 0.0_rt) {
+              break;
+            }
 
             for (int j = 1; j <= hj.n; ++j) {
                 Real sum = 0.0_rt;

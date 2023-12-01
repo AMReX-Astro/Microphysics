@@ -10,7 +10,7 @@
 #ifdef STRANG
 #include <integrator_type_strang.H>
 #endif
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
 #include <integrator_type_simplified_sdc.H>
 #endif
 #include <network.H>
@@ -31,6 +31,7 @@ const Real timestep_safety_factor = 1.0e-12_rt;
 
 #define VODELIKE_ERROR 1
 
+template <int int_neqs>
 struct be_t {
 
     amrex::Real t;      // the starting time
@@ -46,8 +47,8 @@ struct be_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    Array1D<Real, 1, INT_NEQS> y;
-    JacNetArray2D jac;
+    Array1D<Real, 1, int_neqs> y;
+    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
 
     short jacobian_type;
 };

@@ -20,6 +20,7 @@ TOP := $(MICROPHYSICS_HOME)
 EOS_HOME ?= $(TOP)/EOS
 NETWORK_HOME ?= $(TOP)/networks
 CONDUCTIVITY_HOME ?= $(TOP)/conductivity
+NSE_TABULAR_HOME ?= $(TOP)/nse_tabular
 
 EBASE ?= main
 
@@ -152,7 +153,6 @@ endif
 EXTERN_PARAMETERS := $(shell $(MICROPHYSICS_HOME)/util/build_scripts/findparams.py $(EXTERN_SEARCH))
 
 
-$(MICROPHYSICS_AUTO_SOURCE_DIR)/extern.F90: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
 $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.cpp: $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H
 
 $(MICROPHYSICS_AUTO_SOURCE_DIR)/extern_parameters.H: $(EXTERN_PARAMETERS) $(EXTERN_TEMPLATE)

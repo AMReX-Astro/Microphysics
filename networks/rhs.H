@@ -41,32 +41,6 @@ constexpr int factorial (int n)
     }
 }
 
-// Implementation of "constexpr for" based on
-// https://artificial-mind.net/blog/2020/10/31/constexpr-for
-//
-// Approximates what one would get from a compile-time
-// unrolling of the loop
-// for (int i = 0; i < N; ++i) {
-//    f(i);
-// }
-//
-// The mechanism is recursive, we evaluate f(i) at the current
-// i and then call the for loop at i+1. f() is a lambda function
-// that provides the body of the loop and takes only an integer
-// i as its argument. It is assumed that at the loop call site
-// the lambda is declared [&] so that it can operate on whatever
-// data it needs.
-
-template<auto I, auto N, class F>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr void constexpr_for (F&& f)
-{
-    if constexpr (I < N) {
-        f(std::integral_constant<decltype(I), I>());
-        constexpr_for<I+1, N>(f);
-    }
-}
-
 // Determine if a rate is used in the RHS for a given species
 // by seeing if its prefactor is nonzero.
 template<int species, int rate>
@@ -104,7 +78,7 @@ constexpr int is_rate_used ()
 
 // Determine the index of a given intermediate reaction. We use the
 // order of the original rate definitions
-    
+
 // Counts up the number of intermediate reactions. An intermediate
 // reaction is defined as any reaction which contributes to the
 // construction of some other reaction. Note that an intermediate
@@ -1246,7 +1220,9 @@ void fill_additional_rates (const Arr& intermediate_rates, rate_t& rates1, rate_
 AMREX_INLINE
 void rhs_init ()
 {
+#ifdef RATES
     rates_init();
+#endif
 
     if (use_tables)
     {
@@ -1276,8 +1252,10 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
         rhs_state.y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
+#ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
     fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
+#endif
 
     // Initialize the rate temperature term.
     rhs_state.tf = get_tfactors(burn_state.T);
@@ -1370,9 +1348,10 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
 
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, snuda, snudz);
+    constexpr int do_derivatives{0};
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
+    sneut5<do_derivatives>(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
+                           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
     Real sneut = 0.0;
 #endif
@@ -1391,11 +1370,11 @@ void rhs (burn_t& burn_state, Array1D<Real, 1, nrhs>& ydot)
         constexpr int species = n;
 
         if constexpr (nrhs == 2 * neqs) {
-            ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(ydot(2 * species - 1));
-            ydot(2 * net_ienuc    ) += ener_gener_rate<species>(ydot(2 * species    ));
+            ydot(2 * net_ienuc - 1) += ener_gener_rate<species>(rhs_state, ydot(2 * species - 1));
+            ydot(2 * net_ienuc    ) += ener_gener_rate<species>(rhs_state, ydot(2 * species    ));
         }
         else {
-            ydot(net_ienuc) += ener_gener_rate<species>(ydot(species));
+            ydot(net_ienuc) += ener_gener_rate<species>(rhs_state, ydot(species));
         }
     });
 }
@@ -1415,8 +1394,10 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         rhs_state.y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
+#ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
     fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
+#endif
 
     // Initialize the rate temperature term.
     rhs_state.tf = get_tfactors(burn_state.T);
@@ -1514,11 +1495,13 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     // Evaluate the neutrino cooling.
 #ifdef NEUTRINOS
-    Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    sneut5(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
-           sneut, dsneutdt, dsneutdd, snuda, snudz);
+    Real sneut, dsneutdt, dsneutdd, dsnuda, dsnudz;
+    constexpr int do_derivatives{1};
+    sneut5<do_derivatives>(burn_state.T, burn_state.rho, burn_state.abar, burn_state.zbar,
+                           sneut, dsneutdt, dsneutdd, dsnuda, dsnudz);
 #else
-    Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, snuda = 0.0, snudz = 0.0;
+    Real sneut = 0.0, dsneutdt = 0.0, dsneutdd = 0.0, dsnuda = 0.0, dsnudz = 0.0;
+    amrex::ignore_unused(sneut, dsneutdd);
 #endif
 
     jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(burn_state, dsneutdt);
@@ -1528,21 +1511,21 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         constexpr int species = j;
 
         // Energy generation rate Jacobian elements with respect to species.
-        Real b1 = (-burn_state.abar * burn_state.abar * snuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * snudz);
+        Real b1 = (-burn_state.abar * burn_state.abar * dsnuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * dsnudz);
         jac(net_ienuc, species) = -b1;
 
         constexpr_for<1, NumSpec+1>([&] (auto i)
         {
             constexpr int s = i;
 
-            jac(net_ienuc, species) += ener_gener_rate<s>(jac(s, species));
+            jac(net_ienuc, species) += ener_gener_rate<s>(rhs_state, jac(s, species));
         });
 
         // Convert previously computed terms from d/dT to d/de.
         jac(species, net_ienuc) = temperature_to_energy_jacobian(burn_state, jac(species, net_ienuc));
 
         // Compute df(e) / de term.
-        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(jac(species, net_ienuc));
+        jac(net_ienuc, net_ienuc) += ener_gener_rate<species>(rhs_state, jac(species, net_ienuc));
     });
 }
 

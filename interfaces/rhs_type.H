@@ -8,44 +8,70 @@
 #endif
 #include <tfactors.H>
 
+// Implementation of "constexpr for" based on
+// https://artificial-mind.net/blog/2020/10/31/constexpr-for
+//
+// Approximates what one would get from a compile-time
+// unrolling of the loop
+// for (int i = 0; i < N; ++i) {
+//    f(i);
+// }
+//
+// The mechanism is recursive, we evaluate f(i) at the current
+// i and then call the for loop at i+1. f() is a lambda function
+// that provides the body of the loop and takes only an integer
+// i as its argument. It is assumed that at the loop call site
+// the lambda is declared [&] so that it can operate on whatever
+// data it needs.
+
+template<auto I, auto N, class F>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+constexpr void constexpr_for (F&& f)
+{
+    if constexpr (I < N) {
+        f(std::integral_constant<decltype(I), I>());
+        constexpr_for<I+1, N>(f);
+    }
+}
+
 namespace RHS
 {
 
 struct rhs_t {
-    int species_A;
-    int species_B;
-    int species_C;
-    int species_D;
-    int species_E;
-    int species_F;
+    int species_A{-1};
+    int species_B{-1};
+    int species_C{-1};
+    int species_D{-1};
+    int species_E{-1};
+    int species_F{-1};
 
-    int number_A;
-    int number_B;
-    int number_C;
-    int number_D;
-    int number_E;
-    int number_F;
+    Real number_A{0.0_rt};
+    Real number_B{0.0_rt};
+    Real number_C{0.0_rt};
+    Real number_D{0.0_rt};
+    Real number_E{0.0_rt};
+    Real number_F{0.0_rt};
 
-    int exponent_A;
-    int exponent_B;
-    int exponent_C;
-    int exponent_D;
-    int exponent_E;
-    int exponent_F;
+    int exponent_A{0};
+    int exponent_B{0};
+    int exponent_C{0};
+    int exponent_D{0};
+    int exponent_E{0};
+    int exponent_F{0};
 
-    amrex::Real forward_branching_ratio;
-    amrex::Real reverse_branching_ratio;
+    amrex::Real forward_branching_ratio{1.0_rt};
+    amrex::Real reverse_branching_ratio{1.0_rt};
 
-    int apply_identical_particle_factor;
+    int apply_identical_particle_factor{1};
 
-    int rate_can_be_tabulated;
+    int rate_can_be_tabulated{1};
 
-    int screen_forward_reaction;
-    int screen_reverse_reaction;
+    int screen_forward_reaction{1};
+    int screen_reverse_reaction{1};
 
-    int additional_reaction_1;
-    int additional_reaction_2;
-    int additional_reaction_3;
+    int additional_reaction_1{-1};
+    int additional_reaction_2{-1};
+    int additional_reaction_3{-1};
 };
 
 constexpr amrex::Real tab_tlo = 6.0e0_rt;

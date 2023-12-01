@@ -24,7 +24,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
 
     // call the EOS first to get the sound speed
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
     eos_state.rho = state(i, j, k, p.irho);
     eos_state.T = state(i, j, k, p.itemp);
     for (int n = 0; n < NumSpec; n++) {
@@ -92,7 +92,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     burn_state.reference_time = 0.0;
 #endif
 
-    // these need to be initialized 
+    // these need to be initialized
 
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;

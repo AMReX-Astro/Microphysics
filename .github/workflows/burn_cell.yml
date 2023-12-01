@@ -40,7 +40,7 @@ jobs:
       - name: Compare to stored output (VODE, subch_approx)
         run: |
           cd unit_test/burn_cell
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/subch_approx_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/subch_approx_unit_test.out
 
       - name: Compile, burn_cell (VODE, ECSN)
         run: |
@@ -53,10 +53,42 @@ jobs:
           cd unit_test/burn_cell
           ./main3d.gnu.ex inputs_ecsn > test.out
 
-      - name: Compare to stored output (ECSN)
+      - name: Compare to stored output (VODE, ECSN)
         run: |
           cd unit_test/burn_cell
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/ecsn_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/ecsn_unit_test.out
+
+      - name: Compile, burn_cell (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=ignition_chamulak -j 4
+
+      - name: Run burn_cell (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_ignition_chamulak > test.out
+
+      - name: Compare to stored output (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/chamulak_VODE_unit_test.out
+
+      - name: Compile, burn_cell (ForwardEuler, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/burn_cell
+          make realclean
+          make NETWORK_DIR=triple_alpha_plus_cago INTEGRATOR_DIR=ForwardEuler -j 4
+
+      - name: Run burn_cell (ForwardEuler, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/burn_cell
+          ./main3d.gnu.ex inputs_triple > test.out
+
+      - name: Compare to stored output (ForwardEuler, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/burn_cell
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/triple_alpha_plus_cago_FE_unit_test.out
 
       - name: Compile, burn_cell (BackwardEuler, subch_approx)
         run: |
@@ -72,7 +104,7 @@ jobs:
       - name: Compare to stored output (BackwardEuler, subch_approx)
         run: |
           cd unit_test/burn_cell
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/subch_approx_BE_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/subch_approx_BE_unit_test.out
 
       - name: Compile, burn_cell (QSS, aprox13)
         run: |
@@ -88,7 +120,7 @@ jobs:
       - name: Compare to stored output (QSS, aprox13)
         run: |
           cd unit_test/burn_cell
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_QSS_unit_test.out
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_QSS_unit_test.out
 
       - name: Compile, burn_cell (RKC, aprox13)
         run: |
@@ -99,11 +131,9 @@ jobs:
       - name: Run burn_cell (RKC, aprox13)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=2.e9 > test.out
+          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=1.e9 > test.out
 
       - name: Compare to stored output (RKC, aprox13)
         run: |
           cd unit_test/burn_cell
-          diff -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_RKC_unit_test.out
-
-
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox13_RKC_unit_test.out

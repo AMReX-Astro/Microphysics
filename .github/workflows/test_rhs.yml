@@ -1,0 +1,202 @@
+name: test_rhs
+
+on: [pull_request]
+jobs:
+  test_rhs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
+
+      - name: Build the fextrema tool
+        run: |
+          cd external/amrex/Tools/Plotfile
+          make programs=fextrema -j 2
+
+      - name: Compile, test_rhs (VODE, ignition_simple)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=ignition_simple -j 4
+
+      - name: Run test_rhs (VODE, ignition_simple)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_ignition_simple
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_ignition_simple_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, ignition_simple)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/ignition_simple.out
+
+      - name: Compile, test_rhs (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=ignition_chamulak -j 4
+
+      - name: Run test_rhs (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_chamulak
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_chamulak_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, ignition_chamulak)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/chamulak.out
+
+      - name: Compile, test_rhs (VODE, iso7)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=iso7 -j 4
+
+      - name: Run test_rhs (VODE, iso7)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_iso7
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_iso7_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, iso7)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/iso7.out
+
+      - name: Compile, test_rhs (VODE, aprox13)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=aprox13 -j 4
+
+      - name: Run test_rhs (VODE, aprox13)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_aprox13
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox13_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, aprox13)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/aprox13.out
+
+      - name: Compile, test_rhs (VODE, aprox19)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=aprox19 -j 4
+
+      - name: Run test_rhs (VODE, aprox19)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_aprox19
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox19_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, aprox19)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/aprox19.out
+
+      - name: Compile, test_rhs (VODE, aprox21)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=aprox21 -j 4
+
+      - name: Run test_rhs (VODE, aprox21)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_aprox21
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox21_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, aprox21)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/aprox21.out
+
+      - name: Compile, test_rhs (VODE, rprox)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=rprox -j 4
+
+      - name: Run test_rhs (VODE, rprox)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_rprox
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_rprox_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, rprox)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/rprox.out
+
+      - name: Compile, test_rhs (VODE, powerlaw)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=powerlaw -j 4
+
+      - name: Run test_rhs (VODE, powerlaw)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_powerlaw
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_powerlaw_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, powerlaw)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/powerlaw.out
+
+      - name: Compile, test_rhs (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=triple_alpha_plus_cago -j 4
+
+      - name: Run test_rhs (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_triple_alpha_plus_cago
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_triple_alpha_plus_cago_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, triple_alpha_plus_cago)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/triple_alpha_plus_cago.out
+
+      - name: Compile, test_rhs (VODE, ECSN)
+        run: |
+          cd unit_test/test_rhs
+          make realclean
+          make NETWORK_DIR=ECSN -j 4
+
+      - name: Run test_rhs (VODE, ECSN)
+        run: |
+          cd unit_test/test_rhs
+          ./main3d.gnu.ex inputs_ecsn
+          ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_ecsn_test_rhs.VODE > test.out
+
+      - name: Compare to stored output (VODE, ECSN)
+        run: |
+          cd unit_test/test_rhs
+          diff test.out ci-benchmarks/ecsn.out

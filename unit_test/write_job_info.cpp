@@ -89,7 +89,7 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << "COMP version:  " << buildInfoGetCompVersion() << "\n";
 
   jobInfoFile << "\n";
-  
+
   jobInfoFile << "C++ compiler:  " << buildInfoGetCXXName() << "\n";
   jobInfoFile << "C++ flags:     " << buildInfoGetCXXFlags() << "\n";
 

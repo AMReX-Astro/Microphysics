@@ -1,5 +1,4 @@
-
-unit_test.run_prefix = react_vode_example_
+unit_test.run_prefix = "react_vode_example_"
 
 unit_test.small_temp = 1.e5
 unit_test.small_dens = 1e5

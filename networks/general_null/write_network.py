@@ -19,7 +19,7 @@ def abort(outfile):
 
 
 def write_network(header_template,
-                  net_file, properties_file,
+                  net_file,
                   header_file, defines):
     """read through the list of species and output the new out_file
 
@@ -37,17 +37,6 @@ def write_network(header_template,
 
     if err:
         abort(header_file)
-
-    properties = {}
-    try:
-        with open(properties_file) as f:
-            for line in f:
-                if line.strip() == "":
-                    continue
-                key, value = line.strip().split(":=")
-                properties[key.strip()] = value.strip()
-    except FileNotFoundError:
-        print("no NETWORK_PROPERTIES found, skipping...")
 
     # write out the C++ files based on the templates
 
@@ -168,12 +157,6 @@ def write_network(header_template,
                     for n, aux in enumerate(aux_vars):
                         fout.write(f"{indent}\"{aux.name}\",   // {n} \n")
 
-                elif keyword == "PROPERTIES":
-                    if lang == "C++":
-                        for p in properties:
-                            print(p)
-                            fout.write(f"{indent}constexpr int {p} = {properties[p]};\n")
-
                 elif keyword == "SPECIES_ENUM":
                     if lang == "C++":
                         for n, spec in enumerate(species):
@@ -220,15 +203,13 @@ def main():
                         help="C++ header output file name")
     parser.add_argument("-s", type=str, default="",
                         help="network file name")
-    parser.add_argument("--other_properties", type=str, default="",
-                        help="a NETWORK_PROPERTIES file with other network properties")
     parser.add_argument("--defines", type=str, default="",
                         help="and preprocessor defines that are used in building the code")
 
     args = parser.parse_args()
 
     write_network(args.header_template,
-                  args.s, args.other_properties,
+                  args.s,
                   args.header_output, args.defines)
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@ void get_varnames(const plot_t& p, amrex::Vector<std::string>& names) {
   }
   names[p.irho_Hnuc] = "rho_Hnuc";
 
-#if NAUX_NET > 0  
+#if NAUX_NET > 0
   for (int n = 0; n < NumAux; n++) {
       names[p.iaux + n] = aux_names_cxx[n];
       names[p.iaux_old + n] = "old_" + aux_names_cxx[n];

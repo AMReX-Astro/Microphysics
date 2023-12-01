@@ -20,13 +20,6 @@ namespace ArrayUtil
         }
 
         AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        void operator= (const MathArray1D<XLO, XHI>& other) noexcept {
-            for (int i = 0; i < (XHI-XLO+1); ++i) {
-                arr[i] = other.arr[i];
-            }
-        }
-
-        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
         const Real& operator() (int i) const noexcept {
             AMREX_ASSERT(i >= XLO && i <= XHI);
             return arr[i-XLO];
@@ -87,13 +80,6 @@ namespace ArrayUtil
         void add_identity () noexcept {
             for (int i = XLO; i <= XHI; ++i) {
                 arr[i+i*(XHI-XLO+1)-(YLO*(XHI-XLO+1)+XLO)] += 1.0_rt;
-            }
-        }
-
-        AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-        void operator= (const MathArray2D<XLO, XHI, YLO, YHI>& other) noexcept {
-            for (int i = 0; i < (YHI-YLO+1)*(XHI-XLO+1); ++i) {
-                arr[i] = other.arr[i];
             }
         }
 

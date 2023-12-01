@@ -24,6 +24,8 @@ EOS_DIR     := helmholtz
 # This sets the network directory
 NETWORK_DIR := aprox21
 
+SCREEN_METHOD := chabrier1998
+
 CONDUCTIVITY_DIR := stellar
 
 INTEGRATOR_DIR =  VODE

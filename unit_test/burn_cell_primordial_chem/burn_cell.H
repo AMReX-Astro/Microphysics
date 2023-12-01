@@ -224,9 +224,9 @@ void burn_cell_c()
 
     state_over_time << std::setw(10) << t;
         state_over_time << std::setw(15) << state.rho;
-    state_over_time << std::setw(12) << state.T; 
+    state_over_time << std::setw(12) << state.T;
     for (int x = 0; x < NumSpec; ++x){
-         state_over_time << std::setw(15) << state.xn[x]; 
+         state_over_time << std::setw(15) << state.xn[x];
     }
     state_over_time << std::endl;
 

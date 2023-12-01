@@ -17,22 +17,30 @@ namespace part_fun {
 
     // interpolation routine
 
+    template <int npts>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void interpolate_pf(const Real t9, const int npts, const Real* temp_array, const Real* pf_array,
+    void interpolate_pf(const Real t9, const Real (&temp_array)[npts], const Real (&pf_array)[npts],
                         Real& pf, Real& dpf_dT) {
 
-        // find the index of the first temperature element we are larger than
+        if (t9 >= temp_array[0] && t9 < temp_array[npts-1]) {
 
-        int idx = -1;
+            // find the largest temperature element <= t9 using a binary search
 
-        for (int i = 0; i < npts-1; ++i) {
-            if (t9 >= temp_array[i] && t9 < temp_array[i+1]) {
-                idx = i;
-                break;
+            int left = 0;
+            int right = npts;
+
+            while (left < right) {
+                int mid = (left + right) / 2;
+                if (temp_array[mid] > t9) {
+                    right = mid;
+                } else {
+                    left = mid + 1;
+                }
             }
-        }
 
-        if (idx >= 0) {
+            const int idx = right - 1;
+
+            // now we have temp_array[idx] <= t9 < temp_array[idx+1]
 
             // construct the slope -- this is (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
 
@@ -45,12 +53,12 @@ namespace part_fun {
 
             // find the derivative (with respect to T, not T9)
 
-            Real dpf_dT9 = pf * std::log(10.0_rt) * slope;
+            Real dpf_dT9 = pf * M_LN10 * slope;
             dpf_dT = dpf_dT9 / 1.e9_rt;
 
         } else {
 
-            // T < the smallest T in the partition function table
+            // T < the smallest T or >= the largest T in the partition function table
             pf = 1.0;
             dpf_dT = 0.0;
 
@@ -89,88 +97,37 @@ constexpr Real get_spin_state(const int inuc) {
 
     switch (inuc) {
 
-    case H1:
-        spin = 2;
-        break;
-
     case He4:
-        spin = 1;
-        break;
-
     case C12:
-        spin = 1;
-        break;
-
-    case C13:
-        spin = 2;
-        break;
-
-    case N13:
-        spin = 2;
-        break;
-
-    case N14:
-        spin = 3;
-        break;
-
-    case N15:
-        spin = 2;
-        break;
-
     case O14:
-        spin = 1;
-        break;
-
-    case O15:
-        spin = 2;
-        break;
-
     case O16:
-        spin = 1;
-        break;
-
-    case O17:
-        spin = 6;
-        break;
-
     case O18:
-        spin = 1;
-        break;
-
-    case F17:
-        spin = 6;
-        break;
-
-    case F18:
-        spin = 3;
-        break;
-
-    case F19:
-        spin = 2;
-        break;
-
     case Ne18:
+    case Ne20:
+    case Mg22:
+    case Mg24:
+    case Fe56:
         spin = 1;
         break;
 
+    case H1:
+    case C13:
+    case N13:
+    case N15:
+    case O15:
+    case F19:
     case Ne19:
         spin = 2;
         break;
 
-    case Ne20:
-        spin = 1;
+    case N14:
+    case F18:
+        spin = 3;
         break;
 
-    case Mg22:
-        spin = 1;
-        break;
-
-    case Mg24:
-        spin = 1;
-        break;
-
-    case Fe56:
-        spin = 1;
+    case O17:
+    case F17:
+        spin = 6;
         break;
 
 
