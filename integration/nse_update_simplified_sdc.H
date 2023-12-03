@@ -98,7 +98,7 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     // evolve for eps * dt;
 
-    Real tau = 0.05 * dt;
+    Real tau = integrator_rp::nse_deriv_dt_factor * dt;
 
     Real rho1 = rho0 + tau * ydot_a[SRHO];
     Real rhoe1 = rhoe0 + tau * ydot_a[SEINT] + tau * rhoe_source;
@@ -135,6 +135,8 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
                skip_X_fill);
 
 
+    // construct the finite-difference approximation to the derivatives
+
     // note that abar, (B/A) here have already seen advection
     // implicitly
 
@@ -144,12 +146,12 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
     Real rho_abar_tilde = rho1 * abar1_out - tau * ydot_a[SFX+iabar];
     Real rho_dabar = rho_abar_tilde - rho0 * abar0_out; // this is MeV / nucleon * g / cm**3
 
-    drhoedt = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
+    drhoedt = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / tau;
     drhoedt -= rho0 * (enu + snu);
 
-    drhoauxdt[iabar] = rho_dabar / dt;
+    drhoauxdt[iabar] = rho_dabar / tau;
     drhoauxdt[iye] = rho0 * dyedt0;
-    drhoauxdt[ibea] = rho_dBEA / dt;
+    drhoauxdt[ibea] = rho_dBEA / tau;
 
 }
 
