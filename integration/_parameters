@@ -85,3 +85,6 @@ nse_iters                 integer         3
 # quantities, what fraction of dt do we use for the finite-difference
 # estimate
 nse_deriv_dt_factor        real           0.05
+
+# for NSE update, do we include the weak rate neutrino losses?
+nse_include_enu_weak       integer        1

@@ -90,7 +90,13 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     // construct initial sources at t0
 
-    Real rhoe_source = -rho0 * (enu + snu);
+    Real rhoe_source{};
+    if (integrator_rp::nse_include_enu_weak == 1) {
+        rhoe_source = -rho0 * (enu + snu);
+    } else {
+        rhoe_source = -rho0 * snu;
+    }
+
     Real rhoaux_source[NumAux];
     rhoaux_source[iye] = rho0 * dyedt0;
     rhoaux_source[iabar] = 0.0;
@@ -147,8 +153,11 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
     Real rho_dabar = rho_abar_tilde - rho0 * abar0_out; // this is MeV / nucleon * g / cm**3
 
     drhoedt = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / tau;
-    drhoedt -= rho0 * (enu + snu);
-
+    if (integrator_rp::nse_include_enu_weak == 1) {
+        drhoedt -= rho0 * (enu + snu);
+    } else {
+        drhoedt -= rho0 * snu;
+    }
     drhoauxdt[iabar] = rho_dabar / tau;
     drhoauxdt[iye] = rho0 * dyedt0;
     drhoauxdt[ibea] = rho_dBEA / tau;
