@@ -89,7 +89,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     nse_table_t nse_state;
     nse_state.T = T_in;
     nse_state.rho = state.rho;
-    nse_state.Ye = ye_inl
+    nse_state.Ye = ye_in;
 
     nse_interp(nse_state);
 
