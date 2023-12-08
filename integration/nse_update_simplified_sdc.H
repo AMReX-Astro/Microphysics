@@ -74,25 +74,23 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     // call the NSE table at t0
 
-    Real abar0_out;
-    Real bea0_out;
-    Real dyedt0;
-    Real dabardt;
-    Real dbeadt;
-    Real enu;
-    Real X[NumSpec];
-
     constexpr bool skip_X_fill{true};
 
-    nse_interp(T0, rho0, eos_state.aux[iye],
-               abar0_out, bea0_out, dyedt0, dabardt, dbeadt, enu, X,
-               skip_X_fill);
+    nse_table_t nse_state;
+    nse_state.T = T0;
+    nse_state.rho = rho0;
+    nse_state.Ye = eos_state.aux[iye];
+    nse_interp(nse_state, skip_X_fill);
+
+    Real abar0_out = nse_state.abar;
+    Real bea0_out = nse_state.bea;
+    Real dyedt0 = nse_state.dyedt;
 
     // construct initial sources at t0
 
     Real rhoe_source{};
     if (integrator_rp::nse_include_enu_weak == 1) {
-        rhoe_source = -rho0 * (enu + snu);
+        rhoe_source = -rho0 * (nse_state.e_nu + snu);
     } else {
         rhoe_source = -rho0 * snu;
     }
@@ -100,7 +98,7 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
     Real rhoaux_source[NumAux];
     rhoaux_source[iye] = rho0 * dyedt0;
     rhoaux_source[iabar] = 0.0;
-    rhoaux_source[ibea] = rho0 * dbeadt;
+    rhoaux_source[ibea] = rho0 * nse_state.dbeadt;
 
     // evolve for eps * dt;
 
@@ -132,14 +130,15 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     // call NSE at t0 + tau
 
-    Real abar1_out;
-    Real bea1_out;
-    Real dyedt1;
+    nse_state.T = T1;
+    nse_state.rho = rho1;
+    nse_state.Ye = eos_state.aux[iye];
 
-    nse_interp(T1, rho1, eos_state.aux[iye],
-               abar1_out, bea1_out, dyedt1, dabardt, dbeadt, enu, X,
-               skip_X_fill);
+    nse_interp(nse_state, skip_X_fill);
 
+    Real abar1_out = nse_state.abar;
+    Real bea1_out = nse_state.bea;
+    Real dyedt1 = nse_state.dyedt;
 
     // construct the finite-difference approximation to the derivatives
 
@@ -154,7 +153,7 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     drhoedt = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / tau;
     if (integrator_rp::nse_include_enu_weak == 1) {
-        drhoedt -= rho0 * (enu + snu);
+        drhoedt -= rho0 * (nse_state.e_nu + snu);
     } else {
         drhoedt -= rho0 * snu;
     }
@@ -253,18 +252,15 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // with our thermodynamic state here, plus we need to get the mass
     // fractions
 
-    Real abar_out{};
-    Real bea_out{};
-    Real dyedt{};
-    Real dabardt{};
-    Real dbeadt{};
-    Real enu{};
-    Real X[NumSpec] = {};
 
     constexpr bool skip_X_fill{false};
 
-    nse_interp(T_new, rho_new, eos_state.aux[iye],
-               abar_out, bea_out, dyedt, dabardt, dbeadt, enu, X, skip_X_fill);
+    nse_table_t nse_state;
+    nse_state.T = T_new;
+    nse_state.rho = rho_new;
+    nse_state.Ye = eos_state.aux[iye];
+
+    nse_interp(nse_state, skip_X_fill);
 
     // store the new state
 
@@ -272,24 +268,24 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // make sure they are normalized
 
     Real sum_X{0.0_rt};
-    for (auto & xn : X) {
-        xn = amrex::max(small_x, amrex::min(1.0_rt, xn));
+    for (auto & xn : nse_state.X) {
+        xn = std::clamp(xn, small_x, 1.0_rt);
         sum_X += xn;
     }
 
-    for (auto & xn : X) {
+    for (auto & xn : nse_state.X) {
         xn /= sum_X;
     }
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = rho_new * X[n];
+        state.y[SFS+n] = rho_new * nse_state.X[n];
     }
 
     // aux data comes from the integration or the table
 
     state.y[SFX+iye] = rhoaux_new[iye];
-    state.y[SFX+iabar] = rho_new * abar_out;
-    state.y[SFX+ibea] = rho_new * bea_out;
+    state.y[SFX+iabar] = rho_new * nse_state.abar;
+    state.y[SFX+ibea] = rho_new * nse_state.bea;
 
     // density and momenta have already been updated
 
