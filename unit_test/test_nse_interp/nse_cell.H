@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <nse_table.H>
+#include <nse_table_type.H>
 
 using namespace unit_test_rp;
 
@@ -120,25 +121,21 @@ void nse_cell_c()
 
     std::cout << "tricubic interpolated values: " << std::endl;
 
-    Real abar;
-    Real bea;
-    Real dyedt;
-    Real dabardt;
-    Real dbeadt;
-    Real e_nu;
-    Real X[NumSpec];
+    nse_table_t nse_state;
+    nse_state.T = temperature;
+    nse_state.rho = density;
+    nse_state.Ye = ye;
 
-    nse_interp(temperature, density, ye,
-               abar, bea, dyedt, dabardt, dbeadt, e_nu, X);
+    nse_interp(nse_state);
 
-    std::cout << "abar    = " << abar << std::endl;
-    std::cout << "bea     = " << bea << std::endl;
-    std::cout << "dyedt   = " << dyedt << std::endl;
-    std::cout << "dabardt = " << dabardt << std::endl;
-    std::cout << "dbeadt = " << dbeadt << std::endl;
-    std::cout << "e_nu    = " << e_nu << std::endl;
+    std::cout << "abar    = " << nse_state.abar << std::endl;
+    std::cout << "bea     = " << nse_state.bea << std::endl;
+    std::cout << "dyedt   = " << nse_state.dyedt << std::endl;
+    std::cout << "dabardt = " << nse_state.dabardt << std::endl;
+    std::cout << "dbeadt = " << nse_state.dbeadt << std::endl;
+    std::cout << "e_nu    = " << nse_state.e_nu << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "X(" << short_spec_names_cxx[n] << ") = " << X[n] << std::endl;
+        std::cout << "X(" << short_spec_names_cxx[n] << ") = " << nse_state.X[n] << std::endl;
     }
 
 

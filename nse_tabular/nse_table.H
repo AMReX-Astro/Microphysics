@@ -13,6 +13,8 @@
 #include <extern_parameters.H>
 #include <nse_table_data.H>
 #include <nse_table_size.H>
+#include <nse_table_type.H>
+
 
 using namespace amrex;
 using namespace network_rp;
@@ -325,37 +327,35 @@ Real tricubic_dT(const int ir0, const int it0, const int ic0,
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_interp(const Real T, const Real rho, const Real ye,
-                Real& abar, Real& bea, Real& dyedt, Real& dabardt, Real& dbeadt, Real& e_nu,
-                Real* X, bool skip_X_fill=false) {
+void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
 
     // if skip_X_fill = true then we don't fill X[] with the mass fractions.
 
     using namespace nse_table;
     using namespace AuxZero;
 
-    Real rholog = std::log10(rho);
+    Real rholog = std::log10(nse_state.rho);
     {
         Real rmin = nse_table_size::logrho_min;
         Real rmax = nse_table_size::logrho_max;
 
-        rholog = std::max(rmin, std::min(rmax, rholog));
+        rholog = std::clamp(rholog, rmin, rmax);
     }
 
-    Real tlog = std::log10(T);
+    Real tlog = std::log10(nse_state.T);
     {
         Real tmin = nse_table_size::logT_min;
         Real tmax = nse_table_size::logT_max;
 
-        tlog = std::max(tmin, std::min(tmax, tlog));
+        tlog = std::clamp(tlog, tmin, tmax);
     }
 
-    Real yet = ye;
+    Real yet = nse_state.Ye;
     {
         Real yemin = nse_table_size::ye_min;
         Real yemax = nse_table_size::ye_max;
 
-        yet = std::max(yemin, std::min(yemax, yet));
+        yet = std::clamp(yet, yemin, yemax);
     }
 
     if (nse_table_interp_linear) {
@@ -364,12 +364,12 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         int it1 = nse_get_logT_index(tlog);
         int ic1 = nse_get_ye_index(yet);
 
-        abar = trilinear(ir1, it1, ic1, rholog, tlog, yet, abartab);
-        bea = trilinear(ir1, it1, ic1, rholog, tlog, yet, beatab);
-        dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dyedttab);
-        dabardt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dabardttab);
-        dbeadt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dbeadttab);
-        e_nu = trilinear(ir1, it1, ic1, rholog, tlog, yet, enutab);
+        nse_state.abar = trilinear(ir1, it1, ic1, rholog, tlog, yet, abartab);
+        nse_state.bea = trilinear(ir1, it1, ic1, rholog, tlog, yet, beatab);
+        nse_state.dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dyedttab);
+        nse_state.dabardt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dabardttab);
+        nse_state.dbeadt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dbeadttab);
+        nse_state.e_nu = trilinear(ir1, it1, ic1, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
@@ -378,7 +378,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
             for (int n = 1; n <= NumSpec; n++) {
                 Real _X = trilinear(ir1, it1, ic1, rholog, tlog, yet,
                                     [=] (const int i) {return massfractab(n, i);});
-                X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+                nse_state.X[n-1] = std::clamp(_X, 0.0_rt, 1.0_rt);
             }
         }
 
@@ -398,12 +398,12 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         int ic0 = nse_get_ye_index(yet) - 1;
         ic0 = std::clamp(ic0, 1, nse_table_size::nye-3);
 
-        abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
-        bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
-        dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dyedttab);
-        dabardt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dabardttab);
-        dbeadt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dbeadttab);
-        e_nu = tricubic(ir0, it0, ic0, rholog, tlog, yet, enutab);
+        nse_state.abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
+        nse_state.bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
+        nse_state.dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dyedttab);
+        nse_state.dabardt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dabardttab);
+        nse_state.dbeadt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dbeadttab);
+        nse_state.e_nu = tricubic(ir0, it0, ic0, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
@@ -412,7 +412,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
             for (int n = 1; n <= NumSpec; n++) {
                 Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
                                    [=] (const int i) {return massfractab(n, i);});
-                X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+                nse_state.X[n-1] = std::clamp(_X, 0.0_rt, 1.0_rt);
             }
         }
     }
