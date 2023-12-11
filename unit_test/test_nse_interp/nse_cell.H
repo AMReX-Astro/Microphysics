@@ -142,4 +142,10 @@ void nse_cell_c()
     }
 
 
+    std::cout << "testing temperature derivatives of cubic" << std::endl;
+
+    std::cout << "first manual derivative of dAbar/dt" << std::endl;
+
+
+
 }
