@@ -8,12 +8,12 @@
 
 #include <nse_table.H>
 #include <nse_table_type.H>
-
-using namespace unit_test_rp;
+#include <nse_eos.H>
 
 void nse_cell_c()
 {
 
+    using namespace unit_test_rp;
 
     std::cout << "rho, T, Ye = " << density << " " << temperature << " " << ye << std::endl;
 

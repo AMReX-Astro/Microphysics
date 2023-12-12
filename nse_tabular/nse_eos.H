@@ -10,9 +10,6 @@
 #include <nse_table.H>
 
 
-using namespace amrex;
-
-
 ///
 /// if we are in NSE, then the entire thermodynamic state is just
 /// a function of rho, T, Ye.  We can write the energy as:
@@ -27,6 +24,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real
 nse_T_from_e(const Real rho, const Real e_in, const Real Ye, const Real T_guess) {
 
+    using namespace amrex;
     using namespace AuxZero;
 
     const Real ttol{1.e-8_rt};
@@ -54,7 +52,7 @@ nse_T_from_e(const Real rho, const Real e_in, const Real Ye, const Real T_guess)
         Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for T
-
+        eos_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
