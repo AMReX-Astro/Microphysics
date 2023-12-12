@@ -465,7 +465,7 @@ nse_interp_dT(const Real temp, const Real rho, const Real ye, const T& data) {
     // note: this is returning the derivative wrt log10(T), so we need to
     // convert to d/dT
 
-    Real ddatadT = std::log(10.0_rt) * temp * tricubic_deriv(ir0, it0, ic0, rholog, tlog, yet, data);
+    Real ddatadT = tricubic_dT(ir0, it0, ic0, rholog, tlog, yet, data) / (std::log(10.0_rt) * temp);
 
     return ddatadT;
 

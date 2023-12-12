@@ -139,10 +139,33 @@ void nse_cell_c()
     }
 
 
+    std::cout << std::endl;
     std::cout << "testing temperature derivatives of cubic" << std::endl;
 
-    std::cout << "first manual derivative of dAbar/dt" << std::endl;
+    std::cout << "first finite-difference derivatives" << std::endl;
 
+    Real abar_old = nse_state.abar;
+    Real bea_old = nse_state.bea;
+    Real T_old = nse_state.T;
+
+    const Real eps = 1.e-8_rt;
+    nse_state.T *= (1.0_rt + eps);
+
+    nse_interp(nse_state);
+
+    std::cout << "dAbar/dT = " << (nse_state.abar - abar_old) / (nse_state.T - T_old) << std::endl;
+    std::cout << "dbea/dT = " << (nse_state.bea - bea_old) / (nse_state.T - T_old) << std::endl;
+
+    std::cout << "now using derivative of the interpolant" << std::endl;
+
+    Real dabardT = nse_interp_dT(temperature, density, ye,
+                                 nse_table::abartab);
+
+    Real dbeadT = nse_interp_dT(temperature, density, ye,
+                                 nse_table::beatab);
+
+    std::cout << "dAbar/dT = " << dabardT << std::endl;
+    std::cout << "dbea/dT = " << dabardT << std::endl;
 
 
 }
