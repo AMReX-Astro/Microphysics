@@ -64,5 +64,5 @@ dAbar/dT = -1.070778042e-09
 dbea/dT = -6.886297725e-12
 now using derivative of the interpolant
 dAbar/dT = -1.070778122e-09
-dbea/dT = -1.070778122e-09
+dbea/dT = -6.886272826e-12
 AMReX (23.12-8-g43d71da32fa4) finalized

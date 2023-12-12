@@ -165,7 +165,7 @@ void nse_cell_c()
                                  nse_table::beatab);
 
     std::cout << "dAbar/dT = " << dabardT << std::endl;
-    std::cout << "dbea/dT = " << dabardT << std::endl;
+    std::cout << "dbea/dT = " << dbeadT << std::endl;
 
 
 }
