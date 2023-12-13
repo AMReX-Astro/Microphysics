@@ -167,5 +167,87 @@ void nse_cell_c()
     std::cout << "dAbar/dT = " << dabardT << std::endl;
     std::cout << "dbea/dT = " << dbeadT << std::endl;
 
+    std::cout << std::endl;
+
+    //
+    // EOS testing
+    //
+
+    // now we test the EOS, in particular, we want to ensure that
+    // given e, rho, Y_e, we can find a T that is consistent with both
+    // the EOS and the NSE table
+
+    // attempt 1: using the normal EOS interfaces
+    //
+    // we'll do:
+    //
+    // T, rho, Ye -> Abar
+    // T, rho, Ye, Abar -> e
+    //
+    // then perturb e to e' and do:
+    //
+    // e', rho, Ye -> T'
+    // T', rho, Ye -> Abar'
+    //
+    // and finally check
+    //
+    // T', rho, Ye, Abar' -> e' ???
+
+    // first get the abar consistent with our inputs and find e
+
+    nse_state.T = temperature;
+    nse_state.rho = density;
+    nse_state.Ye = ye;
+
+    nse_interp(nse_state);
+
+    Real abar_orig = nse_state.abar;
+
+    eos_t eos_state;
+
+    eos_state.T = temperature;
+    eos_state.rho = density;
+    eos_state.aux[iye] = nse_state.Ye;
+    eos_state.aux[iabar] = nse_state.abar;
+
+    eos(eos_input_rt, eos_state);
+
+    Real e_orig = eos_state.e;
+
+    // now perturn e and find T, then redo NSE to get abar and finally
+    // see if we get back our new e
+
+    Real e_new = eos_state.e * 1.05;
+
+    eos_state.e = e_new;
+    eos(eos_input_re, eos_state);
+
+    nse_state.T = eos_state.T;
+    nse_interp(nse_state);
+
+    eos_state.aux[iabar] = nse_state.abar;
+    eos(eos_input_rt, eos_state);
+
+    std::cout << "EOS e consistency check: " << eos_state.e << " " << e_new << std::endl;
+
+    // now we try the new interface.  This effectively does:
+    // e', rho, Ye -> Abar', T'
+
+    eos_state.T = temperature;
+    eos_state.e = e_new;
+    eos_state.rho = density;
+    eos_state.aux[iye] = ye;
+    eos_state.aux[iabar] = abar_orig;
+
+    nse_T_abar_from_e(eos_state.rho, eos_state.e, eos_state.aux[iye],
+                      eos_state.T, eos_state.aux[iabar]);
+
+    std::cout << "updated T: " << eos_state.T << std::endl;
+
+    // now check if we get back the correct e!
+
+    eos(eos_input_rt, eos_state);
+
+    std::cout << "EOS e consistency check: " << eos_state.e << " " << e_new << std::endl;
 
 }

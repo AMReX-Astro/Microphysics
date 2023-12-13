@@ -20,9 +20,13 @@
 /// This function inverts this form of the EOS to find the T
 /// that satisfies the EOS and NSE.
 ///
+/// Note: T and abar come in as initial guesses and are updated
+/// on output
+///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real
-nse_T_from_e(const Real rho, const Real e_in, const Real Ye, const Real T_guess) {
+void
+nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
+                  Real& T, Real& abar) {
 
     using namespace amrex;
     using namespace AuxZero;
@@ -36,13 +40,13 @@ nse_T_from_e(const Real rho, const Real e_in, const Real Ye, const Real T_guess)
 
     bool converged{false};
 
-    Real T{T_guess};
     int iter{};
+
+    nse_table_t nse_state;
 
     while (not converged && iter < max_iter) {
 
         // call NSE table to get Abar
-        nse_table_t nse_state;
         nse_state.T = T;
         nse_state.rho = rho;
         nse_state.Ye = Ye;
@@ -65,13 +69,13 @@ nse_T_from_e(const Real rho, const Real e_in, const Real Ye, const Real T_guess)
 
         // perturb T and call NSE again to get perturbed Abar
         nse_state.T *= (1.0_rt + eps);
-        nse_interp(nse_state,skip_X_fill);
+        nse_interp(nse_state, skip_X_fill);
 
         // estimate dAbar/dT
         Real dabar_dT = (nse_state.abar - abar_old) / (eps * T);
 
         // compute the correction to our guess
-        Real dT = f / (eos_state.dedT + eos_state.dedA * dabar_dT);
+        Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT);
 
         // update the temperature
         T = std::clamp(T + dT, 0.5 * T, 2.0 * T);
@@ -84,7 +88,9 @@ nse_T_from_e(const Real rho, const Real e_in, const Real Ye, const Real T_guess)
         iter++;
     }
 
-    return T;
+    // T is set to the last T
+    // we just need to save abar for output
+    abar = nse_state.abar;
 
 }
 
