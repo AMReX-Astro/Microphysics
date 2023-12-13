@@ -239,10 +239,13 @@ void nse_cell_c()
     eos_state.aux[iye] = ye;
     eos_state.aux[iabar] = abar_orig;
 
+    Real abar_start = eos_state.aux[iabar];
+
     nse_T_abar_from_e(eos_state.rho, eos_state.e, eos_state.aux[iye],
                       eos_state.T, eos_state.aux[iabar]);
 
     std::cout << "updated T: " << eos_state.T << std::endl;
+    std::cout << "change in abar: " << abar_start << " " << eos_state.aux[iabar] << std::endl;
 
     // now check if we get back the correct e!
 

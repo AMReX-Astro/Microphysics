@@ -20,7 +20,16 @@
 /// This function inverts this form of the EOS to find the T
 /// that satisfies the EOS and NSE.
 ///
-/// Note: T and abar come in as initial guesses and are updated
+/// The basic idea is that Abar and Zbar are both functions of
+/// rho, T, Ye through the NSE table, so we express the energy
+/// as:
+///
+///      e = e(rho, T, Abar(rho, T, Ye), Zbar(rho, T, Ye)
+///
+/// and NR on that.  Note that Zbar = Ye Abar, so we can group
+/// those derivative terms together.
+///
+/// T and abar come in as initial guesses and are updated
 /// on output
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -31,7 +40,7 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
     using namespace amrex;
     using namespace AuxZero;
 
-    const Real ttol{1.e-8_rt};
+    const Real ttol{1.e-6_rt};
     const int max_iter{100};
     const Real eps{1.e-8_rt};
 
@@ -67,18 +76,15 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
 
         Real f = eos_state.e - e_in;
 
-        // perturb T and call NSE again to get perturbed Abar
-        nse_state.T *= (1.0_rt + eps);
-        nse_interp(nse_state, skip_X_fill);
-
-        // estimate dAbar/dT
-        Real dabar_dT = (nse_state.abar - abar_old) / (eps * T);
+        Real dabar_dT = nse_interp_dT(T, rho, Ye, nse_table::abartab);
 
         // compute the correction to our guess
-        Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT);
+
+        Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT
+                                  + Ye * eos_state.dedZ * dabar_dT);
 
         // update the temperature
-        T = std::clamp(T + dT, 0.5 * T, 2.0 * T);
+        T = std::clamp(T + dT, 0.25 * T, 4.0 * T);
 
         // check convergence
 

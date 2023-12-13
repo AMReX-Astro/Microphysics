@@ -65,4 +65,9 @@ dbea/dT = -6.886297725e-12
 now using derivative of the interpolant
 dAbar/dT = -1.070778122e-09
 dbea/dT = -6.886272826e-12
+
+EOS e consistency check: 1.395273834e+18 1.388449367e+18
+updated T: 6394612134
+change in abar: 55.60621897 50.27196857
+EOS e consistency check: 1.388449367e+18 1.388449367e+18
 AMReX (23.12-8-g43d71da32fa4) finalized
