@@ -86,11 +86,11 @@ void burn_cell_c(const eos_t& eos_state)
         // state.e represents the change in energy over the burn (for
         // just this sybcycle), so turn it back into a physical energy
 
-        // burn_state.e += energy_initial;
+        burn_state.e += energy_initial;
 
         // reset the initial energy for the next subcycle
 
-        // energy_initial = burn_state.e;
+        energy_initial = burn_state.e;
 
         t += dt;
     }
