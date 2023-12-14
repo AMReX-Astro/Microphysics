@@ -95,7 +95,7 @@ void burn_cell_c(const eos_t& eos_state)
         t += dt;
     }
 
-    // Now find the mass fractio via NSE calculation
+    // Now find the mass fraction via NSE calculation
     burn_state.mu_p = -3.0_rt;
     burn_state.mu_n = -12.0_rt;
     auto nse_state = get_actual_nse_state(burn_state);
