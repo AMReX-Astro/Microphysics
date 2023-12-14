@@ -16,17 +16,6 @@ void burn_cell_c(const eos_t& eos_state)
 {
     // Given eos_state with density, temperature and mass fractions
 
-
-    // Echo initial conditions at burn and fill burn state input
-
-    std::cout << "Maximum Time (s): " << tmax << std::endl;
-    std::cout << "State Density (g/cm^3): " << eos_state.rho << std::endl;
-    std::cout << "State Temperature (K): " << eos_state.T << std::endl;
-    std::cout << "State electron fraction: " << eos_state.y_e << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << eos_state.xn[n] << std::endl;
-    }
-
     burn_t burn_state;
 
     burn_state.rho = eos_state.rho;
@@ -97,17 +86,11 @@ void burn_cell_c(const eos_t& eos_state)
         // state.e represents the change in energy over the burn (for
         // just this sybcycle), so turn it back into a physical energy
 
-        burn_state.e += energy_initial;
+        // burn_state.e += energy_initial;
 
         // reset the initial energy for the next subcycle
 
-        energy_initial = burn_state.e;
-
-        // get the updated T
-
-        // if (call_eos_in_rhs) {
-        //     eos(eos_input_re, burn_state);
-        // }
+        // energy_initial = burn_state.e;
 
         t += dt;
     }
@@ -141,13 +124,6 @@ void burn_cell_c(const eos_t& eos_state)
 		  << rel_err << std::endl;
     }
     std::cout << "------------------------------------" << std::endl;
-    // std::cout << "------------------------------------" << std::endl;
-    // std::cout << "species creation rates: " << std::endl;
-    // for (int n = 0; n < NumSpec; ++n) {
-    //     std::cout << "omegadot(" << short_spec_names_cxx[n] << "): "
-    //               << (burn_state.xn[n] - burn_state_in.xn[n]) / tmax << std::endl;
-    // }
-
 }
 
 void nse_network_compatibility()
@@ -156,11 +132,10 @@ void nse_network_compatibility()
     // with the results from NSE calculations given any network.
     // Note that this network should not have any weak rates.
 
-
     Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<Real>(nrho-1);
     Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<Real>(nT-1);
 
-    // Create massfraction 2d array to hold 3 differents sets of mass fractions
+    // Create massfraction 2d array to hold 3 differents sets of initial mass fractions
     // Corresponding to ye < 0.5, ye = 0.5, and ye > 0.5
 
     amrex::Array2D<Real, 1, 3, 1, NumSpec+1, Order::C> massfractions;
@@ -171,13 +146,14 @@ void nse_network_compatibility()
     bool condition2_met = false;
     for (int n = 0; n < NumSpec; ++n) {
         if (aion[n] == 2 * zion[n] && !condition1_met) {
+
             // Set the first encountered nuclei with Z/A = 0.5
-            // This is likely going to be He4
 	    massfractions(1, n+1) = 0.8_rt;
 	    condition1_met = true;
 	    continue;
 	}
 	if (aion[n] > 2 * zion[n] && !condition2_met) {
+
 	    // This is for achieving ye < 0.5
 	    massfractions(1, n+1) = 0.2_rt;
 	    condition2_met = true;
@@ -186,14 +162,13 @@ void nse_network_compatibility()
 	massfractions(1, n+1) = 0.0_rt;
     }
 
-
     // For ye = 0.5:
+
     condition1_met = false;
     for (int n = 0; n < NumSpec; ++n) {
         if (aion[n] == 2 * zion[n] && !condition1_met) {
-            // Set the first encountered nuclei with Z/A = 0.5
 
-            // This is likely going to be He4
+            // Set the first encountered nuclei with Z/A = 0.5
 	  massfractions(2, n+1) = 1.0_rt;
 	  condition1_met = true;
 	  continue;
@@ -207,13 +182,14 @@ void nse_network_compatibility()
     condition2_met = false;
     for (int n = 0; n < NumSpec; ++n) {
         if (aion[n] == 2 * zion[n] && !condition1_met) {
+
             // Set the first encountered nuclei with Z/A = 0.5
-            // This is likely going to be He4
 	    massfractions(3, n+1) = 0.8_rt;
 	    condition1_met = true;
 	    continue;
 	}
 	if (aion[n] < 2 * zion[n] && !condition2_met) {
+
 	    // This is for achieving ye > 0.5
 	    massfractions(3, n+1) = 0.2_rt;
 	    condition2_met = true;
