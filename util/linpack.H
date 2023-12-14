@@ -77,7 +77,7 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
             pivot1(k+1) = l + 1;
 
             // zero pivot implies this column already triangularized
-            if (a1(l+1,k) != 0.0e0_rt) {
+            if (a1(l+1,k+1) != 0.0e0_rt) {
 
                 // interchange if necessary
                 if (l != k) {
