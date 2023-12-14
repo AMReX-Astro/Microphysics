@@ -102,7 +102,6 @@ void burn_cell_c(const eos_t& eos_state)
 
     std::cout << std::scientific << std::setprecision(3);
     std::cout << "------------------------------------" << std::endl;
-    std::cout << "successful? " << burn_state.success << std::endl;
     std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
     std::cout << " Initial vs. Final T = " << burn_state_in.T << "  "
 	      << burn_state.T << std::endl;
