@@ -14,7 +14,7 @@
 #include <extern_parameters.H>
 
 #include <burn_type.H>
-#include <eos.H>
+#include <nse_eos.H>
 
 #ifdef NSE_TABLE
 #include <nse_table.H>
@@ -39,20 +39,17 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     // start with the current state and compute T
 
-    eos_re_t eos_state;
-    eos_state.rho = rho0;
-    eos_state.e = rhoe0 / rho0;
-    eos_state.T = 1.e8;  // guess
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = rhoaux0[n] / rho0;
-    }
-
     Real T0;
+    Real abar;
+    Real Ye0 = rhoaux0[iye] / rho0;
+
     if (T_fixed > 0) {
         T0 = T_fixed;
+        abar = rhoaux0[iabar] / rho0;
     } else {
-        eos(eos_input_re, eos_state);
-        T0 = eos_state.T;
+        Real e0 = rhoe0 / rho0;
+        T0 = 1.e8;  // initial guess
+        nse_T_abar_from_e(rho0, e0, Ye0, T0, abar);
     }
 
     // compute the plasma neutrino losses at t0
@@ -63,8 +60,7 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
     Real dsnuda{0.0};
     Real dsnudz{0.0};
 
-    Real abar = eos_state.aux[iabar];
-    Real zbar = abar * eos_state.aux[iye];
+    Real zbar = abar * Ye0;
 
 #ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
@@ -79,7 +75,7 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
     nse_table_t nse_state;
     nse_state.T = T0;
     nse_state.rho = rho0;
-    nse_state.Ye = eos_state.aux[iye];
+    nse_state.Ye = Ye0;
     nse_interp(nse_state, skip_X_fill);
 
     Real abar0_out = nse_state.abar;
@@ -113,32 +109,28 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     // compute the temperature at t0 + tau
 
-    eos_state.rho = rho1;
-    eos_state.e = rhoe1 / rho1;
-    eos_state.T = T0;
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = rhoaux1[n] / rho1;
-    }
-
     Real T1;
+    Real abar1_out;
+    Real Ye1 = rhoaux1[iye] / rho1;
+
     if (T_fixed > 0) {
         T1 = T_fixed;
+        abar1_out = rhoaux1[iabar] / rho1;
     } else {
-        eos(eos_input_re, eos_state);
-        T1 = eos_state.T;
+        Real e1 = rhoe1 / rho1;
+        T1 = T0;
+        nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1_out);
     }
 
     // call NSE at t0 + tau
 
     nse_state.T = T1;
     nse_state.rho = rho1;
-    nse_state.Ye = eos_state.aux[iye];
+    nse_state.Ye = Ye1;
 
     nse_interp(nse_state, skip_X_fill);
 
-    Real abar1_out = nse_state.abar;
     Real bea1_out = nse_state.bea;
-    Real dyedt1 = nse_state.dyedt;
 
     // construct the finite-difference approximation to the derivatives
 
@@ -232,20 +224,17 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     // get the new temperature
 
-    eos_re_t eos_state;
-    eos_state.rho = rho_new;
-    eos_state.e = rhoe_new / rho_new;
-    eos_state.T = 1.e8;  // guess
-    for (int n = 0; n < NumAux; n++) {
-        eos_state.aux[n] = rhoaux_new[n] / rho_new;
-    }
-
     Real T_new;
+    Real abar_new;
+    Real Ye_new = rhoaux_new[iye] / rho_new;
+
     if (state.T_fixed > 0) {
         T_new = state.T_fixed;
+        abar_new = rhoaux_new[iabar] / rho_new;
     } else {
-        eos(eos_input_re, eos_state);
-        T_new = eos_state.T;
+        Real e_new = rhoe_new / rho_new;
+        T_new = 1.e8;  // initial guess
+        nse_T_abar_from_e(rho_new, e_new, Ye_new, T_new, abar_new);
     }
 
     // do a final NSE call -- we want the ending B/A to be consistent
@@ -258,7 +247,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     nse_table_t nse_state;
     nse_state.T = T_new;
     nse_state.rho = rho_new;
-    nse_state.Ye = eos_state.aux[iye];
+    nse_state.Ye = Ye_new;
 
     nse_interp(nse_state, skip_X_fill);
 
@@ -284,7 +273,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // aux data comes from the integration or the table
 
     state.y[SFX+iye] = rhoaux_new[iye];
-    state.y[SFX+iabar] = rho_new * nse_state.abar;
+    state.y[SFX+iabar] = rho_new * abar_new;
     state.y[SFX+ibea] = rho_new * nse_state.bea;
 
     // density and momenta have already been updated
