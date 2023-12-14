@@ -17,7 +17,6 @@
 #include <eos.H>
 
 #ifdef NSE_TABLE
-#include <nse_table_type.H>
 #include <nse_table.H>
 #endif
 #ifdef NSE_NET
@@ -27,6 +26,143 @@
 using namespace amrex;
 
 #if defined(NSE_TABLE)
+
+///
+/// this acts as an explicit Euler step for the system (rho e, rho aux)
+/// on input, *_source are the reactive sources at time t0 and on output
+/// they are the sources at time t0+dt
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
+                const Real dt, const Real *ydot_a,
+                Real& drhoedt, Real* drhoauxdt, const Real T_fixed) {
+
+    // start with the current state and compute T
+
+    eos_re_t eos_state;
+    eos_state.rho = rho0;
+    eos_state.e = rhoe0 / rho0;
+    eos_state.T = 1.e8;  // guess
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = rhoaux0[n] / rho0;
+    }
+
+    Real T0;
+    if (T_fixed > 0) {
+        T0 = T_fixed;
+    } else {
+        eos(eos_input_re, eos_state);
+        T0 = eos_state.T;
+    }
+
+    // compute the plasma neutrino losses at t0
+
+    Real snu{0.0};
+    Real dsnudt{0.0};
+    Real dsnudd{0.0};
+    Real dsnuda{0.0};
+    Real dsnudz{0.0};
+
+    Real abar = eos_state.aux[iabar];
+    Real zbar = abar * eos_state.aux[iye];
+
+#ifdef NEUTRINOS
+    constexpr int do_derivatives = 0;
+    sneut5<do_derivatives>(T0, rho0, abar, zbar,
+                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+#endif
+
+    // call the NSE table at t0
+
+    constexpr bool skip_X_fill{true};
+
+    nse_table_t nse_state;
+    nse_state.T = T0;
+    nse_state.rho = rho0;
+    nse_state.Ye = eos_state.aux[iye];
+    nse_interp(nse_state, skip_X_fill);
+
+    Real abar0_out = nse_state.abar;
+    Real bea0_out = nse_state.bea;
+    Real dyedt0 = nse_state.dyedt;
+
+    // construct initial sources at t0
+
+    Real rhoe_source{};
+    if (integrator_rp::nse_include_enu_weak == 1) {
+        rhoe_source = -rho0 * (nse_state.e_nu + snu);
+    } else {
+        rhoe_source = -rho0 * snu;
+    }
+
+    Real rhoaux_source[NumAux];
+    rhoaux_source[iye] = rho0 * dyedt0;
+    rhoaux_source[iabar] = 0.0;
+    rhoaux_source[ibea] = rho0 * nse_state.dbeadt;
+
+    // evolve for eps * dt;
+
+    Real tau = integrator_rp::nse_deriv_dt_factor * dt;
+
+    Real rho1 = rho0 + tau * ydot_a[SRHO];
+    Real rhoe1 = rhoe0 + tau * ydot_a[SEINT] + tau * rhoe_source;
+    Real rhoaux1[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        rhoaux1[n] = rhoaux0[n] + tau * ydot_a[SFX+n] + tau * rhoaux_source[n];
+    }
+
+    // compute the temperature at t0 + tau
+
+    eos_state.rho = rho1;
+    eos_state.e = rhoe1 / rho1;
+    eos_state.T = T0;
+    for (int n = 0; n < NumAux; n++) {
+        eos_state.aux[n] = rhoaux1[n] / rho1;
+    }
+
+    Real T1;
+    if (T_fixed > 0) {
+        T1 = T_fixed;
+    } else {
+        eos(eos_input_re, eos_state);
+        T1 = eos_state.T;
+    }
+
+    // call NSE at t0 + tau
+
+    nse_state.T = T1;
+    nse_state.rho = rho1;
+    nse_state.Ye = eos_state.aux[iye];
+
+    nse_interp(nse_state, skip_X_fill);
+
+    Real abar1_out = nse_state.abar;
+    Real bea1_out = nse_state.bea;
+    Real dyedt1 = nse_state.dyedt;
+
+    // construct the finite-difference approximation to the derivatives
+
+    // note that abar, (B/A) here have already seen advection
+    // implicitly
+
+    Real rho_bea_tilde = rho1 * bea1_out - tau * ydot_a[SFX+ibea];
+    Real rho_dBEA = rho_bea_tilde - rho0 * bea0_out; // this is MeV / nucleon * g / cm**3
+
+    Real rho_abar_tilde = rho1 * abar1_out - tau * ydot_a[SFX+iabar];
+    Real rho_dabar = rho_abar_tilde - rho0 * abar0_out; // this is MeV / nucleon * g / cm**3
+
+    drhoedt = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / tau;
+    if (integrator_rp::nse_include_enu_weak == 1) {
+        drhoedt -= rho0 * (nse_state.e_nu + snu);
+    } else {
+        drhoedt -= rho0 * snu;
+    }
+    drhoauxdt[iabar] = rho_dabar / tau;
+    drhoauxdt[iye] = rho0 * dyedt0;
+    drhoauxdt[ibea] = rho_dBEA / tau;
+
+}
+
 ///
 /// update the state due to NSE changes for the simplified-SDC case
 /// this version works with the tabulated NSE and requires AUX_THERMO
@@ -41,149 +177,96 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     state.n_rhs = 0;
     state.n_jac = 0;
 
-    // we need the initial Ye to get the NSE state.  We also
-    // want the initial rho <B/A> since we may not be entering
-    // this routine already in NSE.  This means that there will
-    // be an energy release from us instantaneously adjusting
-    // into NSE (the first call to nse_interp) + an energy
-    // release from the evolution of NSE over the timestep
+    // store the initial state
 
-    Real ye_in = state.y[SFX+iye] / state.rho;
-    Real rho_bea_old = state.y[SFX+ibea];
+    Real rho_old = state.y[SRHO];
+    Real rhoe_old = state.y[SEINT];
+    Real rhoaux_old[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        rhoaux_old[n] = state.y[SFX+n];
+    }
 
     // density and momentum have no reactive sources
-    Real rho_old = state.y[SRHO];
 
     state.y[SRHO] += dt * state.ydot_a[SRHO];
     state.y[SMX] += dt * state.ydot_a[SMX];
     state.y[SMY] += dt * state.ydot_a[SMY];
     state.y[SMZ] += dt * state.ydot_a[SMZ];
 
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
+    // do an RK2 integration
 
-    Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+    // get the derivatives at t = t^n
 
-    // get the neutrino loss term -- we want to use the state that we
-    // came in here with, so the original Abar and Zbar
+    Real drhoedt;
+    Real drhoauxdt[NumSpec];
 
-    Real snu{0.0};
-    Real dsnudt{0.0};
-    Real dsnudd{0.0};
-    Real dsnuda{0.0};
-    Real dsnudz{0.0};
+    nse_derivs(rho_old, rhoe_old, rhoaux_old,
+               dt, state.ydot_a,
+               drhoedt, drhoauxdt, state.T_fixed);
 
-    Real abar = state.y[SFX+iabar] / rho_old;
-    Real zbar = abar * ye_in;
+    // evolve to the midpoint in time
 
-#ifdef NEUTRINOS
-    constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
-#endif
-    Real snu_old = snu;
+    Real rho_tmp = rho_old + 0.5_rt * dt * state.ydot_a[SRHO];
+    Real rhoe_tmp = rhoe_old + 0.5_rt * dt * (state.ydot_a[SEINT] + drhoedt);
+    Real rhoaux_tmp[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        rhoaux_tmp[n] = rhoaux_old[n] +
+            0.5_rt * dt * (state.ydot_a[SFX+n] + drhoauxdt[n]);
+    }
 
-    // get the current NSE state from the table -- this will be used
-    // to compute the NSE evolution sources
+    // compute the derivatives at the midpoint in time
 
-    nse_table_t nse_state;
-    nse_state.T = T_in;
-    nse_state.rho = state.rho;
-    nse_state.Ye = ye_in;
+    nse_derivs(rho_tmp, rhoe_tmp, rhoaux_tmp,
+               dt, state.ydot_a,
+               drhoedt, drhoauxdt, state.T_fixed);
 
-    nse_interp(nse_state);
+    // evolve to the new time
 
-    Real dyedt_old = nse_state.dyedt;
+    Real rho_new = rho_old + dt * state.ydot_a[SRHO];
+    Real rhoe_new = rhoe_old + dt * (state.ydot_a[SEINT] + drhoedt);
+    Real rhoaux_new[NumAux];
+    for (int n = 0; n < NumAux; ++n) {
+        rhoaux_new[n] = rhoaux_old[n] +
+            dt * (state.ydot_a[SFX+n] + drhoauxdt[n]);
+    }
 
-
-    // predict the U^{n+1,*} state with only estimates of the aux
-    // reaction terms and advection to dt
+    // get the new temperature
 
     eos_re_t eos_state;
-    eos_state.T = T_in; // initial guess
-
-    // initial aux_sources
-    Real aux_source[NumAux] = {0.0_rt};
-    aux_source[iye] = rho_old * nse_state.dyedt;
-
-    Real rho_aux_new[NumAux];
-
-    Real rhoe_new;
-    Real rho_enucdot = -rho_old * snu;
-
-    Real rho_half = 0.5_rt * (rho_old + state.y[SRHO]);
-
-    // predict the new aux for the first iteration -- this is really
-    // just including the advection bits
-
+    eos_state.rho = rho_new;
+    eos_state.e = rhoe_new / rho_new;
+    eos_state.T = 1.e8;  // guess
     for (int n = 0; n < NumAux; n++) {
-        rho_aux_new[n] = state.y[SFX+n] + dt * state.ydot_a[SFX+n] + dt * aux_source[n];
+        eos_state.aux[n] = rhoaux_new[n] / rho_new;
     }
 
-    for (int iter = 0; iter < integrator_rp::nse_iters; iter++) {
-
-        // update (rho e)^{n+1} based on the new energy generation rate
-        rhoe_new = state.y[SEINT] + dt * state.ydot_a[SEINT] + dt * rho_enucdot;
-
-        // call the EOS to get the updated T*
-
-        Real T_new;
-        eos_state.rho = state.y[SRHO];
-        eos_state.e = rhoe_new / state.y[SRHO];
-        for (int n = 0; n < NumAux; n++) {
-            eos_state.aux[n] = rho_aux_new[n] / state.y[SRHO];
-        }
-
-        if (state.T_fixed > 0) {
-            T_new = state.T_fixed;
-        } else {
-            eos(eos_input_re, eos_state);
-            T_new = eos_state.T;
-        }
-
-        // call the NSE table using the * state to get the t^{n+1}
-        // source estimates
-
-        nse_state.T = T_new;
-        nse_state.rho = eos_state.rho;
-        nse_state.Ye = eos_state.aux[iye];
-
-        nse_interp(nse_state);
-
-        // note that the abar, dq (B/A), and X here have all already
-        // seen advection implicitly
-
-
-        // compute the energy release -- we need to remove the advective part
-
-        Real rho_bea_tilde = state.y[SRHO] * nse_state.bea - dt * state.ydot_a[SFX+ibea];
-        Real rho_dBEA = rho_bea_tilde - rho_bea_old;  // this is MeV / nucleon * g / cm**3
-
-        // convert the energy to erg / cm**3
-        rho_enucdot = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
-
-        // now get the updated neutrino term
-        zbar = nse_state.abar * eos_state.aux[iye];
-#ifdef NEUTRINOS
-        sneut5<do_derivatives>(T_new, eos_state.rho, nse_state.abar, zbar,
-                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
-#endif
-        rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
-
-        // update the new state for the next pass
-
-        aux_source[iye] = 0.5_rt * rho_half * (dyedt_old + nse_state.dyedt);
-        rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * aux_source[iye];
-
-        rho_aux_new[iabar] = state.y[SRHO] * nse_state.abar;
-        rho_aux_new[ibea] = state.y[SRHO] * nse_state.bea;
-
+    Real T_new;
+    if (state.T_fixed > 0) {
+        T_new = state.T_fixed;
+    } else {
+        eos(eos_input_re, eos_state);
+        T_new = eos_state.T;
     }
 
-    // now update the aux quantities
+    // do a final NSE call -- we want the ending B/A to be consistent
+    // with our thermodynamic state here, plus we need to get the mass
+    // fractions
+
+
+    constexpr bool skip_X_fill{false};
+
+    nse_table_t nse_state;
+    nse_state.T = T_new;
+    nse_state.rho = rho_new;
+    nse_state.Ye = eos_state.aux[iye];
+
+    nse_interp(nse_state, skip_X_fill);
+
+    // store the new state
 
     // the new mass fractions are just those that come from the table
     // make sure they are normalized
+
     Real sum_X{0.0_rt};
     for (auto & xn : nse_state.X) {
         xn = std::clamp(xn, small_x, 1.0_rt);
@@ -195,21 +278,23 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     }
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = state.y[SRHO] * nse_state.X[n];
+        state.y[SFS+n] = rho_new * nse_state.X[n];
     }
 
-    // aux data comes from the table (except Ye, which we predicted)
+    // aux data comes from the integration or the table
 
-    state.y[SFX+iye] = eos_state.rho * eos_state.aux[iye];
-    state.y[SFX+iabar] = eos_state.rho * nse_state.abar;
-    state.y[SFX+ibea] = eos_state.rho * nse_state.bea;
-
+    state.y[SFX+iye] = rhoaux_new[iye];
+    state.y[SFX+iabar] = rho_new * nse_state.abar;
+    state.y[SFX+ibea] = rho_new * nse_state.bea;
 
     // density and momenta have already been updated
 
-    // update the total and internal energy now
+    // get the energy release from the change in rhoe over the timestep
+    // excluding any advection, and use that to update the total energy
 
-    state.y[SEINT] += dt * state.ydot_a[SEINT] + dt * rho_enucdot;
+    Real rho_enucdot = (rhoe_new - rhoe_old) / dt - state.ydot_a[SEINT];
+
+    state.y[SEINT] = rhoe_new;
     state.y[SEDEN] += dt * state.ydot_a[SEDEN] + dt * rho_enucdot;
 
 }
