@@ -10,25 +10,21 @@ template <int num_eqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
 {
-    auto const& a = reinterpret_cast<Array2D<Real, 0, num_eqs-1, 0, num_eqs-1>&>(a1);
-    auto const& pivot = reinterpret_cast<Array1D<short, 0, num_eqs-1>&>(pivot1);
-    auto& b = reinterpret_cast<Array1D<Real, 0, num_eqs-1>&>(b1);
-
     int nm1 = num_eqs - 1;
 
     // solve a * x = b
     // first solve l * y = b
     if (nm1 >= 1) {
         for (int k = 0; k < nm1; ++k) {
-            int l = pivot(k) - 1;
-            Real t = b(l);
+            int l = pivot1(k+1) - 1;
+            Real t = b1(l+1);
             if (l != k) {
-                b(l) = b(k);
-                b(k) = t;
+                b1(l+1) = b1(k+1);
+                b1(k+1) = t;
             }
 
             for (int j = k+1; j < num_eqs; ++j) {
-                b(j) += t * a(j,k);
+                b1(j+1) += t * a1(j+1,k+1);
             }
         }
     }
@@ -37,10 +33,10 @@ void dgesl (RArray2D& a1, IArray1D& pivot1, RArray1D& b1)
     for (int kb = 0; kb < num_eqs; ++kb) {
 
         int k = num_eqs - kb - 1;
-        b(k) = b(k) / a(k,k);
-        Real t = -b(k);
+        b1(k+1) = b1(k+1) / a1(k+1,k+1);
+        Real t = -b1(k+1);
         for (int j = 0; j < k; ++j) {
-            b(j) += t * a(j,k);
+            b1(j+1) += t * a1(j+1,k+1);
         }
     }
 
@@ -52,9 +48,6 @@ template <int num_eqs>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 {
-    auto& a = reinterpret_cast<Array2D<Real, 0, num_eqs-1, 0, num_eqs-1>&>(a1);
-    auto& pivot = reinterpret_cast<Array1D<short, 0, num_eqs-1>&>(pivot1);
-
     // dgefa factors a matrix by gaussian elimination.
     // a is returned in the form a = l * u where
     // l is a product of permutation and unit lower
@@ -73,41 +66,41 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 
             // find l = pivot index
             int l = k;
-            Real dmax = std::abs(a(k,k));
+            Real dmax = std::abs(a1(k+1,k+1));
             for (int i = k+1; i < num_eqs; ++i) {
-                if (std::abs(a(i,k)) > dmax) {
+                if (std::abs(a1(i+1,k+1)) > dmax) {
                     l = i;
-                    dmax = std::abs(a(i,k));
+                    dmax = std::abs(a1(i+1,k+1));
                 }
             }
 
-            pivot(k) = l + 1;
+            pivot1(k+1) = l + 1;
 
             // zero pivot implies this column already triangularized
-            if (a(l,k) != 0.0e0_rt) {
+            if (a1(l+1,k) != 0.0e0_rt) {
 
                 // interchange if necessary
                 if (l != k) {
-                    t = a(l,k);
-                    a(l,k) = a(k,k);
-                    a(k,k) = t;
+                    t = a1(l+1,k+1);
+                    a1(l+1,k+1) = a1(k+1,k+1);
+                    a1(k+1,k+1) = t;
                 }
 
                 // compute multipliers
-                t = -1.0e0_rt / a(k,k);
+                t = -1.0e0_rt / a1(k+1,k+1);
                 for (int j = k+1; j < num_eqs; ++j) {
-                    a(j,k) *= t;
+                    a1(j+1,k+1) *= t;
                 }
 
                 // row elimination with column indexing
                 for (int j = k+1; j < num_eqs; ++j) {
-                    t = a(l,j);
+                    t = a1(l+1,j+1);
                     if (l != k) {
-                        a(l,j) = a(k,j);
-                        a(k,j) = t;
+                        a1(l+1,j+1) = a1(k+1,j+1);
+                        a1(k+1,j+1) = t;
                     }
                     for (int i = k+1; i < num_eqs; ++i) {
-                        a(i,j) += t * a(i,k);
+                        a1(i+1,j+1) += t * a1(i+1,k+1);
                     }
                 }
             }
@@ -121,9 +114,9 @@ void dgefa (RArray2D& a1, IArray1D& pivot1, int& info)
 
     }
 
-    pivot(num_eqs-1) = num_eqs;
+    pivot1(num_eqs) = num_eqs;
 
-    if (a(num_eqs-1,num_eqs-1) == 0.0e0_rt) {
+    if (a1(num_eqs,num_eqs) == 0.0e0_rt) {
         info = num_eqs;
     }
 
