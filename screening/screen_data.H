@@ -7,6 +7,8 @@
 #include <network.H>
 #include <microphysics_math.H>
 
+using namespace amrex;
+
 namespace scrn {
     class screen_factors_t {
 
