@@ -50,7 +50,7 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
 
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the RHS to zero and return.
-
+#if 0
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
         for (int n = 1; n <= INT_NEQS; ++n) {
@@ -60,6 +60,7 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
         return;
 
     }
+#endif
 
     state.time = time;
 
@@ -119,7 +120,7 @@ void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixTy
 
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the Jacobian to zero and return.
-
+#if 0
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
         for (int j = 1; j <= INT_NEQS; ++j) {
@@ -131,6 +132,7 @@ void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixTy
         return;
 
     }
+#endif
 
     // Call the specific network routine to get the Jacobian.
 

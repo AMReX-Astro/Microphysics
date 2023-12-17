@@ -42,6 +42,7 @@ void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
     // make sure that the temperature is valid
 
+#if 0
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
         for (int n = 1; n <= INT_NEQS; ++n) {
@@ -51,6 +52,7 @@ void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
         return;
 
     }
+#endif
 
     // call the specific network to get the RHS
 
@@ -104,6 +106,7 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
     int_to_burn(time, int_state, state);
 
 
+#if 0
     if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
 
         for (int j = 1; j <= INT_NEQS; ++j) {
@@ -115,6 +118,7 @@ void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
         return;
 
     }
+#endif
 
     // Call the specific network routine to get the Jacobian.
 
