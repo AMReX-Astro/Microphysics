@@ -42,7 +42,6 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
 
     const Real ttol{1.e-6_rt};
     const int max_iter{100};
-    const Real eps{1.e-8_rt};
 
     // we need the full EOS type, since we need de/dA
     //eos_extra_t eos_state;
