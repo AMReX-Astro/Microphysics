@@ -3,7 +3,6 @@
 
 #include <AMReX.H>
 #include <AMReX_REAL.H>
-#include <esum.H>
 
 // Override definitions of constants in GCEM to work around lack of support
 // on Power9 for long double. We don't use arithmetic > 64 bit anyway.
