@@ -138,7 +138,6 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     Real abar1_out = nse_state.abar;
     Real bea1_out = nse_state.bea;
-    Real dyedt1 = nse_state.dyedt;
 
     // construct the finite-difference approximation to the derivatives
 
