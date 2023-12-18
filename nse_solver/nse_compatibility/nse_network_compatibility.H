@@ -100,7 +100,7 @@ void burn_cell_c(const eos_t& eos_state)
     burn_state.mu_n = -12.0_rt;
     auto nse_state = get_actual_nse_state(burn_state);
 
-    if (nse_dx_independent != 1 || (nse_dx_independent == 1 && !burn_state.nse) {
+    if (nse_dx_independent != 1 || (nse_dx_independent == 1 && !burn_state.nse)) {
         std::cout << std::scientific << std::setprecision(3);
         std::cout << "------------------------------------" << std::endl;
         std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
@@ -218,5 +218,4 @@ void nse_network_compatibility()
         }
     }
 }
-
 #endif
