@@ -356,6 +356,16 @@ nse check:
   Note that we still perform a simple molar fraction check to ensure that the current state
   is close enough to the NSE state.
 
+* ``nse.ase_tol`` is the tolerance that determines the equilibrium condition for forward
+  and reverse rates. This is set to 0.1 by default.
+
+* ``nse.nse_abs_tol`` is the absolute tolerance of checking the difference between current
+  molar fraction and the NSE molar fraction. This is set to 0.005 by default.
+
+* ``nse.nse_rel_tol`` is the absolute tolerance of checking the difference between current
+  molar fraction and the NSE molar fraction. This is set to 0.005 by default.
+
+
 .. rubric:: Footnotes
 
 .. [#fY] The table actually provides the weak rate, which is the sum
@@ -365,4 +375,3 @@ nse check:
 
    So if electron capture dominates, then [wrate] is positive and this should
    be subtracted from :math:`Y_e`.
-

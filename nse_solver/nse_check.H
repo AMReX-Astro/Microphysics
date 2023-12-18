@@ -73,10 +73,10 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   // Overall molar fraction check
 
-  for (int n = 1; n < NumSpec; ++n) {
+  for (int n = 0; n < NumSpec; ++n) {
       Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
       Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
-      if (abs_diff > 0.005 && rel_diff > 0.2) {
+      if (abs_diff > nse_abs_tol && rel_diff > nse_rel_tol) {
           return;
       }
   }
