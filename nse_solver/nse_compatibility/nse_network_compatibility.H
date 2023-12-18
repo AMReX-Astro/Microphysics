@@ -100,29 +100,31 @@ void burn_cell_c(const eos_t& eos_state)
     burn_state.mu_n = -12.0_rt;
     auto nse_state = get_actual_nse_state(burn_state);
 
-    std::cout << std::scientific << std::setprecision(3);
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
-    std::cout << " Initial vs. Final T = " << burn_state_in.T << "  "
-	      << burn_state.T << std::endl;
-    std::cout << " Initial vs. Final density = " << burn_state_in.rho << "  "
-	      << burn_state.rho << std::endl;
-    std::cout << " Initial vs. Final vs. NSE y_e = " << burn_state_in.y_e << "  "
-	      << burn_state.y_e << "  " <<  nse_state.y_e << std::endl;
-
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "Element" << std::setw(14) << "Burn Xs" << std::setw(20) << "NSE Xs "
-	      << std::setw(20) << "abs err" << std::setw(20) << "rel err" << std::endl;
-    for (int n = 0; n < NumSpec; ++n) {
-        const std::string& element = short_spec_names_cxx[n];
-	Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
-	Real rel_err = abs_err / burn_state.xn[n];
-        std::cout << "  " << element << std::setw(20-element.size())
-		  << burn_state.xn[n] << std::setw(20)
-		  << nse_state.xn[n] << std::setw(20) << abs_err << std::setw(20)
-		  << rel_err << std::endl;
+    if (nse_dx_independent != 1 || (nse_dx_independent == 1 && !burn_state.nse) {
+        std::cout << std::scientific << std::setprecision(3);
+        std::cout << "------------------------------------" << std::endl;
+        std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
+        std::cout << " Initial vs. Final T = " << burn_state_in.T << "  "
+	          << burn_state.T << std::endl;
+        std::cout << " Initial vs. Final density = " << burn_state_in.rho << "  "
+        	      << burn_state.rho << std::endl;
+        std::cout << " Initial vs. Final vs. NSE y_e = " << burn_state_in.y_e << "  "
+        	      << burn_state.y_e << "  " <<  nse_state.y_e << std::endl;
+        
+        std::cout << "------------------------------------" << std::endl;
+        std::cout << "Element" << std::setw(14) << "Burn Xs" << std::setw(20) << "NSE Xs "
+        	      << std::setw(20) << "abs err" << std::setw(20) << "rel err" << std::endl;
+        for (int n = 0; n < NumSpec; ++n) {
+            const std::string& element = short_spec_names_cxx[n];
+        	Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
+        	Real rel_err = abs_err / burn_state.xn[n];
+            std::cout << "  " << element << std::setw(20-element.size())
+        		  << burn_state.xn[n] << std::setw(20)
+        		  << nse_state.xn[n] << std::setw(20) << abs_err << std::setw(20)
+        		  << rel_err << std::endl;
+        }
+        std::cout << "------------------------------------" << std::endl;
     }
-    std::cout << "------------------------------------" << std::endl;
 }
 
 void nse_network_compatibility()

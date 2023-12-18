@@ -3,7 +3,7 @@
 run_prefix    character  ""
 
 # the final time to integrate to
-tmax          real       1.e-2
+tmax          real       1.e3
 
 # first output time -- we will output in nsteps logarithmically spaced steps between [tfirst, tmax]
 tfirst        real       0.0
@@ -14,9 +14,9 @@ nsteps        integer    100
 rho_min   real   1.e7
 rho_max   real   1.e9
 
-nrho      integer    2
+nrho      integer    4
 
 T_min     real   6.e9
 T_max     real   8.e9
 
-nT        integer    2
+nT        integer    4
