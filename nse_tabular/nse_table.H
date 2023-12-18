@@ -133,12 +133,13 @@ Real cubic(const Real* xs, const Real* fs, const Real dx, const Real x) {
     // to the data (xs, fs)
     // we take x_i to be x[1]
 
-    Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * std::pow(dx, 3));
+    Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
     Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
     Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
     Real d = fs[1];
 
-    return a * std::pow(x - xs[1], 3) + b * std::pow(x - xs[1], 2) + c * (x - xs[1]) + d;
+    return a * amrex::Math::powi<3>(x - xs[1]) +
+           b * amrex::Math::powi<2>(x - xs[1]) + c * (x - xs[1]) + d;
 
 }
 
@@ -156,12 +157,12 @@ Real cubic_deriv(const Real* xs, const Real* fs, const Real dx, const Real x) {
     // we take x_i to be x[1]
     // then return dfdx = 3 a (x - x_i)**2 + 2 b (x - x_i) + c
 
-    Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * std::pow(dx, 3));
+    Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
     Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
     Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
     //Real d = fs[1];
 
-    return 3.0_rt * a * std::pow(x - xs[1], 2) + 2.0_rt * b * (x - xs[1]) + c;
+    return 3.0_rt * a * amrex::Math::powi<2>(x - xs[1]) + 2.0_rt * b * (x - xs[1]) + c;
 
 }
 
