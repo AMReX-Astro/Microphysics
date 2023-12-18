@@ -105,23 +105,22 @@ void burn_cell_c(const eos_t& eos_state)
         std::cout << "------------------------------------" << std::endl;
         std::cout << " - added e = " << burn_state.e - burn_state_in.e << std::endl;
         std::cout << " Initial vs. Final T = " << burn_state_in.T << "  "
-	          << burn_state.T << std::endl;
+                  << burn_state.T << std::endl;
         std::cout << " Initial vs. Final density = " << burn_state_in.rho << "  "
-        	      << burn_state.rho << std::endl;
+                  << burn_state.rho << std::endl;
         std::cout << " Initial vs. Final vs. NSE y_e = " << burn_state_in.y_e << "  "
-        	      << burn_state.y_e << "  " <<  nse_state.y_e << std::endl;
-        
+                  << burn_state.y_e << "  " <<  nse_state.y_e << std::endl;
         std::cout << "------------------------------------" << std::endl;
         std::cout << "Element" << std::setw(14) << "Burn Xs" << std::setw(20) << "NSE Xs "
-        	      << std::setw(20) << "abs err" << std::setw(20) << "rel err" << std::endl;
+                  << std::setw(20) << "abs err" << std::setw(20) << "rel err" << std::endl;
         for (int n = 0; n < NumSpec; ++n) {
             const std::string& element = short_spec_names_cxx[n];
-        	Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
-        	Real rel_err = abs_err / burn_state.xn[n];
+            Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
+            Real rel_err = abs_err / burn_state.xn[n];
             std::cout << "  " << element << std::setw(20-element.size())
-        		  << burn_state.xn[n] << std::setw(20)
-        		  << nse_state.xn[n] << std::setw(20) << abs_err << std::setw(20)
-        		  << rel_err << std::endl;
+                      << burn_state.xn[n] << std::setw(20)
+                      << nse_state.xn[n] << std::setw(20) << abs_err << std::setw(20)
+                      << rel_err << std::endl;
         }
         std::cout << "------------------------------------" << std::endl;
     }
@@ -149,18 +148,18 @@ void nse_network_compatibility()
         if (aion[n] == 2 * zion[n] && !condition1_met) {
 
             // Set the first encountered nuclei with Z/A = 0.5
-	    massfractions(1, n+1) = 0.8_rt;
-	    condition1_met = true;
-	    continue;
-	}
-	if (aion[n] > 2 * zion[n] && !condition2_met) {
+            massfractions(1, n+1) = 0.8_rt;
+            condition1_met = true;
+            continue;
+        }
+        if (aion[n] > 2 * zion[n] && !condition2_met) {
 
-	    // This is for achieving ye < 0.5
-	    massfractions(1, n+1) = 0.2_rt;
-	    condition2_met = true;
-	    continue;
-	}
-	massfractions(1, n+1) = 0.0_rt;
+            // This is for achieving ye < 0.5
+            massfractions(1, n+1) = 0.2_rt;
+            condition2_met = true;
+            continue;
+        }
+        massfractions(1, n+1) = 0.0_rt;
     }
 
     // For ye = 0.5:
@@ -170,10 +169,10 @@ void nse_network_compatibility()
         if (aion[n] == 2 * zion[n] && !condition1_met) {
 
             // Set the first encountered nuclei with Z/A = 0.5
-	  massfractions(2, n+1) = 1.0_rt;
-	  condition1_met = true;
-	  continue;
-	}
+            massfractions(2, n+1) = 1.0_rt;
+            condition1_met = true;
+            continue;
+        }
         massfractions(2, n+1) = 0.0_rt;
     }
 
@@ -185,18 +184,18 @@ void nse_network_compatibility()
         if (aion[n] == 2 * zion[n] && !condition1_met) {
 
             // Set the first encountered nuclei with Z/A = 0.5
-	    massfractions(3, n+1) = 0.8_rt;
-	    condition1_met = true;
-	    continue;
-	}
-	if (aion[n] < 2 * zion[n] && !condition2_met) {
+            massfractions(3, n+1) = 0.8_rt;
+            condition1_met = true;
+            continue;
+        }
+        if (aion[n] < 2 * zion[n] && !condition2_met) {
 
-	    // This is for achieving ye > 0.5
-	    massfractions(3, n+1) = 0.2_rt;
-	    condition2_met = true;
-	    continue;
-	}
-	massfractions(3, n+1) = 0.0_rt;
+            // This is for achieving ye > 0.5
+            massfractions(3, n+1) = 0.2_rt;
+            condition2_met = true;
+            continue;
+        }
+        massfractions(3, n+1) = 0.0_rt;
     }
 
     eos_t eos_state;
@@ -210,13 +209,13 @@ void nse_network_compatibility()
 
                 eos_state.T = T;
                 eos_state.rho = rho;
-		for (int n = 0; n < NumSpec; ++n) {
-		    eos_state.xn[n] = massfractions(iye+1, n+1);
-		}
+                for (int n = 0; n < NumSpec; ++n) {
+                    eos_state.xn[n] = massfractions(iye+1, n+1);
+                }
                 eos(eos_input_rt, eos_state);
-		burn_cell_c(eos_state);
+                burn_cell_c(eos_state);
             }
-	}
+        }
     }
 }
 
