@@ -135,7 +135,7 @@ void nse_network_compatibility()
     Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<Real>(nrho-1);
     Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<Real>(nT-1);
 
-    // Create massfraction 2d array to hold 3 differents sets of initial mass fractions
+    // Create massfraction 2d array to hold 3 different sets of initial mass fractions
     // Corresponding to ye < 0.5, ye = 0.5, and ye > 0.5
 
     amrex::Array2D<Real, 1, 3, 1, NumSpec+1, Order::C> massfractions;
