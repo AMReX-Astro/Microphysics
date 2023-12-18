@@ -140,63 +140,74 @@ void nse_network_compatibility()
 
     amrex::Array2D<Real, 1, 3, 1, NumSpec+1, Order::C> massfractions;
 
-    // For ye < 0.5:
-
     bool condition1_met = false;
     bool condition2_met = false;
+    bool condition3_met = false;
+
     for (int n = 0; n < NumSpec; ++n) {
         if (aion[n] == 2 * zion[n] && !condition1_met) {
 
             // Set the first encountered nuclei with Z/A = 0.5
-            massfractions(1, n+1) = 0.8_rt;
+            massfractions(1, n+1) = 0.7_rt;
+            massfractions(2, n+1) = 1.0_rt;
+            massfractions(3, n+1) = 0.7_rt;
             condition1_met = true;
             continue;
         }
         if (aion[n] > 2 * zion[n] && !condition2_met) {
 
             // This is for achieving ye < 0.5
-            massfractions(1, n+1) = 0.2_rt;
+            massfractions(1, n+1) = 0.3_rt;
             condition2_met = true;
+            continue;
+        }
+        if (aion[n] < 2 * zion[n] && !condition3_met) {
+
+            // This is for achieving ye > 0.5
+            massfractions(3, n+1) = 0.3_rt;
+            condition3_met = true;
             continue;
         }
         massfractions(1, n+1) = 0.0_rt;
-    }
-
-    // For ye = 0.5:
-
-    condition1_met = false;
-    for (int n = 0; n < NumSpec; ++n) {
-        if (aion[n] == 2 * zion[n] && !condition1_met) {
-
-            // Set the first encountered nuclei with Z/A = 0.5
-            massfractions(2, n+1) = 1.0_rt;
-            condition1_met = true;
-            continue;
-        }
         massfractions(2, n+1) = 0.0_rt;
-    }
-
-    // For ye > 0.5:
-
-    condition1_met = false;
-    condition2_met = false;
-    for (int n = 0; n < NumSpec; ++n) {
-        if (aion[n] == 2 * zion[n] && !condition1_met) {
-
-            // Set the first encountered nuclei with Z/A = 0.5
-            massfractions(3, n+1) = 0.8_rt;
-            condition1_met = true;
-            continue;
-        }
-        if (aion[n] < 2 * zion[n] && !condition2_met) {
-
-            // This is for achieving ye > 0.5
-            massfractions(3, n+1) = 0.2_rt;
-            condition2_met = true;
-            continue;
-        }
         massfractions(3, n+1) = 0.0_rt;
     }
+
+    // // For ye = 0.5:
+
+    // condition1_met = false;
+    // for (int n = 0; n < NumSpec; ++n) {
+    //     if (aion[n] == 2 * zion[n] && !condition1_met) {
+
+    //         // Set the first encountered nuclei with Z/A = 0.5
+    //         massfractions(2, n+1) = 1.0_rt;
+    //         condition1_met = true;
+    //         continue;
+    //     }
+    //     massfractions(2, n+1) = 0.0_rt;
+    // }
+
+    // // For ye > 0.5:
+
+    // condition1_met = false;
+    // condition2_met = false;
+    // for (int n = 0; n < NumSpec; ++n) {
+    //     if (aion[n] == 2 * zion[n] && !condition1_met) {
+
+    //         // Set the first encountered nuclei with Z/A = 0.5
+    //         massfractions(3, n+1) = 0.8_rt;
+    //         condition1_met = true;
+    //         continue;
+    //     }
+    //     if (aion[n] < 2 * zion[n] && !condition2_met) {
+
+    //         // This is for achieving ye > 0.5
+    //         massfractions(3, n+1) = 0.2_rt;
+    //         condition2_met = true;
+    //         continue;
+    //     }
+    //     massfractions(3, n+1) = 0.0_rt;
+    // }
 
     eos_t eos_state;
 
