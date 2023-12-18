@@ -68,6 +68,17 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
   if ((std::abs((r - r_nse) / r_nse) < 0.25_rt) && (NSE_INDEX::N_index == -1)) {
     nse_check = true;
   }
+
+  // Overall molar fraction check
+
+  for (int n = 1; n < NumSpec; ++n) {
+      Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
+      Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
+      if (abs_diff > 0.005 && rel_diff > 0.2) {
+          return;
+      }
+  }
+  nse_check=true;
 }
 
 
@@ -302,7 +313,6 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
     if (!have_required_nucs) {
       found_fast_reaction_cycle = false;
-
       return;
     }
   }
