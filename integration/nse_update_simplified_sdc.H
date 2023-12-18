@@ -17,6 +17,7 @@
 #include <eos.H>
 
 #ifdef NSE_TABLE
+#include <nse_table_type.H>
 #include <nse_table.H>
 #endif
 #ifdef NSE_NET
@@ -75,27 +76,24 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     Real abar = state.y[SFX+iabar] / rho_old;
     Real zbar = abar * ye_in;
 
+#ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
     sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
     Real snu_old = snu;
 
     // get the current NSE state from the table -- this will be used
     // to compute the NSE evolution sources
 
-    Real abar_out;
-    Real dq_out;
-    Real dyedt;
-    Real dabardt;
-    Real dbeadt;
-    Real enu;
-    Real X[NumSpec];
+    nse_table_t nse_state;
+    nse_state.T = T_in;
+    nse_state.rho = state.rho;
+    nse_state.Ye = ye_in;
 
-    nse_interp(T_in, state.rho, ye_in,
-               abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
+    nse_interp(nse_state);
 
-    Real dyedt_old = dyedt;
+    Real dyedt_old = nse_state.dyedt;
 
 
     // predict the U^{n+1,*} state with only estimates of the aux
@@ -106,7 +104,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     // initial aux_sources
     Real aux_source[NumAux] = {0.0_rt};
-    aux_source[iye] = rho_old * dyedt;
+    aux_source[iye] = rho_old * nse_state.dyedt;
 
     Real rho_aux_new[NumAux];
 
@@ -146,8 +144,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         // call the NSE table using the * state to get the t^{n+1}
         // source estimates
 
-        nse_interp(T_new, eos_state.rho, eos_state.aux[iye],
-                   abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
+        nse_state.T = T_new;
+        nse_state.rho = eos_state.rho;
+        nse_state.Ye = eos_state.aux[iye];
+
+        nse_interp(nse_state);
 
         // note that the abar, dq (B/A), and X here have all already
         // seen advection implicitly
@@ -155,26 +156,27 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
         // compute the energy release -- we need to remove the advective part
 
-        Real rho_bea_tilde = state.y[SRHO] * dq_out - dt * state.ydot_a[SFX+ibea];
+        Real rho_bea_tilde = state.y[SRHO] * nse_state.bea - dt * state.ydot_a[SFX+ibea];
         Real rho_dBEA = rho_bea_tilde - rho_bea_old;  // this is MeV / nucleon * g / cm**3
 
         // convert the energy to erg / cm**3
         rho_enucdot = rho_dBEA * C::MeV2eV * C::ev2erg * C::n_A / dt;
 
         // now get the updated neutrino term
-        zbar = abar_out * eos_state.aux[iye];
-        sneut5<do_derivatives>(T_new, eos_state.rho, abar_out, zbar,
+        zbar = nse_state.abar * eos_state.aux[iye];
+#ifdef NEUTRINOS
+        sneut5<do_derivatives>(T_new, eos_state.rho, nse_state.abar, zbar,
                                snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
         rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
 
         // update the new state for the next pass
 
-        aux_source[iye] = 0.5_rt * rho_half * (dyedt_old + dyedt);
+        aux_source[iye] = 0.5_rt * rho_half * (dyedt_old + nse_state.dyedt);
         rho_aux_new[iye] = state.y[SFX+iye] + dt * state.ydot_a[SFX+iye] + dt * aux_source[iye];
 
-        rho_aux_new[iabar] = state.y[SRHO] * abar_out;
-        rho_aux_new[ibea] = state.y[SRHO] * dq_out;
+        rho_aux_new[iabar] = state.y[SRHO] * nse_state.abar;
+        rho_aux_new[ibea] = state.y[SRHO] * nse_state.bea;
 
     }
 
@@ -183,24 +185,24 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // the new mass fractions are just those that come from the table
     // make sure they are normalized
     Real sum_X{0.0_rt};
-    for (auto & xn : X) {
-        xn = amrex::max(small_x, amrex::min(1.0_rt, xn));
+    for (auto & xn : nse_state.X) {
+        xn = std::clamp(xn, small_x, 1.0_rt);
         sum_X += xn;
     }
 
-    for (auto & xn : X) {
+    for (auto & xn : nse_state.X) {
         xn /= sum_X;
     }
 
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = state.y[SRHO] * X[n];
+        state.y[SFS+n] = state.y[SRHO] * nse_state.X[n];
     }
 
     // aux data comes from the table (except Ye, which we predicted)
 
     state.y[SFX+iye] = eos_state.rho * eos_state.aux[iye];
-    state.y[SFX+iabar] = eos_state.rho * abar_out;
-    state.y[SFX+ibea] = eos_state.rho * dq_out;
+    state.y[SFX+iabar] = eos_state.rho * nse_state.abar;
+    state.y[SFX+ibea] = eos_state.rho * nse_state.bea;
 
 
     // density and momenta have already been updated
@@ -264,10 +266,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     abar = 1.0 / abar;
     zbar *= abar;
 
+#ifdef NEUTRINOS
     constexpr int do_derivatives = 0;
     sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
                            snu, dsnudt, dsnudd, dsnuda, dsnudz);
-
+#endif
     Real snu_old = snu;
 
 
@@ -362,9 +365,11 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
         abar = 1.0 / abar;
         zbar *= abar;
 
+#ifdef NEUTRINOS
         constexpr int do_derivatives = 0;
         sneut5<do_derivatives>(T_new, state.y[SRHO], abar, zbar,
                                snu, dsnudt, dsnudd, dsnuda, dsnudz);
+#endif
 
         rho_enucdot -= 0.5_rt * rho_half * (snu_old + snu);
 

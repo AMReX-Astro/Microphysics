@@ -89,10 +89,10 @@ void apply_nse_exponent(T& nse_state) {
   Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
   Real exponent;
 
-  // if we use a non-null screening method.
+  // if we use chabrier1998 screening
   // Get the required terms to calculate coulomb correction term, u_c
 
-#if SCREEN_METHOD != 0
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 
   // Find n_e for original state;
   const amrex::Real n_e = nse_state.rho * nse_state.y_e / C::m_u;
@@ -112,8 +112,8 @@ void apply_nse_exponent(T& nse_state) {
 #endif
       // term for calculating u_c
 
-      // if use non-null screening, calculate the coulomb correction term
-#if SCREEN_METHOD != 0
+      // if use chabrier1998 screening, calculate the coulomb correction term
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
       gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
 
       // chemical potential for coulomb correction

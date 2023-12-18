@@ -1,6 +1,13 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
+// these need to be defined before screen_data.H is included
+#define SCREEN_METHOD_null 0
+#define SCREEN_METHOD_screen5 1
+#define SCREEN_METHOD_chugunov2007 2
+#define SCREEN_METHOD_chugunov2009 3
+#define SCREEN_METHOD_chabrier1998 4
+
 #include <AMReX.H>
 #include <AMReX_Algorithm.H>
 #include <AMReX_Array.H>
@@ -16,15 +23,15 @@
 using namespace amrex;
 using namespace integrator_rp;
 
-#if SCREEN_METHOD == 0
+#if SCREEN_METHOD == SCREEN_METHOD_null
 const std::string screen_name = "null";
-#elif SCREEN_METHOD == 1
+#elif SCREEN_METHOD == SCREEN_METHOD_screen5
 const std::string screen_name = "screen5";
-#elif SCREEN_METHOD == 2
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
 const std::string screen_name = "chugunov2007";
-#elif SCREEN_METHOD == 3
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
 const std::string screen_name = "chugunov2009";
-#elif SCREEN_METHOD == 4
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 const std::string screen_name = "chabrier1998";
 #endif
 
@@ -169,6 +176,7 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
     }
 }
 
+#if SCREEN_METHOD == SCREEN_METHOD_screen5
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_screen5 (const plasma_state_t& state,
@@ -416,6 +424,7 @@ void actual_screen5 (const plasma_state_t& state,
     }
 }
 
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void chugunov2007 (const plasma_state_t& state,
@@ -460,7 +469,7 @@ void chugunov2007 (const plasma_state_t& state,
     //   m_i -> m_u * abar
     Real mu12 = scn_fac.a1 * scn_fac.a2 / (scn_fac.a1 + scn_fac.a2);
     Real z_factor = scn_fac.z1 * scn_fac.z2;
-    Real n_i = state.n_e / gcem::pow(scn_fac.ztilde, 3);
+    Real n_i = state.n_e / scn_fac.ztilde3;
     Real m_i = 2.0_rt * mu12 / C::n_A;
 
     constexpr Real T_p_factor = C::hbar/C::k_B*C::q_e*gcem::sqrt(4.0_rt*GCEM_PI);
@@ -611,6 +620,7 @@ void chugunov2007 (const plasma_state_t& state,
     }
 }
 
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void chugunov2009_f0 (const Real gamma, const Real dlog_dT, Real& f, Real& df_dT)
@@ -698,9 +708,9 @@ void chugunov2009 (const plasma_state_t& state,
     Real dlog_Gamma_dT = -1.0_rt / state.temp;
 
     // Coulomb coupling parameters for ions and compound nucleus, eqs. 7 & 9
-    Real Gamma_1 = Gamma_e * std::pow(scn_fac.z1, 5.0_rt/3.0_rt);
-    Real Gamma_2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
-    Real Gamma_comp = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
+    Real Gamma_1 = Gamma_e * scn_fac.z1_53;
+    Real Gamma_2 = Gamma_e * scn_fac.z2_53;
+    Real Gamma_comp = Gamma_e * scn_fac.zs53;
 
     Real Gamma_12 = Gamma_e * z1z2 / scn_fac.ztilde;
 
@@ -753,7 +763,7 @@ void chugunov2009 (const plasma_state_t& state,
 
     // weak screening correction term, eq. A3
     Real corr_C = 3.0_rt*z1z2 * std::sqrt(state.z2bar/state.zbar) /
-                  (std::pow(zcomp, 2.5_rt) - std::pow(scn_fac.z1, 2.5_rt) - std::pow(scn_fac.z2, 2.5_rt));
+                  (scn_fac.zs52 - scn_fac.z1_52 - scn_fac.z2_52);
 
     // corrected enhancement factor, eq. A4
     Real Gamma_12_2 = Gamma_12 * Gamma_12;
@@ -780,6 +790,7 @@ void chugunov2009 (const plasma_state_t& state,
     }
 }
 
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, Real& df_dT) {
@@ -830,13 +841,12 @@ void chabrier1998 (const plasma_state_t& state,
   // Eq. 2 in Chabrier & Potekhin 1998
 
   Real Gamma_e = state.gamma_e_fac / state.temp;
-  Real zcomp = scn_fac.z1 + scn_fac.z2;
 
   // See Calder2007 appendix Eq. A9
 
-  Real Gamma1 = Gamma_e * std::pow(scn_fac.z1, 5.0_rt/3.0_rt);
-  Real Gamma2 = Gamma_e * std::pow(scn_fac.z2, 5.0_rt/3.0_rt);
-  Real Gamma12 = Gamma_e * std::pow(zcomp, 5.0_rt/3.0_rt);
+  Real Gamma1 = Gamma_e * scn_fac.z1_53;
+  Real Gamma2 = Gamma_e * scn_fac.z2_53;
+  Real Gamma12 = Gamma_e * scn_fac.zs53;
 
   Real Gamma1dT{}, Gamma2dT{}, Gamma12dT{};
 
@@ -934,6 +944,7 @@ void chabrier1998 (const plasma_state_t& state,
   }
 
 }
+#endif
 
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -941,18 +952,18 @@ void actual_screen(const plasma_state_t& state,
                    const scrn::screen_factors_t& scn_fac,
                    Real& scor, Real& scordt)
 {
-#if SCREEN_METHOD == 0
+#if SCREEN_METHOD == SCREEN_METHOD_null
     // null screening
     amrex::ignore_unused(state, scn_fac);
     scor = 1.0_rt;
     scordt = 0.0_rt;
-#elif SCREEN_METHOD == 1
+#elif SCREEN_METHOD == SCREEN_METHOD_screen5
     actual_screen5<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 2
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
     chugunov2007<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 3
+#elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
     chugunov2009<do_T_derivatives>(state, scn_fac, scor, scordt);
-#elif SCREEN_METHOD == 4
+#elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
     chabrier1998<do_T_derivatives>(state, scn_fac, scor, scordt);
 #endif
 }
