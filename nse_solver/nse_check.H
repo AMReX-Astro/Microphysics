@@ -80,7 +80,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
           return;
       }
   }
-  nse_check=true;
+  nse_check = true;
 }
 
 
