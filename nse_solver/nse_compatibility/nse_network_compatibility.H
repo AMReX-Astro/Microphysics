@@ -173,42 +173,6 @@ void nse_network_compatibility()
         massfractions(3, n+1) = 0.0_rt;
     }
 
-    // // For ye = 0.5:
-
-    // condition1_met = false;
-    // for (int n = 0; n < NumSpec; ++n) {
-    //     if (aion[n] == 2 * zion[n] && !condition1_met) {
-
-    //         // Set the first encountered nuclei with Z/A = 0.5
-    //         massfractions(2, n+1) = 1.0_rt;
-    //         condition1_met = true;
-    //         continue;
-    //     }
-    //     massfractions(2, n+1) = 0.0_rt;
-    // }
-
-    // // For ye > 0.5:
-
-    // condition1_met = false;
-    // condition2_met = false;
-    // for (int n = 0; n < NumSpec; ++n) {
-    //     if (aion[n] == 2 * zion[n] && !condition1_met) {
-
-    //         // Set the first encountered nuclei with Z/A = 0.5
-    //         massfractions(3, n+1) = 0.8_rt;
-    //         condition1_met = true;
-    //         continue;
-    //     }
-    //     if (aion[n] < 2 * zion[n] && !condition2_met) {
-
-    //         // This is for achieving ye > 0.5
-    //         massfractions(3, n+1) = 0.2_rt;
-    //         condition2_met = true;
-    //         continue;
-    //     }
-    //     massfractions(3, n+1) = 0.0_rt;
-    // }
-
     eos_t eos_state;
 
     for (int iye = 0; iye < 3; ++iye) {
