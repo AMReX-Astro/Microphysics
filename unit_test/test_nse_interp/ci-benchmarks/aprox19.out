@@ -1,5 +1,5 @@
-Initializing AMReX (23.11-5-gd36463103dae)...
-AMReX (23.11-5-gd36463103dae) initialized
+Initializing AMReX (23.12-8-g43d71da32fa4)...
+AMReX (23.12-8-g43d71da32fa4) initialized
 starting the single zone burn...
 reading the NSE table (C++) ...
 rho, T, Ye = 1230000000 5180000000 0.472
@@ -57,4 +57,12 @@ X(Fe54) = 0.9104458693
 X(Ni56) = 0.0003104223608
 X(n) = 2.004738472e-08
 X(p) = 9.620335872e-06
-AMReX (23.11-5-gd36463103dae) finalized
+
+testing temperature derivatives of cubic
+first finite-difference derivatives
+dAbar/dT = -1.070778042e-09
+dbea/dT = -6.886297725e-12
+now using derivative of the interpolant
+dAbar/dT = -1.070778122e-09
+dbea/dT = -6.886272826e-12
+AMReX (23.12-8-g43d71da32fa4) finalized
