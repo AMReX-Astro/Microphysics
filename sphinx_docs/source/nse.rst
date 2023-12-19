@@ -362,8 +362,8 @@ nse check:
 * ``nse.nse_abs_tol`` is the absolute tolerance of checking the difference between current
   molar fraction and the NSE molar fraction. This is set to 0.005 by default.
 
-* ``nse.nse_rel_tol`` is the absolute tolerance of checking the difference between current
-  molar fraction and the NSE molar fraction. This is set to 0.005 by default.
+* ``nse.nse_rel_tol`` is the relative tolerance of checking the difference between current
+  molar fraction and the NSE molar fraction. This is set to 0.2 by default.
 
 
 .. rubric:: Footnotes
