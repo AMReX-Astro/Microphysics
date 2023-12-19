@@ -3,7 +3,7 @@ name: Castro development
 on: [push, pull_request]
 
 concurrency:
-  group: ${{ github.ref }}-${{ github.head_ref }}-apps
+  group: ${{ github.ref }}-${{ github.head_ref }}-apps-dev
   cancel-in-progress: true
 
 jobs:
