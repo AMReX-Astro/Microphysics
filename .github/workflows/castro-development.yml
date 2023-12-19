@@ -11,11 +11,7 @@ jobs:
     name: Castro development
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Get Latest Release Tag
-      run: |
-        AMREX_TAG=$(wget https://github.com/AMReX-Codes/amrex/releases/latest 2>&1 | grep Location: | awk '{print $2}' | awk -F/ '{print $NF}')
-        echo "AMREX_TAG=$AMREX_TAG" >> $GITHUB_ENV
+    - uses: actions/checkout@v4
     - name: Download Castro
       uses: actions/checkout@v4
       with:
