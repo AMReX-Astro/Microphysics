@@ -255,7 +255,7 @@ def write_probin(param_files,
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
                 fout.write(f"      {p.get_default_string()}")
-                fout.write(f"      {p.get_query_string('C++')}\n")
+                fout.write(f"      {p.get_query_string()}\n")
             fout.write("    }\n")
 
         fout.write("  }\n")
