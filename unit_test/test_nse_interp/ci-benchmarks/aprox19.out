@@ -1,5 +1,5 @@
-Initializing AMReX (23.12-8-g43d71da32fa4)...
-AMReX (23.12-8-g43d71da32fa4) initialized
+Initializing AMReX (23.11-5-gd36463103dae)...
+AMReX (23.11-5-gd36463103dae) initialized
 starting the single zone burn...
 reading the NSE table (C++) ...
 rho, T, Ye = 1230000000 5180000000 0.472
@@ -65,4 +65,14 @@ dbea/dT = -6.886297725e-12
 now using derivative of the interpolant
 dAbar/dT = -1.070778122e-09
 dbea/dT = -6.886272826e-12
-AMReX (23.12-8-g43d71da32fa4) finalized
+
+EOS e consistency check (old method): 1.395273834e+18 1.388449367e+18
+updated T: 6394612134
+change in abar: 55.60621897 50.27196857
+EOS e consistency check (new method): 1.388449367e+18 1.388449367e+18
+
+EOS p consistency check (old method): 6.622132093e+26 6.57785215e+26
+updated T: 6466848772
+change in abar: 55.60621897 49.50670173
+EOS p consistency check (new method): 6.57785215e+26 6.57785215e+26
+AMReX (23.11-5-gd36463103dae) finalized
