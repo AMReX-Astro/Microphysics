@@ -57,4 +57,22 @@ X(Fe54) = 0.9104458693
 X(Ni56) = 0.0003104223608
 X(n) = 2.004738472e-08
 X(p) = 9.620335872e-06
+
+testing temperature derivatives of cubic
+first finite-difference derivatives
+dAbar/dT = -1.070778042e-09
+dbea/dT = -6.886297725e-12
+now using derivative of the interpolant
+dAbar/dT = -1.070778122e-09
+dbea/dT = -6.886272826e-12
+
+EOS e consistency check (old method): 1.395273834e+18 1.388449367e+18
+updated T: 6394612134
+change in abar: 55.60621897 50.27196857
+EOS e consistency check (new method): 1.388449367e+18 1.388449367e+18
+
+EOS p consistency check (old method): 6.622132093e+26 6.57785215e+26
+updated T: 6466848772
+change in abar: 55.60621897 49.50670173
+EOS p consistency check (new method): 6.57785215e+26 6.57785215e+26
 AMReX (23.11-5-gd36463103dae) finalized

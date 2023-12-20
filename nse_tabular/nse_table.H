@@ -13,6 +13,8 @@
 #include <extern_parameters.H>
 #include <nse_table_data.H>
 #include <nse_table_size.H>
+#include <nse_table_type.H>
+
 
 using namespace amrex;
 using namespace network_rp;
@@ -119,6 +121,10 @@ int nse_get_ye_index(const Real ye) {
     return ic0 + 1;
 }
 
+///
+/// given 4 points (xs, fs), with spacing dx, return the interplated
+/// value of f at point x by fitting a cubic to the points
+///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real cubic(const Real* xs, const Real* fs, const Real dx, const Real x) {
 
@@ -127,14 +133,39 @@ Real cubic(const Real* xs, const Real* fs, const Real dx, const Real x) {
     // to the data (xs, fs)
     // we take x_i to be x[1]
 
-    Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * std::pow(dx, 3));
+    Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
     Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
     Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
     Real d = fs[1];
 
-    return a * std::pow(x - xs[1], 3) + b * std::pow(x - xs[1], 2) + c * (x - xs[1]) + d;
+    return a * amrex::Math::powi<3>(x - xs[1]) +
+           b * amrex::Math::powi<2>(x - xs[1]) + c * (x - xs[1]) + d;
 
 }
+
+///
+/// given 4 points (xs, fs), with spacing dx between the xs, return
+/// the derivative of f at point x by fitting a cubic to the
+/// points and differentiating the interpolant
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real cubic_deriv(const Real* xs, const Real* fs, const Real dx, const Real x) {
+
+    // fit a cubic of the form
+    // f(x) = a (x - x_i)**3 + b (x - x_i)**2 + c (x - x_i) + d
+    // to the data (xs, fs)
+    // we take x_i to be x[1]
+    // then return dfdx = 3 a (x - x_i)**2 + 2 b (x - x_i) + c
+
+    Real a = (3 * fs[1] - 3 * fs[2] + fs[3] - fs[0]) / (6 * amrex::Math::powi<3>(dx));
+    Real b = (-2 * fs[1] + fs[2] + fs[0]) / (2 * dx * dx);
+    Real c = (-3 * fs[1] + 6 * fs[2] - fs[3] - 2 * fs[0]) / (6 * dx);
+    //Real d = fs[1];
+
+    return 3.0_rt * a * amrex::Math::powi<2>(x - xs[1]) + 2.0_rt * b * (x - xs[1]) + c;
+
+}
+
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -234,38 +265,98 @@ Real tricubic(const int ir0, const int it0, const int ic0,
 
 }
 
+///
+/// take the temperature derivative of a table quantity by differentiating
+/// the cubic interpolant
+///
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_interp(const Real T, const Real rho, const Real ye,
-                Real& abar, Real& bea, Real& dyedt, Real& dabardt, Real& dbeadt, Real& e_nu,
-                Real* X, bool skip_X_fill=false) {
+Real tricubic_dT(const int ir0, const int it0, const int ic0,
+                 const Real rho, const Real temp, const Real ye, const T& data) {
+
+    Real yes[] = {nse_table_ye(ic0),
+                  nse_table_ye(ic0+1),
+                  nse_table_ye(ic0+2),
+                  nse_table_ye(ic0+3)};
+
+    Real Ts[] = {nse_table_logT(it0),
+                 nse_table_logT(it0+1),
+                 nse_table_logT(it0+2),
+                 nse_table_logT(it0+3)};
+
+    Real rhos[] = {nse_table_logrho(ir0),
+                   nse_table_logrho(ir0+1),
+                   nse_table_logrho(ir0+2),
+                   nse_table_logrho(ir0+3)};
+
+    // first do the 16 ye interpolations
+
+    // the first index will be rho and the second will be T
+    Real d1[4][4];
+
+    for (int ii = 0; ii < 4; ++ii) {
+        for (int jj = 0; jj < 4; ++jj) {
+
+            Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+
+            // note that the ye values are monotonically decreasing,
+            // so the "dx" needs to be negative
+            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye);
+        }
+    }
+
+    // now do the 4 rho interpolations (one in each T plane)
+
+    Real d2[4];
+
+    for (int jj = 0; jj < 4; ++jj) {
+
+        Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
+        d2[jj] = cubic(rhos, _d, nse_table_size::dlogrho, rho);
+    }
+
+    // finally do the remaining interpolation over T, but return
+    // the derivative of the interpolant
+
+    Real val = cubic_deriv(Ts, d2, nse_table_size::dlogT, temp);
+
+    return val;
+
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
 
     // if skip_X_fill = true then we don't fill X[] with the mass fractions.
 
     using namespace nse_table;
     using namespace AuxZero;
 
-    Real rholog = std::log10(rho);
+    Real rholog = std::log10(nse_state.rho);
     {
         Real rmin = nse_table_size::logrho_min;
         Real rmax = nse_table_size::logrho_max;
 
-        rholog = std::max(rmin, std::min(rmax, rholog));
+        rholog = std::clamp(rholog, rmin, rmax);
     }
 
-    Real tlog = std::log10(T);
+    Real tlog = std::log10(nse_state.T);
     {
         Real tmin = nse_table_size::logT_min;
         Real tmax = nse_table_size::logT_max;
 
-        tlog = std::max(tmin, std::min(tmax, tlog));
+        tlog = std::clamp(tlog, tmin, tmax);
     }
 
-    Real yet = ye;
+    Real yet = nse_state.Ye;
     {
         Real yemin = nse_table_size::ye_min;
         Real yemax = nse_table_size::ye_max;
 
-        yet = std::max(yemin, std::min(yemax, yet));
+        yet = std::clamp(yet, yemin, yemax);
     }
 
     if (nse_table_interp_linear) {
@@ -274,12 +365,12 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         int it1 = nse_get_logT_index(tlog);
         int ic1 = nse_get_ye_index(yet);
 
-        abar = trilinear(ir1, it1, ic1, rholog, tlog, yet, abartab);
-        bea = trilinear(ir1, it1, ic1, rholog, tlog, yet, beatab);
-        dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dyedttab);
-        dabardt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dabardttab);
-        dbeadt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dbeadttab);
-        e_nu = trilinear(ir1, it1, ic1, rholog, tlog, yet, enutab);
+        nse_state.abar = trilinear(ir1, it1, ic1, rholog, tlog, yet, abartab);
+        nse_state.bea = trilinear(ir1, it1, ic1, rholog, tlog, yet, beatab);
+        nse_state.dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dyedttab);
+        nse_state.dabardt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dabardttab);
+        nse_state.dbeadt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dbeadttab);
+        nse_state.e_nu = trilinear(ir1, it1, ic1, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
@@ -288,7 +379,7 @@ void nse_interp(const Real T, const Real rho, const Real ye,
             for (int n = 1; n <= NumSpec; n++) {
                 Real _X = trilinear(ir1, it1, ic1, rholog, tlog, yet,
                                     [=] (const int i) {return massfractab(n, i);});
-                X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+                nse_state.X[n-1] = std::clamp(_X, 0.0_rt, 1.0_rt);
             }
         }
 
@@ -300,20 +391,20 @@ void nse_interp(const Real T, const Real rho, const Real ye,
         // so we offset one to the left and also ensure that we don't go off the table
 
         int ir0 = nse_get_logrho_index(rholog) - 1;
-        ir0 = amrex::max(1, amrex::min(nse_table_size::nden-3, ir0));
+        ir0 = std::clamp(ir0, 1, nse_table_size::nden-3);
 
         int it0 = nse_get_logT_index(tlog) - 1;
-        it0 = amrex::max(1, amrex::min(nse_table_size::ntemp-3, it0));
+        it0 = std::clamp(it0, 1, nse_table_size::ntemp-3);
 
         int ic0 = nse_get_ye_index(yet) - 1;
-        ic0 = amrex::max(1, amrex::min(nse_table_size::nye-3, ic0));
+        ic0 = std::clamp(ic0, 1, nse_table_size::nye-3);
 
-        abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
-        bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
-        dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dyedttab);
-        dabardt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dabardttab);
-        dbeadt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dbeadttab);
-        e_nu = tricubic(ir0, it0, ic0, rholog, tlog, yet, enutab);
+        nse_state.abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
+        nse_state.bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
+        nse_state.dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dyedttab);
+        nse_state.dabardt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dabardttab);
+        nse_state.dbeadt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dbeadttab);
+        nse_state.e_nu = tricubic(ir0, it0, ic0, rholog, tlog, yet, enutab);
 
         // massfractab is 2-d, so we wrap the access in a lambda already
         // indexing the component
@@ -322,10 +413,62 @@ void nse_interp(const Real T, const Real rho, const Real ye,
             for (int n = 1; n <= NumSpec; n++) {
                 Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
                                    [=] (const int i) {return massfractab(n, i);});
-                X[n-1] = amrex::max(0.0_rt, amrex::min(1.0_rt, _X));
+                nse_state.X[n-1] = std::clamp(_X, 0.0_rt, 1.0_rt);
             }
         }
     }
+
+}
+
+
+///
+/// compute the temperature derivative of the table quantity data
+/// at the point T, rho, ye by using cubic interpolation
+///
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real
+nse_interp_dT(const Real temp, const Real rho, const Real ye, const T& data) {
+
+    Real rholog = std::log10(rho);
+    {
+        Real rmin = nse_table_size::logrho_min;
+        Real rmax = nse_table_size::logrho_max;
+
+        rholog = std::clamp(rholog, rmin, rmax);
+    }
+
+    Real tlog = std::log10(temp);
+    {
+        Real tmin = nse_table_size::logT_min;
+        Real tmax = nse_table_size::logT_max;
+
+        tlog = std::clamp(tlog, tmin, tmax);
+    }
+
+    Real yet = ye;
+    {
+        Real yemin = nse_table_size::ye_min;
+        Real yemax = nse_table_size::ye_max;
+
+        yet = std::clamp(yet, yemin, yemax);
+    }
+
+    int ir0 = nse_get_logrho_index(rholog) - 1;
+    ir0 = std::clamp(ir0, 1, nse_table_size::nden-3);
+
+    int it0 = nse_get_logT_index(tlog) - 1;
+    it0 = std::clamp(it0, 1, nse_table_size::ntemp-3);
+
+    int ic0 = nse_get_ye_index(yet) - 1;
+    ic0 = std::clamp(ic0, 1, nse_table_size::nye-3);
+
+    // note: this is returning the derivative wrt log10(T), so we need to
+    // convert to d/dT
+
+    Real ddatadT = tricubic_dT(ir0, it0, ic0, rholog, tlog, yet, data) / (std::log(10.0_rt) * temp);
+
+    return ddatadT;
 
 }
 

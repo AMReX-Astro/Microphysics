@@ -17,6 +17,7 @@
 #include <eos.H>
 
 #ifdef NSE_TABLE
+#include <nse_table_type.H>
 #include <nse_table.H>
 #endif
 #ifdef NSE_NET
@@ -37,13 +38,6 @@ void nse_burn(BurnT& state, const Real dt) {
   using namespace AuxZero;
 
   // use the NSE table
-  Real abar_out;
-  Real dq_out;
-  Real dyedt;
-  Real dabardt;
-  Real dbeadt;
-  Real enu;
-  Real X[NumSpec];
 
   // get the energy -- we are assuming that rho, T are valid on input
 
@@ -58,25 +52,29 @@ void nse_burn(BurnT& state, const Real dt) {
   // source estimates.  The thermodynamnics here is specified
   // in terms of the auxiliary composition, Ye, abar, and B/A
 
-  nse_interp(T_in, state.rho, state.aux[iye],
-             abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
+  nse_table_t nse_state;
+  nse_state.T = T_in;
+  nse_state.rho = state.rho;
+  nse_state.Ye = state.aux[iye];
+
+  nse_interp(nse_state);
 
   // update Ye
 
-  state.aux[iye] += dt * dyedt;
+  state.aux[iye] += dt * nse_state.dyedt;
 
   // now get the composition from the table using the updated Ye
 
-  nse_interp(T_in, state.rho, state.aux[iye],
-             abar_out, dq_out, dyedt, dabardt, dbeadt, enu, X);
+  nse_state.Ye = state.aux[iye];
+  nse_interp(nse_state);
 
 
   // this is MeV / nucleon -- here aux has not yet been updated, so we
   // access the old binding energy
-  Real deltaq = dq_out - state.aux[ibea];
+  Real deltaq = nse_state.bea - state.aux[ibea];
 
   state.aux[ibea] += deltaq;
-  state.aux[iabar] = abar_out;
+  state.aux[iabar] = nse_state.abar;
 
 #elif defined(NSE_NET)
 
@@ -116,7 +114,7 @@ void nse_burn(BurnT& state, const Real dt) {
 
 #if defined(NSE_TABLE)
   for (int n = 0; n < NumSpec; ++n) {
-    state.xn[n] = X[n];
+    state.xn[n] = nse_state.X[n];
   }
 #elif defined(NSE_NET)
   for (int n = 0; n < NumSpec; ++n) {

@@ -9,7 +9,7 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include <nse_cell.H>
+#include <nse_network_compatibility.H>
 #include <unit_test.H>
 
 int main(int argc, char *argv[]) {
@@ -23,12 +23,12 @@ int main(int argc, char *argv[]) {
   init_unit_test();
 
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
-  eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
+  eos_init();
 
   // C++ Network, RHS, screening, rates initialization
   network_init();
 
-  nse_cell_c();
+  nse_network_compatibility();
 
   amrex::Finalize();
 }
