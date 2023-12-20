@@ -1,0 +1,85 @@
+name: Castro development
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.head_ref }}-apps-dev
+  cancel-in-progress: true
+
+jobs:
+  castro-development:
+    name: Castro development
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Download Castro
+      uses: actions/checkout@v4
+      with:
+        repository: 'AMReX-Astro/Castro'
+        ref: development
+        path: 'Castro'
+    - name: Download AMReX
+      uses: actions/checkout@v4
+      with:
+        repository: 'AMReX-Codes/amrex'
+        ref: development
+        path: 'amrex'
+    - name: Dependencies
+      run: |
+        .github/workflows/dependencies/dependencies.sh
+        .github/workflows/dependencies/dependencies_ccache.sh
+    - name: Set Up Cache
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/ccache
+        key: ccache-${{ github.workflow }}-${{ github.job }}-git-${{ github.sha }}
+        restore-keys: |
+             ccache-${{ github.workflow }}-${{ github.job }}-git-
+    - name: Build flame_wave
+      run: |
+        export CCACHE_COMPRESS=1
+        export CCACHE_COMPRESSLEVEL=10
+        export CCACHE_MAXSIZE=75M
+        export CCACHE_LOGFILE=${{ github.workspace }}/ccache.log.txt
+        ccache -z
+
+        export AMREX_HOME=${PWD}/amrex
+        export MICROPHYSICS_HOME=${PWD}
+
+        cd Castro/Exec/science/flame_wave/
+        make -j2 CCACHE=ccache USE_MPI=FALSE
+
+        ccache -s
+        du -hs ~/.cache/ccache
+
+    - name: Build subchandra
+      run: |
+        export CCACHE_COMPRESS=1
+        export CCACHE_COMPRESSLEVEL=10
+        export CCACHE_MAXSIZE=75M
+        export CCACHE_LOGFILE=${{ github.workspace }}/ccache.log.txt
+        ccache -z
+
+        export AMREX_HOME=${PWD}/amrex
+        export MICROPHYSICS_HOME=${PWD}
+
+        cd Castro/Exec/science/subchandra/
+        make -j2 CCACHE=ccache USE_MPI=FALSE
+
+        ccache -s
+        du -hs ~/.cache/ccache
+
+  save_pr_number:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save PR number
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          echo $PR_NUMBER > pr_number.txt
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pr_number
+          path: pr_number.txt
+          retention-days: 1
