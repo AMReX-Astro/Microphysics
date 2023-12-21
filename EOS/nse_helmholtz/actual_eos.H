@@ -33,6 +33,9 @@ void actual_eos (I input, T& state)
 
         }
 
+        // this just solved for T / Abar, now get the rest of the state
+        core_eos_interface(eos_input_rt, state);
+
     } else {
         core_eos_interface(input, state);
     }
