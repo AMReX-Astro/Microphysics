@@ -3,8 +3,9 @@
 
 #include <AMReX_REAL.H>
 
-#include <eos.H>
-
+#include <eos_type.H>
+#include <core_eos_interface.H>
+//#include <eos.H>
 #include <extern_parameters.H>
 #include <nse_table_type.H>
 #include <nse_table.H>
@@ -69,7 +70,7 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
         eos_state.aux[iabar] = abar_old;
-        eos(eos_input_rt, eos_state);
+        core_eos_interface(eos_input_rt, eos_state);
 
         // f is the quantity we want to zero
 
@@ -159,7 +160,7 @@ nse_T_abar_from_p(const Real rho, const Real p_in, const Real Ye,
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
         eos_state.aux[iabar] = abar_old;
-        eos(eos_input_rt, eos_state);
+        core_eos_interface(eos_input_rt, eos_state);
 
         // f is the quantity we want to zero
 

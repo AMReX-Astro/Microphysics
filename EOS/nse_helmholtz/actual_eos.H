@@ -1,84 +1,40 @@
 #ifndef ACTUAL_EOS_H
 #define ACTUAL_EOS_H
 
-#include <string>
 #include <iostream>
-#include <sstream>
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 #include <AMReX_ParallelDescriptor.H>
 #include <extern_parameters.H>
-#include <fundamental_constants.H>
 #include <eos_type.H>
-#include <eos_data.H>
-#include <actual_eos_data.H>
-#include <helmholtz_core.H>
-#include <cmath>
-#include <vector>
-
-using namespace eos_rp;
+#include <core_eos_interface.H>
+#include <nse_table_check.H>
+#include <nse_eos.H>
 
 template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
 
-    using namespace helmholtz;
+    if (in_nse(state) && (input == eos_input_re || input == eos_input_rp)) {
 
-    constexpr int max_newton = 100;
 
-    bool single_iter, converged;
-    int var{}, dvar{}, var1, var2;
-    Real v_want{}, v1_want{}, v2_want{};
+        if (input == eos_input_rp) {
 
-    prepare_for_iterations(input, state, single_iter, v_want, v1_want, v2_want, var, dvar, var1, var2);
+            nse_T_abar_from_p(state.rho, state.p, state.aux[iye],
+                              state.T, state.aux[iabar]);
 
-    converged = false;
+        } else {
 
-    // Only take a single step if we're coming in with both rho and T;
-    // in this call we just want the EOS to fill the other thermodynamic quantities.
+            nse_T_abar_from_e(state.rho, state.e, state.aux[iye],
+                              state.T, state.aux[iabar]);
 
-    if (input == eos_input_rt) converged = true;
-
-    // Iterate until converged.
-
-    for (int iter = 1; iter <= max_newton; ++iter) {
-
-        // Radiation must come first since it initializes the
-        // state instead of adding to it.
-
-        apply_radiation(state);
-
-        apply_ions(state);
-
-        apply_electrons(state);
-
-        if (do_coulomb) {
-            apply_coulomb_corrections(state);
         }
 
-        // Calculate enthalpy the usual way, h = e + p / rho.
-
-        if constexpr (has_enthalpy<T>::value) {
-            state.h = state.e + state.p / state.rho;
-            state.dhdr = state.dedr + state.dpdr / state.rho - state.p / (state.rho * state.rho);
-            state.dhdT = state.dedT + state.dpdT / state.rho;
-        }
-
-        if (converged) {
-            break;
-        }
-        else if (single_iter) {
-            single_iter_update(state, var, dvar, v_want, converged);
-        }
-        else {
-            double_iter_update(state, var1, var2, v1_want, v2_want, converged);
-        }
-
+    } else {
+        core_eos_interface(input, state);
     }
 
-    finalize_state(input, state, v_want, v1_want, v2_want);
 }
 
 
@@ -89,8 +45,6 @@ void actual_eos_init ()
 
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
-
-    std::cout << "here!!!!!!!!!!!!!!" << std::endl;
 
     // Read in the runtime parameters
 

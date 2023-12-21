@@ -1,4 +1,5 @@
 CEXE_headers += actual_eos.H
+CEXE_headers += core_eos_interface.H
 CEXE_headers += helmholtz_core.H
 CEXE_headers += actual_eos_data.H
 CEXE_sources += actual_eos_data.cpp
