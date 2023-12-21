@@ -90,8 +90,6 @@ void actual_eos_init ()
     Real dth, dt2, dti, dt2i;
     Real dd, dd2, ddi, dd2i;
 
-    std::cout << "here!!!!!!!!!!!!!!" << std::endl;
-
     // Read in the runtime parameters
 
     input_is_constant = eos_input_is_constant;
