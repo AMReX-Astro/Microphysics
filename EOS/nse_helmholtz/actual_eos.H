@@ -21,8 +21,10 @@ void actual_eos (I input, T& state)
 
         if (input == eos_input_rp) {
 
-            nse_T_abar_from_p(state.rho, state.p, state.aux[iye],
-                              state.T, state.aux[iabar]);
+            if constexpr (has_pressure<T>::value) {
+                nse_T_abar_from_p(state.rho, state.p, state.aux[iye],
+                                  state.T, state.aux[iabar]);
+            }
 
         } else {
 
