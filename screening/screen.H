@@ -808,14 +808,14 @@ void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, R
     const Real sqrt_gamma_A2 = std::sqrt(gamma/A_2);
 
     f = A_1 * (sqrt_gamma_A2_gamma -
-               A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2))
-        + 2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
+               A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2)) +
+               2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
 
     if constexpr (do_T_derivatives) {
-        df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma)
-                       - 0.5_rt / (sqrt_gamma_A2 + sqrt_1_gamma_A2)
-                       * (1.0_rt / sqrt_gamma_A2 + 1.0_rt / sqrt_1_gamma_A2))
-            + A_3 / sqrt_gamma * (1.0_rt - 1.0_rt / (1.0_rt + gamma));
+        df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma) -
+                       0.5_rt / (sqrt_gamma_A2 + sqrt_1_gamma_A2) *
+                       (1.0_rt / sqrt_gamma_A2 + 1.0_rt / sqrt_1_gamma_A2)) +
+                       A_3 / sqrt_gamma * (1.0_rt - 1.0_rt / (1.0_rt + gamma));
 
         df_dT *= dgamma_dT;
     }
