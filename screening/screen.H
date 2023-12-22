@@ -37,40 +37,40 @@ const std::string screen_name = "chabrier1998";
 
 struct plasma_state_t {
 
-  Real qlam0z;
-  Real qlam0zdt;
-  //Real qlam0zdd;
+    Real qlam0z;
+    Real qlam0zdt;
+    //Real qlam0zdd;
 
-  Real taufac;
-  Real taufacdt;
+    Real taufac;
+    Real taufacdt;
 
-  Real aa;
-  Real daadt;
-  //Real daadd;
+    Real aa;
+    Real daadt;
+    //Real daadd;
 
-  Real temp;
-  Real zbar;
-  Real z2bar;
-  Real n_e;
-  Real gamma_e_fac;
+    Real temp;
+    Real zbar;
+    Real z2bar;
+    Real n_e;
+    Real gamma_e_fac;
 };
 
 inline
 std::ostream& operator<< (std::ostream& o, plasma_state_t const& pstate)
 {
-  o << "qlam0z   = " << pstate.qlam0z << std::endl;
-  o << "qlam0zdt = " << pstate.qlam0zdt << std::endl;
-  o << "taufac   = " << pstate.taufac << std::endl;
-  o << "taufacdt = " << pstate.taufacdt << std::endl;
-  o << "aa       = " << pstate.aa << std::endl;
-  o << "daadt    = " << pstate.daadt << std::endl;
-  o << "temp     = " << pstate.temp << std::endl;
-  o << "zbar     = " << pstate.zbar << std::endl;
-  o << "z2bar    = " << pstate.z2bar << std::endl;
-  o << "n_e      = " << pstate.n_e << std::endl;
-  o << "gamma_e_fac = " << pstate.gamma_e_fac << std::endl;
+    o << "qlam0z   = " << pstate.qlam0z << std::endl;
+    o << "qlam0zdt = " << pstate.qlam0zdt << std::endl;
+    o << "taufac   = " << pstate.taufac << std::endl;
+    o << "taufacdt = " << pstate.taufacdt << std::endl;
+    o << "aa       = " << pstate.aa << std::endl;
+    o << "daadt    = " << pstate.daadt << std::endl;
+    o << "temp     = " << pstate.temp << std::endl;
+    o << "zbar     = " << pstate.zbar << std::endl;
+    o << "z2bar    = " << pstate.z2bar << std::endl;
+    o << "n_e      = " << pstate.n_e << std::endl;
+    o << "gamma_e_fac = " << pstate.gamma_e_fac << std::endl;
 
-  return o;
+    return o;
 }
 
 AMREX_FORCE_INLINE
@@ -90,78 +90,78 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
 fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
 
-  Real sum = 0.0_rt;
-  for (int n = 1; n <= NumSpec; n++) {
-    sum += y(n);
-  }
-  Real abar = 1.0_rt / sum;
-  Real ytot = sum;
+    Real sum = 0.0_rt;
+    for (int n = 1; n <= NumSpec; n++) {
+        sum += y(n);
+    }
+    Real abar = 1.0_rt / sum;
+    Real ytot = sum;
 
-  sum = 0.0_rt;
-  Real sum2 = 0.0_rt;
-  for (int n = 1; n <= NumSpec; n++) {
-    sum += zion[n-1]*y(n);
-    sum2 += zion[n-1]*zion[n-1]*y(n);
-  }
+    sum = 0.0_rt;
+    Real sum2 = 0.0_rt;
+    for (int n = 1; n <= NumSpec; n++) {
+        sum += zion[n-1]*y(n);
+        sum2 += zion[n-1]*zion[n-1]*y(n);
+    }
 
-  // Part of Eq.6 in Itoh:1979
-  // 4.248719e3 = (27*pi^2*e^4*m_u/(2*k_B*hbar^2))^(1/3)
-  // the extra (1/3) to make tau -> tau/3
-  const Real co2 = (1.0_rt/3.0_rt) * 4.248719e3_rt;
+    // Part of Eq.6 in Itoh:1979
+    // 4.248719e3 = (27*pi^2*e^4*m_u/(2*k_B*hbar^2))^(1/3)
+    // the extra (1/3) to make tau -> tau/3
+    const Real co2 = (1.0_rt/3.0_rt) * 4.248719e3_rt;
 
-  Real zbar = sum * abar;
-  Real z2bar = sum2 * abar;
+    Real zbar = sum * abar;
+    Real z2bar = sum2 * abar;
 
-  // ntot
-  Real rr = dens * ytot;
-  Real tempi = 1.0_rt / temp;
-  [[maybe_unused]] Real dtempi;
-  if constexpr (do_T_derivatives) {
-    dtempi = -tempi * tempi;
-  }
+    // ntot
+    Real rr = dens * ytot;
+    Real tempi = 1.0_rt / temp;
+    [[maybe_unused]] Real dtempi;
+    if constexpr (do_T_derivatives) {
+        dtempi = -tempi * tempi;
+    }
 
-  // Part of Eq. 19 in Graboske:1973
-  // pp = sqrt( \tilde{z}*(rho/u_I/T) )
-  Real pp = std::sqrt(rr*tempi*(z2bar + zbar));
-  [[maybe_unused]] Real dppdt;
-  if constexpr (do_T_derivatives) {
-    Real qq = 0.5_rt/pp *(z2bar + zbar);
-    dppdt = qq*rr*dtempi;
-  }
+    // Part of Eq. 19 in Graboske:1973
+    // pp = sqrt( \tilde{z}*(rho/u_I/T) )
+    Real pp = std::sqrt(rr*tempi*(z2bar + zbar));
+    [[maybe_unused]] Real dppdt;
+    if constexpr (do_T_derivatives) {
+        Real qq = 0.5_rt/pp *(z2bar + zbar);
+        dppdt = qq*rr*dtempi;
+    }
 
-  // Part version of Eq. 19 in Graboske:1973
-  state.qlam0z = 1.88e8_rt * tempi * pp;
-  if constexpr (do_T_derivatives) {
-    state.qlam0zdt = 1.88e8_rt * (dtempi*pp + tempi*dppdt);
-  }
+    // Part version of Eq. 19 in Graboske:1973
+    state.qlam0z = 1.88e8_rt * tempi * pp;
+    if constexpr (do_T_derivatives) {
+        state.qlam0zdt = 1.88e8_rt * (dtempi*pp + tempi*dppdt);
+    }
 
-  // Part of Eq.6 in Itoh:1979
-  state.taufac = co2 * std::cbrt(tempi);
-  if constexpr (do_T_derivatives) {
-    state.taufacdt = -(1.0_rt/3.0_rt) * state.taufac * tempi;
-  }
+    // Part of Eq.6 in Itoh:1979
+    state.taufac = co2 * std::cbrt(tempi);
+    if constexpr (do_T_derivatives) {
+        state.taufacdt = -(1.0_rt/3.0_rt) * state.taufac * tempi;
+    }
 
-  Real xni = std::cbrt(rr * zbar);
+    Real xni = std::cbrt(rr * zbar);
 
-  // Part of Eq.4 in Itoh:1979
-  // 2.27493e5 = e^2 / ( (3*m_u/(4pi))^(1/3) *k_B )
-  state.aa = 2.27493e5_rt * tempi * xni;
-  if constexpr (do_T_derivatives) {
-    state.daadt = 2.27493e5_rt * dtempi * xni;
-  }
+    // Part of Eq.4 in Itoh:1979
+    // 2.27493e5 = e^2 / ( (3*m_u/(4pi))^(1/3) *k_B )
+    state.aa = 2.27493e5_rt * tempi * xni;
+    if constexpr (do_T_derivatives) {
+        state.daadt = 2.27493e5_rt * dtempi * xni;
+    }
 
-  state.temp = temp;
-  state.zbar = zbar;
-  state.z2bar = z2bar;
+    state.temp = temp;
+    state.zbar = zbar;
+    state.z2bar = z2bar;
 
-  // Electron number density
-  // zbar * ntot works out to sum(z[i] * n[i]), after cancelling terms
-  state.n_e = zbar * rr * C::n_A;
+    // Electron number density
+    // zbar * ntot works out to sum(z[i] * n[i]), after cancelling terms
+    state.n_e = zbar * rr * C::n_A;
 
-  // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
-  constexpr Real gamma_e_constants =
-      C::q_e*C::q_e/C::k_B * gcem::pow(4.0_rt/3.0_rt*M_PI, 1.0_rt/3.0_rt);
-  state.gamma_e_fac = gamma_e_constants * std::cbrt(state.n_e);
+    // precomputed part of Gamma_e, from Chugunov 2009 eq. 6
+    constexpr Real gamma_e_constants =
+        C::q_e*C::q_e/C::k_B * gcem::pow(4.0_rt/3.0_rt*M_PI, 1.0_rt/3.0_rt);
+    state.gamma_e_fac = gamma_e_constants * std::cbrt(state.n_e);
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
