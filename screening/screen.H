@@ -794,31 +794,31 @@ void chugunov2009 (const plasma_state_t& state,
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, Real& df_dT) {
-  // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
+    // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
-  // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
-  constexpr Real A_1 = -0.9052_rt;
-  constexpr Real A_2 = 0.6322_rt;
-  constexpr Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / gcem::sqrt(A_2);
+    // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
+    constexpr Real A_1 = -0.9052_rt;
+    constexpr Real A_2 = 0.6322_rt;
+    constexpr Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / gcem::sqrt(A_2);
 
-  // Precompute some expressions that are reused in the derivative
-  const Real sqrt_gamma = std::sqrt(gamma);
-  const Real sqrt_1_gamma_A2 = std::sqrt(1.0_rt + gamma/A_2);
-  const Real sqrt_gamma_A2_gamma = std::sqrt(gamma * (A_2 + gamma));
-  const Real sqrt_gamma_A2 = std::sqrt(gamma/A_2);
+    // Precompute some expressions that are reused in the derivative
+    const Real sqrt_gamma = std::sqrt(gamma);
+    const Real sqrt_1_gamma_A2 = std::sqrt(1.0_rt + gamma/A_2);
+    const Real sqrt_gamma_A2_gamma = std::sqrt(gamma * (A_2 + gamma));
+    const Real sqrt_gamma_A2 = std::sqrt(gamma/A_2);
 
-  f = A_1 * (sqrt_gamma_A2_gamma -
-             A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2))
-      + 2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
+    f = A_1 * (sqrt_gamma_A2_gamma -
+               A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2))
+        + 2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
 
-  if constexpr (do_T_derivatives) {
-    df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma)
-                        - 0.5_rt / (sqrt_gamma_A2 + sqrt_1_gamma_A2)
-                        * (1.0_rt / sqrt_gamma_A2 + 1.0_rt / sqrt_1_gamma_A2))
+    if constexpr (do_T_derivatives) {
+        df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma)
+                       - 0.5_rt / (sqrt_gamma_A2 + sqrt_1_gamma_A2)
+                       * (1.0_rt / sqrt_gamma_A2 + 1.0_rt / sqrt_1_gamma_A2))
             + A_3 / sqrt_gamma * (1.0_rt - 1.0_rt / (1.0_rt + gamma));
 
-    df_dT *= dgamma_dT;
-  }
+        df_dT *= dgamma_dT;
+    }
 }
 
 template <int do_T_derivatives>
@@ -827,122 +827,126 @@ void chabrier1998 (const plasma_state_t& state,
                    const scrn::screen_factors_t& scn_fac,
                    Real& scor, Real& scordt)
 {
-  // Calculates screening factors based on Chabrier & Potekhin 1998,
-  // Calder2007 and partly screen5 routine mentioned in Alastuey 1978.
+    // Calculates screening factors based on Chabrier & Potekhin 1998,
+    // Calder2007 and partly screen5 routine mentioned in Alastuey 1978.
 
-  // This screening is valid for weak screening: Gamma < 0.1
-  // and strong screening: 1 <= Gamma <= 160
-  // Reference:
-  //            Chabrier & Potekhin 1998, PhRvE, 58, 4941
-  //            Calder 2007, doi:10.1086/510709
-  //            Wallace & Woosley 1982
-  //            Alastuey 1978
+    // This screening is valid for weak screening: Gamma < 0.1
+    // and strong screening: 1 <= Gamma <= 160
+    // Reference:
+    //            Chabrier & Potekhin 1998, PhRvE, 58, 4941
+    //            Calder 2007, doi:10.1086/510709
+    //            Wallace & Woosley 1982
+    //            Alastuey 1978
 
-  // Eq. 2 in Chabrier & Potekhin 1998
+    // Eq. 2 in Chabrier & Potekhin 1998
 
-  Real Gamma_e = state.gamma_e_fac / state.temp;
+    Real Gamma_e = state.gamma_e_fac / state.temp;
 
-  // See Calder2007 appendix Eq. A9
+    // See Calder2007 appendix Eq. A9
 
-  Real Gamma1 = Gamma_e * scn_fac.z1_53;
-  Real Gamma2 = Gamma_e * scn_fac.z2_53;
-  Real Gamma12 = Gamma_e * scn_fac.zs53;
+    Real Gamma1 = Gamma_e * scn_fac.z1_53;
+    Real Gamma2 = Gamma_e * scn_fac.z2_53;
+    Real Gamma12 = Gamma_e * scn_fac.zs53;
 
-  Real Gamma1dT{}, Gamma2dT{}, Gamma12dT{};
+    Real Gamma1dT{}, Gamma2dT{}, Gamma12dT{};
 
-  if constexpr (do_T_derivatives) {
-    Gamma1dT = -Gamma1 / state.temp;
-    Gamma2dT = -Gamma2 / state.temp;
-    Gamma12dT = -Gamma12 / state.temp;
-  }
-
-  // Helmholtz free energy
-
-  Real f1, f2, f12;
-  Real f1dT, f2dT, f12dT;
-
-  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma1, Gamma1dT, f1, f1dT);
-  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma2, Gamma2dT, f2, f2dT);
-  chabrier1998_helmholtz_F<do_T_derivatives>(Gamma12, Gamma12dT, f12, f12dT);
-
-  // Now we add quantum correction terms discussed in Alastuey 1978.
-  // Notice in Alastuey 1978, they have a different classical term,
-  // which is implemented in the strong screening limit of our screen5 routine.
-
-  // See Wallace1982, Eq. A13
-
-  Real Gamma_eff = std::cbrt(2.0_rt) * scn_fac.z1 * scn_fac.z2 * scn_fac.zs13inv * Gamma_e;
-  [[maybe_unused]] Real Gamma_eff_dT;
-
-  if constexpr (do_T_derivatives) {
-    Gamma_eff_dT = -Gamma_eff / state.temp;
-  }
-
-  // TAU/3, see Wallace1982, Eq. A2
-
-  Real tau12 = state.taufac * scn_fac.aznut;
-
-  [[maybe_unused]] Real tau12dT;
-  if constexpr (do_T_derivatives) {
-    tau12dT = state.taufacdt * scn_fac.aznut;
-  }
-
-  // see Calder 2007 Eq. A8
-
-  Real b_fac = Gamma_eff / tau12;
-
-  [[maybe_unused]] Real b_fac_dT;
-  if constexpr (do_T_derivatives) {
-    b_fac_dT = (Gamma_eff_dT - b_fac * tau12dT) / tau12;
-  }
-
-  // Quantum correction terms (same as screen5)
-  //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
-
-  Real quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * amrex::Math::powi<3>(b_fac) - 0.014_rt * amrex::Math::powi<4>(b_fac)
-                                  - 0.128_rt * amrex::Math::powi<5>(b_fac));
-
-  Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * amrex::Math::powi<4>(b_fac) - 0.0098_rt * amrex::Math::powi<5>(b_fac)
-                                      + 0.0048_rt * amrex::Math::powi<6>(b_fac));
-
-  [[maybe_unused]] Real quantum_corr_1_dT;
-  [[maybe_unused]] Real quantum_corr_2_dT;
-  if constexpr (do_T_derivatives) {
-    quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 * b_fac_dT
-      * (15.0_rt/32.0_rt * amrex::Math::powi<2>(b_fac) - 0.014_rt * 4.0_rt * amrex::Math::powi<3>(b_fac)
-         - 0.128_rt * 5.0_rt * amrex::Math::powi<4>(b_fac));
-
-    quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff * b_fac_dT
-      * (0.0055_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) - 0.0098_rt * 5.0_rt
-         * amrex::Math::powi<4>(b_fac) + 0.0048_rt * 6.0_rt * amrex::Math::powi<5>(b_fac));
-  }
-
-  // See Calder2007 Appendix Eq. A8.
-  // f1 + f2 - f12 gives the classical terms
-  // The difference between this and strong screening of screen5
-  // is that we replaced the classical term which is f1 + f2 - f12
-  // using results from Chabrier&Potekhin1998.
-
-  Real h12 = f1 + f2 - f12 + quantum_corr_1 + quantum_corr_2;
-
-  [[maybe_unused]] Real dh12dT;
-  if constexpr (do_T_derivatives) {
-    dh12dT = f1dT + f2dT - f12dT + quantum_corr_1_dT + quantum_corr_2_dT;
-  }
-
-  Real h12_max = 300.0_rt;
-  h12 = amrex::min(h12_max, h12);
-
-  scor = std::exp(h12);
-
-  if constexpr (do_T_derivatives) {
-    if (h12 == h12_max) {
-      scordt = 0.0_rt;
-    } else {
-      scordt = scor * dh12dT;
+    if constexpr (do_T_derivatives) {
+        Gamma1dT = -Gamma1 / state.temp;
+        Gamma2dT = -Gamma2 / state.temp;
+        Gamma12dT = -Gamma12 / state.temp;
     }
-  }
 
+    // Helmholtz free energy
+
+    Real f1, f2, f12;
+    Real f1dT, f2dT, f12dT;
+
+    chabrier1998_helmholtz_F<do_T_derivatives>(Gamma1, Gamma1dT, f1, f1dT);
+    chabrier1998_helmholtz_F<do_T_derivatives>(Gamma2, Gamma2dT, f2, f2dT);
+    chabrier1998_helmholtz_F<do_T_derivatives>(Gamma12, Gamma12dT, f12, f12dT);
+
+    // Now we add quantum correction terms discussed in Alastuey 1978.
+    // Notice in Alastuey 1978, they have a different classical term,
+    // which is implemented in the strong screening limit of our screen5 routine.
+    Real quantum_corr_1 = 0.0_rt;
+
+    Real quantum_corr_2 = 0.0_rt;
+
+    [[maybe_unused]] Real quantum_corr_1_dT = 0.0_rt;
+    [[maybe_unused]] Real quantum_corr_2_dT = 0.0_rt;
+
+    if (enable_chabrier1998_quantum_corr) {
+        // See Wallace1982, Eq. A13
+
+        Real Gamma_eff = std::cbrt(2.0_rt) * scn_fac.z1 * scn_fac.z2 * scn_fac.zs13inv * Gamma_e;
+        [[maybe_unused]] Real Gamma_eff_dT;
+
+        if constexpr (do_T_derivatives) {
+            Gamma_eff_dT = -Gamma_eff / state.temp;
+        }
+
+        // TAU/3, see Wallace1982, Eq. A2
+
+        Real tau12 = state.taufac * scn_fac.aznut;
+
+        [[maybe_unused]] Real tau12dT;
+        if constexpr (do_T_derivatives) {
+            tau12dT = state.taufacdt * scn_fac.aznut;
+        }
+
+        // see Calder 2007 Eq. A8
+
+        Real b_fac = Gamma_eff / tau12;
+
+        [[maybe_unused]] Real b_fac_dT;
+        if constexpr (do_T_derivatives) {
+            b_fac_dT = (Gamma_eff_dT - b_fac * tau12dT) / tau12;
+        }
+
+        // Quantum correction terms (same as screen5)
+        //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
+
+        quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * amrex::Math::powi<3>(b_fac) - 0.014_rt * amrex::Math::powi<4>(b_fac) -
+                                   0.128_rt * amrex::Math::powi<5>(b_fac));
+
+        quantum_corr_2 = -Gamma_eff * (0.0055_rt * amrex::Math::powi<4>(b_fac) - 0.0098_rt * amrex::Math::powi<5>(b_fac) +
+                                       0.0048_rt * amrex::Math::powi<6>(b_fac));
+
+        if constexpr (do_T_derivatives) {
+            quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 * b_fac_dT *
+                (15.0_rt/32.0_rt * amrex::Math::powi<2>(b_fac) - 0.014_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) -
+                 0.128_rt * 5.0_rt * amrex::Math::powi<4>(b_fac));
+
+            quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff * b_fac_dT *
+                (0.0055_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) - 0.0098_rt * 5.0_rt *
+                 amrex::Math::powi<4>(b_fac) + 0.0048_rt * 6.0_rt * amrex::Math::powi<5>(b_fac));
+        }
+    }
+    // See Calder2007 Appendix Eq. A8.
+    // f1 + f2 - f12 gives the classical terms
+    // The difference between this and strong screening of screen5
+    // is that we replaced the classical term which is f1 + f2 - f12
+    // using results from Chabrier&Potekhin1998.
+
+    Real h12 = f1 + f2 - f12 + quantum_corr_1 + quantum_corr_2;
+
+    [[maybe_unused]] Real dh12dT;
+    if constexpr (do_T_derivatives) {
+        dh12dT = f1dT + f2dT - f12dT + quantum_corr_1_dT + quantum_corr_2_dT;
+    }
+
+    Real h12_max = 300.0_rt;
+    h12 = amrex::min(h12_max, h12);
+
+    scor = std::exp(h12);
+
+    if constexpr (do_T_derivatives) {
+        if (h12 == h12_max) {
+            scordt = 0.0_rt;
+        } else {
+            scordt = scor * dh12dT;
+        }
+    }
 }
 #endif
 
