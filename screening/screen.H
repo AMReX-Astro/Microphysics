@@ -22,6 +22,7 @@
 
 using namespace amrex;
 using namespace integrator_rp;
+using namespace screening_rp;
 
 #if SCREEN_METHOD == SCREEN_METHOD_null
 const std::string screen_name = "null";
