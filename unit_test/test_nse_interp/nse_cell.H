@@ -216,7 +216,6 @@ void nse_cell_c()
 
         Real e_orig = eos_state.e;
 
-
         // now perturb e and find T, then redo NSE to get abar and finally
         // see if we get back our new e
 
@@ -282,7 +281,6 @@ void nse_cell_c()
         eos(eos_input_rt, eos_state);
 
         Real p_orig = eos_state.p;
-
 
         // now perturb p and find T, then redo NSE to get abar and finally
         // see if we get back our new p
