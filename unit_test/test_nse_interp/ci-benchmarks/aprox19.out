@@ -1,5 +1,5 @@
-Initializing AMReX (23.11-5-gd36463103dae)...
-AMReX (23.11-5-gd36463103dae) initialized
+Initializing AMReX (23.12-21-gef38229189e3)...
+AMReX (23.12-21-gef38229189e3) initialized
 starting the single zone burn...
 reading the NSE table (C++) ...
 rho, T, Ye = 1230000000 5180000000 0.472
@@ -66,13 +66,28 @@ now using derivative of the interpolant
 dAbar/dT = -1.070778122e-09
 dbea/dT = -6.886272826e-12
 
-EOS e consistency check (old method): 1.395273834e+18 1.388449367e+18
+
+testing density derivatives of cubic
+first finite-difference derivatives
+dAbar/drho = 3.977427617e-10
+dbea/drho = 7.60511801e-13
+now using derivative of the interpolant
+dAbar/drho = 3.977430413e-10
+dbea/drho = 7.604874528e-13
+
+EOS T from e consistency check (old method): 1.395273834e+18 1.388449367e+18
 updated T: 6394612134
 change in abar: 55.60621897 50.27196857
-EOS e consistency check (new method): 1.388449367e+18 1.388449367e+18
+EOS T from e consistency check (new method): 1.388449367e+18 1.388449367e+18
 
-EOS p consistency check (old method): 6.622132093e+26 6.57785215e+26
+EOS T from p consistency check (old method): 6.622132093e+26 6.57785215e+26
 updated T: 6466848772
 change in abar: 55.60621897 49.50670173
-EOS p consistency check (new method): 6.57785215e+26 6.57785215e+26
-AMReX (23.11-5-gd36463103dae) finalized
+EOS T from p consistency check (new method): 6.57785215e+26 6.57785215e+26
+
+EOS rho from p consistency check (old method): 6.577760212e+26 6.57785215e+26
+updated T: 5180000000
+change in abar: 55.60621897 55.62459952
+EOS rho from p consistency check (new method): 6.57785215e+26 6.57785215e+26
+
+AMReX (23.12-21-gef38229189e3) finalized
