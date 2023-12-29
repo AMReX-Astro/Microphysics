@@ -327,6 +327,69 @@ Real tricubic_dT(const int ir0, const int it0, const int ic0,
 
 }
 
+
+///
+/// take the density derivative of a table quantity by differentiating
+/// the cubic interpolant
+///
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real tricubic_drho(const int ir0, const int it0, const int ic0,
+                   const Real rho, const Real temp, const Real ye, const T& data) {
+
+    Real yes[] = {nse_table_ye(ic0),
+                  nse_table_ye(ic0+1),
+                  nse_table_ye(ic0+2),
+                  nse_table_ye(ic0+3)};
+
+    Real Ts[] = {nse_table_logT(it0),
+                 nse_table_logT(it0+1),
+                 nse_table_logT(it0+2),
+                 nse_table_logT(it0+3)};
+
+    Real rhos[] = {nse_table_logrho(ir0),
+                   nse_table_logrho(ir0+1),
+                   nse_table_logrho(ir0+2),
+                   nse_table_logrho(ir0+3)};
+
+    // first do the 16 ye interpolations
+
+    // the first index will be rho and the second will be T
+    Real d1[4][4];
+
+    for (int ii = 0; ii < 4; ++ii) {
+        for (int jj = 0; jj < 4; ++jj) {
+
+            Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+
+            // note that the ye values are monotonically decreasing,
+            // so the "dx" needs to be negative
+            d1[ii][jj] = cubic(yes, _d, -nse_table_size::dye, ye);
+        }
+    }
+
+    // now do the 4 T interpolations (one in each rho plane)
+
+    Real d2[4];
+
+    for (int ii = 0; ii < 4; ++ii) {
+
+        Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
+        d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
+    }
+
+    // finally do the remaining interpolation over rho, but return
+    // the derivative of the interpolant
+
+    Real val = cubic_deriv(rhos, d2, nse_table_size::dlogrho, rho);
+
+    return val;
+
+}
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
 
@@ -469,6 +532,59 @@ nse_interp_dT(const Real temp, const Real rho, const Real ye, const T& data) {
     Real ddatadT = tricubic_dT(ir0, it0, ic0, rholog, tlog, yet, data) / (std::log(10.0_rt) * temp);
 
     return ddatadT;
+
+
+}
+
+
+///
+/// compute the density derivative of the table quantity data
+/// at the point T, rho, ye by using cubic interpolation
+///
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real
+nse_interp_drho(const Real temp, const Real rho, const Real ye, const T& data) {
+
+    Real rholog = std::log10(rho);
+    {
+        Real rmin = nse_table_size::logrho_min;
+        Real rmax = nse_table_size::logrho_max;
+
+        rholog = std::clamp(rholog, rmin, rmax);
+    }
+
+    Real tlog = std::log10(temp);
+    {
+        Real tmin = nse_table_size::logT_min;
+        Real tmax = nse_table_size::logT_max;
+
+        tlog = std::clamp(tlog, tmin, tmax);
+    }
+
+    Real yet = ye;
+    {
+        Real yemin = nse_table_size::ye_min;
+        Real yemax = nse_table_size::ye_max;
+
+        yet = std::clamp(yet, yemin, yemax);
+    }
+
+    int ir0 = nse_get_logrho_index(rholog) - 1;
+    ir0 = std::clamp(ir0, 1, nse_table_size::nden-3);
+
+    int it0 = nse_get_logT_index(tlog) - 1;
+    it0 = std::clamp(it0, 1, nse_table_size::ntemp-3);
+
+    int ic0 = nse_get_ye_index(yet) - 1;
+    ic0 = std::clamp(ic0, 1, nse_table_size::nye-3);
+
+    // note: this is returning the derivative wrt log10(rho), so we need to
+    // convert to d/drho
+
+    Real ddatadrho = tricubic_drho(ir0, it0, ic0, rholog, tlog, yet, data) / (std::log(10.0_rt) * rho);
+
+    return ddatadrho;
 
 }
 
