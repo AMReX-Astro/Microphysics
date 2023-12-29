@@ -1,6 +1,7 @@
-AMReX (22.10-25-g735c3513153f) initialized
+Initializing AMReX (23.12-21-gef38229189e3)...
+AMReX (23.12-21-gef38229189e3) initialized
 starting the single zone burn...
-0x7ffd73ad6d20
+0x7ffcb5676e40
 State Density (g/cm^3): 277355338.4
 State Temperature (K): 5197769252
 Mass Fraction (H1): 0.4
@@ -50,4 +51,4 @@ Fe56 : 1.686482626e-05
 Ni56 : 0.8982137413
 n : 9.442515318e-10
 p : 0.001666851761
-AMReX (22.10-25-g735c3513153f) finalized
+AMReX (23.12-21-gef38229189e3) finalized
