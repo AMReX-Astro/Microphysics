@@ -10,7 +10,8 @@ def pow_to_powi(text):
 
     # Check for all positive and negative integer, whole float numbers
     # with and without _rt
-    pattern = r"std::pow\(([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))\)"
+    std_pattern = r"std::pow\(([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))\)"
+    gcem_pattern = r"gcem::pow\(([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))\)"
 
     def replacement(match):
         x = match.group(1)
@@ -20,7 +21,9 @@ def pow_to_powi(text):
         n = n.split('.')[0] if '.' in n else n
         return f"amrex::Math::powi<{n}>({x})"
 
-    return re.sub(pattern, replacement, text)
+    text = re.sub(std_pattern, replacement, text)
+    text = re.sub(gcem_pattern, replacement, text)
+    return text
 
 def process_content(dir_path):
     # This function processes all text in the given directory
