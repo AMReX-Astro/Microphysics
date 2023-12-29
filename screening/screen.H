@@ -89,7 +89,8 @@ screening_finalize() {
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
+fill_plasma_state(plasma_state_t& state, const Real temp,
+                  const Real dens, Array1D<Real, 1, NumSpec> const& y) {
 
     Real sum = 0.0_rt;
     for (int n = 1; n <= NumSpec; n++) {
@@ -167,7 +168,8 @@ fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-fill_plasma_state(plasma_state_t& state, const Real temp, const Real dens, Array1D<Real, 1, NumSpec> const& y) {
+fill_plasma_state(plasma_state_t& state, const Real temp,
+                  const Real dens, Array1D<Real, 1, NumSpec> const& y) {
     if (jacobian == 1) {
         constexpr int do_T_derivatives = 1;
         fill_plasma_state<do_T_derivatives>(state, temp, dens, y);
@@ -717,8 +719,8 @@ void chugunov2009 (const plasma_state_t& state,
 
     // Coulomb barrier penetrability, eq. 10
     constexpr Real tau_factor = gcem::pow(
-            27.0_rt/2.0_rt * gcem::pow(M_PI*C::q_e*C::q_e/C::hbar, 2) / (C::n_A*C::k_B),
-            1.0_rt/3.0_rt);
+            27.0_rt/2.0_rt * gcem::pow(M_PI*C::q_e*C::q_e/C::hbar, 2) /
+            (C::n_A*C::k_B), 1.0_rt/3.0_rt);
     Real tau_12 = tau_factor * scn_fac.aznut / std::cbrt(state.temp);
     Real dlog_tau_12_dT;
     if constexpr (do_T_derivatives) {
@@ -879,7 +881,8 @@ void chabrier1998 (const plasma_state_t& state,
     if (enable_chabrier1998_quantum_corr) {
         // See Wallace1982, Eq. A13
 
-        Real Gamma_eff = std::cbrt(2.0_rt) * scn_fac.z1 * scn_fac.z2 * scn_fac.zs13inv * Gamma_e;
+        Real Gamma_eff = std::cbrt(2.0_rt) * scn_fac.z1 * scn_fac.z2 *
+                         scn_fac.zs13inv * Gamma_e;
         [[maybe_unused]] Real Gamma_eff_dT;
 
         if constexpr (do_T_derivatives) {
@@ -907,20 +910,24 @@ void chabrier1998 (const plasma_state_t& state,
         // Quantum correction terms (same as screen5)
         //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
 
-        quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * amrex::Math::powi<3>(b_fac) - 0.014_rt * amrex::Math::powi<4>(b_fac) -
+        quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * amrex::Math::powi<3>(b_fac) -
+                                   0.014_rt * amrex::Math::powi<4>(b_fac) -
                                    0.128_rt * amrex::Math::powi<5>(b_fac));
 
-        quantum_corr_2 = -Gamma_eff * (0.0055_rt * amrex::Math::powi<4>(b_fac) - 0.0098_rt * amrex::Math::powi<5>(b_fac) +
+        quantum_corr_2 = -Gamma_eff * (0.0055_rt * amrex::Math::powi<4>(b_fac) -
+                                       0.0098_rt * amrex::Math::powi<5>(b_fac) +
                                        0.0048_rt * amrex::Math::powi<6>(b_fac));
 
         if constexpr (do_T_derivatives) {
-            quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 * b_fac_dT *
-                (15.0_rt/32.0_rt * amrex::Math::powi<2>(b_fac) - 0.014_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) -
-                 0.128_rt * 5.0_rt * amrex::Math::powi<4>(b_fac));
+            quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 *
+                b_fac_dT * (15.0_rt/32.0_rt * amrex::Math::powi<2>(b_fac) -
+                            0.014_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) -
+                            0.128_rt * 5.0_rt * amrex::Math::powi<4>(b_fac));
 
-            quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff * b_fac_dT *
-                (0.0055_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) - 0.0098_rt * 5.0_rt *
-                 amrex::Math::powi<4>(b_fac) + 0.0048_rt * 6.0_rt * amrex::Math::powi<5>(b_fac));
+            quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff *
+                b_fac_dT * (0.0055_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) -
+                            0.0098_rt * 5.0_rt * amrex::Math::powi<4>(b_fac) +
+                            0.0048_rt * 6.0_rt * amrex::Math::powi<5>(b_fac));
         }
     }
     // See Calder2007 Appendix Eq. A8.
