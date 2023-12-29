@@ -42,7 +42,7 @@ bool in_nse(T& state, const bool relax = false) {
 
         if constexpr (std::is_same<T, burn_t>::value) {
             // for a burn_t, we need to use a different field
-            // defending on whether we are strang of simplified-SDC
+            // depending on whether we are strang of simplified-SDC
 
 #ifdef STRANG
             Fe_group = state.xn[Cr48-1] + state.xn[Fe52-1] +
