@@ -715,8 +715,8 @@ void chugunov2009 (const plasma_state_t& state,
     Real Gamma_12 = Gamma_e * z1z2 / scn_fac.ztilde;
 
     // Coulomb barrier penetrability, eq. 10
-    constexpr Real tau_factor = gcem::pow(
-            27.0_rt/2.0_rt * gcem::pow(M_PI*C::q_e*C::q_e/C::hbar, 2) / (C::n_A*C::k_B),
+    constexpr Real tau_factor = amrex::Math::powi<2>(
+            27.0_rt/2.0_rt * gcem::pow(M_PI*C::q_e*C::q_e/C::hbar) / (C::n_A*C::k_B),
             1.0_rt/3.0_rt);
     Real tau_12 = tau_factor * scn_fac.aznut / std::cbrt(state.temp);
     Real dlog_tau_12_dT;
