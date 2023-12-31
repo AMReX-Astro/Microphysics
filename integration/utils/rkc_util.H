@@ -49,7 +49,7 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_timestep, const Rea
         } else {
             wt = rstate.rtol_enuc * std::abs(rstate.yn(i)) + rstate.atol_enuc;
         }
-        est += std::pow((rstate.yjm2(i) - rstate.fn(i)) / wt, 2);
+        est += amrex::Math::powi<2>((rstate.yjm2(i) - rstate.fn(i)) / wt);
     }
     est = absh * std::sqrt(est / INT_NEQS);
 
@@ -115,8 +115,8 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
     Real ynrm{};
     Real vnrm{};
     for (int i = 1; i <= INT_NEQS; ++i) {
-        ynrm += std::pow(rstate.yn(i), 2);
-        vnrm += std::pow(rstate.yjm1(i), 2);
+        ynrm += amrex::Math::powi<2>(rstate.yn(i));
+        vnrm += amrex::Math::powi<2>(rstate.yjm1(i));
     }
     ynrm = std::sqrt(ynrm);
     vnrm = std::sqrt(vnrm);
@@ -164,7 +164,7 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
         rstate.nfesig++;
         Real dfnrm{};
         for (int i = 1; i <= INT_NEQS; ++i) {
-            dfnrm += std::pow(rstate.yjm2(i) - rstate.fn(i), 2);
+            dfnrm += amrex::Math::powi<2>(rstate.yjm2(i) - rstate.fn(i));
         }
         dfnrm = std::sqrt(dfnrm);
         Real sigmal = sigma;

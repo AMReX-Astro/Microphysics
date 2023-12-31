@@ -27,8 +27,8 @@ using namespace amrex;
 
 const std::string eos_name = "ztwd";
 
-const Real A = M_PI * std::pow(C::m_e, 4) * std::pow(C::c_light, 5) / (3.0_rt * std::pow(C::hplanck, 3));
-const Real B2 = 8.0_rt * M_PI * std::pow(C::m_e, 3) * std::pow(C::c_light, 3) * C::m_p  / (3.0_rt * std::pow(C::hplanck, 3));
+const Real A = M_PI * amrex::Math::powi<4>(C::m_e) * amrex::Math::powi<5>(C::c_light) / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
+const Real B2 = 8.0_rt * M_PI * amrex::Math::powi<3>(C::m_e) * amrex::Math::powi<3>(C::c_light) * C::m_p  / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
 const Real iter_tol = 1.e-10_rt;
 const int  max_iter = 1000;
 
