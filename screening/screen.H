@@ -715,8 +715,8 @@ void chugunov2009 (const plasma_state_t& state,
     Real Gamma_12 = Gamma_e * z1z2 / scn_fac.ztilde;
 
     // Coulomb barrier penetrability, eq. 10
-    constexpr Real tau_factor = gcem::pow(
-            27.0_rt/2.0_rt * gcem::pow(M_PI*C::q_e*C::q_e/C::hbar, 2) / (C::n_A*C::k_B),
+    constexpr Real tau_factor = amrex::Math::powi<2>(
+            27.0_rt/2.0_rt * gcem::pow(M_PI*C::q_e*C::q_e/C::hbar) / (C::n_A*C::k_B),
             1.0_rt/3.0_rt);
     Real tau_12 = tau_factor * scn_fac.aznut / std::cbrt(state.temp);
     Real dlog_tau_12_dT;
@@ -899,22 +899,22 @@ void chabrier1998 (const plasma_state_t& state,
   // Quantum correction terms (same as screen5)
   //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
 
-  Real quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * std::pow(b_fac, 3) - 0.014_rt * std::pow(b_fac, 4)
-                                  - 0.128_rt * std::pow(b_fac, 5));
+  Real quantum_corr_1 = -tau12 * (5.0_rt/32.0_rt * amrex::Math::powi<3>(b_fac) - 0.014_rt * amrex::Math::powi<4>(b_fac)
+                                  - 0.128_rt * amrex::Math::powi<5>(b_fac));
 
-  Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * std::pow(b_fac, 4) - 0.0098_rt * std::pow(b_fac, 5)
-                                      + 0.0048_rt * std::pow(b_fac, 6));
+  Real quantum_corr_2 = -Gamma_eff * (0.0055_rt * amrex::Math::powi<4>(b_fac) - 0.0098_rt * amrex::Math::powi<5>(b_fac)
+                                      + 0.0048_rt * amrex::Math::powi<6>(b_fac));
 
   [[maybe_unused]] Real quantum_corr_1_dT;
   [[maybe_unused]] Real quantum_corr_2_dT;
   if constexpr (do_T_derivatives) {
     quantum_corr_1_dT = tau12dT / tau12 * quantum_corr_1 - tau12 * b_fac_dT
-      * (15.0_rt/32.0_rt * std::pow(b_fac, 2) - 0.014_rt * 4.0_rt * std::pow(b_fac, 3)
-         - 0.128_rt * 5.0_rt * std::pow(b_fac, 4));
+      * (15.0_rt/32.0_rt * amrex::Math::powi<2>(b_fac) - 0.014_rt * 4.0_rt * amrex::Math::powi<3>(b_fac)
+         - 0.128_rt * 5.0_rt * amrex::Math::powi<4>(b_fac));
 
     quantum_corr_2_dT = Gamma_eff_dT / Gamma_eff * quantum_corr_2 - Gamma_eff * b_fac_dT
-      * (0.0055_rt * 4.0_rt * std::pow(b_fac, 3) - 0.0098_rt * 5.0_rt
-         * std::pow(b_fac, 4) + 0.0048_rt * 6.0_rt * std::pow(b_fac, 5));
+      * (0.0055_rt * 4.0_rt * amrex::Math::powi<3>(b_fac) - 0.0098_rt * 5.0_rt
+         * amrex::Math::powi<4>(b_fac) + 0.0048_rt * 6.0_rt * amrex::Math::powi<5>(b_fac));
   }
 
   // See Calder2007 Appendix Eq. A8.

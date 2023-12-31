@@ -155,11 +155,11 @@ void dogleg(amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2>& r,
 
             Real bnorm = enorm(neqs, qtb);
             temp = (bnorm/gnorm)*(bnorm/qnorm)*(sgnorm/delta);
-            temp = temp - (delta/qnorm) * std::pow(sgnorm/delta, 2.0_rt)
-                + std::sqrt(std::pow(temp-(delta/qnorm), 2.0_rt)
-                            + (1.0_rt-std::pow(delta/qnorm, 2.0_rt)) *
-                              (1.0_rt-std::pow(sgnorm/delta, 2.0_rt)));
-            alpha = ((delta/qnorm)*(1.0_rt - std::pow(sgnorm/delta, 2.0_rt))) / temp;
+            temp = temp - (delta/qnorm) * amrex::Math::powi<2>(sgnorm/delta)
+                + std::sqrt(amrex::Math::powi<2>(temp-(delta/qnorm))
+                            + (1.0_rt-amrex::Math::powi<2>(delta/qnorm)) *
+                              (1.0_rt-amrex::Math::powi<2>(sgnorm/delta)));
+            alpha = ((delta/qnorm)*(1.0_rt - amrex::Math::powi<2>(sgnorm/delta))) / temp;
         }
     }
 

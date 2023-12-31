@@ -30,7 +30,7 @@ void step (BurnT& state, RkcT& rstate, const Real h, const int m)
     Real arg = m * std::log(w0 + temp2);
     Real w1 = std::sinh(arg) * temp1 /
         (std::cosh(arg) * m * temp2 -  w0 * std::sinh(arg));
-    Real bjm1 = 1.0_rt / std::pow(2.0_rt * w0, 2);
+    Real bjm1 = 1.0_rt / amrex::Math::powi<2>(2.0_rt * w0);
     Real bjm2 = bjm1;
 
     // Evaluate the first stage.
@@ -58,7 +58,7 @@ void step (BurnT& state, RkcT& rstate, const Real h, const int m)
         Real zj = 2.0_rt * w0 * zjm1 - zjm2;
         Real dzj = 2.0_rt * w0 * dzjm1 - dzjm2 + 2.0_rt * zjm1;
         Real d2zj = 2.0_rt * w0 * d2zjm1 - d2zjm2 + 4.0_rt * dzjm1;
-        Real bj = d2zj / std::pow(dzj, 2);
+        Real bj = d2zj / amrex::Math::powi<2>(dzj);
         Real ajm1 = 1.0_rt - zjm1 * bjm1;
         Real mu = 2.0_rt * w0 * bj / bjm1;
         Real nu = -bj / bjm2;
@@ -220,7 +220,7 @@ int rkclow (BurnT& state, RkcT& rstate)
 
             Real est = p8 * (rstate.yn(i) - rstate.y(i)) +
                        p4 * h * (rstate.fn(i) + rstate.yjm1(i));
-            err += std::pow(est / wt, 2);
+            err += amrex::Math::powi<2>(est / wt);
         }
 
         err = std::sqrt(err / int_neqs);
