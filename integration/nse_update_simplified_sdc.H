@@ -132,6 +132,11 @@ void nse_derivs(const Real rho0, const Real rhoe0, const Real *rhoaux0,
 
     Real bea1_out = nse_state.bea;
 
+    // update abar -- this will be the same as nse_T_abar_from_e, but
+    // for the case with T_fixed > 0, this abar will be consistent
+    // with NSE.
+    abar1_out = nse_state.abar;
+
     // construct the finite-difference approximation to the derivatives
 
     // note that abar, (B/A) here have already seen advection
@@ -222,7 +227,9 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
             dt * (state.ydot_a[SFX+n] + drhoauxdt[n]);
     }
 
-    // get the new temperature
+    // get the new temperature.  This will also get a new abar, but
+    // we'll use the version from the NSE table compute below for the
+    // final abar.
 
     Real T_new;
     Real abar_new;
@@ -230,6 +237,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     if (state.T_fixed > 0) {
         T_new = state.T_fixed;
+        // note: this is not consistent with NSE
         abar_new = rhoaux_new[iabar] / rho_new;
     } else {
         Real e_new = rhoe_new / rho_new;
@@ -239,7 +247,9 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
 
     // do a final NSE call -- we want the ending B/A to be consistent
     // with our thermodynamic state here, plus we need to get the mass
-    // fractions
+    // fractions.  We'll also use the abar from this call.  This should
+    // be the same as what we got from nse_T_abar_from_e, but if we are
+    // doing T_fixed, this abar will be consistent with NSE.
 
 
     constexpr bool skip_X_fill{false};
@@ -273,7 +283,7 @@ void sdc_nse_burn(BurnT& state, const Real dt) {
     // aux data comes from the integration or the table
 
     state.y[SFX+iye] = rhoaux_new[iye];
-    state.y[SFX+iabar] = rho_new * abar_new;
+    state.y[SFX+iabar] = rho_new * nse_state.abar;
     state.y[SFX+ibea] = rho_new * nse_state.bea;
 
     // density and momenta have already been updated
