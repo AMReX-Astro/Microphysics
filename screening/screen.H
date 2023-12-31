@@ -745,7 +745,8 @@ void chugunov2009 (const plasma_state_t& state,
     Real dlog_dT = 0.0_rt;
     if constexpr (do_T_derivatives) {
         Real dc3_dT = -1.8_rt / Gamma_12 * dlog_Gamma_dT;
-        Real dpoly_dT = (c1 + zeta*(2.0_rt*c2 + 3.0_rt*c3*zeta))*dzeta_dT + dc3_dT*zeta*zeta*zeta;
+        Real dpoly_dT = (c1 + zeta*(2.0_rt*c2 + 3.0_rt*c3*zeta))*dzeta_dT +
+                        dc3_dT*zeta*zeta*zeta;
         Real dlog_t_12_dT = dpoly_dT / (3.0_rt * poly);
         dlog_dT = dlog_Gamma_dT - dlog_t_12_dT;
     }
@@ -796,7 +797,8 @@ void chugunov2009 (const plasma_state_t& state,
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 template <int do_T_derivatives>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT, Real& f, Real& df_dT) {
+void chabrier1998_helmholtz_F(const Real gamma, const Real dgamma_dT,
+                              Real& f, Real& df_dT) {
     // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
     // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV

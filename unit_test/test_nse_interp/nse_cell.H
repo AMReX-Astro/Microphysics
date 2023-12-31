@@ -139,10 +139,18 @@ void nse_cell_c()
     }
 
 
+    // temp derivatives
+
     std::cout << std::endl;
     std::cout << "testing temperature derivatives of cubic" << std::endl;
 
     std::cout << "first finite-difference derivatives" << std::endl;
+
+    nse_state.T = temperature;
+    nse_state.rho = density;
+    nse_state.Ye = ye;
+
+    nse_interp(nse_state);
 
     Real abar_old = nse_state.abar;
     Real bea_old = nse_state.bea;
@@ -166,6 +174,41 @@ void nse_cell_c()
 
     std::cout << "dAbar/dT = " << dabardT << std::endl;
     std::cout << "dbea/dT = " << dbeadT << std::endl;
+
+    std::cout << std::endl;
+
+    // dens derivatives
+
+    std::cout << std::endl;
+    std::cout << "testing density derivatives of cubic" << std::endl;
+
+    std::cout << "first finite-difference derivatives" << std::endl;
+
+    nse_state.T = temperature;
+    nse_state.rho = density;
+    nse_state.Ye = ye;
+
+    nse_interp(nse_state);
+
+    Real rho_old = nse_state.rho;
+
+    nse_state.rho *= (1.0_rt + eps);
+
+    nse_interp(nse_state);
+
+    std::cout << "dAbar/drho = " << (nse_state.abar - abar_old) / (nse_state.rho - rho_old) << std::endl;
+    std::cout << "dbea/drho = " << (nse_state.bea - bea_old) / (nse_state.rho - rho_old) << std::endl;
+
+    std::cout << "now using derivative of the interpolant" << std::endl;
+
+    Real dabardrho = nse_interp_drho(temperature, density, ye,
+                                     nse_table::abartab);
+
+    Real dbeadrho = nse_interp_drho(temperature, density, ye,
+                                    nse_table::beatab);
+
+    std::cout << "dAbar/drho = " << dabardrho << std::endl;
+    std::cout << "dbea/drho = " << dbeadrho << std::endl;
 
     std::cout << std::endl;
 
@@ -230,7 +273,7 @@ void nse_cell_c()
         eos_state.aux[iabar] = nse_state.abar;
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS e consistency check (old method): " << eos_state.e << " " << e_new << std::endl;
+        std::cout << "EOS T from e consistency check (old method): " << eos_state.e << " " << e_new << std::endl;
 
         // attempt 2:
         // now we try the new interface.  This effectively does:
@@ -254,7 +297,7 @@ void nse_cell_c()
 
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS e consistency check (new method): " << eos_state.e << " " << e_new << std::endl;
+        std::cout << "EOS T from e consistency check (new method): " << eos_state.e << " " << e_new << std::endl;
         std::cout << std::endl;
     }
 
@@ -296,7 +339,7 @@ void nse_cell_c()
         eos_state.aux[iabar] = nse_state.abar;
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS p consistency check (old method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << "EOS T from p consistency check (old method): " << eos_state.p << " " << p_new << std::endl;
 
         // attempt 2:
         // now we try the new interface.  This effectively does:
@@ -320,7 +363,77 @@ void nse_cell_c()
 
         eos(eos_input_rt, eos_state);
 
-        std::cout << "EOS p consistency check (new method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << "EOS T from p consistency check (new method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << std::endl;
     }
+
+
+    // now we test the EOS inversion for finding rho given e or p.  The idea
+    // is the same as above.  We don't have an eos_input_te, so we will only
+    // check p
+
+    {
+
+        nse_state.T = temperature;
+        nse_state.rho = density;
+        nse_state.Ye = ye;
+
+        nse_interp(nse_state);
+
+        Real abar_orig = nse_state.abar;
+
+        eos_t eos_state;
+
+        eos_state.T = temperature;
+        eos_state.rho = density;
+        eos_state.aux[iye] = nse_state.Ye;
+        eos_state.aux[iabar] = nse_state.abar;
+
+        eos(eos_input_rt, eos_state);
+
+        Real p_orig = eos_state.p;
+
+        // now perturb p and find T, then redo NSE to get abar and finally
+        // see if we get back our new p
+
+        Real p_new = eos_state.p * 1.05;
+
+        eos_state.p = p_new;
+        eos(eos_input_tp, eos_state);
+
+        nse_state.rho = eos_state.rho;
+        nse_interp(nse_state);
+
+        eos_state.aux[iabar] = nse_state.abar;
+        eos(eos_input_rt, eos_state);
+
+        std::cout << "EOS rho from p consistency check (old method): " << eos_state.p << " " << p_new << std::endl;
+
+        // attempt 2:
+        // now we try the new interface.  This effectively does:
+        // p', T, Ye -> Abar', rho'
+
+        eos_state.T = temperature;
+        eos_state.p = p_new;
+        eos_state.rho = density;
+        eos_state.aux[iye] = ye;
+        eos_state.aux[iabar] = abar_orig;
+
+        Real abar_start = eos_state.aux[iabar];
+
+        nse_rho_abar_from_p(eos_state.T, eos_state.p, eos_state.aux[iye],
+                            eos_state.rho, eos_state.aux[iabar]);
+
+        std::cout << "updated T: " << eos_state.T << std::endl;
+        std::cout << "change in abar: " << abar_start << " " << eos_state.aux[iabar] << std::endl;
+
+        // now check if we get back the correct p!
+
+        eos(eos_input_rt, eos_state);
+
+        std::cout << "EOS rho from p consistency check (new method): " << eos_state.p << " " << p_new << std::endl;
+        std::cout << std::endl;
+    }
+
 
 }
