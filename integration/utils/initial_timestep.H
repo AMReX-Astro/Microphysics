@@ -68,7 +68,7 @@ Real initial_react_dt (BurnT& burn_state, IntT& int_state,
 
        Real yddnorm = 0.0_rt;
        for (int ii = 1; ii <= INT_NEQS; ii++) {
-           yddnorm += std::pow(ddydtt(ii) * ewt(ii), 2);
+           yddnorm += amrex::Math::powi<2>(ddydtt(ii) * ewt(ii));
        }
        yddnorm = std::sqrt(yddnorm / INT_NEQS);
 

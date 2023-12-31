@@ -95,6 +95,11 @@ namespace rate_tables
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_Mn55_Fe55_rhoy;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_Mn55_Fe55_temp;
 
+    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
+    extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_n_p_rhoy;
+    extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_n_p_temp;
+
     extern AMREX_GPU_MANAGED table_t j_Ni56_Co56_meta;
     extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_Ni56_Co56_data;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_Ni56_Co56_rhoy;
@@ -104,11 +109,6 @@ namespace rate_tables
     extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_Ni57_Co57_data;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_Ni57_Co57_rhoy;
     extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_Ni57_Co57_temp;
-
-    extern AMREX_GPU_MANAGED table_t j_n_p_meta;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_n_p_data;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 11> j_n_p_rhoy;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 13> j_n_p_temp;
 
     extern AMREX_GPU_MANAGED table_t j_p_n_meta;
     extern AMREX_GPU_MANAGED Array3D<Real, 1, 13, 1, 11, 1, 6> j_p_n_data;
