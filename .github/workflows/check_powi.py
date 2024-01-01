@@ -6,7 +6,7 @@ import re
 
 def pow_to_powi(text):
     # Finds all possible std::pow(x, n) or gcem::pow(x, n)
-    #where n is a potential integer to amrex::Math::powi<n>(x)
+    # where n is a potential integer to amrex::Math::powi<n>(x)
 
     # Check for all positive and negative integer, whole float numbers
     # with and without _rt
