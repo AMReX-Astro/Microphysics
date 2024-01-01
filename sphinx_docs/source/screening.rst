@@ -48,3 +48,7 @@ The options are:
 
   This disables screening by always returning 1 for the screening
   enhancement factor.
+
+Runtime Options
+----------------
+* ``screening.enable_chabrier1998_quantum_corr = 1`` in the input file enables an additional quantum correction term added to the screening factor when ``SCREEN_METHOD=chabrier1998``. This is disabled by default since ``chabrier1998`` is often used along with ``USE_NSE_NET=TRUE``, and the NSE solver doesn't include quantum corrections.
