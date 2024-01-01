@@ -63,7 +63,10 @@
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Screening of Reaction Rates</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Screening of Reaction Rates</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#runtime-options">Runtime Options</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
@@ -138,6 +141,12 @@ screening limit.</p>
 enhancement factor.</p>
 </li>
 </ul>
+<section id="runtime-options">
+<h2>Runtime Options<a class="headerlink" href="#runtime-options" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">screening.enable_chabrier1998_quantum_corr</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file enables an additional quantum correction term added to the screening factor when <code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD=chabrier1998</span></code>. This is disabled by default since <code class="docutils literal notranslate"><span class="pre">chabrier1998</span></code> is often used along with <code class="docutils literal notranslate"><span class="pre">USE_NSE_NET=TRUE</span></code>, and the NSE solver doesn’t include quantum corrections.</p></li>
+</ul>
+</section>
 </section>
 
 
