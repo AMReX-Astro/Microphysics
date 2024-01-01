@@ -14,66 +14,66 @@ namespace scrn {
 
     public:
 
-      amrex::Real z1 = -1;
-      amrex::Real z2 = -1;
-      amrex::Real a1 = -1;
-      amrex::Real a2 = -1;
+        amrex::Real z1 = -1;
+        amrex::Real z2 = -1;
+        amrex::Real a1 = -1;
+        amrex::Real a2 = -1;
 
-      // z1_53   = (z1)**(5./3.)
-      // z2_53   = (z2)**(5./3.)
-      // zs52    = (z1+z2)**(5./2.)
-      // z1_52   = (z1)**(5./2.)
-      // z2_52   = (z2)**(5./2.)
-      // zs13    = (z1+z2)**(1./3.)
-      // zs53    = (z1+z2)**(5./3.)
-      // zhat    = combination of z1 and z2 raised to the 5/3 power
-      // zhat2   = combination of z1 and z2 raised to the 5/12 power
-      // lzav    = log of effective charge
-      // aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
-      // ztilde  = effective ion radius factor for a MCP
-      // ztilde3 = ztilde**3
+        // z1_53   = (z1)**(5./3.)
+        // z2_53   = (z2)**(5./3.)
+        // zs52    = (z1+z2)**(5./2.)
+        // z1_52   = (z1)**(5./2.)
+        // z2_52   = (z2)**(5./2.)
+        // zs13    = (z1+z2)**(1./3.)
+        // zs53    = (z1+z2)**(5./3.)
+        // zhat    = combination of z1 and z2 raised to the 5/3 power
+        // zhat2   = combination of z1 and z2 raised to the 5/12 power
+        // lzav    = log of effective charge
+        // aznut   = combination of a1,z1,a2,z2 raised to 1/3 power
+        // ztilde  = effective ion radius factor for a MCP
+        // ztilde3 = ztilde**3
 
 #if SCREEN_METHOD == SCREEN_METHOD_screen5
-      amrex::Real zs53 = 0.0;
-      amrex::Real z1_53 = 0.0;
-      amrex::Real z2_53 = 0.0;
-      amrex::Real zs13 = 0.0;
-      amrex::Real zs13inv = 0.0;
-      amrex::Real zhat = 0.0;
-      amrex::Real zhat2 = 0.0;
-      amrex::Real lzav = 0.0;
-      amrex::Real aznut = 0.0;
+        amrex::Real zs53 = 0.0;
+        amrex::Real z1_53 = 0.0;
+        amrex::Real z2_53 = 0.0;
+        amrex::Real zs13 = 0.0;
+        amrex::Real zs13inv = 0.0;
+        amrex::Real zhat = 0.0;
+        amrex::Real zhat2 = 0.0;
+        amrex::Real lzav = 0.0;
+        amrex::Real aznut = 0.0;
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
-      amrex::Real ztilde = 0.0;
-      amrex::Real ztilde3 = 0.0;
+        amrex::Real ztilde = 0.0;
+        amrex::Real ztilde3 = 0.0;
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
-      amrex::Real zs52 = 0.0;
-      amrex::Real z1_52 = 0.0;
-      amrex::Real z2_52 = 0.0;
-      amrex::Real zs53 = 0.0;
-      amrex::Real z1_53 = 0.0;
-      amrex::Real z2_53 = 0.0;
-      amrex::Real aznut = 0.0;
-      amrex::Real ztilde = 0.0;
+        amrex::Real zs52 = 0.0;
+        amrex::Real z1_52 = 0.0;
+        amrex::Real z2_52 = 0.0;
+        amrex::Real zs53 = 0.0;
+        amrex::Real z1_53 = 0.0;
+        amrex::Real z2_53 = 0.0;
+        amrex::Real aznut = 0.0;
+        amrex::Real ztilde = 0.0;
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-      amrex::Real zs53 = 0.0;
-      amrex::Real z1_53 = 0.0;
-      amrex::Real z2_53 = 0.0;
-      amrex::Real zs13 = 0.0;
-      amrex::Real zs13inv = 0.0;
-      amrex::Real aznut = 0.0;
+        amrex::Real zs53 = 0.0;
+        amrex::Real z1_53 = 0.0;
+        amrex::Real z2_53 = 0.0;
+        amrex::Real zs13 = 0.0;
+        amrex::Real zs13inv = 0.0;
+        amrex::Real aznut = 0.0;
 #endif
 
       [[nodiscard]]
       bool validate_nuclei(const amrex::Real z1_pass, const amrex::Real a1_pass,
                            const amrex::Real z2_pass, const amrex::Real a2_pass) const {
-        // a simple function for unit testing / debug runs to
-        // ensure that we are accessing the proper screening info
+          // a simple function for unit testing / debug runs to
+          // ensure that we are accessing the proper screening info
 
-        return (z1_pass == z1) &&
-               (z2_pass == z2) &&
-               (a1_pass == a1) &&
-               (a2_pass == a2);
+          return (z1_pass == z1) &&
+                 (z2_pass == z2) &&
+                 (a1_pass == a1) &&
+                 (a2_pass == a2);
       }
     };
 
