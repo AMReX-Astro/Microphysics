@@ -404,6 +404,12 @@ value, then <code class="docutils literal notranslate"><span class="pre">in_nse<
 and <code class="docutils literal notranslate"><span class="pre">false</span></code> if the current temperature is lower than <code class="docutils literal notranslate"><span class="pre">T_nse_net</span></code>.
 Note that we still perform a simple molar fraction check to ensure that the current state
 is close enough to the NSE state.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.ase_tol</span></code> is the tolerance that determines the equilibrium condition for forward
+and reverse rates. This is set to 0.1 by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_abs_tol</span></code> is the absolute tolerance of checking the difference between current
+molar fraction and the NSE molar fraction. This is set to 0.005 by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_rel_tol</span></code> is the relative tolerance of checking the difference between current
+molar fraction and the NSE molar fraction. This is set to 0.2 by default.</p></li>
 </ul>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">
