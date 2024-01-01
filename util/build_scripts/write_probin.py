@@ -64,7 +64,7 @@ def get_next_line(fin):
     return line[:pos]
 
 
-def parse_param_file(params_list, param_file, use_namespace=False):
+def parse_param_file(params_list, param_file):
     """read all the parameters in a given parameter file and add valid
     parameters to the params list.
     """
@@ -72,11 +72,11 @@ def parse_param_file(params_list, param_file, use_namespace=False):
     namespace = None
 
     try:
-        f = open(param_file, "r")
-    except IOError:
+        f = open(param_file)
+    except OSError:
         sys.exit(f"write_probin.py: ERROR: file {param_file} does not exist")
-    else:
-        print(f"write_probin.py: working on parameter file {param_file}...")
+
+    print(f"write_probin.py: working on parameter file {param_file}...")
 
     line = get_next_line(f)
 
@@ -111,18 +111,13 @@ def parse_param_file(params_list, param_file, use_namespace=False):
             err = 1
             continue
 
-        if use_namespace:
-            skip_namespace_in_declare = False
-        else:
-            skip_namespace_in_declare = True
-
         current_param = runtime_parameters.Param(name, dtype, default,
                                                  namespace=namespace, namespace_suffix="_rp",
-                                                 skip_namespace_in_declare=skip_namespace_in_declare)
+                                                 skip_namespace_in_declare=False)
 
         try:
             current_param.priority = int(fields[3])
-        except:
+        except IndexError:
             pass
 
         skip = 0
@@ -159,8 +154,7 @@ def abort(outfile):
     sys.exit(1)
 
 
-def write_probin(param_files,
-                 out_file, use_namespace, cxx_prefix):
+def write_probin(param_files, out_file, cxx_prefix):
 
     """ write_probin will read through the list of parameter files and
     output the new out_file """
@@ -173,7 +167,7 @@ def write_probin(param_files,
     # read the parameters defined in the parameter files
 
     for f in param_files:
-        err = parse_param_file(params, f, use_namespace=use_namespace)
+        err = parse_param_file(params, f)
         if err:
             abort(out_file)
 
@@ -193,14 +187,12 @@ def write_probin(param_files,
         for nm in sorted(namespaces):
             params_in_nm = [q for q in params if q.namespace == nm]
 
-            if use_namespace:
-                fout.write(f"  namespace {nm}_rp {{\n")
+            fout.write(f"  namespace {nm}_rp {{\n")
 
             for p in params_in_nm:
                 fout.write(f"    {p.get_declare_string(with_extern=True)}")
 
-            if use_namespace:
-                fout.write("  }\n")
+            fout.write("  }\n")
 
         fout.write(CXX_FOOTER)
 
@@ -211,7 +203,7 @@ def write_probin(param_files,
         for p in params:
             fout.write(p.get_job_info_test())
 
-    # finally the C++ initialization routines
+    # now the C++ initialization routines
 
     ofile = f"{cxx_prefix}_parameters.cpp"
     with open(ofile, "w") as fout:
@@ -225,14 +217,12 @@ def write_probin(param_files,
         for nm in sorted(namespaces):
             params_in_nm = [q for q in params if q.namespace == nm]
 
-            if use_namespace:
-                fout.write(f"  namespace {nm}_rp {{\n")
+            fout.write(f"  namespace {nm}_rp {{\n")
 
             for p in params_in_nm:
                 fout.write(f"    {p.get_declare_string()}")
 
-            if use_namespace:
-                fout.write("  }\n")
+            fout.write("  }\n")
 
         fout.write("\n")
         fout.write(f"  void init_{cxx_base}_parameters() {{\n")
@@ -260,13 +250,38 @@ def write_probin(param_files,
 
         fout.write("  }\n")
 
+    # finally, a single file that contains all of the parameter structs
+
+    ofile = f"{cxx_prefix}_type.H"
+    with open(ofile, "w") as fout:
+        ofile.write(f"#ifndef {cxx_base.upper()}_TYPE_H\n")
+        ofile.write(f"#define {cxx_base.upper()}_TYPE_H\n")
+
+        for nm in sorted(namespaces):
+            params_nm = [q for q in params if q.namespace == nm]
+
+            ofile.write(f"struct {nm}_t {{\n")
+            for p in params_nm:
+                fout.write(p.get_struct_entry())
+            ofile.write("};\n\n")
+
+        # now the parent struct
+
+        ofile.write(f"struct {cxx_base}_t {{\n")
+        for nm in namespaces:
+            ofile.write(f"    {nm}_t {nm};\n")
+        offile.write("};\n\n")
+
+        ofile.write("#endif\n")
+
+
 def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-o', type=str, default="", help='out_file')
     parser.add_argument('--pa', type=str, help='parameter files')
     parser.add_argument('--use_namespaces', action="store_true",
-                        help="put parameters in namespaces")
+                        help="[deprecated] put parameters in namespaces")
     parser.add_argument('--cxx_prefix', type=str, default="extern",
                         help="a name to use in the C++ file names")
 
@@ -274,7 +289,7 @@ def main():
 
     param_files = args.pa.split()
 
-    write_probin(param_files, args.o, args.use_namespaces, args.cxx_prefix)
+    write_probin(param_files, args.o, args.cxx_prefix)
 
 if __name__ == "__main__":
     main()
