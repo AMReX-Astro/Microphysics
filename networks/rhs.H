@@ -307,7 +307,7 @@ void dgesl (RArray2D& a1, RArray1D& b1)
         b(k) = b(k) / a(k,k);
         Real t = -b(k);
 
-        constexpr_for<0, k>([&] (auto j)
+        constexpr_for<0, k-1>([&] (auto j)
         {
             if (is_jacobian_term_used<j, k>()) {
                 b(j) += t * a(j,k);
