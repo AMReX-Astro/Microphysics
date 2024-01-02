@@ -182,7 +182,8 @@ def write_probin(param_files, out_file, cxx_prefix):
     with open(ofile, "w") as fout:
         fout.write(CXX_HEADER)
 
-        fout.write(f"  void init_{cxx_base}_parameters();\n\n")
+        fout.write(f"#include <{cxx_base}_type.H>\n\n")
+        fout.write(f"  {cxx_base}_t init_{cxx_base}_parameters();\n\n")
 
         for nm in sorted(namespaces):
             params_in_nm = [q for q in params if q.namespace == nm]
@@ -225,10 +226,14 @@ def write_probin(param_files, out_file, cxx_prefix):
             fout.write("  }\n")
 
         fout.write("\n")
-        fout.write(f"  void init_{cxx_base}_parameters() {{\n")
+        fout.write(f"  {cxx_base}_t init_{cxx_base}_parameters() {{\n")
 
         # we need access to _rt
         fout.write("      using namespace amrex;\n\n")
+
+        # create the struct that will hold all the parameters -- this is what
+        # we will return
+        fout.write(f"      {cxx_base}_t params;\n\n")
 
         # now write the parmparse code to get the value from the C++
         # inputs.  this will overwrite
@@ -246,7 +251,10 @@ def write_probin(param_files, out_file, cxx_prefix):
             for p in params_nm:
                 fout.write(f"      {p.get_default_string()}")
                 fout.write(f"      {p.get_query_string()}\n")
+                fout.write(f"      {p.get_query_struct_string(struct_name='params')}\n")
             fout.write("    }\n")
+
+        fout.write("      return params;\n\n")
 
         fout.write("  }\n")
 
@@ -254,25 +262,26 @@ def write_probin(param_files, out_file, cxx_prefix):
 
     ofile = f"{cxx_prefix}_type.H"
     with open(ofile, "w") as fout:
-        ofile.write(f"#ifndef {cxx_base.upper()}_TYPE_H\n")
-        ofile.write(f"#define {cxx_base.upper()}_TYPE_H\n")
+        fout.write(f"#ifndef {cxx_base.upper()}_TYPE_H\n")
+        fout.write(f"#define {cxx_base.upper()}_TYPE_H\n\n")
+        fout.write("using namespace amrex::literals;\n\n")
 
         for nm in sorted(namespaces):
             params_nm = [q for q in params if q.namespace == nm]
 
-            ofile.write(f"struct {nm}_t {{\n")
+            fout.write(f"struct {nm}_param_t {{\n")
             for p in params_nm:
                 fout.write(p.get_struct_entry())
-            ofile.write("};\n\n")
+            fout.write("};\n\n")
 
         # now the parent struct
 
-        ofile.write(f"struct {cxx_base}_t {{\n")
+        fout.write(f"struct {cxx_base}_t {{\n")
         for nm in namespaces:
-            ofile.write(f"    {nm}_t {nm};\n")
-        offile.write("};\n\n")
+            fout.write(f"    {nm}_param_t {nm};\n")
+        fout.write("};\n\n")
 
-        ofile.write("#endif\n")
+        fout.write("#endif\n")
 
 
 def main():

@@ -167,11 +167,11 @@ class Param:
             ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
             ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
             ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
-            ostr += f"                {cname}{struct_name}.{self.namespace}{self.namespace_suffix}.{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
+            ostr += f"                {cname}{struct_name}.{self.namespace}.{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
             ostr += "            }\n\n"
             ostr += "        }\n\n"
         else:
-            ostr += f"pp.query(\"{self.name}\", {cname}{struct_name}.{self.namespace}{self.namespace_suffix}.{self.cpp_var_name});\n"
+            ostr += f"pp.query(\"{self.name}\", {cname}{struct_name}.{self.namespace}.{self.cpp_var_name});\n"
 
         return ostr
 
