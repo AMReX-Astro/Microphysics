@@ -229,11 +229,11 @@ def write_probin(param_files, out_file, cxx_prefix):
         fout.write(f"  {cxx_base}_t init_{cxx_base}_parameters() {{\n")
 
         # we need access to _rt
-        fout.write("      using namespace amrex;\n\n")
+        fout.write("    using namespace amrex;\n\n")
 
         # create the struct that will hold all the parameters -- this is what
         # we will return
-        fout.write(f"      {cxx_base}_t params;\n\n")
+        fout.write(f"    {cxx_base}_t params;\n\n")
 
         # now write the parmparse code to get the value from the C++
         # inputs.  this will overwrite
@@ -250,11 +250,11 @@ def write_probin(param_files, out_file, cxx_prefix):
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
                 fout.write(f"      {p.get_default_string()}")
-                fout.write(f"      {p.get_query_string()}\n")
+                fout.write(f"      {p.get_query_string()}")
                 fout.write(f"      {p.get_query_struct_string(struct_name='params')}\n")
             fout.write("    }\n")
 
-        fout.write("      return params;\n\n")
+        fout.write("    return params;\n\n")
 
         fout.write("  }\n")
 
