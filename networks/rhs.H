@@ -277,19 +277,16 @@ typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
 typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgesl (RArray2D& a1, RArray1D& b1)
+void dgesl (RArray2D& a, RArray1D& b)
 {
-    auto const& a = reinterpret_cast<Array2D<Real, 0, INT_NEQS-1, 0, INT_NEQS-1>&>(a1);
-    auto& b = reinterpret_cast<Array1D<Real, 0, INT_NEQS-1>&>(b1);
-
     // solve a * x = b
     // first solve l * y = b
-    constexpr_for<0, INT_NEQS-1>([&] (auto n1)
+    constexpr_for<1, INT_NEQS>([&] (auto n1)
     {
         constexpr int k = n1;
 
         Real t = b(k);
-        constexpr_for<k+1, INT_NEQS>([&] (auto n2)
+        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             constexpr int j = n2;
 
@@ -300,14 +297,14 @@ void dgesl (RArray2D& a1, RArray1D& b1)
     });
 
     // now solve u * x = y
-    constexpr_for<0, INT_NEQS>([&] (auto kb)
+    constexpr_for<1, INT_NEQS+1>([&] (auto kb)
     {
-        constexpr int k = INT_NEQS - kb - 1;
+        constexpr int k = INT_NEQS + 1 - kb;
 
         b(k) = b(k) / a(k,k);
         Real t = -b(k);
 
-        constexpr_for<0, k>([&] (auto j)
+        constexpr_for<1, k>([&] (auto j)
         {
             if (is_jacobian_term_used<j, k>()) {
                 b(j) += t * a(j,k);
@@ -317,19 +314,18 @@ void dgesl (RArray2D& a1, RArray1D& b1)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgefa (RArray2D& a1)
+void dgefa (RArray2D& a)
 {
-    auto& a = reinterpret_cast<Array2D<Real, 0, INT_NEQS-1, 0, INT_NEQS-1>&>(a1);
 
     // LU factorization in-place without pivoting.
 
-    constexpr_for<0, INT_NEQS-1>([&] (auto n1)
+    constexpr_for<1, INT_NEQS>([&] (auto n1)
     {
         [[maybe_unused]] constexpr int k = n1;
 
         // compute multipliers
         Real t = -1.0_rt / a(k,k);
-        constexpr_for<k+1, INT_NEQS>([&] (auto n2)
+        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int j = n2;
 
@@ -339,12 +335,12 @@ void dgefa (RArray2D& a1)
         });
 
         // row elimination with column indexing
-        constexpr_for<k+1, INT_NEQS>([&] (auto n2)
+        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int j = n2;
 
             t = a(k,j);
-            constexpr_for<k+1, INT_NEQS>([&] (auto n3)
+            constexpr_for<k+1, INT_NEQS+1>([&] (auto n3)
             {
                 [[maybe_unused]] constexpr int i = n3;
 
