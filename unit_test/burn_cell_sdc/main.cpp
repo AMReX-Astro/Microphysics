@@ -25,7 +25,9 @@ int main(int argc, char *argv[]) {
   init_unit_test();
 
   // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
-  eos_init(small_temp, small_dens);
+  Real st{small_temp};
+  Real sd{small_dens};
+  eos_init(st, sd);
 
   // C++ Network, RHS, screening, rates initialization
   network_init();

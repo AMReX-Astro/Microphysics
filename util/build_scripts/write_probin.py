@@ -160,7 +160,7 @@ def abort(outfile):
 
 
 def write_probin(param_files,
-                 out_file, use_namespace, cxx_prefix):
+                 out_file, use_namespace, cxx_prefix, constexpr):
 
     """ write_probin will read through the list of parameter files and
     output the new out_file """
@@ -187,7 +187,7 @@ def write_probin(param_files,
     ofile = f"{cxx_prefix}_parameters.H"
     with open(ofile, "w") as fout:
         fout.write(CXX_HEADER)
-
+        fout.write(f"using namespace amrex::literals;\n")
         fout.write(f"  void init_{cxx_base}_parameters();\n\n")
 
         for nm in sorted(namespaces):
@@ -196,8 +196,15 @@ def write_probin(param_files,
             if use_namespace:
                 fout.write(f"  namespace {nm}_rp {{\n")
 
-            for p in params_in_nm:
-                fout.write(f"    {p.get_declare_string(with_extern=True)}")
+            if constexpr:
+                for p in params_in_nm:
+                    type = p.get_cxx_decl()
+                    if type == "std::string":
+                        type = "std::string_view"
+                    fout.write(f"constexpr {type} {p.cpp_var_name}{{{p.default_format()}}};\n")
+            else:
+                for p in params_in_nm:
+                    fout.write(f"    {p.get_declare_string(with_extern=True)}")
 
             if use_namespace:
                 fout.write("  }\n")
@@ -225,14 +232,15 @@ def write_probin(param_files,
         for nm in sorted(namespaces):
             params_in_nm = [q for q in params if q.namespace == nm]
 
-            if use_namespace:
-                fout.write(f"  namespace {nm}_rp {{\n")
+            if not constexpr:
+                if use_namespace:
+                    fout.write(f"  namespace {nm}_rp {{\n")
 
-            for p in params_in_nm:
-                fout.write(f"    {p.get_declare_string()}")
+                for p in params_in_nm:
+                    fout.write(f"    {p.get_declare_string()}")
 
-            if use_namespace:
-                fout.write("  }\n")
+                if use_namespace:
+                    fout.write("  }\n")
 
         fout.write("\n")
         fout.write(f"  void init_{cxx_base}_parameters() {{\n")
@@ -247,16 +255,17 @@ def write_probin(param_files,
 
         namespaces = {q.namespace for q in params}
 
-        for nm in sorted(namespaces):
-            params_nm = [q for q in params if q.namespace == nm]
+        if not constexpr:
+            for nm in sorted(namespaces):
+                params_nm = [q for q in params if q.namespace == nm]
 
-            # open namespace
-            fout.write("    {\n")
-            fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
-            for p in params_nm:
-                fout.write(f"      {p.get_default_string()}")
-                fout.write(f"      {p.get_query_string()}\n")
-            fout.write("    }\n")
+                # open namespace
+                fout.write("    {\n")
+                fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
+                for p in params_nm:
+                    fout.write(f"      {p.get_default_string()}")
+                    fout.write(f"      {p.get_query_string()}\n")
+                fout.write("    }\n")
 
         fout.write("  }\n")
 
@@ -267,6 +276,8 @@ def main():
     parser.add_argument('--pa', type=str, help='parameter files')
     parser.add_argument('--use_namespaces', action="store_true",
                         help="put parameters in namespaces")
+    parser.add_argument("--constexpr", action="store_true",
+                        help="force the parameters to be constexpr without being able to query")
     parser.add_argument('--cxx_prefix', type=str, default="extern",
                         help="a name to use in the C++ file names")
 
@@ -274,7 +285,7 @@ def main():
 
     param_files = args.pa.split()
 
-    write_probin(param_files, args.o, args.use_namespaces, args.cxx_prefix)
+    write_probin(param_files, args.o, args.use_namespaces, args.cxx_prefix, args.constexpr)
 
 if __name__ == "__main__":
     main()

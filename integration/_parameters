@@ -22,11 +22,11 @@ burner_verbose           integer   0
 
 # Tolerances for the solver (relative and absolute), for the
 # species and energy equations.
-rtol_spec                real      1.d-12
-rtol_enuc                real      1.d-6
+rtol_spec                real      1.d-5
+rtol_enuc                real      1.d-5
 
-atol_spec                real      1.d-8
-atol_enuc                real      1.d-6
+atol_spec                real      1.d-5
+atol_enuc                real      1.d-5
 
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
@@ -36,7 +36,7 @@ renormalize_abundances   integer   0
 # than ``small_x``, but the issue is that we need to prevent underflow
 # issues and keep mass fractions positive in the integrator.  You may
 # have to increase the floor to, e.g. 1.d-20 if your rates are large.
-SMALL_X_SAFE                 real            1.0d-30
+SMALL_X_SAFE                 real            1.0d-10
 
 # The maximum temperature for reactions in the integration.
 MAX_TEMP                     real            1.0d11
@@ -45,13 +45,13 @@ MAX_TEMP                     real            1.0d11
 react_boost                 real         -1.d0
 
 # maximum number of timesteps for the integrator
-ode_max_steps              integer      150000
+ode_max_steps              integer      1000000
 
 # maximum timestep for the integrator
 ode_max_dt                 real         1.d30
 
 # Whether to use Jacobian caching in VODE
-use_jacobian_caching    integer    1
+use_jacobian_caching    integer    0
 
 # Inputs for generating a Nonaka Plot (TM)
 nonaka_i                integer           0

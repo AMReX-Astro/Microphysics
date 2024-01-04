@@ -29,7 +29,8 @@ init_t setup_composition(const int nz) {
     comp_data.nprim = 0;
 
     // we absolutely require primary_species_1 to be defined
-    comp_data.is1 = network_spec_index(primary_species_1);
+    std::string ps1{primary_species_1};
+    comp_data.is1 = network_spec_index(ps1);
     if (comp_data.is1 >= 0) {
         comp_data.nprim++;
     } else {
@@ -38,13 +39,15 @@ init_t setup_composition(const int nz) {
 
     // we'll check the next species, but if it is not valid,
     // we'll just move on
-    comp_data.is2 = network_spec_index(primary_species_2);
+    std::string ps2{primary_species_2};
+    comp_data.is2 = network_spec_index(ps2);
     if (comp_data.is2 >= 0) {
         comp_data.nprim++;
 
         // only consider primary_species_3 if primary_species_2
         // was defined
-        comp_data.is3 = network_spec_index(primary_species_3);
+        std::string ps3{primary_species_3};
+        comp_data.is3 = network_spec_index(ps3);
         if (comp_data.is3 >= 0) {
             comp_data.nprim++;
         }

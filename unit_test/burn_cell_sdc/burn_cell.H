@@ -225,10 +225,10 @@ void burn_cell_c()
     }
 #endif
 
-    if (rhoe < 0) {
-        eos(eos_input_rt, eos_state);
-        rhoe = density * eos_state.e;
-    }
+//    if (rhoe < 0) {
+//        eos(eos_input_rt, eos_state);
+//        rhoe = density * eos_state.e;
+//    }
 
     burn_state.rho = eos_state.rho;
     burn_state.T = eos_state.T;
@@ -304,18 +304,20 @@ void burn_cell_c()
     // we will divide the total integration time into nsteps that are
     // logarithmically spaced
 
-    if (tfirst == 0.0_rt) {
+    Real ltfirst{tfirst};
+
+    if (ltfirst == 0.0_rt) {
         if (nsteps == 1) {
-            tfirst = tmax;
+            ltfirst = tmax;
         } else {
-            tfirst = tmax / nsteps;
+            ltfirst = tmax / nsteps;
         }
     }
     Real dlogt = 0.0_rt;
     if (nsteps == 1) {
-        dlogt = (std::log10(tmax) - std::log10(tfirst));
+        dlogt = (std::log10(tmax) - std::log10(ltfirst));
     } else {
-        dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
+        dlogt = (std::log10(tmax) - std::log10(ltfirst)) / (nsteps - 1);
     }
 
     // output the data in columns, one line per timestep
@@ -350,7 +352,7 @@ void burn_cell_c()
 
         // compute the time we wish to integrate to
 
-        Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
+        Real tend = std::pow(10.0_rt, std::log10(ltfirst) + dlogt * n);
         Real dt = tend - t;
 
         std::cout << "burning for dt = " << dt << std::endl;
