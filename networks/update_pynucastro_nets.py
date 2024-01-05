@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 """Update all the pynucastro networks in the current directory."""
 
+import os
 import subprocess
 import sys
 from pathlib import Path
+
+# Disable slightly-less-precise AVX-512 SVML routines to avoid roundoff diffs
+# when different machines regenerate the networks. Accuracy is important here,
+# and these calculations aren't a bottleneck. See pynucastro/conftest.py for
+# more details.
+env = os.environ.copy()
+env["NPY_DISABLE_CPU_FEATURES"] = "AVX512F AVX512CD AVX512_SKX"
 
 cwd = Path.cwd()
 for net_file in sorted(cwd.glob("**/pynucastro.net")):
@@ -23,6 +31,7 @@ for net_file in sorted(cwd.glob("**/pynucastro.net")):
     result = subprocess.run(
         [sys.executable, update_script],
         cwd=network_dir,
+        env=env,
         capture_output=False,
         check=False,
     )
