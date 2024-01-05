@@ -71,8 +71,8 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void eos_reset (T& state, bool& has_been_reset)
 {
-  state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
-  state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
+  //state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
+  //state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
 
   actual_eos(eos_input_rt, state);
 
@@ -84,7 +84,7 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_rho (T& state)
 {
-  state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
+  //state.rho = amrex::min(EOSData::maxdens, amrex::max(EOSData::mindens, state.rho));
 }
 
 // For temperature, just ensure that it is within mintemp and maxtemp.
@@ -92,51 +92,51 @@ template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_T (T& state)
 {
-  state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
+  //state.T = amrex::min(EOSData::maxtemp, amrex::max(EOSData::mintemp, state.T));
 }
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_e (T& state, bool& has_been_reset)
 {
-    if constexpr (has_energy<T>::value) {
-        if (state.e < EOSData::mine || state.e > EOSData::maxe) {
-            eos_reset(state, has_been_reset);
-        }
-    }
+//    if constexpr (has_energy<T>::value) {
+//        if (state.e < EOSData::mine || state.e > EOSData::maxe) {
+//            eos_reset(state, has_been_reset);
+//        }
+//    }
 }
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_h (T& state, bool& has_been_reset)
 {
-    if constexpr (has_enthalpy<T>::value) {
-        if (state.h < EOSData::minh || state.h > EOSData::maxh) {
-            eos_reset(state, has_been_reset);
-        }
-    }
+//    if constexpr (has_enthalpy<T>::value) {
+//        if (state.h < EOSData::minh || state.h > EOSData::maxh) {
+//            eos_reset(state, has_been_reset);
+//        }
+//    }
 }
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_s (T& state, bool& has_been_reset)
 {
-    if constexpr (has_entropy<T>::value) {
-        if (state.s < EOSData::mins || state.s > EOSData::maxs) {
-            eos_reset(state, has_been_reset);
-        }
-    }
+//    if constexpr (has_entropy<T>::value) {
+//        if (state.s < EOSData::mins || state.s > EOSData::maxs) {
+//            eos_reset(state, has_been_reset);
+//        }
+//    }
 }
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void reset_p (T& state, bool& has_been_reset)
 {
-    if constexpr (has_pressure<T>::value) {
-        if (state.p < EOSData::minp || state.p > EOSData::maxp) {
-            eos_reset(state, has_been_reset);
-        }
-    }
+//    if constexpr (has_pressure<T>::value) {
+//        if (state.p < EOSData::minp || state.p > EOSData::maxp) {
+//            eos_reset(state, has_been_reset);
+//        }
+//    }
 }
 
 template <typename I, typename T>

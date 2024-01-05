@@ -937,7 +937,7 @@ void single_iter_update (T& state, int var, int dvar,
     if (dvar == itemp) {
 
         x = state.T;
-        smallx = EOSData::mintemp;
+        //smallx = EOSData::mintemp;
         xtol = ttol;
 
         if (var == ipres) {
@@ -970,7 +970,7 @@ void single_iter_update (T& state, int var, int dvar,
     {
 
         x = state.rho;
-        smallx = EOSData::mindens;
+        //smallx = EOSData::mindens;
         xtol = dtol;
 
         if (var == ipres) {
@@ -1007,7 +1007,7 @@ void single_iter_update (T& state, int var, int dvar,
     xnew = amrex::max(0.5_rt * x, amrex::min(xnew, 2.0_rt * x));
 
     // Don't let us freeze/evacuate
-    xnew = amrex::max(smallx, xnew);
+    //xnew = amrex::max(smallx, xnew);
 
     // Store the new temperature/density
 
@@ -1123,8 +1123,8 @@ void double_iter_update (T& state, int var1, int var2,
     rnew = amrex::max(0.5e0_rt * rold, amrex::min(rnew, 2.0e0_rt * rold));
 
     // Don't let us freeze or evacuate
-    tnew = amrex::max(EOSData::mintemp, tnew);
-    rnew = amrex::max(EOSData::mindens, rnew);
+    //tnew = amrex::max(EOSData::mintemp, tnew);
+    //rnew = amrex::max(EOSData::mindens, rnew);
 
     // Store the new temperature and density
     state.rho = rnew;
@@ -1468,10 +1468,10 @@ void actual_eos_init ()
 
     // Set up the minimum and maximum possible densities.
 
-    EOSData::mintemp = std::pow(10.e0_rt, tlo);
-    EOSData::maxtemp = std::pow(10.e0_rt, thi);
-    EOSData::mindens = std::pow(10.e0_rt, dlo);
-    EOSData::maxdens = std::pow(10.e0_rt, dhi);
+    //EOSData::mintemp = std::pow(10.e0_rt, tlo);
+    //EOSData::maxtemp = std::pow(10.e0_rt, thi);
+    //EOSData::mindens = std::pow(10.e0_rt, dlo);
+    //EOSData::maxdens = std::pow(10.e0_rt, dhi);
 }
 
 
