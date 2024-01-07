@@ -1315,14 +1315,6 @@ void actual_eos_init ()
     dtol = eos_dtol;
 
     //    read the helmholtz free energy table
-    tlo   = 3.0e0_rt;
-    thi   = 13.0e0_rt;
-    tstp  = (thi - tlo) / ((Real) (jmax-1));
-    tstpi = 1.0e0_rt / tstp;
-    dlo   = -12.0e0_rt;
-    dhi   = 15.0e0_rt;
-    dstp  = (dhi - dlo) / ((Real) (imax-1));
-    dstpi = 1.0e0_rt / dstp;
 
     for (int j = 0; j < jmax; ++j) {
         Real tsav = tlo + j * tstp;
