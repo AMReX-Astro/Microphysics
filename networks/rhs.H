@@ -4,6 +4,7 @@
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 #include <AMReX_Print.H>
+#include <AMReX_Loop.H>
 
 #include <ArrayUtilities.H>
 #include <rhs_type.H>

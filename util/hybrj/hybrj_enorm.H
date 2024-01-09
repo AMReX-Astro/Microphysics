@@ -52,21 +52,21 @@ Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
                 // sum for large components.
 
                 if (xabs > x1max) {
-                    s1 = 1.0_rt + s1 * std::pow(x1max/xabs, 2.0_rt);
+                    s1 = 1.0_rt + s1 * amrex::Math::powi<2>(x1max/xabs);
                     x1max = xabs;
                 } else {
-                    s1 += std::pow(xabs/x1max, 2.0_rt);
+                    s1 += amrex::Math::powi<2>(xabs/x1max);
                 }
             } else {
 
                 // sum for small components.
 
                 if (xabs > x3max) {
-                    s3 = 1.0_rt + s3 * std::pow(x3max/xabs, 2.0_rt);
+                    s3 = 1.0_rt + s3 * amrex::Math::powi<2>(x3max/xabs);
                     x3max = xabs;
                 } else {
                     if (xabs != 0.0_rt) {
-                        s3 += std::pow(xabs/x3max, 2.0_rt);
+                        s3 += amrex::Math::powi<2>(xabs/x3max);
                     }
                 }
             }

@@ -69,9 +69,9 @@ class Param:
         """ get the C++ declaration """
         if self.dtype == "real":
             return "amrex::Real"
-        elif self.dtype == "string":
+        if self.dtype == "string":
             return "std::string"
-        elif self.dtype == "bool":
+        if self.dtype == "bool":
             return "bool"
 
         return "int"
@@ -93,6 +93,23 @@ class Param:
 
         return f"{tstr};\n"
 
+    def get_struct_entry(self, indent=4):
+        """this is the line that goes into a struct that defines the
+        runtime parameters"""
+
+        ostr = ""
+
+        if not self.debug_default is None:
+            ostr += "#ifdef AMREX_DEBUG\n"
+            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{self.default_format(lang='C++', debug=True)}}};\n"
+            ostr += "#else\n"
+            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{self.default_format(lang='C++')}}};\n"
+            ostr += "#endif\n"
+        else:
+            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{self.default_format(lang='C++')}}};\n"
+
+        return ostr
+
     def get_default_string(self):
         """this is the line that goes into, e.g., castro_declares.H included
         into Castro.cpp"""
@@ -110,27 +127,51 @@ class Param:
 
         return ostr
 
-    def get_query_string(self, language):
+    def get_query_string(self):
         """this is the line that queries the ParmParse object to get
         the value of the runtime parameter from the inputs file.
         This goes into, e.g., castro_queries.H included into Castro.cpp"""
 
         ostr = ""
-        if language == "C++":
-            if self.is_array():
-                # we need to create an amrex::Vector to read and then
-                # copy into our managed array
-                ostr += "\n"
-                ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
-                ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
-                ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
-                ostr += f"                {self.nm_pre}{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
-                ostr += "            }\n\n"
-                ostr += "        }\n\n"
-            else:
-                ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
+        if self.is_array():
+            # we need to create an amrex::Vector to read and then
+            # copy into our managed array
+            ostr += "\n"
+            ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
+            ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
+            ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
+            ostr += f"                {self.nm_pre}{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
+            ostr += "            }\n\n"
+            ostr += "        }\n\n"
         else:
-            sys.exit("invalid language choice in get_query_string")
+            ostr += f"pp.query(\"{self.name}\", {self.nm_pre}{self.cpp_var_name});\n"
+
+        return ostr
+
+    def get_query_struct_string(self, struct_name="params", class_name=None):
+        """this is the line that queries the ParmParse object to get
+        the value of the runtime parameter from the inputs file.
+        This is intended to use when we have a struct holding the runtime parameters,
+        and will have the form class_name::struct_name.namespace.param"""
+
+        if class_name is None:
+            cname = ""
+        else:
+            cname = f"{class_name}::"
+
+        ostr = ""
+        if self.is_array():
+            # we need to create an amrex::Vector to read and then
+            # copy into our managed array
+            ostr += "\n"
+            ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
+            ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
+            ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
+            ostr += f"                {cname}{struct_name}.{self.namespace}{self.namespace_suffix}.{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
+            ostr += "            }\n\n"
+            ostr += "        }\n\n"
+        else:
+            ostr += f"pp.query(\"{self.name}\", {cname}{struct_name}.{self.namespace}{self.namespace_suffix}.{self.cpp_var_name});\n"
 
         return ostr
 
@@ -147,12 +188,11 @@ class Param:
 
         if self.dtype == "string":
             return f'{val}'
-        elif self.dtype in ["bool", "logical"] and lang == "C++":
+        if self.dtype in ["bool", "logical"] and lang == "C++":
             if val.lower() in [".true.", "true"]:
                 return 1
-            else:
-                return 0
-        elif self.dtype == "real" and lang == "C++":
+            return 0
+        if self.dtype == "real" and lang == "C++":
             if "d" in val:
                 val = val.replace("d", "e")
             if not val.endswith("_rt"):
@@ -180,10 +220,10 @@ class Param:
             isize = int(self.size)
         except ValueError:
             return True
-        else:
-            if isize == 1:
-                return False
-            return True
+
+        if isize == 1:
+            return False
+        return True
 
     def __lt__(self, other):
         return self.priority < other.priority
