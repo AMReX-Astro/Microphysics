@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Loop.H>
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
@@ -15,8 +16,545 @@ const std::string network_name = "pynucastro-cxx";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real bion () {
+        using namespace Species;
+
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        // Set the binding energy of the element
+
+        if constexpr (spec == N) {
+            return 0.0_rt;
+        }
+        else if constexpr (spec == H1) {
+            return 0.0_rt;
+        }
+        else if constexpr (spec == H2) {
+            return 2.224566_rt;
+        }
+        else if constexpr (spec == He3) {
+            return 7.7180399999999985_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 28.29566_rt;
+        }
+        else if constexpr (spec == Li6) {
+            return 31.993986_rt;
+        }
+        else if constexpr (spec == Li7) {
+            return 39.245073_rt;
+        }
+        else if constexpr (spec == Be7) {
+            return 37.600836_rt;
+        }
+        else if constexpr (spec == Be9) {
+            return 58.164012_rt;
+        }
+        else if constexpr (spec == B8) {
+            return 37.73724_rt;
+        }
+        else if constexpr (spec == B10) {
+            return 64.75083_rt;
+        }
+        else if constexpr (spec == B11) {
+            return 76.205052_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 92.16172800000001_rt;
+        }
+        else if constexpr (spec == C13) {
+            return 97.108037_rt;
+        }
+        else if constexpr (spec == C14) {
+            return 105.28446600000001_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 94.105219_rt;
+        }
+        else if constexpr (spec == N14) {
+            return 104.65859599999999_rt;
+        }
+        else if constexpr (spec == N15) {
+            return 115.4919_rt;
+        }
+        else if constexpr (spec == O14) {
+            return 98.731892_rt;
+        }
+        else if constexpr (spec == O15) {
+            return 111.95538_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 127.619296_rt;
+        }
+        else if constexpr (spec == O17) {
+            return 131.76237600000002_rt;
+        }
+        else if constexpr (spec == O18) {
+            return 139.807746_rt;
+        }
+        else if constexpr (spec == F17) {
+            return 128.21957600000002_rt;
+        }
+        else if constexpr (spec == F18) {
+            return 137.369484_rt;
+        }
+        else if constexpr (spec == F19) {
+            return 147.801342_rt;
+        }
+        else if constexpr (spec == Ne18) {
+            return 132.142626_rt;
+        }
+        else if constexpr (spec == Ne19) {
+            return 143.779517_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 160.6448_rt;
+        }
+        else if constexpr (spec == Ne21) {
+            return 167.405973_rt;
+        }
+        else if constexpr (spec == Ne22) {
+            return 177.77023_rt;
+        }
+        else if constexpr (spec == Na21) {
+            return 163.076487_rt;
+        }
+        else if constexpr (spec == Na22) {
+            return 174.144674_rt;
+        }
+        else if constexpr (spec == Na23) {
+            return 186.56433900000002_rt;
+        }
+        else if constexpr (spec == Mg23) {
+            return 181.725645_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 198.25701600000002_rt;
+        }
+        else if constexpr (spec == Mg25) {
+            return 205.58755_rt;
+        }
+        else if constexpr (spec == Mg26) {
+            return 216.68062000000003_rt;
+        }
+        else if constexpr (spec == Al25) {
+            return 200.5284_rt;
+        }
+        else if constexpr (spec == Al26) {
+            return 211.89389_rt;
+        }
+        else if constexpr (spec == Al27) {
+            return 224.951931_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 236.536832_rt;
+        }
+        else if constexpr (spec == Si29) {
+            return 245.010415_rt;
+        }
+        else if constexpr (spec == Si30) {
+            return 255.61962_rt;
+        }
+        else if constexpr (spec == Si31) {
+            return 262.207021_rt;
+        }
+        else if constexpr (spec == Si32) {
+            return 271.40697600000004_rt;
+        }
+        else if constexpr (spec == P29) {
+            return 239.28584400000003_rt;
+        }
+        else if constexpr (spec == P30) {
+            return 250.60518_rt;
+        }
+        else if constexpr (spec == P31) {
+            return 262.91617699999995_rt;
+        }
+        else if constexpr (spec == P32) {
+            return 270.85184000000004_rt;
+        }
+        else if constexpr (spec == P33) {
+            return 280.955598_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 271.78012800000005_rt;
+        }
+        else if constexpr (spec == S33) {
+            return 280.42179_rt;
+        }
+        else if constexpr (spec == S34) {
+            return 291.83893199999994_rt;
+        }
+        else if constexpr (spec == S35) {
+            return 298.82475_rt;
+        }
+        else if constexpr (spec == S36) {
+            return 308.714004_rt;
+        }
+        else if constexpr (spec == Cl33) {
+            return 274.05691499999995_rt;
+        }
+        else if constexpr (spec == Cl34) {
+            return 285.56497999999993_rt;
+        }
+        else if constexpr (spec == Cl35) {
+            return 298.20973000000004_rt;
+        }
+        else if constexpr (spec == Cl36) {
+            return 306.789516_rt;
+        }
+        else if constexpr (spec == Cl37) {
+            return 317.10039700000004_rt;
+        }
+        else if constexpr (spec == Ar36) {
+            return 306.716724_rt;
+        }
+        else if constexpr (spec == Ar37) {
+            return 315.504143_rt;
+        }
+        else if constexpr (spec == Ar38) {
+            return 327.34264_rt;
+        }
+        else if constexpr (spec == Ar39) {
+            return 333.94132199999996_rt;
+        }
+        else if constexpr (spec == Ar40) {
+            return 343.81036_rt;
+        }
+        else if constexpr (spec == K37) {
+            return 308.57433899999995_rt;
+        }
+        else if constexpr (spec == K38) {
+            return 320.64620400000007_rt;
+        }
+        else if constexpr (spec == K39) {
+            return 333.723975_rt;
+        }
+        else if constexpr (spec == K40) {
+            return 341.5236_rt;
+        }
+        else if constexpr (spec == K41) {
+            return 351.618952_rt;
+        }
+        else if constexpr (spec == Ca40) {
+            return 342.05212000000006_rt;
+        }
+        else if constexpr (spec == Ca41) {
+            return 350.414946_rt;
+        }
+        else if constexpr (spec == Ca42) {
+            return 361.89564599999994_rt;
+        }
+        else if constexpr (spec == Ca43) {
+            return 369.82850900000005_rt;
+        }
+        else if constexpr (spec == Ca44) {
+            return 380.9597_rt;
+        }
+        else if constexpr (spec == Ca45) {
+            return 388.374525_rt;
+        }
+        else if constexpr (spec == Ca46) {
+            return 398.773034_rt;
+        }
+        else if constexpr (spec == Ca47) {
+            return 406.049403_rt;
+        }
+        else if constexpr (spec == Ca48) {
+            return 416.00092800000004_rt;
+        }
+        else if constexpr (spec == Sc43) {
+            return 366.825475_rt;
+        }
+        else if constexpr (spec == Sc44) {
+            return 376.52467600000006_rt;
+        }
+        else if constexpr (spec == Sc45) {
+            return 387.851895_rt;
+        }
+        else if constexpr (spec == Sc46) {
+            return 396.612552_rt;
+        }
+        else if constexpr (spec == Sc47) {
+            return 407.25922999999995_rt;
+        }
+        else if constexpr (spec == Sc48) {
+            return 415.49779199999995_rt;
+        }
+        else if constexpr (spec == Sc49) {
+            return 425.626544_rt;
+        }
+        else if constexpr (spec == Ti44) {
+            return 375.47488000000004_rt;
+        }
+        else if constexpr (spec == Ti45) {
+            return 385.00748999999996_rt;
+        }
+        else if constexpr (spec == Ti46) {
+            return 398.19674599999996_rt;
+        }
+        else if constexpr (spec == Ti47) {
+            return 407.077669_rt;
+        }
+        else if constexpr (spec == Ti48) {
+            return 418.704288_rt;
+        }
+        else if constexpr (spec == Ti49) {
+            return 426.846693_rt;
+        }
+        else if constexpr (spec == Ti50) {
+            return 437.78589999999997_rt;
+        }
+        else if constexpr (spec == Ti51) {
+            return 444.158388_rt;
+        }
+        else if constexpr (spec == V46) {
+            return 390.36197999999996_rt;
+        }
+        else if constexpr (spec == V47) {
+            return 403.36457500000006_rt;
+        }
+        else if constexpr (spec == V48) {
+            return 413.906928_rt;
+        }
+        else if constexpr (spec == V49) {
+            return 425.462492_rt;
+        }
+        else if constexpr (spec == V50) {
+            return 434.79589999999996_rt;
+        }
+        else if constexpr (spec == V51) {
+            return 445.84704899999997_rt;
+        }
+        else if constexpr (spec == V52) {
+            return 453.15826400000003_rt;
+        }
+        else if constexpr (spec == Cr48) {
+            return 411.46891200000005_rt;
+        }
+        else if constexpr (spec == Cr49) {
+            return 422.0512589999999_rt;
+        }
+        else if constexpr (spec == Cr50) {
+            return 435.0516_rt;
+        }
+        else if constexpr (spec == Cr51) {
+            return 444.312255_rt;
+        }
+        else if constexpr (spec == Cr52) {
+            return 456.35142799999994_rt;
+        }
+        else if constexpr (spec == Cr53) {
+            return 464.290494_rt;
+        }
+        else if constexpr (spec == Cr54) {
+            return 474.00957_rt;
+        }
+        else if constexpr (spec == Mn50) {
+            return 426.6348_rt;
+        }
+        else if constexpr (spec == Mn51) {
+            return 440.32237200000003_rt;
+        }
+        else if constexpr (spec == Mn52) {
+            return 450.8571079999999_rt;
+        }
+        else if constexpr (spec == Mn53) {
+            return 462.91127499999993_rt;
+        }
+        else if constexpr (spec == Mn54) {
+            return 471.85011000000003_rt;
+        }
+        else if constexpr (spec == Mn55) {
+            return 482.07621_rt;
+        }
+        else if constexpr (spec == Fe52) {
+            return 447.697848_rt;
+        }
+        else if constexpr (spec == Fe53) {
+            return 458.386347_rt;
+        }
+        else if constexpr (spec == Fe54) {
+            return 471.76462799999996_rt;
+        }
+        else if constexpr (spec == Fe55) {
+            return 481.06272499999994_rt;
+        }
+        else if constexpr (spec == Fe56) {
+            return 492.2598239999999_rt;
+        }
+        else if constexpr (spec == Fe57) {
+            return 499.905903_rt;
+        }
+        else if constexpr (spec == Fe58) {
+            return 509.9505_rt;
+        }
+        else if constexpr (spec == Co53) {
+            return 449.315874_rt;
+        }
+        else if constexpr (spec == Co54) {
+            return 462.73771800000003_rt;
+        }
+        else if constexpr (spec == Co55) {
+            return 476.82899_rt;
+        }
+        else if constexpr (spec == Co56) {
+            return 486.91081599999995_rt;
+        }
+        else if constexpr (spec == Co57) {
+            return 498.287274_rt;
+        }
+        else if constexpr (spec == Co58) {
+            return 506.86020199999996_rt;
+        }
+        else if constexpr (spec == Co59) {
+            return 517.3140649999999_rt;
+        }
+        else if constexpr (spec == Ni56) {
+            return 483.995624_rt;
+        }
+        else if constexpr (spec == Ni57) {
+            return 494.2431810000001_rt;
+        }
+        else if constexpr (spec == Ni58) {
+            return 506.45942199999996_rt;
+        }
+        else if constexpr (spec == Ni59) {
+            return 515.4586919999999_rt;
+        }
+        else if constexpr (spec == Ni60) {
+            return 526.8464399999999_rt;
+        }
+        else if constexpr (spec == Ni61) {
+            return 534.666525_rt;
+        }
+        else if constexpr (spec == Ni62) {
+            return 545.262286_rt;
+        }
+        else if constexpr (spec == Ni63) {
+            return 552.100059_rt;
+        }
+        else if constexpr (spec == Ni64) {
+            return 561.7575039999999_rt;
+        }
+        else if constexpr (spec == Cu57) {
+            return 484.6859340000001_rt;
+        }
+        else if constexpr (spec == Cu58) {
+            return 497.11608600000005_rt;
+        }
+        else if constexpr (spec == Cu59) {
+            return 509.878_rt;
+        }
+        else if constexpr (spec == Cu60) {
+            return 519.9361200000001_rt;
+        }
+        else if constexpr (spec == Cu61) {
+            return 531.646354_rt;
+        }
+        else if constexpr (spec == Cu62) {
+            return 540.521022_rt;
+        }
+        else if constexpr (spec == Cu63) {
+            return 551.3846940000001_rt;
+        }
+        else if constexpr (spec == Cu64) {
+            return 559.3008000000001_rt;
+        }
+        else if constexpr (spec == Cu65) {
+            return 569.21124_rt;
+        }
+        else if constexpr (spec == Zn59) {
+            return 499.95284300000003_rt;
+        }
+        else if constexpr (spec == Zn60) {
+            return 514.983_rt;
+        }
+        else if constexpr (spec == Zn61) {
+            return 525.228849_rt;
+        }
+        else if constexpr (spec == Zn62) {
+            return 538.119266_rt;
+        }
+        else if constexpr (spec == Zn63) {
+            return 547.235955_rt;
+        }
+        else if constexpr (spec == Zn64) {
+            return 559.09792_rt;
+        }
+        else if constexpr (spec == Zn65) {
+            return 567.0772249999999_rt;
+        }
+        else if constexpr (spec == Zn66) {
+            return 578.135712_rt;
+        }
+        else if constexpr (spec == Ga62) {
+            return 528.155804_rt;
+        }
+        else if constexpr (spec == Ga63) {
+            return 540.787338_rt;
+        }
+        else if constexpr (spec == Ga64) {
+            return 551.144384_rt;
+        }
+        else if constexpr (spec == Ge63) {
+            return 530.379108_rt;
+        }
+        else if constexpr (spec == Ge64) {
+            return 545.8446720000001_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr Real mion () {
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        constexpr Real A = NetworkProperties::aion(spec);
+        constexpr Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real bion (int spec) {
+        using namespace Species;
+
+        Real b = 0.0_rt;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                b = bion<n>();
+            }
+        });
+
+        return b;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    Real mion (int spec) {
+        using namespace Species;
+
+        Real m = 0.0_rt;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                m = mion<n>();
+            }
+        });
+
+        return m;
+    }
 }
 
 namespace Rates
