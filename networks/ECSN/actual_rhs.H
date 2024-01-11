@@ -316,7 +316,7 @@ void rhs_nuc(const burn_t& state,
     ydot_nuc(H1) =
         -screened_rates(k_p_Al27_to_Si28)*Y(Al27)*Y(H1)*state.rho +
         -screened_rates(k_p_P31_to_S32)*Y(P31)*Y(H1)*state.rho +
-        0.5*screened_rates(k_O16_O16_to_p_P31)*std::pow(Y(O16), 2)*state.rho +
+        0.5*screened_rates(k_O16_O16_to_p_P31)*amrex::Math::powi<2>(Y(O16))*state.rho +
         (-screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*Y(H1)*state.rho + screened_rates(k_He4_Mg24_to_p_Al27)*Y(He4)*Y(Mg24)*state.rho) +
         (-screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*Y(H1)*state.rho + screened_rates(k_He4_Si28_to_p_P31)*Y(He4)*Y(Si28)*state.rho);
 
@@ -326,14 +326,14 @@ void rhs_nuc(const burn_t& state,
         -screened_rates(k_He4_Mg24_to_Si28)*Y(He4)*Y(Mg24)*state.rho +
         -screened_rates(k_He4_Al27_to_P31)*Y(Al27)*Y(He4)*state.rho +
         -screened_rates(k_He4_Si28_to_S32)*Y(He4)*Y(Si28)*state.rho +
-        0.5*screened_rates(k_O16_O16_to_He4_Si28)*std::pow(Y(O16), 2)*state.rho +
+        0.5*screened_rates(k_O16_O16_to_He4_Si28)*amrex::Math::powi<2>(Y(O16))*state.rho +
         (screened_rates(k_p_Al27_to_He4_Mg24)*Y(Al27)*Y(H1)*state.rho + -screened_rates(k_He4_Mg24_to_p_Al27)*Y(He4)*Y(Mg24)*state.rho) +
         (screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*Y(H1)*state.rho + -screened_rates(k_He4_Si28_to_p_P31)*Y(He4)*Y(Si28)*state.rho);
 
     ydot_nuc(O16) =
         (-screened_rates(k_He4_O16_to_Ne20)*Y(He4)*Y(O16)*state.rho + screened_rates(k_Ne20_to_He4_O16)*Y(Ne20)) +
-        -screened_rates(k_O16_O16_to_p_P31)*std::pow(Y(O16), 2)*state.rho +
-        -screened_rates(k_O16_O16_to_He4_Si28)*std::pow(Y(O16), 2)*state.rho;
+        -screened_rates(k_O16_O16_to_p_P31)*amrex::Math::powi<2>(Y(O16))*state.rho +
+        -screened_rates(k_O16_O16_to_He4_Si28)*amrex::Math::powi<2>(Y(O16))*state.rho;
 
     ydot_nuc(O20) =
         (-screened_rates(k_O20_to_F20)*Y(O20) + screened_rates(k_F20_to_O20)*Y(F20));
@@ -361,13 +361,13 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_He4_Mg24_to_Si28)*Y(He4)*Y(Mg24)*state.rho +
         screened_rates(k_p_Al27_to_Si28)*Y(Al27)*Y(H1)*state.rho +
         -screened_rates(k_He4_Si28_to_S32)*Y(He4)*Y(Si28)*state.rho +
-        0.5*screened_rates(k_O16_O16_to_He4_Si28)*std::pow(Y(O16), 2)*state.rho +
+        0.5*screened_rates(k_O16_O16_to_He4_Si28)*amrex::Math::powi<2>(Y(O16))*state.rho +
         (screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*Y(H1)*state.rho + -screened_rates(k_He4_Si28_to_p_P31)*Y(He4)*Y(Si28)*state.rho);
 
     ydot_nuc(P31) =
         screened_rates(k_He4_Al27_to_P31)*Y(Al27)*Y(He4)*state.rho +
         -screened_rates(k_p_P31_to_S32)*Y(P31)*Y(H1)*state.rho +
-        0.5*screened_rates(k_O16_O16_to_p_P31)*std::pow(Y(O16), 2)*state.rho +
+        0.5*screened_rates(k_O16_O16_to_p_P31)*amrex::Math::powi<2>(Y(O16))*state.rho +
         (-screened_rates(k_p_P31_to_He4_Si28)*Y(P31)*Y(H1)*state.rho + screened_rates(k_He4_Si28_to_p_P31)*Y(He4)*Y(Si28)*state.rho);
 
     ydot_nuc(S32) =

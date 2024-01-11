@@ -61,13 +61,26 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
   if ((std::abs((r - r_nse) / r_nse) < 0.5_rt) && (NSE_INDEX::N_index != -1)) {
     nse_check = true;
+    return;
   }
 
   // if there is no neutron in the network
 
   if ((std::abs((r - r_nse) / r_nse) < 0.25_rt) && (NSE_INDEX::N_index == -1)) {
     nse_check = true;
+    return;
   }
+
+  // Overall molar fraction check
+
+  for (int n = 0; n < NumSpec; ++n) {
+      Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
+      Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
+      if (abs_diff > nse_abs_tol && rel_diff > nse_rel_tol) {
+          return;
+      }
+  }
+  nse_check = true;
 }
 
 
@@ -302,7 +315,6 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
 
     if (!have_required_nucs) {
       found_fast_reaction_cycle = false;
-
       return;
     }
   }

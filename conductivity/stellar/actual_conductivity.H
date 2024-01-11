@@ -123,11 +123,11 @@ actual_conductivity (T& state)
       d0log = -(3.868_rt + 0.806_rt*xh) + (3.42_rt - 0.52_rt*xh)*std::log(t6);
     }
     Real xka1 = 2.809_rt * std::exp(-(1.74_rt  - 0.755_rt*xh)
-                                    * std::pow(std::log10(t6) - 0.22_rt + 0.1375_rt*xh, 2));
+                                    * amrex::Math::powi<2>(std::log10(t6) - 0.22_rt + 0.1375_rt*xh));
 
    Real xkw = 4.05_rt * std::exp(-(0.306_rt  - 0.04125_rt*xh)
-                                 * std::pow(std::log10(t6) - 0.18_rt + 0.1625_rt*xh, 2));
-   Real xkaz = 50.0_rt*xz*xka1 * std::exp(-0.5206_rt*std::pow((std::log(state.rho)-d0log)/xkw, 2));
+                                 * amrex::Math::powi<2>(std::log10(t6) - 0.18_rt + 0.1625_rt*xh));
+   Real xkaz = 50.0_rt*xz*xka1 * std::exp(-0.5206_rt*amrex::Math::powi<2>((std::log(state.rho)-d0log)/xkw));
    Real dbar2log = -(4.283_rt + 0.7196_rt*xh) + 3.86_rt*std::log(t6);
    Real dbar1log = -5.296_rt + 4.833_rt*std::log(t6);
    if (dbar2log < dbar1log) {
@@ -198,7 +198,7 @@ actual_conductivity (T& state)
   }
 
   // fudge molecular opacity for low temps
-  Real xkf = t7peek * state.rho * std::pow(state.T * 1.0e-7_rt, 4);
+  Real xkf = t7peek * state.rho * amrex::Math::powi<4>(state.T * 1.0e-7_rt);
   orad = xkf * orad/(xkf + orad);
 
 
@@ -317,9 +317,9 @@ actual_conductivity (T& state)
     Real xrel = 1.009_rt * std::pow(zbar/abar * state.rho * 1.0e-6_rt, third);
     Real beta2 = xrel*xrel/(1.0_rt + xrel*xrel);
     Real jy = (1.0_rt + 6.0_rt/(5.0_rt*xrel*xrel) + 2.0_rt/(5.0_rt*xrel*xrel*xrel*xrel))
-      * ( yg*yg*yg / (3.0_rt * std::pow(1.0_rt + 0.07414_rt * yg, 3))
+      * ( yg*yg*yg / (3.0_rt * amrex::Math::powi<3>(1.0_rt + 0.07414_rt * yg))
           * std::log((2.81_rt - 0.810_rt*beta2 + yg)/yg)
-          + std::pow(M_PI, 5/6.0_rt) * std::pow(yg/(13.91_rt + yg), 4));
+          + std::pow(M_PI, 5/6.0_rt) * amrex::Math::powi<4>(yg/(13.91_rt + yg)));
     Real vee = 0.511_rt * state.T*state.T * xmas/(ymas*ymas) * std::sqrt(xmas/ymas) * jy;
     Real cee = wfac/vee;
 
