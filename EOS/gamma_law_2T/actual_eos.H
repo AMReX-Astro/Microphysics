@@ -35,7 +35,6 @@ void actual_eos_init() {
 }
 
 
-
 template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
@@ -45,6 +44,8 @@ bool is_input_valid (I input)
   bool valid = true;
 
   if (input == eos_input_th) {
+      valid = false;
+  } else if (input == eos_input_rh) {
       valid = false;
   } else if (input == eos_input_tp) {
       valid = false;
@@ -111,7 +112,7 @@ void actual_eos (I input, T& state)
 
       case eos_input_rt:
 
-          // dens, temp and xmass are inputs
+          // dens, xmass are inputs, and we have T_h and T_e from above
 
           // We don't need to do anything here
           break;
@@ -120,12 +121,9 @@ void actual_eos (I input, T& state)
 
         // dens, enthalpy, and xmass are inputs
 
-        // Solve for the temperature:
-        // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
-
-          if constexpr (has_enthalpy<T>::value) {
-              state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_gamma - 1.0)/eos_gamma;
-          }
+#ifndef AMREX_USE_GPU
+          amrex::Error("EOS: eos_input_tp has not been implemented gamma_law_2T EOS.");
+#endif
 
           break;
 
@@ -142,26 +140,14 @@ void actual_eos (I input, T& state)
       case eos_input_rp:
 
           // dens, pres, and xmass are inputs
-
-          // Solve for the temperature:
-          // p = rho k T / (mu m_nucleon)
-
-          if constexpr (has_pressure<T>::value) {
-              state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
-          }
+          // we already have the 2 temperatures from above
 
           break;
 
       case eos_input_re:
 
           // dens, energy, and xmass are inputs
-
-          // Solve for the temperature
-          // e = k T / [(mu m_nucleon)*(gamma-1)]
-
-          if constexpr (has_energy<T>::value) {
-              state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / C::k_B;
-          }
+          // we already have the 2 temperatures from above
 
           break;
 
@@ -207,11 +193,7 @@ void actual_eos (I input, T& state)
 
     }
 
-    // Now we have the density and temperature (and mass fractions /
-    // mu), regardless of the inputs.
-
-    Real Tinv = 1.0 / state.T;
-    Real rhoinv = 1.0 / state.rho;
+    // Now we have the density and temperature (and mass fractions)
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
