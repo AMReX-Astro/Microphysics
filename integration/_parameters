@@ -88,3 +88,6 @@ nse_deriv_dt_factor        real           0.05
 
 # for NSE update, do we include the weak rate neutrino losses?
 nse_include_enu_weak       integer        1
+
+# for the linear algebra, do we allow pivoting?
+linalg_do_pivoting         integer        1

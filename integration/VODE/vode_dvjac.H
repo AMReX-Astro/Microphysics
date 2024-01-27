@@ -173,7 +173,13 @@ void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, DvodeT& vstate)
     RHS::dgefa(vstate.jac);
     IER = 0;
 #else
-    dgefa<int_neqs>(vstate.jac, pivot, IER);
+    if (integrator_rp::linalg_do_pivoting == 1) {
+        constexpr bool allow_pivot{true};
+        dgefa<int_neqs, allow_pivot>(vstate.jac, pivot, IER);
+    } else {
+        constexpr bool allow_pivot{false};
+        dgefa<int_neqs, allow_pivot>(vstate.jac, pivot, IER);
+    }
 #endif
 
     if (IER != 0) {

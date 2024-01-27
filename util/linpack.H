@@ -6,7 +6,7 @@
 
 #include <ArrayUtilities.H>
 
-template <int num_eqs>
+template <int num_eqs, bool allow_pivot>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
 {
@@ -17,11 +17,17 @@ void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
     // first solve l * y = b
     if (nm1 >= 1) {
         for (int k = 1; k <= nm1; ++k) {
-            int l = pivot(k);
-            Real t = b(l);
-            if (l != k) {
-                b(l) = b(k);
-                b(k) = t;
+
+            Real t{};
+            if constexpr (allow_pivot) {
+                int l = pivot(k);
+                t = b(l);
+                if (l != k) {
+                    b(l) = b(k);
+                    b(k) = t;
+                }
+            } else {
+                t = b(k);
             }
 
             for (int j = k+1; j <= num_eqs; ++j) {
@@ -45,7 +51,7 @@ void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
 
 
 
-template <int num_eqs>
+template <int num_eqs, bool allow_pivot>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 {
@@ -68,24 +74,29 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
             // find l = pivot index
             int l = k;
-            Real dmax = std::abs(a(k,k));
-            for (int i = k+1; i <= num_eqs; ++i) {
-                if (std::abs(a(i,k)) > dmax) {
-                    l = i;
-                    dmax = std::abs(a(i,k));
-                }
-            }
 
-            pivot(k) = l;
+            if constexpr (allow_pivot) {
+                Real dmax = std::abs(a(k,k));
+                for (int i = k+1; i <= num_eqs; ++i) {
+                    if (std::abs(a(i,k)) > dmax) {
+                        l = i;
+                        dmax = std::abs(a(i,k));
+                    }
+                }
+
+                pivot(k) = l;
+            }
 
             // zero pivot implies this column already triangularized
             if (a(l,k) != 0.0e0_rt) {
 
-                // interchange if necessary
-                if (l != k) {
-                    t = a(l,k);
-                    a(l,k) = a(k,k);
-                    a(k,k) = t;
+                if constexpr (allow_pivot) {
+                    // interchange if necessary
+                    if (l != k) {
+                        t = a(l,k);
+                        a(l,k) = a(k,k);
+                        a(k,k) = t;
+                    }
                 }
 
                 // compute multipliers
@@ -97,26 +108,30 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
                 // row elimination with column indexing
                 for (int j = k+1; j <= num_eqs; ++j) {
                     t = a(l,j);
-                    if (l != k) {
-                        a(l,j) = a(k,j);
-                        a(k,j) = t;
+
+                    if constexpr (allow_pivot) {
+                        if (l != k) {
+                            a(l,j) = a(k,j);
+                            a(k,j) = t;
+                        }
                     }
+
                     for (int i = k+1; i <= num_eqs; ++i) {
                         a(i,j) += t * a(i,k);
                     }
                 }
-            }
-            else {
 
+            } else {
                 info = k;
-
             }
 
         }
 
     }
 
-    pivot(num_eqs) = num_eqs;
+    if constexpr (allow_pivot) {
+        pivot(num_eqs) = num_eqs;
+    }
 
     if (a(num_eqs,num_eqs) == 0.0e0_rt) {
         info = num_eqs;

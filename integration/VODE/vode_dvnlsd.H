@@ -114,7 +114,13 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
-            dgesl<int_neqs>(vstate.jac, pivot, vstate.y);
+            if (integrator_rp::linalg_do_pivoting == 1) {
+                constexpr bool allow_pivot{true};
+                dgesl<int_neqs, allow_pivot>(vstate.jac, pivot, vstate.y);
+            } else {
+                constexpr bool allow_pivot{false};
+                dgesl<int_neqs, allow_pivot>(vstate.jac, pivot, vstate.y);
+            }
 #endif
 
             if (vstate.RC != 1.0_rt) {
