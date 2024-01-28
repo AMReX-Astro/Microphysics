@@ -76,7 +76,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
                 }
             }
 
-            pivot(k) = l;
+            pivot(k) = static_cast<short>(l);
 
             // zero pivot implies this column already triangularized
             if (a(l,k) != 0.0e0_rt) {
@@ -116,7 +116,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
 
     }
 
-    pivot(num_eqs) = num_eqs;
+    pivot(num_eqs) = static_cast<short>(num_eqs);
 
     if (a(num_eqs,num_eqs) == 0.0e0_rt) {
         info = num_eqs;
