@@ -24,8 +24,8 @@ int dvode (BurnT& state, DvodeT& vstate)
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // Local variables
-    Real H0, S;
-    int IER, NITER;
+    Real H0{}, S{};
+    int IER{}, NITER{};
 
     // Flag determining if we were successful.
 
@@ -259,7 +259,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        S = (vstate.tout - vstate.tn) / vstate.H;
 
        for (int jb = 1; jb <= vstate.NQ; ++jb) {
-           int j = vstate.NQ - jb;
+           const int j = vstate.NQ - jb;
            for (int i = 1; i <= int_neqs; ++i) {
                vstate.y(i) = vstate.yh(i,j+1) + S * vstate.y(i);
            }

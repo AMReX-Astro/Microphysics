@@ -79,9 +79,9 @@ void actual_integrator (BurnT& state, Real dt)
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
-    Real T_in = state.T;
+    const Real T_in = state.T;
 #endif
-    Real e_in = state.e;
+    const Real e_in = state.e;
 
     // Call the integration routine.
 
@@ -173,14 +173,14 @@ void actual_integrator (BurnT& state, Real dt)
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "xn start = ";
-            for (double x : xn_in) {
+            for (const double x : xn_in) {
                 std::cout << std::setprecision(16) << x << " ";
             }
             std::cout << std::endl;
             std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
             std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
             std::cout << "xn current = ";
-            for (double x : state.xn) {
+            for (const double x : state.xn) {
                 std::cout << std::setprecision(16) << x << " ";
             }
             std::cout << std::endl;

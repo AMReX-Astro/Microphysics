@@ -116,11 +116,11 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
                 R0 = 1.0_rt;
             }
 
-            bool in_jacobian = true;
+            const bool in_jacobian = true;
             for (int j = 1; j <= int_neqs; ++j) {
-                Real yj = vstate.y(j);
+                const Real yj = vstate.y(j);
 
-                Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / vstate.ewt(j));
+                const Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / vstate.ewt(j));
                 vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
@@ -160,13 +160,13 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
     // Multiply Jacobian by a scalar, add the identity matrix
     // (along the diagonal), and do LU decomposition.
 
-    Real hrl1 = vstate.H * vstate.RL1;
-    Real con = -hrl1;
+    const Real hrl1 = vstate.H * vstate.RL1;
+    const Real con = -hrl1;
 
     vstate.jac.mul(con);
     vstate.jac.add_identity();
 
-    int IER;
+    int IER{};
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
     RHS::dgefa(vstate.jac);
