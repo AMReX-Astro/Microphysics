@@ -65,37 +65,37 @@ struct burn_t
 
   // on exit, this will be set to the integration time we achieved
 
-  Real time;
+  Real time{};
 
   // this first group are the quantities the network RHS uses
 
-  Real rho;
-  Real T;
-  Real e;
-  Real xn[NumSpec];
+  Real rho{};
+  Real T{};
+  Real e{};
+  Real xn[NumSpec]{};
 #if NAUX_NET > 0
-  Real aux[NumAux];
+  Real aux[NumAux]{};
 #endif
 
   // scaling used to make e we integrate dimensionless
-  Real e_scale;
+  Real e_scale{};
 
   // derivatives needed for calling the EOS
-  Real dedr;
-  Real dedT;
-  Real dedA;
-  Real dedZ;
+  Real dedr{};
+  Real dedT{};
+  Real dedA{};
+  Real dedZ{};
 
   // for diagnostics / error reporting
 
-  int i;
-  int j;
-  int k;
+  int i{};
+  int j{};
+  int k{};
 #ifdef NONAKA_PLOT
-  int level;
-  Real reference_time;
+  int level{};
+  Real reference_time{};
 #ifdef STRANG
-  int strang_half;
+  int strang_half{};
 #endif
 #endif
 
@@ -104,20 +104,20 @@ struct burn_t
   // y is the input conserved state.  We will keep this state updated
   // in time as we integrate, such that upon output it will be the
   // final conserved state.
-  Real y[SVAR];
+  Real y[SVAR]{};
 
   // we need to store a copy of the original state as well so we can
   // handle the non-evolved state evolution
-  Real rho_orig;
+  Real rho_orig{};
 
-  Real rhoe_orig;
+  Real rhoe_orig{};
 
   // ydot_a are the advective terms that will modify the state y due
   // to hydrodynamics over the timestep.
-  Real ydot_a[SVAR];
+  Real ydot_a[SVAR]{};
 
-  int sdc_iter;
-  int num_sdc_iters;
+  int sdc_iter{};
+  int num_sdc_iters{};
 
   // for drive_initial_convection, we will fix T during the
   // integration to a passed in value.  We will interpret a positive
@@ -126,35 +126,35 @@ struct burn_t
 
   // all coupling types need the specific heats to transform the
   // reaction Jacobian elements from T to e
-  Real cv;
+  Real cv{};
 
   // dx is useful for estimating timescales for equilibriation
-  Real dx;
+  Real dx{};
 
-  Real mu;
-  Real mu_e;
-  Real y_e;
-  Real eta;
-  Real abar;
-  Real zbar;
+  Real mu{};
+  Real mu_e{};
+  Real y_e{};
+  Real eta{};
+  Real abar{};
+  Real zbar{};
 
 #ifdef NSE_NET
-  Real mu_p;
-  Real mu_n;
+  Real mu_p{};
+  Real mu_n{};
 #endif
 
 #ifdef NSE
-  bool nse;
+  bool nse{};
 #endif
 
   // diagnostics
-  int n_rhs, n_jac, n_step;
+  int n_rhs{}, n_jac{}, n_step{};
 
   // Was the burn successful?
-  bool success;
+  bool success{};
 
   // integrator error code
-  short error_code;
+  short error_code{};
 
 };
 
