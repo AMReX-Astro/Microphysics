@@ -159,6 +159,8 @@ struct dvode_t
 
     Array1D<Real, 1, int_neqs> ewt, savf;
 
+    Array1D<short, 1, int_neqs> pivot;
+
     // Array of size NEQ used for the accumulated corrections on each
     // step, scaled in the output to represent the estimated local
     // error in Y on the last step.  This is the vector e in the

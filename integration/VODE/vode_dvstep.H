@@ -132,8 +132,6 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
     }
 
-    Array1D<short, 1, int_neqs> pivot;
-
     // Compute the predicted values by effectively
     // multiplying the yh array by the Pascal triangle matrix.
     // dvset is called to calculate all integration coefficients.
@@ -174,7 +172,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         // Call the nonlinear system solver.
 
-        const Real ACNRM = dvnlsd(pivot, NFLAG, state, vstate);
+        const Real ACNRM = dvnlsd(NFLAG, state, vstate);
 
         if (NFLAG != 0) {
 

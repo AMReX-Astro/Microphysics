@@ -12,9 +12,9 @@
 #include <integrator_rhs_simplified_sdc.H>
 #endif
 
-template <typename IArray1D, typename BurnT, typename DvodeT>
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, DvodeT& vstate)
+void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
 {
     // dvjac is called by dvnlsd to compute and process the matrix
     // P = I - h*rl1*J , where J is an approximation to the Jacobian
@@ -169,11 +169,10 @@ void dvjac (IArray1D& pivot, int& IERPJ, BurnT& state, DvodeT& vstate)
     int IER{};
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    amrex::ignore_unused(pivot);
     RHS::dgefa(vstate.jac);
     IER = 0;
 #else
-    dgefa<int_neqs>(vstate.jac, pivot, IER);
+    dgefa<int_neqs>(vstate.jac, vstate.pivot, IER);
 #endif
 
     if (IER != 0) {

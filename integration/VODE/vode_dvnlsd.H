@@ -7,9 +7,9 @@
 #endif
 #include <vode_dvjac.H>
 
-template <typename IArray1D, typename BurnT, typename DvodeT>
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
+Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -76,7 +76,8 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
             // to 0 as an indicator that this has been done.
 
             int IERPJ{};
-            dvjac(pivot, IERPJ, state, vstate);
+            dvjac(IERPJ, state, vstate);
+
             vstate.IPUP = 0;
             vstate.RC = 1.0_rt;
             vstate.DRC = 0.0_rt;
@@ -114,7 +115,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
-            dgesl<int_neqs>(vstate.jac, pivot, vstate.y);
+            dgesl<int_neqs>(vstate.jac, vstate.pivot, vstate.y);
 #endif
 
             if (vstate.RC != 1.0_rt) {
