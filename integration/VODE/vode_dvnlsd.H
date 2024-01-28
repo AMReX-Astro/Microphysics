@@ -26,8 +26,8 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
     const int MAXCOR = 3;
     const int MSBP = 20;
 
-    Real DEL;
-    int M;
+    Real DEL{};
+    int M{};
 
     // On the first step, on a change of method order, or after a
     // nonlinear convergence failure with NFLAG = -2, set IPUP = 1
@@ -75,7 +75,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
             // preprocessed before starting the corrector iteration.  IPUP is set
             // to 0 as an indicator that this has been done.
 
-            int IERPJ;
+            int IERPJ{};
             dvjac(pivot, IERPJ, state, vstate);
             vstate.IPUP = 0;
             vstate.RC = 1.0_rt;
@@ -118,7 +118,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
 #endif
 
             if (vstate.RC != 1.0_rt) {
-                Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
+                const Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
                 for (int i = 1; i <= int_neqs; ++i) {
                     vstate.y(i) *= CSCALE;
                 }
@@ -145,7 +145,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
                 vstate.CRATE = amrex::max(CRDOWN * vstate.CRATE, DEL / DELP);
             }
 
-            Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
+            const Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
             if (DCON <= 1.0_rt) {
                 // we converged, exit the outer loop
                 converged = true;
