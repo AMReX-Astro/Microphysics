@@ -40,7 +40,7 @@ bool in_nse(T& state, const bool relax = false) {
         Real O_group{};
         Real Si_group{};
 
-        if constexpr (std::is_same<T, burn_t>::value) {
+        if constexpr (std::is_same_v<T, burn_t>) {
             // for a burn_t, we need to use a different field
             // depending on whether we are strang of simplified-SDC
 
