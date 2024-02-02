@@ -307,7 +307,7 @@ sneutf_t get_sneut_factors(Real den, Real temp, Real abar, Real zbar) {
 
     constexpr Real con1   = 1.0e0_rt/5.9302e0_rt;
 
-    sneutf_t sf;
+    sneutf_t sf{};
 
     sf.den = den;
     sf.temp = temp;

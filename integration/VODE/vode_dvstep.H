@@ -82,9 +82,9 @@ int dvstep (BurnT& state, DvodeT& vstate)
     const Real ONEPSM = 1.00001e0_rt;
     const Real THRESH = 1.5e0_rt;
 
-    Real CNQUOT, DDN, DSM, DUP, TOLD;
-    Real FLOTL, R;
-    int NCF, NFLAG;
+    Real CNQUOT{}, DDN{}, DSM{}, DUP{}, TOLD{};
+    Real FLOTL{}, R{};
+    int NCF{}, NFLAG{};
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -132,8 +132,6 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
     }
 
-    Array1D<short, 1, int_neqs> pivot;
-
     // Compute the predicted values by effectively
     // multiplying the yh array by the Pascal triangle matrix.
     // dvset is called to calculate all integration coefficients.
@@ -174,7 +172,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         // Call the nonlinear system solver.
 
-        Real ACNRM = dvnlsd(pivot, NFLAG, state, vstate);
+        const Real ACNRM = dvnlsd(NFLAG, state, vstate);
 
         if (NFLAG != 0) {
 
@@ -323,7 +321,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             kflag = 0;
             vstate.NST += 1;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
-                int i = vstate.L - iback;
+                const int i = vstate.L - iback;
                 vstate.tau(i+1) = vstate.tau(i);
             }
 
@@ -479,7 +477,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
     // Compute ratio of new H to current H at the current order.
     FLOTL = vstate.L;
-    Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
+    const Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
 

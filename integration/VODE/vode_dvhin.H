@@ -26,8 +26,8 @@ void dvhin (BurnT& state, DvodeT& vstate, Real& H0, int& NITER, int& IER)
     const Real PT1 = 0.1e0_rt;
 
     NITER = 0;
-    Real TDIST = std::abs(vstate.tout - vstate.t);
-    Real TROUND = UROUND * amrex::max(std::abs(vstate.t), std::abs(vstate.tout));
+    const Real TDIST = std::abs(vstate.tout - vstate.t);
+    const Real TROUND = UROUND * amrex::max(std::abs(vstate.t), std::abs(vstate.tout));
 
     if (TDIST < 2.0_rt * TROUND) {
         // Error return for vstate.tout - vstate.t too small.
@@ -36,15 +36,15 @@ void dvhin (BurnT& state, DvodeT& vstate, Real& H0, int& NITER, int& IER)
     }
 
     // Set a lower bound on h based on the roundoff level in vstate.t and vstate.tout.
-    Real HLB = 100.0_rt * TROUND;
+    const Real HLB = 100.0_rt * TROUND;
 
     // Set an upper bound on h based on vstate.tout-vstate.t and the initial Y and YDOT.
     Real HUB = PT1 * TDIST;
 
     for (int i = 1; i <= int_neqs; ++i) {
-        Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
-        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
-        Real AFI = std::abs(vstate.yh(i,2));
+        const Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
+        const Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
+        const Real AFI = std::abs(vstate.yh(i,2));
         if (AFI * HUB > DELYI) {
             HUB = DELYI / AFI;
         }
@@ -61,14 +61,14 @@ void dvhin (BurnT& state, DvodeT& vstate, Real& H0, int& NITER, int& IER)
         do_iterations = false;
     }
 
-    Real hnew;
+    Real hnew{};
 
     if (do_iterations) {
 
         while (true) {
 
             // Estimate the second derivative as a difference quotient in f.
-            Real H = std::copysign(HG, vstate.tout - vstate.t);
+            const Real H = std::copysign(HG, vstate.tout - vstate.t);
             for (int i = 1; i <= int_neqs; ++i) {
                 vstate.y(i) = vstate.yh(i,1) + H * vstate.yh(i,2);
             }
@@ -106,7 +106,7 @@ void dvhin (BurnT& state, DvodeT& vstate, Real& H0, int& NITER, int& IER)
                 break;
             }
 
-            Real HRAT = hnew / HG;
+            const Real HRAT = hnew / HG;
             if ((HRAT > 0.5_rt) && (HRAT < 2.0_rt)) {
                 break;
             }
