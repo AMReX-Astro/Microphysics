@@ -1,3 +1,21 @@
+# 24.02
+
+   * Lots of general code cleaning from coverity and clang-tidy
+     (#1450, #1452, #1453, #1460, #1459, #1457, #1458)
+
+   * Fixed a bug in the VODE pivoting when a cached Jacobian is used
+     (#1456)
+
+   * Added reverse rates to CNO_extras (#1445)
+
+   * Sync networks up with pynucastro to get constexpr mion/bion
+     (#1437)
+
+   * NSE+SDC improvements (#1431)
+
+   * Start of moving the runtime parameters from globals to structs
+     (#1422)
+
 # 24.01
 
    * The quantum corrections for the Chabrier screening are
