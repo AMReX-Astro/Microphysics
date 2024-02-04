@@ -14,10 +14,10 @@
 #include <extern_parameters.H>
 
 #include <burn_type.H>
-#include <nse_eos.H>
 
 #ifdef NSE_TABLE
 #include <nse_table.H>
+#include <nse_eos.H>
 #endif
 #ifdef NSE_NET
 #include <nse_solver.H>
