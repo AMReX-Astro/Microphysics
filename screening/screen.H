@@ -880,7 +880,7 @@ void chabrier1998 (const plasma_state_t& state,
     [[maybe_unused]] amrex::Real quantum_corr_1_dT = 0.0_rt;
     [[maybe_unused]] amrex::Real quantum_corr_2_dT = 0.0_rt;
 
-    if (enable_chabrier1998_quantum_corr) {
+    if (screening_rp::enable_chabrier1998_quantum_corr) {
         // See Wallace1982, Eq. A13
 
         amrex::Real Gamma_eff = std::cbrt(2.0_rt) * scn_fac.z1 * scn_fac.z2 *
