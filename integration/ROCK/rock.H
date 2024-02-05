@@ -175,7 +175,7 @@ Real r2step (BurnT& state, RockT& rstate)
             wt = rstate.rtol_enuc * std::abs(rstate.y(j)) + rstate.atol_enuc;
         }
 
-        err += std::pow(temp3 / wt, 2);
+        err += amrex::Math::powi<2>(temp3 / wt);
     }
 
     err = std::sqrt(err / static_cast<Real>(INT_NEQS));
@@ -330,11 +330,11 @@ Real r4step (BurnT& state, RockT& rstate)
             wt = rstate.rtol_enuc * std::abs(rstate.y(j)) + rstate.atol_enuc;
         }
 
-        err += std::pow((temp1 * rstate.yjm1(j) +
-                         temp2 * rstate.yjm2(j) +
-                         temp3 * rstate.yjm3(j) +
-                         temp4 * rstate.yjm4(j) +
-                         temp5 * rstate.fnt(j)) / wt, 2);
+        err += amrex::Math::powi<2>((temp1 * rstate.yjm1(j) +
+                                     temp2 * rstate.yjm2(j) +
+                                     temp3 * rstate.yjm3(j) +
+                                     temp4 * rstate.yjm4(j) +
+                                     temp5 * rstate.fnt(j)) / wt);
     }
 
     err = std::sqrt(err / static_cast<Real>(INT_NEQS));
@@ -420,7 +420,7 @@ int rockcore (BurnT& state, RockT& rstate)
             rstate.mdeg = static_cast<int>(std::sqrt((1.5_rt + rstate.h * eigmax) / 0.811_rt)) + 1;
 
             if (rstate.mdeg > 200) {
-                rstate.h = 0.8_rt * (std::pow(200.0_rt, 2) * 0.811_rt - 1.5_rt) / eigmax;
+                rstate.h = 0.8_rt * (amrex::Math::powi<2>(200.0_rt) * 0.811_rt - 1.5_rt) / eigmax;
                 rstate.mdeg = 200;
                 last = false;
             }
@@ -439,7 +439,7 @@ int rockcore (BurnT& state, RockT& rstate)
             rstate.mdeg = static_cast<int>(std::sqrt((3.0_rt + rstate.h * eigmax) / 0.353_rt)) + 1;
 
             if (rstate.mdeg > 152) {
-                rstate.h = 0.8_rt * (std::pow(152.0_rt, 2) * 0.353_rt - 3.0_rt) / eigmax;
+                rstate.h = 0.8_rt * (amrex::Math::powi<2>(152.0_rt) * 0.353_rt - 3.0_rt) / eigmax;
                 rstate.mdeg = 152;
                 last = false;
             }
@@ -472,10 +472,10 @@ int rockcore (BurnT& state, RockT& rstate)
 
         Real fac;
         if (rock_order == 2) {
-            fac = std::pow(1.0_rt / err, 0.5_rt);
+            fac = std::sqrt(1.0_rt / err);
 
             if (errp != 0.0_rt && ! reject) {
-                Real facp = std::pow(errp, 0.5_rt) * fac * fac * (rstate.h / hp);
+                Real facp = std::sqrt(errp) * fac * fac * (rstate.h / hp);
                 fac = std::min(fac, facp);
             }
 
