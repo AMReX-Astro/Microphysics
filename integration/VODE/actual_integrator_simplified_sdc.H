@@ -38,10 +38,10 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     vode_state.HMXI = 1.0_rt / ode_max_dt;
 
     // set the Jacobian type
-    if (!(is_retry && retry_swap_jacobian)) {
-        vode_state.jacobian_type = jacobian;
-    } else {
+    if (is_retry && retry_swap_jacobian) {
         vode_state.jacobian_type = (jacobian == 1) ? 2 : 1;
+    } else {
+        vode_state.jacobian_type = jacobian;
     }
 
     // Fill in the initial integration state.

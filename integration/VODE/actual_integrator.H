@@ -41,10 +41,10 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     }
 
     // set the Jacobian type
-    if (!(is_retry && retry_swap_jacobian)) {
-        vode_state.jacobian_type = static_cast<short>(jacobian);
-    } else {
+    if (is_retry && retry_swap_jacobian) {
         vode_state.jacobian_type = (jacobian == 1) ? 2 : 1;
+    } else {
+        vode_state.jacobian_type = static_cast<short>(jacobian);
     }
 
     // Start off by assuming a successful burn.

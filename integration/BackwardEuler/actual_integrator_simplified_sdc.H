@@ -26,10 +26,10 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
     be.tout = dt;
 
     // set the Jacobian type
-    if (!(is_retry && retry_swap_jacobian)) {
-        be.jacobian_type = jacobian;
-    } else {
+    if (is_retry && retry_swap_jacobian) {
         be.jacobian_type = (jacobian == 1) ? 2 : 1;
+    } else {
+        be.jacobian_type = jacobian;
     }
 
     // Fill in the initial integration state.
