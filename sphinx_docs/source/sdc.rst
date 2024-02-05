@@ -5,6 +5,29 @@ Spectral Deferred Corrections
 Introduction
 ============
 
+Spectral deferred correction (SDC) methods strongly couple reactions
+and hydrodynamics, eliminating the splitting error that arises with
+Strang (operator) splitting.  Microphysics supports two different
+SDC formulations.
+
+.. note::
+
+   Both SDC formulations are supported by the same integrators, enabled
+   by the ``SDC`` preprocessor flag.
+
+"True" SDC
+----------
+
+The true SDC implementation is described in :cite:`castro_sdc`.  It divides
+the timestep into temporal nodes and uses low-order approximations to update
+from one temporal node to the next.  Iteration is used to increase the order of accuracy.
+
+The update from one temporal node to the next appears as:
+
+
+Simplified SDC
+--------------
+
 The Simplified-SDC method provides a means to more strongly couple the
 reactions to the hydrodynamics by evolving the reactions together with
 an approximation of the advection over the timestep.  The full details
@@ -128,8 +151,8 @@ system we are integrating, including the advective terms.
    :math:`\dot{Y}_k` and the nuclear energy release, :math:`\dot{S}`.
 
 #. Convert back to the integrator’s internal representation via ``rhs_to_int``
-   This converts the ``ydot``s to mass fractions and adds the advective terms
-   to all ``ydots``.
+   This converts the ``ydot`` to mass fractions and adds the advective terms
+   to ``ydot``.
 
 Jacobian
 --------
@@ -147,3 +170,9 @@ the Jacobian as:
 where :math:`{\bf w} = (X_k, T)^\intercal` are the more natural variables
 for a reaction network.
 
+.. note::
+
+   In the original "true SDC" paper (:cite:`castro_sdc`), the matrix
+   system as more complicated, and we included density in ${\bf w}$.
+   This is not needed, and we use the Jacobian defined in
+   :cite:`castro_simple_sdc` instead.
