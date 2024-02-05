@@ -18,7 +18,7 @@ using namespace integrator_rp;
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt)
+void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -26,14 +26,26 @@ void actual_integrator (BurnT& state, Real dt)
 
     // Set the tolerances.
 
-    vode_state.atol_spec = atol_spec; // mass fractions
-    vode_state.atol_enuc = atol_enuc; // energy generated
+    if (!is_retry) {
+        vode_state.atol_spec = atol_spec; // mass fractions
+        vode_state.atol_enuc = atol_enuc; // energy generated
 
-    vode_state.rtol_spec = rtol_spec; // mass fractions
-    vode_state.rtol_enuc = rtol_enuc; // energy generated
+        vode_state.rtol_spec = rtol_spec; // mass fractions
+        vode_state.rtol_enuc = rtol_enuc; // energy generated
+    } else {
+        vode_state.atol_spec = retry_atol_spec; // mass fractions
+        vode_state.atol_enuc = retry_atol_enuc; // energy generated
+
+        vode_state.rtol_spec = retry_rtol_spec; // mass fractions
+        vode_state.rtol_enuc = retry_rtol_enuc; // energy generated
+    }
 
     // set the Jacobian type
-    vode_state.jacobian_type = static_cast<short>(jacobian);
+    if (is_retry && retry_swap_jacobian) {
+        vode_state.jacobian_type = (jacobian == 1) ? 2 : 1;
+    } else {
+        vode_state.jacobian_type = static_cast<short>(jacobian);
+    }
 
     // Start off by assuming a successful burn.
 
