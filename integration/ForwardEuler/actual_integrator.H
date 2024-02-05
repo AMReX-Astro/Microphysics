@@ -3,8 +3,9 @@
 
 #include <network.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>
-#ifndef NEW_NETWORK_IMPLEMENTATION
+#else
 #include <actual_rhs.H>
 #endif
 #include <burn_type.H>
