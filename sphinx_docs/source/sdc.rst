@@ -172,7 +172,7 @@ for a reaction network.
 
 .. note::
 
-   In the original "true SDC" paper (:cite:`castro_sdc`), the matrix
-   system as more complicated, and we included density in ${\bf w}$.
+   In the original "true SDC" paper :cite:`castro_sdc`, the matrix
+   system as more complicated, and we included density in :math:`{\bf w}`.
    This is not needed, and we use the Jacobian defined in
    :cite:`castro_simple_sdc` instead.
