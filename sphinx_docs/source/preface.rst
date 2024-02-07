@@ -2,7 +2,7 @@
 Preface
 *******
 
-Welcome to the StarKiller Microphysics!
+Welcome to the AMReX-Astro Microphysics!
 
 In this User’s Guide we describe the microphysics modules designed to
 enable simulations of stellar explosions.
