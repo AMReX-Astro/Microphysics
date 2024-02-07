@@ -4,9 +4,10 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StarKiller Basics &mdash; Microphysics  documentation</title>
+  <title>Microphysics Overview &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
 
   
@@ -19,6 +20,8 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -54,7 +57,7 @@
               <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">StarKiller Basics</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Microphysics Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started-standalone">Getting Started (Standalone)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#getting-started-running-with-maestroex-or-castro">Getting Started (Running with MAESTROeX or CASTRO)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
@@ -90,7 +93,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">StarKiller Basics</li>
+      <li class="breadcrumb-item active">Microphysics Overview</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/basics.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -100,8 +103,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="starkiller-basics">
-<h1>StarKiller Basics<a class="headerlink" href="#starkiller-basics" title="Link to this heading"></a></h1>
+  <section id="microphysics-overview">
+<h1>Microphysics Overview<a class="headerlink" href="#microphysics-overview" title="Link to this heading"></a></h1>
 <section id="getting-started-standalone">
 <h2>Getting Started (Standalone)<a class="headerlink" href="#getting-started-standalone" title="Link to this heading"></a></h2>
 <p>Microphysics can be used in a “standalone” fashion to run the unit
@@ -196,8 +199,11 @@ of the species defined by the network to interpret the state.</p>
 solvers (ODE integration for the network and Newton-Raphson root
 finding for the EOS) is separated from the specific implementations of
 the microphysics.</p>
-<p><strong>All quantities are assumed to be in CGS units</strong>, unless otherwise
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All quantities are assumed to be in CGS units, unless otherwise
 specified.</p>
+</div>
 </section>
 </section>
 
