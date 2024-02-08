@@ -14,7 +14,7 @@ using namespace integrator_rp;
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state(const Real time, BurnT& state, T& int_state)
+void clean_state(const amrex::Real time, BurnT& state, T& int_state)
 {
     // Ensure that mass fractions always stay positive.
 
@@ -36,7 +36,7 @@ void clean_state(const Real time, BurnT& state, T& int_state)
         // Constrain the partial densities in int_state to sum to the
         // density.  This does not update the burn_t state.
 
-        Real nspec_sum = 0.0_rt;
+        amrex::Real nspec_sum = 0.0_rt;
         for (int n = 1; n <= NumSpec; n++) {
             // use 1-based indexing
             nspec_sum += int_state.y(SFS+n);
@@ -80,7 +80,7 @@ void burn_to_int(BurnT& state, T& int_state)
 
 template <typename T, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void int_to_burn(const Real time, const T& int_state, BurnT& state)
+void int_to_burn(const amrex::Real time, const T& int_state, BurnT& state)
 {
     // this makes burn_t represent the current integration state.  The
     // main thing this really does is compute the current temperature
@@ -103,7 +103,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
 
     update_density_in_time(time, state);
 
-    Real rhoInv = 1.0_rt / state.rho;
+    amrex::Real rhoInv = 1.0_rt / state.rho;
 
     for (int n = 0; n < NumSpec; n++) {
         state.xn[n] = state.y[SFS+n] * rhoInv;
@@ -137,7 +137,7 @@ void int_to_burn(const Real time, const T& int_state, BurnT& state)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs_to_int([[maybe_unused]] const Real time,
+void rhs_to_int([[maybe_unused]] const amrex::Real time,
                 BurnT& state,
                 RArray1D& ydot)
 {

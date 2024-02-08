@@ -18,7 +18,7 @@ using namespace integrator_rp;
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -51,30 +51,30 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     // Save the initial composition and temperature for our later diagnostics.
 
 #ifndef AMREX_USE_GPU
-    Real xn_in[NumSpec];
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.y[SFS+n] / state.y[SRHO];
     }
     // we are assuming that the temperature was valid on input
-    Real T_in = state.T;
+    amrex::Real T_in = state.T;
 #ifdef AUX_THERMO
-    Real aux_in[NumAux];
+    amrex::Real aux_in[NumAux];
     for (int n = 0; n < NumAux; ++n) {
         aux_in[n] = state.y[SFX+n] / state.y[SRHO];
     }
 #endif
-    Real rhoe_in = state.y[SEINT];
+    amrex::Real rhoe_in = state.y[SEINT];
 #endif
 
 
     // Set the tolerances.
 
-    Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
+    amrex::Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
 
     // we use 1-based indexing inside of VODE, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
-    Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
+    amrex::Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
 
     if (!is_retry) {
 
@@ -127,7 +127,7 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative
 
-    Real rho_Sdot = 0.0_rt;
+    amrex::Real rho_Sdot = 0.0_rt;
     if (state.time > 0) {
         rho_Sdot = (state.y[SEINT] - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
     }

@@ -9,7 +9,7 @@
 
 template <typename BurnT, bool enable_retry>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void integrator_wrapper (BurnT& state, Real dt)
+void integrator_wrapper (BurnT& state, amrex::Real dt)
 {
 
     if constexpr (enable_retry) {
@@ -31,7 +31,7 @@ void integrator_wrapper (BurnT& state, Real dt)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void integrator (BurnT& state, Real dt)
+void integrator (BurnT& state, amrex::Real dt)
 {
 
     if (integrator_rp::use_burn_retry) {

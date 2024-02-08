@@ -5,7 +5,7 @@
 #include <network.H>
 #include <eos_type.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 struct eos_xderivs_t {
   Real dedX[NumSpec];

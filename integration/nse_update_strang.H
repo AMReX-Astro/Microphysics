@@ -24,14 +24,14 @@
 #include <nse_solver.H>
 #endif
 
-using namespace amrex;
+using namespace amrex::literals;
 
 ///
 /// update the state due to NSE changes for the Strang-split case
 ///
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_burn(BurnT& state, const Real dt) {
+void nse_burn(BurnT& state, const amrex::Real dt) {
 
 #if defined(NSE_TABLE)
 
@@ -46,7 +46,7 @@ void nse_burn(BurnT& state, const Real dt) {
   // if we are doing drive_initial_convection, we want to use
   // the temperature that comes in through T_fixed
 
-  Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+  amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
 
   // call the NSE table using the * state to get the t^{n+1}
   // source estimates.  The thermodynamnics here is specified
@@ -71,7 +71,7 @@ void nse_burn(BurnT& state, const Real dt) {
 
   // this is MeV / nucleon -- here aux has not yet been updated, so we
   // access the old binding energy
-  Real deltaq = nse_state.bea - state.aux[ibea];
+  amrex::Real deltaq = nse_state.bea - state.aux[ibea];
 
   state.aux[ibea] += deltaq;
   state.aux[iabar] = nse_state.abar;
@@ -88,12 +88,12 @@ void nse_burn(BurnT& state, const Real dt) {
 
   // for now, we'll take dyedt = 0.  Later we can evaluate this by
   // calling the RHS with the NSE state.
-  Real dyedt = 0.0_rt;
+  amrex::Real dyedt = 0.0_rt;
 
   // compute the change in binding energy -- this is the energy release
   // we want to do sum {B dY}, where Y is the molar fraction.
   // this will be in MeV / nucleon
-  Real deltaq = 0.0_rt;
+  amrex::Real deltaq = 0.0_rt;
   for (int n = 0; n < NumSpec; ++n) {
       deltaq += network::bion(n+1) * aion_inv[n] * (nse_state.xn[n] - state.xn[n]);
   }
@@ -105,7 +105,7 @@ void nse_burn(BurnT& state, const Real dt) {
   state.n_jac = 0;
 
   // convert the energy to erg / g
-  Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
+  amrex::Real enuc = deltaq * C::MeV2eV * C::ev2erg * C::n_A;
 
   state.e = enuc + state.e;
 

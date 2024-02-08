@@ -34,15 +34,13 @@
 #include <AMReX_Array.H>
 #include <ArrayUtilities.H>
 
-using namespace amrex;
-
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum3(T const& array)
+amrex::Real esum3(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -57,10 +55,10 @@ Real esum3(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -75,7 +73,7 @@ Real esum3(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -126,10 +124,10 @@ Real esum3(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum4(T const& array)
+amrex::Real esum4(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -144,10 +142,10 @@ Real esum4(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -162,7 +160,7 @@ Real esum4(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -213,10 +211,10 @@ Real esum4(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum5(T const& array)
+amrex::Real esum5(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -231,10 +229,10 @@ Real esum5(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -249,7 +247,7 @@ Real esum5(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -340,10 +338,10 @@ Real esum5(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum6(T const& array)
+amrex::Real esum6(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -358,10 +356,10 @@ Real esum6(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -376,7 +374,7 @@ Real esum6(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -467,10 +465,10 @@ Real esum6(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum7(T const& array)
+amrex::Real esum7(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -485,10 +483,10 @@ Real esum7(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -503,7 +501,7 @@ Real esum7(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -634,10 +632,10 @@ Real esum7(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum8(T const& array)
+amrex::Real esum8(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -652,10 +650,10 @@ Real esum8(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -670,7 +668,7 @@ Real esum8(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -801,10 +799,10 @@ Real esum8(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum9(T const& array)
+amrex::Real esum9(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -819,10 +817,10 @@ Real esum9(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -837,7 +835,7 @@ Real esum9(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -1008,10 +1006,10 @@ Real esum9(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum10(T const& array)
+amrex::Real esum10(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -1026,10 +1024,10 @@ Real esum10(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -1044,7 +1042,7 @@ Real esum10(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -1215,10 +1213,10 @@ Real esum10(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum11(T const& array)
+amrex::Real esum11(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -1233,10 +1231,10 @@ Real esum11(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -1251,7 +1249,7 @@ Real esum11(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -1462,10 +1460,10 @@ Real esum11(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum12(T const& array)
+amrex::Real esum12(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -1480,10 +1478,10 @@ Real esum12(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -1498,7 +1496,7 @@ Real esum12(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -1709,10 +1707,10 @@ Real esum12(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum13(T const& array)
+amrex::Real esum13(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -1727,10 +1725,10 @@ Real esum13(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -1745,7 +1743,7 @@ Real esum13(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -1996,10 +1994,10 @@ Real esum13(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum14(T const& array)
+amrex::Real esum14(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -2014,10 +2012,10 @@ Real esum14(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -2032,7 +2030,7 @@ Real esum14(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -2283,10 +2281,10 @@ Real esum14(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum15(T const& array)
+amrex::Real esum15(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -2301,10 +2299,10 @@ Real esum15(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -2319,7 +2317,7 @@ Real esum15(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -2610,10 +2608,10 @@ Real esum15(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum16(T const& array)
+amrex::Real esum16(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -2628,10 +2626,10 @@ Real esum16(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -2646,7 +2644,7 @@ Real esum16(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -2937,10 +2935,10 @@ Real esum16(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum17(T const& array)
+amrex::Real esum17(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -2955,10 +2953,10 @@ Real esum17(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -2973,7 +2971,7 @@ Real esum17(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -3304,10 +3302,10 @@ Real esum17(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum18(T const& array)
+amrex::Real esum18(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -3322,10 +3320,10 @@ Real esum18(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -3340,7 +3338,7 @@ Real esum18(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -3671,10 +3669,10 @@ Real esum18(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum19(T const& array)
+amrex::Real esum19(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -3689,10 +3687,10 @@ Real esum19(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -3707,7 +3705,7 @@ Real esum19(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -4078,10 +4076,10 @@ Real esum19(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum20(T const& array)
+amrex::Real esum20(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -4096,10 +4094,10 @@ Real esum20(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -4114,7 +4112,7 @@ Real esum20(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -4485,10 +4483,10 @@ Real esum20(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum21(T const& array)
+amrex::Real esum21(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -4503,10 +4501,10 @@ Real esum21(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -4521,7 +4519,7 @@ Real esum21(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -4932,10 +4930,10 @@ Real esum21(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum22(T const& array)
+amrex::Real esum22(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -4950,10 +4948,10 @@ Real esum22(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -4968,7 +4966,7 @@ Real esum22(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -5379,10 +5377,10 @@ Real esum22(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum23(T const& array)
+amrex::Real esum23(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -5397,10 +5395,10 @@ Real esum23(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -5415,7 +5413,7 @@ Real esum23(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -5866,10 +5864,10 @@ Real esum23(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum24(T const& array)
+amrex::Real esum24(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -5884,10 +5882,10 @@ Real esum24(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -5902,7 +5900,7 @@ Real esum24(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -6353,10 +6351,10 @@ Real esum24(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum25(T const& array)
+amrex::Real esum25(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -6371,10 +6369,10 @@ Real esum25(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -6389,7 +6387,7 @@ Real esum25(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -6880,10 +6878,10 @@ Real esum25(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum26(T const& array)
+amrex::Real esum26(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -6898,10 +6896,10 @@ Real esum26(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -6916,7 +6914,7 @@ Real esum26(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -7407,10 +7405,10 @@ Real esum26(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum27(T const& array)
+amrex::Real esum27(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -7425,10 +7423,10 @@ Real esum27(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -7443,7 +7441,7 @@ Real esum27(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -7974,10 +7972,10 @@ Real esum27(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum28(T const& array)
+amrex::Real esum28(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -7992,10 +7990,10 @@ Real esum28(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -8010,7 +8008,7 @@ Real esum28(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -8541,10 +8539,10 @@ Real esum28(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum29(T const& array)
+amrex::Real esum29(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -8559,10 +8557,10 @@ Real esum29(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -8577,7 +8575,7 @@ Real esum29(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -9148,10 +9146,10 @@ Real esum29(T const& array)
 
 template<class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum30(T const& array)
+amrex::Real esum30(T const& array)
 {
     // return value
-    Real esum;
+    amrex::Real esum;
 
     // Indices for tracking the partials array.
     // j keeps track of how many entries in partials are actually used.
@@ -9166,10 +9164,10 @@ Real esum30(T const& array)
 
     // Note that for performance reasons we are not
     // initializing any unused values in this array.
-    Array1D<Real, 0, 4> partials;
+    Array1D<amrex::Real, 0, 4> partials;
 
     // Some temporary variables for holding intermediate data.
-    Real x, y, z;
+    amrex::Real x, y, z;
 
     // These temporary variables need to be explicitly
     // constructed for the algorithm to make sense.
@@ -9184,7 +9182,7 @@ Real esum30(T const& array)
     // compilers. In particular, Intel does not do this
     // by default, so you must use the -assume-protect-parens
     // flag for ifort.
-    Real hi, lo;
+    amrex::Real hi, lo;
 
     // The first partial is just the first term.
     esum = array(1);
@@ -9755,10 +9753,10 @@ Real esum30(T const& array)
 
 template<int n, class T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real esum(T const& array)
+amrex::Real esum(T const& array)
 {
     // return value
-    Real sum = 0.0_rt;
+    amrex::Real sum = 0.0_rt;
 
     switch (n) {
     case 1:
