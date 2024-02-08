@@ -9,16 +9,16 @@
 #include <actual_network.H>
 #endif
 
-using namespace amrex;
+using namespace amrex::literals;
 
 #ifdef AUX_THERMO
 using namespace AuxZero;
 #endif
 
 struct eos_xderivs_t {
-  Real dedX[NumSpec];
-  Real dpdX[NumSpec];
-  Real dhdX[NumSpec];
+  amrex::Real dedX[NumSpec];
+  amrex::Real dpdX[NumSpec];
+  amrex::Real dhdX[NumSpec];
 };
 
 #ifdef AUX_THERMO
@@ -65,7 +65,7 @@ void composition (T& state)
 
 #else
 
-  Real sum = 0;
+  amrex::Real sum = 0;
   for (int n = 0; n < NumSpec; n++) {
     sum += state.xn[n] * zion[n] * aion_inv[n];
   }
