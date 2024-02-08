@@ -187,7 +187,7 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
-            if (istate == 2) {
+            if (istate == IERR_SUCCESS) {
                 std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
             }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
