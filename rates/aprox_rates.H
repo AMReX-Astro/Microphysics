@@ -2030,8 +2030,8 @@ void langanke(const amrex::Real btemp, const amrex::Real bden,
     const amrex::Real tfac1 = tfm*tf0*tf2*tfd1(jp);
     const amrex::Real tfac2 = tfm*tf0*tf1*tfd2(jp);
 
-    Array1D<amrex::Real, 1, 2> rnt;
-    Array2D<amrex::Real, 1, 2, 1, 14> rne;
+    amrex::Array1D<amrex::Real, 1, 2> rnt;
+    amrex::Array2D<amrex::Real, 1, 2, 1, 14> rne;
 
     // evaluate the spline fits
     for (auto jr = 1; jr <= 2; ++jr) {
