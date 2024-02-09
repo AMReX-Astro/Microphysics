@@ -4,7 +4,7 @@
 #include <AMReX.H>
 #include <cmath>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 struct tf_t {
     amrex::Real temp;

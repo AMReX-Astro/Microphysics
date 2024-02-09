@@ -1,6 +1,6 @@
-*****************
-StarKiller Basics
-*****************
+*********************
+Microphysics Overview
+*********************
 
 Getting Started (Standalone)
 ============================
@@ -133,5 +133,7 @@ solvers (ODE integration for the network and Newton-Raphson root
 finding for the EOS) is separated from the specific implementations of
 the microphysics.
 
-**All quantities are assumed to be in CGS units**, unless otherwise
-specified.
+.. note::
+
+   All quantities are assumed to be in CGS units, unless otherwise
+   specified.

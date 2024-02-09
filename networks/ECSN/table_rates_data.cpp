@@ -9,24 +9,24 @@ namespace rate_tables
 {
 
     AMREX_GPU_MANAGED table_t j_F20_O20_meta;
-    AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_F20_O20_data;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_F20_O20_rhoy;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_F20_O20_temp;
+    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_F20_O20_data;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_F20_O20_rhoy;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_F20_O20_temp;
 
     AMREX_GPU_MANAGED table_t j_Ne20_F20_meta;
-    AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_Ne20_F20_data;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_Ne20_F20_rhoy;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_Ne20_F20_temp;
+    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_Ne20_F20_data;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_Ne20_F20_rhoy;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_Ne20_F20_temp;
 
     AMREX_GPU_MANAGED table_t j_O20_F20_meta;
-    AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_O20_F20_data;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_O20_F20_rhoy;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_O20_F20_temp;
+    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_O20_F20_data;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_O20_F20_rhoy;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_O20_F20_temp;
 
     AMREX_GPU_MANAGED table_t j_F20_Ne20_meta;
-    AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_F20_Ne20_data;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_F20_Ne20_rhoy;
-    AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_F20_Ne20_temp;
+    AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_F20_Ne20_data;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_F20_Ne20_rhoy;
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_F20_Ne20_temp;
 
 
 }
