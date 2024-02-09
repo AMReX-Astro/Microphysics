@@ -18,7 +18,7 @@ using namespace integrator_rp;
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -87,13 +87,13 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
 #ifndef AMREX_USE_GPU
-    Real xn_in[NumSpec];
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
-    const Real T_in = state.T;
+    const amrex::Real T_in = state.T;
 #endif
-    const Real e_in = state.e;
+    const amrex::Real e_in = state.e;
 
     // Call the integration routine.
 
@@ -177,7 +177,7 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
-            if (istate == 2) {
+            if (istate == IERR_SUCCESS) {
                 std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
             }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;

@@ -21,7 +21,7 @@ struct rkc_t {
    amrex::Real tout;
 
     // Integration array
-    Array1D<Real, 1, int_neqs> y;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y;
 
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
@@ -65,11 +65,11 @@ struct rkc_t {
 
     amrex::Real hmax;
 
-    Array1D<Real, 1, int_neqs> yn;
-    Array1D<Real, 1, int_neqs> fn;
-    Array1D<Real, 1, int_neqs> yjm1;    // sometimes called vtemp1 in rkc.f
-    Array1D<Real, 1, int_neqs> yjm2;    // sometimes called vtemp2 in rkc.f
-    Array1D<Real, 1, int_neqs> sprad;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yn;
+    amrex::Array1D<amrex::Real, 1, int_neqs> fn;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm1;    // sometimes called vtemp1 in rkc.f
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm2;    // sometimes called vtemp2 in rkc.f
+    amrex::Array1D<amrex::Real, 1, int_neqs> sprad;
 
     // the following a variables that were in the RKCDID common
     // block

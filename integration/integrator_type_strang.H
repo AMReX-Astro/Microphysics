@@ -45,7 +45,7 @@ void burn_to_integrator (const BurnT& state, I& int_state)
 
 template <typename BurnT, typename I>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (const Real time, BurnT& state, I& int_state)
+void clean_state (const amrex::Real time, BurnT& state, I& int_state)
 {
     amrex::ignore_unused(time);
     amrex::ignore_unused(state);
@@ -69,7 +69,7 @@ void clean_state (const Real time, BurnT& state, I& int_state)
     // Renormalize the abundances as necessary.
 
     if (renormalize_abundances) {
-        Real sum = 0.0_rt;
+        amrex::Real sum = 0.0_rt;
 
         for (int n = 1; n <= NumSpec; ++n) {
             sum += int_state.y(n);
