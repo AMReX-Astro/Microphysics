@@ -23,7 +23,7 @@
 #include <fundamental_constants.H>
 #include <eos_type.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 const std::string eos_name = "ztwd";
 

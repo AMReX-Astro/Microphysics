@@ -24,7 +24,7 @@ using namespace integrator_rp;
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
+void rhs (const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_unused]] const bool in_jacobian=false)
 {
 
     // We are integrating a system of
@@ -114,7 +114,7 @@ void rhs (const Real time, BurnT& state, T& int_state, RArray1D& ydot, [[maybe_u
 // Analytical Jacobian
 template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac ([[maybe_unused]] const Real time, BurnT& state, T& int_state, MatrixType& pd)
+void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
     // Only do the burn if the incoming temperature is within the temperature
