@@ -14,7 +14,7 @@
 
 template<typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void circle_theorem_sprad(const Real time, BurnT& state, T& int_state, Real& sprad)
+void circle_theorem_sprad(const amrex::Real time, BurnT& state, T& int_state, amrex::Real& sprad)
 {
 
     ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> jac_array;
@@ -24,10 +24,10 @@ void circle_theorem_sprad(const Real time, BurnT& state, T& int_state, Real& spr
     // the Gershgorin circle theorem says that the spectral radius is <
     // max_i ( -a_{ii} + sum_{j,j!=i} |a_{ij}|)
 
-    sprad = std::numeric_limits<Real>::lowest();
+    sprad = std::numeric_limits<amrex::Real>::lowest();
 
     for (int irow = 1; irow <= INT_NEQS; ++irow) {
-        Real rho = -jac_array(irow, irow);
+        amrex::Real rho = -jac_array(irow, irow);
         for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
             if (jcol == irow) {
                 continue;
