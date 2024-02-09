@@ -13,13 +13,27 @@
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt)
+void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     rkc_t<int_neqs> rkc_state{};
 
     // Set the tolerances.
+
+    if (!is_retry) {
+        rkc_state.atol_spec = atol_spec;  // mass fractions
+        rkc_state.atol_enuc = atol_enuc;  // energy generated
+
+        rkc_state.rtol_spec = rtol_spec;  // mass fractions
+        rkc_state.rtol_enuc = rtol_enuc;  // energy generated
+    } else {
+        rkc_state.atol_spec = retry_atol_spec; // mass fractions
+        rkc_state.atol_enuc = retry_atol_enuc; // energy generated
+
+        rkc_state.rtol_spec = retry_rtol_spec; // mass fractions
+        rkc_state.rtol_enuc = retry_rtol_enuc; // energy generated
+    }
 
     rkc_state.atol_spec = atol_spec; // mass fractions
     rkc_state.atol_enuc = atol_enuc; // energy generated

@@ -73,11 +73,11 @@ void actual_eos (I input, T& state)
     static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
     // Get the mass of a nucleon from Avogadro's number.
-    const Real m_nucleon = 1.0_rt / C::n_A;
+    const amrex::Real m_nucleon = 1.0_rt / C::n_A;
 
     // Special gamma factors
-    Real sumY_gm1 = 0.0_rt;
-    Real sumYg_gm1 = 0.0_rt;
+    amrex::Real sumY_gm1 = 0.0_rt;
+    amrex::Real sumYg_gm1 = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         sumY_gm1 = sumY_gm1 + state.xn[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
         sumYg_gm1 = sumYg_gm1 + state.xn[n] * gammas[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
@@ -88,7 +88,7 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens;
+    amrex::Real temp, dens;
 
     switch (input) {
 
@@ -201,9 +201,9 @@ void actual_eos (I input, T& state)
 
     state.T   = temp;
     state.rho = dens;
-    Real pres = dens * (C::k_B / m_nucleon) * temp / state.abar;
-    Real ener = (C::k_B / m_nucleon) * temp * sumY_gm1;
-    Real enth = ener + pres / dens;
+    amrex::Real pres = dens * (C::k_B / m_nucleon) * temp / state.abar;
+    amrex::Real ener = (C::k_B / m_nucleon) * temp * sumY_gm1;
+    amrex::Real enth = ener + pres / dens;
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
@@ -229,29 +229,29 @@ void actual_eos (I input, T& state)
     }
 
     // Compute the thermodynamic derivatives and specific heats
-    Real dpdT = pres / temp;
-    Real dpdr = pres / dens;
+    amrex::Real dpdT = pres / temp;
+    amrex::Real dpdr = pres / dens;
     if constexpr (has_pressure<T>::value) {
         state.dpdT = dpdT;
         state.dpdr = dpdr;
     }
 
-    Real dedT = ener / temp;
-    Real dedr = 0.0_rt;
+    amrex::Real dedT = ener / temp;
+    amrex::Real dedr = 0.0_rt;
     if constexpr (has_energy<T>::value) {
         state.dedT = dedT;
         state.dedr = dedr;
     }
 
-    Real dsdT = 0.0_rt;
-    Real dsdr = 0.0_rt;
+    amrex::Real dsdT = 0.0_rt;
+    amrex::Real dsdr = 0.0_rt;
     if constexpr (has_entropy<T>::value) {
         state.dsdT = dsdT;
         state.dsdr = dsdr;
     }
 
-    Real dhdT = dedT + dpdT / dens;
-    Real dhdr = 0.0_rt;
+    amrex::Real dhdT = dedT + dpdT / dens;
+    amrex::Real dhdr = 0.0_rt;
     if constexpr (has_enthalpy<T>::value) {
         state.dhdT = dhdT;
         state.dhdr = dhdr;

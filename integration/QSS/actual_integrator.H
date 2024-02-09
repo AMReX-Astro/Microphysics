@@ -198,7 +198,7 @@ bool corrector (const BurnT& state_0, const Array1D<Real, 1, NumSpec>& f_minus_0
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt)
+void actual_integrator (BurnT& state, Real dt, const bool is_retry=false)
 {
     initialize_state(state);
 
