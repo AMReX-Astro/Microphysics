@@ -4,7 +4,7 @@
 
 #include <AMReX_ParmParse.H>
 #include <AMReX_MultiFab.H>
-using namespace amrex;
+//using namespace amrex;
 
 #include <extern_parameters.H>
 #include <eos.H>

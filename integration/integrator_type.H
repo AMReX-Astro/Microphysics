@@ -7,7 +7,7 @@ using namespace integrator_rp;
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_density_in_time(const Real time, BurnT& state)
+void update_density_in_time(const amrex::Real time, BurnT& state)
 {
 
     // some quantities are only advected.  Here we update those state
