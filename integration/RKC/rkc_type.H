@@ -95,7 +95,7 @@ struct rkc_t {
 };
 
 #ifdef SDC
-#include <integrator_type_simplified_sdc.H>
+#include <integrator_type_sdc.H>
 #endif
 #ifdef STRANG
 #include <integrator_type_strang.H>
