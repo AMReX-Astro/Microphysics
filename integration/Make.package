@@ -17,8 +17,8 @@ CEXE_headers += integrator_data.H
 CEXE_headers += integrator_type.H
 
 ifeq ($(USE_ALL_SDC), TRUE)
-  CEXE_headers += integrator_rhs_simplified_sdc.H
-  CEXE_headers += integrator_type_simplified_sdc.H
+  CEXE_headers += integrator_rhs_sdc.H
+  CEXE_headers += integrator_type_sdc.H
 else
   CEXE_headers += integrator_type_strang.H
   CEXE_headers += integrator_rhs_strang.H
@@ -26,7 +26,7 @@ endif
 
 ifeq ($(USE_NSE_TABLE), TRUE)
   ifeq ($(USE_ALL_SDC), TRUE)
-    CEXE_headers += nse_update_simplified_sdc.H
+    CEXE_headers += nse_update_sdc.H
   else
     CEXE_headers += nse_update_strang.H
   endif
