@@ -12,30 +12,30 @@
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real initial_react_dt (BurnT& burn_state, IntT& int_state,
-                     Array1D<Real, 1, INT_NEQS>& ydot)
+amrex::Real initial_react_dt (BurnT& burn_state, IntT& int_state,
+                              amrex::Array1D<amrex::Real, 1, INT_NEQS>& ydot)
 {
     // this is a version of the initial timestep estimator from VODE
     // we come in with int_state..y() storing the initial solution
 
     // initial lower and upper bounds on the timestep
 
-    Real hL = 100.0_rt * std::numeric_limits<Real>::epsilon() * int_state.tout;
-    Real hU = 0.1_rt * int_state.tout;
+    amrex::Real hL = 100.0_rt * std::numeric_limits<amrex::Real>::epsilon() * int_state.tout;
+    amrex::Real hU = 0.1_rt * int_state.tout;
 
     // initial guess for the itteraction
 
-    Real h = std::sqrt(hL * hU);
-    Real h_old = 10.0_rt * h;
+    amrex::Real h = std::sqrt(hL * hU);
+    amrex::Real h_old = 10.0_rt * h;
 
     // Iterate on ddydtt = (RHS(t + h, y + h * dydt) - dydt) / h
 
-    Array1D<Real, 1, INT_NEQS> ewt;
-    Array1D<Real, 1, INT_NEQS> ydot_temp;
-    Array1D<Real, 1, INT_NEQS> ddydtt;
+    amrex::Array1D<amrex::Real, 1, INT_NEQS> ewt;
+    amrex::Array1D<amrex::Real, 1, INT_NEQS> ydot_temp;
+    amrex::Array1D<amrex::Real, 1, INT_NEQS> ddydtt;
 
     // save the old state and update the stored state
-    Array1D<Real, 1, INT_NEQS> y_old;
+    amrex::Array1D<amrex::Real, 1, INT_NEQS> y_old;
     for (int n = 1; n <= INT_NEQS; ++n) {
         y_old(n) = int_state.y(n);
     }
@@ -66,7 +66,7 @@ Real initial_react_dt (BurnT& burn_state, IntT& int_state,
            ddydtt(ii) = (ydot_temp(ii) - ydot(ii)) / h;
        }
 
-       Real yddnorm = 0.0_rt;
+       amrex::Real yddnorm = 0.0_rt;
        for (int ii = 1; ii <= INT_NEQS; ii++) {
            yddnorm += amrex::Math::powi<2>(ddydtt(ii) * ewt(ii));
        }
@@ -86,7 +86,7 @@ Real initial_react_dt (BurnT& burn_state, IntT& int_state,
 
     // Save the final timestep, with a bias factor.
 
-    Real dt = h / 2.0_rt;
+    amrex::Real dt = h / 2.0_rt;
     dt = amrex::min(amrex::max(h, hL), hU);
 
     dt = amrex::min(dt, ode_max_dt);

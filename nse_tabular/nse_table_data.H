@@ -4,8 +4,6 @@
 #include <AMReX_Array.H>
 #include <AMReX_REAL.H>
 
-using namespace amrex;
-
 #include <network_properties.H>
 #include <nse_table_size.H>
 

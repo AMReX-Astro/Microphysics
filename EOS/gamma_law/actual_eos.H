@@ -53,13 +53,13 @@ void actual_eos (I input, T& state)
     static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
     // Get the mass of a nucleon from m_u.
-    const Real m_nucleon = C::m_u;
+    const amrex::Real m_nucleon = C::m_u;
 
     if constexpr (has_xn<T>::value) {
         if (eos_assume_neutral) {
             state.mu = state.abar;
         } else {
-            Real sum = 0.0;
+            amrex::Real sum = 0.0;
             for (int n = 0; n < NumSpec; n++) {
                 sum += (zion[n] + 1.0) * state.xn[n] * aion_inv[n];
             }
@@ -193,13 +193,13 @@ void actual_eos (I input, T& state)
     // Now we have the density and temperature (and mass fractions /
     // mu), regardless of the inputs.
 
-    Real Tinv = 1.0 / state.T;
-    Real rhoinv = 1.0 / state.rho;
+    amrex::Real Tinv = 1.0 / state.T;
+    amrex::Real rhoinv = 1.0 / state.rho;
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
-    Real pressure = state.rho * state.T * C::k_B / (state.mu * m_nucleon);
-    Real energy = pressure / (eos_gamma - 1.0) * rhoinv;
+    amrex::Real pressure = state.rho * state.T * C::k_B / (state.mu * m_nucleon);
+    amrex::Real energy = pressure / (eos_gamma - 1.0) * rhoinv;
     if constexpr (has_pressure<T>::value) {
         state.p = pressure;
     }
@@ -215,7 +215,7 @@ void actual_eos (I input, T& state)
     // entropy (per gram) of an ideal monoatomic gas (the Sackur-Tetrode equation)
     // NOTE: this expression is only valid for gamma = 5/3.
     if constexpr (has_entropy<T>::value) {
-        const Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
+        const amrex::Real fac = 1.0 / std::pow(2.0 * M_PI * C::hbar * C::hbar, 1.5);
 
         state.s = (C::k_B / (state.mu * m_nucleon)) *
                   (2.5 + std::log((std::pow(state.mu * m_nucleon, 2.5) * rhoinv) *

@@ -10,7 +10,7 @@ const int INT_NEQS = NumSpec + 1;
 // We will use this parameter to determine if a given species
 // abundance is unreasonably small or large (each X must satisfy
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
-const Real species_failure_tolerance = 1.e-2_rt;
+const amrex::Real species_failure_tolerance = 1.e-2_rt;
 
 enum integrator_errors {
     IERR_SUCCESS = 1,
@@ -46,7 +46,7 @@ constexpr int integrator_neqs ()
 }
 
 typedef amrex::Array1D<short, 1, INT_NEQS> IArray1D;
-typedef amrex::Array1D<Real, 1, INT_NEQS> RArray1D;
+typedef amrex::Array1D<amrex::Real, 1, INT_NEQS> RArray1D;
 typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
 
 #endif
