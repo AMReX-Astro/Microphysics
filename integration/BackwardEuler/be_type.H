@@ -11,7 +11,7 @@
 #include <integrator_type_strang.H>
 #endif
 #ifdef SDC
-#include <integrator_type_simplified_sdc.H>
+#include <integrator_type_sdc.H>
 #endif
 #include <network.H>
 

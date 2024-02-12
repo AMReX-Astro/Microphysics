@@ -8,7 +8,7 @@
 #include <integrator_rhs_strang.H>
 #endif
 #ifdef SDC
-#include <integrator_rhs_simplified_sdc.H>
+#include <integrator_rhs_sdc.H>
 #endif
 #ifdef NSE_TABLE
 #include <nse_table_check.H>
