@@ -47,7 +47,6 @@ void mdegre2(RockT& rstate)
         }
         rstate.mp(2) += ms(i)*2 - 1;
     }
-    return;
 }
 
 
@@ -82,7 +81,6 @@ void mdegre4(RockT& rstate)
         }
         rstate.mp(2) += ms(i)*2 - 1;
     }
-    return;
 }
 
 
@@ -545,7 +543,7 @@ int rockcore (BurnT& state, RockT& rstate)
         } else {
             nrho = 1;
         }
-        continue;
+
     }
 
     return IERR_TOO_MANY_STEPS;
@@ -590,7 +588,7 @@ int rock (BurnT& state, RockT& rstate)
     bool valid = true;
 
     if ((rtol_spec > rmax) || (rtol_enuc > rmax) ||
-        (rtol_spec < rmin) || (rtol_spec < rmin)) {
+        (rtol_spec < rmin) || (rtol_enuc < rmin)) {
         valid = false;
     }
 
