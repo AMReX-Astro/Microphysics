@@ -158,14 +158,14 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
         std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
         std::cout << "xn start = ";
         for (auto X : xn_in) {
-            std::cout << std::setprecision(16) << xn_in[n] << " ";
+            std::cout << std::setprecision(16) << X << " ";
         }
         std::cout << std::endl;
         std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
         std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
         std::cout << "xn current = ";
         for (auto X : state.xn) {
-            std::cout << std::setprecision(16) << state.xn[n] << " ";
+            std::cout << std::setprecision(16) << X << " ";
         }
         std::cout << std::endl;
         std::cout << "energy generated = " << state.e << std::endl;
