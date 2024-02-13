@@ -9,6 +9,10 @@ on:
     branches:
       - development
 
+env:
+  # enable color output from Sphinx
+  FORCE_COLOR: "1"
+
 jobs:
   docs:
     runs-on: ubuntu-latest
@@ -33,7 +37,7 @@ jobs:
       - name: Build docs
         run: |
           cd sphinx_docs/
-          make SPHINXOPTS=-v html
+          make SPHINXOPTS='-v -W --keep-going' html
 
       - name: Link check
         run: |
