@@ -156,7 +156,7 @@ void initialize_int_state (IntT& int_state)
 }
 
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 {
     using namespace microphysics::forward_euler;

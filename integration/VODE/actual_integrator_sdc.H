@@ -17,7 +17,7 @@
 using namespace integrator_rp;
 
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
