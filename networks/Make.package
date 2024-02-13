@@ -23,8 +23,6 @@ ifeq ($(USE_REACT), TRUE)
 
   VPATH_LOCATIONS += $(MICROPHYSICS_HOME)/networks
 
-  CEXE_headers += rate_type.H
-
   CEXE_headers += rhs.H
   CEXE_sources += rhs.cpp
 
