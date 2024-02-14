@@ -14,7 +14,7 @@
 #include <integrator_rhs_strang.H>
 #endif
 #ifdef SDC
-#include <integrator_rhs_simplified_sdc.H>
+#include <integrator_rhs_sdc.H>
 #endif
 #include <integrator_data.H>
 #include <initial_timestep.H>

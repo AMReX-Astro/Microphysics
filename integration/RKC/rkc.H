@@ -9,8 +9,8 @@
 #include <integrator_rhs_strang.H>
 #endif
 #ifdef SDC
-#include <integrator_type_simplified_sdc.H>
-#include <integrator_rhs_simplified_sdc.H>
+#include <integrator_type_sdc.H>
+#include <integrator_rhs_sdc.H>
 #endif
 #include <circle_theorem.H>
 #include <integrator_data.H>

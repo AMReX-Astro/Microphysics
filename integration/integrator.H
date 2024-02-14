@@ -2,7 +2,7 @@
 #define INTEGRATOR_H
 
 #ifdef SDC
-#include <actual_integrator_simplified_sdc.H>
+#include <actual_integrator_sdc.H>
 #else
 #include <actual_integrator.H>
 #endif

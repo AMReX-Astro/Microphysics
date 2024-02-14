@@ -3,18 +3,24 @@
 
 #include <iomanip>
 
-#include <be_type.H>
-#include <be_integrator.H>
+#include <network.H>
+#include <burn_type.H>
+#include <eos_type.H>
+#include <eos.H>
 #include <extern_parameters.H>
 #include <integrator_data.H>
+#include <rkc_type.H>
+#include <rkc.H>
+
+using namespace integrator_rp;
 
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_integrator (BurnT& state, Real dt)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    be_t<int_neqs> be;
+    rkc_t<int_neqs> rkc_state{};
 
     // Start off by assuming a successful burn.
 
@@ -22,19 +28,12 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
 
     // Initialize the integration time.
 
-    be.t = 0.0;
-    be.tout = dt;
-
-    // set the Jacobian type
-    if (is_retry && retry_swap_jacobian) {
-        be.jacobian_type = (jacobian == 1) ? 2 : 1;
-    } else {
-        be.jacobian_type = jacobian;
-    }
+    rkc_state.t = 0.0_rt;
+    rkc_state.tout = dt;
 
     // Fill in the initial integration state.
 
-    burn_to_int(state, be);
+    burn_to_int(state, rkc_state);
 
     // Save the initial composition and temperature for our later diagnostics.
 
@@ -59,58 +58,42 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
 
     Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
 
-    // we use 1-based indexing inside of BackwardEuler, so we need to shift the
+    // we use 1-based indexing inside of RKC, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
     Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
 
-    if (!is_retry) {
-
-        be.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
-        be.rtol_enuc = rtol_enuc * sdc_tol_fac;
-
-        // Note: we define the input atol for species to refer only to the
-        // mass fraction part, and we multiply by a representative density
-        // so that atol becomes an absolutely tolerance on (rho X)
-
-        be.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
-        be.rtol_spec = rtol_spec * sdc_tol_fac;
-
-    } else {
-
-        be.atol_enuc = sdc_min_density * retry_atol_enuc * sdc_tol_fac;
-        be.rtol_enuc = retry_rtol_enuc * sdc_tol_fac;
-
-        // Note: we define the input atol for species to refer only to the
-        // mass fraction part, and we multiply by a representative density
-        // so that atol becomes an absolutely tolerance on (rho X)
-
-        be.atol_spec = sdc_min_density * retry_atol_spec * sdc_tol_fac;
-        be.rtol_spec = retry_rtol_spec * sdc_tol_fac;
-
-    }
+    rkc_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
+    rkc_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
 
     if (scale_system) {
         // the absolute tol for energy needs to reflect the scaled
         // energy the integrator sees
-        be.atol_enuc /= state.e_scale;
+        rkc_state.atol_enuc /= state.e_scale;
     }
+
+    // Note: we define the input atol for species to refer only to the
+    // mass fraction part, and we multiply by a representative density
+    // so that atol becomes an absolutely tolerance on (rho X)
+
+    rkc_state.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
+    rkc_state.rtol_spec = rtol_spec * sdc_tol_fac;
 
     // Call the integration routine.
 
-    int istate = be_integrator(state, be);
-    state.error_code = istate;
+    int ierr = rkc(state, rkc_state);
+    state.error_code = ierr;
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = be.n_rhs;
-    state.n_jac = be.n_jac;
-    state.n_step = be.n_step;
+    state.n_rhs = rkc_state.nfe;
+    state.n_jac = 0;
+    state.n_step = rkc_state.nsteps;
 
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
 
-    int_to_burn(be.t, be, state);
+    int_to_burn(rkc_state.t, rkc_state, state);
 
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative
@@ -134,8 +117,26 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
 
     normalize_abundances_sdc_burn(state);
 
-    if (istate != IERR_SUCCESS) {
+    // RKC does not always fail even though it can lead to unphysical states.
+    // Add some checks that indicate a burn fail even if RKC thinks the
+    // integration was successful.
+
+    if (ierr != IERR_SUCCESS) {
         state.success = false;
+    }
+
+    if (state.y[SEINT] < 0.0_rt) {
+        state.success = false;
+    }
+
+    for (int n = 0; n < NumSpec; ++n) {
+        if (state.y[SFS+n] / state.rho < -species_failure_tolerance) {
+            state.success = false;
+        }
+
+        if (state.y[SFS+n] / state.rho > 1.0_rt + species_failure_tolerance) {
+            state.success = false;
+        }
     }
 
 
@@ -144,7 +145,7 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
-        std::cout <<  "energy released: " << state.e << std::endl;
+        std::cout << " energy released: " << state.e << std::endl;
         std::cout <<  "number of steps taken: " << state.n_step << std::endl;
         std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
@@ -155,7 +156,7 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
     if (!state.success) {
 #ifndef AMREX_USE_GPU
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
-        std::cout << "istate = " << istate << std::endl;
+        std::cout << "ierr = " << ierr << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
         std::cout << "time = " << state.time << std::endl;
         std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
@@ -204,7 +205,6 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
 #endif
 #endif
     }
-
 
 }
 
