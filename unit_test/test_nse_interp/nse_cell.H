@@ -131,7 +131,6 @@ void nse_cell_c()
     std::cout << "abar    = " << nse_state.abar << std::endl;
     std::cout << "bea     = " << nse_state.bea << std::endl;
     std::cout << "dyedt   = " << nse_state.dyedt << std::endl;
-    std::cout << "dabardt = " << nse_state.dabardt << std::endl;
     std::cout << "dbeadt = " << nse_state.dbeadt << std::endl;
     std::cout << "e_nu    = " << nse_state.e_nu << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
@@ -161,18 +160,13 @@ void nse_cell_c()
 
     nse_interp(nse_state);
 
-    std::cout << "dAbar/dT = " << (nse_state.abar - abar_old) / (nse_state.T - T_old) << std::endl;
     std::cout << "dbea/dT = " << (nse_state.bea - bea_old) / (nse_state.T - T_old) << std::endl;
 
     std::cout << "now using derivative of the interpolant" << std::endl;
 
-    Real dabardT = nse_interp_dT(temperature, density, ye,
-                                 nse_table::abartab);
-
     Real dbeadT = nse_interp_dT(temperature, density, ye,
                                  nse_table::beatab);
 
-    std::cout << "dAbar/dT = " << dabardT << std::endl;
     std::cout << "dbea/dT = " << dbeadT << std::endl;
 
     std::cout << std::endl;
@@ -196,18 +190,13 @@ void nse_cell_c()
 
     nse_interp(nse_state);
 
-    std::cout << "dAbar/drho = " << (nse_state.abar - abar_old) / (nse_state.rho - rho_old) << std::endl;
     std::cout << "dbea/drho = " << (nse_state.bea - bea_old) / (nse_state.rho - rho_old) << std::endl;
 
     std::cout << "now using derivative of the interpolant" << std::endl;
 
-    Real dabardrho = nse_interp_drho(temperature, density, ye,
-                                     nse_table::abartab);
-
     Real dbeadrho = nse_interp_drho(temperature, density, ye,
                                     nse_table::beatab);
 
-    std::cout << "dAbar/drho = " << dabardrho << std::endl;
     std::cout << "dbea/drho = " << dbeadrho << std::endl;
 
     std::cout << std::endl;
