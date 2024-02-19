@@ -90,6 +90,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
     } else {
         rhoe_source = -rho0 * snu;
     }
+    rhoe_source += rho0 * nse_state.dbeadt * C::MeV2eV * C::ev2erg * C::n_A;
     rhoe_source += C::n_A * (C::m_n - (C::m_p + C::m_e)) * C::c_light * C::c_light * rho0 * dyedt0;
 
     amrex::Real rhoaux_source[NumAux];
