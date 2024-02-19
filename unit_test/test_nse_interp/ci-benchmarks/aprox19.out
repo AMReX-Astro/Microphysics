@@ -59,15 +59,19 @@ X(p) = 9.843630258e-06
 
 testing temperature derivatives of cubic
 first finite-difference derivatives
+dAbar/dT = -1.072562355e-09
 dbea/dT = -6.867059575e-12
 now using derivative of the interpolant
+dAbar/dT = -1.072562604e-09
 dbea/dT = -6.867048589e-12
 
 
 testing density derivatives of cubic
 first finite-difference derivatives
+dAbar/drho = 3.987525411e-10
 dbea/drho = 7.619559936e-13
 now using derivative of the interpolant
+dAbar/drho = 3.987522836e-10
 dbea/drho = 7.618831514e-13
 
 EOS T from e consistency check (old method): 1.395278886e+18 1.38844906e+18
