@@ -94,8 +94,6 @@ raw reaction rate information (usually just the temperature-dependent
 terms) between various subroutines. It does not come out of the
 network-specific righthand side or Jacobian routines.
 
-You can see their definitions in ``networks/rate_type.H``.
-
 ``burn_type.H``
 ---------------
 
@@ -128,4 +126,3 @@ state to an ``eos_t`` state, and back. Only the thermodynamic
 variables that are common in the two types are copied. This is
 useful, for example, if you have a burn_t state and what to get
 thermodynamic information by calling the EOS.
-

@@ -17,7 +17,7 @@
 #include <nse_update_strang.H>
 #endif
 #ifdef SDC
-#include <nse_update_simplified_sdc.H>
+#include <nse_update_sdc.H>
 #endif
 #endif
 

@@ -1,11 +1,11 @@
-#ifndef INTEGRATOR_RHS_SIMPLIFIED_SDC_H
-#define INTEGRATOR_RHS_SIMPLIFIED_SDC_H
+#ifndef INTEGRATOR_RHS_SDC_H
+#define INTEGRATOR_RHS_SDC_H
 
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
 
-#include <integrator_type_simplified_sdc.H>
+#include <integrator_type_sdc.H>
 #include <actual_network.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>

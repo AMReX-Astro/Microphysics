@@ -431,7 +431,6 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
         nse_state.abar = trilinear(ir1, it1, ic1, rholog, tlog, yet, abartab);
         nse_state.bea = trilinear(ir1, it1, ic1, rholog, tlog, yet, beatab);
         nse_state.dyedt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dyedttab);
-        nse_state.dabardt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dabardttab);
         nse_state.dbeadt = trilinear(ir1, it1, ic1, rholog, tlog, yet, dbeadttab);
         nse_state.e_nu = trilinear(ir1, it1, ic1, rholog, tlog, yet, enutab);
 
@@ -465,7 +464,6 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
         nse_state.abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
         nse_state.bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
         nse_state.dyedt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dyedttab);
-        nse_state.dabardt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dabardttab);
         nse_state.dbeadt = tricubic(ir0, it0, ic0, rholog, tlog, yet, dbeadttab);
         nse_state.e_nu = tricubic(ir0, it0, ic0, rholog, tlog, yet, enutab);
 

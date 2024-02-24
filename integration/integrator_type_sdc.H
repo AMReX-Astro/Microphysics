@@ -1,5 +1,5 @@
-#ifndef INTEGRATOR_TYPE_SIMPLIFIED_SDC_H
-#define INTEGRATOR_TYPE_SIMPLIFIED_SDC_H
+#ifndef INTEGRATOR_TYPE_SDC_H
+#define INTEGRATOR_TYPE_SDC_H
 
 #include <eos.H>
 #include <eos_composition.H>
