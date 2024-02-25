@@ -8,16 +8,13 @@
 #include <rhs.H>
 #include <cmath>
 
+#include <linpack.H>
+
 using namespace amrex::literals;
 
 constexpr Real eps = 1.e-2_rt;
 
-void linear_algebra() {
-
-    RArray2D A;
-
-    RArray1D x;
-    RArray1D b;
+void create_A(RArray2D& A) {
 
     // create a diagonally-dominant matrix with non-zero
     // elements only where the Jacobian terms are non-zero
@@ -38,6 +35,32 @@ void linear_algebra() {
             }
         });
     });
+
+
+}
+
+RArray1D Ax(RArray2D& A, RArray1D& x) {
+
+    RArray1D b;
+
+    for (int irow = 1; irow <= INT_NEQS; ++irow) {
+        b(irow) = 0.0_rt;
+        for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
+            b(irow) += A(irow, jcol) * x(jcol);
+        }
+    }
+
+    return b;
+}
+
+void linear_algebra() {
+
+    RArray2D A;
+
+    RArray1D x;
+    RArray1D b;
+
+    create_A(A);
 
     std::cout << "matrix A: " << std::endl;
     std::cout << std::setprecision(2);
@@ -62,12 +85,7 @@ void linear_algebra() {
 
     // now create b = A x
 
-    for (int irow = 1; irow <= INT_NEQS; ++irow) {
-        b(irow) = 0.0_rt;
-        for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
-            b(irow) += A(irow, jcol) * x(jcol);
-        }
-    }
+    b = Ax(A, x);
 
     std::cout << "vectors x and b (before the solve): " << std::endl;
 
@@ -79,19 +97,40 @@ void linear_algebra() {
 
     std::cout << std::endl;
 
-    // solve the linear system
+    // solve the linear system with the templated solver
 
     RHS::dgefa(A);
     RHS::dgesl(A, b);
 
     std::cout << std::setprecision(16);
 
-    std::cout << "original x and x from the solve: " << std::endl;
+    std::cout << "original x and x from the solve (RHS:: solve): " << std::endl;
 
     for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
         std::cout << std::setw(20) << x(jcol) << " " << std::setw(20) << b(jcol) << std::endl;
     }
 
+    std::cout << std::endl;
+
+
+    // now use the linpack.H solver
+
+    // recreate A and b
+    create_A(A);
+    b = Ax(A, x);
+
+    IArray1D pivot;
+    int info;
+
+    dgefa<INT_NEQS>(A, pivot, info);
+    dgesl<INT_NEQS>(A, pivot, b);
+
+
+    std::cout << "original x and x from the solve (linpack.H solve): " << std::endl;
+
+    for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
+        std::cout << std::setw(20) << x(jcol) << " " << std::setw(20) << b(jcol) << std::endl;
+    }
 
 }
 
