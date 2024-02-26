@@ -295,7 +295,7 @@ int rkc (BurnT& state, RkcT& rstate)
     bool valid = true;
 
     if ((rtol_spec > rmax) || (rtol_enuc > rmax) ||
-        (rtol_spec < rmin) || (rtol_spec < rmin)) {
+        (rtol_spec < rmin) || (rtol_enuc < rmin)) {
         valid = false;
     }
 

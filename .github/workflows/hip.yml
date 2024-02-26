@@ -32,10 +32,11 @@ jobs:
       - name: compile test_react with HIP (iso7)
         run: |
           cd unit_test/test_react
-          make COMP=gnu USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=iso7 -j 2
+          # -amdgpu-function-calls=true tells the compiler not to force-inline everything
+          make USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=iso7 -j 4
 
       - name: compile test_react with HIP (ignition_reaclib/URCA-simple)
         run: |
           cd unit_test/test_react
           make realclean
-          make COMP=gnu USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=ignition_reaclib/URCA-simple -j 2
+          make USE_HIP=TRUE USE_MPI=FALSE USE_OMP=FALSE USE_CUDA=FALSE NETWORK_DIR=ignition_reaclib/URCA-simple -j 4

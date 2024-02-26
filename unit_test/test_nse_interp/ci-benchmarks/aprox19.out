@@ -35,7 +35,6 @@ tricubic interpolated values:
 abar    = 55.60652462
 bea     = 8.755119523
 dyedt   = -0.004527880871
-dabardt = 1.310223024e-16
 dbeadt = 0.000111945508
 e_nu    = 1.101641642e+16
 X(H1) = 0
