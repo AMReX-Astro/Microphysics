@@ -2,7 +2,6 @@
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include <fstream>
 #include <iostream>
 #include <react_util.H>
 
@@ -14,7 +13,7 @@ void eos_cell_c()
     eos_t state;
 
     // Set mass fractions to sanitize inputs for them
-    Real massfractions[NumSpec];
+    amrex::Real massfractions[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         massfractions[n] = -1.0e0_rt;
     }

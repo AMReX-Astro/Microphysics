@@ -272,10 +272,6 @@ constexpr int is_jacobian_term_used ()
 #endif
 }
 
-typedef amrex::Array1D<int, 1, INT_NEQS> IArray1D;
-typedef amrex::Array1D<amrex::Real, 1, INT_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgesl (RArray2D& a1, RArray1D& b1)
 {
