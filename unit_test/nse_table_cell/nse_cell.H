@@ -27,7 +27,6 @@ void nse_cell_c()
     std::cout << "Abar = " << nse_state.abar << std::endl;
     std::cout << "<B/A> = " << nse_state.bea << std::endl;
     std::cout << "dYe/dt = " << nse_state.dyedt << std::endl;
-    std::cout << "dAbar/dt = " << nse_state.dabardt << std::endl;
     std::cout << "d<B/A>/dt = " << nse_state.dbeadt << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "X(" << short_spec_names_cxx[n] << ") = " << nse_state.X[n] << std::endl;
