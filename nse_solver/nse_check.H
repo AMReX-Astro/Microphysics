@@ -159,8 +159,8 @@ void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indice
 
   // sort indices just to make sure
 
-  bubbleSort_Array1D<1, 3>(reactants_indices);
-  bubbleSort_Array1D<1, 3>(products_indices);
+  bubbleSort_Array1D(reactants_indices);
+  bubbleSort_Array1D(products_indices);
 
   // check for which rate matches these input indices
   // fill in the corresponding rate_index by providing array of reactants and products indices
