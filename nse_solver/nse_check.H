@@ -740,7 +740,8 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_timescales,
                              const int current_rate_index, const burn_t& state,
                              const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
-                             const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates) {
+                             const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
+                             const amrex::Real t_s) {
     // This function fills in the timescale of the reaction for the rates that
     // are compatible for NSE.
 
@@ -768,6 +769,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     //
     // 3) If there are more than 2 non neutron, proton, or helium-4 in the rate
     //
+
     amrex::Array1D<int, 1, 2> non_NHA_ind = {-1, -1};
     int non_NHA_counts = 0;
     for (int k = 2; k <= 6; ++k) {
@@ -823,7 +825,7 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
         b_r *= Y(NSE_INDEX::rate_indices(current_rate_index, 5) + 1) * state.rho;
     }
 
-    // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
+    // Find the timescale of the rate, See Equation 11 in Kushnir
 
     //
     // Note that here I made a simplification compared to Kushnir:
@@ -834,9 +836,9 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // isotopes into groups, so we need to do calculations iteratively.
     //
 
-    amrex::Real t_i = Y(nonNPA_ind(1)) / amrex::min(b_f, b_r);
-    if (nonNPA_ind(2) != -1) {
-        t_i = amrex::min(t_i, Y(nonNPA_ind(2)) / amrex::min(b_f, b_r));
+    amrex::Real t_i = Y(nonNHA_ind(1)) / amrex::min(b_f, b_r);
+    if (nonNHA_ind(2) != -1) {
+        t_i = amrex::min(t_i, Y(nonNHA_ind(2)) / amrex::min(b_f, b_r));
     }
 
     //
@@ -1032,44 +1034,44 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
                   const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
                   const amrex::Real& t_s) {
 
-  // This function groups all the nuclei using group_ind
-  // which contains the node #
+    // This function groups all the nuclei using group_ind
+    // which contains the node #
 
-  // fill in initial group_ind, group_ind go from 1 to NumSpec
+    // fill in initial group_ind, group_ind go from 1 to NumSpec
 
-  for (int i = 1; i <= NumSpec; ++i) {
-    group_ind(i) = i;
+    for (int i = 1; i <= NumSpec; ++i) {
+        group_ind(i) = i;
 
-    // let n,p,a form the same group (LIG) initially, let 1 be index of LIG
+        // let n,p,a form the same group (LIG) initially, let 1 be index of LIG
 
-    if (i == NSE_INDEX::H1_index + 1 || i == NSE_INDEX::N_index + 1
-        || i == NSE_INDEX::He4_index + 1) {
+        if (i == NSE_INDEX::H1_index + 1 || i == NSE_INDEX::N_index + 1
+            || i == NSE_INDEX::He4_index + 1) {
 
-      // group_ind(i) = NSE_INDEX::He4_index;
+            // group_ind(i) = NSE_INDEX::He4_index;
 
-      group_ind(i) = 1;
+            group_ind(i) = 1;
+        }
     }
-  }
 
-  // Let's first create an array for reaction_timescales and reaction_indices
-  // Then fill in the reaction timescale and index for each rate.
+    // Let's first create an array for reaction_timescales and reaction_indices
+    // Then fill in the reaction timescale and index for each rate.
 
-  amrex::Array1D<amrex::Real, 1, Rates::NumRates> reaction_timescales;
-  amrex::Array1D<amrex::Real, 1, Rates::NumRates> rate_indices;
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates> reaction_timescales;
+    amrex::Array1D<amrex::Real, 1, Rates::NumRates> rate_indices;
 
-  for (int n = 1; n <= Rates::NumRates; ++n) {
-      fill_reaction_timescale(reaction_timescales, n, Y,
-                              state, screened_rates);
-      rate_indices(n) = n;
-  }
+    for (int n = 1; n <= Rates::NumRates; ++n) {
+        fill_reaction_timescale(reaction_timescales, n, Y,
+                                state, screened_rates);
+        rate_indices(n) = n;
+    }
 
-  //
-  // Sort rate_indices using reaction_timescales.
-  // The sorted rate_indices should correspond to reactions
-  // from smallest (fastest) to largest (slowest) timescale
-  //
+    //
+    // Sort rate_indices using reaction_timescales.
+    // The sorted rate_indices should correspond to reactions
+    // from smallest (fastest) to largest (slowest) timescale
+    //
 
-  quickSort_Array1D(rate_indices, reaction_timescales)
+    quickSort_Array1D(rate_indices, reaction_timescales);
 
   // // Now do the grouping based on the timescale.
 
