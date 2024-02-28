@@ -12,6 +12,7 @@
 #endif
 #include <integrator_data.H>
 
+
 using namespace integrator_rp;
 
 ///
@@ -204,8 +205,14 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // scale the energy derivatives
     if (scale_system) {
+        // first the de/dX row
         for (int n = 1; n <= INT_NEQS; ++n) {
             jac(net_ienuc, n) /= state.e_scale;
+        }
+
+        // now the dX/de column
+        for (int m = 1; m <= INT_NEQS; ++m) {
+            jac(m, net_ienuc) *= state.e_scale;
         }
     }
 
