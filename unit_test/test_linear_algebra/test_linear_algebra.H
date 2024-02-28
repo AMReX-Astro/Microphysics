@@ -122,8 +122,10 @@ void linear_algebra() {
     IArray1D pivot;
     int info;
 
-    dgefa<INT_NEQS>(A, pivot, info);
-    dgesl<INT_NEQS>(A, pivot, b);
+    constexpr bool allow_pivot{true};
+
+    dgefa<INT_NEQS, allow_pivot>(A, pivot, info);
+    dgesl<INT_NEQS, allow_pivot>(A, pivot, b);
 
 
     std::cout << "original x and x from the solve (linpack.H solve): " << std::endl;
