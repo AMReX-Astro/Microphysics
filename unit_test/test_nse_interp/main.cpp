@@ -1,10 +1,4 @@
 #include <iostream>
-#include <cstring>
-#include <vector>
-
-#include <AMReX_ParmParse.H>
-#include <AMReX_MultiFab.H>
-using namespace amrex;
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -17,8 +11,6 @@ int main(int argc, char *argv[]) {
   amrex::Initialize(argc, argv);
 
   std::cout << "starting the single zone burn..." << std::endl;
-
-  ParmParse ppa("amr");
 
   init_unit_test();
 
