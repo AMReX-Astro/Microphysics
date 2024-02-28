@@ -96,14 +96,27 @@ int single_step (BurnT& state, BeT& be, const Real dt)
 
         int ierr_linpack;
         IArray1D pivot;
-        dgefa<int_neqs>(be.jac, pivot, ierr_linpack);
+
+        if (integrator_rp::linalg_do_pivoting == 1) {
+            constexpr bool allow_pivot{true};
+            dgefa<int_neqs, allow_pivot>(be.jac, pivot, ierr_linpack);
+        } else {
+            constexpr bool allow_pivot{false};
+            dgefa<int_neqs, allow_pivot>(be.jac, pivot, ierr_linpack);
+        }
 
         if (ierr_linpack != 0) {
             ierr = IERR_LU_DECOMPOSITION_ERROR;
             break;
         }
 
-        dgesl<int_neqs>(be.jac, pivot, b);
+        if (integrator_rp::linalg_do_pivoting == 1) {
+            constexpr bool allow_pivot{true};
+            dgesl<int_neqs, allow_pivot>(be.jac, pivot, b);
+        } else {
+            constexpr bool allow_pivot{false};
+            dgesl<int_neqs, allow_pivot>(be.jac, pivot, b);
+        }
 
         // update our current guess for the solution
 
