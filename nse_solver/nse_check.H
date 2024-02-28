@@ -735,6 +735,123 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
   return in_single_group;
 }
 
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_timescales,
+                             const int current_rate_index, const burn_t& state,
+                             const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
+                             const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates) {
+    // This function fills in the timescale of the reaction for the rates that
+    // are compatible for NSE.
+
+    // Default to the largest possible timescale
+
+    constexpr amrex::Real max_timescale = std::numeric_limits<amrex::Real>::max();
+    reaction_timescales(current_rate_index) = max_timescale;
+
+    //
+    // Few conditions to check:
+    // 1) skip if there is no reverse rate involved.
+    // 2) skip when reaction has more than 3 reactants or products involved
+    // If these conditions are met, we don't consider them for NSE
+    // so we assume they have the largest (slowest) timescale
+    //
+
+    int reverse_rate_index = NSE_INDEX::rate_indices(current_rate_index, 7);
+    if ( (reverse_rate_index == -1)
+         || (NSE_INDEX::rate_indices(current_rate_index, 1) != -1)
+         || (NSE_INDEX::rate_indices(current_rate_index, 4) != -1)
+        ) {
+        return;
+    }
+
+    //
+    // 3) If there are more than 2 non neutron, proton, or helium-4 in the rate
+    //
+    amrex::Array1D<int, 1, 2> non_NHA_ind = {-1, -1};
+    int non_NHA_counts = 0;
+    for (int k = 2; k <= 6; ++k) {
+
+        if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
+            continue;
+        }
+
+        if (NSE_INDEX::N_INDEX == -1 &&
+            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
+            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
+
+            // Case when we don't have neutron in the network
+
+            ++non_NHA_counts;
+        }
+
+        else if (NSE_INDEX::N_INDEX != -1 &&
+                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index &&
+                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
+                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
+
+            // Case when we have neutron in the network
+
+            ++non_NHA_counts;
+        }
+
+        if (non_NHA_counts > 2) {
+            return;
+        }
+        non_NHA_ind(non_NHA_counts) = k;
+    }
+
+    // Calculate the forward and reverse rates of the current rate index
+
+    amrex::Real b_f;
+    amrex::Real b_r;
+
+    b_f = screened_rates(current_rate_index) * Y(NSE_INDEX::rate_indices(current_rate_index, 3) + 1);
+    b_r = screened_rates(reverse_rate_index) * Y(NSE_INDEX::rate_indices(current_rate_index, 6) + 1);
+
+    if (NSE_INDEX::rate_indices(current_rate_index, 2) != -1) {
+        if (NSE_INDEX::rate_indices(current_rate_index, 2) == NSE_INDEX::rate_indices(current_rate_index, 3)) {
+            b_f *= 0.5_rt;
+        }
+        b_f *= Y(NSE_INDEX::rate_indices(current_rate_index, 2) + 1) * state.rho;
+    }
+
+    if (NSE_INDEX::rate_indices(current_rate_index, 5) != -1) {
+        if (NSE_INDEX::rate_indices(current_rate_index, 5) == NSE_INDEX::rate_indices(current_rate_index, 6)) {
+            b_r *= 0.5_rt;
+        }
+        b_r *= Y(NSE_INDEX::rate_indices(current_rate_index, 5) + 1) * state.rho;
+    }
+
+    // Find the timescale of the rate, See Eq. 17 and Eq. 11 in Kushnir
+
+    //
+    // Note that here I made a simplification compared to Kushnir:
+    // When they calculate the reaction timescale,
+    // they used the molar fraction of the entire group, but I just
+    // use the molar fraction of isotopes participated in the rate itself.
+    // This complicates calculation since Y_group changes as you merge
+    // isotopes into groups, so we need to do calculations iteratively.
+    //
+
+    amrex::Real t_i = Y(nonNPA_ind(1)) / amrex::min(b_f, b_r);
+    if (nonNPA_ind(2) != -1) {
+        t_i = amrex::min(t_i, Y(nonNPA_ind(2)) / amrex::min(b_f, b_r));
+    }
+
+    //
+    // Condition for checking if forward and reverse rates are in equilibrium
+    // Also whether the reaction time scale is smaller than sound crossing time
+    // See Equation 17 in Kushnir Paper
+    //
+
+    if ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r) < ase_tol) &&
+        (t_i < ase_tol * t_s)) {
+        reaction_timescales(current_rate_index) = t_i;
+    }
+
+}
+
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
@@ -934,34 +1051,54 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     }
   }
 
-  // Now do the grouping based on the timescale.
+  // Let's first create an array for reaction_timescales and reaction_indices
+  // Then fill in the reaction timescale and index for each rate.
 
-  amrex::Array1D<int, 1, 2> merge_indices;
-  amrex::Real fastest_t;
+  amrex::Array1D<amrex::Real, 1, Rates::NumRates> reaction_timescales;
+  amrex::Array1D<amrex::Real, 1, Rates::NumRates> rate_indices;
 
-  // Go through each reaction and perform grouping
-
-  while(true) {
-    merge_indices(1) = -1;
-    merge_indices(2) = -1;
-    fastest_t = std::numeric_limits<amrex::Real>::max();
-
-    // Get the merge indices of the rate that has the shortest timescale
-
-    for (int n = 1; n <= Rates::NumRates; ++n) {
-      fill_merge_indices(merge_indices, fastest_t, n, Y, state, screened_rates, group_ind, t_s);
-    }
-
-    // if there are no reaction satisfy conditions, break
-
-    if (merge_indices(1) == -1 && merge_indices(2) == -1) {
-      break;
-    }
-
-    // union the isotopes of the rate that have the fastest time scale
-
-    nse_union(merge_indices(1), merge_indices(2), group_ind);
+  for (int n = 1; n <= Rates::NumRates; ++n) {
+      fill_reaction_timescale(reaction_timescales, n, Y,
+                              state, screened_rates);
+      rate_indices(n) = n;
   }
+
+  //
+  // Sort rate_indices using reaction_timescales.
+  // The sorted rate_indices should correspond to reactions
+  // from smallest (fastest) to largest (slowest) timescale
+  //
+
+  quickSort_Array1D(rate_indices, reaction_timescales)
+
+  // // Now do the grouping based on the timescale.
+
+  // amrex::Array1D<int, 1, 2> merge_indices;
+  // amrex::Real fastest_t;
+
+  // // Go through each reaction and perform grouping
+
+  // while(true) {
+  //   merge_indices(1) = -1;
+  //   merge_indices(2) = -1;
+  //   fastest_t = std::numeric_limits<amrex::Real>::max();
+
+  //   // Get the merge indices of the rate that has the shortest timescale
+
+  //   for (int n = 1; n <= Rates::NumRates; ++n) {
+  //     fill_merge_indices(merge_indices, fastest_t, n, Y, state, screened_rates, group_ind, t_s);
+  //   }
+
+  //   // if there are no reaction satisfy conditions, break
+
+  //   if (merge_indices(1) == -1 && merge_indices(2) == -1) {
+  //     break;
+  //   }
+
+  //   // union the isotopes of the rate that have the fastest time scale
+
+  //   nse_union(merge_indices(1), merge_indices(2), group_ind);
+  // }
 
 }
 #endif
