@@ -1,5 +1,5 @@
 ifeq ($(USE_ALL_SDC), TRUE)
-  CEXE_headers += actual_integrator_simplified_sdc.H
+  CEXE_headers += actual_integrator_sdc.H
 else
   CEXE_headers += actual_integrator.H
 endif

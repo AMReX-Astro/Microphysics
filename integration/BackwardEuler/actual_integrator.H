@@ -5,8 +5,8 @@
 #include <be_integrator.H>
 
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, const Real dt)
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -14,14 +14,26 @@ void actual_integrator (BurnT& state, const Real dt)
 
     // Set the tolerances.
 
-    be.atol_spec = atol_spec;  // mass fractions
-    be.atol_enuc = atol_enuc;  // energy generated
+    if (!is_retry) {
+        be.atol_spec = atol_spec;  // mass fractions
+        be.atol_enuc = atol_enuc;  // energy generated
 
-    be.rtol_spec = rtol_spec;  // mass fractions
-    be.rtol_enuc = rtol_enuc;  // energy generated
+        be.rtol_spec = rtol_spec;  // mass fractions
+        be.rtol_enuc = rtol_enuc;  // energy generated
+    } else {
+        be.atol_spec = retry_atol_spec; // mass fractions
+        be.atol_enuc = retry_atol_enuc; // energy generated
+
+        be.rtol_spec = retry_rtol_spec; // mass fractions
+        be.rtol_enuc = retry_rtol_enuc; // energy generated
+    }
 
     // set the Jacobian type
-    be.jacobian_type = jacobian;
+    if (is_retry && retry_swap_jacobian) {
+        be.jacobian_type = (jacobian == 1) ? 2 : 1;
+    } else {
+        be.jacobian_type = jacobian;
+    }
 
     // Start off by assuming a successful burn.
 
@@ -98,7 +110,7 @@ void actual_integrator (BurnT& state, const Real dt)
         state.success = false;
     }
 
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
     if (burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
@@ -112,7 +124,7 @@ void actual_integrator (BurnT& state, const Real dt)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
-#ifndef AMREX_USE_CUDA
+#ifndef AMREX_USE_GPU
         std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
         std::cout << "istate = " << istate << std::endl;
         std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;

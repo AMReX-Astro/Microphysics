@@ -7,7 +7,7 @@
 #include <network.H>
 #include <microphysics_math.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 namespace scrn {
     class screen_factors_t {

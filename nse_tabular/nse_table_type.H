@@ -12,7 +12,6 @@ struct nse_table_t {
     amrex::Real abar{};
     amrex::Real bea{};
     amrex::Real dyedt{};
-    amrex::Real dabardt{};
     amrex::Real dbeadt{};
     amrex::Real e_nu{};
     amrex::Real X[NumSpec]{};

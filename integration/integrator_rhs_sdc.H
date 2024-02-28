@@ -1,11 +1,11 @@
-#ifndef INTEGRATOR_RHS_SIMPLIFIED_SDC_H
-#define INTEGRATOR_RHS_SIMPLIFIED_SDC_H
+#ifndef INTEGRATOR_RHS_SDC_H
+#define INTEGRATOR_RHS_SDC_H
 
 #include <network.H>
 #include <burn_type.H>
 #include <extern_parameters.H>
 
-#include <integrator_type_simplified_sdc.H>
+#include <integrator_type_sdc.H>
 #include <actual_network.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>
@@ -22,7 +22,7 @@
 
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
+void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
          [[maybe_unused]] const bool in_jacobian=false)
 {
 
@@ -86,7 +86,7 @@ void rhs(const Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
 template<typename BurnT, typename T, class MatrixType>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void jac (const Real time, BurnT& state, T& int_state, MatrixType& pd)
+void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
     // update rho, rho*u, ... in the burn_t state

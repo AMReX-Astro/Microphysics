@@ -22,9 +22,9 @@ void dvset (DvodeT& vstate)
 
     const Real CORTES = 0.1e0_rt;
 
-    Real FLOTL = vstate.L;
-    int NQM1 = vstate.NQ - 1;
-    int NQM2 = vstate.NQ - 2;
+    const Real FLOTL = vstate.L;
+    const int NQM1 = vstate.NQ - 1;
+    const int NQM2 = vstate.NQ - 2;
 
     for (int i = 3; i <= vstate.L; ++i) {
         vstate.el(i) = 0.0_rt;
@@ -45,7 +45,7 @@ void dvset (DvodeT& vstate)
             RXI = vstate.H / HSUM;
             ALPH0 -= 1.0_rt / (j+1);
             for (int iback = 1; iback <= j+1; ++iback) {
-                int i = (j + 3) - iback;
+                const int i = (j + 3) - iback;
                 vstate.el(i) += vstate.el(i-1) * RXI;
             }
         }
@@ -56,26 +56,26 @@ void dvset (DvodeT& vstate)
         RXI = vstate.H / HSUM;
         AHATN0 = -vstate.el(2) - RXI;
         for (int iback = 1; iback <= vstate.NQ; ++iback) {
-            int i = (vstate.NQ + 2) - iback;
+            const int i = (vstate.NQ + 2) - iback;
             vstate.el(i) += vstate.el(i-1) * RXIS;
         }
     }
 
-    Real T1 = 1.0_rt - AHATN0 + ALPH0;
-    Real T2 = 1.0_rt + vstate.NQ * T1;
+    const Real T1 = 1.0_rt - AHATN0 + ALPH0;
+    const Real T2 = 1.0_rt + vstate.NQ * T1;
     vstate.tq(2) = std::abs(ALPH0 * T2 / T1);
     vstate.tq(5) = std::abs(T2 / (vstate.el(vstate.L) * RXI / RXIS));
 
     if (vstate.NQWAIT == 1) {
-        Real CNQM1 = RXIS / vstate.el(vstate.L);
-        Real T3 = ALPH0 + 1.0_rt / vstate.NQ;
-        Real T4 = AHATN0 + RXI;
+        const Real CNQM1 = RXIS / vstate.el(vstate.L);
+        const Real T3 = ALPH0 + 1.0_rt / vstate.NQ;
+        const Real T4 = AHATN0 + RXI;
         Real ELP = T3 / (1.0_rt - T4 + T3);
         vstate.tq(1) = std::abs(ELP / CNQM1);
         HSUM += vstate.tau(vstate.NQ);
         RXI = vstate.H / HSUM;
-        Real T5 = ALPH0 - 1.0_rt / (vstate.NQ+1);
-        Real T6 = AHATN0 - RXI;
+        const Real T5 = ALPH0 - 1.0_rt / (vstate.NQ+1);
+        const Real T6 = AHATN0 - RXI;
         ELP = T2 / (1.0_rt - T6 + T5);
         vstate.tq(3) = std::abs(ELP * RXI * (FLOTL + 1.0_rt) * T5);
     }

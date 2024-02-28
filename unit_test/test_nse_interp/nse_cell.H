@@ -3,7 +3,6 @@
 #include <eos.H>
 #include <network.H>
 #include <burner.H>
-#include <fstream>
 #include <iostream>
 
 #include <nse_table.H>
@@ -131,7 +130,6 @@ void nse_cell_c()
     std::cout << "abar    = " << nse_state.abar << std::endl;
     std::cout << "bea     = " << nse_state.bea << std::endl;
     std::cout << "dyedt   = " << nse_state.dyedt << std::endl;
-    std::cout << "dabardt = " << nse_state.dabardt << std::endl;
     std::cout << "dbeadt = " << nse_state.dbeadt << std::endl;
     std::cout << "e_nu    = " << nse_state.e_nu << std::endl;
     for (int n = 0; n < NumSpec; ++n) {

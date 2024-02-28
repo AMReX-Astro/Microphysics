@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Loop.H>
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
@@ -15,8 +16,173 @@ const std::string network_name = "pynucastro-cxx";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real bion () {
+        using namespace Species;
+
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        // Set the binding energy of the element
+
+        if constexpr (spec == N) {
+            return 0.0_rt;
+        }
+        else if constexpr (spec == H1) {
+            return 0.0_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 28.29566_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 92.16172800000001_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 94.105219_rt;
+        }
+        else if constexpr (spec == N14) {
+            return 104.65859599999999_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 127.619296_rt;
+        }
+        else if constexpr (spec == F18) {
+            return 137.369484_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 160.6448_rt;
+        }
+        else if constexpr (spec == Ne21) {
+            return 167.405973_rt;
+        }
+        else if constexpr (spec == Na22) {
+            return 174.144674_rt;
+        }
+        else if constexpr (spec == Na23) {
+            return 186.56433900000002_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 198.25701600000002_rt;
+        }
+        else if constexpr (spec == Al27) {
+            return 224.951931_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 236.536832_rt;
+        }
+        else if constexpr (spec == P31) {
+            return 262.91617699999995_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 271.78012800000005_rt;
+        }
+        else if constexpr (spec == Ar36) {
+            return 306.716724_rt;
+        }
+        else if constexpr (spec == Ca40) {
+            return 342.05212000000006_rt;
+        }
+        else if constexpr (spec == Ti44) {
+            return 375.47488000000004_rt;
+        }
+        else if constexpr (spec == Cr48) {
+            return 411.46891200000005_rt;
+        }
+        else if constexpr (spec == Mn51) {
+            return 440.32237200000003_rt;
+        }
+        else if constexpr (spec == Mn55) {
+            return 482.07621_rt;
+        }
+        else if constexpr (spec == Fe52) {
+            return 447.697848_rt;
+        }
+        else if constexpr (spec == Fe53) {
+            return 458.386347_rt;
+        }
+        else if constexpr (spec == Fe54) {
+            return 471.76462799999996_rt;
+        }
+        else if constexpr (spec == Fe55) {
+            return 481.06272499999994_rt;
+        }
+        else if constexpr (spec == Fe56) {
+            return 492.2598239999999_rt;
+        }
+        else if constexpr (spec == Co55) {
+            return 476.82899_rt;
+        }
+        else if constexpr (spec == Co56) {
+            return 486.91081599999995_rt;
+        }
+        else if constexpr (spec == Co57) {
+            return 498.287274_rt;
+        }
+        else if constexpr (spec == Ni56) {
+            return 483.995624_rt;
+        }
+        else if constexpr (spec == Ni57) {
+            return 494.2431810000001_rt;
+        }
+        else if constexpr (spec == Ni58) {
+            return 506.45942199999996_rt;
+        }
+        else if constexpr (spec == Cu59) {
+            return 509.878_rt;
+        }
+        else if constexpr (spec == Zn60) {
+            return 514.983_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real mion () {
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    amrex::Real bion (int spec) {
+        using namespace Species;
+
+        amrex::Real b = 0.0_rt;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                b = bion<n>();
+            }
+        });
+
+        return b;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    amrex::Real mion (int spec) {
+        using namespace Species;
+
+        amrex::Real m = 0.0_rt;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                m = mion<n>();
+            }
+        });
+
+        return m;
+    }
 }
 
 namespace Rates
