@@ -3,7 +3,6 @@
 #include <eos.H>
 #include <network.H>
 #include <burner.H>
-#include <fstream>
 #include <iostream>
 
 #include <nse_table.H>

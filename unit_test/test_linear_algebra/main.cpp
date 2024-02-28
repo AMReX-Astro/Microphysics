@@ -3,16 +3,14 @@
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
-#include <burn_cell.H>
 #include <unit_test.H>
+#include <test_linear_algebra.H>
 
 using namespace unit_test_rp;
 
 int main(int argc, char *argv[]) {
 
   amrex::Initialize(argc, argv);
-
-  std::cout << "starting the single zone burn..." << std::endl;
 
   init_unit_test();
 
@@ -22,7 +20,7 @@ int main(int argc, char *argv[]) {
   // C++ Network, RHS, screening, rates initialization
   network_init();
 
-  burn_cell_c();
+  linear_algebra();
 
   amrex::Finalize();
 }
