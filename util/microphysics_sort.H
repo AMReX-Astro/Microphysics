@@ -65,11 +65,14 @@ int partition(amrex::Array1D<T, l, m>& sort_array,
     for (int j = low; j <= high; j++) {
         // if (compare(sort_array(j), pivot, ascending)) {
         if (compare(metric_array(j), pivot, ascending)) {
+        // if (compare(metric_array(sort_array(j)), pivot, ascending)) {
             i++;
             swap(sort_array(i), sort_array(j));
+            swap(metric_array(i), metric_array(j));
         }
     }
     swap(sort_array(i+1), sort_array(high));
+    swap(metric_array(i+1), metric_array(high));
     return i+1;
 }
 
@@ -82,7 +85,7 @@ void quickSort_Array1D(amrex::Array1D<T, l, m>& sort_array,
                        const bool ascending=true) {
     // quickSort implementation
     // This implementation uses the metric array as the sorting metric
-    // But the actual sort is done on sort_array
+    // to sort BOTH the sort_array and metric_array
 
     if (low < high) {
 
@@ -91,6 +94,7 @@ void quickSort_Array1D(amrex::Array1D<T, l, m>& sort_array,
         int pi = partition(sort_array, metric_array, low, high, ascending);
 
         // Recursive quick sort calls.
+
         quickSort_Array1D(sort_array, metric_array, low, pi-1, ascending);
         quickSort_Array1D(sort_array, metric_array, pi+1, high, ascending);
     }
