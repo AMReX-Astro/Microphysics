@@ -737,47 +737,6 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
     return in_single_group;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_non_NHA_indices(const int current_rate_index) {
-    //
-    // Helper function to determine the index of the non neutron,
-    // proton, and helium-4 in NSE_INDEX::rate_indices
-    //
-
-    amrex::Array1D<int, 1, 2> non_NHA_ind = {-1, -1};
-    int non_NHA_counts = 0;
-    for (int k = 2; k <= 6; ++k) {
-
-        if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
-            continue;
-        }
-
-        if (NSE_INDEX::N_index == -1 &&
-            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
-
-            // Case when we don't have neutron in the network
-
-            ++non_NHA_counts;
-        }
-
-        else if (NSE_INDEX::N_index != -1 &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
-
-            // Case when we have neutron in the network
-
-            ++non_NHA_counts;
-        }
-
-        if (non_NHA_counts > 2) {
-            return;
-        }
-        non_NHA_ind(non_NHA_counts) = k;
-    }
-
-}
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -880,9 +839,9 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     // isotopes into groups, so we need to do calculations iteratively.
     //
 
-    amrex::Real t_i = Y(non_NHA_ind(1)) / amrex::min(b_f, b_r);
+    amrex::Real t_i = Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(1))+1) / amrex::min(b_f, b_r);
     if (non_NHA_ind(2) != -1) {
-        t_i = amrex::min(t_i, Y(non_NHA_ind(2)) / amrex::min(b_f, b_r));
+        t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / amrex::min(b_f, b_r));
     }
 
     //
