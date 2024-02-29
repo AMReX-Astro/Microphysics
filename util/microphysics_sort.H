@@ -28,9 +28,10 @@ void swap(T& a, T& b) {
     b = temp;
 }
 
+
 template <typename T, int l, int m>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void bubbleSort_Array1D(amrex::Array1D<T, l, m>& array_1d,
+void bubbleSort_Array1D(amrex::Array1D<T, l, m>& sort_array,
                         const bool ascending=true) {
 
     // a simple bubble sort, for sorting Array1D
@@ -39,61 +40,61 @@ void bubbleSort_Array1D(amrex::Array1D<T, l, m>& array_1d,
     // int scratch;
     for (int i = l; i <= m; ++i) {
         for (int j = l; j <= m-i; ++j) {
-            if (!compare(array_1d(j), array_1d(j+1), ascending)) {
-                swap(array_1d(j), array_1d(j+1));
-                // scratch = array_1d(j);
-                // array_1d(j) = array_1d(j+1);
-                // array_1d(j+1) = scratch;
+            if (!compare(sort_array(j), sort_array(j+1), ascending)) {
+                swap(sort_array(j), sort_array(j+1));
+                // scratch = sort_array(j);
+                // sort_array(j) = sort_array(j+1);
+                // sort_array(j+1) = scratch;
             }
         }
     }
 }
 
-template <typename T, int l, int m>
+
+template <typename T, typename P, int l, int m>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-int partition(amrex::Array1D<T, l, m>& array_1d,
+int partition(amrex::Array1D<T, l, m>& sort_array,
+              amrex::Array1D<P, l, m>& metric_array,
               const int low, const int high, const bool ascending=true) {
     // Helper function for quickSort
+    // It uses the metric array as metric, but swaps sort_array
 
-    T pivot = array_1d(high);
+    // T pivot = sort_array(high);
+    P pivot = metric_array(high);
     int i = low - 1;
     for (int j = low; j <= high; j++) {
-        if (compare(array_1d(j), pivot, ascending)) {
+        // if (compare(sort_array(j), pivot, ascending)) {
+        if (compare(metric_array(j), pivot, ascending)) {
             i++;
-            swap(array_1d(i), array_1d(j));
+            swap(sort_array(i), sort_array(j));
         }
     }
-    swap(array_1d(i+1), array_1d(high));
+    swap(sort_array(i+1), sort_array(high));
     return i+1;
 }
 
-template <typename T, int l, int m>
+
+template <typename T, typename P, int l, int m>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void quickSort_Array1D(amrex::Array1D<T, l, m>& array_1d,
+void quickSort_Array1D(amrex::Array1D<T, l, m>& sort_array,
+                       amrex::Array1D<P, l, m>& metric_array,
                        const int low, const int high,
                        const bool ascending=true) {
     // quickSort implementation
-    // This version uses the array itself as the metric for sorting
+    // This implementation uses the metric array as the sorting metric
+    // But the actual sort is done on sort_array
+
     if (low < high) {
 
         // pi is the partition return index of pivot
 
-        int pi = partition(array_1d, low, high);
+        int pi = partition(sort_array, metric_array, low, high, ascending);
 
         // Recursive quick sort calls.
-        quickSort_Array1D(array_1d, low, pi-1, ascending);
-        quickSort_Array1D(array_1d, pi+1, high, ascending);
+        quickSort_Array1D(sort_array, metric_array, low, pi-1, ascending);
+        quickSort_Array1D(sort_array, metric_array, pi+1, high, ascending);
     }
 }
-
-
-// template <int l, int m>
-// AMREX_GPU_HOST_DEVICE AMREX_INLINE
-// void quickSort_Array1D(amrex::Array1D<int, l, m>& array_1d,
-//                        amrex::Array1D<int, l, m>& metric_array) {
-//     // This version uses the metric_array as the metric for sorting
-// }
-
 
 
 #endif

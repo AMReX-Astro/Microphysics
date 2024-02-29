@@ -603,23 +603,23 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int get_root_index(const int nuc_ind,
                      const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
-  // This function returns the root index of the nuclei
-  // by providing the nuclei index [0, NumSpec-1], and group indices, group_ind
+    // This function returns the root index of the nuclei
+    // by providing the nuclei index [0, NumSpec-1], and group indices, group_ind
 
-  int root_index;
-  int scratch_ind = nuc_ind;
+    int root_index;
+    int scratch_ind = nuc_ind;
 
-  while(true) {
-    root_index = group_ind(scratch_ind + 1);
+    while(true) {
+        root_index = group_ind(scratch_ind + 1);
 
-    if (root_index != scratch_ind + 1) {
-      scratch_ind = root_index - 1;
+        if (root_index != scratch_ind + 1) {
+            scratch_ind = root_index - 1;
+        }
+
+        else {
+            return root_index;
+        }
     }
-
-    else {
-      return root_index;
-    }
-  }
 
 }
 
@@ -627,112 +627,114 @@ int get_root_index(const int nuc_ind,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_union(const int nuc_ind_a, const int nuc_ind_b, amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
-  // This function joins the two group of the two nuc indices:nuc_ind_a and nuc_ind_b
-  // The smaller group is joined to the larger group.
+    // This function joins the two group of the two nuc indices:nuc_ind_a and nuc_ind_b
+    // The smaller group is joined to the larger group.
 
-  int root_index_a = get_root_index(nuc_ind_a, group_ind);
-  int root_index_b = get_root_index(nuc_ind_b, group_ind);
+    int root_index_a = get_root_index(nuc_ind_a, group_ind);
+    int root_index_b = get_root_index(nuc_ind_b, group_ind);
 
-  if (root_index_a == root_index_b) {
-    return;
-  }
-
-  // find size of the two groups containing a and b
-
-  int group_a_size = 0;
-  int group_b_size = 0;
-
-  for (int n = 0; n < NumSpec; ++n) {
-
-    if (get_root_index(n, group_ind) == root_index_a) {
-      ++group_a_size;
+    if (root_index_a == root_index_b) {
+        return;
     }
-    else if (get_root_index(n, group_ind) == root_index_b) {
-      ++group_b_size;
+
+    // find size of the two groups containing a and b
+
+    int group_a_size = 0;
+    int group_b_size = 0;
+
+    for (int n = 0; n < NumSpec; ++n) {
+
+        if (get_root_index(n, group_ind) == root_index_a) {
+            ++group_a_size;
+        }
+        else if (get_root_index(n, group_ind) == root_index_b) {
+            ++group_b_size;
+        }
     }
-  }
 
-  // merge group with less isotopes to group with larger isotope
+    // merge group with less isotopes to group with larger isotope
 
-  if (group_a_size >= group_b_size) {
-    group_ind(root_index_b) = group_ind(root_index_a);
-  }
-  else {
-    group_ind(root_index_a) = group_ind(root_index_b);
-  }
+    if (group_a_size >= group_b_size) {
+        group_ind(root_index_b) = group_ind(root_index_a);
+    }
+    else {
+        group_ind(root_index_a) = group_ind(root_index_b);
+    }
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
-  // This function checks whether all isotopes are either in the LIG group
-  // or in another single group.
+    // This function checks whether all isotopes are either in the LIG group
+    // or in another single group.
 
-  int LIG_root_index = get_root_index(NSE_INDEX::He4_index, group_ind);
+    int LIG_root_index = get_root_index(NSE_INDEX::He4_index, group_ind);
 
-  int nonLIG_index = -1;
+    int nonLIG_index = -1;
 
-  int oddN_group = -1;
-  int evenN_group = -1;
+    int oddN_group = -1;
+    int evenN_group = -1;
 
-  bool in_single_group = true;
+    bool in_single_group = true;
 
-  // Consider NSE when there is a single group with an optional LIG group
-
-  for (int n = 0; n < NumSpec; ++n) {
-    if (get_root_index(n, group_ind) == LIG_root_index) {
-      continue;
-    }
-
-    if (nonLIG_index == -1) {
-      nonLIG_index = get_root_index(n, group_ind);
-      continue;
-    }
-
-    if (get_root_index(n, group_ind) != nonLIG_index) {
-      in_single_group = false;
-      break;
-    }
-
-  }
-
-  // If there no neutrons are in the network and original condition failed
-  // Consider a looser condition by looking at nuclei heavier than Si28
-  // There seems to be two big groups after Si28 in NSE:
-  // 1) isotopes with even N
-  // 2) isotopes with odd N
-
-  if (NSE_INDEX::N_index == -1 && !in_single_group) {
-
-    in_single_group = true;
+    // Consider NSE when there is a single group with an optional LIG group
 
     for (int n = 0; n < NumSpec; ++n) {
-
-      if (zion[n] >= 14) {
-
-        // Get even N group index
-        if (evenN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 0.0_rt) {
-          evenN_group = get_root_index(n, group_ind);
-          continue;
+        if (get_root_index(n, group_ind) == LIG_root_index) {
+            continue;
         }
 
-        // Get odd N group index
-        if (oddN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 1.0_rt) {
-          oddN_group = get_root_index(n, group_ind);
-          continue;
+        if (nonLIG_index == -1) {
+            nonLIG_index = get_root_index(n, group_ind);
+            continue;
         }
 
-        if ((std::fmod(aion[n] - zion[n], 2) == 0.0_rt && evenN_group != get_root_index(n, group_ind)) ||
-            (std::fmod(aion[n] - zion[n], 2) == 1.0_rt && oddN_group != get_root_index(n, group_ind))) {
-          in_single_group = false;
-          break;
+        if (get_root_index(n, group_ind) != nonLIG_index) {
+            in_single_group = false;
+            break;
         }
-      }
 
     }
-  }
 
-  return in_single_group;
+    // If there no neutrons are in the network and original condition failed
+    // Consider a looser condition by looking at nuclei heavier than Si28
+    // There seems to be two big groups after Si28 in NSE:
+    // 1) isotopes with even N
+    // 2) isotopes with odd N
+
+    if (NSE_INDEX::N_index == -1 && !in_single_group) {
+
+        in_single_group = true;
+
+        for (int n = 0; n < NumSpec; ++n) {
+
+            if (zion[n] >= 14) {
+
+                // Get even N group index
+                if (evenN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 0.0_rt) {
+                    evenN_group = get_root_index(n, group_ind);
+                    continue;
+                }
+
+                // Get odd N group index
+                if (oddN_group == -1 && std::fmod(aion[n] - zion[n], 2) == 1.0_rt) {
+                    oddN_group = get_root_index(n, group_ind);
+                    continue;
+                }
+
+                if ((std::fmod(aion[n] - zion[n], 2) == 0.0_rt &&
+                     evenN_group != get_root_index(n, group_ind)) ||
+                    (std::fmod(aion[n] - zion[n], 2) == 1.0_rt &&
+                     oddN_group != get_root_index(n, group_ind))) {
+                    in_single_group = false;
+                    break;
+                }
+            }
+
+        }
+    }
+
+    return in_single_group;
 }
 
 template <typename T>
