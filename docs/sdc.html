@@ -7,6 +7,7 @@
   <title>Spectral Deferred Corrections &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
 
   
@@ -19,8 +20,10 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -56,7 +59,7 @@
               <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">StarKiller Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Microphysics Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
@@ -69,9 +72,14 @@
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Spectral Deferred Corrections</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#true-sdc">“True” SDC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#simplified-sdc">Simplified SDC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-ground">Common ground</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#interface-and-data-structures">Interface and Data Structures</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#burn-t">burn_t</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#burn-t"><code class="docutils literal notranslate"><span class="pre">burn_t</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ode-system">ODE system</a></li>
@@ -114,10 +122,10 @@
 <h1>Spectral Deferred Corrections<a class="headerlink" href="#spectral-deferred-corrections" title="Link to this heading"></a></h1>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
-<p>The Simplified-SDC method provides a means to more strongly couple the
-reactions to the hydrodynamics by evolving the reactions together with
-an approximation of the advection over the timestep.  The full details
-of the algorithm are presented in <span id="id1">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span>.</p>
+<p>Spectral deferred correction (SDC) methods strongly couple reactions
+and hydrodynamics, eliminating the splitting error that arises with
+Strang (operator) splitting.  Microphysics supports two different
+SDC formulations.</p>
 <p>We want to solve the coupled equations:</p>
 <div class="math notranslate nohighlight">
 \[\Uc_t = \Advs{\Uc} + \Rb(\Uc)\]</div>
@@ -135,13 +143,73 @@ hydrodynamical sources),</p>
 \[\Advs{\Uc} = - \nabla \cdot \Fb(\Uc) + \Shydro\]</div>
 <p>and <span class="math notranslate nohighlight">\(\Rb(\Uc)\)</span>
 is the reaction source term.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Application codes can set the make variables <code class="docutils literal notranslate"><span class="pre">USE_TRUE_SDC</span></code> or
+<code class="docutils literal notranslate"><span class="pre">USE_SIMPLIFIED_SDC</span></code>.  But in Microphysics, both SDC formulations
+are supported by the same integrators, and both of these options
+will set the <code class="docutils literal notranslate"><span class="pre">SDC</span></code> preprocessor flag.</p>
+</div>
+<section id="true-sdc">
+<h3>“True” SDC<a class="headerlink" href="#true-sdc" title="Link to this heading"></a></h3>
+<p>The true SDC implementation is described in <span id="id1">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">ZingaleKatzBell+19</a>]</span>.  It divides
+the timestep into temporal nodes and uses low-order approximations to update
+from one temporal node to the next.  Iteration is used to increase the order of accuracy.</p>
+<p>The update from one temporal node, <span class="math notranslate nohighlight">\(m\)</span>, to the next, <span class="math notranslate nohighlight">\(m\)</span>, for iteration
+<span class="math notranslate nohighlight">\(k+1\)</span> appears as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+ \Uc^{m+1,(k+1)} = \Uc^{m,(k+1)}
+  &amp;+ \delta t_m\left[\Advs{\Uc^{m,(k+1)}} - \Advs{\Uc^{m,(k)}}\right] +\\
+  &amp;+ \delta t_m\left[\Rbs{\Uc^{m+1,(k+1)}} - \Rbs{\Uc^{m+1,(k)}}\right]\\
+  &amp;+ \int_{t^m}^{t^{m+1}}\Advs{\Uc^{(k)}} + \Rbs{\Uc^{(k)}}d\tau.
+\end{align*}\end{split}\]</div>
+<p>Solving this requires a nonlinear solve of:</p>
+<div class="math notranslate nohighlight">
+\[\Uc^{m+1,(k+1)} - \delta t_m \Rbs{\Uc}^{m+1,(k+1)} = \Uc^{m,(k+1)} + \delta t_m {\bf C}\]</div>
+<p>where the right-hand side is constructed only from known states, and we
+define <span class="math notranslate nohighlight">\({\bf C}\)</span> for convenience as:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+{\bf C} &amp;= \left [ {\Advs{\Uc}}^{m,(k+1)} - {\Advs{\Uc}}^{m,(k)} \right ]
+               -  {\Rbs{\Uc}}^{{m+1},(k)}  \nonumber \\
+            &amp;+ \frac{1}{\delta t_m} \int_{t^m}^{t^{m+1}} \left  ( {\Advs{\Uc}}^{(k)} + {\Rbs{\Uc}}^{(k)}\right ) d\tau
+\end{align}\end{split}\]</div>
+<p>This can be cast as an ODE system as:</p>
+<div class="math notranslate nohighlight">
+\[\frac{d\Uc}{dt} \approx \frac{\Uc^{m+1} - \Uc^m}{\delta t_m} = \Rbs{\Uc} + {\bf C}\]</div>
+</section>
+<section id="simplified-sdc">
+<h3>Simplified SDC<a class="headerlink" href="#simplified-sdc" title="Link to this heading"></a></h3>
+<p>The Simplified-SDC method uses the ideas of the SDC method above, but instead
+of dividing time into discrete temporary notes, it uses a piecewise-constant-in-time
+approximation to the advection update over the timestep (for instance, computed by the CTU PPM method) and solves the ODE system:</p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial \Uc}{\partial t} = [\Advs{\Uc}]^{n+1/2} + \Rb(\Uc)\]</div>
+<p>and uses iteration to improve the advective term based on the
+reactions.  The full details of the algorithm are presented in
+<span id="id2">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span>.</p>
+</section>
+<section id="common-ground">
+<h3>Common ground<a class="headerlink" href="#common-ground" title="Link to this heading"></a></h3>
+<p>Both SDC formulations result in an ODE system of the form:</p>
+<div class="math notranslate nohighlight">
+\[\frac{d\Uc}{dt} = \Rb(\Uc) + \mbox{advective terms}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Uc\)</span> is only</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\Uc = \left ( \begin{array}{c} \rho X_k \\ \rho e \end{array} \right )\end{split}\]</div>
+<p>since those are the only components with reactive sources.
+The <code class="docutils literal notranslate"><span class="pre">SDC</span></code> burner includes storage for the advective terms.</p>
+</section>
 </section>
 <section id="interface-and-data-structures">
 <h2>Interface and Data Structures<a class="headerlink" href="#interface-and-data-structures" title="Link to this heading"></a></h2>
+<p>For concreteness, we use the simplified-SDC formulation in the description below,
+but the true-SDC version is directly analogous.</p>
 <section id="burn-t">
-<h3>burn_t<a class="headerlink" href="#burn-t" title="Link to this heading"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">burn_t</span></code><a class="headerlink" href="#burn-t" title="Link to this heading"></a></h3>
 <p>To accommodate the increased information required to evolve the
-coupled system, the <cite>burn_t</cite> used for Strang integration is extended
+coupled system, the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> used for Strang integration is extended
 to include the conserved state and the advective sources.  This is
 used to pass information to/from the integration routine from the
 hydrodynamics code.</p>
@@ -215,21 +283,28 @@ to the update. In
 particular, this returns the change in molar fractions,
 <span class="math notranslate nohighlight">\(\dot{Y}_k\)</span> and the nuclear energy release, <span class="math notranslate nohighlight">\(\dot{S}\)</span>.</p></li>
 <li><p>Convert back to the integrator’s internal representation via <code class="docutils literal notranslate"><span class="pre">rhs_to_int</span></code>
-This converts the <code class="docutils literal notranslate"><span class="pre">ydot``s</span> <span class="pre">to</span> <span class="pre">mass</span> <span class="pre">fractions</span> <span class="pre">and</span> <span class="pre">adds</span> <span class="pre">the</span> <span class="pre">advective</span> <span class="pre">terms</span>
-<span class="pre">to</span> <span class="pre">all</span> <span class="pre">``ydots</span></code>.</p></li>
+This converts the <code class="docutils literal notranslate"><span class="pre">ydot</span></code> to mass fractions and adds the advective terms
+to <code class="docutils literal notranslate"><span class="pre">ydot</span></code>.</p></li>
 </ol>
 </section>
 <section id="jacobian">
 <h3>Jacobian<a class="headerlink" href="#jacobian" title="Link to this heading"></a></h3>
 <p>The Jacobian of this system is <span class="math notranslate nohighlight">\({\bf J} = \partial \Rb /
 \partial \Uc\)</span>, since <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is held constant during the
-integration.  We follow the approach of <span id="id2">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span> and factor
+integration.  We follow the approach of <span id="id3">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span> and factor
 the Jacobian as:</p>
 <div class="math notranslate nohighlight">
 \[{\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
           \frac{\partial {\bf w}}{\partial \Uc}\]</div>
 <p>where <span class="math notranslate nohighlight">\({\bf w} = (X_k, T)^\intercal\)</span> are the more natural variables
 for a reaction network.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the original “true SDC” paper <span id="id4">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">ZingaleKatzBell+19</a>]</span>, the matrix
+system was more complicated, and we included density in <span class="math notranslate nohighlight">\({\bf w}\)</span>.
+This is not needed, and we use the Jacobian defined in
+<span id="id5">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span> instead.</p>
+</div>
 </section>
 </section>
 </section>
