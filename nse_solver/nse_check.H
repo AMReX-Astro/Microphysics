@@ -199,15 +199,17 @@ void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<am
   int max_nucs;
   find_max_nucs(max_nucs, current_nuc_ind);
 
-  amrex::Array2D<int, 1, 6, 1, NumSpec+1> reactions;            // store possible reaction nuclei indices
-  amrex::Array2D<int, 1, 6, 1, NumSpec+1> fast_reactions;       // store indices of fast reaction nucs
+  // Store possible reaction nuclei indices and indices of fast reaction nucs
 
-  // some variables to hold temporary data
+  amrex::Array2D<int, 1, 6, 1, NumSpec+1> reactions;
+  amrex::Array2D<int, 1, 6, 1, NumSpec+1> fast_reactions;
+
+  // some variables to hold temporary data, and rate index
 
   amrex::Array1D<int, 1, 3> reaction_scratch;
   amrex::Array1D<int, 1, 3> product_scratch;
-  int rate_index;                                      // store index of the rate
-  bool have_required_nucs;                             // variable used to check we have required nuc
+  int rate_index;
+  bool have_required_nucs;
 
   // holds forward and reverse rate of a reaction
 
@@ -1058,7 +1060,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
             non_NHA_ind(non_NHA_counts) = k;
         }
 
-        else if (NSE_INDEX::N_index != -1 &&
+        if (NSE_INDEX::N_index != -1 &&
                  NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index &&
                  NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
                  NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
@@ -1168,6 +1170,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
 
     amrex::Array1D<int, 1, 2> merge_indices;
     constexpr amrex::Real max_timescale = std::numeric_limits<amrex::Real>::max();
+
     for (int n = 1; n <= Rates::NumRates; ++n) {
 
         int current_rate_index = rate_indices(n);
@@ -1179,7 +1182,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
 
         if (reaction_timescales(n) == max_timescale) {
             break;
-        };
+        }
 
         // Fill in the merge index
 
