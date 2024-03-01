@@ -772,40 +772,36 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
     }
 
     //
-    // 3) If there are more than 2 non neutron, proton, or helium-4 in the rate
+    // 3) If there are more than 2 non Neutron, Proton, or Helium-4 in the rate
     //
 
     amrex::Array1D<int, 1, 2> non_NHA_ind = {-1, -1};
     int non_NHA_counts = 0;
     for (int k = 2; k <= 6; ++k) {
-
         if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
             continue;
         }
 
-        if (NSE_INDEX::N_index == -1 &&
-            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
+        int is_neutron_in_network = (NSE_INDEX::N_index != -1);
+        int is_valid_index = (NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
+                              NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index);
 
-            // Case when we don't have neutron in the network
-
-            ++non_NHA_counts;
-        }
-
-        else if (NSE_INDEX::N_index != -1 &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
-
-            // Case when we have neutron in the network
+        if ((!is_neutron_in_network && is_valid_index) ||
+            (is_neutron_in_network && is_valid_index &&
+             NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index)) {
 
             ++non_NHA_counts;
-        }
 
-        if (non_NHA_counts > 2) {
-            return;
+            // Check if count exceeds 2
+
+            if (non_NHA_counts > 2) {
+                return;
+            }
+
+            // Store the index where we have non Neutron, Proton, or Helium-4
+
+            non_NHA_ind(non_NHA_counts) = k;
         }
-        non_NHA_ind(non_NHA_counts) = k;
     }
 
     // Calculate the forward and reverse rates of the current rate index
@@ -846,6 +842,14 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
         t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / amrex::min(b_f, b_r));
     }
 
+    // if (current_rate_index == 22 || current_rate_index == 23) {
+    //     std::cout << "b_f is " << b_f << std::endl;
+    //     std::cout << "b_r is " << b_r << std::endl;
+    //     std::cout << "nonNHA_ind 1 is " << non_NHA_ind(1) << std::endl;
+    //     std::cout << "nonNHA_ind 2 is " << non_NHA_ind(2) << std::endl;
+    //     std::cout << "time scale i " << t_i << std::endl;
+    // }
+
     //
     // Condition for checking if forward and reverse rates are in equilibrium
     // Also whether the reaction time scale is smaller than sound crossing time
@@ -874,36 +878,32 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     merge_indices(2) = -1;
 
     for (int k = 2; k <= 6; ++k) {
-
         if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
             continue;
         }
 
-        if (NSE_INDEX::N_index == -1 &&
-            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-            NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
+        int is_neutron_in_network = (NSE_INDEX::N_index != -1);
+        int is_valid_index = (NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
+                              NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index);
 
-            // Case when we don't have neutron in the network
+        if ((!is_neutron_in_network && is_valid_index) ||
+            (is_neutron_in_network && is_valid_index &&
+             NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index)) {
+
+            ++non_NHA_counts;
+
+            if (non_NHA_counts > 2) {
+                return;
+            }
+
+            // Store the index where we have non Neutron, Proton, or Helium-4
 
             non_NHA_ind(non_NHA_counts) = k;
         }
-
-        if (NSE_INDEX::N_index != -1 &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::N_index &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::H1_index &&
-                 NSE_INDEX::rate_indices(current_rate_index, k) != NSE_INDEX::He4_index) {
-
-            // Case when we have neutron in the network
-
-            non_NHA_ind(non_NHA_counts) = k;
-        }
-
     }
-
 
     // Check whether isotopes are already merged
 
-    int root_index;
     int num_nonLIG = 0;
     int nonLIG_root = -1;
 
@@ -911,20 +911,32 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
         if (NSE_INDEX::rate_indices(current_rate_index, k) == -1) {
             continue;
         }
-        root_index = get_root_index(NSE_INDEX::rate_indices(current_rate_index, k), group_ind);
+
+        int root_index = get_root_index(NSE_INDEX::rate_indices(current_rate_index, k),
+                                        group_ind);
 
         // Determine number of nonLIG isotopes
         // also check whether nonLIG isotopes are already merged
 
         if (root_index != get_root_index(NSE_INDEX::He4_index, group_ind)) {
+
             ++num_nonLIG;
 
-            // return if nonLIG_root index is repeated, meaning these isotope already merged
+            //
+            // return if nonLIG_root index is repeated, i.e. isotopes already merged
+            // Initialize nonLIG_root = -1.
+            // Update nonLIG_root during first encounter nonLIG
+            // If nonLIG_root is repeated during second encounter, then abort
+            //
 
             if (root_index == nonLIG_root) {
                 return;
             }
+
+            // Update the nonLIG_root during first encounter
+
             nonLIG_root = root_index;
+
         }
     }
 
@@ -991,7 +1003,14 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     // from smallest (fastest) to largest (slowest) timescale
     //
 
+    // for (int n = 1; n <= Rates::NumRates; ++n) {
+    //     std::cout << reaction_timescales(n) << ", " << "for n = " << n << "  ";
+    // }
     quickSort_Array1D(rate_indices, reaction_timescales, 1, Rates::NumRates);
+    // for (int n = 1; n <= Rates::NumRates; ++n) {
+    //     std::cout << reaction_timescales(n) << ", ";
+    // }
+    // std::cout << std::endl;
 
     // After the rate indices are sorted based on reaction timescales.
     // Now do the grouping based on the timescale.
@@ -1016,10 +1035,12 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
 
         fill_merge_indices(merge_indices, current_rate_index, group_ind);
 
+        // std::cout << "Merge indices are " << merge_indices(1) << ", " << merge_indices(2)
+        //           << "for n = " << current_rate_index << std::endl;
         // Check if merge indices are -1, which means nothing to merge
 
         if (merge_indices(1) == -1 || merge_indices(2) == -1) {
-            break;
+            continue;
         }
 
         // union the isotopes into the same group
