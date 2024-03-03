@@ -21,6 +21,7 @@ void create_A(RArray2D& A) {
 
     constexpr_for<1, INT_NEQS+1>([&] (auto irow)
     {
+
         constexpr_for<1, INT_NEQS+1>([&] (auto jcol)
         {
 
@@ -141,6 +142,89 @@ void linear_algebra() {
     for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
         std::cout << std::setw(20) << x(jcol) << " " << std::setw(20) << b(jcol) << std::endl;
     }
+
+    std::cout << std::endl;
+
+    std::cout << "the Jacobian mask seen by RHS::is_jacobian_term_used()" << std::endl;
+
+    // now output the Jacobian mask as seen by `is_jacobian_term_used<>()`
+
+    std::cout << std::setw(4) << "*" << " ";
+
+    constexpr_for<1, INT_NEQS+1>([&] (auto i)
+    {
+        if constexpr (i < INT_NEQS) {
+            std::cout << std::setw(4) << short_spec_names_cxx[i-1] << " ";
+        } else {
+            std::cout << std::setw(4) << "enuc" << " ";
+        }
+    });
+
+    std::cout << std::endl;
+
+    constexpr_for<1, INT_NEQS+1>([&] (auto irow)
+    {
+
+        if constexpr (irow < INT_NEQS) {
+            std::cout << std::setw(4) << short_spec_names_cxx[irow-1] << " ";
+        } else {
+            std::cout << std::setw(4) << "enuc" << " ";
+        }
+
+        constexpr_for<1, INT_NEQS+1>([&] (auto jcol)
+        {
+            std::cout << std::setw(4) << RHS::is_jacobian_term_used<irow, jcol>() << " ";
+        });
+        std::cout << std::endl;
+    });
+
+    std::cout << std::endl;
+
+    // now try to output a Jacobian mask based on the actual Jacobian
+
+    ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> jac;
+
+    burn_t burn_state;
+    burn_state.rho = 1.e8;
+    burn_state.T = 1.e9;
+    for (int i = 0; i < NumSpec; ++i) {
+        burn_state.xn[i] = 1.0 / static_cast<amrex::Real>(NumSpec);
+    }
+
+    actual_jac(burn_state, jac);
+
+    std::cout << "the Jacobian mask from calling actual_jac" << std::endl;
+
+    std::cout << std::setw(4) << "*" << " ";
+
+    for (int i = 1; i <= INT_NEQS; ++i) {
+        if (i < INT_NEQS) {
+            std::cout << std::setw(4) << short_spec_names_cxx[i-1] << " ";
+        } else {
+            std::cout << std::setw(4) << "enuc" << " ";
+        }
+    }
+
+    std::cout << std::endl;
+
+    for (int irow = 1; irow <= INT_NEQS; ++irow) {
+        if (irow < INT_NEQS) {
+            std::cout << std::setw(4) << short_spec_names_cxx[irow-1] << " ";
+        } else {
+            std::cout << std::setw(4) << "enuc" << " ";
+        }
+
+        for (int jcol = 1; jcol <= INT_NEQS; ++jcol) {
+
+            if (jac(irow, jcol) != 0.0) {
+                std::cout << std::setw(4) << 1 << " ";
+            } else {
+                std::cout << std::setw(4) << 0 << " ";
+            }
+        }
+        std::cout << std::endl;
+    }
+
 
 }
 
