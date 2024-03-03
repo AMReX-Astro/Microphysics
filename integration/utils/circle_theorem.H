@@ -5,8 +5,7 @@
 #ifdef STRANG
 #include <integrator_type_strang.H>
 #include <integrator_rhs_strang.H>
-#endif
-#ifdef SDC
+#else
 #include <integrator_type_sdc.H>
 #include <integrator_rhs_sdc.H>
 #endif
@@ -23,7 +22,11 @@ void circle_theorem_sprad(const amrex::Real time, BurnT& state, T& int_state, am
     if (integrator_rp::jacobian == 1) {
         jac(time, state, int_state, jac_array);
     } else {
+#ifdef STRANG
         integrator_to_burn(int_state, state);
+#else
+        int_to_burn(time, int_state, state);
+#endif
         jac_info_t jac_info;
         jac_info.h = 0.0_rt;
         numerical_jac(state, jac_info, jac_array);
