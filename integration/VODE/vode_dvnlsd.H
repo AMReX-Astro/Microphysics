@@ -113,7 +113,14 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             }
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
-            RHS::dgesl(vstate.jac, vstate.y);
+            if (vstate.jacobian_type == 1) {
+                constexpr bool allow_skipping_zero_entries{true};
+                RHS::dgesl<allow_skipping_zero_entries>(vstate.jac, vstate.y);
+            }
+            else {
+                constexpr bool allow_skipping_zero_entries{false};
+                RHS::dgesl<allow_skipping_zero_entries>(vstate.jac, vstate.y);
+            }
 #else
             if (integrator_rp::linalg_do_pivoting == 1) {
                 constexpr bool allow_pivot{true};

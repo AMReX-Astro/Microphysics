@@ -169,7 +169,14 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
     int IER{};
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    RHS::dgefa(vstate.jac);
+    if (vstate.jacobian_type == 1) {
+        constexpr bool allow_skipping_zero_entries{true};
+        RHS::dgefa<allow_skipping_zero_entries>(vstate.jac);
+    }
+    else {
+        constexpr bool allow_skipping_zero_entries{false};
+        RHS::dgefa<allow_skipping_zero_entries>(vstate.jac);
+    }
     IER = 0;
 #else
     if (integrator_rp::linalg_do_pivoting == 1) {

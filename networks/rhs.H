@@ -272,6 +272,7 @@ constexpr int is_jacobian_term_used ()
 #endif
 }
 
+template <bool allow_skipping_zero_entries>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgesl (RArray2D& a1, RArray1D& b1)
 {
@@ -289,7 +290,7 @@ void dgesl (RArray2D& a1, RArray1D& b1)
         {
             constexpr int j = n2;
 
-            if (is_jacobian_term_used<j+1, k+1>()) {
+            if (is_jacobian_term_used<j+1, k+1>() || !allow_skipping_zero_entries) {
                 b(j) += t * a(j,k);
             }
         });
@@ -305,13 +306,14 @@ void dgesl (RArray2D& a1, RArray1D& b1)
 
         constexpr_for<0, k>([&] (auto j)
         {
-            if (is_jacobian_term_used<j+1, k+1>()) {
+            if (is_jacobian_term_used<j+1, k+1>() || !allow_skipping_zero_entries) {
                 b(j) += t * a(j,k);
             }
         });
     });
 }
 
+template <bool allow_skipping_zero_entries>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgefa (RArray2D& a1)
 {
@@ -329,7 +331,7 @@ void dgefa (RArray2D& a1)
         {
             [[maybe_unused]] constexpr int j = n2;
 
-            if (is_jacobian_term_used<j+1, k+1>()) {
+            if (is_jacobian_term_used<j+1, k+1>() || !allow_skipping_zero_entries) {
                 a(j,k) *= t;
             }
         });
@@ -344,7 +346,7 @@ void dgefa (RArray2D& a1)
             {
                 [[maybe_unused]] constexpr int i = n3;
 
-                if constexpr (is_jacobian_term_used<i+1, k+1>()) {
+                if constexpr (is_jacobian_term_used<i+1, k+1>() || !allow_skipping_zero_entries) {
                     a(i,j) += t * a(i,k);
                 }
             });

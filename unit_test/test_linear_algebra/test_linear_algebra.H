@@ -99,8 +99,16 @@ void linear_algebra() {
 
     // solve the linear system with the templated solver
 
-    RHS::dgefa(A);
-    RHS::dgesl(A, b);
+    if (jacobian == 1) {
+        constexpr bool allow_skipping_zero_entries{true};
+        RHS::dgefa<allow_skipping_zero_entries>(A);
+        RHS::dgesl<allow_skipping_zero_entries>(A, b);
+    }
+    else {
+        constexpr bool allow_skipping_zero_entries{false};
+        RHS::dgefa<allow_skipping_zero_entries>(A);
+        RHS::dgesl<allow_skipping_zero_entries>(A, b);
+    }
 
     std::cout << std::setprecision(16);
 
