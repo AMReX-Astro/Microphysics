@@ -263,7 +263,7 @@ constexpr int is_jacobian_term_used ()
             }
         }
 
-        if (is_spec_1_used || is_spec_2_used) {
+        if (is_spec_1_used && is_spec_2_used) {
             term_is_used = 1;
         }
     });
@@ -289,7 +289,7 @@ void dgesl (RArray2D& a1, RArray1D& b1)
         {
             constexpr int j = n2;
 
-            if (is_jacobian_term_used<j, k>()) {
+            if (is_jacobian_term_used<j+1, k+1>()) {
                 b(j) += t * a(j,k);
             }
         });
@@ -305,7 +305,7 @@ void dgesl (RArray2D& a1, RArray1D& b1)
 
         constexpr_for<0, k>([&] (auto j)
         {
-            if (is_jacobian_term_used<j, k>()) {
+            if (is_jacobian_term_used<j+1, k+1>()) {
                 b(j) += t * a(j,k);
             }
         });
@@ -329,7 +329,7 @@ void dgefa (RArray2D& a1)
         {
             [[maybe_unused]] constexpr int j = n2;
 
-            if (is_jacobian_term_used<j, k>()) {
+            if (is_jacobian_term_used<j+1, k+1>()) {
                 a(j,k) *= t;
             }
         });
@@ -344,7 +344,7 @@ void dgefa (RArray2D& a1)
             {
                 [[maybe_unused]] constexpr int i = n3;
 
-                if constexpr (is_jacobian_term_used<i, k>()) {
+                if constexpr (is_jacobian_term_used<i+1, k+1>()) {
                     a(i,j) += t * a(i,k);
                 }
             });
