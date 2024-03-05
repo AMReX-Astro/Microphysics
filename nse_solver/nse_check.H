@@ -842,14 +842,6 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
         t_i = amrex::min(t_i, Y(NSE_INDEX::rate_indices(current_rate_index, non_NHA_ind(2))+1) / amrex::min(b_f, b_r));
     }
 
-    // if (current_rate_index == 22 || current_rate_index == 23) {
-    //     std::cout << "b_f is " << b_f << std::endl;
-    //     std::cout << "b_r is " << b_r << std::endl;
-    //     std::cout << "nonNHA_ind 1 is " << non_NHA_ind(1) << std::endl;
-    //     std::cout << "nonNHA_ind 2 is " << non_NHA_ind(2) << std::endl;
-    //     std::cout << "time scale i " << t_i << std::endl;
-    // }
-
     //
     // Condition for checking if forward and reverse rates are in equilibrium
     // Also whether the reaction time scale is smaller than sound crossing time
@@ -1003,14 +995,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     // from smallest (fastest) to largest (slowest) timescale
     //
 
-    // for (int n = 1; n <= Rates::NumRates; ++n) {
-    //     std::cout << reaction_timescales(n) << ", " << "for n = " << n << "  ";
-    // }
     quickSort_Array1D(rate_indices, reaction_timescales, 1, Rates::NumRates);
-    // for (int n = 1; n <= Rates::NumRates; ++n) {
-    //     std::cout << reaction_timescales(n) << ", ";
-    // }
-    // std::cout << std::endl;
 
     // After the rate indices are sorted based on reaction timescales.
     // Now do the grouping based on the timescale.
@@ -1035,8 +1020,6 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
 
         fill_merge_indices(merge_indices, current_rate_index, group_ind);
 
-        // std::cout << "Merge indices are " << merge_indices(1) << ", " << merge_indices(2)
-        //           << "for n = " << current_rate_index << std::endl;
         // Check if merge indices are -1, which means nothing to merge
 
         if (merge_indices(1) == -1 || merge_indices(2) == -1) {
