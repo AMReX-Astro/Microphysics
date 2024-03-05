@@ -22,65 +22,67 @@
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
-  // This function gives the first estimate whether we're in the nse or not
-  // it checks whether the molar fractions of n,p,a are approximately in NSE
+    // This function gives the first estimate whether we're in the nse or not
+    // it checks whether the molar fractions of n,p,a are approximately in NSE
 
-  amrex::Real r = 1.0_rt;
-  amrex::Real r_nse = 1.0_rt;
+    amrex::Real r = 1.0_rt;
+    amrex::Real r_nse = 1.0_rt;
 
-  nse_check = false;
+    nse_check = false;
 
-  // raise error if no proton or helium-4 in the network.
+    // raise error if no proton or helium-4 in the network.
 
-  if (NSE_INDEX::H1_index == -1 || NSE_INDEX::He4_index == -1) {
-    amrex::Error("Need proton and helium-4 in the network for NSE_NET to work");
-  }
-
-  // If there are proton, or helium in the network
-
-  // Check if n,p,a are in equilibrium
-  // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
-
-  for (int n = 0; n < NumSpec; ++n) {
-
-    if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
-      r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
-      r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
+    if (NSE_INDEX::H1_index == -1 || NSE_INDEX::He4_index == -1) {
+        amrex::Error("Need proton and helium-4 in the network for NSE_NET to work");
     }
 
-    else if (n == NSE_INDEX::He4_index) {
-      r *= state.xn[n] * aion_inv[n];
-      r_nse *= nse_state.xn[n] * aion_inv[n];
+    // If there are proton, or helium in the network
+
+    // Check if n,p,a are in equilibrium
+    // these two ratios are defined in the ASE paper to determine whether network is in equilibrium
+
+    for (int n = 0; n < NumSpec; ++n) {
+
+        if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
+            r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
+            r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
+        }
+
+        else if (n == NSE_INDEX::He4_index) {
+            r *= state.xn[n] * aion_inv[n];
+            r_nse *= nse_state.xn[n] * aion_inv[n];
+        }
     }
-  }
 
-  // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
-  // Eq. 14 in Kushnir paper
+    // equilibrium condition: if pass proceed with ase if not proceed with regular eos integration
+    // Eq. 14 in Kushnir paper
 
-  // if there is neutron in the network
+    // if there is neutron in the network
 
-  if ((std::abs((r - r_nse) / r_nse) < 0.5_rt) && (NSE_INDEX::N_index != -1)) {
+    if ((std::abs((r - r_nse) / r_nse) < 0.5_rt)
+        && (NSE_INDEX::N_index != -1)) {
+        nse_check = true;
+        return;
+    }
+
+    // if there is no neutron in the network
+
+    if ((std::abs((r - r_nse) / r_nse) < 0.25_rt)
+        && (NSE_INDEX::N_index == -1)) {
+        nse_check = true;
+        return;
+    }
+
+    // Overall molar fraction check
+
+    for (int n = 0; n < NumSpec; ++n) {
+        Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
+        Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
+        if (abs_diff > nse_abs_tol && rel_diff > nse_rel_tol) {
+            return;
+        }
+    }
     nse_check = true;
-    return;
-  }
-
-  // if there is no neutron in the network
-
-  if ((std::abs((r - r_nse) / r_nse) < 0.25_rt) && (NSE_INDEX::N_index == -1)) {
-    nse_check = true;
-    return;
-  }
-
-  // Overall molar fraction check
-
-  for (int n = 0; n < NumSpec; ++n) {
-      Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
-      Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
-      if (abs_diff > nse_abs_tol && rel_diff > nse_rel_tol) {
-          return;
-      }
-  }
-  nse_check = true;
 }
 
 
