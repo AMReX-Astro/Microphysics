@@ -42,9 +42,6 @@ void bubbleSort_Array1D(amrex::Array1D<T, l, m>& sort_array,
         for (int j = l; j <= m-i; ++j) {
             if (!compare(sort_array(j), sort_array(j+1), ascending)) {
                 swap(sort_array(j), sort_array(j+1));
-                // scratch = sort_array(j);
-                // sort_array(j) = sort_array(j+1);
-                // sort_array(j+1) = scratch;
             }
         }
     }
