@@ -86,526 +86,11 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 }
 
 
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void find_max_nucs(int& max_nucs, const int current_nuc_ind) {
-
-  // Find max number of nucs possible in a reaction step given a nuclei index.
-  // used to determine the size of reaction array
-
-  max_nucs = 0;
-
-  for (int n = NumSpec-1; n > NSE_INDEX::He4_index; --n) {
-    if (
-        (aion[n] == aion[current_nuc_ind]-1 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1))
-        ||
-        (aion[n] == aion[current_nuc_ind]+3 &&
-            (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
-        ||
-        (aion[n] == aion[current_nuc_ind]+4 && zion[n] == zion[current_nuc_ind]+2)
-        ) {
-
-      ++max_nucs;
-    }
-
-    if (
-        (aion[n] == aion[current_nuc_ind]+3 &&
-         (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
-         ||
-         (aion[n] == aion[current_nuc_ind]+2 &&
-          (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
-           || zion[n] == zion[current_nuc_ind]+2))
-         ||
-         (aion[n] == aion[current_nuc_ind]-2 &&
-          (zion[n] == zion[current_nuc_ind]-2 || zion[n] == zion[current_nuc_ind]-1
-           || zion[n] == zion[current_nuc_ind]))
-        ) {
-
-      ++max_nucs;
-    }
-
-    if (
-        (aion[n] == aion[current_nuc_ind]+2 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
-          || zion[n] == zion[current_nuc_ind]+2))
-        ||
-        (aion[n] == aion[current_nuc_ind]+1 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
-        ||
-        (aion[n] == aion[current_nuc_ind]-3 &&
-         (zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2))
-        ) {
-
-      ++max_nucs;
-    }
-
-    if (
-        (aion[n] == aion[current_nuc_ind]+1 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
-        ||
-        (aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2)
-        ) {
-
-      ++max_nucs;
-    }
-
-  }
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_rate_by_nuc(int& rate_index, amrex::Array1D<int, 1, 3> reactants_indices,
-                     amrex::Array1D<int, 1, 3> products_indices) {
-
-  rate_index = -1;
-  bool found_index = false;
-
-  // sort indices just to make sure
-
-  bubbleSort_Array1D(reactants_indices);
-  bubbleSort_Array1D(products_indices);
-
-  // check for which rate matches these input indices
-  // fill in the corresponding rate_index by providing array of reactants and products indices
-
-  for (int i = 1; i <= Rates::NumRates; ++i) {
-    for (int j = 1; j <= 3; ++j) {
-      if (NSE_INDEX::rate_indices(i, j) == reactants_indices(j) && NSE_INDEX::rate_indices(i, j+3) == products_indices(j)) {
-        found_index = true;
-      }
-      else {
-        found_index = false;
-        break;
-      }
-    }
-
-    if (found_index) {
-      rate_index = i;
-      return;
-    }
-  }
-
-}
-
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void find_fast_reaction_cycle(const int current_nuc_ind, const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
-                        const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
-                        const burn_t& state, const amrex::Real& t_s, bool& found_fast_reaction_cycle) {
-
-  // This function finds the fast reaction cycle of a given nuclei.
-  // This is done to satisfy Section 4.4.3 of Kushnir
-
-  // Here pre-determine the max number of nuclei possible in each cycle
-  // so we don't loop over too many nucs
-
-  int max_nucs;
-  find_max_nucs(max_nucs, current_nuc_ind);
-
-  // Store possible reaction nuclei indices and indices of fast reaction nucs
-
-  amrex::Array2D<int, 1, 6, 1, NumSpec+1> reactions;
-  amrex::Array2D<int, 1, 6, 1, NumSpec+1> fast_reactions;
-
-  // some variables to hold temporary data, and rate index
-
-  amrex::Array1D<int, 1, 3> reaction_scratch;
-  amrex::Array1D<int, 1, 3> product_scratch;
-  int rate_index;
-  bool have_required_nucs;
-
-  // holds forward and reverse rate of a reaction
-
-  amrex::Real b_f = 0.0_rt;
-  amrex::Real b_r = 0.0_rt;
-
-  // initialize reactions and fast_reactions to -1
-
-  for (int i = 1; i <= 6; ++i) {
-    for (int j = 1; j <= max_nucs; ++j) {
-      reactions(i, j) = -1;
-      fast_reactions(i, j) = -1;
-    }
-  }
-
-  // indices for reaction array to locate intermediate nuclei
-
-  int inter_nuc_ind1 = 1;
-  int inter_nuc_ind2 = 1;
-  int inter_nuc_ind3 = 1;
-  int inter_nuc_ind4 = 1;
-
-  // the beginning nuclei of a reaction cycle is always itself
-
-  reactions(1, 1) = current_nuc_ind;
-
-  // Now store all possible nuclei involved in a reaction cycle started by nuclei: current_nuc_ind
-
-  for (int n = NumSpec-1; n > NSE_INDEX::He4_index; --n) {
-
-    if (
-        (aion[n] == aion[current_nuc_ind]-1 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]-1))
-        ||
-        (aion[n] == aion[current_nuc_ind]+3 &&
-            (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
-        ||
-        (aion[n] == aion[current_nuc_ind]+4 && zion[n] == zion[current_nuc_ind]+2)
-        ) {
-
-      reactions(2, inter_nuc_ind1) = n;
-      ++inter_nuc_ind1;
-    }
-
-    if (
-        (aion[n] == aion[current_nuc_ind]+3 &&
-         (zion[n] == zion[current_nuc_ind]+1 || zion[n] == zion[current_nuc_ind]+2))
-         ||
-         (aion[n] == aion[current_nuc_ind]+2 &&
-          (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
-           || zion[n] == zion[current_nuc_ind]+2))
-         ||
-         (aion[n] == aion[current_nuc_ind]-2 &&
-          (zion[n] == zion[current_nuc_ind]-2 || zion[n] == zion[current_nuc_ind]-1
-           || zion[n] == zion[current_nuc_ind]))
-        ) {
-
-      reactions(3, inter_nuc_ind2) = n;
-      ++inter_nuc_ind2;
-    }
-
-    if (
-        (aion[n] == aion[current_nuc_ind]+2 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1
-          || zion[n] == zion[current_nuc_ind]+2))
-        ||
-        (aion[n] == aion[current_nuc_ind]+1 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
-        ||
-        (aion[n] == aion[current_nuc_ind]-3 &&
-         (zion[n] == zion[current_nuc_ind]-1 || zion[n] == zion[current_nuc_ind]-2))
-        ) {
-
-      reactions(4, inter_nuc_ind3) = n;
-      ++inter_nuc_ind3;
-    }
-
-    if (
-        (aion[n] == aion[current_nuc_ind]+1 &&
-         (zion[n] == zion[current_nuc_ind] || zion[n] == zion[current_nuc_ind]+1))
-        ||
-        (aion[n] == aion[current_nuc_ind]-4 && zion[n] == zion[current_nuc_ind]-2)
-        ) {
-
-      reactions(5, inter_nuc_ind4) = n;
-        ++inter_nuc_ind4;
-    }
-  }
-
-  reactions(5, inter_nuc_ind4) = current_nuc_ind;
-  reactions(6, 1) = current_nuc_ind;
-
-  // Checks if there are intermediate nuclei in the cycle
-  // if no intermediate nuclei present, then there is no way to make a full reaction cycle
-
-  for (int i = 2; i <= 4; ++i) {
-
-    have_required_nucs = false;
-
-    for (int j = 1; j <= max_nucs; ++j) {
-      if (reactions(i, j) != -1) {
-        have_required_nucs = true;
-      }
-    }
-
-    if (!have_required_nucs) {
-      found_fast_reaction_cycle = false;
-      return;
-    }
-  }
-
-
-  // Now we have all the intermediate nuclei necessary for the reaction cycle
-  // Now we check whether the possible reaction are fast enough
-
-  // The first nuc in fast reaction is always itself
-
-  fast_reactions(1, 1) = current_nuc_ind;
-  amrex::Array1D<amrex::Real, 1, 2>  Y_i;
-
-  // loop over reaction stages
-
-  for (int i = 1; i <= 5; ++i) {
-
-    // loop over nuclei in the current stage
-
-    for (int j = 1; j <= max_nucs; ++j) {
-
-      // skip this loop if current nuc is the same as the starting nuc
-      // also skip if current index is -1, which is not valid
-
-      if (reactions(i, j) == -1 || (reactions(i, j) == current_nuc_ind && i != 1)) {
-        continue;
-      }
-
-      // current current stage of nuc index, (i,j) to the next stage nuc index (i+1,k)
-      // get nuc index of the next stage in reactions
-
-      for (int k = 1; k <= max_nucs; ++k) {
-
-        // if reaction index is -1, skip, since its not a valid index
-
-        if (reactions(i+1, k) == -1) {
-          continue;
-        }
-
-        // determine which reaction it went through
-        // Kushnir listed a total of 5 possible reactions to consider
-        // (a,g), (a,p), (a,n), (g,p), (g,n)
-
-        if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 4 &&
-            zion[reactions(i, j)] == zion[reactions(i+1, k)] - 2) {
-
-          // (alpha, gamma) reaction
-          // implies reactants are he4, reactions(i, j) and product is (reactions(i+1, k)
-
-          reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = NSE_INDEX::He4_index;
-          reaction_scratch(3) = -1;
-
-          product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = -1;
-          product_scratch(3) = -1;
-
-          get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-
-          // skip if there is no such rate.
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::He4_index + 1) * state.rho;
-          get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-
-          // skip if there are no both forward and reverse rate
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1);
-
-          Y_i(1) = Y(NSE_INDEX::He4_index + 1);
-          Y_i(2) = 0.0_rt;
-        }
-
-        else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
-                 zion[reactions(i, j)] == zion[reactions(i+1, k)] - 2) {
-
-          // (alpha, n) reaction
-
-          reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = NSE_INDEX::He4_index;
-          reaction_scratch(3) = -1;
-
-          product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::N_index;
-          product_scratch(3) = -1;
-
-          get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::He4_index + 1) * state.rho;
-          get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-
-          // skip if there are no both forward and reverse rate
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::N_index + 1) * state.rho;
-
-          Y_i(1) = Y(NSE_INDEX::He4_index + 1);
-          Y_i(2) = Y(NSE_INDEX::N_index + 1);
-        }
-
-        else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] - 3 &&
-                 zion[reactions(i, j)] == zion[reactions(i+1, k)] - 1) {
-
-          // (alpha, p) reaction
-
-          reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = NSE_INDEX::He4_index;
-          reaction_scratch(3) = -1;
-
-          product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::H1_index;
-          product_scratch(3) = -1;
-
-          get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1) * Y(NSE_INDEX::He4_index + 1) * state.rho;
-          get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-
-          // skip if there are no both forward and reverse rate
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::H1_index + 1) * state.rho;
-
-          Y_i(1) = Y(NSE_INDEX::He4_index + 1);
-          Y_i(2) = Y(NSE_INDEX::H1_index + 1);
-        }
-
-        else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] + 1 &&
-                 zion[reactions(i, j)] == zion[reactions(i+1, k)]) {
-
-          // (gamma, n) reaction
-
-          reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = -1;
-          reaction_scratch(3) = -1;
-
-          product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::N_index;
-          product_scratch(3) = -1;
-
-          get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
-          get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-
-          // skip if there are no both forward and reverse rate
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::N_index + 1) * state.rho;
-
-          Y_i(1) = Y(NSE_INDEX::N_index + 1);
-          Y_i(2) = 0.0_rt;
-        }
-
-        else if (aion[reactions(i, j)] == aion[reactions(i+1, k)] + 1  &&
-                 zion[reactions(i, j)] == zion[reactions(i+1, k)] + 1) {
-
-          // (gamma, p) reaction
-
-          reaction_scratch(1) = reactions(i, j);
-          reaction_scratch(2) = -1;
-          reaction_scratch(3) = -1;
-
-          product_scratch(1) = reactions(i+1, k);
-          product_scratch(2) = NSE_INDEX::H1_index;
-          product_scratch(3) = -1;
-
-          get_rate_by_nuc(rate_index, reaction_scratch, product_scratch);
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_f = screened_rates(rate_index) * Y(reactions(i, j) + 1);
-          get_rate_by_nuc(rate_index, product_scratch, reaction_scratch);
-
-          // skip if there are no both forward and reverse rate
-
-          if (rate_index == -1) {
-            continue;
-          }
-
-          b_r = screened_rates(rate_index) * Y(reactions(i+1, k) + 1) * Y(NSE_INDEX::H1_index + 1) * state.rho;
-
-          Y_i(1) = Y(NSE_INDEX::H1_index + 1);
-          Y_i(2) = 0.0_rt;
-        }
-
-        else{
-
-          // continue if no matching reactions
-
-          continue;
-        }
-
-        // A condition to check whether rates are fast enough given by Eq. 11 in Kushnir.
-        // Not sure if the 3rd condition (Eq. 12) is required
-        // It didn't mention it in in the paragraph in section 4.4.3, but listed it in Eq. 12
-        // It didn't have a significant difference, but I'll leave it here for future reference
-
-        if (
-            ((2.0_rt * std::abs(b_f - b_r) / (b_f + b_r)) < ase_tol)
-            &&
-            ((Y_i(1) / amrex::min(b_f, b_r) < ase_tol * t_s)
-             || (Y_i(2) / amrex::min(b_f, b_r) < ase_tol * t_s))
-          ) {
-
-          // store nuclei index to fast_reaction if pass the condition
-
-          fast_reactions(i + 1, k) = reactions(i + 1, k);
-        }
-
-      }
-    }
-
-    // if (fast_reactions(i + 1, p) have any non -1, means found a fast reac nuc
-
-    have_required_nucs = false;
-
-    for (int p = 1; p <= max_nucs; ++p) {
-
-      // replace reaction nucs with fast_reaciton nucs of the next reaction stage
-
-        reactions(i + 1, p) = fast_reactions(i + 1, p);
-
-        // if we see current_nuc_ind in the next stage, means we have finished the cycle
-
-        if (fast_reactions(i + 1, p) == current_nuc_ind) {
-
-          found_fast_reaction_cycle = true;
-
-          return;
-        }
-
-        // if we see non -1 index, which means we found nucs in the next stage
-        // that are fast enough, but not yet complete the full cycle
-
-        if (fast_reactions(i + 1, p) != -1) {
-          have_required_nucs = true;
-        }
-    }
-
-    // if there is not a single nuc in the next stage meet the requirement
-    // then there is no intermdiate nuclei, then break.
-
-    if (!have_required_nucs) {
-      found_fast_reaction_cycle = false;
-      return;
-    }
-  }
-
-}
-
-
 // After all preliminary checks are successful, lets do nse grouping.
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 int get_root_index(const int nuc_ind,
-                     const amrex::Array1D<int, 1, NumSpec>& group_ind) {
+                   const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 
     // This function returns the root index of the nuclei
     // by providing the nuclei index [0, NumSpec-1], and group indices, group_ind
@@ -726,10 +211,8 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
                     continue;
                 }
 
-                if ((std::fmod(aion[n] - zion[n], 2) == 0.0_rt &&
-                     evenN_group != get_root_index(n, group_ind)) ||
-                    (std::fmod(aion[n] - zion[n], 2) == 1.0_rt &&
-                     oddN_group != get_root_index(n, group_ind))) {
+                if ((std::fmod(aion[n] - zion[n], 2) == 0.0_rt && evenN_group != get_root_index(n, group_ind)) ||
+                    (std::fmod(aion[n] - zion[n], 2) == 1.0_rt && oddN_group != get_root_index(n, group_ind))) {
                     in_single_group = false;
                     break;
                 }
@@ -854,7 +337,6 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
         (t_i < ase_tol * t_s)) {
         reaction_timescales(current_rate_index) = t_i;
     }
-
 }
 
 
@@ -865,6 +347,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
     // This function determines the merge indices for the current rate index
 
     // First determine the non neutron, proton, helium-4 indices of the rate
+
     amrex::Array1D<int, 1, 2> non_NHA_ind = {-1, -1};
     int non_NHA_counts = 0;
 
@@ -930,7 +413,6 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
             // Update the nonLIG_root during first encounter
 
             nonLIG_root = root_index;
-
         }
     }
 
@@ -1031,7 +513,6 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
         // union the isotopes into the same group
 
         nse_union(merge_indices(1), merge_indices(2), group_ind);
-
     }
 
 }
@@ -1166,60 +647,32 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     ydot(NumSpec + 1) = enuc - sneut;
 
-    bool found_fast_reaction_cycle = true;
-
-    // Additional constraint if there is neutron in the network:
-
-    // Now we look through the network and see if there are fast reaction cycles
-    // Need to separate forward and reverse rate and determine each step is fast enough.
-
-    if (NSE_INDEX::N_index != -1) {
-        found_fast_reaction_cycle = false;
-
-        // Do a reverse for loop to start from heaviest nuclei
-
-        for (int n = NumSpec-1; n >= 0; --n) {
-            if (found_fast_reaction_cycle) {
-                break;
-            }
-
-            find_fast_reaction_cycle(n, Y, rate_eval.screened_rates, state, t_s, found_fast_reaction_cycle);
-        }
-
-    }
-
-    // Do nse grouping if found fast reaction cycle.
-
-    // This holds group index for each nuclei
-    // it determines which group each nuclei is in
-
     amrex::Array1D<int, 1, NumSpec> group_ind;
 
-    // if not found_fast_reaction_cycle, state not in nse
+    //
+    // In Kushnir paper, we also need to perform a check
+    // on finding at least 1 "fast reaction cycle"
+    // However, it only works with neutron in the network.
+    // I've also skipped this step when working with non-neutron
+    // network. And it all seem to work fine.
+    //
 
-    if (!found_fast_reaction_cycle) {
-        current_state.nse = false;
-    }
-    else {
+    // Now do nse grouping
 
-        // Do nse grouping if found_fast_reaction_cycle
+    nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
 
-        nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
+    // Check if we result in a single group after grouping
 
-        // Check if we result in a single group after grouping
+    current_state.nse = false;
 
-        current_state.nse = false;
-
-        if (in_single_group(group_ind)) {
-            current_state.nse = true;
-        }
+    if (in_single_group(group_ind)) {
+        current_state.nse = true;
     }
 
     return current_state.nse;
 
 #else
     amrex::Error("in_nse() is currently not supported for aprox networks!");
-
     return false;
 #endif
 

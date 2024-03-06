@@ -1,3 +1,26 @@
+# 24.03
+
+   * pivoting in the linear algebra routines can now be disabled
+     (#1454)
+
+   * the scaling of the energy derivatives in the Jacobian when
+     running with `integrator.scale_system=1` has been fixed (#1479)
+
+   * added a new linear algebra unit test (#1493)
+
+   * when building with HIP we disable forced inlining (#1490)
+
+   * improved the energy update with NSE and remove unused terms
+     (#1483, #1484, #1485)
+
+   * remove `using namespace amrex` from most headers (#1465, #1474)
+
+   * updated the pynucastro networks to pynucastro 2.2.0 (#1470)
+
+   * fixed an error code check in the VODE integrator (#1472)
+
+   * added a zone-by-zone retry capability to the burner (#969)
+
 # 24.02
 
    * Lots of general code cleaning from coverity and clang-tidy
