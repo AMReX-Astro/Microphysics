@@ -252,10 +252,13 @@ The overall framework is constructed following :cite:`Kushnir_2020` with slight 
 
   .. math::
 
-    \episilon_{abs} = Y^i - Y^i_{NSE} < nse_abs_tol
-    \episilon_{rel} = \frac{\episilon_{abs}}{Y^i} < nse_rel_tol
+    \epsilon_{abs} = Y^i - Y^i_{NSE} < \mbox{nse_abs_tol}
 
-  where :math:`nse_rel_tol = 0.2` and :math:`nse_abs_tol = 0.005` by default.
+  .. math::
+
+    \epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} < \mbox{nse_rel_tol}
+
+  where ``nse_rel_tol = 0.2`` and ``nse_abs_tol = 0.005`` by default.
 
 
 * :cite:`Kushnir_2020` also requires a fast reaction cycle that
@@ -265,7 +268,7 @@ The overall framework is constructed following :cite:`Kushnir_2020` with slight 
   This reaction cycle should have the following reactions or
   their reverse:
 
-  * 1 :math:`(\alpha, \gamma)`, 2 :math:`(\gamma, p)`, 2 :math:`(\gamma, n)
+  * 1 :math:`(\alpha, \gamma)`, 2 :math:`(\gamma, p)`, 2 :math:`(\gamma, n)`
   * 1 :math:`(\alpha, p)`, 1 :math:`(\gamma, p)`, 2 :math:`(\gamma, n)`
   * 1 :math:`(\alpha, n)`, 2 :math:`(\gamma, p)`, 1 :math:`(\gamma, n)`
 
