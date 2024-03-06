@@ -59,7 +59,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
     // if there is neutron in the network
 
-    if ((std::abs((r - r_nse) / r_nse) < 0.5_rt)
+    if ((std::abs(r - r_nse) < 0.5_rt*r_nse)
         && (NSE_INDEX::N_index != -1)) {
         nse_check = true;
         return;
@@ -67,7 +67,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
     // if there is no neutron in the network
 
-    if ((std::abs((r - r_nse) / r_nse) < 0.25_rt)
+    if ((std::abs(r - r_nse) < 0.25_rt*r_nse)
         && (NSE_INDEX::N_index == -1)) {
         nse_check = true;
         return;
