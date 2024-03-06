@@ -221,35 +221,60 @@ is outlined in :cite:`Kushnir_2020`. The overall usage comes down to a single fu
 ``in_nse(state)``. By supplying the current state, this function returns a boolean that
 tells us whether we're in NSE or not. The current status of this functionality only
 works for pynucastro-generated network since aprox networks have slightly different syntax.
-Note that we ignore this check when ``T < 2.0e9``, since we don't expect NSE to occur when
+Note that we ignore this check when ``T < 2.5e9``, since we don't expect NSE to occur when
 temperature is below 2 billion Kelvin.
 
 There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
-* Have a rough check to determine whether the current state is close to NSE. They use a
-  criteria of:
+The overall framework is constructed following :cite:`Kushnir_2020` with slight variations.
+
+* We first determine whether the current molar fraction is close to NSE
+  with a criteria of:
 
   .. math::
 
      \frac{r - r_{NSE}}{r_{NSE}} < 0.5
 
   where :math:`r = Y_\alpha/(Y_p^2 Y_n^2)` and
-  :math:`r_{NSE} = \left(Y_\alpha/(Y_p^2 Y_n^2)\right)_{NSE}`.
+  :math:`r_{NSE} = \left(Y_\alpha/(Y_p^2 Y_n^2)\right)_{NSE}` if there is
+  neutron in the network.
 
-* Does the network has a fast reaction cycle that exchanges 1 :math:`\alpha` particle with
-  2 :math:`p` and 2 :math:`n` particles. This cycle should have the following reactions or
+  .. math::
+
+     \frac{r - r_{NSE}}{r_{NSE}} < 0.25
+
+  where :math:`r = Y_\alpha/(Y_p^2)` and
+  :math:`r_{NSE} = \left(Y_\alpha/(Y_p^2)\right)_{NSE}` if neutron
+  is not in the network.
+
+  If the molar check above failed, then we proceed with an overall molar
+  fraction check:
+
+  .. math::
+
+    \episilon_{abs} = Y^i - Y^i_{NSE} < nse_abs_tol
+    \episilon_{rel} = \frac{\episilon_{abs}}{Y^i} < nse_rel_tol
+
+  where :math:`nse_rel_tol = 0.2` and :math:`nse_abs_tol = 0.005` by default.
+
+
+* :cite:`Kushnir_2020` also requires a fast reaction cycle that
+  exchanges 1 :math:`\alpha` particle with 2 :math:`p` and 2 :math:`n`
+  particles. We used to have this check, but currently removed as
+  we think it is not necessary. However, the description is as following:
+  This reaction cycle should have the following reactions or
   their reverse:
 
-  * 1 :math:`(\alpha, \gamma)`, 2 :math:`(\gamma, p)`, 2 :math:`(\gamma, n)`
+  * 1 :math:`(\alpha, \gamma)`, 2 :math:`(\gamma, p)`, 2 :math:`(\gamma, n)
   * 1 :math:`(\alpha, p)`, 1 :math:`(\gamma, p)`, 2 :math:`(\gamma, n)`
   * 1 :math:`(\alpha, n)`, 2 :math:`(\gamma, p)`, 1 :math:`(\gamma, n)`
 
-  To consider to be fast reaction cycle, we require every step in the cycle to
-  have :math:`Y_i/\textbf{min}(b_f, b_r) < \epsilon t_s` for :math:`i = n, p, \alpha`
+  To consider to be fast reaction cycle, every step in the cycle to have
+  :math:`Y_i/\textbf{min}(b_f, b_r) < \epsilon t_s` for :math:`i = n, p, \alpha`
   participated in this step, where :math:`b_f` and :math:`b_r`
-  are the forward and reverse rate of the reaction, :math:`\epsilon` is a tolerance which
-  has a default value of :math:`0.1`, and :math:`t_s` is the sound crossing time of a
-  simulation cell. Note: we skip this check when there is no neutron involved in the network.
+  are the forward and reverse rate of the reaction,
+  :math:`\epsilon` is a tolerance which has a default value of
+  :math:`0.1`, and :math:`t_s` is the sound crossing time of a simulation cell.
 
   An example of such reaction cycle would be:
 
@@ -258,24 +283,29 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
      \isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
      (\alpha, \gamma) \isotm{S}{32}
 
-  The general approach to this is to start iterations from the heaviest to the lightest
-  nuclei. Then the algorithm checks if isotopes involved in the network can actually form
-  a cycle using the combination reactions above. If such cycle is formed, then we check the
-  rates of these reactions to see if they satisfy the condition mention previously.
-  If there are no isotope present in the network that would form a closed-cycle,
-  we move on to the next nuclei. We break out of the iteration once we found
-  a fast reaction cycle.
+* Lastly, we proceed to nuclei grouping. Initially,
+  :math:`p`, :math:`n`, and :math:`\alpha` are grouped into a single group
+  called the light-isotope-group, or LIG. Other isotopes belong to their
+  own group, which only contains themselves. We need to start the grouping
+  process with the reaction rate that has the fastest (smallest) timescale.
+  In the original :cite:`Kushnir_2020` paper, they use the group molar fraction
+  for evaluating the reaction timescale. This complicates things because
+  now reaction timescale changes after each successful grouping. We've
+  determined that the result is roughly the same even if we just use the
+  molar fraction of the isotope that is involved in the actual reaction.
+  Therefore, instead of using
+  :math:`t_{i,k} = \tilde{Y}_i/\textbf{min}(b_f(k), b_r(k))`, to evaluate
+  the reaction timescale of the reaction, :math:`k`, where
+  :math:`\tilde{Y}_i` represents the sum of molar fractions of the
+  group that isotope :math:`i` belongs to, we simply use the :math:`Y_i`,
+  which is the molar fraction of the isotope :math:`i`, which is the
+  isotope involved in the reaction that is different from
+  :math:`p`, :math:`n`, and :math:`\alpha`. After we settle on calculating
+  the timescale, since :math:`Y_i` doesn't change, we can calculate all
+  timescale at once and sort the reaction to determine the order at
+  which we want to start merging.
 
-* If the previous two check pass, we proceed to nuclei grouping. Initially,
-  :math:`p`, :math:`n`, and :math:`\alpha` are grouped into a single group called
-  the light-isotope-group, or LIG. Other isotopes belong to their own group,
-  which only contains themselves. During each iteration, we find all valid reaction,
-  :math:`k`, that has the fastest time-scale,
-  :math:`t_{i,k} = \tilde{Y}_i/\textbf{min}(b_f(k), b_r(k))`, for :math:`i` to be the isotope
-  involved with the reaction that is different from :math:`p`, :math:`n`, and :math:`\alpha`.
-  :math:`\tilde{Y}_i` represents the sum of molar fractions of the group that isotope :math:`i`
-  belongs in, or :math:`\tilde{Y}_i = \Sigma_{l \in q}Y^l_i`. After determining which reaction
-  has the fastest time-scale, there are two requirements for us to check whether this reaction
+  There are two requirements for us to check whether this reaction
   can be used to group the nuclei involved, which are:
 
   * at least 1 isotope, :math:`i`, that passes:
@@ -292,13 +322,16 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
   Here we only consider two cases of reactions:
 
-  * There are exactly two isotopes involved in reaction, :math:`k`, that are not in the
-    light-isotope-group. In this case, if the reaction passes the two criteria mentioned above,
-    we merge the groups containing those two isotopes if they're not yet in the same group.
+  * There are exactly two isotopes involved in reaction, :math:`k`,
+    that are not in the light-isotope-group. In this case,
+    if the reaction passes the two criteria mentioned above,
+    we merge the groups containing those two isotopes if they're
+    not yet in the same group.
 
-  * There is only one isotope involved in reaction, :math:`k`, that is not in the
-    light-isotope-group, which is not necessarily isotope :math:`i` that passes the
-    first criteria. In this case, we merge the isotope that is not in LIG into LIG.
+  * There is only one isotope involved in reaction, :math:`k`,
+    that is not in the light-isotope-group, which is not
+    necessarily isotope :math:`i` that passes the first criteria.
+    In this case, we merge the isotope that is not in LIG into LIG.
 
   Here we skip over reactions of the following due to obvious reasons:
 
@@ -308,62 +341,72 @@ There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
   * Reactions that have more than 2 non-light-isotope-group.
 
-  * The nuclei that participate in the reaction is either in LIG or in another group.
-    This means that the non-LIG nuclei have already merged.
+  * The nuclei that participate in the reaction is either in LIG or in
+    another group. This means that the non-LIG nuclei have already merged.
 
-  And the iteration stops once there are no reactions that can satisfy the above criteria.
-  At the end of the iterations, we define that the current state have reached NSE
-  when there is only a single group left, or there are two groups left where
-  1 of them is the light-isotope-group.
+  At the end of the grouping process,
+  we define that the current state have reached NSE
+  when there is only a single group left, or there are two groups
+  left where one of them is the light-isotope-group.
 
-  When there is no neutron in the network, it can be difficult for isotopes to form
-  a single group due to the missing neutron rates. Therefore, there is an alternative
-  criteria of defining a "single group" when neutron is not present in the network:
-  for isotopes, :math:`Z >= 14`, isotopes with odd and even :math:`N` form two
+  When there is no neutron in the network, it can be difficult
+  for isotopes to form a single group due to the missing neutron rates.
+  Therefore, there is an alternative criteria of defining a "single group"
+  when neutron is not present in the network: for isotopes,
+  :math:`Z >= 14`, isotopes with odd and even :math:`N` form two
   distinct groups.
 
 
 Additional Options
 ------------------
 
-Here we have some runtime options to allow a more cruel estimation to the self-consistent
-nse check:
+Here we have some runtime options to allow a more cruel estimation
+to the self-consistent nse check:
 
-* ``nse.nse_dx_independent = 1`` in the input file allows the nse check to ignore
-  the dependency on the cell size, ``dx``, which calculates the sound crossing time, ``t_s``.
-  Naturally, we require the timescale of the rates to be smaller than ``t_s`` to ensure the
-  states have time to achieve equilibrium. However, sometimes this check can be difficult
-  to achieve, so we leave this as an option for the user to explore.
+* ``nse.nse_dx_independent = 1`` in the input file allows the nse check
+  to ignore the dependency on the cell size, ``dx``, which calculates
+  the sound crossing time, ``t_s``. Naturally, we require the
+  timescale of the rates to be smaller than ``t_s`` to ensure the
+  states have time to achieve equilibrium. However, sometimes this
+  check can be difficult to achieve, so we leave this as an option
+  for the user to explore.
 
-* ``nse.nse_molar_independent = 1`` in the input file allows the user to use the nse mass
-  fractions for nse check after the first check (the one that ensures we're close enough
-  to the nse mass fractions to get reasonable results) is passed. This allows the subsequent
-  checks to only rely on the thermodynamic conditions instead of mass fractions.
+* ``nse.nse_molar_independent = 1`` in the input file allows the
+  user to use the nse mass fractions for nse check after the first
+  check (the one that ensures we're close enough to the nse mass fractions
+  to get reasonable results) is passed. This allows the subsequent checks
+  to only rely on the thermodynamic conditions instead of mass fractions.
 
-* ``nse.nse_skip_molar = 1`` in the input file allows the user to skip the molar fraction
-  check after the integration has failed. This option is used to completely forgo the
-  requirement on molar fractions and allow the check to only dependent on the thermodynamic
-  conditions. By only applying this after option after the integration failure, we hope the
-  integrator has evolved the system to the NSE state the best it can. By turning on this
-  option, we hope to give relief to the integrator if the system is in NSE thermodynamically,
-  which is likely the case.
+* ``nse.nse_skip_molar = 1`` in the input file allows the user to skip
+  the molar fraction check after the integration has failed.
+  This option is used to completely forgo the requirement on molar
+  fractions and allow the check to only dependent on the thermodynamic
+  conditions. By only applying this after option after the
+  integration failure, we hope the integrator has evolved the
+  system to the NSE state the best it can. By turning on this option,
+  we hope to give relief to the integrator if the system is in
+  NSE thermodynamically,  which is likely the case.
 
-* ``nse.T_nse_net`` in the input file allows the user to define a simple temperature threshold
-  to determine the NSE state instead of using the complicated procedure that looks for a
-  balance between the forward and the reverse rates. Once this quantity is set to a positive
-  value, then ``in_nse`` returns ``true`` if the current temperature is higher than ``T_nse_net``,
-  and ``false`` if the current temperature is lower than ``T_nse_net``.
-  Note that we still perform a simple molar fraction check to ensure that the current state
-  is close enough to the NSE state.
+* ``nse.T_nse_net`` in the input file allows the user to define a simple
+  temperature threshold to determine the NSE state instead of using
+  the complicated procedure that looks for a balance between the
+  forward and the reverse rates. Once this quantity is set to a positive
+  value, then ``in_nse`` returns ``true`` if the current temperature
+  is higher than ``T_nse_net``, and ``false`` if the current
+  temperature is lower than ``T_nse_net``.
+  Note that we still perform a simple molar fraction check to
+  ensure that the current state is close enough to the NSE state.
 
-* ``nse.ase_tol`` is the tolerance that determines the equilibrium condition for forward
-  and reverse rates. This is set to 0.1 by default.
+* ``nse.ase_tol`` is the tolerance that determines the equilibrium
+  condition for forward and reverse rates. This is set to 0.1 by default.
 
-* ``nse.nse_abs_tol`` is the absolute tolerance of checking the difference between current
-  molar fraction and the NSE molar fraction. This is set to 0.005 by default.
+* ``nse.nse_abs_tol`` is the absolute tolerance of checking the difference
+  between current molar fraction and the NSE molar fraction.
+  This is set to 0.005 by default.
 
-* ``nse.nse_rel_tol`` is the relative tolerance of checking the difference between current
-  molar fraction and the NSE molar fraction. This is set to 0.2 by default.
+* ``nse.nse_rel_tol`` is the relative tolerance of checking the
+  difference between current molar fraction and the NSE molar fraction.
+  This is set to 0.2 by default.
 
 
 .. rubric:: Footnotes
