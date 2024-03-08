@@ -380,8 +380,7 @@ void nse_nr_solver(T& state, amrex::Real eps=1.0e-10_rt) {
 
         // Find the max of the jacobian used for scaling determinant to prevent digit overflow
 
-        auto scale_fac = amrex::max(jac(2,2), amrex::max(jac(2,1),
-                                    amrex::max(jac(1,1), jac(1,2))));
+        auto scale_fac = amrex::max(jac(2,2), amrex::max(jac(2,1), amrex::max(jac(1,1), jac(1,2))));
 
         // if jacobians are small, then no need for scaling
 
