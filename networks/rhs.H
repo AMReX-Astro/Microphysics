@@ -263,7 +263,7 @@ constexpr int is_jacobian_term_used ()
             }
         }
 
-        if (is_spec_1_used || is_spec_2_used) {
+        if (is_spec_1_used && is_spec_2_used) {
             term_is_used = 1;
         }
     });
@@ -271,10 +271,6 @@ constexpr int is_jacobian_term_used ()
     return term_is_used;
 #endif
 }
-
-typedef amrex::Array1D<int, 1, INT_NEQS> IArray1D;
-typedef amrex::Array1D<amrex::Real, 1, INT_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void dgesl (RArray2D& a1, RArray1D& b1)
@@ -293,9 +289,7 @@ void dgesl (RArray2D& a1, RArray1D& b1)
         {
             constexpr int j = n2;
 
-            if (is_jacobian_term_used<j, k>()) {
-                b(j) += t * a(j,k);
-            }
+            b(j) += t * a(j,k);
         });
     });
 
@@ -309,9 +303,7 @@ void dgesl (RArray2D& a1, RArray1D& b1)
 
         constexpr_for<0, k>([&] (auto j)
         {
-            if (is_jacobian_term_used<j, k>()) {
-                b(j) += t * a(j,k);
-            }
+            b(j) += t * a(j,k);
         });
     });
 }
@@ -333,9 +325,7 @@ void dgefa (RArray2D& a1)
         {
             [[maybe_unused]] constexpr int j = n2;
 
-            if (is_jacobian_term_used<j, k>()) {
-                a(j,k) *= t;
-            }
+            a(j,k) *= t;
         });
 
         // row elimination with column indexing
@@ -348,9 +338,7 @@ void dgefa (RArray2D& a1)
             {
                 [[maybe_unused]] constexpr int i = n3;
 
-                if constexpr (is_jacobian_term_used<i, k>()) {
-                    a(i,j) += t * a(i,k);
-                }
+                a(i,j) += t * a(i,k);
             });
         });
     });
