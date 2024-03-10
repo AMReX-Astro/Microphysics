@@ -23,6 +23,14 @@
 using namespace nse_rp;
 
 template <typename T>
+struct nse_solver_data
+{
+    T state;
+    amrex::Array1D<amrex::Real, 1, NumSpec> u_c;
+};
+
+
+template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 T get_nonexponent_nse_state(const T& state) {
     // This function calculates a portion of the nse_state that is not dependent
@@ -75,22 +83,15 @@ T get_nonexponent_nse_state(const T& state) {
     return nse_state;
 }
 
-
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_nse_exponent(T& nse_state) {
-    // This function calculates a portion of the nse_state that dependents
-    // on the chemical potential.
-    // The input nse_state should be the result from get_nonexponent_nse_state
-
-    // if we are doing drive_initial_convection, we want to use
-    // the temperature that comes in through T_fixed
-
-    Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    Real exponent;
+amrex::Array1D<amrex::Real, 1, NumSpec> compute_chemical_potential(const T& state) {
+    // This function computes the chemical potential 1D array
 
     // if we use chabrier1998 screening
     // Get the required terms to calculate coulomb correction term, u_c
+
+    amrex::Array1D<amrex::Real, 1, NumSpec>& u_c;
 
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 
@@ -101,18 +102,16 @@ void apply_nse_exponent(T& nse_state) {
     amrex::Real gamma;
 #endif
 
-    amrex::Real u_c = 0.0_rt;
-
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
         if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0;
             continue;
         }
 #endif
         // term for calculating u_c
 
         // if use chabrier1998 screening, calculate the coulomb correction term
+
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
         gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
 
@@ -120,11 +119,44 @@ void apply_nse_exponent(T& nse_state) {
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
 
         // reuse existing implementation from screening routine
-        Real f, df;
+        amrex::Real f, df;
         constexpr int do_T_derivatives = 0;
         chabrier1998_helmholtz_F<do_T_derivatives>(gamma, 0.0_rt, f, df);
 
-        u_c = C::k_B * T_in / C::Legacy::MeV2erg * f;
+        //
+        // Here u_c is a dimensionless quantity.
+        // Otherwise:
+        // u_c = C::k_B * T_in / C::Legacy::MeV2erg * f;
+        //
+
+        u_c(n+1) = f;
+#else
+        u_c(n+1) = 0.0_rt;
+#endif
+        return u_c;
+    }
+}
+
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void apply_nse_exponent(T& nse_state,
+                        const amrex::Array1D<amrex::Real, 1, NumSpec>& u_c) {
+    // This function applies the nse exponent which depends on
+    // the chemical potential.
+
+    // if we are doing drive_initial_convection, we want to use
+    // the temperature that comes in through T_fixed
+
+    amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    amrex::Real exponent;
+
+    for (int n = 0; n < NumSpec; ++n) {
+#ifdef NEW_NETWORK_IMPLEMENTATION
+        if (n == NSE_INDEX::H1_index) {
+            nse_state.xn[n] = 0.0;
+            continue;
+        }
 #endif
 
         // find nse mass frac
@@ -134,8 +166,8 @@ void apply_nse_exponent(T& nse_state) {
 
         exponent = amrex::min(500.0_rt,
                               (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-                               nse_state.mu_n - u_c + network::bion(n+1)) /
-                              C::k_B / T_in * C::Legacy::MeV2erg);
+                               nse_state.mu_n + network::bion(n+1)) /
+                              C::k_B / T_in * C::Legacy::MeV2erg - u_c(n+1));
 
         nse_state.xn[n] *= std::exp(exponent);
     }
@@ -477,9 +509,15 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 #endif
     }
 
+    nse_solver_data state_data;
+
     // Get nse_state without the exponent term
 
-    auto nse_state = get_nonexponent_nse_state(state);
+    state_data.state = get_nonexponent_nse_state(state);
+
+    // Compute the chemical potential
+
+    state_data.u_c = compute_chemical_potential(state);
 
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
     // which are the exponent part of the nse mass fraction calculation
