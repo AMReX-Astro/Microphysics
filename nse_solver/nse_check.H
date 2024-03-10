@@ -587,14 +587,11 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     }
 
     // set molar fractions
-    // initialize ydot to store Ydot and energy generation rate.
 
     amrex::Array1D<amrex::Real, 1, NumSpec> Y;
-    amrex::Array1D<amrex::Real, 1, NumSpec + 1> ydot;
 
     for (int n = 1; n <= NumSpec; ++n) {
         Y(n) = state.xn[n-1] * aion_inv[n-1];
-        ydot(n) = 0.0_rt;
     }
 
     rate_t rate_eval;
@@ -619,33 +616,6 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
         t_s = state.dx / eos_state.cs;
     }
-
-    // Find ydot
-
-    rhs_nuc(state, ydot, Y, rate_eval.screened_rates);
-
-    // Find energy generation rate
-
-    amrex::Real enuc;
-    ener_gener_rate(ydot, enuc);
-
-    // include any weak rate neutrino losses
-    enuc += rate_eval.enuc_weak;
-
-#ifdef NEUTRINOS
-    // get abar and zbar
-    composition(state);
-
-    amrex::Real sneut, dsneutdt, dsneutdd, snuda, snudz;
-    constexpr int do_derivatives{0};
-    sneut5<do_derivatives>(state.T, state.rho, state.abar, state.zbar, sneut, dsneutdt, dsneutdd, snuda, snudz);
-#else
-    amrex::Real sneut = 0.0_rt;
-#endif
-
-    // fill in energy generation rate to ydot
-
-    ydot(NumSpec + 1) = enuc - sneut;
 
     amrex::Array1D<int, 1, NumSpec> group_ind;
 
