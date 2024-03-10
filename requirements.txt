@@ -9,3 +9,5 @@ jupyter>=1.0.0
 ipywidgets>=7.1.2
 numpy>=1.13.3
 sphinx-prompt
+sphinx-math-dollar
+sphinx-copybutton

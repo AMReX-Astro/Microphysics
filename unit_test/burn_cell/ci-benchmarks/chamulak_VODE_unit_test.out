@@ -1,4 +1,5 @@
-AMReX (23.07-7-g88f03408f18a-dirty) initialized
+Initializing AMReX (24.02-30-g2ecafcff4013)...
+AMReX (24.02-30-g2ecafcff4013) initialized
 starting the single zone burn...
 Maximum Time (s): 0.01585
 State Density (g/cm^3): 1000000000
@@ -12,21 +13,21 @@ RHS at t = 0
    ash 0.01230280576
 ------------------------------------
 successful? 1
- - Hnuc = 5.274803093e+17
- - added e = 8.360562902e+15
- - final T = 1433512646
+ - Hnuc = 5.277406316e+17
+ - added e = 8.364689011e+15
+ - final T = 1433713029
 ------------------------------------
 e initial = 1.253426044e+18
-e final =   1.261786607e+18
+e final =   1.261790733e+18
 ------------------------------------
 new mass fractions: 
-C12 0.9658063217
-O16 9.999999766e-31
-ash 0.03419367826
+C12 0.9657894807
+O16 1e-30
+ash 0.03421051932
 ------------------------------------
 species creation rates: 
-omegadot(C12): -2.157329859
-omegadot(O16): -1.476105976e-36
-omegadot(ash): 2.157329859
+omegadot(C12): -2.158392386
+omegadot(O16): 3.315374916e-44
+omegadot(ash): 2.158392386
 number of steps taken: 381
-AMReX (23.07-7-g88f03408f18a-dirty) finalized
+AMReX (24.02-30-g2ecafcff4013) finalized

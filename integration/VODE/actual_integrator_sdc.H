@@ -17,15 +17,12 @@
 using namespace integrator_rp;
 
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt)
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     dvode_t<int_neqs> vode_state{};
-
-    // set the Jacobian type
-    vode_state.jacobian_type = jacobian;
 
     // Start off by assuming a successful burn.
 
@@ -40,6 +37,13 @@ void actual_integrator (BurnT& state, Real dt)
 
     vode_state.HMXI = 1.0_rt / ode_max_dt;
 
+    // set the Jacobian type
+    if (is_retry && retry_swap_jacobian) {
+        vode_state.jacobian_type = (jacobian == 1) ? 2 : 1;
+    } else {
+        vode_state.jacobian_type = jacobian;
+    }
+
     // Fill in the initial integration state.
 
     burn_to_int(state, vode_state);
@@ -47,46 +51,62 @@ void actual_integrator (BurnT& state, Real dt)
     // Save the initial composition and temperature for our later diagnostics.
 
 #ifndef AMREX_USE_GPU
-    Real xn_in[NumSpec];
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.y[SFS+n] / state.y[SRHO];
     }
     // we are assuming that the temperature was valid on input
-    Real T_in = state.T;
+    amrex::Real T_in = state.T;
 #ifdef AUX_THERMO
-    Real aux_in[NumAux];
+    amrex::Real aux_in[NumAux];
     for (int n = 0; n < NumAux; ++n) {
         aux_in[n] = state.y[SFX+n] / state.y[SRHO];
     }
 #endif
-    Real rhoe_in = state.y[SEINT];
+    amrex::Real rhoe_in = state.y[SEINT];
 #endif
 
 
     // Set the tolerances.
 
-    Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
+    amrex::Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
 
     // we use 1-based indexing inside of VODE, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
-    Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
+    amrex::Real sdc_min_density = amrex::min(state.rho, state.rho_orig + state.ydot_a[SRHO] * dt);
 
-    vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
-    vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
+    if (!is_retry) {
+
+        vode_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
+        vode_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
+
+        // Note: we define the input atol for species to refer only to the
+        // mass fraction part, and we multiply by a representative density
+        // so that atol becomes an absolutely tolerance on (rho X)
+
+        vode_state.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
+        vode_state.rtol_spec = rtol_spec * sdc_tol_fac;
+
+    } else {
+
+        vode_state.atol_enuc = sdc_min_density * retry_atol_enuc * sdc_tol_fac;
+        vode_state.rtol_enuc = retry_rtol_enuc * sdc_tol_fac;
+
+        // Note: we define the input atol for species to refer only to the
+        // mass fraction part, and we multiply by a representative density
+        // so that atol becomes an absolutely tolerance on (rho X)
+
+        vode_state.atol_spec = sdc_min_density * retry_atol_spec * sdc_tol_fac;
+        vode_state.rtol_spec = retry_rtol_spec * sdc_tol_fac;
+
+    }
 
     if (scale_system) {
         // the absolute tol for energy needs to reflect the scaled
         // energy the integrator sees
         vode_state.atol_enuc /= state.e_scale;
     }
-
-    // Note: we define the input atol for species to refer only to the
-    // mass fraction part, and we multiply by a representative density
-    // so that atol becomes an absolutely tolerance on (rho X)
-
-    vode_state.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
-    vode_state.rtol_spec = rtol_spec * sdc_tol_fac;
 
     // Call the integration routine.
 
@@ -107,7 +127,7 @@ void actual_integrator (BurnT& state, Real dt)
     // we only evolved (rho e), not (rho E), so we need to update the
     // total energy now to ensure we are conservative
 
-    Real rho_Sdot = 0.0_rt;
+    amrex::Real rho_Sdot = 0.0_rt;
     if (state.time > 0) {
         rho_Sdot = (state.y[SEINT] - state.rhoe_orig) / state.time - state.ydot_a[SEINT];
     }
@@ -167,7 +187,7 @@ void actual_integrator (BurnT& state, Real dt)
 #ifndef AMREX_USE_GPU
             std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
-            if (istate == 2) {
+            if (istate == IERR_SUCCESS) {
                 std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
             }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;

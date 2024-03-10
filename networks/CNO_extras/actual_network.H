@@ -19,7 +19,7 @@ namespace network
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real bion () {
+    constexpr amrex::Real bion () {
         using namespace Species;
 
         static_assert(spec >= 1 && spec <= NumSpec);
@@ -97,11 +97,11 @@ namespace network
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real mion () {
+    constexpr amrex::Real mion () {
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr Real A = NetworkProperties::aion(spec);
-        constexpr Real Z = NetworkProperties::zion(spec);
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
     }
@@ -109,10 +109,10 @@ namespace network
     // Legacy (non-templated) interfaces
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real bion (int spec) {
+    amrex::Real bion (int spec) {
         using namespace Species;
 
-        Real b = 0.0_rt;
+        amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
         constexpr_for<1, NumSpec+1>([&] (auto n) {
@@ -125,10 +125,10 @@ namespace network
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real mion (int spec) {
+    amrex::Real mion (int spec) {
         using namespace Species;
 
-        Real m = 0.0_rt;
+        amrex::Real m = 0.0_rt;
 
         constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
@@ -152,42 +152,72 @@ namespace Rates
         k_F18_to_O18_weak_wc12 = 5,
         k_Ne18_to_F18_weak_wc12 = 6,
         k_Ne19_to_F19_weak_wc12 = 7,
-        k_p_C12_to_N13 = 8,
-        k_He4_C12_to_O16 = 9,
-        k_p_C13_to_N14 = 10,
-        k_p_N13_to_O14 = 11,
-        k_p_N14_to_O15 = 12,
-        k_He4_N14_to_F18 = 13,
-        k_p_N15_to_O16 = 14,
-        k_He4_N15_to_F19 = 15,
-        k_He4_O14_to_Ne18 = 16,
-        k_He4_O15_to_Ne19 = 17,
-        k_p_O16_to_F17 = 18,
-        k_He4_O16_to_Ne20 = 19,
-        k_p_O17_to_F18 = 20,
-        k_p_O18_to_F19 = 21,
-        k_p_F17_to_Ne18 = 22,
-        k_p_F18_to_Ne19 = 23,
-        k_p_F19_to_Ne20 = 24,
-        k_He4_Ne18_to_Mg22 = 25,
-        k_He4_Ne20_to_Mg24 = 26,
-        k_C12_C12_to_He4_Ne20 = 27,
-        k_He4_N13_to_p_O16 = 28,
-        k_p_N15_to_He4_C12 = 29,
-        k_He4_O14_to_p_F17 = 30,
-        k_C12_O16_to_He4_Mg24 = 31,
-        k_p_O17_to_He4_N14 = 32,
-        k_p_O18_to_He4_N15 = 33,
-        k_p_F18_to_He4_O15 = 34,
-        k_p_F19_to_He4_O16 = 35,
-        k_p_Ne20_to_He4_F17 = 36,
-        k_He4_He4_He4_to_C12 = 37,
+        k_N13_to_p_C12 = 8,
+        k_N14_to_p_C13 = 9,
+        k_O14_to_p_N13 = 10,
+        k_O15_to_p_N14 = 11,
+        k_O16_to_p_N15 = 12,
+        k_O16_to_He4_C12 = 13,
+        k_F17_to_p_O16 = 14,
+        k_F18_to_p_O17 = 15,
+        k_F18_to_He4_N14 = 16,
+        k_F19_to_p_O18 = 17,
+        k_F19_to_He4_N15 = 18,
+        k_Ne18_to_p_F17 = 19,
+        k_Ne18_to_He4_O14 = 20,
+        k_Ne19_to_p_F18 = 21,
+        k_Ne19_to_He4_O15 = 22,
+        k_Ne20_to_p_F19 = 23,
+        k_Ne20_to_He4_O16 = 24,
+        k_Mg22_to_He4_Ne18 = 25,
+        k_Mg24_to_He4_Ne20 = 26,
+        k_C12_to_He4_He4_He4 = 27,
+        k_p_C12_to_N13 = 28,
+        k_He4_C12_to_O16 = 29,
+        k_p_C13_to_N14 = 30,
+        k_p_N13_to_O14 = 31,
+        k_p_N14_to_O15 = 32,
+        k_He4_N14_to_F18 = 33,
+        k_p_N15_to_O16 = 34,
+        k_He4_N15_to_F19 = 35,
+        k_He4_O14_to_Ne18 = 36,
+        k_He4_O15_to_Ne19 = 37,
+        k_p_O16_to_F17 = 38,
+        k_He4_O16_to_Ne20 = 39,
+        k_p_O17_to_F18 = 40,
+        k_p_O18_to_F19 = 41,
+        k_p_F17_to_Ne18 = 42,
+        k_p_F18_to_Ne19 = 43,
+        k_p_F19_to_Ne20 = 44,
+        k_He4_Ne18_to_Mg22 = 45,
+        k_He4_Ne20_to_Mg24 = 46,
+        k_He4_C12_to_p_N15 = 47,
+        k_C12_C12_to_He4_Ne20 = 48,
+        k_He4_N13_to_p_O16 = 49,
+        k_He4_N14_to_p_O17 = 50,
+        k_p_N15_to_He4_C12 = 51,
+        k_He4_N15_to_p_O18 = 52,
+        k_He4_O14_to_p_F17 = 53,
+        k_He4_O15_to_p_F18 = 54,
+        k_p_O16_to_He4_N13 = 55,
+        k_He4_O16_to_p_F19 = 56,
+        k_C12_O16_to_He4_Mg24 = 57,
+        k_p_O17_to_He4_N14 = 58,
+        k_p_O18_to_He4_N15 = 59,
+        k_p_F17_to_He4_O14 = 60,
+        k_He4_F17_to_p_Ne20 = 61,
+        k_p_F18_to_He4_O15 = 62,
+        k_p_F19_to_He4_O16 = 63,
+        k_p_Ne20_to_He4_F17 = 64,
+        k_He4_Ne20_to_C12_C12 = 65,
+        k_He4_Mg24_to_C12_O16 = 66,
+        k_He4_He4_He4_to_C12 = 67,
         NumRates = k_He4_He4_He4_to_C12
     };
 
     // number of reaclib rates
 
-    const int NrateReaclib = 37;
+    const int NrateReaclib = 67;
 
     // number of tabular rates
 
@@ -206,36 +236,66 @@ namespace Rates
         "F18_to_O18_weak_wc12",  // 5,
         "Ne18_to_F18_weak_wc12",  // 6,
         "Ne19_to_F19_weak_wc12",  // 7,
-        "p_C12_to_N13",  // 8,
-        "He4_C12_to_O16",  // 9,
-        "p_C13_to_N14",  // 10,
-        "p_N13_to_O14",  // 11,
-        "p_N14_to_O15",  // 12,
-        "He4_N14_to_F18",  // 13,
-        "p_N15_to_O16",  // 14,
-        "He4_N15_to_F19",  // 15,
-        "He4_O14_to_Ne18",  // 16,
-        "He4_O15_to_Ne19",  // 17,
-        "p_O16_to_F17",  // 18,
-        "He4_O16_to_Ne20",  // 19,
-        "p_O17_to_F18",  // 20,
-        "p_O18_to_F19",  // 21,
-        "p_F17_to_Ne18",  // 22,
-        "p_F18_to_Ne19",  // 23,
-        "p_F19_to_Ne20",  // 24,
-        "He4_Ne18_to_Mg22",  // 25,
-        "He4_Ne20_to_Mg24",  // 26,
-        "C12_C12_to_He4_Ne20",  // 27,
-        "He4_N13_to_p_O16",  // 28,
-        "p_N15_to_He4_C12",  // 29,
-        "He4_O14_to_p_F17",  // 30,
-        "C12_O16_to_He4_Mg24",  // 31,
-        "p_O17_to_He4_N14",  // 32,
-        "p_O18_to_He4_N15",  // 33,
-        "p_F18_to_He4_O15",  // 34,
-        "p_F19_to_He4_O16",  // 35,
-        "p_Ne20_to_He4_F17",  // 36,
-        "He4_He4_He4_to_C12"  // 37,
+        "N13_to_p_C12",  // 8,
+        "N14_to_p_C13",  // 9,
+        "O14_to_p_N13",  // 10,
+        "O15_to_p_N14",  // 11,
+        "O16_to_p_N15",  // 12,
+        "O16_to_He4_C12",  // 13,
+        "F17_to_p_O16",  // 14,
+        "F18_to_p_O17",  // 15,
+        "F18_to_He4_N14",  // 16,
+        "F19_to_p_O18",  // 17,
+        "F19_to_He4_N15",  // 18,
+        "Ne18_to_p_F17",  // 19,
+        "Ne18_to_He4_O14",  // 20,
+        "Ne19_to_p_F18",  // 21,
+        "Ne19_to_He4_O15",  // 22,
+        "Ne20_to_p_F19",  // 23,
+        "Ne20_to_He4_O16",  // 24,
+        "Mg22_to_He4_Ne18",  // 25,
+        "Mg24_to_He4_Ne20",  // 26,
+        "C12_to_He4_He4_He4",  // 27,
+        "p_C12_to_N13",  // 28,
+        "He4_C12_to_O16",  // 29,
+        "p_C13_to_N14",  // 30,
+        "p_N13_to_O14",  // 31,
+        "p_N14_to_O15",  // 32,
+        "He4_N14_to_F18",  // 33,
+        "p_N15_to_O16",  // 34,
+        "He4_N15_to_F19",  // 35,
+        "He4_O14_to_Ne18",  // 36,
+        "He4_O15_to_Ne19",  // 37,
+        "p_O16_to_F17",  // 38,
+        "He4_O16_to_Ne20",  // 39,
+        "p_O17_to_F18",  // 40,
+        "p_O18_to_F19",  // 41,
+        "p_F17_to_Ne18",  // 42,
+        "p_F18_to_Ne19",  // 43,
+        "p_F19_to_Ne20",  // 44,
+        "He4_Ne18_to_Mg22",  // 45,
+        "He4_Ne20_to_Mg24",  // 46,
+        "He4_C12_to_p_N15",  // 47,
+        "C12_C12_to_He4_Ne20",  // 48,
+        "He4_N13_to_p_O16",  // 49,
+        "He4_N14_to_p_O17",  // 50,
+        "p_N15_to_He4_C12",  // 51,
+        "He4_N15_to_p_O18",  // 52,
+        "He4_O14_to_p_F17",  // 53,
+        "He4_O15_to_p_F18",  // 54,
+        "p_O16_to_He4_N13",  // 55,
+        "He4_O16_to_p_F19",  // 56,
+        "C12_O16_to_He4_Mg24",  // 57,
+        "p_O17_to_He4_N14",  // 58,
+        "p_O18_to_He4_N15",  // 59,
+        "p_F17_to_He4_O14",  // 60,
+        "He4_F17_to_p_Ne20",  // 61,
+        "p_F18_to_He4_O15",  // 62,
+        "p_F19_to_He4_O16",  // 63,
+        "p_Ne20_to_He4_F17",  // 64,
+        "He4_Ne20_to_C12_C12",  // 65,
+        "He4_Mg24_to_C12_O16",  // 66,
+        "He4_He4_He4_to_C12"  // 67,
     };
 
 }
