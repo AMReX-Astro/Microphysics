@@ -222,7 +222,7 @@ is outlined in :cite:`Kushnir_2020`. The overall usage comes down to a single fu
 tells us whether we're in NSE or not. The current status of this functionality only
 works for pynucastro-generated network since aprox networks have slightly different syntax.
 Note that we ignore this check when ``T < 2.5e9``, since we don't expect NSE to occur when
-temperature is below 2 billion Kelvin.
+temperature is below 2.5 billion Kelvin.
 
 There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
 
