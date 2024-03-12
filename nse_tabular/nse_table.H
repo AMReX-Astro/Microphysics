@@ -19,6 +19,15 @@
 using namespace amrex::literals;
 using namespace network_rp;
 
+///
+/// given a rho, T, and Ye index, return the 1-d index into the NSE table arrays
+///
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+int nse_idx(const int ir, const int it, const int ic) {
+    // this uses a 1-based indexing
+    return (ir-1) * nse_table_size::ntemp * nse_table_size::nye + (it-1) * nse_table_size::nye + ic;
+}
+
 AMREX_INLINE
 void init_nse() {
 
@@ -46,8 +55,7 @@ void init_nse() {
   for (int irho = 1; irho <= nse_table_size::nden; irho++) {
       for (int it = 1; it <= nse_table_size::ntemp; it++) {
           for (int iye = 1; iye <= nse_table_size::nye; iye++) {
-              int j = (irho-1) * nse_table_size::ntemp * nse_table_size::nye +
-                  (it-1) * nse_table_size::nye + iye;
+              const int j = nse_idx(irho, it, iye);
 
               std::getline(nse_table_file, line);
               if (line.empty()) {
@@ -68,12 +76,6 @@ void init_nse() {
       }
   }
 
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-int nse_idx(const int ir, const int it, const int ic) {
-    // this uses a 1-based indexing
-    return (ir-1) * nse_table_size::ntemp * nse_table_size::nye + (it-1) * nse_table_size::nye + ic;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
