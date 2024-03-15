@@ -273,7 +273,7 @@ constexpr int is_jacobian_term_used ()
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgesl (RArray2D& a, RArray1D& b)
+void dgesl (const RArray2D& a, RArray1D& b)
 {
 
     // solve a * x = b
