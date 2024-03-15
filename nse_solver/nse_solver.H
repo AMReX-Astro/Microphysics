@@ -161,6 +161,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
          const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
+
     amrex::ignore_unused(iflag);
 
     T nse_state = state;
@@ -197,6 +198,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
          const T& state, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
+
     amrex::ignore_unused(iflag);
 
     T nse_state = state;
@@ -454,7 +456,9 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     if (state.y_e < ye_lo || state.y_e > ye_hi) {
 #ifndef AMREX_USE_GPU
         if (state.y_e != -1.0_rt) {
-            std::cout << "Warning: input Ye is " << state.y_e << ", which is out of range. Ye is recalulated based on Composition" << std::endl;
+            std::cout << "Warning: input Ye is " << state.y_e
+                      << ", which is out of range. Ye is recalulated based on Composition"
+                      << std::endl;
         }
 #endif
         input_ye_is_valid = false;
