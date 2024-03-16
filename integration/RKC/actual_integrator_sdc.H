@@ -98,7 +98,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Call the integration routine.
 
-    int state = rkc(state, rkc_state);
+    int istate = rkc(state, rkc_state);
     state.error_code = istate;
 
     // Get the number of RHS and Jacobian evaluations.
