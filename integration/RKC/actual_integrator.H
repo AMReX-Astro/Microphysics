@@ -13,7 +13,7 @@
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -72,13 +72,13 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
 #ifndef AMREX_USE_GPU
-    Real xn_in[NumSpec];
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
-    Real T_in = state.T;
+    const amrex::Real T_in = state.T;
 #endif
-    Real e_in = state.e;
+    const amrex::Real e_in = state.e;
 
     // Call the integration routine.
 
