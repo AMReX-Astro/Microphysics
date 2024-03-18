@@ -185,7 +185,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     if (!state.success) {
         if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
-            std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
+            std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
             if (istate == IERR_SUCCESS) {
                 std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;

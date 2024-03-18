@@ -1,6 +1,9 @@
 #ifndef VODE_DVODE_H
 #define VODE_DVODE_H
 
+#include <AMReX_REAL.H>
+#include <AMReX_Print.H>
+
 #include <vode_type.H>
 #include <vode_dvhin.H>
 #include <vode_dvstep.H>
@@ -130,7 +133,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            if (vstate.NST >= ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
-               std::cout << Font::Bold << FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << ResetDisplay << std::endl;
+               std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << amrex::ResetDisplay << std::endl;
 #endif
                for (int i = 1; i <= int_neqs; ++i) {
                    vstate.y(i) = vstate.yh(i,1);
@@ -164,7 +167,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
            if (vstate.NST == 0) {
 #ifndef AMREX_USE_GPU
-               std::cout << Font::Bold << FGColor::Red << "DVODE: too much accuracy requested at start of integration" << ResetDisplay << std::endl;
+               std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: too much accuracy requested at start of integration" << amrex::ResetDisplay << std::endl;
 #endif
                return IERR_TOO_MUCH_ACCURACY_REQUESTED;
            }
@@ -191,7 +194,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        if (kflag == -1) {
            // Error test failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << Font::Bold << FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
+           std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= int_neqs; ++i) {
@@ -205,7 +208,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        else if (kflag == -2) {
            // Convergence failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << Font::Bold << FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
+           std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= int_neqs; ++i) {
