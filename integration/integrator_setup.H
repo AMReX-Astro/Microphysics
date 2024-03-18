@@ -1,6 +1,9 @@
 #ifndef integrator_setup_H
 #define integrator_setup_H
 
+#include <AMReX_REAL.H>
+#include <AMReX_ANSIEscCode.H>
+
 #include <iomanip>
 
 #include <network.H>
