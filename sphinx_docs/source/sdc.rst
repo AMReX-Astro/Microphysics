@@ -55,7 +55,7 @@ $k+1$ appears as:
 
    \begin{align*}
     \Uc^{m+1,(k+1)} = \Uc^{m,(k+1)}
-     &+ \delta t_m\left[\Advs{\Uc^{m,(k+1)}} - \Advs{\Uc^{m,(k)}}\right] +\\
+     &+ \delta t_m\left[\Advs{\Uc^{m,(k+1)}} - \Advs{\Uc^{m,(k)}}\right] \\
      &+ \delta t_m\left[\Rbs{\Uc^{m+1,(k+1)}} - \Rbs{\Uc^{m+1,(k)}}\right]\\
      &+ \int_{t^m}^{t^{m+1}}\Advs{\Uc^{(k)}} + \Rbs{\Uc^{(k)}}d\tau.
    \end{align*}
@@ -105,13 +105,13 @@ Both SDC formulations result in an ODE system of the form:
 
 .. math::
 
-   \frac{d\Uc}{dt} = \Rb(\Uc) + \mbox{advective terms}
+   \frac{d\Uc^\prime}{dt} = \Rb(\Uc^\prime) + \mbox{advective terms}
 
-where $\Uc$ is only
+where $\Uc^\prime$ is only
 
 .. math::
 
-   \Uc = \left ( \begin{array}{c} \rho X_k \\ \rho e \end{array} \right )
+   \Uc^\prime = \left ( \begin{array}{c} \rho X_k \\ \rho e \end{array} \right )
 
 since those are the only components with reactive sources.
 The ``SDC`` burner includes storage for the advective terms.

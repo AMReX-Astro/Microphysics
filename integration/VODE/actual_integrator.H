@@ -115,19 +115,18 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     if (call_eos_in_rhs) {
         eos(eos_input_re, state);
     }
-
 #endif
 
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
     // Don't subtract it for primordial chem
-    if (subtract_internal_energy) {
+    if (integrator_rp::subtract_internal_energy) {
         state.e -= e_in;
     }
 
     // Normalize the final abundances.
     // Don't normalize for primordial chem
-    if (!use_number_densities) {
+    if (! integrator_rp::use_number_densities) {
         normalize_abundances_burn(state);
     }
 
@@ -150,9 +149,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
             state.success = false;
         }
 
-        // Don't enforce the condition below
-        // for primordial chem
-        if (!use_number_densities) {
+        // Don't enforce a max if we are evolving number densities
+
+        if (! integrator_rp::use_number_densities) {
             if (vode_state.y(n) > 1.0_rt + species_failure_tolerance) {
                 state.success = false;
             }
@@ -165,8 +164,8 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout << " energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << vode_state.NST << std::endl;
-        std::cout <<  "number of f evaluations: " << vode_state.NFE << std::endl;
+        std::cout <<  "number of steps taken: " << state.n_step << std::endl;
+        std::cout <<  "number of f evaluations: " << state.n_rhs << std::endl;
     }
 #endif
 
@@ -185,22 +184,22 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "xn start = ";
-            for (const double x : xn_in) {
-                std::cout << std::setprecision(16) << x << " ";
+            for (const double X : xn_in) {
+                std::cout << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
             std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
             std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
             std::cout << "xn current = ";
-            for (const double x : state.xn) {
-                std::cout << std::setprecision(16) << x << " ";
+            for (const double X : state.xn) {
+                std::cout << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
             std::cout << "energy generated = " << state.e << std::endl;
 #endif
         } else {
 #ifndef AMREX_USE_GPU
-            std::cout << "burn entered NSE during integration (after " << vode_state.NST << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
 #endif
         }
     }
