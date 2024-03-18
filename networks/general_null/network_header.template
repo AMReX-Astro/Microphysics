@@ -86,15 +86,9 @@ namespace NetworkProperties {
 
        amrex::Real a = -1.0;
 
-       switch (spec) {
+       switch (spec) {  // NOLINT(bugprone-switch-missing-default-case)
            @@AION_CONSTEXPR@@
 
-           default:
-           {
-#ifndef AMREX_USE_GPU
-               amrex::Error("invalid spec in aion");
-#endif
-           }
        }
 
        return a;
@@ -106,15 +100,8 @@ namespace NetworkProperties {
 
        amrex::Real z = -1.0;
 
-       switch (spec) {
+       switch (spec) {  // NOLINT(bugprone-switch-missing-default-case)
            @@ZION_CONSTEXPR@@
-
-           default:
-           {
-#ifndef AMREX_USE_GPU
-               amrex::Error("invalid spec in zion");
-#endif
-           }
 
        }
 
