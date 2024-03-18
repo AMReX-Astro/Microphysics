@@ -1,6 +1,8 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <AMReX_Print.H>
+
 #include <iomanip>
 
 #include <network.H>

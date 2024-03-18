@@ -2,7 +2,6 @@
 #define VODE_DVODE_H
 
 #include <AMReX_REAL.H>
-#include <AMReX_Print.H>
 
 #include <vode_type.H>
 #include <vode_dvhin.H>
