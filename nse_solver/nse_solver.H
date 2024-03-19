@@ -85,9 +85,9 @@ T get_nonexponent_nse_state(const T& state) {
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void compute_chemical_potential(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
+void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
                                 const T& state) {
-    // This function computes the chemical potential 1D array
+    // This function computes the coulomb contribution 1D array
 
     // if we use chabrier1998 screening
     // Get the required terms to calculate coulomb correction term, u_c
@@ -97,7 +97,7 @@ void compute_chemical_potential(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
     //
     // Find n_e for original state;
     // Note that y_e depends on the mass fraction,
-    // but we use the chemical potential to compute the mass fraction
+    // but we use the coulomb correction to compute the mass fraction
     // So here y_e is simply the actual y_e we want to achieve.
     // so we just treat u_c as a constant.
     //
@@ -372,7 +372,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_nr_solver(nse_solver_data<T>& state_data,
                    amrex::Real eps=1.0e-10_rt) {
     // state_data is the state_data after from
-    // get_nonexponent_nse_state and compute_chemical_potential
+    // get_nonexponent_nse_state and compute_coulomb_contribution
 
     // whether nse solver converged or not
 
@@ -520,7 +520,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     // if use chabrier1998 screening, calculate the coulomb correction term
 
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-    compute_chemical_potential(state_data.u_c, state);
+    compute_coulomb_contribution(state_data.u_c, state);
 #endif
 
     // invoke newton-raphson or hybrj to solve chemical potential of proton and neutron
