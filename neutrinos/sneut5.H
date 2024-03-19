@@ -621,10 +621,10 @@ void nu_plasma(const sneutf_t& sf,
 
         fxy = 1.05e0_rt + (a1 - b1) * c00;
         if constexpr (do_derivatives) {
-            amrex::Real tmp = -c00 * 2.0e0_rt * a3 / d;
-            amrex::Real c01 = tmp * (dumdt + a3 * 0.25e0_rt * xnumdt);
-            amrex::Real c03 = tmp * (dumda + a3 * 0.25e0_rt * xnumda);
-            amrex::Real c04 = tmp * (dumdz + a3 * 0.25e0_rt * xnumdz);
+            amrex::Real factor = -c00 * 2.0e0_rt * a3 / d;
+            amrex::Real c01 = factor * (dumdt + a3 * 0.25e0_rt * xnumdt);
+            amrex::Real c03 = factor * (dumda + a3 * 0.25e0_rt * xnumda);
+            amrex::Real c04 = factor * (dumdz + a3 * 0.25e0_rt * xnumdz);
 
             fxydt = (a2 * xnumdt -  b2 * xnumdt) * c00 + (a1 - b1) * c01;
             fxyda = (a2 * xnumda -  b2 * xnumda) * c00 + (a1 - b1) * c03;
