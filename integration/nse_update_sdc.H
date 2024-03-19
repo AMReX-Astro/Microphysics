@@ -112,13 +112,12 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
     // compute the temperature at t0 + tau
 
     amrex::Real T1;
-    amrex::Real abar1_out;
     amrex::Real Ye1 = rhoaux1[iye] / rho1;
 
     if (T_fixed > 0) {
         T1 = T_fixed;
-        abar1_out = rhoaux1[iabar] / rho1;
     } else {
+        amrex::Real abar1_out{};
         amrex::Real e1 = rhoe1 / rho1;
         T1 = T0;
         nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1_out);
@@ -137,7 +136,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
     // update abar -- this will be the same as nse_T_abar_from_e, but
     // for the case with T_fixed > 0, this abar will be consistent
     // with NSE.
-    abar1_out = nse_state.abar;
+    amrex::Real abar1_out = nse_state.abar;
 
     // construct the finite-difference approximation to the derivatives
 
