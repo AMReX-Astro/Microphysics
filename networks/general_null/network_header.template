@@ -86,10 +86,12 @@ namespace NetworkProperties {
 
        amrex::Real a = -1.0;
 
+       // NOLINTBEGIN(bugprone-branch-clone)
        switch (spec) {  // NOLINT(bugprone-switch-missing-default-case)
            @@AION_CONSTEXPR@@
 
        }
+       // NOLINTEND(bugprone-branch-clone)
 
        return a;
    }
