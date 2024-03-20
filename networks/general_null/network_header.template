@@ -102,10 +102,12 @@ namespace NetworkProperties {
 
        amrex::Real z = -1.0;
 
+       // NOLINTBEGIN(bugprone-branch-clone)
        switch (spec) {  // NOLINT(bugprone-switch-missing-default-case)
            @@ZION_CONSTEXPR@@
 
        }
+       // NOLINTEND(bugprone-branch-clone)
 
        return z;
    }
