@@ -165,7 +165,7 @@ void apply_nse_exponent(T& nse_state,
         exponent = amrex::min(500.0_rt,
                               (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
                                nse_state.mu_n + network::bion(n+1)) /
-                              C::k_B / T_in * C::Legacy::MeV2erg - u_c(n+1));
+                              T_in * C::Legacy::MeV2erg / C::k_B - u_c(n+1));
 
         nse_state.xn[n] *= std::exp(exponent);
     }
