@@ -1,0 +1,16 @@
+name: check PR branch
+
+on:
+  pull_request:
+    branches:
+      - main
+  pull_request_target:
+    branches:
+      - main
+
+jobs:
+  check-PR-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs should not target main. Use development instead.
+        run: exit 1
