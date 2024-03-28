@@ -94,3 +94,7 @@ extern_parameters_F.H
 .ipynb_checkpoints/
 
 20180319default2
+
+
+# flycheck
+flycheck*.py
