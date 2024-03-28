@@ -63,7 +63,7 @@ The interfaces to all of the networks and integrators are written in C++.
 
 The main entry point for C++ is ``burner()`` in
 ``interfaces/burner.H``.  This simply calls the ``integrator()``
-routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, or ``RKC``).
+routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``, ``QSS``, ``RKC``, or ``ROCK``).
 
 .. code-block:: c++
 
@@ -372,6 +372,21 @@ the allowed options are:
   the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
+* ``ROCK``: a stabilized explicit integrator.  Two variants, a second
+  order method (:cite:`rock2`) and a fourth order method (:cite:`rock4`) are
+  implemented based on the original Fortran source code.  The order
+  is selected via the runtime parameter:
+
+  ::
+
+      integrator.rock_order = 2
+
+  (e.g. for 2nd order).  This does not require a Jacobian, but does
+  need to estimate the spectral radius of the system, which is done
+  internally.  This works for moderately stiff problems.  Our
+  implementation uses the timestep estimator and spectral radius power
+  method from the ``RKC`` integrator.
+
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
@@ -460,4 +475,3 @@ encountered by the scripts writing the runtime parameter header files, the value
 of the parameter with the highest priority is used. So picking a large
 integer value for the priority in a network’s ``_parameter`` file will
 ensure that it takes precedence.
-
