@@ -160,7 +160,7 @@ from one temporal node to the next.  Iteration is used to increase the order of 
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
  \Uc^{m+1,(k+1)} = \Uc^{m,(k+1)}
-  &amp;+ \delta t_m\left[\Advs{\Uc^{m,(k+1)}} - \Advs{\Uc^{m,(k)}}\right] +\\
+  &amp;+ \delta t_m\left[\Advs{\Uc^{m,(k+1)}} - \Advs{\Uc^{m,(k)}}\right] \\
   &amp;+ \delta t_m\left[\Rbs{\Uc^{m+1,(k+1)}} - \Rbs{\Uc^{m+1,(k)}}\right]\\
   &amp;+ \int_{t^m}^{t^{m+1}}\Advs{\Uc^{(k)}} + \Rbs{\Uc^{(k)}}d\tau.
 \end{align*}\end{split}\]</div>
@@ -194,10 +194,10 @@ reactions.  The full details of the algorithm are presented in
 <h3>Common ground<a class="headerlink" href="#common-ground" title="Link to this heading"></a></h3>
 <p>Both SDC formulations result in an ODE system of the form:</p>
 <div class="math notranslate nohighlight">
-\[\frac{d\Uc}{dt} = \Rb(\Uc) + \mbox{advective terms}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\Uc\)</span> is only</p>
+\[\frac{d\Uc^\prime}{dt} = \Rb(\Uc^\prime) + \mbox{advective terms}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Uc^\prime\)</span> is only</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\Uc = \left ( \begin{array}{c} \rho X_k \\ \rho e \end{array} \right )\end{split}\]</div>
+\[\begin{split}\Uc^\prime = \left ( \begin{array}{c} \rho X_k \\ \rho e \end{array} \right )\end{split}\]</div>
 <p>since those are the only components with reactive sources.
 The <code class="docutils literal notranslate"><span class="pre">SDC</span></code> burner includes storage for the advective terms.</p>
 </section>
