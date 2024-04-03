@@ -30,46 +30,46 @@ jobs:
         run: |
           cd unit_test/burn_cell
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 4
 
       - name: Compile burn_cell w/o debug
         run: |
           cd unit_test/burn_cell
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 4
 
       - name: Compile burn_cell_sdc w/ debug
         run: |
           cd unit_test/burn_cell_sdc
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 4
 
       - name: Compile burn_cell_sdc w/o debug
         run: |
           cd unit_test/burn_cell_sdc
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 4
 
       - name: Compile test_eos w/ debug
         run: |
           cd unit_test/test_eos
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE EOS_DIR=gamma_law -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE EOS_DIR=gamma_law -j 4
 
       - name: Compile test_eos w/o debug
         run: |
           cd unit_test/test_eos
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE EOS_DIR=gamma_law -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE EOS_DIR=gamma_law -j 4
 
       - name: Compile test_sdc w/ debug
         run: |
           cd unit_test/test_sdc
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 4
 
       - name: Compile test_sdc w/o debug
         run: |
           cd unit_test/test_sdc
           make realclean
-          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 2
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 4
