@@ -353,9 +353,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     zbar *= abar;
 
 #ifdef NEUTRINOS
-    constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    {
+        constexpr int do_derivatives = 0;
+        sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
+                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    }
 #endif
     amrex::Real snu_old = snu;
 
@@ -364,7 +366,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // weak interactions, we would evaluate the NSE state here and
     // get dYe/dt.
 
-    amrex::Real dyedt_old = 0.0;
+    //amrex::Real dyedt_old = 0.0;
 
 
     // predict the U^{n+1,*} state with only estimates of the X
@@ -431,7 +433,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
             rhoX_tilde[n] = state.y[SRHO] * nse_state.xn[n] - dt * state.ydot_a[SFS+n];
         }
 
-        amrex::Real dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
+        //amrex::Real dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
 
         // we want to compute (rho eps) = - N_A c^2 sum{m_i (rhoX_tilde - rhoX_old) / A_i}
         rho_enucdot = 0.0;

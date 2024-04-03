@@ -38,6 +38,18 @@ jobs:
           make realclean
           make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple -j 2
 
+      - name: Compile burn_cell_sdc w/ debug
+        run: |
+          cd unit_test/burn_cell_sdc
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE DEBUG=TRUE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 2
+
+      - name: Compile burn_cell_sdc w/o debug
+        run: |
+          cd unit_test/burn_cell_sdc
+          make realclean
+          make USE_MPI=FALSE USE_OMP=FALSE WARN_ALL=TRUE WARN_ERROR=TRUE NETWORK_DIR=subch_simple USE_NSE_NET=TRUE SCREEN_METHOD=chabrier1998 -j 2
+
       - name: Compile test_eos w/ debug
         run: |
           cd unit_test/test_eos
