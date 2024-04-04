@@ -19,6 +19,8 @@ to build the executable. Runtime parameters are parsed in the same
 fashion as in the application codes, using the ``write_probin.py``
 script.
 
+.. note::
+
    Most of these tests work with MPI+OpenMP, MPI+CUDA, and MPI+HIP
 
 
