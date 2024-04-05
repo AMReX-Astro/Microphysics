@@ -2,37 +2,13 @@
 #define rhs_type_H
 
 #include <AMReX_REAL.H>
+#include <AMReX_Loop.H>
 #include <network_properties.H>
 #ifdef SCREENING
 #include <screen.H>
 #endif
 #include <tfactors.H>
 
-// Implementation of "constexpr for" based on
-// https://artificial-mind.net/blog/2020/10/31/constexpr-for
-//
-// Approximates what one would get from a compile-time
-// unrolling of the loop
-// for (int i = 0; i < N; ++i) {
-//    f(i);
-// }
-//
-// The mechanism is recursive, we evaluate f(i) at the current
-// i and then call the for loop at i+1. f() is a lambda function
-// that provides the body of the loop and takes only an integer
-// i as its argument. It is assumed that at the loop call site
-// the lambda is declared [&] so that it can operate on whatever
-// data it needs.
-
-template<auto I, auto N, class F>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr void constexpr_for (F&& f)
-{
-    if constexpr (I < N) {
-        f(std::integral_constant<decltype(I), I>());
-        constexpr_for<I+1, N>(f);
-    }
-}
 
 namespace RHS
 {
@@ -45,12 +21,12 @@ struct rhs_t {
     int species_E{-1};
     int species_F{-1};
 
-    Real number_A{0.0_rt};
-    Real number_B{0.0_rt};
-    Real number_C{0.0_rt};
-    Real number_D{0.0_rt};
-    Real number_E{0.0_rt};
-    Real number_F{0.0_rt};
+    amrex::Real number_A{0.0_rt};
+    amrex::Real number_B{0.0_rt};
+    amrex::Real number_C{0.0_rt};
+    amrex::Real number_D{0.0_rt};
+    amrex::Real number_E{0.0_rt};
+    amrex::Real number_F{0.0_rt};
 
     int exponent_A{0};
     int exponent_B{0};
@@ -79,9 +55,9 @@ constexpr amrex::Real tab_thi = 10.0e0_rt;
 constexpr int tab_per_decade = 2000;
 constexpr int nrattab = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
 constexpr int tab_imax = static_cast<int>(tab_thi - tab_tlo) * tab_per_decade + 1;
-constexpr amrex::Real tab_tstp = (tab_thi - tab_tlo) / static_cast<Real>(tab_imax - 1);
+constexpr amrex::Real tab_tstp = (tab_thi - tab_tlo) / static_cast<amrex::Real>(tab_imax - 1);
 
-extern AMREX_GPU_MANAGED Array1D<amrex::Real, 1, nrattab> ttab;
+extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, nrattab> ttab;
 
 // A struct that contains the terms needed to evaluate a tabulated rate.
 struct rate_tab_t
@@ -129,7 +105,7 @@ struct rhs_state_t
 #endif
     amrex::Real y_e;
     amrex::Real eta;
-    Array1D<amrex::Real, 1, NumSpec> y;
+    amrex::Array1D<amrex::Real, 1, NumSpec> y;
 };
 
 struct rate_t

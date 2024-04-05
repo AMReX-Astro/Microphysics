@@ -4,8 +4,6 @@
 #include <eos_type.H>
 #include <actual_conductivity.H>
 
-using namespace amrex;
-
 AMREX_FORCE_INLINE
 void conductivity_init() {
   actual_conductivity_init();

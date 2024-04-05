@@ -385,7 +385,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
     return o;
 }
 
-template <typename T, typename U = typename std::enable_if<std::is_base_of<eos_base_t, T>::value>::type>
+template <typename T, typename U = typename std::enable_if_t<std::is_base_of_v<eos_base_t, T>>>
 inline
 std::ostream& operator<< (std::ostream& o, T const& eos_state)
 {

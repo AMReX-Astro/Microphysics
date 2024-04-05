@@ -7,7 +7,6 @@ is:
 max_step                            integer            1
 small_dt                            real               1.d-10
 xlo_boundary_type                   character          ""
-octant                              logical            .false.
 
 This specifies the runtime parameter name, datatype, and default
 value.
@@ -106,6 +105,11 @@ def parse_param_file(params_list, param_file, use_namespace=False):
         name = fields[0]
         dtype = fields[1]
         default = fields[2]
+
+        if dtype == "logical":
+            print("write_probin.py: ERROR: logical type no longer supported in _parameter files.")
+            err = 1
+            continue
 
         if use_namespace:
             skip_namespace_in_declare = False
@@ -251,7 +255,7 @@ def write_probin(param_files,
             fout.write(f"      amrex::ParmParse pp(\"{nm}\");\n")
             for p in params_nm:
                 fout.write(f"      {p.get_default_string()}")
-                fout.write(f"      {p.get_query_string('C++')}\n")
+                fout.write(f"      {p.get_query_string()}\n")
             fout.write("    }\n")
 
         fout.write("  }\n")

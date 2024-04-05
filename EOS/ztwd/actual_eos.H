@@ -23,12 +23,12 @@
 #include <fundamental_constants.H>
 #include <eos_type.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 const std::string eos_name = "ztwd";
 
-const Real A = M_PI * std::pow(C::m_e, 4) * std::pow(C::c_light, 5) / (3.0_rt * std::pow(C::hplanck, 3));
-const Real B2 = 8.0_rt * M_PI * std::pow(C::m_e, 3) * std::pow(C::c_light, 3) * C::m_p  / (3.0_rt * std::pow(C::hplanck, 3));
+const Real A = M_PI * amrex::Math::powi<4>(C::m_e) * amrex::Math::powi<5>(C::c_light) / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
+const Real B2 = 8.0_rt * M_PI * amrex::Math::powi<3>(C::m_e) * amrex::Math::powi<3>(C::c_light) * C::m_p  / (3.0_rt * amrex::Math::powi<3>(C::hplanck));
 const Real iter_tol = 1.e-10_rt;
 const int  max_iter = 1000;
 
@@ -42,7 +42,7 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -129,7 +129,7 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+    static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
     Real dens = state.rho;
     Real temp = state.T;

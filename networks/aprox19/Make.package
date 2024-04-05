@@ -1,4 +1,5 @@
 CEXE_headers += network_properties.H
+CEXE_headers += nse_table_size.H
 
 ifeq ($(USE_REACT),TRUE)
   CEXE_headers += actual_network.H
@@ -7,3 +8,5 @@ ifeq ($(USE_REACT),TRUE)
   USE_SCREENING   = TRUE
   USE_NEUTRINOS   = TRUE
 endif
+
+NSE_TABLE_NAME := nse_aprox19.tbl

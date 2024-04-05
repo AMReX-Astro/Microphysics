@@ -231,7 +231,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
             Real actred = -1.0_rt;
             if (fnorm1 < fnorm) {
-                actred = 1.0_rt - std::pow(fnorm1/fnorm, 2.0_rt);
+                actred = 1.0_rt - amrex::Math::powi<2>(fnorm1/fnorm);
             }
 
             // compute the scaled predicted reduction.
@@ -248,7 +248,7 @@ void hybrj(hybrj_t<neqs>& hj,
             Real temp = enorm(hj.n, hj.wa3);
             Real prered = 0.0_rt;
             if (temp < fnorm) {
-                prered = 1.0_rt - std::pow(temp/fnorm, 2.0_rt);
+                prered = 1.0_rt - amrex::Math::powi<2>(temp/fnorm);
             }
 
             // compute the ratio of the actual to the predicted

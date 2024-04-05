@@ -12,6 +12,7 @@
 #endif
 #include <integrator_data.H>
 
+
 using namespace integrator_rp;
 
 ///
@@ -31,7 +32,7 @@ using namespace integrator_rp;
 /// elements to be in terms of X and e
 
 struct jac_info_t {
-    Real h;
+    amrex::Real h;
 };
 
 const amrex::Real U = std::numeric_limits<amrex::Real>::epsilon();
@@ -70,8 +71,8 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // start by computing |f|, which is the norm of the RHS / weight
 
-    Real fac = 0.0_rt;
-    Real w;
+    amrex::Real fac = 0.0_rt;
+    amrex::Real w;
     for (int i = 1; i <= NumSpec; i++) {
         // the weight is 1 / EWT defined in VODE
         w = 1.0_rt / (rtol_spec * std::abs(state.xn[i-1]) + atol_spec);
@@ -87,7 +88,7 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // now compute r0, defined in the LSODE paper, Eq. 3.34
 
-    Real r0 = 1000.0_rt * std::abs(jac_info.h) * U * int_neqs * fac;
+    amrex::Real r0 = 1000.0_rt * std::abs(jac_info.h) * U * int_neqs * fac;
     if (r0 == 0.0_rt) {
         r0 = 1.0_rt;
     }
@@ -101,13 +102,13 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
         // perturb species -- we send in X, but ydot is in terms
         // of dY/dt, not dX/dt
 
-        Real yj = state_delp.xn[n-1];
+        amrex::Real yj = state_delp.xn[n-1];
 
         w = rtol_spec * std::abs(yj) + atol_spec;
 
         // the incremement we use in the derivative is defined in the LSODE paper, Eq. 3.35
 
-        Real dy = amrex::max(std::sqrt(U) * std::abs(yj), r0 * w);
+        amrex::Real dy = amrex::max(std::sqrt(U) * std::abs(yj), r0 * w);
 
         state_delp.xn[n-1] += dy;
 
@@ -132,7 +133,7 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     w = rtol_enuc * std::abs(state.T) + atol_enuc;
 
-    Real dy = amrex::max(std::sqrt(U) * std::abs(state.T), r0 * w);
+    amrex::Real dy = amrex::max(std::sqrt(U) * std::abs(state.T), r0 * w);
 
     state_delp.T += dy;
 
@@ -204,8 +205,14 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // scale the energy derivatives
     if (scale_system) {
+        // first the de/dX row
         for (int n = 1; n <= INT_NEQS; ++n) {
             jac(net_ienuc, n) /= state.e_scale;
+        }
+
+        // now the dX/de column
+        for (int m = 1; m <= INT_NEQS; ++m) {
+            jac(m, net_ienuc) *= state.e_scale;
         }
     }
 

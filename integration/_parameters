@@ -6,10 +6,10 @@
 # the current internal energy. This is done with an EOS call, which can
 # be turned off if desired. This will freeze the temperature and specific heat
 # to the values at the beginning of the burn, which is inaccurate but cheaper.
-call_eos_in_rhs          logical   .true.
+call_eos_in_rhs          integer   1
 
 # Allow the energy integration to be disabled by setting the RHS to zero.
-integrate_energy         logical   .true.
+integrate_energy         integer   1
 
 # Whether to use an analytical or numerical Jacobian.
 # 1 == Analytical
@@ -18,7 +18,7 @@ integrate_energy         logical   .true.
 jacobian                 integer   1
 
 # Should we print out diagnostic output after the solve?
-burner_verbose           logical   .false.
+burner_verbose           integer   0
 
 # Tolerances for the solver (relative and absolute), for the
 # species and energy equations.
@@ -30,7 +30,7 @@ atol_enuc                real      1.d-6
 
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
-renormalize_abundances   logical   .false.
+renormalize_abundances   integer   0
 
 # The absolute cutoff for species -- note that this might be larger
 # than ``small_x``, but the issue is that we need to prevent underflow
@@ -51,7 +51,7 @@ ode_max_steps              integer      150000
 ode_max_dt                 real         1.d30
 
 # Whether to use Jacobian caching in VODE
-use_jacobian_caching    logical   .true.
+use_jacobian_caching    integer    1
 
 # Inputs for generating a Nonaka Plot (TM)
 nonaka_i                integer           0
@@ -60,15 +60,30 @@ nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
 
+# do we retry a failed burn with different parameters?
+use_burn_retry            integer   0
+
+# do we swap the Jacobian (from analytic to numerical or vice versa) on
+# a retry?
+retry_swap_jacobian       integer     1
+
+# Tolerances for the solver (relative and absolute), for the
+# species and energy equations.
+retry_rtol_spec                real      1.d-12
+retry_rtol_enuc                real      1.d-6
+
+retry_atol_spec                real      1.d-8
+retry_atol_enuc                real      1.d-6
+
 # in the clean_state process, do we clip the species such that they
 # are in [0, 1]?
 do_species_clip              integer          1
 
 # flag for turning on the use of number densities for all species
-use_number_densities     logical          .false.
+use_number_densities     integer     0
 
 # flag for tuning on the subtraction of internal energy
-subtract_internal_energy   logical       .true.
+subtract_internal_energy   integer     1
 
 # SDC iteration tolerance adjustment factor
 sdc_burn_tol_factor          real         1.d0
@@ -77,3 +92,17 @@ sdc_burn_tol_factor          real         1.d0
 # for Strang, this simply means scaling e by the initial energy?
 scale_system              integer         0
 
+# for the NSE update predictor-corrector, how many iterations
+# do we take to get the new time NSE state
+nse_iters                 integer         3
+
+# for SDC+NSE, when estimating the derivatives of the NSE table
+# quantities, what fraction of dt do we use for the finite-difference
+# estimate
+nse_deriv_dt_factor        real           0.05
+
+# for NSE update, do we include the weak rate neutrino losses?
+nse_include_enu_weak       integer        1
+
+# for the linear algebra, do we allow pivoting?
+linalg_do_pivoting         integer        1

@@ -3,7 +3,7 @@
 
 #include <extern_parameters.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 using namespace unit_test_rp;
 
 struct init_t {
@@ -16,8 +16,8 @@ struct init_t {
     int n2;
     int n3;
 
-    Real Xp_min;
-    Real Xp_max;
+    amrex::Real Xp_min;
+    amrex::Real Xp_max;
 };
 
 AMREX_INLINE
@@ -88,7 +88,7 @@ init_t setup_composition(const int nz) {
 
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition = 0) {
+void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, int uniform_composition = 0) {
 
     for (int n = 0; n < NumSpec; n++) {
         xn_zone[n] = 0.0_rt;
@@ -107,7 +107,7 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
             if (cd.nprim >= 2) xn_zone[cd.is2] = cd.Xp_min/2;
             if (cd.nprim >= 3) xn_zone[cd.is3] = cd.Xp_min/2;
 
-            Real dX = (cd.Xp_max - cd.Xp_min) /
+            amrex::Real dX = (cd.Xp_max - cd.Xp_min) /
                 amrex::max((cd.n1 - 1), 1);
             xn_zone[cd.is1] = cd.Xp_min + k * dX;
 
@@ -116,7 +116,7 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
             if (cd.nprim >= 3) {
                 xn_zone[cd.is3] = cd.Xp_min/2;
             }
-            Real dX = (cd.Xp_max - cd.Xp_min) /
+            amrex::Real dX = (cd.Xp_max - cd.Xp_min) /
                 amrex::max((cd.n2 - 1), 1);
             xn_zone[cd.is2] = cd.Xp_min + (k - cd.n1) * dX;
 
@@ -124,13 +124,13 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
             xn_zone[cd.is1] = cd.Xp_min/2;
             xn_zone[cd.is2] = cd.Xp_min/2;
 
-            Real dX = (cd.Xp_max - cd.Xp_min) /
+            amrex::Real dX = (cd.Xp_max - cd.Xp_min) /
                 amrex::max((cd.n3 - 1), 1);
             xn_zone[cd.is3] = cd.Xp_min + (k - (cd.n1 + cd.n2)) * dX;
 
         }
 
-        Real excess = 0.0_rt;
+        amrex::Real excess = 0.0_rt;
         for (int n = 0; n < NumSpec; n++) {
             excess += xn_zone[n];
         }
@@ -138,8 +138,8 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
 
         for (int n = 0; n < NumSpec; n++) {
             if (n == cd.is1 ||
-                (n == cd.is2 && cd.nprim >= 2) ||
-                (n == cd.is3 && cd.nprim >= 3)) {
+                (cd.nprim >= 2 && n == cd.is2) ||
+                (cd.nprim >= 3 && n == cd.is3)) {
                 continue;
             }
 
@@ -151,7 +151,7 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
 
     // normalize -- just in case
 
-    Real sum_X = 0.0_rt;
+    amrex::Real sum_X = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
         sum_X += xn_zone[n];
     }
@@ -167,9 +167,9 @@ void get_xn(const int k, const init_t cd, Real *xn_zone, int uniform_composition
 ///
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-Real get_xn(const int index) {
+amrex::Real get_xn(const int index) {
 
-    Real mass_fraction{};
+    amrex::Real mass_fraction{};
 
     switch (index) {
 
@@ -286,4 +286,3 @@ Real get_xn(const int index) {
 }
 
 #endif
-
