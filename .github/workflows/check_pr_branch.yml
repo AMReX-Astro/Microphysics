@@ -2,15 +2,16 @@ name: check PR branch
 
 on:
   pull_request:
-    branches:
-      - main
-  pull_request_target:
-    branches:
-      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
 
 jobs:
   check-PR-branch:
     runs-on: ubuntu-latest
+    if: ${{ github.base_ref == 'main' }}
     steps:
       - name: PRs should not target main. Use development instead.
         run: exit 1
