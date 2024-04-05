@@ -11,7 +11,10 @@ on:
 jobs:
   check-PR-branch:
     runs-on: ubuntu-latest
-    if: ${{ github.base_ref == 'main' }}
     steps:
-      - name: PRs should not target main. Use development instead.
-        run: exit 1
+      - name: PRs should not target main
+        run: |
+          if [[ "${{ github.base_ref }}" == "main" ]]; then
+            echo 'Pull requests must not be made agains main. Please target development instead.'
+            exit 1
+          fi
