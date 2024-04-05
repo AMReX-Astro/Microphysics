@@ -15,6 +15,6 @@ jobs:
       - name: PRs should not target main
         run: |
           if [[ "${{ github.base_ref }}" == "main" ]]; then
-            echo 'Pull requests must not be made agains main. Please target development instead.'
+            echo 'Pull requests must not be made against main. Please target development instead.'
             exit 1
           fi
