@@ -162,7 +162,8 @@ void burn_cell_c()
         case 35:
             adv_species[n-1] = Adv_X35;
             break;
-
+        default:
+            amrex::Error("invalid species");
         }
 
     }
@@ -184,7 +185,8 @@ void burn_cell_c()
         case 3:
             adv_aux[n-1] = Adv_Aux3;
             break;
-
+        default:
+            amrex::Error("invalid aux component");
         }
 
     }
