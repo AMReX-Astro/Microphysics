@@ -479,7 +479,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     // from smallest (fastest) to largest (slowest) timescale
     //
 
-    quickSort_Array1D(rate_indices, reaction_timescales, 1, Rates::NumRates);
+    quickSort_Array1D(rate_indices, reaction_timescales);
 
     // After the rate indices are sorted based on reaction timescales.
     // Now do the grouping based on the timescale.
