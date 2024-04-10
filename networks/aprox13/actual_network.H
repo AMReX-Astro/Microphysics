@@ -183,7 +183,7 @@ namespace RHS {
 
         rhs_t data;
 
-        switch (rate) {
+        switch (rate) {  // NOLINT(bugprone-switch-missing-default-case)
 
         case He4_He4_He4_to_C12:
             data.species_A = He4;
