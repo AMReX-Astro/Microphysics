@@ -32,7 +32,7 @@ extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, Rates::NumRates, 1, 2, 1
 
 // Calculate an integer factorial.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr int factorial (int n)
+constexpr int factorial (int n)  // NOLINT(misc-no-recursion)
 {
     if (n <= 1) {
         return 1;
