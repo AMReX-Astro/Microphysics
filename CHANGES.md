@@ -1,3 +1,17 @@
+# 24.04
+
+   * A new `test_screening_templated` unit test was added -- this
+     works with any of the templated networks. (#1525)
+
+   * A lot of small code clean-ups from clang-tidy (#1516, #1518, #1519, #1520, #1522)
+
+   * The NSE solver was optimized (#1503, #1504, #1506, #1507, #1508)
+
+   * The integrator code was synced up between implementations, fixing
+     a bug in the RKC retry tolerances (#1513)
+
+   * A `reinterpret_cast` in `rhs.H` was removed (#1435)
+
 # 24.03
 
    * pivoting in the linear algebra routines can now be disabled

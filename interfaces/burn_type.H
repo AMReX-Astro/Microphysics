@@ -32,7 +32,7 @@ const int net_ienuc = NumSpec + 1;
 
 // this is the data type that is used to get the ydots from the actual
 // RHS of the network, regardless of Strang or SDC
-typedef amrex::Array1D<amrex::Real, 1, neqs> YdotNetArray1D;
+using YdotNetArray1D = amrex::Array1D<amrex::Real, 1, neqs>;
 
 // these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
@@ -58,7 +58,7 @@ const int SVAR_EVOLVE = SFX;
 // this is the data type of the dense Jacobian that the network wants.
 // it is not the same size as the Jacobian that VODE cares about when
 // we are doing simplified-SDC
-typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> JacNetArray2D;
+using  JacNetArray2D = ArrayUtil::MathArray2D<1, neqs, 1, neqs>;
 
 struct burn_t
 {
