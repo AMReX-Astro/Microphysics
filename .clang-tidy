@@ -18,7 +18,6 @@ Checks: >
        -misc-const-correctness,
        -misc-include-cleaner,
        -misc-non-private-member-variables-in-classes,
-       -misc-no-recursion,
        -misc-use-anonymous-namespace,
      modernize-*,
        -modernize-avoid-c-arrays,
