@@ -15,6 +15,7 @@
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void do_vode_rhs()
 {
 

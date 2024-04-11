@@ -1,3 +1,5 @@
+#ifndef NSE_CELL_H
+#define NSE_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -9,6 +11,7 @@
 #include <nse_table_type.H>
 #include <nse_eos.H>
 
+AMREX_INLINE
 void nse_cell_c()
 {
 
@@ -435,3 +438,4 @@ void nse_cell_c()
 
 
 }
+#endif
