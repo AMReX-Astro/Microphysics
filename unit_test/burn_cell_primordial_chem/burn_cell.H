@@ -1,3 +1,6 @@
+#ifndef BURN_CELL_H
+#define BURN_CELL_H
+
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
@@ -7,6 +10,7 @@
 
 Real grav_constant = 6.674e-8;
 
+AMREX_INLINE
 void burn_cell_c()
 {
 
@@ -253,3 +257,4 @@ void burn_cell_c()
     }
 
 }
+#endif
