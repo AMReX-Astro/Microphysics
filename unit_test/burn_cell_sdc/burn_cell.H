@@ -11,6 +11,7 @@
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void burn_cell_c()
 {
 
