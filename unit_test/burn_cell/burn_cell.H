@@ -12,6 +12,7 @@
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void burn_cell_c()
 {
 
@@ -66,6 +67,7 @@ void burn_cell_c()
     burn_state.j = 0;
     burn_state.k = 0;
     burn_state.T_fixed = -1.0_rt;
+    burn_state.time = 0.0;
 
     // normalize -- just in case
 

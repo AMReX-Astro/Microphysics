@@ -7,9 +7,9 @@
 #endif
 #include <vode_dvjac.H>
 
-template <typename IArray1D, typename BurnT, typename DvodeT>
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
+Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -26,8 +26,8 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
     const int MAXCOR = 3;
     const int MSBP = 20;
 
-    Real DEL;
-    int M;
+    Real DEL{};
+    int M{};
 
     // On the first step, on a change of method order, or after a
     // nonlinear convergence failure with NFLAG = -2, set IPUP = 1
@@ -75,8 +75,9 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
             // preprocessed before starting the corrector iteration.  IPUP is set
             // to 0 as an indicator that this has been done.
 
-            int IERPJ;
-            dvjac(pivot, IERPJ, state, vstate);
+            int IERPJ{};
+            dvjac(IERPJ, state, vstate);
+
             vstate.IPUP = 0;
             vstate.RC = 1.0_rt;
             vstate.DRC = 0.0_rt;
@@ -114,11 +115,17 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
 #ifdef NEW_NETWORK_IMPLEMENTATION
             RHS::dgesl(vstate.jac, vstate.y);
 #else
-            dgesl<int_neqs>(vstate.jac, pivot, vstate.y);
+            if (integrator_rp::linalg_do_pivoting == 1) {
+                constexpr bool allow_pivot{true};
+                dgesl<int_neqs, allow_pivot>(vstate.jac, vstate.pivot, vstate.y);
+            } else {
+                constexpr bool allow_pivot{false};
+                dgesl<int_neqs, allow_pivot>(vstate.jac, vstate.pivot, vstate.y);
+            }
 #endif
 
             if (vstate.RC != 1.0_rt) {
-                Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
+                const Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
                 for (int i = 1; i <= int_neqs; ++i) {
                     vstate.y(i) *= CSCALE;
                 }
@@ -145,7 +152,7 @@ Real dvnlsd (IArray1D& pivot, int& NFLAG, BurnT& state, DvodeT& vstate)
                 vstate.CRATE = amrex::max(CRDOWN * vstate.CRATE, DEL / DELP);
             }
 
-            Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
+            const Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
             if (DCON <= 1.0_rt) {
                 // we converged, exit the outer loop
                 converged = true;

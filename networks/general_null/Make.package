@@ -8,8 +8,6 @@ ifeq ($(USE_REACT),TRUE)
   CEXE_headers += actual_rhs.H
 endif
 
-$(NETWORK_OUTPUT_PATH)/actual_network.F90: $(NETWORK_OUTPUT_PATH)/network_properties.H
-
 NAUX := $(shell $(MICROPHYSICS_HOME)/networks/general_null/get_naux.py --defines "$(DEFINES)" $(GENERAL_NET_INPUTS))
 DEFINES += "-DNAUX_NET=$(NAUX)"
 

@@ -5,7 +5,7 @@ jobs:
   nse_net:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -42,4 +42,18 @@ jobs:
           cd unit_test/test_ase
           diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/ase_nse_net_unit_test.out
 
+      - name: Compile, test_ase/make_table (NSE_NET, ase, make_table)
+        run: |
+          cd unit_test/test_ase/make_table
+          make realclean
+          make -j 4
 
+      - name: Run, test_ase/make_table (NSE_NET, ase, make_table)
+        run: |
+          cd unit_test/test_ase/make_table
+          ./main3d.gnu.ex > test.out
+
+      - name: Compare to stored output (NSE_NET, ase, make_table)
+        run: |
+          cd unit_test/test_ase/make_table
+          diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/ase_nse_net_make_table_unit_test.out

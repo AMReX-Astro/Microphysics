@@ -60,6 +60,21 @@ nonaka_k                integer           0
 nonaka_level            integer           0
 nonaka_file             character         "nonaka_plot.dat"
 
+# do we retry a failed burn with different parameters?
+use_burn_retry            integer   0
+
+# do we swap the Jacobian (from analytic to numerical or vice versa) on
+# a retry?
+retry_swap_jacobian       integer     1
+
+# Tolerances for the solver (relative and absolute), for the
+# species and energy equations.
+retry_rtol_spec                real      1.d-12
+retry_rtol_enuc                real      1.d-6
+
+retry_atol_spec                real      1.d-8
+retry_atol_enuc                real      1.d-6
+
 # in the clean_state process, do we clip the species such that they
 # are in [0, 1]?
 do_species_clip              integer          1
@@ -80,3 +95,14 @@ scale_system              integer         0
 # for the NSE update predictor-corrector, how many iterations
 # do we take to get the new time NSE state
 nse_iters                 integer         3
+
+# for SDC+NSE, when estimating the derivatives of the NSE table
+# quantities, what fraction of dt do we use for the finite-difference
+# estimate
+nse_deriv_dt_factor        real           0.05
+
+# for NSE update, do we include the weak rate neutrino losses?
+nse_include_enu_weak       integer        1
+
+# for the linear algebra, do we allow pivoting?
+linalg_do_pivoting         integer        1

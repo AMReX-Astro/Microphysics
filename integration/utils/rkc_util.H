@@ -1,9 +1,13 @@
 #ifndef RKC_UTIL_H
 #define RKC_UTIL_H
 
+#include <AMReX_REAL.H>
+
+using namespace amrex::literals;
+
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_timestep, const Real sprad)
+amrex::Real rkc_init_dt (BurnT& state, IntT& rstate, const amrex::Real max_timestep, const amrex::Real sprad)
 {
 
     // estimate the initial timestep
@@ -13,9 +17,9 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_timestep, const Rea
     // finally, we require the initial spectral radius, sprad, and the maximum
     // timestep (tout - tstart), max_timestep.
 
-    Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), max_timestep);
+    amrex::Real hmin = 10.0_rt * UROUND * std::max(std::abs(rstate.t), max_timestep);
 
-    Real absh = max_timestep;
+    amrex::Real absh = max_timestep;
 
     if (sprad * absh > 1.0_rt) {
         absh = 1.0_rt / sprad;
@@ -39,17 +43,17 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_timestep, const Rea
     }
 
     rstate.nfe++;
-    Real est{};
+    amrex::Real est{};
 
     // compute the weights using the tolerances
     for (int i = 1; i <= INT_NEQS; ++i) {
-        Real wt{};
+        amrex::Real wt{};
         if (i <= NumSpec) {
             wt = rstate.rtol_spec * std::abs(rstate.yn(i)) + rstate.atol_spec;
         } else {
             wt = rstate.rtol_enuc * std::abs(rstate.yn(i)) + rstate.atol_enuc;
         }
-        est += std::pow((rstate.yjm2(i) - rstate.fn(i)) / wt, 2);
+        est += amrex::Math::powi<2>((rstate.yjm2(i) - rstate.fn(i)) / wt);
     }
     est = absh * std::sqrt(est / INT_NEQS);
 
@@ -65,7 +69,7 @@ Real rkc_init_dt (BurnT& state, IntT& rstate, const Real max_timestep, const Rea
 
 template <typename BurnT, typename IntT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
+int rkcrho (BurnT& state, IntT& rstate, const amrex::Real max_timestep, amrex::Real& sprad)
 {
 
     // RKCRHO attempts to compute a close upper bound, SPRAD, on
@@ -94,7 +98,7 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
     // sprad smaller than small = 1/hmax are not
     // interesting because they do not constrain the step size.
 
-    Real small = 1.0_rt / max_timestep;
+    amrex::Real small = 1.0_rt / max_timestep;
 
     // The initial slope is used as guess when nsteps = 0 and
     // thereafter the last computed eigenvector.  Some care
@@ -112,16 +116,16 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
         }
     }
 
-    Real ynrm{};
-    Real vnrm{};
+    amrex::Real ynrm{};
+    amrex::Real vnrm{};
     for (int i = 1; i <= INT_NEQS; ++i) {
-        ynrm += std::pow(rstate.yn(i), 2);
-        vnrm += std::pow(rstate.yjm1(i), 2);
+        ynrm += amrex::Math::powi<2>(rstate.yn(i));
+        vnrm += amrex::Math::powi<2>(rstate.yjm1(i));
     }
     ynrm = std::sqrt(ynrm);
     vnrm = std::sqrt(vnrm);
 
-    Real dynrm{};
+    amrex::Real dynrm{};
     if (ynrm != 0.0_rt && vnrm != 0.0_rt) {
         dynrm = ynrm * std::sqrt(UROUND);
         for (int i = 1; i <= INT_NEQS; ++i) {
@@ -146,7 +150,7 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
 
     // Now iterate with a nonlinear power method.
 
-    Real sigma{};
+    amrex::Real sigma{};
 
     for (int iter = 0; iter < itmax; ++iter) {
 
@@ -162,12 +166,12 @@ int rkcrho (BurnT& state, IntT& rstate, const Real max_timestep, Real& sprad)
             rstate.y(i) = ysav(i);
         }
         rstate.nfesig++;
-        Real dfnrm{};
+        amrex::Real dfnrm{};
         for (int i = 1; i <= INT_NEQS; ++i) {
-            dfnrm += std::pow(rstate.yjm2(i) - rstate.fn(i), 2);
+            dfnrm += amrex::Math::powi<2>(rstate.yjm2(i) - rstate.fn(i));
         }
         dfnrm = std::sqrt(dfnrm);
-        Real sigmal = sigma;
+        amrex::Real sigmal = sigma;
         sigma = dfnrm / dynrm;
 
         // sprad is a little bigger than the estimate sigma of the

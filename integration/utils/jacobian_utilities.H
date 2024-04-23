@@ -13,9 +13,7 @@ template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real temperature_to_energy_jacobian (const BurnT& state, const Real& jac_T)
 {
-    Real jac_e = 0.0_rt;
-
-    jac_e = jac_T / state.cv;
+    Real jac_e = jac_T / state.cv;
 
     return jac_e;
 }

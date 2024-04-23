@@ -10,11 +10,12 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
-#include <integrator_rhs_simplified_sdc.H>
+#include <integrator_rhs_sdc.H>
 #include <react_util.H>
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void do_vode_rhs()
 {
 

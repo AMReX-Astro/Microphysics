@@ -6,6 +6,9 @@
 
 namespace helmholtz
 {
+
+    using namespace amrex::literals;
+
     extern AMREX_GPU_MANAGED int do_coulomb;
     extern AMREX_GPU_MANAGED int input_is_constant;
 
@@ -14,21 +17,17 @@ namespace helmholtz
     constexpr int imax = 541;
     constexpr int jmax = 201;
 
-    extern AMREX_GPU_MANAGED int itmax;
-    extern AMREX_GPU_MANAGED int jtmax;
+    constexpr amrex::Real tlo   = 3.0e0_rt;
+    constexpr amrex::Real thi   = 13.0e0_rt;
+    constexpr amrex::Real tstp  = (thi - tlo) / (static_cast<amrex::Real>(jmax-1));
+    constexpr amrex::Real tstpi = 1.0e0_rt / tstp;
+    constexpr amrex::Real dlo   = -12.0e0_rt;
+    constexpr amrex::Real dhi   = 15.0e0_rt;
+    constexpr amrex::Real dstp  = (dhi - dlo) / (static_cast<amrex::Real>(imax-1));
+    constexpr amrex::Real dstpi = 1.0e0_rt / dstp;
 
     extern AMREX_GPU_MANAGED amrex::Real d[imax];
     extern AMREX_GPU_MANAGED amrex::Real t[jmax];
-
-    extern AMREX_GPU_MANAGED amrex::Real tlo;
-    extern AMREX_GPU_MANAGED amrex::Real thi;
-    extern AMREX_GPU_MANAGED amrex::Real tstp;
-    extern AMREX_GPU_MANAGED amrex::Real tstpi;
-
-    extern AMREX_GPU_MANAGED amrex::Real dlo;
-    extern AMREX_GPU_MANAGED amrex::Real dhi;
-    extern AMREX_GPU_MANAGED amrex::Real dstp;
-    extern AMREX_GPU_MANAGED amrex::Real dstpi;
 
     extern AMREX_GPU_MANAGED amrex::Real ttol;
     extern AMREX_GPU_MANAGED amrex::Real dtol;
