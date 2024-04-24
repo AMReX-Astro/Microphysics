@@ -44,7 +44,7 @@ namespace network
         static_assert(spec >= 1 && spec <= NumSpec);
 
         // Set the binding energy of the element
-        if constexpr (spec == H1) {
+        if constexpr (spec == H1) {  // NOLINT(bugprone-branch-clone)
             return 0.0_rt;
         }
         else if constexpr (spec == He3) {
@@ -239,7 +239,7 @@ namespace RHS {
 
         rhs_t data;
 
-        switch (rate) {
+        switch (rate) { // NOLINT(bugprone-switch-missing-default-case)
 
         case P_to_N:
             // irpen and irnep in the original aprox19

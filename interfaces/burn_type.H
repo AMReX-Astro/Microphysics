@@ -12,7 +12,7 @@
 
 #include <ArrayUtilities.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 using namespace network_rp;
 
 // A generic structure holding data necessary to do a nuclear burn.
@@ -32,7 +32,7 @@ const int net_ienuc = NumSpec + 1;
 
 // this is the data type that is used to get the ydots from the actual
 // RHS of the network, regardless of Strang or SDC
-typedef amrex::Array1D<Real, 1, neqs> YdotNetArray1D;
+using YdotNetArray1D = amrex::Array1D<amrex::Real, 1, neqs>;
 
 // these indices represent the order that the conserved state comes
 // into the ODE integration from the hydro code.
@@ -58,33 +58,33 @@ const int SVAR_EVOLVE = SFX;
 // this is the data type of the dense Jacobian that the network wants.
 // it is not the same size as the Jacobian that VODE cares about when
 // we are doing simplified-SDC
-typedef ArrayUtil::MathArray2D<1, neqs, 1, neqs> JacNetArray2D;
+using  JacNetArray2D = ArrayUtil::MathArray2D<1, neqs, 1, neqs>;
 
 struct burn_t
 {
 
   // on exit, this will be set to the integration time we achieved
 
-  Real time{};
+  amrex::Real time{};
 
   // this first group are the quantities the network RHS uses
 
-  Real rho{};
-  Real T{};
-  Real e{};
-  Real xn[NumSpec]{};
+  amrex::Real rho{};
+  amrex::Real T{};
+  amrex::Real e{};
+  amrex::Real xn[NumSpec]{};
 #if NAUX_NET > 0
-  Real aux[NumAux]{};
+  amrex::Real aux[NumAux]{};
 #endif
 
   // scaling used to make e we integrate dimensionless
-  Real e_scale{};
+  amrex::Real e_scale{};
 
   // derivatives needed for calling the EOS
-  Real dedr{};
-  Real dedT{};
-  Real dedA{};
-  Real dedZ{};
+  amrex::Real dedr{};
+  amrex::Real dedT{};
+  amrex::Real dedA{};
+  amrex::Real dedZ{};
 
   // for diagnostics / error reporting
 
@@ -93,7 +93,7 @@ struct burn_t
   int k{};
 #ifdef NONAKA_PLOT
   int level{};
-  Real reference_time{};
+  amrex::Real reference_time{};
 #ifdef STRANG
   int strang_half{};
 #endif
@@ -104,17 +104,17 @@ struct burn_t
   // y is the input conserved state.  We will keep this state updated
   // in time as we integrate, such that upon output it will be the
   // final conserved state.
-  Real y[SVAR]{};
+  amrex::Real y[SVAR]{};
 
   // we need to store a copy of the original state as well so we can
   // handle the non-evolved state evolution
-  Real rho_orig{};
+  amrex::Real rho_orig{};
 
-  Real rhoe_orig{};
+  amrex::Real rhoe_orig{};
 
   // ydot_a are the advective terms that will modify the state y due
   // to hydrodynamics over the timestep.
-  Real ydot_a[SVAR]{};
+  amrex::Real ydot_a[SVAR]{};
 
   int sdc_iter{};
   int num_sdc_iters{};
@@ -122,25 +122,25 @@ struct burn_t
   // for drive_initial_convection, we will fix T during the
   // integration to a passed in value.  We will interpret a positive
   // T_fixed as setting this feature.
-  Real T_fixed{-1.0};
+  amrex::Real T_fixed{-1.0};
 
   // all coupling types need the specific heats to transform the
   // reaction Jacobian elements from T to e
-  Real cv{};
+  amrex::Real cv{};
 
   // dx is useful for estimating timescales for equilibriation
-  Real dx{};
+  amrex::Real dx{};
 
-  Real mu{};
-  Real mu_e{};
-  Real y_e{};
-  Real eta{};
-  Real abar{};
-  Real zbar{};
+  amrex::Real mu{};
+  amrex::Real mu_e{};
+  amrex::Real y_e{};
+  amrex::Real eta{};
+  amrex::Real abar{};
+  amrex::Real zbar{};
 
 #ifdef NSE_NET
-  Real mu_p{};
-  Real mu_n{};
+  amrex::Real mu_p{};
+  amrex::Real mu_n{};
 #endif
 
 #ifdef NSE
@@ -298,7 +298,7 @@ void normalize_abundances_sdc_burn (BurnT& state)
 
     // we have state.y[SRHO] to constrain to
 
-    Real rhoX_sum = 0.0_rt;
+    amrex::Real rhoX_sum = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
         state.y[SFS+n] = amrex::max(amrex::min(state.y[SFS+n], state.y[SRHO]), 0.0_rt);
         rhoX_sum += state.y[SFS+n];
@@ -333,9 +333,9 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void normalize_abundances_burn (BurnT& state)
 {
 
-    Real sum = 0.0_rt;
+    amrex::Real sum = 0.0_rt;
     for (double &x : state.xn) {
-        x = amrex::max(small_x, amrex::min(1.0_rt, x));
+        x = amrex::max(network_rp::small_x, amrex::min(1.0_rt, x));
         sum += x;
     }
     for (double &x : state.xn) {

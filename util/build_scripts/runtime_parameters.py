@@ -99,14 +99,20 @@ class Param:
 
         ostr = ""
 
+        val = self.default_format(debug=self.debug_default)
+
+        # we can use an empty initialization list {} for empty strings
+        if self.dtype == "string" and val.strip() == '""':
+            val = ""
+
         if not self.debug_default is None:
             ostr += "#ifdef AMREX_DEBUG\n"
-            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{self.default_format(lang='C++', debug=True)}}};\n"
+            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{val}}};\n"
             ostr += "#else\n"
-            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{self.default_format(lang='C++')}}};\n"
+            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{val}}};\n"
             ostr += "#endif\n"
         else:
-            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{self.default_format(lang='C++')}}};\n"
+            ostr += f"{' '*indent}{self.get_cxx_decl()} {self.cpp_var_name}{{{val}}};\n"
 
         return ostr
 
@@ -118,12 +124,12 @@ class Param:
 
         if not self.debug_default is None:
             ostr += "#ifdef AMREX_DEBUG\n"
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++', debug=True)};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(debug=True)};\n"
             ostr += "#else\n"
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++')};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format()};\n"
             ostr += "#endif\n"
         else:
-            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format(lang='C++')};\n"
+            ostr += f"{self.nm_pre}{self.cpp_var_name} = {self.default_format()};\n"
 
         return ostr
 
@@ -137,7 +143,7 @@ class Param:
             # we need to create an amrex::Vector to read and then
             # copy into our managed array
             ostr += "\n"
-            ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
+            ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format()});\n"
             ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
             ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
             ostr += f"                {self.nm_pre}{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
@@ -164,7 +170,7 @@ class Param:
             # we need to create an amrex::Vector to read and then
             # copy into our managed array
             ostr += "\n"
-            ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format(lang='C++')});\n"
+            ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format()});\n"
             ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
             ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
             ostr += f"                {cname}{struct_name}.{self.namespace}.{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
@@ -175,12 +181,16 @@ class Param:
 
         return ostr
 
-    def default_format(self, lang="C++", debug=False):
+    def default_format(self, *, lang="C++", debug=False):
         """return the value of the parameter in a format that it can be
         recognized in C++ code--in particular, preserve the quotes for
         strings
 
         """
+
+        # note: lang is no longer used and will be removed once application
+        # codes have synced
+
         if debug:
             val = self.debug_default
         else:
@@ -188,11 +198,12 @@ class Param:
 
         if self.dtype == "string":
             return f'{val}'
-        if self.dtype in ["bool", "logical"] and lang == "C++":
+        if self.dtype in ["bool", "logical"]:
+            # this is deprecated -- we should just use int
             if val.lower() in [".true.", "true"]:
                 return 1
             return 0
-        if self.dtype == "real" and lang == "C++":
+        if self.dtype == "real":
             if "d" in val:
                 val = val.replace("d", "e")
             if not val.endswith("_rt"):
@@ -202,7 +213,7 @@ class Param:
     def get_job_info_test(self):
         """this is the output in C++ in the job_info writing"""
 
-        value = self.default_format(lang="C++")
+        value = self.default_format()
         if self.dtype == "string" and  value.strip() == '\"\"':
             test = f"{self.nm_pre}{self.cpp_var_name}.empty()"
         else:

@@ -4,7 +4,7 @@
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 // changes compared to Minpack's hybrj:
 //
@@ -23,7 +23,7 @@ const int maxfev = 1000;
 // factor and the euclidean norm of diag*x if nonzero, or else
 // to factor itself. in most cases factor should lie in the
 // interval (.1,100.). 100. is a generally recommended value.
-const Real factor = 100.0_rt;
+const amrex::Real factor = 100.0_rt;
 
 template<int neqs>
 struct hybrj_t {
@@ -37,27 +37,27 @@ struct hybrj_t {
     // x is an array of length n. on input x must contain
     // an initial estimate of the solution vector. on output x
     // contains the final estimate of the solution vector.
-    amrex::Array1D<Real, 1, neqs> x;
+    amrex::Array1D<amrex::Real, 1, neqs> x;
 
     // fvec is an output array of length n which contains
     // the functions evaluated at the output x.
-    amrex::Array1D<Real, 1, neqs> fvec;
+    amrex::Array1D<amrex::Real, 1, neqs> fvec;
 
     // fjac is an output n by n array which contains the
     // orthogonal matrix q produced by the qr factorization
     // of the final approximate jacobian.
-    amrex::Array2D<Real, 1, neqs, 1, neqs> fjac;
+    amrex::Array2D<amrex::Real, 1, neqs, 1, neqs> fjac;
 
     // xtol is a nonnegative input variable. termination
     // occurs when the relative error between two consecutive
     // iterates is at most xtol.
-    Real xtol;
+    amrex::Real xtol;
 
     // diag is an array of length n. if mode = 1 (see
     // below), diag is internally set. if mode = 2, diag
     // must contain positive entries that serve as
     // multiplicative scale factors for the variables.
-    amrex::Array1D<Real, 1, neqs> diag;
+    amrex::Array1D<amrex::Real, 1, neqs> diag;
 
     // mode is an integer input variable. if mode = 1, the
     // variables will be scaled internally. if mode = 2,
@@ -101,17 +101,17 @@ struct hybrj_t {
     // r is an output array of length lr which contains the
     // upper triangular matrix produced by the qr factorization
     // of the final approximate jacobian, stored rowwise.
-    amrex::Array1D<Real, 1, neqs * (neqs + 1) / 2> r;
+    amrex::Array1D<amrex::Real, 1, neqs * (neqs + 1) / 2> r;
 
     // qtf is an output array of length n which contains
     // the vector (q transpose)*fvec.
-    amrex::Array1D<Real, 1, neqs> qtf;
+    amrex::Array1D<amrex::Real, 1, neqs> qtf;
 
     // wa1, wa2, wa3, and wa4 are work arrays of length n.
-    amrex::Array1D<Real, 1, neqs> wa1;
-    amrex::Array1D<Real, 1, neqs> wa2;
-    amrex::Array1D<Real, 1, neqs> wa3;
-    amrex::Array1D<Real, 1, neqs> wa4;
+    amrex::Array1D<amrex::Real, 1, neqs> wa1;
+    amrex::Array1D<amrex::Real, 1, neqs> wa2;
+    amrex::Array1D<amrex::Real, 1, neqs> wa3;
+    amrex::Array1D<amrex::Real, 1, neqs> wa4;
 };
 
 #endif

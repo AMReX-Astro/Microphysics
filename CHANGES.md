@@ -1,3 +1,40 @@
+# 24.04
+
+   * A new `test_screening_templated` unit test was added -- this
+     works with any of the templated networks. (#1525)
+
+   * A lot of small code clean-ups from clang-tidy (#1516, #1518, #1519, #1520, #1522)
+
+   * The NSE solver was optimized (#1503, #1504, #1506, #1507, #1508)
+
+   * The integrator code was synced up between implementations, fixing
+     a bug in the RKC retry tolerances (#1513)
+
+   * A `reinterpret_cast` in `rhs.H` was removed (#1435)
+
+# 24.03
+
+   * pivoting in the linear algebra routines can now be disabled
+     (#1454)
+
+   * the scaling of the energy derivatives in the Jacobian when
+     running with `integrator.scale_system=1` has been fixed (#1479)
+
+   * added a new linear algebra unit test (#1493)
+
+   * when building with HIP we disable forced inlining (#1490)
+
+   * improved the energy update with NSE and remove unused terms
+     (#1483, #1484, #1485)
+
+   * remove `using namespace amrex` from most headers (#1465, #1474)
+
+   * updated the pynucastro networks to pynucastro 2.2.0 (#1470)
+
+   * fixed an error code check in the VODE integrator (#1472)
+
+   * added a zone-by-zone retry capability to the burner (#969)
+
 # 24.02
 
    * Lots of general code cleaning from coverity and clang-tidy

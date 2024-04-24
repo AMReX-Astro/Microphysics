@@ -1,6 +1,11 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
+# For HIP, inlining produces large kernels that seem to cause memory issues
+ifeq ($(USE_HIP),TRUE)
+    EXTRACXXFLAGS += -mllvm -amdgpu-function-calls=true
+endif
+
 # for common code paths between simplified-SDC and true-SDC, we'll
 # use the SDC define
 

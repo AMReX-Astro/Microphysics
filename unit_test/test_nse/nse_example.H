@@ -1,3 +1,5 @@
+#ifndef NSE_EXAMPLE_H
+#define NSE_EXAMPLE_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -10,6 +12,7 @@
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void nse_example_c()
 {
 
@@ -77,3 +80,4 @@ void nse_example_c()
       std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
     }
 }
+#endif
