@@ -1,15 +1,15 @@
 @namespace: unit_test
 
-dens_min      real       1.d6
-dens_max      real       1.d9
-temp_min      real       1.d6
-temp_max      real       1.d15
+dens_min      real       1.e6
+dens_max      real       1.e9
+temp_min      real       1.e6
+temp_max      real       1.e15
 
-uniform_xn    integer    0
+uniform_xn    int        0
 
-tmax          real       0.1d0
+tmax          real       0.1e0
 
 small_temp    real       1.e5
 small_dens    real       1.e5
 
-do_acc        integer    1
+do_acc        int        1

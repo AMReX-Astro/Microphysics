@@ -1,7 +1,7 @@
 @namespace: eos
 
-polytrope_type       integer  0
-polytrope_gamma      real     0.0d0
-polytrope_K          real     0.0d0
-polytrope_mu_e       real     2.0d0
+polytrope_type       int      0
+polytrope_gamma      real     0.0e0
+polytrope_K          real     0.0e0
+polytrope_mu_e       real     2.0e0
 

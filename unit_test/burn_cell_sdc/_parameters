@@ -10,10 +10,10 @@ tmax          real       1.e-2
 tfirst        real       0.0
 
 # number of steps (logarithmically spaced)
-nsteps        integer    100
+nsteps        int        100
 
 # do we recompute the aux quantities? or do we take them as given in the inputs?
-recompute_aux integer    0
+recompute_aux bool       0
 
 density       real       1.e7
 temperature   real       3.e9
