@@ -199,7 +199,7 @@ class Param:
         if self.dtype == "string":
             return f'{val}'
         if self.dtype == "bool":
-            if val in [1, "true"]:
+            if val.strip() in ["1", "True", "TRUE", "true"]:
                 return 1
             return 0
         if self.dtype == "real":
