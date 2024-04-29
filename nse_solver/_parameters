@@ -1,7 +1,7 @@
 @namespace: nse
 
 max_nse_iters           int        500
-use_hybrid_solver       int        1
+use_hybrid_solver       bool       1
 ase_tol                 real       0.1
 nse_abs_tol             real       0.005
 nse_rel_tol             real       0.2
