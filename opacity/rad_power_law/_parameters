@@ -40,4 +40,4 @@ scatter_exp_p                real            0.0e0
 kappa_floor                  real            0.0e0
 
 # Temperature floor
-rad_temp_floor               real            1.d-10
+rad_temp_floor               real            1.e-10
