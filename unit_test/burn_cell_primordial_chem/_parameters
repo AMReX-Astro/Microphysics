@@ -1,6 +1,6 @@
 @namespace: unit_test
 
-run_prefix    character  "burn_cell_primordial_chem"
+run_prefix    string  "burn_cell_primordial_chem"
 
 # floor values of temperature and density
 small_temp    real       1.e1
