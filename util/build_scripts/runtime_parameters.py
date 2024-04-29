@@ -198,9 +198,8 @@ class Param:
 
         if self.dtype == "string":
             return f'{val}'
-        if self.dtype in ["bool", "logical"]:
-            # this is deprecated -- we should just use int
-            if val.lower() in [".true.", "true"]:
+        if self.dtype == "bool":
+            if val in [1, "true"]:
                 return 1
             return 0
         if self.dtype == "real":

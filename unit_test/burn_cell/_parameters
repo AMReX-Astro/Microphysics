@@ -1,6 +1,6 @@
 @namespace: unit_test
 
-run_prefix    character  ""
+run_prefix    string  ""
 
 small_temp    real       1.e5
 small_dens    real       1.e5
@@ -12,7 +12,7 @@ tmax          real       1.e-2
 tfirst        real       0.0
 
 # number of steps (logarithmically spaced)
-nsteps        integer    100
+nsteps        int    100
 
 density       real       1.d7
 

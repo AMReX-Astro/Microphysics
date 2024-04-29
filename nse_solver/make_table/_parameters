@@ -3,14 +3,14 @@
 rho_min   real   1.e6
 rho_max   real   1.e10
 
-nrho      integer    5
+nrho      int    5
 
 T_min     real   1.e9
 T_max     real   1.e10
 
-nT        integer    5
+nT        int    5
 
 Ye_min    real   0.4
 Ye_max    real   0.7
 
-nye       integer    7
+nye       int    7

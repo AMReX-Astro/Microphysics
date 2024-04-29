@@ -1,43 +1,43 @@
 @namespace: opacity
 
 # Opacity constant (Planck)
-const_kappa_p                real           -1.0d0
+const_kappa_p                real           -1.0e0
 
 # Density exponent (Planck)
-kappa_p_exp_m                real            0.0d0
+kappa_p_exp_m                real            0.0e0
 
 # Temperature exponent (Planck)
-kappa_p_exp_n                real            0.0d0
+kappa_p_exp_n                real            0.0e0
 
 # Frequency exponent (Planck)
-kappa_p_exp_p                real            0.0d0
+kappa_p_exp_p                real            0.0e0
 
 # Opacity constant (Rosseland)
-const_kappa_r                real           -1.0d0
+const_kappa_r                real           -1.0e0
 
 # Density exponent (Rosseland)
-kappa_r_exp_m                real            0.0d0
+kappa_r_exp_m                real            0.0e0
 
 # Temperature exponent (Rosseland)
-kappa_r_exp_n                real            0.0d0
+kappa_r_exp_n                real            0.0e0
 
 # Frequency exponent (Rosseland)
-kappa_r_exp_p                real            0.0d0
+kappa_r_exp_p                real            0.0e0
 
 # Opacity constant (scattering)
-const_scatter                real            0.0d0
+const_scatter                real            0.0e0
 
 # Density exponent (scattering)
-scatter_exp_m                real            0.0d0
+scatter_exp_m                real            0.0e0
 
 # Temperature exponent (scattering)
-scatter_exp_n                real            0.0d0
+scatter_exp_n                real            0.0e0
 
 # Frequency exponent (scattering)
-scatter_exp_p                real            0.0d0
+scatter_exp_p                real            0.0e0
 
 # Opacity floor
-kappa_floor                  real            0.0d0
+kappa_floor                  real            0.0e0
 
 # Temperature floor
 rad_temp_floor               real            1.d-10
