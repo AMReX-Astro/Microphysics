@@ -4,7 +4,7 @@
 maximum_timestep_change_factor           real            1.01
 
 # Maximum number of iterations for the Newton solve
-max_iter                                 integer         25
+max_iter                                 int             25
 
 # tolerance for the Newton solve
 tol                                      real            1.e-10
