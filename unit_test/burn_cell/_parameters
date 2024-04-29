@@ -14,7 +14,7 @@ tfirst        real       0.0
 # number of steps (logarithmically spaced)
 nsteps        int    100
 
-density       real       1.d7
+density       real       1.e7
 
 temperature   real       3.d9
 
