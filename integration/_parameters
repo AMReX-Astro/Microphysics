@@ -85,7 +85,7 @@ use_number_densities     bool     0
 subtract_internal_energy   bool     1
 
 # SDC iteration tolerance adjustment factor
-sdc_burn_tol_factor          real         1.d0
+sdc_burn_tol_factor          real         1.e0
 
 # do we scale the ODE system we integrate to make it O(1)?
 # for Strang, this simply means scaling e by the initial energy?
