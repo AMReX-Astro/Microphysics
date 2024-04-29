@@ -5,7 +5,7 @@ use_hybrid_solver       bool       1
 ase_tol                 real       0.1
 nse_abs_tol             real       0.005
 nse_rel_tol             real       0.2
-nse_dx_independent      int        0
-nse_molar_independent   int        0
-nse_skip_molar          int        0
+nse_dx_independent      bool       0
+nse_molar_independent   bool       0
+nse_skip_molar          bool       0
 T_nse_net               real       -1.0
