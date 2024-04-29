@@ -18,4 +18,4 @@ density       real       1.e7
 
 temperature   real       3.e9
 
-skip_initial_normalization    int    0
+skip_initial_normalization    bool    0
