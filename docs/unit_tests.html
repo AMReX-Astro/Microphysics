@@ -18,7 +18,7 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="_static/copybutton.js?v=f281be69"></script>
@@ -132,10 +132,7 @@ fashion as in the application codes, using the <code class="docutils literal not
 script.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Most of these tests are written such that the exercise both the C++
-and Fortran implementations of the Microphysics, via the <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>
-runtime parameter.</p>
-<p>Most of these tests work with MPI+OpenMP and CUDA</p>
+<p>Most of these tests work with MPI+OpenMP, MPI+CUDA, and MPI+HIP</p>
 </div>
 <section id="eos-test">
 <h3>EOS test<a class="headerlink" href="#eos-test" title="Link to this heading"></a></h3>
@@ -197,11 +194,6 @@ tests whether the EOS is threadsafe.</p>
 <p>Examining the output (an AMReX plotfile) will show you how big the
 errors are. You can use the <code class="docutils literal notranslate"><span class="pre">amrex/Tools/Plotfile/</span></code> tool
 <code class="docutils literal notranslate"><span class="pre">fextrema</span></code> to display the maximum error for each variable.</p>
-<p>To switch between testing the Fortran and C++ implementations of the EOS,
-use <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>, e.g., to use the C++ implementation, you would run as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs_eos</span> <span class="n">do_cxx</span><span class="o">=</span><span class="mi">1</span>
-</pre></div>
-</div>
 </section>
 <section id="network-test">
 <h3>Network test<a class="headerlink" href="#network-test" title="Link to this heading"></a></h3>
@@ -232,7 +224,6 @@ network (e.g., <code class="docutils literal notranslate"><span class="pre">apro
 <p>The loop over the burner is marked up for OpenMP and CUDA and
 therefore this test can be used to assess threadsafety of the burners
 as well as to optimize the GPU performance of the burners.</p>
-<p>This works for both the Fortran and C++ implementations (via <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>).</p>
 </section>
 <section id="aprox-rates-test">
 <h3>Aprox Rates Test<a class="headerlink" href="#aprox-rates-test" title="Link to this heading"></a></h3>
@@ -243,7 +234,6 @@ This uses the same basic ideas as the tests above—a cube of data is
 setup and the rates are evaluated using each zone’s thermodynamic
 conditions.  This test is not really network specific—it tests all
 of the available rates.</p>
-<p>This works for both the Fortran and C++ implementations (via <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>).</p>
 </section>
 <section id="screening-test">
 <h3>Screening Test<a class="headerlink" href="#screening-test" title="Link to this heading"></a></h3>
@@ -252,7 +242,6 @@ routine, using the <code class="docutils literal notranslate"><span class="pre">
 This uses the same basic ideas as the tests above—a cube of data is
 setup and the rates are evaluated using each zone’s thermodynamic
 conditions.</p>
-<p>This works for both the Fortran and C++ implementations (via <code class="docutils literal notranslate"><span class="pre">do_cxx</span></code>).</p>
 </section>
 </section>
 <section id="burn-cell">
@@ -307,7 +296,7 @@ required is defined and initialized on the lines following
 <section id="running-the-code">
 <h3>Running the Code<a class="headerlink" href="#running-the-code" title="Link to this heading"></a></h3>
 <p>To run the code, enter the burn_cell directory and run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main</span><span class="o">.</span><span class="n">Linux</span><span class="o">.</span><span class="n">gfortran</span><span class="o">.</span><span class="n">exe</span> <span class="k">with</span> <span class="n">inputs</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">exe</span> <span class="k">with</span> <span class="n">inputs</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">inputs</span></code> is the name of your inputs file.</p>

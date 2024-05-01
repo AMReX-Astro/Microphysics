@@ -18,7 +18,7 @@
         <script src="_static/jquery.js?v=5d32c60e"></script>
         <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
-        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="_static/copybutton.js?v=f281be69"></script>
@@ -320,7 +320,7 @@ consider species that are &gt; X_reject_buffer * atol_spec</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
 <td></td>
-<td><p>0.d0</p></td>
+<td><p>0.e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -362,11 +362,11 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
-<td><p>1.d7</p></td>
+<td><p>1.e7</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
 <td></td>
-<td><p>3.d9</p></td>
+<td><p>3.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">skip_initial_normalization</span></code></p></td>
 <td></td>
@@ -423,59 +423,59 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_1</span></code></p></td>
 <td><p>list of species and their number densities used in the
 network (14 if including deuterium)</p></td>
-<td><p>1.0d0</p></td>
+<td><p>1.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_2</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_3</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_4</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_5</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_6</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_7</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_8</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_9</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_10</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_11</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_12</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_13</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">primary_species_14</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -748,7 +748,7 @@ as given in the inputs?</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
 <td></td>
-<td><p>1.0d0</p></td>
+<td><p>1.0e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -765,7 +765,7 @@ as given in the inputs?</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_opacity</span></code></p></td>
 <td></td>
-<td><p>7.0d-2</p></td>
+<td><p>7.0e-2</p></td>
 </tr>
 </tbody>
 </table>
@@ -790,11 +790,11 @@ as given in the inputs?</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
-<td><p>1.d7</p></td>
+<td><p>1.e7</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
 <td></td>
-<td><p>3.d9</p></td>
+<td><p>3.e9</p></td>
 </tr>
 </tbody>
 </table>
@@ -811,7 +811,7 @@ as given in the inputs?</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
 <td></td>
-<td><p>5.d0/3.d0</p></td>
+<td><p>5.e0/3.e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></p></td>
 <td></td>
@@ -840,21 +840,21 @@ as given in the inputs?</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_ttol</span></code></p></td>
 <td><p>Tolerance for iterations with respect to temperature</p></td>
-<td><p>1.0d-8</p></td>
+<td><p>1.0e-8</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_dtol</span></code></p></td>
 <td><p>Tolerance for iterations with respect to density</p></td>
-<td><p>1.0d-8</p></td>
+<td><p>1.0e-8</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prad_limiter_rho_c</span></code></p></td>
 <td><p>Density target for radiation pressure smoothing
 (negative means smoothing is disabled)</p></td>
-<td><p>-1.0d0</p></td>
+<td><p>-1.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prad_limiter_delta_rho</span></code></p></td>
 <td><p>Density gradient for radiation pressure smoothing
 (negative means smoothing is disabled)</p></td>
-<td><p>-1.0d0</p></td>
+<td><p>-1.0e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -885,9 +885,7 @@ the RHS to zero.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">jacobian</span></code></p></td>
 <td><p>Whether to use an analytical or numerical Jacobian. 1
-== Analytical 2 == Numerical 3 == Numerical for
-reactions; analytic for primitive -&gt; conserved
-(simplified-SDC only)</p></td>
+== Analytical 2 == Numerical</p></td>
 <td><p>1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">burner_verbose</span></code></p></td>
@@ -897,19 +895,19 @@ reactions; analytic for primitive -&gt; conserved
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
 <td><p>Tolerances for the solver (relative and absolute), for
 the species and energy equations.</p></td>
-<td><p>1.d-12</p></td>
+<td><p>1.e-12</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
 <td></td>
-<td><p>1.d-6</p></td>
+<td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
 <td></td>
-<td><p>1.d-8</p></td>
+<td><p>1.e-8</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
 <td></td>
-<td><p>1.d-6</p></td>
+<td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
 <td><p>Whether to renormalize the mass fractions at each step
@@ -921,18 +919,18 @@ in the evolution so that they sum to unity.</p></td>
 be larger than <code class="docutils literal notranslate"><span class="pre">small_x</span></code>, but the issue is that we
 need to prevent underflow issues and keep mass
 fractions positive in the integrator.  You may have to
-increase the floor to, e.g. 1.d-20 if your rates are
+increase the floor to, e.g. 1.e-20 if your rates are
 large.</p></td>
-<td><p>1.0d-30</p></td>
+<td><p>1.0e-30</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code></p></td>
 <td><p>The maximum temperature for reactions in the
 integration.</p></td>
-<td><p>1.0d11</p></td>
+<td><p>1.0e11</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">react_boost</span></code></p></td>
 <td><p>boost the reaction rates by a factor &gt; 1</p></td>
-<td><p>-1.d0</p></td>
+<td><p>-1.e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code></p></td>
 <td><p>maximum number of timesteps for the integrator</p></td>
@@ -940,7 +938,7 @@ integration.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ode_max_dt</span></code></p></td>
 <td><p>maximum timestep for the integrator</p></td>
-<td><p>1.d30</p></td>
+<td><p>1.e30</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_jacobian_caching</span></code></p></td>
 <td><p>Whether to use Jacobian caching in VODE</p></td>
@@ -978,19 +976,19 @@ vice versa) on a retry?</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_spec</span></code></p></td>
 <td><p>Tolerances for the solver (relative and absolute), for
 the species and energy equations.</p></td>
-<td><p>1.d-12</p></td>
+<td><p>1.e-12</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_enuc</span></code></p></td>
 <td></td>
-<td><p>1.d-6</p></td>
+<td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_spec</span></code></p></td>
 <td></td>
-<td><p>1.d-8</p></td>
+<td><p>1.e-8</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_enuc</span></code></p></td>
 <td></td>
-<td><p>1.d-6</p></td>
+<td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_species_clip</span></code></p></td>
 <td><p>in the clean_state process, do we clip the species such
@@ -1008,7 +1006,7 @@ species</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sdc_burn_tol_factor</span></code></p></td>
 <td><p>SDC iteration tolerance adjustment factor</p></td>
-<td><p>1.d0</p></td>
+<td><p>1.e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scale_system</span></code></p></td>
 <td><p>do we scale the ODE system we integrate to make it
@@ -1185,7 +1183,7 @@ losses?</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
 <td><p>cutoff for species mass fractions</p></td>
-<td><p>1.d-30</p></td>
+<td><p>1.e-30</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
 <td><p>Should we use rate tables if they are present in the
@@ -1398,15 +1396,15 @@ table?</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></p></td>
 <td></td>
-<td><p>2.0d0</p></td>
+<td><p>2.0e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1421,30 +1419,6 @@ table?</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></p></td>
-<td><p>the coefficient for the reaction rate</p></td>
-<td><p>1.d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nu</span></code></p></td>
-<td><p>exponent for the temperature</p></td>
-<td><p>4.d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">specific_q_burn</span></code></p></td>
-<td><p>reaction specific q-value (in erg/g)</p></td>
-<td><p>10.d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_burn_ref</span></code></p></td>
-<td><p>reaction thresholds (for the power law)</p></td>
-<td><p>1.0d0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_burn_ref</span></code></p></td>
-<td></td>
-<td><p>1.0d0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">f_act</span></code></p></td>
-<td></td>
-<td><p>1.0d0</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
 <td></td>
 <td><p>1.0</p></td>
@@ -1452,6 +1426,30 @@ table?</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
 <td></td>
 <td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtilde</span></code></p></td>
+<td><p>the coefficient for the reaction rate</p></td>
+<td><p>1.e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nu</span></code></p></td>
+<td><p>exponent for the temperature</p></td>
+<td><p>4.e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">specific_q_burn</span></code></p></td>
+<td><p>reaction specific q-value (in erg/g)</p></td>
+<td><p>10.e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_burn_ref</span></code></p></td>
+<td><p>reaction thresholds (for the power law)</p></td>
+<td><p>1.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_burn_ref</span></code></p></td>
+<td></td>
+<td><p>1.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">f_act</span></code></p></td>
+<td></td>
+<td><p>1.0e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1662,71 +1660,71 @@ formation)</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_p</span></code></p></td>
 <td><p>Opacity constant (Planck)</p></td>
-<td><p>-1.0d0</p></td>
+<td><p>-1.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_m</span></code></p></td>
 <td><p>Density exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_n</span></code></p></td>
 <td><p>Temperature exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_p_exp_p</span></code></p></td>
 <td><p>Frequency exponent (Planck)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_kappa_r</span></code></p></td>
 <td><p>Opacity constant (Rosseland)</p></td>
-<td><p>-1.0d0</p></td>
+<td><p>-1.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_m</span></code></p></td>
 <td><p>Density exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_n</span></code></p></td>
 <td><p>Temperature exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_r_exp_p</span></code></p></td>
 <td><p>Frequency exponent (Rosseland)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_scatter</span></code></p></td>
 <td><p>Opacity constant (scattering)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_m</span></code></p></td>
 <td><p>Density exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_n</span></code></p></td>
 <td><p>Temperature exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">scatter_exp_p</span></code></p></td>
 <td><p>Frequency exponent (scattering)</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kappa_floor</span></code></p></td>
 <td><p>Opacity floor</p></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rad_temp_floor</span></code></p></td>
 <td><p>Temperature floor</p></td>
-<td><p>1.d-10</p></td>
+<td><p>1.e-10</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_const_c_v</span></code></p></td>
 <td></td>
-<td><p>-1.d0</p></td>
+<td><p>-1.e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_m</span></code></p></td>
 <td></td>
-<td><p>0.d0</p></td>
+<td><p>0.e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_n</span></code></p></td>
 <td></td>
-<td><p>0.d0</p></td>
+<td><p>0.e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -1878,23 +1876,23 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d12</p></td>
+<td><p>1.e12</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
@@ -1931,11 +1929,11 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
-<td><p>1.d7</p></td>
+<td><p>1.e7</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
 <td></td>
-<td><p>3.d9</p></td>
+<td><p>3.e9</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ye</span></code></p></td>
 <td></td>
@@ -1951,87 +1949,87 @@ compatibility</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X1</span></code></p></td>
 <td></td>
-<td><p>1.0d0</p></td>
+<td><p>1.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X2</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X3</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X4</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X5</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X6</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X7</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X8</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X9</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X10</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X11</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X12</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X13</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X14</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X15</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X16</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X17</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X18</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X19</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X20</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -2048,23 +2046,23 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d12</p></td>
+<td><p>1.e12</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
@@ -2089,23 +2087,23 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d12</p></td>
+<td><p>1.e12</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
@@ -2130,19 +2128,19 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d15</p></td>
+<td><p>1.e15</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
 <td></td>
@@ -2150,7 +2148,7 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
@@ -2200,31 +2198,31 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d12</p></td>
+<td><p>1.e12</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
-<td><p>1.d4</p></td>
+<td><p>1.e4</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
-<td><p>1.d-4</p></td>
+<td><p>1.e-4</p></td>
 </tr>
 </tbody>
 </table>
@@ -2253,11 +2251,11 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
-<td><p>1.d7</p></td>
+<td><p>1.e7</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
 <td></td>
-<td><p>3.d9</p></td>
+<td><p>3.e9</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mu_p</span></code></p></td>
 <td></td>
@@ -2348,19 +2346,19 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d15</p></td>
+<td><p>1.e15</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
 <td></td>
@@ -2368,7 +2366,7 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
@@ -2397,19 +2395,19 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d15</p></td>
+<td><p>1.e15</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
 <td></td>
@@ -2438,31 +2436,31 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d12</p></td>
+<td><p>1.e12</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
-<td><p>1.d4</p></td>
+<td><p>1.e4</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
-<td><p>1.d-4</p></td>
+<td><p>1.e-4</p></td>
 </tr>
 </tbody>
 </table>
@@ -2479,31 +2477,31 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d12</p></td>
+<td><p>1.e12</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">metalicity_max</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
-<td><p>1.d4</p></td>
+<td><p>1.e4</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
-<td><p>1.d-4</p></td>
+<td><p>1.e-4</p></td>
 </tr>
 </tbody>
 </table>
@@ -2520,19 +2518,19 @@ compatibility</p></td>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dens_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dens_max</span></code></p></td>
 <td></td>
-<td><p>1.d9</p></td>
+<td><p>1.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temp_min</span></code></p></td>
 <td></td>
-<td><p>1.d6</p></td>
+<td><p>1.e6</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temp_max</span></code></p></td>
 <td></td>
-<td><p>1.d15</p></td>
+<td><p>1.e15</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
 <td></td>
@@ -2540,7 +2538,7 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td></td>
-<td><p>0.1d0</p></td>
+<td><p>0.1e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
@@ -2577,11 +2575,11 @@ compatibility</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
-<td><p>1.d7</p></td>
+<td><p>1.e7</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
 <td></td>
-<td><p>3.d9</p></td>
+<td><p>3.e9</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td></td>
@@ -2589,155 +2587,155 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Aux1</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Aux2</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Aux3</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_rho</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_rhoe</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X1</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X2</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X3</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X4</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X5</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X6</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X7</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X8</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X9</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X10</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X11</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X12</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X13</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X14</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X15</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X16</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X17</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X18</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X19</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X20</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X21</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X22</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X23</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X24</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X25</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X26</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X27</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X28</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X29</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_X30</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_Aux1</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_Aux2</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Adv_Aux3</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -2857,143 +2855,143 @@ compatibility</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X1</span></code></p></td>
 <td></td>
-<td><p>1.0d0</p></td>
+<td><p>1.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X2</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X3</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X4</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X5</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X6</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X7</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X8</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X9</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X10</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X11</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X12</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X13</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X14</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X15</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X16</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X17</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X18</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X19</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X20</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X22</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X23</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X24</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X25</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X26</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X27</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X28</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X29</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X30</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X31</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X32</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X33</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X34</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X35</span></code></p></td>
 <td></td>
-<td><p>0.0d0</p></td>
+<td><p>0.0e0</p></td>
 </tr>
 </tbody>
 </table>
