@@ -116,6 +116,12 @@ struct eos_rep_t:eos_base_t {
 #endif
 };
 
+struct eos_rh_t:eos_rep_t {
+    amrex::Real dhdr{};
+    amrex::Real dhdT{};
+    amrex::Real h{};
+};
+
 struct eos_extra_t:eos_t {
     amrex::Real dpdA{};
     amrex::Real dpdZ{};
