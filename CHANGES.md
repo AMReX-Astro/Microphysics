@@ -1,3 +1,15 @@
+# 24.05
+
+   * Runtime parameters can now be type `bool` (#1536)
+
+   * more clang-tidy and compiler warning cleaning (#1527 #1530,
+     #1532, #1533)
+
+   * Remove recursion in quicksort to avoid CUDA stack limits (#1531)
+
+   * Update the pynucastro networks to cache derived rate partition
+     functions (#1529)
+
 # 24.04
 
    * A new `test_screening_templated` unit test was added -- this

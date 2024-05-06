@@ -80,10 +80,7 @@ actual_conductivity (T& state)
   amrex::Real ytot1     = 0.0e0_rt;
 
   // set the composition variables
-  amrex::Real w[6];
-  for (int i = 0; i < 6; i++) {
-    w[i] = 0.0e0_rt;
-  }
+  amrex::Real w[6] = {0.0};
 
   // the idea here is that w[0] is H, w[1] is He, and w[2] is metals
   for (int i = 0; i < NumSpec; i++) {
