@@ -465,7 +465,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     // Then fill in the reaction timescale and index for each rate.
 
     amrex::Array1D<amrex::Real, 1, Rates::NumRates> reaction_timescales;
-    amrex::Array1D<amrex::Real, 1, Rates::NumRates> rate_indices;
+    amrex::Array1D<int, 1, Rates::NumRates> rate_indices;
 
     for (int n = 1; n <= Rates::NumRates; ++n) {
         fill_reaction_timescale(reaction_timescales, n, state, Y,
@@ -479,7 +479,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     // from smallest (fastest) to largest (slowest) timescale
     //
 
-    quickSort_Array1D(rate_indices, reaction_timescales, 1, Rates::NumRates);
+    quickSort_Array1D(rate_indices, reaction_timescales);
 
     // After the rate indices are sorted based on reaction timescales.
     // Now do the grouping based on the timescale.

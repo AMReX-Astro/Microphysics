@@ -4,6 +4,8 @@
 // Common variables and routines for burners
 // that use VODE for their integration.
 
+#include <AMReX_Print.H>
+
 #include <iomanip>
 
 #include <network.H>

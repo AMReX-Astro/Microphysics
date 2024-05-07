@@ -14,6 +14,7 @@ using namespace amrex::literals;
 
 constexpr Real eps = 1.e-2_rt;
 
+AMREX_INLINE
 void create_A(RArray2D& A) {
 
     // create a diagonally-dominant matrix with non-zero

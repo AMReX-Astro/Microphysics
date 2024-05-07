@@ -112,13 +112,12 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
     // compute the temperature at t0 + tau
 
     amrex::Real T1;
-    amrex::Real abar1_out;
     amrex::Real Ye1 = rhoaux1[iye] / rho1;
 
     if (T_fixed > 0) {
         T1 = T_fixed;
-        abar1_out = rhoaux1[iabar] / rho1;
     } else {
+        amrex::Real abar1_out{};
         amrex::Real e1 = rhoe1 / rho1;
         T1 = T0;
         nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1_out);
@@ -137,7 +136,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0, const amrex::Re
     // update abar -- this will be the same as nse_T_abar_from_e, but
     // for the case with T_fixed > 0, this abar will be consistent
     // with NSE.
-    abar1_out = nse_state.abar;
+    amrex::Real abar1_out = nse_state.abar;
 
     // construct the finite-difference approximation to the derivatives
 
@@ -354,9 +353,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     zbar *= abar;
 
 #ifdef NEUTRINOS
-    constexpr int do_derivatives = 0;
-    sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
-                           snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    {
+        constexpr int do_derivatives = 0;
+        sneut5<do_derivatives>(T_in, rho_old, abar, zbar,
+                               snu, dsnudt, dsnudd, dsnuda, dsnudz);
+    }
 #endif
     amrex::Real snu_old = snu;
 
@@ -365,7 +366,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // weak interactions, we would evaluate the NSE state here and
     // get dYe/dt.
 
-    amrex::Real dyedt_old = 0.0;
+    //amrex::Real dyedt_old = 0.0;
 
 
     // predict the U^{n+1,*} state with only estimates of the X
@@ -432,7 +433,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
             rhoX_tilde[n] = state.y[SRHO] * nse_state.xn[n] - dt * state.ydot_a[SFS+n];
         }
 
-        amrex::Real dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
+        //amrex::Real dyedt = 0.0_rt;   // we can update this in the future by calling actual_rhs()
 
         // we want to compute (rho eps) = - N_A c^2 sum{m_i (rhoX_tilde - rhoX_old) / A_i}
         rho_enucdot = 0.0;

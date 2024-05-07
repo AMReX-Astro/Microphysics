@@ -1,3 +1,5 @@
+#ifndef NSE_CELL_H
+#define NSE_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -11,6 +13,7 @@
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void nse_cell_c()
 {
 
@@ -33,3 +36,4 @@ void nse_cell_c()
     }
 
 }
+#endif
