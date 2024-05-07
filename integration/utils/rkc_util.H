@@ -42,7 +42,7 @@ amrex::Real rkc_init_dt (BurnT& state, IntT& rstate, const amrex::Real max_times
         rstate.y(i) = ysav(i);
     }
 
-    rstate.n_rhs+;
+    rstate.n_rhs++;
     amrex::Real est{};
 
     // compute the weights using the tolerances
