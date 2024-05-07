@@ -24,6 +24,7 @@ manage the runtime parameters via the AMReX ParmParse functionality
 import argparse
 import os
 import sys
+import warnings
 
 import runtime_parameters
 
@@ -295,6 +296,9 @@ def main():
                         help="a name to use in the C++ file names")
 
     args = parser.parse_args()
+
+    if args.use_namespaces:
+        warnings.warn("the --use_namespaces option will be removed in the future", DeprecationWarning)
 
     param_files = args.pa.split()
 
