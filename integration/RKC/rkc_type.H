@@ -95,7 +95,7 @@ struct rkc_t {
     // maximum number of stages used
     int maxm;
 
-    // not used here, but needed for compatibilty with other integrators
+    // not used here, but needed for compatibility with other integrators
     short jacobian_type;
 
 };
