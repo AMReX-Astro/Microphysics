@@ -127,9 +127,9 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = int_state.NFE;
-    state.n_jac = int_state.NJE;
-    state.n_step = int_state.NST;
+    state.n_rhs = int_state.n_rhs;
+    state.n_jac = int_state.n_jac;
+    state.n_step = int_state.n_step;
 
     // The integrator may not always fail even though it can lead to
     // unphysical states.  Add some checks that indicate a burn fail
