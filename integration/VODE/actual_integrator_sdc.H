@@ -114,9 +114,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = vode_state.NFE;
-    state.n_jac = vode_state.NJE;
-    state.n_step = vode_state.NST;
+    state.n_rhs = vode_state.n_rhs;
+    state.n_jac = vode_state.n_jac;
+    state.n_step = vode_state.n_step;
 
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
