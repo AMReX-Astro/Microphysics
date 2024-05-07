@@ -17,7 +17,7 @@
 template <typename BurnT, typename IntegratorT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
-                       std::function<int(BurnT &, IntegratorT &)> integrator)
+                       int (*integrator)(BurnT &, IntegratorT &))
 {
 
     IntegratorT int_state{};
