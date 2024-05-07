@@ -60,10 +60,6 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
         state.ydot_a[n] = 0;
     }
 
-    // Set the (inverse of the) timestep limiter.
-
-    int_state.HMXI = 1.0_rt / integrator_rp::ode_max_dt;
-
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
 
@@ -117,13 +113,14 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
 
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
-    // Don't subtract it for primordial chem
+
     if (integrator_rp::subtract_internal_energy) {
         state.e -= e_in;
     }
 
-    // Normalize the final abundances.
-    // Don't normalize for primordial chem
+    // Normalize the final abundances (except if they are number
+    // densities)
+
     if (! integrator_rp::use_number_densities) {
         normalize_abundances_burn(state);
     }
@@ -134,9 +131,9 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
     state.n_jac = int_state.NJE;
     state.n_step = int_state.NST;
 
-    // VODE does not always fail even though it can lead to unphysical states.
-    // Add some checks that indicate a burn fail even if VODE thinks the
-    // integration was successful.
+    // The integrator may not always fail even though it can lead to
+    // unphysical states.  Add some checks that indicate a burn fail
+    // even if the integrator thinks the integration was successful.
 
     if (istate != IERR_SUCCESS) {
         state.success = false;
@@ -175,7 +172,7 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
             std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
             if (istate == IERR_SUCCESS) {
-                std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
+                std::cout << "  Integration exited successfully, but a check on the data values failed" << std::endl;
             }
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << int_state.t << std::endl;

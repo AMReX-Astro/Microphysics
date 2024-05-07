@@ -1,20 +1,10 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
-// Common variables and routines for burners
-// that use VODE for their integration.
-
-#include <AMReX_Print.H>
-
-#include <iomanip>
-
 #include <network.H>
 #include <burn_type.H>
-#include <eos_type.H>
-#include <eos.H>
-#include <extern_parameters.H>
-#include <integrator_data.H>
 
+#include <integrator_data.H>
 #include <integrator_setup.H>
 
 #include <vode_type.H>
