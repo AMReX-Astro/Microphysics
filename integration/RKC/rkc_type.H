@@ -75,10 +75,10 @@ struct rkc_t {
     // block
 
     // number of function evaluations
-    int nfe;
+    int n_rhs;
 
     // number of integration stesp
-    int nsteps;
+    int n_step;
 
     // number of accepted steps
     int naccpt;
