@@ -105,11 +105,11 @@ namespace network
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    // p_index is for photoionization proton
-    constexpr int p_index = -1;
-    constexpr int h1_index = -1;
-    constexpr int n_index = -1;
-    constexpr int he4_index = 0;
+    // P_index is for photoionization proton
+    constexpr int P_index = -1;
+    constexpr int H1_index = -1;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 0;
 }
 #endif
 
@@ -371,7 +371,7 @@ namespace RHS {
                 Real yeff_ti44   = t992  * std::exp(-274.12_rt * state.tf.t9i + 74.914_rt);
                 Real yeff_ti44dt = yeff_ti44*(274.12_rt * state.tf.t9i2 + 4.5_rt * state.tf.t9i);
 
-                Real denom = std::pow(state.rho * state.y(He4), 3.0_rt);
+                Real denom = amrex::Math::powi<3>(state.rho * state.y(He4));
 
                 rates.fr   = yeff_ca40 * denom * rates1.fr;
                 rates.frdt = (yeff_ca40dt * rates1.fr + yeff_ca40 * rates1.frdt) * denom * 1.0e-9_rt;

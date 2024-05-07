@@ -3,8 +3,9 @@
 
 #include <network.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>
-#ifndef NEW_NETWORK_IMPLEMENTATION
+#else
 #include <actual_rhs.H>
 #endif
 #include <burn_type.H>
@@ -156,8 +157,8 @@ void initialize_int_state (IntT& int_state)
 }
 
 template <typename BurnT>
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (BurnT& state, Real dt)
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 {
     using namespace microphysics::forward_euler;
 

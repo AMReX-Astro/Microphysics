@@ -4,7 +4,7 @@
 #include <AMReX.H>
 #include <cmath>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 struct tf_t {
     amrex::Real temp;
@@ -68,10 +68,10 @@ struct tf_t {
     amrex::Real lnt9;
 };
 
-AMREX_GPU_HOST_DEVICE inline 
+AMREX_GPU_HOST_DEVICE inline
 tf_t get_tfactors(amrex::Real temp)
 {
-    tf_t tf; 
+    tf_t tf;
 
     tf.temp = temp;
 
@@ -82,13 +82,13 @@ tf_t get_tfactors(amrex::Real temp)
     // tf.t95   = tf.t9*tf.t94;
     tf.t95   = tf.t92*tf.t93;
     // tf.t96   = tf.t9*tf.t95;
-    
+
     tf.t912  = std::sqrt(tf.t9);
     tf.t932  = tf.t9*tf.t912;
     tf.t952  = tf.t9*tf.t932;
     // tf.t972  = tf.t9*tf.t952;
     tf.t972  = tf.t92*tf.t932;
-    
+
     tf.t913  = std::cbrt(tf.t9);
     tf.t923  = tf.t913*tf.t913;
     tf.t943  = tf.t9*tf.t913;
@@ -100,51 +100,51 @@ tf_t get_tfactors(amrex::Real temp)
     // tf.t934  = tf.t914*tf.t914*tf.t914;
     // tf.t954  = tf.t9*tf.t914;
     // tf.t974  = tf.t9*tf.t934;
-    
+
     // tf.t915  = std::pow(tf.t9, 0.2_rt);
     // tf.t935  = tf.t915*tf.t915*tf.t915;
     // tf.t945  = tf.t915 * tf.t935;
     // tf.t965  = tf.t9 * tf.t915;
-    
+
     // tf.t916  = std::pow(tf.t9, 1.0_rt/6.0_rt);
     // tf.t976  = tf.t9 * tf.t916;
     // tf.t9i76 = 1.0e0_rt/tf.t976;
-    
+
     // tf.t917  = std::pow(tf.t9, 1.0_rt/7.0_rt);
     // tf.t927  = tf.t917*tf.t917;
     // tf.t947  = tf.t927*tf.t927;
-    
+
     // tf.t918  = std::sqrt(tf.t914);
     // tf.t938  = tf.t918*tf.t918*tf.t918;
     // tf.t958  = tf.t938*tf.t918*tf.t918;
-    
+
     tf.t9i   = 1.0e0_rt/tf.t9;
     tf.t9i2  = tf.t9i*tf.t9i;
     // tf.t9i3  = tf.t9i2*tf.t9i;
-    
+
     tf.t9i12 = 1.0e0_rt/tf.t912;
     tf.t9i32 = tf.t9i*tf.t9i12;
     // tf.t9i52 = tf.t9i*tf.t9i32;
     // tf.t9i72 = tf.t9i*tf.t9i52;
-    
+
     tf.t9i13 = 1.0e0_rt/tf.t913;
     tf.t9i23 = tf.t9i13*tf.t9i13;
     tf.t9i43 = tf.t9i*tf.t9i13;
     tf.t9i53 = tf.t9i*tf.t9i23;
-    
+
     // tf.t9i14 = 1.0e0_rt/tf.t914;
     // tf.t9i34 = tf.t9i14*tf.t9i14*tf.t9i14;
     // tf.t9i54 = tf.t9i*tf.t9i14;
-    
+
     // tf.t9i15 = 1.0e0_rt/tf.t915;
     // tf.t9i35 = tf.t9i15*tf.t9i15*tf.t9i15;
     // tf.t9i45 = tf.t9i15 * tf.t9i35;
     // tf.t9i65 = tf.t9i*tf.t9i15;
-    
+
     // tf.t9i17 = 1.0e0_rt/tf.t917;
     // tf.t9i27 = tf.t9i17*tf.t9i17;
     // tf.t9i47 = tf.t9i27*tf.t9i27;
-    
+
     // tf.t9i18 = 1.0e0_rt/tf.t918;
     // tf.t9i38 = tf.t9i18*tf.t9i18*tf.t9i18;
     // tf.t9i58 = tf.t9i38*tf.t9i18*tf.t9i18;

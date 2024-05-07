@@ -1,0 +1,26 @@
+# this inputs is used for checking the compatibility of networks with NSE_NET
+
+unit_test.run_prefix = "test_nse_network_compatibility_"
+
+integrator.burner_verbose = 0
+
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+
+integrator.jacobian = 1
+
+integrator.renormalize_abundances = 0
+
+integrator.rtol_spec = 1.0e-6
+integrator.rtol_enuc = 1.0e-6
+integrator.atol_spec = 1.0e-10
+integrator.atol_enuc = 1.0e-6
+
+unit_test.tmax = 1.e3
+unit_test.tfirst = 1.e-10
+unit_test.nsteps = 100
+
+integrator.integrate_energy = 0
+integrator.call_eos_in_rhs = 0
+integrator.do_species_clip = 0

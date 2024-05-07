@@ -10,8 +10,8 @@
 #ifdef STRANG
 #include <integrator_type_strang.H>
 #endif
-#ifdef SIMPLIFIED_SDC
-#include <integrator_type_simplified_sdc.H>
+#ifdef SDC
+#include <integrator_type_sdc.H>
 #endif
 #include <network.H>
 
@@ -27,7 +27,7 @@ const int BE_TOO_MANY_STEPS = -102;
 // When checking the integration time to see if we're done,
 // be careful with roundoff issues.
 
-const Real timestep_safety_factor = 1.0e-12_rt;
+const amrex::Real timestep_safety_factor = 1.0e-12_rt;
 
 #define VODELIKE_ERROR 1
 
@@ -47,7 +47,7 @@ struct be_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    Array1D<Real, 1, int_neqs> y;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y;
     ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
 
     short jacobian_type;

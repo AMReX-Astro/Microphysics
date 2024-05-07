@@ -46,11 +46,11 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << " Plotfile Information\n";
   jobInfoFile << PrettyLine;
 
-  time_t now = time(nullptr);
-
-  // Convert now to tm struct for local timezone
-  tm* localtm = localtime(&now);
-  jobInfoFile   << "output date / time: " << asctime(localtm);
+  const std::time_t now = time(nullptr);
+  char buf[64];
+  if (strftime(buf, sizeof buf, "%c\n", std::localtime(&now))) {
+      jobInfoFile << "output date / time: " << buf << "\n";
+  }
 
   char currentDir[FILENAME_MAX];
   if (getcwd(currentDir, FILENAME_MAX)) {
@@ -89,7 +89,7 @@ void write_job_info(const std::string& dir) {
   jobInfoFile << "COMP version:  " << buildInfoGetCompVersion() << "\n";
 
   jobInfoFile << "\n";
-  
+
   jobInfoFile << "C++ compiler:  " << buildInfoGetCXXName() << "\n";
   jobInfoFile << "C++ flags:     " << buildInfoGetCXXFlags() << "\n";
 

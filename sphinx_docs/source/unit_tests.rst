@@ -21,11 +21,7 @@ script.
 
 .. note::
 
-   Most of these tests are written such that the exercise both the C++
-   and Fortran implementations of the Microphysics, via the ``do_cxx``
-   runtime parameter.
-
-   Most of these tests work with MPI+OpenMP and CUDA
+   Most of these tests work with MPI+OpenMP, MPI+CUDA, and MPI+HIP
 
 
 EOS test
@@ -100,11 +96,6 @@ Examining the output (an AMReX plotfile) will show you how big the
 errors are. You can use the ``amrex/Tools/Plotfile/`` tool
 ``fextrema`` to display the maximum error for each variable.
 
-To switch between testing the Fortran and C++ implementations of the EOS,
-use ``do_cxx``, e.g., to use the C++ implementation, you would run as::
-
-    ./main3d.gnu.ex inputs_eos do_cxx=1
-
 
 Network test
 ------------
@@ -140,8 +131,6 @@ The loop over the burner is marked up for OpenMP and CUDA and
 therefore this test can be used to assess threadsafety of the burners
 as well as to optimize the GPU performance of the burners.
 
-This works for both the Fortran and C++ implementations (via ``do_cxx``).
-
 
 Aprox Rates Test
 ----------------
@@ -154,8 +143,6 @@ setup and the rates are evaluated using each zone's thermodynamic
 conditions.  This test is not really network specific---it tests all
 of the available rates.
 
-This works for both the Fortran and C++ implementations (via ``do_cxx``).
-
 
 Screening Test
 --------------
@@ -164,9 +151,7 @@ Screening Test
 routine, using the ``aprox21`` reaction network.
 This uses the same basic ideas as the tests above---a cube of data is
 setup and the rates are evaluated using each zone's thermodynamic
-conditions. 
-
-This works for both the Fortran and C++ implementations (via ``do_cxx``).
+conditions.
 
 
 ``burn_cell``
@@ -223,7 +208,7 @@ Running the Code
 
 To run the code, enter the burn_cell directory and run::
 
-   ./main.Linux.gfortran.exe with inputs
+   ./main3d.gnu.exe with inputs
 
 where ``inputs`` is the name of your inputs file.
 

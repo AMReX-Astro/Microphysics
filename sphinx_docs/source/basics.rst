@@ -1,6 +1,6 @@
-*****************
-StarKiller Basics
-*****************
+*********************
+Microphysics Overview
+*********************
 
 Getting Started (Standalone)
 ============================
@@ -38,7 +38,7 @@ This will create an executable called ``main3d.gnu.ex``.  Then you can run it as
    ./main3d.gnu.ex inputs_aprox21
 
 By default, the test is built with the 21-isotope ``aprox21`` network.
-Here ``inputs_aprox21`` is the inputs file that sets options. 
+Here ``inputs_aprox21`` is the inputs file that sets options.
 
 
 
@@ -133,5 +133,7 @@ solvers (ODE integration for the network and Newton-Raphson root
 finding for the EOS) is separated from the specific implementations of
 the microphysics.
 
-**All quantities are assumed to be in CGS units**, unless otherwise
-specified.
+.. note::
+
+   All quantities are assumed to be in CGS units, unless otherwise
+   specified.

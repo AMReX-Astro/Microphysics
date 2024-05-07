@@ -5,13 +5,14 @@ jobs:
   burn_cell:
     runs-on: macos-13
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install dependencies
         run: |
-          brew install cmake openmpi python3
+          brew install cmake openmpi python3 || true
+          brew link --overwrite python@3.11
 
       - name: Compile and run
         run: |

@@ -188,18 +188,18 @@ void hybrj(hybrj_t<neqs>& hj,
 
             // store the direction p and x + p. calculate the norm of p.
 
-	    bool invalid = false;
+            bool invalid = false;
 
-	    for (int i = 1; i < neqs; ++i) {
-	      if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
-		invalid = true;
-	      }
-	    }
+            for (int i = 1; i < neqs; ++i) {
+              if ( amrex::isinf(hj.wa1(i)) || amrex::isnan(hj.wa1(i)) ){
+                invalid = true;
+              }
+            }
 
-	    if (invalid) {
-	      finished = true;
-	      break;
-	    }
+            if (invalid) {
+              finished = true;
+              break;
+            }
 
             for (int j = 1; j <= neqs; ++j) {
                 hj.wa1(j) = -hj.wa1(j);
@@ -231,7 +231,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
             Real actred = -1.0_rt;
             if (fnorm1 < fnorm) {
-                actred = 1.0_rt - std::pow(fnorm1/fnorm, 2.0_rt);
+                actred = 1.0_rt - amrex::Math::powi<2>(fnorm1/fnorm);
             }
 
             // compute the scaled predicted reduction.
@@ -248,7 +248,7 @@ void hybrj(hybrj_t<neqs>& hj,
             Real temp = enorm(hj.n, hj.wa3);
             Real prered = 0.0_rt;
             if (temp < fnorm) {
-                prered = 1.0_rt - std::pow(temp/fnorm, 2.0_rt);
+                prered = 1.0_rt - amrex::Math::powi<2>(temp/fnorm);
             }
 
             // compute the ratio of the actual to the predicted
@@ -344,9 +344,9 @@ void hybrj(hybrj_t<neqs>& hj,
 
             // calculate the rank one modification to the jacobian
             // and update qtf if necessary.
-	    if (pnorm == 0.0_rt) {
-	      break;
-	    }
+            if (pnorm == 0.0_rt) {
+              break;
+            }
 
             for (int j = 1; j <= hj.n; ++j) {
                 Real sum = 0.0_rt;

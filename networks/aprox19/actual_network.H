@@ -44,7 +44,7 @@ namespace network
         static_assert(spec >= 1 && spec <= NumSpec);
 
         // Set the binding energy of the element
-        if constexpr (spec == H1) {
+        if constexpr (spec == H1) {  // NOLINT(bugprone-branch-clone)
             return 0.0_rt;
         }
         else if constexpr (spec == He3) {
@@ -154,11 +154,11 @@ namespace network
 #ifdef NSE_NET
 namespace NSE_INDEX
 {
-    // p_index is for photoionization proton
-    constexpr int p_index = 18;
-    constexpr int h1_index = 0;
-    constexpr int n_index = 17;
-    constexpr int he4_index = 2;
+    // P_index is for photoionization proton
+    constexpr int P_index = 18;
+    constexpr int H1_index = 0;
+    constexpr int N_index = 17;
+    constexpr int He4_index = 2;
 }
 #endif
 
@@ -230,7 +230,7 @@ namespace Rates {
 }
 
 namespace RHS {
-    
+
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
     constexpr rhs_t rhs_data (int rate)
     {
@@ -239,7 +239,7 @@ namespace RHS {
 
         rhs_t data;
 
-        switch (rate) {
+        switch (rate) { // NOLINT(bugprone-switch-missing-default-case)
 
         case P_to_N:
             // irpen and irnep in the original aprox19

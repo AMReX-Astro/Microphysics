@@ -52,8 +52,8 @@ void main_main ()
         // number of cells on each side of a square (or cubic) domain.
         pp.get("n_cell", n_cell);
 
-	print_every_nrhs = 0;
-	pp.query("print_every_nrhs", print_every_nrhs);
+        print_every_nrhs = 0;
+        pp.query("print_every_nrhs", print_every_nrhs);
 
         // The domain is broken into boxes of size max_grid_size
         max_grid_size = 32;

@@ -1,0 +1,7 @@
+CEXE_sources += main.cpp
+
+CEXE_headers += test_screen.H
+
+CEXE_sources += variables.cpp
+CEXE_sources += screening_util.cpp
+CEXE_headers += variables.H

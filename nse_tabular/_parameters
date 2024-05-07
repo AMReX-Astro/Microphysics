@@ -12,4 +12,4 @@ He_Fe_nse    real    0.88
 nse_relax_factor  real   1.0
 
 # do we do tri-linear or tri-cubic interpolation on the table?
-nse_table_interp_linear   integer    1
+nse_table_interp_linear   bool    0

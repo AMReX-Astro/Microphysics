@@ -82,9 +82,9 @@ int dvstep (BurnT& state, DvodeT& vstate)
     const Real ONEPSM = 1.00001e0_rt;
     const Real THRESH = 1.5e0_rt;
 
-    Real CNQUOT, DDN, DSM, DUP, TOLD;
-    Real FLOTL, R;
-    int NCF, NFLAG;
+    Real CNQUOT{}, DDN{}, DSM{}, DUP{}, TOLD{};
+    Real FLOTL{}, R{};
+    int NCF{}, NFLAG{};
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -132,8 +132,6 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
     }
 
-    Array1D<short, 1, int_neqs> pivot;
-
     // Compute the predicted values by effectively
     // multiplying the yh array by the Pascal triangle matrix.
     // dvset is called to calculate all integration coefficients.
@@ -149,7 +147,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         y_save(i) = vstate.y(i);
     }
 #endif
-#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
+#ifdef SDC
     Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
@@ -174,7 +172,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         // Call the nonlinear system solver.
 
-        Real ACNRM = dvnlsd(pivot, NFLAG, state, vstate);
+        const Real ACNRM = dvnlsd(NFLAG, state, vstate);
 
         if (NFLAG != 0) {
 
@@ -224,10 +222,10 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         bool valid_update = true;
 
-#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
-	if (vstate.y(SEINT+1) < 0.0_rt) {
-	    valid_update = false;
-	}
+#ifdef SDC
+        if (vstate.y(SEINT+1) < 0.0_rt) {
+            valid_update = false;
+        }
 
         Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
@@ -247,7 +245,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
 #ifdef MICROPHYSICS_DEBUG
-#ifndef AMREX_USE_GPU 
+#ifndef AMREX_USE_GPU
                std::cout << "rejecting step based on species " << i << " from " << y_save(i) << " to " << vstate.y(i) << std::endl;
 #endif
 #endif
@@ -259,6 +257,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // or greater than one (within a tolerance).
             if (vstate.y(i) < -species_failure_tolerance) {
                 valid_update = false;
+                break;
             }
 
             // Don't enforce the condition below if
@@ -266,12 +265,13 @@ int dvstep (BurnT& state, DvodeT& vstate)
             if (!use_number_densities) {
                 if (vstate.y(i) > 1.0_rt + species_failure_tolerance) {
                     valid_update = false;
+                    break;
                 }
             }
 
 #endif
 
-#if defined(SIMPLIFIED_SDC) || defined(TRUE_SDC)
+#ifdef SDC
 
             // these are basically the same checks as with Strang
             // above, except now we are evolving rhoX instead of X.
@@ -295,10 +295,12 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             if (vstate.y(SFS+i) < -species_failure_tolerance * rho_current) {
                 valid_update = false;
+                break;
             }
 
             if (vstate.y(SFS+i) > (1.0_rt + species_failure_tolerance) * rho_current) {
                 valid_update = false;
+                break;
             }
 
 #endif
@@ -319,7 +321,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             kflag = 0;
             vstate.NST += 1;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
-                int i = vstate.L - iback;
+                const int i = vstate.L - iback;
                 vstate.tau(i+1) = vstate.tau(i);
             }
 
@@ -475,7 +477,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
     // Compute ratio of new H to current H at the current order.
     FLOTL = vstate.L;
-    Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
+    const Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
 

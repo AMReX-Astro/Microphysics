@@ -4,7 +4,7 @@ This directory contains:
                      for comparison tests
 "burn.py"    - runs skynet in parallel on problems stated therein
 
-NOTE: The "presure" option in the skydata class in compare.py can be
+NOTE: The "pressure" option in the skydata class in compare.py can be
       used if the helmoholtz eos executable for finding pressure is
       located in the directory. The helmholtz eos is freely available
       from: https://cococubed.com/code_pages/eos.shtml

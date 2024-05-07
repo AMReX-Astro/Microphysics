@@ -10,3 +10,12 @@ species and reaction rates.
 We thank Frank for allowing us to redistribute these routines.
 
 We can use the tabulated NSE together with this network.
+
+----
+
+Note: there are 2 protons in this network.
+
+* `H1` is hydrogen that participates in the p-p chain and CNO cycle
+
+* `p` are protons that result from photodisintegration and participate
+  in the NSE at the Fe-group

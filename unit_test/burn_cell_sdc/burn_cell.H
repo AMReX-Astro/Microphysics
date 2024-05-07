@@ -11,6 +11,7 @@
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void burn_cell_c()
 {
 
@@ -162,7 +163,8 @@ void burn_cell_c()
         case 35:
             adv_species[n-1] = Adv_X35;
             break;
-
+        default:
+            amrex::Error("invalid species");
         }
 
     }
@@ -184,7 +186,8 @@ void burn_cell_c()
         case 3:
             adv_aux[n-1] = Adv_Aux3;
             break;
-
+        default:
+            amrex::Error("invalid aux component");
         }
 
     }
@@ -269,7 +272,7 @@ void burn_cell_c()
     }
 #endif
 
-    // these need to be initialized 
+    // these need to be initialized
 
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
@@ -324,18 +327,18 @@ void burn_cell_c()
     state_over_time << std::setw(12) << "Density";
     state_over_time << std::setw(12) << "Temperature";
     for(int x = 0; x < NumSpec; ++x){
-	const std::string& element = short_spec_names_cxx[x];
-	state_over_time << std::setw(12) << element; 
+        const std::string& element = short_spec_names_cxx[x];
+        state_over_time << std::setw(12) << element;
     }
     state_over_time << std::endl;
 
     Real t = 0.0;
 
     state_over_time << std::setw(10) << t;
-    state_over_time << std::setw(12) << burn_state.rho; 
-    state_over_time << std::setw(12) << burn_state.T; 
-    for (int x = 0; x < NumSpec; ++x){
-        state_over_time << std::setw(12) << burn_state.xn[x]; 
+    state_over_time << std::setw(12) << burn_state.rho;
+    state_over_time << std::setw(12) << burn_state.T;
+    for (auto X : burn_state.xn) {
+        state_over_time << std::setw(12) << X;
     }
     state_over_time << std::endl;
 
@@ -355,19 +358,19 @@ void burn_cell_c()
 
         std::cout << "burning for dt = " << dt << std::endl;
 
-    	burner(burn_state, dt);
+        burner(burn_state, dt);
 
         nstep_int += burn_state.n_step;
 
         t += dt;
 
-	state_over_time << std::setw(10) << t;
-	state_over_time << std::setw(12) << burn_state.rho;
-	state_over_time << std::setw(12) << burn_state.T;
-	for (int x = 0; x < NumSpec; ++x){
-	     state_over_time << std::setw(12) << burn_state.y[SFS+x] / burn_state.rho; 
-	}
-	state_over_time << std::endl;
+        state_over_time << std::setw(10) << t;
+        state_over_time << std::setw(12) << burn_state.rho;
+        state_over_time << std::setw(12) << burn_state.T;
+        for (int x = 0; x < NumSpec; ++x){
+             state_over_time << std::setw(12) << burn_state.y[SFS+x] / burn_state.rho;
+        }
+        state_over_time << std::endl;
     }
     state_over_time.close();
 

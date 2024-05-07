@@ -1,34 +1,92 @@
-AMReX (23.07-24-g01b750d909b0) initialized
+Initializing AMReX (23.12-21-gef38229189e3)...
+AMReX (23.12-21-gef38229189e3) initialized
 starting the single zone burn...
 reading the NSE table (C++) ...
 rho, T, Ye = 1230000000 5180000000 0.472
-density value brackets: 9 9.089905111 9.1
-temperature value brackets: 9.7 9.71432976 9.72
-Ye value brackets: 0.475 0.472 0.47
+density value brackets: 9.05 < 9.089905111 < 9.1
+temperature value brackets: 9.71 < 9.71432976 < 9.72
+Ye value brackets: 0.4725 < 0.472 < 0.47
 
 4 rho values: 
-8.9 54.9803
-9 55.0422
-9.1 55.0953
-9.2 55.1412
+9 55.5223665
+9.05 55.57080116
+9.1 55.61707675
+9.15 55.66151541
 
-cubic interpolated value: 55.09029299
+cubic interpolated value: 55.6078922
 
 4 T values: 
-9.68 54.9803
-9.7 54.6648
-9.72 54.0643
-9.74 52.9617
+9.7 55.5223665
+9.71 55.39489494
+9.72 55.22387568
+9.73 54.99343581
 
-cubic interpolated value: 54.27611164
+cubic interpolated value: 55.32712406
 
 4 Ye values: 
-0.48 54.9803
-0.475 55.2187
-0.47 55.492
-0.465 55.7118
+0.475 55.5223665
+0.4725 55.65227675
+0.47 55.78142906
+0.4675 55.90244371
 
-cubic interpolated value: 55.3841496
+cubic interpolated value: 55.678404
 
-tricubic interpolated value: 55.09772364
-AMReX (23.07-24-g01b750d909b0) finalized
+tricubic interpolated values: 
+abar    = 55.60652462
+bea     = 8.755119523
+dyedt   = -0.004527880871
+dbeadt = 0.000111945508
+e_nu    = 1.101641642e+16
+X(H1) = 0
+X(He3) = 2.723457525e-14
+X(He4) = 0.0003164137294
+X(C12) = 7.975878903e-10
+X(N14) = 3.102372259e-14
+X(O16) = 1.998161464e-09
+X(Ne20) = 2.444604777e-11
+X(Mg24) = 1.029036116e-08
+X(Si28) = 8.173012779e-06
+X(S32) = 1.194076593e-05
+X(Ar36) = 1.243414613e-05
+X(Ca40) = 1.259531492e-05
+X(Ti44) = 0.0001438001413
+X(Cr48) = 0.01146726617
+X(Fe52) = 0.07746625779
+X(Fe54) = 0.9098424639
+X(Ni56) = 0.0007087774945
+X(n) = 2.078852742e-08
+X(p) = 9.843630258e-06
+
+testing temperature derivatives of cubic
+first finite-difference derivatives
+dAbar/dT = -1.072562355e-09
+dbea/dT = -6.867059575e-12
+now using derivative of the interpolant
+dAbar/dT = -1.072562604e-09
+dbea/dT = -6.867048589e-12
+
+
+testing density derivatives of cubic
+first finite-difference derivatives
+dAbar/drho = 3.987525411e-10
+dbea/drho = 7.619559936e-13
+now using derivative of the interpolant
+dAbar/drho = 3.987522836e-10
+dbea/drho = 7.618831514e-13
+
+EOS T from e consistency check (old method): 1.395278886e+18 1.38844906e+18
+updated T: 6394534499
+change in abar: 55.60652462 50.26831386
+EOS T from e consistency check (new method): 1.38844906e+18 1.38844906e+18
+
+EOS T from p consistency check (old method): 6.622159603e+26 6.577850616e+26
+updated T: 6466757500
+change in abar: 55.60652462 49.50320619
+EOS T from p consistency check (new method): 6.577850616e+26 6.577850616e+26
+
+EOS rho from p consistency check (old method): 6.577758474e+26 6.577850616e+26
+updated T: 5180000000
+change in abar: 55.60652462 55.62494615
+EOS rho from p consistency check (new method): 6.577850616e+26 6.577850616e+26
+
+AMReX (23.12-21-gef38229189e3) finalized

@@ -7,7 +7,7 @@ using namespace integrator_rp;
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_density_in_time(const Real time, BurnT& state)
+void update_density_in_time(const amrex::Real time, BurnT& state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -18,7 +18,7 @@ void update_density_in_time(const Real time, BurnT& state)
     //
     // we are always integrating from t = 0, so there is no offset
     // time needed here.  The indexing of ydot_a is based on
-    // the indices in burn_t and is 0-based    
+    // the indices in burn_t and is 0-based
     state.y[SRHO] = amrex::max(state.rho_orig + state.ydot_a[SRHO] * time, EOSData::mindens);
 
     // for consistency

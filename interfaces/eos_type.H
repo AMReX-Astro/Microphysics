@@ -109,11 +109,17 @@ struct eos_rep_t:eos_base_t {
 
     amrex::Real abar{};
     amrex::Real zbar{};
-  
+
 #ifdef NSE_NET
     amrex::Real mu_p{};   //chemical potential of proton
     amrex::Real mu_n{};   //chemical potential of neutron
 #endif
+};
+
+struct eos_rh_t:eos_rep_t {
+    amrex::Real dhdr{};
+    amrex::Real dhdT{};
+    amrex::Real h{};
 };
 
 struct eos_extra_t:eos_t {
@@ -385,7 +391,7 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
     return o;
 }
 
-template <typename T, typename U = typename std::enable_if<std::is_base_of<eos_base_t, T>::value>::type>
+template <typename T, typename U = typename std::enable_if_t<std::is_base_of_v<eos_base_t, T>>>
 inline
 std::ostream& operator<< (std::ostream& o, T const& eos_state)
 {

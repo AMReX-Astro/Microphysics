@@ -9,13 +9,12 @@
 #include <actual_eos.H>
 #include <AMReX_Algorithm.H>
 
-using namespace amrex;
 
 // EOS initialization routine: read in general EOS parameters, then
 // call any specific initialization used by the EOS.
 
 AMREX_INLINE
-void eos_init (Real& small_temp_in, Real& small_dens_in)
+void eos_init (amrex::Real& small_temp_in, amrex::Real& small_dens_in)
 {
   // Allocate and set default values
 
@@ -54,8 +53,8 @@ void eos_init (Real& small_temp_in, Real& small_dens_in)
 AMREX_INLINE
 void eos_init ()
 {
-    Real small_temp_tmp = -1.e200;
-    Real small_dens_tmp = -1.e200;
+    amrex::Real small_temp_tmp = -1.e200;
+    amrex::Real small_dens_tmp = -1.e200;
     eos_init(small_temp_tmp, small_dens_tmp);
 }
 
@@ -397,7 +396,7 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void eos (const I input, T& state, bool use_raw_inputs = false)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   // Input arguments
 
