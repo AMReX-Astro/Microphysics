@@ -1022,9 +1022,9 @@ void single_iter_update (T& state, int var, int dvar,
 
     // Compute the error from the last iteration
 
-    amrex::Real error = std::abs((xnew - x) / x);
+    amrex::Real error = std::abs(xnew - x);
 
-    if (error < xtol) converged = true;
+    if (error < xtol * x) converged = true;
 }
 
 
@@ -1132,10 +1132,10 @@ void double_iter_update (T& state, int var1, int var2,
     state.T = tnew;
 
     // Compute the errors
-    amrex::Real error1 = std::abs((rnew - rold) / rold);
-    amrex::Real error2 = std::abs((tnew - told) / told);
+    amrex::Real error1 = std::abs(rnew - rold);
+    amrex::Real error2 = std::abs(tnew - told);
 
-    if (error1 < dtol && error2 < ttol) converged = true;
+    if (error1 < dtol * rold && error2 < ttol * told) converged = true;
 }
 
 

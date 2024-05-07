@@ -1,3 +1,5 @@
+#ifndef BURN_CELL_H
+#define BURN_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -67,3 +69,5 @@ void burn_cell_c()
         }
     }
 }
+
+#endif

@@ -87,6 +87,8 @@ the AMReX-Astro codes, Maestro and Castro.
 
 * MAESTROeX: http://amrex-astro.github.io/MAESTROeX/
 
+* Quokka: https://quokka-astro.github.io/quokka/
+ 
 To use this repository with AMReX codes, set `MICROPHYSICS_HOME` to
 point to the `Microphysics/` directory.
 
