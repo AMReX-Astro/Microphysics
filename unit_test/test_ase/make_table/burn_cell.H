@@ -1,3 +1,5 @@
+#ifndef BURN_CELL_H
+#define BURN_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -10,6 +12,7 @@
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void burn_cell_c()
 {
 
@@ -78,3 +81,4 @@ void burn_cell_c()
         }
     }
 }
+#endif

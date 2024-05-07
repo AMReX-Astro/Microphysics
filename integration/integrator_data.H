@@ -45,8 +45,8 @@ constexpr int integrator_neqs ()
     return int_neqs;
 }
 
-typedef amrex::Array1D<short, 1, INT_NEQS> IArray1D;
-typedef amrex::Array1D<amrex::Real, 1, INT_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS> RArray2D;
+using IArray1D = amrex::Array1D<short, 1, INT_NEQS>;
+using RArray1D = amrex::Array1D<amrex::Real, 1, INT_NEQS>;
+using RArray2D = ArrayUtil::MathArray2D<1, INT_NEQS, 1, INT_NEQS>;
 
 #endif
