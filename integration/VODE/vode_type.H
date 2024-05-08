@@ -9,30 +9,26 @@
 
 #include <integrator_data.H>
 
-const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
+constexpr amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
 // CCMXJ  = Threshold on DRC for updating the Jacobian
-const amrex::Real CCMXJ = 0.2e0_rt;
+constexpr amrex::Real CCMXJ = 0.2e0_rt;
 
-const amrex::Real HMIN = 0.0_rt;
+constexpr amrex::Real HMIN = 0.0_rt;
 
 // For each species whose abundance is above a certain threshold, we do
 // not allow its mass fraction to change by more than a certain amount
 // in any integration step.
-const amrex::Real vode_increase_change_factor = 4.0_rt;
-const amrex::Real vode_decrease_change_factor = 0.25_rt;
+constexpr amrex::Real vode_increase_change_factor = 4.0_rt;
+constexpr amrex::Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
-const int VODE_MAXORD = 5;
-const int VODE_LMAX = VODE_MAXORD + 1;
+constexpr int VODE_MAXORD = 5;
+constexpr int VODE_LMAX = VODE_MAXORD + 1;
 
 // How many timesteps should pass before refreshing the Jacobian
-const int max_steps_between_jacobian_evals = 50;
-
-#ifdef NSE
-const int MIN_NSE_BAILOUT_STEPS = 10;
-#endif
+constexpr int max_steps_between_jacobian_evals = 50;
 
 // Type dvode_t contains the integration solution and control variables
 template<int int_neqs>
