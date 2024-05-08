@@ -17,8 +17,13 @@ void actual_integrator (BurnT& state, const amrex::Real dt, bool is_retry=false)
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    integrator_setup<BurnT, be_t<int_neqs>>(state, dt, is_retry,
-                                            be_integrator<BurnT, be_t<int_neqs>>);
+    auto be_state = integrator_setup<BurnT, be_t<int_neqs>>(state, dt, is_retry);
+
+    auto state_save = integrator_backup(state);
+
+    auto istate = be_integrator(state, be_state);
+
+    integrator_cleanup(be_state, state, istate, state_save, dt);
 
 }
 

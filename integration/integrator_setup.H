@@ -14,10 +14,17 @@
 
 #include <extern_parameters.H>
 
+struct state_backup_t {
+    amrex::Real T_in{};
+    amrex::Real e_in{};
+#ifndef AMREX_USE_GPU
+    amrex::Real xn_in[NumSpec]{};
+#endif
+};
+
 template <typename BurnT, typename IntegratorT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
-                       int (*integrator)(BurnT &, IntegratorT &))
+IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
 {
 
     IntegratorT int_state{};
@@ -80,19 +87,34 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
 
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
+    return int_state;
+}
+
+
+template <typename BurnT>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+state_backup_t integrator_backup (const BurnT& state) {
+
+    state_backup_t state_save;
+
 #ifndef AMREX_USE_GPU
-    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
-        xn_in[n] = state.xn[n];
+        state_save.xn_in[n] = state.xn[n];
     }
-    const amrex::Real T_in = state.T;
+    state_save.T_in = state.T;
 #endif
-    const amrex::Real e_in = state.e;
+    state_save.e_in = state.e;
 
-    // Call the integration routine.
+    return state_save;
 
-    int istate = integrator(state, int_state);
-    state.error_code = istate;
+}
+
+
+template <typename BurnT, typename IntegratorT>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void integrator_cleanup (IntegratorT& int_state, BurnT& state,
+                         int istate, const state_backup_t& state_save, amrex::Real dt)
+{
 
     // Copy the integration data back to the burn state.
 
@@ -115,7 +137,7 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
     // to get back only the generated energy during the burn).
 
     if (integrator_rp::subtract_internal_energy) {
-        state.e -= e_in;
+        state.e -= state_save.e_in;
     }
 
     // Normalize the final abundances (except if they are number
@@ -177,9 +199,9 @@ void integrator_setup (BurnT& state, amrex::Real dt, bool is_retry,
             std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
             std::cout << "time = " << int_state.t << std::endl;
             std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-            std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << state_save.T_in << std::endl;
             std::cout << "xn start = ";
-            for (const double X : xn_in) {
+            for (const double X : state_save.xn_in) {
                 std::cout << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
