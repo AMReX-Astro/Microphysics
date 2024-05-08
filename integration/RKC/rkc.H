@@ -246,7 +246,7 @@ int rkclow (BurnT& state, RkcT& rstate)
        // wild exploration.  Also ensure we are not working > tmax,
        // so we don't need to worry about extrapolating back in time.
 
-       if (rstate.nsteps.NST > MIN_NSE_BAILOUT_STEPS && rstate.t <= vstate.tout) {
+       if (rstate.nsteps > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout) {
            // first we need to make the burn_t in sync
 
 #ifdef STRANG
