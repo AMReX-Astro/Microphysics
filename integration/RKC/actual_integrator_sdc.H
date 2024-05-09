@@ -58,8 +58,6 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Set the tolerances.
 
-    amrex::Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
-
     // we use 1-based indexing inside of RKC, so we need to shift the
     // indices SRHO, SFS, etc by 1
 
@@ -67,27 +65,27 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     if (!is_retry) {
 
-        rkc_state.atol_enuc = sdc_min_density * atol_enuc * sdc_tol_fac;
-        rkc_state.rtol_enuc = rtol_enuc * sdc_tol_fac;
+        rkc_state.atol_enuc = sdc_min_density * atol_enuc;
+        rkc_state.rtol_enuc = rtol_enuc;
 
         // Note: we define the input atol for species to refer only to the
         // mass fraction part, and we multiply by a representative density
         // so that atol becomes an absolutely tolerance on (rho X)
 
-        rkc_state.atol_spec = sdc_min_density * atol_spec * sdc_tol_fac;
-        rkc_state.rtol_spec = rtol_spec * sdc_tol_fac;
+        rkc_state.atol_spec = sdc_min_density * atol_spec;
+        rkc_state.rtol_spec = rtol_spec;
 
     } else {
 
-        rkc_state.atol_enuc = sdc_min_density * retry_atol_enuc * sdc_tol_fac;
-        rkc_state.rtol_enuc = retry_rtol_enuc * sdc_tol_fac;
+        rkc_state.atol_enuc = sdc_min_density * retry_atol_enuc;
+        rkc_state.rtol_enuc = retry_rtol_enuc;
 
         // Note: we define the input atol for species to refer only to the
         // mass fraction part, and we multiply by a representative density
         // so that atol becomes an absolutely tolerance on (rho X)
 
-        rkc_state.atol_spec = sdc_min_density * retry_atol_spec * sdc_tol_fac;
-        rkc_state.rtol_spec = retry_rtol_spec * sdc_tol_fac;
+        rkc_state.atol_spec = sdc_min_density * retry_atol_spec;
+        rkc_state.rtol_spec = retry_rtol_spec;
 
     }
 
