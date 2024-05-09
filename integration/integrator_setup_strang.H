@@ -1,5 +1,5 @@
-#ifndef integrator_setup_H
-#define integrator_setup_H
+#ifndef INTEGRATOR_SETUP_STRANG_H
+#define INTEGRATOR_SETUP_STRANG_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_ANSIEscCode.H>
