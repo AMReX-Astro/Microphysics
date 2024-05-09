@@ -5,7 +5,7 @@
 #include <burn_type.H>
 
 #include <integrator_data.H>
-#include <integrator_setup.H>
+#include <integrator_setup_strang.H>
 
 #include <rkc_type.H>
 #include <rkc.H>

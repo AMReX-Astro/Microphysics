@@ -5,7 +5,7 @@
 #include <burn_type.H>
 
 #include <integrator_data.H>
-#include <integrator_setup.H>
+#include <integrator_setup_strang.H>
 
 #include <be_type.H>
 #include <be_integrator.H>

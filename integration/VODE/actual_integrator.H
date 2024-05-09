@@ -5,7 +5,7 @@
 #include <burn_type.H>
 
 #include <integrator_data.H>
-#include <integrator_setup.H>
+#include <integrator_setup_strang.H>
 
 #include <vode_type.H>
 #include <vode_dvode.H>

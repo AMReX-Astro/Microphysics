@@ -22,7 +22,7 @@ ifeq ($(USE_ALL_SDC), TRUE)
 else
   CEXE_headers += integrator_type_strang.H
   CEXE_headers += integrator_rhs_strang.H
-  CEXE_headers += integrator_setup.H
+  CEXE_headers += integrator_setup_strang.H
 endif
 
 ifeq ($(USE_NSE_TABLE), TRUE)
