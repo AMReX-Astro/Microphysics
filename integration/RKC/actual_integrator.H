@@ -120,9 +120,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = rkc_state.nfe;
+    state.n_rhs = rkc_state.n_rhs;
     state.n_jac = 0;
-    state.n_step = rkc_state.nsteps;
+    state.n_step = rkc_state.n_step;
 
     if (istate != IERR_SUCCESS) {
         state.success = false;
@@ -152,8 +152,8 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout << " energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << rkc_state.nsteps << std::endl;
-        std::cout <<  "number of f evaluations: " << rkc_state.nfe << std::endl;
+        std::cout <<  "number of steps taken: " << rkc_state.n_step << std::endl;
+        std::cout <<  "number of f evaluations: " << rkc_state.n_rhs << std::endl;
     }
 #endif
 
