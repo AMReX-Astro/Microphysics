@@ -29,7 +29,7 @@ bool in_nse(T& state, const bool relax = false) {
 
     if (state.rho > f * network_rp::rho_nse && state.T > f * network_rp::T_nse) {
 
-        if (state.T > network_rp::T_always_in_nse) {
+        if (state.T > network_rp::T_always_nse) {
            nse_check = true;
 
         } else {
