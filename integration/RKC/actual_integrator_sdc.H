@@ -105,9 +105,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = rkc_state.nfe;
+    state.n_rhs = rkc_state.n_rhs;
     state.n_jac = 0;
-    state.n_step = rkc_state.nsteps;
+    state.n_step = rkc_state.n_step;
 
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
