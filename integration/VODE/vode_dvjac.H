@@ -45,7 +45,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
         // steps, we consider the cached Jacobian too old and will want to re-evaluate
         // it, so we look at whether the step of the last Jacobian evaluation (NSLJ)
         // is more than max_steps_between_jacobian_evals steps in the past.
-        if (vstate.NST == 0 || vstate.NST > vstate.NSLJ + max_steps_between_jacobian_evals) {
+        if (vstate.n_step == 0 || vstate.n_step > vstate.NSLJ + max_steps_between_jacobian_evals) {
             evaluate_jacobian = 1;
         }
 
@@ -71,10 +71,10 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             // For the analytic Jacobian, call the user-supplied function.
 
             // Increment the Jacobian evaluation counter.
-            vstate.NJE += 1;
+            vstate.n_jac += 1;
 
             // Refresh the timestep marker for the last Jacobian evaluation.
-            vstate.NSLJ = vstate.NST;
+            vstate.NSLJ = vstate.n_step;
 
             // Indicate that the Jacobian is current for this solve.
             vstate.JCUR = 1;
@@ -97,10 +97,10 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             // For the numerical Jacobian, make N calls to the RHS to approximate it.
 
             // Increment the Jacobian evaluation counter.
-            vstate.NJE += 1;
+            vstate.n_jac += 1;
 
             // Refresh the timestep marker for the last Jacobian evaluation.
-            vstate.NSLJ = vstate.NST;
+            vstate.NSLJ = vstate.n_step;
 
             // Indicate that the Jacobian is current for this solve.
             vstate.JCUR = 1;
@@ -133,7 +133,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             }
 
             // Increment the RHS evaluation counter by N.
-            vstate.NFE += int_neqs;
+            vstate.n_rhs += int_neqs;
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.

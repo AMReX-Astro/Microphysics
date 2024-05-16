@@ -319,7 +319,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // If ETAMAX = 1 (a failure occurred this step), keep NQWAIT >= 2.
 
             kflag = 0;
-            vstate.NST += 1;
+            vstate.n_step += 1;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
                 const int i = vstate.L - iback;
                 vstate.tau(i+1) = vstate.tau(i);
@@ -352,7 +352,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             vstate.NEWH = 0;
             vstate.ETA = 1.0_rt;
             vstate.ETAMAX = ETAMX3;
-            if (vstate.NST <= 10) {
+            if (vstate.n_step <= 10) {
                 vstate.ETAMAX = ETAMX2;
             }
 
@@ -455,7 +455,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         vstate.HSCAL = vstate.H;
         vstate.tau(1) = vstate.H;
         rhs(vstate.tn, state, vstate, vstate.savf);
-        vstate.NFE += 1;
+        vstate.n_rhs += 1;
         for (int i = 1; i <= int_neqs; ++i) {
             vstate.yh(i,2) = vstate.H * vstate.savf(i);
         }
@@ -543,7 +543,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * vstate.HMXI * vstate.ETA);
         vstate.NEWH = 1;
         vstate.ETAMAX = ETAMX3;
-        if (vstate.NST <= 10) {
+        if (vstate.n_step <= 10) {
             vstate.ETAMAX = ETAMX2;
         }
         R = 1.0_rt / vstate.tq(2);
@@ -557,7 +557,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
     vstate.NEWH = 0;
     vstate.ETA = 1.0_rt;
     vstate.ETAMAX = ETAMX3;
-    if (vstate.NST <= 10) {
+    if (vstate.n_step <= 10) {
         vstate.ETAMAX = ETAMX2;
     }
     R = 1.0_rt / vstate.tq(2);

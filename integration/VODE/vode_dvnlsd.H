@@ -46,7 +46,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
     // In any case, DVJAC is called at least every MSBP steps.
 
     vstate.DRC = std::abs(vstate.RC - 1.0_rt);
-    if (vstate.DRC > CCMAX || vstate.NST >= vstate.NSLP + MSBP) {
+    if (vstate.DRC > CCMAX || vstate.n_step >= vstate.NSLP + MSBP) {
         vstate.IPUP = 1;
     }
 
@@ -67,7 +67,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
         }
 
         rhs(vstate.tn, state, vstate, vstate.savf);
-        vstate.NFE += 1;
+        vstate.n_rhs += 1;
 
         if (vstate.IPUP == 1) {
 
@@ -82,7 +82,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             vstate.RC = 1.0_rt;
             vstate.DRC = 0.0_rt;
             vstate.CRATE = 1.0_rt;
-            vstate.NSLP = vstate.NST;
+            vstate.NSLP = vstate.n_step;
 
             // If matrix is singular, take error return to force cut in step size.
             if (IERPJ != 0) {
@@ -172,7 +172,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
 
             DELP = DEL;
             rhs(vstate.tn, state, vstate, vstate.savf);
-            vstate.NFE += 1;
+            vstate.n_rhs += 1;
 
         }
 
