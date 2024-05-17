@@ -1,6 +1,8 @@
 #ifndef VODE_DVODE_H
 #define VODE_DVODE_H
 
+#include <AMReX_REAL.H>
+
 #include <vode_type.H>
 #include <vode_dvhin.H>
 #include <vode_dvstep.H>
@@ -43,8 +45,8 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     vstate.tn = vstate.t;
 
-    vstate.NST = 0;
-    vstate.NJE = 0;
+    vstate.n_step = 0;
+    vstate.n_jac = 0;
     vstate.NSLJ = 0;
 
     // Initial call to the RHS.
@@ -57,7 +59,7 @@ int dvode (BurnT& state, DvodeT& vstate)
         vstate.yh(i,2) = f_init(i);
     }
 
-    vstate.NFE = 1;
+    vstate.n_rhs = 1;
 
     // Load the initial value array in yh.
 
@@ -79,7 +81,7 @@ int dvode (BurnT& state, DvodeT& vstate)
     // Call DVHIN to set initial step size H0 to be attempted.
     H0 = 0.0_rt;
     dvhin(state, vstate, H0, NITER, IER);
-    vstate.NFE += NITER;
+    vstate.n_rhs += NITER;
 
     if (IER != 0) {
 #ifndef AMREX_USE_GPU
@@ -127,10 +129,10 @@ int dvode (BurnT& state, DvodeT& vstate)
            // start of problem), check for too much accuracy being requested, and
            // check for H below the roundoff level in T.
 
-           if (vstate.NST >= ode_max_steps) {
+           if (vstate.n_step >= ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
-               std::cout << Font::Bold << FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << ResetDisplay << std::endl;
+               std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << amrex::ResetDisplay << std::endl;
 #endif
                for (int i = 1; i <= int_neqs; ++i) {
                    vstate.y(i) = vstate.yh(i,1);
@@ -162,9 +164,9 @@ int dvode (BurnT& state, DvodeT& vstate)
 
        if (TOLSF > 1.0_rt) {
 
-           if (vstate.NST == 0) {
+           if (vstate.n_step == 0) {
 #ifndef AMREX_USE_GPU
-               std::cout << Font::Bold << FGColor::Red << "DVODE: too much accuracy requested at start of integration" << ResetDisplay << std::endl;
+               std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: too much accuracy requested at start of integration" << amrex::ResetDisplay << std::endl;
 #endif
                return IERR_TOO_MUCH_ACCURACY_REQUESTED;
            }
@@ -191,7 +193,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        if (kflag == -1) {
            // Error test failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << Font::Bold << FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
+           std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: error test failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= int_neqs; ++i) {
@@ -205,7 +207,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        else if (kflag == -2) {
            // Convergence failed repeatedly or with ABS(H) = HMIN.
 #ifndef AMREX_USE_GPU
-           std::cout << Font::Bold << FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << ResetDisplay << std::endl;
+           std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: corrector convergence failed repeatedly or with abs(H) = HMIN" << amrex::ResetDisplay << std::endl;
 #endif
            // Set Y array, T, and optional output.
            for (int i = 1; i <= int_neqs; ++i) {
@@ -227,7 +229,7 @@ int dvode (BurnT& state, DvodeT& vstate)
        // wild exploration.  Also ensure we are not working > tmax,
        // so we don't need to worry about extrapolating back in time.
 
-       if (vstate.NST > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
+       if (vstate.n_step > MIN_NSE_BAILOUT_STEPS && vstate.tn <= vstate.tout) {
            // first we need to make the burn_t in sync
 
 #ifdef STRANG

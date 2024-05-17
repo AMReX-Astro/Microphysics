@@ -4,6 +4,8 @@
 // Common variables and routines for burners
 // that use VODE for their integration.
 
+#include <AMReX_Print.H>
+
 #include <iomanip>
 
 #include <network.H>
@@ -38,7 +40,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     vode_state.HMXI = 1.0_rt / ode_max_dt;
 
     // set the Jacobian type
-    if (is_retry && retry_swap_jacobian) {
+    if (is_retry && integrator_rp::retry_swap_jacobian) {
         vode_state.jacobian_type = (jacobian == 1) ? 2 : 1;
     } else {
         vode_state.jacobian_type = jacobian;
@@ -69,7 +71,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Set the tolerances.
 
-    amrex::Real sdc_tol_fac = std::pow(sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
+    amrex::Real sdc_tol_fac = std::pow(integrator_rp::sdc_burn_tol_factor, state.num_sdc_iters - state.sdc_iter - 1);
 
     // we use 1-based indexing inside of VODE, so we need to shift the
     // indices SRHO, SFS, etc by 1
@@ -115,9 +117,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = vode_state.NFE;
-    state.n_jac = vode_state.NJE;
-    state.n_step = vode_state.NST;
+    state.n_rhs = vode_state.n_rhs;
+    state.n_jac = vode_state.n_jac;
+    state.n_step = vode_state.n_step;
 
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
@@ -185,7 +187,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     if (!state.success) {
         if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
-            std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
+            std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
             std::cout << "istate = " << istate << std::endl;
             if (istate == IERR_SUCCESS) {
                 std::cout << "  VODE exited successfully, but a check on the data values failed" << std::endl;
@@ -197,13 +199,13 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
             std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
             std::cout << "rhoe start = " << std::setprecision(16) << rhoe_in << std::endl;
             std::cout << "xn start = ";
-            for (auto X : xn_in) {
+            for (const auto X : xn_in) {
                 std::cout << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
 #ifdef AUX_THERMO
             std::cout << "aux start = ";
-            for (auto aux : aux_in) {
+            for (const auto aux : aux_in) {
                 std::cout << std::setprecision(16) << aux << " ";
             }
             std::cout << std::endl;

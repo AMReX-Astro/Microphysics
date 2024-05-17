@@ -1,6 +1,8 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <AMReX_Print.H>
+
 #include <iomanip>
 
 #include <network.H>
@@ -98,14 +100,14 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Call the integration routine.
 
-    int ierr = rkc(state, rkc_state);
-    state.error_code = ierr;
+    int istate = rkc(state, rkc_state);
+    state.error_code = istate;
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = rkc_state.nfe;
+    state.n_rhs = rkc_state.n_rhs;
     state.n_jac = 0;
-    state.n_step = rkc_state.nsteps;
+    state.n_step = rkc_state.n_step;
 
     // Copy the integration data back to the burn state.
     // This will also update the aux state from X if we are using NSE
@@ -138,7 +140,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     // Add some checks that indicate a burn fail even if RKC thinks the
     // integration was successful.
 
-    if (ierr != IERR_SUCCESS) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
@@ -171,56 +173,65 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
+        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
-        std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
-        std::cout << "ierr = " << ierr << std::endl;
-        std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-        std::cout << "time = " << state.time << std::endl;
-        std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-        std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
-        std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
-        std::cout << "rhoe start = " << std::setprecision(16) << rhoe_in << std::endl;
-        std::cout << "xn start = ";
-        for (auto X : xn_in) {
-            std::cout << std::setprecision(16) << X << " ";
-        }
-        std::cout << std::endl;
+            std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
+            std::cout << "istate = " << istate << std::endl;
+            if (istate == IERR_SUCCESS) {
+                std::cout << "  RKC exited successfully, but a check on the data values failed" << std::endl;
+            }
+            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "time = " << state.time << std::endl;
+            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
+            std::cout << "dens start = " << std::setprecision(16) << state.rho_orig << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
+            std::cout << "rhoe start = " << std::setprecision(16) << rhoe_in << std::endl;
+            std::cout << "xn start = ";
+            for (auto X : xn_in) {
+                std::cout << std::setprecision(16) << X << " ";
+            }
+            std::cout << std::endl;
 #ifdef AUX_THERMO
-        std::cout << "aux start = ";
-        for (auto aux : aux_in) {
-            std::cout << std::setprecision(16) << aux << " ";
-        }
-        std::cout << std::endl;
+            std::cout << "aux start = ";
+            for (auto aux : aux_in) {
+                std::cout << std::setprecision(16) << aux << " ";
+            }
+            std::cout << std::endl;
 #endif
-        std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
-        std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << std::setprecision(16) << state.xn[n] << " ";
-        }
-        std::cout << std::endl;
+            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
+            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
+            std::cout << "xn current = ";
+            for (int n = 0; n < NumSpec; ++n) {
+                std::cout << std::setprecision(16) << state.xn[n] << " ";
+            }
+            std::cout << std::endl;
 #ifdef AUX_THERMO
-        std::cout << "aux current = ";
-        for (int n = 0; n < NumAux; ++n) {
-            std::cout << std::setprecision(16) << state.aux[n] << " ";
-        }
-        std::cout << std::endl;
+            std::cout << "aux current = ";
+            for (int n = 0; n < NumAux; ++n) {
+                std::cout << std::setprecision(16) << state.aux[n] << " ";
+            }
+            std::cout << std::endl;
 #endif
-        std::cout << "A(rho) = " << std::setprecision(16) << state.ydot_a[SRHO] << std::endl;
-        std::cout << "A(rho e) = " << std::setprecision(16) << state.ydot_a[SEINT] << std::endl;
-        std::cout << "A(rho X_k) = ";
-        for (int n = 0; n < NumSpec; n++) {
-            std::cout << std::setprecision(16) << state.ydot_a[SFS+n] << " ";
-        }
-        std::cout << std::endl;
+            std::cout << "A(rho) = " << std::setprecision(16) << state.ydot_a[SRHO] << std::endl;
+            std::cout << "A(rho e) = " << std::setprecision(16) << state.ydot_a[SEINT] << std::endl;
+            std::cout << "A(rho X_k) = ";
+            for (int n = 0; n < NumSpec; n++) {
+                std::cout << std::setprecision(16) << state.ydot_a[SFS+n] << " ";
+            }
+            std::cout << std::endl;
 #ifdef AUX_THERMO
-        std::cout << "A(rho aux_k) = ";
-        for (int n = 0; n < NumAux; n++) {
-            std::cout << std::setprecision(16) << state.ydot_a[SFX+n] << " ";
+            std::cout << "A(rho aux_k) = ";
+            for (int n = 0; n < NumAux; n++) {
+                std::cout << std::setprecision(16) << state.ydot_a[SFX+n] << " ";
+            }
+            std::cout << std::endl;
+#endif
+#endif
+        } else {
+#ifndef AMREX_USE_GPU
+            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+#endif
         }
-        std::cout << std::endl;
-#endif
-#endif
     }
 
 }

@@ -158,12 +158,11 @@ void main_main ()
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 
     std::string name = "test_aprox_rates.";
-    std::string language = ".cxx";
 
     // Write a plotfile
-    WriteSingleLevelPlotfile(name + eos_name + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(name + eos_name, state, names, geom, time, 0);
 
-    write_job_info(name + eos_name + language);
+    write_job_info(name + eos_name);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

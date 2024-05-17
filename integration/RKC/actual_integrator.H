@@ -1,6 +1,8 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <AMReX_Print.H>
+
 #include <iomanip>
 
 #include <network.H>
@@ -13,7 +15,7 @@
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -35,11 +37,6 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
         rkc_state.rtol_enuc = retry_rtol_enuc; // energy generated
     }
 
-    rkc_state.atol_spec = atol_spec; // mass fractions
-    rkc_state.atol_enuc = atol_enuc; // energy generated
-
-    rkc_state.rtol_spec = rtol_spec; // mass fractions
-    rkc_state.rtol_enuc = rtol_enuc; // energy generated
 
     // Start off by assuming a successful burn.
 
@@ -77,22 +74,36 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
 #ifndef AMREX_USE_GPU
-    Real xn_in[NumSpec];
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
-    Real T_in = state.T;
+    const amrex::Real T_in = state.T;
 #endif
-    Real e_in = state.e;
+    const amrex::Real e_in = state.e;
 
     // Call the integration routine.
 
-    int ierr = rkc(state, rkc_state);
-    state.error_code = ierr;
+    int istate = rkc(state, rkc_state);
+    state.error_code = istate;
 
     // Copy the integration data back to the burn state.
 
     integrator_to_burn(rkc_state, state);
+
+#ifdef NSE
+    // compute the temperature based on the energy release -- we need
+    // this in case we failed in our burn here because we entered NSE
+
+#ifdef AUX_THERMO
+    // need to sync the auxiliary data up with the new mass fractions
+    set_aux_comp_from_X(state);
+#endif
+    if (call_eos_in_rhs) {
+        eos(eos_input_re, state);
+    }
+
+#endif
 
     // Subtract off the initial energy (the application codes expect
     // to get back only the generated energy during the burn).
@@ -109,11 +120,11 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = rkc_state.nfe;
+    state.n_rhs = rkc_state.n_rhs;
     state.n_jac = 0;
-    state.n_step = rkc_state.nsteps;
+    state.n_step = rkc_state.n_step;
 
-    if (ierr != IERR_SUCCESS) {
+    if (istate != IERR_SUCCESS) {
         state.success = false;
     }
 
@@ -141,35 +152,44 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;
         std::cout << " energy released: " << state.e << std::endl;
-        std::cout <<  "number of steps taken: " << rkc_state.nsteps << std::endl;
-        std::cout <<  "number of f evaluations: " << rkc_state.nfe << std::endl;
+        std::cout <<  "number of steps taken: " << rkc_state.n_step << std::endl;
+        std::cout <<  "number of f evaluations: " << rkc_state.n_rhs << std::endl;
     }
 #endif
 
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
+        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
-        std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
-        std::cout << "ierr = " << ierr << std::endl;
-        std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-        std::cout << "time = " << rkc_state.t << std::endl;
-        std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-        std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
-        std::cout << "xn start = ";
-        for (auto X : xn_in) {
-            std::cout << std::setprecision(16) << X << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
-        std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (auto X : state.xn) {
-            std::cout << std::setprecision(16) << X << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "energy generated = " << state.e << std::endl;
+            std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
+            std::cout << "istate = " << istate << std::endl;
+            if (istate == IERR_SUCCESS) {
+                std::cout << "  RKC exited successfully, but a check on the data values failed" << std::endl;
+            }
+            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "time = " << rkc_state.t << std::endl;
+            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
+            std::cout << "xn start = ";
+            for (auto X : xn_in) {
+                std::cout << std::setprecision(16) << X << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
+            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
+            std::cout << "xn current = ";
+            for (auto X : state.xn) {
+                std::cout << std::setprecision(16) << X << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "energy generated = " << state.e << std::endl;
 #endif
+        } else {
+#ifndef AMREX_USE_GPU
+            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+#endif
+        }
     }
 }
 

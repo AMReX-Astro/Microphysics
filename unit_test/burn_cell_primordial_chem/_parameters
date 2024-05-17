@@ -1,6 +1,6 @@
 @namespace: unit_test
 
-run_prefix    character  "burn_cell_primordial_chem"
+run_prefix    string  "burn_cell_primordial_chem"
 
 # floor values of temperature and density
 small_temp    real       1.e1
@@ -15,23 +15,23 @@ tff_reduc     real       1.e-1
 tfirst        real       0.0
 
 # number of steps for the single zone burn
-nsteps        integer    1000
+nsteps        int        1000
 
 # initial temperature
 temperature   real       1e2
 
 #list of species and their number densities used in the network (14 if including deuterium)
-primary_species_1            real       1.0d0
-primary_species_2            real       0.0d0
-primary_species_3            real       0.0d0
-primary_species_4            real       0.0d0
-primary_species_5            real       0.0d0
-primary_species_6            real       0.0d0
-primary_species_7            real       0.0d0
-primary_species_8            real       0.0d0
-primary_species_9            real       0.0d0
-primary_species_10           real       0.0d0
-primary_species_11           real       0.0d0
-primary_species_12           real       0.0d0
-primary_species_13           real       0.0d0
-primary_species_14           real       0.0d0
+primary_species_1            real       1.0e0
+primary_species_2            real       0.0e0
+primary_species_3            real       0.0e0
+primary_species_4            real       0.0e0
+primary_species_5            real       0.0e0
+primary_species_6            real       0.0e0
+primary_species_7            real       0.0e0
+primary_species_8            real       0.0e0
+primary_species_9            real       0.0e0
+primary_species_10           real       0.0e0
+primary_species_11           real       0.0e0
+primary_species_12           real       0.0e0
+primary_species_13           real       0.0e0
+primary_species_14           real       0.0e0

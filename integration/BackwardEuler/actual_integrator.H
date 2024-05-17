@@ -1,12 +1,19 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <AMReX_Print.H>
+
+#include <iomanip>
+
+#include <network.H>
+#include <burn_type.H>
+
 #include <be_type.H>
 #include <be_integrator.H>
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, const amrex::Real dt, bool is_retry=false)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
@@ -29,7 +36,7 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
     }
 
     // set the Jacobian type
-    if (is_retry && retry_swap_jacobian) {
+    if (is_retry && integrator_rp::retry_swap_jacobian) {
         be.jacobian_type = (jacobian == 1) ? 2 : 1;
     } else {
         be.jacobian_type = jacobian;
@@ -71,13 +78,13 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
     // Save the initial composition, temperature, and energy for our later diagnostics.
 
 #ifndef AMREX_USE_GPU
-    Real xn_in[NumSpec];
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
-    Real T_in = state.T;
+    const amrex::Real T_in = state.T;
 #endif
-    Real e_in = state.e;
+    const amrex::Real e_in = state.e;
 
     // Call the integration routine.
 
@@ -88,15 +95,28 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
 
     integrator_to_burn(be, state);
 
+#ifdef NSE
+    // compute the temperature based on the energy release -- we need
+    // this in case we failed in our burn here because we entered NSE
+
+#ifdef AUX_THERMO
+    // need to sync the auxiliary data up with the new mass fractions
+    set_aux_comp_from_X(state);
+#endif
+    if (call_eos_in_rhs) {
+        eos(eos_input_re, state);
+    }
+#endif
+
     // Subtract off the initial energy if the application codes expect
     // to get back only the generated energy during the burn.
-    if (subtract_internal_energy) {
+    if (integrator_rp::subtract_internal_energy) {
         state.e -= e_in;
     }
 
     // Normalize the final abundances.
 
-    if (!use_number_densities) {
+    if (! integrator_rp::use_number_densities) {
         normalize_abundances_burn(state);
     }
 
@@ -106,8 +126,26 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
     state.n_jac = be.n_jac;
     state.n_step = be.n_step;
 
+    // BE does not always fail even though it can lead to unphysical states.
+    // Add some checks that indicate a burn fail even if VODE thinks the
+    // integration was successful.
+
     if (istate != IERR_SUCCESS) {
         state.success = false;
+    }
+
+    for (int n = 1; n <= NumSpec; ++n) {
+        if (be.y(n) < -species_failure_tolerance) {
+            state.success = false;
+        }
+
+        // Don't enforce a max if we are evolving number densities
+
+        if (! integrator_rp::use_number_densities) {
+            if (be.y(n) > 1.0_rt + species_failure_tolerance) {
+                state.success = false;
+            }
+        }
     }
 
 #ifndef AMREX_USE_GPU
@@ -124,27 +162,36 @@ void actual_integrator (BurnT& state, const Real dt, bool is_retry=false)
     // If we failed, print out the current state of the integration.
 
     if (!state.success) {
+        if (istate != IERR_ENTERED_NSE) {
 #ifndef AMREX_USE_GPU
-        std::cout << Font::Bold << FGColor::Red << "[ERROR] integration failed in net" << ResetDisplay << std::endl;
-        std::cout << "istate = " << istate << std::endl;
-        std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
-        std::cout << "time = " << be.t << std::endl;
-        std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
-        std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
-        std::cout << "xn start = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << std::setprecision(16) << xn_in[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
-        std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
-        std::cout << "xn current = ";
-        for (int n = 0; n < NumSpec; ++n) {
-            std::cout << std::setprecision(16) << state.xn[n] << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "energy generated = " << state.e << std::endl;
+            std::cout << amrex::Font::Bold << amrex::FGColor::Red << "[ERROR] integration failed in net" << amrex::ResetDisplay << std::endl;
+            std::cout << "istate = " << istate << std::endl;
+            if (istate == IERR_SUCCESS) {
+                std::cout << "  BE exited successfully, but a check on the data values failed" << std::endl;
+            }
+            std::cout << "zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+            std::cout << "time = " << be.t << std::endl;
+            std::cout << "dt = " << std::setprecision(16) << dt << std::endl;
+            std::cout << "temp start = " << std::setprecision(16) << T_in << std::endl;
+            std::cout << "xn start = ";
+            for (const auto X: xn_in) {
+                std::cout << std::setprecision(16) << X << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
+            std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
+            std::cout << "xn current = ";
+            for (const auto X: state.xn) {
+                std::cout << std::setprecision(16) << X << " ";
+            }
+            std::cout << std::endl;
+            std::cout << "energy generated = " << state.e << std::endl;
 #endif
+        } else {
+#ifndef AMREX_USE_GPU
+            std::cout << "burn entered NSE during integration (after " << state.n_step << " steps), zone = (" << state.i << ", " << state.j << ", " << state.k << ")" << std::endl;
+#endif
+        }
     }
 }
 
