@@ -1,6 +1,6 @@
 @namespace: unit_test
 
-run_prefix    character  ""
+run_prefix    string  ""
 
 # the final time to integrate to
 tmax          real       1.e3
@@ -9,14 +9,14 @@ tmax          real       1.e3
 tfirst        real       0.0
 
 # number of steps (logarithmically spaced)
-nsteps        integer    100
+nsteps        int    100
 
 rho_min   real   1.e7
 rho_max   real   1.e9
 
-nrho      integer    4
+nrho      int    4
 
 T_min     real   6.e9
 T_max     real   8.e9
 
-nT        integer    4
+nT        int    4

@@ -134,9 +134,9 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 
     // Get the number of RHS and Jacobian evaluations.
 
-    state.n_rhs = vode_state.NFE;
-    state.n_jac = vode_state.NJE;
-    state.n_step = vode_state.NST;
+    state.n_rhs = vode_state.n_rhs;
+    state.n_jac = vode_state.n_jac;
+    state.n_step = vode_state.n_step;
 
     // VODE does not always fail even though it can lead to unphysical states.
     // Add some checks that indicate a burn fail even if VODE thinks the
