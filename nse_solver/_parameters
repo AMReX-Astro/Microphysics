@@ -9,3 +9,4 @@ nse_dx_independent      bool       0
 nse_molar_independent   bool       0
 nse_skip_molar          bool       0
 T_nse_net               real       -1.0
+T_min_nse               real       3.0e9

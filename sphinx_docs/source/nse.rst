@@ -216,19 +216,24 @@ Dynamic NSE Check
 -----------------
 
 We have implemented a dynamic NSE check for the self-consistent nse procedure
-that tells us whether the network has reached the NSE state. The overall procedure
-is outlined in :cite:`Kushnir_2020`. The overall usage comes down to a single function
-``in_nse(state)``. By supplying the current state, this function returns a boolean that
-tells us whether we're in NSE or not. The current status of this functionality only
-works for pynucastro-generated network since aprox networks have slightly different syntax.
-Note that we ignore this check when ``T < 2.5e9``, since we don't expect NSE to occur when
-temperature is below 2.5 billion Kelvin.
+that tells us whether the network has reached the NSE state.
+The overall procedure is outlined in :cite:`Kushnir_2020`.
+The overall usage comes down to a single function ``in_nse(state)``.
+By supplying the current state, this function returns a boolean that tells us
+whether we're in NSE or not. The current status of this functionality only works
+for pynucastro-generated network since aprox networks have slightly
+different syntax.
 
-There are 3 main criteria discussed in the :cite:`Kushnir_2020`.
+The overall framework is constructed following :cite:`Kushnir_2020` with slight
+variations. The overview of the steps we take are the following:
 
-The overall framework is constructed following :cite:`Kushnir_2020` with slight variations.
+* Minimum Temperature Check: require ``T > T_min_nse``, where ``T_min_nse`` is
+  a runtime parameter with a default value ``T_min_nse = 3.0e9``.
 
-* We first determine whether the current molar fraction is close to NSE
+* Mass Abundance Check: compare the current mass abundances of the nuclei to
+  the NSE mass fractions. A detailed criteria are the following:
+
+  We first determine whether the current molar fraction is close to NSE
   with a criteria of:
 
   .. math::
@@ -261,7 +266,7 @@ The overall framework is constructed following :cite:`Kushnir_2020` with slight 
   where ``nse_rel_tol = 0.2`` and ``nse_abs_tol = 0.005`` by default.
 
 
-* :cite:`Kushnir_2020` also requires a fast reaction cycle that
+* **Removed** :cite:`Kushnir_2020` also requires a fast reaction cycle that
   exchanges 1 :math:`\alpha` particle with 2 :math:`p` and 2 :math:`n`
   particles. We used to have this check, but currently removed as
   we think it is not necessary. However, the description is as following:
@@ -286,8 +291,8 @@ The overall framework is constructed following :cite:`Kushnir_2020` with slight 
      \isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
      (\alpha, \gamma) \isotm{S}{32}
 
-* Lastly, we proceed to nuclei grouping. Initially,
-  :math:`p`, :math:`n`, and :math:`\alpha` are grouped into a single group
+* NSE Grouping Process: Initially, :math:`p`, :math:`n`, and
+  :math:`\alpha` are grouped into a single group
   called the light-isotope-group, or LIG. Other isotopes belong to their
   own group, which only contains themselves. We need to start the grouping
   process with the reaction rate that has the fastest (smallest) timescale.
@@ -410,6 +415,11 @@ to the self-consistent nse check:
 * ``nse.nse_rel_tol`` is the relative tolerance of checking the
   difference between current molar fraction and the NSE molar fraction.
   This is set to 0.2 by default.
+
+* ``nse.T_min_nse`` is the minimum temperature required to consider
+  the subsequent NSE checks. This is mainly to avoid unnecesary computations
+  of computing the NSE mass fractions when the current temperature is too low.
+  This is set to 3.0e9 by default.
 
 
 .. rubric:: Footnotes
