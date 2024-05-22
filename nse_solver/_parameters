@@ -37,4 +37,4 @@ nse_skip_molar          bool       0
 T_nse_net               real       -1.0
 
 # Minimum Temperature required for NSE
-T_min_nse               real       3.0e9
+T_min_nse               real       4.0e9

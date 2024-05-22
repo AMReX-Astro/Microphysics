@@ -228,7 +228,7 @@ The overall framework is constructed following :cite:`Kushnir_2020` with slight
 variations. The overview of the steps we take are the following:
 
 * Minimum Temperature Check: require ``T > T_min_nse``, where ``T_min_nse`` is
-  a runtime parameter with a default value ``T_min_nse = 3.0e9``.
+  a runtime parameter with a default value ``T_min_nse = 4.0e9``.
 
 * Mass Abundance Check: compare the current mass abundances of the nuclei to
   the NSE mass fractions. A detailed criteria are the following:
@@ -419,7 +419,7 @@ to the self-consistent nse check:
 * ``nse.T_min_nse`` is the minimum temperature required to consider
   the subsequent NSE checks. This is mainly to avoid unnecesary computations
   of computing the NSE mass fractions when the current temperature is too low.
-  This is set to 3.0e9 by default.
+  This is set to 4.0e9 by default.
 
 
 .. rubric:: Footnotes
