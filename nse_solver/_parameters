@@ -1,12 +1,40 @@
 @namespace: nse
 
+# max iterations for NSE Newton-Raphson Solver
 max_nse_iters           int        500
+
+# Choose NSE solver.
+# 1 == hybrid powell
+# 0 == Newton-Raphson
 use_hybrid_solver       bool       1
+
+# Tolerance used in the NSE-Grouping process
 ase_tol                 real       0.1
+
+# Tolerances for molar fraction comparison
 nse_abs_tol             real       0.005
 nse_rel_tol             real       0.2
+
+# Whether NSE depends on the size of the cell.
+# This is the requirement that the reaction timescale
+# must be smaller than the sound crossing time
+# 1 == independent
+# 0 == dependent
 nse_dx_independent      bool       0
+
+# Whether to use NSE mass fractions for NSE grouping
+# This makes NSE Grouping process solely dependent
+# on the thermodynamic condition
 nse_molar_independent   bool       0
+
+# Whether the initial molar fraction check is skipped
+# when integration failed.
 nse_skip_molar          bool       0
+
+# Set this to a positive number to make use simple
+# temperature threshold of determining NSE after
+# the initial molar fraction check.
 T_nse_net               real       -1.0
+
+# Minimum Temperature required for NSE
 T_min_nse               real       3.0e9
