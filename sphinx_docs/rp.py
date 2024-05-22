@@ -3,6 +3,7 @@
 import os
 import sys
 import textwrap
+import itertools
 
 MAIN_HEADER = """
 +---------------------------------------+---------------------------------------------------------+------------------------------+
@@ -28,23 +29,39 @@ class Parameter:
         self.default = ""
         self.description = []
         self.category = ""
+        self.namespace = ""
 
-    def value(self):
-        """ the value is what we sort based on """
-        return self.category + "." + self.var
 
-    def __lt__(self, other):
-        return self.value() < other.value()
+def pretty_category(path):
+    if "/" not in path:
+        # global parameters for a given top-level directory
+        return ""
+    # remove the top-most directory
+    subdir = path.partition('/')[2]
+    if path.startswith("networks/"):
+        return f"NETWORK={subdir}"
+    if path.startswith("EOS/"):
+        return f"EOS={subdir}"
+    if path.startswith("conductivity/"):
+        return f"CONDUCTIVITY={subdir}"
+    if path.startswith("integration/"):
+        return f"INTEGRATOR={subdir}"
+    return path
 
 
 def make_rest_table(param_files):
 
     params_list = []
 
+    microphysics_home = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
     for pf in param_files:
 
         # each file is a category
-        category = os.path.basename(os.path.dirname(pf))
+        category = pretty_category(os.path.relpath(os.path.dirname(os.path.abspath(pf)), microphysics_home))
+
+        # default namespace is empty
+        namespace = ""
 
         # open the file
         try:
@@ -72,8 +89,12 @@ def make_rest_table(param_files):
                 continue
 
             if line.startswith("@"):
-                line = f.readline()
-                continue
+                # this is a command -- we only know namespace
+                fields = line.split()
+                if fields[0].startswith("@namespace"):
+                    namespace = fields[1].strip()
+                    line = f.readline()
+                    continue
 
             # find the description
             if line.startswith("#"):
@@ -90,6 +111,7 @@ def make_rest_table(param_files):
                 current_param.default = line_list[2]
                 current_param.description = descr
                 current_param.category = category
+                current_param.namespace = namespace
 
                 descr = r""
 
@@ -99,34 +121,52 @@ def make_rest_table(param_files):
             line = f.readline()
 
 
-    categories = {q.category for q in params_list}
+    def by_namespace(p):
+        return p.namespace
 
-    for c in sorted(categories):
+    def by_category(p):
+        return p.category
 
-        # print the heading
+    print("Parameters by Namespace")
+    print("=======================")
 
-        params = [q for q in params_list if q.category == c]
+    # group by namespace first (roughly corresponds to top-level directory)
 
-        clen = len(c)
-        print(c)
-        print(clen*"=" + "\n")
+    for nm, group in itertools.groupby(sorted(params_list, key=by_namespace), key=by_namespace):
 
-        print(MAIN_HEADER.strip())
+        # print the namespace
 
-        for p in params:
-            desc = list(textwrap.wrap(p.description.strip(), WRAP_LEN))
-            if not desc:
-                desc = [""]
+        if nm:
+            nm_formatted = f"namespace: ``{nm}``"
+        else:
+            nm_formatted = "namespace: none"
+        nmlen = len(nm_formatted)
+        print(nm_formatted)
+        print(nmlen*"-" + "\n")
 
-            for n, d in enumerate(desc):
-                if n == 0:
-                    print(ENTRY.format("``"+p.var+"``", d, p.default).strip())
-                else:
-                    print(ENTRY.format(" ", d, " ").strip())
+        for c, params in itertools.groupby(sorted(group, key=by_category), key=by_category):
 
-            print(SEPARATOR.strip())
+            # print the heading
 
-        print("\n\n")
+            if c:
+                print(f"**{c}:**\n")
+
+            print(MAIN_HEADER.strip())
+
+            for p in params:
+                desc = list(textwrap.wrap(p.description.strip(), WRAP_LEN))
+                if not desc:
+                    desc = [""]
+
+                for n, d in enumerate(desc):
+                    if n == 0:
+                        print(ENTRY.format("``"+p.var+"``", d, p.default).strip())
+                    else:
+                        print(ENTRY.format(" ", d, " ").strip())
+
+                print(SEPARATOR.strip())
+
+            print("\n\n")
 
 def main():
 
