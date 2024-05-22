@@ -417,7 +417,7 @@ to the self-consistent nse check:
   This is set to 0.2 by default.
 
 * ``nse.T_min_nse`` is the minimum temperature required to consider
-  the subsequent NSE checks. This is mainly to avoid unnecesary computations
+  the subsequent NSE checks. This is mainly to avoid unnecessary computations
   of computing the NSE mass fractions when the current temperature is too low.
   This is set to 4.0e9 by default.
 
