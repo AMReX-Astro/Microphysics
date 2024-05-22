@@ -176,8 +176,6 @@ We determine is a zone is in NSE according to:
 
 * :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
 
-.. _self_consistent_nse:
-
 
 NSE table ranges
 ----------------
@@ -189,6 +187,8 @@ The NSE table was created for:
 * :math:`0.4 < Y_e < 0.5`
 
 
+
+.. _self_consistent_nse:
 
 Self-consistent NSE
 ===================
