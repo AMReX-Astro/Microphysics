@@ -39,13 +39,13 @@ def pretty_category(path):
     # remove the top-most directory
     subdir = path.partition('/')[2]
     if path.startswith("networks/"):
-        return f"NETWORK={subdir}"
+        return f"NETWORK_DIR={subdir}"
     if path.startswith("EOS/"):
-        return f"EOS={subdir}"
+        return f"EOS_DIR={subdir}"
     if path.startswith("conductivity/"):
-        return f"CONDUCTIVITY={subdir}"
+        return f"CONDUCTIVITY_DIR={subdir}"
     if path.startswith("integration/"):
-        return f"INTEGRATOR={subdir}"
+        return f"INTEGRATOR_DIR={subdir}"
     return path
 
 
