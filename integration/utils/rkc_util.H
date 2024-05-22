@@ -42,7 +42,7 @@ amrex::Real rkc_init_dt (BurnT& state, IntT& rstate, const amrex::Real max_times
         rstate.y(i) = ysav(i);
     }
 
-    rstate.nfe++;
+    rstate.n_rhs++;
     amrex::Real est{};
 
     // compute the weights using the tolerances
@@ -106,7 +106,7 @@ int rkcrho (BurnT& state, IntT& rstate, const amrex::Real max_timestep, amrex::R
     // the eigenvector are normalized so that their Euclidean
     // norm has the constant value dynrm.
 
-    if (rstate.nsteps == 0) {
+    if (rstate.n_step == 0) {
         for (int i = 1; i <= INT_NEQS; ++i) {
             rstate.yjm1(i) = rstate.fn(i);
         }

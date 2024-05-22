@@ -146,7 +146,7 @@ int rkclow (BurnT& state, RkcT& rstate)
     // we want to call with yn = y as the input and store the output in fn
     rhs(rstate.t, state, rstate, rstate.fn);
 
-    rstate.nfe++;
+    rstate.n_rhs++;
     amrex::Real tdir = std::copysign(1.0_rt, rstate.tout - rstate.t);
     rstate.hmax = std::abs(rstate.tout - rstate.t);
 
@@ -158,7 +158,7 @@ int rkclow (BurnT& state, RkcT& rstate)
     amrex::Real hold{};
 
     // Start of loop for taking one step.
-    while (rstate.nsteps < integrator_rp::ode_max_steps) {
+    while (rstate.n_step < integrator_rp::ode_max_steps) {
 
         // Estimate the spectral radius of the Jacobian
         // when newspc = .true..
@@ -178,7 +178,7 @@ int rkclow (BurnT& state, RkcT& rstate)
 
         // Compute an initial step size.
 
-        if (rstate.nsteps == 0) {
+        if (rstate.n_step == 0) {
             absh = rkc_init_dt(state, rstate, rstate.hmax, sprad);
         }
 
@@ -208,8 +208,8 @@ int rkclow (BurnT& state, RkcT& rstate)
                                            std::abs(rstate.t + h));
         step(state, rstate, h, m);
         rhs(rstate.t+h, state, rstate, rstate.yjm1);
-        rstate.nfe += m;
-        rstate.nsteps++;
+        rstate.n_rhs += m;
+        rstate.n_step++;
 
         // Estimate the local error and compute its weighted RMS norm.
 
@@ -346,8 +346,8 @@ int rkc (BurnT& state, RkcT& rstate)
 
     // Initialize counters and pointers.
 
-    rstate.nfe = 0;
-    rstate.nsteps = 0;
+    rstate.n_rhs = 0;
+    rstate.n_step = 0;
     rstate.naccpt = 0;
     rstate.nrejct = 0;
     rstate.nfesig = 0;

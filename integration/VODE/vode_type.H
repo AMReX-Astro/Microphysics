@@ -71,14 +71,14 @@ struct dvode_t
     // TN     = The independent variable, updated on each step taken
     amrex::Real tn;
 
-    // NFE    = The number of f evaluations for the problem so far
-    int NFE;
+    // n_rhs    = The number of f evaluations for the problem so far
+    int n_rhs;
 
-    // NJE    = The number of Jacobian evaluations so far
-    int NJE;
+    // n_jac    = The number of Jacobian evaluations so far
+    int n_jac;
 
-    // NST    = The number of steps taken for the problem so far
-    int NST;
+    // n_step    = The number of steps taken for the problem so far
+    int n_step;
 
     // ICF    = Integer flag for convergence failure in DVNLSD:
     //            0 means no failures
@@ -115,7 +115,7 @@ struct dvode_t
     // NSLJ   = The number of steps taken as of the last Jacobian update
     int NSLJ;
 
-    // NSLP   = Saved value of NST as of last Newton matrix update
+    // NSLP   = Saved value of n_step as of last Newton matrix update
     int NSLP;
 
     // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
@@ -198,9 +198,9 @@ void print_state(dvode_t<int_neqs>& dvode_state)
     std::cout << "tq(4) = " << dvode_state.tq(4) << std::endl;
     std::cout << "tq(5) = " << dvode_state.tq(5) << std::endl;
     std::cout << "tn = " << dvode_state.tn << std::endl;
-    std::cout << "NFE = " << dvode_state.NFE << std::endl;
-    std::cout << "NJE = " << dvode_state.NJE << std::endl;
-    std::cout << "NST = " << dvode_state.NST << std::endl;
+    std::cout << "n_rhs = " << dvode_state.n_rhs << std::endl;
+    std::cout << "n_jac = " << dvode_state.n_jac << std::endl;
+    std::cout << "n_step = " << dvode_state.n_step << std::endl;
     std::cout << "ICF = " << dvode_state.ICF << std::endl;
     std::cout << "IPUP = " << dvode_state.IPUP << std::endl;
     std::cout << "JCUR = " << dvode_state.JCUR << std::endl;
