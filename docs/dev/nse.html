@@ -288,17 +288,21 @@ reaction network, once the integration has reached NSE.</p>
 <section id="dynamic-nse-check">
 <h3>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Link to this heading"></a></h3>
 <p>We have implemented a dynamic NSE check for the self-consistent nse procedure
-that tells us whether the network has reached the NSE state. The overall procedure
-is outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span>. The overall usage comes down to a single function
-<code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>. By supplying the current state, this function returns a boolean that
-tells us whether we’re in NSE or not. The current status of this functionality only
-works for pynucastro-generated network since aprox networks have slightly different syntax.
-Note that we ignore this check when <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&lt;</span> <span class="pre">2.5e9</span></code>, since we don’t expect NSE to occur when
-temperature is below 2.5 billion Kelvin.</p>
-<p>There are 3 main criteria discussed in the <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span>.</p>
-<p>The overall framework is constructed following <span id="id7">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> with slight variations.</p>
+that tells us whether the network has reached the NSE state.
+The overall procedure is outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span>.
+The overall usage comes down to a single function <code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>.
+By supplying the current state, this function returns a boolean that tells us
+whether we’re in NSE or not. The current status of this functionality only works
+for pynucastro-generated network since aprox networks have slightly
+different syntax.</p>
+<p>The overall framework is constructed following <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> with slight
+variations. The overview of the steps we take are the following:</p>
 <ul>
-<li><p>We first determine whether the current molar fraction is close to NSE
+<li><p>Minimum Temperature Check: require <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&gt;</span> <span class="pre">T_min_nse</span></code>, where <code class="docutils literal notranslate"><span class="pre">T_min_nse</span></code> is
+a runtime parameter with a default value <code class="docutils literal notranslate"><span class="pre">T_min_nse</span> <span class="pre">=</span> <span class="pre">4.0e9</span></code>.</p></li>
+<li><p>Mass Abundance Check: compare the current mass abundances of the nuclei to
+the NSE mass fractions. A detailed criteria are the following:</p>
+<p>We first determine whether the current molar fraction is close to NSE
 with a criteria of:</p>
 <div class="math notranslate nohighlight">
 \[\frac{r - r_{NSE}}{r_{NSE}} &lt; 0.5\]</div>
@@ -318,7 +322,7 @@ fraction check:</p>
 \[\epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} &lt; \mbox{nse_rel_tol}\]</div>
 <p>where <code class="docutils literal notranslate"><span class="pre">nse_rel_tol</span> <span class="pre">=</span> <span class="pre">0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">nse_abs_tol</span> <span class="pre">=</span> <span class="pre">0.005</span></code> by default.</p>
 </li>
-<li><p><span id="id8">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> also requires a fast reaction cycle that
+<li><p><strong>Removed</strong> <span id="id7">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> also requires a fast reaction cycle that
 exchanges 1 <span class="math notranslate nohighlight">\(\alpha\)</span> particle with 2 <span class="math notranslate nohighlight">\(p\)</span> and 2 <span class="math notranslate nohighlight">\(n\)</span>
 particles. We used to have this check, but currently removed as
 we think it is not necessary. However, the description is as following:
@@ -340,12 +344,12 @@ are the forward and reverse rate of the reaction,
 \[\isotm{S}{32} (\gamma, p)(\gamma, p)(\gamma, n)(\gamma, n) \isotm{Si}{28}
 (\alpha, \gamma) \isotm{S}{32}\]</div>
 </li>
-<li><p>Lastly, we proceed to nuclei grouping. Initially,
-<span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and <span class="math notranslate nohighlight">\(\alpha\)</span> are grouped into a single group
+<li><p>NSE Grouping Process: Initially, <span class="math notranslate nohighlight">\(p\)</span>, <span class="math notranslate nohighlight">\(n\)</span>, and
+<span class="math notranslate nohighlight">\(\alpha\)</span> are grouped into a single group
 called the light-isotope-group, or LIG. Other isotopes belong to their
 own group, which only contains themselves. We need to start the grouping
 process with the reaction rate that has the fastest (smallest) timescale.
-In the original <span id="id9">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> paper, they use the group molar fraction
+In the original <span id="id8">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> paper, they use the group molar fraction
 for evaluating the reaction timescale. This complicates things because
 now reaction timescale changes after each successful grouping. We’ve
 determined that the result is roughly the same even if we just use the
@@ -448,6 +452,10 @@ This is set to 0.005 by default.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">nse.nse_rel_tol</span></code> is the relative tolerance of checking the
 difference between current molar fraction and the NSE molar fraction.
 This is set to 0.2 by default.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span></code> is the minimum temperature required to consider
+the subsequent NSE checks. This is mainly to avoid unnecessary computations
+of computing the NSE mass fractions when the current temperature is too low.
+This is set to 4.0e9 by default.</p></li>
 </ul>
 <p class="rubric">Footnotes</p>
 <aside class="footnote-list brackets">

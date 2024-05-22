@@ -1262,19 +1262,20 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">max_nse_iters</span></code></p></td>
-<td></td>
+<td><p>max iterations for NSE Newton-Raphson Solver</p></td>
 <td><p>500</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_hybrid_solver</span></code></p></td>
-<td></td>
+<td><p>Choose NSE solver. 1 == hybrid powell 0 == Newton-
+Raphson</p></td>
 <td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ase_tol</span></code></p></td>
-<td></td>
+<td><p>Tolerance used in the NSE-Grouping process</p></td>
 <td><p>0.1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_abs_tol</span></code></p></td>
-<td></td>
+<td><p>Tolerances for molar fraction comparison</p></td>
 <td><p>0.005</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_rel_tol</span></code></p></td>
@@ -1282,20 +1283,32 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td><p>0.2</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_dx_independent</span></code></p></td>
-<td></td>
+<td><p>Whether NSE depends on the size of the cell. This is
+the requirement that the reaction timescale must be
+smaller than the sound crossing time 1 == independent 0
+== dependent</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_molar_independent</span></code></p></td>
-<td></td>
+<td><p>Whether to use NSE mass fractions for NSE grouping This
+makes NSE Grouping process solely dependent on the
+thermodynamic condition</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_skip_molar</span></code></p></td>
-<td></td>
+<td><p>Whether the initial molar fraction check is skipped
+when integration failed.</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse_net</span></code></p></td>
-<td></td>
+<td><p>Set this to a positive number to make use simple
+temperature threshold of determining NSE after the
+initial molar fraction check.</p></td>
 <td><p>-1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_min_nse</span></code></p></td>
+<td><p>Minimum Temperature required for NSE</p></td>
+<td><p>4.0e9</p></td>
 </tr>
 </tbody>
 </table>

@@ -628,23 +628,34 @@ nse_solver
 +---------------------------------------+---------------------------------------------------------+------------------------------+
 | parameter                             | description                                             | default value                |
 +=======================================+=========================================================+==============================+
-| ``max_nse_iters``                     |                                                         | 500                          |
+| ``max_nse_iters``                     | max iterations for NSE Newton-Raphson Solver            | 500                          |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``use_hybrid_solver``                 |                                                         | 1                            |
+| ``use_hybrid_solver``                 | Choose NSE solver. 1 == hybrid powell 0 == Newton-      | 1                            |
+|                                       | Raphson                                                 |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``ase_tol``                           |                                                         | 0.1                          |
+| ``ase_tol``                           | Tolerance used in the NSE-Grouping process              | 0.1                          |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``nse_abs_tol``                       |                                                         | 0.005                        |
+| ``nse_abs_tol``                       | Tolerances for molar fraction comparison                | 0.005                        |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
 | ``nse_rel_tol``                       |                                                         | 0.2                          |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``nse_dx_independent``                |                                                         | 0                            |
+| ``nse_dx_independent``                | Whether NSE depends on the size of the cell. This is    | 0                            |
+|                                       | the requirement that the reaction timescale must be     |                              |
+|                                       | smaller than the sound crossing time 1 == independent 0 |                              |
+|                                       | == dependent                                            |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``nse_molar_independent``             |                                                         | 0                            |
+| ``nse_molar_independent``             | Whether to use NSE mass fractions for NSE grouping This | 0                            |
+|                                       | makes NSE Grouping process solely dependent on the      |                              |
+|                                       | thermodynamic condition                                 |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``nse_skip_molar``                    |                                                         | 0                            |
+| ``nse_skip_molar``                    | Whether the initial molar fraction check is skipped     | 0                            |
+|                                       | when integration failed.                                |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``T_nse_net``                         |                                                         | -1.0                         |
+| ``T_nse_net``                         | Set this to a positive number to make use simple        | -1.0                         |
+|                                       | temperature threshold of determining NSE after the      |                              |
+|                                       | initial molar fraction check.                           |                              |
++---------------------------------------+---------------------------------------------------------+------------------------------+
+| ``T_min_nse``                         | Minimum Temperature required for NSE                    | 4.0e9                        |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
 
 
