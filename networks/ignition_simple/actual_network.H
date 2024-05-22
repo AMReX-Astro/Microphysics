@@ -151,8 +151,8 @@ namespace RHS
 
     template<int rate>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t& state, rate_t& rates,
-                           rate_t& rates1, [[maybe_unused]] rate_t& rates2, [[maybe_unused]] rate_t& rates3)
+    void postprocess_rate ([[maybe_unused]] const rhs_state_t& state, [[maybe_unused]] rate_t& rates,
+                           [[maybe_unused]] rate_t& rates1, [[maybe_unused]] rate_t& rates2, [[maybe_unused]] rate_t& rates3)
     {
         using namespace Species;
         using namespace Rates;
