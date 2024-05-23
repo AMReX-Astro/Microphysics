@@ -46,6 +46,7 @@ for astrophysical simulation codes.
    :caption: ODE integrators
 
    integrators
+   ode_integrators
    nse
    sdc
 
