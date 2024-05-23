@@ -6,6 +6,9 @@
 Microphysics
 ************
 
+.. toctree::
+   :maxdepth: 1
+
    preface
 
 .. toctree::
