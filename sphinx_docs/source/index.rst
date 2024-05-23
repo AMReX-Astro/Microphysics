@@ -2,9 +2,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-************
-Microphysics
-************
+************************
+AMReX-Astro Microphysics
+************************
+
+A collection of microphysics routines (equations of state,
+reaction networks, ...) and utilities (ODE integrators, NSE solvers)
+for astrophysical simulation codes.
 
 .. toctree::
    :maxdepth: 1
