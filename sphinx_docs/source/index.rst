@@ -6,24 +6,46 @@
 Microphysics
 ************
 
+   preface
+
 .. toctree::
    :maxdepth: 1
-   :caption: Microphysics basics
+   :caption: Microphysics overview
 
-   preface
-   basics
+   getting_started
+   design
    data_structures
    rp_intro
+   unit_tests
+
+.. toctree::
+   :maxdepth: 1
+   :caption: EOS and transport
+
    eos
+   transport
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Reaction networks
+
    networks-overview
    networks
    templated_networks
    screening
+
+.. toctree::
+   :maxdepth: 1
+   :caption: ODE integrators
+
    integrators
    nse
-   transport
-   unit_tests
    sdc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: references
+
    zreferences
 
 
