@@ -119,19 +119,37 @@ to :math:`10^{-12}` for the species, and a relative tolerance of :math:`10^{-6}`
 is used for the temperature and energy.
 
 
-Renormalization
-===============
+Controlling Species $\sum_k X_k = 1$
+====================================
 
-The ``renormalize_abundances`` parameter controls whether we
-renormalize the abundances so that the mass fractions sum to one
-during a burn. This has the positive benefit that in some cases it can
-prevent the integrator from going off to infinity or otherwise go
-crazy; a possible negative benefit is that it may slow down
-convergence because it interferes with the integration
-scheme. Regardless of whether you enable this, we will always ensure
-that the mass fractions stay positive and larger than some floor
-``small_x``.
+The ODE integrators don't know about the constraint that
 
+$$\sum_k X_k = 1$$
+
+so this is only going to be preserved to the level that the integrator
+tolerances allow.  There are a few parameters that help enforce this
+constraint on the intermediate states during the integration.
+
+* ``integrator.renormalize_abundances`` : this controls whether we
+  renormalize the abundances so that the mass fractions sum to one
+  during a burn.
+
+  This has the positive benefit that in some cases it can prevent the
+  integrator from going off to infinity or otherwise go crazy; a
+  possible negative benefit is that it may slow down convergence
+  because it interferes with the integration scheme. Regardless of
+  whether you enable this, we will always ensure that the mass
+  fractions stay positive and larger than some floor ``small_x``.
+
+  This option is disabled by default.
+
+* ``integrator.SMALL_X_SAFE`` : this is the floor on the mass fractions.
+  The default is ``1.e-30``.
+
+* ``integrator.do_species_clip`` : this enforces that the mass fractions
+  all in $[\mathtt{SMALL\_X\_SAFE}, 1.0]$.
+
+  This is enabled by default.
 
 Overriding Parameter Defaults on a Network-by-Network Basis
 ===========================================================
