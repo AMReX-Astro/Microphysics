@@ -158,7 +158,16 @@ the <a class="reference external" href="https://en.wikipedia.org/wiki/Gershgorin
 is used instead.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span> integration package.  We ported this
-integrator to C++ and removed the non-stiff integration code paths.</p></li>
+integrator to C++ and removed the non-stiff integration code paths.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The VODE integrator uses Jacobian caching when run on a CPU by default.  This
+can be disabled at runtime by setting <code class="docutils literal notranslate"><span class="pre">integrator.use_jacobian_caching</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
+<p>On GPUs, we disable Jacobian caching due to the increased memory
+needs.  Jacobian caching on GPUs can be enabled by explicitly
+setting the build parameter <code class="docutils literal notranslate"><span class="pre">USE_JACOBIAN_CACHING=TRUE</span></code>.</p>
+</div>
+</li>
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
