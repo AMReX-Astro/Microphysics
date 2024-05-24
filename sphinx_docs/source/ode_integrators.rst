@@ -151,6 +151,87 @@ constraint on the intermediate states during the integration.
 
   This is enabled by default.
 
+
+Retry Mechanism
+===============
+
+Integration can fail for a number of reasons.  Some of the errors you may see are:
+
+1. Not enough steps allowed (``integrator.ode_max_steps``)
+
+2. The timestep selected by the integrator is too small (comparable to
+   roundoff)
+
+3. The final abundances do not sum to 1.
+
+There can be a number of reasons for these failures, including:
+
+* The Jacobian is not accurate enough
+
+  This can lead to issues 1 or 2 above
+
+* The integrator is not appropriate for the thermodynamic conditions
+
+  For example, the RKC integrator may be working too hard, leading to
+  issue 1.
+
+* The tolerances you are requesting are too tight
+
+  This can lead to issues 1 or 2 above
+
+* The tolerances (in particular, ``integrator.atol_spec``) are too loose
+
+  This can lead to issue 3 above
+
+* The evolution is entering NSE
+
+  This can lead to issue 1.
+
+The ``integrator()`` function that calls the actual integrator drive for
+the choice of integrator allows for a retry if a burn failure was detected.
+This is enabled by setting
+
+::
+
+   integrator.use_burn_retry = 1
+
+This will call the same integrator again, restarting from the initial conditions
+but with a different choice of tolerances and Jacobian.
+The runtime parameters that come into play when doing the retry are:
+
+* ``retry_swap_jacobian`` : do we swap that Jacobian type for the retry (i.e.
+  use the numerical Jacobian if we try the analytic Jacobian for the first attempt)
+
+* ``retry_rtol_spec`` : relative tolerance for the species on retry
+
+* ``retry_rtol_enuc`` : relative tolerance for the energy on retry
+
+* ``retry_atol_spec`` : absolute tolerance for the species on retry
+
+* ``retry_atol_enuc`` : absolute tolerance for the energy on retry
+
+.. tip::
+
+   Sometimes a simulation runs best if you set
+   ``integrator.ode_max_steps`` to a small value (like ``10000``) and
+   start with the analytic Jacobian (``integrator.jacobian = 1``) and
+   then use the retry mechanism to swap the Jacobian on any zones that fail.
+
+
+Renormalization
+===============
+
+The ``renormalize_abundances`` parameter controls whether we
+renormalize the abundances so that the mass fractions sum to one
+during a burn. This has the positive benefit that in some cases it can
+prevent the integrator from going off to infinity or otherwise go
+crazy; a possible negative benefit is that it may slow down
+convergence because it interferes with the integration
+scheme. Regardless of whether you enable this, we will always ensure
+that the mass fractions stay positive and larger than some floor
+``small_x``.
+
+
 Overriding Parameter Defaults on a Network-by-Network Basis
 ===========================================================
 
