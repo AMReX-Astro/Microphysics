@@ -52,7 +52,7 @@ the allowed options are:
      can be disabled at runtime by setting ``integrator.use_jacobian_caching = 0``.
 
      On GPUs, we disable Jacobian caching due to the increased memory needs.  This
-     is disabled at compile-time via the build parameter ``USE_JACOBIAN_CACHING``p
+     is disabled at compile-time via the build parameter ``USE_JACOBIAN_CACHING``.
 
 We recommend that you use the VODE solver, as it is the most
 robust.
