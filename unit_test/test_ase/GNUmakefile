@@ -16,12 +16,6 @@ USE_NSE_NET = TRUE
 EBASE = main
 
 
-USE_CXX_REACTIONS ?= TRUE
-
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
-
 # define the location of the Microphysics top directory
 MICROPHYSICS_HOME  := ../..
 
@@ -39,10 +33,6 @@ SCREEN_METHOD := chabrier1998
 #SCREEN_METHOD := chugunov2007
 
 INTEGRATOR_DIR =  VODE
-
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
 
 EXTERN_SEARCH += .
 
