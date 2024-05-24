@@ -34,10 +34,6 @@ SCREEN_METHOD := chabrier1998
 
 INTEGRATOR_DIR =  VODE
 
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
-
 EXTERN_SEARCH += .
 
 Bpack   := ./Make.package
