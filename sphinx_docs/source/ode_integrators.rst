@@ -46,6 +46,15 @@ the allowed options are:
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
+  .. note::
+
+     The VODE integrator uses Jacobian caching when run on a CPU by default.  This
+     can be disabled at runtime by setting ``integrator.use_jacobian_caching = 0``.
+
+     On GPUs, we disable Jacobian caching due to the increased memory
+     needs.  Jacobian caching on GPUs can be enabled by explicitly
+     setting the build parameter ``USE_JACOBIAN_CACHING=TRUE``.
+
 We recommend that you use the VODE solver, as it is the most
 robust.
 
