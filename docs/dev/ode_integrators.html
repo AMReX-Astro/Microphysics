@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Available Integrators</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#tolerances">Tolerances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#controlling-species-sum-k-x-k-1">Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#retry-mechanism">Retry Mechanism</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#renormalization">Renormalization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#overriding-parameter-defaults-on-a-network-by-network-basis">Overriding Parameter Defaults on a Network-by-Network Basis</a></li>
@@ -220,6 +221,35 @@ sections below for integrator-specific information.</p>
 <p>The absolute error tolerances are set by default
 to <span class="math notranslate nohighlight">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math notranslate nohighlight">\(10^{-6}\)</span>
 is used for the temperature and energy.</p>
+</section>
+<section id="controlling-species-sum-k-x-k-1">
+<h2>Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span><a class="headerlink" href="#controlling-species-sum-k-x-k-1" title="Link to this heading"></a></h2>
+<p>The ODE integrators don’t know about the constraint that</p>
+<p><div class="math notranslate nohighlight">
+\[\sum_k X_k = 1\]</div>
+</p>
+<p>so this is only going to be preserved to the level that the integrator
+tolerances allow.  There are a few parameters that help enforce this
+constraint on the intermediate states during the integration.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.renormalize_abundances</span></code> : this controls whether we
+renormalize the abundances so that the mass fractions sum to one
+during a burn.</p>
+<p>This has the positive benefit that in some cases it can prevent the
+integrator from going off to infinity or otherwise go crazy; a
+possible negative benefit is that it may slow down convergence
+because it interferes with the integration scheme. Regardless of
+whether you enable this, we will always ensure that the mass
+fractions stay positive and larger than some floor <code class="docutils literal notranslate"><span class="pre">small_x</span></code>.</p>
+<p>This option is disabled by default.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.SMALL_X_SAFE</span></code> : this is the floor on the mass fractions.
+The default is <code class="docutils literal notranslate"><span class="pre">1.e-30</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.do_species_clip</span></code> : this enforces that the mass fractions
+all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.0]\)</span>.</p>
+<p>This is enabled by default.</p>
+</li>
+</ul>
 </section>
 <section id="retry-mechanism">
 <h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
