@@ -86,7 +86,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#tolerances">Tolerances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#controlling-species-sum-k-x-k-1">Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#retry-mechanism">Retry Mechanism</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#renormalization">Renormalization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#overriding-parameter-defaults-on-a-network-by-network-basis">Overriding Parameter Defaults on a Network-by-Network Basis</a></li>
 </ul>
 </li>
@@ -312,18 +311,6 @@ use the numerical Jacobian if we try the analytic Jacobian for the first attempt
 start with the analytic Jacobian (<code class="docutils literal notranslate"><span class="pre">integrator.jacobian</span> <span class="pre">=</span> <span class="pre">1</span></code>) and
 then use the retry mechanism to swap the Jacobian on any zones that fail.</p>
 </div>
-</section>
-<section id="renormalization">
-<h2>Renormalization<a class="headerlink" href="#renormalization" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code> parameter controls whether we
-renormalize the abundances so that the mass fractions sum to one
-during a burn. This has the positive benefit that in some cases it can
-prevent the integrator from going off to infinity or otherwise go
-crazy; a possible negative benefit is that it may slow down
-convergence because it interferes with the integration
-scheme. Regardless of whether you enable this, we will always ensure
-that the mass fractions stay positive and larger than some floor
-<code class="docutils literal notranslate"><span class="pre">small_x</span></code>.</p>
 </section>
 <section id="overriding-parameter-defaults-on-a-network-by-network-basis">
 <h2>Overriding Parameter Defaults on a Network-by-Network Basis<a class="headerlink" href="#overriding-parameter-defaults-on-a-network-by-network-basis" title="Link to this heading"></a></h2>
