@@ -32,6 +32,27 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
    to the energy release from the changing binding energy of the
    fusion products.
 
+.. index:: integrator.use_number_densities
+
+.. note::
+
+   By setting ``integrator.use_number_densities=1``, number densities will be
+   integrated intead of mass fractions.  This makes the system:
+
+   .. math::
+      \frac{dn_k}{dt} = \dot{\omega}_k(\rho,n_k,T)
+      :label: eq:spec_n_integrate
+
+   .. math::
+      \frac{de}{dt} = f(\rho,n_k,T)
+      :label: eq:enuc_n_integrate
+
+   The effect of this flag in the integrators is that we don't worry
+   above converting between mass and molar fractions when calling the
+   righthand side function and Jacobian, and we don't do any normalization
+   requiring $\sum_k X_k = 1$.
+
+
 While this is the most common way to construct the set of
 burn equations, and is used in most of our production networks,
 all of them are ultimately implemented by the network itself, which
@@ -43,10 +64,10 @@ are always explicitly done by the individual networks rather than
 being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.
 
-.. index:: react_boost
+.. index:: integrtor.react_boost
 
 The standard reaction rates can all be boosted by a constant factor by
-setting the ``react_boost`` runtime parameter.  This will simply
+setting the ``integrator.react_boost`` runtime parameter.  This will simply
 multiply the righthand sides of each species evolution equation (and
 appropriate Jacobian terms) by the specified constant amount.
 
