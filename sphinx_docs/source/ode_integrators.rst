@@ -227,20 +227,6 @@ The runtime parameters that come into play when doing the retry are:
    then use the retry mechanism to swap the Jacobian on any zones that fail.
 
 
-Renormalization
-===============
-
-The ``renormalize_abundances`` parameter controls whether we
-renormalize the abundances so that the mass fractions sum to one
-during a burn. This has the positive benefit that in some cases it can
-prevent the integrator from going off to infinity or otherwise go
-crazy; a possible negative benefit is that it may slow down
-convergence because it interferes with the integration
-scheme. Regardless of whether you enable this, we will always ensure
-that the mass fractions stay positive and larger than some floor
-``small_x``.
-
-
 Overriding Parameter Defaults on a Network-by-Network Basis
 ===========================================================
 
