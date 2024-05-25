@@ -37,7 +37,7 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
 .. note::
 
    By setting ``integrator.use_number_densities=1``, number densities will be
-   integrated intead of mass fractions.  This makes the system:
+   integrated instead of mass fractions.  This makes the system:
 
    .. math::
       \frac{dn_k}{dt} = \dot{\omega}_k(\rho,n_k,T)
