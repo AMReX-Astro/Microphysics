@@ -48,7 +48,7 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
       :label: eq:enuc_n_integrate
 
    The effect of this flag in the integrators is that we don't worry
-   above converting between mass and molar fractions when calling the
+   about converting between mass and molar fractions when calling the
    righthand side function and Jacobian, and we don't do any normalization
    requiring $\sum_k X_k = 1$.
 
@@ -64,7 +64,7 @@ are always explicitly done by the individual networks rather than
 being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.
 
-.. index:: integrtor.react_boost
+.. index:: integrator.react_boost
 
 The standard reaction rates can all be boosted by a constant factor by
 setting the ``integrator.react_boost`` runtime parameter.  This will simply
