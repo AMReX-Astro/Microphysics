@@ -328,7 +328,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // Get updated temperature
 
     if (T_fixed > 0) {
-        T0 = T_fixed;
+        burn_state.T = T_fixed;
     } else {
         burn_state.e= rhoe0 / rho0;
         eos(eos_input_re, burn_state);
@@ -350,7 +350,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     amrex::Real abar{0.0};
     for (int n = 0; n < NumSpec; ++n) {
-        abar += state.y[SFS+n] * aion_inv[n-1] / rho_old;
+        abar += nse_state0.xn[n] * aion_inv[n];
     }
     abar = 1.0 / abar;
 
@@ -413,7 +413,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     amrex::Real rho1 = rho0 + tau * ydot_a[SRHO];
     amrex::Real rhoe1 = rhoe0 + tau * ydot_a[SEINT] + tau * rhoe_source;
-    amrex::Real rhoYe1 = rho*Ye0 + tau * rho_dyedt;
+    amrex::Real rhoYe1 = rhoYe0 + tau * rho_dyedt;
 
     // update burn_state
 
@@ -423,7 +423,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // compute the temperature at t0 + tau
 
     if (T_fixed > 0) {
-        T0 = T_fixed;
+        burn_state.T = T_fixed;
     } else {
         burn_state.e= rhoe1 / rho1;
         eos(eos_input_re, burn_state);
@@ -441,7 +441,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     drhoedt = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
-        drhoedt += (rho1 * nse_state1.xn[n] - tau * state.ydot_a[SFS+n] -
+        drhoedt += (rho1 * nse_state1.xn[n] - tau * ydot_a[SFS+n] -
                     rho0 * nse_state0.xn[n]) * aion_inv[n] * network::mion(n+1) / tau
 	}
     drhoedt *= C::Legacy::enuc_conv2;
@@ -464,8 +464,6 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
-
-    using namespace AuxZero;
 
     state.success = true;
     state.n_rhs = 0;
@@ -525,8 +523,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
-    if (T_fixed > 0) {
-        T0 = T_fixed;
+    if (state.T_fixed > 0) {
+        burn_state.T = T_fixed;
     } else {
         burn_state.e = rhoe_new / rho_new;
         eos(eos_input_re, burn_state);
