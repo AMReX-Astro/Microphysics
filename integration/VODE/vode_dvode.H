@@ -33,6 +33,10 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     int istate = IERR_SUCCESS;
 
+    // set the (inverse of the)_ timestep limiter
+
+    vstate.HMXI = 1.0_rt / integrator_rp::ode_max_dt;
+
     // Return if the final time matches the starting time.
 
     if (vstate.tout == vstate.t) {

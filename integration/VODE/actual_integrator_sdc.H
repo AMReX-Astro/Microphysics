@@ -35,9 +35,6 @@ void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
     vode_state.t = 0.0_rt;
     vode_state.tout = dt;
 
-    // Set the (inverse of the) timestep limiter.
-
-    vode_state.HMXI = 1.0_rt / ode_max_dt;
 
     // set the Jacobian type
     if (is_retry && integrator_rp::retry_swap_jacobian) {
