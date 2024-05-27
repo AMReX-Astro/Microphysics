@@ -304,7 +304,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 /// Self-Consistent NSE VERSION
 
 ///
-/// this acts as an explicit Euler step for the system (rho e, rho aux)
+/// this acts as an explicit Euler step for the system (rho e, rho ye)
 /// on input, *_source are the reactive sources at time t0 and on output
 /// they are the sources at time t0+dt
 ///
@@ -334,9 +334,13 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
         eos(eos_input_re, burn_state);
     }
 
+    // Find NSE state at t0
+
+    amrex::Real eps = 1.0e-10_rt;
+    bool input_ye_is_valid = true;
+    auto nse_state0 = get_actual_nse_state(burn_state, eps, input_ye_is_valid);
+
     // compute the plasma neutrino losses at t0
-	// we want to use the state that we
-    // came in here with, so the original Abar and Zbar
 
     amrex::Real snu{0.0};
     amrex::Real dsnudt{0.0};
@@ -345,13 +349,12 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     amrex::Real dsnudz{0.0};
 
     amrex::Real abar{0.0};
-    amrex::Real zbar{0.0};
     for (int n = 0; n < NumSpec; ++n) {
-        abar += X_old[n] * aion_inv[n];
-        zbar += X_old[n] * zion[n] * aion_inv[n];
+        abar += state.y[SFS+n] * aion_inv[n-1] / rho_old;
     }
     abar = 1.0 / abar;
-    zbar *= abar;
+
+    amrex::Real zbar = abar * burn_state.y_e;
 
 #ifdef NEUTRINOS
     {
@@ -361,52 +364,48 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     }
 #endif
 
-	amrex::Real eps = 1.0e-10_rt;
-	bool input_ye_is_valid = true;
-	auto nse_state0 = get_actual_nse_state(burn_state, eps, input_ye_is_valid);
+    // Get molar fractions, ydots and neutrino loss due to weak rates
 
-	// Get molar fractions, ydots and neutrino loss due to weak rates
+    amrex::Array1D<amrex::Real, 1, NumSpec> Y;
+    amrex::Array1D<amrex::Real, 1, neqs> ydot_weak;
+    amrex::Real e_nu = 0.0_rt;
 
-	amrex::Array1D<amrex::Real, 1, NumSpec> Y;
-	amrex::Array1D<amrex::Real, 1, neqs> ydot_weak;
-	amrex::Real e_nu = 0.0_rt;
+    for (int n = 1; n <= NumSpec; ++n) {
+        Y(n) = nse_state0.xn[n-1] * aion_inv[n-1];
+    }
 
-	for (int n = 1; n <= NumSpec; ++n) {
-		Y(n) = nse_state0.xn[n-1] * aion_inv[n-1];
-	}
+    // Fill in ydot with only weak rates contributing
 
-	// Fill in ydot with only weak rates contributing
+    get_ydot_weak(nse_state0, ydot_weak, e_nu, Y);
 
-	get_ydot_weak(nse_state0, ydot_weak, e_nu, Y);
+    // Find dyedt from ydot
+    // Even though we don't use it to find enuc
+    // need dyedt to find evolution in Ye to determine new state.
 
-	// Find dyedt from ydot
-	// Even though we don't use it to find enuc
-	// need dyedt to find evolution in Ye to determine new state.
+    for (int n = 1; n <= NumSpec; ++n) {
+        rho_dyedt += rho0 * ydot_weak(n) * zion[n-1];
+    }
 
-	for (int n = 1; n <= NumSpec; ++n) {
-		rho_dyedt += rho0 * ydot_weak(n) * zion[n-1];
-	}
-
-	///
+    ///
     /// construct initial sources at t0
-	///
+    ///
 
-	amrex::Real rhoe_source = 0.0_rt;
+    amrex::Real rhoe_source = 0.0_rt;
     for (int n = 1; n <= NumSpec; ++n) {
         rhoe_source += rho0 * ydot_weak(n) * network::mion(n);
     }
     rhoe_source *= C::Legacy::enuc_conv2;
 
-	// include plasma neutrino terms
+    // include plasma neutrino terms
 
-	rhoe_source -= rho0 * snu;
+    rhoe_source -= rho0 * snu;
 
-	// include neutrino loss terms from weak rates
-	// Note that e_nu here is already negative so we add here.
+    // include neutrino loss terms from weak rates
+    // Note that e_nu here is already negative so we add here.
 
     if (integrator_rp::nse_include_enu_weak == 1) {
         rhoe_source += rho0 * e_nu;
-	}
+    }
 
     // evolve for eps * dt;
 
@@ -414,7 +413,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     amrex::Real rho1 = rho0 + tau * ydot_a[SRHO];
     amrex::Real rhoe1 = rhoe0 + tau * ydot_a[SEINT] + tau * rhoe_source;
-	amrex::Real rhoYe1 = rho*Ye0 + tau * rho_dyedt;
+    amrex::Real rhoYe1 = rho*Ye0 + tau * rho_dyedt;
 
     // update burn_state
 
@@ -434,27 +433,27 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     // Note this new NSE state has the contribution from advection
 
-	auto nse_state1 = get_actual_nse_state(burn_state, eps, input_ye_is_valid);
+    auto nse_state1 = get_actual_nse_state(burn_state, eps, input_ye_is_valid);
 
     // construct the finite-difference approximation to the derivatives
 
     // subtract off advection contribution to get pure drhoedt from reaction
 
-	drhoedt = 0.0_rt;
-	for (int n = 0; n < NumSpec; ++n) {
-		drhoedt += (rho1 * nse_state1.xn[n] - tau * state.ydot_a[SFS+n] -
+    drhoedt = 0.0_rt;
+    for (int n = 0; n < NumSpec; ++n) {
+        drhoedt += (rho1 * nse_state1.xn[n] - tau * state.ydot_a[SFS+n] -
                     rho0 * nse_state0.xn[n]) * aion_inv[n] * network::mion(n+1) / tau
 	}
     drhoedt *= C::Legacy::enuc_conv2;
 
     // Should I call sneut5 and recalculate e_nu here?
 
-	// include neutrino terms again
+    // include neutrino terms again
 
-	drhoedt -= rho * snu;
+    drhoedt -= rho * snu;
     if (integrator_rp::nse_include_enu_weak == 1) {
         drhoedt += rho0 * e_nu;
-	}
+    }
 }
 
 
@@ -535,9 +534,9 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // With updated rho, temp, ye, get final NSE state
 
-	amrex::Real eps = 1.0e-10_rt;
-	bool input_ye_is_valid = true;
-	auto nse_state = get_actual_nse_state(burn_state, eps, input_ye_is_valid);
+    amrex::Real eps = 1.0e-10_rt;
+    bool input_ye_is_valid = true;
+    auto nse_state = get_actual_nse_state(burn_state, eps, input_ye_is_valid);
 
     // store the new state
     // make sure they are normalized
