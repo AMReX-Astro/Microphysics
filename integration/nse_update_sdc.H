@@ -321,7 +321,6 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     burn_t burn_state;
     burn_state.rho = rho0;
-    burn_state.y_e = rhoYe0 / rho0;
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
@@ -335,6 +334,8 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     }
 
     // Find NSE state at t0
+
+    burn_state.y_e = rhoYe0 / rho0;
 
     amrex::Real eps = 1.0e-10_rt;
     bool input_ye_is_valid = true;
@@ -418,7 +419,6 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // update burn_state
 
     burn_state.rho = rho1;
-    burn_state.y_e = rhoYe1 / rho1;
 
     // compute the temperature at t0 + tau
 
@@ -430,6 +430,8 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     }
 
     // call NSE at t0 + tau
+
+    burn_state.y_e = rhoYe1 / rho1;
 
     // Note this new NSE state has the contribution from advection
 
@@ -519,7 +521,6 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     burn_t burn_state;
     burn_state.rho = rho_new;
-    burn_state.y_e = rhoye_new / rho_new;
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
 
@@ -529,6 +530,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
         burn_state.e = rhoe_new / rho_new;
         eos(eos_input_re, burn_state);
     }
+
+    // update y_e here
+    // must be called after eos to avoid y_e = 0
+
+    burn_state.y_e = rhoye_new / rho_new;
 
     // With updated rho, temp, ye, get final NSE state
 
