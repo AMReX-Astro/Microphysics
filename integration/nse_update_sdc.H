@@ -359,7 +359,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 #ifdef NEUTRINOS
     {
         constexpr int do_derivatives = 0;
-        sneut5<do_derivatives>(T_in, rho0, abar, zbar,
+        sneut5<do_derivatives>(nse_state0.T, rho0, abar, zbar,
                                snu, dsnudt, dsnudd, dsnuda, dsnudz);
     }
 #endif
@@ -450,7 +450,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     // include neutrino terms again
 
-    drhoedt -= rho * snu;
+    drhoedt -= rho0 * snu;
     if (integrator_rp::nse_include_enu_weak == 1) {
         drhoedt += rho0 * e_nu;
     }
@@ -524,7 +524,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     burn_state.mu_n = mu_n;
 
     if (state.T_fixed > 0) {
-        burn_state.T = T_fixed;
+        burn_state.T = state.T_fixed;
     } else {
         burn_state.e = rhoe_new / rho_new;
         eos(eos_input_re, burn_state);
