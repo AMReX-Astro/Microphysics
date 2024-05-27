@@ -215,20 +215,20 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic(const int ir0, const int it0, const int ic0,
               const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    amrex::Real yes[] = {nse_table_ye(ic0),
-                  nse_table_ye(ic0+1),
-                  nse_table_ye(ic0+2),
-                  nse_table_ye(ic0+3)};
+    const amrex::Real yes[] = {nse_table_ye(ic0),
+                               nse_table_ye(ic0+1),
+                               nse_table_ye(ic0+2),
+                               nse_table_ye(ic0+3)};
 
-    amrex::Real Ts[] = {nse_table_logT(it0),
-                 nse_table_logT(it0+1),
-                 nse_table_logT(it0+2),
-                 nse_table_logT(it0+3)};
+    const amrex::Real Ts[] = {nse_table_logT(it0),
+                              nse_table_logT(it0+1),
+                              nse_table_logT(it0+2),
+                              nse_table_logT(it0+3)};
 
-    amrex::Real rhos[] = {nse_table_logrho(ir0),
-                   nse_table_logrho(ir0+1),
-                   nse_table_logrho(ir0+2),
-                   nse_table_logrho(ir0+3)};
+    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+                                nse_table_logrho(ir0+1),
+                                nse_table_logrho(ir0+2),
+                                nse_table_logrho(ir0+3)};
 
     // first do the 16 ye interpolations
 
@@ -238,10 +238,10 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
-            amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -255,7 +255,7 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
 
     for (int ii = 0; ii < 4; ++ii) {
 
-        amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
+        const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
         d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
     }
 
@@ -276,20 +276,20 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
                  const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    amrex::Real yes[] = {nse_table_ye(ic0),
-                  nse_table_ye(ic0+1),
-                  nse_table_ye(ic0+2),
-                  nse_table_ye(ic0+3)};
+    const amrex::Real yes[] = {nse_table_ye(ic0),
+                               nse_table_ye(ic0+1),
+                               nse_table_ye(ic0+2),
+                               nse_table_ye(ic0+3)};
 
-    amrex::Real Ts[] = {nse_table_logT(it0),
-                 nse_table_logT(it0+1),
-                 nse_table_logT(it0+2),
-                 nse_table_logT(it0+3)};
+    const amrex::Real Ts[] = {nse_table_logT(it0),
+                              nse_table_logT(it0+1),
+                              nse_table_logT(it0+2),
+                              nse_table_logT(it0+3)};
 
-    amrex::Real rhos[] = {nse_table_logrho(ir0),
-                   nse_table_logrho(ir0+1),
-                   nse_table_logrho(ir0+2),
-                   nse_table_logrho(ir0+3)};
+    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+                                nse_table_logrho(ir0+1),
+                                nse_table_logrho(ir0+2),
+                                nse_table_logrho(ir0+3)};
 
     // first do the 16 ye interpolations
 
@@ -299,10 +299,10 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
-            amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -316,7 +316,7 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
 
     for (int jj = 0; jj < 4; ++jj) {
 
-        amrex::Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
+        const amrex::Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
         d2[jj] = cubic(rhos, _d, nse_table_size::dlogrho, rho);
     }
 
@@ -339,20 +339,20 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
                    const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    amrex::Real yes[] = {nse_table_ye(ic0),
-                  nse_table_ye(ic0+1),
-                  nse_table_ye(ic0+2),
-                  nse_table_ye(ic0+3)};
+    const amrex::Real yes[] = {nse_table_ye(ic0),
+                               nse_table_ye(ic0+1),
+                               nse_table_ye(ic0+2),
+                               nse_table_ye(ic0+3)};
 
-    amrex::Real Ts[] = {nse_table_logT(it0),
-                 nse_table_logT(it0+1),
-                 nse_table_logT(it0+2),
-                 nse_table_logT(it0+3)};
+    const amrex::Real Ts[] = {nse_table_logT(it0),
+                              nse_table_logT(it0+1),
+                              nse_table_logT(it0+2),
+                              nse_table_logT(it0+3)};
 
-    amrex::Real rhos[] = {nse_table_logrho(ir0),
-                   nse_table_logrho(ir0+1),
-                   nse_table_logrho(ir0+2),
-                   nse_table_logrho(ir0+3)};
+    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+                                nse_table_logrho(ir0+1),
+                                nse_table_logrho(ir0+2),
+                                nse_table_logrho(ir0+3)};
 
     // first do the 16 ye interpolations
 
@@ -362,10 +362,10 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
-            amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -379,7 +379,7 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
 
     for (int ii = 0; ii < 4; ++ii) {
 
-        amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
+        const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
         d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
     }
 
