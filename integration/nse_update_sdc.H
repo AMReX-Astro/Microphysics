@@ -383,6 +383,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // Even though we don't use it to find enuc
     // need dyedt to find evolution in Ye to determine new state.
 
+    rho_dyedt = 0.0_rt;
     for (int n = 1; n <= NumSpec; ++n) {
         rho_dyedt += rho0 * ydot_weak(n) * zion[n-1];
     }
@@ -488,7 +489,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // do an RK2 integration
 
-    // get the derivatives at t = t^n
+    // get the derivatives, rho_dyedt, drhoedt, at t = t^n
 
     amrex::Real drhoedt{0.0_rt};
     amrex::Real rho_dyedt{0.0_rt};
