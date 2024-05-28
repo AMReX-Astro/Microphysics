@@ -19,7 +19,52 @@ script.
 
    Most of these tests work with MPI+OpenMP, MPI+CUDA, and MPI+HIP
 
-The current list of tests are:
+Tests are divided into three categories:
+
+* *comprehensive tests* work on a cube of data (usually
+  $\rho$, $T$, and composition varying along the three dimensions) and
+  are meant to exercise a wide range of input conditions.
+
+  These are mainly used for regression testsing.
+
+* *one-zone tests* allow you to evaluate the conditions for a
+  particular thermodynamic state.
+
+  These are often used for interactive explorations and within the CI.
+
+* *infrastructure tests* test small bits of the solver, function
+  interfaces, or runtime infrastructure.  These are not really meant for
+  exploring the actual thermodynamic state.
+
+
+
+Comprehensive tests
+===================
+
+* ``test_aprox_rates``
+
+* ``test_conductivity``
+
+* ``test_eos``
+
+* ``test_jac``
+
+* ``test_neutrino_cooling``
+
+* ``test_react``
+
+* ``test_rhs``
+
+* ``test_screening``
+
+* ``test_screening_templated``
+
+* ``test_sdc``
+
+
+
+One-zone tests
+==============
 
 * ``burn_cell``
 
@@ -31,36 +76,20 @@ The current list of tests are:
 
 * ``nse_table_cell``
 
-* ``test_aprox_rates``
-
 * ``test_ase``
 
-* ``test_conductivity``
+* ``test_nse``
 
-* ``test_eos``
+* ``test_part_func``
 
-* ``test_jac``
+
+Infrastructure tests
+====================
 
 * ``test_linear_algebra``
-
-* ``test_neutrino_cooling``
-
-* ``test_nse``
 
 * ``test_nse_interp``
 
 * ``test_parameters``
-
-* ``test_part_func``
-
-* ``test_react``
-
-* ``test_rhs``
-
-* ``test_screening``
-
-* ``test_screening_templated``
-
-* ``test_sdc``
 
 * ``test_sdc_vode_rhs``
