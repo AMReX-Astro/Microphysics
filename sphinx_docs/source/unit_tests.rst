@@ -25,7 +25,7 @@ Tests are divided into three categories:
   $\rho$, $T$, and composition varying along the three dimensions) and
   are meant to exercise a wide range of input conditions.
 
-  These are mainly used for regression testsing.
+  These are mainly used for regression testing.
 
 * *one-zone tests* allow you to evaluate the conditions for a
   particular thermodynamic state.
