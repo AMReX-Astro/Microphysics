@@ -23,7 +23,6 @@ for astrophysical simulation codes.
    design
    data_structures
    rp_intro
-   unit_tests
 
 .. toctree::
    :maxdepth: 1
@@ -52,7 +51,15 @@ for astrophysical simulation codes.
 
 .. toctree::
    :maxdepth: 1
-   :caption: references
+   :caption: Unit tests
+
+   unit_tests
+   comprehensive_tests
+   one_zone_tests
+
+.. toctree::
+   :maxdepth: 1
+   :caption: References
 
    zreferences
 
