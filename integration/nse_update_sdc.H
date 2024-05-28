@@ -310,9 +310,9 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
-                const amrex::Real rhoYe0, const amrex::Real dt,
+                const amrex::Real Ye0, const amrex::Real dt,
                 const amrex::Real mu_p, const amrex::Real mu_n,
-                const amrex::Real *ydot_a, amrex::Real& rho_dyedt,
+                const amrex::Real *ydot_a, amrex::Real& dyedt,
                 amrex::Real& drhoedt, const amrex::Real T_fixed) {
 
     // start with the current state and compute T
@@ -329,13 +329,13 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     if (T_fixed > 0) {
         burn_state.T = T_fixed;
     } else {
-        burn_state.e= rhoe0 / rho0;
+        burn_state.e = rhoe0 / rho0;
         eos(eos_input_re, burn_state);
     }
 
     // Find NSE state at t0
 
-    burn_state.y_e = rhoYe0 / rho0;
+    burn_state.y_e = Ye0;
 
     amrex::Real eps = 1.0e-10_rt;
     bool input_ye_is_valid = true;
@@ -383,9 +383,9 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // Even though we don't use it to find enuc
     // need dyedt to find evolution in Ye to determine new state.
 
-    rho_dyedt = 0.0_rt;
+    dyedt = 0.0_rt;
     for (int n = 1; n <= NumSpec; ++n) {
-        rho_dyedt += rho0 * ydot_weak(n) * zion[n-1];
+        dyedt += ydot_weak(n) * zion[n-1];
     }
 
     ///
@@ -415,7 +415,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     amrex::Real rho1 = rho0 + tau * ydot_a[SRHO];
     amrex::Real rhoe1 = rhoe0 + tau * ydot_a[SEINT] + tau * rhoe_source;
-    amrex::Real rhoYe1 = rhoYe0 + tau * rho_dyedt;
+    amrex::Real Ye1 = Ye0 + tau * dyedt;
 
     // update burn_state
 
@@ -432,7 +432,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     // call NSE at t0 + tau
 
-    burn_state.y_e = rhoYe1 / rho1;
+    burn_state.y_e = Ye1;
 
     // Note this new NSE state has the contribution from advection
 
@@ -476,7 +476,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real rho_old = state.y[SRHO];
     amrex::Real rhoe_old = state.y[SEINT];
-    amrex::Real rhoye_old = rho_old * state.y_e;
+    amrex::Real ye_old = state.y_e;
     amrex::Real mu_p = state.mu_p;
     amrex::Real mu_n = state.mu_n;
 
@@ -492,31 +492,31 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // get the derivatives, rho_dyedt, drhoedt, at t = t^n
 
     amrex::Real drhoedt{0.0_rt};
-    amrex::Real rho_dyedt{0.0_rt};
+    amrex::Real dyedt{0.0_rt};
 
-    nse_derivs(rho_old, rhoe_old, rhoye_old,
+    nse_derivs(rho_old, rhoe_old, ye_old,
                dt, mu_p, mu_n,
-               state.ydot_a, rho_dyedt,
+               state.ydot_a, dyedt,
                drhoedt, state.T_fixed);
 
     // evolve to the midpoint in time
 
     amrex::Real rho_tmp = rho_old + 0.5_rt * dt * state.ydot_a[SRHO];
     amrex::Real rhoe_tmp = rhoe_old + 0.5_rt * dt * (state.ydot_a[SEINT] + drhoedt);
-    amrex::Real rhoye_tmp = rhoye_old + 0.5_rt * dt * rho_dyedt;
+    amrex::Real ye_tmp = ye_old + 0.5_rt * dt * dyedt;
 
     // compute the derivatives at the midpoint in time
 
-    nse_derivs(rho_tmp, rhoe_tmp, rhoye_tmp,
+    nse_derivs(rho_tmp, rhoe_tmp, ye_tmp,
                dt, mu_p, mu_n,
-               state.ydot_a, rho_dyedt,
+               state.ydot_a, dyedt,
                drhoedt, state.T_fixed);
 
     // evolve to the new time
 
     amrex::Real rho_new = rho_old + dt * state.ydot_a[SRHO];
     amrex::Real rhoe_new = rhoe_old + dt * (state.ydot_a[SEINT] + drhoedt);
-    amrex::Real rhoye_new = rhoye_old + dt * rho_dyedt;
+    amrex::Real ye_new = ye_old + dt * dyedt;
 
     // Update the temperature with new internal energy
 
@@ -535,7 +535,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // update y_e here
     // must be called after eos to avoid y_e = 0
 
-    burn_state.y_e = rhoye_new / rho_new;
+    burn_state.y_e = ye_new;
 
     // With updated rho, temp, ye, get final NSE state
 
