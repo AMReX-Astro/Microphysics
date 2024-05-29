@@ -55,9 +55,6 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
 
     // Set the tolerances.
 
-    // we use 1-based indexing inside of the integrator, so we need to
-    // shift the indices SRHO, SFS, etc by 1
-
     amrex::Real sdc_min_density =
         amrex::min(state.rho,
                    state.rho_orig + state.ydot_a[SRHO] * dt);
