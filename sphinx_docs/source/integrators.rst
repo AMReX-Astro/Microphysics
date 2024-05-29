@@ -2,7 +2,7 @@
 Reaction ODE System
 *******************
 
-.. note::
+.. important::
 
    This describes the integration done when doing Strang operator-splitting, which is the
    default mode of coupling burning to application codes.
@@ -122,6 +122,8 @@ The overall flow of the integrator is (using VODE as the example):
 
 #. normalize the abundances so they sum to 1.
 
+.. index:: integrator.subtract_internal_energy
+
 .. note::
 
    Upon exit, ``burn_t burn_state.e`` is the energy *released* during
@@ -134,7 +136,7 @@ The overall flow of the integrator is (using VODE as the example):
 Network Routines
 ----------------
 
-.. note::
+.. important::
 
    Microphysics integrates the reaction system in terms of mass
    fractions, :math:`X_k`, but most astrophysical networks use molar
@@ -179,7 +181,7 @@ be computed as:
           y(i) = state.xn[i-1] * aion_inv[i-1];
       }
 
-.. note::
+.. warning::
 
    We use 1-based indexing for ``ydot`` for legacy reasons, so watch out when filling in
    this array based on 0-indexed C arrays.
@@ -227,8 +229,17 @@ flow is (for VODE):
 Jacobian implementation
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The Jacobian is provided by ``actual_jac(state, jac)``, and takes the
-form:
+.. index:: integrator.jacobian
+
+Either an analytic or numerical Jacobian is used for the implicit
+integrators, selected via the ``integrator.jacobian`` runtime
+parameter (``1`` = analytic; ``2`` = numerical).  For VODE, the
+numerical Jacobian is computed internally.  For the other integrators,
+a difference method is implemented in
+``integration/utils/numerical_jacobian.H``.
+
+The analytic Jacobian is specific to each network and is provided by
+``actual_jac(state, jac)``.  It takes the form:
 
 .. code-block:: c++
 
@@ -260,10 +271,11 @@ The form looks like:
    \end{matrix}
    \right )
 
-Note: a network is not required to compute a Jacobian if a numerical
-Jacobian is used. This is set with the runtime parameter
-``jacobian`` = 2, and implemented directly in VODE or via
-``integration/utils/numerical_jacobian.H`` for other integrators.
+.. note::
+
+   A network is not required to provide a Jacobian if a numerical
+   Jacobian is used.
+
 
 Jacobian wrapper
 ^^^^^^^^^^^^^^^^
@@ -279,13 +291,15 @@ flow is (for VODE):
    wrapper above which did the ``clean_state`` and
    ``update_thermodynamics`` calls.
 
-#. call ``integrator_to_burn`` to update the ``burn_t``
+.. index:: integrator.react_boost
+
+#. call ``integrator_to_burn()`` to update the ``burn_t``
 
 #. call ``actual_jac()`` to have the network fill the Jacobian array
 
 #. convert the derivative to be mass-fraction-based
 
-#. apply any boosting to the rates if ``react_boost`` > 0
+#. apply any boosting to the rates if ``integrator.react_boost`` > 0
 
 
 
@@ -295,22 +309,29 @@ Thermodynamics and :math:`e` Evolution
 ======================================
 
 The thermodynamic equation in our system is the evolution of the internal energy,
-:math:`e`. (Note: when the system is integrated in an operator-split approach,
-this responds only to the nuclear energy release and not pdV work.)
+:math:`e`.
+
+.. note::
+
+   When the system is integrated in an operator-split approach, the
+   energy equation accounts for only the nuclear energy release and
+   not pdV work.
 
 At initialization, :math:`e` is set to the value from the EOS consistent
 with the initial temperature, density, and composition:
 
-.. math:: e_0 = e(\rho_0, T_0, {X_k}_0)
+.. math::
 
-In the integration routines, this is termed the “energy offset”.
+   e_0 = e(\rho_0, T_0, {X_k}_0)
+
+In the integration routines, this is termed the *energy offset*.
 
 As the system is integrated, :math:`e` is updated to account for the
 nuclear energy release,
 
 .. math:: e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt
 
-Upon exit, we subtract off this initial offset, so ``state.e`` in
+As noted above, upon exit, we subtract off this initial offset, so ``state.e`` in
 the returned ``burn_t`` type from the ``actual_integrator``
 call represents the energy *release* during the burn.
 
@@ -318,15 +339,13 @@ Integration of Equation :eq:`eq:enuc_integrate`
 requires an evaluation of the temperature at each integration step
 (since the RHS for the species is given in terms of :math:`T`, not :math:`e`).
 This involves an EOS call and is the default behavior of the integration.
-
-If desired, the EOS call can be skipped and the temperature kept
-frozen over the entire time interval of the integration.  This is done
-by setting ``integrator.call_eos_in_rhs = 0``.
-
 Note also that for the Jacobian, we need the specific heat, :math:`c_v`, since we
 usually calculate derivatives with respect to temperature (as this is the form
-the rates are commonly provided in). We use the specific heat at constant volume
-because it is most consistent with the operator split methodology we use (density
-is held constant during the burn when doing Strang splitting).
-Similar to temperature, this will automatically be updated at each integration
-step (unless you set ``integrator.call_eos_in_rhs = 0``).
+the rates are commonly provided in).
+
+.. index:: integrator.call_eos_in_rhs
+
+.. note::
+
+   If desired, the EOS call can be skipped and the temperature and $c_v$ kept
+   frozen over the entire time interval of the integration by setting ``integrator.call_eos_in_rhs=0``.
