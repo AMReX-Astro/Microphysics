@@ -5,7 +5,7 @@
      (#1433)
 
    * simplified the integrators by extracting common infrastructure
-     into setup and cleanup functions (#1515)
+     into setup and cleanup functions (#1515, #1546)
 
    * lots of documentation improvements including sectioning (#1559)
      integrators (#1560, #1561, #1562, #1563, #1566, #1567, #1568),
