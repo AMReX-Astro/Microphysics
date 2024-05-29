@@ -1,11 +1,15 @@
 # 24.06
 
+   * added the ability to access the runtime parameters via a struct.
+     This will eventually be used to remove the dependency on globals
+     (#1433)
+
    * simplified the integrators by extracting common infrastructure
      into setup and cleanup functions (#1515)
 
    * lots of documentation improvements including sectioning (#1559)
-     integrators (#1560, #1561, #1562, #1563, #1566, #1567), runtime
-     parameters (#1557), and link checking (#1552)
+     integrators (#1560, #1561, #1562, #1563, #1566, #1567, #1568),
+     runtime parameters (#1557), and link checking (#1552)
 
    * CUDA no longer requires VODE + generalize some `AMREX_USE_CUDA`
      to `AMREX_USE_GPU` (#1564)
