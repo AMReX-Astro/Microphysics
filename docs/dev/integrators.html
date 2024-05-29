@@ -131,8 +131,8 @@
              
   <section id="reaction-ode-system">
 <h1>Reaction ODE System<a class="headerlink" href="#reaction-ode-system" title="Link to this heading"></a></h1>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>This describes the integration done when doing Strang operator-splitting, which is the
 default mode of coupling burning to application codes.</p>
 </div>
@@ -220,7 +220,7 @@ in the <code class="docutils literal notranslate"><span class="pre">dvode_t</spa
 <li><p>convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">integrator_to_burn</span></code></p></li>
 <li><p>normalize the abundances so they sum to 1.</p></li>
 </ol>
-<div class="admonition note">
+<div class="admonition note" id="index-2">
 <p class="admonition-title">Note</p>
 <p>Upon exit, <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.e</span></code> is the energy <em>released</em> during
 the burn, and not the actual internal energy of the state.</p>
@@ -231,8 +231,8 @@ burning the burn.</p>
 </section>
 <section id="network-routines">
 <h3>Network Routines<a class="headerlink" href="#network-routines" title="Link to this heading"></a></h3>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>Microphysics integrates the reaction system in terms of mass
 fractions, <span class="math notranslate nohighlight">\(X_k\)</span>, but most astrophysical networks use molar
 fractions, <span class="math notranslate nohighlight">\(Y_k\)</span>.  As a result, we expect the networks to
@@ -267,8 +267,8 @@ be computed as:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>We use 1-based indexing for <code class="docutils literal notranslate"><span class="pre">ydot</span></code> for legacy reasons, so watch out when filling in
 this array based on 0-indexed C arrays.</p>
 </div>
@@ -308,8 +308,14 @@ those quantities.</p></li>
 </section>
 <section id="jacobian-implementation">
 <h4>Jacobian implementation<a class="headerlink" href="#jacobian-implementation" title="Link to this heading"></a></h4>
-<p>The Jacobian is provided by <code class="docutils literal notranslate"><span class="pre">actual_jac(state,</span> <span class="pre">jac)</span></code>, and takes the
-form:</p>
+<p id="index-3">Either an analytic or numerical Jacobian is used for the implicit
+integrators, selected via the <code class="docutils literal notranslate"><span class="pre">integrator.jacobian</span></code> runtime
+parameter (<code class="docutils literal notranslate"><span class="pre">1</span></code> = analytic; <code class="docutils literal notranslate"><span class="pre">2</span></code> = numerical).  For VODE, the
+numerical Jacobian is computed internally.  For the other integrators,
+a difference method is implemented in
+<code class="docutils literal notranslate"><span class="pre">integration/utils/numerical_jacobian.H</span></code>.</p>
+<p>The analytic Jacobian is specific to each network and is provided by
+<code class="docutils literal notranslate"><span class="pre">actual_jac(state,</span> <span class="pre">jac)</span></code>.  It takes the form:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">actual_jac</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">MathArray2D</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">jac</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -334,10 +340,11 @@ form:</p>
    \cdots  &amp; \partial \dot{e}/\partial Y_n   &amp; \cdots   &amp; \partial \dot{e}/\partial e   \\
 \end{matrix}
 \right )\end{split}\]</div>
-<p>Note: a network is not required to compute a Jacobian if a numerical
-Jacobian is used. This is set with the runtime parameter
-<code class="docutils literal notranslate"><span class="pre">jacobian</span></code> = 2, and implemented directly in VODE or via
-<code class="docutils literal notranslate"><span class="pre">integration/utils/numerical_jacobian.H</span></code> for other integrators.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A network is not required to provide a Jacobian if a numerical
+Jacobian is used.</p>
+</div>
 </section>
 <section id="jacobian-wrapper">
 <h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Link to this heading"></a></h4>
@@ -351,11 +358,11 @@ calling the Jacobian wrapper, likely because we just called the RHS
 wrapper above which did the <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> and
 <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code> calls.</p>
 </div>
-<ol class="arabic simple">
-<li><p>call <code class="docutils literal notranslate"><span class="pre">integrator_to_burn</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
+<ol class="arabic simple" id="index-4">
+<li><p>call <code class="docutils literal notranslate"><span class="pre">integrator_to_burn()</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
 <li><p>call <code class="docutils literal notranslate"><span class="pre">actual_jac()</span></code> to have the network fill the Jacobian array</p></li>
 <li><p>convert the derivative to be mass-fraction-based</p></li>
-<li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0</p></li>
+<li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> &gt; 0</p></li>
 </ol>
 </section>
 </section>
@@ -363,34 +370,37 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 <section id="thermodynamics-and-e-evolution">
 <h2>Thermodynamics and <span class="math notranslate nohighlight">\(e\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-e-evolution" title="Link to this heading"></a></h2>
 <p>The thermodynamic equation in our system is the evolution of the internal energy,
-<span class="math notranslate nohighlight">\(e\)</span>. (Note: when the system is integrated in an operator-split approach,
-this responds only to the nuclear energy release and not pdV work.)</p>
+<span class="math notranslate nohighlight">\(e\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When the system is integrated in an operator-split approach, the
+energy equation accounts for only the nuclear energy release and
+not pdV work.</p>
+</div>
 <p>At initialization, <span class="math notranslate nohighlight">\(e\)</span> is set to the value from the EOS consistent
 with the initial temperature, density, and composition:</p>
 <div class="math notranslate nohighlight">
 \[e_0 = e(\rho_0, T_0, {X_k}_0)\]</div>
-<p>In the integration routines, this is termed the “energy offset”.</p>
+<p>In the integration routines, this is termed the <em>energy offset</em>.</p>
 <p>As the system is integrated, <span class="math notranslate nohighlight">\(e\)</span> is updated to account for the
 nuclear energy release,</p>
 <div class="math notranslate nohighlight">
 \[e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt\]</div>
-<p>Upon exit, we subtract off this initial offset, so <code class="docutils literal notranslate"><span class="pre">state.e</span></code> in
+<p>As noted above, upon exit, we subtract off this initial offset, so <code class="docutils literal notranslate"><span class="pre">state.e</span></code> in
 the returned <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type from the <code class="docutils literal notranslate"><span class="pre">actual_integrator</span></code>
 call represents the energy <em>release</em> during the burn.</p>
 <p>Integration of Equation <a class="reference internal" href="#equation-eq-enuc-integrate">(2)</a>
 requires an evaluation of the temperature at each integration step
 (since the RHS for the species is given in terms of <span class="math notranslate nohighlight">\(T\)</span>, not <span class="math notranslate nohighlight">\(e\)</span>).
-This involves an EOS call and is the default behavior of the integration.</p>
-<p>If desired, the EOS call can be skipped and the temperature kept
-frozen over the entire time interval of the integration.  This is done
-by setting <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
-<p>Note also that for the Jacobian, we need the specific heat, <span class="math notranslate nohighlight">\(c_v\)</span>, since we
+This involves an EOS call and is the default behavior of the integration.
+Note also that for the Jacobian, we need the specific heat, <span class="math notranslate nohighlight">\(c_v\)</span>, since we
 usually calculate derivatives with respect to temperature (as this is the form
-the rates are commonly provided in). We use the specific heat at constant volume
-because it is most consistent with the operator split methodology we use (density
-is held constant during the burn when doing Strang splitting).
-Similar to temperature, this will automatically be updated at each integration
-step (unless you set <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>).</p>
+the rates are commonly provided in).</p>
+<div class="admonition note" id="index-5">
+<p class="admonition-title">Note</p>
+<p>If desired, the EOS call can be skipped and the temperature and <span class="math notranslate nohighlight">\(c_v\)</span> kept
+frozen over the entire time interval of the integration by setting <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs=0</span></code>.</p>
+</div>
 </section>
 </section>
 
