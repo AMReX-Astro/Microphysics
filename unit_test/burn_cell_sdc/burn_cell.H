@@ -356,6 +356,13 @@ void burn_cell_c()
         Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
         Real dt = tend - t;
 
+        // if we start out in NSE, then the burner will never reset
+        // these counters, so explicitly zero them here
+
+        burn_state.n_step = 0;
+        burn_state.n_rhs = 0;
+        burn_state.n_jac = 0;
+
         std::cout << "burning for dt = " << dt << std::endl;
 
         burner(burn_state, dt);
