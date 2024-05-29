@@ -197,7 +197,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // get the derivatives at t = t^n
 
     amrex::Real drhoedt;
-    amrex::Real drhoauxdt[NumSpec];
+    amrex::Real drhoauxdt[NumAux];
 
     nse_derivs(rho_old, rhoe_old, rhoaux_old,
                dt, state.ydot_a,
