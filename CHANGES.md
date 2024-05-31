@@ -2,7 +2,7 @@
 
    * added the ability to access the runtime parameters via a struct.
      This will eventually be used to remove the dependency on globals
-     (#1433)
+     (#1433, #1575)
 
    * simplified the integrators by extracting common infrastructure
      into setup and cleanup functions (#1515, #1546)
