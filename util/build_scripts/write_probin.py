@@ -269,16 +269,19 @@ def write_probin(param_files, out_file, cxx_prefix):
 
         for nm in sorted(namespaces):
             params_nm = [q for q in params if q.namespace == nm]
+            types = sorted(set(q.dtype for q in params_nm))
 
             fout.write(f"struct {nm}_param_t {{\n")
-            for p in params_nm:
-                fout.write(p.get_struct_entry())
+            for tt in types:
+                params_type = [q for q in params_nm if q.dtype == tt]
+                for p in params_type:
+                    fout.write(p.get_struct_entry())
             fout.write("};\n\n")
 
         # now the parent struct
 
         fout.write(f"struct {cxx_base}_t {{\n")
-        for nm in namespaces:
+        for nm in sorted(namespaces):
             fout.write(f"    {nm}_param_t {nm};\n")
         fout.write("};\n\n")
 
