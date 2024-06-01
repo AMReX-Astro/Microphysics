@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Available Integrators &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="NSE" href="nse.html" />
+    <link rel="prev" title="Reaction ODE System" href="integrators.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="./ode_integrators.html">main</a> | <a href="./dev/ode_integrators.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Available Integrators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tolerances">Tolerances</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#controlling-species-sum-k-x-k-1">Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#retry-mechanism">Retry Mechanism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overriding-parameter-defaults-on-a-network-by-network-basis">Overriding Parameter Defaults on a Network-by-Network Basis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Available Integrators</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/ode_integrators.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="available-integrators">
+<span id="ch-networks-integrators"></span><h1>Available Integrators<a class="headerlink" href="#available-integrators" title="Link to this heading"></a></h1>
+<p>We use a high-order implicit ODE solver for integrating the reaction
+system.  A few alternatives, including first order implicit and explicit integrators are also
+provided.  Internally, the integrators use different data structures
+to store the integration progress, and each integrator needs to
+provide a routine to convert from the integrator’s internal
+representation to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>
+and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> routine.</p>
+<p>The name of the integrator can be selected at compile time using
+the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
+the allowed options are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>: an implicit first-order accurate backward-Euler
+method.  An error estimate is done by taking 2 half steps and
+comparing to a single full step.  This error is then used to control
+the timestep by using the local truncation error scaling.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
+meant for testing purposes only.  No Jacobian is needed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. doi:https://doi.org/10.1006/jcph.2000.6605.">MOvanLeer00</a>]</span> (see also
+<span id="id2">[<a class="reference internal" href="zreferences.html#id38" title="M W Guidry and J A Harris. Explicit integration of extremely stiff reaction networks: quasi-steady-state methods. Computational Science &amp; Discovery, 6(1):015002, jan 2013. URL: https://dx.doi.org/10.1088/1749-4699/6/1/015002, doi:10.1088/1749-4699/6/1/015002.">GH13</a>]</span>). This uses a second-order predictor-corrector method,
+and is designed specifically for handling coupled ODE systems for chemical
+and nuclear reactions. However, this integrator has difficulty near NSE,
+so we don’t recommend its use in production for nuclear astrophysics.</p></li>
+</ul>
+<ul id="index-0">
+<li><p><code class="docutils literal notranslate"><span class="pre">RKC</span></code>: a stabilized explicit Runge-Kutta-Chebyshev integrator based
+on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">SSV98</a>]</span>.  This does not require a Jacobian, but
+does need to estimate the spectral radius of the system, which is
+done internally.  This works for moderately stiff problems.</p>
+<p>The spectral radius is estimated by default using the power method,
+built into RKC.  Alternately, by setting <code class="docutils literal notranslate"><span class="pre">integrator.use_circle_theorem=1</span></code>,
+the <a class="reference external" href="https://en.wikipedia.org/wiki/Gershgorin_circle_theorem">Gershgorin circle theorem</a>
+is used instead.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span> integration package.  We ported this
+integrator to C++ and removed the non-stiff integration code paths.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The VODE integrator uses Jacobian caching when run on a CPU by default.  This
+can be disabled at runtime by setting <code class="docutils literal notranslate"><span class="pre">integrator.use_jacobian_caching</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
+<p>On GPUs, we disable Jacobian caching due to the increased memory
+needs.  Jacobian caching on GPUs can be enabled by explicitly
+setting the build parameter <code class="docutils literal notranslate"><span class="pre">USE_JACOBIAN_CACHING=TRUE</span></code>.</p>
+</div>
+</li>
+</ul>
+<p>We recommend that you use the VODE solver, as it is the most
+robust.</p>
+<div class="admonition important" id="index-1">
+<p class="admonition-title">Important</p>
+<p>The integrator will not abort if it encounters trouble.  Instead it will
+set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
+application code to handle the failure.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
+will scale the internal energy that the integrator sees by the initial
+value of <span class="math notranslate nohighlight">\(e\)</span> to make the system <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>.  The value
+of <code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code> will likewise be scaled.  This works for both Strang
+and simplified-SDC.  For the <code class="docutils literal notranslate"><span class="pre">RKC</span></code> integrator, this is enabled by
+default.</p>
+<p>For most integrators this algebraic change should not affect the output
+to more than roundoff, but the option is included to allow for some
+different integration approaches in the future.</p>
+<p>This option currently does not work with the ForwardEuler or QSS integrators.</p>
+</div>
+<section id="tolerances">
+<h2>Tolerances<a class="headerlink" href="#tolerances" title="Link to this heading"></a></h2>
+<p>Tolerances dictate how accurate the ODE solver must be while solving
+equations during a simulation.  Typically, the smaller the tolerance
+is, the more accurate the results will be.  However, if the tolerance
+is too small, the code may run for too long or the ODE solver will
+never converge.  In these simulations, <code class="docutils literal notranslate"><span class="pre">rtol</span></code> values will set the
+relative tolerances and <code class="docutils literal notranslate"><span class="pre">atol</span></code> values will set the absolute tolerances
+for the ODE solver.  Often, one can find and set these values in an
+input file for a simulation.</p>
+<p><a class="reference internal" href="#fig-tolerances"><span class="std std-numref">Fig. 2</span></a> shows the results of a simple simulation using the
+burn_cell unit test to determine
+what tolerances are ideal for simulations.
+For this investigation, it was assumed that a run with a tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>
+corresponded to an exact result,
+so it is used as the basis for the rest of the tests.
+From the figure, one can infer that the <span class="math notranslate nohighlight">\(10^{-3}\)</span> and <span class="math notranslate nohighlight">\(10^{-6}\)</span> tolerances
+do not yield the most accurate results
+because their relative error values are fairly large.
+However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
+and not so low that it takes incredible amounts of computer time,
+so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
+<figure class="align-default" id="id5">
+<span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
+to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The integration tolerances for the burn are controlled by
+<code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code> and  <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>,
+which are the relative error tolerances for
+<a class="reference internal" href="integrators.html#equation-eq-spec-integrate">(1)</a> and <a class="reference internal" href="integrators.html#equation-eq-enuc-integrate">(2)</a>,
+respectively. There are corresponding
+<code class="docutils literal notranslate"><span class="pre">atol</span></code> parameters for the absolute error tolerances. Note that
+not all integrators handle error tolerances the same way—see the
+sections below for integrator-specific information.</p>
+<p>The absolute error tolerances are set by default
+to <span class="math notranslate nohighlight">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math notranslate nohighlight">\(10^{-6}\)</span>
+is used for the temperature and energy.</p>
+</section>
+<section id="controlling-species-sum-k-x-k-1">
+<h2>Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span><a class="headerlink" href="#controlling-species-sum-k-x-k-1" title="Link to this heading"></a></h2>
+<p>The ODE integrators don’t know about the constraint that</p>
+<p><div class="math notranslate nohighlight">
+\[\sum_k X_k = 1\]</div>
+</p>
+<p>so this is only going to be preserved to the level that the integrator
+tolerances allow.  There are a few parameters that help enforce this
+constraint on the intermediate states during the integration.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.renormalize_abundances</span></code> : this controls whether we
+renormalize the abundances so that the mass fractions sum to one
+during a burn.</p>
+<p>This has the positive benefit that in some cases it can prevent the
+integrator from going off to infinity or otherwise go crazy; a
+possible negative benefit is that it may slow down convergence
+because it interferes with the integration scheme. Regardless of
+whether you enable this, we will always ensure that the mass
+fractions stay positive and larger than some floor <code class="docutils literal notranslate"><span class="pre">small_x</span></code>.</p>
+<p>This option is disabled by default.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.SMALL_X_SAFE</span></code> : this is the floor on the mass fractions.
+The default is <code class="docutils literal notranslate"><span class="pre">1.e-30</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.do_species_clip</span></code> : this enforces that the mass fractions
+all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.0]\)</span>.</p>
+<p>This is enabled by default.</p>
+</li>
+</ul>
+</section>
+<section id="retry-mechanism">
+<h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
+<p>Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
+<ol class="arabic simple">
+<li><p>Not enough steps allowed (<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>)</p></li>
+<li><p>The timestep selected by the integrator is too small (comparable to
+roundoff)</p></li>
+<li><p>The final abundances do not sum to 1.</p></li>
+</ol>
+<p>There can be a number of reasons for these failures, including:</p>
+<ul>
+<li><p>The Jacobian is not accurate enough</p>
+<p>This can lead to issues 1 or 2 above</p>
+</li>
+<li><p>The integrator is not appropriate for the thermodynamic conditions</p>
+<p>For example, the RKC integrator may be working too hard, leading to
+issue 1.</p>
+</li>
+<li><p>The tolerances you are requesting are too tight</p>
+<p>This can lead to issues 1 or 2 above</p>
+</li>
+<li><p>The tolerances (in particular, <code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>) are too loose</p>
+<p>This can lead to issue 3 above</p>
+</li>
+<li><p>The evolution is entering NSE</p>
+<p>This can lead to issue 1.</p>
+</li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">integrator()</span></code> function that calls the actual integrator drive for
+the choice of integrator allows for a retry if a burn failure was detected.
+This is enabled by setting</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">integrator</span><span class="o">.</span><span class="n">use_burn_retry</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>This will call the same integrator again, restarting from the initial conditions
+but with a different choice of tolerances and Jacobian.
+The runtime parameters that come into play when doing the retry are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">retry_swap_jacobian</span></code> : do we swap that Jacobian type for the retry (i.e.
+use the numerical Jacobian if we try the analytic Jacobian for the first attempt)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_spec</span></code> : relative tolerance for the species on retry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_enuc</span></code> : relative tolerance for the energy on retry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retry_atol_spec</span></code> : absolute tolerance for the species on retry</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">retry_atol_enuc</span></code> : absolute tolerance for the energy on retry</p></li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Sometimes a simulation runs best if you set
+<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code> to a small value (like <code class="docutils literal notranslate"><span class="pre">10000</span></code>) and
+start with the analytic Jacobian (<code class="docutils literal notranslate"><span class="pre">integrator.jacobian</span> <span class="pre">=</span> <span class="pre">1</span></code>) and
+then use the retry mechanism to swap the Jacobian on any zones that fail.</p>
+</div>
+</section>
+<section id="overriding-parameter-defaults-on-a-network-by-network-basis">
+<h2>Overriding Parameter Defaults on a Network-by-Network Basis<a class="headerlink" href="#overriding-parameter-defaults-on-a-network-by-network-basis" title="Link to this heading"></a></h2>
+<p>Any network can override or add to any of the existing runtime
+parameters by creating a <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> file in the network directory
+(e.g., <code class="docutils literal notranslate"><span class="pre">networks/triple_alpha_plus_cago/_parameters</span></code>). As noted in
+<a class="reference internal" href="rp_intro.html"><span class="doc">Runtime parameters</span></a>, the fourth column in the <code class="docutils literal notranslate"><span class="pre">_parameter</span></code>
+file definition is the <em>priority</em>. When a duplicate parameter is
+encountered by the scripts writing the runtime parameter header files, the value
+of the parameter with the highest priority is used. So picking a large
+integer value for the priority in a network’s <code class="docutils literal notranslate"><span class="pre">_parameter</span></code> file will
+ensure that it takes precedence.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="integrators.html" class="btn btn-neutral float-left" title="Reaction ODE System" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nse.html" class="btn btn-neutral float-right" title="NSE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>

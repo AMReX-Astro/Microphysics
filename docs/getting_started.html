@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Transport Coefficients &mdash; Microphysics  documentation</title>
+  <title>Getting Started &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -26,8 +26,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview of Reaction Networks" href="networks-overview.html" />
-    <link rel="prev" title="Equations of State" href="eos.html" /> 
+    <link rel="next" title="Design" href="design.html" />
+    <link rel="prev" title="Preface" href="preface.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +50,7 @@
   </form>
 </div>
     <div class="branch">
-        Branch: <a href="./transport.html">main</a> | <a href="./dev/transport.html">development</a>
+        Branch: <a href="./getting_started.html">main</a> | <a href="./dev/getting_started.html">development</a>
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
@@ -58,20 +58,21 @@
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#standalone">Standalone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-with-amrex-application-code">Running with AMReX Application Code</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Transport Coefficients</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#thermal-conductivity">Thermal Conductivity</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
 <ul>
@@ -106,9 +107,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Transport Coefficients</li>
+      <li class="breadcrumb-item active">Getting Started</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/transport.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -116,24 +117,53 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="transport-coefficients">
-<h1>Transport Coefficients<a class="headerlink" href="#transport-coefficients" title="Link to this heading"></a></h1>
-<section id="thermal-conductivity">
-<h2>Thermal Conductivity<a class="headerlink" href="#thermal-conductivity" title="Link to this heading"></a></h2>
-<p>Thermal conductivities are provided by the conductivity/
-directory. At the moment, there is a single version,
-stellar <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> that is useful
-for stellar interiors.</p>
-<p><strong>Important: it is assumed that the state is thermodynamically consistent
-before calling the conductivity routine.</strong> It may be necessary to do an EOS
-call first, to enforce the consistency.</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id2" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>this code comes from Frank Timmes’ website,
-<a class="reference external" href="https://cococubed.com/code_pages/kap.shtml">https://cococubed.com/code_pages/kap.shtml</a></p>
-</aside>
-</aside>
+  <section id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<section id="standalone">
+<h2>Standalone<a class="headerlink" href="#standalone" title="Link to this heading"></a></h2>
+<p>Microphysics can be used in a “standalone” fashion to run the unit
+tests and explore the behavior of the reaction networks.  The main
+requirement is a copy of AMReX:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">git<span class="w"> </span>clone<span class="w"> </span>https://github.com/AMReX-Codes/amrex.git</span>
+</pre></div></div><p>We use this for some data structures and the build system.  You need
+to set the <code class="docutils literal notranslate"><span class="pre">AMREX_HOME</span></code> environment variable to point to the
+<code class="docutils literal notranslate"><span class="pre">amrex/</span></code> directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">export</span><span class="w"> </span><span class="nv">AMREX_HOME</span><span class="o">=</span>/path/to/amrex</span>
+</pre></div></div><p>(where you change <code class="docutils literal notranslate"><span class="pre">/path/to/amrex</span></code> to your actual path).</p>
+<p>A good unit test to start with is <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> – this is simply a
+one-zone burn.  In <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">cd</span><span class="w"> </span>unit_test/burn_cell</span>
+<span class="prompt1">make</span>
+</pre></div></div><p>This will create an executable called <code class="docutils literal notranslate"><span class="pre">main3d.gnu.ex</span></code>.  Then you can run it as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">./main3d.gnu.ex<span class="w"> </span>inputs_aprox21</span>
+</pre></div></div><p>By default, the test is built with the 21-isotope <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> network.
+Here <code class="docutils literal notranslate"><span class="pre">inputs_aprox21</span></code> is the inputs file that sets options.</p>
+</section>
+<section id="running-with-amrex-application-code">
+<h2>Running with AMReX Application Code<a class="headerlink" href="#running-with-amrex-application-code" title="Link to this heading"></a></h2>
+<p>Getting started with Microphysics using either CASTRO or MAESTROeX is
+straightforward. Because the modules here are already in a format that
+the AMReX codes understand, you only need to provide to the code
+calling these routines their location on your system. The code will do
+the rest. To do so, define the <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> environment
+variable, either at a command line or (if you use the bash shell)
+through your <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>, e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MICROPHYSICS_HOME</span><span class="o">=</span>/path/to/Microphysics
+</pre></div>
+</div>
+<p>For CASTRO and MAESTROeX the name of the EOS and network are set via
+the make variables <code class="docutils literal notranslate"><span class="pre">EOS_DIR</span></code> and <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>. These codes then
+rely on the Microphysics <code class="docutils literal notranslate"><span class="pre">Make.Microphysics_extern</span></code> makefile stub
+(found via the <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> variable) to add the necessary
+source to the build.  All of the interfaces that these codes use
+are found in <code class="docutils literal notranslate"><span class="pre">Microphysics/interfaces/</span></code>.</p>
+<p>Other codes can use Microphysics in the same fashion.  Unit tests in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/</span></code> provide some examples of using the
+interfaces.</p>
 </section>
 </section>
 
@@ -141,8 +171,8 @@ call first, to enforce the consistency.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="eos.html" class="btn btn-neutral float-left" title="Equations of State" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="networks-overview.html" class="btn btn-neutral float-right" title="Overview of Reaction Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="preface.html" class="btn btn-neutral float-left" title="Preface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="design.html" class="btn btn-neutral float-right" title="Design" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

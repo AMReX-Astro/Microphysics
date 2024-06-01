@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Runtime parameters &mdash; Microphysics  documentation</title>
+  <title>Design &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -26,8 +26,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Parameters by Namespace" href="runtime_parameters.html" />
-    <link rel="prev" title="Data Structures" href="data_structures.html" /> 
+    <link rel="next" title="Data Structures" href="data_structures.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +50,7 @@
   </form>
 </div>
     <div class="branch">
-        Branch: <a href="./rp_intro.html">main</a> | <a href="./dev/rp_intro.html">development</a>
+        Branch: <a href="./design.html">main</a> | <a href="./dev/design.html">development</a>
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
@@ -60,12 +60,13 @@
 <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Runtime parameters</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html">Parameters by Namespace</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Design</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#design-philosophy">Design Philosophy</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -106,9 +107,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Runtime parameters</li>
+      <li class="breadcrumb-item active">Design</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/rp_intro.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/design.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -116,54 +117,70 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="runtime-parameters">
-<h1>Runtime parameters<a class="headerlink" href="#runtime-parameters" title="Link to this heading"></a></h1>
-<p>The behavior of the network and EOS are controlled by many runtime
-parameters. These parameters are defined in plain-text files
-<code class="docutils literal notranslate"><span class="pre">_parameters</span></code> located in the different directories that hold the
-microphysics code. At compile time, a script in the AMReX build
-system, findparams.py, locates all of the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files that
-are needed for the given choice of network, integrator, and EOS, and
-assembles all of the runtime parameters into a set of header files
-(using the <code class="docutils literal notranslate"><span class="pre">write_probin.py</span></code> script).</p>
-<p>Parameter definitions take the form:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># comment describing the parameter</span>
-<span class="n">name</span>              <span class="n">data</span><span class="o">-</span><span class="nb">type</span>       <span class="n">default</span><span class="o">-</span><span class="n">value</span>      <span class="n">priority</span>
-</pre></div>
-</div>
-<p>Here, the priority is simply an integer. When two directories
-define the same parameter, but with different defaults, the version of
-the parameter with the highest priority takes precedence. This allows
-specific implementations to override the general parameter defaults.</p>
-<p>The documentation below is automatically generated, using the comments
-in the <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files.  The parameters are grouped by the
-namespace under which they live, and parameters that only apply to
-specific build configurations or have their defaults overridden are
-noted in separate tables.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="runtime_parameters.html">Parameters by Namespace</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-none">namespace: none</a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-conductivity">namespace: <code class="docutils literal notranslate"><span class="pre">conductivity</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-eos">namespace: <code class="docutils literal notranslate"><span class="pre">eos</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-integrator">namespace: <code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-network">namespace: <code class="docutils literal notranslate"><span class="pre">network</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-nse">namespace: <code class="docutils literal notranslate"><span class="pre">nse</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-opacity">namespace: <code class="docutils literal notranslate"><span class="pre">opacity</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-screening">namespace: <code class="docutils literal notranslate"><span class="pre">screening</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="runtime_parameters.html#namespace-unit-test">namespace: <code class="docutils literal notranslate"><span class="pre">unit_test</span></code></a></li>
+  <section id="design">
+<h1>Design<a class="headerlink" href="#design" title="Link to this heading"></a></h1>
+<section id="structure">
+<h2>Structure<a class="headerlink" href="#structure" title="Link to this heading"></a></h2>
+<p>The high-level directory structure delineates the types of microphysics
+and the generic solvers:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">conductivity</span></code>: thermal conductivity routines</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">constants</span></code>: fundamental constants</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the
+reaction networks</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">interfaces/</span></code>: the main structs / derived types that are used to
+interface with the EOS and reaction networks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the
+righthand side of the network, as the actual integrators are decoupled from
+the network.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">opacity/</span></code>: opacity routines for radiation transport</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the
+networks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the
+reaction networks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sphinx_docs</span></code>: the sphinx source for this documentation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t
+need any application code to build, but will require AMReX.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>
 </ul>
-</li>
-</ul>
+</section>
+<section id="design-philosophy">
+<h2>Design Philosophy<a class="headerlink" href="#design-philosophy" title="Link to this heading"></a></h2>
+<p>Any application that uses Microphysics will at minimum need to
+choose an EOS and a network. These two components work together. The
+design philosophy is that the EOS depends on the network, but not the
+other way around. The decision was made for the network to act as the
+core module, and lots of code depends on it. This avoids circular
+dependencies by having the main EOS datatype, <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>, and the
+main reaction network datatype, <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>, be built on top of the
+network.</p>
+<p>The network is meant to store the properties of the species (typically
+nuclear isotopes) including their atomic weights and numbers, and also
+describes any links between the species when burning.</p>
+<p>The equation of state relates the thermodynamic properties of the
+material. It depends on the composition of the material, typically
+specified via mass fractions of the species, and uses the properties
+of the species defined by the network to interpret the state.</p>
+<p>We try to maximize code reuse in the Microphysics source, so the
+solvers (ODE integration for the network and Newton-Raphson root
+finding for the EOS) is separated from the specific implementations of
+the microphysics.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All quantities are assumed to be in CGS units, unless otherwise
+specified.</p>
 </div>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="data_structures.html" class="btn btn-neutral float-left" title="Data Structures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="runtime_parameters.html" class="btn btn-neutral float-right" title="Parameters by Namespace" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="getting_started.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="data_structures.html" class="btn btn-neutral float-right" title="Data Structures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

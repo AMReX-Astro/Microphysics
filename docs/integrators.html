@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Integrating a Network &mdash; Microphysics  documentation</title>
+  <title>Reaction ODE System &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -28,7 +28,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="NSE" href="nse.html" />
+    <link rel="next" title="Available Integrators" href="ode_integrators.html" />
     <link rel="prev" title="Screening of Reaction Rates" href="screening.html" /> 
 </head>
 
@@ -56,19 +56,32 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
-<ul class="current">
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Microphysics Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Integrating a Network</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#reaction-ode-system">Reaction ODE System</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reaction ODE System</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#interfaces">Interfaces</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#burner"><code class="docutils literal notranslate"><span class="pre">burner</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#network-routines">Network Routines</a><ul>
@@ -81,18 +94,14 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#thermodynamics-and-e-evolution">Thermodynamics and <span class="math notranslate nohighlight">\(e\)</span> Evolution</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#renormalization">Renormalization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#stiff-ode-solvers">Stiff ODE Solvers</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#tolerances">Tolerances</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#overriding-parameter-defaults-on-a-network-by-network-basis">Overriding Parameter Defaults on a Network-by-Network Basis</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">Available Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">references</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 
@@ -110,7 +119,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Integrating a Network</li>
+      <li class="breadcrumb-item active">Reaction ODE System</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/integrators.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -120,12 +129,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="integrating-a-network">
-<h1>Integrating a Network<a class="headerlink" href="#integrating-a-network" title="Link to this heading"></a></h1>
-<section id="reaction-ode-system">
-<h2>Reaction ODE System<a class="headerlink" href="#reaction-ode-system" title="Link to this heading"></a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+  <section id="reaction-ode-system">
+<h1>Reaction ODE System<a class="headerlink" href="#reaction-ode-system" title="Link to this heading"></a></h1>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>This describes the integration done when doing Strang operator-splitting, which is the
 default mode of coupling burning to application codes.</p>
 </div>
@@ -147,6 +154,19 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
 to the energy release from the changing binding energy of the
 fusion products.</p>
 </div>
+<div class="admonition note" id="index-0">
+<p class="admonition-title">Note</p>
+<p>By setting <code class="docutils literal notranslate"><span class="pre">integrator.use_number_densities=1</span></code>, number densities will be
+integrated instead of mass fractions.  This makes the system:</p>
+<div class="math notranslate nohighlight" id="equation-eq-spec-n-integrate">
+<span class="eqno">(3)<a class="headerlink" href="#equation-eq-spec-n-integrate" title="Link to this equation"></a></span>\[\frac{dn_k}{dt} = \dot{\omega}_k(\rho,n_k,T)\]</div>
+<div class="math notranslate nohighlight" id="equation-eq-enuc-n-integrate">
+<span class="eqno">(4)<a class="headerlink" href="#equation-eq-enuc-n-integrate" title="Link to this equation"></a></span>\[\frac{de}{dt} = f(\rho,n_k,T)\]</div>
+<p>The effect of this flag in the integrators is that we don’t worry
+about converting between mass and molar fractions when calling the
+righthand side function and Jacobian, and we don’t do any normalization
+requiring <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span>.</p>
+</div>
 <p>While this is the most common way to construct the set of
 burn equations, and is used in most of our production networks,
 all of them are ultimately implemented by the network itself, which
@@ -157,11 +177,10 @@ that converts a temperature update to <span class="math notranslate nohighlight"
 are always explicitly done by the individual networks rather than
 being handled by the integration backend. This allows you to write a
 new network that defines the RHS in whatever way you like.</p>
-<p id="index-0">The standard reaction rates can all be boosted by a constant factor by
-setting the <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> runtime parameter.  This will simply
+<p id="index-1">The standard reaction rates can all be boosted by a constant factor by
+setting the <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> runtime parameter.  This will simply
 multiply the righthand sides of each species evolution equation (and
 appropriate Jacobian terms) by the specified constant amount.</p>
-</section>
 <section id="interfaces">
 <h2>Interfaces<a class="headerlink" href="#interfaces" title="Link to this heading"></a></h2>
 <p>The interfaces to all of the networks and integrators are written in C++.</p>
@@ -201,7 +220,7 @@ in the <code class="docutils literal notranslate"><span class="pre">dvode_t</spa
 <li><p>convert back to a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> by calling <code class="docutils literal notranslate"><span class="pre">integrator_to_burn</span></code></p></li>
 <li><p>normalize the abundances so they sum to 1.</p></li>
 </ol>
-<div class="admonition note">
+<div class="admonition note" id="index-2">
 <p class="admonition-title">Note</p>
 <p>Upon exit, <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.e</span></code> is the energy <em>released</em> during
 the burn, and not the actual internal energy of the state.</p>
@@ -212,8 +231,8 @@ burning the burn.</p>
 </section>
 <section id="network-routines">
 <h3>Network Routines<a class="headerlink" href="#network-routines" title="Link to this heading"></a></h3>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
 <p>Microphysics integrates the reaction system in terms of mass
 fractions, <span class="math notranslate nohighlight">\(X_k\)</span>, but most astrophysical networks use molar
 fractions, <span class="math notranslate nohighlight">\(Y_k\)</span>.  As a result, we expect the networks to
@@ -248,8 +267,8 @@ be computed as:</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>We use 1-based indexing for <code class="docutils literal notranslate"><span class="pre">ydot</span></code> for legacy reasons, so watch out when filling in
 this array based on 0-indexed C arrays.</p>
 </div>
@@ -289,8 +308,14 @@ those quantities.</p></li>
 </section>
 <section id="jacobian-implementation">
 <h4>Jacobian implementation<a class="headerlink" href="#jacobian-implementation" title="Link to this heading"></a></h4>
-<p>The Jacobian is provided by <code class="docutils literal notranslate"><span class="pre">actual_jac(state,</span> <span class="pre">jac)</span></code>, and takes the
-form:</p>
+<p id="index-3">Either an analytic or numerical Jacobian is used for the implicit
+integrators, selected via the <code class="docutils literal notranslate"><span class="pre">integrator.jacobian</span></code> runtime
+parameter (<code class="docutils literal notranslate"><span class="pre">1</span></code> = analytic; <code class="docutils literal notranslate"><span class="pre">2</span></code> = numerical).  For VODE, the
+numerical Jacobian is computed internally.  For the other integrators,
+a difference method is implemented in
+<code class="docutils literal notranslate"><span class="pre">integration/utils/numerical_jacobian.H</span></code>.</p>
+<p>The analytic Jacobian is specific to each network and is provided by
+<code class="docutils literal notranslate"><span class="pre">actual_jac(state,</span> <span class="pre">jac)</span></code>.  It takes the form:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="n">actual_jac</span><span class="p">(</span><span class="n">burn_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="n">MathArray2D</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">neqs</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">jac</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -315,10 +340,11 @@ form:</p>
    \cdots  &amp; \partial \dot{e}/\partial Y_n   &amp; \cdots   &amp; \partial \dot{e}/\partial e   \\
 \end{matrix}
 \right )\end{split}\]</div>
-<p>Note: a network is not required to compute a Jacobian if a numerical
-Jacobian is used. This is set with the runtime parameter
-<code class="docutils literal notranslate"><span class="pre">jacobian</span></code> = 2, and implemented directly in VODE or via
-<code class="docutils literal notranslate"><span class="pre">integration/utils/numerical_jacobian.H</span></code> for other integrators.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A network is not required to provide a Jacobian if a numerical
+Jacobian is used.</p>
+</div>
 </section>
 <section id="jacobian-wrapper">
 <h4>Jacobian wrapper<a class="headerlink" href="#jacobian-wrapper" title="Link to this heading"></a></h4>
@@ -332,11 +358,11 @@ calling the Jacobian wrapper, likely because we just called the RHS
 wrapper above which did the <code class="docutils literal notranslate"><span class="pre">clean_state</span></code> and
 <code class="docutils literal notranslate"><span class="pre">update_thermodynamics</span></code> calls.</p>
 </div>
-<ol class="arabic simple">
-<li><p>call <code class="docutils literal notranslate"><span class="pre">integrator_to_burn</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
+<ol class="arabic simple" id="index-4">
+<li><p>call <code class="docutils literal notranslate"><span class="pre">integrator_to_burn()</span></code> to update the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
 <li><p>call <code class="docutils literal notranslate"><span class="pre">actual_jac()</span></code> to have the network fill the Jacobian array</p></li>
 <li><p>convert the derivative to be mass-fraction-based</p></li>
-<li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0</p></li>
+<li><p>apply any boosting to the rates if <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> &gt; 0</p></li>
 </ol>
 </section>
 </section>
@@ -344,159 +370,37 @@ wrapper above which did the <code class="docutils literal notranslate"><span cla
 <section id="thermodynamics-and-e-evolution">
 <h2>Thermodynamics and <span class="math notranslate nohighlight">\(e\)</span> Evolution<a class="headerlink" href="#thermodynamics-and-e-evolution" title="Link to this heading"></a></h2>
 <p>The thermodynamic equation in our system is the evolution of the internal energy,
-<span class="math notranslate nohighlight">\(e\)</span>. (Note: when the system is integrated in an operator-split approach,
-this responds only to the nuclear energy release and not pdV work.)</p>
+<span class="math notranslate nohighlight">\(e\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When the system is integrated in an operator-split approach, the
+energy equation accounts for only the nuclear energy release and
+not pdV work.</p>
+</div>
 <p>At initialization, <span class="math notranslate nohighlight">\(e\)</span> is set to the value from the EOS consistent
 with the initial temperature, density, and composition:</p>
 <div class="math notranslate nohighlight">
 \[e_0 = e(\rho_0, T_0, {X_k}_0)\]</div>
-<p>In the integration routines, this is termed the “energy offset”.</p>
+<p>In the integration routines, this is termed the <em>energy offset</em>.</p>
 <p>As the system is integrated, <span class="math notranslate nohighlight">\(e\)</span> is updated to account for the
 nuclear energy release,</p>
 <div class="math notranslate nohighlight">
 \[e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt\]</div>
-<p>Upon exit, we subtract off this initial offset, so <code class="docutils literal notranslate"><span class="pre">state.e</span></code> in
+<p>As noted above, upon exit, we subtract off this initial offset, so <code class="docutils literal notranslate"><span class="pre">state.e</span></code> in
 the returned <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type from the <code class="docutils literal notranslate"><span class="pre">actual_integrator</span></code>
 call represents the energy <em>release</em> during the burn.</p>
 <p>Integration of Equation <a class="reference internal" href="#equation-eq-enuc-integrate">(2)</a>
 requires an evaluation of the temperature at each integration step
 (since the RHS for the species is given in terms of <span class="math notranslate nohighlight">\(T\)</span>, not <span class="math notranslate nohighlight">\(e\)</span>).
-This involves an EOS call and is the default behavior of the integration.</p>
-<p>If desired, the EOS call can be skipped and the temperature kept
-frozen over the entire time interval of the integration.  This is done
-by setting <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>.</p>
-<p>Note also that for the Jacobian, we need the specific heat, <span class="math notranslate nohighlight">\(c_v\)</span>, since we
+This involves an EOS call and is the default behavior of the integration.
+Note also that for the Jacobian, we need the specific heat, <span class="math notranslate nohighlight">\(c_v\)</span>, since we
 usually calculate derivatives with respect to temperature (as this is the form
-the rates are commonly provided in). We use the specific heat at constant volume
-because it is most consistent with the operator split methodology we use (density
-is held constant during the burn when doing Strang splitting).
-Similar to temperature, this will automatically be updated at each integration
-step (unless you set <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs</span> <span class="pre">=</span> <span class="pre">0</span></code>).</p>
-</section>
-<section id="renormalization">
-<h2>Renormalization<a class="headerlink" href="#renormalization" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code> parameter controls whether we
-renormalize the abundances so that the mass fractions sum to one
-during a burn. This has the positive benefit that in some cases it can
-prevent the integrator from going off to infinity or otherwise go
-crazy; a possible negative benefit is that it may slow down
-convergence because it interferes with the integration
-scheme. Regardless of whether you enable this, we will always ensure
-that the mass fractions stay positive and larger than some floor
-<code class="docutils literal notranslate"><span class="pre">small_x</span></code>.</p>
-</section>
-<section id="stiff-ode-solvers">
-<span id="ch-networks-integrators"></span><h2>Stiff ODE Solvers<a class="headerlink" href="#stiff-ode-solvers" title="Link to this heading"></a></h2>
-<p>We use a high-order implicit ODE solver for integrating the reaction
-system.  A few alternatives, including first order implicit and explicit integrators are also
-provided.  Internally, the integrators use different data structures
-to store the integration progress, and each integrator needs to
-provide a routine to convert from the integrator’s internal
-representation to the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type required by the <code class="docutils literal notranslate"><span class="pre">actual_rhs</span></code>
-and <code class="docutils literal notranslate"><span class="pre">actual_jac</span></code> routine.</p>
-<p>The name of the integrator can be selected at compile time using
-the <code class="docutils literal notranslate"><span class="pre">INTEGRATOR_DIR</span></code> variable in the makefile. Presently,
-the allowed options are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">BackwardEuler</span></code>: an implicit first-order accurate backward-Euler
-method.  An error estimate is done by taking 2 half steps and
-comparing to a single full step.  This error is then used to control
-the timestep by using the local truncation error scaling.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
-meant for testing purposes only.  No Jacobian is needed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. URL: https://www.sciencedirect.com/science/article/pii/S0021999100966051, doi:https://doi.org/10.1006/jcph.2000.6605.">MOvanLeer00</a>]</span> (see also
-<span id="id2">[<a class="reference internal" href="zreferences.html#id38" title="M W Guidry and J A Harris. Explicit integration of extremely stiff reaction networks: quasi-steady-state methods. Computational Science &amp; Discovery, 6(1):015002, jan 2013. URL: https://dx.doi.org/10.1088/1749-4699/6/1/015002, doi:10.1088/1749-4699/6/1/015002.">GH13</a>]</span>). This uses a second-order predictor-corrector method,
-and is designed specifically for handling coupled ODE systems for chemical
-and nuclear reactions. However, this integrator has difficulty near NSE,
-so we don’t recommend its use in production for nuclear astrophysics.</p></li>
-</ul>
-<ul id="index-1">
-<li><p><code class="docutils literal notranslate"><span class="pre">RKC</span></code>: a stabilized explicit Runge-Kutta-Chebyshev integrator based
-on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">SSV98</a>]</span>.  This does not require a Jacobian, but
-does need to estimate the spectral radius of the system, which is
-done internally.  This works for moderately stiff problems.</p>
-<p>The spectral radius is estimated by default using the power method,
-built into RKC.  Alternately, by setting <code class="docutils literal notranslate"><span class="pre">integrator.use_circle_theorem=1</span></code>,
-the <a class="reference external" href="https://en.wikipedia.org/wiki/Gershgorin_circle_theorem">Gershgorin circle theorem</a>
-is used instead.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span> integration package.  We ported this
-integrator to C++ and removed the non-stiff integration code paths.</p></li>
-</ul>
-<p>We recommend that you use the VODE solver, as it is the most
-robust.</p>
-<div class="admonition important" id="index-2">
-<p class="admonition-title">Important</p>
-<p>The integrator will not abort if it encounters trouble.  Instead it will
-set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
-application code to handle the failure.</p>
-</div>
-<div class="admonition note">
+the rates are commonly provided in).</p>
+<div class="admonition note" id="index-5">
 <p class="admonition-title">Note</p>
-<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
-will scale the internal energy that the integrator sees by the initial
-value of <span class="math notranslate nohighlight">\(e\)</span> to make the system <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>.  The value
-of <code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code> will likewise be scaled.  This works for both Strang
-and simplified-SDC.  For the <code class="docutils literal notranslate"><span class="pre">RKC</span></code> integrator, this is enabled by
-default.</p>
-<p>For most integrators this algebraic change should not affect the output
-to more than roundoff, but the option is included to allow for some
-different integration approaches in the future.</p>
-<p>This option currently does not work with the ForwardEuler or QSS integrators.</p>
+<p>If desired, the EOS call can be skipped and the temperature and <span class="math notranslate nohighlight">\(c_v\)</span> kept
+frozen over the entire time interval of the integration by setting <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs=0</span></code>.</p>
 </div>
-<section id="tolerances">
-<h3>Tolerances<a class="headerlink" href="#tolerances" title="Link to this heading"></a></h3>
-<p>Tolerances dictate how accurate the ODE solver must be while solving
-equations during a simulation.  Typically, the smaller the tolerance
-is, the more accurate the results will be.  However, if the tolerance
-is too small, the code may run for too long or the ODE solver will
-never converge.  In these simulations, <code class="docutils literal notranslate"><span class="pre">rtol</span></code> values will set the
-relative tolerances and <code class="docutils literal notranslate"><span class="pre">atol</span></code> values will set the absolute tolerances
-for the ODE solver.  Often, one can find and set these values in an
-input file for a simulation.</p>
-<p><a class="reference internal" href="#fig-tolerances"><span class="std std-numref">Fig. 1</span></a> shows the results of a simple simulation using the
-burn_cell unit test to determine
-what tolerances are ideal for simulations.
-For this investigation, it was assumed that a run with a tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>
-corresponded to an exact result,
-so it is used as the basis for the rest of the tests.
-From the figure, one can infer that the <span class="math notranslate nohighlight">\(10^{-3}\)</span> and <span class="math notranslate nohighlight">\(10^{-6}\)</span> tolerances
-do not yield the most accurate results
-because their relative error values are fairly large.
-However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
-and not so low that it takes incredible amounts of computer time,
-so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
-<figure class="align-default" id="id5">
-<span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
-<figcaption>
-<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
-to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<p>The integration tolerances for the burn are controlled by
-<code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code> and  <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>,
-which are the relative error tolerances for
-<a class="reference internal" href="#equation-eq-spec-integrate">(1)</a> and <a class="reference internal" href="#equation-eq-enuc-integrate">(2)</a>,
-respectively. There are corresponding
-<code class="docutils literal notranslate"><span class="pre">atol</span></code> parameters for the absolute error tolerances. Note that
-not all integrators handle error tolerances the same way—see the
-sections below for integrator-specific information.</p>
-<p>The absolute error tolerances are set by default
-to <span class="math notranslate nohighlight">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math notranslate nohighlight">\(10^{-6}\)</span>
-is used for the temperature and energy.</p>
-</section>
-</section>
-<section id="overriding-parameter-defaults-on-a-network-by-network-basis">
-<h2>Overriding Parameter Defaults on a Network-by-Network Basis<a class="headerlink" href="#overriding-parameter-defaults-on-a-network-by-network-basis" title="Link to this heading"></a></h2>
-<p>Any network can override or add to any of the existing runtime
-parameters by creating a <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> file in the network directory
-(e.g., <code class="docutils literal notranslate"><span class="pre">networks/triple_alpha_plus_cago/_parameters</span></code>). As noted in
-Chapter [chapter:parameters], the fourth column in the <code class="docutils literal notranslate"><span class="pre">_parameter</span></code>
-file definition is the <em>priority</em>. When a duplicate parameter is
-encountered by the scripts writing the runtime parameter header files, the value
-of the parameter with the highest priority is used. So picking a large
-integer value for the priority in a network’s <code class="docutils literal notranslate"><span class="pre">_parameter</span></code> file will
-ensure that it takes precedence.</p>
 </section>
 </section>
 
@@ -505,13 +409,13 @@ ensure that it takes precedence.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="screening.html" class="btn btn-neutral float-left" title="Screening of Reaction Rates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="nse.html" class="btn btn-neutral float-right" title="NSE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ode_integrators.html" class="btn btn-neutral float-right" title="Available Integrators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2012, Microphysics Development Team.</p>
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

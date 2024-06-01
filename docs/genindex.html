@@ -51,22 +51,38 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Microphysics basics</span></p>
-<ul>
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-<li class="toctree-l1"><a class="reference internal" href="basics.html">Microphysics Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
-<li class="toctree-l1"><a class="reference internal" href="integrators.html">Integrating a Network</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">Available Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">references</span></p>
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 
@@ -98,25 +114,26 @@
 
 <div class="genindex-jumpbox">
  <a href="#I"><strong>I</strong></a>
- | <a href="#R"><strong>R</strong></a>
  
 </div>
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="integrators.html#index-2">integrator.scale_system</a>
+      <li><a href="integrators.html#index-5">integrator.call_eos_in_rhs</a>
+</li>
+      <li><a href="integrators.html#index-3">integrator.jacobian</a>
+</li>
+      <li><a href="integrators.html#index-1">integrator.react_boost</a>, <a href="integrators.html#index-4">[1]</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="integrators.html#index-1">integrator.use_circle_theorem</a>
+      <li><a href="ode_integrators.html#index-1">integrator.scale_system</a>
 </li>
-  </ul></td>
-</tr></table>
-
-<h2 id="R">R</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="integrators.html#index-0">react_boost</a>
+      <li><a href="integrators.html#index-2">integrator.subtract_internal_energy</a>
+</li>
+      <li><a href="ode_integrators.html#index-0">integrator.use_circle_theorem</a>
+</li>
+      <li><a href="integrators.html#index-0">integrator.use_number_densities</a>
 </li>
   </ul></td>
 </tr></table>
@@ -130,7 +147,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2012, Microphysics Development Team.</p>
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
