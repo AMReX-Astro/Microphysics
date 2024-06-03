@@ -219,6 +219,13 @@ The runtime parameters that come into play when doing the retry are:
 
 * ``retry_atol_enuc`` : absolute tolerance for the energy on retry
 
+.. note::
+
+   If you set any of the retry tolerances to be less than $0$, then
+   the original (non-retry) tolerance is used on retry.  The default
+   value for all of the retry tolerances is $-1$, which means the same
+   tolerances are used on retry unless you override them at runtime.
+
 .. tip::
 
    Sometimes a simulation runs best if you set
