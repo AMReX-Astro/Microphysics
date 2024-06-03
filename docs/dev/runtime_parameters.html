@@ -725,20 +725,21 @@ vice versa) on a retry?</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_spec</span></code></p></td>
 <td><p>Tolerances for the solver (relative and absolute), for
-the species and energy equations.</p></td>
-<td><p>1.e-12</p></td>
+the species and energy equations.  If set to &lt; 0, then
+the same value as the first attempt is used.</p></td>
+<td><p>-1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_enuc</span></code></p></td>
 <td></td>
-<td><p>1.e-6</p></td>
+<td><p>-1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_spec</span></code></p></td>
 <td></td>
-<td><p>1.e-8</p></td>
+<td><p>-1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_enuc</span></code></p></td>
 <td></td>
-<td><p>1.e-6</p></td>
+<td><p>-1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_species_clip</span></code></p></td>
 <td><p>in the clean_state process, do we clip the species such

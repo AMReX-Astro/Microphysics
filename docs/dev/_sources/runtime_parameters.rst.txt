@@ -341,14 +341,15 @@ namespace: ``integrator``
 | ``retry_swap_jacobian``               | do we swap the Jacobian (from analytic to numerical or  | 1                            |
 |                                       | vice versa) on a retry?                                 |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``retry_rtol_spec``                   | Tolerances for the solver (relative and absolute), for  | 1.e-12                       |
-|                                       | the species and energy equations.                       |                              |
+| ``retry_rtol_spec``                   | Tolerances for the solver (relative and absolute), for  | -1                           |
+|                                       | the species and energy equations.  If set to < 0, then  |                              |
+|                                       | the same value as the first attempt is used.            |                              |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``retry_rtol_enuc``                   |                                                         | 1.e-6                        |
+| ``retry_rtol_enuc``                   |                                                         | -1                           |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``retry_atol_spec``                   |                                                         | 1.e-8                        |
+| ``retry_atol_spec``                   |                                                         | -1                           |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
-| ``retry_atol_enuc``                   |                                                         | 1.e-6                        |
+| ``retry_atol_enuc``                   |                                                         | -1                           |
 +---------------------------------------+---------------------------------------------------------+------------------------------+
 | ``do_species_clip``                   | in the clean_state process, do we clip the species such | 1                            |
 |                                       | that they are in [0, 1]?                                |                              |
