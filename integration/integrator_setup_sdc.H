@@ -73,15 +73,23 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
 
     } else {
 
-        int_state.atol_enuc = sdc_min_density * integrator_rp::retry_atol_enuc;
-        int_state.rtol_enuc = integrator_rp::retry_rtol_enuc;
+        int_state.atol_enuc = integrator_rp::retry_atol_enuc > 0 ?
+            sdc_min_density * integrator_rp::retry_atol_enuc :
+            sdc_min_density * integrator_rp::atol_enuc;
+
+        int_state.rtol_enuc = integrator_rp::retry_rtol_enuc > 0 ?
+            integrator_rp::retry_rtol_enuc : integrator_rp::rtol_enuc;
 
         // Note: we define the input atol for species to refer only to the
         // mass fraction part, and we multiply by a representative density
         // so that atol becomes an absolutely tolerance on (rho X)
 
-        int_state.atol_spec = sdc_min_density * integrator_rp::retry_atol_spec;
-        int_state.rtol_spec = integrator_rp::retry_rtol_spec;
+        int_state.atol_spec = integrator_rp::retry_atol_spec > 0 ?
+            sdc_min_density * integrator_rp::retry_atol_spec :
+            sdc_min_density * integrator_rp::atol_spec;
+
+        int_state.rtol_spec = integrator_rp::retry_rtol_spec > 0 ?
+            integrator_rp::retry_rtol_spec : integrator_rp::rtol_spec;
 
     }
 
