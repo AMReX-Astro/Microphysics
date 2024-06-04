@@ -25,6 +25,11 @@ bool in_nse(T& state, const bool relax = false) {
     bool nse_check = false;
 
     if (state.rho > f * rho_nse && state.T > f * T_nse) {
+        // Ma checks on Fe-group
+        // and C-group 
+        // and He-group
+        // also make sure there is not a lot of O16 (O16 burning will dominate then) or Si28
+
         Real Fe_group = 0.0_rt;
         Real C_group = 0.0_rt;
         Real He_group = 0.0_rt;
@@ -40,13 +45,17 @@ bool in_nse(T& state, const bool relax = false) {
         };
 
         if constexpr (std::is_same_v<T, burn_t>) {
-            #ifdef STRANG
+            // for a burn_t, we need to use a different field
+            // depending on whether we are strang of simplified-SDC
+           
+ #ifdef STRANG
             add_to_group(Fe_group, 24, 28); // range for Fe-group
             add_to_group(C_group, 6, 7);    // range for C-group
             add_to_group(He_group, 1, 2);   // range for He-group
             add_to_group(O_group, 8, 8);    // range for O-group
             add_to_group(Si_group, 14, 14); // range for Si-group
-            #else
+#else
+            // we need to get the mass fractions from the conserved state passed in
             auto add_to_group_y = [&state](Real& group, int zion_start, int zion_end) {
                 for (int spec = 1; spec <= NumSpec; ++spec) {
                     if (NetworkProperties::zion(spec) >= zion_start && NetworkProperties::zion(spec) <= zion_end) {
@@ -60,8 +69,11 @@ bool in_nse(T& state, const bool relax = false) {
             add_to_group_y(He_group, 1, 2);
             add_to_group_y(O_group, 8, 8);
             add_to_group_y(Si_group, 14, 14);
-            #endif
+#endif
+
         } else {
+            // this covers the various eos_t's
+
             add_to_group(Fe_group, 24, 28);
             add_to_group(C_group, 6, 7);
             add_to_group(He_group, 1, 2);
