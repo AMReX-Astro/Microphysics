@@ -242,8 +242,8 @@ forward rate to just be the first rate.  We do not include reverse
 rates for these processes.
 
 
-subch_full (Deprecated)
-------------------------
+subch_full
+----------
 
 subch_full, also known as subch2, does not create an effective rate
 for :math:`(\alpha, \gamma)` and :math:`(\alpha, p)(p, \gamma)`
@@ -257,8 +257,12 @@ The overall network appears as:
 .. figure:: subch_full.png
    :align: center
 
-subch_approx (Deprecated)
---------------------------
+.. note::
+   subch_full has been removed in
+   commit 19108a72c2dc81e251669ef0fed4edf7e6a3f9ed
+
+subch_approx
+------------
 
 subch_approx, also known as subch, approximates subch_full by
 combining some of the :math:`A(\alpha,p)X(p,\gamma)B` links with
@@ -274,6 +278,10 @@ The resulting network appears as:
 The nuclei in gray are not part of the network, but the links to them
 are approximated.  This reduces the number of nuclei compared to subch_full
 from 28 to 22.
+
+.. note::
+   subch_approx has been removed in
+   commit 19108a72c2dc81e251669ef0fed4edf7e6a3f9ed
 
 subch_simple
 -------------
