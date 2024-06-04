@@ -260,11 +260,12 @@ The overall network appears as:
 subch_approx (Deprecated)
 --------------------------
 
-subch_approx approximates subch_full by combining some of the
-:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
-allowing us to drop the intermediate nucleus :math:`X`.  We do this
-for :math:`\isotm{Cl}{35}`, :math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`,
-:math:`\isotm{V}{47}`, :math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
+subch_approx, also known as subch, approximates subch_full by
+combining some of the :math:`A(\alpha,p)X(p,\gamma)B` links with
+:math:`A(\alpha,\gamma)B`, allowing us to drop the intermediate
+nucleus :math:`X`.  We do this for :math:`\isotm{Cl}{35}`,
+:math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`, :math:`\isotm{V}{47}`,
+:math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
 The resulting network appears as:
 
 .. figure:: subch_approx.png
