@@ -296,13 +296,13 @@ subch_simple further simplifies subch_approx by the following:
 
 .. warning::
    Due to inclusion of the rate sequence, n14(a, g)f18(a, p)ne21, there is
-   an artifical end-point at Na22.
+   an artificial end-point at Na22.
 
 subch_base
 -----------
 
 subch_base is the simplest subch network. It is created to reconcile the
-artifical end-point at :math:`\isotm{Na}{22}`. This is done by excluding
+artificial end-point at :math:`\isotm{Na}{22}`. This is done by excluding
 :math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`, :math:`\isotm{Ne}{21}`,
 and :math:`\isotm{Na}{22}`. These nuclei were added to include
 :math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}`
