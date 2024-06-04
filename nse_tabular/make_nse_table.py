@@ -107,17 +107,17 @@ def output_header(Ts, rhos, yes):
         nse_h.write(f"    constexpr int nden = {len(rhos)};\n")
         nse_h.write(f"    constexpr int nye = {len(yes)};\n\n")
 
-        nse_h.write(f"    constexpr Real logT_min = {np.log10(Ts.min())};\n")
-        nse_h.write(f"    constexpr Real logT_max = {np.log10(Ts.max())};\n")
-        nse_h.write(f"    constexpr Real dlogT = {(np.log10(Ts.max()) - np.log10(Ts.min())) / (len(Ts) - 1)};\n\n")
+        nse_h.write(f"    constexpr amrex::Real logT_min = {np.log10(Ts.min())};\n")
+        nse_h.write(f"    constexpr amrex::Real logT_max = {np.log10(Ts.max())};\n")
+        nse_h.write(f"    constexpr amrex::Real dlogT = {(np.log10(Ts.max()) - np.log10(Ts.min())) / (len(Ts) - 1)};\n\n")
 
-        nse_h.write(f"    constexpr Real logrho_min = {np.log10(rhos.min())};\n")
-        nse_h.write(f"    constexpr Real logrho_max = {np.log10(rhos.max())};\n")
-        nse_h.write(f"    constexpr Real dlogrho = {(np.log10(rhos.max()) - np.log10(rhos.min())) / (len(rhos) - 1)};\n\n")
+        nse_h.write(f"    constexpr amrex::Real logrho_min = {np.log10(rhos.min())};\n")
+        nse_h.write(f"    constexpr amrex::Real logrho_max = {np.log10(rhos.max())};\n")
+        nse_h.write(f"    constexpr amrex::Real dlogrho = {(np.log10(rhos.max()) - np.log10(rhos.min())) / (len(rhos) - 1)};\n\n")
 
-        nse_h.write(f"    constexpr Real ye_min = {yes.min()};\n")
-        nse_h.write(f"    constexpr Real ye_max = {yes.max()};\n")
-        nse_h.write(f"    constexpr Real dye = {(yes.max() - yes.min()) / (len(yes) - 1)};\n\n")
+        nse_h.write(f"    constexpr amrex::Real ye_min = {yes.min()};\n")
+        nse_h.write(f"    constexpr amrex::Real ye_max = {yes.max()};\n")
+        nse_h.write(f"    constexpr amrex::Real dye = {(yes.max() - yes.min()) / (len(yes) - 1)};\n\n")
 
         nse_h.write("}\n")
         nse_h.write("#endif\n")
