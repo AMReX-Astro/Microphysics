@@ -26,7 +26,7 @@ bool in_nse(T& state, const bool relax = false) {
 
     if (state.rho > f * rho_nse && state.T > f * T_nse) {
         // Ma checks on Fe-group
-        // and C-group 
+        // and C-group
         // and He-group
         // also make sure there is not a lot of O16 (O16 burning will dominate then) or Si28
 
@@ -47,8 +47,8 @@ bool in_nse(T& state, const bool relax = false) {
         if constexpr (std::is_same_v<T, burn_t>) {
             // for a burn_t, we need to use a different field
             // depending on whether we are strang or simplified-SDC
-           
- #ifdef STRANG
+
+#ifdef STRANG
             add_to_group(Fe_group, 24, 28); // range for Fe-group
             add_to_group(C_group, 6, 7);    // range for C-group
             add_to_group(He_group, 1, 2);   // range for He-group
