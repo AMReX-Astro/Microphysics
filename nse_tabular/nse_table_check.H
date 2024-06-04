@@ -46,7 +46,7 @@ bool in_nse(T& state, const bool relax = false) {
 
         if constexpr (std::is_same_v<T, burn_t>) {
             // for a burn_t, we need to use a different field
-            // depending on whether we are strang of simplified-SDC
+            // depending on whether we are strang or simplified-SDC
            
  #ifdef STRANG
             add_to_group(Fe_group, 24, 28); // range for Fe-group
