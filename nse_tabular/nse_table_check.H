@@ -49,7 +49,7 @@ bool in_nse(T& state, const bool relax = false) {
             // depending on whether we are strang or simplified-SDC
 
 #ifdef STRANG
-            add_to_group(Fe_group, 24, 28); // range for Fe-group
+            add_to_group(Fe_group, 24, 30); // range for Fe-group
             add_to_group(C_group, 6, 7);    // range for C-group
             add_to_group(He_group, 1, 2);   // range for He-group
             add_to_group(O_group, 8, 8);    // range for O-group
@@ -64,7 +64,7 @@ bool in_nse(T& state, const bool relax = false) {
                 }
                 group /= state.rho;
             };
-            add_to_group_y(Fe_group, 24, 28);
+            add_to_group_y(Fe_group, 24, 30);
             add_to_group_y(C_group, 6, 7);
             add_to_group_y(He_group, 1, 2);
             add_to_group_y(O_group, 8, 8);
@@ -74,7 +74,7 @@ bool in_nse(T& state, const bool relax = false) {
         } else {
             // this covers the various eos_t's
 
-            add_to_group(Fe_group, 24, 28);
+            add_to_group(Fe_group, 24, 30);
             add_to_group(C_group, 6, 7);
             add_to_group(He_group, 1, 2);
             add_to_group(O_group, 8, 8);
