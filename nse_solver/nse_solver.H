@@ -83,6 +83,7 @@ T get_nonexponent_nse_state(const T& state) {
     return nse_state;
 }
 
+#if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
@@ -134,7 +135,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         u_c(n+1) = f;
     }
 }
-
+#endif
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE

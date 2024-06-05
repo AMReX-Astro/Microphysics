@@ -27,10 +27,6 @@ NETWORK_DIR := aprox13
 
 CONDUCTIVITY_DIR := stellar
 
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
-
 EXTERN_SEARCH += .
 
 Bpack   := ./Make.package

@@ -86,7 +86,7 @@ main_doc = 'index'
 
 # General information about the project.
 project = 'Microphysics'
-copyright = '2012, Microphysics Development Team'
+copyright = '2024, Microphysics Development Team'
 author = 'Microphysics Development Team'
 
 # The version info for the project you're documenting, acts as replacement for

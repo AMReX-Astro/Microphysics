@@ -24,17 +24,10 @@ EOS_DIR     := helmholtz
 
 # This sets the network directory
 NETWORK_DIR := aprox19
-USE_NSE_TABLE := TRUE
 
-CONDUCTIVITY_DIR := stellar
-
-INTEGRATOR_DIR =  VODE
-
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-

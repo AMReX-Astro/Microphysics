@@ -1,3 +1,28 @@
+# 24.06
+
+   * added the ability to access the runtime parameters via a struct.
+     This will eventually be used to remove the dependency on globals
+     (#1433, #1575)
+
+   * simplified the integrators by extracting common infrastructure
+     into setup and cleanup functions (#1515, #1546)
+
+   * lots of documentation improvements including sectioning (#1559)
+     integrators (#1560, #1561, #1562, #1563, #1566, #1567, #1568),
+     runtime parameters (#1557), and link checking (#1552)
+
+   * CUDA no longer requires VODE + generalize some `AMREX_USE_CUDA`
+     to `AMREX_USE_GPU` (#1564)
+
+   * self-consistent NSE now accepted the temperature threshold as a
+     runtime parameter (#1558)
+
+   * general code cleanups (#1537, #1551, #1553, #1554)
+
+   * unit tests no longer append `.cxx` to output (#1309)
+
+   * added an `eos_rh_t` EOS type (#1539)
+
 # 24.05
 
    * Runtime parameters can now be type `bool` (#1536)
