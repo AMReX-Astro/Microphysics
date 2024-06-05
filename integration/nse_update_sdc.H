@@ -369,7 +369,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     amrex::Array1D<amrex::Real, 1, NumSpec> Y;
     amrex::Array1D<amrex::Real, 1, neqs> ydot_weak;
-    amrex::Real e_nu = 0.0_rt;
+    amrex::Real e_nu {0.0_rt};
 
     for (int n = 1; n <= NumSpec; ++n) {
         Y(n) = nse_state0.xn[n-1] * aion_inv[n-1];
@@ -384,8 +384,8 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // need dyedt to find evolution in Ye to determine new state.
 
     dyedt = 0.0_rt;
-    for (int n = 1; n <= NumSpec; ++n) {
-        dyedt += ydot_weak(n) * zion[n-1];
+    for (int n = 0; n < NumSpec; ++n) {
+        dyedt +=  zion[n]*(ydot_weak(n+1) + ydot_a[SFS+n]*aion_inv[n]/rho0);
     }
 
     ///
