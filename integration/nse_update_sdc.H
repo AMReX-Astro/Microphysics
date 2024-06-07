@@ -326,6 +326,7 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
     burn_state.mu_n = mu_n;
     for (int n = 0; n < NumSpec; n++) {
         burn_state.xn[n] = Xn0[n];
+        burn_state.y[SFS+n] = rho0 * Xn0[n];
     }
 
     // Get updated temperature
@@ -419,7 +420,8 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
 
     for (int n = 0; n < NumSpec; n++) {
         burn_state.xn[n] = Xn0[n] + tau * ydot_weak(n+1) * aion[n]
-                                  + tau * ydot_a[SFS+n] / rho0;
+                                  + tau * ydot_a[SFS+n] / rho1;
+        burn_state.y[SFS+n] = rho1 * burn_state.xn[n];
     }
 
     // compute the temperature at t0 + tau
@@ -522,6 +524,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     for (int n = 0; n < NumSpec; n++) {
         burn_state.xn[n] = Xn_old[n] + 0.5_rt * dt * state.ydot_a[SFS+n] / rho_tmp
                                      + 0.5_rt * dt * ydot_weak(n+1) * aion[n];
+        burn_state.y[SFS+n] = burn_state.xn[n] * rho_tmp;
     }
 
     if (state.T_fixed > 0) {
@@ -557,6 +560,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     for (int n = 0; n < NumSpec; n++) {
         burn_state.xn[n] = Xn_old[n] + dt * state.ydot_a[SFS+n] / rho_new
                                      + dt * ydot_weak(n+1) * aion[n];
+        burn_state.y[SFS+n] = burn_state.xn[n] * rho_new;
     }
 
     if (state.T_fixed > 0) {
