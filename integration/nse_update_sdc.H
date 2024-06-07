@@ -360,7 +360,6 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
     // Get molar fractions, ydots and neutrino loss due to weak rates
 
     amrex::Array1D<amrex::Real, 1, NumSpec> Y;
-    amrex::Array1D<amrex::Real, 1, neqs> ydot_weak;
     amrex::Real e_nu {0.0_rt};
 
     for (int n = 1; n <= NumSpec; ++n) {
@@ -499,7 +498,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real drhoedt{0.0_rt};
     // amrex::Real dyedt{0.0_rt};
-    amrex::Real ydot_weak{0.0_rt};
+    amrex::Array1D<amrex::Real, 1, neqs> ydot_weak;
 
     nse_derivs(Xn_old, rho_old, rhoe_old,
                dt, mu_p, mu_n,
@@ -524,7 +523,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
                                      + 0.5_rt * dt * ydot_weak(n+1) * aion[n];
     }
 
-    if (T_fixed > 0) {
+    if (state.T_fixed > 0) {
         burn_state.T = T_fixed;
     } else {
         burn_state.e= rhoe_tmp / rho_tmp;
