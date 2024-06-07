@@ -334,6 +334,8 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
     if (T_fixed > 0) {
         burn_state.T = T_fixed;
     } else {
+        // initial guess for eos
+        burn_state.T = 1.0e8_rt;
         burn_state.e = rhoe0 / rho0;
         eos(eos_input_re, burn_state);
     }
@@ -429,6 +431,8 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
     if (T_fixed > 0) {
         burn_state.T = T_fixed;
     } else {
+        // initial guess for eos
+        burn_state.T = 1.0e8_rt;
         burn_state.e= rhoe1 / rho1;
         eos(eos_input_re, burn_state);
     }
@@ -530,6 +534,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     if (state.T_fixed > 0) {
         burn_state.T = state.T_fixed;
     } else {
+        // initial guess for EOS
+        burn_state.T = state.T;
         burn_state.e= rhoe_tmp / rho_tmp;
         eos(eos_input_re, burn_state);
     }
@@ -566,6 +572,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     if (state.T_fixed > 0) {
         burn_state.T = state.T_fixed;
     } else {
+        // some initial guess for eos
+        burn_state.T = state.T;
         burn_state.e = rhoe_new / rho_new;
         eos(eos_input_re, burn_state);
     }
