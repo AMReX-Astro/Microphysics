@@ -550,7 +550,6 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // Update the temperature with new internal energy
 
-    burn_t burn_state;
     burn_state.rho = rho_new;
     burn_state.mu_p = mu_p;
     burn_state.mu_n = mu_n;
