@@ -304,7 +304,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 /// Self-Consistent NSE VERSION
 
 ///
-/// this acts as an explicit Euler step for the system (rho e, rho ye)
+/// this acts as an explicit Euler step for the system (rho e, rho)
 /// on input, *_source are the reactive sources at time t0 and on output
 /// they are the sources at time t0+dt
 ///
@@ -346,17 +346,27 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
 
     // compute the plasma neutrino losses at t0
 
-    amrex::Real snu{0.0};
-    amrex::Real dsnudt{0.0};
-    amrex::Real dsnudd{0.0};
-    amrex::Real dsnuda{0.0};
-    amrex::Real dsnudz{0.0};
+    amrex::Real snu{0.0_rt};
+    amrex::Real dsnudt{0.0_rt};
+    amrex::Real dsnudd{0.0_rt};
+    amrex::Real dsnuda{0.0_rt};
+    amrex::Real dsnudz{0.0_rt};
+
+    amrex::Real abar{0.0_rt};
+    amrex::Real zbar{0.0_rt};
+
+    for (int n = 0; n < NumSpec; ++n) {
+        abar += Xn0[n] * aion_inv[n];
+        zbar += Xn0[n] * zion[n] * aion_inv[n];
+    }
+    abar = 1.0_rt / abar;
+    zbar *= abar;
 
 #ifdef NEUTRINOS
     {
         constexpr int do_derivatives = 0;
-        sneut5<do_derivatives>(burn_state.T, rho0, burn_state.abar,
-                               burn_state.zbar, snu, dsnudt, dsnudd,
+        sneut5<do_derivatives>(burn_state.T, rho0, abar,
+                               zbar, snu, dsnudt, dsnudd,
                                dsnuda, dsnudz);
     }
 #endif
@@ -368,12 +378,21 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
 
     for (int n = 1; n <= NumSpec; ++n) {
         Y(n) = nse_state0.xn[n-1] * aion_inv[n-1];
+        // Y(n) = Xn0[n-1] * aion_inv[n-1];
     }
 
     // Fill in ydot with only weak rates contributing
 
     get_ydot_weak(nse_state0, ydot_weak, e_nu, Y);
 
+    // rate_t rate_eval;
+
+    // constexpr int do_T_derivatives = 0;
+
+    // evaluate_rates<do_T_derivatives, rate_t>(burn_state, rate_eval);
+
+    // rhs_nuc(burn_state, ydot_weak, Y, rate_eval.screened_rates);
+    // e_nu = rate_eval.enuc_weak;
     // Find dyedt from ydot
     // Even though we don't use it to find enuc
     // need dyedt to find evolution in Ye to determine new state.
@@ -420,10 +439,11 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
     // using ydot_weak and advection bit.
     // This updates Ye.
 
+    // burn_state.y_e = Ye1;
     for (int n = 0; n < NumSpec; n++) {
-        burn_state.xn[n] = Xn0[n] + tau * ydot_weak(n+1) * aion[n]
-                                  + tau * ydot_a[SFS+n] / rho1;
-        burn_state.y[SFS+n] = rho1 * burn_state.xn[n];
+        burn_state.y[SFS+n] = rho0 * Xn0[n] + tau * ydot_weak(n+1) * aion[n] * rho0
+                                            + tau * ydot_a[SFS+n];
+        burn_state.xn[n] = burn_state.y[SFS+n] / burn_state.rho;
     }
 
     // compute the temperature at t0 + tau
@@ -439,6 +459,7 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
 
     // call NSE at t0 + tau with
 
+    // update ye
     // burn_state.y_e = Ye1;
 
     // Note this new NSE state has the contribution from advection
@@ -453,6 +474,8 @@ void nse_derivs(const amrex::Real *Xn0, const amrex::Real rho0,
     for (int n = 0; n < NumSpec; ++n) {
         drhoedt += (rho1 * nse_state1.xn[n] - tau * ydot_a[SFS+n] -
                     rho0 * nse_state0.xn[n]) * aion_inv[n] * network::mion(n+1) / tau;
+        // drhoedt += (rho1 * nse_state1.xn[n] - tau * ydot_a[SFS+n] -
+        //             rho0 * Xn0[n]) * aion_inv[n] * network::mion(n+1) / tau;
     }
     drhoedt *= C::Legacy::enuc_conv2;
 
@@ -526,22 +549,23 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     burn_state.mu_n = mu_n;
 
     for (int n = 0; n < NumSpec; n++) {
-        burn_state.xn[n] = Xn_old[n] + 0.5_rt * dt * state.ydot_a[SFS+n] / rho_tmp
-                                     + 0.5_rt * dt * ydot_weak(n+1) * aion[n];
-        burn_state.y[SFS+n] = burn_state.xn[n] * rho_tmp;
+        burn_state.y[SFS+n] = rho_old * Xn_old[n] + 0.5_rt * dt * ydot_weak(n+1) * aion[n] * rho_old
+                                                  + 0.5_rt * dt * state.ydot_a[SFS+n];
+        burn_state.xn[n] = burn_state.y[SFS+n] / burn_state.rho;
     }
 
     if (state.T_fixed > 0) {
         burn_state.T = state.T_fixed;
     } else {
         // initial guess for EOS
-        burn_state.T = state.T;
-        burn_state.e= rhoe_tmp / rho_tmp;
+        burn_state.T = 1.0e8_rt;
+        burn_state.e = rhoe_tmp / rho_tmp;
         eos(eos_input_re, burn_state);
     }
 
     // Get the NSE state at midpoint in time
 
+    // burn_state.y_e = ye_tmp;
     auto nse_state = get_actual_nse_state(burn_state);
 
     // compute the derivatives at the midpoint in time
@@ -564,16 +588,16 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     burn_state.mu_n = mu_n;
 
     for (int n = 0; n < NumSpec; n++) {
-        burn_state.xn[n] = Xn_old[n] + dt * state.ydot_a[SFS+n] / rho_new
-                                     + dt * ydot_weak(n+1) * aion[n];
-        burn_state.y[SFS+n] = burn_state.xn[n] * rho_new;
+        burn_state.y[SFS+n] = rho_old * Xn_old[n] + dt * ydot_weak(n+1) * aion[n] * rho_old
+                                                  + dt * state.ydot_a[SFS+n];
+        burn_state.xn[n] = burn_state.y[SFS+n] / burn_state.rho;
     }
 
     if (state.T_fixed > 0) {
         burn_state.T = state.T_fixed;
     } else {
         // some initial guess for eos
-        burn_state.T = state.T;
+        burn_state.T = 1.0e8_rt;
         burn_state.e = rhoe_new / rho_new;
         eos(eos_input_re, burn_state);
     }
