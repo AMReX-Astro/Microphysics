@@ -135,7 +135,8 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
 
         amrex::Real f = eos_state.e - e_in;
 
-        amrex::Real dabar_dT = nse_dabar_dT(T, rho, Ye);
+        amrex::Real dabar_dT = nse_dabar_dT(T, rho, Ye,
+                                            nse_state.mu_p, nse_state.mu_n);
 
         // compute the correction to our guess
 
