@@ -743,6 +743,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     // With updated temp, rho, and ye get final NSE state
 
+    burn_t burn_state;
+    burn_state.T = T_new;
+    burn_state.rho = rho_new;
+    burn_state.y_e = Ye_new;
+
     nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
     // store the new state

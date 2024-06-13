@@ -155,7 +155,7 @@ amrex::Real nse_dabar_dT(const amrex::Real T,
                              nse_abar(T - 2.0_rt*dT, rho, Ye)
                             ) / (12.0_rt * dT);
 
-    return dabar_dT
+    return dabar_dT;
 }
 
 #endif
