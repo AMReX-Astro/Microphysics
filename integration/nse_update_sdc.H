@@ -492,7 +492,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
         T1 = T0;
         amrex::Real e1 = rhoe1 / rho1;
         amrex::Real abar1;
-        nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1)
+        nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1);
 
         // need to update other quantities used for eos
         // Note that abar and zbar is from the previous NSE state at t0,
