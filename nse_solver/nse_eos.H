@@ -26,7 +26,7 @@ amrex::Real nse_abar(const amrex::Real T,
 
     auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
-    amrex::Real abar{0.0_rt}
+    amrex::Real abar{0.0_rt};
     for (int n = 0; n < NumSpec; ++n) {
         abar += nse_state.xn[n] * aion_inv[n];
     }
