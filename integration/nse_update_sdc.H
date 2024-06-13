@@ -351,7 +351,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
         // burn_state.mu_e = 1.0_rt / burn_state.y_e;
         // burn_state.abar = abar0;
         // burn_state.zbar = abar0 * burn_state.y_e;
-        nse_T_abar_from_e(rho0, e0, Ye0, T0, abar);
+        nse_T_abar_from_e(rho0, e0, Ye0, T0, abar, mu_p, mu_n);
         // eos(eos_input_re, burn_state, true);
     }
 
@@ -492,7 +492,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
         T1 = T0;
         amrex::Real e1 = rhoe1 / rho1;
         amrex::Real abar1;
-        nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1);
+        nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1, mu_p, mu_n);
 
         // need to update other quantities used for eos
         // Note that abar and zbar is from the previous NSE state at t0,
@@ -666,11 +666,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     if (state.T_fixed > 0) {
         // get corresponding abar using the NSE state
-        abar_tmp = nse_abar(state.T_fixed, rho_tmp, Ye_tmp);
+        abar_tmp = nse_abar(state.T_fixed, rho_tmp, Ye_tmp, mu_p, mu_n);
     } else {
         T_tmp = 3.0e9_rt;
         amrex::Real e_tmp = rhoe_tmp / rho_tmp;
-        nse_T_abar_from_e(rho_tmp, e_tmp, Ye_tmp, T_tmp, abar_tmp);
+        nse_T_abar_from_e(rho_tmp, e_tmp, Ye_tmp, T_tmp, abar_tmp, mu_p, mu_n);
         // initial guess for EOS
         // burn_state.T = 1.0e8_rt;
         // burn_state.e = rhoe_tmp / rho_tmp;
@@ -724,12 +724,12 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     if (state.T_fixed > 0) {
         T_new = state.T_fixed;
-        abar_new = nse_abar(T_new, rho_new, Ye_new);
+        abar_new = nse_abar(T_new, rho_new, Ye_new, mu_p, mu_n);
     } else {
         T_new = T_tmp;
         amrex::Real e_new = rhoe_new / rho_new;
         amrex::Real abar_new;
-        nse_T_abar_from_e(rho_new, e_new, Ye_new, T_new, abar_new);
+        nse_T_abar_from_e(rho_new, e_new, Ye_new, T_new, abar_new, mu_p, mu_n);
         // some initial guess for eos
         // burn_state.T = 1.0e8_rt;
         // burn_state.e = rhoe_new / rho_new;
@@ -747,6 +747,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     burn_state.T = T_new;
     burn_state.rho = rho_new;
     burn_state.y_e = Ye_new;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
 
     auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 

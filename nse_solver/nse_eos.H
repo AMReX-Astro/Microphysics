@@ -9,11 +9,10 @@
 #include <nse_solver.H>
 
 
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real nse_abar(const amrex::Real T,
-                     const amrex::Real rho,
-                     const amrex::Real Ye) {
+amrex::Real nse_abar(const amrex::Real T, const amrex::Real rho,
+                     const amrex::Real Ye, const Real mu_p=-3.0_rt,
+                     const Real mu_n=-12.0_rt) {
     ///
     /// This function calculates abar from NSE using
     /// Temp, rho, and Ye
@@ -23,6 +22,8 @@ amrex::Real nse_abar(const amrex::Real T,
     burn_state.rho = rho;
     burn_state.y_e = Ye;
     burn_state.T = T;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
 
     auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
@@ -36,9 +37,9 @@ amrex::Real nse_abar(const amrex::Real T,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real nse_dabar_dT(const amrex::Real T,
-                         const amrex::Real rho,
-                         const amrex::Real Ye) {
+amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
+                         const amrex::Real Ye, const Real mu_p=-3.0_rt,
+                         const Real mu_n=-12.0_rt) {
     ///
     /// This function calculates dabar_dT using
     /// five-point stencil method.
@@ -51,10 +52,10 @@ amrex::Real nse_dabar_dT(const amrex::Real T,
 
     // Caclulate derivative using five-point stencil method
 
-    amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye) +
-                             8.0_rt * nse_abar(T+dT, rho, Ye) -
-                             8.0_rt * nse_abar(T-dT, rho, Ye) +
-                             nse_abar(T - 2.0_rt*dT, rho, Ye)
+    amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
+                             8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
+                             8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
+                             nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
                             ) / (12.0_rt * dT);
 
     return dabar_dT;
@@ -87,7 +88,8 @@ amrex::Real nse_dabar_dT(const amrex::Real T,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void
 nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
-                  Real& T, Real& abar) {
+                  Real& T, Real& abar,
+                  const Real mu_p=-3.0_rt, const Real mu_n=-12.0_rt) {
 
     constexpr Real ttol{1.e-6_rt};
     constexpr int max_iter{100};
@@ -99,24 +101,20 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
 
     int iter{0};
 
+    // initialize burn_state
+    burn_t burn_state;
+    burn_state.rho = rho;
+    burn_state.y_e = Ye;
+    burn_state.mu_p = mu_p;
+    burn_state.mu_n = mu_n;
+
     while (not converged && iter < max_iter) {
 
-        // fill in Temp, rho, and Ye to get NSE state
-
-        burn_t burn_state;
+        // update Temperature
 
         burn_state.T = T;
-        burn_state.rho = rho;
-        burn_state.y_e = Ye;
 
         auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
-
-        // amrex::Real abar_old{0.0_rt];
-
-        // for (int n = 0; n < NumSpec; ++n) {
-        //     abar_old = nse_state.xn[n] * aion_inv[n];
-        // }
-        // abar_old = 1.0_rt / abar_old;
 
         // call the EOS with the initial guess for T
         // as well as density and NSE mass fractions
