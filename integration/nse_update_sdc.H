@@ -568,7 +568,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     if (state.T_fixed > 0) {
         T_new = state.T_fixed;
     } else {
-        T_new = T_tmp;
+        // initial eos guess
+        T_new = 5.0e9_rt;
         amrex::Real e_new = rhoe_new / rho_new;
         amrex::Real abar_new;
         nse_T_abar_from_e(rho_new, e_new, Ye_new, T_new, abar_new, mu_p, mu_n);

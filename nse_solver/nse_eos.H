@@ -154,6 +154,11 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
         T = std::clamp(T + dT, 0.25 * T, 4.0 * T);
         abar = eos_state.abar;
 
+        // update mu_p and mu_n
+
+        mu_p = nse_state.mu_p;
+        mu_n = nse_state.mu_n;
+
         // check convergence
 
         if (std::abs(dT) < ttol * T) {
@@ -163,10 +168,6 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
 
     }
 
-    // update mu_p and mu_n
-
-    mu_p = nse_state.mu_p;
-    mu_n = nse_state.mu_n;
 }
 
 #endif
