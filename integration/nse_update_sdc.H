@@ -311,9 +311,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
-                const amrex::Real rhoYe0, const amrex::Real abar0,
-                const amrex::Real dt,
-                const amrex::Real mu_p, const amrex::Real mu_n,
+                const amrex::Real rhoYe0, const amrex::Real dt,
+                amrex::Real &mu_p, amrex::Real &mu_n,
                 amrex::Real &drhoyedt_weak, const amrex::Real drhoyedt_a,
                 amrex::Array1D<amrex::Real, 1, neqs> &ydot_weak,
                 const amrex::Real *ydot_a, amrex::Real& drhoedt,
@@ -323,39 +322,20 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     amrex::Real T0;
     amrex::Real Ye0 = rhoYe0 / rho0;
-    amrex::Real abar;
-    // create burn state at t0
+    amrex::Real abar{0.0_rt};
 
-    // burn_t burn_state;
-    // burn_state.rho = rho0;
-    // burn_state.mu_p = mu_p;
-    // burn_state.mu_n = mu_n;
-    // burn_state.y_e = rhoYe0 / rho0;
-
-    // for (int n = 0; n < NumSpec; n++) {
-    //     burn_state.xn[n] = Xn0[n];
-    //     burn_state.y[SFS+n] = rho0 * Xn0[n];
-    // }
-
-    // Get initial temperature
+    // Get initial temperature and abar for
 
     if (T_fixed > 0) {
         T0 = T_fixed;
-        abar = abar0;
     } else {
         // initial guess for eos
-        T0 = 3.0e9_rt;
+        T0 = 5.0e9_rt;
         amrex::Real e0 = rhoe0 / rho0;
-
-        // initialize some variables for eos
-        // burn_state.mu_e = 1.0_rt / burn_state.y_e;
-        // burn_state.abar = abar0;
-        // burn_state.zbar = abar0 * burn_state.y_e;
         nse_T_abar_from_e(rho0, e0, Ye0, T0, abar, mu_p, mu_n);
-        // eos(eos_input_re, burn_state, true);
     }
 
-    // initialize burn_state
+    // initialize burn_state for NSE state
 
     burn_t burn_state;
 
@@ -369,16 +349,17 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     auto nse_state0 = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
-    // this part is probably not need since abar is already update in eos call
+    // Still need to get abar for T_fixed > 0
 
-    // abar0 = 0.0_rt;
-    // for (int n = 0; n < NumSpec; ++n) {
-    //     abar0 = nse_state0.xn[n] * aion_inv[n];
-    // }
-    // abar0 = 1.0_rt / abar0;
+    if (T_fixed > 0) {
+        for (int n; n < NumSpec; ++n) {
+            abar += nse_state0.xn[n] * aion_inv[n];
+        }
+        abar = 1.0_rt / abar;
+    }
 
     // compute the plasma neutrino losses
-    // and update abar and zbar at t0 using NSE state
+    // here abar should already be in-sync with NSE
 
     amrex::Real snu{0.0_rt};
     amrex::Real dsnudt{0.0_rt};
@@ -412,11 +393,8 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     get_ydot_weak(nse_state0, ydot_weak, e_nu, Y);
 
     // rate_t rate_eval;
-
     // constexpr int do_T_derivatives = 0;
-
     // evaluate_rates<do_T_derivatives, rate_t>(burn_state, rate_eval);
-
     // rhs_nuc(burn_state, ydot_weak, Y, rate_eval.screened_rates);
     // e_nu = rate_eval.enuc_weak;
 
@@ -434,7 +412,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     // find rhoe_source
 
-    amrex::Real rhoe_source = 0.0_rt;
+    amrex::Real rhoe_source{0.0_rt};
     for (int n = 1; n <= NumSpec; ++n) {
         rhoe_source += rho0 * ydot_weak(n) * network::mion(n);
     }
@@ -461,25 +439,6 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     amrex::Real rhoe1 = rhoe0 + tau * (ydot_a[SEINT] + rhoe_source);
     amrex::Real rhoYe1 = rhoYe0 + tau * (drhoyedt_weak + drhoyedt_a);
 
-    // update burn_state
-
-
-    // burn_state.rho = rho1;
-    // burn_state.y_e = rhoYe1 / rho1;
-
-    // predict the mass fractions at time t0 + tau
-    // using ydot_weak and advection bit.
-    // This updates Ye.
-
-    // burn_state.y_e = Ye1;
-    // for (int n = 0; n < NumSpec; n++) {
-    //     burn_state.y[SFS+n] = rho0 * Xn0[n] + tau * ydot_weak(n+1) * aion[n] * rho0
-    //                                         + tau * ydot_a[SFS+n];
-    //     // burn_state.y[SFS+n] = rho0 * nse_state0.xn[n] + tau * ydot_weak(n+1) * aion[n] * rho0
-    //     //                                               + tau * ydot_a[SFS+n];
-    //     burn_state.xn[n] = burn_state.y[SFS+n] / burn_state.rho;
-    // }
-
     // compute the temperature at t0 + tau
 
     amrex::Real T1;
@@ -493,19 +452,6 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
         amrex::Real e1 = rhoe1 / rho1;
         amrex::Real abar1;
         nse_T_abar_from_e(rho1, e1, Ye1, T1, abar1, mu_p, mu_n);
-
-        // need to update other quantities used for eos
-        // Note that abar and zbar is from the previous NSE state at t0,
-        // so it is technically not in sync with NSE at t0+dt
-        // So in the future I might need to do a
-        // consistent EOS update with NSE.
-
-        // burn_state.mu_e = 1.0_rt / burn_state.y_e;
-        // burn_state.abar = abar;
-        // burn_state.zbar = zbar;
-
-        // here use raw input
-        // eos(eos_input_re, burn_state, true);
     }
 
     // update burn_state at t0 + tau
@@ -516,8 +462,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     // call NSE at t0 + tau with
 
-    // Note this new NSE state has the contribution from advection
-    // Also just use the input y_e so set input_ye_is_valid=true
+    // Note this new NSE state has advection contribution
 
     auto nse_state1 = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
@@ -534,51 +479,12 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     }
     drhoedt *= C::Legacy::enuc_conv2;
 
-    // Get updated ydot_weak again
-
-    // for (int n = 1; n <= NumSpec; ++n) {
-    //     Y(n) = nse_state1.xn[n-1] * aion_inv[n-1];
-    // }
-
-    // get_ydot_weak(nse_state1, ydot_weak, e_nu, Y);
-
-    // evaluate_rates<do_T_derivatives, rate_t>(nse_state1, rate_eval);
-
-    // rhs_nuc(nse_state1, ydot_weak, Y, rate_eval.screened_rates);
-    // e_nu = rate_eval.enuc_weak;
-
-    // Should I call sneut5 and recalculate e_nu here?
-
-    // for (int n = 0; n < NumSpec; ++n) {
-    //     abar += nse_state1.xn[n] * aion_inv[n];
-    //     zbar += nse_state1.xn[n] * zion[n] * aion_inv[n];
-    // }
-    // abar = 1.0_rt / abar;
-    // zbar *= abar;
-
-// #ifdef NEUTRINOS
-//     {
-//         constexpr int do_derivatives = 0;
-//         sneut5<do_derivatives>(nse_state1.T, rho1, abar,
-//                                zbar, snu, dsnudt, dsnudd,
-//                                dsnuda, dsnudz);
-//     }
-// #endif
-
     // include neutrino terms again
 
-    // drhoedt -= rho1 * snu;
-    // if (integrator_rp::nse_include_enu_weak == 1) {
-    //     drhoedt += rho1 * e_nu;
-    // }
-
-
-    // update drhoyedt again
-
-    // drhoyedt_weak = 0.0_rt;
-    // for (int n = 0; n < NumSpec; ++n) {
-    //     drhoyedt_weak +=  rho1 * zion[n] * ydot_weak(n+1);
-    // }
+    drhoedt -= rho1 * snu;
+    if (integrator_rp::nse_include_enu_weak == 1) {
+        drhoedt += rho1 * e_nu;
+    }
 
 }
 
@@ -587,6 +493,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 /// update the state due to NSE changes for the simplified-SDC case
 /// this version works with the self-consistent NSE
 ///
+
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
@@ -602,12 +509,6 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real rhoye_old = rho_old * state.y_e;
     amrex::Real mu_p = state.mu_p;
     amrex::Real mu_n = state.mu_n;
-
-    amrex::Real abar_old{0.0_rt};
-    for (int n = 0; n < NumSpec; n++) {
-        abar_old += state.y[SFS+n] * aion_inv[n] / state.y[SRHO];
-    }
-    abar_old = 1.0_rt / abar_old;
 
     // density and momentum have no reactive sources
 
@@ -632,8 +533,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     }
 
     nse_derivs(rho_old, rhoe_old,
-               rhoye_old, abar_old,
-               dt, mu_p, mu_n,
+               rhoye_old, dt,
+               mu_p, mu_n,
                drhoyedt_weak, drhoyedt_a,
                ydot_weak, state.ydot_a,
                drhoedt, state.T_fixed);
@@ -644,60 +545,11 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real rhoe_tmp = rhoe_old + 0.5_rt * dt * (state.ydot_a[SEINT] + drhoedt);
     amrex::Real rhoye_tmp = rhoye_old + 0.5_rt * dt * (drhoyedt_weak + drhoyedt_a);
 
-    // // update temperature with new internal energy
-
-    // burn_t burn_state;
-    // burn_state.rho = rho_tmp;
-    // burn_state.mu_p = mu_p;
-    // burn_state.mu_n = mu_n;
-    // burn_state.y_e = rhoye_tmp / rho_tmp;
-
-    // for (int n = 0; n < NumSpec; n++) {
-    //     burn_state.y[SFS+n] = rho_old * Xn_old[n] + 0.5_rt * dt * ydot_weak(n+1) * aion[n] * rho_old
-    //                                               + 0.5_rt * dt * state.ydot_a[SFS+n];
-    //     burn_state.xn[n] = burn_state.y[SFS+n] / burn_state.rho;
-    // }
-
-    // update rhoabar_tmp
-
-    amrex::Real T_tmp;
-    amrex::Real Ye_tmp = rhoye_tmp / rho_tmp;
-    amrex::Real abar_tmp;
-
-    if (state.T_fixed > 0) {
-        // get corresponding abar using the NSE state
-        abar_tmp = nse_abar(state.T_fixed, rho_tmp, Ye_tmp, mu_p, mu_n);
-    } else {
-        T_tmp = 3.0e9_rt;
-        amrex::Real e_tmp = rhoe_tmp / rho_tmp;
-        nse_T_abar_from_e(rho_tmp, e_tmp, Ye_tmp, T_tmp, abar_tmp, mu_p, mu_n);
-        // initial guess for EOS
-        // burn_state.T = 1.0e8_rt;
-        // burn_state.e = rhoe_tmp / rho_tmp;
-
-        // // initialize various needed in eos
-        // burn_state.mu_e = 1.0_rt / burn_state.y_e;
-        // burn_state.abar = abar_old;
-        // burn_state.zbar = burn_state.y_e * abar_old;
-
-        // eos(eos_input_re, burn_state, true);
-    }
-
-    // Get the NSE state at midpoint in time
-
-    // auto nse_state = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
-    // amrex::Real abar_tmp{0.0_rt};
-
-    // for (int n = 0; n < NumSpec; ++n) {
-    //     abar_tmp += nse_state.xn[n] * aion_inv[n];
-    // }
-    // abar_tmp = 1.0_rt / abar_tmp;
-
     // compute the derivatives at the midpoint in time
 
     nse_derivs(rho_tmp, rhoe_tmp,
-               rhoye_tmp, abar_tmp,
-               dt, mu_p, mu_n,
+               rhoye_tmp, dt,
+               mu_p, mu_n,
                drhoyedt_weak, drhoyedt_a,
                ydot_weak, state.ydot_a,
                drhoedt, state.T_fixed);
@@ -712,36 +564,17 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real T_new;
     amrex::Real Ye_new = rhoye_new / rho_new;
-    amrex::Real abar_new;
-
-    // for (int n = 0; n < NumSpec; n++) {
-    //     burn_state.y[SFS+n] = rho_old * Xn_old[n] + dt * ydot_weak(n+1) * aion[n] * rho_old
-    //                                               + dt * state.ydot_a[SFS+n];
-    //     burn_state.xn[n] = burn_state.y[SFS+n] / burn_state.rho;
-    // }
-
-
 
     if (state.T_fixed > 0) {
         T_new = state.T_fixed;
-        abar_new = nse_abar(T_new, rho_new, Ye_new, mu_p, mu_n);
     } else {
         T_new = T_tmp;
         amrex::Real e_new = rhoe_new / rho_new;
         amrex::Real abar_new;
         nse_T_abar_from_e(rho_new, e_new, Ye_new, T_new, abar_new, mu_p, mu_n);
-        // some initial guess for eos
-        // burn_state.T = 1.0e8_rt;
-        // burn_state.e = rhoe_new / rho_new;
-        // burn_state.mu_e = 1.0_rt / burn_state.y_e;
-        // burn_state.abar = abar_tmp;
-        // burn_state.zbar = burn_state.y_e * abar_old;
-
-        // nse_T_abar_from_e();
-        // eos(eos_input_re, burn_state, true);
     }
 
-    // With updated temp, rho, and ye get final NSE state
+    // With updated temp, rho, and Ye get final NSE state
 
     burn_t burn_state;
     burn_state.T = T_new;

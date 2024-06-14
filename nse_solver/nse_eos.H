@@ -11,8 +11,8 @@
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real nse_abar(const amrex::Real T, const amrex::Real rho,
-                     const amrex::Real Ye, const Real mu_p=-3.0_rt,
-                     const Real mu_n=-12.0_rt) {
+                     const amrex::Real Ye, amrex::Real &mu_p,
+                     amrex::Real &mu_n) {
     ///
     /// This function calculates abar from NSE using
     /// Temp, rho, and Ye
@@ -32,14 +32,19 @@ amrex::Real nse_abar(const amrex::Real T, const amrex::Real rho,
         abar += nse_state.xn[n] * aion_inv[n];
     }
 
+    // update mu_p and mu_n
+
+    mu_p = burn_state.mu_p;
+    mu_n = burn_state.mu_n;
+
     return abar;
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
-                         const amrex::Real Ye, const Real mu_p=-3.0_rt,
-                         const Real mu_n=-12.0_rt) {
+                         const amrex::Real Ye, amrex::Real &mu_p,
+                         amrex::Real &mu_n) {
     ///
     /// This function calculates dabar_dT using
     /// five-point stencil method.
@@ -87,9 +92,10 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void
-nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
-                  Real& T, Real& abar,
-                  const Real mu_p=-3.0_rt, const Real mu_n=-12.0_rt) {
+nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
+                  const amrex::Real Ye,
+                  amrex::Real &T, amrex::Real &abar,
+                  amrex::Real &mu_p, amrex::Real &mu_n) {
 
     constexpr Real ttol{1.e-6_rt};
     constexpr int max_iter{100};
@@ -157,6 +163,10 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
 
     }
 
+    // update mu_p and mu_n
+
+    mu_p = nse_state.mu_p;
+    mu_n = nse_state.mu_n;
 }
 
 #endif
