@@ -45,7 +45,8 @@ void burn_cell_c()
         case 3:
             auxdata[n-1] = Aux3;
             break;
-
+        default:
+            amrex::Error("invalid aux");
         }
 
     }
