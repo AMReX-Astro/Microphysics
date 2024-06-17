@@ -168,7 +168,7 @@ void apply_nse_exponent(T& nse_state,
                               (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
                                nse_state.mu_n + network::bion(n+1)) *
                               C::Legacy::MeV2erg / (C::k_B * T_in) - u_c(n+1));
-        std::cout << "exponent is " << exponent << std::endl;
+
         nse_state.xn[n] *= std::exp(exponent);
     }
 
