@@ -311,8 +311,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 ///
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
-                const amrex::Real rhoYe0, const amrex::Real dt,
-                amrex::Real &mu_p, amrex::Real &mu_n,
+                const amrex::Real rhoYe0, const amrex::Real T_old,
+                const amrex::Real dt, amrex::Real &mu_p, amrex::Real &mu_n,
                 amrex::Real &drhoyedt_weak, const amrex::Real drhoyedt_a,
                 amrex::Array1D<amrex::Real, 1, neqs> &ydot_weak,
                 const amrex::Real *ydot_a, amrex::Real& drhoedt,
@@ -330,7 +330,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
         T0 = T_fixed;
     } else {
         // initial guess for eos
-        T0 = 5.0e9_rt;
+        T0 = T_old;
         amrex::Real e0 = rhoe0 / rho0;
         nse_T_abar_from_e(rho0, e0, Ye0, T0, abar, mu_p, mu_n);
     }
@@ -507,6 +507,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     amrex::Real rho_old = state.y[SRHO];
     amrex::Real rhoe_old = state.y[SEINT];
     amrex::Real rhoye_old = rho_old * state.y_e;
+    amrex::Real T_old = state.T;
     amrex::Real mu_p = state.mu_p;
     amrex::Real mu_n = state.mu_n;
 
@@ -533,8 +534,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     }
 
     nse_derivs(rho_old, rhoe_old,
-               rhoye_old, dt,
-               mu_p, mu_n,
+               rhoye_old, T_old,
+               dt, mu_p, mu_n,
                drhoyedt_weak, drhoyedt_a,
                ydot_weak, state.ydot_a,
                drhoedt, state.T_fixed);
@@ -548,8 +549,8 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // compute the derivatives at the midpoint in time
 
     nse_derivs(rho_tmp, rhoe_tmp,
-               rhoye_tmp, dt,
-               mu_p, mu_n,
+               rhoye_tmp, T_old,
+               dt, mu_p, mu_n,
                drhoyedt_weak, drhoyedt_a,
                ydot_weak, state.ydot_a,
                drhoedt, state.T_fixed);
@@ -569,7 +570,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
         T_new = state.T_fixed;
     } else {
         // initial eos guess
-        T_new = 5.0e9_rt;
+        T_new = T_old;
         amrex::Real e_new = rhoe_new / rho_new;
         amrex::Real abar_new;
         nse_T_abar_from_e(rho_new, e_new, Ye_new, T_new, abar_new, mu_p, mu_n);
