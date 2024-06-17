@@ -73,11 +73,11 @@ T get_nonexponent_nse_state(const T& state) {
 
         // find nse mass frac without the exponent term.
 
-        Real power = 2.0 * M_PI * network::mion(n+1) *
+        Real power = 2.0_rt * M_PI * network::mion(n+1) *
             C::k_B * T_in / (C::hplanck * C::hplanck);
 
         nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-            std::sqrt(power * power * power);
+            std::sqrt(amrex::Math::powi<3>(power));
     }
 
     return nse_state;
@@ -116,7 +116,8 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 #endif
         // term for calculating u_c
 
-        gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
+        // gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
+        gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
 
         // chemical potential for coulomb correction
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
@@ -165,9 +166,9 @@ void apply_nse_exponent(T& nse_state,
 
         exponent = amrex::min(500.0_rt,
                               (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-                               nse_state.mu_n + network::bion(n+1)) /
-                              C::k_B / T_in * C::Legacy::MeV2erg - u_c(n+1));
-
+                               nse_state.mu_n + network::bion(n+1)) *
+                              C::Legacy::MeV2erg / (C::k_B * T_in) - u_c(n+1));
+        std::cout << "exponent is " << exponent << std::endl;
         nse_state.xn[n] *= std::exp(exponent);
     }
 

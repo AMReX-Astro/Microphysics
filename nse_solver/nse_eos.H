@@ -47,21 +47,26 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
                          amrex::Real &mu_n) {
     ///
     /// This function calculates dabar_dT using
-    /// five-point stencil method.
-    /// This should be 4th order accurate.
+    /// central differencing.
+    /// This should be 2nd order accurate
     ///
 
     // deviation in temperature
 
-    const amrex::Real dT = 1.0e-5_rt* T;
+    const amrex::Real dT = 1.0e-5_rt * T;
 
     // Caclulate derivative using five-point stencil method
 
-    amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
-                             8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
-                             8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
-                             nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
-                            ) / (12.0_rt * dT);
+    // amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
+    //                          8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
+    //                          8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
+    //                          nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
+    //                         ) / (12.0_rt * dT);
+
+    // Calculate derivative using central differencing
+
+    amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
+                                     nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
 
     return dabar_dT;
 }
