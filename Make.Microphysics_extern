@@ -91,9 +91,7 @@ table:
 ifeq ($(USE_NSE_TABLE),TRUE)
   NSE_TABULAR_HOME ?= $(MICROPHYSICS_HOME)/nse_tabular
   EXTERN_CORE += $(NSE_TABULAR_HOME)
-  ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
-     all: nsetable
-  endif
+  all: nsetable
 endif
 
 nsetable:
