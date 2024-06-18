@@ -140,7 +140,7 @@ ifeq ($(USE_NSE_NET), TRUE)
      EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
-EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
+EXTERN_CORE += $(MICROPHYSICS_HOME)/util/approx_math
 
 # we can't have both NSE solvers
 ifeq ($(USE_NSE_TABLE), TRUE)
