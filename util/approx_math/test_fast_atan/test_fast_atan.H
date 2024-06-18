@@ -6,7 +6,7 @@
 #include <limits>
 #include <cassert>
 #include <chrono>
-#include <fast_atan.H>
+#include <approx_math.H>
 
 
 template <typename T>
@@ -45,7 +45,7 @@ void test_fast_atan_speed(int iter, T x) {
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<amrex::Real> fast_atan_duration = end - start;
-    std::cout << "Result from fast_atan is " << result << std::endl;
+    // std::cout << "Result from fast_atan is " << result << std::endl;
 
     x_in = x;
     result = 0.0_rt;
@@ -60,7 +60,7 @@ void test_fast_atan_speed(int iter, T x) {
     }
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<amrex::Real> std_atan_duration = end - start;
-    std::cout << "Result from std::atan is " << result << std::endl;
+    // std::cout << "Result from std::atan is " << result << std::endl;
 
     std::cout << "fast_atan duration: " << fast_atan_duration.count() << " seconds\n";
     std::cout << "std::atan duration: " << std_atan_duration.count() << " seconds\n";

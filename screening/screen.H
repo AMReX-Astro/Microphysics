@@ -19,7 +19,7 @@
 #include <cmath>
 #include <screen_data.H>
 #include <extern_parameters.H>
-#include <fast_atan.H>
+#include <approx_math.H>
 
 using namespace amrex::literals;
 
