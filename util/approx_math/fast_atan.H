@@ -77,7 +77,7 @@ amrex::Real fast_atan(const amrex::Real x) {
     if (x > 1.0_rt) {
         y = PI_2 - fast_atan_1(1.0_rt / x);
     }
-    if (x < 1.0_rt) {
+    if (x < -1.0_rt) {
         y = -PI_2 - fast_atan_1(1.0_rt / x);
     }
     else {
