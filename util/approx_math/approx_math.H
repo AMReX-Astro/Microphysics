@@ -27,7 +27,13 @@ amrex::Real fast_atan_1(const amrex::Real x) {
     // amrex::Real x2 = x*x;
     // return ((A*x2 + B)*x2 + C)*x;
 
-    // formula 3
+    //
+    // Approximation of atan for x in [-1, 1]
+    // Max error for this is ~0.0015 rad
+    // See Ref:
+    // Efficient Approximations for the Arctangent Function by Rajan 2006
+    //
+
     constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
 
     return PI_4*x - x*(std::abs(x) - 1.0_rt) *
