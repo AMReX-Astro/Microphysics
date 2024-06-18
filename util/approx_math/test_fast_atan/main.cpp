@@ -12,6 +12,10 @@ int main() {
     test_fast_atan_accuracy(0.1_rt);
     test_fast_atan_accuracy(0.5_rt);
     test_fast_atan_accuracy(1.0_rt);
+    test_fast_atan_accuracy(100.0_rt);
+    test_fast_atan_accuracy(200.0_rt);
+    test_fast_atan_accuracy(500.0_rt);
+    test_fast_atan_accuracy(3000.0_rt);
 
     // Inf and NaN case
     test_fast_atan_accuracy(std::numeric_limits<amrex::Real>::infinity());

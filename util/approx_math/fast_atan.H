@@ -10,6 +10,19 @@
 using namespace amrex::literals;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real fast_atan_1(const amrex::Real x) {
+    ///
+    /// This calculates atan within [-1, 1] range.
+    ///
+    constexpr amrex::Real A = 0.0776509570923569_rt;
+    constexpr amrex::Real B = -0.287434475393028_rt;
+    constexpr amrex::Real C = GCEM_PI / 4.0_rt - A - B;
+
+    amrex::Real x2 = x*x;
+    return ((A*x2 + B)*x2 + C)*x;
+}
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real fast_atan(const amrex::Real x) {
     ///
     /// Fast atan calculation for Positive x only!
@@ -24,7 +37,6 @@ amrex::Real fast_atan(const amrex::Real x) {
     if (x < 0.0_rt || x > 1.0_rt) {
         return std::atan(x);
     }
-
 
     // define some constants
 
@@ -48,6 +60,9 @@ amrex::Real fast_atan(const amrex::Real x) {
     if (amrex::isinf(x) && x > 0.0_rt) {
         return PI_2;
     }
+    else if (amrex::isinf(x) && x < 0.0_rt) {
+        return -PI_2;
+    }
 
     // Check for ones
 
@@ -57,21 +72,19 @@ amrex::Real fast_atan(const amrex::Real x) {
 
     // Now calculate Atan(x) using Pade Approx
 
-    amrex::Real y{0.0_rt};
+    amrex::Real y;
 
-    if (x < 1.0_rt) {
-        // formula 1;
-        // y = PI_4*x - x*(x - 1.0_rt) * (0.2447_rt + 0.0663*x);
-
-        // formula 2;
-
-        constexpr amrex::Real A = 0.0776509570923569;
-        constexpr amrex::Real B = -0.287434475393028;
-        constexpr amrex::Real C = GCEM_PI / 4.0_rt - A - B;
-
-        amrex::Real x2 = x*x;
-        y = ((A*x2 + B)*x2 + C)*x;
+    if (x > 1.0_rt) {
+        y = PI_2 - fast_atan_1(1.0_rt / x);
     }
+    if (x < 1.0_rt) {
+        y = -PI_2 - fast_atan_1(1.0_rt / x);
+    }
+    else {
+        y = fast_atan_1(x);
+    }
+
+    return y;
 
     // // positive case
     // if (x > 0.0_rt) {
@@ -92,7 +105,6 @@ amrex::Real fast_atan(const amrex::Real x) {
     //     y = num / denom + PI_4;
     // }
 
-    return y;
 }
 
 #endif
