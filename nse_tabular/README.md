@@ -46,6 +46,10 @@ The table provides:
 * X(A), X(B), ... : the reduced composition mass fractions.  They are
   assumed to be in the same order as the nuclei in the on-grid network.
 
+The data is ordered such that rho varies the slowest (from low to
+high), T varies the next slowest (from low to high), and Ye varies the
+fastest (from high to low).
+
 
 ## Generating the table
 
@@ -90,9 +94,15 @@ following should be copied into the on-grid network's subdirectory
   into it.  Note the `table_name` string in the header should be
   updated to reflect the new name of the table.
 
-The data is ordered such that rho varies the slowest (from low to
-high), T varies the next slowest (from low to high), and Ye varies the
-fastest (from high to low).
+You also need to add a line to the network's `Make.package` of the form:
+
+```
+NSE_TABLE_NAME := nse.tbl
+```
+
+making sure to use whatever filename you renamed the table to.  This will
+be used to ensure that the table is symlinked into the build directory.
+
 
 ## Outputting for a different network
 

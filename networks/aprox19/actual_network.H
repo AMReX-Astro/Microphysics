@@ -15,17 +15,11 @@ using namespace amrex;
 #include <extern_parameters.H>
 #include <tfactors.H>
 #include <aprox_rates.H>
-#ifdef NSE_TABLE
-#include <nse_table.H>
-#endif
 
 using namespace network_rp;
 
 AMREX_INLINE
 void actual_network_init() {
-#ifdef NSE_TABLE
-    init_nse();
-#endif
 }
 
 #ifndef NSE
