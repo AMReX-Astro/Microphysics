@@ -5,6 +5,7 @@
 #include <AMReX_GpuUtility.H>
 #include <microphysics_math.H>
 #include <cassert>
+#include <cmath>
 
 using namespace amrex::literals;
 
@@ -19,9 +20,11 @@ amrex::Real fast_atan(const amrex::Real x) {
     /// So this function is optimized with this scenario.
     ///
 
-    // Make sure input is positive
+    // If input is not in range than use std::atan
+    if (x < 0.0_rt || x > 1.0_rt) {
+        return std::atan(x);
+    }
 
-    assert(x > 0.0_rt);
 
     // define some constants
 
