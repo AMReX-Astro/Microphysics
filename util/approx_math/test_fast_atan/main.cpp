@@ -32,7 +32,7 @@ int main() {
     std::cout << "Accuracy tests passed!" << std::endl;
 
     // Now performanc test
-    int iters = 1000000000;
-    amrex::Real test_value = 0.5;
+    int iters = 2000;
+    amrex::Real test_value = 4146.3232_rt;
     test_fast_atan_speed(iters, test_value);
 }

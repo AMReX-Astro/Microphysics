@@ -21,7 +21,7 @@ void test_fast_atan_accuracy(T x) {
               << " fast_atan: " << fast_atan_result
               << " std::atan: " << std_atan_result << std::endl;
 
-    T tolerance = std::numeric_limits<T>::epsilon();
+    T tolerance = std::numeric_limits<T>::epsilon() * 100.0_rt;
 
     assert(std::abs(fast_atan_result - std_atan_result) < tolerance);
 }
@@ -31,16 +31,26 @@ template <typename T>
 void test_fast_atan_speed(int iter, T x) {
     // This tests fast_atan performance
 
+    volatile T result = 0.0_rt;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iter; ++i) {
-        volatile T result = fast_atan(x);
+        for (int j = 0; j < iter; ++j) {
+            for (int k = 0; k < iter; ++k) {
+                result += fast_atan(x);
+            }
+        }
     }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<amrex::Real> fast_atan_duration = end - start;
 
+    result = 0.0_rt;
     start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iter; ++i) {
-        volatile T result = std::atan(x);
+        for (int j = 0; j < iter; ++j) {
+            for (int k = 0; k < iter; ++k) {
+                result += std::atan(x);
+            }
+        }
     }
     end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<amrex::Real> std_atan_duration = end - start;

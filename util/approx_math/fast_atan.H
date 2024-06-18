@@ -56,7 +56,7 @@ amrex::Real fast_atan(const amrex::Real x) {
     const amrex::Real x3 = x2 * x;
     const amrex::Real x4 = x3 * x;
     const amrex::Real x5 = x4 * x;
-    // const amrex::Real x6 = x5 * x;
+    const amrex::Real x6 = x5 * x;
 
     amrex::Real y{0.0_rt};
 
