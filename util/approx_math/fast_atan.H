@@ -15,9 +15,11 @@ amrex::Real fast_atan_1(const amrex::Real x) {
     /// This calculates atan within [-1, 1] range.
     ///
 
+    // formula 1
     // constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
     // return PI_4 * x;
 
+    // formula 2
     // constexpr amrex::Real A = 0.0776509570923569_rt;
     // constexpr amrex::Real B = -0.287434475393028_rt;
     // constexpr amrex::Real C = GCEM_PI / 4.0_rt - A - B;
@@ -25,13 +27,13 @@ amrex::Real fast_atan_1(const amrex::Real x) {
     // amrex::Real x2 = x*x;
     // return ((A*x2 + B)*x2 + C)*x;
 
-
+    // formula 3
     constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
 
     return PI_4*x - x*(std::abs(x) - 1.0_rt) *
         (0.2447_rt + 0.0663_rt*std::abs(x));
 
-
+    // formula 4
     // constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
     // const amrex::Real x2 = x * x;
     // const amrex::Real x3 = x2 * x;
@@ -54,12 +56,7 @@ amrex::Real fast_atan_1(const amrex::Real x) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real fast_atan(const amrex::Real x) {
     ///
-    /// Fast atan calculation for Positive x only!
-    /// This is meant to be used in screening calculation,
-    /// and the input, gamma, is always positive.
-    /// Also note that the typical input is < 1.0 for light nuclei
-    /// and ~ 10 for heavy nuclei at high density.
-    /// So this function is optimized with this scenario.
+    /// Fast atan approximation calculations.
     ///
 
     // define some constants
