@@ -40,7 +40,8 @@ int main() {
 
     std::cout << "Accuracy tests passed!" << std::endl;
 
-    // Now performanc test
+    // Now performance test
+
     int iters = 5;
     amrex::Real test_value = 1.0e7_rt;
     test_atanf_speed(iters, test_value);
