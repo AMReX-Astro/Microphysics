@@ -473,11 +473,11 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     drhoedt = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         drhoedt += (rho1 * nse_state1.xn[n] - tau * ydot_a[SFS+n] -
-                    rho0 * nse_state0.xn[n]) * aion_inv[n] * network::mion(n+1) / tau;
+                    rho0 * nse_state0.xn[n]) * aion_inv[n] * network::mion(n+1);
         // drhoedt += (rho1 * nse_state1.xn[n] - tau * ydot_a[SFS+n] -
         //             rho0 * Xn0[n]) * aion_inv[n] * network::mion(n+1) / tau;
     }
-    drhoedt *= C::Legacy::enuc_conv2;
+    drhoedt *= C::Legacy::enuc_conv2 / tau;
 
     // include neutrino terms again
 
