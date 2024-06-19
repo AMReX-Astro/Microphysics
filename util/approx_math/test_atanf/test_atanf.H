@@ -1,5 +1,5 @@
-#ifndef TEST_FAST_ATAN_H
-#define TEST_FAST_ATAN_H
+#ifndef TEST_ATANF_H
+#define TEST_ATANF_H
 
 #include <cmath>
 #include <iostream>
@@ -10,42 +10,47 @@
 
 
 template <typename T>
-void test_fast_atan_accuracy(T x) {
-    //This tests fast_atan accuracy
+void test_atanf_accuracy(T x) {
+    //This tests atanf accuracy
 
-    T fast_atan_result = fast_atan(x);
+    T atanf_result = atanf(x);
     T std_atan_result = std::atan(x);
 
     // Print results
     std::cout << "x: " << x
-              << " fast_atan: " << fast_atan_result
+              << " atanf: " << atanf_result
               << " std::atan: " << std_atan_result << std::endl;
 
+    T abs_err = std::abs(atanf_result - std_atan_result);
     T tolerance = 2.e-3_rt;;
 
-    assert(std::abs(fast_atan_result - std_atan_result) < tolerance);
+    std::cout << "absolute error: " << abs_err << std::endl;
+
+    assert(abs_err < tolerance);
 }
 
 
 template <typename T>
-void test_fast_atan_speed(int iter, T x) {
-    // This tests fast_atan performance
+void test_atanf_speed(int iter, T x) {
+    // This tests atanf performance
+
+    std::cout << "Testing with iter: " << iter
+              << " with initial x: " << x << std::endl;
 
     volatile amrex::Real x_in = x;
-
     volatile T result = 0.0_rt;
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < iter; ++i) {
         for (int j = 0; j < iter; ++j) {
             for (int k = 0; k < iter; ++k) {
-                result += fast_atan(x_in);
-                x_in *= 0.999_rt;
+                result += atanf(x_in);
+                x_in -= 1e-8_rt * x_in;
             }
         }
     }
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<amrex::Real> fast_atan_duration = end - start;
-    // std::cout << "Result from fast_atan is " << result << std::endl;
+    std::chrono::duration<amrex::Real> atanf_duration = end - start;
+    // std::cout << "Result from atanf is " << result << std::endl;
 
     x_in = x;
     result = 0.0_rt;
@@ -54,7 +59,7 @@ void test_fast_atan_speed(int iter, T x) {
         for (int j = 0; j < iter; ++j) {
             for (int k = 0; k < iter; ++k) {
                 result += std::atan(x_in);
-                x_in *= 0.999_rt;
+                x_in -= 1e-8_rt * x_in;
             }
         }
     }
@@ -62,7 +67,7 @@ void test_fast_atan_speed(int iter, T x) {
     std::chrono::duration<amrex::Real> std_atan_duration = end - start;
     // std::cout << "Result from std::atan is " << result << std::endl;
 
-    std::cout << "fast_atan duration: " << fast_atan_duration.count() << " seconds\n";
+    std::cout << "atanf duration: " << atanf_duration.count() << " seconds\n";
     std::cout << "std::atan duration: " << std_atan_duration.count() << " seconds\n";
 }
 #endif

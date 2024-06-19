@@ -10,57 +10,41 @@
 using namespace amrex::literals;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real fast_atan_1(const amrex::Real x) {
+amrex::Real atanf_1(const amrex::Real x) {
     ///
     /// This calculates atan within [-1, 1] range.
     ///
 
-    // formula 1
+    ///
+    /// Approximation of atan for x in [-1, 1]
+    /// Max absolute error for this is ~0.0015 rad
+    /// See Ref:
+    /// Efficient Approximations for the Arctangent Function by Rajan 2006
+    ///
+
     // constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
-    // return PI_4 * x;
 
-    // formula 2
-    // constexpr amrex::Real A = 0.0776509570923569_rt;
-    // constexpr amrex::Real B = -0.287434475393028_rt;
-    // constexpr amrex::Real C = GCEM_PI / 4.0_rt - A - B;
+    // return PI_4*x - x*(std::abs(x) - 1.0_rt) *
+    //     (0.2447_rt + 0.0663_rt*std::abs(x));
 
-    // amrex::Real x2 = x*x;
-    // return ((A*x2 + B)*x2 + C)*x;
 
-    //
-    // Approximation of atan for x in [-1, 1]
-    // Max error for this is ~0.0015 rad
-    // See Ref:
-    // Efficient Approximations for the Arctangent Function by Rajan 2006
-    //
+    ///
+    /// Another approximation of atan for x in [-1, 1]
+    /// Max absolute error for this is ~0.00063 rad
+    /// See Ref:
+    /// https://stackoverflow.com/questions/42537957/fast-accurate-atan-arctan-approximation-algorithm
+    ///
 
-    constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
+    constexpr amrex::Real A = 0.0776509570923569_rt;
+    constexpr amrex::Real B = -0.287434475393028_rt;
+    constexpr amrex::Real C = GCEM_PI / 4.0_rt - A - B;
 
-    return PI_4*x - x*(std::abs(x) - 1.0_rt) *
-        (0.2447_rt + 0.0663_rt*std::abs(x));
-
-    // formula 4
-    // constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
-    // const amrex::Real x2 = x * x;
-    // const amrex::Real x3 = x2 * x;
-    // const amrex::Real x4 = x3 * x;
-    // const amrex::Real x6 = x4 * x2;
-
-    // amrex::Real num = 7.0_rt * (23.0_rt*(x6 - 1.0_rt) +
-    //                             33.0_rt*x*(x4 - 1.0_rt) +
-    //                             30.0_rt*x2*(x2 + 1.0_rt));
-
-    // amrex::Real denom = 5.0_rt * (41.0_rt*(x6 + 1.0_rt) +
-    //                               111.0_rt*x*(x4 + 1.0_rt) +
-    //                               195.0_rt*x2*(x2 + 1.0_rt) +
-    //                               230.0_rt*x3);
-
-    // return num / denom + PI_4;
-
+    amrex::Real x2 = x*x;
+    return ((A*x2 + B)*x2 + C)*x;
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real fast_atan(const amrex::Real x) {
+amrex::Real atanf(const amrex::Real x) {
     ///
     /// Fast atan approximation calculations.
     ///
@@ -82,12 +66,13 @@ amrex::Real fast_atan(const amrex::Real x) {
         return x;
     }
 
-    // Check for infinity
+    // Check for large number, close to infinity.
+    // Error is ~1e-8 rad by not checking actual inf
 
-    if (amrex::isinf(x) && x > 0.0_rt) {
+    if (x > 1.8e8_rt) {
         return PI_2;
     }
-    else if (amrex::isinf(x) && x < 0.0_rt) {
+    else if (x < -1.e8_rt) {
         return -PI_2;
     }
 
@@ -105,13 +90,13 @@ amrex::Real fast_atan(const amrex::Real x) {
     amrex::Real y;
 
     if (x > 1.0_rt) {
-        y = PI_2 - fast_atan_1(1.0_rt / x);
+        y = PI_2 - atanf_1(1.0_rt / x);
     }
     else if (x < -1.0_rt) {
-        y = -PI_2 - fast_atan_1(1.0_rt / x);
+        y = -PI_2 - atanf_1(1.0_rt / x);
     }
     else {
-        y = fast_atan_1(x);
+        y = atanf_1(x);
     }
 
     return y;

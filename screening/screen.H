@@ -815,7 +815,7 @@ void chabrier1998_helmholtz_F(const amrex::Real gamma, const amrex::Real dgamma_
 
     f = A_1 * (sqrt_gamma_A2_gamma -
                A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2)) +
-               2.0_rt * A_3 * (sqrt_gamma - fast_atan(sqrt_gamma));
+               2.0_rt * A_3 * (sqrt_gamma - atanf(sqrt_gamma));
 
     if constexpr (do_T_derivatives) {
         df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma) -
