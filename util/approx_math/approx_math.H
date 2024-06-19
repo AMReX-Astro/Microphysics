@@ -1,5 +1,5 @@
-#ifndef MICROPHYSICS_APPROX_MATH_H
-#define MICROPHYSICS_APPROX_MATH_H
+#ifndef APPROX_MATH_H
+#define APPROX_MATH_H
 
 #include <AMReX_REAL.H>
 #include <AMReX_GpuUtility.H>
