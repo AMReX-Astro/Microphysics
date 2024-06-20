@@ -5,7 +5,7 @@
 
 #include <AMReX_REAL.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 namespace nse_table_size {
 
