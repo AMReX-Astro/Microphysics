@@ -83,9 +83,24 @@ amrex::Real fast_atan(const amrex::Real x) {
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real fast_exp(const amrex::Real x) {
+amrex::Real _fast_exp(const amrex::Real x) {
+    ///
+    /// A fast implementation of exp.
+    /// Roughly 6-times faster than std::exp.
+    /// With reasonable accuracy across all range.
+    ///
+    /// Code is obtained from Ref (2):
+    /// Ref:
+    /// 1) A Fast, Compact Approximation of the Exponential Function
+    ///    by Schraudolph 1999
+    /// 2) On a Fast Compact Approximation of the Exponential Function
+    ///    by Cawley 2000
+    ///
 
+    // Use EXP_A = 1512775 if input is integer.
     constexpr amrex::Real EXP_A = 1048576.0_rt / GCEM_LOG_2;
+
+    // The Choice of this number is described in Ref 1.
     constexpr int EXP_C = 60801;
 
     union {
@@ -106,4 +121,25 @@ amrex::Real fast_exp(const amrex::Real x) {
 
 }
 
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real fast_exp(const amrex::Real x) {
+    ///
+    /// Implementation of fast exponential.
+    /// This combines Taylor series when x < 0.1
+    /// and the fast exponential function algorithmn
+    /// described in Cawley 2000
+    ///
+
+    // Use Taylor if number is smaller than 0.1
+    // However, it is actually slower (~1/10th slower)
+    // than simply calling _fast_exp.
+    // But _fast_exp gives poor accuracy for x < 0.1
+
+    if (std::abs(x) < 0.1_rt) {
+        return 1.0_rt + x;
+    }
+
+    return _fast_exp(x);
+}
 #endif

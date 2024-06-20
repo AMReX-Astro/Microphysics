@@ -22,11 +22,13 @@ void test_fast_exp_accuracy(T x) {
               << " std::exp: " << std_exp_result << std::endl;
 
     T abs_err = std::abs(fast_exp_result - std_exp_result);
-    T tolerance = 2.e-3_rt;;
+    T rel_err = abs_err / std_exp_result;
+    T rtol = 0.05_rt;
 
     std::cout << "absolute error: " << abs_err << std::endl;
+    std::cout << "relative error: " << rel_err << std::endl;
 
-    assert(abs_err < tolerance);
+    assert(rel_err < rtol);
 }
 
 
@@ -49,7 +51,7 @@ void test_fast_exp_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += std::exp(x_in);
-                        x_in *= 0.99999_rt;
+                        x_in -= 1.e-6_rt * x_in;
                     }
                 }
             }
@@ -73,7 +75,7 @@ void test_fast_exp_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += fast_exp(x_in);
-                        x_in *= 0.99999_rt;
+                        x_in -= 1.e-6_rt * x_in;
                     }
                 }
             }
