@@ -4,8 +4,6 @@
 #include <AMReX_REAL.H>
 #include <AMReX_GpuUtility.H>
 #include <microphysics_math.H>
-#include <cassert>
-#include <cmath>
 
 using namespace amrex::literals;
 
