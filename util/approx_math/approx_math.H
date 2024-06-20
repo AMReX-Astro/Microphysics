@@ -81,4 +81,29 @@ amrex::Real fast_atan(const amrex::Real x) {
     return fast_atan_1(x);
 }
 
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real fast_exp(const amrex::Real x) {
+
+    constexpr amrex::Real EXP_A = 1048576.0_rt / GCEM_LOG_2;
+    constexpr int EXP_C = 60801;
+
+    union {
+        amrex::Real d;
+        struct {
+#ifdef LITTLE_ENDIAN
+            int j, i;
+#else
+            int i, j;
+#endif
+        } n;
+    } _eco;
+
+    _eco.n.i = (int)(EXP_A * x) + (1072693248 - EXP_C);
+    _eco.n.j = 0;
+
+    return _eco.d;
+
+}
+
 #endif
