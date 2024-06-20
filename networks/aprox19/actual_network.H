@@ -32,7 +32,7 @@ namespace network
 {
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real bion () {
+    constexpr amrex::Real bion () {
         using namespace Species;
 
         static_assert(spec >= 1 && spec <= NumSpec);
@@ -102,11 +102,11 @@ namespace network
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real mion () {
+    constexpr amrex::Real mion () {
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr Real A = NetworkProperties::aion(spec);
-        constexpr Real Z = NetworkProperties::zion(spec);
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
     }
@@ -114,13 +114,13 @@ namespace network
     // Legacy (non-templated) interfaces
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real bion (int spec) {
+    amrex::Real bion (int spec) {
         using namespace Species;
 
-        Real b = 0.0_rt;
+        amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -130,12 +130,12 @@ namespace network
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real mion (int spec) {
+    amrex::Real mion (int spec) {
         using namespace Species;
 
-        Real m = 0.0_rt;
+        amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -1343,12 +1343,12 @@ namespace RHS {
         using namespace Rates;
 
         if constexpr (rate == H1_H1_to_He3) {
-            Real tmp1, tmp2;
+            amrex::Real tmp1, tmp2;
             rate_pp(state.tf, 1.0_rt, rates.fr, rates.frdt, tmp1, tmp2);
         }
         else if constexpr (rate == P_to_N) {
             if (state.tf.temp >= 1.0e6_rt && state.rho >= 1.0e-9_rt) {
-                Real tmp1, tmp2;
+                amrex::Real tmp1, tmp2;
                 ecapnuc(state.eta, state.tf.temp, rates.fr, rates.rr, tmp1, tmp2);
             }
         }
@@ -1362,11 +1362,11 @@ namespace RHS {
             rate_he3ng(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
         }
         else if constexpr (rate == He3_He3_to_He4_2H1) {
-            Real tmp1, tmp2;
+            amrex::Real tmp1, tmp2;
             rate_he3he3(state.tf, 1.0_rt, rates.fr, rates.frdt, tmp1, tmp2);
         }
         else if constexpr (rate == He3_He4_H1_to_2He4) {
-            Real tmp1, tmp2;
+            amrex::Real tmp1, tmp2;
             rate_he3he4(state.tf, 1.0_rt, rates.fr, rates.frdt, tmp1, tmp2);
         }
         else if constexpr (rate == C12_He4_to_O16) {
@@ -1491,7 +1491,7 @@ namespace RHS {
         }
         else if constexpr (rate == Ni56_to_Fe54) {
             if (state.tf.temp >= 1.0e6_rt && state.rho >= 1.0e-9_rt) {
-                Real tmp;
+                amrex::Real tmp;
                 langanke(state.tf.temp, state.rho, state.y(Ni56), state.y_e, rates.fr, tmp);
 
                 // We scaled the number of nucleons per reaction
@@ -1520,14 +1520,14 @@ namespace RHS {
             // Rate 2 == H2_P_to_He3 == irdpg (forward), irhegp (reverse)
             // Rate 3 == He3_N_to_He4 == irheng (forward), irhegn (reverse)
 
-            Real denom = rates2.rr * rates1.rr + state.y(N) * rates3.fr * rates1.rr + state.y(N) * state.y(P) * rates3.fr * rates2.fr;
+            amrex::Real denom = rates2.rr * rates1.rr + state.y(N) * rates3.fr * rates1.rr + state.y(N) * state.y(P) * rates3.fr * rates2.fr;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                Real denomdt = rates2.rrdt * rates1.rr + rates2.rr * rates1.rrdt +
+                amrex::Real denomdt = rates2.rrdt * rates1.rr + rates2.rr * rates1.rrdt +
                                state.y(N) * (rates3.frdt * rates1.rr + rates3.fr * rates1.rrdt) +
                                state.y(N) * state.y(P) * (rates3.frdt * rates2.fr + rates3.fr * rates2.frdt);
 
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
 
                 // iralf1 in the original aprox19
                 rates.rr = rates3.rr * rates2.rr * rates1.rr * zz;
@@ -1555,7 +1555,7 @@ namespace RHS {
 
         if constexpr (rate == He3_He4_H1_to_2He4)
         {
-            Real xx = 0.896_rt / state.y(He4);
+            amrex::Real xx = 0.896_rt / state.y(He4);
             rates.fr = amrex::min(rates.fr, xx);
             if (rates.fr == xx) {
                 rates.frdt = 0.0_rt;
@@ -1580,13 +1580,13 @@ namespace RHS {
                       rate == Ti44_He4_to_Cr48 ||
                       rate == Cr48_He4_to_Fe52)
         {
-            Real rate_ir    = 0.0e0_rt;
-            Real dratedt_ir = 0.0e0_rt;
-            Real denom      = rates1.rr + rates2.fr;
-            Real denomdt    = rates1.rrdt + rates2.frdt;
+            amrex::Real rate_ir    = 0.0e0_rt;
+            amrex::Real dratedt_ir = 0.0e0_rt;
+            amrex::Real denom      = rates1.rr + rates2.fr;
+            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
 
             if (denom > 1.0e-30_rt) {
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
                 dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
@@ -1602,13 +1602,13 @@ namespace RHS {
         // reaction followed by the reverse Si28+He4<->P31+P reaction.
         if constexpr (rate == O16_O16_to_Si28_He4)
         {
-            Real rate_ir    = 0.0e0_rt;
-            Real dratedt_ir = 0.0e0_rt;
-            Real denom      = rates1.rr + rates2.fr;
-            Real denomdt    = rates1.rrdt + rates2.frdt;
+            amrex::Real rate_ir    = 0.0e0_rt;
+            amrex::Real dratedt_ir = 0.0e0_rt;
+            amrex::Real denom      = rates1.rr + rates2.fr;
+            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
 
             if (denom > 1.0e-30_rt) {
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
                 dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
@@ -1621,13 +1621,13 @@ namespace RHS {
         // reaction followed by the forward P31+P<->S32 reaction.
         if constexpr (rate == O16_O16_to_S32)
         {
-            Real rate_ir    = 0.0e0_rt;
-            Real dratedt_ir = 0.0e0_rt;
-            Real denom      = rates1.rr + rates2.fr;
-            Real denomdt    = rates1.rrdt + rates2.frdt;
+            amrex::Real rate_ir    = 0.0e0_rt;
+            amrex::Real dratedt_ir = 0.0e0_rt;
+            amrex::Real denom      = rates1.rr + rates2.fr;
+            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
 
             if (denom > 1.0e-30_rt) {
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
                 dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
@@ -1657,7 +1657,7 @@ namespace RHS {
             // Beta limit
 
             if (state.y(H1) > 1.0e-30_rt) {
-                Real xx = 5.68e-3_rt / (state.y(H1) * 1.57_rt);
+                amrex::Real xx = 5.68e-3_rt / (state.y(H1) * 1.57_rt);
                 rates1.fr = amrex::min(rates1.fr, xx);
                 if (rates1.fr == xx) {
                     rates1.frdt = 0.0_rt;
@@ -1667,12 +1667,12 @@ namespace RHS {
             // Rate 2: O15_H1_to_O16
             // Rate 3: O15_H1_to_C12_He4
 
-            Real tot = rates2.fr + rates3.fr;
-            Real invtot = 1.0_rt / tot;
+            amrex::Real tot = rates2.fr + rates3.fr;
+            amrex::Real invtot = 1.0_rt / tot;
 
             rates.fr = rates1.fr * (rates2.fr * invtot);
 
-            Real dtotdt = rates2.frdt + rates3.frdt;
+            amrex::Real dtotdt = rates2.frdt + rates3.frdt;
 
             rates.frdt = rates1.fr * (rates2.frdt * invtot - rates2.fr * invtot * invtot * dtotdt);
         }
@@ -1684,7 +1684,7 @@ namespace RHS {
             // Beta limit
 
             if (state.y(H1) > 1.0e-30_rt) {
-                Real xx = 5.68e-3_rt / (state.y(H1) * 1.57_rt);
+                amrex::Real xx = 5.68e-3_rt / (state.y(H1) * 1.57_rt);
                 rates1.fr = amrex::min(rates1.fr, xx);
                 if (rates1.fr == xx) {
                     rates1.frdt = 0.0_rt;
@@ -1694,12 +1694,12 @@ namespace RHS {
             // Rate 2: O15_H1_to_O16
             // Rate 3: O15_H1_to_C12_He4
 
-            Real tot = rates2.fr + rates3.fr;
-            Real invtot = 1.0_rt / tot;
+            amrex::Real tot = rates2.fr + rates3.fr;
+            amrex::Real invtot = 1.0_rt / tot;
 
             rates.fr = rates1.fr * (rates3.fr * invtot);
 
-            Real dtotdt = rates2.frdt + rates3.frdt;
+            amrex::Real dtotdt = rates2.frdt + rates3.frdt;
 
             rates.frdt = rates1.fr * (rates3.frdt * invtot - rates3.fr * invtot * invtot * dtotdt);
         }
@@ -1719,7 +1719,7 @@ namespace RHS {
         {
             // Beta limit
 
-            Real xx = 0.0105_rt / state.y(H1);
+            amrex::Real xx = 0.0105_rt / state.y(H1);
             rates1.fr = amrex::min(rates1.fr, xx);
             if (rates1.fr == xx) {
                 rates1.frdt = 0.0_rt;
@@ -1735,11 +1735,11 @@ namespace RHS {
             // Rate 1 == Fe52_N_to_Fe53 == ir52ng (forward), ir53gn (reverse)
             // Rate 2 == Fe53_N_to_Fe54 == ir53ng (forward), ir54gn (reverse)
 
-            Real denom   = rates1.rr + state.y(N) * rates2.fr;
-            Real denomdt = rates1.rrdt + state.y(N) * rates2.frdt;
+            amrex::Real denom   = rates1.rr + state.y(N) * rates2.fr;
+            amrex::Real denomdt = rates1.rrdt + state.y(N) * rates2.frdt;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
 
                 // ir2f54 in the original aprox19
                 rates.fr = rates1.fr * rates2.fr * zz;
@@ -1758,12 +1758,12 @@ namespace RHS {
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
 
-            Real denom = rates1.rr + state.y(P) * (rates2.fr + rates3.rr);
+            amrex::Real denom = rates1.rr + state.y(P) * (rates2.fr + rates3.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                Real denomdt = rates1.rrdt + state.y(P) * (rates2.frdt + rates3.rrdt);
+                amrex::Real denomdt = rates1.rrdt + state.y(P) * (rates2.frdt + rates3.rrdt);
 
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
 
                 // ir3f54 in the original aprox19
                 rates.fr = rates1.fr * rates2.fr * zz;
@@ -1782,12 +1782,12 @@ namespace RHS {
             // Rate 2 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
             // Rate 3 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
 
-            Real denom = rates2.rr + state.y(P) * (rates3.fr + rates1.rr);
+            amrex::Real denom = rates2.rr + state.y(P) * (rates3.fr + rates1.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                Real denomdt = rates2.rrdt + state.y(P) * (rates3.frdt + rates1.rrdt);
+                amrex::Real denomdt = rates2.rrdt + state.y(P) * (rates3.frdt + rates1.rrdt);
 
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
 
                 // ir6f54 in the original aprox19
                 rates.fr = rates1.fr * rates2.rr * zz;
@@ -1806,26 +1806,26 @@ namespace RHS {
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
 
-            Real denom = rates3.rr + state.y(P) * (rates2.fr + rates1.rr);
+            amrex::Real denom = rates3.rr + state.y(P) * (rates2.fr + rates1.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                Real denomdt = rates3.rrdt + state.y(P) * (rates2.frdt + rates1.rrdt);
+                amrex::Real denomdt = rates3.rrdt + state.y(P) * (rates2.frdt + rates1.rrdt);
 
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
 
                 // Note that in these reactions we're adding to fr and rr
                 // since this reaction already has a contribution from the
                 // direct alpha capture sequence Fe52(a,g)Ni56.
 
                 // ir7f54 in the original aprox19
-                Real fr_add = rates1.fr * rates2.fr * zz;
-                Real frdt_add = rates1.frdt * rates2.fr * zz + rates1.fr * rates2.frdt * zz - fr_add * zz * denomdt;
+                amrex::Real fr_add = rates1.fr * rates2.fr * zz;
+                amrex::Real frdt_add = rates1.frdt * rates2.fr * zz + rates1.fr * rates2.frdt * zz - fr_add * zz * denomdt;
                 rates.fr += state.y(P) * fr_add;
                 rates.frdt += state.y(P) * frdt_add;
 
                 // ir8f54 in the original aprox19
-                Real rr_add = rates2.rr * rates1.rr * zz;
-                Real rrdt_add = rates2.rrdt * rates1.rr * zz + rates2.rr * rates1.rrdt * zz - rr_add * zz * denomdt;
+                amrex::Real rr_add = rates2.rr * rates1.rr * zz;
+                amrex::Real rrdt_add = rates2.rrdt * rates1.rr * zz + rates2.rr * rates1.rrdt * zz - rr_add * zz * denomdt;
                 rates.rr += state.y(P) * rr_add;
                 rates.rrdt += state.y(P) * rrdt_add;
             }
@@ -1834,7 +1834,7 @@ namespace RHS {
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }
