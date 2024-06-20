@@ -52,7 +52,10 @@ int main() {
     iters = 20;
     test_fast_atan_speed(100, iters, test_value);
 
-    iters = 40;
+    iters = 30;
+    test_fast_atan_speed(100, iters, test_value);
+
+    iters = 50;
     test_fast_atan_speed(100, iters, test_value);
 
     iters = 70;

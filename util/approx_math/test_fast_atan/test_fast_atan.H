@@ -49,7 +49,7 @@ void test_fast_atan_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += std::atan(x_in);
-                        x_in *= 0.9999_rt;
+                        x_in *= 0.99999_rt;
                     }
                 }
             }
@@ -73,7 +73,7 @@ void test_fast_atan_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += fast_atan(x_in);
-                        x_in *= 0.9999_rt;
+                        x_in *= 0.99999_rt;
                     }
                 }
             }

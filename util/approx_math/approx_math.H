@@ -2,7 +2,6 @@
 #define APPROX_MATH_H
 
 #include <AMReX_REAL.H>
-#include <AMReX_Gpu.H>
 #include <microphysics_math.H>
 
 using namespace amrex::literals;
@@ -50,19 +49,16 @@ amrex::Real fast_atan(const amrex::Real x) {
 
     // define some constants
 
-    constexpr amrex::Real PI_2 = GCEM_PI / 2.0_rt;
-    constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
+    constexpr amrex::Real PI_2 = 0.5_rt * GCEM_PI;
 
-    // Check if number is small, then just return x.
-    // max error for this is ~ 3e-7 rad.
+    ///
+    /// If x < 0.113, then using arctan(x) ~ x
+    /// gives better answer than the approximation below.
+    /// And accuracy increase as x << 0.113.
+    /// Also significantly faster.
+    // ///
 
-    if (std::abs(x) < 1.e-2_rt) {
-        return x;
-    }
-
-    // Check for nan
-
-    if (amrex::isnan(x)) {
+    if (std::abs(x) < 0.113_rt) {
         return x;
     }
 
@@ -72,34 +68,19 @@ amrex::Real fast_atan(const amrex::Real x) {
     if (x > 1.e8_rt) {
         return PI_2;
     }
-    else if (x < -1.e8_rt) {
+    if (x < -1.e8_rt) {
         return -PI_2;
-    }
-
-    // Check for ones
-
-    if (x == 1.0_rt) {
-        return PI_4;
-    }
-    else if (x == -1.0_rt) {
-        return -PI_4;
     }
 
     // Now calculate Atan(x) using approximations
 
-    amrex::Real y;
-
     if (x > 1.0_rt) {
-        y = PI_2 - fast_atan_1(1.0_rt / x);
+        return PI_2 - fast_atan_1(1.0_rt / x);
     }
-    else if (x < -1.0_rt) {
-        y = -PI_2 - fast_atan_1(1.0_rt / x);
+    if (x < -1.0_rt) {
+        return -PI_2 - fast_atan_1(1.0_rt / x);
     }
-    else {
-        y = fast_atan_1(x);
-    }
-
-    return y;
+    return fast_atan_1(x);
 }
 
 #endif
