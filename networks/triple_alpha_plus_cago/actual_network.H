@@ -67,7 +67,7 @@ namespace network
         amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -82,7 +82,7 @@ namespace network
 
         amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
