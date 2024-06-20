@@ -11,7 +11,7 @@
 #include <network_properties.H>
 #include <rhs_type.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 AMREX_INLINE
 void actual_network_init() {}

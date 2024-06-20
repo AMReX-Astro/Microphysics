@@ -12,7 +12,7 @@
 #include <rhs_type.H>
 #include <aprox_rates.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 AMREX_INLINE
 void actual_network_init() {}
