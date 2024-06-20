@@ -43,24 +43,18 @@ int main() {
     // Now performance test
 
     int iters = 5;
-    amrex::Real test_value = 1.0e7_rt;
-    test_fast_atan_speed(iters, test_value);
+    amrex::Real test_value = 160.0_rt;
+    test_fast_atan_speed(100, iters, test_value);
 
     iters = 10;
-    test_fast_atan_speed(iters, test_value);
+    test_fast_atan_speed(100, iters, test_value);
 
-    iters = 50;
-    test_fast_atan_speed(iters, test_value);
+    iters = 20;
+    test_fast_atan_speed(100, iters, test_value);
 
-    iters = 75;
-    test_fast_atan_speed(iters, test_value);
+    iters = 40;
+    test_fast_atan_speed(100, iters, test_value);
 
-    iters = 100;
-    test_fast_atan_speed(iters, test_value);
-
-    iters = 300;
-    test_fast_atan_speed(iters, test_value);
-
-    iters = 500;
-    test_fast_atan_speed(iters, test_value);
+    iters = 70;
+    test_fast_atan_speed(100, iters, test_value);
 }

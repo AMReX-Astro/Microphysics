@@ -31,41 +31,60 @@ void test_fast_atan_accuracy(T x) {
 
 
 template <typename T>
-void test_fast_atan_speed(int iter, T x) {
+void test_fast_atan_speed(int loops, int iter, T x) {
     // This tests fast_atan performance
 
-    std::cout << "Testing with iter: " << iter
+    std::cout << "Testing with loops: " << loops
+              << " with iter: " << iter
               << " with initial x: " << x << std::endl;
 
-    volatile amrex::Real x_in = x;
-    volatile T result = 0.0_rt;
     auto start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < iter; ++i) {
-        for (int j = 0; j < iter; ++j) {
-            for (int k = 0; k < iter; ++k) {
-                result += fast_atan(x_in);
-                x_in -= 1e-8_rt * x_in;
+    {
+        T x_in;
+        T result;
+        for (int m = 0; m < loops; ++m) {
+            x_in = x;
+            result = 0.0;
+            for (int i = 0; i < iter; ++i) {
+                for (int j = 0; j < iter; ++j) {
+                    for (int k = 0; k < iter; ++k) {
+                        result += std::atan(x_in);
+                        x_in *= 0.9999_rt;
+                    }
+                }
             }
         }
+        // don't let the compiler elide this side-effect-free loop (at the cost of a memory write)
+        volatile T volatile_result;
+        volatile_result = result;
     }
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<amrex::Real> fast_atan_duration = end - start;
-    // std::cout << "Result from fast_atan is " << result << std::endl;
+    std::chrono::duration<amrex::Real> std_atan_duration = end - start;
 
-    x_in = x;
-    result = 0.0_rt;
+
     start = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < iter; ++i) {
-        for (int j = 0; j < iter; ++j) {
-            for (int k = 0; k < iter; ++k) {
-                result += std::atan(x_in);
-                x_in -= 1e-8_rt * x_in;
+    {
+        T x_in;
+        T result;
+        for (int m = 0; m < loops; ++m) {
+            x_in = x;
+            result = 0.0;
+            for (int i = 0; i < iter; ++i) {
+                for (int j = 0; j < iter; ++j) {
+                    for (int k = 0; k < iter; ++k) {
+                        result += fast_atan(x_in);
+                        x_in *= 0.9999_rt;
+                    }
+                }
             }
         }
+        // don't let the compiler elide this side-effect-free loop (at the cost of a memory write)
+        volatile T volatile_result;
+        volatile_result = result;
     }
     end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<amrex::Real> std_atan_duration = end - start;
-    // std::cout << "Result from std::atan is " << result << std::endl;
+    std::chrono::duration<amrex::Real> fast_atan_duration = end - start;
+
 
     std::cout << "fast_atan duration: " << fast_atan_duration.count() << " seconds\n";
     std::cout << "std::atan duration: " << std_atan_duration.count() << " seconds\n";
