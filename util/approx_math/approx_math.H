@@ -2,13 +2,13 @@
 #define APPROX_MATH_H
 
 #include <AMReX_REAL.H>
-#include <AMReX_GpuUtility.H>
+#include <AMReX_Gpu.H>
 #include <microphysics_math.H>
 
 using namespace amrex::literals;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real atanf_1(const amrex::Real x) {
+amrex::Real fast_atan_1(const amrex::Real x) {
     ///
     /// This calculates atan within [-1, 1] range.
     ///
@@ -42,7 +42,7 @@ amrex::Real atanf_1(const amrex::Real x) {
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real atanf(const amrex::Real x) {
+amrex::Real fast_atan(const amrex::Real x) {
     ///
     /// Fast atan approximation calculations.
     ///
@@ -67,7 +67,7 @@ amrex::Real atanf(const amrex::Real x) {
     // Check for large number, close to infinity.
     // Error is ~1e-8 rad by not checking actual inf
 
-    if (x > 1.8e8_rt) {
+    if (x > 1.e8_rt) {
         return PI_2;
     }
     else if (x < -1.e8_rt) {
@@ -88,13 +88,13 @@ amrex::Real atanf(const amrex::Real x) {
     amrex::Real y;
 
     if (x > 1.0_rt) {
-        y = PI_2 - atanf_1(1.0_rt / x);
+        y = PI_2 - fast_atan_1(1.0_rt / x);
     }
     else if (x < -1.0_rt) {
-        y = -PI_2 - atanf_1(1.0_rt / x);
+        y = -PI_2 - fast_atan_1(1.0_rt / x);
     }
     else {
-        y = atanf_1(x);
+        y = fast_atan_1(x);
     }
 
     return y;
