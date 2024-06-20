@@ -47,8 +47,6 @@ amrex::Real fast_atan(const amrex::Real x) {
     /// Fast atan approximation calculations.
     ///
 
-    // define some constants
-
     constexpr amrex::Real PI_2 = 0.5_rt * GCEM_PI;
 
     ///
@@ -56,7 +54,7 @@ amrex::Real fast_atan(const amrex::Real x) {
     /// gives better answer than the approximation below.
     /// And accuracy increase as x << 0.113.
     /// Also significantly faster.
-    // ///
+    ///
 
     if (std::abs(x) < 0.113_rt) {
         return x;
