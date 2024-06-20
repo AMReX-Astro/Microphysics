@@ -19,7 +19,7 @@ using namespace integrator_rp;
 
 template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real calculate_dt (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
+amrex::Real calculate_dt (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& spec_rhs, amrex::Real& ener_rhs)
 {
     using namespace microphysics::forward_euler;
 
@@ -27,20 +27,20 @@ Real calculate_dt (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1,
     // from changing by more than a certain factor in any
     // timestep. We ignore this for species below atol_spec.
 
-    Real dt = 1.0e200_rt;
+    amrex::Real dt = 1.0e200_rt;
 
     for (int n = 1; n <= NumSpec; ++n) {
 
         if (state.xn[n-1] >= atol_spec) {
 
-            Real target_dX;
+            amrex::Real target_dX;
             if (spec_rhs(n) > 0.0) {
                 target_dX = (maximum_timestep_change_factor - 1.0_rt) * state.xn[n-1];
             } else {
                 target_dX = (1.0_rt - 1.0_rt / maximum_timestep_change_factor) * state.xn[n-1];
             }
 
-            Real dXdt = amrex::max(std::abs(spec_rhs(n)), 1.0e-30_rt);
+            amrex::Real dXdt = amrex::max(std::abs(spec_rhs(n)), 1.0e-30_rt);
 
             dt = amrex::min(dt, target_dX / dXdt);
 
@@ -50,14 +50,14 @@ Real calculate_dt (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1,
 
     if (integrate_energy) {
 
-        Real target_de;
+        amrex::Real target_de;
         if (ener_rhs > 0.0) {
             target_de = (maximum_timestep_change_factor - 1.0_rt) * state.e;
         } else {
             target_de = (1.0_rt - 1.0_rt / maximum_timestep_change_factor) * state.e;
         }
 
-        Real dedt = amrex::max(std::abs(ener_rhs), 1.0e-30_rt);
+        amrex::Real dedt = amrex::max(std::abs(ener_rhs), 1.0e-30_rt);
 
         dt = amrex::min(dt, target_de / dedt);
 
@@ -70,7 +70,7 @@ Real calculate_dt (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1,
 
 template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (const Real time, IntT& int_state, BurnT& state)
+void clean_state (const amrex::Real time, IntT& int_state, BurnT& state)
 {
     using namespace microphysics::forward_euler;
 
@@ -92,7 +92,7 @@ void clean_state (const Real time, IntT& int_state, BurnT& state)
 
 template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_rhs (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
+void evaluate_rhs (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& spec_rhs, amrex::Real& ener_rhs)
 {
     using namespace microphysics::forward_euler;
 
@@ -158,7 +158,7 @@ void initialize_int_state (IntT& int_state)
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
+void actual_integrator (BurnT& state, amrex::Real dt, bool is_retry=false)
 {
     using namespace microphysics::forward_euler;
 
@@ -172,9 +172,9 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
 
     fe.tout = dt;
 
-    Real T_in = state.T;
-    Real e_in = state.e;
-    Real xn_in[NumSpec];
+    amrex::Real T_in = state.T;
+    amrex::Real e_in = state.e;
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
@@ -183,13 +183,13 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
         // Evaluate the RHS.
 
         amrex::Array1D<amrex::Real, 1, NumSpec> spec_rhs;
-        Real ener_rhs;
+        amrex::Real ener_rhs;
 
         evaluate_rhs(fe, state, spec_rhs, ener_rhs);
 
        // Calculate the timestep.
 
-        Real dt_sub = calculate_dt(fe, state, spec_rhs, ener_rhs);
+        amrex::Real dt_sub = calculate_dt(fe, state, spec_rhs, ener_rhs);
 
         // Prevent the timestep from overshooting the final time.
 
