@@ -132,8 +132,8 @@ amrex::Real fast_exp(const amrex::Real x) {
     ///
 
     // Use Taylor if number is smaller than 0.1
-    // However, it is actually slower (~1/10th slower)
-    // than simply calling _fast_exp.
+    // It is ~1/10th slower than simply calling _fast_exp
+    // if this is not being used due to the if-statement overhead.
     // But _fast_exp gives poor accuracy for x < 0.1
 
     if (std::abs(x) < 0.1_rt) {

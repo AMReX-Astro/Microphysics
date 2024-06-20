@@ -51,7 +51,7 @@ void test_fast_exp_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += std::exp(x_in);
-                        x_in -= 1.e-6_rt * x_in;
+                        x_in -= 1.e-4_rt * x_in;
                     }
                 }
             }
@@ -75,7 +75,7 @@ void test_fast_exp_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += fast_exp(x_in);
-                        x_in -= 1.e-6_rt * x_in;
+                        x_in -= 1.e-4_rt * x_in;
                     }
                 }
             }
