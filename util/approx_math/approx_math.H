@@ -41,6 +41,7 @@ amrex::Real fast_atan_1(const amrex::Real x) {
     return ((A*x2 + B)*x2 + C)*x;
 }
 
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real fast_atan(const amrex::Real x) {
     ///
@@ -52,9 +53,10 @@ amrex::Real fast_atan(const amrex::Real x) {
     constexpr amrex::Real PI_2 = GCEM_PI / 2.0_rt;
     constexpr amrex::Real PI_4 = GCEM_PI / 4.0_rt;
 
-    // Return 0 if x = 0
+    // Check if number is small, then just return x.
+    // max error for this is ~ 3e-7 rad.
 
-    if (x == 0.0_rt) {
+    if (std::abs(x) < 1.e-2_rt) {
         return x;
     }
 
