@@ -19,7 +19,7 @@ using namespace integrator_rp;
 
 template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real calculate_dt (IntT& int_state, BurnT& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
+Real calculate_dt (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
 {
     using namespace microphysics::forward_euler;
 
@@ -92,13 +92,13 @@ void clean_state (const Real time, IntT& int_state, BurnT& state)
 
 template <typename IntT, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_rhs (IntT& int_state, BurnT& state, Array1D<Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
+void evaluate_rhs (IntT& int_state, BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& spec_rhs, Real& ener_rhs)
 {
     using namespace microphysics::forward_euler;
 
     // Evaluate the RHS.
 
-    Array1D<Real, 1, neqs> ydot;
+    amrex::Array1D<amrex::Real, 1, neqs> ydot;
 
     actual_rhs(state, ydot);
 
@@ -182,7 +182,7 @@ void actual_integrator (BurnT& state, Real dt, bool is_retry=false)
     while (fe.t < (1.0_rt - timestep_safety_factor) * dt && fe.n_step < ode_max_steps) {
         // Evaluate the RHS.
 
-        Array1D<Real, 1, NumSpec> spec_rhs;
+        amrex::Array1D<amrex::Real, 1, NumSpec> spec_rhs;
         Real ener_rhs;
 
         evaluate_rhs(fe, state, spec_rhs, ener_rhs);

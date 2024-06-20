@@ -36,7 +36,7 @@ struct fe_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    Array1D<Real, 1, int_neqs> y;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y;
 };
 
 } // namespace forward_euler
