@@ -22,7 +22,7 @@ namespace network
 {
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real bion () {
+    constexpr amrex::Real bion () {
         using namespace Species;
 
         static_assert(spec >= 1 && spec <= NumSpec);
@@ -44,11 +44,11 @@ namespace network
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real mion () {
+    constexpr amrex::Real mion () {
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr Real A = NetworkProperties::aion(spec);
-        constexpr Real Z = NetworkProperties::zion(spec);
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
     }
@@ -56,10 +56,10 @@ namespace network
     // Legacy (non-templated) interfaces
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real bion (int spec) {
+    amrex::Real bion (int spec) {
         using namespace Species;
 
-        Real b = 0.0_rt;
+        amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
         constexpr_for<1, NumSpec+1>([&] (auto n) {
@@ -72,10 +72,10 @@ namespace network
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real mion (int spec) {
+    amrex::Real mion (int spec) {
         using namespace Species;
 
-        Real m = 0.0_rt;
+        amrex::Real m = 0.0_rt;
 
         constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
@@ -162,7 +162,7 @@ namespace RHS
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }
