@@ -151,8 +151,8 @@ void apply_nse_exponent(T& nse_state,
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    amrex::Real ikTMeV = C::Legacy::MeV2erg / (C::k_B * T_in);
     amrex::Real exponent;
-    amrex::Real ikT = 1.0_rt / (C::k_B * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -170,7 +170,7 @@ void apply_nse_exponent(T& nse_state,
         exponent = amrex::min(500.0_rt,
                               (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
                                nse_state.mu_n + network::bion(n+1)) *
-                              C::Legacy::MeV2erg * ikT - u_c(n+1));
+                              ikTMeV - u_c(n+1));
 
         nse_state.xn[n] *= std::exp(exponent);
     }
