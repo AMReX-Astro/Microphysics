@@ -24,7 +24,7 @@ void dvjust (int IORD, BurnT& state, DvodeT& vstate)
     const int NQM1 = vstate.NQ - 1;
     const int NQM2 = vstate.NQ - 2;
 
-    Real HSUM{}, XI{}, ALPH0{}, ALPH1{}, PROD{}, XIOLD{}, T1{};
+    amrex::Real HSUM{}, XI{}, ALPH0{}, ALPH1{}, PROD{}, XIOLD{}, T1{};
 
     // Check to see if the order is being increased or decreased.
 
