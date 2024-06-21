@@ -17,36 +17,40 @@ namespace detail {
 // add a couple of missing math functions
 
 // natural logarithm of 1+x (std::log1p)
+using std::log1p;
+
 struct Log1pOp {};
 
 template<typename R>
 using Log1pExpr = UnaryExpr<Log1pOp, R>;
 
 template<typename R, Requires<isExpr<R>> = true>
-constexpr auto log1p(R&& r) -> Log1pExpr<R> { return { std::forward<R>(r) }; }
+AUTODIFF_DEVICE_FUNC constexpr auto log1p(R&& r) -> Log1pExpr<R> { return { std::forward<R>(r) }; }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, Log1pOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, Log1pOp)
 {
     const T aux = One<T>() / (1.0 + self.val);
-    self.val = std::log1p(self.val);
+    self.val = log1p(self.val);
     self.grad *= aux;
 }
 
 
 // cube root (std::cbrt)
+using std::cbrt;
+
 struct CbrtOp {};
 
 template<typename R>
 using CbrtExpr = UnaryExpr<CbrtOp, R>;
 
 template <typename R, Requires<isExpr<R>> = true>
-constexpr auto cbrt(R&& r) -> CbrtExpr<R> { return { std::forward<R>(r) }; }
+AUTODIFF_DEVICE_FUNC constexpr auto cbrt(R&& r) -> CbrtExpr<R> { return { std::forward<R>(r) }; }
 
 template<typename T, typename G>
-constexpr void apply(Dual<T, G>& self, CbrtOp)
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, CbrtOp)
 {
-    self.val = std::cbrt(self.val);
+    self.val = cbrt(self.val);
     self.grad *= 1.0 / (3.0 * self.val * self.val);
 }
 
