@@ -21,7 +21,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool in_nse(T& state, const bool relax = false) {
     using namespace Species;
 
-    Real f = relax ? nse_relax_factor : 1.0_rt;
+    amrex::Real f = relax ? nse_relax_factor : 1.0_rt;
     bool nse_check = false;
 
     if (state.rho > f * rho_nse && state.T > f * T_nse) {
@@ -30,13 +30,13 @@ bool in_nse(T& state, const bool relax = false) {
         // and He-group
         // also make sure there is not a lot of O16 (O16 burning will dominate then) or Si28
 
-        Real Fe_group = 0.0_rt;
-        Real C_group = 0.0_rt;
-        Real He_group = 0.0_rt;
-        Real O_group = 0.0_rt;
-        Real Si_group = 0.0_rt;
+        amrex::Real Fe_group = 0.0_rt;
+        amrex::Real C_group = 0.0_rt;
+        amrex::Real He_group = 0.0_rt;
+        amrex::Real O_group = 0.0_rt;
+        amrex::Real Si_group = 0.0_rt;
 
-        auto add_to_group = [&state](Real& group, int zion_start, int zion_end) {
+        auto add_to_group = [&state](amrex::Real& group, int zion_start, int zion_end) {
             for (int spec = 1; spec <= NumSpec; ++spec) {
                 if (NetworkProperties::zion(spec) >= zion_start && NetworkProperties::zion(spec) <= zion_end) {
                     group += state.xn[spec - 1];
@@ -56,7 +56,7 @@ bool in_nse(T& state, const bool relax = false) {
             add_to_group(Si_group, 14, 14); // range for Si-group
 #else
             // we need to get the mass fractions from the conserved state passed in
-            auto add_to_group_y = [&state](Real& group, int zion_start, int zion_end) {
+            auto add_to_group_y = [&state](amrex::Real& group, int zion_start, int zion_end) {
                 for (int spec = 1; spec <= NumSpec; ++spec) {
                     if (NetworkProperties::zion(spec) >= zion_start && NetworkProperties::zion(spec) <= zion_end) {
                         group += state.y[SFS + spec - 1];
