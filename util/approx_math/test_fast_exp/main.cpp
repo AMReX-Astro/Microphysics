@@ -43,7 +43,8 @@ int main() {
     test_fast_exp_accuracy(-15.0_rt);
     test_fast_exp_accuracy(-25.0_rt);
     test_fast_exp_accuracy(-100.0_rt);
-
+    test_fast_exp_accuracy(-500.0_rt);
+    test_fast_exp_accuracy(-800.0_rt);
 
     // Inf Case
 

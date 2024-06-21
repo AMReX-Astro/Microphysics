@@ -142,12 +142,16 @@ amrex::Real fast_exp(const amrex::Real x) {
     }
 
     //
-    // Cawley_exp won't handle large x properly.
-    // i.e. large enough when exp(x) -> inf
+    // Cawley_exp won't handle large positive
+    // or negative x properly.
     //
 
     if (x > 700.0_rt) {
         return std::numeric_limits<amrex::Real>::infinity();
+    }
+
+    if (x < -700.0_rt) {
+        return 0.0_rt;
     }
 
     return cawley_exp(x);
