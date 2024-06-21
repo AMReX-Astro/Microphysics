@@ -83,7 +83,7 @@ amrex::Real fast_atan(const amrex::Real x) {
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real _fast_exp(const amrex::Real x) {
+amrex::Real cawley_exp(const amrex::Real x) {
     ///
     /// A fast implementation of exp.
     /// Roughly 6-times faster than std::exp.
@@ -127,7 +127,7 @@ amrex::Real fast_exp(const amrex::Real x) {
     ///
     /// Implementation of fast exponential.
     /// This combines Taylor series when x < 0.1
-    /// and the fast exponential function algorithmn
+    /// and the fast exponential function algorithm
     /// described in Cawley 2000
     ///
 
@@ -140,6 +140,6 @@ amrex::Real fast_exp(const amrex::Real x) {
         return 1.0_rt + x;
     }
 
-    return _fast_exp(x);
+    return cawley_exp(x);
 }
 #endif
