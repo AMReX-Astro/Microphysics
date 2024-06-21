@@ -213,7 +213,7 @@ constexpr int is_jacobian_term_used ()
     int term_is_used = 0;
 
     // Loop through all rates and see if any rate touches both species.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
     {
         constexpr int rate = n;
         constexpr int spec1 = n1;
@@ -278,12 +278,12 @@ void dgesl (const RArray2D& a, RArray1D& b)
 
     // solve a * x = b
     // first solve l * y = b
-    constexpr_for<1, INT_NEQS>([&] (auto n1)
+    amrex::constexpr_for<1, INT_NEQS>([&] (auto n1)
     {
         constexpr int k = n1;
 
         amrex::Real t = b(k);
-        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
+        amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             constexpr int j = n2;
 
@@ -292,14 +292,14 @@ void dgesl (const RArray2D& a, RArray1D& b)
     });
 
     // now solve u * x = y
-    constexpr_for<1, INT_NEQS+1>([&] (auto kb)
+    amrex::constexpr_for<1, INT_NEQS+1>([&] (auto kb)
     {
         constexpr int k = INT_NEQS + 1 - kb;
 
         b(k) = b(k) / a(k,k);
         amrex::Real t = -b(k);
 
-        constexpr_for<1, k>([&] (auto j)
+        amrex::constexpr_for<1, k>([&] (auto j)
         {
             b(j) += t * a(j,k);
         });
@@ -312,14 +312,14 @@ void dgefa (RArray2D& a)
 
     // LU factorization in-place without pivoting.
 
-    constexpr_for<1, INT_NEQS>([&] (auto n1)
+    amrex::constexpr_for<1, INT_NEQS>([&] (auto n1)
     {
         [[maybe_unused]] constexpr int k = n1;
 
         // compute multipliers
 
         amrex::Real t = -1.0_rt / a(k,k);
-        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
+        amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int j = n2;
 
@@ -327,12 +327,12 @@ void dgefa (RArray2D& a)
         });
 
         // row elimination with column indexing
-        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
+        amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int j = n2;
 
             t = a(k,j);
-            constexpr_for<k+1, INT_NEQS+1>([&] (auto n3)
+            amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n3)
             {
                 [[maybe_unused]] constexpr int i = n3;
 
@@ -589,7 +589,7 @@ void tabulate_rates ()
         state.eta = 0.0_rt;
         state. y = {0.0_rt};
 
-        constexpr_for<1, NumRates+1>([&] (auto n)
+        amrex::constexpr_for<1, NumRates+1>([&] (auto n)
         {
             [[maybe_unused]] constexpr int rate = n;
 
@@ -1265,7 +1265,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
     amrex::Array1D<rate_t, 1, intermediate_array_size> intermediate_rates;
 
     // Fill all intermediate rates first.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
     {
         constexpr int rate = n;
 
@@ -1278,7 +1278,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
     // Loop over all rates, and then loop over all species, and if the
     // rate affects that given species, add its contribution to the RHS.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
         constexpr int rate = n1;
 
@@ -1308,7 +1308,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
         postprocess_rate<rate>(rhs_state, rates, rates1, rates2, rates3);
 
-        constexpr_for<1, NumSpec+1>([&] (auto n2)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int species = n2;
 
@@ -1352,7 +1352,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
         ydot(net_ienuc) = -sneut;
     }
 
-    constexpr_for<1, NumSpec+1>([&] (auto n)
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n)
     {
         constexpr int species = n;
 
@@ -1411,7 +1411,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     rate_t rates1, rates2, rates3;
 
     // Fill all intermediate rates first.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
     {
         constexpr int rate = n;
 
@@ -1423,7 +1423,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     });
 
     // Loop over rates and compute Jacobian terms.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
         constexpr int rate = n1;
 
@@ -1452,11 +1452,11 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         postprocess_rate<rate>(rhs_state, rates, rates1, rates2, rates3);
 
         // Species Jacobian elements with respect to other species.
-        constexpr_for<1, NumSpec+1>([&] (auto n2)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int spec1 = n2;
 
-            constexpr_for<1, NumSpec+1>([&] (auto n3)
+            amrex::constexpr_for<1, NumSpec+1>([&] (auto n3)
             {
                 [[maybe_unused]] constexpr int spec2 = n3;
 
@@ -1468,7 +1468,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
         // Evaluate the Jacobian elements with respect to temperature.
         // We'll convert them from d/dT to d/de later.
-        constexpr_for<1, NumSpec+1>([&] (auto n2)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int species = n2;
 
@@ -1493,7 +1493,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(burn_state, dsneutdt);
 
-    constexpr_for<1, NumSpec+1>([&] (auto j)
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto j)
     {
         constexpr int species = j;
 
@@ -1501,7 +1501,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         amrex::Real b1 = (-burn_state.abar * burn_state.abar * dsnuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * dsnudz);
         jac(net_ienuc, species) = -b1;
 
-        constexpr_for<1, NumSpec+1>([&] (auto i)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto i)
         {
             constexpr int s = i;
 

@@ -19,7 +19,7 @@ namespace forward_euler {
 // When checking the integration time to see if we're done,
 // be careful with roundoff issues.
 
-const Real timestep_safety_factor = 1.0e-12_rt;
+const amrex::Real timestep_safety_factor = 1.0e-12_rt;
 
 template <int int_neqs>
 struct fe_t {
@@ -36,7 +36,7 @@ struct fe_t {
     amrex::Real atol_enuc;
     amrex::Real rtol_enuc;
 
-    Array1D<Real, 1, int_neqs> y;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y;
 };
 
 } // namespace forward_euler
