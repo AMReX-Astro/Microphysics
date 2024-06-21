@@ -75,7 +75,7 @@ void screen_test_C(const Box& bx,
       sp(i, j, k, vars.ispec+n) = xn[n];
     }
 
-    for (int i = 0; i < unit_test_rp::loops; ++i) {
+    for (int loop = 0; loop < unit_test_rp::loops; ++loop) {
     plasma_state_t<dual_t> pstate;
     fill_plasma_state(pstate, temp_zone, dens_zone, ymass);
 
