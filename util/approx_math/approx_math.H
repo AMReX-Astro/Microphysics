@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <microphysics_math.H>
+#include <limits>
 
 using namespace amrex::literals;
 
@@ -138,6 +139,15 @@ amrex::Real fast_exp(const amrex::Real x) {
 
     if (std::abs(x) < 0.1_rt) {
         return 1.0_rt + x;
+    }
+
+    //
+    // Cawley_exp won't handle large x properly.
+    // i.e. large enough when exp(x) -> inf
+    //
+
+    if (x > 700.0_rt) {
+        return std::numeric_limits<amrex::Real>::infinity()
     }
 
     return cawley_exp(x);
