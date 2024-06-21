@@ -147,7 +147,7 @@ amrex::Real fast_exp(const amrex::Real x) {
     //
 
     if (x > 700.0_rt) {
-        return std::numeric_limits<amrex::Real>::infinity()
+        return std::numeric_limits<amrex::Real>::infinity();
     }
 
     return cawley_exp(x);
