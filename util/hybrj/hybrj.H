@@ -36,15 +36,15 @@ void hybrj(hybrj_t<neqs>& hj,
 
     bool finished = false;
 
-    Real epsmch = std::numeric_limits<Real>::epsilon();
+    amrex::Real epsmch = std::numeric_limits<amrex::Real>::epsilon();
 
     hj.info = 0;
     int iflag = 0;
     hj.nfev = 0;
     hj.njev = 0;
 
-    Real delta = 0.0_rt;
-    Real xnorm = 0.0_rt;
+    amrex::Real delta = 0.0_rt;
+    amrex::Real xnorm = 0.0_rt;
 
     // check the input parameters for errors.
 
@@ -63,7 +63,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
     // evaluate the function at the starting point
     // and calculate its norm.
-    Real fnorm = 0.0_rt;
+    amrex::Real fnorm = 0.0_rt;
 
     iflag = 1;
 
@@ -136,11 +136,11 @@ void hybrj(hybrj_t<neqs>& hj,
         }
         for (int j = 1; j <= neqs; ++j) {
             if (hj.fjac(j,j) != 0.0_rt) {
-                Real sum = 0.0_rt;
+                amrex::Real sum = 0.0_rt;
                 for (int i = j; i <= hj.n; ++i) {
                     sum += hj.fjac(i,j) * hj.qtf(i);
                 }
-                Real temp = -sum / hj.fjac(j,j);
+                amrex::Real temp = -sum / hj.fjac(j,j);
                 for (int i = j; i <= hj.n; ++i) {
                     hj.qtf(i) += hj.fjac(i,j) * temp;
                 }
@@ -207,7 +207,7 @@ void hybrj(hybrj_t<neqs>& hj,
                 hj.wa3(j) = hj.diag(j) * hj.wa1(j);
             }
 
-            Real pnorm = enorm(hj.n, hj.wa3);
+            amrex::Real pnorm = enorm(hj.n, hj.wa3);
 
             // on the first iteration, adjust the initial step bound.
 
@@ -225,11 +225,11 @@ void hybrj(hybrj_t<neqs>& hj,
                 break;
             }
 
-            Real fnorm1 = enorm(hj.n, hj.wa4);
+            amrex::Real fnorm1 = enorm(hj.n, hj.wa4);
 
             // compute the scaled actual reduction.
 
-            Real actred = -1.0_rt;
+            amrex::Real actred = -1.0_rt;
             if (fnorm1 < fnorm) {
                 actred = 1.0_rt - amrex::Math::powi<2>(fnorm1/fnorm);
             }
@@ -238,15 +238,15 @@ void hybrj(hybrj_t<neqs>& hj,
 
             int l = 1;
             for (int i = 1; i <= hj.n; ++i) {
-                Real sum = 0.0_rt;
+                amrex::Real sum = 0.0_rt;
                 for (int j = i; j <= neqs; ++j) {
                     sum += hj.r(l) * hj.wa1(j);
                     l += 1;
                 }
                 hj.wa3(i) = hj.qtf(i) + sum;
             }
-            Real temp = enorm(hj.n, hj.wa3);
-            Real prered = 0.0_rt;
+            amrex::Real temp = enorm(hj.n, hj.wa3);
+            amrex::Real prered = 0.0_rt;
             if (temp < fnorm) {
                 prered = 1.0_rt - amrex::Math::powi<2>(temp/fnorm);
             }
@@ -254,7 +254,7 @@ void hybrj(hybrj_t<neqs>& hj,
             // compute the ratio of the actual to the predicted
             // reduction.
 
-            Real ratio = 0.0_rt;
+            amrex::Real ratio = 0.0_rt;
             if (prered > 0.0_rt) {
                 ratio = actred / prered;
             }
@@ -349,7 +349,7 @@ void hybrj(hybrj_t<neqs>& hj,
             }
 
             for (int j = 1; j <= hj.n; ++j) {
-                Real sum = 0.0_rt;
+                amrex::Real sum = 0.0_rt;
                 for (int i = 1; i <= hj.n; ++i) {
                     sum += hj.fjac(i,j) * hj.wa4(i);
                 }
