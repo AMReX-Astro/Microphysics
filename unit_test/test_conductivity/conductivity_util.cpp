@@ -16,10 +16,10 @@
 using namespace amrex::literals;
 using namespace unit_test_rp;
 
-void cond_test_C(const Box& bx,
+void cond_test_C(const amrex::Box& bx,
                  const amrex::Real dlogrho, const amrex::Real dlogT, const amrex::Real dmetal,
                  const plot_t& vars,
-                 Array4<amrex::Real> const sp) {
+                 amrex::Array4<amrex::Real> const sp) {
 
   const int ih1 = network_spec_index("hydrogen-1");
   const int ihe4 = network_spec_index("helium-4");
