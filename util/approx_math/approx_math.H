@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <microphysics_math.H>
+#include <cstdint>
 #include <limits>
 
 using namespace amrex::literals;
@@ -84,7 +85,7 @@ amrex::Real fast_atan(const amrex::Real x) {
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real cawley_exp(const amrex::Real x) {
+amrex::Real cawley_exp(const double x) {
     ///
     /// A fast implementation of exp.
     /// Roughly 6-times faster than std::exp.
@@ -99,23 +100,23 @@ amrex::Real cawley_exp(const amrex::Real x) {
     ///
 
     // Use EXP_A = 1512775 if input is integer.
-    constexpr amrex::Real EXP_A = 1048576.0_rt / GCEM_LOG_2;
+    constexpr double EXP_A = 1048576.0_rt / GCEM_LOG_2;
 
     // The Choice of this number is described in Ref 1.
-    constexpr int EXP_C = 60801;
+    constexpr std::int32_t EXP_C = 60801;
 
     union {
-        amrex::Real d;
+        double d;
         struct {
 #ifdef LITTLE_ENDIAN
-            int j, i;
+            std::int32_t j, i;
 #else
-            int i, j;
+            std::int32_t i, j;
 #endif
         } n;
     } _eco;
 
-    _eco.n.i = (int)(EXP_A * x) + (1072693248 - EXP_C);
+    _eco.n.i = static_cast<std::int32_t>(EXP_A * x) + (1072693248 - EXP_C);
     _eco.n.j = 0;
 
     return _eco.d;

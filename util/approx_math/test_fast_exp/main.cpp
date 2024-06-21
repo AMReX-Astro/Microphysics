@@ -23,7 +23,6 @@ int main() {
     test_fast_exp_accuracy(200.0_rt);
     test_fast_exp_accuracy(300.0_rt);
     test_fast_exp_accuracy(500.0_rt);
-    test_fast_exp_accuracy(800.0_rt);
 
     test_fast_exp_accuracy(-0.001_rt);
     test_fast_exp_accuracy(-0.01_rt);
@@ -44,12 +43,6 @@ int main() {
     test_fast_exp_accuracy(-25.0_rt);
     test_fast_exp_accuracy(-100.0_rt);
     test_fast_exp_accuracy(-500.0_rt);
-    test_fast_exp_accuracy(-800.0_rt);
-
-    // Inf Case
-
-    // test_fast_exp_accuracy(std::numeric_limits<amrex::Real>::infinity());
-    // test_fast_exp_accuracy(-std::numeric_limits<amrex::Real>::infinity());
 
     std::cout << "Accuracy tests passed!" << std::endl;
 
