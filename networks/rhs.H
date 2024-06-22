@@ -439,9 +439,9 @@ void apply_density_scaling (const rhs_state_t<dual_t>& state, rate_t& rates)
 
 #ifdef SCREENING
 // Apply the screening term to a given rate.
-template<int rate>
+template<int rate, typename dual_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_screening (const rhs_state_t<autodiff::dual>& state, rate_t& rates)
+void apply_screening (const rhs_state_t<dual_t>& state, rate_t& rates)
 {
     // The screening behavior depends on the type of reaction. We provide screening
     // here for the reaction classes we know about, and any other reactions are unscreened.
@@ -1228,11 +1228,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 {
     static_assert(nrhs == neqs || nrhs == 2 * neqs);
 
-#ifdef SCREENING
-    rhs_state_t<autodiff::dual> rhs_state;
-#else
     rhs_state_t<amrex::Real> rhs_state;
-#endif
 
     rhs_state.rho = burn_state.rho;
     rhs_state.eta = burn_state.eta;
@@ -1245,10 +1241,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
 #ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
-    autodiff::dual temp = burn_state.T;
-    // seed the dual number for temperature before calculating anything with it
-    autodiff::seed<1>(temp, 1.0_rt);
-    fill_plasma_state(rhs_state.pstate, temp, burn_state.rho, rhs_state.y);
+    fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
 #endif
 
     // Initialize the rate temperature term.
