@@ -92,14 +92,16 @@ amrex::Real cawley_exp(const double x) {
     /// Roughly 6-times faster than std::exp.
     /// With reasonable accuracy across all range.
     ///
-    /// Code is obtained from Ref (2):
+    /// Code is obtained from Ref (4):
     /// Ref:
     /// 1) A Fast, Compact Approximation of the Exponential Function
     ///    by Schraudolph 1999
     /// 2) On a Fast Compact Approximation of the Exponential Function
     ///    by Cawley 2000
+    /// 3) https://stackoverflow.com/questions/53882855/simple-explanation-of-the-ankerl-fast-exponent-algorithm
+    /// 4) https://github.com/ekmett/approximate/blob/master/cbits/fast.c
+    /// 5) https://martin.ankerl.com/2007/02/11/optimized-exponential-functions-for-java/
     ///
-
 
     //
     // If we use two 4 byte integer, then A = 2^20 / ln2
