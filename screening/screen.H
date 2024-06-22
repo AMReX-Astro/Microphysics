@@ -440,7 +440,7 @@ dual_t chugunov2009_f0 (const dual_t& gamma)
 
     dual_t term1 = gamma_12 * admath::sqrt(A2 + gamma);
     dual_t term2 = admath::log(admath::sqrt(gamma / A2) + admath::sqrt(1.0_rt + gamma / A2));
-    dual_t term3 = gamma_12 - admath::atan(gamma_12);
+    dual_t term3 = gamma_12 - admath::fast_atan(gamma_12);
     dual_t term4 = admath::log1p(gamma / B2);
     dual_t term5 = admath::log1p(gamma * gamma / B4);
 
@@ -532,7 +532,7 @@ dual_t chabrier1998_helmholtz_F(const dual_t& gamma) {
     const dual_t term2 = sqrt_gamma / sqrt_A2;
 
     return A_1 * (term1 - A_2 * admath::log(term2 + term3)) +
-           2.0_rt * A_3 * (sqrt_gamma - admath::atan(sqrt_gamma));
+           2.0_rt * A_3 * (sqrt_gamma - admath::fast_atan(sqrt_gamma));
 }
 
 template <typename dual_t>
