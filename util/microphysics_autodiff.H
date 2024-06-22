@@ -5,6 +5,8 @@
 #include <AMReX_Algorithm.H>
 #include <AMReX_REAL.H>
 
+#include <approx_math.H>
+
 // required for AMREX_GPU_HOST_DEVICE, which is used via AUTODIFF_DEVICE_FUNC
 #include <AMReX_GpuQualifiers.H>
 #include <autodiff/forward/dual.hpp>
@@ -54,6 +56,24 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, CbrtOp)
     self.grad *= 1.0 / (3.0 * self.val * self.val);
 }
 
+// custom functions from approx_math.H
+
+struct FastAtanOp {};
+
+template<typename R>
+using FastAtanExpr = UnaryExpr<FastAtanOp, R>;
+
+template<typename R, Requires<isExpr<R>> = true>
+AUTODIFF_DEVICE_FUNC constexpr auto fast_atan(R&& r) -> FastAtanExpr<R> { return { std::forward<R>(r) }; }
+
+template<typename T, typename G>
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, FastAtanOp)
+{
+    const T aux = One<T>() / (1.0 + self.val * self.val);
+    self.val = ::fast_atan(self.val);
+    self.grad *= aux;
+}
+
 } // namespace detail
 
 // Redefine dual to use amrex::Real instead of double
@@ -88,6 +108,8 @@ using std::cbrt, autodiff::detail::cbrt;
 
 using amrex::min, autodiff::detail::min;
 using amrex::max, autodiff::detail::max;
+
+using ::fast_atan, autodiff::detail::fast_atan;
 
 } // namespace math_functions
 
