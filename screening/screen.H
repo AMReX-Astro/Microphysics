@@ -19,6 +19,7 @@
 #include <cmath>
 #include <screen_data.H>
 #include <extern_parameters.H>
+#include <approx_math.H>
 
 using namespace amrex::literals;
 
@@ -660,7 +661,7 @@ void chugunov2009_f0 (const amrex::Real gamma, const amrex::Real dlog_dT, amrex:
         dterm2_dgamma = 1.0_rt / (2.0_rt * term1);
     }
 
-    term3 = gamma_12 - std::atan(gamma_12);
+    term3 = gamma_12 - fast_atan(gamma_12);
     if constexpr (do_T_derivatives) {
         dterm3_dgamma = 0.5_rt * gamma_12 / (1.0_rt + gamma);
     }
@@ -817,7 +818,7 @@ void chabrier1998_helmholtz_F(const amrex::Real gamma, const amrex::Real dgamma_
 
     f = A_1 * (sqrt_gamma_A2_gamma -
                A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2)) +
-               2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
+               2.0_rt * A_3 * (sqrt_gamma - fast_atan(sqrt_gamma));
 
     if constexpr (do_T_derivatives) {
         df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma) -
