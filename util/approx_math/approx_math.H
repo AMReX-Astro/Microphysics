@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <limits>
 
+
 using namespace amrex::literals;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE

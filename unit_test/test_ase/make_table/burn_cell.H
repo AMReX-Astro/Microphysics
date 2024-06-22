@@ -22,17 +22,17 @@ void burn_cell_c()
 
     state.dx = 1.0e6_rt;
 
-    Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<Real>(nrho-1);
-    Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<Real>(nT-1);
-    Real dYe = (Ye_max - Ye_min)/(nye-1);
+    amrex::Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<amrex::Real>(nrho-1);
+    amrex::Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<amrex::Real>(nT-1);
+    amrex::Real dYe = (Ye_max - Ye_min)/(nye-1);
 
     for (int iye = 0; iye < nye; ++iye) {
         for (int irho = 0; irho < nrho; ++irho) {
             for (int itemp = 0; itemp < nT; ++itemp) {
 
-                Real T = std::pow(10.0, std::log10(T_min) + itemp * dlogT);
-                Real rho = std::pow(10.0, std::log10(rho_min) + irho * dlogrho);
-                Real Ye = Ye_min + iye * dYe;
+                amrex::Real T = std::pow(10.0, std::log10(T_min) + itemp * dlogT);
+                amrex::Real rho = std::pow(10.0, std::log10(rho_min) + irho * dlogrho);
+                amrex::Real Ye = Ye_min + iye * dYe;
 
                 state.T = T;
                 state.rho = rho;
@@ -58,7 +58,8 @@ void burn_cell_c()
                 // find the  nse state
 
                 const bool assume_ye_is_valid = true;
-                Real eps = 1.e-6_rt;
+                amrex::Real eps = 1.e-10_rt;
+
                 use_hybrid_solver = 1;
 
                 auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
