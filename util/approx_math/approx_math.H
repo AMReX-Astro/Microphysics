@@ -100,29 +100,38 @@ amrex::Real cawley_exp(const double x) {
     ///    by Cawley 2000
     ///
 
-    // Use EXP_A = 1512775 if input is integer.
-    constexpr double EXP_A = 1048576.0_rt / GCEM_LOG_2;
 
-    // The Choice of this number is described in Ref 1.
-    constexpr std::int32_t EXP_C = 60801;
+    //
+    // If we use two 4 byte integer, then A = 2^20 / ln2
+    // Because it is now represented by a single 8 byte integer,
+    // we need to shift it by 4 additional bytes so 20+4*8=52
+    //
+
+    constexpr std::int64_t A = 6497320848556798;
+
+    //
+    // For two 4-byte integer representation, this is
+    // 2^20*1023 - C, where 1023 is the exponent bias x0 and
+    // C=60801 is the constant shift that minimizes error.
+    //
+    // For a single 8-byte integer, this is then
+    // 2^52*1023 - C, where C is again the shift which is
+    // calculated as 2^52*ln(3/(8*ln2) + 0.5)/ln2
+    // The overall result is represented by B
+    // And it is also an integer unlike two 4-byte integer case.
+    //
+
+    constexpr std::int64_t B = 0x3fef127e83d16f12LL;
 
     union {
         double d;
-        struct {
-#ifdef LITTLE_ENDIAN
-            std::int32_t j, i;
-#else
-            std::int32_t i, j;
-#endif
-        } n;
+        std::int64_t i;
     } _eco;
 
-    _eco.n.i = static_cast<std::int32_t>(EXP_A * x) + (1072693248 - EXP_C);
-    _eco.n.j = 0;
-
+    _eco.i = static_cast<std::int64_t>(A * x) + B;
     return _eco.d;
-
 }
+
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
