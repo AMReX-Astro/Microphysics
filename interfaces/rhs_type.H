@@ -95,13 +95,15 @@ struct rate_tab_t
     }
 };
 
+// dual_t is currently only used in the screening routines
+template <typename dual_t = amrex::Real>
 struct rhs_state_t
 {
     amrex::Real rho;
     tf_t tf;
     rate_tab_t tab;
 #ifdef SCREENING
-    plasma_state_t pstate;
+    plasma_state_t<dual_t> pstate;
 #endif
     amrex::Real y_e;
     amrex::Real eta;
