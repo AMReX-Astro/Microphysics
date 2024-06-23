@@ -478,7 +478,7 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
 // Get the NSE state;
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-T get_actual_nse_state(T& state, amrex::Real eps=1.0e-6_rt,
+T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
                        bool input_ye_is_valid=false) {
 
     // Check whether input ye is actually valid

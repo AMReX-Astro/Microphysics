@@ -118,9 +118,7 @@ amrex::Real cawley_exp(const double x) {
     //
     // For a single 8-byte integer, this is then
     // 2^52*1023 - C, where C is again the shift which is
-    // calculated as 2^52*ln(3/(8*ln2) + 0.5)/ln2
-    // The overall result is represented by B
-    // And it is also an integer unlike two 4-byte integer case.
+    // calculated as B = 2^52*ln(3/(8*ln2) + 0.5)/ln2
     //
 
     constexpr std::int64_t B = 0x3fef127e83d16f12LL;
