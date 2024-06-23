@@ -87,7 +87,7 @@ amrex::Real fast_atan(const amrex::Real x) {
 
 ///
 /// A fast implementation of exp with double precision input
-/// This gives reasonable accuracy across all range.
+/// This gives reasonable accuracy across all range, ~2% error
 ///
 /// This version uses memcpy to avoid potential undefined behavior
 /// from type punning through a union in Ref (1) and (2)
@@ -114,8 +114,8 @@ float jrade_exp(const float x) {
     /// in order to minimize RMS relative error.
     ///
 
-    constexpr float a = (1LL << 23) / 0.6931471805599453F;
-    constexpr float b = (1LL << 23) * (127 - 0.043677448F);
+    constexpr float a = gcem::pow(2.0F, 23) / 0.6931471805599453F;
+    constexpr float b = gcem::pow(2.0F, 23) * (127.0F - 0.043677448F);
     float y = a * x + b;
 
     //
@@ -123,13 +123,13 @@ float jrade_exp(const float x) {
     // Return Inf for large positive number
     //
 
-    constexpr float c = (1LL << 23);
-    constexpr float d = (1LL << 23) * 255;
+    constexpr float c = gcem::pow(2.0F, 23);
+    constexpr float d = gcem::pow(2.0F, 23) * 255.0F;
     if (y < c || y > d) {
         y = (y < c) ? 0.0F : d;
     }
 
-    std::int32_t n = static_cast<std::int32_t>(y);
+    auto n = static_cast<std::int32_t>(y);
     memcpy(&y, &n, 4);
     return y;
 }
@@ -148,8 +148,8 @@ double jrade_exp(const double x) {
     /// in order to minimize RMS relative error.
     ///
 
-    constexpr double a = (1LL << 52) / 0.6931471805599453;
-    constexpr double b = (1LL << 52) * (1023 - 0.04367744890362246);
+    constexpr double a = gcem::pow(2.0, 52) / 0.6931471805599453;
+    constexpr double b = gcem::pow(2.0, 52) * (1023.0 - 0.04367744890362246);
     double y = a * x + b;
 
     //
@@ -157,13 +157,13 @@ double jrade_exp(const double x) {
     // Return Inf for large positive number
     //
 
-    constexpr double c = (1LL << 52);
-    constexpr double d = (1LL << 52) * 2047;
+    constexpr double c = gcem::pow(2.0, 52);
+    constexpr double d = gcem::pow(2.0, 52) * 2047.0;
     if (y < c || y > d) {
         y = (y < c) ? 0.0 : d;
     }
 
-    std::int64_t n = static_cast<std::int64_t>(y);
+    auto n = static_cast<std::int64_t>(y);
     memcpy(&y, &n, 8);
     return y;
 }
@@ -182,10 +182,10 @@ double ekmett_exp(const double x) {
     /// https://github.com/ekmett/approximate/blob/master/cbits/fast.c
     ///
 
-    constexpr double a = (1LL << 52) * 0.5 / 0.6931471805599453;
+    constexpr double a = gcem::pow(2.0, 52) / 0.6931471805599453;
 
     // For minimizes max relative error
-    constexpr double b = (1LL << 52) * (1023 - 0.04367744890362246);
+    constexpr double b = gcem::pow(2.0, 52) * (1023.0 - 0.04367744890362246);
 
     // For minimizes rms relative error
     // constexpr double b = 0x3fdf127e83d16f12;
@@ -198,15 +198,14 @@ double ekmett_exp(const double x) {
     // Return Inf for large positive number
     //
 
-    constexpr double c = (1LL << 52);
-    constexpr double d = (1LL << 52) * 2047;
-
+    constexpr double c = gcem::pow(2.0, 52);
+    constexpr double d = gcem::pow(2.0, 52) * 2047.0;
     if (u < c || u > d) {
         u = (u < c) ? 0.0 : d;
     }
 
-    std::int64_t n = static_cast<std::int64_t>(u);
-    std::int64_t m = static_cast<std::int64_t>(v);
+    auto n = static_cast<std::int64_t>(u);
+    auto m = static_cast<std::int64_t>(v);
 
     memcpy(&u, &n, 8);
     memcpy(&v, &m, 8);
