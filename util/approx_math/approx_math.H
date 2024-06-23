@@ -114,8 +114,8 @@ float jrade_exp(const float x) {
     /// in order to minimize RMS relative error.
     ///
 
-    constexpr float a = (1ll << 23) / 0.6931471805599453;
-    constexpr float b = (1ll << 23) * (127 - 0.043677448f);
+    constexpr float a = (1LL << 23) / 0.6931471805599453f;
+    constexpr float b = (1LL << 23) * (127 - 0.043677448f);
     float y = a * x + b;
 
     //
@@ -123,8 +123,8 @@ float jrade_exp(const float x) {
     // Return Inf for large positive number
     //
 
-    constexpr float c = (1ll << 23);
-    constexpr float d = (1ll << 23) * 255;
+    constexpr float c = (1LL << 23);
+    constexpr float d = (1LL << 23) * 255;
     if (y < c || y > d) {
         y = (y < c) ? 0.0f : d;
     }
@@ -148,8 +148,8 @@ double jrade_exp(const double x) {
     /// in order to minimize RMS relative error.
     ///
 
-    constexpr double a = (1ll << 52) / 0.6931471805599453;
-    constexpr double b = (1ll << 52) * (1023 - 0.04367744890362246);
+    constexpr double a = (1LL << 52) / 0.6931471805599453;
+    constexpr double b = (1LL << 52) * (1023 - 0.04367744890362246);
     double y = a * x + b;
 
     //
@@ -157,8 +157,8 @@ double jrade_exp(const double x) {
     // Return Inf for large positive number
     //
 
-    constexpr double c = (1ll << 52);
-    constexpr double d = (1ll << 52) * 2047;
+    constexpr double c = (1LL << 52);
+    constexpr double d = (1LL << 52) * 2047;
     if (y < c || y > d) {
         y = (y < c) ? 0.0 : d;
     }
@@ -175,12 +175,20 @@ double ekmett_exp(const double x) {
     /// This is a more accurate than jrade_exp
     /// but it is roughly twice as slow.
     ///
+    /// This uses the identity exp(x) = exp(x/2) / exp(-x/2),
+    /// so there is extra factor of 0.5 in a
+    ///
     /// This comes from:
     /// https://github.com/ekmett/approximate/blob/master/cbits/fast.c
     ///
 
-    constexpr std::int64_t a = 3248660424278399LL;
-    constexpr std::int64_t b = 0x3fdf127e83d16f12LL;
+    constexpr double a = (1LL << 52) * 0.5 / 0.6931471805599453;
+
+    // For minimizes max relative error
+    constexpr double b = (1LL << 52) * (1023 - 0.04367744890362246);
+
+    // For minimizes rms relative error
+    // constexpr double b = 0x3fdf127e83d16f12;
 
     double u = a * x + b;
     double v = b - a * x;
@@ -190,8 +198,8 @@ double ekmett_exp(const double x) {
     // Return Inf for large positive number
     //
 
-    constexpr double c = (1ll << 52);
-    constexpr double d = (1ll << 52) * 2047;
+    constexpr double c = (1LL << 52);
+    constexpr double d = (1LL << 52) * 2047;
 
     if (u < c || u > d) {
         u = (u < c) ? 0.0 : d;
@@ -204,7 +212,6 @@ double ekmett_exp(const double x) {
     memcpy(&v, &m, 8);
 
     return u / v;
-
 }
 
 
