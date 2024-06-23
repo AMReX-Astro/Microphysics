@@ -1,5 +1,5 @@
-Initializing AMReX (24.06-22-g731014ff3eed)...
-AMReX (24.06-22-g731014ff3eed) initialized
+Initializing AMReX (23.08-206-g798ca3356d16)...
+AMReX (23.08-206-g798ca3356d16) initialized
 starting the single zone burn...
 Maximum Time (s): 0.01
 State Density (g/cm^3): 1000000
@@ -33,8 +33,8 @@ RHS at t = 0
   Ni56 3.938787868e-40
 ------------------------------------
 successful? 1
- - Hnuc = 8.558390237e+18
- - added e = 8.558390237e+16
+ - Hnuc = 8.55839024e+18
+ - added e = 8.55839024e+16
  - final T = 1516425860
 ------------------------------------
 e initial = 1.284393683e+17
@@ -43,31 +43,31 @@ e final =   2.140232707e+17
 new mass fractions: 
 He4 0.8760723967
 C12 0.1064099566
-O16 0.0001403204361
-Ne20 8.129701233e-05
-Mg24 0.0002972369574
-Si28 0.01113151729
-S32 0.005297014788
-Ar36 0.0005641483111
-Ca40 6.109846888e-06
-Ti44 2.004306531e-09
-Cr48 3.272104544e-14
-Fe52 7.126141042e-20
-Ni56 1.224819792e-26
+O16 0.0001403204362
+Ne20 8.129701234e-05
+Mg24 0.0002972369573
+Si28 0.01113151728
+S32 0.005297014805
+Ar36 0.0005641483217
+Ca40 6.109847214e-06
+Ti44 2.004306753e-09
+Cr48 3.2721052e-14
+Fe52 7.126143425e-20
+Ni56 1.224820426e-26
 ------------------------------------
 species creation rates: 
 omegadot(He4): -12.39276033
 omegadot(C12): 10.64099566
-omegadot(O16): 0.01403204361
-omegadot(Ne20): 0.008129701233
-omegadot(Mg24): 0.02972369574
-omegadot(Si28): 1.113151729
-omegadot(S32): 0.5297014788
-omegadot(Ar36): 0.05641483111
-omegadot(Ca40): 0.0006109846888
-omegadot(Ti44): 2.004306531e-07
-omegadot(Cr48): 3.272104544e-12
-omegadot(Fe52): 7.126141042e-18
-omegadot(Ni56): 1.224719792e-24
+omegadot(O16): 0.01403204362
+omegadot(Ne20): 0.008129701234
+omegadot(Mg24): 0.02972369573
+omegadot(Si28): 1.113151728
+omegadot(S32): 0.5297014805
+omegadot(Ar36): 0.05641483217
+omegadot(Ca40): 0.0006109847214
+omegadot(Ti44): 2.004306753e-07
+omegadot(Cr48): 3.2721052e-12
+omegadot(Fe52): 7.126143424e-18
+omegadot(Ni56): 1.224720426e-24
 number of steps taken: 255
-AMReX (24.06-22-g731014ff3eed) finalized
+AMReX (23.08-206-g798ca3356d16) finalized
