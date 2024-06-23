@@ -4,8 +4,8 @@
 #include <AMReX_REAL.H>
 #include <microphysics_math.H>
 #include <cstdint>
+#include <cstring>
 #include <limits>
-
 
 using namespace amrex::literals;
 
@@ -85,75 +85,126 @@ amrex::Real fast_atan(const amrex::Real x) {
 }
 
 
+///
+/// A fast implementation of exp with double precision input
+/// This gives reasonable accuracy across all range.
+///
+/// This version uses memcpy to avoid potential undefined behavior
+/// from type punning through a union in Ref (1) and (2)
+///
+/// Code is obtained from Ref (3):
+/// Ref:
+/// 1) A Fast, Compact Approximation of the Exponential Function
+///    by Schraudolph 1999
+/// 2) On a Fast Compact Approximation of the Exponential Function
+///    by Cawley 2000
+/// 3) https://gist.github.com/jrade/293a73f89dfef51da6522428c857802d
+///
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real cawley_exp(const double x) {
+float jrade_exp(const float x) {
+    /// For single precision input.
+    /// a = 2^23 / ln2
     ///
-    /// A fast implementation of exp.
-    /// Roughly 6-times faster than std::exp.
-    /// With reasonable accuracy across all range.
+    /// b = 2^23 * (x0 - C), where x0 = 127 is the exponent bias
+    /// C = (ln(ln2 + 2/e) - ln2 - ln(ln2)) / ln2
+    /// This is a constant shift term chosen to minimize maximum relative error
     ///
-    /// Code is obtained from Ref (4):
-    /// Ref:
-    /// 1) A Fast, Compact Approximation of the Exponential Function
-    ///    by Schraudolph 1999
-    /// 2) On a Fast Compact Approximation of the Exponential Function
-    ///    by Cawley 2000
-    /// 3) https://stackoverflow.com/questions/53882855/simple-explanation-of-the-ankerl-fast-exponent-algorithm
-    /// 4) https://github.com/ekmett/approximate/blob/master/cbits/fast.c
-    /// 5) https://martin.ankerl.com/2007/02/11/optimized-exponential-functions-for-java/
+    /// Let C = ln(3/(8*ln2) + 0.5)/ln2
+    /// in order to minimize RMS relative error.
     ///
 
-    //
-    // If we use two 4 byte integer, then A = 2^20 / ln2
-    // Because it is now represented by a single 8 byte integer,
-    // we need to shift it by 4 additional bytes so 20+4*8=52
-    //
-
-    constexpr std::int64_t A = 6497320848556798;
+    constexpr float a = (1ll << 23) / 0.6931471805599453;
+    constexpr float b = (1ll << 23) * (127 - 0.043677448f);
+    float y = a * x + b;
 
     //
-    // For two 4-byte integer representation, this is
-    // 2^20*1023 - C, where 1023 is the exponent bias x0 and
-    // C=60801 is the constant shift that minimizes error.
-    //
-    // For a single 8-byte integer, this is then
-    // 2^52*1023 - C, where C is again the shift which is
-    // calculated as B = 2^52*ln(3/(8*ln2) + 0.5)/ln2
+    // Return 0 for large negative number
+    // Return Inf for large positive number
     //
 
-    constexpr std::int64_t B = 0x3fef127e83d16f12LL;
+    constexpr float c = (1ll << 23);
+    constexpr float d = (1ll << 23) * 255;
+    if (y < c || y > d) {
+        y = (y < c) ? 0.0f : d;
+    }
 
-    union {
-        double d;
-        std::int64_t i;
-    } _eco;
-
-    _eco.i = static_cast<std::int64_t>(A * x) + B;
-    return _eco.d;
+    std::int32_t n = static_cast<std::int32_t>(y);
+    memcpy(&y, &n, 4);
+    return y;
 }
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real acc_fast_exp(const amrex::Real x) {
+double jrade_exp(const double x) {
+    /// For double precision input.
+    /// a = 2^23 / ln2
     ///
-    /// This is a more accurate fast_exp,
-    /// but it is roughly twice as slow as fast_exp
+    /// b = 2^23 * (x0 - C), where x0 = 127 is the exponent bias
+    /// C = (ln(ln2 + 2/e) - ln2 - ln(ln2)) / ln2
+    /// This is a constant shift term chosen to minimize maximum relative error
+    ///
+    /// Let C = ln(3/(8*ln2) + 0.5)/ln2
+    /// in order to minimize RMS relative error.
+    ///
+
+    constexpr double a = (1ll << 52) / 0.6931471805599453;
+    constexpr double b = (1ll << 52) * (1023 - 0.04367744890362246);
+    double y = a * x + b;
+
+    //
+    // Return 0 for large negative number
+    // Return Inf for large positive number
+    //
+
+    constexpr double c = (1ll << 52);
+    constexpr double d = (1ll << 52) * 2047;
+    if (y < c || y > d) {
+        y = (y < c) ? 0.0 : d;
+    }
+
+    std::int64_t n = static_cast<std::int64_t>(y);
+    memcpy(&y, &n, 8);
+    return y;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+double ekmett_exp(const double x) {
+    ///
+    /// This is a more accurate than jrade_exp
+    /// but it is roughly twice as slow.
     ///
     /// This comes from:
     /// https://github.com/ekmett/approximate/blob/master/cbits/fast.c
     ///
 
-    constexpr std::int64_t A = 3248660424278399LL;
-    constexpr std::int64_t B = 0x3fdf127e83d16f12LL;
+    constexpr std::int64_t a = 3248660424278399LL;
+    constexpr std::int64_t b = 0x3fdf127e83d16f12LL;
 
-    union {
-        double d;
-        std::int64_t i;
-    } u, v;
+    double u = a * x + b;
+    double v = b - a * x;
 
-    u.i = static_cast<std::int64_t>(A * x + B);
-    v.i = static_cast<std::int64_t>(B - A * x);
-    return u.d / v.d;
+    //
+    // Return 0 for large negative number
+    // Return Inf for large positive number
+    //
+
+    constexpr double c = (1ll << 52);
+    constexpr double d = (1ll << 52) * 2047;
+
+    if (u < c || u > d) {
+        u = (u < c) ? 0.0 : d;
+    }
+
+    std::int64_t n = static_cast<std::int64_t>(u);
+    std::int64_t m = static_cast<std::int64_t>(v);
+
+    memcpy(&u, &n, 8);
+    memcpy(&v, &m, 8);
+
+    return u / v;
+
 }
 
 
@@ -162,32 +213,19 @@ amrex::Real fast_exp(const amrex::Real x) {
     ///
     /// Implementation of fast exponential.
     /// This combines Taylor series when x < 0.1
-    /// and the fast exponential function algorithm
-    /// described in Cawley 2000
+    /// and the fast exponential function algorithm from various sources:
+    /// jrade: https://gist.github.com/jrade/293a73f89dfef51da6522428c857802d
+    /// ekmett: https://github.com/ekmett/approximate/blob/master/cbits/fast.c
     ///
 
     // Use Taylor if number is smaller than 0.1
-    // It is ~1/10th slower than simply calling _fast_exp
-    // if this is not being used due to the if-statement overhead.
-    // But _fast_exp gives poor accuracy for x < 0.1
+    // Minor performance hit, but much better accuracy when x < 0.1
 
     if (std::abs(x) < 0.1_rt) {
         return 1.0_rt + x;
     }
 
-    //
-    // Cawley_exp won't handle large positive
-    // or negative x properly.
-    //
-
-    if (x > 700.0_rt) {
-        return std::numeric_limits<amrex::Real>::infinity();
-    }
-
-    if (x < -700.0_rt) {
-        return 0.0_rt;
-    }
-
-    return cawley_exp(x);
+    return jrade_exp(x);
+    // return ekmett_exp(x);
 }
 #endif
