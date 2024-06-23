@@ -114,8 +114,8 @@ float jrade_exp(const float x) {
     /// in order to minimize RMS relative error.
     ///
 
-    constexpr float a = (1LL << 23) / 0.6931471805599453f;
-    constexpr float b = (1LL << 23) * (127 - 0.043677448f);
+    constexpr float a = (1LL << 23) / 0.6931471805599453F;
+    constexpr float b = (1LL << 23) * (127 - 0.043677448F);
     float y = a * x + b;
 
     //
