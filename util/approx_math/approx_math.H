@@ -126,7 +126,7 @@ float jrade_exp(const float x) {
     constexpr float c = (1LL << 23);
     constexpr float d = (1LL << 23) * 255;
     if (y < c || y > d) {
-        y = (y < c) ? 0.0f : d;
+        y = (y < c) ? 0.0F : d;
     }
 
     std::int32_t n = static_cast<std::int32_t>(y);
