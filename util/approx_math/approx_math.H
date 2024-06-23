@@ -133,6 +133,29 @@ amrex::Real cawley_exp(const double x) {
 }
 
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real acc_fast_exp(const amrex::Real x) {
+    ///
+    /// This is a more accurate fast_exp,
+    /// but it is roughly twice as slow as fast_exp
+    ///
+    /// This comes from:
+    /// https://github.com/ekmett/approximate/blob/master/cbits/fast.c
+    ///
+
+    constexpr std::int64_t A = 3248660424278399LL;
+    constexpr std::int64_t B = 0x3fdf127e83d16f12LL;
+
+    union {
+        double d;
+        std::int64_t i;
+    } u, v;
+
+    u.i = static_cast<std::int64_t>(A * x + B);
+    v.i = static_cast<std::int64_t>(B - A * x);
+    return u.d / v.d;
+}
+
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real fast_exp(const amrex::Real x) {
