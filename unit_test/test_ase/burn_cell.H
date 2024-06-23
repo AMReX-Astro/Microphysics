@@ -38,7 +38,7 @@ void burn_cell_c()
 
     // find the  nse state
     bool ye_is_valid = true;
-    amrex::Real eps = 1.0e-6_rt;
+    amrex::Real eps = 1.0e-10_rt;
     auto NSE_STATE = get_actual_nse_state(state, eps, ye_is_valid);
 
     std::cout << "State Density (g/cm^3): " << state.rho << std::endl;

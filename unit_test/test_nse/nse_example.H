@@ -64,7 +64,7 @@ void nse_example_c()
     state.mu_n = mu_n;
 
     const bool assume_ye_valid = true;
-    amrex::Real eps = 1.0e-6_rt;
+    amrex::Real eps = 1.0e-10_rt;
 
     // find the  nse state
     use_hybrid_solver = 1;

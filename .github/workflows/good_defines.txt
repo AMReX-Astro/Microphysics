@@ -25,4 +25,3 @@ TRUE_SDC
 _OPENMP
 _WIN32
 __cplusplus
-LITTLE_ENDIAN
