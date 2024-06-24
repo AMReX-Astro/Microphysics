@@ -20,7 +20,6 @@
 #include <cctype>
 #include <algorithm>
 
-
 using namespace nse_rp;
 
 template <typename T>

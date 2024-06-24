@@ -5,7 +5,6 @@
 #include <microphysics_math.H>
 #include <cstdint>
 #include <cstring>
-#include <limits>
 
 using namespace amrex::literals;
 

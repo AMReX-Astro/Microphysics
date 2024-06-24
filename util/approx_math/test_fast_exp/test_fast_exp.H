@@ -23,7 +23,7 @@ void test_fast_exp_accuracy(T x) {
 
     T abs_err = std::abs(fast_exp_result - std_exp_result);
     T rel_err = abs_err / std_exp_result;
-    T rtol = 0.05_rt;
+    auto rtol = static_cast<T>(0.05);
 
     std::cout << "absolute error: " << abs_err << std::endl;
     std::cout << "relative error: " << rel_err << std::endl;
@@ -40,6 +40,8 @@ void test_fast_exp_speed(int loops, int iter, T x) {
               << " with iter: " << iter
               << " with initial x: " << x << std::endl;
 
+    auto fac = static_cast<T>(1.e-4);
+
     auto start = std::chrono::high_resolution_clock::now();
     {
         T x_in;
@@ -51,7 +53,7 @@ void test_fast_exp_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += std::exp(x_in);
-                        x_in -= 1.e-4_rt * x_in;
+                        x_in -= fac * x_in;
                     }
                 }
             }
@@ -75,7 +77,7 @@ void test_fast_exp_speed(int loops, int iter, T x) {
                 for (int j = 0; j < iter; ++j) {
                     for (int k = 0; k < iter; ++k) {
                         result += fast_exp(x_in);
-                        x_in -= 1.e-4_rt * x_in;
+                        x_in -= fac * x_in;
                     }
                 }
             }
