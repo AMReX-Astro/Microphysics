@@ -195,16 +195,16 @@ float ekmett_exp(const float x) {
     // For minimizing rms relative error
     // constexpr double b = 0x3fdf127e83d16f12;
 
-    double u = a * x + b;
-    double v = b - a * x;
+    float u = a * x + b;
+    float v = b - a * x;
 
     //
     // Return 0 for large negative number
     // Return Inf for large positive number
     //
 
-    constexpr double c = gcem::pow(2.0F, 23);
-    constexpr double d = gcem::pow(2.0F, 23) * 255.0F;
+    constexpr float c = gcem::pow(2.0F, 23);
+    constexpr float d = gcem::pow(2.0F, 23) * 255.0F;
     if (u < c || u > d) {
         u = (u < c) ? 0.0F : d;
     }
