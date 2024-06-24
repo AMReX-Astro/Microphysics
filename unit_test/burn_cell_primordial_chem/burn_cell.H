@@ -5,9 +5,9 @@
 #include <fstream>
 #include <iostream>
 
-Real grav_constant = 6.674e-8;
+amrex::Real grav_constant = 6.674e-8;
 
-void burn_cell_c()
+auto burn_cell_c() -> int
 {
 
     using namespace unit_test_rp;
@@ -251,5 +251,6 @@ void burn_cell_c()
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << state.xn[n] << std::endl;
     }
-
+    
+    return state.success;
 }
