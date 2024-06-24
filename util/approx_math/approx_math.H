@@ -85,7 +85,7 @@ amrex::Real fast_atan(const amrex::Real x) {
 
 
 ///
-/// A fast implementation of exp with double precision input
+/// A fast implementation of exp with single/double precision input
 /// This gives reasonable accuracy across all range, ~2% error
 ///
 /// This version uses memcpy to avoid potential undefined behavior
