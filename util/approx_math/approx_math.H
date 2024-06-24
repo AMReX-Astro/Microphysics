@@ -318,7 +318,7 @@ float fast_log(const float x) {
     //     return -std::numeric_limits<float>::infinity();
     // }
 
-    return static_cast<float>((n - b) * ia);
+    return (static_cast<float>(n) - b) * ia;
 }
 
 
@@ -347,7 +347,7 @@ double fast_log(const double x) {
     //     return -std::numeric_limits<double>::infinity();
     // }
 
-    return static_cast<double>((n - b) * ia);
+    return (static_cast<double>(n) - b) * ia;
 }
 
 #endif
