@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 
+
 using namespace amrex::literals;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -276,4 +277,79 @@ amrex::Real fast_exp(const amrex::Real x) {
     return jrade_exp(x);
     // return ekmett_exp(x);
 }
+
+
+///
+/// Implementation of fast natural log by inverting fast_exp logic
+/// Ref:
+/// 1) https://martin.ankerl.com/2007/10/04/optimized-pow-approximation-for-java-and-c-c/
+/// 2) https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
+///
+/// To calculate ln(x), let x = e^y, then ln(x) = y
+/// And since we know how to approximate e^y using fast_exp
+/// we can simply revert the fast_exp process on x to find y, which is our answer.
+/// A sample derivation is given in ref (1).
+///
+/// Here we use memcpy to avoid UB from type punning via union.
+///
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+float fast_log(const float x) {
+    // For single precision input
+
+    constexpr float ia = 0.6931471805599453F / gcem::pow(2.0F, 23);
+    constexpr float b = gcem::pow(2.0F, 23) * (255.0F - 0.04367744890362246F);
+
+    // Make sure input is positive
+
+    assert(x >= 0.0F);
+
+    std::int32_t n;
+    memcpy(&n, &x, 4);
+
+    // if equal to infinity, then just return itself
+
+    // constexpr float pos_inf = gcem::pow(2.0F, 23) * 255.0F;
+    // if (n == pos_inf) {
+    //     return x;
+    // }
+
+    // if (n == 0.0F) {
+    //     return -std::numeric_limits<float>::infinity();
+    // }
+
+    auto y = static_cast<float>((n - b) * ia);
+    return y;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+double fast_log(const double x) {
+    // For double precision input
+
+    constexpr double ia = 0.6931471805599453 / gcem::pow(2.0, 52);
+    constexpr double b = gcem::pow(2.0, 52) * (1023.0 - 0.04367744890362246);
+
+    // Make sure input is positive
+
+    assert(x >= 0.0);
+
+    std::int64_t n;
+    memcpy(&n, &x, 8);
+
+    // if equal to infinity, then just return itself
+
+    // constexpr double pos_inf = gcem::pow(2.0, 52) * 2047.0;
+    // if (n == pos_inf) {
+    //     return x;
+    // }
+
+    // if (n == 0.0) {
+    //     return -std::numeric_limits<double>::infinity();
+    // }
+
+    auto y = static_cast<double>((n - b) * ia);
+    return y;
+}
+
 #endif
