@@ -1,15 +1,15 @@
-#include <iostream>
 #include <cstring>
+#include <iostream>
 #include <vector>
 
-#include <AMReX_ParmParse.H>
 #include <AMReX_MultiFab.H>
+#include <AMReX_ParmParse.H>
 using namespace amrex;
 
-#include <extern_parameters.H>
-#include <eos.H>
-#include <network.H>
 #include <burn_cell.H>
+#include <eos.H>
+#include <extern_parameters.H>
+#include <network.H>
 #include <unit_test.H>
 
 int main(int argc, char *argv[]) {
@@ -23,15 +23,17 @@ int main(int argc, char *argv[]) {
     std::string const run_prefix = "burn_cell_primordial_chem_";
     std::string input_run_prefix;
     pp.query("run_prefix", input_run_prefix);
-    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(run_prefix == input_run_prefix, "input file is missing or incorrect!");
-    
+    AMREX_ALWAYS_ASSERT_WITH_MESSAGE(run_prefix == input_run_prefix,
+                                     "input file is missing or incorrect!");
+
     std::cout << "starting the single zone burn..." << std::endl;
 
     ParmParse ppa("amr");
 
     init_unit_test();
 
-    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    // C++ EOS initialization (must be done after Fortran eos_init and
+    // init_extern_parameters)
     eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
 
     // C++ Network, RHS, screening, rates initialization
@@ -39,7 +41,7 @@ int main(int argc, char *argv[]) {
 
     success = burn_cell_c();
   }
-  
+
   amrex::Finalize();
 
   return (!success);
