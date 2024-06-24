@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Loop.H>
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
@@ -15,8 +16,98 @@ const std::string network_name = "pynucastro-cxx";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real bion () {
+        using namespace Species;
+
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        // Set the binding energy of the element
+
+        if constexpr (spec == H1) {
+            return 0.0_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 28.29566_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 127.619296_rt;
+        }
+        else if constexpr (spec == O20) {
+            return 151.3714_rt;
+        }
+        else if constexpr (spec == F20) {
+            return 154.40268_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 160.6448_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 198.25701600000002_rt;
+        }
+        else if constexpr (spec == Al27) {
+            return 224.951931_rt;
+        }
+        else if constexpr (spec == Si28) {
+            return 236.536832_rt;
+        }
+        else if constexpr (spec == P31) {
+            return 262.91617699999995_rt;
+        }
+        else if constexpr (spec == S32) {
+            return 271.78012800000005_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real mion () {
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    amrex::Real bion (int spec) {
+        using namespace Species;
+
+        amrex::Real b = 0.0_rt;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                b = bion<n>();
+            }
+        });
+
+        return b;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    amrex::Real mion (int spec) {
+        using namespace Species;
+
+        amrex::Real m = 0.0_rt;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                m = mion<n>();
+            }
+        });
+
+        return m;
+    }
 }
 
 namespace Rates
@@ -24,25 +115,25 @@ namespace Rates
 
     enum NetworkRates
     {
-        k_ne20__he4_o16 = 1,
-        k_he4_o16__ne20 = 2,
-        k_he4_ne20__mg24 = 3,
-        k_he4_mg24__si28 = 4,
-        k_p_al27__si28 = 5,
-        k_he4_al27__p31 = 6,
-        k_he4_si28__s32 = 7,
-        k_p_p31__s32 = 8,
-        k_o16_o16__p_p31 = 9,
-        k_o16_o16__he4_si28 = 10,
-        k_he4_mg24__p_al27 = 11,
-        k_p_al27__he4_mg24 = 12,
-        k_he4_si28__p_p31 = 13,
-        k_p_p31__he4_si28 = 14,
-        k_f20__o20 = 15,
-        k_ne20__f20 = 16,
-        k_o20__f20 = 17,
-        k_f20__ne20 = 18,
-        NumRates = k_f20__ne20
+        k_Ne20_to_He4_O16 = 1,
+        k_He4_O16_to_Ne20 = 2,
+        k_He4_Ne20_to_Mg24 = 3,
+        k_He4_Mg24_to_Si28 = 4,
+        k_p_Al27_to_Si28 = 5,
+        k_He4_Al27_to_P31 = 6,
+        k_He4_Si28_to_S32 = 7,
+        k_p_P31_to_S32 = 8,
+        k_O16_O16_to_p_P31 = 9,
+        k_O16_O16_to_He4_Si28 = 10,
+        k_He4_Mg24_to_p_Al27 = 11,
+        k_p_Al27_to_He4_Mg24 = 12,
+        k_He4_Si28_to_p_P31 = 13,
+        k_p_P31_to_He4_Si28 = 14,
+        k_F20_to_O20 = 15,
+        k_Ne20_to_F20 = 16,
+        k_O20_to_F20 = 17,
+        k_F20_to_Ne20 = 18,
+        NumRates = k_F20_to_Ne20
     };
 
     // number of reaclib rates
@@ -59,26 +150,41 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "ne20__he4_o16",  // 1,
-        "he4_o16__ne20",  // 2,
-        "he4_ne20__mg24",  // 3,
-        "he4_mg24__si28",  // 4,
-        "p_al27__si28",  // 5,
-        "he4_al27__p31",  // 6,
-        "he4_si28__s32",  // 7,
-        "p_p31__s32",  // 8,
-        "o16_o16__p_p31",  // 9,
-        "o16_o16__he4_si28",  // 10,
-        "he4_mg24__p_al27",  // 11,
-        "p_al27__he4_mg24",  // 12,
-        "he4_si28__p_p31",  // 13,
-        "p_p31__he4_si28",  // 14,
-        "f20__o20",  // 15,
-        "ne20__f20",  // 16,
-        "o20__f20",  // 17,
-        "f20__ne20"  // 18,
+        "Ne20_to_He4_O16",  // 1,
+        "He4_O16_to_Ne20",  // 2,
+        "He4_Ne20_to_Mg24",  // 3,
+        "He4_Mg24_to_Si28",  // 4,
+        "p_Al27_to_Si28",  // 5,
+        "He4_Al27_to_P31",  // 6,
+        "He4_Si28_to_S32",  // 7,
+        "p_P31_to_S32",  // 8,
+        "O16_O16_to_p_P31",  // 9,
+        "O16_O16_to_He4_Si28",  // 10,
+        "He4_Mg24_to_p_Al27",  // 11,
+        "p_Al27_to_He4_Mg24",  // 12,
+        "He4_Si28_to_p_P31",  // 13,
+        "p_P31_to_He4_Si28",  // 14,
+        "F20_to_O20",  // 15,
+        "Ne20_to_F20",  // 16,
+        "O20_to_F20",  // 17,
+        "F20_to_Ne20"  // 18,
     };
 
 }
+
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    constexpr int H1_index = 0;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 1;
+
+    // Each row corresponds to the rate in NetworkRates enum
+    // First 3 row indices for reactants, followed by 3 product indices
+    // last index is the corresponding reverse rate index.
+
+    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+}
+#endif
 
 #endif

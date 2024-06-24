@@ -13,7 +13,7 @@
 #include <numerical_jacobian.H>
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool do_jac (int i, int j, int k, Array4<Real> const& state, const plot_t& p)
+bool do_jac (int i, int j, int k, amrex::Array4<amrex::Real> const& state, const plot_t& p)
 {
 
     burn_t burn_state;
@@ -26,7 +26,7 @@ bool do_jac (int i, int j, int k, Array4<Real> const& state, const plot_t& p)
 
     normalize_abundances_burn(burn_state);
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
 
     burn_to_eos(burn_state, eos_state);
 

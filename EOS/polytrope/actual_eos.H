@@ -39,7 +39,7 @@ void actual_eos_init ()
     // Available pre-defined polytrope options:
 
     // 1: Non-relativistic, fully degenerate electron gas
-    // 2: Relativistic, fully degenerate electron gas 
+    // 2: Relativistic, fully degenerate electron gas
 
     if (polytrope_type > 0) {
         mu_e = polytrope_mu_e;
@@ -79,7 +79,7 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -88,11 +88,11 @@ bool is_input_valid (I input)
 
 
 //---------------------------------------------------------------------------
-// Public interfaces 
+// Public interfaces
 //---------------------------------------------------------------------------
 
 inline
-void eos_get_polytrope_parameters (int& polytrope_out, Real& gamma_out, Real& K_out, Real& mu_e_out)
+void eos_get_polytrope_parameters (int& polytrope_out, amrex::Real& gamma_out, amrex::Real& K_out, amrex::Real& mu_e_out)
 {
 
     polytrope_out = polytrope;
@@ -122,27 +122,27 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+    static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
-    Real dens = state.rho;
-    Real temp = state.T;
+    amrex::Real dens = state.rho;
+    amrex::Real temp = state.T;
 
-    Real pres = 1.0_rt;
+    amrex::Real pres = 1.0_rt;
     if constexpr (has_pressure<T>::value) {
         pres = state.p;
     }
 
-    Real enth = 1.0_rt;
+    amrex::Real enth = 1.0_rt;
     if constexpr (has_enthalpy<T>::value) {
         enth = state.h;
     }
 
-    Real eint = 1.0_rt;
+    amrex::Real eint = 1.0_rt;
     if constexpr (has_energy<T>::value) {
         eint = state.e;
     }
 
-    Real entr = 1.0_rt;
+    amrex::Real entr = 1.0_rt;
     if constexpr (has_entropy<T>::value) {
         entr = state.s;
     }
@@ -312,19 +312,21 @@ void actual_eos (I input, T& state)
         state.gam1 = gamma_const;
     }
 
-#ifdef EXTRA_THERMO
     // Compute dpdX, dedX, dhdX.
 
-    if constexpr (has_pressure<T>::value) {
+    if constexpr (has_dpdA<T>::value) {
         state.dpdA = - state.p / state.abar;
+    }
+    if constexpr (has_dpdZ<T>::value) {
         state.dpdZ =   state.p / (1.0_rt + state.zbar);
     }
 
-    if constexpr (has_energy<T>::value) {
+    if constexpr (has_dedA<T>::value) {
         state.dedA = - state.e / state.abar;
+    }
+    if constexpr (has_dedZ<T>::value) {
         state.dedZ =   state.e / (1.0_rt + state.zbar);
     }
-#endif
 
     // sound speed
     if constexpr (has_pressure<T>::value && has_energy<T>::value) {

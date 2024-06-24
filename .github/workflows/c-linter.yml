@@ -6,7 +6,7 @@ jobs:
   cpp-linter:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -22,28 +22,25 @@ jobs:
           if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
           cd ../..
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update -y -qq
-          sudo apt-get -qq -y install curl clang-tidy cmake jq clang cppcheck clang-format bear g++>=9.3.0
-
       - name: Run cpp linter
         uses: AMReX-Astro/cpp-linter-action@main
         with:
           build_path: 'unit_test/test_react'
           make_options: '-j 2 USE_OMP=FALSE USE_MPI=FALSE USE_CUDA=FALSE DEBUG=TRUE'
-          ignore_files: 'amrex'
+          ignore_files: 'amrex|util/gcem'
           header_filter: '(/conductivity/|/constants/|/EOS/|/integration/|/interfaces/|/networks/|/neutrinos/|/nse_solver/|/opacity/|/rates/|/screening/|/util/|^\./).*\.H$'
           config_file: ${GITHUB_WORKSPACE}/.clang-tidy
+          # not sure why cppcheck tests _MSC_VER, since it's only referenced from gcem
+          cppcheck_options: '-U_OPENMP -UAMREX_USE_GPU -UAMREX_USE_CUDA -UAMREX_USE_HIP -U_MSC_VER'
 
       - name: Archive clang tidy report
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: clang-tidy-report
           path: clang-tidy-report.txt
 
       - name: Archive cppcheck report
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: cppcheck-report
           path: cppcheck-report.txt

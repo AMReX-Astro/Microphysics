@@ -163,7 +163,7 @@ void main_main ()
 
             // initialize the auxiliary state (in particular, for NSE)
 #ifdef AUX_THERMO
-            eos_t eos_state;
+            eos_extra_t eos_state;
             for (int n = 0; n < NumSpec; n++) {
                 eos_state.xn[n] = xn[n];
             }
@@ -241,12 +241,10 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-    std::string language = ".cxx";
-
     // Write a plotfile
-    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator, state, names, geom, time, 0);
 
-    write_job_info(prefix + name + integrator + language);
+    write_job_info(prefix + name + integrator);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

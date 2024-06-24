@@ -1,10 +1,22 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
+# For HIP, inlining produces large kernels that seem to cause memory issues
+ifeq ($(USE_HIP),TRUE)
+    EXTRACXXFLAGS += -mllvm -amdgpu-function-calls=true
+endif
+
+# for common code paths between simplified-SDC and true-SDC, we'll
+# use the SDC define
+
 ifeq ($(USE_SIMPLIFIED_SDC), TRUE)
   DEFINES += -DSIMPLIFIED_SDC
+  DEFINES += -DSDC
+  USE_ALL_SDC := TRUE
 else ifeq ($(USE_TRUE_SDC), TRUE)
   DEFINES += -DTRUE_SDC
+  DEFINES += -DSDC
+  USE_ALL_SDC := TRUE
 else
   DEFINES += -DSTRANG
 endif
@@ -15,16 +27,16 @@ ifeq ($(USE_NONAKA_PLOT),TRUE)
 endif
 
 SCREEN_METHOD ?= screen5
-ifeq ($(SCREEN_METHOD), screen5)
-  DEFINES += -DSCREEN_METHOD=0
+ifeq ($(SCREEN_METHOD), null)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_null
+else ifeq ($(SCREEN_METHOD), screen5)
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_screen5
 else ifeq ($(SCREEN_METHOD), chugunov2007)
-  DEFINES += -DSCREEN_METHOD=1
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2007
 else ifeq ($(SCREEN_METHOD), chugunov2009)
-  DEFINES += -DSCREEN_METHOD=2
-else ifeq ($(SCREEN_METHOD), null)
-  DEFINES += -DSCREEN_METHOD=3
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2009
 else ifeq ($(SCREEN_METHOD), chabrier1998)
-  DEFINES += -DSCREEN_METHOD=4
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chabrier1998
 else
   $(error Invalid value for SCREEN_METHOD)
 endif
@@ -77,13 +89,13 @@ table:
 
 # NSE networks need the table
 ifeq ($(USE_NSE_TABLE),TRUE)
-  ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
-     all: nsetable
-  endif
+  NSE_TABULAR_HOME ?= $(MICROPHYSICS_HOME)/nse_tabular
+  EXTERN_CORE += $(NSE_TABULAR_HOME)
+  all: nsetable
 endif
 
 nsetable:
-	@if [ ! -f nse19.tbl ]; then echo Linking nse19.tbl; ln -s $(NETWORK_PATH)/nse19.tbl .; fi
+	@if [ ! -f $(NSE_TABLE_NAME) ]; then echo Linking $(NSE_TABLE_NAME); ln -s $(NETWORK_PATH)/$(NSE_TABLE_NAME) .; fi
 
 
 # include the network
@@ -116,17 +128,6 @@ ifeq ($(USE_RAD), TRUE)
    EXTERN_CORE += $(OPAC_PATH)
 endif
 
-ifeq ($(INTEGRATOR_DIR), BackwardEuler)
-  # we are implementing the numerical Jacobian ourselves, and we
-  # need the composition derivatives
-  USE_EXTRA_THERMO := TRUE
-endif
-
-ifeq ($(USE_EXTRA_THERMO), TRUE)
-  DEFINES += -DEXTRA_THERMO
-endif
-
-
 # fundamental constants
 EXTERN_CORE += $(MICROPHYSICS_HOME)/constants
 
@@ -139,6 +140,7 @@ ifeq ($(USE_NSE_NET), TRUE)
      EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
+EXTERN_CORE += $(MICROPHYSICS_HOME)/util/approx_math
 
 # we can't have both NSE solvers
 ifeq ($(USE_NSE_TABLE), TRUE)
@@ -147,8 +149,14 @@ ifeq ($(USE_NSE_TABLE), TRUE)
   endif
 endif
 
+# Only allow null chabrier1998 screening with NSE_NET
+ifeq ($(USE_NSE_NET),TRUE)
+  ifneq ($(or $(filter-out null chabrier1998,$(SCREEN_METHOD)),),)
+    $(error USE_NSE_NET can only be used with null or chabrier1998 screening)
+  endif
+endif
+
 clean::
 	@if [ -L helm_table.dat ]; then rm -f helm_table.dat; fi
 	@if [ -L reaclib_rate_metadata.dat ]; then rm -f reaclib_rate_metadata.dat; fi
-	@if [ ! -f nse19.tbl ]; then rm -f nse19.tbl; fi
-	$(foreach t, $(NET_TABLES), $(shell if [ ! -L `basename $t` ]; then rm -f `basename $t` ; fi))
+	$(foreach t, $(wildcard *_betadecay.dat *_electroncapture.dat nse*.tbl), $(shell if [ -L $t ]; then rm -f $t; fi))

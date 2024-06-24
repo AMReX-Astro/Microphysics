@@ -13,7 +13,7 @@ using namespace unit_test_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_react (const plot_t& p, const int i, const int j, const int k,
-               Array4<Real> const& state, Array4<int> const& n_rhs)
+               Array4<amrex::Real> const& state, Array4<int> const& n_rhs)
 {
 
     burn_t burn_state;
@@ -24,7 +24,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
 
     // call the EOS first to get the sound speed
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
     eos_state.rho = state(i, j, k, p.irho);
     eos_state.T = state(i, j, k, p.itemp);
     for (int n = 0; n < NumSpec; n++) {
@@ -52,7 +52,6 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = state(i, j, k, p.irho);
 
     // we will pick velocities to be 10% of the sound speed
@@ -66,14 +65,8 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
                 burn_state.y[SMY] * burn_state.y[SMY] +
                 burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
 
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    burn_state.y[SENTH] = burn_state.rho * eos_state.h;
-
-    burn_state.p0 = eos_state.p;
-#endif
-
     // normalize
-    Real sum_spec = 0.0_rt;
+    amrex::Real sum_spec = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
       sum_spec += burn_state.y[SFS+n] / burn_state.rho;
     }
@@ -81,11 +74,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
       burn_state.y[SFS+n] /= sum_spec;
     }
 
-#if defined(SDC_EVOLVE_ENERGY)
-    Real rhoe_old = burn_state.y[SEINT];
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    Real rhoh_old = burn_state.y[SENTH];
-#endif
+    amrex::Real rhoe_old = burn_state.y[SEINT];
 
     // zero out the advective terms
 
@@ -103,7 +92,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     burn_state.reference_time = 0.0;
 #endif
 
-    // these need to be initialized 
+    // these need to be initialized
 
     burn_state.sdc_iter = 1;
     burn_state.num_sdc_iters = 1;
@@ -122,11 +111,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
     state(i, j, k, p.irho_Hnuc) = (burn_state.y[SEINT] - rhoe_old) / tmax;
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    state(i, j, k, p.irho_Hnuc) = (burn_state.y[SENTH] - rhoh_old) / tmax;
-#endif
 
     n_rhs(i, j, k, 0) = burn_state.n_rhs;
 

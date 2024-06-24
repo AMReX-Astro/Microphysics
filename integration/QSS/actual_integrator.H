@@ -3,18 +3,22 @@
 
 #include <network.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 #include <burn_type.H>
-#include <rate_type.H>
 #include <eos_type.H>
 #include <eos.H>
 #include <extern_parameters.H>
+#include <integrator_data.H>
 
 using namespace integrator_rp;
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void clean_state (burn_t& state)
+void clean_state (BurnT& state)
 {
     // Renormalize the abundances.
 
@@ -31,8 +35,9 @@ void clean_state (burn_t& state)
     state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void initialize_state (burn_t& state)
+void initialize_state (BurnT& state)
 {
     // We assume that (rho, T) coming in are valid, do an EOS call
     // to fill the rest of the thermodynamic variables.
@@ -40,20 +45,30 @@ void initialize_state (burn_t& state)
     eos(eos_input_rt, state);
 
     state.success = true;
+    state.error_code = IERR_SUCCESS;
 
     state.time = 0.0;
     state.n_rhs = 0;
     state.n_step = 0;
+
+    // Initialize ydot to zero for Strang burn.
+
+    for (int n = 0; n < SVAR; ++n) {
+        state.ydot_a[n] = 0;
+    }
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Real, 1, NumSpec>& f_plus,
-                   Real& dedt)
+void evaluate_rhs (BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& f_minus, amrex::Array1D<amrex::Real, 1, NumSpec>& f_plus,
+                   amrex::Real& dedt)
 {
     // Call the RHS with a special array that will record both the positive and negative
     // contributions to each integration quantity.
 
-    Array1D<Real, 1, 2 * neqs> ydot;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    amrex::Array1D<amrex::Real, 1, 2 * int_neqs> ydot;
     RHS::rhs(state, ydot);
 
     // Now unpack the positive and negative contributions.
@@ -74,7 +89,7 @@ void evaluate_rhs (burn_t& state, Array1D<Real, 1, NumSpec>& f_minus, Array1D<Re
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real alpha (const Real& r)
+amrex::Real alpha (const amrex::Real& r)
 {
     // Evaluate alpha (Guidry et al. paper II, Equation 4)
     // Note the first term in the numerator has a typo,
@@ -87,18 +102,19 @@ Real alpha (const Real& r)
         return 0.5_rt; // Limit for r -> infinity
     }
     else {
-        Real r2 = r * r;
-        Real r3 = r2 * r;
-        Real a = (180.0_rt * r3 + 60.0_rt * r2 + 11.0_rt * r + 1.0_rt);
+        amrex::Real r2 = r * r;
+        amrex::Real r3 = r2 * r;
+        amrex::Real a = (180.0_rt * r3 + 60.0_rt * r2 + 11.0_rt * r + 1.0_rt);
         a /= (360.0_rt * r3 + 60.0_rt * r2 + 12.0_rt * r + 1.0_rt);
         return a;
     }
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
-                Array1D<Real, 1, NumSpec>& f_plus_0, Real& dedt_0,
-                const Real& t, const Real& dt, burn_t& state)
+bool predictor (BurnT& state_0, amrex::Array1D<amrex::Real, 1, NumSpec>& f_minus_0,
+                amrex::Array1D<amrex::Real, 1, NumSpec>& f_plus_0, amrex::Real& dedt_0,
+                const amrex::Real& t, const amrex::Real& dt, BurnT& state)
 {
     evaluate_rhs(state_0, f_minus_0, f_plus_0, dedt_0);
 
@@ -106,12 +122,12 @@ bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
 
     for (int n = 1; n <= NumSpec; ++n)
     {
-        Real X_0 = state_0.xn[n-1];
-        Real k_0 = f_minus_0(n) / X_0;
-        Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
-        Real alpha_0 = alpha(r_0);
+        amrex::Real X_0 = state_0.xn[n-1];
+        amrex::Real k_0 = f_minus_0(n) / X_0;
+        amrex::Real r_0 = 1.0_rt / amrex::max(k_0 * dt, 1.0e-50_rt);
+        amrex::Real alpha_0 = alpha(r_0);
 
-        Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
+        amrex::Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
         state.xn[n-1] = X_0 + dt * dXdt;
 
         if (X_0 >= atol_spec && (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance)) {
@@ -126,18 +142,19 @@ bool predictor (burn_t& state_0, Array1D<Real, 1, NumSpec>& f_minus_0,
     return true;
 }
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_0,
-                const Array1D<Real, 1, NumSpec>& f_plus_0, const Real& dedt_0,
-                const Real& t, const Real& dt, burn_t& state)
+bool corrector (const BurnT& state_0, const amrex::Array1D<amrex::Real, 1, NumSpec>& f_minus_0,
+                const amrex::Array1D<amrex::Real, 1, NumSpec>& f_plus_0, const amrex::Real& dedt_0,
+                const amrex::Real& t, const amrex::Real& dt, BurnT& state)
 {
     // Note that the corrector involves a re-evaluation of the rates. This seems
     // safe given how temperature sensitive our rates are. Mott et al. recommend
     // this for cases where the integration is sensitive to T (second to last
     // paragraph of section 4).
 
-    Array1D<Real, 1, NumSpec> f_minus_p, f_plus_p;
-    Real dedt_p;
+    amrex::Array1D<amrex::Real, 1, NumSpec> f_minus_p, f_plus_p;
+    amrex::Real dedt_p;
 
     // We assume state coming in represents the predictor.
 
@@ -147,17 +164,17 @@ bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
 
     for (int n = 1; n <= NumSpec; ++n)
     {
-        Real X_0 = state_0.xn[n-1];
-        Real X_p = state.xn[n-1];
-        Real k_0 = f_minus_0(n) / X_0;
-        Real k_p = f_minus_p(n) / X_p;
-        Real k_bar = 0.5_rt * (k_p + k_0);
-        Real r_bar = 1.0_rt / amrex::max(k_bar * dt, 1.0e-50_rt);
-        Real alpha_bar = alpha(r_bar);
-        Real f_plus_tilde = alpha_bar * f_plus_p(n) + (1.0_rt - alpha_bar) * f_plus_0(n);
+        amrex::Real X_0 = state_0.xn[n-1];
+        amrex::Real X_p = state.xn[n-1];
+        amrex::Real k_0 = f_minus_0(n) / X_0;
+        amrex::Real k_p = f_minus_p(n) / X_p;
+        amrex::Real k_bar = 0.5_rt * (k_p + k_0);
+        amrex::Real r_bar = 1.0_rt / amrex::max(k_bar * dt, 1.0e-50_rt);
+        amrex::Real alpha_bar = alpha(r_bar);
+        amrex::Real f_plus_tilde = alpha_bar * f_plus_p(n) + (1.0_rt - alpha_bar) * f_plus_0(n);
 
-        Real dXdt = (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
-        Real X_c = X_0 + dt * dXdt;
+        amrex::Real dXdt = (f_plus_tilde - k_bar * X_0) / (1.0_rt + alpha_bar * k_bar * dt);
+        amrex::Real X_c = X_0 + dt * dXdt;
 
         state.xn[n-1] = X_c;
 
@@ -166,11 +183,11 @@ bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
         }
     }
 
-    Real e_0 = state_0.e;
-    Real e_p = state.e;
+    amrex::Real e_0 = state_0.e;
+    amrex::Real e_p = state.e;
 
-    Real dedt = 0.5_rt * (dedt_0 + dedt_p);
-    Real e_c = e_0 + dt * dedt;
+    amrex::Real dedt = 0.5_rt * (dedt_0 + dedt_p);
+    amrex::Real e_c = e_0 + dt * dedt;
 
     state.e = e_c;
 
@@ -179,30 +196,31 @@ bool corrector (const burn_t& state_0, const Array1D<Real, 1, NumSpec>& f_minus_
     return true;
 }
 
-AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_integrator (burn_t& state, Real dt)
+template <typename BurnT>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
 {
     initialize_state(state);
 
-    Real T_in = state.T;
-    Real e_in = state.e;
-    Real xn_in[NumSpec];
+    amrex::Real T_in = state.T;
+    amrex::Real e_in = state.e;
+    amrex::Real xn_in[NumSpec];
     for (int n = 0; n < NumSpec; ++n) {
         xn_in[n] = state.xn[n];
     }
 
-    Real t = 0.0;
+    amrex::Real t = 0.0;
 
     // Start the guess for the timestepping by evaluating the RHS and
     // choose a dt that is some fraction of (X / dX/dt). The exception
     // will be cases where F_plus >> F_minus (see Mott 1999, Equation 3.40).
 
-    Array1D<Real, 1, NumSpec> f_minus_init, f_plus_init;
-    Real dedt_init;
+    amrex::Array1D<amrex::Real, 1, NumSpec> f_minus_init, f_plus_init;
+    amrex::Real dedt_init;
 
     evaluate_rhs(state, f_minus_init, f_plus_init, dedt_init);
 
-    Real dt_sub = dt;
+    amrex::Real dt_sub = dt;
 
     for (int n = 1; n <= NumSpec; ++n) {
         if (xn_in[n-1] >= atol_spec) {
@@ -217,7 +235,7 @@ void actual_integrator (burn_t& state, Real dt)
     // When checking the integration time to see if we're done,
     // be careful with roundoff issues.
 
-    const Real timestep_safety_factor = 1.0e-12_rt;
+    const amrex::Real timestep_safety_factor = 1.0e-12_rt;
 
     int num_timesteps = 0;
 
@@ -237,7 +255,7 @@ void actual_integrator (burn_t& state, Real dt)
 
         // Make a copy of the old-time state, which does not change in the iterations.
 
-        burn_t state_0 = state;
+        BurnT state_0 = state;
 
         // Calculate the quasi-steady-state update. This is based on Guidry et al. paper II.
         // (The actual implementation largely follows Mott et al. (2000, 2001) from CHEMEQ2.)
@@ -292,14 +310,14 @@ void actual_integrator (burn_t& state, Real dt)
             // a successful prediction; if it was unsuccessful, we'll cut the timestep by
             // an arbitrary factor and try again.
 
-            Array1D<Real, 1, NumSpec> f_plus_0, f_minus_0;
-            Real dedt_0;
+            amrex::Array1D<amrex::Real, 1, NumSpec> f_plus_0, f_minus_0;
+            amrex::Real dedt_0;
 
             bool success = predictor(state_0, f_minus_0, f_plus_0, dedt_0, t, dt_sub, state);
 
             // Save the initial predictor state.
 
-            burn_t predictor_state = state;
+            BurnT predictor_state = state;
 
             if (!success) {
                 dt_sub *= dt_cut_factor;
@@ -327,11 +345,11 @@ void actual_integrator (burn_t& state, Real dt)
 
             // Compute the maximum diff between the initial predictor and the final corrector.
 
-            Real max_diff = 0.0_rt;
+            amrex::Real max_diff = 0.0_rt;
 
             for (int n = 1; n <= NumSpec; ++n)
             {
-                Real dX = std::abs(state.xn[n-1] - predictor_state.xn[n-1]);
+                amrex::Real dX = std::abs(state.xn[n-1] - predictor_state.xn[n-1]);
                 if (state_0.xn[n-1] >= atol_spec) {
                     max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
                 }
@@ -351,7 +369,7 @@ void actual_integrator (burn_t& state, Real dt)
                 // method; given the expense of our RHS it seems unlikely that this would make
                 // a performance difference, but it is a potential optimization.
 
-                Real sigma = max_diff / (predictor_corrector_tolerance / tolerance_safety_factor);
+                amrex::Real sigma = max_diff / (predictor_corrector_tolerance / tolerance_safety_factor);
                 dt_sub *= (1.0_rt / std::sqrt(sigma) + 0.005);
             }
         }
@@ -360,6 +378,7 @@ void actual_integrator (burn_t& state, Real dt)
 
         if (timestep_iter >= num_timestep_iters) {
             state.success = false;
+            state.error_code = IERR_CORRECTOR_CONVERGENCE;
             break;
         }
 
@@ -372,6 +391,7 @@ void actual_integrator (burn_t& state, Real dt)
 
     if (num_timesteps >= ode_max_steps) {
         state.success = false;
+        state.error_code = IERR_TOO_MANY_STEPS;
     }
 
     state.time = t;

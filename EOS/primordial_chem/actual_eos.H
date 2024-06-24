@@ -120,7 +120,7 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be either eos_input_rt or eos_input_re");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be either eos_input_rt or eos_input_re");
 
   bool valid = false;
 
@@ -137,14 +137,14 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be either eos_input_rt or eos_input_re");
+    static_assert(std::is_same_v<I, eos_input_t>, "input must be either eos_input_rt or eos_input_re");
 
-    const Real gasconstant = 8.3144725e7;
-    const Real protonmass = 1.672621637e-24;
+    const amrex::Real gasconstant = C::n_A * C::k_B;
+    const amrex::Real protonmass = C::m_p;
     // Special gamma factors
-    Real sum_Abarinv = 0.0_rt;
-    Real sum_gammasinv = 0.0_rt;
-    Real rhotot = 0.0_rt;
+    amrex::Real sum_Abarinv = 0.0_rt;
+    amrex::Real sum_gammasinv = 0.0_rt;
+    amrex::Real rhotot = 0.0_rt;
 
     for (int n = 0; n < NumSpec; ++n) {
         rhotot += state.xn[n]*spmasses[n];
@@ -164,9 +164,9 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp = NAN;
-    Real dens = NAN;
-    Real eint = NAN;
+    amrex::Real temp = NAN;
+    amrex::Real dens = NAN;
+    amrex::Real eint = NAN;
 
     switch (input) {
 
@@ -214,11 +214,16 @@ void actual_eos (I input, T& state)
 
     case eos_input_rp:
         // dens, pressure, and xmass are inputs
-#ifndef AMREX_USE_GPU
-        amrex::Error("eos_input_rp is not supported");
-#endif
 
-          break;
+        if constexpr (has_pressure<T>::value) {
+            dens = state.rho;
+
+            // stop the integration if the pressure < 0
+            AMREX_ASSERT(state.p > 0.);
+            eint = state.p * sum_gammasinv / dens;
+            temp = eint / (sum_gammasinv * gasconstant * sum_Abarinv);
+        }
+        break;
 
     case eos_input_ps:
         // pressure, entropy, and xmass are inputs
@@ -266,9 +271,26 @@ void actual_eos (I input, T& state)
         state.e = eint;
     }
 
-    Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
+    if constexpr (has_pressure<T>::value) {
+        amrex::Real pressure = state.rho * eint / sum_gammasinv;
+        state.p = pressure;
+
+        state.dpdT = pressure / temp;
+        state.dpdr = pressure / dens;
+        state.cs = std::sqrt((1.0 + 1.0/sum_gammasinv) * state.p /state.rho);
+        if constexpr (has_G<T>::value) {
+            state.G = 0.5 * (1.0 + (1.0 + 1.0/sum_gammasinv));
+        }
+    }
+
+    amrex::Real dedT = sum_gammasinv * sum_Abarinv * gasconstant;
+    amrex::Real dedr = 0.0_rt;
     if constexpr (has_energy<T>::value) {
         state.dedT = dedT;
+        state.dedr = dedr;
+        if constexpr (has_pressure<T>::value) {
+            state.dpde = state.dpdT / state.dedT;
+        }
     }
 
 }

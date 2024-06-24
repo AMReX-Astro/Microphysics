@@ -20,7 +20,7 @@ integrator.atol_enuc = 1.0e-6
 unit_test.tmax    = 1.0
 
 unit_test.density = 1.e9
-unit_test.temperature = 1.d9
+unit_test.temperature = 1.e9
 
 unit_test.X1  = 1.0
 unit_test.X2  = 0.0

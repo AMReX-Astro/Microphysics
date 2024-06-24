@@ -14,8 +14,6 @@ USE_REACT = TRUE
 
 EBASE = main
 
-USE_EXTRA_THERMO = TRUE
-
 BL_NO_FORT=TRUE
 
 # define the location of the Microphysics top directory
@@ -28,10 +26,6 @@ EOS_DIR     := helmholtz
 NETWORK_DIR := aprox13
 
 CONDUCTIVITY_DIR := stellar
-
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
 
 EXTERN_SEARCH += .
 

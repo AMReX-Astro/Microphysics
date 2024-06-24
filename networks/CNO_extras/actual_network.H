@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <AMReX_Loop.H>
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
@@ -15,8 +16,128 @@ const std::string network_name = "pynucastro-cxx";
 
 namespace network
 {
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> bion;
-    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, NumSpec> mion;
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real bion () {
+        using namespace Species;
+
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        // Set the binding energy of the element
+
+        if constexpr (spec == H1) {
+            return 0.0_rt;
+        }
+        else if constexpr (spec == He4) {
+            return 28.29566_rt;
+        }
+        else if constexpr (spec == C12) {
+            return 92.16172800000001_rt;
+        }
+        else if constexpr (spec == C13) {
+            return 97.108037_rt;
+        }
+        else if constexpr (spec == N13) {
+            return 94.105219_rt;
+        }
+        else if constexpr (spec == N14) {
+            return 104.65859599999999_rt;
+        }
+        else if constexpr (spec == N15) {
+            return 115.4919_rt;
+        }
+        else if constexpr (spec == O14) {
+            return 98.731892_rt;
+        }
+        else if constexpr (spec == O15) {
+            return 111.95538_rt;
+        }
+        else if constexpr (spec == O16) {
+            return 127.619296_rt;
+        }
+        else if constexpr (spec == O17) {
+            return 131.76237600000002_rt;
+        }
+        else if constexpr (spec == O18) {
+            return 139.807746_rt;
+        }
+        else if constexpr (spec == F17) {
+            return 128.21957600000002_rt;
+        }
+        else if constexpr (spec == F18) {
+            return 137.369484_rt;
+        }
+        else if constexpr (spec == F19) {
+            return 147.801342_rt;
+        }
+        else if constexpr (spec == Ne18) {
+            return 132.142626_rt;
+        }
+        else if constexpr (spec == Ne19) {
+            return 143.779517_rt;
+        }
+        else if constexpr (spec == Ne20) {
+            return 160.6448_rt;
+        }
+        else if constexpr (spec == Mg22) {
+            return 168.58074200000001_rt;
+        }
+        else if constexpr (spec == Mg24) {
+            return 198.25701600000002_rt;
+        }
+        else if constexpr (spec == Fe56) {
+            return 492.2598239999999_rt;
+        }
+
+
+        // Return zero if we don't recognize the species.
+        return 0.0_rt;
+    }
+
+    template<int spec>
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    constexpr amrex::Real mion () {
+        static_assert(spec >= 1 && spec <= NumSpec);
+
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
+
+        return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
+    }
+
+    // Legacy (non-templated) interfaces
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    amrex::Real bion (int spec) {
+        using namespace Species;
+
+        amrex::Real b = 0.0_rt;
+
+        // Set the binding energy of the element
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                b = bion<n>();
+            }
+        });
+
+        return b;
+    }
+
+    AMREX_GPU_HOST_DEVICE AMREX_INLINE
+    amrex::Real mion (int spec) {
+        using namespace Species;
+
+        amrex::Real m = 0.0_rt;
+
+        constexpr_for<1, NumSpec+1>([&] (auto n) {
+            if (n == spec) {
+                m = mion<n>();
+            }
+        });
+
+        return m;
+    }
 }
 
 namespace Rates
@@ -24,49 +145,79 @@ namespace Rates
 
     enum NetworkRates
     {
-        k_n13__c13__weak__wc12 = 1,
-        k_o14__n14__weak__wc12 = 2,
-        k_o15__n15__weak__wc12 = 3,
-        k_f17__o17__weak__wc12 = 4,
-        k_f18__o18__weak__wc12 = 5,
-        k_ne18__f18__weak__wc12 = 6,
-        k_ne19__f19__weak__wc12 = 7,
-        k_p_c12__n13 = 8,
-        k_he4_c12__o16 = 9,
-        k_p_c13__n14 = 10,
-        k_p_n13__o14 = 11,
-        k_p_n14__o15 = 12,
-        k_he4_n14__f18 = 13,
-        k_p_n15__o16 = 14,
-        k_he4_n15__f19 = 15,
-        k_he4_o14__ne18 = 16,
-        k_he4_o15__ne19 = 17,
-        k_p_o16__f17 = 18,
-        k_he4_o16__ne20 = 19,
-        k_p_o17__f18 = 20,
-        k_p_o18__f19 = 21,
-        k_p_f17__ne18 = 22,
-        k_p_f18__ne19 = 23,
-        k_p_f19__ne20 = 24,
-        k_he4_ne18__mg22 = 25,
-        k_he4_ne20__mg24 = 26,
-        k_c12_c12__he4_ne20 = 27,
-        k_he4_n13__p_o16 = 28,
-        k_p_n15__he4_c12 = 29,
-        k_he4_o14__p_f17 = 30,
-        k_c12_o16__he4_mg24 = 31,
-        k_p_o17__he4_n14 = 32,
-        k_p_o18__he4_n15 = 33,
-        k_p_f18__he4_o15 = 34,
-        k_p_f19__he4_o16 = 35,
-        k_p_ne20__he4_f17 = 36,
-        k_he4_he4_he4__c12 = 37,
-        NumRates = k_he4_he4_he4__c12
+        k_N13_to_C13_weak_wc12 = 1,
+        k_O14_to_N14_weak_wc12 = 2,
+        k_O15_to_N15_weak_wc12 = 3,
+        k_F17_to_O17_weak_wc12 = 4,
+        k_F18_to_O18_weak_wc12 = 5,
+        k_Ne18_to_F18_weak_wc12 = 6,
+        k_Ne19_to_F19_weak_wc12 = 7,
+        k_N13_to_p_C12 = 8,
+        k_N14_to_p_C13 = 9,
+        k_O14_to_p_N13 = 10,
+        k_O15_to_p_N14 = 11,
+        k_O16_to_p_N15 = 12,
+        k_O16_to_He4_C12 = 13,
+        k_F17_to_p_O16 = 14,
+        k_F18_to_p_O17 = 15,
+        k_F18_to_He4_N14 = 16,
+        k_F19_to_p_O18 = 17,
+        k_F19_to_He4_N15 = 18,
+        k_Ne18_to_p_F17 = 19,
+        k_Ne18_to_He4_O14 = 20,
+        k_Ne19_to_p_F18 = 21,
+        k_Ne19_to_He4_O15 = 22,
+        k_Ne20_to_p_F19 = 23,
+        k_Ne20_to_He4_O16 = 24,
+        k_Mg22_to_He4_Ne18 = 25,
+        k_Mg24_to_He4_Ne20 = 26,
+        k_C12_to_He4_He4_He4 = 27,
+        k_p_C12_to_N13 = 28,
+        k_He4_C12_to_O16 = 29,
+        k_p_C13_to_N14 = 30,
+        k_p_N13_to_O14 = 31,
+        k_p_N14_to_O15 = 32,
+        k_He4_N14_to_F18 = 33,
+        k_p_N15_to_O16 = 34,
+        k_He4_N15_to_F19 = 35,
+        k_He4_O14_to_Ne18 = 36,
+        k_He4_O15_to_Ne19 = 37,
+        k_p_O16_to_F17 = 38,
+        k_He4_O16_to_Ne20 = 39,
+        k_p_O17_to_F18 = 40,
+        k_p_O18_to_F19 = 41,
+        k_p_F17_to_Ne18 = 42,
+        k_p_F18_to_Ne19 = 43,
+        k_p_F19_to_Ne20 = 44,
+        k_He4_Ne18_to_Mg22 = 45,
+        k_He4_Ne20_to_Mg24 = 46,
+        k_He4_C12_to_p_N15 = 47,
+        k_C12_C12_to_He4_Ne20 = 48,
+        k_He4_N13_to_p_O16 = 49,
+        k_He4_N14_to_p_O17 = 50,
+        k_p_N15_to_He4_C12 = 51,
+        k_He4_N15_to_p_O18 = 52,
+        k_He4_O14_to_p_F17 = 53,
+        k_He4_O15_to_p_F18 = 54,
+        k_p_O16_to_He4_N13 = 55,
+        k_He4_O16_to_p_F19 = 56,
+        k_C12_O16_to_He4_Mg24 = 57,
+        k_p_O17_to_He4_N14 = 58,
+        k_p_O18_to_He4_N15 = 59,
+        k_p_F17_to_He4_O14 = 60,
+        k_He4_F17_to_p_Ne20 = 61,
+        k_p_F18_to_He4_O15 = 62,
+        k_p_F19_to_He4_O16 = 63,
+        k_p_Ne20_to_He4_F17 = 64,
+        k_He4_Ne20_to_C12_C12 = 65,
+        k_He4_Mg24_to_C12_O16 = 66,
+        k_He4_He4_He4_to_C12 = 67,
+        NumRates = k_He4_He4_He4_to_C12
     };
 
     // number of reaclib rates
 
-    const int NrateReaclib = 37;
+    const int NrateReaclib = 67;
 
     // number of tabular rates
 
@@ -78,45 +229,90 @@ namespace Rates
 
     static const std::vector<std::string> rate_names = {
         "",   // 0
-        "n13__c13__weak__wc12",  // 1,
-        "o14__n14__weak__wc12",  // 2,
-        "o15__n15__weak__wc12",  // 3,
-        "f17__o17__weak__wc12",  // 4,
-        "f18__o18__weak__wc12",  // 5,
-        "ne18__f18__weak__wc12",  // 6,
-        "ne19__f19__weak__wc12",  // 7,
-        "p_c12__n13",  // 8,
-        "he4_c12__o16",  // 9,
-        "p_c13__n14",  // 10,
-        "p_n13__o14",  // 11,
-        "p_n14__o15",  // 12,
-        "he4_n14__f18",  // 13,
-        "p_n15__o16",  // 14,
-        "he4_n15__f19",  // 15,
-        "he4_o14__ne18",  // 16,
-        "he4_o15__ne19",  // 17,
-        "p_o16__f17",  // 18,
-        "he4_o16__ne20",  // 19,
-        "p_o17__f18",  // 20,
-        "p_o18__f19",  // 21,
-        "p_f17__ne18",  // 22,
-        "p_f18__ne19",  // 23,
-        "p_f19__ne20",  // 24,
-        "he4_ne18__mg22",  // 25,
-        "he4_ne20__mg24",  // 26,
-        "c12_c12__he4_ne20",  // 27,
-        "he4_n13__p_o16",  // 28,
-        "p_n15__he4_c12",  // 29,
-        "he4_o14__p_f17",  // 30,
-        "c12_o16__he4_mg24",  // 31,
-        "p_o17__he4_n14",  // 32,
-        "p_o18__he4_n15",  // 33,
-        "p_f18__he4_o15",  // 34,
-        "p_f19__he4_o16",  // 35,
-        "p_ne20__he4_f17",  // 36,
-        "he4_he4_he4__c12"  // 37,
+        "N13_to_C13_weak_wc12",  // 1,
+        "O14_to_N14_weak_wc12",  // 2,
+        "O15_to_N15_weak_wc12",  // 3,
+        "F17_to_O17_weak_wc12",  // 4,
+        "F18_to_O18_weak_wc12",  // 5,
+        "Ne18_to_F18_weak_wc12",  // 6,
+        "Ne19_to_F19_weak_wc12",  // 7,
+        "N13_to_p_C12",  // 8,
+        "N14_to_p_C13",  // 9,
+        "O14_to_p_N13",  // 10,
+        "O15_to_p_N14",  // 11,
+        "O16_to_p_N15",  // 12,
+        "O16_to_He4_C12",  // 13,
+        "F17_to_p_O16",  // 14,
+        "F18_to_p_O17",  // 15,
+        "F18_to_He4_N14",  // 16,
+        "F19_to_p_O18",  // 17,
+        "F19_to_He4_N15",  // 18,
+        "Ne18_to_p_F17",  // 19,
+        "Ne18_to_He4_O14",  // 20,
+        "Ne19_to_p_F18",  // 21,
+        "Ne19_to_He4_O15",  // 22,
+        "Ne20_to_p_F19",  // 23,
+        "Ne20_to_He4_O16",  // 24,
+        "Mg22_to_He4_Ne18",  // 25,
+        "Mg24_to_He4_Ne20",  // 26,
+        "C12_to_He4_He4_He4",  // 27,
+        "p_C12_to_N13",  // 28,
+        "He4_C12_to_O16",  // 29,
+        "p_C13_to_N14",  // 30,
+        "p_N13_to_O14",  // 31,
+        "p_N14_to_O15",  // 32,
+        "He4_N14_to_F18",  // 33,
+        "p_N15_to_O16",  // 34,
+        "He4_N15_to_F19",  // 35,
+        "He4_O14_to_Ne18",  // 36,
+        "He4_O15_to_Ne19",  // 37,
+        "p_O16_to_F17",  // 38,
+        "He4_O16_to_Ne20",  // 39,
+        "p_O17_to_F18",  // 40,
+        "p_O18_to_F19",  // 41,
+        "p_F17_to_Ne18",  // 42,
+        "p_F18_to_Ne19",  // 43,
+        "p_F19_to_Ne20",  // 44,
+        "He4_Ne18_to_Mg22",  // 45,
+        "He4_Ne20_to_Mg24",  // 46,
+        "He4_C12_to_p_N15",  // 47,
+        "C12_C12_to_He4_Ne20",  // 48,
+        "He4_N13_to_p_O16",  // 49,
+        "He4_N14_to_p_O17",  // 50,
+        "p_N15_to_He4_C12",  // 51,
+        "He4_N15_to_p_O18",  // 52,
+        "He4_O14_to_p_F17",  // 53,
+        "He4_O15_to_p_F18",  // 54,
+        "p_O16_to_He4_N13",  // 55,
+        "He4_O16_to_p_F19",  // 56,
+        "C12_O16_to_He4_Mg24",  // 57,
+        "p_O17_to_He4_N14",  // 58,
+        "p_O18_to_He4_N15",  // 59,
+        "p_F17_to_He4_O14",  // 60,
+        "He4_F17_to_p_Ne20",  // 61,
+        "p_F18_to_He4_O15",  // 62,
+        "p_F19_to_He4_O16",  // 63,
+        "p_Ne20_to_He4_F17",  // 64,
+        "He4_Ne20_to_C12_C12",  // 65,
+        "He4_Mg24_to_C12_O16",  // 66,
+        "He4_He4_He4_to_C12"  // 67,
     };
 
 }
+
+#ifdef NSE_NET
+namespace NSE_INDEX
+{
+    constexpr int H1_index = 0;
+    constexpr int N_index = -1;
+    constexpr int He4_index = 1;
+
+    // Each row corresponds to the rate in NetworkRates enum
+    // First 3 row indices for reactants, followed by 3 product indices
+    // last index is the corresponding reverse rate index.
+
+    extern AMREX_GPU_MANAGED amrex::Array2D<int, 1, Rates::NumRates, 1, 7, Order::C> rate_indices;
+}
+#endif
 
 #endif

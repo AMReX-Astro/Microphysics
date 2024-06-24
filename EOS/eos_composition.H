@@ -9,16 +9,16 @@
 #include <actual_network.H>
 #endif
 
-using namespace amrex;
+using namespace amrex::literals;
 
 #ifdef AUX_THERMO
 using namespace AuxZero;
 #endif
 
 struct eos_xderivs_t {
-  Real dedX[NumSpec];
-  Real dpdX[NumSpec];
-  Real dhdX[NumSpec];
+  amrex::Real dedX[NumSpec];
+  amrex::Real dpdX[NumSpec];
+  amrex::Real dhdX[NumSpec];
 };
 
 #ifdef AUX_THERMO
@@ -26,7 +26,7 @@ struct eos_xderivs_t {
 /// The auxiliary state provides an alternate description to the composition,
 /// in terms of Ye, abar, and binding energy / nucleon
 ///
-template <class state_t> 
+template <class state_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void set_aux_comp_from_X(state_t& state) {
 
@@ -65,7 +65,7 @@ void composition (T& state)
 
 #else
 
-  Real sum = 0;
+  amrex::Real sum = 0;
   for (int n = 0; n < NumSpec; n++) {
     sum += state.xn[n] * zion[n] * aion_inv[n];
   }
@@ -84,7 +84,6 @@ void composition (T& state)
 #endif
 }
 
-#ifdef EXTRA_THERMO
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 eos_xderivs_t composition_derivatives (const T& state)
@@ -92,16 +91,22 @@ eos_xderivs_t composition_derivatives (const T& state)
   eos_xderivs_t state_xderivs;
 
   for (int n = 0; n < NumSpec; n++) {
-      if constexpr (has_pressure<T>::value) {
+      if constexpr (has_dpdA<T>::value && has_dpdZ<T>::value) {
           state_xderivs.dpdX[n] =
               state.dpdA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
               state.dpdZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
       }
+      else {
+          state_xderivs.dpdX[n] = 0.0_rt;
+      }
 
-      if constexpr (has_energy<T>::value) {
+      if constexpr (has_dedA<T>::value && has_dedZ<T>::value) {
           state_xderivs.dedX[n] =
               state.dedA * (state.abar * aion_inv[n]) * (aion[n] - state.abar) +
               state.dedZ * (state.abar * aion_inv[n]) * (zion[n] - state.zbar);
+      }
+      else {
+          state_xderivs.dedX[n] = 0.0_rt;
       }
 
       if constexpr (has_pressure<T>::value) {
@@ -113,11 +118,12 @@ eos_xderivs_t composition_derivatives (const T& state)
 
           }
       }
+      else {
+          state_xderivs.dhdX[n] = 0.0_rt;
+      }
   }
 
   return state_xderivs;
 }
-#endif
-
 
 #endif

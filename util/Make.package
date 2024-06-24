@@ -4,5 +4,8 @@ ifeq ($(USE_REACT),TRUE)
   CEXE_headers += linpack.H
 endif
 
+INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/util/autodiff
+DEFINES += -DAUTODIFF_DEVICE_FUNC=AMREX_GPU_HOST_DEVICE
+
 INCLUDE_LOCATIONS += $(MICROPHYSICS_HOME)/util/gcem/include
 CEXE_headers += gcem.hpp

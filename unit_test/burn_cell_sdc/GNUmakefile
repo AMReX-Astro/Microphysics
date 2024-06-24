@@ -15,8 +15,6 @@ USE_SIMPLIFIED_SDC = TRUE
 
 EBASE = main
 
-USE_EXTRA_THERMO = TRUE
-
 BL_NO_FORT = TRUE
 USE_MICROPHYSICS_DEBUG = TRUE
 
@@ -29,7 +27,6 @@ EOS_DIR     := helmholtz
 # This sets the network directory
 NETWORK_DIR := aprox19
 INTEGRATOR_DIR =  VODE
-DEFINES += -DSDC_EVOLVE_ENERGY
 
 CONDUCTIVITY_DIR := stellar
 

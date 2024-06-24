@@ -9,12 +9,6 @@
 
 #include <integrator_data.H>
 
-const int VODE_NEQS = INT_NEQS;
-
-typedef amrex::Array1D<short, 1, VODE_NEQS> IArray1D;
-typedef amrex::Array1D<Real, 1, VODE_NEQS> RArray1D;
-typedef ArrayUtil::MathArray2D<1, VODE_NEQS, 1, VODE_NEQS> RArray2D;
-
 const amrex::Real UROUND = std::numeric_limits<amrex::Real>::epsilon();
 
 // CCMXJ  = Threshold on DRC for updating the Jacobian
@@ -22,16 +16,11 @@ const amrex::Real CCMXJ = 0.2e0_rt;
 
 const amrex::Real HMIN = 0.0_rt;
 
-// We will use this parameter to determine if a given species abundance
-// is unreasonably small or large (each X must satisfy
-// -failure_tolerance <= X <= 1.0 + failure_tolerance).
-const Real vode_failure_tolerance = 1.e-2_rt;
-
 // For each species whose abundance is above a certain threshold, we do
 // not allow its mass fraction to change by more than a certain amount
 // in any integration step.
-const Real vode_increase_change_factor = 4.0_rt;
-const Real vode_decrease_change_factor = 0.25_rt;
+const amrex::Real vode_increase_change_factor = 4.0_rt;
+const amrex::Real vode_decrease_change_factor = 0.25_rt;
 
 // For the backward differentiation formula (BDF) integration
 // the maximum order should be no greater than 5.
@@ -46,6 +35,7 @@ const int MIN_NSE_BAILOUT_STEPS = 10;
 #endif
 
 // Type dvode_t contains the integration solution and control variables
+template<int int_neqs>
 struct dvode_t
 {
     // CONP   = The saved value of TQ(5)
@@ -85,14 +75,14 @@ struct dvode_t
     // TN     = The independent variable, updated on each step taken
     amrex::Real tn;
 
-    // NFE    = The number of f evaluations for the problem so far
-    int NFE;
+    // n_rhs    = The number of f evaluations for the problem so far
+    int n_rhs;
 
-    // NJE    = The number of Jacobian evaluations so far
-    int NJE;
+    // n_jac    = The number of Jacobian evaluations so far
+    int n_jac;
 
-    // NST    = The number of steps taken for the problem so far
-    int NST;
+    // n_step    = The number of steps taken for the problem so far
+    int n_step;
 
     // ICF    = Integer flag for convergence failure in DVNLSD:
     //            0 means no failures
@@ -129,61 +119,61 @@ struct dvode_t
     // NSLJ   = The number of steps taken as of the last Jacobian update
     int NSLJ;
 
-    // NSLP   = Saved value of NST as of last Newton matrix update
+    // NSLP   = Saved value of n_step as of last Newton matrix update
     int NSLP;
 
     // jacobian_type = the type of Jacobian to use (1 = analytic, 2 = numerical)
     short jacobian_type;
 
     // EL     = Real array of integration coefficients.  See DVSET
-    amrex::Array1D<Real, 1, VODE_LMAX> el;
+    amrex::Array1D<amrex::Real, 1, VODE_LMAX> el;
 
     // TAU    = Real vector of past NQ step sizes, length 13
-    amrex::Array1D<Real, 1, VODE_LMAX> tau;
+    amrex::Array1D<amrex::Real, 1, VODE_LMAX> tau;
 
     // TQ     = A real vector of length 5 in which DVSET stores constants
     //          used for the convergence test, the error test, and the
     //          selection of H at a new order.
-    amrex::Array1D<Real, 1, 5> tq;
+    amrex::Array1D<amrex::Real, 1, 5> tq;
 
     // Tolerances
-    Real rtol_spec, atol_spec;
-    Real rtol_enuc, atol_enuc;
-#ifdef TRUE_SDC
-    Real rtol_dens, atol_dens;
-#endif
+    amrex::Real rtol_spec, atol_spec;
+    amrex::Real rtol_enuc, atol_enuc;
+
     // Local time and integration end time
     amrex::Real t, tout;
 
     // Integration array
-    RArray1D y;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y;
 
     // Jacobian
-    RArray2D jac;
+    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac;
 
 #ifdef ALLOW_JACOBIAN_CACHING
     // Saved Jacobian
-    RArray2D jac_save;
+    ArrayUtil::MathArray2D<1, int_neqs, 1, int_neqs> jac_save;
 #endif
 
     // the Nordsieck history array
-    amrex::Array2D<Real, 1, VODE_NEQS, 1, VODE_LMAX> yh;
+    amrex::Array2D<amrex::Real, 1, int_neqs, 1, VODE_LMAX> yh;
 
-    RArray1D ewt, savf;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ewt, savf;
+
+    amrex::Array1D<short, 1, int_neqs> pivot;
 
     // Array of size NEQ used for the accumulated corrections on each
     // step, scaled in the output to represent the estimated local
     // error in Y on the last step.  This is the vector e in the
     // description of the error control.  It is defined only on a
     // successful return from DVODE.
-    RArray1D acor;
+    amrex::Array1D<amrex::Real, 1, int_neqs> acor;
 };
 
 #ifndef AMREX_USE_GPU
+template <int int_neqs>
 AMREX_FORCE_INLINE
-void print_state(dvode_t& dvode_state)
+void print_state(dvode_t<int_neqs>& dvode_state)
 {
-
     std::cout << "CONP = " << dvode_state.CONP << std::endl;
     std::cout << "CRATE = " << dvode_state.CRATE << std::endl;
     std::cout << "DRC = " << dvode_state.DRC << std::endl;
@@ -212,9 +202,9 @@ void print_state(dvode_t& dvode_state)
     std::cout << "tq(4) = " << dvode_state.tq(4) << std::endl;
     std::cout << "tq(5) = " << dvode_state.tq(5) << std::endl;
     std::cout << "tn = " << dvode_state.tn << std::endl;
-    std::cout << "NFE = " << dvode_state.NFE << std::endl;
-    std::cout << "NJE = " << dvode_state.NJE << std::endl;
-    std::cout << "NST = " << dvode_state.NST << std::endl;
+    std::cout << "n_rhs = " << dvode_state.n_rhs << std::endl;
+    std::cout << "n_jac = " << dvode_state.n_jac << std::endl;
+    std::cout << "n_step = " << dvode_state.n_step << std::endl;
     std::cout << "ICF = " << dvode_state.ICF << std::endl;
     std::cout << "IPUP = " << dvode_state.IPUP << std::endl;
     std::cout << "JCUR = " << dvode_state.JCUR << std::endl;
@@ -226,33 +216,32 @@ void print_state(dvode_t& dvode_state)
     std::cout << "NSLJ = " << dvode_state.NSLJ << std::endl;
     std::cout << "NSLP = " << dvode_state.NSLP << std::endl;
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         std::cout << "y(" << i << ") = " << dvode_state.y(i) << std::endl;
     }
 
     for (int j = 1; j <= VODE_LMAX; ++j) {
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             std::cout << "yh(" << i << "," << j << ") = " << dvode_state.yh(i,j) << std::endl;
         }
     }
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         std::cout << "ewt(" << i << ") = " << dvode_state.ewt(i) << std::endl;
     }
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         std::cout << "savf(" << i << ") = " << dvode_state.savf(i) << std::endl;
     }
 
-    for (int i = 1; i <= VODE_NEQS; ++i) {
+    for (int i = 1; i <= int_neqs; ++i) {
         std::cout << "acor(" << i << ") = " << dvode_state.acor(i) << std::endl;
     }
-
 }
 #endif
 
-#ifdef SIMPLIFIED_SDC
-#include <integrator_type_simplified_sdc.H>
+#ifdef SDC
+#include <integrator_type_sdc.H>
 #endif
 #ifdef STRANG
 #include <integrator_type_strang.H>

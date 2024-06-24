@@ -12,12 +12,12 @@ using namespace amrex;
 
 void init_tabular();
 
-// Table is expected to be in terms of dens*ye and temp (non-logarithmic, cgs units)
+// Table is expected to be in terms of dens*ye and temp (logarithmic, cgs units)
 // Table energy units are expected in terms of ergs
 
 // all tables are expected to have columns:
-// Log(rhoY) Log(T)  dQ     Vs      mu       e-cap-rate    nu-energy-loss  gamma-energy
-//                  (MeV)   (MeV)  (MeV)       (1/s)          (MeV/s)        (MeV/s)
+// Log(rhoY)     Log(T)   mu    dQ    Vs    Log(e-cap-rate)   Log(nu-energy-loss)  Log(gamma-energy)
+// Log(g/cm^3)   Log(K)   erg   erg   erg   Log(1/s)          Log(erg/s)           Log(erg/s)
 //
 
 const int num_tables = 4;
@@ -42,44 +42,54 @@ struct table_t
     int nheader;
 };
 
-// we add a 7th quantity dr/dT
-// k_drate_dt is used only for calculating the derivative
-// of rate with temperature from the table, it isn't an index
-// into the table but into the 'entries' array in, eg. get_entries.
+// we add a 7th index, k_index_dlogr_dlogt used for computing the derivative
+// of Log(rate) with respect of Log(temperature) by using the table
+// values. It isn't an index into the table but into the 'entries'
+// array. Is important to mention that although we compute dlogr/dlogT is
+// the computed quantity in 'entries', we pursue ultimately
+// dr/dt as the final desired quantity to be computed for this index.
 
-const int k_drate_dt   = 7;
-const int add_vars     = 1;  // 1 Additional Var in entries
+const int  k_index_dlogr_dlogt  = 7;
+const int add_vars              = 1;  // 1 Additional Var in entries
 
 
 namespace rate_tables
 {
-    extern AMREX_GPU_MANAGED table_t j_f20_o20_meta;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_f20_o20_data;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_f20_o20_rhoy;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_f20_o20_temp;
+    extern AMREX_GPU_MANAGED table_t j_F20_O20_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_F20_O20_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_F20_O20_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_F20_O20_temp;
 
-    extern AMREX_GPU_MANAGED table_t j_ne20_f20_meta;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_ne20_f20_data;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_ne20_f20_rhoy;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_ne20_f20_temp;
+    extern AMREX_GPU_MANAGED table_t j_Ne20_F20_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_Ne20_F20_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_Ne20_F20_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_Ne20_F20_temp;
 
-    extern AMREX_GPU_MANAGED table_t j_o20_f20_meta;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_o20_f20_data;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_o20_f20_rhoy;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_o20_f20_temp;
+    extern AMREX_GPU_MANAGED table_t j_O20_F20_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_O20_F20_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_O20_F20_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_O20_F20_temp;
 
-    extern AMREX_GPU_MANAGED table_t j_f20_ne20_meta;
-    extern AMREX_GPU_MANAGED Array3D<Real, 1, 39, 1, 152, 1, 6> j_f20_ne20_data;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 152> j_f20_ne20_rhoy;
-    extern AMREX_GPU_MANAGED Array1D<Real, 1, 39> j_f20_ne20_temp;
+    extern AMREX_GPU_MANAGED table_t j_F20_Ne20_meta;
+    extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, 39, 1, 152, 1, 6> j_F20_Ne20_data;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 152> j_F20_Ne20_rhoy;
+    extern AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 1, 39> j_F20_Ne20_temp;
 
 }
 
 template <typename R, typename T, typename D>
-void init_tab_info(const table_t& tf, const std::string& file, R& rhoy, T& temp, D& data) {
+void init_tab_info(const table_t& tf, const std::string& file, R& log_rhoy_table, T& log_temp_table, D& data)
+{
+    // This function initializes the selected tabular-rate tables. From the tables we are interested
+    // on the rate, neutrino-energy-loss and the gamma-energy entries.
 
     std::ifstream table;
     table.open(file);
+
+    if (!table.is_open()) {
+        // the table was not present or we could not open it; abort
+        amrex::Error("table could not be opened");
+    }
 
     std::string line;
 
@@ -89,42 +99,31 @@ void init_tab_info(const table_t& tf, const std::string& file, R& rhoy, T& temp,
         std::getline(table, line);
     }
 
-    // now the data -- there are 2 extra columns, for temp and rhoy
+    // now the data -- there are 2 extra columns, for log_temp and log_rhoy
 
-    Real ldata[tf.nvars+2];
     for (int j = 1; j <= tf.nrhoy; ++j) {
         for (int i = 1; i <= tf.ntemp; ++i) {
             std::getline(table, line);
+            if (line.empty()) {
+                amrex::Error("Error reading table data");
+            }
+
             std::istringstream sdata(line);
 
-            for (int m = 0; m < tf.nvars+2; ++m) {
-                sdata >> ldata[m];
-            }
+            sdata >> log_rhoy_table(j) >> log_temp_table(i);
 
-            if (j == 1) {
-                temp(i) = ldata[1];
-            }
-            if (i == 1) {
-                rhoy(j) = ldata[0];
-            }
-
-            for (int n = 0; n < tf.nvars; ++n) {
-                // 1-based indexing
-                data(i, j, n+1) = ldata[2+n];
+            for (int n = 1; n <= tf.nvars; ++n) {
+                sdata >> data(i, j, n);
             }
         }
-
-        // skip a blank line
-        std::getline(table, line);
     }
-
     table.close();
 }
 
 
 template <typename V>
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-int vector_index_lu(const int vlen, const V& vector, const Real fvar)
+AMREX_INLINE AMREX_GPU_HOST_DEVICE
+int vector_index_lu(const int vlen, const V& vector, const amrex::Real fvar)
 {
 
     // Returns the greatest index of vector for which vector(index) < fvar.
@@ -148,201 +147,273 @@ int vector_index_lu(const int vlen, const V& vector, const Real fvar)
             } else {
                 ndn = j;
             }
-          if (((nup - ndn) == 1)) {
-              index = ndn;
-              return index;
-          }
+            if ((nup - ndn) == 1) {
+                break;
+            }
         }
+        index = ndn;
     }
-
     return index;
 }
 
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-Real
-bl_clamp(const Real xlo, const Real xhi, const Real flo, const Real fhi, const Real x)
+amrex::Real
+evaluate_linear_1d(const amrex::Real fhi, const amrex::Real flo, const amrex::Real xhi, const amrex::Real xlo, const amrex::Real x)
 {
+    // This function is a 1-D linear interpolator, that keeps x constant to xlo or xhi, based
+    // on the side, if x is outside [xlo, xhi] respectively.
 
-    // Perform bilinear interpolation within the interval [xlo, xhi]
-    // where the function values at the endpoints are defined by:
-    // flo = f(xlo)
-    // fhi = f(xhi)
-    // Returns f(x), the values flo and fhi interpolated at x
-    // f(x) = flo if x <= xlo
-    // f(x) = fhi if x >= xhi
-
-    Real f;
-    if (x <= xlo) {
-        f = flo;
-    } else if (x >= xhi ) {
-        f = fhi;
-    } else {
-        f = (flo * (xhi - x) + fhi * (x - xlo) ) / (xhi - xlo);
-    }
+    amrex::Real xx = Clamp(x, xlo, xhi);
+    amrex::Real f = flo + (fhi - flo) * (xx - xlo) / (xhi - xlo);
 
     return f;
 }
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-Real
-bl_extrap(const Real xlo, const Real xhi, const Real flo, const Real fhi, const Real x)
+amrex::Real
+evaluate_linear_2d(const amrex::Real fip1jp1, const amrex::Real fip1j, const amrex::Real fijp1, const amrex::Real fij,
+          const amrex::Real xhi, const amrex::Real xlo, const amrex::Real yhi, const amrex::Real ylo,
+          const amrex::Real x, const amrex::Real y)
 {
+    // This is the 2-D linear interpolator, as an extension of evaluate_linear_1d.
 
-    // Perform bilinear interpolation within the interval [xlo, xhi]
-    // where the function values at the endpoints are defined by:
-    // flo = f(xlo)
-    // fhi = f(xhi)
-    // Returns f(x), the values flo and fhi interpolated at x
-    // If x <= xlo or x >= xhi, f(x) is extrapolated at x
+    amrex::Real f;
+    amrex::Real dx = xhi - xlo;
+    amrex::Real dy = yhi - ylo;
 
-    Real f = (flo * (xhi - x) + fhi * (x - xlo) ) / (xhi - xlo);
+    amrex::Real E =  fij;
+    amrex::Real C = (fijp1 - fij) / dy;
+    amrex::Real B = (fip1j - fij) / dx;
+    amrex::Real A = (fip1jp1 - B * dx - C * dy - E) / (dx * dy);
+
+    amrex::Real xx = Clamp(x, xlo, xhi);
+    amrex::Real yy = Clamp(y, ylo, yhi);
+
+    f =  A * (xx - xlo) * (yy - ylo) +
+         B * (xx - xlo) +
+         C * (yy - ylo) +
+         E;
 
     return f;
+}
+
+
+template<typename R, typename T, typename D>
+AMREX_INLINE AMREX_GPU_HOST_DEVICE
+amrex::Real
+evaluate_vars(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+                    const amrex::Real log_rhoy, const amrex::Real log_temp, const int component)
+{
+    // This function evaluates the 2-D interpolator, for several pairs of rho_ye and temperature.
+
+    int jtemp_lo = vector_index_lu(table_meta.ntemp, log_temp_table, log_temp);
+    int jtemp_hi = jtemp_lo + 1;
+
+    int irhoy_lo = vector_index_lu(table_meta.nrhoy, log_rhoy_table, log_rhoy);
+    int irhoy_hi = irhoy_lo + 1;
+
+    amrex::Real rhoy_lo = log_rhoy_table(irhoy_lo);
+    amrex::Real rhoy_hi = log_rhoy_table(irhoy_hi);
+
+    amrex::Real t_lo = log_temp_table(jtemp_lo);
+    amrex::Real t_hi = log_temp_table(jtemp_hi);
+
+    amrex::Real fij     = data(jtemp_lo, irhoy_lo, component);
+    amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, component);
+    amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, component);
+    amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, component);
+
+    amrex::Real r = evaluate_linear_2d(fip1jp1, fip1j, fijp1, fij,
+                                rhoy_hi, rhoy_lo, t_hi, t_lo, log_rhoy, log_temp);
+
+    return r;
+}
+
+
+template<typename R, typename T, typename D>
+AMREX_INLINE AMREX_GPU_HOST_DEVICE
+amrex::Real
+evaluate_dr_dtemp(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+                  const amrex::Real log_rhoy, const amrex::Real log_temp)
+{
+    // The main objective of this function is compute dlogr_dlogt.
+
+    int irhoy_lo = vector_index_lu(table_meta.nrhoy, log_rhoy_table, log_rhoy);
+    int irhoy_hi = irhoy_lo + 1;
+
+    int jtemp_lo = vector_index_lu(table_meta.ntemp, log_temp_table, log_temp);
+    int jtemp_hi = jtemp_lo + 1;
+
+    amrex::Real dlogr_dlogt;
+
+    //Now we compute the forward finite difference on the boundary
+
+    if ((jtemp_lo - 1 < 1) || (jtemp_hi + 1 > table_meta.ntemp)) {
+
+        // In this case we are in the boundaries of the table.
+        // At the boundary, we compute the forward-j finite difference
+        // to compute dlogr_dlogt_i and dlogr_dlogt_ip1, using the
+        // following stencil:
+        //
+        //
+        //             fijp1-----------fip1jp1
+        //              |                 |
+        //              |                 |
+        //              |                 |
+        //              |                 |
+        //              |                 |
+        //              |                 |
+        //              |                 |
+        //             fij-------------fip1j
+        //
+        // with the following result:
+        //
+        //            dlogr_dlogt_i --------dlogr_dlogt_ip1
+        //
+        // Finally, we perform a 1d-linear interpolation between dlogr_dlogt_ip1
+        // and dlogr_dlogt_i to compute dlogr_dlogt
+
+        amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
+        amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
+
+        amrex::Real log_temp_lo = log_temp_table(jtemp_lo);
+        amrex::Real log_temp_hi = log_temp_table(jtemp_hi);
+
+        amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
+        amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
+        amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
+        amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
+
+        amrex::Real dlogr_dlogt_i   = (fijp1 - fij) / (log_temp_hi - log_temp_lo);
+        amrex::Real dlogr_dlogt_ip1 = (fip1jp1 - fip1j) / (log_temp_hi - log_temp_lo);
+
+        if ((log_temp < log_temp_lo) || (log_temp > log_temp_hi)) {
+            dlogr_dlogt = 0.0_rt;
+        } else {
+            dlogr_dlogt = evaluate_linear_1d(dlogr_dlogt_ip1, dlogr_dlogt_i, log_rhoy_hi, log_rhoy_lo, log_rhoy);
+        }
+
+    } else {
+
+        // In this case, we use a bigger stencil to reconstruct the
+        // temperature derivatives in the j and j+1 temperature positions,
+        // using the cetral-j finite differences:
+        //
+        //              fijp2 ------------fip1jp2
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //               fijp1------------fip1jp1
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //               fij------------- fip1j
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //               fijm1------------fip1jm1
+        //
+        // with the following result:
+        //
+        //
+        //            dr_dt_ijp1 --------dr_dt_ip1jp1
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //                |                 |
+        //            dr_dt_ij-----------dr_dt_ip1j
+        //
+        // Finally, we perform a 2d-linear interpolation to
+        // compute dlogr_dlogt.
+
+        amrex::Real log_temp_jm1  = log_temp_table(jtemp_lo-1);
+        amrex::Real log_temp_j    = log_temp_table(jtemp_lo);
+        amrex::Real log_temp_jp1  = log_temp_table(jtemp_hi);
+        amrex::Real log_temp_jp2  = log_temp_table(jtemp_hi+1);
+
+        amrex::Real log_rhoy_lo = log_rhoy_table(irhoy_lo);
+        amrex::Real log_rhoy_hi = log_rhoy_table(irhoy_hi);
+
+        amrex::Real fijm1   = data(jtemp_lo-1, irhoy_lo, jtab_rate);
+        amrex::Real fij     = data(jtemp_lo, irhoy_lo, jtab_rate);
+        amrex::Real fijp1   = data(jtemp_hi, irhoy_lo, jtab_rate);
+        amrex::Real fijp2   = data(jtemp_hi+1, irhoy_lo, jtab_rate);
+
+        amrex::Real fip1jm1 = data(jtemp_lo-1, irhoy_hi, jtab_rate);
+        amrex::Real fip1j   = data(jtemp_lo, irhoy_hi, jtab_rate);
+        amrex::Real fip1jp1 = data(jtemp_hi, irhoy_hi, jtab_rate);
+        amrex::Real fip1jp2 = data(jtemp_hi+1, irhoy_hi, jtab_rate);
+
+        amrex::Real dlogr_dlogt_ij     = (fijp1 - fijm1)/(log_temp_jp1 - log_temp_jm1);
+        amrex::Real dlogr_dlogt_ijp1   = (fijp2 - fij)/(log_temp_jp2 - log_temp_j);
+        amrex::Real dlogr_dlogt_ip1j   = (fip1jp1 - fip1jm1)/(log_temp_jp1 - log_temp_jm1);
+        amrex::Real dlogr_dlogt_ip1jp1 = (fip1jp2 - fip1j)/(log_temp_jp2 - log_temp_j);
+
+        dlogr_dlogt = evaluate_linear_2d(dlogr_dlogt_ip1jp1,  dlogr_dlogt_ip1j, dlogr_dlogt_ijp1, dlogr_dlogt_ij,
+                                         log_rhoy_hi, log_rhoy_lo, log_temp_jp1, log_temp_j,
+                                         log_rhoy, log_temp);
+
+    }
+    return dlogr_dlogt;
 }
 
 
 template <typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 void
-get_entries(const table_t& table_meta,
-            const R& rhoy_table, const T& temp_table, const D& data,
-            const Real rhoy, const Real temp, Array1D<Real, 1, num_vars+1>& entries)
+get_entries(const table_t& table_meta, const R& log_rhoy_table, const T& log_temp_table, const D& data,
+            const amrex::Real log_rhoy, const amrex::Real log_temp, amrex::Array1D<amrex::Real, 1, num_vars+1>& entries)
 {
-
-
-    // The last element of entries is the derivative of rate with temperature
-    // drate_dt, evaluated by central differencing at the box corners
-    // and then performing a bilinear interpolation on those central differences.
-
-
-    // Get box-corner points for interpolation
-    // This deals with out-of-range inputs via linear extrapolation
-
-    int irhoy_lo = vector_index_lu(table_meta.nrhoy, rhoy_table, rhoy);
-    int itemp_lo = vector_index_lu(table_meta.ntemp, temp_table, temp);
-
-    int irhoy_hi = irhoy_lo + 1;
-    int itemp_hi = itemp_lo + 1;
-
-    // Bilinear interpolation within the box
-    // The desired point is denoted by ABCD, within the box.
-    // The value of ivar at ABCD is denoted by fvar.
-    // T ^   B .      . C
-    //   |
-    //   |  AB   ABCD   CD
-    //   |     .      .
-    //   |   A          D
-    //   |___________________> rho*Ye
-
-    Real temp_lo = temp_table(itemp_lo);
-    Real temp_hi = temp_table(itemp_hi);
-    Real rhoy_lo = rhoy_table(irhoy_lo);
-    Real rhoy_hi = rhoy_table(irhoy_hi);
-
-    // Interpolate for each table entry
-
     for (int ivar = 1; ivar <= num_vars; ivar++) {
-        Real f_i = bl_extrap(temp_lo, temp_hi,
-                             data(itemp_lo, irhoy_lo, ivar),
-                             data(itemp_hi, irhoy_lo, ivar),
-                             temp);
-
-        Real f_ip1 = bl_extrap(temp_lo, temp_hi,
-                               data(itemp_lo, irhoy_hi, ivar),
-                               data(itemp_hi, irhoy_hi, ivar),
-                               temp);
-
-        entries(ivar) = bl_extrap(rhoy_lo, rhoy_hi, f_i, f_ip1, rhoy);
+        entries(ivar) = evaluate_vars(table_meta, log_rhoy_table, log_temp_table, data,
+                                         log_rhoy, log_temp, ivar);
     }
 
-    // Calculate the derivative of rate with temperature, d(rate)/d(t)
-    // (Clamp interpolations in rhoy to avoid unphysical temperature derivatives)
-
-    if ((itemp_lo == 1) || (itemp_hi == table_meta.ntemp-1)) {
-        // We're at the first or last table cell (in temperature)
-        // First do bilinear interpolation in rhoy for the table at tlo and thi
-
-        Real f_i = bl_clamp(rhoy_lo, rhoy_hi,
-                            data(itemp_lo, irhoy_lo, jtab_rate),
-                            data(itemp_lo, irhoy_hi, jtab_rate),
-                            rhoy);
-
-        Real f_ip1 = bl_clamp(rhoy_lo, rhoy_hi,
-                              data(itemp_hi, irhoy_lo, jtab_rate),
-                              data(itemp_hi, irhoy_hi, jtab_rate),
-                              rhoy);
-
-        // Approximate d(rate)/d(t) via forward differencing
-
-        entries(k_drate_dt) = (f_ip1 - f_i) / (temp_hi - temp_lo);
-
-    } else {
-        // Approximate d(rate)/d(t) via bilinear interpolation on central differences
-
-        Real t_im1 = temp_table(itemp_lo-1);
-        Real t_i   = temp_table(itemp_lo);
-        Real t_ip1 = temp_table(itemp_hi);
-        Real t_ip2 = temp_table(itemp_hi+1);
-
-        Real f_im1 = bl_clamp(rhoy_lo, rhoy_hi,
-                              data(itemp_lo-1, irhoy_lo, jtab_rate),
-                              data(itemp_lo-1, irhoy_hi, jtab_rate),
-                              rhoy);
-
-        Real f_i = bl_clamp(rhoy_lo, rhoy_hi,
-                            data(itemp_lo, irhoy_lo, jtab_rate),
-                            data(itemp_lo, irhoy_hi, jtab_rate ),
-                            rhoy);
-
-        Real f_ip1 = bl_clamp(rhoy_lo, rhoy_hi,
-                              data(itemp_hi, irhoy_lo, jtab_rate),
-                              data(itemp_hi, irhoy_hi, jtab_rate ),
-                              rhoy);
-
-        Real f_ip2 = bl_clamp(rhoy_lo, rhoy_hi,
-                              data(itemp_hi+1, irhoy_lo, jtab_rate ),
-                              data(itemp_hi+1, irhoy_hi, jtab_rate ),
-                              rhoy);
-
-        // Get central difference derivatives at the box corners
-
-        Real drdt_i   = (f_ip1 - f_im1) / (t_ip1 - t_im1);
-        Real drdt_ip1 = (f_ip2 - f_i)   / (t_ip2 - t_i);
-
-        // Interpolate in temperature
-        // (Since we're inside the table in temp, use bl_extrap, it's faster)
-
-        entries(k_drate_dt) = bl_extrap(t_i, t_ip1, drdt_i, drdt_ip1, temp);
-
-    }
+    entries(k_index_dlogr_dlogt)  = evaluate_dr_dtemp(table_meta, log_rhoy_table, log_temp_table, data,
+                                             log_rhoy, log_temp);
 }
-
 
 template <typename R, typename T, typename D>
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
 void
 tabular_evaluate(const table_t& table_meta,
-                 const R& rhoy_table, const T& temp_table, const D& data,
-                 const Real rhoy, const Real temp,
-                 Real& rate, Real& drate_dt, Real& edot_nu, Real& edot_gamma)
+                 const R& log_rhoy_table, const T& log_temp_table, const D& data,
+                 const amrex::Real rhoy, const amrex::Real temp,
+                 amrex::Real& rate, amrex::Real& drate_dt, amrex::Real& edot_nu, amrex::Real& edot_gamma)
 {
-
-
-    Array1D<Real, 1, num_vars+1> entries;
+    amrex::Array1D<amrex::Real, 1, num_vars+1> entries;
 
     // Get the table entries at this rhoy, temp
 
-    get_entries(table_meta, rhoy_table, temp_table, data,
-                rhoy, temp, entries);
+    amrex::Real log_rhoy = std::log10(rhoy);
+    amrex::Real log_temp = std::log10(temp);
+
+    get_entries(table_meta, log_rhoy_table, log_temp_table, data,
+                log_rhoy, log_temp, entries);
 
     // Fill outputs: rate, d(rate)/d(temperature), and
     // (negative) neutrino loss contribution to energy generation
 
-    rate       = entries(jtab_rate);
-    drate_dt   = entries(k_drate_dt);
-    edot_nu    = -entries(jtab_nuloss);
-    edot_gamma = entries(jtab_gamma);
+    rate       = std::pow(10.0_rt, entries(jtab_rate));
+    drate_dt   = rate * entries(k_index_dlogr_dlogt) / temp;
+    edot_nu    = -std::pow(10.0_rt, entries(jtab_nuloss));
+    edot_gamma = std::pow(10.0_rt, entries(jtab_gamma));
 }
 
 #endif

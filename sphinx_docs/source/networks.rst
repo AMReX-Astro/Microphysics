@@ -35,18 +35,49 @@ and :math:`\edotnu` is the neutrino loss term.
 general_null
 ============
 
-``general_null`` is a bare interface for a nuclear reaction network;
-no reactions are enabled, and no auxiliary variables are accepted. The
+``general_null`` is a bare interface for a nuclear reaction network --
+no reactions are enabled. The
 data in the network is defined at compile type by specifying an
 inputs file. For example,
-``Networks/general_null/triple_alpha_plus_o.net`` would describe the
+``networks/general_null/triple_alpha_plus_o.net`` would describe the
 triple-:math:`\alpha` reaction converting helium into carbon, as
-well as oxygen and iron.
+well as oxygen and iron.  This has the form:
 
-At compile time, the network header ``network_properties.H``
-is written using the python script ``write_network.py``.  The make rule
-for this is contained in ``Make.package``. The name of the inputs file
-is specified by the variable ``GENERAL_NET_INPUTS``.
+.. code::
+
+    # name       short name    aion     zion
+    helium-4       He4          4.0      2.0
+    carbon-12      C12         12.0      6.0
+    oxygen-16      O16         16.0      8.0
+    iron-56        Fe56        56.0     26.0
+
+The four columns give the long name of the species, the short form that will be used
+for plotfile variables, and the mass number, :math:`A`, and proton number, :math:`Z`.
+
+The name of the inputs file by one of two make variables:
+
+* ``NETWORK_INPUTS`` : this is simply the name of the "`.net`" file, without
+  any path.  The build system will look for it in the current directory
+  and then in ``$(MICROPHYSICS_HOME)/networks/general_null/``.
+
+  For the example above, we would set:
+
+  ::
+
+    NETWORK_INPUTS := triple_alpha_plus_o.net
+
+* ``GENERAL_NET_INPUTS`` : this is the full path to the file.  For example
+  we could set:
+
+  ::
+
+    GENERAL_NET_INPUTS := /path/to/file/triple_alpha_plus_o.net
+
+At compile time, the "`.net`" file is parsed and a network header
+``network_properties.H`` is written using the python script
+``write_network.py``.  The make rule for this is contained in
+``Make.package``.
+
 
 
 ignition_chamulak
@@ -127,7 +158,7 @@ X_a / (A_a m_u)`, our rate equation is
 
    \begin{align}
     \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
-    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu 
+    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
    \end{align}
 
 We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
@@ -175,7 +206,8 @@ reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 subch networks
 ==============
 
-The networks subch_full and subch_approx recreate an aprox13
+The networks subch_full (subch2), subch_approx (subch),
+subch_simple, and subch_base recreate an aprox13
 alpha-chain + including a bypass rate for :math:`\isotm{C}{12}(\alpha,
 \gamma)\isotm{O}{16}` discussed in :cite:`ShenBildsten`.  This is appropriate
 for explosive He burning.
@@ -213,11 +245,11 @@ rates for these processes.
 subch_full
 ----------
 
-subch_full does not create an effective rate for :math:`(\alpha,
-\gamma)` and :math:`(\alpha, p)(p, \gamma)` (i.e. combine them
-assuming proton equilibrium).  Therefore, we need to explicitly
-include the intermediate nuclei produced in the :math:`(\alpha,p)`
-reactions.  In all, 28 nuclei and 107 rates are included.
+subch_full, also known as subch2, does not create an effective rate
+for :math:`(\alpha, \gamma)` and :math:`(\alpha, p)(p, \gamma)`
+(i.e. combine them assuming proton equilibrium).  Therefore,
+we need to explicitly include the intermediate nuclei produced in
+the :math:`(\alpha,p)` reactions.  In all, 28 nuclei and 107 rates are included.
 
 This network is generated via pynucastro using the ``subch_full.py`` script.
 The overall network appears as:
@@ -225,14 +257,19 @@ The overall network appears as:
 .. figure:: subch_full.png
    :align: center
 
+.. note::
+   subch_full has been removed in
+   commit 19108a72c2dc81e251669ef0fed4edf7e6a3f9ed
+
 subch_approx
 ------------
 
-subch_approx approximates subch_full by combining some of the
-:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
-allowing us to drop the intermediate nucleus :math:`X`.  We do this
-for :math:`\isotm{Cl}{35}`, :math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`,
-:math:`\isotm{V}{47}`, :math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
+subch_approx, also known as subch, approximates subch_full by
+combining some of the :math:`A(\alpha,p)X(p,\gamma)B` links with
+:math:`A(\alpha,\gamma)B`, allowing us to drop the intermediate
+nucleus :math:`X`.  We do this for :math:`\isotm{Cl}{35}`,
+:math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`, :math:`\isotm{V}{47}`,
+:math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
 The resulting network appears as:
 
 .. figure:: subch_approx.png
@@ -242,10 +279,53 @@ The nuclei in gray are not part of the network, but the links to them
 are approximated.  This reduces the number of nuclei compared to subch_full
 from 28 to 22.
 
+.. note::
+   subch_approx has been removed in
+   commit 19108a72c2dc81e251669ef0fed4edf7e6a3f9ed
+
+subch_simple
+-------------
+
+subch_simple further simplifies subch_approx by the following:
+
+* Reverse rates of :math:`\isotm{C}{12}+\isotm{C}{12}`,
+  :math:`\isotm{C}{12}+\isotm{O}{16}`, :math:`\isotm{O}{16}+\isotm{O}{16}` are
+  neglected since they're not present in the original aprox13 network
+
+* :math:`\isotm{C}{12}+\isotm{Ne}{20}` rates are removed
+
+* :math:`(\alpha, \gamma)` links between :math:`\isotm{Na}{23}`,
+  :math:`\isotm{Al}{27}` and between :math:`\isotm{Al}{27}` and
+  :math:`\isotm{P}{31}` are removed, since they're not in the
+  original aprox13 network.
+
+.. figure:: subch_simple.png
+   :align: center
+
+.. warning::
+   Due to inclusion of the rate sequence, n14(a, g)f18(a, p)ne21, there is
+   an artificial end-point at Na22.
+
+subch_base
+-----------
+
+subch_base is the simplest subch network. It is created to reconcile the
+artificial end-point at :math:`\isotm{Na}{22}`. This is done by excluding
+:math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`, :math:`\isotm{Ne}{21}`,
+and :math:`\isotm{Na}{22}`. These nuclei were added to include
+:math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}`
+rate sequence, which allows an enhancement to the
+:math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
+rate due to the additional proton release. However, we find the effect is not
+extremely significant.
+
+.. figure:: subch_base.png
+   :align: center
+
 disabling rates
 ---------------
 
-For both subch_full and subch_approx, there are 2 runtime parameters that can be used
+For all subch networks, there are 2 runtime parameters that can be used
 to disable rates:
 
 * ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
@@ -256,6 +336,6 @@ to disable rates:
   :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
   disabled.
 
-Together, these parameters allow us to turn off the sequence 
+Together, these parameters allow us to turn off the sequence
 :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
 acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.

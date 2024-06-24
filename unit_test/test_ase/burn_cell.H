@@ -1,3 +1,5 @@
+#ifndef BURN_CELL_H
+#define BURN_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -7,6 +9,9 @@
 #include <iostream>
 #include <nse_solver.H>
 
+using namespace unit_test_rp;
+
+AMREX_INLINE
 void burn_cell_c()
 {
 
@@ -25,9 +30,9 @@ void burn_cell_c()
     state.mu_n = mu_n;
 
     // set a reference cell size.
-    
+
     state.dx = 1.0e6_rt;
-    
+
     std::cout << "chemical potential of proton is " << mu_p << std::endl;
     std::cout << "chemical potential of neutron is " << mu_n << std::endl;
 
@@ -39,7 +44,7 @@ void burn_cell_c()
     std::cout << "State Density (g/cm^3): " << state.rho << std::endl;
     std::cout << "State Temperature (K): " << state.T << std::endl;
     std::cout << "electron fraction is " << state.y_e << std::endl;
-    
+
     std::cout << "NSE state: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
       std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
@@ -53,12 +58,13 @@ void burn_cell_c()
 
     // get eos
     //eos(eos_input_rt, state);
-    
+
     if (in_nse(state)){
       std::cout << "We're in NSE. " << std::endl;
     }
     else{
       std::cout << "We're not in NSE. " << std::endl;
     }
-    
+
 }
+#endif

@@ -4,15 +4,13 @@
 #ifdef STRANG
 #include <integrator_rhs_strang.H>
 #endif
-#ifdef SIMPLIFIED_SDC
-#include <integrator_rhs_simplified_sdc.H>
-#endif
-#ifdef TRUE_SDC
-#include <vode_rhs_true_sdc.H>
+#ifdef SDC
+#include <integrator_rhs_sdc.H>
 #endif
 
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
+void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
 {
     // This routine computes the step size, H0, to be attempted on the
     // first step, when the user has not supplied a value for this.
@@ -23,11 +21,13 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
     // A bias factor of 1/2 is applied to the resulting h.
     // The sign of H0 is inferred from the initial values of tout and T0.
 
-    const Real PT1 = 0.1e0_rt;
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
+    const amrex::Real PT1 = 0.1e0_rt;
 
     NITER = 0;
-    Real TDIST = std::abs(vstate.tout - vstate.t);
-    Real TROUND = UROUND * amrex::max(std::abs(vstate.t), std::abs(vstate.tout));
+    const amrex::Real TDIST = std::abs(vstate.tout - vstate.t);
+    const amrex::Real TROUND = UROUND * amrex::max(std::abs(vstate.t), std::abs(vstate.tout));
 
     if (TDIST < 2.0_rt * TROUND) {
         // Error return for vstate.tout - vstate.t too small.
@@ -36,42 +36,23 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
     }
 
     // Set a lower bound on h based on the roundoff level in vstate.t and vstate.tout.
-    Real HLB = 100.0_rt * TROUND;
+    const amrex::Real HLB = 100.0_rt * TROUND;
 
     // Set an upper bound on h based on vstate.tout-vstate.t and the initial Y and YDOT.
-    Real HUB = PT1 * TDIST;
+    amrex::Real HUB = PT1 * TDIST;
 
-#ifdef TRUE_SDC
-    for (int i = 1; i <= VODE_NEQS; ++i) {
-        Real atol;
-        if (i == 1) {
-            atol = vstate.atol_dens;
-        } else if (i == NumSpec+2) {
-            atol = vstate.atol_enuc;
-        } else {
-            atol = vstate.atol_spec;
-        }
-        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
-        Real AFI = std::abs(vstate.yh(i,2));
+    for (int i = 1; i <= int_neqs; ++i) {
+        const amrex::Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
+        const amrex::Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
+        const amrex::Real AFI = std::abs(vstate.yh(i,2));
         if (AFI * HUB > DELYI) {
             HUB = DELYI / AFI;
         }
     }
-
-#else
-    for (int i = 1; i <= VODE_NEQS; ++i) {
-        Real atol = i <= NumSpec ? vstate.atol_spec : vstate.atol_enuc;
-        Real DELYI = PT1 * std::abs(vstate.yh(i,1)) + atol;
-        Real AFI = std::abs(vstate.yh(i,2));
-        if (AFI * HUB > DELYI) {
-            HUB = DELYI / AFI;
-        }
-    }
-#endif
 
     // Set initial guess for h as geometric mean of upper and lower bounds.
     int iter = 0;
-    Real HG = std::sqrt(HLB * HUB);
+    amrex::Real HG = std::sqrt(HLB * HUB);
 
     // If the bounds have crossed, exit with the mean value.
     bool do_iterations = true;
@@ -80,31 +61,31 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
         do_iterations = false;
     }
 
-    Real hnew;
+    amrex::Real hnew{};
 
     if (do_iterations) {
 
         while (true) {
 
             // Estimate the second derivative as a difference quotient in f.
-            Real H = std::copysign(HG, vstate.tout - vstate.t);
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            const amrex::Real H = std::copysign(HG, vstate.tout - vstate.t);
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.y(i) = vstate.yh(i,1) + H * vstate.yh(i,2);
             }
 
-            const Real t1 = vstate.t + H;
+            const amrex::Real t1 = vstate.t + H;
 
             rhs(t1, state, vstate, vstate.acor);
 
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.acor(i) = (vstate.acor(i) - vstate.yh(i,2)) / H;
             }
 
-            Real YDDNRM = 0.0_rt;
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            amrex::Real YDDNRM = 0.0_rt;
+            for (int i = 1; i <= int_neqs; ++i) {
                 YDDNRM += (vstate.acor(i) * vstate.ewt(i)) * (vstate.acor(i) * vstate.ewt(i));
             }
-            YDDNRM = std::sqrt(YDDNRM / VODE_NEQS);
+            YDDNRM = std::sqrt(YDDNRM / int_neqs);
 
             // Get the corresponding new value of h.
             if (YDDNRM * HUB * HUB > 2.0_rt) {
@@ -125,7 +106,7 @@ void dvhin (burn_t& state, dvode_t& vstate, Real& H0, int& NITER, int& IER)
                 break;
             }
 
-            Real HRAT = hnew / HG;
+            const amrex::Real HRAT = hnew / HG;
             if ((HRAT > 0.5_rt) && (HRAT < 2.0_rt)) {
                 break;
             }

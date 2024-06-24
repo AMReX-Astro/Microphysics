@@ -3,9 +3,11 @@
 
 #include <vode_type.H>
 
+template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void dvjust (int IORD, dvode_t& vstate)
+void dvjust (int IORD, BurnT& state, DvodeT& vstate)
 {
+    amrex::ignore_unused(state);
 
     // This subroutine adjusts the YH array on reduction of order,
     // and also when the order is increased.
@@ -13,14 +15,16 @@ void dvjust (int IORD, dvode_t& vstate)
     //  IORD  = An integer flag used to indicate an order
     //          increase (IORD = +1) or an order decrease (IORD = -1).
 
+    constexpr int int_neqs = integrator_neqs<BurnT>();
+
     if ((vstate.NQ == 2) && (IORD != 1)) {
         return;
     }
 
-    int NQM1 = vstate.NQ - 1;
-    int NQM2 = vstate.NQ - 2;
+    const int NQM1 = vstate.NQ - 1;
+    const int NQM2 = vstate.NQ - 2;
 
-    Real HSUM, XI, ALPH0, ALPH1, PROD, XIOLD, T1;
+    amrex::Real HSUM{}, XI{}, ALPH0{}, ALPH1{}, PROD{}, XIOLD{}, T1{};
 
     // Check to see if the order is being increased or decreased.
 
@@ -37,14 +41,14 @@ void dvjust (int IORD, dvode_t& vstate)
             HSUM += vstate.tau(j);
             XI = HSUM / vstate.HSCAL;
             for (int iback = 1; iback <= j+1; ++iback) {
-                int i = (j + 4) - iback;
+                const int i = (j + 4) - iback;
                 vstate.el(i) = vstate.el(i) * XI + vstate.el(i-1);
             }
         }
 
         // Subtract correction terms from YH array.
         for (int j = 3; j <= vstate.NQ; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) -= vstate.yh(i,vstate.L) * vstate.el(j);
             }
         }
@@ -82,19 +86,18 @@ void dvjust (int IORD, dvode_t& vstate)
 
         T1 = (-ALPH0 - ALPH1) / PROD;
         // Load column L + 1 in YH array.
-        for (int i = 1; i <= VODE_NEQS; ++i) {
+        for (int i = 1; i <= int_neqs; ++i) {
             vstate.yh(i,vstate.L+1) = T1 * vstate.yh(i,VODE_LMAX);
         }
 
         // Add correction terms to YH array.
         for (int j = 3; j <= vstate.NQ + 1; ++j) {
-            for (int i = 1; i <= VODE_NEQS; ++i) {
+            for (int i = 1; i <= int_neqs; ++i) {
                 vstate.yh(i,j) += vstate.el(j) * vstate.yh(i,vstate.L+1);
             }
         }
 
     }
-
 }
 
 #endif

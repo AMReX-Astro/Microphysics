@@ -10,15 +10,16 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
-#include <integrator_rhs_simplified_sdc.H>
+#include <integrator_rhs_sdc.H>
 #include <react_util.H>
 
 using namespace unit_test_rp;
 
+AMREX_INLINE
 void do_vode_rhs()
 {
 
-    Real massfractions[NumSpec] = {-1.0};
+    amrex::Real massfractions[NumSpec] = {-1.0};
 
     for (int n = 1; n <= NumSpec; ++n) {
 
@@ -32,7 +33,7 @@ void do_vode_rhs()
 
 
 #ifdef AUX_THERMO
-    Real auxdata[NumAux] = {-1.0};
+    amrex::Real auxdata[NumAux] = {-1.0};
 
     for (int n = 1; n <= NumAux; ++n) {
         switch (n) {
@@ -53,7 +54,7 @@ void do_vode_rhs()
 #endif
 
 
-    Real adv_species[NumSpec] = {0.0};
+    amrex::Real adv_species[NumSpec] = {0.0};
 
     for (int n = 1; n <= NumSpec; ++n) {
         switch (n) {
@@ -155,7 +156,7 @@ void do_vode_rhs()
 
 
 #ifdef AUX_THERMO
-    Real adv_aux[NumAux] = {0.0};
+    amrex::Real adv_aux[NumAux] = {0.0};
 
     for (int n = 1; n <= NumAux; ++n) {
         switch (n) {
@@ -190,7 +191,7 @@ void do_vode_rhs()
 
     burn_t burn_state;
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
     eos_state.rho = density;
     eos_state.T = temperature;
     for (int n = 0; n < NumSpec; n++) {
@@ -217,7 +218,6 @@ void do_vode_rhs()
     }
 #endif
 
-#if defined(SDC_EVOLVE_ENERGY)
     burn_state.y[SRHO] = density;
 
     burn_state.y[SMX] = 0.0;
@@ -227,17 +227,7 @@ void do_vode_rhs()
     burn_state.y[SEINT] = burn_state.y[SRHO] * eos_state.e;
     burn_state.y[SEDEN] = burn_state.y[SEINT];
 
-#elif defined(SDC_EVOLVE_ENTHALPY)
-    burn_state.y[SENTH] = burn_state.rho * eos_state.h;
-
-    burn_state.p0 = eos_state.p;
-#endif
-
-#if defined(SDC_EVOLVE_ENERGY)
-    Real rhoe_old = burn_state.y[SEINT];
-#elif defined (SDC_EVOLVE_ENTHALPY)
-    Real rhoh_old = burn_state.y[SENTH];
-#endif
+    amrex::Real rhoe_old = burn_state.y[SEINT];
 
     // now initialize the advective terms -- the only ones that are
     // actually used during the integration are for rho, (rho X), and
@@ -309,7 +299,7 @@ void do_vode_rhs()
     // call the Jacobian
 
     RArray2D pd;
-    const Real time = 0.0_rt;
+    const amrex::Real time = 0.0_rt;
     jac(time, burn_state, vode_state, pd);
 
     for (int row = 1; row <= VODE_NEQS; ++row) {

@@ -40,11 +40,15 @@ The options are:
   This includes the portion in the appendix that blends in the weak
   screening limit.
 
+* ``chabrier1998``:
+
+  This implements the screening of :cite:`Chabrier_1998` as well as the quantum corrections for strong screening according to screen5. This is suggested in the appendix of :cite:`Calder_2007`. This screening is compatible with NSE calculations unlike ``screen5``, ``chugunov2007``, and ``chugunov2009``. This screening should be valid in the weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime, :math:`1 \lesssim \Gamma \lesssim 160`.
+
 * ``null`` :
 
   This disables screening by always returning 1 for the screening
   enhancement factor.
 
-* ``chabrier1998``:
-
-  This implements the screening of :cite:`Chabrier_1998` as well as the quantum corrections for strong screening according to screen5. This is suggested in the appendix of :cite:`Calder_2007`. This screening is compatible with NSE calculations unlike ``screen5``, ``chugunov2007``, and ``chugunov2009``. This screening should be valid in the weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime, :math:`1 \lesssim \Gamma \lesssim 160`.
+Runtime Options
+----------------
+* ``screening.enable_chabrier1998_quantum_corr = 1`` in the input file enables an additional quantum correction term added to the screening factor when ``SCREEN_METHOD=chabrier1998``. This is disabled by default since ``chabrier1998`` is often used along with ``USE_NSE_NET=TRUE``, and the NSE solver doesn't include quantum corrections.

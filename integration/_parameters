@@ -6,70 +6,100 @@
 # the current internal energy. This is done with an EOS call, which can
 # be turned off if desired. This will freeze the temperature and specific heat
 # to the values at the beginning of the burn, which is inaccurate but cheaper.
-call_eos_in_rhs          logical   .true.
+call_eos_in_rhs          bool   1
 
 # Allow the energy integration to be disabled by setting the RHS to zero.
-integrate_energy         logical   .true.
+integrate_energy         bool   1
 
 # Whether to use an analytical or numerical Jacobian.
 # 1 == Analytical
 # 2 == Numerical
-# 3 == Numerical for reactions; analytic for primitive -> conserved (simplified-SDC only)
-jacobian                 integer   1
+jacobian                 int      1
 
 # Should we print out diagnostic output after the solve?
-burner_verbose           logical   .false.
+burner_verbose           bool     0
 
 # Tolerances for the solver (relative and absolute), for the
 # species and energy equations.
-rtol_spec                real      1.d-12
-rtol_enuc                real      1.d-6
+rtol_spec                real      1.e-12
+rtol_enuc                real      1.e-6
 
-atol_spec                real      1.d-8
-atol_enuc                real      1.d-6
+atol_spec                real      1.e-8
+atol_enuc                real      1.e-6
 
 # Whether to renormalize the mass fractions at each step in the evolution
 # so that they sum to unity.
-renormalize_abundances   logical   .false.
+renormalize_abundances   bool   0
 
 # The absolute cutoff for species -- note that this might be larger
 # than ``small_x``, but the issue is that we need to prevent underflow
 # issues and keep mass fractions positive in the integrator.  You may
-# have to increase the floor to, e.g. 1.d-20 if your rates are large.
-SMALL_X_SAFE                 real            1.0d-30
+# have to increase the floor to, e.g. 1.e-20 if your rates are large.
+SMALL_X_SAFE                 real            1.0e-30
 
 # The maximum temperature for reactions in the integration.
-MAX_TEMP                     real            1.0d11
+MAX_TEMP                     real            1.0e11
 
 # boost the reaction rates by a factor > 1
-react_boost                 real         -1.d0
+react_boost                 real         -1.e0
 
 # maximum number of timesteps for the integrator
-ode_max_steps              integer      150000
+ode_max_steps              int      150000
 
 # maximum timestep for the integrator
-ode_max_dt                 real         1.d30
+ode_max_dt                 real         1.e30
 
 # Whether to use Jacobian caching in VODE
-use_jacobian_caching    logical   .true.
+use_jacobian_caching    bool    1
 
 # Inputs for generating a Nonaka Plot (TM)
-nonaka_i                integer           0
-nonaka_j                integer           0
-nonaka_k                integer           0
-nonaka_level            integer           0
-nonaka_file             character         "nonaka_plot.dat"
+nonaka_i                int           0
+nonaka_j                int           0
+nonaka_k                int           0
+nonaka_level            int           0
+nonaka_file             string       "nonaka_plot.dat"
+
+# do we retry a failed burn with different parameters?
+use_burn_retry            bool    0
+
+# do we swap the Jacobian (from analytic to numerical or vice versa) on
+# a retry?
+retry_swap_jacobian       bool    1
+
+# Tolerances for the solver (relative and absolute), for the
+# species and energy equations.  If set to < 0, then the same
+# value as the first attempt is used.
+retry_rtol_spec                real      -1
+retry_rtol_enuc                real      -1
+
+retry_atol_spec                real      -1
+retry_atol_enuc                real      -1
 
 # in the clean_state process, do we clip the species such that they
 # are in [0, 1]?
-do_species_clip              integer          1
+do_species_clip              bool         1
 
 # flag for turning on the use of number densities for all species
-use_number_densities     logical          .false.
+use_number_densities     bool     0
 
 # flag for tuning on the subtraction of internal energy
-subtract_internal_energy   logical       .true.
+subtract_internal_energy   bool     1
 
-# SDC iteration tolerance adjustment factor
-sdc_burn_tol_factor          real         1.d0
+# do we scale the ODE system we integrate to make it O(1)?
+# for Strang, this simply means scaling e by the initial energy?
+scale_system              bool         0
 
+# for the NSE update predictor-corrector, how many iterations
+# do we take to get the new time NSE state
+nse_iters                 int        3
+
+# for SDC+NSE, when estimating the derivatives of the NSE table
+# quantities, what fraction of dt do we use for the finite-difference
+# estimate
+nse_deriv_dt_factor        real           0.05
+
+# for NSE update, do we include the weak rate neutrino losses?
+nse_include_enu_weak       bool        1
+
+# for the linear algebra, do we allow pivoting?
+linalg_do_pivoting         bool        1

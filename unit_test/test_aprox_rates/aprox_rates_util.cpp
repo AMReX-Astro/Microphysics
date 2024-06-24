@@ -17,26 +17,26 @@ using namespace amrex;
 using namespace unit_test_rp;
 
 void aprox_rates_test(const Box& bx,
-                      const Real dlogrho, const Real dlogT, const Real dNi,
+                      const amrex::Real dlogrho, const amrex::Real dlogT, const amrex::Real dNi,
                       const plot_t& vars,
-                      Array4<Real> const sp) {
+                      Array4<amrex::Real> const sp) {
 
   const int ini56 = network_spec_index("nickel-56");
 
   AMREX_PARALLEL_FOR_3D(bx, i, j, k,
   {
 
-    eos_t eos_state;
+    eos_extra_t eos_state;
 
-    Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
+    amrex::Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<amrex::Real>(j)*dlogT);
     eos_state.T = temp_zone;
 
-    Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
+    amrex::Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<amrex::Real>(i)*dlogrho);
     eos_state.rho = dens_zone;
 
-    Real ni56 = Real(k) * dNi;
+    amrex::Real ni56 = amrex::Real(k) * dNi;
     for(auto comp = 0; comp < NumSpec; ++comp) {
-      eos_state.xn[comp] = 1.0_rt - ni56 / Real(NumSpec - 1);
+      eos_state.xn[comp] = 1.0_rt - ni56 / amrex::Real(NumSpec - 1);
     }
 
     eos_state.xn[ini56] = ni56;
@@ -51,10 +51,10 @@ void aprox_rates_test(const Box& bx,
     sp(i, j, k, vars.itemp) = temp_zone;
     sp(i, j, k, vars.ini56) = ni56;
 
-    Real fr;
-    Real dfrdt;
-    Real rr;
-    Real drrdt;
+    amrex::Real fr;
+    amrex::Real dfrdt;
+    amrex::Real rr;
+    amrex::Real drrdt;
 
     rate_c12ag(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
@@ -139,7 +139,7 @@ void aprox_rates_test(const Box& bx,
     sp(i, j, k, vars.isi28ag+1) = dfrdt;
     sp(i, j, k, vars.isi28ag+2) = rr;
     sp(i, j, k, vars.isi28ag+3) = drrdt;
-            
+
     rate_si28ap(tf, dens_zone, fr, dfrdt, rr, drrdt);
 
     sp(i, j, k, vars.isi28ap) = fr;
@@ -413,18 +413,18 @@ void aprox_rates_test(const Box& bx,
     sp(i, j, k, vars.ife56pg+2) = rr;
     sp(i, j, k, vars.ife56pg+3) = drrdt;
 
-    Real rn56ec;
-    Real sn56ec;
-    langanke(temp_zone, dens_zone, eos_state.xn[ini56], 
+    amrex::Real rn56ec;
+    amrex::Real sn56ec;
+    langanke(temp_zone, dens_zone, eos_state.xn[ini56],
              eos_state.y_e, rn56ec, sn56ec);
 
     sp(i, j, k, vars.ilanganke) = rn56ec;
     sp(i, j, k, vars.ilanganke+1) = sn56ec;
 
-    Real rpen;
-    Real rnep;
-    Real spenc;
-    Real snepc;
+    amrex::Real rpen;
+    amrex::Real rnep;
+    amrex::Real spenc;
+    amrex::Real snepc;
     ecapnuc(eos_state.eta, dens_zone, rpen, rnep, spenc, snepc);
 
     sp(i, j, k, vars.iecapnuc) = rpen;
@@ -437,26 +437,26 @@ void aprox_rates_test(const Box& bx,
 
 
 void aprox_rates_extra_c12ag(const Box& bx,
-                             const Real dlogrho, const Real dlogT, const Real dNi,
+                             const amrex::Real dlogrho, const amrex::Real dlogT, const amrex::Real dNi,
                              const plot_t& vars,
-                             Array4<Real> const sp) {
+                             Array4<amrex::Real> const sp) {
 
     const int ini56 = network_spec_index("nickel-56");
 
     AMREX_PARALLEL_FOR_3D(bx, i, j, k,
     {
 
-        eos_t eos_state;
+        eos_extra_t eos_state;
 
-        Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
+        amrex::Real temp_zone = std::pow(10.0_rt, std::log10(temp_min) + static_cast<amrex::Real>(j)*dlogT);
         eos_state.T = temp_zone;
 
-        Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
+        amrex::Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<amrex::Real>(i)*dlogrho);
         eos_state.rho = dens_zone;
 
-        Real ni56 = Real(k) * dNi;
+        amrex::Real ni56 = amrex::Real(k) * dNi;
         for(auto comp = 0; comp < NumSpec; ++comp) {
-            eos_state.xn[comp] = 1.0_rt - ni56 / Real(NumSpec - 1);
+            eos_state.xn[comp] = 1.0_rt - ni56 / amrex::Real(NumSpec - 1);
         }
 
         eos_state.xn[ini56] = ni56;
@@ -466,10 +466,10 @@ void aprox_rates_extra_c12ag(const Box& bx,
 
         auto tf = get_tfactors(temp_zone);
 
-        Real fr;
-        Real dfrdt;
-        Real rr;
-        Real drrdt;
+        amrex::Real fr;
+        amrex::Real dfrdt;
+        amrex::Real rr;
+        amrex::Real drrdt;
 
         // override to get the other rate
         use_c12ag_deboer17 = 1;

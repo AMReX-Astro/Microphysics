@@ -16,16 +16,15 @@
 #ifdef STRANG
 #include <nse_update_strang.H>
 #endif
-#ifdef SIMPLIFIED_SDC
-#include <nse_update_simplified_sdc.H>
+#ifdef SDC
+#include <nse_update_sdc.H>
 #endif
 #endif
 
+template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burner (burn_t& state, Real dt)
+void burner (BurnT& state, amrex::Real dt)
 {
-
-#ifndef TRUE_SDC
 
 #ifdef NSE
 
@@ -34,7 +33,7 @@ void burner (burn_t& state, Real dt)
     if (nse_check) {
 
         // call the table
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
         sdc_nse_burn(state, dt);
 #else
         nse_burn(state, dt);
@@ -44,7 +43,7 @@ void burner (burn_t& state, Real dt)
         // burn as usual
         integrator(state, dt);
 
-#if !defined(SIMPLIFIED_SDC) && defined(AUX_THERMO)
+#if !defined(SDC) && defined(AUX_THERMO)
         // update the aux from the new X's this is not needed with the
         // SDC method, since we took care of that internally.
         set_aux_comp_from_X(state);
@@ -57,14 +56,14 @@ void burner (burn_t& state, Real dt)
 
         // replace dt with just the remaining integration time
         // left after the failure
-        Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
+        amrex::Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
 
         // we use a relaxed NSE criteria now to catch states that are
         // right on the edge of being in NSE
 #ifdef NSE_TABLE
         if (in_nse(state, true) && state.success == false && dt_remaining > 0.0) {
 #else
-	if (in_nse(state, nse_skip_molar) && state.success == false && dt_remaining > 0.0) {
+        if (in_nse(state, nse_skip_molar) && state.success == false && dt_remaining > 0.0) {
 #endif
 
 #ifndef AMREX_USE_GPU
@@ -73,7 +72,7 @@ void burner (burn_t& state, Real dt)
 
             // This will append to state.e the amount additional
             // energy released from adjusting to the new NSE state
-#ifdef SIMPLIFIED_SDC
+#ifdef SDC
             sdc_nse_burn(state, dt_remaining);
 #else
             nse_burn(state, dt_remaining);
@@ -91,8 +90,6 @@ void burner (burn_t& state, Real dt)
 #else
     // we did not compile with NSE
     integrator(state, dt);
-#endif
-
 #endif
 
 }

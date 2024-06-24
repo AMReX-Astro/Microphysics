@@ -19,5 +19,7 @@ rc = pyna.RateCollection(libraries=[nova_library])
 comp = pyna.Composition(rc.get_nuclei())
 comp.set_solar_like()
 
-rc.plot(outfile="nova.png", rho=1.e4, T=9.e7, comp=comp)
+rho = 1.e4
+T = 9.e7
 
+rc.plot(rho, T, comp, outfile="nova.png")

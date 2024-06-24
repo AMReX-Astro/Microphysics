@@ -15,8 +15,6 @@ USE_SIMPLIFIED_SDC = TRUE
 
 EBASE = main
 
-USE_EXTRA_THERMO = TRUE
-
 BL_NO_FORT = TRUE
 
 # define the location of the Microphysics top directory
@@ -29,7 +27,6 @@ NETWORK_DIR := aprox19
 
 CONDUCTIVITY_DIR := stellar
 INTEGRATOR_DIR := VODE
-DEFINES += -DSDC_EVOLVE_ENERGY
 
 EXTERN_SEARCH += . ..
 

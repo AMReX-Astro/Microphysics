@@ -17,40 +17,48 @@ namespace part_fun {
 
     // interpolation routine
 
+    template <int npts>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void interpolate_pf(const Real t9, const int npts, const Real* temp_array, const Real* pf_array,
-                        Real& pf, Real& dpf_dT) {
+    void interpolate_pf(const amrex::Real t9, const amrex::Real (&temp_array)[npts], const amrex::Real (&pf_array)[npts],
+                        amrex::Real& pf, amrex::Real& dpf_dT) {
 
-        // find the index of the first temperature element we are larger than
+        if (t9 >= temp_array[0] && t9 < temp_array[npts-1]) {
 
-        int idx = -1;
+            // find the largest temperature element <= t9 using a binary search
 
-        for (int i = 0; i < npts-1; ++i) {
-            if (t9 >= temp_array[i] && t9 < temp_array[i+1]) {
-                idx = i;
-                break;
+            int left = 0;
+            int right = npts;
+
+            while (left < right) {
+                int mid = (left + right) / 2;
+                if (temp_array[mid] > t9) {
+                    right = mid;
+                } else {
+                    left = mid + 1;
+                }
             }
-        }
 
-        if (idx >= 0) {
+            const int idx = right - 1;
+
+            // now we have temp_array[idx] <= t9 < temp_array[idx+1]
 
             // construct the slope -- this is (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
 
-            Real slope = (pf_array[idx+1] - pf_array[idx]) / (temp_array[idx+1] - temp_array[idx]);
+            amrex::Real slope = (pf_array[idx+1] - pf_array[idx]) / (temp_array[idx+1] - temp_array[idx]);
 
             // find the PF
 
-            Real log10_pf = pf_array[idx] + slope * (t9 - temp_array[idx]);
+            amrex::Real log10_pf = pf_array[idx] + slope * (t9 - temp_array[idx]);
             pf = std::pow(10.0_rt, log10_pf);
 
             // find the derivative (with respect to T, not T9)
 
-            Real dpf_dT9 = pf * std::log(10.0_rt) * slope;
+            amrex::Real dpf_dT9 = pf * M_LN10 * slope;
             dpf_dT = dpf_dT9 / 1.e9_rt;
 
         } else {
 
-            // T < the smallest T in the partition function table
+            // T < the smallest T or >= the largest T in the partition function table
             pf = 1.0;
             dpf_dT = 0.0;
 
@@ -58,13 +66,21 @@ namespace part_fun {
 
     }
 
+    struct pf_cache_t {
+        // Store the coefficient and derivative adjacent in memory, as they're
+        // always accessed at the same time.
+        // The entries will be default-initialized to zero, which is fine since
+        // log10(x) is never zero.
+        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, Order::C> data{};
+    };
+
 }
 
 // main interface
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactors,
-                            Real& pf, Real& dpf_dT) {
+                            amrex::Real& pf, amrex::Real& dpf_dT) {
 
     // inuc is the 1-based index for the species
 
@@ -80,57 +96,52 @@ void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactor
 
 }
 
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void get_partition_function_cached(const int inuc, const tf_t& tfactors,
+                                   part_fun::pf_cache_t& pf_cache,
+                                   amrex::Real& pf, amrex::Real& dpf_dT) {
+    if (pf_cache.data(inuc, 1) != 0.0_rt) {
+        // present in cache
+        amrex::ignore_unused(tfactors);
+        pf = pf_cache.data(inuc, 1);
+        dpf_dT = pf_cache.data(inuc, 2);
+    } else {
+        get_partition_function(inuc, tfactors, pf, dpf_dT);
+        pf_cache.data(inuc, 1) = pf;
+        pf_cache.data(inuc, 2) = dpf_dT;
+    }
+}
+
 // spins
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr Real get_spin_state(const int inuc) {
+constexpr amrex::Real get_spin_state(const int inuc) {
 
-    Real spin = -1.0;
+    amrex::Real spin = -1.0;
 
-    switch (inuc) {
-
-    case H1:
-        spin = 2;
-        break;
+    switch (inuc) {  // NOLINT(bugprone-switch-missing-default-case)
 
     case He4:
-        spin = 1;
-        break;
-
     case O16:
+    case O20:
+    case Ne20:
+    case Mg24:
+    case Si28:
+    case S32:
         spin = 1;
         break;
 
-    case O20:
-        spin = 1;
+    case H1:
+    case P31:
+        spin = 2;
         break;
 
     case F20:
         spin = 5;
         break;
 
-    case Ne20:
-        spin = 1;
-        break;
-
-    case Mg24:
-        spin = 1;
-        break;
-
     case Al27:
         spin = 6;
-        break;
-
-    case Si28:
-        spin = 1;
-        break;
-
-    case P31:
-        spin = 2;
-        break;
-
-    case S32:
-        spin = 1;
         break;
 
 

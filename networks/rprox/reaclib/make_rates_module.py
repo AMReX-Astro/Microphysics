@@ -50,7 +50,7 @@ module rates_module
 def tFactorData():
     """Add  a routine to initialize the tfactors given the temperature.
     Return this text."""
-    
+
     text="""
 
 contains
@@ -74,7 +74,7 @@ contains
 
 def buildRateRoutine(name,aFactors):
     """Given a reaction name and the list of aFactors from the ReacLib rate
-       file, build the appropriate structure for the reaction rate as a 
+       file, build the appropriate structure for the reaction rate as a
        subroutine.  Return this text."""
     text= """
   subroutine %s(tfactors,rate,dratedt)
@@ -142,7 +142,7 @@ def buildRateRoutine(name,aFactors):
         if not aFactors[start+4] == 0.0:
             str += "         +ct9 &\n"
         if not aFactors[start+5] == 0.0:
-            str += "         +FIVE3RD*ct953 &\n" 
+            str += "         +FIVE3RD*ct953 &\n"
         if not aFactors[start+6] == 0.0:
             str += "         +(%sd0))" % (aFactors[start+6])
         else:
@@ -177,7 +177,7 @@ def buildRateRoutine(name,aFactors):
     return text
 
 def numReactantsProducts(chapter):
-    """Return the number of reactants and products (in particles) for a 
+    """Return the number of reactants and products (in particles) for a
     reaction of ReacLib Chapter type chapter."""
     r,p = 1,1
     if chapter in [2,5,9,10]: p+= 1
@@ -190,11 +190,11 @@ def numReactantsProducts(chapter):
     return r,p
 
 def parseRateFile(file):
-    """Given a ReacLib v 1 rate file, file, parse it and determine an 
+    """Given a ReacLib v 1 rate file, file, parse it and determine an
     appropriate name and the "a" factors that build the rate.  Return the
     name as a string and the "a" factors as a list."""
 
-    try: 
+    try:
         fh = open(file,'r')
     except IOError:
         print "Couldn't open file %f for reading" % file
@@ -207,7 +207,7 @@ def parseRateFile(file):
 
     foundLabels = False
     rateString = "rate"
-    
+
     aFactors = []
 
     for line in data[numHeaderLines:]:
@@ -226,7 +226,7 @@ def parseRateFile(file):
             for term in range(nterms):
                 start = term*lengthEntry
                 stop = start + lengthEntry
-                
+
                 aFactors.append(float(line[start:stop]))
 
     if len(aFactors) % numTerms is not 0:
@@ -261,8 +261,8 @@ def weakRate(name,factor):
     return textParameter, textSubroutine
 
 def make_rates_module(rateFiles):
-    """Build the F90 module containing the subroutines for the reactions 
-    given in the list of ReacLib rate files, rateFiles, along with the helper 
+    """Build the F90 module containing the subroutines for the reactions
+    given in the list of ReacLib rate files, rateFiles, along with the helper
     routine to set the common temperature factors.  Return all this as a string
     for easy piping."""
 

@@ -12,12 +12,12 @@ Upon completion, the new state is printed to the screen.
 This is used with GitHub actions to do a test on pull requests.  The
 following are the tests:
 
-* `subch_approx` network:
+* `subch_simple` network:
 
   ```
-  make NETWORK_DIR=subch_approx
-  ./main3d.gnu.ex inputs_subch_approx > test.out
-  diff test.out subch_approx_unit_test.out
+  make NETWORK_DIR=subch_simple
+  ./main3d.gnu.ex inputs_subch_simple > test.out
+  diff test.out subch_simple_unit_test.out
   ```
 
 * `ECSN` network:

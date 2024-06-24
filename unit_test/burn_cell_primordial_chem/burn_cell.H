@@ -1,3 +1,6 @@
+#ifndef BURN_CELL_H
+#define BURN_CELL_H
+
 #include <extern_parameters.H>
 #include <eos.H>
 #include <network.H>
@@ -7,6 +10,7 @@
 
 amrex::Real grav_constant = 6.674e-8;
 
+AMREX_INLINE
 auto burn_cell_c() -> int
 {
 
@@ -14,7 +18,7 @@ auto burn_cell_c() -> int
 
     burn_t state;
 
-    Real numdens[NumSpec] = {-1.0};
+    amrex::Real numdens[NumSpec] = {-1.0};
 
     for (int n = 1; n <= NumSpec; ++n) {
         switch (n) {
@@ -77,7 +81,7 @@ auto burn_cell_c() -> int
     state.T = temperature;
 
     //find the density in g/cm^3
-    Real rhotot = 0.0_rt;
+    amrex::Real rhotot = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         state.xn[n] = numdens[n];
         rhotot += state.xn[n]*spmasses[n];  //spmasses contains the masses of all species, defined in EOS
@@ -87,8 +91,8 @@ auto burn_cell_c() -> int
 
     // normalize -- just in case
 
-    Real mfracs[NumSpec] = {-1.0};
-    Real msum = 0.0_rt;
+    amrex::Real mfracs[NumSpec] = {-1.0};
+    amrex::Real msum = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         mfracs[n] = state.xn[n]*spmasses[n]/rhotot;
         msum += mfracs[n];
@@ -128,7 +132,7 @@ auto burn_cell_c() -> int
     }
     state_over_time << std::endl;
 
-    Real t = 0.0;
+    amrex::Real t = 0.0;
 
     state_over_time << std::setw(10) << t;
     state_over_time << std::setw(15) << state.rho;
@@ -141,22 +145,22 @@ auto burn_cell_c() -> int
 
     // loop over steps, burn, and output the current state
     // the loop below is similar to that used in krome and pynucastro
-    Real dd = rhotot;
-    Real dd1 = 0.0_rt;
+    amrex::Real dd = rhotot;
+    amrex::Real dd1 = 0.0_rt;
 
     for (int n = 0; n < nsteps; n++){
 
         dd1 = dd;
 
-        Real rhotmp = 0.0_rt;
+        amrex::Real rhotmp = 0.0_rt;
 
         for (int nn = 0; nn < NumSpec; ++nn) {
             rhotmp += state.xn[nn]*spmasses[nn];
         }
 
         // find the freefall time
-        Real tff = std::sqrt(M_PI*3.0 / (32.0*rhotmp*grav_constant));
-        Real dt = tff_reduc * tff;
+        amrex::Real tff = std::sqrt(M_PI*3.0 / (32.0*rhotmp*grav_constant));
+        amrex::Real dt = tff_reduc * tff;
         // scale the density
         dd += dt*(dd/tff);
 
@@ -169,7 +173,7 @@ auto burn_cell_c() -> int
         break; }
 
         // stop the test if we have reached very high densities
-        if (dd > 3e-6) {
+        if (dd > 2e-6) {
         break; }
 
         std::cout<<"step "<<n<<" done"<<std::endl;
@@ -186,8 +190,8 @@ auto burn_cell_c() -> int
         burner(state, dt);
 
        // ensure positivity and normalize
-        Real inmfracs[NumSpec] = {-1.0};
-        Real insum = 0.0_rt;
+        amrex::Real inmfracs[NumSpec] = {-1.0};
+        amrex::Real insum = 0.0_rt;
         for (int nn = 0; nn < NumSpec; ++nn) {
             state.xn[nn] = amrex::max(state.xn[nn], small_x);
             inmfracs[nn] = spmasses[nn]*state.xn[nn]/state.rho;
@@ -224,9 +228,9 @@ auto burn_cell_c() -> int
 
     state_over_time << std::setw(10) << t;
         state_over_time << std::setw(15) << state.rho;
-    state_over_time << std::setw(12) << state.T; 
+    state_over_time << std::setw(12) << state.T;
     for (int x = 0; x < NumSpec; ++x){
-         state_over_time << std::setw(15) << state.xn[x]; 
+         state_over_time << std::setw(15) << state.xn[x];
     }
     state_over_time << std::endl;
 
@@ -254,3 +258,4 @@ auto burn_cell_c() -> int
     
     return state.success;
 }
+#endif
