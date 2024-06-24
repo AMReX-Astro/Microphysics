@@ -441,8 +441,8 @@ dual_t chugunov2009_f0 (const dual_t& gamma)
     dual_t term1 = gamma_12 * admath::sqrt(A2 + gamma);
     dual_t term2 = admath::log(admath::sqrt(gamma / A2) + admath::sqrt(1.0_rt + gamma / A2));
     dual_t term3 = gamma_12 - admath::fast_atan(gamma_12);
-    dual_t term4 = admath::log1p(gamma / B2);
-    dual_t term5 = admath::log1p(gamma * gamma / B4);
+    dual_t term4 = admath::log(1.0_rt + gamma / B2);
+    dual_t term5 = admath::log(1.0_rt + gamma * gamma / B4);
 
     return A1*(term1 - A2*term2) + 2.0_rt*A3*term3 + B1*(gamma - B2*term4) + 0.5_rt*B3*term5;
 }
