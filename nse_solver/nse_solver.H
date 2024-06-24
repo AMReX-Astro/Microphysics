@@ -15,7 +15,6 @@
 #endif
 #include <eos_composition.H>
 #include <microphysics_sort.H>
-#include <approx_math.H>
 #include <hybrj.H>
 #include <screen.H>
 #include <cctype>
@@ -170,7 +169,7 @@ void apply_nse_exponent(T& nse_state,
                                nse_state.mu_n + network::bion(n+1)) /
                               C::k_B / T_in * C::Legacy::MeV2erg - u_c(n+1));
 
-        nse_state.xn[n] *= fast_exp(exponent);
+        nse_state.xn[n] *= std::exp(exponent);
     }
 
     nse_state.y_e = 0.0_rt;
