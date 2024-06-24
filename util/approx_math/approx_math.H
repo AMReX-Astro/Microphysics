@@ -138,9 +138,9 @@ float jrade_exp(const float x) {
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 double jrade_exp(const double x) {
     /// For double precision input.
-    /// a = 2^23 / ln2
+    /// a = 2^52 / ln2
     ///
-    /// b = 2^23 * (x0 - C), where x0 = 127 is the exponent bias
+    /// b = 2^52 * (x0 - C), where x0 = 1023 is the exponent bias
     /// C = (ln(ln2 + 2/e) - ln2 - ln(ln2)) / ln2
     /// This is a constant shift term chosen to minimize maximum relative error
     ///
@@ -169,25 +169,68 @@ double jrade_exp(const double x) {
 }
 
 
+///
+/// This is a more accurate than jrade_exp
+/// but it is roughly twice as slow.
+///
+/// This uses the identity exp(x) = exp(x/2) / exp(-x/2),
+/// so there is extra factor of 0.5 in a
+///
+/// This comes from:
+/// https://github.com/ekmett/approximate/blob/master/cbits/fast.c
+///
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+float ekmett_exp(const float x) {
+    ///
+    /// For single precision input
+    ///
+
+    constexpr float a = gcem::pow(2.0F, 23) * 0.5F / 0.6931471805599453F;
+
+    // For minimizing max relative error
+    constexpr float b = gcem::pow(2.0F, 23) * (127.0F - 0.04367744890362246F);
+
+    // For minimizing rms relative error
+    // constexpr double b = 0x3fdf127e83d16f12;
+
+    double u = a * x + b;
+    double v = b - a * x;
+
+    //
+    // Return 0 for large negative number
+    // Return Inf for large positive number
+    //
+
+    constexpr double c = gcem::pow(2.0F, 23);
+    constexpr double d = gcem::pow(2.0F, 23) * 255.0F;
+    if (u < c || u > d) {
+        u = (u < c) ? 0.0F : d;
+    }
+
+    auto n = static_cast<std::int32_t>(u);
+    auto m = static_cast<std::int32_t>(v);
+
+    memcpy(&u, &n, 4);
+    memcpy(&v, &m, 4);
+
+    return u / v;
+}
+
+
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 double ekmett_exp(const double x) {
     ///
-    /// This is a more accurate than jrade_exp
-    /// but it is roughly twice as slow.
-    ///
-    /// This uses the identity exp(x) = exp(x/2) / exp(-x/2),
-    /// so there is extra factor of 0.5 in a
-    ///
-    /// This comes from:
-    /// https://github.com/ekmett/approximate/blob/master/cbits/fast.c
+    /// For double precision input
     ///
 
-    constexpr double a = gcem::pow(2.0, 52) / 0.6931471805599453;
+    constexpr double a = gcem::pow(2.0, 52) * 0.5 / 0.6931471805599453;
 
-    // For minimizes max relative error
+    // For minimizing max relative error
     constexpr double b = gcem::pow(2.0, 52) * (1023.0 - 0.04367744890362246);
 
-    // For minimizes rms relative error
+    // For minimizing rms relative error
     // constexpr double b = 0x3fdf127e83d16f12;
 
     double u = a * x + b;
