@@ -1389,7 +1389,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     // Set up the state data, which is the same for all screening factors.
     autodiff::dual temp = burn_state.T;
     // seed the dual number for temperature before calculating anything with it
-    autodiff::seed<1>(temp, 1.0_rt);
+    autodiff::seed(temp);
     fill_plasma_state(rhs_state.pstate, temp, burn_state.rho, rhs_state.y);
 #endif
 

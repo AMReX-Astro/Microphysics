@@ -24,7 +24,7 @@ template <int do_T_derivatives, typename dual_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void maybe_seed(dual_t& value) {
   if constexpr (do_T_derivatives) {
-    autodiff::seed<1>(value, 1.0_rt);
+    autodiff::seed(value);
   }
 }
 

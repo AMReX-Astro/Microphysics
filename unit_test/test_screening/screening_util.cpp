@@ -98,7 +98,7 @@ void screen_test_C(const Box& bx,
 
     using dual_t = autodiff::dual;
     dual_t temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<Real>(j)*dlogT);
-    autodiff::seed<1>(temp_zone, 1.0_rt);
+    autodiff::seed(temp_zone);
 
     Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<Real>(i)*dlogrho);
 

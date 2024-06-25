@@ -642,7 +642,7 @@ void actual_screen(const plasma_state_t<dual_t>& state,
         scordt = std::numeric_limits<amrex::Real>::signaling_NaN();
     } else {
         scor = autodiff::val(scor_dual);
-        scordt = autodiff::derivative<1>(scor_dual);
+        scordt = autodiff::derivative(scor_dual);
     }
 }
 
