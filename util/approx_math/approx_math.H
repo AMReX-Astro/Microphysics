@@ -429,10 +429,8 @@ T int_pow(T x, int n) {
     while (n) {
         if (n & 1) {
             // if integer exponent is odd
-
             r *= x;
         }
-
         x *= x;
 
         // essentially integer dividing by 2
