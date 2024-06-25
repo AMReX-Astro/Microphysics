@@ -450,8 +450,9 @@ amrex::Real fast_pow(const amrex::Real x, const amrex::Real y) {
     /// This uses approximation to calculate fraction part of the exponent
     /// and use exponentiation of squaring to calculate integer part.
     /// This is slower than simply using vfast_pow, but give good accuracy.
-    /// Roughly 2% relative error.
+    /// Roughly 3% relative error.
     /// Ref: https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
+    ///
 
     // extract out the integer part of the exponent
 
