@@ -58,8 +58,17 @@ inline
 std::ostream& operator<< (std::ostream& o, plasma_state_t<dual_t> const& pstate)
 {
     o << "qlam0z   = " << pstate.qlam0z << std::endl;
+    if constexpr (autodiff::detail::isDual<dual_t>) {
+        o << "qlam0zdt = " << autodiff::derivative(pstate.qlam0z) << std::endl;
+    }
     o << "taufac   = " << pstate.taufac << std::endl;
+    if constexpr (autodiff::detail::isDual<dual_t>) {
+        o << "taufacdt = " << autodiff::derivative(pstate.taufac) << std::endl;
+    }
     o << "aa       = " << pstate.aa << std::endl;
+    if constexpr (autodiff::detail::isDual<dual_t>) {
+        o << "daadt    = " << autodiff::derivative(pstate.aa) << std::endl;
+    }
     o << "temp     = " << pstate.temp << std::endl;
     o << "zbar     = " << pstate.zbar << std::endl;
     o << "z2bar    = " << pstate.z2bar << std::endl;
