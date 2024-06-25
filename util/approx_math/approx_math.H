@@ -106,15 +106,15 @@ float jrade_exp(const float x) {
     /// a = 2^23 / ln2
     ///
     /// b = 2^23 * (x0 - C), where x0 = 127 is the exponent bias
-    /// C = (ln(ln2 + 2/e) - ln2 - ln(ln2)) / ln2
+    /// C = (ln(ln2 + 2/e) - ln2 - ln(ln2)) / ln2 = 0.04367744890362246
     /// This is a constant shift term chosen to minimize maximum relative error
     ///
-    /// Let C = ln(3/(8*ln2) + 0.5)/ln2
+    /// Let C = ln(3/(8*ln2) + 0.5)/ln2 = 0.0579848147254;
     /// in order to minimize RMS relative error.
     ///
 
     constexpr float a = gcem::pow(2.0F, 23) / 0.6931471805599453F;
-    constexpr float b = gcem::pow(2.0F, 23) * (127.0F - 0.043677448F);
+    constexpr float b = gcem::pow(2.0F, 23) * (127.0F - 0.04367744890362246F);
     float y = a * x + b;
 
     //
@@ -140,10 +140,10 @@ double jrade_exp(const double x) {
     /// a = 2^52 / ln2
     ///
     /// b = 2^52 * (x0 - C), where x0 = 1023 is the exponent bias
-    /// C = (ln(ln2 + 2/e) - ln2 - ln(ln2)) / ln2
+    /// C = (ln(ln2 + 2/e) - ln2 - ln(ln2)) / ln2 = 0.04367744890362246
     /// This is a constant shift term chosen to minimize maximum relative error
     ///
-    /// Let C = ln(3/(8*ln2) + 0.5)/ln2
+    /// Let C = ln(3/(8*ln2) + 0.5)/ln2 = 0.0579848147254;
     /// in order to minimize RMS relative error.
     ///
 
@@ -191,9 +191,6 @@ float ekmett_exp(const float x) {
     // For minimizing max relative error
     constexpr float b = gcem::pow(2.0F, 23) * (127.0F - 0.04367744890362246F);
 
-    // For minimizing rms relative error
-    // constexpr double b = 0x3fdf127e83d16f12;
-
     float u = a * x + b;
     float v = b - a * x;
 
@@ -228,9 +225,6 @@ double ekmett_exp(const double x) {
 
     // For minimizing max relative error
     constexpr double b = gcem::pow(2.0, 52) * (1023.0 - 0.04367744890362246);
-
-    // For minimizing rms relative error
-    // constexpr double b = 0x3fdf127e83d16f12;
 
     double u = a * x + b;
     double v = b - a * x;
