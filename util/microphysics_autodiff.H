@@ -58,6 +58,7 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, CbrtOp)
 
 // custom functions from approx_math.H
 
+// fast_atan
 struct FastAtanOp {};
 
 template<typename R>
@@ -72,6 +73,22 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, FastAtanOp)
     const T aux = One<T>() / (1.0 + self.val * self.val);
     self.val = ::fast_atan(self.val);
     self.grad *= aux;
+}
+
+// fast_exp
+struct FastExpOp {};
+
+template <typename R>
+using FastExpExpr = UnaryExpr<FastExpOp, R>;
+
+template<typename R, Requires<isExpr<R>> = true>
+AUTODIFF_DEVICE_FUNC constexpr auto fast_exp(R&& r) -> FastExpExpr<R> { return { std::forward<R>(r) }; }
+
+template<typename T, typename G>
+AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, FastExpOp)
+{
+    self.val = ::fast_exp(self.val);
+    self.grad *= self.val;
 }
 
 } // namespace detail
@@ -110,6 +127,7 @@ using amrex::min, autodiff::detail::min;
 using amrex::max, autodiff::detail::max;
 
 using ::fast_atan, autodiff::detail::fast_atan;
+using ::fast_exp, autodiff::detail::fast_exp;
 
 } // namespace math_functions
 
