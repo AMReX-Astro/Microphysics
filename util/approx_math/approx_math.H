@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <cstring>
 
-
 using namespace amrex::literals;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -271,7 +270,6 @@ amrex::Real fast_exp(const amrex::Real x) {
     return jrade_exp(x);
     // return ekmett_exp(x);
 }
-
 
 ///
 /// Implementation of fast natural log by inverting fast_exp logic
