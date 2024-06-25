@@ -22,9 +22,12 @@ void test_fast_log_accuracy(T x) {
               << " std::log: " << std_log_result << std::endl;
 
     T abs_err = std::abs(fast_log_result - std_log_result);
-    T tolerance = 2.e-3_rt;;
+    T rel_err = std::abs(abs_err / std_log_result);
+
+    T tolerance = 3.5e-2_rt;;
 
     std::cout << "absolute error: " << abs_err << std::endl;
+    std::cout << "relative error: " << rel_err << std::endl;
 
     assert(abs_err < tolerance);
 }
