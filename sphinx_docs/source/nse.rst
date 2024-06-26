@@ -174,6 +174,10 @@ We determine is a zone is in NSE according to:
 
 * :math:`X(\isotm{C}{12})` < ``C_nse``
 
+* :math:`X(\isotm{O}{16})` < ``O_nse``
+
+* :math:`X(\isotm{Si}{28})` < ``Si_nse``
+
 * :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
 
 
