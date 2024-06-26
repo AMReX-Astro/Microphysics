@@ -166,7 +166,7 @@ The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
 NSE check
 ---------
 
-We group elements by their atomic numbers and perform the NSE check based on these groups: 
+We group elements by their atomic numbers and perform the NSE check based on these groups:
 
 ``He_group``: atomic numbers 1 to 2 (H to He)
 
