@@ -19,6 +19,7 @@
 #include <cmath>
 #include <screen_data.H>
 #include <extern_parameters.H>
+#include <approx_math.H>
 
 using namespace amrex::literals;
 
@@ -660,7 +661,7 @@ void chugunov2009_f0 (const amrex::Real gamma, const amrex::Real dlog_dT, amrex:
         dterm2_dgamma = 1.0_rt / (2.0_rt * term1);
     }
 
-    term3 = gamma_12 - std::atan(gamma_12);
+    term3 = gamma_12 - fast_atan(gamma_12);
     if constexpr (do_T_derivatives) {
         dterm3_dgamma = 0.5_rt * gamma_12 / (1.0_rt + gamma);
     }
@@ -802,19 +803,22 @@ void chabrier1998_helmholtz_F(const amrex::Real gamma, const amrex::Real dgamma_
     // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
     // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
+
     constexpr amrex::Real A_1 = -0.9052_rt;
     constexpr amrex::Real A_2 = 0.6322_rt;
-    constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / gcem::sqrt(A_2);
+    constexpr amrex::Real sqrt_A2 = gcem::sqrt(A_2);
+    constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
 
     // Precompute some expressions that are reused in the derivative
+
     const amrex::Real sqrt_gamma = std::sqrt(gamma);
     const amrex::Real sqrt_1_gamma_A2 = std::sqrt(1.0_rt + gamma/A_2);
-    const amrex::Real sqrt_gamma_A2_gamma = std::sqrt(gamma * (A_2 + gamma));
-    const amrex::Real sqrt_gamma_A2 = std::sqrt(gamma/A_2);
+    const amrex::Real sqrt_gamma_A2_gamma = sqrt_gamma * sqrt_A2 * sqrt_1_gamma_A2;
+    const amrex::Real sqrt_gamma_A2 = sqrt_gamma / sqrt_A2;
 
     f = A_1 * (sqrt_gamma_A2_gamma -
                A_2 * std::log(sqrt_gamma_A2 + sqrt_1_gamma_A2)) +
-               2.0_rt * A_3 * (sqrt_gamma - std::atan(sqrt_gamma));
+               2.0_rt * A_3 * (sqrt_gamma - fast_atan(sqrt_gamma));
 
     if constexpr (do_T_derivatives) {
         df_dT = A_1 * ((A_2 + 2.0_rt * gamma) / (2.0_rt * sqrt_gamma_A2_gamma) -
@@ -873,8 +877,8 @@ void chabrier1998 (const plasma_state_t& state,
     // Now we add quantum correction terms discussed in Alastuey 1978.
     // Notice in Alastuey 1978, they have a different classical term,
     // which is implemented in the strong screening limit of our screen5 routine.
-    amrex::Real quantum_corr_1 = 0.0_rt;
 
+    amrex::Real quantum_corr_1 = 0.0_rt;
     amrex::Real quantum_corr_2 = 0.0_rt;
 
     [[maybe_unused]] amrex::Real quantum_corr_1_dT = 0.0_rt;
@@ -883,8 +887,9 @@ void chabrier1998 (const plasma_state_t& state,
     if (screening_rp::enable_chabrier1998_quantum_corr) {
         // See Wallace1982, Eq. A13
 
-        amrex::Real Gamma_eff = std::cbrt(2.0_rt) * scn_fac.z1 * scn_fac.z2 *
-                         scn_fac.zs13inv * Gamma_e;
+        constexpr amrex::Real CBRT_2 = gcem::pow(2.0_rt, 1.0_rt/3.0_rt);
+        amrex::Real Gamma_eff = CBRT_2 * scn_fac.z1 * scn_fac.z2 *
+                                scn_fac.zs13inv * Gamma_e;
         [[maybe_unused]] amrex::Real Gamma_eff_dT;
 
         if constexpr (do_T_derivatives) {

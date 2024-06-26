@@ -38,11 +38,15 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
         int_state.rtol_spec = integrator_rp::rtol_spec; // mass fractions
         int_state.rtol_enuc = integrator_rp::rtol_enuc; // energy generated
     } else {
-        int_state.atol_spec = integrator_rp::retry_atol_spec; // mass fractions
-        int_state.atol_enuc = integrator_rp::retry_atol_enuc; // energy generated
+        int_state.atol_spec = integrator_rp::retry_atol_spec > 0 ?
+            integrator_rp::retry_atol_spec : integrator_rp::atol_spec; // mass fractions
+        int_state.atol_enuc = integrator_rp::retry_atol_enuc > 0 ?
+            integrator_rp::retry_atol_enuc : integrator_rp::atol_enuc; // energy generated
 
-        int_state.rtol_spec = integrator_rp::retry_rtol_spec; // mass fractions
-        int_state.rtol_enuc = integrator_rp::retry_rtol_enuc; // energy generated
+        int_state.rtol_spec = integrator_rp::retry_rtol_spec > 0 ?
+            integrator_rp::retry_rtol_spec : integrator_rp::rtol_spec; // mass fractions
+        int_state.rtol_enuc = integrator_rp::retry_rtol_enuc > 0 ?
+            integrator_rp::retry_rtol_enuc : integrator_rp::rtol_enuc; // energy generated
     }
 
     // set the Jacobian type
