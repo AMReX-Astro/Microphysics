@@ -4,6 +4,7 @@
 #include <AMReX.H>
 #include <AMReX_Algorithm.H>
 #include <AMReX_REAL.H>
+#include <AMReX_Array.H>
 
 #include <approx_math.H>
 
@@ -12,9 +13,201 @@
 #include <autodiff/forward/dual.hpp>
 #include <autodiff/forward/utils/derivative.hpp>
 
+
+/**
+ * A static-sized array that supports the math operations needed on the gradient
+ * component of a Dual number.
+ *
+ * \tparam XLO Index for lower bound. Can be other than 0.
+ * \tparam XHI Index for upper bound.
+ */
+template<typename T, int XLO, int XHI>
+struct GradArray : public amrex::Array1D<T, XLO, XHI>
+{
+    /**
+     * Member types
+     */
+    using value_type = T;
+    using size_type = unsigned int;
+
+
+    /// Construct a GradArray whose components are zero.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray() noexcept : GradArray(0) {}
+
+    /// Construct a GradArray whose components are all equal to a scalar.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    explicit constexpr GradArray(T s) noexcept : amrex::Array1D<T, XLO, XHI>() {
+        for(size_type i = 0; i < this->size(); ++i) {
+            this->arr[i] = s;
+        }
+    }
+
+    /**
+     * Arithmetic operators
+     */
+
+    /// Modifies this GradArray by component-wise addition by argument.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray& operator+=(const GradArray& p) noexcept
+    {
+        for(size_type i = 0; i < this->size(); ++i) {
+            this->arr[i] += p.arr[i];
+        }
+        return *this;
+    }
+
+    /// Modifies this GradArray by component-wise subtraction by argument.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray& operator-=(const GradArray& p) noexcept
+    {
+        for(size_type i = 0; i < this->size(); ++i) {
+            this->arr[i] -= p.arr[i];
+        }
+        return *this;
+    }
+
+    /// Modifies this GradArray by multiplying each component by a scalar.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray& operator*=(T s) noexcept
+    {
+        for(size_type i = 0; i < this->size(); ++i) {
+            this->arr[i] *= s;
+        }
+        return *this;
+    }
+
+    /// Modifies this GradArray by component-wise multiplication by argument.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray& operator*=(const GradArray& p) noexcept
+    {
+        for(size_type i = 0; i < this->size(); ++i) {
+            this->arr[i] *= p.arr[i];
+        }
+        return *this;
+    }
+
+    /// Modifies this GradArray by dividing each component by a scalar.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray& operator/=(T s) noexcept
+    {
+        for(size_type i = 0; i < this->size(); ++i) {
+            this->arr[i] /= s;
+        }
+        return *this;
+    }
+
+    /// Modifies this GradArray by component-wise division by argument.
+    AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+    constexpr GradArray& operator/=(const GradArray& p) noexcept
+    {
+        for(size_type i = 0; i < this->size(); ++i) {
+            this->arr[i] /= p.arr[i];
+        }
+        return *this;
+    }
+};
+
+/**
+ * Unary operators
+ */
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator-(GradArray<T, XLO, XHI> s) noexcept
+{
+    s *= -1;
+    return s;
+}
+
+/**
+ * Binary arithmetic operators: GradArray @ scalar
+ */
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator*(GradArray<T, XLO, XHI> arr, T s) noexcept
+{
+    arr *= s;
+    return arr;
+}
+
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator/(GradArray<T, XLO, XHI> arr, T s) noexcept
+{
+    arr /= s;
+    return arr;
+}
+
+/**
+ * Binary arithmetic operators: scalar @ GradArray
+ */
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator*(T s, const GradArray<T, XLO, XHI>& p) noexcept
+{
+    GradArray<T, XLO, XHI> result{s};
+    result *= p;
+    return result;
+}
+
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator/(T s, const GradArray<T, XLO, XHI>& p) noexcept
+{
+    GradArray<T, XLO, XHI> result{s};
+    result /= p;
+    return result;
+}
+
+/**
+ * Binary arithmetic operators: GradArray @ GradArray
+ */
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator+(GradArray<T, XLO, XHI> s,
+                                 const GradArray<T, XLO, XHI>& p) noexcept
+{
+    s += p;
+    return s;
+}
+
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator-(GradArray<T, XLO, XHI> s,
+                                 const GradArray<T, XLO, XHI>& p) noexcept
+{
+    s -= p;
+    return s;
+}
+
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator*(GradArray<T, XLO, XHI> s,
+                                 const GradArray<T, XLO, XHI>& p) noexcept
+{
+    s *= p;
+    return s;
+}
+
+template<typename T, int XLO, int XHI>
+AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
+GradArray<T, XLO, XHI> operator/(GradArray<T, XLO, XHI> s,
+                                 const GradArray<T, XLO, XHI>& p) noexcept
+{
+    s /= p;
+    return s;
+}
+
 // open the autodiff namespace so we can make our own changes
 namespace autodiff {
 namespace detail {
+
+/// ArithmeticTraits for GradArray (the array should be treated like a single number)
+template<typename T, int XLO, int XHI>
+struct ArithmeticTraits<GradArray<T, XLO, XHI>>
+{
+    static constexpr bool isArithmetic = true;
+};
 
 // add a couple of missing math functions
 
@@ -95,6 +288,9 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, FastExpOp)
 
 // Redefine dual to use amrex::Real instead of double
 using dual = HigherOrderDual<1, amrex::Real>;
+/// Dual number type that can calculate multiple derivatives in a single pass.
+template <int XLO, int XHI>
+using dual_array = Dual<amrex::Real, GradArray<amrex::Real, XLO, XHI>>;
 
 // A new namespace that has both the STL math functions and the overloads for
 // dual numbers, so we can write the same function name whether we're operating
