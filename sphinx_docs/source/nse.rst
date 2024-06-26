@@ -184,13 +184,13 @@ We determine if a zone is in NSE according to:
 
 * :math:`T` > ``T_nse``
 
-* :math:`X(\isotm{C_group})` < ``C_nse``
+* :math:`X(C_group)` < ``C_nse``
 
-* :math:`X(\isotm{O_group})` < ``O_nse``
+* :math:`X(O_group)` < ``O_nse``
 
-* :math:`X(\isotm{Si_group})` < ``Si_nse``
+* :math:`X(Si_group)` < ``Si_nse``
 
-* :math:`X(\isotm{Fe_group}) + X(\isotm{He_group})` > ``He_Fe_nse``
+* :math:`X(Fe_group) + X(He_group)` > ``He_Fe_nse``
 
 
 NSE table ranges
