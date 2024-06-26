@@ -154,26 +154,30 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    eos_re_extra_t eos_state;
-    eos_state.rho = state.rho;
-    eos_state.T = state.T;
-    eos_state.e = state.e;
-    for (int n = 0; n < NumSpec; n++) {
-        eos_state.xn[n] = state.xn[n];
-    }
+    if (integrator_rp::correct_jacobian_for_const_e) {
+
+        eos_re_extra_t eos_state;
+        eos_state.rho = state.rho;
+        eos_state.T = state.T;
+        eos_state.e = state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = state.xn[n];
+        }
 #ifdef AUX_THERMO
-    // make the aux data consistent with the state X's
-    set_aux_comp_from_X(eos_state);
+        // make the aux data consistent with the state X's
+        set_aux_comp_from_X(eos_state);
 #endif
 
-    eos(eos_input_re, eos_state);
+        eos(eos_input_re, eos_state);
 
-    eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    for (int m = 1; m <= neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
-            pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
+        for (int m = 1; m <= neqs; m++) {
+            for (int n = 1; n <= NumSpec; n++) {
+                pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
+            }
         }
+
     }
 
     // apply scale_system scaling (if needed)
