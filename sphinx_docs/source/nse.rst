@@ -168,15 +168,15 @@ NSE check
 
 We group elements by their atomic numbers and perform the NSE check based on these groups: 
 
-``Fe_group``: atomic numbers 24 to 30 (Cr to Zn).
+``He_group``: atomic numbers 1 to 2 (H to He)
 
-``C_group``: atomic numbers 6 to 7 (C to N).
+``C_group``: atomic numbers 6 to 7 (C to N)
 
-``He_group``: atomic numbers 1 to 2 (H to He).
+``O_group``: atomic number 8 (O)
 
-``O_group``: atomic number 8 (O).
+``Si_group``: atomic number 14 (Si)
 
-``Si_group``: atomic number 14 (Si).
+``Fe_group``: atomic numbers 24 to 30 (Cr to Zn)
 
 We determine if a zone is in NSE according to:
 
