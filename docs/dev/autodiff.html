@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; Microphysics  documentation</title>
+  <title>Automatic Differentiation &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -23,8 +24,10 @@
         <script src="_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
-    <link rel="index" title="Index" href="#" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Runtime parameters" href="rp_intro.html" />
+    <link rel="prev" title="Data Structures" href="data_structures.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,7 +50,7 @@
   </form>
 </div>
     <div class="branch">
-        Branch: <a href="../genindex.html">main</a> | <a href="./genindex.html">development</a>
+        Branch: <a href="../autodiff.html">main</a> | <a href="./autodiff.html">development</a>
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
@@ -55,11 +58,11 @@
 <li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatic Differentiation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 </ul>
@@ -101,8 +104,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Index</li>
+      <li class="breadcrumb-item active">Automatic Differentiation</li>
       <li class="wy-breadcrumbs-aside">
+            <a href="_sources/autodiff.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -110,40 +114,46 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-
-<h1 id="index">Index</h1>
-
-<div class="genindex-jumpbox">
- <a href="#I"><strong>I</strong></a>
- 
+  <section id="automatic-differentiation">
+<h1>Automatic Differentiation<a class="headerlink" href="#automatic-differentiation" title="Link to this heading"></a></h1>
+<p>Support for automatic differentiation is provided by the <code class="docutils literal notranslate"><span class="pre">autodiff</span></code>
+library <span id="id1">[<a class="reference internal" href="zreferences.html#id45" title="Allan M. M. Leal. Autodiff, a modern, fast and expressive C++ library for automatic differentiation. \texttt https://autodiff.github.io, 2018. URL: https://autodiff.github.io.">Lea18</a>]</span>, included under
+<code class="docutils literal notranslate"><span class="pre">Microphysics/util/autodiff</span></code>.  We use the forward mode <code class="docutils literal notranslate"><span class="pre">dual</span></code>
+implementation, which produces the derivative of each computation along
+with its output value.  This results in largely the same arithmetic
+operations as manually calculating the analytical derivative of each
+intermediate step, but with much less code and fewer typos.  All the
+machinery needed for use in Microphysics is located in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/util/microphysics_autodiff.H</span></code>.</p>
+<p>To take the derivative of some computation <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>
+must be an <code class="docutils literal notranslate"><span class="pre">autodiff::dual</span></code>, and has to be seeded with
+<code class="docutils literal notranslate"><span class="pre">autodiff::seed()</span></code> before the function is called:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14</span><span class="n">_rt</span><span class="p">;</span>
+<span class="n">autodiff</span><span class="o">::</span><span class="n">seed</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="n">autodiff</span><span class="o">::</span><span class="n">dual</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+</pre></div>
 </div>
-<h2 id="I">I</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="integrators.html#index-5">integrator.call_eos_in_rhs</a>
-</li>
-      <li><a href="integrators.html#index-3">integrator.jacobian</a>
-</li>
-      <li><a href="integrators.html#index-1">integrator.react_boost</a>, <a href="integrators.html#index-4">[1]</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ode_integrators.html#index-1">integrator.scale_system</a>
-</li>
-      <li><a href="integrators.html#index-2">integrator.subtract_internal_energy</a>
-</li>
-      <li><a href="ode_integrators.html#index-0">integrator.use_circle_theorem</a>
-</li>
-      <li><a href="integrators.html#index-0">integrator.use_number_densities</a>
-</li>
-  </ul></td>
-</tr></table>
-
+<p>We can then use <code class="docutils literal notranslate"><span class="pre">autodiff::val(result)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">static_cast&lt;amrex::Real&gt;(result)</span></code> to extract the function value,
+and <code class="docutils literal notranslate"><span class="pre">autodiff::derivative(result)</span></code> to get the derivative with respect
+to x. Which has the advantage of working on both normal and dual
+numbers.</p>
+<p>Most functions can be updated to support autodiff by adding a template
+parameter for the numeric type (the current code calls it <code class="docutils literal notranslate"><span class="pre">dual_t</span></code>).
+This should be used for any values that depend on the variables we’re
+differentiating with respect to.  Calls to functions from <code class="docutils literal notranslate"><span class="pre">&lt;cmath&gt;</span></code> as
+well as <code class="docutils literal notranslate"><span class="pre">amrex::min</span></code> and <code class="docutils literal notranslate"><span class="pre">amrex::max</span></code> can be replaced with ones in
+the <code class="docutils literal notranslate"><span class="pre">admath</span></code> namespace.  This namespace also exports the original
+functions, so they work fine on normal numeric types too.</p>
+</section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="data_structures.html" class="btn btn-neutral float-left" title="Data Structures" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rp_intro.html" class="btn btn-neutral float-right" title="Runtime parameters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
