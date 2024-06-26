@@ -122,7 +122,7 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     // The Jacobian from the nets is in terms of dYdot/dY, but we want
     // it was dXdot/dX, so convert here.
-    if (!integrator_rp::use_number_density) {
+    if (!integrator_rp::use_number_densities) {
         for (int n = 1; n <= NumSpec; n++) {
             for (int m = 1; m <= neqs; m++) {
                 pd(n,m) = pd(n,m) * aion[n-1];
