@@ -234,7 +234,6 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
       // gamma_ij^(1/4)
 
         dual_t gamp14 = admath::pow(gamp, 0.25_rt);
-        dual_t rr = 1.0_rt/gamp;
 
         // Here we follow Eq. A9 in Wallace:1982
         // See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
@@ -247,7 +246,7 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
         dual_t a3 = alph12 * alph12 * alph12;
 
         // Part of Eq. 28 in Alastuey:1978
-        rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
+        dual_t rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
 
         // Part of Eq. 28 in Alastuey:1978
         dual_t ss = tau12*rr;
