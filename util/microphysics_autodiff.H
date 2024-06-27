@@ -1,6 +1,8 @@
 #ifndef MICROPHYSICS_AUTODIFF_H
 #define MICROPHYSICS_AUTODIFF_H
 
+#include <type_traits>
+
 #include <AMReX.H>
 #include <AMReX_Algorithm.H>
 #include <AMReX_REAL.H>
@@ -13,6 +15,7 @@
 #include <autodiff/forward/dual.hpp>
 #include <autodiff/forward/utils/derivative.hpp>
 
+namespace microphysics_autodiff {
 
 /**
  * A static-sized array that supports the math operations needed on the gradient
@@ -198,13 +201,31 @@ GradArray<T, XLO, XHI> operator/(GradArray<T, XLO, XHI> s,
     return s;
 }
 
+// get<i>(arr) is needed to be able to do structured binding declarations like:
+//    auto [dfdx, dfdy, dfdz] = autodiff::derivative(result);
+template<std::size_t I, typename T, int XLO, int XHI>
+T get(const GradArray<T, XLO, XHI>& arr) {
+    return arr.arr[I];
+}
+
+} // namespace microphysics_autodiff
+
+// std::tuple_size and std::tuple_element specializations are also needed for
+// structured binding
+template<typename T, int XLO, int XHI>
+struct std::tuple_size<microphysics_autodiff::GradArray<T, XLO, XHI>>
+    : public std::integral_constant<std::size_t, microphysics_autodiff::GradArray<T, XLO, XHI>::size()> {};
+
+template<std::size_t I, typename T, int XLO, int XHI>
+struct std::tuple_element<I, microphysics_autodiff::GradArray<T, XLO, XHI>> { using type = T; };
+
 // open the autodiff namespace so we can make our own changes
 namespace autodiff {
 namespace detail {
 
 /// ArithmeticTraits for GradArray (the array should be treated like a single number)
 template<typename T, int XLO, int XHI>
-struct ArithmeticTraits<GradArray<T, XLO, XHI>>
+struct ArithmeticTraits<microphysics_autodiff::GradArray<T, XLO, XHI>>
 {
     static constexpr bool isArithmetic = true;
 };
@@ -290,7 +311,28 @@ AUTODIFF_DEVICE_FUNC constexpr void apply(Dual<T, G>& self, FastExpOp)
 using dual = HigherOrderDual<1, amrex::Real>;
 /// Dual number type that can calculate multiple derivatives in a single pass.
 template <int XLO, int XHI>
-using dual_array = Dual<amrex::Real, GradArray<amrex::Real, XLO, XHI>>;
+using dual_array = Dual<amrex::Real, microphysics_autodiff::GradArray<amrex::Real, XLO, XHI>>;
+
+/**
+ * Helper function to seed each of the input variables when using dual_array.
+ */
+template <int XLO, int XHI, typename... Args,
+          typename Enable = std::enable_if_t<(... && std::is_same_v<Args, dual_array<XLO, XHI>>)>>
+AUTODIFF_DEVICE_FUNC void seed_array(dual_array<XLO, XHI>& first_arg, Args&... args) {
+    // first_arg is needed to deduce XLO and XHI, while Enable checks that all
+    // of Args... are dual_arrays of the right size
+    static_assert(1 + sizeof...(args) == microphysics_autodiff::GradArray<amrex::Real, XLO, XHI>::size(),
+                  "number of arguments to seed_array does not match number of derivatives");
+    int i = XLO;
+    first_arg.grad(i) = 1.0_rt;
+    ++i;
+    // use a fold expression and immediately-invoked lambda to iterate over the
+    // rest of the variadic arguments
+    ([&] {
+        args.grad(i) = 1.0_rt;
+        ++i;
+    } (), ...);
+}
 
 // A new namespace that has both the STL math functions and the overloads for
 // dual numbers, so we can write the same function name whether we're operating

@@ -12,6 +12,14 @@ intermediate step, but with much less code and fewer typos.  All the
 machinery needed for use in Microphysics is located in
 ``Microphysics/util/microphysics_autodiff.H``.
 
+Most functions can be updated to support autodiff by adding a template
+parameter for the numeric type (the current code calls it ``dual_t``).
+This should be used for any values that depend on the variables we're
+differentiating with respect to.  Calls to functions from ``<cmath>`` as
+well as ``amrex::min`` and ``amrex::max`` can be replaced with ones in
+the ``admath`` namespace.  This namespace also exports the original
+functions, so they work fine on normal numeric types too.
+
 Derivatives of single-variable functions
 ========================================
 
@@ -31,20 +39,23 @@ We can then use ``autodiff::val(result)`` or
 x. The ``static_cast`` version has the advantage of working on normal
 numbers as well.
 
-Most functions can be updated to support autodiff by adding a template
-parameter for the numeric type (the current code calls it ``dual_t``).
-This should be used for any values that depend on the variables we're
-differentiating with respect to.  Calls to functions from ``<cmath>`` as
-well as ``amrex::min`` and ``amrex::max`` can be replaced with ones in
-the ``admath`` namespace.  This namespace also exports the original
-functions, so they work fine on normal numeric types too.
-
 
 Derivatives of multi-variable functions
 =======================================
 
+It is possible to calculate derivatives with respect to several input
+variables in a single pass, by using a (mathematical) vector of
+derivative terms instead of a single number.  The interface is very
+similar to the single-variable case, with slight modifications: for
+``N`` input variables, we use ``autodiff::dual_array<1, N>`` in place of
+``autodiff::dual``, and pass the variables in order to
+``autodiff::seed_array()``.  After calling the function, we can extract
+the derivatives using structured binding declarations, as shown in the
+following example program:
+
 .. code-block:: c++
 
+    #include <iostream>
     #include <AMReX_REAL.H>
     #include <microphysics_autodiff.H>
 
@@ -57,20 +68,14 @@ Derivatives of multi-variable functions
 
     int main() {
         using dual_t = autodiff::dual_array<1, 2>;
-        amrex::Real x = 2.41;
-        amrex::Real y = 0.38;
         dual_t result;
-        {
-            dual_t x_dual = x;
-            dual_t y_dual = y;
-            // seed the inputs
-            x_dual.grad(1) = 1.0;
-            y_dual.grad(2) = 1.0;
-            // compute the function and derivatives
-            result = f(x_dual, y_dual);
-        }
-        amrex::Real dfdx = result.grad(1);
-        amrex::Real dfdy = result.grad(2);
+        dual_t x_dual = 2.41, y_dual = 0.38;
+        // seed the inputs
+        autodiff::seed_array(x_dual, y_dual);
+        // compute the function and both derivatives in a single pass
+        dual_t result = f(x_dual, y_dual);
+
+        auto [dfdx, dfdy] = autodiff::derivative(result);
         std::cout << "f(" << x << ", " << y << ") = " << autodiff::val(result) << "\n";
         std::cout << "df/dx = " << dfdx << "\n";
         std::cout << "df/dy = " << dfdy << "\n";
