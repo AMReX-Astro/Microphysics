@@ -360,7 +360,7 @@ double fast_log(const double x) {
 ///
 /// See Refs:
 /// 1) https://martin.ankerl.com/2007/10/04/optimized-pow-approximation-for-java-and-c-c/
-/// 2) https://martin.ankerl.com/2007/10/04/optimized-pow-approximation-for-java-and-c-c/
+/// 2) https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
 /// 3) https://en.wikipedia.org/wiki/Exponentiation_by_squaring
 ///
 
