@@ -62,7 +62,11 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatic Differentiation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatic Differentiation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#derivatives-of-single-variable-functions">Derivatives of single-variable functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#derivatives-of-multi-variable-functions">Derivatives of multi-variable functions</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 </ul>
@@ -125,26 +129,69 @@ operations as manually calculating the analytical derivative of each
 intermediate step, but with much less code and fewer typos.  All the
 machinery needed for use in Microphysics is located in
 <code class="docutils literal notranslate"><span class="pre">Microphysics/util/microphysics_autodiff.H</span></code>.</p>
-<p>To take the derivative of some computation <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>
-must be an <code class="docutils literal notranslate"><span class="pre">autodiff::dual</span></code>, and has to be seeded with
-<code class="docutils literal notranslate"><span class="pre">autodiff::seed()</span></code> before the function is called:</p>
+<p>Most functions can be updated to support <code class="docutils literal notranslate"><span class="pre">autodiff</span></code> by adding a
+template parameter for the numeric type (the current code calls it
+<code class="docutils literal notranslate"><span class="pre">dual_t</span></code>).  This should be used for any values that depend on the
+variables we’re differentiating with respect to.  Calls to functions
+from <code class="docutils literal notranslate"><span class="pre">&lt;cmath&gt;</span></code> as well as <code class="docutils literal notranslate"><span class="pre">amrex::min</span></code> and <code class="docutils literal notranslate"><span class="pre">amrex::max</span></code> can be
+replaced with ones in the <code class="docutils literal notranslate"><span class="pre">admath</span></code> namespace.  This namespace also
+exports the original functions, so they work fine on normal numeric
+types too.</p>
+<section id="derivatives-of-single-variable-functions">
+<h2>Derivatives of single-variable functions<a class="headerlink" href="#derivatives-of-single-variable-functions" title="Link to this heading"></a></h2>
+<p>To take the derivative of some computation <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code> must be an
+<code class="docutils literal notranslate"><span class="pre">autodiff::dual</span></code>, and has to be seeded with <code class="docutils literal notranslate"><span class="pre">autodiff::seed()</span></code>
+before the function is called:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14</span><span class="n">_rt</span><span class="p">;</span>
 <span class="n">autodiff</span><span class="o">::</span><span class="n">seed</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
 <span class="n">autodiff</span><span class="o">::</span><span class="n">dual</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>We can then use <code class="docutils literal notranslate"><span class="pre">autodiff::val(result)</span></code> or
-<code class="docutils literal notranslate"><span class="pre">static_cast&lt;amrex::Real&gt;(result)</span></code> to extract the function value,
-and <code class="docutils literal notranslate"><span class="pre">autodiff::derivative(result)</span></code> to get the derivative with respect
-to x. Which has the advantage of working on both normal and dual
-numbers.</p>
-<p>Most functions can be updated to support autodiff by adding a template
-parameter for the numeric type (the current code calls it <code class="docutils literal notranslate"><span class="pre">dual_t</span></code>).
-This should be used for any values that depend on the variables we’re
-differentiating with respect to.  Calls to functions from <code class="docutils literal notranslate"><span class="pre">&lt;cmath&gt;</span></code> as
-well as <code class="docutils literal notranslate"><span class="pre">amrex::min</span></code> and <code class="docutils literal notranslate"><span class="pre">amrex::max</span></code> can be replaced with ones in
-the <code class="docutils literal notranslate"><span class="pre">admath</span></code> namespace.  This namespace also exports the original
-functions, so they work fine on normal numeric types too.</p>
+<code class="docutils literal notranslate"><span class="pre">static_cast&lt;amrex::Real&gt;(result)</span></code> to extract the function value, and
+<code class="docutils literal notranslate"><span class="pre">autodiff::derivative(result)</span></code> to get the derivative with respect to
+x.  The <code class="docutils literal notranslate"><span class="pre">static_cast</span></code> version has the advantage of working on normal
+numbers as well.</p>
+</section>
+<section id="derivatives-of-multi-variable-functions">
+<h2>Derivatives of multi-variable functions<a class="headerlink" href="#derivatives-of-multi-variable-functions" title="Link to this heading"></a></h2>
+<p>It is possible to calculate derivatives with respect to several input
+variables in a single pass, by using a (mathematical) vector of
+derivative terms instead of a single number.  The interface is very
+similar to the single-variable case, with slight modifications: for
+<code class="docutils literal notranslate"><span class="pre">N</span></code> input variables, we use <code class="docutils literal notranslate"><span class="pre">autodiff::dual_array&lt;1,</span> <span class="pre">N&gt;</span></code> in place of
+<code class="docutils literal notranslate"><span class="pre">autodiff::dual</span></code>, and pass the variables in order to
+<code class="docutils literal notranslate"><span class="pre">autodiff::seed_array()</span></code>.  After calling the function, we can extract
+the derivatives using structured binding declarations, as shown in the
+following example program:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;AMReX_REAL.H&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;microphysics_autodiff.H&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">amrex</span><span class="o">::</span><span class="nn">literals</span><span class="p">;</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">dual_t</span><span class="o">&gt;</span>
+<span class="n">dual_t</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">dual_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">dual_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">admath::sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">admath</span><span class="o">::</span><span class="n">exp</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">dual_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual_array</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">dual_t</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">    </span><span class="n">dual_t</span><span class="w"> </span><span class="n">x_dual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.41</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.38</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// seed the inputs</span>
+<span class="w">    </span><span class="n">autodiff</span><span class="o">::</span><span class="n">seed_array</span><span class="p">(</span><span class="n">x_dual</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// compute the function and both derivatives in a single pass</span>
+<span class="w">    </span><span class="n">dual_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">x_dual</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">dfdx</span><span class="p">,</span><span class="w"> </span><span class="n">dfdy</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">derivative</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;f(&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;) = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">val</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;df/dx = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">dfdx</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;df/dy = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">dfdy</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
