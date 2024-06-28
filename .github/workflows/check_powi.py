@@ -8,12 +8,15 @@ def pow_to_powi(text):
     # Finds all possible std::pow(x, n), gcem::pow(x, n), or admath::pow(x, n)
     # where n is a potential integer to amrex::Math::powi<n>(x)
 
-    # Check for all positive and negative integer, whole float numbers
+    # Match all positive and negative integers, whole float numbers
     # with and without _rt
-    match_pattern = r"([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))"
+    integer_pattern = r"-?(?:\d+\.0*(?:e0)?(?:_rt)?|\d)"
+
+    # Check for an integer in the second argument
+    match_pattern = rf"([^,]+),\s*({integer_pattern})"
 
     # Match fails when there is a nested pow, so only inner most pow is matched
-    negate_pattern = r"(?![\s\S]*(?:std|gcem|admath)::pow\((?:[^,]+),\s*(?:-?(?:\d+\.0*_rt?|\d))\))"
+    negate_pattern = rf"(?![\s\S]*(?:std|gcem|admath)::pow\((?:[^,]+),\s*(?:{integer_pattern})\))"
 
     # Final pattern
     pattern = rf"(?:std|gcem|admath)::pow\({negate_pattern}{match_pattern}\)"
