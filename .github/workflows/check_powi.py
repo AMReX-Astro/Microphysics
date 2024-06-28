@@ -5,7 +5,7 @@ import re
 
 
 def pow_to_powi(text):
-    # Finds all possible std::pow(x, n) or gcem::pow(x, n)
+    # Finds all possible std::pow(x, n), gcem::pow(x, n), or admath::pow(x, n)
     # where n is a potential integer to amrex::Math::powi<n>(x)
 
     # Check for all positive and negative integer, whole float numbers
@@ -13,10 +13,10 @@ def pow_to_powi(text):
     match_pattern = r"([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))"
 
     # Match fails when there is a nested pow, so only inner most pow is matched
-    negate_pattern = r"(?![\s\S]*(?:std|gcem)::pow\((?:[^,]+),\s*(?:-?(?:\d+\.0*_rt?|\d))\))"
+    negate_pattern = r"(?![\s\S]*(?:std|gcem|admath)::pow\((?:[^,]+),\s*(?:-?(?:\d+\.0*_rt?|\d))\))"
 
     # Final pattern
-    pattern = rf"(?:std|gcem)::pow\({negate_pattern}{match_pattern}\)"
+    pattern = rf"(?:std|gcem|admath)::pow\({negate_pattern}{match_pattern}\)"
     # pattern = rf"(?:std|gcem)::pow\((?![\s\S]*(?:std|gcem)::pow\((?:[^,]+),\s*(?:-?(?:\d+\.0*_rt?|\d))\))([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))\)"
 
     def replacement(match):
