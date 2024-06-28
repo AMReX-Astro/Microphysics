@@ -197,12 +197,16 @@ fields to fill are:
 * ``state.ydot(net_ienuc)`` : the change in the internal energy
   from the net, :math:`de/dt`
 
-The righthand side routine is assumed to return the change in *molar fractions*,
-:math:`dY_k/dt`. These will be converted to the change in mass fractions, :math:`dX_k/dt`
-by the wrappers that call the righthand side routine for the integrator.
-If the network builds the RHS in terms of mass fractions directly, :math:`dX_k/dt`, then
-these will need to be converted to molar fraction rates for storage, e.g.,
-:math:`dY_k/dt = A_k^{-1} dX_k/dt`.
+.. important::
+
+   The righthand side routine is assumed to return the change in
+   *molar fractions*, :math:`dY_k/dt`. These will be converted to the
+   change in mass fractions, :math:`dX_k/dt` by the wrappers that call
+   the righthand side routine for the integrator.  If the network
+   builds the RHS in terms of mass fractions directly,
+   :math:`dX_k/dt`, then these will need to be converted to molar
+   fraction rates for storage, e.g., :math:`dY_k/dt = A_k^{-1}
+   dX_k/dt`.
 
 Righthand side wrapper
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -259,15 +263,42 @@ The Jacobian matrix elements are stored in ``jac`` as:
 * ``jac(net_ienuc, net_ienuc)`` :
   :math:`d(\dot{e})/de`
 
-The form looks like:
+.. important::
+
+   The Jacobian returned by the network is assumed to be in terms of molar fractions.
+   However, we do convert the temperature derivative to an energy derivative already
+   in the network by multipling by $(1/c_v)$.
+
+The form of the Jacobian return by the integrator looks like:
 
 .. math::
    \left (
    \begin{matrix}
-      \ddots  & \vdots                          &          & \vdots \\
-      \cdots  & \partial \dot{Y}_m/\partial Y_n & \cdots   & \partial \dot{Y}_m/\partial e    \\
-              & \vdots                          & \ddots   & \vdots  \\
-      \cdots  & \partial \dot{e}/\partial Y_n   & \cdots   & \partial \dot{e}/\partial e   \\
+     \dfrac{\partial \dot{Y}_1}{\partial Y_1} &
+     \dfrac{\partial \dot{Y}_1}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{Y}_1}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_1}{\partial T} \\
+     %
+     \dfrac{\partial \dot{Y}_2}{\partial Y_1} &
+     \dfrac{\partial \dot{Y}_2}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{Y}_2}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_2}{\partial T} \\
+     %
+     \vdots & \vdots & \ddots & \vdots & \vdots \\
+     %
+     \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_1} &
+     \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{Y}_\mathrm{NumSpec}}{\partial T} \\
+     %
+     \dfrac{\partial \dot{e}}{\partial Y_1} &
+     \dfrac{\partial \dot{e}}{\partial Y_2} &
+     \cdots &
+     \dfrac{\partial \dot{e}}{\partial Y_\mathrm{NumSpec}} &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{e}}{\partial T}
    \end{matrix}
    \right )
 
@@ -291,16 +322,70 @@ flow is (for VODE):
    wrapper above which did the ``clean_state`` and
    ``update_thermodynamics`` calls.
 
-.. index:: integrator.react_boost
+.. index:: integrator.react_boost, integrator.correct_jacobian_for_const_e
 
 #. call ``integrator_to_burn()`` to update the ``burn_t``
 
 #. call ``actual_jac()`` to have the network fill the Jacobian array
 
-#. convert the derivative to be mass-fraction-based
+#. convert the derivative to be mass-fraction-based.
+
+   Since $Y_k = X_k/A_k$, we have $\partial/\partial X_k = A_k^{-1} \partial/\partial Y_k$.
+
+   We transform by:
+
+   * multiplying all rows of the form $\partial Y_m / \partial \star$ by $A_m$ (where $\star$ is either a molar fraction or $T$/$e$).
+
+   * multiplying all columns of the form $\partial \star / \partial Y_n$ by $1/A_n$.
+
+#. add correction
+   terms proportional to :math:`\partial e/\partial X_k  |_{\rho, T, X_{j,j\ne k}}`
+   if ``integrator.correct_jacobian_for_const_e`` is ``1``.
+
+   The system we integrate is $(X_k, e)$, but the derivatives we took in the analytic Jacobian
+   were in terms of $T$ and not $e$.  So we need to correct for the fact that for some quantity
+   $q$,
+
+   .. math::
+
+      \left . \frac{\partial q}{\partial X_k} \right |_e \ne \left . \frac{\partial q}{\partial X_k} \right  |_T
+
+   If we write $q = q(\rho, T(\rho, X_k, e), X_k)$ then we find that:
+
+   .. math::
+
+      \left . \frac{\partial q}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}} =
+             \left . \frac{\partial q}{\partial X_k} \right  |_{\rho, T, X_{j,j\ne k}} - \frac{e_{X_k}}{c_v} \left . \frac{\partial T}{\partial X_k} \right |_{\rho, e, X_{j,j\ne k}}
+
+   where :math:`e_{X_k} = \partial e / \partial X_k |_{\rho, T, X_{j,j\ne k}}`.
+
+   This correction term is described in :cite:`castro_simple_sdc`.
 
 #. apply any boosting to the rates if ``integrator.react_boost`` > 0
 
+The final form of the Jacobian is:
+
+.. math::
+   \left (
+   \begin{matrix}
+     \dfrac{\partial \dot{X}_1}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} &
+     \dfrac{\partial \dot{X}_1}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} &
+     \cdots &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{X}_1}{\partial T} \\
+     %
+     \dfrac{\partial \dot{X}_2}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} &
+     \dfrac{\partial \dot{X}_2}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} &
+     \cdots &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{X}_2}{\partial T} \\
+     %
+     \vdots & \vdots & \ddots & \vdots \\
+     %
+     \dfrac{\partial \dot{e}}{\partial X_1} - \dfrac{e_{X_1}}{c_v} \dfrac{\partial \dot{e}}{\partial T} &
+     \dfrac{\partial \dot{e}}{\partial X_2} - \dfrac{e_{X_2}}{c_v} \dfrac{\partial \dot{e}}{\partial T} &
+     \cdots &
+     \dfrac{1}{c_v} \dfrac{\partial \dot{e}}{\partial T}
+   \end{matrix}
+   \right )
 
 
 
