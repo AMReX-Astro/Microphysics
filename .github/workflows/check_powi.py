@@ -36,6 +36,8 @@ def pow_to_powi(text):
 def process_content(dir_path):
     # This function processes all text in the given directory
     for root, dirs, filenames in os.walk(dir_path):
+        if "util/autodiff/" in root:
+            continue
         for filename in filenames:
             if filename.endswith(".H") or filename.endswith(".cpp"):
                 filepath = os.path.join(root, filename)
