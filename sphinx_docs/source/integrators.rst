@@ -267,7 +267,7 @@ The Jacobian matrix elements are stored in ``jac`` as:
 
    The Jacobian returned by the network is assumed to be in terms of molar fractions.
    However, we do convert the temperature derivative to an energy derivative already
-   in the network by multipling by $(1/c_v)$.
+   in the network by multiplying by $(1/c_v)$.
 
 The form of the Jacobian return by the integrator looks like:
 

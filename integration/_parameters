@@ -106,5 +106,5 @@ linalg_do_pivoting         bool        1
 
 # when converting the Jacobian from (rho, Y, T) to (rho, X, e), do
 # we add a correction to the species terms reflecting that
-# dT/dX |_e is not zero?
+# dT/dX at constant e is not zero?
 correct_jacobian_for_const_e  bool     1
