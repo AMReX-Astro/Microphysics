@@ -5,18 +5,21 @@ import re
 
 
 def pow_to_powi(text):
-    # Finds all possible std::pow(x, n) or gcem::pow(x, n)
+    # Finds all possible std::pow(x, n), gcem::pow(x, n), or admath::pow(x, n)
     # where n is a potential integer to amrex::Math::powi<n>(x)
 
-    # Check for all positive and negative integer, whole float numbers
+    # Match all positive and negative integers, whole float numbers
     # with and without _rt
-    match_pattern = r"([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))"
+    integer_pattern = r"-?(?:\d+\.0*(?:e0)?(?:_rt)?|\d)"
+
+    # Check for an integer in the second argument
+    match_pattern = rf"([^,]+),\s*({integer_pattern})"
 
     # Match fails when there is a nested pow, so only inner most pow is matched
-    negate_pattern = r"(?![\s\S]*(?:std|gcem)::pow\((?:[^,]+),\s*(?:-?(?:\d+\.0*_rt?|\d))\))"
+    negate_pattern = rf"(?![\s\S]*(?:std|gcem|admath)::pow\((?:[^,]+),\s*(?:{integer_pattern})\))"
 
     # Final pattern
-    pattern = rf"(?:std|gcem)::pow\({negate_pattern}{match_pattern}\)"
+    pattern = rf"(?:std|gcem|admath)::pow\({negate_pattern}{match_pattern}\)"
     # pattern = rf"(?:std|gcem)::pow\((?![\s\S]*(?:std|gcem)::pow\((?:[^,]+),\s*(?:-?(?:\d+\.0*_rt?|\d))\))([^,]+),\s*(-?(?:\d+\.0*_rt?|\d))\)"
 
     def replacement(match):
@@ -33,6 +36,8 @@ def pow_to_powi(text):
 def process_content(dir_path):
     # This function processes all text in the given directory
     for root, dirs, filenames in os.walk(dir_path):
+        if "util/autodiff/" in root:
+            continue
         for filename in filenames:
             if filename.endswith(".H") or filename.endswith(".cpp"):
                 filepath = os.path.join(root, filename)
@@ -58,9 +63,9 @@ def git_diff():
 
     # Print out suggested change and raise error after detecting modification
     if git_diff_output.stdout:
-        print("Detected potential usage to replace std::pow" +
-              "with integer powers via amrex::Math::powi\n")
-        print("Below are the suggested change:\n")
+        print("Detected potential usage to replace std::pow"
+              " with integer powers via amrex::Math::powi\n")
+        print("Below are the suggested changes:\n")
         print(git_diff_output.stdout)
 
         raise RuntimeError("Changes detected after modification")
