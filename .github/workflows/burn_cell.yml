@@ -35,7 +35,7 @@ jobs:
       - name: Run burn_cell (VODE, subch_simple)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_subch_simple > test.out
+          ./main3d.gnu.ex inputs_subch_simple amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (VODE, subch_simple)
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: Run burn_cell (VODE, ECSN)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_ecsn > test.out
+          ./main3d.gnu.ex inputs_ecsn amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (VODE, ECSN)
         run: |
@@ -67,7 +67,7 @@ jobs:
       - name: Run burn_cell (VODE, ignition_chamulak)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_ignition_chamulak > test.out
+          ./main3d.gnu.ex inputs_ignition_chamulak amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (VODE, ignition_chamulak)
         run: |
@@ -83,7 +83,7 @@ jobs:
       - name: Run burn_cell (ForwardEuler, triple_alpha_plus_cago)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_triple > test.out
+          ./main3d.gnu.ex inputs_triple amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (ForwardEuler, triple_alpha_plus_cago)
         run: |
@@ -99,7 +99,7 @@ jobs:
       - name: Run burn_cell (BackwardEuler, subch_simple)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_subch_simple > test.out
+          ./main3d.gnu.ex inputs_subch_simple amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (BackwardEuler, subch_simple)
         run: |
@@ -115,7 +115,7 @@ jobs:
       - name: Run burn_cell (QSS, aprox13)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_aprox13 > test.out
+          ./main3d.gnu.ex inputs_aprox13 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (QSS, aprox13)
         run: |
@@ -131,7 +131,7 @@ jobs:
       - name: Run burn_cell (RKC, aprox13)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=1.e9 > test.out
+          ./main3d.gnu.ex inputs_aprox13 unit_test.temperature=1.e9 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (RKC, aprox13)
         run: |

@@ -40,7 +40,7 @@ jobs:
       - name: Run test_neutrino_cooling
         run: |
           cd unit_test/test_neutrino_cooling
-          ./main3d.gnu.ex inputs
+          ./main3d.gnu.ex inputs amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex test_sneut5 > test.out
 
       - name: Compare to stored output

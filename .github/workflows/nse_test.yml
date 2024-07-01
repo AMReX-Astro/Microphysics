@@ -35,7 +35,7 @@ jobs:
       - name: Run test_nse (aprox21)
         run: |
           cd unit_test/test_nse
-          ./main3d.gnu.ex inputs_aprox21 > test.out
+          ./main3d.gnu.ex inputs_aprox21 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (aprox21)
         run: |
