@@ -645,12 +645,12 @@ void actual_screen(const plasma_state_t<dual_t>& state,
 {
     dual_t scor_dual;
     scor_dual = actual_screen(state, scn_fac);
-    if constexpr (std::is_same_v<dual_t, amrex::Real>) {
-        scor = scor_dual;
-        scordt = std::numeric_limits<amrex::Real>::signaling_NaN();
-    } else {
+    if constexpr (autodiff::detail::isDual<dual_t>) {
         scor = autodiff::val(scor_dual);
         scordt = autodiff::derivative(scor_dual);
+    } else {
+        scor = scor_dual;
+        scordt = std::numeric_limits<amrex::Real>::quiet_NaN();
     }
 }
 
