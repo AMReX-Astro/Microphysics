@@ -139,6 +139,8 @@ from <code class="docutils literal notranslate"><span class="pre">&lt;cmath&gt;<
 replaced with ones in the <code class="docutils literal notranslate"><span class="pre">admath</span></code> namespace.  This namespace also
 exports the original functions, so they work fine on normal numeric
 types too.</p>
+<p>To manually check whether a type is a dual number or not, use
+<code class="docutils literal notranslate"><span class="pre">autodiff::detail::isDual&lt;dual_t&gt;</span></code>.</p>
 <section id="derivatives-of-single-variable-functions">
 <h2>Derivatives of single-variable functions<a class="headerlink" href="#derivatives-of-single-variable-functions" title="Link to this heading"></a></h2>
 <p>To take the derivative of some computation <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code> must be an
