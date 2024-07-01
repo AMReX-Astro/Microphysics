@@ -1,3 +1,29 @@
+# 24.07
+
+   * added an autodiff library and converted all of the screening
+     functions to use autodiff for the thermodynamic derivatives
+     (#1581, #1588, #1593, #1596, #1597,
+
+   * some testing infrastructure fixes (#1598, #1589)
+
+   * documentation improvements (#1594)
+
+   * added approximate math functions for exp and atan (#1583, #1586
+
+   * fix return code for PrimordialChem unit test (#1590)
+
+   * NSE optimizations (including caber1998 screening) #1585
+
+   * remove "using namespace amrex" from most headers (#1584)
+
+   * NSE table can work with other network now (#1576, #1577, #1580)
+
+   * the `subch_full` and `subch_approx` networks were removed -- these
+     are replaced by `subch_simple` and `subch_base` (#1578)
+
+   * retry tolerances now default to use the same values as the first
+     attempt, unless they are explicitly set in an inputs file (#1573)
+
 # 24.06
 
    * added the ability to access the runtime parameters via a struct.
