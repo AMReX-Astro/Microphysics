@@ -1,10 +1,6 @@
-**********
-Unit Tests
-**********
-
-
-Comprehensive Unit Tests
-========================
+**********************
+Overview of Unit Tests
+**********************
 
 There are a few unit tests in Microphysics that operate on a generic
 EOS, reaction network, conductivity, or some smaller component to
@@ -23,229 +19,77 @@ script.
 
    Most of these tests work with MPI+OpenMP, MPI+CUDA, and MPI+HIP
 
+Tests are divided into three categories:
 
-EOS test
---------
+* *comprehensive tests* work on a cube of data (usually
+  $\rho$, $T$, and composition varying along the three dimensions) and
+  are meant to exercise a wide range of input conditions.
 
-``Microphysics/unit_test/test_eos/`` is a unit test for the equations
-of state in Microphysics. It sets up a cube of data, with
-:math:`\rho`, :math:`T`, and :math:`X_k` varying along the three
-dimensions, and then calls the EOS in each zone. Calls are done to
-exercise all modes of calling the EOS, in order:
+  These are mainly used for regression testing.
 
-- ``eos_input_rt``: We call the EOS using :math:`\rho, T`. this is the
-  reference call, and we save the :math:`h`, :math:`e`, :math:`p`, and
-  :math:`s` from here to use in subsequent calls.
+* *one-zone tests* allow you to evaluate the conditions for a
+  particular thermodynamic state.
 
-- ``eos_input_rh``: We call the EOS using :math:`\rho, h`, to recover
-  the original :math:`T`. To give the root finder some work to do, we
-  perturb the initial temperature.
+  These are often used for interactive explorations and within the CI.
 
-  We store the relative error in :math:`T` in the output file.
+* *infrastructure tests* test small bits of the solver, function
+  interfaces, or runtime infrastructure.  These are not really meant for
+  exploring the actual thermodynamic state.
 
-- ``eos_input_tp``: We call the EOS using :math:`T, p`, to recover the
-  original :math:`\rho`. To give the root finder some work to do, we
-  perturb the initial density.
 
-  We store the relative error in :math:`\rho` in the output file.
 
-- ``eos_input_rp``: We call the EOS using :math:`\rho, p`, to recover
-  the original :math:`T`. To give the root finder some work to do, we
-  perturb the initial temperature.
+Comprehensive tests
+===================
 
-  We store the relative error in :math:`T` in the output file.
+* ``test_aprox_rates``
 
-- ``eos_input_re``: We call the EOS using :math:`\rho, e`, to recover
-  the original :math:`T`. To give the root finder some work to do, we
-  perturb the initial temperature.
+* ``test_conductivity``
 
-  We store the relative error in :math:`T` in the output file.
+* ``test_eos``
 
-- ``eos_input_ps``: We call the EOS using :math:`p, s`, to recover the
-  original :math:`\rho, T`. To give the root finder some work to do,
-  we perturb the initial density and temperature.
+* ``test_jac``
 
-  Note: entropy is not well-defined for some EOSs, so we only attempt
-  the root find if :math:`s > 0`.
+* ``test_neutrino_cooling``
 
-  We store the relative error in :math:`\rho, T` in the output file.
+* ``test_react``
 
-- ``eos_input_ph``: We call the EOS using :math:`p, h`, to recover the
-  original :math:`\rho, T`. To give the root finder some work to do,
-  we perturb the initial density and temperature.
+* ``test_rhs``
 
-  We store the relative error in :math:`\rho, T` in the output file.
+* ``test_screening``
 
-- ``eos_input_th``: We call the EOS using :math:`T, h`, to recover the
-  original :math:`\rho`. To give the root finder some work to do, we
-  perturb the initial density.
+* ``test_screening_templated``
 
-  Note: for some EOSs, :math:`h = h(\rho)` (e.g., an ideal gas), so there
-  is no temperature dependence, and we do not do this test.
+* ``test_sdc``
 
-  We store the relative error in :math:`\rho` in the output file.
 
-This unit test is marked up with OpenMP directives and therefore also
-tests whether the EOS is threadsafe.
 
-To compile for a specific EOS, e.g., helmholtz, do::
+One-zone tests
+==============
 
-    make EOS_DIR=helmholtz -j 4
+* ``burn_cell``
 
-Examining the output (an AMReX plotfile) will show you how big the
-errors are. You can use the ``amrex/Tools/Plotfile/`` tool
-``fextrema`` to display the maximum error for each variable.
+* ``burn_cell_primordial_chem``
 
+* ``burn_cell_sdc``
 
-Network test
-------------
+* ``eos_cell``
 
-``Microphysics/unit_test/test_react/`` is a unit test for the nuclear
-reaction networks in Microphysics. It sets up a cube of data, with
-:math:`\rho`, :math:`T`, and :math:`X_k` varying along the three
-dimensions (as a :math:`16^3` domain), and then calls the EOS in each
-zone.  This test does the entire ODE integration of the network for
-each zone.
+* ``nse_table_cell``
 
-The state in each zone of our data cube is determined by the runtime
-parameters ``dens_min``, ``dens_max``, ``temp_min``, and ``temp_max``
-for :math:`(\rho, T)`. Because each network carries different
-compositions, we specify the composition through runtime parameters in
-the ``&extern`` namelist: ``primary_species_1``,
-``primary_species_2``, ``primary_species_3``. These primary species
-will vary from X = 0.2 to X = 0.7 to 0.9 (depending on the number).
-Only one primary species varies at a time. The non-primary species
-will be set equally to share whatever fraction of 1 is not accounted
-for by the primary species mass fractions.
+* ``test_ase``
 
-This test calls the network on each zone, running for a time
-``tmax``. The full state, including new mass fractions and energy
-release is output to a AMReX plotfile.
+* ``test_nse``
 
-You can compile for a specific integrator (e.g., ``VODE``) or
-network (e.g., ``aprox13``) as::
+* ``test_part_func``
 
-    make NETWORK_DIR=aprox13 INTEGRATOR_DIR=VODE -j 4
 
-The loop over the burner is marked up for OpenMP and CUDA and
-therefore this test can be used to assess threadsafety of the burners
-as well as to optimize the GPU performance of the burners.
+Infrastructure tests
+====================
 
+* ``test_linear_algebra``
 
-Aprox Rates Test
-----------------
+* ``test_nse_interp``
 
-``Microphysics/unit_test/test_aprox_rates`` just evaluates the
-instantaneous reaction rates in ``Microphysics/rates/`` used by the
-``iso7``, ``aprox13``, ``aprox19``, and ``aprox21`` reaction networks.
-This uses the same basic ideas as the tests above---a cube of data is
-setup and the rates are evaluated using each zone's thermodynamic
-conditions.  This test is not really network specific---it tests all
-of the available rates.
+* ``test_parameters``
 
-
-Screening Test
---------------
-
-``Microphysics/unit_test/test_screening`` just evaluates the screening
-routine, using the ``aprox21`` reaction network.
-This uses the same basic ideas as the tests above---a cube of data is
-setup and the rates are evaluated using each zone's thermodynamic
-conditions.
-
-
-``burn_cell``
-=============
-
-``burn_cell`` is a simple one-zone burn that will evolve a state with
-a network for a specified amount of time.  This can be used to
-understand the timescales involved in a reaction sequence or to
-determine the needed ODE tolerances.
-
-
-Getting Started
----------------
-
-The ``burn_cell`` code are located in
-``Microphysics/unit_test/burn_cell``. To run a simulation, ensure that
-both an input file and an initial conditions file have been created
-and are in the same directory as the executable.
-
-Input File
-----------
-
-These files are typically named as ``inputs_burn_network`` where network
-is the network you wish to use for your testing.
-
-The structure of this file is is fairly self-explanatory.  The run
-prefix defined should be unique to the tests that will be run as they
-will be used to identify all of the output files. Typically, the run
-prefix involves the name of the network being tested.  The ``atol``
-variables define absolute tolerances of the ordinary differential
-equations and the ``rtol`` variables define the relative tolerances.  The
-second section of the input file collects the inputs that ``main.f90``
-asks for so that the user does not have to input all 5+
-parameters that are required every time the test is run.  Each input
-required is defined and initialized on the lines following
-``&cellparams``.  The use of the parameters is show below:
-
-.. table:: The definition of parameters used in the burn_cell unit tests and specified in the second half of each inputs file.
-
-   +-----------------------+----------------------------------------+
-   | ``tmax``              | Maximum Time (s)                       |
-   +-----------------------+----------------------------------------+
-   | ``numsteps``          | Number of time subdivisions            |
-   +-----------------------+----------------------------------------+
-   | ``density``           | State Density (:math:`\frac{g}{cm^3}`) |
-   +-----------------------+----------------------------------------+
-   | ``temperature``       | State Temperature (K)                  |
-   +-----------------------+----------------------------------------+
-   | ``massfractions(i)``  | Mass Fraction for element i            |
-   +-----------------------+----------------------------------------+
-
-Running the Code
-----------------
-
-To run the code, enter the burn_cell directory and run::
-
-   ./main3d.gnu.exe with inputs
-
-where ``inputs`` is the name of your inputs file.
-
-For each of the ``numsteps`` steps defined in the inputs
-file, the code will output a files into a new directory titled
-``run_prefix_output`` where ``run_prefix`` is the run prefix defined in the
-inputs file.  Each output file will be named using the run prefix
-defined in the inputs file and the corresponding timestep.
-
-Next, run ``burn_cell.py`` using python 3.x, giving the defined run prefix as an argument.
-For example::
-
-    python3 burn_cell.py react_aprox13
-
-The ``burn_cell.py`` code will gather information from all of the
-output files and compile them into three graphs explained below.
-
-Graphs Output by ``burn_cell.py``
----------------------------------
-
-The file ``run-prefix_logX.png`` and ``run-prefix_logX.eps`` will display a
-graph of the chemical abundances as a function of the time, both on
-logarithmic scales, for all species involved in the simulation.  An
-example of this graph is shown below.
-
-.. figure:: react_aprox13_logX.png
-   :alt: An example of a plot output by the burn_cell unit test. This is the logX output corresponding to the network aprox13.
-   :width: 4.5in
-
-   An example of a plot output by the burn_cell unit test. This is the
-   logX output corresponding to the network aprox13.
-
-
-
-The file ``run-prefix_ydot.png`` and ``run-prefix_ydot.eps`` will display the
-molar fraction (mass fraction / atomic weight) as a function of time,
-both on logarithmic scales, for all species involved in the code.
-
-The file ``run-prefix_T-edot.png`` and ``run-prefix_T-edot.eps`` will display
-the temperature and the energy generation rate as a function of time.
+* ``test_sdc_vode_rhs``
