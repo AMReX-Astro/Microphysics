@@ -12,7 +12,7 @@ const int INT_NEQS = NumSpec + 1;
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
 const amrex::Real species_failure_tolerance = 1.e-2_rt;
 
-enum integrator_errors {
+enum integrator_errors : std::int8_t {
     IERR_SUCCESS = 1,
     IERR_BAD_INPUTS = -1,
     IERR_DT_UNDERFLOW = -2,
