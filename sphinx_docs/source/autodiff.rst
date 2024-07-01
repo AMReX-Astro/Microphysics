@@ -21,6 +21,9 @@ replaced with ones in the ``admath`` namespace.  This namespace also
 exports the original functions, so they work fine on normal numeric
 types too.
 
+To manually check whether a type is a dual number or not, use
+``autodiff::detail::isDual<dual_t>``.
+
 Derivatives of single-variable functions
 ========================================
 
