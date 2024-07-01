@@ -67,7 +67,7 @@ jobs:
       - name: Run burn_cell (VODE, ignition_chamulak)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_ignition_chamulak > test.out
+          ./main3d.gnu.ex inputs_ignition_chamulak integrator.correct_jacobian_for_const_e=0 > test.out
 
       - name: Compare to stored output (VODE, ignition_chamulak)
         run: |
