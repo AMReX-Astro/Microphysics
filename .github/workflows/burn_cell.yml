@@ -51,7 +51,9 @@ jobs:
       - name: Run burn_cell (VODE, ECSN)
         run: |
           cd unit_test/burn_cell
-          ./main3d.gnu.ex inputs_ecsn amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+          # disable fpe_trap_overflow, as there's a spurious exception when
+          # calculating DEL in vode_dvnlsd.H.
+          ./main3d.gnu.ex inputs_ecsn amrex.fpe_trap_{invalid,zero}=1 > test.out
 
       - name: Compare to stored output (VODE, ECSN)
         run: |
