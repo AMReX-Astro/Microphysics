@@ -34,6 +34,10 @@ jobs:
           make -j 2
           ./main1d.gnu.DEBUG.ex inputs_primordial_chem amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/burn_cell_primordial_chem/Backtrace.0') != '' }}
+        run: cat unit_test/burn_cell_primordial_chem/Backtrace.0
+
       - name: Compare to stored output
         run: |
           set -e

@@ -58,4 +58,6 @@ jobs:
           cd unit_test/eos_cell
           diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/eos_gamma_law.out
 
-
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/eos_cell/Backtrace.0') != '' }}
+        run: cat unit_test/eos_cell/Backtrace.0

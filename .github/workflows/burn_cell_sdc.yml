@@ -74,3 +74,6 @@ jobs:
           cd unit_test/burn_cell_sdc
           diff state_over_time.txt ci-benchmarks/aprox19_RKC_state_over_time.txt
 
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/burn_cell_sdc/Backtrace.0') != '' }}
+        run: cat unit_test/burn_cell_sdc/Backtrace.0

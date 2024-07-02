@@ -200,3 +200,7 @@ jobs:
         run: |
           cd unit_test/test_rhs
           diff test.out ci-benchmarks/ecsn.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/test_rhs/Backtrace.0') != '' }}
+        run: cat unit_test/test_rhs/Backtrace.0

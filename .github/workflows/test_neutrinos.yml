@@ -43,6 +43,10 @@ jobs:
           ./main3d.gnu.ex inputs amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex test_sneut5 > test.out
 
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/test_neutrino_cooling/Backtrace.0') != '' }}
+        run: cat unit_test/test_neutrino_cooling/Backtrace.0
+
       - name: Compare to stored output
         run: |
           cd unit_test/test_neutrino_cooling

@@ -37,6 +37,10 @@ jobs:
           cd unit_test/test_ase
           ./main3d.gnu.ex inputs_ase amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/test_ase/Backtrace.0') != '' }}
+        run: cat unit_test/test_ase/Backtrace.0
+
       - name: Compare to stored output (NSE_NET, ase)
         run: |
           cd unit_test/test_ase
@@ -52,6 +56,10 @@ jobs:
         run: |
           cd unit_test/test_ase/make_table
           ./main3d.gnu.ex amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/test_ase/make_table/Backtrace.0') != '' }}
+        run: cat unit_test/test_ase/make_table/Backtrace.0
 
       - name: Compare to stored output (NSE_NET, ase, make_table)
         run: |
