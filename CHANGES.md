@@ -2,17 +2,17 @@
 
    * added an autodiff library and converted all of the screening
      functions to use autodiff for the thermodynamic derivatives
-     (#1581, #1588, #1593, #1596, #1597,
+     (#1581, #1588, #1593, #1596, #1597, #1600)
 
    * some testing infrastructure fixes (#1598, #1589)
 
    * documentation improvements (#1594)
 
-   * added approximate math functions for exp and atan (#1583, #1586
+   * added approximate math functions for exp and atan (#1583, #1586)
 
    * fix return code for PrimordialChem unit test (#1590)
 
-   * NSE optimizations (including caber1998 screening) #1585
+   * NSE optimizations (including chabrier1998 screening) #1585
 
    * remove "using namespace amrex" from most headers (#1584)
 
