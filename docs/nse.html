@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 </ul>
@@ -270,12 +271,20 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </section>
 <section id="nse-check">
 <h3>NSE check<a class="headerlink" href="#nse-check" title="Link to this heading"></a></h3>
-<p>We determine is a zone is in NSE according to:</p>
+<p>We group elements by their atomic numbers and perform the NSE check based on these groups:</p>
+<p><code class="docutils literal notranslate"><span class="pre">He_group</span></code>: atomic numbers 1 to 2 (H to He)</p>
+<p><code class="docutils literal notranslate"><span class="pre">C_group</span></code>: atomic numbers 6 to 7 (C to N)</p>
+<p><code class="docutils literal notranslate"><span class="pre">O_group</span></code>: atomic number 8 (O)</p>
+<p><code class="docutils literal notranslate"><span class="pre">Si_group</span></code>: atomic number 14 (Si)</p>
+<p><code class="docutils literal notranslate"><span class="pre">Fe_group</span></code>: atomic numbers 24 to 30 (Cr to Zn)</p>
+<p>We determine if a zone is in NSE according to:</p>
 <ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></li>
 <li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></li>
-<li><p><span class="math notranslate nohighlight">\(X(\isotm{C}{12})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></li>
-<li><p><span class="math notranslate nohighlight">\(X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(C_group)\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(O_group)\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(Si_group)\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(Fe_group) + X(He_group)\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></li>
 </ul>
 </section>
 <section id="nse-table-ranges">
