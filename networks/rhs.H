@@ -307,7 +307,7 @@ void dgesl (const RArray2D& a, RArray1D& b)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgefa (RArray2D& a)
+void dgefa (RArray2D& a, int& info)
 {
 
     // LU factorization in-place without pivoting.
@@ -317,6 +317,10 @@ void dgefa (RArray2D& a)
         [[maybe_unused]] constexpr int k = n1;
 
         // compute multipliers
+        if (a(k, k) == 0.0_rt) {
+            info = k;
+            return; // same as continue in a normal loop
+        }
 
         amrex::Real t = -1.0_rt / a(k,k);
         amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)

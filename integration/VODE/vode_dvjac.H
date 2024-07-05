@@ -169,8 +169,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
     int IER{};
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    RHS::dgefa(vstate.jac);
-    IER = 0;
+    RHS::dgefa(vstate.jac, IER);
 #else
     if (integrator_rp::linalg_do_pivoting == 1) {
         constexpr bool allow_pivot{true};
