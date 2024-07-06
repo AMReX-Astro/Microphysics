@@ -101,9 +101,7 @@ void linear_algebra() {
 
     // solve the linear system with the templated solver
 
-    int info;
-
-    RHS::dgefa(A, info);
+    RHS::dgefa(A);
     RHS::dgesl(A, b);
 
     std::cout << std::setprecision(16);
@@ -124,6 +122,7 @@ void linear_algebra() {
     b = Ax(A, x);
 
     IArray1D pivot;
+    int info;
 
     constexpr bool allow_pivot{true};
 

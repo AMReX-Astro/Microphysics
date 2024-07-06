@@ -307,10 +307,12 @@ void dgesl (const RArray2D& a, RArray1D& b)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgefa (RArray2D& a, int& info)
+int dgefa (RArray2D& a)
 {
 
     // LU factorization in-place without pivoting.
+
+    int info = 0;
 
     amrex::constexpr_for<1, INT_NEQS>([&] (auto n1)
     {
@@ -344,6 +346,8 @@ void dgefa (RArray2D& a, int& info)
             });
         });
     });
+
+    return info;
 }
 
 // Calculate the density dependence term for tabulated rates. The RHS has a term
