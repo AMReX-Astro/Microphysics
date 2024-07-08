@@ -73,7 +73,7 @@ T get_nonexponent_nse_state(const T& state) {
 
         // find nse mass frac without the exponent term.
 
-        Real power = 2.0 * M_PI * network::mion(n+1) *
+        amrex::Real power = 2.0 * M_PI * network::mion(n+1) *
             C::k_B * T_in / (C::hplanck * C::hplanck);
 
         nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
@@ -122,9 +122,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
 
         // reuse existing implementation from screening routine
-        amrex::Real f, df;
-        constexpr int do_T_derivatives = 0;
-        chabrier1998_helmholtz_F<do_T_derivatives>(gamma, 0.0_rt, f, df);
+        amrex::Real f = chabrier1998_helmholtz_F<amrex::Real>(gamma);
 
         //
         // Here u_c is a dimensionless quantity.
@@ -189,7 +187,7 @@ void apply_nse_exponent(T& nse_state,
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
+void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>& fvec,
          const nse_solver_data<T>& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
@@ -226,7 +224,7 @@ void fcn(Array1D<Real, 1, 2>& x, Array1D<Real, 1, 2>& fvec,
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void jcn(Array1D<Real, 1, 2>& x, Array2D<Real, 1, 2, 1, 2>& fjac,
+void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2, 1, 2>& fjac,
          const nse_solver_data<T>& state_data, int& iflag) {
     // here state is the nse_state from get_nonexponent_nse_state
 
@@ -397,8 +395,8 @@ void nse_nr_solver(nse_solver_data<T>& state_data,
     amrex::Array2D<amrex::Real, 1, 2, 1, 2> inverse_jac;
 
     // difference in chemical potential of proton and neutron
-    amrex::Real d_mu_p = std::numeric_limits<Real>::max();
-    amrex::Real d_mu_n = std::numeric_limits<Real>::max();
+    amrex::Real d_mu_p = std::numeric_limits<amrex::Real>::max();
+    amrex::Real d_mu_n = std::numeric_limits<amrex::Real>::max();
 
     // begin newton-raphson
     for (int i = 0; i < max_nse_iters; ++i) {

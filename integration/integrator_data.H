@@ -17,7 +17,7 @@ constexpr int MIN_NSE_BAILOUT_STEPS = 10;
 #endif
 
 
-enum integrator_errors {
+enum integrator_errors : std::int8_t {
     IERR_SUCCESS = 1,
     IERR_BAD_INPUTS = -1,
     IERR_DT_UNDERFLOW = -2,

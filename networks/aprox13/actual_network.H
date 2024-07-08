@@ -7,7 +7,7 @@
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
@@ -27,7 +27,7 @@ namespace network
 {
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real bion () {
+    constexpr amrex::Real bion () {
         using namespace Species;
 
         static_assert(spec >= 1 && spec <= NumSpec);
@@ -79,11 +79,11 @@ namespace network
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real mion () {
+    constexpr amrex::Real mion () {
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr Real A = NetworkProperties::aion(spec);
-        constexpr Real Z = NetworkProperties::zion(spec);
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
     }
@@ -91,13 +91,13 @@ namespace network
     // Legacy (non-templated) interfaces
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real bion (int spec) {
+    amrex::Real bion (int spec) {
         using namespace Species;
 
-        Real b = 0.0_rt;
+        amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -107,12 +107,12 @@ namespace network
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real mion (int spec) {
+    amrex::Real mion (int spec) {
         using namespace Species;
 
-        Real m = 0.0_rt;
+        amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -782,9 +782,9 @@ namespace RHS {
         return data;
     }
 
-    template<int rate>
+    template<int rate, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -884,9 +884,9 @@ namespace RHS {
         }
     }
 
-    template<int rate>
+    template<int rate, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate ([[maybe_unused]] const rhs_state_t& state, rate_t& rates,
+    void postprocess_rate ([[maybe_unused]] const rhs_state_t<dual_t>& state, rate_t& rates,
                            rate_t& rates1, rate_t& rates2, rate_t& rates3)
     {
         using namespace Species;
@@ -911,13 +911,13 @@ namespace RHS {
                       rate == Cr48_He4_to_Fe52 ||
                       rate == Fe52_He4_to_Ni56)
         {
-            Real rate_ir    = 0.0e0_rt;
-            Real dratedt_ir = 0.0e0_rt;
-            Real denom      = rates1.rr + rates2.fr;
-            Real denomdt    = rates1.rrdt + rates2.frdt;
+            amrex::Real rate_ir    = 0.0e0_rt;
+            amrex::Real dratedt_ir = 0.0e0_rt;
+            amrex::Real denom      = rates1.rr + rates2.fr;
+            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
 
             if (denom > 1.0e-30_rt) {
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
                 dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
@@ -933,13 +933,13 @@ namespace RHS {
         // reaction followed by the reverse Si28+He4<->P31+P reaction.
         if constexpr (rate == O16_O16_to_Si28_He4)
         {
-            Real rate_ir    = 0.0e0_rt;
-            Real dratedt_ir = 0.0e0_rt;
-            Real denom      = rates1.rr + rates2.fr;
-            Real denomdt    = rates1.rrdt + rates2.frdt;
+            amrex::Real rate_ir    = 0.0e0_rt;
+            amrex::Real dratedt_ir = 0.0e0_rt;
+            amrex::Real denom      = rates1.rr + rates2.fr;
+            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
 
             if (denom > 1.0e-30_rt) {
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
                 dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
@@ -952,13 +952,13 @@ namespace RHS {
         // reaction followed by the forward P31+P<->S32 reaction.
         if constexpr (rate == O16_O16_to_S32)
         {
-            Real rate_ir    = 0.0e0_rt;
-            Real dratedt_ir = 0.0e0_rt;
-            Real denom      = rates1.rr + rates2.fr;
-            Real denomdt    = rates1.rrdt + rates2.frdt;
+            amrex::Real rate_ir    = 0.0e0_rt;
+            amrex::Real dratedt_ir = 0.0e0_rt;
+            amrex::Real denom      = rates1.rr + rates2.fr;
+            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
 
             if (denom > 1.0e-30_rt) {
-                Real zz = 1.0_rt / denom;
+                amrex::Real zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
                 dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
@@ -968,9 +968,9 @@ namespace RHS {
         }
     }
 
-    template<int spec>
+    template<int spec, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }

@@ -12,7 +12,7 @@
 
 using namespace amrex::literals;
 
-constexpr Real eps = 1.e-2_rt;
+constexpr amrex::Real eps = 1.e-2_rt;
 
 AMREX_INLINE
 void create_A(RArray2D& A) {
@@ -20,10 +20,10 @@ void create_A(RArray2D& A) {
     // create a diagonally-dominant matrix with non-zero
     // elements only where the Jacobian terms are non-zero
 
-    constexpr_for<1, INT_NEQS+1>([&] (auto irow)
+    amrex::constexpr_for<1, INT_NEQS+1>([&] (auto irow)
     {
 
-        constexpr_for<1, INT_NEQS+1>([&] (auto jcol)
+        amrex::constexpr_for<1, INT_NEQS+1>([&] (auto jcol)
         {
 
             if constexpr (RHS::is_jacobian_term_used<irow, jcol>()) {
@@ -144,7 +144,7 @@ void linear_algebra() {
 
     std::cout << std::setw(4) << "*" << " ";
 
-    constexpr_for<1, INT_NEQS+1>([&] (auto i)
+    amrex::constexpr_for<1, INT_NEQS+1>([&] (auto i)
     {
         if constexpr (i < INT_NEQS) {
             std::cout << std::setw(4) << short_spec_names_cxx[i-1] << " ";
@@ -155,7 +155,7 @@ void linear_algebra() {
 
     std::cout << std::endl;
 
-    constexpr_for<1, INT_NEQS+1>([&] (auto irow)
+    amrex::constexpr_for<1, INT_NEQS+1>([&] (auto irow)
     {
 
         if constexpr (irow < INT_NEQS) {
@@ -164,7 +164,7 @@ void linear_algebra() {
             std::cout << std::setw(4) << "enuc" << " ";
         }
 
-        constexpr_for<1, INT_NEQS+1>([&] (auto jcol)
+        amrex::constexpr_for<1, INT_NEQS+1>([&] (auto jcol)
         {
             std::cout << std::setw(4) << RHS::is_jacobian_term_used<irow, jcol>() << " ";
         });
