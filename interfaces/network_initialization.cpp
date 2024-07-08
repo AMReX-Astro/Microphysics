@@ -12,6 +12,9 @@
 #include <nse_solver.H>
 #endif
 #endif
+#ifdef NSE_TABLE
+#include <nse_table.H>
+#endif
 
 void network_init()
 {
@@ -28,6 +31,9 @@ nonaka_init();
     actual_rhs_init();
 #endif
 
+#ifdef NSE_TABLE
+    // read in the NSE table (if there is one)
+    init_nse();
 #endif
-
+#endif
 }
