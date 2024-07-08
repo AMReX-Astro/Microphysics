@@ -1,6 +1,7 @@
 #ifndef APPROX_MATH_H
 #define APPROX_MATH_H
 
+#include <AMReX_BLassert.H>
 #include <AMReX_REAL.H>
 #include <microphysics_math.H>
 #include <cstdint>
@@ -294,7 +295,7 @@ float fast_log(const float x) {
 
     // Make sure input is positive
 
-    assert(x >= 0.0F);
+    AMREX_ASSERT(x >= 0.0F);
 
     std::int32_t n;
     memcpy(&n, &x, 4);
@@ -323,7 +324,7 @@ double fast_log(const double x) {
 
     // Make sure input is positive
 
-    assert(x >= 0.0);
+    AMREX_ASSERT(x >= 0.0);
 
     std::int64_t n;
     memcpy(&n, &x, 8);
@@ -375,7 +376,7 @@ float vfast_pow(const float x, const float y) {
 
     // Make sure input is positive
 
-    assert(x >= 0.0F);
+    AMREX_ASSERT(x >= 0.0F);
 
     std::int32_t n;
     memcpy(&n, &x, 4);
@@ -400,7 +401,7 @@ double vfast_pow(const double x, const double y) {
 
     // // Make sure input is positive
 
-    assert(x >= 0.0);
+    AMREX_ASSERT(x >= 0.0);
 
     std::int64_t n;
     memcpy(&n, &x, 8);
