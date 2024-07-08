@@ -271,16 +271,22 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </section>
 <section id="nse-check">
 <h3>NSE check<a class="headerlink" href="#nse-check" title="Link to this heading"></a></h3>
-<p>We group elements by their atomic numbers and perform the NSE check based on these groups:</p>
-<p><code class="docutils literal notranslate"><span class="pre">He_group</span></code>: atomic numbers 1 to 2 (H to He)</p>
-<p><code class="docutils literal notranslate"><span class="pre">C_group</span></code>: atomic numbers 6 to 7 (C to N)</p>
-<p><code class="docutils literal notranslate"><span class="pre">O_group</span></code>: atomic number 8 (O)</p>
-<p><code class="docutils literal notranslate"><span class="pre">Si_group</span></code>: atomic number 14 (Si)</p>
-<p><code class="docutils literal notranslate"><span class="pre">Fe_group</span></code>: atomic numbers 24 to 30 (Cr to Zn)</p>
-<p>We determine if a zone is in NSE according to:</p>
+<p>For a zone to be consider in NSE, we require <span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code> and <em>either</em></p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></li>
-<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">T_nse</span></code> together with the composition check</p></li>
+<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></li>
+</ul>
+<p>where we assume that <code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">T_nse</span></code>.</p>
+<p>The composition check considers the following nuclei groups:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">He_group</span></code>: atomic numbers 1 to 2 (H to He)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">C_group</span></code>: atomic numbers 6 to 7 (C to N)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">O_group</span></code>: atomic number 8 (O)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Si_group</span></code>: atomic number 14 (Si)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Fe_group</span></code>: atomic numbers 24 to 30 (Cr to Zn)</p></li>
+</ul>
+<p>and we then say that a composition supports NSE if:</p>
+<ul class="simple">
 <li><p><span class="math notranslate nohighlight">\(X(C_group)\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></li>
 <li><p><span class="math notranslate nohighlight">\(X(O_group)\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></li>
 <li><p><span class="math notranslate nohighlight">\(X(Si_group)\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></li>
