@@ -398,26 +398,28 @@ std::ostream& operator<< (std::ostream& o, T const& eos_state)
     return print_state(o, eos_state);
 }
 
-enum eos_input_t {eos_input_rt = 0,
-                  eos_input_rh,
-                  eos_input_tp,
-                  eos_input_rp,
-                  eos_input_re,
-                  eos_input_ps,
-                  eos_input_ph,
-                  eos_input_th};
+enum eos_input_t : std::uint8_t {
+    eos_input_rt = 0,
+    eos_input_rh,
+    eos_input_tp,
+    eos_input_rp,
+    eos_input_re,
+    eos_input_ps,
+    eos_input_ph,
+    eos_input_th};
 
 // these are used to allow for a generic interface to the
 // root finding
 
 namespace EOS {
 
-    enum eos_iter {itemp = 1,
-                   idens = 2,
-                   iener = 3,
-                   ienth = 4,
-                   ientr = 5,
-                   ipres = 6};
+    enum eos_iter : std::uint8_t {
+        itemp = 1,
+        idens = 2,
+        iener = 3,
+        ienth = 4,
+        ientr = 5,
+        ipres = 6};
 
 }
 
