@@ -166,23 +166,27 @@ The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
 NSE check
 ---------
 
-We group elements by their atomic numbers and perform the NSE check based on these groups:
+For a zone to be consider in NSE, we require $\rho$ > ``rho_nse`` and *either*
 
-``He_group``: atomic numbers 1 to 2 (H to He)
+* $T$ > ``T_nse`` together with the composition check
 
-``C_group``: atomic numbers 6 to 7 (C to N)
+* $T$ > ``T_always_nse``
 
-``O_group``: atomic number 8 (O)
+where we assume that ``T_always_nse`` > ``T_nse``.
 
-``Si_group``: atomic number 14 (Si)
+The composition check considers the following nuclei groups:
 
-``Fe_group``: atomic numbers 24 to 30 (Cr to Zn)
+* ``He_group``: atomic numbers 1 to 2 (H to He)
 
-We determine if a zone is in NSE according to:
+* ``C_group``: atomic numbers 6 to 7 (C to N)
 
-* :math:`\rho` > ``rho_nse``
+* ``O_group``: atomic number 8 (O)
 
-* :math:`T` > ``T_nse``
+* ``Si_group``: atomic number 14 (Si)
+
+* ``Fe_group``: atomic numbers 24 to 30 (Cr to Zn)
+
+and we then say that a composition supports NSE if:
 
 * :math:`X(C_group)` < ``C_nse``
 
@@ -191,6 +195,7 @@ We determine if a zone is in NSE according to:
 * :math:`X(Si_group)` < ``Si_nse``
 
 * :math:`X(Fe_group) + X(He_group)` > ``He_Fe_nse``
+
 
 
 NSE table ranges
