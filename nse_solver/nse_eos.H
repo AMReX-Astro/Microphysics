@@ -53,7 +53,7 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
 
     // deviation in temperature
 
-    const amrex::Real dT = 1.0e-5_rt * T;
+    const amrex::Real dT = 1.0e-6_rt * T;
 
     // Caclulate derivative using five-point stencil method
 
