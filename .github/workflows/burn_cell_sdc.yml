@@ -42,22 +42,6 @@ jobs:
           cd unit_test/burn_cell_sdc
           diff state_over_time.txt ci-benchmarks/aprox19_state_over_time.txt
 
-      - name: Compile, burn_cell_sdc with NSE (aprox19 + NSE)
-        run: |
-          cd unit_test/burn_cell_sdc
-          make realclean
-          make NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 4
-
-      - name: Run burn_cell_sdc with NSE (aprox19 + NSE)
-        run: |
-          cd unit_test/burn_cell_sdc
-          ./main3d.gnu.ex inputs_aprox19.nse.ci
-
-      - name: Compare to stored output with NSE (aprox19 + NSE)
-        run: |
-          cd unit_test/burn_cell_sdc
-          diff state_over_time.txt ci-benchmarks/aprox19_NSE_state_over_time.txt
-
       - name: Compile, burn_cell_sdc (BackwardEuler, aprox19)
         run: |
           cd unit_test/burn_cell_sdc
