@@ -1,6 +1,7 @@
 #ifndef APPROX_MATH_H
 #define APPROX_MATH_H
 
+#include <AMReX_BLassert.H>
 #include <AMReX_REAL.H>
 #include <microphysics_math.H>
 #include <cstdint>
@@ -269,5 +270,205 @@ amrex::Real fast_exp(const amrex::Real x) {
 
     return jrade_exp(x);
     // return ekmett_exp(x);
+}
+
+///
+/// Implementation of fast natural log by inverting fast_exp logic
+/// Ref:
+/// 1) https://martin.ankerl.com/2007/10/04/optimized-pow-approximation-for-java-and-c-c/
+/// 2) https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
+///
+/// To calculate ln(x), let x = e^y, then ln(x) = y
+/// And since we know how to approximate e^y using fast_exp
+/// we can simply revert the fast_exp process on x to find y, which is our answer.
+/// A sample derivation is given in ref (1).
+///
+/// Here we use memcpy to avoid UB from type punning via union.
+///
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+float fast_log(const float x) {
+    // For single precision input
+
+    constexpr float ia = 0.6931471805599453F / gcem::pow(2.0F, 23);
+    constexpr float b = gcem::pow(2.0F, 23) * (255.0F - 0.04367744890362246F);
+
+    // Make sure input is positive
+
+    AMREX_ASSERT(x >= 0.0F);
+
+    std::int32_t n;
+    memcpy(&n, &x, 4);
+
+    // if equal to infinity, then just return itself
+
+    // constexpr float pos_inf = gcem::pow(2.0F, 23) * 255.0F;
+    // if (n == pos_inf) {
+    //     return x;
+    // }
+
+    // if (n == 0.0F) {
+    //     return -std::numeric_limits<float>::infinity();
+    // }
+
+    return (static_cast<float>(n) - b) * ia;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+double fast_log(const double x) {
+    // For double precision input
+
+    constexpr double ia = 0.6931471805599453 / gcem::pow(2.0, 52);
+    constexpr double b = gcem::pow(2.0, 52) * (1023.0 - 0.04367744890362246);
+
+    // Make sure input is positive
+
+    AMREX_ASSERT(x >= 0.0);
+
+    std::int64_t n;
+    memcpy(&n, &x, 8);
+
+    // if equal to infinity, then just return itself
+
+    // constexpr double pos_inf = gcem::pow(2.0, 52) * 2047.0;
+    // if (n == pos_inf) {
+    //     return x;
+    // }
+
+    // if (n == 0.0) {
+    //     return -std::numeric_limits<double>::infinity();
+    // }
+
+    return (static_cast<double>(n) - b) * ia;
+}
+
+
+///
+/// By simply using identity x^y = exp(ln(x)*y)
+/// fast_exp and fast_log can be combined to create vfast_pow
+/// This is very fast, ~ 30 times faster than std::pow,
+/// but this gives poor accuracy, especially for exponent >> 1.
+///
+/// To make things precise, one can use exponentiation by squaring,
+/// which improves accuracy a lot, but can be 5 times slower,
+/// but still ~5 times faster than std::pow
+///
+/// Exponentiation by squaring works for solving x^n when n is an integer,
+/// so we can divide up exponent into two the integer and its remaining fraction.
+/// Then we solve for the integer part using exponentiation by squaring and
+/// the fraction part using the approximation.
+///
+/// See Refs:
+/// 1) https://martin.ankerl.com/2007/10/04/optimized-pow-approximation-for-java-and-c-c/
+/// 2) https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
+/// 3) https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+///
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+float vfast_pow(const float x, const float y) {
+    ///
+    /// Very fast implementation of pow, but poor accuracy for exponent >> 1
+    /// For single precision input
+    ///
+
+    constexpr float b = gcem::pow(2.0F, 23) * (255.0F - 0.0579848147254F);
+
+    // Make sure input is positive
+
+    AMREX_ASSERT(x >= 0.0F);
+
+    std::int32_t n;
+    memcpy(&n, &x, 4);
+
+    auto res = y*(static_cast<float>(n) - b) + b;
+
+    n = static_cast<std::int32_t>(res);
+    memcpy(&res, &n, 4);
+
+    return res;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+double vfast_pow(const double x, const double y) {
+    ///
+    /// Very fast implementation of pow, but poor accuracy for exponent >> 1
+    /// For double precision input
+    ///
+
+    constexpr double b = gcem::pow(2.0, 52) * (1023.0 - 0.0579848147254F);
+
+    // // Make sure input is positive
+
+    AMREX_ASSERT(x >= 0.0);
+
+    std::int64_t n;
+    memcpy(&n, &x, 8);
+
+    auto res = y*(static_cast<double>(n) - b) + b;
+
+    n = static_cast<std::int64_t>(res);
+    memcpy(&res, &n, 8);
+
+    return res;
+}
+
+
+template <typename T>
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+T int_pow(T x, int n) {
+    ///
+    /// Find x^n using exponentiation by squaring
+    /// This is similar to amrex::powi
+    /// This is a helper function for fast_pow,
+    /// so it doesn't check negative exponent.
+    /// Ref: https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
+    ///
+
+    auto r = static_cast<T>(1.0);
+    while (n) {
+        if (n & 1) {
+            // if integer exponent is odd
+            r *= x;
+        }
+        x *= x;
+
+        // essentially integer dividing by 2
+        n >>= 1;
+    }
+    return r;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+amrex::Real fast_pow(const amrex::Real x, const amrex::Real y) {
+    ///
+    /// This uses approximation to calculate fraction part of the exponent
+    /// and use exponentiation of squaring to calculate integer part.
+    /// This is slower than simply using vfast_pow, but give good accuracy.
+    /// Roughly 3% relative error.
+    /// Ref: https://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
+    ///
+
+    // extract out the integer part of the exponent
+
+    auto n = static_cast<int>(y);
+
+    // extract out the fraction part of the exponent
+
+    auto f = y - static_cast<amrex::Real>(n);
+
+    // use vfast_pow for the fraction part of the exponent
+
+    auto frac_ans = vfast_pow(x, f);
+
+    // Now use exponentiation by squaring to solve the integer part
+
+    if (n < 0) {
+        return frac_ans / int_pow(x, -n);
+    }
+
+    return frac_ans * int_pow(x, n);
 }
 #endif

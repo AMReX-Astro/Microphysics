@@ -122,9 +122,7 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
 
         // reuse existing implementation from screening routine
-        amrex::Real f, df;
-        constexpr int do_T_derivatives = 0;
-        chabrier1998_helmholtz_F<do_T_derivatives>(gamma, 0.0_rt, f, df);
+        amrex::Real f = chabrier1998_helmholtz_F<amrex::Real>(gamma);
 
         //
         // Here u_c is a dimensionless quantity.
