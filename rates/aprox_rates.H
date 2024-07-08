@@ -267,11 +267,11 @@ void rate_triplealf(const tf_t& tf, const amrex::Real den, amrex::Real& fr,
         const amrex::Real dyy  = uu * 3.263_rt*std::pow((0.025_rt*tf.t9i),2.263_rt) * (0.025_rt*tf.t9i2);
         const amrex::Real vv   = 4.0e0_rt*std::exp(-std::pow(tf.t9/0.025_rt, 9.227_rt));
         const amrex::Real zz   = 1.0e0_rt + vv;
-        const amrex::Real dzz  = vv * 9.227_rt*std::pow(tf.t9/0.025_rt,8.227_rt) * 40.0e0_rt;
+        const amrex::Real dzz  = vv * -9.227_rt*std::pow(tf.t9/0.025_rt,8.227_rt) * 40.0e0_rt;
         const amrex::Real zzinv   = 1.0e0_rt/zz;
         const amrex::Real f1   = 0.01e0_rt + yy * zzinv;
         //    ! fxt f1   = yy * 1/zz;
-        const amrex::Real df1  = (dyy - f1*dzz)*zzinv;
+        const amrex::Real df1  = (dyy - yy*zzinv*dzz)*zzinv;
         term = 2.90e-16_rt * r2abe * rbeac * f1 +  xx;
         dtermdt =   2.90e-16_rt * dr2abedt * rbeac * f1
                     + 2.90e-16_rt * r2abe * drbeacdt * f1
@@ -555,7 +555,7 @@ void rate_mg24ap(const tf_t& tf, const amrex::Real den, amrex::Real& fr,
 
     // 24mg(a,p)al27
     amrex::Real aa     = 1.10e8_rt * tf.t9i23 * std::exp(-23.261_rt*tf.t9i13 - tf.t92*q1);
-    amrex::Real daa    = -2.0_rt/3.0_rt*aa*tf.t9i + aa*(23.261_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
+    amrex::Real daa    = -2.0_rt/3.0_rt*aa*tf.t9i + aa*(1.0_rt/3.0_rt*23.261_rt*tf.t9i43 - 2.0e0_rt*tf.t9*q1);
 
     amrex::Real bb     =  1.0e0_rt + 0.018_rt*tf.t913 + 12.85_rt*tf.t923 + 1.61_rt*tf.t9
          + 89.87_rt*tf.t943 + 28.66_rt*tf.t953;

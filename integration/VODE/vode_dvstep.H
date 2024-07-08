@@ -70,20 +70,20 @@ int dvstep (BurnT& state, DvodeT& vstate)
     const int KFC = -3;
     const int KFH = -7;
     const int MXNCF = 10;
-    const Real ADDON = 1.0e-6_rt;
-    const Real BIAS1 = 6.0e0_rt;
-    const Real BIAS2 = 6.0e0_rt;
-    const Real BIAS3 = 10.0e0_rt;
-    const Real ETACF = 0.25e0_rt;
-    const Real ETAMIN = 0.1e0_rt;
-    const Real ETAMXF = 0.2e0_rt;
-    const Real ETAMX2 = 10.0e0_rt;
-    const Real ETAMX3 = 10.0e0_rt;
-    const Real ONEPSM = 1.00001e0_rt;
-    const Real THRESH = 1.5e0_rt;
+    const amrex::Real ADDON = 1.0e-6_rt;
+    const amrex::Real BIAS1 = 6.0e0_rt;
+    const amrex::Real BIAS2 = 6.0e0_rt;
+    const amrex::Real BIAS3 = 10.0e0_rt;
+    const amrex::Real ETACF = 0.25e0_rt;
+    const amrex::Real ETAMIN = 0.1e0_rt;
+    const amrex::Real ETAMXF = 0.2e0_rt;
+    const amrex::Real ETAMX2 = 10.0e0_rt;
+    const amrex::Real ETAMX3 = 10.0e0_rt;
+    const amrex::Real ONEPSM = 1.00001e0_rt;
+    const amrex::Real THRESH = 1.5e0_rt;
 
-    Real CNQUOT{}, DDN{}, DSM{}, DUP{}, TOLD{};
-    Real FLOTL{}, R{};
+    amrex::Real CNQUOT{}, DDN{}, DSM{}, DUP{}, TOLD{};
+    amrex::Real FLOTL{}, R{};
     int NCF{}, NFLAG{};
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
@@ -141,14 +141,14 @@ int dvstep (BurnT& state, DvodeT& vstate)
     // We will use this saved value to determine if any
     // constraints were violated in the update.
 
-    Array1D<Real, 1, int_neqs> y_save;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y_save;
 #ifdef STRANG
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
     }
 #endif
 #ifdef SDC
-    Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
+    amrex::Real rho_old = state.rho_orig + TOLD * state.ydot_a[SRHO];
     for (int i = 1; i <= int_neqs; ++i) {
         y_save(i) = vstate.y(i);
     }
@@ -172,7 +172,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
         // Call the nonlinear system solver.
 
-        const Real ACNRM = dvnlsd(NFLAG, state, vstate);
+        const amrex::Real ACNRM = dvnlsd(NFLAG, state, vstate);
 
         if (NFLAG != 0) {
 
@@ -227,7 +227,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             valid_update = false;
         }
 
-        Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
+        amrex::Real rho_current = state.rho_orig + vstate.tn * state.ydot_a[SRHO];
 
         if (rho_current < 0.0_rt) {
             valid_update = false;
@@ -278,7 +278,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // Also, we only consider the reactive portion of the
             // update
 
-            Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
+            amrex::Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
 
             if (std::abs(y_save(SFS+i)) > X_reject_buffer * atol_spec &&
                 std::abs(X_current) > X_reject_buffer * atol_spec &&
@@ -319,7 +319,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // If ETAMAX = 1 (a failure occurred this step), keep NQWAIT >= 2.
 
             kflag = 0;
-            vstate.NST += 1;
+            vstate.n_step += 1;
             for (int iback = 1; iback <= vstate.NQ; ++iback) {
                 const int i = vstate.L - iback;
                 vstate.tau(i+1) = vstate.tau(i);
@@ -352,7 +352,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             vstate.NEWH = 0;
             vstate.ETA = 1.0_rt;
             vstate.ETAMAX = ETAMX3;
-            if (vstate.NST <= 10) {
+            if (vstate.n_step <= 10) {
                 vstate.ETAMAX = ETAMX2;
             }
 
@@ -455,7 +455,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         vstate.HSCAL = vstate.H;
         vstate.tau(1) = vstate.H;
         rhs(vstate.tn, state, vstate, vstate.savf);
-        vstate.NFE += 1;
+        vstate.n_rhs += 1;
         for (int i = 1; i <= int_neqs; ++i) {
             vstate.yh(i,2) = vstate.H * vstate.savf(i);
         }
@@ -477,11 +477,11 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
     // Compute ratio of new H to current H at the current order.
     FLOTL = vstate.L;
-    const Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
+    const amrex::Real ETAQ = 1.0_rt / (std::pow(BIAS2 * DSM, 1.0_rt / FLOTL) + ADDON);
     if (vstate.NQWAIT == 0) {
         vstate.NQWAIT = 2;
 
-        Real ETAQM1{0.0_rt};
+        amrex::Real ETAQM1{0.0_rt};
 
         if (vstate.NQ != 1) {
             // Compute ratio of new H to current H at the current order less one.
@@ -493,7 +493,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
             ETAQM1 = 1.0_rt / (std::pow(BIAS1 * DDN, 1.0_rt / (FLOTL - 1.0_rt)) + ADDON);
         }
 
-        Real ETAQP1{0.0_rt};
+        amrex::Real ETAQP1{0.0_rt};
 
         if (vstate.L != VODE_LMAX) {
             // Compute ratio of new H to current H at current order plus one.
@@ -543,7 +543,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
         vstate.ETA = vstate.ETA / amrex::max(1.0_rt, std::abs(vstate.H) * vstate.HMXI * vstate.ETA);
         vstate.NEWH = 1;
         vstate.ETAMAX = ETAMX3;
-        if (vstate.NST <= 10) {
+        if (vstate.n_step <= 10) {
             vstate.ETAMAX = ETAMX2;
         }
         R = 1.0_rt / vstate.tq(2);
@@ -557,7 +557,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
     vstate.NEWH = 0;
     vstate.ETA = 1.0_rt;
     vstate.ETAMAX = ETAMX3;
-    if (vstate.NST <= 10) {
+    if (vstate.n_step <= 10) {
         vstate.ETAMAX = ETAMX2;
     }
     R = 1.0_rt / vstate.tq(2);

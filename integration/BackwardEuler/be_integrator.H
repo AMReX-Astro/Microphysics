@@ -36,13 +36,13 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
     // create our current guess for the solution -- just as a first
     // order explicit prediction
 
-    Array1D<amrex::Real, 1, int_neqs> ydot;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
 
     rhs(be.t, state, be, ydot);
 
     be.n_rhs += 1;
 
-    Array1D<amrex::Real, 1, int_neqs> y_old;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y_old;
 
     for (int n = 1; n <= int_neqs; n++) {
         y_old(n) = be.y(n);
@@ -87,7 +87,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
         // construct the RHS of our linear system
 
-        Array1D<amrex::Real, 1, int_neqs> b;
+        amrex::Array1D<amrex::Real, 1, int_neqs> b;
         for (int n = 1; n <= int_neqs; n++) {
             b(n) = y_old(n) - be.y(n) + dt * ydot(n);
         }
@@ -181,7 +181,7 @@ int be_integrator (BurnT& state, BeT& be)
 
     // estimate the timestep
 
-    Array1D<amrex::Real, 1, int_neqs> ydot;
+    amrex::Array1D<amrex::Real, 1, int_neqs> ydot;
     rhs(be.t, state, be, ydot);
 
     be.n_rhs += 1;
@@ -194,7 +194,7 @@ int be_integrator (BurnT& state, BeT& be)
            be.n_step < ode_max_steps) {
 
         // store the current solution -- we'll revert to this if a step fails
-        Array1D<amrex::Real, 1, int_neqs> y_old;
+        amrex::Array1D<amrex::Real, 1, int_neqs> y_old;
         for (int n = 1; n <= int_neqs; ++n) {
             y_old(n) = be.y(n);
         }
@@ -213,7 +213,7 @@ int be_integrator (BurnT& state, BeT& be)
 
         // first do 2 (fine) dt/2 steps
 
-        Array1D<amrex::Real, 1, int_neqs> y_fine;
+        amrex::Array1D<amrex::Real, 1, int_neqs> y_fine;
 
         ierr = single_step(state, be, dt_sub/2);
         if (ierr == IERR_SUCCESS) {
@@ -235,7 +235,7 @@ int be_integrator (BurnT& state, BeT& be)
 
         // define a weight for each variable to use in checking the error
 
-        Array1D<amrex::Real, 1, int_neqs> w;
+        amrex::Array1D<amrex::Real, 1, int_neqs> w;
         for (int n = 1; n <= NumSpec; n++) {
             w(n) = 1.0_rt / (be.rtol_spec * std::abs(y_fine(n)) + be.atol_spec);
         }

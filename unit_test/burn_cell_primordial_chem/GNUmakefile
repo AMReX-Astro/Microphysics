@@ -19,12 +19,6 @@ USE_MICROPHYSICS_DEBUG = TRUE
 
 EBASE = main
 
-USE_CXX_REACTIONS ?= TRUE
-
-ifeq ($(USE_CXX_REACTIONS),TRUE)
-  DEFINES += -DCXX_REACTIONS
-endif
-
 # define the location of the Microphysics top directory
 MICROPHYSICS_HOME  := ../..
 
@@ -37,10 +31,6 @@ NETWORK_DIR := primordial_chem
 CONDUCTIVITY_DIR := stellar
 
 INTEGRATOR_DIR =  VODE
-
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
 
 EXTERN_SEARCH += .
 

@@ -76,8 +76,8 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
     // Overall molar fraction check
 
     for (int n = 0; n < NumSpec; ++n) {
-        Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
-        Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
+        amrex::Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
+        amrex::Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
         if (abs_diff > nse_abs_tol && rel_diff > nse_rel_tol) {
             return;
         }
@@ -531,11 +531,11 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     amrex::Real T_in = current_state.T_fixed > 0.0_rt ? current_state.T_fixed : current_state.T;
 
-    // If temperature is below 2.5e9 K
+    // If temperature is below T_min_nse
     // Or if we enable direct by a simple temperature threshold,
     // so T_nse_net > 0.0 but T_in < T_nse_net, we abort early to avoid computing cost.
 
-    if ((T_in < 2.5e9_rt) || (T_nse_net > 0.0_rt && T_in < T_nse_net)) {
+    if ((T_in < T_min_nse) || (T_nse_net > 0.0_rt && T_in < T_nse_net)) {
         return current_state.nse;
     }
 

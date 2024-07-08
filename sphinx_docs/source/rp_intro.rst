@@ -23,7 +23,10 @@ the parameter with the highest priority takes precedence. This allows
 specific implementations to override the general parameter defaults.
 
 The documentation below is automatically generated, using the comments
-in the ``_parameters`` files.
+in the ``_parameters`` files.  The parameters are grouped by the
+namespace under which they live, and parameters that only apply to
+specific build configurations or have their defaults overridden are
+noted in separate tables.
 
 
 .. toctree::
