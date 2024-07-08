@@ -46,4 +46,25 @@ jobs:
           cd unit_test/burn_cell
           diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/aprox19_nse_unit_test.out
 
+      - name: Compile, burn_cell_sdc (NSE, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          make realclean
+          make NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE -j 4
+
+      - name: Run burn_cell_sdc (NSE, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          ./main3d.gnu.ex inputs_aprox19.nse.ci
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/burn_cell_sdc/Backtrace.0') != '' }}
+        run: cat unit_test/burn_cell_sdc/Backtrace.0
+
+      - name: Compare to stored output (NSE, aprox19)
+        run: |
+          cd unit_test/burn_cell_sdc
+          diff state_over_time.txt ci-benchmarks/aprox19_NSE_state_over_time.txt
+
+
 
