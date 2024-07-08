@@ -166,15 +166,31 @@ The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
 NSE check
 ---------
 
-We determine is a zone is in NSE according to:
+We group elements by their atomic numbers and perform the NSE check based on these groups:
+
+``He_group``: atomic numbers 1 to 2 (H to He)
+
+``C_group``: atomic numbers 6 to 7 (C to N)
+
+``O_group``: atomic number 8 (O)
+
+``Si_group``: atomic number 14 (Si)
+
+``Fe_group``: atomic numbers 24 to 30 (Cr to Zn)
+
+We determine if a zone is in NSE according to:
 
 * :math:`\rho` > ``rho_nse``
 
 * :math:`T` > ``T_nse``
 
-* :math:`X(\isotm{C}{12})` < ``C_nse``
+* :math:`X(C_group)` < ``C_nse``
 
-* :math:`X(\isotm{He}{4}) + X(\isotm{Cr}{48}) + X(\isotm{Fe}{52}) + X(\isotm{Fe}{54}) + X(\isotm{Ni}{56})` > ``He_Fe_nse``
+* :math:`X(O_group)` < ``O_nse``
+
+* :math:`X(Si_group)` < ``Si_nse``
+
+* :math:`X(Fe_group) + X(He_group)` > ``He_Fe_nse``
 
 
 NSE table ranges
