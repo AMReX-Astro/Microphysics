@@ -16,7 +16,7 @@ using namespace eos_rp;
 // expression for entropy is only valid for an ideal MONATOMIC gas
 // (gamma = 5/3).
 
-const std::string eos_name = "gamma_law_general";
+const std::string eos_name = "gamma_law";
 
 inline
 void actual_eos_init() {

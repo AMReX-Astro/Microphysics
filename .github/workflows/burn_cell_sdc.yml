@@ -35,7 +35,7 @@ jobs:
       - name: Run burn_cell_sdc (aprox19)
         run: |
           cd unit_test/burn_cell_sdc
-          ./main3d.gnu.ex inputs_aprox19.ci
+          ./main3d.gnu.ex inputs_aprox19.ci amrex.fpe_trap_{invalid,zero,overflow}=1
 
       - name: Compare to stored output (aprox19)
         run: |
@@ -67,7 +67,7 @@ jobs:
       - name: Run burn_cell_sdc (BackwardEuler, aprox19)
         run: |
           cd unit_test/burn_cell_sdc
-          ./main3d.gnu.ex inputs_aprox19.ci
+          ./main3d.gnu.ex inputs_aprox19.ci amrex.fpe_trap_{invalid,zero,overflow}=1
 
       - name: Compare to stored output (BackwardEuler, aprox19)
         run: |
@@ -83,10 +83,13 @@ jobs:
       - name: Run burn_cell_sdc (RKC, aprox19)
         run: |
           cd unit_test/burn_cell_sdc
-          ./main3d.gnu.ex inputs_aprox19.ci
+          ./main3d.gnu.ex inputs_aprox19.ci amrex.fpe_trap_{invalid,zero,overflow}=1
 
       - name: Compare to stored output (RKC, aprox19)
         run: |
           cd unit_test/burn_cell_sdc
           diff state_over_time.txt ci-benchmarks/aprox19_RKC_state_over_time.txt
 
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/burn_cell_sdc/Backtrace.0') != '' }}
+        run: cat unit_test/burn_cell_sdc/Backtrace.0

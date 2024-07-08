@@ -97,7 +97,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('-make-options',
-                        default='-j 2',
+                        default='-j 4',
                         help='make options')
     parser.add_argument('SHAs', nargs='*', default=None,
                         help='SHAs to be compared')

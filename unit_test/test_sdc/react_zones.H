@@ -13,7 +13,7 @@ using namespace unit_test_rp;
 
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_react (const plot_t& p, const int i, const int j, const int k,
-               Array4<Real> const& state, Array4<int> const& n_rhs)
+               Array4<amrex::Real> const& state, Array4<int> const& n_rhs)
 {
 
     burn_t burn_state;
@@ -66,7 +66,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
                 burn_state.y[SMZ] * burn_state.y[SMZ]) / burn_state.y[SRHO];
 
     // normalize
-    Real sum_spec = 0.0_rt;
+    amrex::Real sum_spec = 0.0_rt;
     for (int n = 0; n < NumSpec; n++) {
       sum_spec += burn_state.y[SFS+n] / burn_state.rho;
     }
@@ -74,7 +74,7 @@ bool do_react (const plot_t& p, const int i, const int j, const int k,
       burn_state.y[SFS+n] /= sum_spec;
     }
 
-    Real rhoe_old = burn_state.y[SEINT];
+    amrex::Real rhoe_old = burn_state.y[SEINT];
 
     // zero out the advective terms
 
