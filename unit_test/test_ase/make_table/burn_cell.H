@@ -38,11 +38,11 @@ void burn_cell_c()
                 state.y_e = Ye;
 
                 if (state.y_e > 0.52_rt){
-                    state.mu_p = -3.0_rt;
-                    state.mu_n = -16.0_rt;
+                    state.mu_p = -4.0_rt;
+                    state.mu_n = -14.0_rt;
                 }
                 else if (state.y_e > 0.48_rt){
-                    state.mu_p = -6.0_rt;
+                    state.mu_p = -8.0_rt;
                     state.mu_n = -11.0_rt;
                 }
                 else if (state.y_e > 0.4_rt){
@@ -50,8 +50,8 @@ void burn_cell_c()
                     state.mu_n = -7.0_rt;
                 }
                 else{
-                    state.mu_p = -18.0_rt;
-                    state.mu_n = -1.0_rt;
+                    state.mu_p = -15.0_rt;
+                    state.mu_n = -5.0_rt;
                 }
 
                 // find the  nse state
