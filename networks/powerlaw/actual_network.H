@@ -53,9 +53,9 @@ namespace RHS {
         return data;
     }
 
-    template<int rate>
+    template<int rate, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -73,17 +73,17 @@ namespace RHS {
         }
     }
 
-    template<int rate>
+    template<int rate, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t& state, rate_t& rates,
+    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t& rates,
                            rate_t& rates1, rate_t& rates2, rate_t& rates3)
     {
         // Nothing to do for this network.
     }
 
-    template<int spec>
+    template<int spec, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
+    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, Real const& dydt)
     {
         if constexpr (spec == 2) {
             return dydt * NetworkProperties::aion(spec) * network_rp::specific_q_burn;

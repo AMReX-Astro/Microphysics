@@ -35,7 +35,11 @@ jobs:
       - name: Run test_nse_interp (NSE, aprox19)
         run: |
           cd unit_test/test_nse_interp
-          ./main3d.gnu.ex > test.out
+          ./main3d.gnu.ex amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/test_nse_interp/Backtrace.0') != '' }}
+        run: cat unit_test/test_nse_interp/Backtrace.0
 
       - name: Compare to stored output (NSE, aprox19)
         run: |

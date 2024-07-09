@@ -40,7 +40,7 @@ jobs:
       - name: Run test_rhs (VODE, ignition_simple)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_ignition_simple
+          ./main3d.gnu.ex inputs_ignition_simple amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_ignition_simple_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, ignition_simple)
@@ -57,7 +57,7 @@ jobs:
       - name: Run test_rhs (VODE, ignition_chamulak)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_chamulak
+          ./main3d.gnu.ex inputs_chamulak amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_chamulak_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, ignition_chamulak)
@@ -74,7 +74,7 @@ jobs:
       - name: Run test_rhs (VODE, iso7)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_iso7
+          ./main3d.gnu.ex inputs_iso7 amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_iso7_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, iso7)
@@ -91,7 +91,7 @@ jobs:
       - name: Run test_rhs (VODE, aprox13)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_aprox13
+          ./main3d.gnu.ex inputs_aprox13 amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox13_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, aprox13)
@@ -108,7 +108,7 @@ jobs:
       - name: Run test_rhs (VODE, aprox19)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_aprox19
+          ./main3d.gnu.ex inputs_aprox19 amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox19_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, aprox19)
@@ -125,7 +125,7 @@ jobs:
       - name: Run test_rhs (VODE, aprox21)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_aprox21
+          ./main3d.gnu.ex inputs_aprox21 amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_aprox21_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, aprox21)
@@ -142,7 +142,7 @@ jobs:
       - name: Run test_rhs (VODE, rprox)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_rprox
+          ./main3d.gnu.ex inputs_rprox amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_rprox_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, rprox)
@@ -159,7 +159,7 @@ jobs:
       - name: Run test_rhs (VODE, powerlaw)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_powerlaw
+          ./main3d.gnu.ex inputs_powerlaw amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_powerlaw_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, powerlaw)
@@ -176,7 +176,7 @@ jobs:
       - name: Run test_rhs (VODE, triple_alpha_plus_cago)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_triple_alpha_plus_cago
+          ./main3d.gnu.ex inputs_triple_alpha_plus_cago amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_triple_alpha_plus_cago_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, triple_alpha_plus_cago)
@@ -193,10 +193,14 @@ jobs:
       - name: Run test_rhs (VODE, ECSN)
         run: |
           cd unit_test/test_rhs
-          ./main3d.gnu.ex inputs_ecsn
+          ./main3d.gnu.ex inputs_ecsn amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex react_ecsn_test_rhs.VODE > test.out
 
       - name: Compare to stored output (VODE, ECSN)
         run: |
           cd unit_test/test_rhs
           diff test.out ci-benchmarks/ecsn.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/test_rhs/Backtrace.0') != '' }}
+        run: cat unit_test/test_rhs/Backtrace.0
