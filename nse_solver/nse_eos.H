@@ -53,9 +53,9 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
 
     // deviation in temperature
 
-    const amrex::Real dT = 1.0e-5_rt * T;
+    const amrex::Real dT = 1.0e-6_rt * T;
 
-    // Caclulate derivative using five-point stencil method
+    // Calculate derivative using five-point stencil method
 
     // amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
     //                          8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -

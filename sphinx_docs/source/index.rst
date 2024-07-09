@@ -22,6 +22,7 @@ for astrophysical simulation codes.
    getting_started
    design
    data_structures
+   autodiff
    rp_intro
    unit_tests
 

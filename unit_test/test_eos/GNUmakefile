@@ -20,7 +20,7 @@ BL_NO_FORT=TRUE
 MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory
-EOS_DIR     := gamma_law_general
+EOS_DIR     := gamma_law
 
 # This sets the network directory
 NETWORK_DIR := aprox19
