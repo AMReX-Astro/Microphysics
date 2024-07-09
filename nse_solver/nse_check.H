@@ -553,7 +553,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     for (int n = 0; n < NumSpec; ++n) {
         Y(n+1) = current_state.y[SFS+n] * aion_inv[n] / current_state.rho;
-        Y_nse(n+1) = nse_state.y[SFS+n] * aion_inv[n] / nse_state.rho;
+        Y_nse(n+1) = nse_state.xn[n] * aion_inv[n];
     }
 
     // Check whether state is in the ballpark of NSE
