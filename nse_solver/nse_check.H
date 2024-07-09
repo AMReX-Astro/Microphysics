@@ -20,7 +20,7 @@
 // First check to see if we're in the ballpark of nse state
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y
+void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                      const amrex::Array1D<amrex::Real, 1, NumSpec>& Y_nse,
                      bool& nse_check) {
 
