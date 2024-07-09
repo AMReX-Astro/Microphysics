@@ -77,7 +77,7 @@ void nse_example_c()
 
     std::cout << "NSE state: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-      std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
+      std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.y[SFS+n] / NSE_STATE.rho << std::endl;
     }
 }
 #endif
