@@ -50,17 +50,11 @@ void burn_cell_c()
       std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
     }
 
-    // Let state.xn equal to nse_state.xn to make sure its in nse state
+    // Let state.y equal to nse_state.y to make sure its in nse state
 
-#ifdef STRANG
-    for (int n = 0; n < NumSpec; ++n){
-      state.xn[n] = NSE_STATE.xn[n];
-    }
-#else
     for (int n = 0; n < NumSpec; ++n){
       state.y[SFS+n] = NSE_STATE.y[SFS+n];
     }
-#endif
 
     // get eos
     //eos(eos_input_rt, state);

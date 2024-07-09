@@ -65,7 +65,7 @@ void burn_cell_c()
                 auto nse_state = get_actual_nse_state(state, eps, assume_ye_is_valid);
 
                 for (int i = 0; i < NumSpec; ++i){
-                  state.xn[i] = nse_state.xn[i];
+                  state.y[SFS+i] = nse_state.y[SFS+i];
                 }
 
                 bool in_nse_state = in_nse(state);
