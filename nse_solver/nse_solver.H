@@ -205,7 +205,7 @@ void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>
 
     apply_nse_exponent(nse_state, state_data.u_c);
 
-    fvec(1) = -1.0_rt * nse_state.rho;
+    fvec(1) = -1.0_rt;
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -216,7 +216,7 @@ void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>
         // constraint equation 1, mass fraction sum to 1
         // since we're using rhoX, make it sum to rho
 
-        fvec(1) += nse_state.y[SFS+n];
+        fvec(1) += nse_state.y[SFS+n] / nse_state.rho;
     }
 
     // constraint equation 2, electron fraction should be the same
