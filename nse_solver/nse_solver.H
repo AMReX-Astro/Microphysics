@@ -74,7 +74,7 @@ T get_nonexponent_nse_state(const T& state) {
         // find nse mass frac without the exponent term.
 
         constexpr amrex::Real ihplanck2 = 1.0_rt / (C::hplanck * C::hplanck);
-        amrex::Real power = 2.0 * M_PI * network::mion(n+1) *
+        amrex::Real power = 2.0_rt * M_PI * network::mion(n+1) *
             C::k_B * T_in * ihplanck2;
 
         nse_state.y[SFS+n] = network::mion(n+1) * pf * spin *
