@@ -557,6 +557,14 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
     state.mu_p = state_data.state.mu_p;
     state.mu_n = state_data.state.mu_n;
 
+#ifndef STRANG
+    // update rhoX if we're working with SDC
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state.y[SFS+n] = state.xn[n] * state.rho;
+    }
+#endif
+
     return state_data.state;
 }
 #endif
