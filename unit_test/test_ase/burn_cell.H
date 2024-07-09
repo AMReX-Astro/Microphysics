@@ -51,10 +51,16 @@ void burn_cell_c()
     }
 
     // Let state.xn equal to nse_state.xn to make sure its in nse state
+
+#ifdef STRANG
     for (int n = 0; n < NumSpec; ++n){
       state.xn[n] = NSE_STATE.xn[n];
     }
-
+#else
+    for (int n = 0; n < NumSpec; ++n){
+      state.y[SFS+n] = NSE_STATE.y[SFS+n];
+    }
+#endif
 
     // get eos
     //eos(eos_input_rt, state);
