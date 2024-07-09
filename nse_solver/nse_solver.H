@@ -59,7 +59,7 @@ T get_nonexponent_nse_state(const T& state) {
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
         if (n == NSE_INDEX::H1_index) {
-            nse_state.y[SFS+n] = 0.0_rt;
+            nse_state.xn[n] = 0.0_rt;
             continue;
         }
 #endif
@@ -77,7 +77,7 @@ T get_nonexponent_nse_state(const T& state) {
         amrex::Real power = 2.0_rt * M_PI * network::mion(n+1) *
             C::k_B * T_in * ihplanck2;
 
-        nse_state.y[SFS+n] = network::mion(n+1) * pf * spin *
+        nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
             std::sqrt(amrex::Math::powi<3>(power));
     }
 
@@ -153,7 +153,7 @@ void apply_nse_exponent(T& nse_state,
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
         if (n == NSE_INDEX::H1_index) {
-            nse_state.y[SFS+n] = 0.0_rt;
+            nse_state.xn[n] = 0.0_rt;
             continue;
         }
 #endif
@@ -168,7 +168,7 @@ void apply_nse_exponent(T& nse_state,
                                nse_state.mu_n + network::bion(n+1)) *
                               ikTMeV - u_c(n+1));
 
-        nse_state.y[SFS+n] *= std::exp(exponent);
+        nse_state.xn[n] *= std::exp(exponent);
     }
 
     nse_state.y_e = 0.0_rt;
@@ -181,10 +181,8 @@ void apply_nse_exponent(T& nse_state,
 #endif
         // constraint equation 1, mass fraction sum to 1
 
-        nse_state.y_e += nse_state.y[SFS+n] * zion[n] * aion_inv[n];
+        nse_state.y_e += nse_state.xn[n] * zion[n] * aion_inv[n];
     }
-
-    nse_state.y_e /= nse_state.rho;
 }
 
 // constraint equation
@@ -216,7 +214,7 @@ void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>
         // constraint equation 1, mass fraction sum to 1
         // since we're using rhoX, make it sum to rho
 
-        fvec(1) += nse_state.y[SFS+n] / nse_state.rho;
+        fvec(1) += nse_state.xn[n];
     }
 
     // constraint equation 2, electron fraction should be the same
@@ -252,7 +250,7 @@ void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2,
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
-    amrex::Real iRhokTMeV = C::Legacy::MeV2erg / (nse_state.rho * C::k_B * T_in);
+    amrex::Real ikTMeV = C::Legacy::MeV2erg / (C::k_B * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -260,10 +258,10 @@ void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2,
             continue;
         }
 #endif
-        fjac(1, 1) += nse_state.y[SFS+n] * zion[n] * iRhokTMeV;
-        fjac(1, 2) += nse_state.y[SFS+n] * (aion[n] - zion[n]) * iRhokTMeV;
-        fjac(2, 1) += nse_state.y[SFS+n] * zion[n] * zion[n] * aion_inv[n] * iRhokTMeV;
-        fjac(2, 2) += nse_state.y[SFS+n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] * iRhokTMeV;
+        fjac(1, 1) += nse_state.xn[n] * zion[n] * ikTMeV;
+        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
+        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] * ikTMeV;
+        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] * ikTMeV;
     }
 
 }
@@ -505,6 +503,7 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
     if (!input_ye_is_valid) {
         // ensure Ye is valid
+        // We assume the input state has rhoX
 
         state.y_e = 0.0_rt;
         for (int n = 0; n < NumSpec; ++n) {
@@ -559,6 +558,12 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
     state.mu_p = state_data.state.mu_p;
     state.mu_n = state_data.state.mu_n;
+
+    // update rhoX in the output nse_state
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
+    }
 
     return state_data.state;
 }
