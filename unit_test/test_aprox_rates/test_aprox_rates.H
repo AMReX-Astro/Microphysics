@@ -7,13 +7,13 @@
 void main_main();
 
 void aprox_rates_test(const Box& bx,
-                      const Real dlogrho, const Real dlogT, const Real dmetal,
+                      const amrex::Real dlogrho, const amrex::Real dlogT, const amrex::Real dmetal,
                       const plot_t& vars,
-                      Array4<Real> const sp);
+                      amrex::Array4<amrex::Real> const sp);
 
 void aprox_rates_extra_c12ag(const Box& bx,
-                             const Real dlogrho, const Real dlogT, const Real dmetal,
+                             const amrex::Real dlogrho, const amrex::Real dlogT, const amrex::Real dmetal,
                              const plot_t& vars,
-                             Array4<Real> const sp);
+                             amrex::Array4<amrex::Real> const sp);
 
 #endif

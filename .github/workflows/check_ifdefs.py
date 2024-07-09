@@ -78,6 +78,9 @@ if __name__ == "__main__":
         if "tmp_build_dir" in f.parts:
             # skip generated files
             continue
+        if f.parts[:2] == ("util", "autodiff"):
+            # skip third-party autodiff files
+            continue
         ierr, defines = check_file(f)
         all_defines += defines
         total_errors += ierr

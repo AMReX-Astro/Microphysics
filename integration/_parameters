@@ -67,12 +67,13 @@ use_burn_retry            bool    0
 retry_swap_jacobian       bool    1
 
 # Tolerances for the solver (relative and absolute), for the
-# species and energy equations.
-retry_rtol_spec                real      1.e-12
-retry_rtol_enuc                real      1.e-6
+# species and energy equations.  If set to < 0, then the same
+# value as the first attempt is used.
+retry_rtol_spec                real      -1
+retry_rtol_enuc                real      -1
 
-retry_atol_spec                real      1.e-8
-retry_atol_enuc                real      1.e-6
+retry_atol_spec                real      -1
+retry_atol_enuc                real      -1
 
 # in the clean_state process, do we clip the species such that they
 # are in [0, 1]?
@@ -83,9 +84,6 @@ use_number_densities     bool     0
 
 # flag for tuning on the subtraction of internal energy
 subtract_internal_energy   bool     1
-
-# SDC iteration tolerance adjustment factor
-sdc_burn_tol_factor          real         1.e0
 
 # do we scale the ODE system we integrate to make it O(1)?
 # for Strang, this simply means scaling e by the initial energy?

@@ -219,26 +219,19 @@ The runtime parameters that come into play when doing the retry are:
 
 * ``retry_atol_enuc`` : absolute tolerance for the energy on retry
 
+.. note::
+
+   If you set any of the retry tolerances to be less than $0$, then
+   the original (non-retry) tolerance is used on retry.  The default
+   value for all of the retry tolerances is $-1$, which means the same
+   tolerances are used on retry unless you override them at runtime.
+
 .. tip::
 
    Sometimes a simulation runs best if you set
    ``integrator.ode_max_steps`` to a small value (like ``10000``) and
    start with the analytic Jacobian (``integrator.jacobian = 1``) and
    then use the retry mechanism to swap the Jacobian on any zones that fail.
-
-
-Renormalization
-===============
-
-The ``renormalize_abundances`` parameter controls whether we
-renormalize the abundances so that the mass fractions sum to one
-during a burn. This has the positive benefit that in some cases it can
-prevent the integrator from going off to infinity or otherwise go
-crazy; a possible negative benefit is that it may slow down
-convergence because it interferes with the integration
-scheme. Regardless of whether you enable this, we will always ensure
-that the mass fractions stay positive and larger than some floor
-``small_x``.
 
 
 Overriding Parameter Defaults on a Network-by-Network Basis
