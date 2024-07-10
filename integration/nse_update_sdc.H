@@ -352,7 +352,7 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     // Still need to get abar for T_fixed > 0
 
     if (T_fixed > 0) {
-        for (int n; n < NumSpec; ++n) {
+        for (int n = 0; n < NumSpec; ++n) {
             abar += nse_state0.xn[n] * aion_inv[n];
         }
         abar = 1.0_rt / abar;
