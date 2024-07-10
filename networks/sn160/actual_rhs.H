@@ -8815,10 +8815,365 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
 
-    rate_eval.enuc_weak = 0.0;
+    rate_eval.enuc_weak = 0.0_rt;
 
 
 }
+
+#ifdef NSE_NET
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+void get_ydot_weak(const burn_t& state,
+             amrex::Array1D<amrex::Real, 1, neqs>& ydot_nuc,
+             amrex::Real& enuc_weak,
+             const amrex::Array1D<amrex::Real, 1, NumSpec>& Y) {
+    ///
+    /// Calculate Ydots contribute only from weak reactions.
+    /// This is used to calculate dyedt and energy generation from
+    /// weak reactions for self-consistent NSE
+    ///
+
+
+    // initialize ydot_nuc to 0
+
+    for (int i = 1; i <= neqs; ++i) {
+        ydot_nuc(i) = 0.0_rt;
+    }
+
+    rate_t rate_eval;
+
+    [[maybe_unused]] amrex::Real rate, drate_dt, edot_nu, edot_gamma;
+    [[maybe_unused]] amrex::Real rhoy = state.rho * state.y_e;
+
+    rate_eval.enuc_weak = 0.0_rt;
+
+    // Calculate tabular rates and get ydot_weak
+
+    auto screened_rates = rate_eval.screened_rates;
+
+    ydot_nuc(N) = 0.0_rt;
+
+    ydot_nuc(H1) = 0.0_rt;
+
+    ydot_nuc(H2) = 0.0_rt;
+
+    ydot_nuc(He3) = 0.0_rt;
+
+    ydot_nuc(He4) = 0.0_rt;
+
+    ydot_nuc(Li6) = 0.0_rt;
+
+    ydot_nuc(Li7) = 0.0_rt;
+
+    ydot_nuc(Be7) = 0.0_rt;
+
+    ydot_nuc(Be9) = 0.0_rt;
+
+    ydot_nuc(B8) = 0.0_rt;
+
+    ydot_nuc(B10) = 0.0_rt;
+
+    ydot_nuc(B11) = 0.0_rt;
+
+    ydot_nuc(C12) = 0.0_rt;
+
+    ydot_nuc(C13) = 0.0_rt;
+
+    ydot_nuc(C14) = 0.0_rt;
+
+    ydot_nuc(N13) = 0.0_rt;
+
+    ydot_nuc(N14) = 0.0_rt;
+
+    ydot_nuc(N15) = 0.0_rt;
+
+    ydot_nuc(O14) = 0.0_rt;
+
+    ydot_nuc(O15) = 0.0_rt;
+
+    ydot_nuc(O16) = 0.0_rt;
+
+    ydot_nuc(O17) = 0.0_rt;
+
+    ydot_nuc(O18) = 0.0_rt;
+
+    ydot_nuc(F17) = 0.0_rt;
+
+    ydot_nuc(F18) = 0.0_rt;
+
+    ydot_nuc(F19) = 0.0_rt;
+
+    ydot_nuc(Ne18) = 0.0_rt;
+
+    ydot_nuc(Ne19) = 0.0_rt;
+
+    ydot_nuc(Ne20) = 0.0_rt;
+
+    ydot_nuc(Ne21) = 0.0_rt;
+
+    ydot_nuc(Ne22) = 0.0_rt;
+
+    ydot_nuc(Na21) = 0.0_rt;
+
+    ydot_nuc(Na22) = 0.0_rt;
+
+    ydot_nuc(Na23) = 0.0_rt;
+
+    ydot_nuc(Mg23) = 0.0_rt;
+
+    ydot_nuc(Mg24) = 0.0_rt;
+
+    ydot_nuc(Mg25) = 0.0_rt;
+
+    ydot_nuc(Mg26) = 0.0_rt;
+
+    ydot_nuc(Al25) = 0.0_rt;
+
+    ydot_nuc(Al26) = 0.0_rt;
+
+    ydot_nuc(Al27) = 0.0_rt;
+
+    ydot_nuc(Si28) = 0.0_rt;
+
+    ydot_nuc(Si29) = 0.0_rt;
+
+    ydot_nuc(Si30) = 0.0_rt;
+
+    ydot_nuc(Si31) = 0.0_rt;
+
+    ydot_nuc(Si32) = 0.0_rt;
+
+    ydot_nuc(P29) = 0.0_rt;
+
+    ydot_nuc(P30) = 0.0_rt;
+
+    ydot_nuc(P31) = 0.0_rt;
+
+    ydot_nuc(P32) = 0.0_rt;
+
+    ydot_nuc(P33) = 0.0_rt;
+
+    ydot_nuc(S32) = 0.0_rt;
+
+    ydot_nuc(S33) = 0.0_rt;
+
+    ydot_nuc(S34) = 0.0_rt;
+
+    ydot_nuc(S35) = 0.0_rt;
+
+    ydot_nuc(S36) = 0.0_rt;
+
+    ydot_nuc(Cl33) = 0.0_rt;
+
+    ydot_nuc(Cl34) = 0.0_rt;
+
+    ydot_nuc(Cl35) = 0.0_rt;
+
+    ydot_nuc(Cl36) = 0.0_rt;
+
+    ydot_nuc(Cl37) = 0.0_rt;
+
+    ydot_nuc(Ar36) = 0.0_rt;
+
+    ydot_nuc(Ar37) = 0.0_rt;
+
+    ydot_nuc(Ar38) = 0.0_rt;
+
+    ydot_nuc(Ar39) = 0.0_rt;
+
+    ydot_nuc(Ar40) = 0.0_rt;
+
+    ydot_nuc(K37) = 0.0_rt;
+
+    ydot_nuc(K38) = 0.0_rt;
+
+    ydot_nuc(K39) = 0.0_rt;
+
+    ydot_nuc(K40) = 0.0_rt;
+
+    ydot_nuc(K41) = 0.0_rt;
+
+    ydot_nuc(Ca40) = 0.0_rt;
+
+    ydot_nuc(Ca41) = 0.0_rt;
+
+    ydot_nuc(Ca42) = 0.0_rt;
+
+    ydot_nuc(Ca43) = 0.0_rt;
+
+    ydot_nuc(Ca44) = 0.0_rt;
+
+    ydot_nuc(Ca45) = 0.0_rt;
+
+    ydot_nuc(Ca46) = 0.0_rt;
+
+    ydot_nuc(Ca47) = 0.0_rt;
+
+    ydot_nuc(Ca48) = 0.0_rt;
+
+    ydot_nuc(Sc43) = 0.0_rt;
+
+    ydot_nuc(Sc44) = 0.0_rt;
+
+    ydot_nuc(Sc45) = 0.0_rt;
+
+    ydot_nuc(Sc46) = 0.0_rt;
+
+    ydot_nuc(Sc47) = 0.0_rt;
+
+    ydot_nuc(Sc48) = 0.0_rt;
+
+    ydot_nuc(Sc49) = 0.0_rt;
+
+    ydot_nuc(Ti44) = 0.0_rt;
+
+    ydot_nuc(Ti45) = 0.0_rt;
+
+    ydot_nuc(Ti46) = 0.0_rt;
+
+    ydot_nuc(Ti47) = 0.0_rt;
+
+    ydot_nuc(Ti48) = 0.0_rt;
+
+    ydot_nuc(Ti49) = 0.0_rt;
+
+    ydot_nuc(Ti50) = 0.0_rt;
+
+    ydot_nuc(Ti51) = 0.0_rt;
+
+    ydot_nuc(V46) = 0.0_rt;
+
+    ydot_nuc(V47) = 0.0_rt;
+
+    ydot_nuc(V48) = 0.0_rt;
+
+    ydot_nuc(V49) = 0.0_rt;
+
+    ydot_nuc(V50) = 0.0_rt;
+
+    ydot_nuc(V51) = 0.0_rt;
+
+    ydot_nuc(V52) = 0.0_rt;
+
+    ydot_nuc(Cr48) = 0.0_rt;
+
+    ydot_nuc(Cr49) = 0.0_rt;
+
+    ydot_nuc(Cr50) = 0.0_rt;
+
+    ydot_nuc(Cr51) = 0.0_rt;
+
+    ydot_nuc(Cr52) = 0.0_rt;
+
+    ydot_nuc(Cr53) = 0.0_rt;
+
+    ydot_nuc(Cr54) = 0.0_rt;
+
+    ydot_nuc(Mn50) = 0.0_rt;
+
+    ydot_nuc(Mn51) = 0.0_rt;
+
+    ydot_nuc(Mn52) = 0.0_rt;
+
+    ydot_nuc(Mn53) = 0.0_rt;
+
+    ydot_nuc(Mn54) = 0.0_rt;
+
+    ydot_nuc(Mn55) = 0.0_rt;
+
+    ydot_nuc(Fe52) = 0.0_rt;
+
+    ydot_nuc(Fe53) = 0.0_rt;
+
+    ydot_nuc(Fe54) = 0.0_rt;
+
+    ydot_nuc(Fe55) = 0.0_rt;
+
+    ydot_nuc(Fe56) = 0.0_rt;
+
+    ydot_nuc(Fe57) = 0.0_rt;
+
+    ydot_nuc(Fe58) = 0.0_rt;
+
+    ydot_nuc(Co53) = 0.0_rt;
+
+    ydot_nuc(Co54) = 0.0_rt;
+
+    ydot_nuc(Co55) = 0.0_rt;
+
+    ydot_nuc(Co56) = 0.0_rt;
+
+    ydot_nuc(Co57) = 0.0_rt;
+
+    ydot_nuc(Co58) = 0.0_rt;
+
+    ydot_nuc(Co59) = 0.0_rt;
+
+    ydot_nuc(Ni56) = 0.0_rt;
+
+    ydot_nuc(Ni57) = 0.0_rt;
+
+    ydot_nuc(Ni58) = 0.0_rt;
+
+    ydot_nuc(Ni59) = 0.0_rt;
+
+    ydot_nuc(Ni60) = 0.0_rt;
+
+    ydot_nuc(Ni61) = 0.0_rt;
+
+    ydot_nuc(Ni62) = 0.0_rt;
+
+    ydot_nuc(Ni63) = 0.0_rt;
+
+    ydot_nuc(Ni64) = 0.0_rt;
+
+    ydot_nuc(Cu57) = 0.0_rt;
+
+    ydot_nuc(Cu58) = 0.0_rt;
+
+    ydot_nuc(Cu59) = 0.0_rt;
+
+    ydot_nuc(Cu60) = 0.0_rt;
+
+    ydot_nuc(Cu61) = 0.0_rt;
+
+    ydot_nuc(Cu62) = 0.0_rt;
+
+    ydot_nuc(Cu63) = 0.0_rt;
+
+    ydot_nuc(Cu64) = 0.0_rt;
+
+    ydot_nuc(Cu65) = 0.0_rt;
+
+    ydot_nuc(Zn59) = 0.0_rt;
+
+    ydot_nuc(Zn60) = 0.0_rt;
+
+    ydot_nuc(Zn61) = 0.0_rt;
+
+    ydot_nuc(Zn62) = 0.0_rt;
+
+    ydot_nuc(Zn63) = 0.0_rt;
+
+    ydot_nuc(Zn64) = 0.0_rt;
+
+    ydot_nuc(Zn65) = 0.0_rt;
+
+    ydot_nuc(Zn66) = 0.0_rt;
+
+    ydot_nuc(Ga62) = 0.0_rt;
+
+    ydot_nuc(Ga63) = 0.0_rt;
+
+    ydot_nuc(Ga64) = 0.0_rt;
+
+    ydot_nuc(Ge63) = 0.0_rt;
+
+    ydot_nuc(Ge64) = 0.0_rt;
+
+    enuc_weak = rate_eval.enuc_weak;
+}
+#endif
+
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs_nuc(const burn_t& state,
