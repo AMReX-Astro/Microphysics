@@ -398,7 +398,7 @@ void get_ydot_weak(const burn_t& state,
     rate_eval.screened_rates(k_p_to_n) = rate;
     rate_eval.enuc_weak += C::Legacy::n_A * Y(H1) * (edot_nu + edot_gamma);
 
-    [[maybe_unused]] auto screened_rates = rate_eval.screened_rates;
+    auto screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(N) =
         -screened_rates(k_n_to_p)*Y(N) +

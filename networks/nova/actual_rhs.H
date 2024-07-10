@@ -395,7 +395,6 @@ void get_ydot_weak(const burn_t& state,
 
     // Calculate tabular rates and get ydot_weak
 
-    [[maybe_unused]] auto screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(H1) = 0.0_rt;
 
