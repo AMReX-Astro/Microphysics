@@ -9,7 +9,6 @@
 #include <burn_type.H>
 #include <jacobian_utilities.H>
 #include <screen.H>
-#include <microphysics_autodiff.H>
 #include <sneut5.H>
 #include <reaclib_rates.H>
 #include <table_rates.H>
@@ -58,14 +57,8 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     // Calculate Reaclib rates
 
-    using dual_t = std::conditional_t<do_T_derivatives, autodiff::dual, amrex::Real>;
-    dual_t temp = state.T;
-    if constexpr (do_T_derivatives) {
-        // seed the dual number for temperature before calculating anything with it
-        autodiff::seed(temp);
-    }
-    plasma_state_t<dual_t> pstate{};
-    fill_plasma_state(pstate, temp, state.rho, Y);
+    plasma_state_t pstate{};
+    fill_plasma_state(pstate, state.T, state.rho, Y);
 
     tf_t tfactors = evaluate_tfactors(state.T);
 
@@ -109,7 +102,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -128,7 +121,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -147,7 +140,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -166,7 +159,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -192,7 +185,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -218,7 +211,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -244,7 +237,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -270,7 +263,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -296,7 +289,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -322,7 +315,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 6.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -355,7 +348,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -374,7 +367,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 6.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -407,7 +400,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 8.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -440,7 +433,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -452,7 +445,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac2.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac2, scor2, dscor2_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac2, scor2, dscor2_dt);
 
     }
 
@@ -472,7 +465,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -491,7 +484,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -517,7 +510,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -543,7 +536,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -569,7 +562,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -595,7 +588,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -621,7 +614,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -647,7 +640,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -673,7 +666,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -699,7 +692,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -725,7 +718,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -751,7 +744,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 2.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 
@@ -777,7 +770,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
         static_assert(scn_fac.z1 == 1.0_rt);
 
 
-        actual_screen(pstate, scn_fac, scor, dscor_dt);
+        actual_screen<do_T_derivatives>(pstate, scn_fac, scor, dscor_dt);
     }
 
 

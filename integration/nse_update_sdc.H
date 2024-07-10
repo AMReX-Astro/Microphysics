@@ -590,20 +590,22 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
     // store the new state
     // make sure they are normalized
 
-    amrex::Real sum_X{0.0_rt};
-    for (auto & xn : nse_state.xn) {
-        xn = std::clamp(xn, small_x, 1.0_rt);
-        sum_X += xn;
-    }
+    // amrex::Real sum_X{0.0_rt};
+    // for (auto & xn : nse_state.xn) {
+    //     xn = std::clamp(xn, small_x, 1.0_rt);
+    //     sum_X += xn;
+    // }
 
-    for (auto & xn : nse_state.xn) {
-        xn /= sum_X;
-    }
+    // for (auto & xn : nse_state.xn) {
+    //     xn /= sum_X;
+    // }
 
+    // for (int n = 0; n < NumSpec; ++n) {
+    //     state.y[SFS+n] = rho_new * nse_state.xn[n];
+    // }
     for (int n = 0; n < NumSpec; ++n) {
-        state.y[SFS+n] = rho_new * nse_state.xn[n];
+        state.y[SFS+n] = nse_state.y[SFS+n];
     }
-
     // density and momenta have already been updated
 
     // get the energy release from the change in rhoe over the timestep

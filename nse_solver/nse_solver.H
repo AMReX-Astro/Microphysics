@@ -171,7 +171,6 @@ void apply_nse_exponent(T& nse_state,
                               ikTMeV - u_c(n+1));
 
         nse_state.xn[n] *= std::exp(exponent);
-        nse_state.xn[n] = std::min(small_x, nse_state.xn[n]);
     }
 
     nse_state.y_e = 0.0_rt;
