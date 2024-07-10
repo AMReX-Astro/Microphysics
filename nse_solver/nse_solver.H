@@ -51,7 +51,6 @@ T get_nonexponent_nse_state(const T& state) {
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
-    amrex::Real irho = 1.0_rt / state.rho;
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
