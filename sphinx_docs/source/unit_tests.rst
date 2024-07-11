@@ -33,34 +33,78 @@ Tests are divided into three categories:
   These are often used for interactive explorations and within the CI.
 
 * *infrastructure tests* test small bits of the solver, function
-  interfaces, or runtime infrastructure.  These are not really meant for
-  exploring the actual thermodynamic state.
+  interfaces, or runtime infrastructure.
+
+  These are not really meant for exploring the actual thermodynamic
+  state.
 
 
 
 Comprehensive tests
 ===================
 
-* ``test_aprox_rates``
+Each of these tests sets up a cube of data, $(\rho, T, X_k)$, with the
+range of $T$ and $\rho$, and the species to focus on for $X_k$ controlled
+by options in the input file.
 
-* ``test_conductivity``
+* ``test_aprox_rates`` :
 
-* ``test_eos``
+  call each of the hardcoded rate functions in ``Microphysics/rates/``
+  on each cell in the data cube and store the output in a plotfile.
 
-* ``test_jac``
+* ``test_conductivity`` :
 
-* ``test_neutrino_cooling``
+  call one of the conductivity routines (set via ``CONDUCTIVITY_DIR``)
+  on each cell in the data cube and store the output in a plotfile.
 
-* ``test_react``
+* ``test_eos`` :
 
-* ``test_rhs``
+  call one of the equations of state (set via ``EOS_DIR``) on each
+  cell in the data cube. We first call it with $(\rho, T, X_k)$ as
+  input (``eos_input_rt``), and then test each of the other EOS modes
+  (``eos_input_rh``, ``eos_input_tp``, ``eos_input_rp``,
+  ``eos_input_re``, ``eos_input_ps``, ``eos_input_ph``,
+  ``eos_input_th``) and for each of these modes, we compute the error
+  in the recovered $T$ and/or $\rho$ (as appropriate).  The full
+  thermodynamic state and errors are stored in a plotfile.
 
-* ``test_screening``
+* ``test_jac`` :
+
+  for each cell in the data cube, and for a specific network (set via
+  ``NETWORK_DIR``) call the analytic Jacobian provided by the network
+  and compute the numerical Jacobian (via finite differencing) and
+  store the relative difference between each approximation for each
+  Jacobian element in a plotfile.
+
+* ``test_neutrino_cooling`` :
+
+  for each cell in the data cube, call the neutrino cooling function
+  and store the output in a plotfile.
+
+* ``test_react`` :
+
+  for each cell in the data cube, call the reaction network and
+  integrate to a specified time.  Statistics about the number of RHS
+  calls are reported at the end.  A lot of options can be set via the
+  inputs file to control the integration.
+
+* ``test_rhs`` :
+
+  for each cell in the data cube, call the network's righthand side and
+  Jacobian functions and store the output in a plotfile.  The network
+  is controlled by the ``NETWORK_DIR`` variable.
+
+* ``test_screening`` :
 
 * ``test_screening_templated``
 
-* ``test_sdc``
+* ``test_sdc`` :
 
+  similar to ``test_react``, except now we exercise the SDC
+  integration infrastructure.  The conserved state that is input to
+  the burner is chosen to have a Mach number of $0.1$ (and otherwise
+  use the thermodynamics from the data cube).  No advective terms are
+  modeled.
 
 
 One-zone tests
