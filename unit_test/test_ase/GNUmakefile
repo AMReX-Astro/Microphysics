@@ -28,9 +28,10 @@ NETWORK_DIR := ase
 CONDUCTIVITY_DIR := stellar
 
 SCREEN_METHOD := chabrier1998
-
 #SCREEN_METHOD := null
 #SCREEN_METHOD := chugunov2007
+
+USE_SIMPLIFIED_SDC = TRUE
 
 INTEGRATOR_DIR =  VODE
 
@@ -40,5 +41,3 @@ Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-
