@@ -113,30 +113,66 @@ by options in the input file.
 One-zone tests
 ==============
 
-* ``burn_cell``
+* ``burn_cell`` :
 
-* ``burn_cell_primordial_chem``
+  given a $\rho$, $T$, and $X_k$, integrate a reaction network through a specified time
+  and output the new state.
 
-* ``burn_cell_sdc``
+* ``burn_cell_primordial_chem`` :
 
-* ``eos_cell``
+  similar to ``burn_cell`` except specific for the primordial chemistry network.
 
-* ``nse_table_cell``
+* ``burn_cell_sdc`` :
 
-* ``test_ase``
+  similar to ``burn_cell`` except this uses the SDC integration code paths.
 
-* ``test_nse``
+* ``eos_cell`` :
+
+  given a $\rho$, $T$, and $X_k$, call the equation of state and print out
+  the thermodynamic information.
+
+* ``nse_table_cell`` :
+
+  given a $\rho$, $T$, and $Y_e$, evaluate the NSE state via table interpolation
+  and print it out.
+
+* ``test_ase`` :
+
+  for the self-consistent NSE, take a $\rho$, $T$, and $Y_e$, and solve for the NSE
+  state.  Then check the NSE condition to see if we are actually satisfying the NSE
+  criteria for the network.
+
+* ``test_nse`` :
+
+  for the self-consistent NSE, solve for the chemical potentials using
+  the self-consistent NSE and output the NSE state.
 
 * ``test_part_func``
+
+  exercise the partition function interpolation for a few select nuclei.
 
 
 Infrastructure tests
 ====================
 
-* ``test_linear_algebra``
+* ``test_linear_algebra`` :
 
-* ``test_nse_interp``
+  create a diagonally dominant matrix, multiply it by a test vector, $x$,
+  to get $b = Ax$, and then call the linear algebra routines to see if we
+  we recover $x$ from $b$.
 
-* ``test_parameters``
+* ``test_nse_interp`` :
 
-* ``test_sdc_vode_rhs``
+  run various tests of the NSE interpolation routines.
+
+* ``test_parameters`` :
+
+  a simple setup that initializes the runtime parameters and can be
+  used to test if we can override them at runtime via inputs or the
+  commandline.  This uses both the global data and the struct form
+  of the runtime parameters.
+
+* ``test_sdc_vode_rhs`` :
+
+  a simple driver for the SDC RHS routines.  Given a thermodynamic
+  state, it outputs the RHS that the integrator will see.
