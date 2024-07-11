@@ -2,6 +2,15 @@
 Comprehensive Unit Tests
 ************************
 
+Generally, for each test, you simply type ``make`` in the test
+directory.  There are a number of runtime parameters that can
+control the behavior.  These are specified (along with defaults)
+in ``_parameters`` files in each test directory and can be
+overridden in an inputs file or on the commandline.
+
+Some additional details on a few of the comprehensive unit tests
+are given below.
+
 EOS test (``test_eos``)
 =======================
 
@@ -108,25 +117,3 @@ network (e.g., ``aprox13``) as::
 The loop over the burner is marked up for OpenMP and CUDA and
 therefore this test can be used to assess threadsafety of the burners
 as well as to optimize the GPU performance of the burners.
-
-
-Aprox Rates Test
-----------------
-
-``Microphysics/unit_test/test_aprox_rates`` just evaluates the
-instantaneous reaction rates in ``Microphysics/rates/`` used by the
-``iso7``, ``aprox13``, ``aprox19``, and ``aprox21`` reaction networks.
-This uses the same basic ideas as the tests above---a cube of data is
-setup and the rates are evaluated using each zone's thermodynamic
-conditions.  This test is not really network specific---it tests all
-of the available rates.
-
-
-Screening Test
---------------
-
-``Microphysics/unit_test/test_screening`` just evaluates the screening
-routine, using the ``aprox21`` reaction network.
-This uses the same basic ideas as the tests above---a cube of data is
-setup and the rates are evaluated using each zone's thermodynamic
-conditions.
