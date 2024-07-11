@@ -18,7 +18,7 @@ void nse_example_c()
 
     burn_t state;
 
-    Real massfractions[NumSpec] = {-1.0};
+    amrex::Real massfractions[NumSpec] = {-1.0};
     std::cout << massfractions << std::endl;
     // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
@@ -77,7 +77,7 @@ void nse_example_c()
 
     std::cout << "NSE state: " << std::endl;
     for (int n = 0; n < NumSpec; ++n) {
-      std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n] << std::endl;
+      std::cout << short_spec_names_cxx[n] << " : " << NSE_STATE.xn[n]<< std::endl;
     }
 }
 #endif

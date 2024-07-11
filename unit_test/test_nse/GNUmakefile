@@ -28,13 +28,11 @@ NETWORK_DIR := aprox21
 
 SCREEN_METHOD := chabrier1998
 
+USE_SIMPLIFIED_SDC = TRUE
+
 CONDUCTIVITY_DIR := stellar
 
 INTEGRATOR_DIR =  VODE
-
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
 
 EXTERN_SEARCH += . ..
 
@@ -42,5 +40,3 @@ Bpack   := ./Make.package
 Blocs   := .
 
 include $(MICROPHYSICS_HOME)/unit_test/Make.unit_test
-
-

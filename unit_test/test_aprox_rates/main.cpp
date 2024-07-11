@@ -75,7 +75,7 @@ void main_main ()
         ba.maxSize(max_grid_size);
 
         // This defines the physical box, [0, 1] in each direction.
-        RealBox real_box({AMREX_D_DECL(0.0, 0.0, 0.0)},
+        amrex::RealBox real_box({AMREX_D_DECL(0.0, 0.0, 0.0)},
                          {AMREX_D_DECL(1.0, 1.0, 1.0)});
 
         // This defines a Geometry object
@@ -112,7 +112,7 @@ void main_main ()
     get_varnames(vars, names);
 
     // time = starting time in the simulation
-    Real time = 0.0;
+    amrex::Real time = 0.0;
 
     // How Boxes are distributed among MPI processes
     DistributionMapping dm(ba);
@@ -125,17 +125,17 @@ void main_main ()
     state.setVal(0.0);
 
     // What time is it now?  We'll use this to compute total run time.
-    Real strt_time = ParallelDescriptor::second();
+    amrex::Real strt_time = ParallelDescriptor::second();
 
 
-    Real dlogrho = 0.0e0_rt;
-    Real dlogT = 0.0e0_rt;
-    Real dNi = 0.0_rt;
+    amrex::Real dlogrho = 0.0e0_rt;
+    amrex::Real dlogT = 0.0e0_rt;
+    amrex::Real dNi = 0.0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/Real(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/Real(n_cell - 1);
-        dNi = 1.0_rt / Real(n_cell - 1);
+        dlogrho = (std::log10(dens_max) - std::log10(dens_min)) / static_cast<amrex::Real>(n_cell - 1);
+        dlogT   = (std::log10(temp_max) - std::log10(temp_min)) / static_cast<amrex::Real>(n_cell - 1);
+        dNi = 1.0_rt / static_cast<amrex::Real>(n_cell - 1);
     }
 
     // Initialize the state and compute the different thermodynamics
@@ -144,7 +144,7 @@ void main_main ()
     {
         const Box& bx = mfi.validbox();
 
-        Array4<Real> const sp = state.array(mfi);
+        Array4<amrex::Real> const sp = state.array(mfi);
 
         aprox_rates_test(bx, dlogrho, dlogT, dNi, vars, sp);
         aprox_rates_extra_c12ag(bx, dlogrho, dlogT, dNi, vars, sp);
@@ -153,7 +153,7 @@ void main_main ()
 
     // Call the timer again and compute the maximum difference between
     // the start time and stop time over all processors
-    Real stop_time = ParallelDescriptor::second() - strt_time;
+    amrex::Real stop_time = ParallelDescriptor::second() - strt_time;
     const int IOProc = ParallelDescriptor::IOProcessorNumber();
     ParallelDescriptor::ReduceRealMax(stop_time, IOProc);
 

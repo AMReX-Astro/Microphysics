@@ -50,16 +50,16 @@
 
 template<int neqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void qrfac(Array2D<Real, 1, neqs, 1, neqs>& a,
-           Array1D<Real, 1, neqs>& rdiag,
-           Array1D<Real, 1, neqs>& acnorm,
-           Array1D<Real, 1, neqs>& wa) {
+void qrfac(amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& a,
+           amrex::Array1D<amrex::Real, 1, neqs>& rdiag,
+           amrex::Array1D<amrex::Real, 1, neqs>& acnorm,
+           amrex::Array1D<amrex::Real, 1, neqs>& wa) {
 
     // temporary storage for a column of the Jacobian -- the Fortran
     // code would pass to enorm something like a(i, j) to compute the
     // norm of column j from row i to the last row.
 
-    amrex::Array1D<Real, 1, neqs> tmp;
+    amrex::Array1D<amrex::Real, 1, neqs> tmp;
 
     // compute the initial column norms and initialize several arrays.
 
@@ -84,7 +84,7 @@ void qrfac(Array2D<Real, 1, neqs, 1, neqs>& a,
         for (int irow = j; irow <= neqs; ++irow) {
             tmp(irow-j+1) = a(irow,j);
         }
-        Real ajnorm = enorm(neqs-j+1, tmp);
+        amrex::Real ajnorm = enorm(neqs-j+1, tmp);
         if (ajnorm != 0.0_rt) {
             if (a(j,j) < 0.0_rt) {
                 ajnorm = -ajnorm;
@@ -100,11 +100,11 @@ void qrfac(Array2D<Real, 1, neqs, 1, neqs>& a,
             int jp1 = j + 1;
             if (neqs >= jp1) {
                for (int k = jp1; k <= neqs; ++k) {
-                   Real sum = 0.0_rt;
+                   amrex::Real sum = 0.0_rt;
                    for (int i = j; i <= neqs; ++i) {
                        sum += a(i,j) * a(i,k);
                    }
-                   Real temp = sum / a(j,j);
+                   amrex::Real temp = sum / a(j,j);
                    for (int i = j; i <= neqs; ++i) {
                        a(i,k) += -temp * a(i,j);
                    }
