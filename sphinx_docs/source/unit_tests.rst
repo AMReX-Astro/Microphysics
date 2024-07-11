@@ -94,9 +94,12 @@ by options in the input file.
   Jacobian functions and store the output in a plotfile.  The network
   is controlled by the ``NETWORK_DIR`` variable.
 
-* ``test_screening`` :
+* ``test_screening_templated`` :
 
-* ``test_screening_templated``
+  for any of the templated-C++ networks, this test will loop over all of
+  the rates and calculate the screening factor (the screening routine can
+  be set via ``SCREEN_METHOD``).  The factors for each cell in the data
+  cube are written to a plotfile.
 
 * ``test_sdc`` :
 
