@@ -5,12 +5,17 @@
 
 // Define the size of the ODE system that VODE will integrate
 
-const int INT_NEQS = NumSpec + 1;
+constexpr int INT_NEQS = NumSpec + 1;
 
 // We will use this parameter to determine if a given species
 // abundance is unreasonably small or large (each X must satisfy
 // -failure_tolerance <= X <= 1.0 + failure_tolerance).
-const amrex::Real species_failure_tolerance = 1.e-2_rt;
+constexpr amrex::Real species_failure_tolerance = 1.e-2_rt;
+
+#ifdef NSE
+constexpr int MIN_NSE_BAILOUT_STEPS = 10;
+#endif
+
 
 enum integrator_errors : std::int8_t {
     IERR_SUCCESS = 1,
