@@ -51,6 +51,7 @@ T get_nonexponent_nse_state(const T& state) {
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+    constexpr amrex::Real ihplanck2 = 1.0_rt / (C::hplanck * C::hplanck);
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
@@ -73,7 +74,6 @@ T get_nonexponent_nse_state(const T& state) {
 
         // find nse mass frac without the exponent term.
 
-        constexpr amrex::Real ihplanck2 = 1.0_rt / (C::hplanck * C::hplanck);
         amrex::Real power = 2.0_rt * M_PI * network::mion(n+1) *
             C::k_B * T_in * ihplanck2;
 
