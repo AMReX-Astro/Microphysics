@@ -26,11 +26,12 @@ else
   CEXE_headers += integrator_setup_strang.H
 endif
 
-ifeq ($(USE_NSE_TABLE), TRUE)
+
+ifeq ($(USE_ALL_NSE), TRUE)
   ifeq ($(USE_ALL_SDC), TRUE)
     CEXE_headers += nse_update_sdc.H
   else
-    CEXE_headers += nse_update_strang.H
+    $(error NSE with Strang integration is not supported)
   endif
 endif
 
