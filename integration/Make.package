@@ -27,7 +27,7 @@ else
 endif
 
 
-ifeq ($(USE_NSE_TABLE), TRUE)
+ifeq ($(USE_ALL_NSE), TRUE)
   ifeq ($(USE_ALL_SDC), TRUE)
     CEXE_headers += nse_update_sdc.H
   else
