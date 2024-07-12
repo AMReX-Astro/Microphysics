@@ -87,6 +87,15 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
+# USE_ALL_NSE will be used if any of the NSE techniques is applied
+ifeq ($(USE_NSE_TABLE),TRUE)
+  USE_ALL_NSE := TRUE
+endif
+
+ifeq ($(USE_NSE_NET),TRUE)
+  USE_ALL_NSE := TRUE
+endif
+
 # NSE networks need the table
 ifeq ($(USE_NSE_TABLE),TRUE)
   NSE_TABULAR_HOME ?= $(MICROPHYSICS_HOME)/nse_tabular

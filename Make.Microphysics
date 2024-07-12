@@ -118,10 +118,6 @@ Blocs += $(foreach dir, $(EXTERN_CORE), $(dir))
 
 include $(Bpack)
 
-# this is a safety from the mega-fortran attempts
-f90EXE_sources += $(ca_f90EXE_sources)
-F90EXE_sources += $(ca_F90EXE_sources)
-
 INCLUDE_LOCATIONS += $(Blocs)
 VPATH_LOCATIONS   += $(Blocs)
 
