@@ -106,7 +106,7 @@ void main_main ()
         amrex::Error("test_rhs only works for jacobian = 1");
     }
 
-    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    // C++ EOS initialization (must be done after init_extern_parameters)
     eos_init(small_temp, small_dens);
 
     // C++ Network, RHS, screening, rates initialization
