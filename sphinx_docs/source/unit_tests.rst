@@ -142,11 +142,6 @@ One-zone tests
   state.  Then check the NSE condition to see if we are actually satisfying the NSE
   criteria for the network.
 
-* ``test_nse`` :
-
-  for the self-consistent NSE, solve for the chemical potentials using
-  the self-consistent NSE and output the NSE state.
-
 * ``test_part_func``
 
   exercise the partition function interpolation for a few select nuclei.
