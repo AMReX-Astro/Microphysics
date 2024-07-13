@@ -46,8 +46,7 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
                          const amrex::Real Ye, amrex::Real &mu_p,
                          amrex::Real &mu_n) {
     ///
-    /// This function calculates dabar_dT using
-    /// central differencing.
+    /// This function constructs dabar_dT
     /// This should be 2nd order accurate
     ///
 
@@ -57,16 +56,16 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
 
     // Calculate derivative using five-point stencil method
 
-    // amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
-    //                          8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
-    //                          8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
-    //                          nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
-    //                         ) / (12.0_rt * dT);
+    amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
+                             8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
+                             8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
+                             nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
+                            ) / (12.0_rt * dT);
 
     // Calculate derivative using central differencing
 
-    amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
-                                     nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
+    // amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
+    //                                  nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
 
     return dabar_dT;
 }
@@ -102,7 +101,7 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
                   amrex::Real &T, amrex::Real &abar,
                   amrex::Real &mu_p, amrex::Real &mu_n) {
 
-    constexpr Real ttol{1.e-6_rt};
+    constexpr Real ttol{1.e-8_rt};
     constexpr int max_iter{100};
 
     // we need the full EOS type, since we need de/dA
