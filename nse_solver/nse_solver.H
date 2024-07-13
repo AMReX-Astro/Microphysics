@@ -37,7 +37,7 @@ T get_nonexponent_nse_state(const T& state) {
     // on the chemical potential. This way we don't have to calculate the same
     // component repeatedly.
 
-    // This function returns an incomplete nse_state where the rhoXn lacks the exponent term.
+    // This function returns an incomplete nse_state where the xn lacks the exponent term.
 
     T nse_state = state;
 
@@ -83,7 +83,6 @@ T get_nonexponent_nse_state(const T& state) {
 
     return nse_state;
 }
-
 
 #if SCREEN_METHOD == SCREEN_METHOD_chabrier1998
 template <typename T>
