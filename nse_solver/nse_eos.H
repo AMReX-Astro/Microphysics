@@ -104,9 +104,6 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
     constexpr Real ttol{1.e-8_rt};
     constexpr int max_iter{100};
 
-    // we need the full EOS type, since we need de/dA
-    //eos_extra_t eos_state;
-
     bool converged{false};
 
     int iter{0};
