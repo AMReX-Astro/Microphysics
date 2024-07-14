@@ -385,19 +385,11 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
 
     for (int n = 1; n <= NumSpec; ++n) {
         Y(n) = nse_state0.xn[n-1] * aion_inv[n-1];
-        // Y(n) = Xn0[n-1] * aion_inv[n-1];
     }
 
     // Fill in ydot with only weak rates contributing
 
     get_ydot_weak(nse_state0, ydot_weak, e_nu, Y);
-
-    // rate_t rate_eval;
-    // constexpr int do_T_derivatives = 0;
-    // evaluate_rates<do_T_derivatives, rate_t>(burn_state, rate_eval);
-    // rhs_nuc(burn_state, ydot_weak, Y, rate_eval.screened_rates);
-    // e_nu = rate_eval.enuc_weak;
-
 
     ///
     /// construct initial sources at t0
@@ -467,15 +459,12 @@ void nse_derivs(const amrex::Real rho0, const amrex::Real rhoe0,
     auto nse_state1 = get_actual_nse_state(burn_state, 1.0e-10_rt, true);
 
     // construct the finite-difference approximation to the derivatives
-
     // subtract off advection contribution to get pure drhoedt from reaction
 
     drhoedt = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         drhoedt += (nse_state1.y[SFS+n] - tau * ydot_a[SFS+n] -
                     nse_state0.y[SFS+n]) * aion_inv[n] * network::mion(n+1);
-        // drhoedt += (rho1 * nse_state1.xn[n] - tau * ydot_a[SFS+n] -
-        //             rho0 * Xn0[n]) * aion_inv[n] * network::mion(n+1) / tau;
     }
     drhoedt *= C::Legacy::enuc_conv2 / tau;
 
