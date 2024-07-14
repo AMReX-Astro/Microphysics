@@ -39,6 +39,7 @@ amrex::Real fast_atan_1(const amrex::Real x) {
     constexpr amrex::Real A = 0.0776509570923569_rt;
     constexpr amrex::Real B = -0.287434475393028_rt;
     constexpr amrex::Real C = GCEM_PI / 4.0_rt - A - B;
+    constexpr amrex::Real third = 1.0_rt / 3.0_rt;
 
     ///
     /// If x < 0.378, then using arctan(x) ~ x - x^3/3 + x^5/5
@@ -49,7 +50,7 @@ amrex::Real fast_atan_1(const amrex::Real x) {
     if (std::abs(x) < 0.378_rt) {
         // return -0.3333333333_rt*amrex::Math::powi<3>(x) + x;
         amrex::Real x2 = x*x;
-        return ((0.2_rt*x2 - 0.33333333333_rt)*x2 + 1.0_rt)*x;
+        return ((0.2_rt*x2 - third)*x2 + 1.0_rt)*x;
     }
 
     amrex::Real x2 = x*x;
