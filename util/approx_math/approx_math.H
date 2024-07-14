@@ -3,6 +3,7 @@
 
 #include <AMReX_BLassert.H>
 #include <AMReX_REAL.H>
+#include <AMReX_Math.H>
 #include <microphysics_math.H>
 #include <cstdint>
 #include <cstring>
@@ -39,6 +40,18 @@ amrex::Real fast_atan_1(const amrex::Real x) {
     constexpr amrex::Real B = -0.287434475393028_rt;
     constexpr amrex::Real C = GCEM_PI / 4.0_rt - A - B;
 
+    ///
+    /// If x < 0.378, then using arctan(x) ~ x - x^3/3 + x^5/5
+    /// gives better answer than the approximation below.
+    /// And accuracy increase as x << 0.378.
+    ///
+
+    if (std::abs(x) < 0.378_rt) {
+        // return -0.3333333333_rt*amrex::Math::powi<3>(x) + x;
+        amrex::Real x2 = x*x;
+        return ((0.2_rt*x2 - 0.33333333333_rt)*x2 + 1.0_rt)*x;
+    }
+
     amrex::Real x2 = x*x;
     return ((A*x2 + B)*x2 + C)*x;
 }
@@ -51,17 +64,6 @@ amrex::Real fast_atan(const amrex::Real x) {
     ///
 
     constexpr amrex::Real PI_2 = 0.5_rt * GCEM_PI;
-
-    ///
-    /// If x < 0.113, then using arctan(x) ~ x
-    /// gives better answer than the approximation below.
-    /// And accuracy increase as x << 0.113.
-    /// Also significantly faster.
-    ///
-
-    if (std::abs(x) < 0.113_rt) {
-        return x;
-    }
 
     // Check for large number, close to infinity.
     // Error is ~1e-8 rad by not checking actual inf
