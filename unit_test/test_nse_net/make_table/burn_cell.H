@@ -37,9 +37,13 @@ void burn_cell_c()
                 state.rho = rho;
                 state.y_e = Ye;
 
-                if (state.y_e > 0.52_rt){
-                    state.mu_p = -4.0_rt;
-                    state.mu_n = -14.0_rt;
+                if (state.y_e >= 0.63_rt) {
+                    state.mu_p = -3.0_rt;
+                    state.mu_n = -14.9_rt;
+                }
+                else if (state.y_e > 0.52_rt){
+                    state.mu_p = -6.0_rt;
+                    state.mu_n = -11.0_rt;
                 }
                 else if (state.y_e > 0.48_rt){
                     state.mu_p = -8.0_rt;
