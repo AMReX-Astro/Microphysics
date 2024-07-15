@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Microphysics
     VERSION 1.0.0
-    DESCRIPTION "building primordial_chemistry network in Microphysics with CMake"
+    DESCRIPTION "building primordial_chemistry or metal_chemistry networks in Microphysics with CMake"
     LANGUAGES CXX C)
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -89,6 +89,50 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     #below for NAUX
     execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
 
+  elseif (${network_name} STREQUAL "metal_chem")
+    #need these to write extern_parameters.H
+    set(paramfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/burn_cell_metal_chem/_parameters")
+    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/_parameters")
+    set(networkpcparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/_parameters")
+
+    #similarly, we want network_properties.H
+    set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/pynucastro.net")
+    set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/")
+    set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
+
+    #DO NOT change the order of the directories below!
+    set (metal_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants
+                             PARENT_SCOPE)
+
+    #we need to have extern_parameters.cpp be available at configure time
+    #the script write_probin.py writes this .cpp file so we call it here
+    #note, execute_process only works on 'cmake' and not 'make'
+    #so, if any of the _parameter files are changed, one needs to re-run 'cmake'
+    #to generate updated header files
+
+    if(BUILD_UNIT_TEST)
+      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile}
+                      ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
+    else()
+      #do not need paramfile and unittestparamfile
+      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile}
+                      ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
+    endif()
+
+    set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                                ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+
+
+    #below for NAUX
+    execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
+
   else()
     message(FATAL_ERROR "Given network_name " ${network_name} " currently not supported. Use either 'gamma_law' or 'primordial_chem' ")
 
@@ -141,17 +185,23 @@ add_compile_options(-Werror -Wall -Wextra)
 #do not need unit_test paramfiles when unit_test is not built
 
 if(BUILD_UNIT_TEST)
+  #Build primordial chem unit test
   setup_target_for_microphysics_compilation("primordial_chem" ${CMAKE_BINARY_DIR})
-
   include_directories(${primordial_chem_dirs})
-
   #adding unit_test as subdirectories
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
   message("Building primordial chem unit test")
 
+  #Build metal chem unit test
+  setup_target_for_microphysics_compilation("metal_chem" ${CMAKE_BINARY_DIR})
+  include_directories(${metal_chem_dirs})
+  #adding unit_test as subdirectories
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
+  message("Building metal chem unit test")
+
 else()
 
-  message("Not building primordial chem unit test")
+  message("Not building primordial or metal chem unit tests")
 endif()
 
 
