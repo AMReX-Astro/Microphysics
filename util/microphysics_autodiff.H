@@ -12,6 +12,9 @@
 
 // required for AMREX_GPU_HOST_DEVICE, which is used via AUTODIFF_DEVICE_FUNC
 #include <AMReX_GpuQualifiers.H>
+// disable some optimizations that break standard left-to-right operator
+// associativity, giving slightly different results with Dual vs. double
+#define AUTODIFF_STRICT_ASSOCIATIVITY
 #include <autodiff/forward/dual.hpp>
 #include <autodiff/forward/utils/derivative.hpp>
 
