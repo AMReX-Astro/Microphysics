@@ -71,7 +71,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     #so, if any of the _parameter files are changed, one needs to re-run 'cmake'
     #to generate updated header files
 
-    if(BUILD_UNIT_TEST)
+    if(BUILD_UNIT_TEST_PC)
       execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile}
                       ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
     else()
@@ -115,7 +115,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     #so, if any of the _parameter files are changed, one needs to re-run 'cmake'
     #to generate updated header files
 
-    if(BUILD_UNIT_TEST)
+    if(BUILD_UNIT_TEST_MC)
       execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile}
                       ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
     else()
@@ -170,8 +170,11 @@ endif()
 
 #set a cache variable that controls whether
 #we want to build the unit test or not
-set(BUILD_UNIT_TEST false CACHE BOOL "Do you want to build the unit test? (true/false)")
-message("Building unit test -- ${BUILD_UNIT_TEST}")
+set(BUILD_UNIT_TEST_PC false CACHE BOOL "Do you want to build the primordial chem unit test? (true/false)")
+message("Building unit test -- ${BUILD_UNIT_TEST_PC}")
+
+set(BUILD_UNIT_TEST_MC false CACHE BOOL "Do you want to build the metal chem unit test? (true/false)")
+message("Building unit test -- ${BUILD_UNIT_TEST_MC}")
 
 add_compile_options(-Werror -Wall -Wextra)
 
@@ -184,18 +187,21 @@ add_compile_options(-Werror -Wall -Wextra)
 #this will generate a warning but it will build successfully
 #do not need unit_test paramfiles when unit_test is not built
 
-if(BUILD_UNIT_TEST)
+if(BUILD_UNIT_TEST_PC)
   #Build primordial chem unit test
   setup_target_for_microphysics_compilation("primordial_chem" ${CMAKE_BINARY_DIR})
   include_directories(${primordial_chem_dirs})
-  #adding unit_test as subdirectories
+
+  #adding unit_tests as subdirectories
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
   message("Building primordial chem unit test")
 
+elseif(BUILD_UNIT_TEST_MC)
   #Build metal chem unit test
   setup_target_for_microphysics_compilation("metal_chem" ${CMAKE_BINARY_DIR})
   include_directories(${metal_chem_dirs})
-  #adding unit_test as subdirectories
+
+  #adding unit_tests as subdirectories
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
   message("Building metal chem unit test")
 

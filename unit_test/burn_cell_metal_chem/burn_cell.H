@@ -285,7 +285,7 @@ auto burn_cell_c() -> int {
 
     // update the number density of electrons due to charge conservation
     state.xn[0] = -state.xn[3] - state.xn[7] - state.xn[17] - state.xn[25] +
-                  state.xn[1] + state.xn[6] + state.xn[13] + state.xn[4] + state.xn[9] + 
+                  state.xn[1] + state.xn[6] + state.xn[13] + state.xn[4] + state.xn[9] +
                   2.0 * state.xn[12] + state.xn[15] + state.xn[23] + state.xn[34] + state.xn[35] +
                   state.xn[11] + state.xn[18] + state.xn[20] + state.xn[22] + state.xn[32] +
                   state.xn[26] + state.xn[28] + state.xn[30] + state.xn[37];
