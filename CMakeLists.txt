@@ -23,11 +23,11 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
   set(integrationparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/_parameters")
   set(unittestparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/_parameters")
 
-  set(networkpropfile "${output_dir}/network_properties.H")
 
   if (${network_name} STREQUAL "gamma_law")
     set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/gamma_law/_parameters")
 
+    set(networkpropfile "${output_dir}/network_properties.H")
     set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/gammalaw.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/")
     set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
@@ -44,6 +44,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(gamma_law_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
                           ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
                           ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
 
   elseif (${network_name} STREQUAL "primordial_chem")
     #need these to write extern_parameters.H
@@ -52,6 +53,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(networkpcparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/_parameters")
 
     #similarly, we want network_properties.H
+    set(networkpropfile "${output_dir}/network_properties.H")
     set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/pynucastro.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/primordial_chem/")
     set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
@@ -88,6 +90,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     #below for NAUX
     execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
 
   elseif (${network_name} STREQUAL "metal_chem")
     #need these to write extern_parameters.H
@@ -96,6 +99,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set(networkpcparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/_parameters")
 
     #similarly, we want network_properties.H
+    set(networkpropfile "${output_dir}/network_properties.H")
     set(networkfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/pynucastro.net")
     set(networkdir "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/")
     set(networkheadertemplatefile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/network_header.template")
@@ -132,13 +136,13 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     #below for NAUX
     execute_process(COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${PYTHONPATH}:${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null" python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/get_naux.py" --net "${networkdir}" --microphysics_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/" WORKING_DIRECTORY ${output_dir}/)
+    execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
 
   else()
     message(FATAL_ERROR "Given network_name " ${network_name} " currently not supported. Use either 'gamma_law' or 'primordial_chem' ")
 
   endif()
 
-  execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
 
 endfunction()
 
