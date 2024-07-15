@@ -60,7 +60,7 @@ Running the Code
 
 To run the code, enter the burn_cell directory and run::
 
-   ./main3d.gnu.exe with inputs
+   ./main3d.gnu.ex inputs
 
 where ``inputs`` is the name of your inputs file.
 
