@@ -719,7 +719,7 @@ AUTODIFF_DEVICE_FUNC constexpr auto negative(U&& expr)
 template<typename U>
 AUTODIFF_DEVICE_FUNC constexpr auto inverse(U&& expr)
 {
-    static_assert(isExpr<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
     if constexpr (isInvExpr<U>)
         return inner(expr);
     else return InvExpr<PreventExprRef<U>>{ expr };
@@ -851,9 +851,7 @@ AUTODIFF_DEVICE_FUNC constexpr auto operator-(L&& l, R&& r)
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
 AUTODIFF_DEVICE_FUNC constexpr auto operator/(L&& l, R&& r)
 {
-    if constexpr (isArithmetic<R>)
-        return std::forward<L>(l) * (One<L>() / std::forward<R>(r));
-    else return std::forward<L>(l) * inverse(std::forward<R>(r));
+    return std::forward<L>(l) * inverse(std::forward<R>(r));
 }
 
 //=====================================================================================================================
@@ -1252,6 +1250,10 @@ AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other)
         assignMul(self, other.r);
         negate(self);
     }
+    // ASSIGN-MULTIPLY AN INVERSE EXPRESSION: self *= 1/expr
+    else if constexpr (isInvExpr<U>) {
+        assignDiv(self, other.r);
+    }
 #if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-MULTIPLY A NUMBER-DUAL MULTIPLICATION EXPRESSION: self *= number * dual
     else if constexpr (isNumberDualMulExpr<U>) {
@@ -1313,10 +1315,10 @@ AUTODIFF_DEVICE_FUNC constexpr void assignDiv(Dual<T, G>& self, U&& other)
     }
     // ASSIGN-DIVIDE A DUAL NUMBER: self /= dual
     else if constexpr (isDual<U>) {
-        const T aux = One<T>() / other.val; // to avoid aliasing when self === other
-        self.val *= aux;
+        const T aux = other.val; // to avoid aliasing when self === other
+        self.val /= aux;
         self.grad -= self.val * other.grad;
-        self.grad *= aux;
+        self.grad /= aux;
     }
     // ASSIGN-DIVIDE A NEGATIVE EXPRESSION: self /= (-expr)
     else if constexpr (isNegExpr<U>) {
@@ -1385,9 +1387,9 @@ AUTODIFF_DEVICE_FUNC constexpr void assignPow(Dual<T, G>& self, U&& other)
 {
     // ASSIGN-POW A NUMBER: self = pow(self, number)
     if constexpr (isArithmetic<U>) {
-        const T aux = pow(self.val, other - 1);
-        self.grad *= other * aux;
-        self.val = aux * self.val;
+        const T aux = pow(self.val, other);
+        self.grad *= other * aux / self.val;
+        self.val = aux;
     }
     // ASSIGN-POW A DUAL NUMBER: self = pow(self, dual)
     else if constexpr (isDual<U>) {
