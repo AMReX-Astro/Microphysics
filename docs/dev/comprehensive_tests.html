@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comprehensive Unit Tests &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="One Zone Tests" href="one_zone_tests.html" />
+    <link rel="prev" title="Overview of Unit Tests" href="unit_tests.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="../comprehensive_tests.html">main</a> | <a href="./comprehensive_tests.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">Available Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Comprehensive Unit Tests</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#eos-test-test-eos">EOS test (<code class="docutils literal notranslate"><span class="pre">test_eos</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#network-test-test-react">Network test (<code class="docutils literal notranslate"><span class="pre">test_react</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Comprehensive Unit Tests</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/comprehensive_tests.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="comprehensive-unit-tests">
+<h1>Comprehensive Unit Tests<a class="headerlink" href="#comprehensive-unit-tests" title="Link to this heading"></a></h1>
+<p>Generally, for each test, you simply type <code class="docutils literal notranslate"><span class="pre">make</span></code> in the test
+directory.  There are a number of runtime parameters that can
+control the behavior.  These are specified (along with defaults)
+in <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> files in each test directory and can be
+overridden in an inputs file or on the commandline.</p>
+<p>Some additional details on a few of the comprehensive unit tests
+are given below.</p>
+<section id="eos-test-test-eos">
+<h2>EOS test (<code class="docutils literal notranslate"><span class="pre">test_eos</span></code>)<a class="headerlink" href="#eos-test-test-eos" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_eos/</span></code> is a unit test for the equations
+of state in Microphysics. It sets up a cube of data, with
+<span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span> varying along the three
+dimensions, and then calls the EOS in each zone. Calls are done to
+exercise all modes of calling the EOS, in order:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rt</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, T\)</span>. this is the
+reference call, and we save the <span class="math notranslate nohighlight">\(h\)</span>, <span class="math notranslate nohighlight">\(e\)</span>, <span class="math notranslate nohighlight">\(p\)</span>, and
+<span class="math notranslate nohighlight">\(s\)</span> from here to use in subsequent calls.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rh</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, h\)</span>, to recover
+the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to do, we
+perturb the initial temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_tp</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(T, p\)</span>, to recover the
+original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to do, we
+perturb the initial density.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho\)</span> in the output file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_rp</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, p\)</span>, to recover
+the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to do, we
+perturb the initial temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_re</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(\rho, e\)</span>, to recover
+the original <span class="math notranslate nohighlight">\(T\)</span>. To give the root finder some work to do, we
+perturb the initial temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(T\)</span> in the output file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_ps</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(p, s\)</span>, to recover the
+original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to do,
+we perturb the initial density and temperature.</p>
+<p>Note: entropy is not well-defined for some EOSs, so we only attempt
+the root find if <span class="math notranslate nohighlight">\(s &gt; 0\)</span>.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_ph</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(p, h\)</span>, to recover the
+original <span class="math notranslate nohighlight">\(\rho, T\)</span>. To give the root finder some work to do,
+we perturb the initial density and temperature.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho, T\)</span> in the output file.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_th</span></code>: We call the EOS using <span class="math notranslate nohighlight">\(T, h\)</span>, to recover the
+original <span class="math notranslate nohighlight">\(\rho\)</span>. To give the root finder some work to do, we
+perturb the initial density.</p>
+<p>Note: for some EOSs, <span class="math notranslate nohighlight">\(h = h(\rho)\)</span> (e.g., an ideal gas), so there
+is no temperature dependence, and we do not do this test.</p>
+<p>We store the relative error in <span class="math notranslate nohighlight">\(\rho\)</span> in the output file.</p>
+</li>
+</ul>
+<p>This unit test is marked up with OpenMP directives and therefore also
+tests whether the EOS is threadsafe.</p>
+<p>To compile for a specific EOS, e.g., helmholtz, do:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">EOS_DIR</span><span class="o">=</span><span class="n">helmholtz</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p>Examining the output (an AMReX plotfile) will show you how big the
+errors are. You can use the <code class="docutils literal notranslate"><span class="pre">amrex/Tools/Plotfile/</span></code> tool
+<code class="docutils literal notranslate"><span class="pre">fextrema</span></code> to display the maximum error for each variable.</p>
+</section>
+<section id="network-test-test-react">
+<h2>Network test (<code class="docutils literal notranslate"><span class="pre">test_react</span></code>)<a class="headerlink" href="#network-test-test-react" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/test_react/</span></code> is a unit test for the nuclear
+reaction networks in Microphysics. It sets up a cube of data, with
+<span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(X_k\)</span> varying along the three
+dimensions (as a <span class="math notranslate nohighlight">\(16^3\)</span> domain), and then calls the EOS in each
+zone.  This test does the entire ODE integration of the network for
+each zone.</p>
+<p>The state in each zone of our data cube is determined by the runtime
+parameters <code class="docutils literal notranslate"><span class="pre">dens_min</span></code>, <code class="docutils literal notranslate"><span class="pre">dens_max</span></code>, <code class="docutils literal notranslate"><span class="pre">temp_min</span></code>, and <code class="docutils literal notranslate"><span class="pre">temp_max</span></code>
+for <span class="math notranslate nohighlight">\((\rho, T)\)</span>. Because each network carries different
+compositions, we specify the composition through runtime parameters in
+the <code class="docutils literal notranslate"><span class="pre">&amp;extern</span></code> namelist: <code class="docutils literal notranslate"><span class="pre">primary_species_1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">primary_species_2</span></code>, <code class="docutils literal notranslate"><span class="pre">primary_species_3</span></code>. These primary species
+will vary from X = 0.2 to X = 0.7 to 0.9 (depending on the number).
+Only one primary species varies at a time. The non-primary species
+will be set equally to share whatever fraction of 1 is not accounted
+for by the primary species mass fractions.</p>
+<p>This test calls the network on each zone, running for a time
+<code class="docutils literal notranslate"><span class="pre">tmax</span></code>. The full state, including new mass fractions and energy
+release is output to a AMReX plotfile.</p>
+<p>You can compile for a specific integrator (e.g., <code class="docutils literal notranslate"><span class="pre">VODE</span></code>) or
+network (e.g., <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>) as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">NETWORK_DIR</span><span class="o">=</span><span class="n">aprox13</span> <span class="n">INTEGRATOR_DIR</span><span class="o">=</span><span class="n">VODE</span> <span class="o">-</span><span class="n">j</span> <span class="mi">4</span>
+</pre></div>
+</div>
+<p>The loop over the burner is marked up for OpenMP and CUDA and
+therefore this test can be used to assess threadsafety of the burners
+as well as to optimize the GPU performance of the burners.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unit_tests.html" class="btn btn-neutral float-left" title="Overview of Unit Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="one_zone_tests.html" class="btn btn-neutral float-right" title="One Zone Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>
