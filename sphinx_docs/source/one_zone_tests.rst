@@ -46,7 +46,7 @@ required is defined and initialized on the lines following
    +-----------------------+----------------------------------------+
    | ``tmax``              | Maximum Time (s)                       |
    +-----------------------+----------------------------------------+
-   | ``numsteps``          | Number of time subdivisions            |
+   | ``nsteps``            | Number of time subdivisions            |
    +-----------------------+----------------------------------------+
    | ``density``           | State Density (:math:`\frac{g}{cm^3}`) |
    +-----------------------+----------------------------------------+
