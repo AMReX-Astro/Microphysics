@@ -3,58 +3,158 @@
 eos_gamma_default       real          1.4
 
 # define the specie names, and their masses and gammas
-species_a_name          string     "elec"
-species_a_gamma         real          5./3.
-species_a_mass          real          9.10938188e-28
+species_1_name          string     "elec"
+species_1_gamma         real          5./3.
+species_1_mass          real          9.10938188e-28
 
-species_b_name          string     "hp"
-species_b_gamma         real          5./3.
-species_b_mass          real          1.67262158e-24
+species_2_name          string     "hp"
+species_2_gamma         real          5./3.
+species_2_mass          real          1.67262158e-24
 
-species_c_name          string     "h"
-species_c_gamma         real          5./3.
-species_c_mass          real          1.67353251819e-24
+species_3_name          string     "h"
+species_3_gamma         real          5./3.
+species_3_mass          real          1.67353251819e-24
 
-species_d_name          string     "hm"
-species_d_gamma         real          5./3.
-species_d_mass          real          1.67444345638e-24
+species_4_name          string     "hm"
+species_4_gamma         real          5./3.
+species_4_mass          real          1.67444345638e-24
 
-species_e_name          string     "dp"
-species_e_gamma         real          5./3.
-species_e_mass          real          3.34512158e-24
+species_5_name          string     "dp"
+species_5_gamma         real          5./3.
+species_5_mass          real          3.34512158e-24
 
-species_f_name          string     "d"
-species_f_gamma         real          5./3.
-species_f_mass          real          3.34603251819e-24
+species_6_name          string     "d"
+species_6_gamma         real          5./3.
+species_6_mass          real          3.34603251819e-24
 
-species_g_name          string     "h2p"
-species_g_gamma         real          1.4
-species_g_mass          real          3.34615409819e-24
+species_7_name          string     "h2p"
+species_7_gamma         real          1.4
+species_7_mass          real          3.34615409819e-24
 
-species_h_name          string     "dm"
-species_h_gamma         real          5./3.
-species_h_mass          real          3.34694345638e-24
+species_8_name          string     "dm"
+species_8_gamma         real          5./3.
+species_8_mass          real          3.34694345638e-24
 
-species_i_name          string     "h2"
-species_i_gamma         real          1.4
-species_i_mass          real          3.34706503638e-24
+species_9_name          string     "h2"
+species_9_gamma         real          1.4
+species_9_mass          real          3.34706503638e-24
 
-species_j_name          string     "hdp"
-species_j_gamma         real          1.4
-species_j_mass          real          5.01865409819e-24
+species_10_name          string     "hdp"
+species_10_gamma         real          1.4
+species_10_mass          real          5.01865409819e-24
 
-species_k_name          string     "hd"
-species_k_gamma         real          1.4
-species_k_mass          real          5.01956503638e-24
+species_11_name          string     "hd"
+species_11_gamma         real          1.4
+species_11_mass          real          5.01956503638e-24
 
-species_l_name          string     "hepp"
-species_l_gamma         real          5./3.
-species_l_mass          real          6.69024316e-24
+species_12_name          string     "h3p"
+species_12_gamma         real          5./3.
+species_12_mass          real          5.0196866163760004e-24
 
-species_m_name          string     "hep"
-species_m_gamma         real          5./3.
-species_m_mass          real          6.69115409819e-24
+species_13_name          string     "hepp"
+species_13_gamma         real          5./3.
+species_13_mass          real          6.69024316e-24
 
-species_n_name          string     "he"
-species_n_gamma         real          5./3.
-species_n_mass          real          6.69206503638e-24
+species_14_name          string     "hep"
+species_14_gamma         real          5./3.
+species_14_mass          real          6.69115409819e-24
+
+species_15_name          string     "he"
+species_15_gamma         real          5./3.
+species_15_mass          real          6.69206503638e-24
+
+species_16_name          string     "cp"
+species_16_gamma         real          5./3.
+species_16_mass          real          2.007528417094e-23
+
+species_17_name          string     "c"
+species_17_gamma         real          5./3.
+species_17_mass          real          2.0076195109128e-23
+
+species_18_name          string     "cm"
+species_18_gamma         real          5./3.
+species_18_mass          real          2.0077106047315998e-23
+
+species_19_name          string     "chp"
+species_19_gamma         real          5./3.
+species_19_mass          real          2.1748816689128e-23
+
+species_20_name          string     "ch"
+species_20_gamma         real          5./3.
+species_20_mass          real          2.1749727627316e-23
+
+species_21_name          string     "ch2p"
+species_21_gamma         real          5./3.
+species_21_mass          real          2.3422349207316e-23
+
+species_22_name          string     "ch2"
+species_22_gamma         real          5./3.
+species_22_mass          real          2.3423260145503998e-23
+
+species_23_name          string     "ch3p"
+species_23_gamma         real          5./3.
+species_23_mass          real          2.5095881725504002e-23
+
+species_24_name          string     "op"
+species_24_gamma         real          5./3.
+species_24_mass          real          2.6767349207316e-23
+
+species_25_name          string     "o"
+species_25_gamma         real          5./3.
+species_25_mass          real          2.6768260145504e-23
+
+species_26_name          string     "om"
+species_26_gamma         real          5./3.
+species_26_mass          real          2.6769171083692e-23
+
+species_27_name          string     "ohp"
+species_27_gamma         real          5./3.
+species_27_mass          real          2.8440881725504e-23
+
+species_28_name          string     "oh"
+species_28_gamma         real          5./3.
+species_28_mass          real          2.8441792663692003e-23
+
+species_29_name          string     "h2op"
+species_29_gamma         real          5./3.
+species_29_mass          real          3.0114414243692e-23
+
+species_30_name          string     "h2o"
+species_30_gamma         real          5./3.
+species_30_mass          real          3.011532518188e-23
+
+species_31_name          string     "h3op"
+species_31_gamma         real          5./3.
+species_31_mass          real          3.178794676188e-23
+
+species_32_name          string     "c2"
+species_32_gamma         real          5./3.
+species_32_mass          real          4.0152390218256e-23
+
+species_33_name          string     "cop"
+species_33_gamma         real          5./3.
+species_33_mass          real          4.6843544316444e-23
+
+species_34_name          string     "co"
+species_34_gamma         real          5./3.
+species_34_mass          real          4.6844455254632e-23
+
+species_35_name          string     "hcop"
+species_35_gamma         real          5./3.
+species_35_mass          real          4.8517076834631994e-23
+
+species_36_name          string     "hocp"
+species_36_gamma         real          5./3.
+species_36_mass          real          4.8517076834631994e-23
+
+species_37_name          string     "hco"
+species_37_gamma         real          5./3.
+species_37_mass          real          4.8517987772819996e-23
+
+species_38_name          string     "o2p"
+species_38_gamma         real          5./3.
+species_38_mass          real          5.353560935282e-23
+
+species_39_name          string     "o2"
+species_39_gamma         real          5./3.
+species_39_mass          real          5.3536520291008e-23
