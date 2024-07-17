@@ -41,32 +41,32 @@ const std::string screen_name = "chugunov2009";
 const std::string screen_name = "chabrier1998";
 #endif
 
-template <typename dual_t = amrex::Real>
+template <typename number_t = amrex::Real>
 struct plasma_state_t {
-    dual_t qlam0z;
-    dual_t taufac;
-    dual_t aa;
-    dual_t temp;
+    number_t qlam0z;
+    number_t taufac;
+    number_t aa;
+    number_t temp;
     amrex::Real zbar;
     amrex::Real z2bar;
     amrex::Real n_e;
     amrex::Real gamma_e_fac;
 };
 
-template <typename dual_t>
+template <typename number_t>
 inline
-std::ostream& operator<< (std::ostream& o, plasma_state_t<dual_t> const& pstate)
+std::ostream& operator<< (std::ostream& o, plasma_state_t<number_t> const& pstate)
 {
     o << "qlam0z   = " << pstate.qlam0z << std::endl;
-    if constexpr (autodiff::detail::isDual<dual_t>) {
+    if constexpr (autodiff::detail::isDual<number_t>) {
         o << "qlam0zdt = " << autodiff::derivative(pstate.qlam0z) << std::endl;
     }
     o << "taufac   = " << pstate.taufac << std::endl;
-    if constexpr (autodiff::detail::isDual<dual_t>) {
+    if constexpr (autodiff::detail::isDual<number_t>) {
         o << "taufacdt = " << autodiff::derivative(pstate.taufac) << std::endl;
     }
     o << "aa       = " << pstate.aa << std::endl;
-    if constexpr (autodiff::detail::isDual<dual_t>) {
+    if constexpr (autodiff::detail::isDual<number_t>) {
         o << "daadt    = " << autodiff::derivative(pstate.aa) << std::endl;
     }
     o << "temp     = " << pstate.temp << std::endl;
@@ -90,10 +90,10 @@ screening_finalize() {
 
 }
 
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void
-fill_plasma_state(plasma_state_t<dual_t>& state, const dual_t& temp,
+fill_plasma_state(plasma_state_t<number_t>& state, const number_t& temp,
                   const amrex::Real dens, amrex::Array1D<amrex::Real, 1, NumSpec> const& y) {
 
     amrex::Real sum = 0.0_rt;
@@ -120,11 +120,11 @@ fill_plasma_state(plasma_state_t<dual_t>& state, const dual_t& temp,
 
     // ntot
     amrex::Real rr = dens * ytot;
-    dual_t tempi = 1.0_rt / temp;
+    number_t tempi = 1.0_rt / temp;
 
     // Part of Eq. 19 in Graboske:1973
     // pp = sqrt( \tilde{z}*(rho/u_I/T) )
-    dual_t pp = admath::sqrt(rr*tempi*(z2bar + zbar));
+    number_t pp = admath::sqrt(rr*tempi*(z2bar + zbar));
 
     // Part version of Eq. 19 in Graboske:1973
     state.qlam0z = 1.88e8_rt * tempi * pp;
@@ -153,9 +153,9 @@ fill_plasma_state(plasma_state_t<dual_t>& state, const dual_t& temp,
 }
 
 #if SCREEN_METHOD == SCREEN_METHOD_screen5
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
+number_t actual_screen5 (const plasma_state_t<number_t>& state,
                        const scrn::screen_factors_t& scn_fac)
 {
     // this subroutine calculates screening factors and their derivatives
@@ -182,7 +182,7 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
 
     // calculate individual screening factors
     amrex::Real bb = z1 * z2;
-    dual_t gamp = state.aa;
+    number_t gamp = state.aa;
 
     // In Eq.4 in Itoh:1979, this term is 2*Z_1*Z_2/(Z_1^(1/3) + Z_2^(1/3))
     // However here we follow Wallace:1982 Eq. A13, which is Z_1*Z_2*(2/(Z_1+Z_2))^(1/3)
@@ -191,17 +191,17 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
 
     // Full Equation of Wallace:1982 Eq. A13
 
-    dual_t gamef = qq * gamp;
+    number_t gamef = qq * gamp;
 
     // Full version of Eq.6 in Itoh:1979 with extra 1/3 factor
     // the extra 1/3 factor is there for convenience.
     // tau12 = Eq.6 / 3
 
-    dual_t tau12 = state.taufac * scn_fac.aznut;
+    number_t tau12 = state.taufac * scn_fac.aznut;
 
     // alph12 = 3*gamma_ij/tau_ij
 
-    dual_t alph12 = gamef / tau12;
+    number_t alph12 = gamef / tau12;
 
 
     // limit alph12 to 1.6 to prevent unphysical behavior.
@@ -223,9 +223,9 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
     // Full version of Eq. 19 in Graboske:1973 by considering weak regime
     // and Wallace:1982 Eq. A14. Here the degeneracy factor is assumed to be 1.
 
-    dual_t h12w = bb * state.qlam0z;
+    number_t h12w = bb * state.qlam0z;
 
-    dual_t h12 = h12w;
+    number_t h12 = h12w;
 
     // intermediate and strong sceening regime
 
@@ -233,32 +233,32 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
 
       // gamma_ij^(1/4)
 
-        dual_t gamp14 = admath::pow(gamp, 0.25_rt);
+        number_t gamp14 = admath::pow(gamp, 0.25_rt);
 
         // Here we follow Eq. A9 in Wallace:1982
         // See Eq. 25 Alastuey:1978, Eq. 16 and 17 in Jancovici:1977 for reference
-        dual_t cc = 0.896434e0_rt * gamp * scn_fac.zhat
+        number_t cc = 0.896434e0_rt * gamp * scn_fac.zhat
             - 3.44740e0_rt * gamp14 * scn_fac.zhat2
             - 0.5551e0_rt * (admath::log(gamp) + scn_fac.lzav)
             - 2.996e0_rt;
 
         // (3gamma_ij/tau_ij)^3
-        dual_t a3 = alph12 * alph12 * alph12;
+        number_t a3 = alph12 * alph12 * alph12;
 
         // Part of Eq. 28 in Alastuey:1978
-        dual_t rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
+        number_t rr = (5.0_rt/32.0_rt) - alph12*(0.014e0_rt + 0.0128e0_rt*alph12);
 
         // Part of Eq. 28 in Alastuey:1978
-        dual_t ss = tau12*rr;
+        number_t ss = tau12*rr;
 
         // Part of Eq. 31 in Alastuey:1978
-        dual_t tt = -0.0098e0_rt + 0.0048e0_rt*alph12;
+        number_t tt = -0.0098e0_rt + 0.0048e0_rt*alph12;
 
         // Part of Eq. 31 in Alastuey:1978
-        dual_t uu = 0.0055e0_rt + alph12*tt;
+        number_t uu = 0.0055e0_rt + alph12*tt;
 
         // Part of Eq. 31 in Alastuey:1978
-        dual_t vv = gamef * alph12 * uu;
+        number_t vv = gamef * alph12 * uu;
 
         // Exponent of Eq. 32 in Alastuey:1978, which uses Eq.28 and Eq.31
         // Strong screening factor
@@ -268,7 +268,7 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
         // This is an extra factor to account for quantum effects
         rr = 1.0_rt - 0.0562e0_rt*a3;
 
-        dual_t xlgfac;
+        number_t xlgfac;
 
         // In extreme case, rr is 0.77, see conclusion in Alastuey:1978
         if (rr >= 0.77e0_rt) {
@@ -306,9 +306,9 @@ dual_t actual_screen5 (const plasma_state_t<dual_t>& state,
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2007
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-dual_t chugunov2007 (const plasma_state_t<dual_t>& state,
+number_t chugunov2007 (const plasma_state_t<number_t>& state,
                      const scrn::screen_factors_t& scn_fac)
 {
     // Calculates screening factors based on Chugunov et al. 2007, following the
@@ -351,7 +351,7 @@ dual_t chugunov2007 (const plasma_state_t<dual_t>& state,
     amrex::Real T_p = T_p_factor * std::sqrt(z_factor * n_i / m_i);
 
     // Normalized temperature
-    dual_t T_norm = state.temp / T_p;
+    number_t T_norm = state.temp / T_p;
 
     // The fit has only been verified down to T ~ 0.1 T_p, below which the rate
     // should be nearly temperature-independent (in the pycnonuclear regime),
@@ -366,14 +366,14 @@ dual_t chugunov2007 (const plasma_state_t<dual_t>& state,
     } else if (T_norm <= T_norm_fade) {
         // blend using a cosine, after MESA
         constexpr amrex::Real delta_T = T_norm_fade - T_norm_min;
-        dual_t tmp = M_PI * (T_norm - T_norm_min) / delta_T;
-        dual_t f = 0.5_rt * (1.0_rt - admath::cos(tmp));
+        number_t tmp = M_PI * (T_norm - T_norm_min) / delta_T;
+        number_t f = 0.5_rt * (1.0_rt - admath::cos(tmp));
         T_norm = (1.0_rt - f) * T_norm_min + f * T_norm;
     }
-    dual_t inv_T_norm = 1.0_rt / T_norm;
+    number_t inv_T_norm = 1.0_rt / T_norm;
 
     // Coulomb coupling parameter from Yakovlev 2006 eq. 10
-    dual_t Gamma = state.gamma_e_fac*scn_fac.z1*scn_fac.z2 / (scn_fac.ztilde*T_p) * inv_T_norm;
+    number_t Gamma = state.gamma_e_fac*scn_fac.z1*scn_fac.z2 / (scn_fac.ztilde*T_p) * inv_T_norm;
 
     // The fit for Gamma is only applicable up to ~600, so smoothly cap its value
     constexpr amrex::Real Gamma_fade = 590;
@@ -385,23 +385,23 @@ dual_t chugunov2007 (const plasma_state_t<dual_t>& state,
     } else if (Gamma >= Gamma_fade) {
         // blend using a cosine, after MESA
         constexpr amrex::Real delta_gamma = Gamma_max - Gamma_fade;
-        dual_t tmp = M_PI * (Gamma - Gamma_fade) / delta_gamma;
-        dual_t f = 0.5_rt * (1.0_rt - admath::cos(tmp));
+        number_t tmp = M_PI * (Gamma - Gamma_fade) / delta_gamma;
+        number_t f = 0.5_rt * (1.0_rt - admath::cos(tmp));
         Gamma = (1.0_rt - f) * Gamma + f * Gamma_max;
     }
 
     // Chugunov 2007 eq. 3
     constexpr amrex::Real zeta_factor = 4.0_rt / (3.0_rt * GCEM_PI*GCEM_PI);
-    dual_t zeta = admath::cbrt(zeta_factor * (inv_T_norm*inv_T_norm));
+    number_t zeta = admath::cbrt(zeta_factor * (inv_T_norm*inv_T_norm));
 
     // Gamma tilde from Chugunov 2007 eq. 21
     constexpr amrex::Real fit_alpha = 0.022_rt;
-    dual_t fit_beta = 0.41_rt - 0.6_rt / Gamma;
-    dual_t fit_gamma = 0.06_rt + 2.2_rt / Gamma;
+    number_t fit_beta = 0.41_rt - 0.6_rt / Gamma;
+    number_t fit_gamma = 0.06_rt + 2.2_rt / Gamma;
     // Polynomial term in Gamma tilde
-    dual_t poly = 1.0_rt + zeta*(fit_alpha + zeta*(fit_beta + fit_gamma*zeta));
+    number_t poly = 1.0_rt + zeta*(fit_alpha + zeta*(fit_beta + fit_gamma*zeta));
 
-    dual_t gamtilde = Gamma / admath::cbrt(poly);
+    number_t gamtilde = Gamma / admath::cbrt(poly);
 
     // fit parameters just after Chugunov 2007 eq. 19
     constexpr amrex::Real A1 = 2.7822_rt;
@@ -411,16 +411,16 @@ dual_t chugunov2007 (const plasma_state_t<dual_t>& state,
     const amrex::Real B2 = 66.07_rt;
     const amrex::Real B3 = 1.12_rt;
     const amrex::Real B4 = 65_rt;
-    dual_t gamtilde2 = gamtilde * gamtilde;
+    number_t gamtilde2 = gamtilde * gamtilde;
 
     // Chugunov 2007 eq. 19
-    dual_t term1 = 1.0_rt / admath::sqrt(A2 + gamtilde);
-    dual_t term2 = 1.0_rt / (1.0_rt + gamtilde);
-    dual_t term3 = gamtilde2 / (B2 + gamtilde);
-    dual_t term4 = gamtilde2 / (B4 + gamtilde2);
+    number_t term1 = 1.0_rt / admath::sqrt(A2 + gamtilde);
+    number_t term2 = 1.0_rt / (1.0_rt + gamtilde);
+    number_t term3 = gamtilde2 / (B2 + gamtilde);
+    number_t term4 = gamtilde2 / (B4 + gamtilde2);
 
-    dual_t inner = A1 * term1 + A3 * term2;
-    dual_t h = admath::pow(gamtilde, 1.5_rt) * inner + B1 * term3 + B3 * term4;
+    number_t inner = A1 * term1 + A3 * term2;
+    number_t h = admath::pow(gamtilde, 1.5_rt) * inner + B1 * term3 + B3 * term4;
 
     // machine limit the output
     constexpr amrex::Real h_max = 300.e0_rt;
@@ -429,9 +429,9 @@ dual_t chugunov2007 (const plasma_state_t<dual_t>& state,
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chugunov2009
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-dual_t chugunov2009_f0 (const dual_t& gamma)
+number_t chugunov2009_f0 (const number_t& gamma)
 {
     // Calculates the free energy per ion in a OCP, from Chugunov and DeWitt 2009
     // equation 24.
@@ -444,20 +444,20 @@ dual_t chugunov2009_f0 (const dual_t& gamma)
     constexpr amrex::Real B2 = 211.6_rt;
     constexpr amrex::Real B3 = -1e-4_rt;
     constexpr amrex::Real B4 = 0.00462_rt;
-    dual_t gamma_12 = admath::sqrt(gamma);
+    number_t gamma_12 = admath::sqrt(gamma);
 
-    dual_t term1 = gamma_12 * admath::sqrt(A2 + gamma);
-    dual_t term2 = admath::log(admath::sqrt(gamma / A2) + admath::sqrt(1.0_rt + gamma / A2));
-    dual_t term3 = gamma_12 - admath::fast_atan(gamma_12);
-    dual_t term4 = admath::log(1.0_rt + gamma / B2);
-    dual_t term5 = admath::log(1.0_rt + gamma * gamma / B4);
+    number_t term1 = gamma_12 * admath::sqrt(A2 + gamma);
+    number_t term2 = admath::log(admath::sqrt(gamma / A2) + admath::sqrt(1.0_rt + gamma / A2));
+    number_t term3 = gamma_12 - admath::fast_atan(gamma_12);
+    number_t term4 = admath::log(1.0_rt + gamma / B2);
+    number_t term5 = admath::log(1.0_rt + gamma * gamma / B4);
 
     return A1*(term1 - A2*term2) + 2.0_rt*A3*term3 + B1*(gamma - B2*term4) + 0.5_rt*B3*term5;
 }
 
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-dual_t chugunov2009 (const plasma_state_t<dual_t>& state,
+number_t chugunov2009 (const plasma_state_t<number_t>& state,
                      const scrn::screen_factors_t& scn_fac)
 {
     // Calculates screening factors based on Chugunov and DeWitt 2009, PhRvC, 80, 014611
@@ -470,14 +470,14 @@ dual_t chugunov2009 (const plasma_state_t<dual_t>& state,
     amrex::Real zcomp = scn_fac.z1 + scn_fac.z2;
 
     // Gamma_e from eq. 6
-    dual_t Gamma_e = state.gamma_e_fac / state.temp;
+    number_t Gamma_e = state.gamma_e_fac / state.temp;
 
     // Coulomb coupling parameters for ions and compound nucleus, eqs. 7 & 9
-    dual_t Gamma_1 = Gamma_e * scn_fac.z1_53;
-    dual_t Gamma_2 = Gamma_e * scn_fac.z2_53;
-    dual_t Gamma_comp = Gamma_e * scn_fac.zs53;
+    number_t Gamma_1 = Gamma_e * scn_fac.z1_53;
+    number_t Gamma_2 = Gamma_e * scn_fac.z2_53;
+    number_t Gamma_comp = Gamma_e * scn_fac.zs53;
 
-    dual_t Gamma_12 = Gamma_e * z1z2 / scn_fac.ztilde;
+    number_t Gamma_12 = Gamma_e * z1z2 / scn_fac.ztilde;
 
     // Coulomb barrier penetrability, eq. 10
 
@@ -485,34 +485,34 @@ dual_t chugunov2009 (const plasma_state_t<dual_t>& state,
         27.0_rt/2.0_rt * amrex::Math::powi<2>(M_PI*C::q_e*C::q_e/C::hbar)
         / (C::n_A*C::k_B), 1.0_rt/3.0_rt);
 
-    dual_t tau_12 = tau_factor * scn_fac.aznut / admath::cbrt(state.temp);
+    number_t tau_12 = tau_factor * scn_fac.aznut / admath::cbrt(state.temp);
 
     // eq. 12
-    dual_t zeta = 3.0_rt * Gamma_12 / tau_12;
+    number_t zeta = 3.0_rt * Gamma_12 / tau_12;
 
     // additional fit parameters, eq. 25
     amrex::Real y_12 = 4.0_rt * z1z2 / (zcomp * zcomp);
     amrex::Real c1 = 0.013_rt * y_12 * y_12;
     amrex::Real c2 = 0.406_rt * std::pow(y_12, 0.14_rt);
-    dual_t c3 = 0.062_rt * std::pow(y_12, 0.19_rt) + 1.8_rt / Gamma_12;
+    number_t c3 = 0.062_rt * std::pow(y_12, 0.19_rt) + 1.8_rt / Gamma_12;
 
-    dual_t t_12 = admath::cbrt(1.0_rt + zeta*(c1 + zeta*(c2 + c3*zeta)));
+    number_t t_12 = admath::cbrt(1.0_rt + zeta*(c1 + zeta*(c2 + c3*zeta)));
 
     // strong screening enhancement factor, eq. 23, replacing tau_ij with t_ij
     // Using Gamma/tau_ij gives extremely low values, while Gamma/t_ij gives
     // values similar to those from Chugunov 2007.
-    auto term1 = chugunov2009_f0<dual_t>(Gamma_1 / t_12);
-    auto term2 = chugunov2009_f0<dual_t>(Gamma_2 / t_12);
-    auto term3 = chugunov2009_f0<dual_t>(Gamma_comp / t_12);
-    dual_t h_fit = term1 + term2 - term3;
+    auto term1 = chugunov2009_f0<number_t>(Gamma_1 / t_12);
+    auto term2 = chugunov2009_f0<number_t>(Gamma_2 / t_12);
+    auto term3 = chugunov2009_f0<number_t>(Gamma_comp / t_12);
+    number_t h_fit = term1 + term2 - term3;
 
     // weak screening correction term, eq. A3
     amrex::Real corr_C = 3.0_rt*z1z2 * std::sqrt(state.z2bar/state.zbar) /
                          (scn_fac.zs52 - scn_fac.z1_52 - scn_fac.z2_52);
 
     // corrected enhancement factor, eq. A4
-    dual_t Gamma_12_2 = Gamma_12 * Gamma_12;
-    dual_t h12 = (corr_C + Gamma_12_2) / (1.0_rt + Gamma_12_2) * h_fit;
+    number_t Gamma_12_2 = Gamma_12 * Gamma_12;
+    number_t h12 = (corr_C + Gamma_12_2) / (1.0_rt + Gamma_12_2) * h_fit;
 
     // machine limit the output
     constexpr amrex::Real h12_max = 300.e0_rt;
@@ -521,9 +521,9 @@ dual_t chugunov2009 (const plasma_state_t<dual_t>& state,
 }
 
 #elif SCREEN_METHOD == SCREEN_METHOD_chabrier1998
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-dual_t chabrier1998_helmholtz_F(const dual_t& gamma) {
+number_t chabrier1998_helmholtz_F(const number_t& gamma) {
     // Helmholtz free energy, See Chabrier & Potekhin 1998 Eq. 28
 
     // Fitted parameters, see Chabrier & Potekhin 1998 Sec.IV
@@ -534,18 +534,18 @@ dual_t chabrier1998_helmholtz_F(const dual_t& gamma) {
     constexpr amrex::Real A_3 = -0.5_rt * gcem::sqrt(3.0_rt) - A_1 / sqrt_A2;
 
     // Compute the square root terms individually, for simpler code
-    const dual_t sqrt_gamma = admath::sqrt(gamma);
-    const dual_t term3 = admath::sqrt(1.0_rt + gamma / A_2);
-    const dual_t term1 = sqrt_gamma * sqrt_A2 * term3;
-    const dual_t term2 = sqrt_gamma / sqrt_A2;
+    const number_t sqrt_gamma = admath::sqrt(gamma);
+    const number_t term3 = admath::sqrt(1.0_rt + gamma / A_2);
+    const number_t term1 = sqrt_gamma * sqrt_A2 * term3;
+    const number_t term2 = sqrt_gamma / sqrt_A2;
 
     return A_1 * (term1 - A_2 * admath::log(term2 + term3)) +
            2.0_rt * A_3 * (sqrt_gamma - admath::fast_atan(sqrt_gamma));
 }
 
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-dual_t chabrier1998 (const plasma_state_t<dual_t>& state,
+number_t chabrier1998 (const plasma_state_t<number_t>& state,
                      const scrn::screen_factors_t& scn_fac)
 {
     // Calculates screening factors based on Chabrier & Potekhin 1998,
@@ -560,35 +560,35 @@ dual_t chabrier1998 (const plasma_state_t<dual_t>& state,
     //            Alastuey 1978
 
     // Eq. 2 in Chabrier & Potekhin 1998
-    dual_t Gamma_e = state.gamma_e_fac / state.temp;
+    number_t Gamma_e = state.gamma_e_fac / state.temp;
 
     // See Calder2007 appendix Eq. A9
-    dual_t Gamma1 = Gamma_e * scn_fac.z1_53;
-    dual_t Gamma2 = Gamma_e * scn_fac.z2_53;
-    dual_t Gamma12 = Gamma_e * scn_fac.zs53;
+    number_t Gamma1 = Gamma_e * scn_fac.z1_53;
+    number_t Gamma2 = Gamma_e * scn_fac.z2_53;
+    number_t Gamma12 = Gamma_e * scn_fac.zs53;
 
     // Helmholtz free energy
-    dual_t f1 = chabrier1998_helmholtz_F(Gamma1);
-    dual_t f2 = chabrier1998_helmholtz_F(Gamma2);
-    dual_t f12 = chabrier1998_helmholtz_F(Gamma12);
+    number_t f1 = chabrier1998_helmholtz_F(Gamma1);
+    number_t f2 = chabrier1998_helmholtz_F(Gamma2);
+    number_t f12 = chabrier1998_helmholtz_F(Gamma12);
 
     // Now we add quantum correction terms discussed in Alastuey 1978.
     // Notice in Alastuey 1978, they have a different classical term,
     // which is implemented in the strong screening limit of our screen5 routine.
-    dual_t quantum_corr_1 = 0.0_rt;
-    dual_t quantum_corr_2 = 0.0_rt;
+    number_t quantum_corr_1 = 0.0_rt;
+    number_t quantum_corr_2 = 0.0_rt;
 
     if (screening_rp::enable_chabrier1998_quantum_corr) {
         // See Wallace1982, Eq. A13
         constexpr amrex::Real CBRT_2 = gcem::pow(2.0_rt, 1.0_rt/3.0_rt);
-        dual_t Gamma_eff = CBRT_2 * scn_fac.z1 * scn_fac.z2 *
+        number_t Gamma_eff = CBRT_2 * scn_fac.z1 * scn_fac.z2 *
                            scn_fac.zs13inv * Gamma_e;
 
         // TAU/3, see Wallace1982, Eq. A2
-        dual_t tau12 = state.taufac * scn_fac.aznut;
+        number_t tau12 = state.taufac * scn_fac.aznut;
 
         // see Calder 2007 Eq. A8
-        dual_t b_fac = Gamma_eff / tau12;
+        number_t b_fac = Gamma_eff / tau12;
 
         // Quantum correction terms (same as screen5)
         //see Calder 2007 Eq.A8 and Alastuey1978, Eq. 24 and 31
@@ -606,7 +606,7 @@ dual_t chabrier1998 (const plasma_state_t<dual_t>& state,
     // is that we replaced the classical term which is f1 + f2 - f12
     // using results from Chabrier&Potekhin1998.
 
-    dual_t h12 = f1 + f2 - f12 + quantum_corr_1 + quantum_corr_2;
+    number_t h12 = f1 + f2 - f12 + quantum_corr_1 + quantum_corr_2;
 
     constexpr amrex::Real h12_max = 300.0_rt;
     h12 = admath::min(h12_max, h12);
@@ -615,12 +615,12 @@ dual_t chabrier1998 (const plasma_state_t<dual_t>& state,
 }
 #endif
 
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-dual_t actual_screen(const plasma_state_t<dual_t>& state,
+number_t actual_screen(const plasma_state_t<number_t>& state,
                      const scrn::screen_factors_t& scn_fac)
 {
-    dual_t scor;
+    number_t scor;
 #if SCREEN_METHOD == SCREEN_METHOD_null
     // null screening
     amrex::ignore_unused(state, scn_fac);
@@ -637,15 +637,15 @@ dual_t actual_screen(const plasma_state_t<dual_t>& state,
     return scor;
 }
 
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void actual_screen(const plasma_state_t<dual_t>& state,
+void actual_screen(const plasma_state_t<number_t>& state,
                    const scrn::screen_factors_t& scn_fac,
                    amrex::Real& scor, amrex::Real& scordt)
 {
-    dual_t scor_dual;
+    number_t scor_dual;
     scor_dual = actual_screen(state, scn_fac);
-    if constexpr (autodiff::detail::isDual<dual_t>) {
+    if constexpr (autodiff::detail::isDual<number_t>) {
         scor = autodiff::val(scor_dual);
         scordt = autodiff::derivative(scor_dual);
     } else {
