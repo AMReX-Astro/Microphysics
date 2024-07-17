@@ -131,6 +131,13 @@ One-zone tests
   given a $\rho$, $T$, and $X_k$, call the equation of state and print out
   the thermodynamic information.
 
+* ``jac_cell`` :
+
+  for a single thermodynamic state, compute the analytic Jacobian
+  (using the functions provided by the network) and a numerical
+  finite-difference approximation to the Jacobian and output them,
+  element-by-element, to the display.
+
 * ``nse_table_cell`` :
 
   given a $\rho$, $T$, and $Y_e$, evaluate the NSE state via table interpolation
