@@ -2,76 +2,80 @@
 #define TFACTORS_H
 
 #include <AMReX.H>
+#include <AMReX_REAL.H>
+#include <microphysics_autodiff.H>
 #include <cmath>
 
 using namespace amrex::literals;
 
+template <typename dual_t>
 struct tf_t {
-    amrex::Real temp;
-    amrex::Real t9;
-    amrex::Real t92;
-    amrex::Real t93;
-    // amrex::Real t94;
-    amrex::Real t95;
-    // amrex::Real t96;
-    amrex::Real t912;
-    amrex::Real t932;
-    amrex::Real t952;
-    amrex::Real t972;
-    amrex::Real t913;
-    amrex::Real t923;
-    amrex::Real t943;
-    amrex::Real t953;
-    // amrex::Real t973;
-    // amrex::Real t9113;
-    // amrex::Real t914;
-    // amrex::Real t934;
-    // amrex::Real t954;
-    // amrex::Real t974;
-    // amrex::Real t915;
-    // amrex::Real t935;
-    // amrex::Real t945;
-    // amrex::Real t965;
-    // amrex::Real t917;
-    // amrex::Real t927;
-    // amrex::Real t947;
-    // amrex::Real t918;
-    // amrex::Real t938;
-    // amrex::Real t958;
-    amrex::Real t9i;
-    amrex::Real t9i2;
-    // amrex::Real t9i3;
-    amrex::Real t9i12;
-    amrex::Real t9i32;
-    // amrex::Real t9i52;
-    // amrex::Real t9i72;
-    amrex::Real t9i13;
-    amrex::Real t9i23;
-    amrex::Real t9i43;
-    amrex::Real t9i53;
-    // amrex::Real t9i14;
-    // amrex::Real t9i34;
-    // amrex::Real t9i54;
-    // amrex::Real t9i15;
-    // amrex::Real t9i35;
-    // amrex::Real t9i45;
-    // amrex::Real t9i65;
-    // amrex::Real t9i17;
-    // amrex::Real t9i27;
-    // amrex::Real t9i47;
-    // amrex::Real t9i18;
-    // amrex::Real t9i38;
-    // amrex::Real t9i58;
-    // amrex::Real t916;
-    // amrex::Real t976;
-    // amrex::Real t9i76;
-    amrex::Real lnt9;
+    dual_t temp;
+    dual_t t9;
+    dual_t t92;
+    dual_t t93;
+    // dual_t t94;
+    dual_t t95;
+    // dual_t t96;
+    dual_t t912;
+    dual_t t932;
+    dual_t t952;
+    dual_t t972;
+    dual_t t913;
+    dual_t t923;
+    dual_t t943;
+    dual_t t953;
+    // dual_t t973;
+    // dual_t t9113;
+    // dual_t t914;
+    // dual_t t934;
+    // dual_t t954;
+    // dual_t t974;
+    // dual_t t915;
+    // dual_t t935;
+    // dual_t t945;
+    // dual_t t965;
+    // dual_t t917;
+    // dual_t t927;
+    // dual_t t947;
+    // dual_t t918;
+    // dual_t t938;
+    // dual_t t958;
+    dual_t t9i;
+    dual_t t9i2;
+    // dual_t t9i3;
+    dual_t t9i12;
+    dual_t t9i32;
+    // dual_t t9i52;
+    // dual_t t9i72;
+    dual_t t9i13;
+    dual_t t9i23;
+    dual_t t9i43;
+    dual_t t9i53;
+    // dual_t t9i14;
+    // dual_t t9i34;
+    // dual_t t9i54;
+    // dual_t t9i15;
+    // dual_t t9i35;
+    // dual_t t9i45;
+    // dual_t t9i65;
+    // dual_t t9i17;
+    // dual_t t9i27;
+    // dual_t t9i47;
+    // dual_t t9i18;
+    // dual_t t9i38;
+    // dual_t t9i58;
+    // dual_t t916;
+    // dual_t t976;
+    // dual_t t9i76;
+    dual_t lnt9;
 };
 
+template <typename dual_t>
 AMREX_GPU_HOST_DEVICE inline
-tf_t get_tfactors(amrex::Real temp)
+tf_t<dual_t> get_tfactors(dual_t temp)
 {
-    tf_t tf;
+    tf_t<dual_t> tf;
 
     tf.temp = temp;
 
@@ -83,38 +87,38 @@ tf_t get_tfactors(amrex::Real temp)
     tf.t95   = tf.t92*tf.t93;
     // tf.t96   = tf.t9*tf.t95;
 
-    tf.t912  = std::sqrt(tf.t9);
+    tf.t912  = admath::sqrt(tf.t9);
     tf.t932  = tf.t9*tf.t912;
     tf.t952  = tf.t9*tf.t932;
     // tf.t972  = tf.t9*tf.t952;
     tf.t972  = tf.t92*tf.t932;
 
-    tf.t913  = std::cbrt(tf.t9);
+    tf.t913  = admath::cbrt(tf.t9);
     tf.t923  = tf.t913*tf.t913;
     tf.t943  = tf.t9*tf.t913;
     tf.t953  = tf.t9*tf.t923;
     // tf.t973  = tf.t953*tf.t923;
     // tf.t9113 = tf.t973*tf.t943;
 
-    // tf.t914  = std::pow(tf.t9, 0.25e0_rt);
+    // tf.t914  = admath::pow(tf.t9, 0.25e0_rt);
     // tf.t934  = tf.t914*tf.t914*tf.t914;
     // tf.t954  = tf.t9*tf.t914;
     // tf.t974  = tf.t9*tf.t934;
 
-    // tf.t915  = std::pow(tf.t9, 0.2_rt);
+    // tf.t915  = admath::pow(tf.t9, 0.2_rt);
     // tf.t935  = tf.t915*tf.t915*tf.t915;
     // tf.t945  = tf.t915 * tf.t935;
     // tf.t965  = tf.t9 * tf.t915;
 
-    // tf.t916  = std::pow(tf.t9, 1.0_rt/6.0_rt);
+    // tf.t916  = admath::pow(tf.t9, 1.0_rt/6.0_rt);
     // tf.t976  = tf.t9 * tf.t916;
     // tf.t9i76 = 1.0e0_rt/tf.t976;
 
-    // tf.t917  = std::pow(tf.t9, 1.0_rt/7.0_rt);
+    // tf.t917  = admath::pow(tf.t9, 1.0_rt/7.0_rt);
     // tf.t927  = tf.t917*tf.t917;
     // tf.t947  = tf.t927*tf.t927;
 
-    // tf.t918  = std::sqrt(tf.t914);
+    // tf.t918  = admath::sqrt(tf.t914);
     // tf.t938  = tf.t918*tf.t918*tf.t918;
     // tf.t958  = tf.t938*tf.t918*tf.t918;
 
@@ -149,7 +153,7 @@ tf_t get_tfactors(amrex::Real temp)
     // tf.t9i38 = tf.t9i18*tf.t9i18*tf.t9i18;
     // tf.t9i58 = tf.t9i38*tf.t9i18*tf.t9i18;
 
-    tf.lnt9 = std::log(tf.t9);
+    tf.lnt9 = admath::log(tf.t9);
 
     return tf;
 }
