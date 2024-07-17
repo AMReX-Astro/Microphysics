@@ -719,7 +719,7 @@ AUTODIFF_DEVICE_FUNC constexpr auto negative(U&& expr)
 template<typename U>
 AUTODIFF_DEVICE_FUNC constexpr auto inverse(U&& expr)
 {
-    static_assert(isExpr<U>);
+    static_assert(isExpr<U> || isArithmetic<U>);
     if constexpr (isInvExpr<U>)
         return inner(expr);
     else return InvExpr<PreventExprRef<U>>{ expr };
@@ -780,9 +780,11 @@ AUTODIFF_DEVICE_FUNC constexpr auto operator+(L&& l, R&& r)
     // ADDITION EXPRESSION CASE: (-x) + (-y) => -(x + y)
     if constexpr (isNegExpr<L> && isNegExpr<R>)
         return -( inner(l) + inner(r) );
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ADDITION EXPRESSION CASE: expr + number => number + expr (number always on the left)
     else if constexpr (isExpr<L> && isArithmetic<R>)
         return std::forward<R>(r) + std::forward<L>(l);
+#endif
     // DEFAULT ADDITION EXPRESSION
     else return AddExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
 }
@@ -799,18 +801,22 @@ AUTODIFF_DEVICE_FUNC constexpr auto operator*(L&& l, R&& r)
     // MULTIPLICATION EXPRESSION CASE: (-expr) * (-expr) => expr * expr
     if constexpr (isNegExpr<L> && isNegExpr<R>)
         return inner(l) * inner(r);
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // // MULTIPLICATION EXPRESSION CASE: (1 / expr) * (1 / expr) => 1 / (expr * expr)
     else if constexpr (isInvExpr<L> && isInvExpr<R>)
         return inverse(inner(l) * inner(r));
     // // MULTIPLICATION EXPRESSION CASE: expr * number => number * expr
     else if constexpr (isExpr<L> && isArithmetic<R>)
         return std::forward<R>(r) * std::forward<L>(l);
+#endif
     // // MULTIPLICATION EXPRESSION CASE: number * (-expr) => (-number) * expr
     else if constexpr (isArithmetic<L> && isNegExpr<R>)
         return (-l) * inner(r);
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // // MULTIPLICATION EXPRESSION CASE: number * (number * expr) => (number * number) * expr
     else if constexpr (isArithmetic<L> && isNumberDualMulExpr<R>)
         return (l * left(r)) * right(r);
+#endif
     // MULTIPLICATION EXPRESSION CASE: number * dual => NumberDualMulExpr
     else if constexpr (isArithmetic<L> && isDual<R>)
         return NumberDualMulExpr<PreventExprRef<L>, PreventExprRef<R>>{ l, r };
@@ -845,9 +851,7 @@ AUTODIFF_DEVICE_FUNC constexpr auto operator-(L&& l, R&& r)
 template<typename L, typename R, Requires<isOperable<L, R>> = true>
 AUTODIFF_DEVICE_FUNC constexpr auto operator/(L&& l, R&& r)
 {
-    if constexpr (isArithmetic<R>)
-        return std::forward<L>(l) * (One<L>() / std::forward<R>(r));
-    else return std::forward<L>(l) * inverse(std::forward<R>(r));
+    return std::forward<L>(l) * inverse(std::forward<R>(r));
 }
 
 //=====================================================================================================================
@@ -1000,13 +1004,27 @@ AUTODIFF_DEVICE_FUNC constexpr void assign(Dual<T, G>& self, U&& other)
     }
     // ASSIGN AN ADDITION EXPRESSION: self = expr + expr
     else if constexpr (isAddExpr<U>) {
+#if defined(AUTODIFF_STRICT_ASSOCIATIVITY)
+        assign(self, other.l);
+        assignAdd(self, other.r);
+#else
+        // this reordering saves a few FLOPs when other.l is arithmetic,
+        // but otherwise breaks the left-to-right associativity of a+b+c+...
         assign(self, other.r);
         assignAdd(self, other.l);
+#endif
     }
     // ASSIGN A MULTIPLICATION EXPRESSION: self = expr * expr
     else if constexpr (isMulExpr<U>) {
+#if defined(AUTODIFF_STRICT_ASSOCIATIVITY)
+        assign(self, other.l);
+        assignMul(self, other.r);
+#else
+        // this reordering saves a few FLOPs when other.l is arithmetic,
+        // but otherwise breaks the left-to-right associativity of a*b*c*...
         assign(self, other.r);
         assignMul(self, other.l);
+#endif
     }
     // ASSIGN A POWER EXPRESSION: self = pow(expr)
     else if constexpr (isPowExpr<U>) {
@@ -1042,13 +1060,23 @@ AUTODIFF_DEVICE_FUNC constexpr void assign(Dual<T, G>& self, U&& other, Dual<T, 
     }
     // ASSIGN AN ADDITION EXPRESSION: self = expr + expr
     else if constexpr (isAddExpr<U>) {
+#if defined(AUTODIFF_STRICT_ASSOCIATIVITY)
+        assign(self, other.l, tmp);
+        assignAdd(self, other.r, tmp);
+#else
         assign(self, other.r, tmp);
         assignAdd(self, other.l, tmp);
+#endif
     }
     // ASSIGN A MULTIPLICATION EXPRESSION: self = expr * expr
     else if constexpr (isMulExpr<U>) {
+#if defined(AUTODIFF_STRICT_ASSOCIATIVITY)
+        assign(self, other.l, tmp);
+        assignMul(self, other.r, tmp);
+#else
         assign(self, other.r, tmp);
         assignMul(self, other.l, tmp);
+#endif
     }
     // ASSIGN A POWER EXPRESSION: self = pow(expr, expr)
     else if constexpr (isPowExpr<U>) {
@@ -1091,11 +1119,13 @@ AUTODIFF_DEVICE_FUNC constexpr void assignAdd(Dual<T, G>& self, U&& other)
         self.val += other.l * other.r.val;
         self.grad += other.l * other.r.grad;
     }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-ADD AN ADDITION EXPRESSION: self += expr + expr
     else if constexpr (isAddExpr<U>) {
         assignAdd(self, other.l);
         assignAdd(self, other.r);
     }
+#endif
     // ASSIGN-ADD ALL OTHER EXPRESSIONS
     else {
         Dual<T, G> tmp;
@@ -1112,11 +1142,13 @@ AUTODIFF_DEVICE_FUNC constexpr void assignAdd(Dual<T, G>& self, U&& other, Dual<
     if constexpr (isNegExpr<U>) {
         assignSub(self, other.r, tmp);
     }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-ADD AN ADDITION EXPRESSION: self += expr + expr
     else if constexpr (isAddExpr<U>) {
         assignAdd(self, other.l, tmp);
         assignAdd(self, other.r, tmp);
     }
+#endif
     // ASSIGN-ADD ALL OTHER EXPRESSIONS
     else {
         assign(tmp, other);
@@ -1153,11 +1185,13 @@ AUTODIFF_DEVICE_FUNC constexpr void assignSub(Dual<T, G>& self, U&& other)
         self.val -= other.l * other.r.val;
         self.grad -= other.l * other.r.grad;
     }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-SUBTRACT AN ADDITION EXPRESSION: self -= expr + expr
     else if constexpr (isAddExpr<U>) {
         assignSub(self, other.l);
         assignSub(self, other.r);
     }
+#endif
     // ASSIGN-SUBTRACT ALL OTHER EXPRESSIONS
     else {
         Dual<T, G> tmp;
@@ -1174,11 +1208,13 @@ AUTODIFF_DEVICE_FUNC constexpr void assignSub(Dual<T, G>& self, U&& other, Dual<
     if constexpr (isNegExpr<U>) {
         assignAdd(self, other.r, tmp);
     }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-SUBTRACT AN ADDITION EXPRESSION: self -= expr + expr
     else if constexpr (isAddExpr<U>) {
         assignSub(self, other.l, tmp);
         assignSub(self, other.r, tmp);
     }
+#endif
     // ASSIGN-SUBTRACT ALL OTHER EXPRESSIONS
     else {
         assign(tmp, other);
@@ -1214,6 +1250,11 @@ AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other)
         assignMul(self, other.r);
         negate(self);
     }
+    // ASSIGN-MULTIPLY AN INVERSE EXPRESSION: self *= 1/expr
+    else if constexpr (isInvExpr<U>) {
+        assignDiv(self, other.r);
+    }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-MULTIPLY A NUMBER-DUAL MULTIPLICATION EXPRESSION: self *= number * dual
     else if constexpr (isNumberDualMulExpr<U>) {
         assignMul(self, other.r);
@@ -1224,6 +1265,7 @@ AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other)
         assignMul(self, other.l);
         assignMul(self, other.r);
     }
+#endif
     // ASSIGN-MULTIPLY ALL OTHER EXPRESSIONS
     else {
         Dual<T, G> tmp;
@@ -1241,11 +1283,13 @@ AUTODIFF_DEVICE_FUNC constexpr void assignMul(Dual<T, G>& self, U&& other, Dual<
         assignMul(self, other.r, tmp);
         negate(self);
     }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-MULTIPLY A MULTIPLICATION EXPRESSION: self *= expr * expr
     else if constexpr (isMulExpr<U>) {
         assignMul(self, other.l, tmp);
         assignMul(self, other.r, tmp);
     }
+#endif
     // ASSIGN-MULTIPLY ALL OTHER EXPRESSIONS
     else {
         assign(tmp, other);
@@ -1271,10 +1315,10 @@ AUTODIFF_DEVICE_FUNC constexpr void assignDiv(Dual<T, G>& self, U&& other)
     }
     // ASSIGN-DIVIDE A DUAL NUMBER: self /= dual
     else if constexpr (isDual<U>) {
-        const T aux = One<T>() / other.val; // to avoid aliasing when self === other
-        self.val *= aux;
+        const T aux = other.val; // to avoid aliasing when self === other
+        self.val /= aux;
         self.grad -= self.val * other.grad;
-        self.grad *= aux;
+        self.grad /= aux;
     }
     // ASSIGN-DIVIDE A NEGATIVE EXPRESSION: self /= (-expr)
     else if constexpr (isNegExpr<U>) {
@@ -1285,6 +1329,7 @@ AUTODIFF_DEVICE_FUNC constexpr void assignDiv(Dual<T, G>& self, U&& other)
     else if constexpr (isInvExpr<U>) {
         assignMul(self, other.r);
     }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-DIVIDE A NUMBER-DUAL MULTIPLICATION EXPRESSION: self /= number * dual
     else if constexpr (isNumberDualMulExpr<U>) {
         assignDiv(self, other.r);
@@ -1295,6 +1340,7 @@ AUTODIFF_DEVICE_FUNC constexpr void assignDiv(Dual<T, G>& self, U&& other)
         assignDiv(self, other.l);
         assignDiv(self, other.r);
     }
+#endif
     // ASSIGN-DIVIDE ALL OTHER EXPRESSIONS
     else {
         Dual<T, G> tmp;
@@ -1316,11 +1362,13 @@ AUTODIFF_DEVICE_FUNC constexpr void assignDiv(Dual<T, G>& self, U&& other, Dual<
     else if constexpr (isInvExpr<U>) {
         assignMul(self, other.r, tmp);
     }
+#if !defined(AUTODIFF_STRICT_ASSOCIATIVITY)
     // ASSIGN-DIVIDE A MULTIPLICATION EXPRESSION: self /= expr * expr
     else if constexpr (isMulExpr<U>) {
         assignDiv(self, other.l, tmp);
         assignDiv(self, other.r, tmp);
     }
+#endif
     // ASSIGN-DIVIDE ALL OTHER EXPRESSIONS
     else {
         assign(tmp, other);
@@ -1339,9 +1387,9 @@ AUTODIFF_DEVICE_FUNC constexpr void assignPow(Dual<T, G>& self, U&& other)
 {
     // ASSIGN-POW A NUMBER: self = pow(self, number)
     if constexpr (isArithmetic<U>) {
-        const T aux = pow(self.val, other - 1);
-        self.grad *= other * aux;
-        self.val = aux * self.val;
+        const T aux = pow(self.val, other);
+        self.grad *= other * aux / self.val;
+        self.val = aux;
     }
     // ASSIGN-POW A DUAL NUMBER: self = pow(self, dual)
     else if constexpr (isDual<U>) {
