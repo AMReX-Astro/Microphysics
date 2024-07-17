@@ -405,9 +405,9 @@ constexpr int density_exponent_reverse ()
 }
 
 // Scale a rate using the density terms.
-template<int rate, typename dual_t>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_density_scaling (const rhs_state_t<dual_t>& state, rate_t& rates)
+void apply_density_scaling (const rhs_state_t<number_t>& state, rate_t& rates)
 {
     constexpr int forward_exponent = density_exponent_forward<rate>();
     constexpr int reverse_exponent = density_exponent_reverse<rate>();
@@ -447,9 +447,9 @@ void apply_density_scaling (const rhs_state_t<dual_t>& state, rate_t& rates)
 
 #ifdef SCREENING
 // Apply the screening term to a given rate.
-template<int rate, typename dual_t>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_screening (const rhs_state_t<dual_t>& state, rate_t& rates)
+void apply_screening (const rhs_state_t<number_t>& state, rate_t& rates)
 {
     // The screening behavior depends on the type of reaction. We provide screening
     // here for the reaction classes we know about, and any other reactions are unscreened.
@@ -622,9 +622,9 @@ void tabulate_rates ()
 }
 
 // Evaluate a rate using the rate tables.
-template<int rate, typename dual_t>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_tabulated_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
+void evaluate_tabulated_rate (const rhs_state_t<number_t>& state, rate_t& rates)
 {
     rates.fr = (state.tab.alfa * rattab(rate, 1, state.tab.iat  ) +
                 state.tab.beta * rattab(rate, 1, state.tab.iat+1) +
@@ -1141,9 +1141,9 @@ constexpr amrex::Real jac_term (const burn_t& state, const rate_t& rates)
     return term;
 }
 
-template<int rate, typename dual_t>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void construct_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
+void construct_rate (const rhs_state_t<number_t>& state, rate_t& rates)
 {
     using namespace Species;
     using namespace Rates;

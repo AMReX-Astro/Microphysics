@@ -65,9 +65,9 @@ namespace RHS {
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -97,17 +97,17 @@ namespace RHS {
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t& rates,
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t& rates,
                            rate_t& rates1, rate_t& rates2, rate_t& rates3)
     {
         // Nothing to do for this network.
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    amrex::Real ener_gener_rate (const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
+    amrex::Real ener_gener_rate (const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         // Chamulak et al. provide the q-value resulting from C12 burning,
         // given as 3 different values (corresponding to 3 different densities).
