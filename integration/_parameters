@@ -89,10 +89,6 @@ subtract_internal_energy   bool     1
 # for Strang, this simply means scaling e by the initial energy?
 scale_system              bool         0
 
-# for the NSE update predictor-corrector, how many iterations
-# do we take to get the new time NSE state
-nse_iters                 int        3
-
 # for SDC+NSE, when estimating the derivatives of the NSE table
 # quantities, what fraction of dt do we use for the finite-difference
 # estimate
