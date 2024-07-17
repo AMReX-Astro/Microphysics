@@ -313,9 +313,9 @@ namespace RHS {
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -349,11 +349,11 @@ namespace RHS {
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates,
-                           rate_t<dual_t>& rates1, [[maybe_unused]] rate_t<dual_t>& rates2,
-                           [[maybe_unused]] rate_t<dual_t>& rates3)
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, [[maybe_unused]] rate_t<number_t>& rates2,
+                           [[maybe_unused]] rate_t<number_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -363,12 +363,12 @@ namespace RHS {
 
             if (static_cast<amrex::Real>(state.tf.t9) > 2.5_rt && state.y(C12) + state.y(O16) <= 4.0e-3_rt) {
 
-                dual_t t992  = state.tf.t972 * state.tf.t9;
-                dual_t t9i92 = 1.0_rt / t992;
+                number_t t992  = state.tf.t972 * state.tf.t9;
+                number_t t9i92 = 1.0_rt / t992;
 
-                dual_t yeff_ca40   = t9i92 * admath::exp(239.42_rt * state.tf.t9i - 74.741_rt);
+                number_t yeff_ca40   = t9i92 * admath::exp(239.42_rt * state.tf.t9i - 74.741_rt);
 
-                dual_t yeff_ti44   = t992  * admath::exp(-274.12_rt * state.tf.t9i + 74.914_rt);
+                number_t yeff_ti44   = t992  * admath::exp(-274.12_rt * state.tf.t9i + 74.914_rt);
 
                 amrex::Real denom = amrex::Math::powi<3>(state.rho * state.y(He4));
 
@@ -380,9 +380,9 @@ namespace RHS {
         }
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }

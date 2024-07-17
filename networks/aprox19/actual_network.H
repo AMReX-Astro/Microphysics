@@ -1335,15 +1335,15 @@ namespace RHS {
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == H1_H1_to_He3) {
-            dual_t tmp1;
+            number_t tmp1;
             rate_pp(state.tf, 1.0_rt, rates.fr, tmp1);
         }
         else if constexpr (rate == P_to_N) {
@@ -1366,11 +1366,11 @@ namespace RHS {
             rate_he3ng(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == He3_He3_to_He4_2H1) {
-            dual_t tmp1;
+            number_t tmp1;
             rate_he3he3(state.tf, 1.0_rt, rates.fr, tmp1);
         }
         else if constexpr (rate == He3_He4_H1_to_2He4) {
-            dual_t tmp1;
+            number_t tmp1;
             rate_he3he4(state.tf, 1.0_rt, rates.fr, tmp1);
         }
         else if constexpr (rate == C12_He4_to_O16) {
@@ -1511,11 +1511,11 @@ namespace RHS {
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates,
-                           rate_t<dual_t>& rates1, rate_t<dual_t>& rates2,
-                           rate_t<dual_t>& rates3)
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, rate_t<number_t>& rates2,
+                           rate_t<number_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -1527,10 +1527,10 @@ namespace RHS {
             // Rate 2 == H2_P_to_He3 == irdpg (forward), irhegp (reverse)
             // Rate 3 == He3_N_to_He4 == irheng (forward), irhegn (reverse)
 
-            dual_t denom = rates2.rr * rates1.rr + state.y(N) * rates3.fr * rates1.rr + state.y(N) * state.y(P) * rates3.fr * rates2.fr;
+            number_t denom = rates2.rr * rates1.rr + state.y(N) * rates3.fr * rates1.rr + state.y(N) * state.y(P) * rates3.fr * rates2.fr;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
 
                 // iralf1 in the original aprox19
                 rates.rr = rates3.rr * rates2.rr * rates1.rr * zz;
@@ -1572,11 +1572,11 @@ namespace RHS {
                       rate == Ti44_He4_to_Cr48 ||
                       rate == Cr48_He4_to_Fe52)
         {
-            dual_t rate_ir    = 0.0e0_rt;
-            dual_t denom      = rates1.rr + rates2.fr;
+            number_t rate_ir    = 0.0e0_rt;
+            number_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
             }
 
@@ -1588,11 +1588,11 @@ namespace RHS {
         // reaction followed by the reverse Si28+He4<->P31+P reaction.
         if constexpr (rate == O16_O16_to_Si28_He4)
         {
-            dual_t rate_ir    = 0.0e0_rt;
-            dual_t denom      = rates1.rr + rates2.fr;
+            number_t rate_ir    = 0.0e0_rt;
+            number_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
             }
 
@@ -1603,11 +1603,11 @@ namespace RHS {
         // reaction followed by the forward P31+P<->S32 reaction.
         if constexpr (rate == O16_O16_to_S32)
         {
-            dual_t rate_ir    = 0.0e0_rt;
-            dual_t denom      = rates1.rr + rates2.fr;
+            number_t rate_ir    = 0.0e0_rt;
+            number_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
             }
 
@@ -1639,8 +1639,8 @@ namespace RHS {
             // Rate 2: O15_H1_to_O16
             // Rate 3: O15_H1_to_C12_He4
 
-            dual_t tot = rates2.fr + rates3.fr;
-            dual_t invtot = 1.0_rt / tot;
+            number_t tot = rates2.fr + rates3.fr;
+            number_t invtot = 1.0_rt / tot;
 
             rates.fr = rates1.fr * (rates2.fr * invtot);
         }
@@ -1659,8 +1659,8 @@ namespace RHS {
             // Rate 2: O15_H1_to_O16
             // Rate 3: O15_H1_to_C12_He4
 
-            dual_t tot = rates2.fr + rates3.fr;
-            dual_t invtot = 1.0_rt / tot;
+            number_t tot = rates2.fr + rates3.fr;
+            number_t invtot = 1.0_rt / tot;
 
             rates.fr = rates1.fr * (rates3.fr * invtot);
         }
@@ -1691,10 +1691,10 @@ namespace RHS {
             // Rate 1 == Fe52_N_to_Fe53 == ir52ng (forward), ir53gn (reverse)
             // Rate 2 == Fe53_N_to_Fe54 == ir53ng (forward), ir54gn (reverse)
 
-            dual_t denom   = rates1.rr + state.y(N) * rates2.fr;
+            number_t denom   = rates1.rr + state.y(N) * rates2.fr;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
 
                 // ir2f54 in the original aprox19
                 rates.fr = rates1.fr * rates2.fr * zz;
@@ -1711,10 +1711,10 @@ namespace RHS {
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
 
-            dual_t denom = rates1.rr + state.y(P) * (rates2.fr + rates3.rr);
+            number_t denom = rates1.rr + state.y(P) * (rates2.fr + rates3.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
 
                 // ir3f54 in the original aprox19
                 rates.fr = rates1.fr * rates2.fr * zz;
@@ -1731,10 +1731,10 @@ namespace RHS {
             // Rate 2 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
             // Rate 3 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
 
-            dual_t denom = rates2.rr + state.y(P) * (rates3.fr + rates1.rr);
+            number_t denom = rates2.rr + state.y(P) * (rates3.fr + rates1.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
 
                 // ir6f54 in the original aprox19
                 rates.fr = rates1.fr * rates2.rr * zz;
@@ -1751,29 +1751,29 @@ namespace RHS {
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
 
-            dual_t denom = rates3.rr + state.y(P) * (rates2.fr + rates1.rr);
+            number_t denom = rates3.rr + state.y(P) * (rates2.fr + rates1.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
 
                 // Note that in these reactions we're adding to fr and rr
                 // since this reaction already has a contribution from the
                 // direct alpha capture sequence Fe52(a,g)Ni56.
 
                 // ir7f54 in the original aprox19
-                dual_t fr_add = rates1.fr * rates2.fr * zz;
+                number_t fr_add = rates1.fr * rates2.fr * zz;
                 rates.fr += state.y(P) * fr_add;
 
                 // ir8f54 in the original aprox19
-                dual_t rr_add = rates2.rr * rates1.rr * zz;
+                number_t rr_add = rates2.rr * rates1.rr * zz;
                 rates.rr += state.y(P) * rr_add;
             }
         }
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }

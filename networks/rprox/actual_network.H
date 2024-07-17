@@ -701,9 +701,9 @@ namespace RHS {
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -762,11 +762,11 @@ namespace RHS {
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate ([[maybe_unused]] const rhs_state_t<dual_t>& state, [[maybe_unused]] rate_t<dual_t>& rates,
-                           [[maybe_unused]] rate_t<dual_t>& rates1, [[maybe_unused]] rate_t<dual_t>& rates2,
-                           [[maybe_unused]] rate_t<dual_t>& rates3)
+    void postprocess_rate ([[maybe_unused]] const rhs_state_t<number_t>& state, [[maybe_unused]] rate_t<number_t>& rates,
+                           [[maybe_unused]] rate_t<number_t>& rates1, [[maybe_unused]] rate_t<number_t>& rates2,
+                           [[maybe_unused]] rate_t<number_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -797,7 +797,7 @@ namespace RHS {
             // Rate 2 == Ne19_to_F19
             // Rate 3 == Ne19_H1_to_Na20
 
-            dual_t rate_irr1 = rates2.fr / (rates2.fr + state.y(H1) * rates3.fr);
+            number_t rate_irr1 = rates2.fr / (rates2.fr + state.y(H1) * rates3.fr);
 
             rates.fr = rates1.fr * rate_irr1;
         }
@@ -806,7 +806,7 @@ namespace RHS {
             // Rate 2 == Ne19_H1_to_Na20
             // Rate 3 == O15_He4_to_Ne19 (ir15ago in the original rprox)
 
-            dual_t rate_irr1 = rates1.fr / (rates1.fr + state.y(H1) * rates2.fr);
+            number_t rate_irr1 = rates1.fr / (rates1.fr + state.y(H1) * rates2.fr);
 
             rates.fr = rates3.fr * (1.0_rt - rate_irr1);
         }
@@ -820,7 +820,7 @@ namespace RHS {
             // Rate 2 == Ne18_to_F18
             // Rate 3 == Ne18_He4_to_Na21_H1
 
-            dual_t rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
+            number_t rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
 
             rates.fr = rates1.fr * rate_irs1;
         }
@@ -834,7 +834,7 @@ namespace RHS {
             // Rate 2 == Ne18_to_F18
             // Rate 3 == Ne18_He4_to_Na21_H1
 
-            dual_t rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
+            number_t rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
 
             rates.fr = rates1.fr * (1.0_rt - rate_irs1);
         }
@@ -888,9 +888,9 @@ namespace RHS {
         }
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::bion<spec>() * C::Legacy::n_A * C::Legacy::MeV2erg;
     }

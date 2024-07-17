@@ -782,9 +782,9 @@ namespace RHS {
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -884,11 +884,11 @@ namespace RHS {
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate ([[maybe_unused]] const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates,
-                           rate_t<dual_t>& rates1, rate_t<dual_t>& rates2,
-                           rate_t<dual_t>& rates3)
+    void postprocess_rate ([[maybe_unused]] const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, rate_t<number_t>& rates2,
+                           rate_t<number_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -912,11 +912,11 @@ namespace RHS {
                       rate == Cr48_He4_to_Fe52 ||
                       rate == Fe52_He4_to_Ni56)
         {
-            dual_t rate_ir    = 0.0e0_rt;
-            dual_t denom      = rates1.rr + rates2.fr;
+            number_t rate_ir    = 0.0e0_rt;
+            number_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
             }
 
@@ -928,11 +928,11 @@ namespace RHS {
         // reaction followed by the reverse Si28+He4<->P31+P reaction.
         if constexpr (rate == O16_O16_to_Si28_He4)
         {
-            dual_t rate_ir    = 0.0e0_rt;
-            dual_t denom      = rates1.rr + rates2.fr;
+            number_t rate_ir    = 0.0e0_rt;
+            number_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
             }
 
@@ -943,11 +943,11 @@ namespace RHS {
         // reaction followed by the forward P31+P<->S32 reaction.
         if constexpr (rate == O16_O16_to_S32)
         {
-            dual_t rate_ir    = 0.0e0_rt;
-            dual_t denom      = rates1.rr + rates2.fr;
+            number_t rate_ir    = 0.0e0_rt;
+            number_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                dual_t zz = 1.0_rt / denom;
+                number_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
             }
 
@@ -955,9 +955,9 @@ namespace RHS {
         }
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }

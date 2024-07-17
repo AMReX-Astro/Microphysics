@@ -65,41 +65,41 @@ namespace RHS {
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == chamulak_rate) {
             // compute some often used temperature constants
-            dual_t T9     = state.tf.t9;
-            dual_t T9a    = T9 / (1.0_rt + 0.0396e0_rt * T9);
+            number_t T9     = state.tf.t9;
+            number_t T9a    = T9 / (1.0_rt + 0.0396e0_rt * T9);
 
             // compute the CF88 rate
-            dual_t scratch    = admath::cbrt(T9a);
+            number_t scratch    = admath::cbrt(T9a);
 
-            dual_t a    = 4.27e26_rt * admath::pow(T9a, 5.0_rt / 6.0_rt) * admath::pow(T9, -1.5e0_rt);
-            dual_t b    = admath::exp(-84.165e0_rt / scratch - 2.12e-3_rt * T9 * T9 * T9);
+            number_t a    = 4.27e26_rt * admath::pow(T9a, 5.0_rt / 6.0_rt) * admath::pow(T9, -1.5e0_rt);
+            number_t b    = admath::exp(-84.165e0_rt / scratch - 2.12e-3_rt * T9 * T9 * T9);
 
             rates.fr = a * b;
             rates.rr = 0.0_rt;
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates,
-                           rate_t<dual_t>& rates1, rate_t<dual_t>& rates2,
-                           rate_t<dual_t>& rates3)
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, rate_t<number_t>& rates2,
+                           rate_t<number_t>& rates3)
     {
         // Nothing to do for this network.
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    amrex::Real ener_gener_rate (const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
+    amrex::Real ener_gener_rate (const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         // Chamulak et al. provide the q-value resulting from C12 burning,
         // given as 3 different values (corresponding to 3 different densities).
