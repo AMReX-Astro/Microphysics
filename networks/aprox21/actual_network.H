@@ -1964,36 +1964,4 @@ namespace RHS {
 
 } // namespace RHS
 
-#ifdef AMREX_DEBUG
-namespace {
-template <typename dual_t>
-AMREX_GPU_HOST_DEVICE
-void _lint_aprox21_network_helper() {
-    using namespace RHS;
-    rhs_state_t<dual_t> rhs_state{};
-    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
-    {
-        constexpr int rate = n;
-
-        rate_t<dual_t> rates{};
-
-        evaluate_analytical_rate<rate>(rhs_state, rates);
-
-        rate_t<dual_t> rates1{}, rates2{}, rates3{};
-
-        // Perform rate postprocessing, using additional reactions as inputs.
-        // If there is no postprocessing for this rate, this will be a no-op.
-
-        postprocess_rate<rate>(rhs_state, rates, rates1, rates2, rates3);
-    });
-}
-AMREX_GPU_HOST_DEVICE
-[[maybe_unused]] void _lint_aprox21_network() {
-    _lint_aprox21_network_helper<amrex::Real>();
-    _lint_aprox21_network_helper<autodiff::dual>();
-    _lint_aprox21_network_helper<autodiff::dual_array<1, 2>>();
-}
-}
-#endif
-
 #endif
