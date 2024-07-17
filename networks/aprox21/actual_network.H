@@ -1473,182 +1473,189 @@ namespace RHS {
 
     template<int rate, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == H1_H1_to_He3) {
-            amrex::Real tmp1, tmp2;
-            rate_pp(state.tf, 1.0_rt, rates.fr, rates.frdt, tmp1, tmp2);
+            dual_t tmp1;
+            rate_pp(state.tf, 1.0_rt, rates.fr, tmp1);
         }
         else if constexpr (rate == P_to_N) {
             if (state.tf.temp >= 1.0e6_rt && state.rho >= 1.0e-9_rt) {
+                amrex::Real tmp_fr, tmp_rr;
                 amrex::Real tmp1, tmp2;
-                ecapnuc(state.eta, state.tf.temp, rates.fr, rates.rr, tmp1, tmp2);
+                ecapnuc(state.eta, static_cast<amrex::Real>(state.tf.temp),
+                        tmp_fr, tmp_rr, tmp1, tmp2);
+                rates.fr = tmp_fr;
+                rates.rr = tmp_rr;
             }
         }
         else if constexpr (rate == P_N_to_H2) {
-            rate_png(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_png(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == H2_P_to_He3) {
-            rate_dpg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_dpg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == He3_N_to_He4) {
-            rate_he3ng(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_he3ng(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == He3_He3_to_He4_2H1) {
-            amrex::Real tmp1, tmp2;
-            rate_he3he3(state.tf, 1.0_rt, rates.fr, rates.frdt, tmp1, tmp2);
+            dual_t tmp1;
+            rate_he3he3(state.tf, 1.0_rt, rates.fr, tmp1);
         }
         else if constexpr (rate == He3_He4_H1_to_2He4) {
-            amrex::Real tmp1, tmp2;
-            rate_he3he4(state.tf, 1.0_rt, rates.fr, rates.frdt, tmp1, tmp2);
+            dual_t tmp1;
+            rate_he3he4(state.tf, 1.0_rt, rates.fr, tmp1);
         }
         else if constexpr (rate == C12_He4_to_O16) {
-            rate_c12ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == He4_He4_He4_to_C12) {
-            rate_triplealf(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_triplealf(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == C12_H1_to_N13) {
-            rate_c12pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == C12_C12_to_Ne20_He4) {
-            rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == C12_O16_to_Mg24_He4) {
-            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == N14_H1_to_O15) {
-            rate_n14pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_n14pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == N15_H1_to_O16) {
-            rate_n15pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_n15pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == N15_H1_to_C12_He4) {
-            rate_n15pa(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_n15pa(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == N14_He4_to_F18) {
-            rate_n14ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_n14ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == O16_H1_to_F17) {
-            rate_o16pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_o16pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == O16_O16_to_P31_P) {
-            rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
-            rate_o16ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_o16ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ne20_He4_to_Mg24) {
-            rate_ne20ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ne20ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Mg24_He4_to_Si28) {
-            rate_mg24ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_mg24ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Si28_He4_to_S32) {
-            rate_si28ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_si28ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == S32_He4_to_Ar36) {
-            rate_s32ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_s32ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ar36_He4_to_Ca40) {
-            rate_ar36ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ar36ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ca40_He4_to_Ti44) {
-            rate_ca40ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ca40ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ti44_He4_to_Cr48) {
-            rate_ti44ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ti44ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Cr48_He4_to_Fe52) {
-            rate_cr48ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_cr48ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe52_He4_to_Ni56) {
-            rate_fe52ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe52ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Mg24_He4_to_Al27_P) {
-            rate_mg24ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_mg24ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Al27_P_to_Si28) {
-            rate_al27pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_al27pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Si28_He4_to_P31_P) {
-            rate_si28ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_si28ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == P31_P_to_S32) {
-            rate_p31pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_p31pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == S32_He4_to_Cl35_P) {
-            rate_s32ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_s32ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Cl35_P_to_Ar36) {
-            rate_cl35pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_cl35pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ar36_He4_to_K39_P) {
-            rate_ar36ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ar36ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == K39_P_to_Ca40) {
-            rate_k39pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_k39pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ca40_He4_to_Sc43_P) {
-            rate_ca40ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ca40ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Sc43_P_to_Ti44) {
-            rate_sc43pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_sc43pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ti44_He4_to_V47_P) {
-            rate_ti44ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ti44ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == V47_P_to_Cr48) {
-            rate_v47pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_v47pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Cr48_He4_to_Mn51_P) {
-            rate_cr48ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_cr48ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Mn51_P_to_Fe52) {
-            rate_mn51pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_mn51pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe52_He4_to_Co55_P) {
-            rate_fe52ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe52ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Co55_P_to_Ni56) {
-            rate_co55pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_co55pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe52_N_to_Fe53) {
-            rate_fe52ng(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe52ng(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe53_N_to_Fe54) {
-            rate_fe53ng(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe53ng(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe54_P_to_Co55) {
-            rate_fe54pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe54pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ni56_to_Fe56) {
-            if (state.tf.temp >= 1.0e6_rt && state.rho >= 1.0e-9_rt) {
-                amrex::Real tmp;
-                langanke(state.tf.temp, state.rho, state.y(Ni56), state.y_e, rates.fr, tmp);
+            if (static_cast<amrex::Real>(state.tf.temp) >= 1.0e6_rt && state.rho >= 1.0e-9_rt) {
+                amrex::Real tmp_fr, tmp_rr;
+                langanke(static_cast<amrex::Real>(state.tf.temp), state.rho,
+                         state.y(Ni56), state.y_e, tmp_fr, tmp_rr);
+                rates.fr = tmp_fr;
             }
         }
         else if constexpr (rate == Fe54_N_to_Fe55) {
-            rate_fe54ng(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe54ng(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe55_N_to_Fe56) {
-            rate_fe55ng(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe55ng(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe54_He4_to_Co57_P) {
-            rate_fe54ap(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe54ap(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Fe56_P_to_Co57) {
-            rate_fe56pg(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_fe56pg(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
     }
 
     template<int rate, typename dual_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t& rates,
-                           rate_t& rates1, rate_t& rates2, rate_t& rates3)
+    void postprocess_rate (const rhs_state_t<dual_t>& state, rate_t<dual_t>& rates,
+                           rate_t<dual_t>& rates1, rate_t<dual_t>& rates2,
+                           rate_t<dual_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -1660,28 +1667,16 @@ namespace RHS {
             // Rate 2 == H2_P_to_He3 == irdpg (forward), irhegp (reverse)
             // Rate 3 == He3_N_to_He4 == irheng (forward), irhegn (reverse)
 
-            amrex::Real denom = rates2.rr * rates1.rr + state.y(N) * rates3.fr * rates1.rr + state.y(N) * state.y(P) * rates3.fr * rates2.fr;
+            dual_t denom = rates2.rr * rates1.rr + state.y(N) * rates3.fr * rates1.rr + state.y(N) * state.y(P) * rates3.fr * rates2.fr;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                amrex::Real denomdt = rates2.rrdt * rates1.rr + rates2.rr * rates1.rrdt +
-                               state.y(N) * (rates3.frdt * rates1.rr + rates3.fr * rates1.rrdt) +
-                               state.y(N) * state.y(P) * (rates3.frdt * rates2.fr + rates3.fr * rates2.frdt);
-
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
 
                 // iralf1 in the original aprox21
                 rates.rr = rates3.rr * rates2.rr * rates1.rr * zz;
-                rates.rrdt = rates3.rrdt * rates2.rr * rates1.rr * zz +
-                             rates3.rr * rates2.rrdt * rates1.rr * zz +
-                             rates3.rr * rates2.rr * rates1.rrdt * zz -
-                             rates.rr * zz * denomdt;
 
                 // iralf2 in the original aprox21
                 rates.fr = rates3.fr * rates2.fr * rates1.fr * zz;
-                rates.frdt = rates3.frdt * rates2.fr * rates1.fr * zz +
-                             rates3.fr * rates2.frdt * rates1.fr * zz +
-                             rates3.fr * rates2.fr * rates1.frdt * zz -
-                             rates.fr * zz * denomdt;
             }
         }
 
@@ -1689,7 +1684,6 @@ namespace RHS {
 
         if constexpr (rate == H1_H1_H1_to_He3) {
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
         }
 
         // Beta limit He3 + He4 by the B8 decay half-life
@@ -1697,10 +1691,7 @@ namespace RHS {
         if constexpr (rate == He3_He4_H1_to_2He4)
         {
             amrex::Real xx = 0.896_rt / state.y(He4);
-            rates.fr = amrex::min(rates.fr, xx);
-            if (rates.fr == xx) {
-                rates.frdt = 0.0_rt;
-            }
+            rates.fr = admath::min(rates.fr, xx);
         }
 
         // Each of the following reactions has both an (a,g) path and an
@@ -1721,74 +1712,57 @@ namespace RHS {
                       rate == Ti44_He4_to_Cr48 ||
                       rate == Cr48_He4_to_Fe52)
         {
-            amrex::Real rate_ir    = 0.0e0_rt;
-            amrex::Real dratedt_ir = 0.0e0_rt;
-            amrex::Real denom      = rates1.rr + rates2.fr;
-            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
+            dual_t rate_ir    = 0.0e0_rt;
+            dual_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
-                dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
 
             rates.fr += rates1.fr * (1.0_rt - rate_ir);
-            rates.frdt += rates1.frdt * (1.0_rt - rate_ir) - rates1.fr * dratedt_ir;
-
             rates.rr += rates2.rr * rate_ir;
-            rates.rrdt += rates2.rrdt * rate_ir + rates2.rr * dratedt_ir;
         }
 
         // The O16+O16->Si28+He4 reaction has an additional contribution from the O16+O16->P31+P
         // reaction followed by the reverse Si28+He4<->P31+P reaction.
         if constexpr (rate == O16_O16_to_Si28_He4)
         {
-            amrex::Real rate_ir    = 0.0e0_rt;
-            amrex::Real dratedt_ir = 0.0e0_rt;
-            amrex::Real denom      = rates1.rr + rates2.fr;
-            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
+            dual_t rate_ir    = 0.0e0_rt;
+            dual_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
-                dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
 
             rates.fr = 0.56_rt * rates3.fr + 0.34_rt * rates3.fr * rate_ir;
-            rates.frdt = 0.56_rt * rates3.frdt + 0.34_rt * rates3.frdt * rate_ir + 0.34_rt * rates3.fr * dratedt_ir;
         }
 
         // The O16+O16->S32 reaction has an additional contribution from the O16+O16->P31+P
         // reaction followed by the forward P31+P<->S32 reaction.
         if constexpr (rate == O16_O16_to_S32)
         {
-            amrex::Real rate_ir    = 0.0e0_rt;
-            amrex::Real dratedt_ir = 0.0e0_rt;
-            amrex::Real denom      = rates1.rr + rates2.fr;
-            amrex::Real denomdt    = rates1.rrdt + rates2.frdt;
+            dual_t rate_ir    = 0.0e0_rt;
+            dual_t denom      = rates1.rr + rates2.fr;
 
             if (denom > 1.0e-30_rt) {
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
                 rate_ir    = rates1.rr * zz;
-                dratedt_ir = (rates1.rrdt - rate_ir * denomdt) * zz;
             }
 
             rates.fr = 0.1_rt * rates3.fr + 0.34_rt * rates3.fr * (1.0_rt - rate_ir);
-            rates.frdt = 0.1_rt * rates3.frdt + 0.34_rt * rates3.frdt * (1.0_rt - rate_ir) - 0.34_rt * rates3.fr * dratedt_ir;
         }
 
         if constexpr (rate == C12_2H1_to_N14)
         {
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
         }
 
         if constexpr (rate == C12_O16_to_Si28)
         {
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
             rates.rr = rates1.rr;
-            rates.rrdt = rates1.rrdt;
         }
 
         if constexpr (rate == N14_2H1_to_O16)
@@ -1799,24 +1773,16 @@ namespace RHS {
 
             if (state.y(H1) > 1.0e-30_rt) {
                 amrex::Real xx = 5.68e-3_rt / (state.y(H1) * 1.57_rt);
-                rates1.fr = amrex::min(rates1.fr, xx);
-                if (rates1.fr == xx) {
-                    rates1.frdt = 0.0_rt;
-                }
+                rates1.fr = admath::min(rates1.fr, xx);
             }
 
             // Rate 2: O15_H1_to_O16
             // Rate 3: O15_H1_to_C12_He4
 
-            amrex::Real tot = rates2.fr + rates3.fr;
-            amrex::Real invtot = 1.0_rt / tot;
+            dual_t tot = rates2.fr + rates3.fr;
+            dual_t invtot = 1.0_rt / tot;
 
             rates.fr = rates1.fr * (rates2.fr * invtot);
-
-            amrex::Real dtotdt = rates2.frdt + rates3.frdt;
-
-            rates.frdt = rates1.fr * (rates2.frdt * invtot - rates2.fr * invtot * invtot * dtotdt)
-                       + rates1.frdt * (rates2.fr * invtot);
         }
 
         if constexpr (rate == N14_2H1_to_C12_He4)
@@ -1827,24 +1793,16 @@ namespace RHS {
 
             if (state.y(H1) > 1.0e-30_rt) {
                 amrex::Real xx = 5.68e-3_rt / (state.y(H1) * 1.57_rt);
-                rates1.fr = amrex::min(rates1.fr, xx);
-                if (rates1.fr == xx) {
-                    rates1.frdt = 0.0_rt;
-                }
+                rates1.fr = admath::min(rates1.fr, xx);
             }
 
             // Rate 2: O15_H1_to_O16
             // Rate 3: O15_H1_to_C12_He4
 
-            amrex::Real tot = rates2.fr + rates3.fr;
-            amrex::Real invtot = 1.0_rt / tot;
+            dual_t tot = rates2.fr + rates3.fr;
+            dual_t invtot = 1.0_rt / tot;
 
             rates.fr = rates1.fr * (rates3.fr * invtot);
-
-            amrex::Real dtotdt = rates2.frdt + rates3.frdt;
-
-            rates.frdt = rates1.fr * (rates3.frdt * invtot - rates3.fr * invtot * invtot * dtotdt)
-                       + rates1.frdt * (rates3.fr * invtot);
         }
 
         if constexpr (rate == N14_He4_to_Ne20)
@@ -1855,7 +1813,6 @@ namespace RHS {
             // we'll halve the rate.
 
             rates.fr = rates1.fr * 0.5_rt;
-            rates.frdt = rates1.frdt * 0.5_rt;
         }
 
         if constexpr (rate == O16_2H1_to_N14_He4)
@@ -1863,13 +1820,9 @@ namespace RHS {
             // Beta limit
 
             amrex::Real xx = 0.0105_rt / state.y(H1);
-            rates1.fr = amrex::min(rates1.fr, xx);
-            if (rates1.fr == xx) {
-                rates1.frdt = 0.0_rt;
-            }
+            rates1.fr = admath::min(rates1.fr, xx);
 
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
         }
 
         if constexpr (rate == Fe52_2N_to_Fe54)
@@ -1878,19 +1831,16 @@ namespace RHS {
             // Rate 1 == Fe52_N_to_Fe53 == ir52ng (forward), ir53gn (reverse)
             // Rate 2 == Fe53_N_to_Fe54 == ir53ng (forward), ir54gn (reverse)
 
-            amrex::Real denom   = rates1.rr + state.y(N) * rates2.fr;
-            amrex::Real denomdt = rates1.rrdt + state.y(N) * rates2.frdt;
+            dual_t denom   = rates1.rr + state.y(N) * rates2.fr;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
 
                 // ir2f54 in the original aprox21
                 rates.fr = rates1.fr * rates2.fr * zz;
-                rates.frdt = rates1.frdt * rates2.fr * zz + rates1.fr * rates2.frdt * zz - rates.fr * zz * denomdt;
 
                 // ir1f54 in the original aprox21
                 rates.rr = rates2.rr * rates1.rr * zz;
-                rates.rrdt = rates2.rrdt * rates1.rr * zz + rates2.rr * rates1.rrdt * zz - rates.rr * zz * denomdt;
             }
         }
 
@@ -1901,20 +1851,16 @@ namespace RHS {
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe52_He4_to_Co55_P == irfeap (forward), ircopa (reverse)
 
-            amrex::Real denom = rates1.rr + state.y(P) * (rates2.fr + rates3.rr);
+            dual_t denom = rates1.rr + state.y(P) * (rates2.fr + rates3.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                amrex::Real denomdt = rates1.rrdt + state.y(P) * (rates2.frdt + rates3.rrdt);
-
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
 
                 // ir3f54 in the original aprox21
                 rates.fr = rates1.fr * rates2.fr * zz;
-                rates.frdt = rates1.frdt * rates2.fr * zz + rates1.fr * rates2.frdt * zz - rates.fr * zz * denomdt;
 
                 // ir4f54 in the original aprox21
                 rates.rr = rates2.rr * rates1.rr * zz;
-                rates.rrdt = rates2.rrdt * rates1.rr * zz + rates2.rr * rates1.rrdt * zz - rates.rr * zz * denomdt;
             }
         }
 
@@ -1925,20 +1871,16 @@ namespace RHS {
             // Rate 2 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
             // Rate 3 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
 
-            amrex::Real denom = rates2.rr + state.y(P) * (rates3.fr + rates1.rr);
+            dual_t denom = rates2.rr + state.y(P) * (rates3.fr + rates1.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                amrex::Real denomdt = rates2.rrdt + state.y(P) * (rates3.frdt + rates1.rrdt);
-
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
 
                 // ir6f54 in the original aprox21
                 rates.fr = rates1.fr * rates2.rr * zz;
-                rates.frdt = rates1.frdt * rates2.rr * zz + rates1.fr * rates2.rrdt * zz - rates.fr * zz * denomdt;
 
                 // ir5f54 in the original aprox21
                 rates.rr = rates2.fr * rates1.rr * zz;
-                rates.rrdt = rates2.frdt * rates1.rr * zz + rates2.fr * rates1.rrdt * zz - rates.rr * zz * denomdt;
             }
         }
 
@@ -1949,28 +1891,22 @@ namespace RHS {
             // Rate 2 == Co55_P_to_Ni56 == ircopg (forward), irnigp (reverse)
             // Rate 3 == Fe54_P_to_Co55 == irfepg (forward), ircogp (reverse)
 
-            amrex::Real denom = rates3.rr + state.y(P) * (rates2.fr + rates1.rr);
+            dual_t denom = rates3.rr + state.y(P) * (rates2.fr + rates1.rr);
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                amrex::Real denomdt = rates3.rrdt + state.y(P) * (rates2.frdt + rates1.rrdt);
-
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
 
                 // Note that in these reactions we're adding to fr and rr
                 // since this reaction already has a contribution from the
                 // direct alpha capture sequence Fe52(a,g)Ni56.
 
                 // ir7f54 in the original aprox19
-                amrex::Real fr_add = rates1.fr * rates2.fr * zz;
-                amrex::Real frdt_add = rates1.frdt * rates2.fr * zz + rates1.fr * rates2.frdt * zz - fr_add * zz * denomdt;
+                dual_t fr_add = rates1.fr * rates2.fr * zz;
                 rates.fr += state.y(P) * fr_add;
-                rates.frdt += state.y(P) * frdt_add;
 
                 // ir8f54 in the original aprox19
-                amrex::Real rr_add = rates2.rr * rates1.rr * zz;
-                amrex::Real rrdt_add = rates2.rrdt * rates1.rr * zz + rates2.rr * rates1.rrdt * zz - rr_add * zz * denomdt;
+                dual_t rr_add = rates2.rr * rates1.rr * zz;
                 rates.rr += state.y(P) * rr_add;
-                rates.rrdt += state.y(P) * rrdt_add;
             }
         }
 
@@ -1978,7 +1914,6 @@ namespace RHS {
         {
             // Rate 1 == Ni56_to_Fe56
             rates.fr = 1.0e-4 * rates1.fr;
-            rates.frdt = 1.0e-4 * rates1.frdt;
         }
 
         if constexpr (rate == Fe54_2N_to_Fe56)
@@ -1987,19 +1922,16 @@ namespace RHS {
             // Rate 1 == Fe54_N_to_Fe55 == ir54ng (forward), ir55gn (reverse)
             // Rate 2 == Fe55_N_to_Fe56 == ir55ng (forward), ir56gn (reverse)
 
-            amrex::Real denom   = rates1.rr + state.y(N) * rates2.fr;
-            amrex::Real denomdt = rates1.rrdt + state.y(N) * rates2.frdt;
+            dual_t denom   = rates1.rr + state.y(N) * rates2.fr;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
 
                 // irfe56_aux2 in the original aprox21
                 rates.fr = rates1.fr * rates2.fr * zz;
-                rates.frdt = rates1.frdt * rates2.fr * zz + rates1.fr * rates2.frdt * zz - rates.fr * zz * denomdt;
 
                 // irfe56_aux1 in the original aprox21
                 rates.rr = rates2.rr * rates1.rr * zz;
-                rates.rrdt = rates2.rrdt * rates1.rr * zz + rates2.rr * rates1.rrdt * zz - rates.rr * zz * denomdt;
             }
         }
 
@@ -2009,19 +1941,16 @@ namespace RHS {
             // Rate 1 == Fe54_He4_to_Co57_P == ir54ap (forward), irco57pa (reverse)
             // Rate 2 == Fe56_P_to_Co57 == irfe56pg (forward), irco57gp (reverse)
 
-            amrex::Real denom   = rates2.rr + state.y(P) * rates1.rr;
-            amrex::Real denomdt = rates2.rrdt + state.y(P) * rates1.rrdt;
+            dual_t denom   = rates2.rr + state.y(P) * rates1.rr;
 
             if (denom > 1.0e-50_rt && state.tf.t9 > 1.5_rt) {
-                amrex::Real zz = 1.0_rt / denom;
+                dual_t zz = 1.0_rt / denom;
 
                 // irfe56_aux4 in the original aprox21
                 rates.fr = rates1.fr * rates2.rr * zz;
-                rates.frdt = rates1.frdt * rates2.rr * zz + rates1.fr * rates2.rrdt * zz - rates.fr * zz * denomdt;
 
                 // irfe56_aux3 in the original aprox21
                 rates.rr = rates2.fr * rates1.rr * zz;
-                rates.rrdt = rates2.frdt * rates1.rr * zz + rates2.fr * rates1.rrdt * zz - rates.rr * zz * denomdt;
             }
         }
     }
@@ -2034,5 +1963,37 @@ namespace RHS {
     }
 
 } // namespace RHS
+
+#ifdef AMREX_DEBUG
+namespace {
+template <typename dual_t>
+AMREX_GPU_HOST_DEVICE
+void _lint_aprox21_network_helper() {
+    using namespace RHS;
+    rhs_state_t<dual_t> rhs_state{};
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    {
+        constexpr int rate = n;
+
+        rate_t<dual_t> rates{};
+
+        evaluate_analytical_rate<rate>(rhs_state, rates);
+
+        rate_t<dual_t> rates1{}, rates2{}, rates3{};
+
+        // Perform rate postprocessing, using additional reactions as inputs.
+        // If there is no postprocessing for this rate, this will be a no-op.
+
+        postprocess_rate<rate>(rhs_state, rates, rates1, rates2, rates3);
+    });
+}
+AMREX_GPU_HOST_DEVICE
+[[maybe_unused]] void _lint_aprox21_network() {
+    _lint_aprox21_network_helper<amrex::Real>();
+    _lint_aprox21_network_helper<autodiff::dual>();
+    _lint_aprox21_network_helper<autodiff::dual_array<1, 2>>();
+}
+}
+#endif
 
 #endif
