@@ -732,6 +732,7 @@ namespace RHS {
         else if constexpr (rate == O16_H1_to_F17) {
             rate_p_o16_to_f17(state.tf, rates.fr, rates.frdt);
             rate_f17_to_p_o16(state.tf, rates.rr, rates.rrdt);
+            rates.rrdt *= 1.0e-9_rt;
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
             rate_he4_o16_to_ne20(state.tf, rates.fr, rates.frdt);
@@ -760,6 +761,7 @@ namespace RHS {
         else if constexpr (rate == Ti44_He4_to_V47_H1) {
             rate_he4_ti44_to_p_v47(state.tf, rates.fr, rates.frdt);
         }
+        rates.frdt *= 1.0e-9_rt;
     }
 
     template<int rate, typename dual_t>

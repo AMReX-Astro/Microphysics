@@ -1689,6 +1689,7 @@ namespace RHS {
 
         if constexpr (rate == H1_H1_H1_to_He3) {
             rates.fr = rates1.fr;
+            rates.frdt = rates1.frdt;
         }
 
         // Beta limit He3 + He4 by the B8 decay half-life
@@ -1814,7 +1815,8 @@ namespace RHS {
 
             amrex::Real dtotdt = rates2.frdt + rates3.frdt;
 
-            rates.frdt = rates1.fr * (rates2.frdt * invtot - rates2.fr * invtot * invtot * dtotdt);
+            rates.frdt = rates1.fr * (rates2.frdt * invtot - rates2.fr * invtot * invtot * dtotdt)
+                       + rates1.frdt * (rates2.fr * invtot);
         }
 
         if constexpr (rate == N14_2H1_to_C12_He4)
@@ -1841,7 +1843,8 @@ namespace RHS {
 
             amrex::Real dtotdt = rates2.frdt + rates3.frdt;
 
-            rates.frdt = rates1.fr * (rates3.frdt * invtot - rates3.fr * invtot * invtot * dtotdt);
+            rates.frdt = rates1.fr * (rates3.frdt * invtot - rates3.fr * invtot * invtot * dtotdt)
+                       + rates1.frdt * (rates3.fr * invtot);
         }
 
         if constexpr (rate == N14_He4_to_Ne20)
@@ -1975,6 +1978,7 @@ namespace RHS {
         {
             // Rate 1 == Ni56_to_Fe56
             rates.fr = 1.0e-4 * rates1.fr;
+            rates.frdt = 1.0e-4 * rates1.frdt;
         }
 
         if constexpr (rate == Fe54_2N_to_Fe56)

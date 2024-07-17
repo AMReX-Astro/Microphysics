@@ -2,6 +2,7 @@
 #define APROX_RATES_H
 
 #include <aprox_rates_data.H>
+#include <extern_parameters.H>
 #include <tfactors.H>
 #include <cmath>
 
