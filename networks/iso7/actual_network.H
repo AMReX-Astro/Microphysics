@@ -374,7 +374,7 @@ namespace RHS {
                 amrex::Real denom = amrex::Math::powi<3>(state.rho * state.y(He4));
 
                 rates.fr   = yeff_ca40 * denom * rates1.fr;
-                rates.frdt = (yeff_ca40dt * rates1.fr + yeff_ca40 * rates1.frdt) * denom * 1.0e-9_rt;
+                rates.frdt = (yeff_ca40dt * rates1.fr * 1.0e-9_rt + yeff_ca40 * rates1.frdt) * denom;
 
                 amrex::Real zz = 1.0_rt / denom;
                 rates.rr = amrex::min(1.0e10_rt, yeff_ti44 * rates1.rr * zz);
@@ -382,7 +382,7 @@ namespace RHS {
                 if (rates.rr == 1.0e10_rt) {
                     rates.rrdt = 0.0_rt;
                 } else {
-                    rates.rrdt = (yeff_ti44dt * rates1.rr + yeff_ti44 * rates1.rrdt) * zz * 1.0e-9_rt;
+                    rates.rrdt = (yeff_ti44dt * rates1.rr * 1.0e-9_rt + yeff_ti44 * rates1.rrdt) * zz;
                 }
             }
         }
