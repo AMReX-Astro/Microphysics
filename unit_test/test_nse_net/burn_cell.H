@@ -69,8 +69,10 @@ void burn_cell_c()
     // now test the EOS+NSE function.  The basic idea is the following:
     //
     // 1. find the e corresponding to the current NSE state (eos_input_rt)
-    // 2. perturb e and then call the NSE EOS to get the updated T
-    // 3. call the EOS with this new T (eos_input_rt) and updated NSE
+    // 2. perturb e and then call the NSE EOS to get the updated T and abar
+    // 3. call the NSE function explicitly with the new T to get the X's
+    //    (since the NSE EOS doesn't return these).
+    // 4. call the EOS with this new T (eos_input_rt) and updated NSE
     //    composition and see if we recover the same perturbed e
 
     eos_t eos_state;
