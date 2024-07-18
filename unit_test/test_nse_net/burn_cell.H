@@ -66,5 +66,60 @@ void burn_cell_c()
       std::cout << "We're not in NSE. " << std::endl;
     }
 
+    // now test the EOS+NSE function.  The basic idea is the following:
+    //
+    // 1. find the e corresponding to the current NSE state (eos_input_rt)
+    // 2. perturb e and then call the NSE EOS to get the updated T
+    // 3. call the EOS with this new T (eos_input_rt) and updated NSE
+    //    composition and see if we recover the same perturbed e
+
+    eos_t eos_state;
+    eos_state.T = state.T;
+    eos_state.rho = state.rho;
+    for (int n = 0; n < NumSpec; ++n) {
+        eos_state.xn[n] = state.y[SFS+n] / state.rho;
+    }
+
+    // get the initial e and abar corresponding to this T
+
+    eos(eos_input_rt, eos_state);
+
+    amrex::Real abar_start = eos_state.abar;
+    amrex::Real e_start = eos_state.e;
+
+    // now perturb e and find the T/abar that are consistent with it
+    // and NSE
+
+    amrex::Real e_new = eos_state.e * 1.05;
+
+    eos_state.e = e_new;
+
+    amrex::Real T_new{eos_state.T};
+    amrex::Real abar_new{};
+
+    nse_T_abar_from_e(eos_state.rho, eos_state.e, ye,
+                      T_new, abar_new,
+                      state.mu_p, state.mu_n);
+
+    std::cout << "change in T: " << eos_state.T << " " << T_new <<  std::endl;
+    std::cout << "change in abar: " << abar_start << " " << abar_new <<  std::endl;
+
+    // now try calling the EOS with this T and composition and see if
+    // we get back the same energy.  we need to recompute the NSE
+    // state here since we didn't get the mass fractions from the EOS call
+
+    state.T = T_new;
+    auto nse_state = get_actual_nse_state(state, 1.e-10, true);
+
+    for (int n = 0; n < NumSpec; ++n) {
+        eos_state.xn[n] = nse_state.xn[n];
+    }
+
+    eos_state.T = T_new;
+
+    eos(eos_input_rt, eos_state);
+
+    std::cout << "recovered energy: " << eos_state.e << " " << e_new << std::endl;
+
 }
 #endif
