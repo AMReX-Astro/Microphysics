@@ -30,10 +30,6 @@ struct hybrj_t {
 
     static_assert(neqs > 0);
 
-    // n is a positive integer input variable set to the number
-    // of functions and variables.
-    const int n = neqs;
-
     // x is an array of length n. on input x must contain
     // an initial estimate of the solution vector. on output x
     // contains the final estimate of the solution vector.
