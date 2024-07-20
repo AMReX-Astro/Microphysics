@@ -14,8 +14,6 @@
 #include <extern_parameters.H>
 #include <integrator_data.H>
 
-using namespace integrator_rp;
-
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state (BurnT& state)
@@ -26,13 +24,13 @@ void clean_state (BurnT& state)
 
     // Evaluate the EOS to get T from e.
 
-    if (call_eos_in_rhs) {
+    if (integrator_rp::call_eos_in_rhs) {
         eos(eos_input_re, state);
     }
 
     // Ensure that the temperature always stays within reasonable limits.
 
-    state.T = amrex::min(MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
+    state.T = amrex::min(integrator_rp::MAX_TEMP, amrex::max(state.T, EOSData::mintemp));
 }
 
 template <typename BurnT>
@@ -78,7 +76,7 @@ void evaluate_rhs (BurnT& state, amrex::Array1D<amrex::Real, 1, NumSpec>& f_minu
         f_minus(n) = ydot(2 * n) * aion[n-1];
     }
 
-    if (integrate_energy) {
+    if (integrator_rp::integrate_energy) {
         dedt = ydot(2 * net_ienuc - 1) - ydot(2 * net_ienuc);
     }
     else {
@@ -130,7 +128,7 @@ bool predictor (BurnT& state_0, amrex::Array1D<amrex::Real, 1, NumSpec>& f_minus
         amrex::Real dXdt = (f_plus_0(n) - k_0 * X_0) / (1.0_rt + alpha_0 * k_0 * dt);
         state.xn[n-1] = X_0 + dt * dXdt;
 
-        if (X_0 >= atol_spec && (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance)) {
+        if (X_0 >= integrator_rp::atol_spec && (state.xn[n-1] < -integrator_rp::species_tolerance || state.xn[n-1] > 1.0_rt + integrator_rp::species_tolerance)) {
             return false;
         }
     }
@@ -178,7 +176,7 @@ bool corrector (const BurnT& state_0, const amrex::Array1D<amrex::Real, 1, NumSp
 
         state.xn[n-1] = X_c;
 
-        if (X_0 >= atol_spec && (state.xn[n-1] < -species_tolerance || state.xn[n-1] > 1.0_rt + species_tolerance)) {
+        if (X_0 >= integrator_rp::atol_spec && (state.xn[n-1] < -integrator_rp::species_tolerance || state.xn[n-1] > 1.0_rt + integrator_rp::species_tolerance)) {
             return false;
         }
     }
@@ -223,14 +221,14 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
     amrex::Real dt_sub = dt;
 
     for (int n = 1; n <= NumSpec; ++n) {
-        if (xn_in[n-1] >= atol_spec) {
+        if (xn_in[n-1] >= integrator_rp::atol_spec) {
             dt_sub = amrex::min(dt_sub, xn_in[n - 1] / amrex::max(std::abs(f_plus_init(n) - f_minus_init(n)), 1.e-50_rt));
         }
     }
 
-    dt_sub *= dt_init_fraction;
+    dt_sub *= integrator_rp::dt_init_fraction;
 
-    dt_sub = amrex::min(dt_sub, ode_max_dt);
+    dt_sub = amrex::min(dt_sub, integrator_rp::ode_max_dt);
 
     // When checking the integration time to see if we're done,
     // be careful with roundoff issues.
@@ -239,13 +237,13 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
 
     int num_timesteps = 0;
 
-    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < ode_max_steps)
+    while (t < (1.0_rt - timestep_safety_factor) * dt && num_timesteps < integrator_rp::ode_max_steps)
     {
         // Start the step with a guess that is a small factor above the previous timestep.
 
-        dt_sub *= dt_max_change_factor;
+        dt_sub *= integrator_rp::dt_max_change_factor;
 
-        dt_sub = amrex::min(dt_sub, ode_max_dt);
+        dt_sub = amrex::min(dt_sub, integrator_rp::ode_max_dt);
 
         // Prevent the timestep from overshooting the final time.
 
@@ -304,7 +302,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
 
         int timestep_iter = 0;
 
-        for (timestep_iter = 0; timestep_iter < num_timestep_iters; ++timestep_iter)
+        for (timestep_iter = 0; timestep_iter < integrator_rp::num_timestep_iters; ++timestep_iter)
         {
             // Evaluate the predictor. The return value indicates whether we consider it
             // a successful prediction; if it was unsuccessful, we'll cut the timestep by
@@ -320,7 +318,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
             BurnT predictor_state = state;
 
             if (!success) {
-                dt_sub *= dt_cut_factor;
+                dt_sub *= integrator_rp::dt_cut_factor;
                 continue;
             }
 
@@ -329,7 +327,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
             // predictor for the next. The return value is the maximum relative diff between
             // the predictor and the corrector.
 
-            for (int corrector_iter = 0; corrector_iter < num_corrector_iters; ++corrector_iter)
+            for (int corrector_iter = 0; corrector_iter < integrator_rp::num_corrector_iters; ++corrector_iter)
             {
                 success = corrector(state_0, f_minus_0, f_plus_0, dedt_0, t, dt_sub, state);
 
@@ -339,7 +337,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
             }
 
             if (!success) {
-                dt_sub *= dt_cut_factor;
+                dt_sub *= integrator_rp::dt_cut_factor;
                 continue;
             }
 
@@ -350,7 +348,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
             for (int n = 1; n <= NumSpec; ++n)
             {
                 amrex::Real dX = std::abs(state.xn[n-1] - predictor_state.xn[n-1]);
-                if (state_0.xn[n-1] >= atol_spec) {
+                if (state_0.xn[n-1] >= integrator_rp::atol_spec) {
                     max_diff = amrex::max(max_diff, dX / state.xn[n-1]);
                 }
             }
@@ -358,7 +356,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
             // If the relative diff was smaller than the requested tolerance factor, we're done.
             // Otherwise, cut dt and try again.
 
-            if (max_diff <= predictor_corrector_tolerance) {
+            if (max_diff <= integrator_rp::predictor_corrector_tolerance) {
                 break;
             }
             else {
@@ -369,14 +367,14 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
                 // method; given the expense of our RHS it seems unlikely that this would make
                 // a performance difference, but it is a potential optimization.
 
-                amrex::Real sigma = max_diff / (predictor_corrector_tolerance / tolerance_safety_factor);
+                amrex::Real sigma = max_diff / (integrator_rp::predictor_corrector_tolerance / integrator_rp::tolerance_safety_factor);
                 dt_sub *= (1.0_rt / std::sqrt(sigma) + 0.005);
             }
         }
 
         // If we didn't get a converged timestep in the fixed number of iterations, the integration failed.
 
-        if (timestep_iter >= num_timestep_iters) {
+        if (timestep_iter >= integrator_rp::num_timestep_iters) {
             state.success = false;
             state.error_code = IERR_CORRECTOR_CONVERGENCE;
             break;
@@ -389,7 +387,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
         state.n_step = num_timesteps;
     }
 
-    if (num_timesteps >= ode_max_steps) {
+    if (num_timesteps >= integrator_rp::ode_max_steps) {
         state.success = false;
         state.error_code = IERR_TOO_MANY_STEPS;
     }
@@ -403,7 +401,7 @@ void actual_integrator (BurnT& state, amrex::Real dt, const bool is_retry=false)
     state.e -= e_in;
 
 #ifndef AMREX_USE_GPU
-    if (burner_verbose) {
+    if (integrator_rp::burner_verbose) {
         // Print out some integration statistics, if desired.
         std::cout <<  "integration summary: " << std::endl;
         std::cout <<  "dens: " << state.rho << " temp: " << state.T << std::endl;

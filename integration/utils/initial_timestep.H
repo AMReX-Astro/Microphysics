@@ -89,7 +89,7 @@ amrex::Real initial_react_dt (BurnT& burn_state, IntT& int_state,
     amrex::Real dt = h / 2.0_rt;
     dt = amrex::min(amrex::max(h, hL), hU);
 
-    dt = amrex::min(dt, ode_max_dt);
+    dt = amrex::min(dt, integrator_rp::ode_max_dt);
 
     // restore the old time solution
     for (int n = 1; n <= INT_NEQS; ++n) {

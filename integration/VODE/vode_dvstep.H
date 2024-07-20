@@ -241,7 +241,8 @@ int dvstep (BurnT& state, DvodeT& vstate)
             // factor in a given step (as long as their initial abundance was large enough
             // for us to worry about).
 
-            if (std::abs(y_save(i)) > X_reject_buffer * atol_spec && std::abs(vstate.y(i)) > X_reject_buffer * atol_spec &&
+            if (std::abs(y_save(i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                std::abs(vstate.y(i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
                 (std::abs(vstate.y(i)) > vode_increase_change_factor * std::abs(y_save(i)) ||
                  std::abs(vstate.y(i)) < vode_decrease_change_factor * std::abs(y_save(i)))) {
 #ifdef MICROPHYSICS_DEBUG
@@ -262,7 +263,7 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             // Don't enforce the condition below if
             // vstate.y contains number densities
-            if (!use_number_densities) {
+            if (! integrator_rp::use_number_densities) {
                 if (vstate.y(i) > 1.0_rt + species_failure_tolerance) {
                     valid_update = false;
                     break;
@@ -280,8 +281,8 @@ int dvstep (BurnT& state, DvodeT& vstate)
 
             amrex::Real X_current = (vstate.y(SFS+i) - vstate.H * state.ydot_a[SFS-1+i]) / rho_current;
 
-            if (std::abs(y_save(SFS+i)) > X_reject_buffer * atol_spec &&
-                std::abs(X_current) > X_reject_buffer * atol_spec &&
+            if (std::abs(y_save(SFS+i)) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
+                std::abs(X_current) > integrator_rp::X_reject_buffer * vstate.atol_spec &&
                 (std::abs(X_current) > vode_increase_change_factor * std::abs(y_save(SFS+i)) ||
                  std::abs(X_current) < vode_decrease_change_factor * std::abs(y_save(SFS+i)))) {
 #ifdef MICROPHYSICS_DEBUG
