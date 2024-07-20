@@ -87,7 +87,6 @@ void burn_cell_c()
     eos(eos_input_rt, eos_state);
 
     amrex::Real abar_start = eos_state.abar;
-    amrex::Real e_start = eos_state.e;
 
     // now perturb e and find the T/abar that are consistent with it
     // and NSE

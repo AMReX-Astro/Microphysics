@@ -24,12 +24,12 @@
 
 template<int neqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-amrex::Real enorm(const int n, amrex::Array1D<amrex::Real, 1, neqs>& x) {
+amrex::Real enorm(const int n, const amrex::Array1D<amrex::Real, 1, neqs>& x) {
 
     // note: n <= neqs
 
-    const amrex::Real rdwarf = 3.834e-20_rt;
-    const amrex::Real rgiant = 1.304e19_rt;
+    constexpr amrex::Real rdwarf = 3.834e-20_rt;
+    constexpr amrex::Real rgiant = 1.304e19_rt;
 
     amrex::Real s1 = 0.0_rt;
     amrex::Real s2 = 0.0_rt;
