@@ -21,8 +21,7 @@ void clean_state(const amrex::Real time, BurnT& state, T& int_state)
     if (do_species_clip) {
         for (int n = 1; n <= NumSpec; ++n) {
             // we use 1-based indexing, so we need to offset SFS
-            int_state.y(SFS+n) = amrex::max(amrex::min(int_state.y(SFS+n), state.rho),
-                                            state.rho * SMALL_X_SAFE);
+            int_state.y(SFS+n) = std::clamp(int_state.y(SFS+n), state.rho * SMALL_X_SAFE, state.rho);
         }
     }
 
