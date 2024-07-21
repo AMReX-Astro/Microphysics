@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   // C++ Network, RHS, screening, rates initialization
   network_init();
 
-  burn_cell_c();
+  jac_cell_c();
 
   amrex::Finalize();
 }

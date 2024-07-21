@@ -14,7 +14,7 @@
 using namespace unit_test_rp;
 
 AMREX_INLINE
-void burn_cell_c()
+void jac_cell_c()
 {
 
     amrex::Real massfractions[NumSpec] = {-1.0};
