@@ -39,7 +39,7 @@ jobs:
       - name: Compare to stored output
         run: |
           cd unit_test/jac_cell
-          diff -I "^Initializing AMReX" -I "^AMReX"  test.out jac_cell_aprox13.out
+          diff -I "^Initializing AMReX" -I "^AMReX"  test.out ci-benchmarks/jac_cell_aprox13.out
 
 
 
