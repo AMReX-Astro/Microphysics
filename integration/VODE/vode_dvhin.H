@@ -1,6 +1,8 @@
 #ifndef VODE_DVHIN_H
 #define VODE_DVHIN_H
 
+#include <AMReX_REAL.H>
+
 #ifdef STRANG
 #include <integrator_rhs_strang.H>
 #endif
@@ -23,7 +25,7 @@ void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
 
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    const amrex::Real PT1 = 0.1e0_rt;
+    constexpr amrex::Real PT1 = 0.1e0_rt;
 
     NITER = 0;
     const amrex::Real TDIST = std::abs(vstate.tout - vstate.t);

@@ -20,7 +20,7 @@ void dvset (DvodeT& vstate)
     // H*xi(i) = t sub n  -  t sub (n-i)
     //         = H + TAU(1) + TAU(2) + ... TAU(i-1).
 
-    const amrex::Real CORTES = 0.1e0_rt;
+    constexpr amrex::Real CORTES = 0.1e0_rt;
 
     const amrex::Real FLOTL = vstate.L;
     const int NQM1 = vstate.NQ - 1;
