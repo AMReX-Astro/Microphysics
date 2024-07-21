@@ -19,7 +19,7 @@ bool compare(const T& a, const T& b, const bool ascending=true) {
 
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void swap(T& a, T& b) {
+void swap(T& a, T& b) noexcept {
     // Helper function for sorting functions
     // Swaps the position of the two input
 

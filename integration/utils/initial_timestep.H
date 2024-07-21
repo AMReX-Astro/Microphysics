@@ -87,7 +87,7 @@ amrex::Real initial_react_dt (BurnT& burn_state, IntT& int_state,
     // Save the final timestep, with a bias factor.
 
     amrex::Real dt = h / 2.0_rt;
-    dt = amrex::min(amrex::max(h, hL), hU);
+    dt = std::clamp(h, hL, hU);
 
     dt = amrex::min(dt, ode_max_dt);
 

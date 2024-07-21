@@ -55,7 +55,7 @@ void clean_state (const amrex::Real time, BurnT& state, I& int_state)
 
     if (do_species_clip) {
         for (int n = 1; n <= NumSpec; ++n) {
-            int_state.y(n) = amrex::max(amrex::min(int_state.y(n), 1.0_rt), SMALL_X_SAFE);
+            int_state.y(n) = std::clamp(int_state.y(n), SMALL_X_SAFE, 1.0_rt);
         }
     }
 

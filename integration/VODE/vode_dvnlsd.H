@@ -20,11 +20,11 @@ amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
     // It then handles the corrector phase of this integration package.
 
     // Parameter declarations
-    const amrex::Real CCMAX = 0.3e0_rt;
-    const amrex::Real CRDOWN = 0.3e0_rt;
-    const amrex::Real RDIV  = 2.0e0_rt;
-    const int MAXCOR = 3;
-    const int MSBP = 20;
+    constexpr amrex::Real CCMAX = 0.3e0_rt;
+    constexpr amrex::Real CRDOWN = 0.3e0_rt;
+    constexpr amrex::Real RDIV  = 2.0e0_rt;
+    constexpr int MAXCOR = 3;
+    constexpr int MSBP = 20;
 
     amrex::Real DEL{};
     int M{};
