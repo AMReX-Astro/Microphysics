@@ -336,9 +336,10 @@ The network appears as:
 The nuclei in gray are those that have been approximated about, but the links
 are effectively accounted for in the approximate rates.
 
-.. warning::
-   Due to inclusion of the rate sequence, n14(a, g)f18(a, p)ne21, there is
-   an artificial end-point at Na22.
+.. warning:: Due to inclusion of the rate sequence,
+   ${}^{14}\mathrm{N}(\alpha, \gamma){}^{18}\mathrm{F}(\alpha,
+   \mathrm{p}){}^{21}\mathrm{Ne}$, there is an artificial end-point at
+   ${}^{22}\mathrm{Na}$.
 
 ``subch_base``
 --------------
