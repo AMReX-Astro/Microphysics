@@ -116,7 +116,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
                 R0 = 1.0_rt;
             }
 
-            const bool in_jacobian = true;
+            constexpr bool in_jacobian = true;
             for (int j = 1; j <= int_neqs; ++j) {
                 const amrex::Real yj = vstate.y(j);
 

@@ -67,20 +67,20 @@ int dvstep (BurnT& state, DvodeT& vstate)
     // On a successful return, ETAMAX is reset and ACOR is scaled.
 
     // Parameter declarations
-    const int KFC = -3;
-    const int KFH = -7;
-    const int MXNCF = 10;
-    const amrex::Real ADDON = 1.0e-6_rt;
-    const amrex::Real BIAS1 = 6.0e0_rt;
-    const amrex::Real BIAS2 = 6.0e0_rt;
-    const amrex::Real BIAS3 = 10.0e0_rt;
-    const amrex::Real ETACF = 0.25e0_rt;
-    const amrex::Real ETAMIN = 0.1e0_rt;
-    const amrex::Real ETAMXF = 0.2e0_rt;
-    const amrex::Real ETAMX2 = 10.0e0_rt;
-    const amrex::Real ETAMX3 = 10.0e0_rt;
-    const amrex::Real ONEPSM = 1.00001e0_rt;
-    const amrex::Real THRESH = 1.5e0_rt;
+    constexpr int KFC = -3;
+    constexpr int KFH = -7;
+    constexpr int MXNCF = 10;
+    constexpr amrex::Real ADDON = 1.0e-6_rt;
+    constexpr amrex::Real BIAS1 = 6.0e0_rt;
+    constexpr amrex::Real BIAS2 = 6.0e0_rt;
+    constexpr amrex::Real BIAS3 = 10.0e0_rt;
+    constexpr amrex::Real ETACF = 0.25e0_rt;
+    constexpr amrex::Real ETAMIN = 0.1e0_rt;
+    constexpr amrex::Real ETAMXF = 0.2e0_rt;
+    constexpr amrex::Real ETAMX2 = 10.0e0_rt;
+    constexpr amrex::Real ETAMX3 = 10.0e0_rt;
+    constexpr amrex::Real ONEPSM = 1.00001e0_rt;
+    constexpr amrex::Real THRESH = 1.5e0_rt;
 
     amrex::Real CNQUOT{}, DDN{}, DSM{}, DUP{}, TOLD{};
     amrex::Real FLOTL{}, R{};

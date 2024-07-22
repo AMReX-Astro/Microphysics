@@ -43,9 +43,9 @@
 
 template<int neqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dogleg(amrex::Array1D<amrex::Real, 1, neqs * (neqs + 1) / 2>& r,
-            amrex::Array1D<amrex::Real, 1, neqs>& diag,
-            amrex::Array1D<amrex::Real, 1, neqs>& qtb,
+void dogleg(const amrex::Array1D<amrex::Real, 1, neqs * (neqs + 1) / 2>& r,
+            const amrex::Array1D<amrex::Real, 1, neqs>& diag,
+            const amrex::Array1D<amrex::Real, 1, neqs>& qtb,
             amrex::Real delta,
             amrex::Array1D<amrex::Real, 1, neqs>& x,
             amrex::Array1D<amrex::Real, 1, neqs>& wa1,

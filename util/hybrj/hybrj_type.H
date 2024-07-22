@@ -16,23 +16,19 @@ using namespace amrex::literals;
 // maxfev is a positive integer input variable. termination
 // occurs when the number of calls to fcn with iflag = 1
 // has reached maxfev.
-const int maxfev = 1000;
+constexpr int maxfev = 1000;
 
 // factor is a positive input variable used in determining the
 // initial step bound. this bound is set to the product of
 // factor and the euclidean norm of diag*x if nonzero, or else
 // to factor itself. in most cases factor should lie in the
 // interval (.1,100.). 100. is a generally recommended value.
-const amrex::Real factor = 100.0_rt;
+constexpr amrex::Real factor = 100.0_rt;
 
 template<int neqs>
 struct hybrj_t {
 
     static_assert(neqs > 0);
-
-    // n is a positive integer input variable set to the number
-    // of functions and variables.
-    const int n = neqs;
 
     // x is an array of length n. on input x must contain
     // an initial estimate of the solution vector. on output x

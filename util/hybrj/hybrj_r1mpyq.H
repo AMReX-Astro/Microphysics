@@ -1,7 +1,7 @@
 #ifndef HYBRJ_R1MPYQ_H
 #define HYBRJ_R1MPYQ_H
 
-#include <hybrj.H>
+#include <hybrj_type.H>
 
 // given an m by n matrix a, this subroutine computes a*q where
 //  q is the product of 2*(n - 1) transformations
