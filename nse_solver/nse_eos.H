@@ -52,20 +52,22 @@ amrex::Real nse_dabar_dT(const amrex::Real T, const amrex::Real rho,
 
     // deviation in temperature
 
-    const amrex::Real dT = 1.0e-6_rt * T;
+    const amrex::Real dT = 1.0e-8_rt * T;
 
     // Calculate derivative using five-point stencil method
 
+#if 0
     amrex::Real dabar_dT = (-nse_abar(T + 2.0_rt*dT, rho, Ye, mu_p, mu_n) +
                              8.0_rt * nse_abar(T+dT, rho, Ye, mu_p, mu_n) -
                              8.0_rt * nse_abar(T-dT, rho, Ye, mu_p, mu_n) +
                              nse_abar(T - 2.0_rt*dT, rho, Ye, mu_p, mu_n)
                             ) / (12.0_rt * dT);
+#endif
 
     // Calculate derivative using central differencing
 
-    // amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
-    //                                  nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
+    amrex::Real dabar_dT = 0.5_rt * (nse_abar(T + dT, rho, Ye, mu_p, mu_n) -
+                                     nse_abar(T - dT, rho, Ye, mu_p, mu_n)) / dT;
 
     return dabar_dT;
 }
@@ -168,6 +170,7 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
         iter++;
 
     }
+    std::cout << "number of iterations = " << iter << std::endl;
 
 }
 

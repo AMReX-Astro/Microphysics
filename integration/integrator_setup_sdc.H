@@ -260,6 +260,9 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
                 std::cout << std::setprecision(16) << state.ydot_a[SFX+n] << " ";
             }
             std::cout << std::endl;
+#elif defined(ALLOW_GPU_PRINTF)
+            AMREX_GPU_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens_start = %g, temp_start = %g\n",
+                             istate, state.time, dt, state.rho_orig, state_save.T_in);
 #endif
 #endif
         } else {
