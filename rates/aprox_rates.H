@@ -285,7 +285,7 @@ void rate_o16o16(const tf_t<dual_t>& tf, const amrex::Real den, dual_t& fr, dual
 
     const dual_t term  = 7.10e36_rt * tf.t9i23 *
          admath::exp(-135.93_rt * tf.t9i13 - 0.629_rt*tf.t923
-         - 0.445_rt*tf.t943 + 0.0103_rt*tf.t92);
+         - 0.445_rt*tf.t943 + 0.0103_rt*tf.t9*tf.t9);
 
     // rates
     fr    = den * term;

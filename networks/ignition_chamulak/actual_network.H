@@ -78,7 +78,7 @@ namespace RHS {
             number_t T9a    = T9 / (1.0_rt + 0.0396e0_rt * T9);
 
             // compute the CF88 rate
-            number_t scratch    = admath::cbrt(T9a);
+            number_t scratch    = admath::pow(T9a, 1.0_rt / 3.0_rt);
 
             number_t a    = 4.27e26_rt * admath::pow(T9a, 5.0_rt / 6.0_rt) * admath::pow(T9, -1.5e0_rt);
             number_t b    = admath::exp(-84.165e0_rt / scratch - 2.12e-3_rt * T9 * T9 * T9);
