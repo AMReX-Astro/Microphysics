@@ -8,74 +8,74 @@
 
 using namespace amrex::literals;
 
-template <typename dual_t>
+template <typename number_t>
 struct tf_t {
-    dual_t temp;
-    dual_t t9;
-    dual_t t92;
-    dual_t t93;
-    // dual_t t94;
-    dual_t t95;
-    // dual_t t96;
-    dual_t t912;
-    dual_t t932;
-    dual_t t952;
-    dual_t t972;
-    dual_t t913;
-    dual_t t923;
-    dual_t t943;
-    dual_t t953;
-    // dual_t t973;
-    // dual_t t9113;
-    // dual_t t914;
-    // dual_t t934;
-    // dual_t t954;
-    // dual_t t974;
-    // dual_t t915;
-    // dual_t t935;
-    // dual_t t945;
-    // dual_t t965;
-    // dual_t t917;
-    // dual_t t927;
-    // dual_t t947;
-    // dual_t t918;
-    // dual_t t938;
-    // dual_t t958;
-    dual_t t9i;
-    dual_t t9i2;
-    // dual_t t9i3;
-    dual_t t9i12;
-    dual_t t9i32;
-    // dual_t t9i52;
-    // dual_t t9i72;
-    dual_t t9i13;
-    dual_t t9i23;
-    dual_t t9i43;
-    dual_t t9i53;
-    // dual_t t9i14;
-    // dual_t t9i34;
-    // dual_t t9i54;
-    // dual_t t9i15;
-    // dual_t t9i35;
-    // dual_t t9i45;
-    // dual_t t9i65;
-    // dual_t t9i17;
-    // dual_t t9i27;
-    // dual_t t9i47;
-    // dual_t t9i18;
-    // dual_t t9i38;
-    // dual_t t9i58;
-    // dual_t t916;
-    // dual_t t976;
-    // dual_t t9i76;
-    dual_t lnt9;
+    number_t temp;
+    number_t t9;
+    number_t t92;
+    number_t t93;
+    // number_t t94;
+    number_t t95;
+    // number_t t96;
+    number_t t912;
+    number_t t932;
+    number_t t952;
+    number_t t972;
+    number_t t913;
+    number_t t923;
+    number_t t943;
+    number_t t953;
+    // number_t t973;
+    // number_t t9113;
+    // number_t t914;
+    // number_t t934;
+    // number_t t954;
+    // number_t t974;
+    // number_t t915;
+    // number_t t935;
+    // number_t t945;
+    // number_t t965;
+    // number_t t917;
+    // number_t t927;
+    // number_t t947;
+    // number_t t918;
+    // number_t t938;
+    // number_t t958;
+    number_t t9i;
+    number_t t9i2;
+    // number_t t9i3;
+    number_t t9i12;
+    number_t t9i32;
+    // number_t t9i52;
+    // number_t t9i72;
+    number_t t9i13;
+    number_t t9i23;
+    number_t t9i43;
+    number_t t9i53;
+    // number_t t9i14;
+    // number_t t9i34;
+    // number_t t9i54;
+    // number_t t9i15;
+    // number_t t9i35;
+    // number_t t9i45;
+    // number_t t9i65;
+    // number_t t9i17;
+    // number_t t9i27;
+    // number_t t9i47;
+    // number_t t9i18;
+    // number_t t9i38;
+    // number_t t9i58;
+    // number_t t916;
+    // number_t t976;
+    // number_t t9i76;
+    number_t lnt9;
 };
 
-template <typename dual_t>
+template <typename number_t>
 AMREX_GPU_HOST_DEVICE inline
-tf_t<dual_t> get_tfactors(dual_t temp)
+tf_t<number_t> get_tfactors(number_t temp)
 {
-    tf_t<dual_t> tf;
+    tf_t<number_t> tf;
 
     tf.temp = temp;
 
