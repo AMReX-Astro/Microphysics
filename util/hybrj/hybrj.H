@@ -108,7 +108,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
         if (iter == 1) {
             if (hj.mode != 2) {
-                for (int j = 1; j <= hj.n; ++j) {
+                for (int j = 1; j <= neqs; ++j) {
                     hj.diag(j) = hj.wa2(j);
                     if (hj.wa2(j) == 0.0_rt) {
                         hj.diag(j) = 1.0_rt;
@@ -122,7 +122,7 @@ void hybrj(hybrj_t<neqs>& hj,
             for (int j = 1; j <= neqs; ++j) {
                 hj.wa3(j) = hj.diag(j) * hj.x(j);
             }
-            xnorm = enorm(hj.n, hj.wa3);
+            xnorm = enorm(neqs, hj.wa3);
             delta =  factor * xnorm;
             if (delta == 0.0_rt) {
                 delta = factor;
@@ -131,17 +131,17 @@ void hybrj(hybrj_t<neqs>& hj,
 
         // form (q transpose)*fvec and store in qtf.
 
-        for (int i = 1; i <= hj.n; ++i) {
+        for (int i = 1; i <= neqs; ++i) {
             hj.qtf(i) = hj.fvec(i);
         }
         for (int j = 1; j <= neqs; ++j) {
             if (hj.fjac(j,j) != 0.0_rt) {
                 amrex::Real sum = 0.0_rt;
-                for (int i = j; i <= hj.n; ++i) {
+                for (int i = j; i <= neqs; ++i) {
                     sum += hj.fjac(i,j) * hj.qtf(i);
                 }
                 amrex::Real temp = -sum / hj.fjac(j,j);
-                for (int i = j; i <= hj.n; ++i) {
+                for (int i = j; i <= neqs; ++i) {
                     hj.qtf(i) += hj.fjac(i,j) * temp;
                 }
             }
@@ -151,7 +151,7 @@ void hybrj(hybrj_t<neqs>& hj,
 
         bool sing = false;
 
-        for (int j = 1; j <= hj.n; ++j) {
+        for (int j = 1; j <= neqs; ++j) {
             int l = j;
             int jm1 = j - 1;
             if (jm1 >= 1) {
@@ -173,7 +173,7 @@ void hybrj(hybrj_t<neqs>& hj,
         // rescale if necessary.
 
         if (hj.mode != 2) {
-            for (int j = 1; j <= hj.n; ++j) {
+            for (int j = 1; j <= neqs; ++j) {
                 hj.diag(j) = amrex::max(hj.diag(j), hj.wa2(j));
             }
         }
@@ -207,7 +207,7 @@ void hybrj(hybrj_t<neqs>& hj,
                 hj.wa3(j) = hj.diag(j) * hj.wa1(j);
             }
 
-            amrex::Real pnorm = enorm(hj.n, hj.wa3);
+            amrex::Real pnorm = enorm(neqs, hj.wa3);
 
             // on the first iteration, adjust the initial step bound.
 
@@ -225,7 +225,7 @@ void hybrj(hybrj_t<neqs>& hj,
                 break;
             }
 
-            amrex::Real fnorm1 = enorm(hj.n, hj.wa4);
+            amrex::Real fnorm1 = enorm(neqs, hj.wa4);
 
             // compute the scaled actual reduction.
 
@@ -237,7 +237,7 @@ void hybrj(hybrj_t<neqs>& hj,
             // compute the scaled predicted reduction.
 
             int l = 1;
-            for (int i = 1; i <= hj.n; ++i) {
+            for (int i = 1; i <= neqs; ++i) {
                 amrex::Real sum = 0.0_rt;
                 for (int j = i; j <= neqs; ++j) {
                     sum += hj.r(l) * hj.wa1(j);
@@ -245,7 +245,7 @@ void hybrj(hybrj_t<neqs>& hj,
                 }
                 hj.wa3(i) = hj.qtf(i) + sum;
             }
-            amrex::Real temp = enorm(hj.n, hj.wa3);
+            amrex::Real temp = enorm(neqs, hj.wa3);
             amrex::Real prered = 0.0_rt;
             if (temp < fnorm) {
                 prered = 1.0_rt - amrex::Math::powi<2>(temp/fnorm);
@@ -282,13 +282,13 @@ void hybrj(hybrj_t<neqs>& hj,
 
                 // successful iteration. update x, fvec, and their norms.
 
-                for (int j = 1; j <= hj.n; ++j) {
+                for (int j = 1; j <= neqs; ++j) {
                     hj.x(j) = hj.wa2(j);
                     hj.wa2(j) = hj.diag(j) * hj.x(j);
                     hj.fvec(j) = hj.wa4(j);
                 }
 
-                xnorm = enorm(hj.n, hj.wa2);
+                xnorm = enorm(neqs, hj.wa2);
                 fnorm = fnorm1;
                 iter++;
             }
@@ -348,9 +348,9 @@ void hybrj(hybrj_t<neqs>& hj,
               break;
             }
 
-            for (int j = 1; j <= hj.n; ++j) {
+            for (int j = 1; j <= neqs; ++j) {
                 amrex::Real sum = 0.0_rt;
-                for (int i = 1; i <= hj.n; ++i) {
+                for (int i = 1; i <= neqs; ++i) {
                     sum += hj.fjac(i,j) * hj.wa4(i);
                 }
                 hj.wa2(j) = (sum - hj.wa3(j)) / pnorm;
