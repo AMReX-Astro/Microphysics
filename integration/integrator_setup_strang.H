@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_ANSIEscCode.H>
+#include <AMReX_GpuPrint.H>
 
 #include <iomanip>
 
@@ -218,8 +219,8 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             std::cout << std::endl;
             std::cout << "energy generated = " << state.e << std::endl;
 #elif defined(ALLOW_GPU_PRINTF)
-            AMREX_GPU_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
-                             istate, int_state.t, dt, state.rho, state_save.T_in);
+            AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
+                                istate, int_state.t, dt, state.rho, state_save.T_in);
 #endif
         } else {
 #ifndef AMREX_USE_GPU
