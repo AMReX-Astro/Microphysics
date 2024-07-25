@@ -29,10 +29,16 @@ comp.normalize()
 # Only select the rates which are >= 1.e-20 at 1.e9 K and 7.e9 g/cm3
 # Do not select weak rates from "20180319default2"
 new_rate_list = []
-ydots = rc.evaluate_rates(rho=7.e9, T=1.e9, composition=comp)
+rho = 7.e9
+T = 1.e9
+ydots = rc.evaluate_rates(rho=rho, T=T, composition=comp)
 for rate in rc.rates:
     if ydots[rate] >= 1.e-20 and rate.weak == False:
         new_rate_list.append(rate)
 
 wd_net = AmrexAstroCxxNetwork(rates=new_rate_list, rate_files=escn_tabular)
 wd_net.write_network()
+
+wd_net.plot(rho, T, comp, outfile="ECSN.png",
+            hide_xalpha=True, curved_edges=True,
+            node_size=500, node_font_size=11, node_color="#337dff", node_shape="s")
