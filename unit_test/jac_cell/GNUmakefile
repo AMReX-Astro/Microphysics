@@ -10,8 +10,6 @@ COMP	   = gnu
 USE_MPI    = FALSE
 USE_OMP    = FALSE
 
-USE_SIMPLIFIED_SDC = TRUE
-
 USE_REACT = TRUE
 
 EBASE = main
@@ -25,14 +23,13 @@ MICROPHYSICS_HOME  := ../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory
-NETWORK_DIR := aprox19
-USE_NSE_TABLE := TRUE
+NETWORK_DIR := aprox13
 
 CONDUCTIVITY_DIR := stellar
 
 INTEGRATOR_DIR =  VODE
 
-EXTERN_SEARCH += .
+EXTERN_SEARCH += . ..
 
 Bpack   := ./Make.package
 Blocs   := .
