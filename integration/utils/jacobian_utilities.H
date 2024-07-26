@@ -4,8 +4,6 @@
 #include <burn_type.H>
 #include <extern_parameters.H>
 
-using namespace integrator_rp;
-
 // Given the Jacobian element for d(spec) / dT, convert it
 // to d(spec) / de.
 
