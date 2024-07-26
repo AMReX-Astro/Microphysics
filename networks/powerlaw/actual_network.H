@@ -55,7 +55,7 @@ namespace RHS {
 
     template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
@@ -66,7 +66,7 @@ namespace RHS {
             }
             else {
                 rates.fr = network_rp::rtilde / network_rp::rho_burn_ref *
-                           std::pow(state.tf.temp / network_rp::T_burn_ref, network_rp::nu);
+                           admath::pow(state.tf.temp / network_rp::T_burn_ref, network_rp::nu);
             }
 
             rates.rr = 0.0_rt;
@@ -75,8 +75,8 @@ namespace RHS {
 
     template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t& rates,
-                           rate_t& rates1, rate_t& rates2, rate_t& rates3)
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, rate_t<number_t>& rates2, rate_t<number_t>& rates3)
     {
         // Nothing to do for this network.
     }

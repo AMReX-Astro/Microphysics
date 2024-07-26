@@ -67,40 +67,32 @@ namespace RHS {
 
     template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == chamulak_rate) {
             // compute some often used temperature constants
-            amrex::Real T9     = state.tf.t9;
-            amrex::Real dT9dt  = 1.0_rt / 1.0e9_rt;
-            amrex::Real T9a    = T9 / (1.0_rt + 0.0396e0_rt * T9);
-            amrex::Real dT9adt = (T9a / T9 - (T9a / (1.0_rt + 0.0396e0_rt * T9)) * 0.0396e0_rt) * dT9dt;
+            number_t T9     = state.tf.t9;
+            number_t T9a    = T9 / (1.0_rt + 0.0396e0_rt * T9);
 
             // compute the CF88 rate
-            amrex::Real scratch    = std::pow(T9a, 1.0_rt / 3.0_rt);
-            amrex::Real dscratchdt = (1.0_rt / 3.0_rt) * std::pow(T9a, -2.0_rt / 3.0_rt) * dT9adt;
+            number_t scratch    = admath::pow(T9a, 1.0_rt / 3.0_rt);
 
-            amrex::Real a    = 4.27e26_rt * std::pow(T9a, 5.0_rt / 6.0_rt) * std::pow(T9, -1.5e0_rt);
-            amrex::Real dadt = (5.0_rt / 6.0_rt) * (a / T9a) * dT9adt - 1.5e0_rt * (a / T9) * dT9dt;
-
-            amrex::Real b    = std::exp(-84.165e0_rt / scratch - 2.12e-3_rt * T9 * T9 * T9);
-            amrex::Real dbdt = (84.165e0_rt * dscratchdt / (scratch * scratch) - 3.0_rt * 2.12e-3_rt * T9 * T9 * dT9dt) * b;
+            number_t a    = 4.27e26_rt * admath::pow(T9a, 5.0_rt / 6.0_rt) * admath::pow(T9, -1.5e0_rt);
+            number_t b    = admath::exp(-84.165e0_rt / scratch - 2.12e-3_rt * T9 * T9 * T9);
 
             rates.fr = a * b;
-            rates.frdt = dadt * b + a * dbdt;
-
             rates.rr = 0.0_rt;
-            rates.rrdt = 0.0_rt;
         }
     }
 
     template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t& rates,
-                           rate_t& rates1, rate_t& rates2, rate_t& rates3)
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, rate_t<number_t>& rates2,
+                           rate_t<number_t>& rates3)
     {
         // Nothing to do for this network.
     }

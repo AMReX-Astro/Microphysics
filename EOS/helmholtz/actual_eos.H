@@ -16,8 +16,6 @@
 #include <cmath>
 #include <vector>
 
-using namespace eos_rp;
-
 // Frank Timmes Helmholtz based Equation of State
 // https://cococubed.com/
 
@@ -576,8 +574,8 @@ void apply_radiation (T& state)
     // on prad, this will result in the radiation term effectively vanishing below the
     // cutoff density. For simplicity we ignore the effect this has on the derivatives.
 
-    if (prad_limiter_rho_c > 0.0e0_rt && prad_limiter_delta_rho > 0.0e0_rt) {
-        prad = prad * 0.5e0_rt * (1.0e0_rt + std::tanh((state.rho - prad_limiter_rho_c) / prad_limiter_delta_rho));
+    if (eos_rp::prad_limiter_rho_c > 0.0e0_rt && eos_rp::prad_limiter_delta_rho > 0.0e0_rt) {
+        prad = prad * 0.5e0_rt * (1.0e0_rt + std::tanh((state.rho - eos_rp::prad_limiter_rho_c) / eos_rp::prad_limiter_delta_rho));
     }
 
     amrex::Real dpraddd = 0.0e0_rt;
@@ -1310,10 +1308,10 @@ void actual_eos_init ()
 
     // Read in the runtime parameters
 
-    input_is_constant = eos_input_is_constant;
-    do_coulomb = use_eos_coulomb;
-    ttol = eos_ttol;
-    dtol = eos_dtol;
+    input_is_constant = eos_rp::eos_input_is_constant;
+    do_coulomb = eos_rp::use_eos_coulomb;
+    ttol = eos_rp::eos_ttol;
+    dtol = eos_rp::eos_dtol;
 
     //    read the helmholtz free energy table
 
