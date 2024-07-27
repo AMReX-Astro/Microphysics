@@ -28,8 +28,6 @@
 #include <eos_type.H>
 #include <actual_eos_data.H>
 
-using namespace eos_rp;
-
 const std::string eos_name = "polytrope";
 
 inline
@@ -41,9 +39,9 @@ void actual_eos_init ()
     // 1: Non-relativistic, fully degenerate electron gas
     // 2: Relativistic, fully degenerate electron gas
 
-    if (polytrope_type > 0) {
-        mu_e = polytrope_mu_e;
-        polytrope = polytrope_type;
+    if (eos_rp::polytrope_type > 0) {
+        mu_e = eos_rp::polytrope_mu_e;
+        polytrope = eos_rp::polytrope_type;
 
         if (polytrope == 1) {
             gamma_const = 5.0_rt / 3.0_rt;
@@ -59,9 +57,9 @@ void actual_eos_init ()
             amrex::Error("EOS: Polytrope type currently not defined");
         }
     }
-    else if (polytrope_gamma > 0.0_rt && polytrope_K > 0.0_rt) {
-        gamma_const = polytrope_gamma;
-        K_const     = polytrope_K;
+    else if (eos_rp::polytrope_gamma > 0.0_rt && eos_rp::polytrope_K > 0.0_rt) {
+        gamma_const = eos_rp::polytrope_gamma;
+        K_const     = eos_rp::polytrope_K;
         mu_e        = 2.0_rt; // This will not be used
     }
     else {
