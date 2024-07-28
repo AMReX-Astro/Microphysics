@@ -18,19 +18,17 @@
 #include <eos_type.H>
 #include <cmath>
 
-using namespace eos_rp;
-
 const std::string eos_name = "rad_power_law";
 
 inline
 void actual_eos_init ()
 {
 
-    if (eos_const_c_v <= 0.e0_rt) {
+    if (eos_rp::eos_const_c_v <= 0.e0_rt) {
         amrex::Error("eos_const_c_v must be > 0");
     }
 
-    if (eos_c_v_exp_n == 1.0e0_rt) {
+    if (eos_rp::eos_c_v_exp_n == 1.0e0_rt) {
         amrex::Error("eos_c_v_exp_n == 1 is unsupported");
     }
 
@@ -77,8 +75,8 @@ void actual_eos (I input, T& state)
     case eos_input_rt:
 
         if constexpr (has_energy<T>::value) {
-            state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
-            state.e  = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, 1 - eos_c_v_exp_n) / (1 - eos_c_v_exp_n);
+            state.cv = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, -eos_rp::eos_c_v_exp_n);
+            state.e  = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, 1 - eos_rp::eos_c_v_exp_n) / (1 - eos_rp::eos_c_v_exp_n);
         }
 
         break;
@@ -86,8 +84,8 @@ void actual_eos (I input, T& state)
     case eos_input_re:
 
         if constexpr (has_energy<T>::value) {
-            state.T  = std::pow((1 - eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_c_v_exp_m) / eos_const_c_v, 1.0_rt / (1.0_rt - eos_c_v_exp_n));
-            state.cv = eos_const_c_v * std::pow(state.rho, eos_c_v_exp_m) * std::pow(state.T, -eos_c_v_exp_n);
+            state.T  = std::pow((1 - eos_rp::eos_c_v_exp_n) * state.e * std::pow(state.rho, -eos_rp::eos_c_v_exp_m) / eos_rp::eos_const_c_v, 1.0_rt / (1.0_rt - eos_rp::eos_c_v_exp_n));
+            state.cv = eos_rp::eos_const_c_v * std::pow(state.rho, eos_rp::eos_c_v_exp_m) * std::pow(state.T, -eos_rp::eos_c_v_exp_n);
         }
 
         break;
