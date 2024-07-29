@@ -103,12 +103,13 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
     return int_state;
 }
 
+///
+/// Save the initial composition and thermodynamic state for
+/// diagnostics.
+///
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 state_backup_t integrator_backup (const BurnT& state) {
-
-    // Save the initial composition and temperature for our later
-    // diagnostics.
 
     state_backup_t state_save;
 
@@ -116,15 +117,15 @@ state_backup_t integrator_backup (const BurnT& state) {
     for (int n = 0; n < NumSpec; ++n) {
         state_save.xn_in[n] = state.y[SFS+n] / state.y[SRHO];
     }
-    // we are assuming that the temperature was valid on input
-    state_save.T_in = state.T;
 #ifdef AUX_THERMO
     for (int n = 0; n < NumAux; ++n) {
         state_save.aux_in[n] = state.y[SFX+n] / state.y[SRHO];
     }
 #endif
-    state_save.rhoe_in = state.y[SEINT];
 #endif
+    // we are assuming that the temperature was valid on input
+    state_save.T_in = state.T;
+    state_save.rhoe_in = state.y[SEINT];
 
     return state_save;
 

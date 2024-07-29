@@ -95,7 +95,10 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
     return int_state;
 }
 
-
+///
+/// Save the initial composition and thermodynamic state for
+/// diagnostics.
+///
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 state_backup_t integrator_backup (const BurnT& state) {
@@ -106,8 +109,8 @@ state_backup_t integrator_backup (const BurnT& state) {
     for (int n = 0; n < NumSpec; ++n) {
         state_save.xn_in[n] = state.xn[n];
     }
-    state_save.T_in = state.T;
 #endif
+    state_save.T_in = state.T;
     state_save.e_in = state.e;
 
     return state_save;
