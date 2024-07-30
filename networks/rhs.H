@@ -18,6 +18,7 @@
 #endif
 #include <jacobian_utilities.H>
 #include <integrator_data.H>
+#include <microphysics_autodiff.H>
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
 
@@ -27,8 +28,7 @@ namespace RHS
 {
 
 // Rate tabulation data.
-extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, Rates::NumRates, 1, 2, 1, nrattab> rattab;
-extern AMREX_GPU_MANAGED amrex::Array3D<amrex::Real, 1, Rates::NumRates, 1, 2, 1, nrattab> drattabdt;
+extern AMREX_GPU_MANAGED amrex::Array3D<autodiff::dual, 1, Rates::NumRates, 1, 2, 1, nrattab> rattab;
 
 // Calculate an integer factorial.
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
@@ -213,7 +213,7 @@ constexpr int is_jacobian_term_used ()
     int term_is_used = 0;
 
     // Loop through all rates and see if any rate touches both species.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
     {
         constexpr int rate = n;
         constexpr int spec1 = n1;
@@ -278,12 +278,12 @@ void dgesl (const RArray2D& a, RArray1D& b)
 
     // solve a * x = b
     // first solve l * y = b
-    constexpr_for<1, INT_NEQS>([&] (auto n1)
+    amrex::constexpr_for<1, INT_NEQS>([&] (auto n1)
     {
         constexpr int k = n1;
 
         amrex::Real t = b(k);
-        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
+        amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             constexpr int j = n2;
 
@@ -292,14 +292,14 @@ void dgesl (const RArray2D& a, RArray1D& b)
     });
 
     // now solve u * x = y
-    constexpr_for<1, INT_NEQS+1>([&] (auto kb)
+    amrex::constexpr_for<1, INT_NEQS+1>([&] (auto kb)
     {
         constexpr int k = INT_NEQS + 1 - kb;
 
         b(k) = b(k) / a(k,k);
         amrex::Real t = -b(k);
 
-        constexpr_for<1, k>([&] (auto j)
+        amrex::constexpr_for<1, k>([&] (auto j)
         {
             b(j) += t * a(j,k);
         });
@@ -307,19 +307,25 @@ void dgesl (const RArray2D& a, RArray1D& b)
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void dgefa (RArray2D& a)
+int dgefa (RArray2D& a)
 {
 
     // LU factorization in-place without pivoting.
 
-    constexpr_for<1, INT_NEQS>([&] (auto n1)
+    int info = 0;
+
+    amrex::constexpr_for<1, INT_NEQS>([&] (auto n1)
     {
         [[maybe_unused]] constexpr int k = n1;
 
         // compute multipliers
+        if (a(k, k) == 0.0_rt) {
+            info = k;
+            return; // same as continue in a normal loop
+        }
 
         amrex::Real t = -1.0_rt / a(k,k);
-        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
+        amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int j = n2;
 
@@ -327,12 +333,12 @@ void dgefa (RArray2D& a)
         });
 
         // row elimination with column indexing
-        constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
+        amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int j = n2;
 
             t = a(k,j);
-            constexpr_for<k+1, INT_NEQS+1>([&] (auto n3)
+            amrex::constexpr_for<k+1, INT_NEQS+1>([&] (auto n3)
             {
                 [[maybe_unused]] constexpr int i = n3;
 
@@ -340,6 +346,8 @@ void dgefa (RArray2D& a)
             });
         });
     });
+
+    return info;
 }
 
 // Calculate the density dependence term for tabulated rates. The RHS has a term
@@ -397,9 +405,9 @@ constexpr int density_exponent_reverse ()
 }
 
 // Scale a rate using the density terms.
-template<int rate>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_density_scaling (const rhs_state_t& state, rate_t& rates)
+void apply_density_scaling (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
 {
     constexpr int forward_exponent = density_exponent_forward<rate>();
     constexpr int reverse_exponent = density_exponent_reverse<rate>();
@@ -432,16 +440,14 @@ void apply_density_scaling (const rhs_state_t& state, rate_t& rates)
     }
 
     rates.fr *= density_term_forward;
-    rates.frdt *= density_term_forward;
     rates.rr *= density_term_reverse;
-    rates.rrdt *= density_term_reverse;
 }
 
 #ifdef SCREENING
 // Apply the screening term to a given rate.
-template<int rate>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_screening (const rhs_state_t& state, rate_t& rates)
+void apply_screening (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
 {
     // The screening behavior depends on the type of reaction. We provide screening
     // here for the reaction classes we know about, and any other reactions are unscreened.
@@ -467,17 +473,14 @@ void apply_screening (const rhs_state_t& state, rate_t& rates)
         // compiler to evaluate the screen factor at compile time.
         static_assert(scn_fac.z1 == Z1);
 
-        amrex::Real sc, scdt;
-        actual_screen(state.pstate, scn_fac, sc, scdt);
+        const number_t sc = actual_screen(state.pstate, scn_fac);
 
         if constexpr (data.screen_forward_reaction == 1) {
-            rates.frdt = rates.frdt * sc + rates.fr * scdt;
-            rates.fr   = rates.fr * sc;
+            rates.fr *= sc;
         }
 
         if constexpr (data.screen_reverse_reaction == 1) {
-            rates.rrdt = rates.rrdt * sc + rates.rr * scdt;
-            rates.rr   = rates.rr * sc;
+            rates.rr *= sc;
         }
     }
 
@@ -491,17 +494,14 @@ void apply_screening (const rhs_state_t& state, rate_t& rates)
 
         static_assert(scn_fac.z1 == Z1);
 
-        amrex::Real sc, scdt;
-        actual_screen(state.pstate, scn_fac, sc, scdt);
+        const number_t sc = actual_screen(state.pstate, scn_fac);
 
         if constexpr (data.screen_forward_reaction == 1) {
-            rates.frdt = rates.frdt * sc + rates.fr * scdt;
-            rates.fr   = rates.fr * sc;
+            rates.fr *= sc;
         }
 
         if constexpr (data.screen_reverse_reaction == 1) {
-            rates.rrdt = rates.rrdt * sc + rates.rr * scdt;
-            rates.rr   = rates.rr * sc;
+            rates.rr *= sc;
         }
     }
 
@@ -516,8 +516,7 @@ void apply_screening (const rhs_state_t& state, rate_t& rates)
 
         static_assert(scn_fac1.z1 == Z1);
 
-        amrex::Real sc1, sc1dt;
-        actual_screen(state.pstate, scn_fac1, sc1, sc1dt);
+        const number_t sc1 = actual_screen(state.pstate, scn_fac1);
 
         constexpr amrex::Real Z2 = 2.0_rt * Z1;
         constexpr amrex::Real A2 = 2.0_rt * A1;
@@ -526,42 +525,36 @@ void apply_screening (const rhs_state_t& state, rate_t& rates)
 
         static_assert(scn_fac2.z1 == Z1);
 
-        amrex::Real sc2, sc2dt;
-        actual_screen(state.pstate, scn_fac2, sc2, sc2dt);
+        const number_t sc2 = actual_screen(state.pstate, scn_fac2);
 
         // Compute combined screening factor
 
-        amrex::Real sc = sc1 * sc2;
-        amrex::Real scdt = sc1dt * sc2 + sc1 * sc2dt;
+        const number_t sc = sc1 * sc2;
 
         if constexpr (data.screen_forward_reaction == 1) {
-            rates.frdt = rates.frdt * sc + rates.fr * scdt;
-            rates.fr   = rates.fr * sc;
+            rates.fr *= sc;
         }
 
         if constexpr (data.screen_reverse_reaction == 1) {
-            rates.rrdt = rates.rrdt * sc + rates.rr * scdt;
-            rates.rr   = rates.rr * sc;
+            rates.rr *= sc;
         }
     }
 }
 #endif // SCREENING
 
 // Apply the branching ratios to a given rate.
-template<int rate>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void apply_branching (rate_t& rates)
+void apply_branching (rate_t<number_t>& rates)
 {
     constexpr rhs_t data = rhs_data(rate);
 
     if constexpr (data.forward_branching_ratio != 1.0_rt) {
         rates.fr *= data.forward_branching_ratio;
-        rates.frdt *= data.forward_branching_ratio;
     }
 
     if constexpr (data.reverse_branching_ratio != 1.0_rt) {
         rates.rr *= data.reverse_branching_ratio;
-        rates.rrdt *= data.reverse_branching_ratio;
     }
 }
 
@@ -578,10 +571,12 @@ void tabulate_rates ()
 
         ttab(i) = temp;
 
-        rhs_state_t state;
+        rhs_state_t<autodiff::dual> state;
 
         // Get the temperature factors
-        state.tf = get_tfactors(temp);
+        autodiff::dual dual_temp = temp;
+        autodiff::seed(dual_temp);
+        state.tf = get_tfactors(dual_temp);
 
         // Arbitrary density, y, and y_e values (should be unused)
         state.rho = 0.0_rt;
@@ -589,15 +584,13 @@ void tabulate_rates ()
         state.eta = 0.0_rt;
         state. y = {0.0_rt};
 
-        constexpr_for<1, NumRates+1>([&] (auto n)
+        amrex::constexpr_for<1, NumRates+1>([&] (auto n)
         {
             [[maybe_unused]] constexpr int rate = n;
 
-            rate_t rates;
+            rate_t<autodiff::dual> rates;
             rates.fr = 0.0_rt;
             rates.rr = 0.0_rt;
-            rates.frdt = 0.0_rt;
-            rates.rrdt = 0.0_rt;
 
             constexpr rhs_t data = RHS::rhs_data(rate);
 
@@ -607,36 +600,24 @@ void tabulate_rates ()
 
             rattab(rate, 1, i)    = rates.fr;
             rattab(rate, 2, i)    = rates.rr;
-            drattabdt(rate, 1, i) = rates.frdt;
-            drattabdt(rate, 2, i) = rates.rrdt;
        });
     }
 }
 
 // Evaluate a rate using the rate tables.
-template<int rate>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void evaluate_tabulated_rate (const rhs_state_t& state, rate_t& rates)
+void evaluate_tabulated_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
 {
-    rates.fr = (state.tab.alfa * rattab(rate, 1, state.tab.iat  ) +
-                state.tab.beta * rattab(rate, 1, state.tab.iat+1) +
-                state.tab.gama * rattab(rate, 1, state.tab.iat+2) +
-                state.tab.delt * rattab(rate, 1, state.tab.iat+3));
+    rates.fr = (state.tab.alfa * static_cast<number_t>(rattab(rate, 1, state.tab.iat  )) +
+                state.tab.beta * static_cast<number_t>(rattab(rate, 1, state.tab.iat+1)) +
+                state.tab.gama * static_cast<number_t>(rattab(rate, 1, state.tab.iat+2)) +
+                state.tab.delt * static_cast<number_t>(rattab(rate, 1, state.tab.iat+3)));
 
-    rates.rr = (state.tab.alfa * rattab(rate, 2, state.tab.iat  ) +
-                state.tab.beta * rattab(rate, 2, state.tab.iat+1) +
-                state.tab.gama * rattab(rate, 2, state.tab.iat+2) +
-                state.tab.delt * rattab(rate, 2, state.tab.iat+3));
-
-    rates.frdt = (state.tab.alfa * drattabdt(rate, 1, state.tab.iat  ) +
-                  state.tab.beta * drattabdt(rate, 1, state.tab.iat+1) +
-                  state.tab.gama * drattabdt(rate, 1, state.tab.iat+2) +
-                  state.tab.delt * drattabdt(rate, 1, state.tab.iat+3));
-
-    rates.rrdt = (state.tab.alfa * drattabdt(rate, 2, state.tab.iat  ) +
-                  state.tab.beta * drattabdt(rate, 2, state.tab.iat+1) +
-                  state.tab.gama * drattabdt(rate, 2, state.tab.iat+2) +
-                  state.tab.delt * drattabdt(rate, 2, state.tab.iat+3));
+    rates.rr = (state.tab.alfa * static_cast<number_t>(rattab(rate, 2, state.tab.iat  )) +
+                state.tab.beta * static_cast<number_t>(rattab(rate, 2, state.tab.iat+1)) +
+                state.tab.gama * static_cast<number_t>(rattab(rate, 2, state.tab.iat+2)) +
+                state.tab.delt * static_cast<number_t>(rattab(rate, 2, state.tab.iat+3)));
 }
 
 // Calculate the RHS term for a given species and rate.
@@ -676,9 +657,9 @@ void evaluate_tabulated_rate (const rhs_state_t& state, rate_t& rates)
 // If a given reaction uses fewer than three species, we infer
 // this by calling its index -1 and then not accessing it
 // in the multiplication.
-template<int species, int rate, int use_T_derivatives>
+template<int species, int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr std::pair<amrex::Real, amrex::Real> rhs_term (const burn_t& state, const rate_t& rates)
+constexpr std::pair<amrex::Real, amrex::Real> rhs_term (const burn_t& state, const rate_t<number_t>& rates)
 {
     constexpr rhs_t data = rhs_data(rate);
 
@@ -686,7 +667,12 @@ constexpr std::pair<amrex::Real, amrex::Real> rhs_term (const burn_t& state, con
     // reverse reactions, which is the same regardless of which species
     // we're producing or consuming.
 
-    amrex::Real forward_term = use_T_derivatives ? rates.frdt : rates.fr;
+    amrex::Real forward_term{};
+    if constexpr (autodiff::detail::isDual<number_t>) {
+        forward_term = autodiff::derivative(rates.fr);
+    } else {
+        forward_term = rates.fr;
+    }
 
     if constexpr (data.species_A >= 0) {
         amrex::Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
@@ -763,7 +749,12 @@ constexpr std::pair<amrex::Real, amrex::Real> rhs_term (const burn_t& state, con
         forward_term *= df;
     }
 
-    amrex::Real reverse_term = use_T_derivatives ? rates.rrdt : rates.rr;
+    amrex::Real reverse_term{};
+    if constexpr (autodiff::detail::isDual<number_t>) {
+        reverse_term = autodiff::derivative(rates.rr);
+    } else {
+        reverse_term = rates.rr;
+    }
 
     if constexpr (data.species_D >= 0) {
         amrex::Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
@@ -881,7 +872,7 @@ constexpr std::pair<amrex::Real, amrex::Real> rhs_term (const burn_t& state, con
 // contribution if spec2 is one of (D, E, F).
 template<int spec1, int spec2, int rate>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr amrex::Real jac_term (const burn_t& state, const rate_t& rates)
+constexpr amrex::Real jac_term (const burn_t& state, const rate_t<autodiff::dual>& rates)
 {
     constexpr rhs_t data = rhs_data(rate);
 
@@ -890,7 +881,7 @@ constexpr amrex::Real jac_term (const burn_t& state, const rate_t& rates)
     if constexpr (is_rate_used<spec1, rate>() &&
                   (spec2 == data.species_A || spec2 == data.species_B || spec2 == data.species_C)) {
 
-        forward_term = rates.fr;
+        forward_term = autodiff::val(rates.fr);
 
         if constexpr (data.species_A >= 0) {
             amrex::Real Y_A = state.xn[data.species_A-1] * aion_inv[data.species_A-1];
@@ -1004,7 +995,7 @@ constexpr amrex::Real jac_term (const burn_t& state, const rate_t& rates)
     if constexpr (is_rate_used<spec1, rate>() &&
                   (spec2 == data.species_D || spec2 == data.species_E || spec2 == data.species_F)) {
 
-        reverse_term = rates.rr;
+        reverse_term = autodiff::val(rates.rr);
 
         if constexpr (data.species_D >= 0) {
             amrex::Real Y_D = state.xn[data.species_D-1] * aion_inv[data.species_D-1];
@@ -1133,17 +1124,15 @@ constexpr amrex::Real jac_term (const burn_t& state, const rate_t& rates)
     return term;
 }
 
-template<int rate>
+template<int rate, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void construct_rate (const rhs_state_t& state, rate_t& rates)
+void construct_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
 {
     using namespace Species;
     using namespace Rates;
 
     rates.fr = 0.0;
-    rates.frdt = 0.0;
     rates.rr = 0.0;
-    rates.rrdt = 0.0;
 
     constexpr rhs_t data = RHS::rhs_data(rate);
 
@@ -1169,9 +1158,9 @@ void construct_rate (const rhs_state_t& state, rate_t& rates)
     apply_branching<rate>(rates);
 }
 
-template<int rate, class Arr>
+template<int rate, typename Arr, typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void fill_additional_rates (const Arr& intermediate_rates, rate_t& rates1, rate_t& rates2, rate_t& rates3)
+void fill_additional_rates (const Arr& intermediate_rates, rate_t<number_t>& rates1, rate_t<number_t>& rates2, rate_t<number_t>& rates3)
 {
     constexpr rhs_t data = RHS::rhs_data(rate);
 
@@ -1228,7 +1217,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 {
     static_assert(nrhs == neqs || nrhs == 2 * neqs);
 
-    rhs_state_t rhs_state;
+    rhs_state_t<amrex::Real> rhs_state;
 
     rhs_state.rho = burn_state.rho;
     rhs_state.eta = burn_state.eta;
@@ -1262,10 +1251,10 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
     constexpr int intermediate_array_size = num_intermediate > 0 ? num_intermediate : 1;
 
     // Define forward and reverse (and d/dT) rate arrays.
-    amrex::Array1D<rate_t, 1, intermediate_array_size> intermediate_rates;
+    amrex::Array1D<rate_t<amrex::Real>, 1, intermediate_array_size> intermediate_rates;
 
     // Fill all intermediate rates first.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
     {
         constexpr int rate = n;
 
@@ -1278,11 +1267,11 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
     // Loop over all rates, and then loop over all species, and if the
     // rate affects that given species, add its contribution to the RHS.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
         constexpr int rate = n1;
 
-        rate_t rates;
+        rate_t<amrex::Real> rates;
 
         // We only need to compute the rate at this point if it's not intermediate. If it
         // is intermediate, retrieve it from the cached array.
@@ -1299,7 +1288,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
         // To keep the problem bounded we assume that there are no more than
         // three intermediate reactions needed.
 
-        rate_t rates1, rates2, rates3;
+        rate_t<amrex::Real> rates1, rates2, rates3;
 
         fill_additional_rates<rate>(intermediate_rates, rates1, rates2, rates3);
 
@@ -1308,13 +1297,12 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 
         postprocess_rate<rate>(rhs_state, rates, rates1, rates2, rates3);
 
-        constexpr_for<1, NumSpec+1>([&] (auto n2)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                constexpr int use_T_derivatives = 0;
-                auto [forward_term, reverse_term] = rhs_term<species, rate, use_T_derivatives>(burn_state, rates);
+                auto [forward_term, reverse_term] = rhs_term<species, rate, amrex::Real>(burn_state, rates);
 
                 if constexpr (nrhs == 2 * neqs) {
                     if (forward_term >= 0.0_rt) {
@@ -1352,7 +1340,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
         ydot(net_ienuc) = -sneut;
     }
 
-    constexpr_for<1, NumSpec+1>([&] (auto n)
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto n)
     {
         constexpr int species = n;
 
@@ -1370,7 +1358,7 @@ void rhs (burn_t& burn_state, amrex::Array1D<amrex::Real, 1, nrhs>& ydot)
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 {
-    rhs_state_t rhs_state;
+    rhs_state_t<autodiff::dual> rhs_state;
 
     rhs_state.rho = burn_state.rho;
     rhs_state.eta = burn_state.eta;
@@ -1381,13 +1369,17 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         rhs_state.y(n) = burn_state.xn[n-1] * aion_inv[n-1];
     }
 
+    autodiff::dual dual_temp = burn_state.T;
+    // seed the dual number for temperature before calculating anything with it
+    autodiff::seed(dual_temp);
+
 #ifdef SCREENING
     // Set up the state data, which is the same for all screening factors.
-    fill_plasma_state(rhs_state.pstate, burn_state.T, burn_state.rho, rhs_state.y);
+    fill_plasma_state(rhs_state.pstate, dual_temp, burn_state.rho, rhs_state.y);
 #endif
 
     // Initialize the rate temperature term.
-    rhs_state.tf = get_tfactors(burn_state.T);
+    rhs_state.tf = get_tfactors(dual_temp);
     if (use_tables) {
         rhs_state.tab.initialize(burn_state.T);
     }
@@ -1406,12 +1398,12 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     constexpr int intermediate_array_size = num_intermediate > 0 ? num_intermediate : 1;
 
     // Define forward and reverse (and d/dT) rate arrays.
-    amrex::Array1D<rate_t, 1, intermediate_array_size> intermediate_rates;
+    amrex::Array1D<rate_t<autodiff::dual>, 1, intermediate_array_size> intermediate_rates;
 
-    rate_t rates1, rates2, rates3;
+    rate_t<autodiff::dual> rates1, rates2, rates3;
 
     // Fill all intermediate rates first.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n)
     {
         constexpr int rate = n;
 
@@ -1423,11 +1415,11 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
     });
 
     // Loop over rates and compute Jacobian terms.
-    constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
+    amrex::constexpr_for<1, Rates::NumRates+1>([&] (auto n1)
     {
         constexpr int rate = n1;
 
-        rate_t rates;
+        rate_t<autodiff::dual> rates;
 
         // We only need to compute the rate at this point if it's not intermediate. If it
         // is intermediate, retrieve it from the cached array.
@@ -1452,11 +1444,11 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         postprocess_rate<rate>(rhs_state, rates, rates1, rates2, rates3);
 
         // Species Jacobian elements with respect to other species.
-        constexpr_for<1, NumSpec+1>([&] (auto n2)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int spec1 = n2;
 
-            constexpr_for<1, NumSpec+1>([&] (auto n3)
+            amrex::constexpr_for<1, NumSpec+1>([&] (auto n3)
             {
                 [[maybe_unused]] constexpr int spec2 = n3;
 
@@ -1468,13 +1460,12 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
         // Evaluate the Jacobian elements with respect to temperature.
         // We'll convert them from d/dT to d/de later.
-        constexpr_for<1, NumSpec+1>([&] (auto n2)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n2)
         {
             [[maybe_unused]] constexpr int species = n2;
 
             if constexpr (is_rate_used<species, rate>()) {
-                constexpr int use_T_derivatives = 1;
-                auto [forward_term, reverse_term] = rhs_term<species, rate, use_T_derivatives>(burn_state, rates);
+                auto [forward_term, reverse_term] = rhs_term<species, rate, autodiff::dual>(burn_state, rates);
                 jac(species, net_ienuc) += forward_term + reverse_term;
             }
         });
@@ -1493,7 +1484,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
 
     jac(net_ienuc, net_ienuc) = -temperature_to_energy_jacobian(burn_state, dsneutdt);
 
-    constexpr_for<1, NumSpec+1>([&] (auto j)
+    amrex::constexpr_for<1, NumSpec+1>([&] (auto j)
     {
         constexpr int species = j;
 
@@ -1501,7 +1492,7 @@ void jac (burn_t& burn_state, ArrayUtil::MathArray2D<1, neqs, 1, neqs>& jac)
         amrex::Real b1 = (-burn_state.abar * burn_state.abar * dsnuda + (NetworkProperties::zion(species) - burn_state.zbar) * burn_state.abar * dsnudz);
         jac(net_ienuc, species) = -b1;
 
-        constexpr_for<1, NumSpec+1>([&] (auto i)
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto i)
         {
             constexpr int s = i;
 

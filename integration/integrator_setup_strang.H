@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_ANSIEscCode.H>
+#include <AMReX_GpuPrint.H>
 
 #include <iomanip>
 
@@ -38,11 +39,15 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
         int_state.rtol_spec = integrator_rp::rtol_spec; // mass fractions
         int_state.rtol_enuc = integrator_rp::rtol_enuc; // energy generated
     } else {
-        int_state.atol_spec = integrator_rp::retry_atol_spec; // mass fractions
-        int_state.atol_enuc = integrator_rp::retry_atol_enuc; // energy generated
+        int_state.atol_spec = integrator_rp::retry_atol_spec > 0 ?
+            integrator_rp::retry_atol_spec : integrator_rp::atol_spec; // mass fractions
+        int_state.atol_enuc = integrator_rp::retry_atol_enuc > 0 ?
+            integrator_rp::retry_atol_enuc : integrator_rp::atol_enuc; // energy generated
 
-        int_state.rtol_spec = integrator_rp::retry_rtol_spec; // mass fractions
-        int_state.rtol_enuc = integrator_rp::retry_rtol_enuc; // energy generated
+        int_state.rtol_spec = integrator_rp::retry_rtol_spec > 0 ?
+            integrator_rp::retry_rtol_spec : integrator_rp::rtol_spec; // mass fractions
+        int_state.rtol_enuc = integrator_rp::retry_rtol_enuc > 0 ?
+            integrator_rp::retry_rtol_enuc : integrator_rp::rtol_enuc; // energy generated
     }
 
     // set the Jacobian type
@@ -90,7 +95,10 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
     return int_state;
 }
 
-
+///
+/// Save the initial composition and thermodynamic state for
+/// diagnostics.
+///
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 state_backup_t integrator_backup (const BurnT& state) {
@@ -101,8 +109,8 @@ state_backup_t integrator_backup (const BurnT& state) {
     for (int n = 0; n < NumSpec; ++n) {
         state_save.xn_in[n] = state.xn[n];
     }
-    state_save.T_in = state.T;
 #endif
+    state_save.T_in = state.T;
     state_save.e_in = state.e;
 
     return state_save;
@@ -213,6 +221,9 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             }
             std::cout << std::endl;
             std::cout << "energy generated = " << state.e << std::endl;
+#elif defined(ALLOW_GPU_PRINTF)
+            AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens = %g, temp_start = %g\n",
+                                istate, int_state.t, dt, state.rho, state_save.T_in);
 #endif
         } else {
 #ifndef AMREX_USE_GPU

@@ -42,7 +42,7 @@ void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
     // make sure that the temperature is valid
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
 
         for (int n = 1; n <= INT_NEQS; ++n) {
             ydot(n) = 0.0_rt;
@@ -64,12 +64,12 @@ void rhs(const amrex::Real time, BurnT& state, T& int_state, RArray1D& ydot,
 
     // apply fudge factor:
 
-    if (react_boost > 0.0_rt) {
+    if (integrator_rp::react_boost > 0.0_rt) {
         // the correct size here is the size of the reactive state
         // RHS, not the SDC state RHS (neqs, not INT_NEQS)
 
         for (int n = 1; n <= neqs; ++n) {
-            ydot(n) *= react_boost;
+            ydot(n) *= integrator_rp::react_boost;
         }
     }
 
@@ -104,7 +104,7 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
     int_to_burn(time, int_state, state);
 
 
-    if (state.T <= EOSData::mintemp || state.T >= MAX_TEMP) {
+    if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
 
         for (int j = 1; j <= INT_NEQS; ++j) {
             for (int i = 1; i <= INT_NEQS; ++i) {
@@ -136,8 +136,8 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     // apply fudge factor:
 
-    if (react_boost > 0.0_rt) {
-        pd.mul(react_boost);
+    if (integrator_rp::react_boost > 0.0_rt) {
+        pd.mul(integrator_rp::react_boost);
     }
 
     // The system we integrate has the form (rho X_k, rho e)
@@ -178,7 +178,7 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     // apply scale_system scaling (if needed)
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
 
         // do the dX/de terms
 

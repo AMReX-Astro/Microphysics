@@ -49,7 +49,7 @@ void burn_cell_c(const eos_t& eos_state)
             tfirst = tmax / nsteps;
         }
     }
-    Real dlogt = 0.0_rt;
+    amrex::Real dlogt = 0.0_rt;
     if (nsteps == 1) {
         dlogt = (std::log10(tmax) - std::log10(tfirst));
     } else {
@@ -61,12 +61,12 @@ void burn_cell_c(const eos_t& eos_state)
 
     burn_t burn_state_in = burn_state;
 
-    Real t = 0.0;
+    amrex::Real t = 0.0;
 
     // store the initial internal energy -- we'll update this after
     // each substep
 
-    Real energy_initial = burn_state.e;
+    amrex::Real energy_initial = burn_state.e;
 
     // loop over steps, burn, and output the current state
 
@@ -74,8 +74,8 @@ void burn_cell_c(const eos_t& eos_state)
 
         // compute the time we wish to integrate to
 
-        Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
-        Real dt = tend - t;
+        amrex::Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
+        amrex::Real dt = tend - t;
 
         burner(burn_state, dt);
 
@@ -115,8 +115,8 @@ void burn_cell_c(const eos_t& eos_state)
                   << std::setw(20) << "abs err" << std::setw(20) << "rel err" << std::endl;
         for (int n = 0; n < NumSpec; ++n) {
             const std::string& element = short_spec_names_cxx[n];
-            Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
-            Real rel_err = abs_err / burn_state.xn[n];
+            amrex::Real abs_err = std::abs(burn_state.xn[n] - nse_state.xn[n]);
+            amrex::Real rel_err = abs_err / burn_state.xn[n];
             std::cout << "  " << element << std::setw(20-element.size())
                       << burn_state.xn[n] << std::setw(20)
                       << nse_state.xn[n] << std::setw(20) << abs_err << std::setw(20)
@@ -132,13 +132,13 @@ void nse_network_compatibility()
     // with the results from NSE calculations given any network.
     // Note that this network should not have any weak rates.
 
-    Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<Real>(nrho-1);
-    Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<Real>(nT-1);
+    amrex::Real dlogrho = (std::log10(rho_max) - std::log10(rho_min))/static_cast<amrex::Real>(nrho-1);
+    amrex::Real dlogT = (std::log10(T_max) - std::log10(T_min))/static_cast<amrex::Real>(nT-1);
 
     // Create massfraction 2d array to hold 3 different sets of initial mass fractions
     // Corresponding to ye < 0.5, ye = 0.5, and ye > 0.5
 
-    amrex::Array2D<Real, 1, 3, 1, NumSpec+1, Order::C> massfractions;
+    amrex::Array2D<amrex::Real, 1, 3, 1, NumSpec+1, Order::C> massfractions;
 
     bool condition1_met = false;
     bool condition2_met = false;
@@ -179,8 +179,8 @@ void nse_network_compatibility()
         for (int irho = 0; irho < nrho; ++irho) {
             for (int itemp = 0; itemp < nT; ++itemp) {
 
-                Real T = std::pow(10.0, std::log10(T_min) + itemp * dlogT);
-                Real rho = std::pow(10.0, std::log10(rho_min) + irho * dlogrho);
+                amrex::Real T = std::pow(10.0, std::log10(T_min) + itemp * dlogT);
+                amrex::Real rho = std::pow(10.0, std::log10(rho_min) + irho * dlogrho);
 
                 eos_state.T = T;
                 eos_state.rho = rho;

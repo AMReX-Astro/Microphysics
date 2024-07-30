@@ -13,7 +13,7 @@
 #include <rhs_type.H>
 #include <rprox_rates.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 AMREX_INLINE
 void actual_network_init() {}
@@ -24,7 +24,7 @@ namespace network
 {
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real bion () {
+    constexpr amrex::Real bion () {
         using namespace Species;
 
         static_assert(spec >= 1 && spec <= NumSpec);
@@ -67,11 +67,11 @@ namespace network
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real mion () {
+    constexpr amrex::Real mion () {
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr Real A = NetworkProperties::aion(spec);
-        constexpr Real Z = NetworkProperties::zion(spec);
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
     }
@@ -79,13 +79,13 @@ namespace network
     // Legacy (non-templated) interfaces
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real bion (int spec) {
+    amrex::Real bion (int spec) {
         using namespace Species;
 
-        Real b = 0.0_rt;
+        amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -95,12 +95,12 @@ namespace network
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real mion (int spec) {
+    amrex::Real mion (int spec) {
         using namespace Species;
 
-        Real m = 0.0_rt;
+        amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -701,71 +701,72 @@ namespace RHS {
         return data;
     }
 
-    template<int rate>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == He4_He4_He4_to_C12) {
-            rate_he4_he4_he4_to_c12(state.tf, rates.fr, rates.frdt);
+            rate_he4_he4_he4_to_c12(state.tf, rates.fr);
         }
         else if constexpr (rate == C12_H1_to_N13) {
-            rate_p_c12_to_n13(state.tf, rates.fr, rates.frdt);
+            rate_p_c12_to_n13(state.tf, rates.fr);
         }
         else if constexpr (rate == N14_H1_to_O15) {
-            rate_p_n14_to_o15(state.tf, rates.fr, rates.frdt);
+            rate_p_n14_to_o15(state.tf, rates.fr);
         }
         else if constexpr (rate == O14_to_N14) {
-            rate_o14_to_n14(state.tf, rates.fr, rates.frdt);
+            rate_o14_to_n14(state.tf, rates.fr);
         }
         else if constexpr (rate == O14_He4_to_F17_H1) {
-            rate_he4_o14_to_p_f17(state.tf, rates.fr, rates.frdt);
+            rate_he4_o14_to_p_f17(state.tf, rates.fr);
         }
         else if constexpr (rate == O15_to_N15) {
-            rate_o15_to_n15(state.tf, rates.fr, rates.frdt);
+            rate_o15_to_n15(state.tf, rates.fr);
         }
         else if constexpr (rate == O15_He4_to_Ne19) {
-            rate_he4_o15_to_ne19(state.tf, rates.fr, rates.frdt);
+            rate_he4_o15_to_ne19(state.tf, rates.fr);
         }
         else if constexpr (rate == O16_H1_to_F17) {
-            rate_p_o16_to_f17(state.tf, rates.fr, rates.frdt);
-            rate_f17_to_p_o16(state.tf, rates.rr, rates.rrdt);
+            rate_p_o16_to_f17(state.tf, rates.fr);
+            rate_f17_to_p_o16(state.tf, rates.rr);
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
-            rate_he4_o16_to_ne20(state.tf, rates.fr, rates.frdt);
+            rate_he4_o16_to_ne20(state.tf, rates.fr);
         }
         else if constexpr (rate == F17_to_O17) {
-            rate_f17_to_o17(state.tf, rates.fr, rates.frdt);
+            rate_f17_to_o17(state.tf, rates.fr);
         }
         else if constexpr (rate == F17_H1_to_Ne18) {
-            rate_p_f17_to_ne18(state.tf, rates.fr, rates.frdt);
+            rate_p_f17_to_ne18(state.tf, rates.fr);
         }
         else if constexpr (rate == Ne18_to_F18) {
-            rate_ne18_to_f18(state.tf, rates.fr, rates.frdt);
+            rate_ne18_to_f18(state.tf, rates.fr);
         }
         else if constexpr (rate == Ne18_He4_to_Na21_H1) {
-            rate_he4_ne18_to_p_na21(state.tf, rates.fr, rates.frdt);
+            rate_he4_ne18_to_p_na21(state.tf, rates.fr);
         }
         else if constexpr (rate == Ne19_to_F19) {
-            rate_ne19_to_f19(state.tf, rates.fr, rates.frdt);
+            rate_ne19_to_f19(state.tf, rates.fr);
         }
         else if constexpr (rate == Ne19_H1_to_Na20) {
-            rate_p_ne19_to_na20(state.tf, rates.fr, rates.frdt);
+            rate_p_ne19_to_na20(state.tf, rates.fr);
         }
         else if constexpr (rate == Si26_He4_to_P29_H1) {
-            rate_he4_si26_to_p_p29(state.tf, rates.fr, rates.frdt);
+            rate_he4_si26_to_p_p29(state.tf, rates.fr);
         }
         else if constexpr (rate == Ti44_He4_to_V47_H1) {
-            rate_he4_ti44_to_p_v47(state.tf, rates.fr, rates.frdt);
+            rate_he4_ti44_to_p_v47(state.tf, rates.fr);
         }
     }
 
-    template<int rate>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate ([[maybe_unused]] const rhs_state_t& state, [[maybe_unused]] rate_t& rates,
-                           [[maybe_unused]] rate_t& rates1, [[maybe_unused]] rate_t& rates2, [[maybe_unused]] rate_t& rates3)
+    void postprocess_rate ([[maybe_unused]] const rhs_state_t<number_t>& state, [[maybe_unused]] rate_t<number_t>& rates,
+                           [[maybe_unused]] rate_t<number_t>& rates1, [[maybe_unused]] rate_t<number_t>& rates2,
+                           [[maybe_unused]] rate_t<number_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -774,17 +775,15 @@ namespace RHS {
             // Rate 1 == C12_H1_to_N13
 
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
         }
         else if constexpr (rate == O14_H1_to_O15) {
             // Rate 1 == O14_to_N14
 
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
         }
         else if constexpr (rate == O15_H1_to_C12_He4) {
             // Set as the minimum of the cold CNO and hot CNO cases respectively
-            rates.fr = amrex::min(rates1.fr, rates2.fr);
+            rates.fr = admath::min(rates1.fr, rates2.fr);
 
             if (rates.fr == rates2.fr) {
                 // For the hot CNO case, divide the rate by y(H1) because the proton capture
@@ -792,66 +791,52 @@ namespace RHS {
                 // There is no T derivative to bring along since this is a weak rate.
                 rates.fr /= state.y(H1);
             }
-            else {
-                // Cold CNO case
-                rates.frdt = rates1.frdt;
-            }
         }
         else if constexpr (rate == O15_H1_to_O16) {
             // Rate 1 == O15_He4_to_Ne19
             // Rate 2 == Ne19_to_F19
             // Rate 3 == Ne19_H1_to_Na20
 
-            Real rate_irr1 = rates2.fr / (rates2.fr + state.y(H1) * rates3.fr);
-            Real dratedt_irr1 = -rate_irr1 * state.y(H1) * rates3.frdt / (rates2.fr + state.y(H1) * rates3.fr);
+            number_t rate_irr1 = rates2.fr / (rates2.fr + state.y(H1) * rates3.fr);
 
             rates.fr = rates1.fr * rate_irr1;
-            rates.frdt = rates1.frdt * rate_irr1 + rates1.fr * dratedt_irr1;
         }
         else if constexpr (rate == O15_He4_3H1_to_Mg22) {
             // Rate 1 == Ne19_to_F19 (wk19ne in the original rprox)
             // Rate 2 == Ne19_H1_to_Na20
             // Rate 3 == O15_He4_to_Ne19 (ir15ago in the original rprox)
 
-            Real rate_irr1 = rates1.fr / (rates1.fr + state.y(H1) * rates2.fr);
-            Real dratedt_irr1 = -rate_irr1 * state.y(H1) * rates2.frdt / (rates1.fr + state.y(H1) * rates2.fr);
+            number_t rate_irr1 = rates1.fr / (rates1.fr + state.y(H1) * rates2.fr);
 
             rates.fr = rates3.fr * (1.0_rt - rate_irr1);
-            rates.frdt = rates3.frdt * (1.0_rt - rate_irr1) - rates3.fr * dratedt_irr1;
         }
         else if constexpr (rate == O16_He4_2H1_to_Mg22) {
             // Rate 1 == O16_He4_to_Ne20
 
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
         }
         else if constexpr (rate == F17_2H1_to_O15_He4) {
             // Rate 1 == F17_H1_to_Ne18
             // Rate 2 == Ne18_to_F18
             // Rate 3 == Ne18_He4_to_Na21_H1
 
-            Real rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
-            Real dratedt_irs1 = -rate_irs1 * state.y(He4) * rates3.frdt / (rates2.fr + state.y(He4) * rates3.fr);
+            number_t rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
 
             rates.fr = rates1.fr * rate_irs1;
-            rates.frdt = rates1.frdt * rate_irs1 + rates1.fr * dratedt_irs1;
         }
         else if constexpr (rate == F17_2H1_to_O15_He4_weak) {
             // Rate 1 == F17_to_O17
 
             rates.fr = rates1.fr;
-            rates.frdt = rates1.frdt;
         }
         else if constexpr (rate == F17_He4_H1_to_Mg22) {
             // Rate 1 == F17_H1_to_Ne18
             // Rate 2 == Ne18_to_F18
             // Rate 3 == Ne18_He4_to_Na21_H1
 
-            Real rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
-            Real dratedt_irs1 = -rate_irs1 * state.y(He4) * rates3.frdt / (rates2.fr + state.y(He4) * rates3.fr);
+            number_t rate_irs1 = rates2.fr / (rates2.fr + state.y(He4) * rates3.fr);
 
             rates.fr = rates1.fr * (1.0_rt - rate_irs1);
-            rates.frdt = rates1.frdt * (1.0_rt - rate_irs1) - rates1.fr * dratedt_irs1;
         }
         else if constexpr (rate == Mg22_2He4_to_S30 || rate == Mg22_8H1_to_S30) {
             // Rate 1 == Si26_He4_to_P29_H1
@@ -860,26 +845,20 @@ namespace RHS {
             // The Lweak is from WW81, equation C15.
 
             // These should probably be updated with current rates.
-            constexpr Real Lweak = 1.05e0_rt; // this is for NS
-            // constexpr Real Lweak = 0.107e0_rt; // this is for lower densities
+            constexpr amrex::Real Lweak = 1.05e0_rt; // this is for NS
+            // constexpr amrex::Real Lweak = 0.107e0_rt; // this is for lower densities
 
-            rates.fr = amrex::max(Lweak, state.y(He4) * rates1.fr);
+            rates.fr = admath::max(Lweak, state.y(He4) * rates1.fr);
 
-            if (rates.fr == Lweak) {
+            if (static_cast<amrex::Real>(rates.fr) == Lweak) {
                 // Proton capture case
-                if constexpr (rate == Mg22_8H1_to_S30) {
-                    rates.frdt = 0.0_rt;
-                }
-                else {
+                if constexpr (rate == Mg22_2He4_to_S30) {
                     rates.fr = 0.0_rt;
                 }
             }
             else {
                 // Alpha capture case
-                if constexpr (rate == Mg22_2He4_to_S30) {
-                    rates.frdt = state.y(He4) * rates1.frdt;
-                }
-                else {
+                if constexpr (rate == Mg22_8H1_to_S30) {
                     rates.fr = 0.0_rt;
                 }
             }
@@ -890,34 +869,28 @@ namespace RHS {
             // check if this proceeds via p-captures or (a,p) reactions
             // use 44ti(a,p)v47 as a typical limiting rate for the (a,p) process
 
-            constexpr Real la2 = 1.0_rt / 15.0_rt; // mean rate from 30s to 56ni from p-capture and beta decays
+            constexpr amrex::Real la2 = 1.0_rt / 15.0_rt; // mean rate from 30s to 56ni from p-capture and beta decays
 
-            rates.fr = amrex::max(la2, state.y(He4) * rates1.fr);
+            rates.fr = admath::max(la2, state.y(He4) * rates1.fr);
 
             if (rates.fr == la2) {
                 // Proton capture case
-                if constexpr (rate == S30_26H1_to_Ni56) {
-                    rates.frdt = 0.0_rt;
-                }
-                else {
+                if constexpr (rate == S30_6_5He4_to_Ni56) {
                     rates.fr = 0.0_rt;
                 }
             }
             else {
                 // Alpha capture case
-                if constexpr (rate == S30_6_5He4_to_Ni56) {
-                    rates.frdt = state.y(He4) * rates1.frdt;
-                }
-                else {
+                if constexpr (rate == S30_26H1_to_Ni56) {
                     rates.fr = 0.0_rt;
                 }
             }
         }
     }
 
-    template<int spec>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::bion<spec>() * C::Legacy::n_A * C::Legacy::MeV2erg;
     }

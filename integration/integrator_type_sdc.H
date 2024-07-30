@@ -10,25 +10,23 @@
 #endif
 #include <integrator_type.H>
 
-using namespace integrator_rp;
-
 template <typename BurnT, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void clean_state(const amrex::Real time, BurnT& state, T& int_state)
 {
     // Ensure that mass fractions always stay positive.
 
-    if (do_species_clip) {
+    if (integrator_rp::do_species_clip) {
         for (int n = 1; n <= NumSpec; ++n) {
             // we use 1-based indexing, so we need to offset SFS
-            int_state.y(SFS+n) = amrex::max(amrex::min(int_state.y(SFS+n), state.rho),
-                                            state.rho * SMALL_X_SAFE);
+            int_state.y(SFS+n) = std::clamp(int_state.y(SFS+n),
+                                            state.rho * integrator_rp::SMALL_X_SAFE, state.rho);
         }
     }
 
     // renormalize abundances as necessary
 
-    if (renormalize_abundances) {
+    if (integrator_rp::renormalize_abundances) {
         // update rho, rho*u, etc.
 
         update_density_in_time(time, state);
@@ -71,7 +69,7 @@ void burn_to_int(BurnT& state, T& int_state)
     state.e_scale = state.rhoe_orig / state.rho_orig;
 
     // scale the integrator energy
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         int_state.y(SEINT+1) /= state.e_scale;
     }
 
@@ -94,7 +92,7 @@ void int_to_burn(const amrex::Real time, const T& int_state, BurnT& state)
 
     // correct energy for scaling
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         state.y[SEINT] *= state.e_scale;
     }
 
@@ -173,7 +171,7 @@ void rhs_to_int([[maybe_unused]] const amrex::Real time,
 
     // finally scale the ydots if we are doing scale_system
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         ydot(SEINT+1) /= state.e_scale;
     }
 
