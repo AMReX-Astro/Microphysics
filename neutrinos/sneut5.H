@@ -686,7 +686,7 @@ void nu_photo(const sneutf_t& sf,
     // and table 2 written out for speed
 
     amrex::Real tau;
-    amrex::Real cc;
+    amrex::Real cc, ccdt;
     amrex::Real c00, c01, c02, c03, c04, c05, c06;
     amrex::Real c10, c11, c12, c13, c14, c15, c16;
     amrex::Real c20, c21, c22, c23, c24, c25, c26;
@@ -694,12 +694,15 @@ void nu_photo(const sneutf_t& sf,
     amrex::Real dd11, dd12, dd13, dd14, dd15;
     amrex::Real dd21, dd22, dd23, dd24, dd25;
 
+    amrex::Real taudt = nu_constants::iln10 * sf.tempi;
+
     if (sf.temp < 1.0e8_rt) {
 
         // note: we already bailed above for T < 1.e7, so this is really 1.e7 <= T < 1.e8
 
         tau  =  std::log10(sf.temp * 1.0e-7_rt);
         cc   =  0.5654e0_rt + tau;
+        ccdt =  taudt;
         c00  =  1.008e11_rt;
         c01  =  0.0e0_rt;
         c02  =  0.0e0_rt;
@@ -741,6 +744,7 @@ void nu_photo(const sneutf_t& sf,
 
         tau  =  std::log10(sf.temp * 1.0e-8_rt);
         cc   =  1.5654e0_rt;
+        ccdt =  0.0e0_rt;
         c00  =  9.889e10_rt;
         c01  = -4.524e8_rt;
         c02  = -6.088e6_rt;
@@ -784,6 +788,7 @@ void nu_photo(const sneutf_t& sf,
 
         tau  =  std::log10(sf.t9);
         cc   =  1.5654e0_rt;
+        ccdt =  0.0e0_rt;
         c00  =  9.581e10_rt;
         c01  =  4.107e8_rt;
         c02  =  2.305e8_rt;
@@ -822,8 +827,6 @@ void nu_photo(const sneutf_t& sf,
         dd25 = -2.185e9_rt;
 
     }
-
-    amrex::Real taudt = nu_constants::iln10 * sf.tempi;
 
     // equation 3.7
 
@@ -902,7 +905,7 @@ void nu_photo(const sneutf_t& sf,
     amrex::Real xnum = dum * z;
     amrex::Real xnumdt, xnumda, xnumdz;
     if constexpr (do_derivatives) {
-        xnumdt = dumdt * z - dum * z * cc * sf.zetadt;
+        xnumdt = dumdt * z - dum * z * (cc * sf.zetadt + sf.zeta * ccdt);
         xnumda = dumda * z - dum * z * cc * sf.zetada;
         xnumdz = dumdz * z - dum * z * cc * sf.zetadz;
     }
@@ -1383,7 +1386,7 @@ void nu_recomb(const sneutf_t& sf,
         }
 
         amrex::Real c00 = 1.0e0_rt / (1.0e0_rt + f1 * nu + f2 * nu2 + f3 * nu3);
-        amrex::Real c01 = f1 + f2 * 2.0e0_rt * nu + f3 * 3.0e0_rt * nu2;
+        amrex::Real c01 = -(f1 + f2 * 2.0e0_rt * nu + f3 * 3.0e0_rt * nu2) * c00 * c00;
         amrex::Real dum = zeta * c00;
         amrex::Real dumdt, dumda, dumdz;
         if constexpr (do_derivatives) {
