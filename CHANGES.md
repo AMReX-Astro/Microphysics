@@ -2,7 +2,7 @@
 
   * autodiff is now used with the templated reaction networks (#1614)
     + some autodiff clean-ups and derivative fixes (#1604, #1612,
-      #1613, #1616, #1619)
+    #1613, #1616, #1619, #1633)
 
   * we can now output warnings from GPUs if you compile with
     `USE_GPU_PRINTF=TRUE` (#1629)
@@ -19,7 +19,7 @@
     (#1622)
 
   * code clean-ups (#1582, #1602, #1609, #1623, #1624, #1625, #1626,
-    #1627)
+    #1627, #1631)
 
   * `test_nse_net` now also tests the NSE EOS interface (#1621)
 
