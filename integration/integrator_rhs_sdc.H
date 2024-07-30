@@ -89,6 +89,8 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
+    pd.zero();
+
     // update rho, rho*u, ... in the burn_t state
 
     update_density_in_time(time, state);
@@ -105,15 +107,7 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
 
     if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
-
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
-                pd(i,j) = 0.0_rt;
-            }
-        }
-
         return;
-
     }
 
     // Call the specific network routine to get the Jacobian.
