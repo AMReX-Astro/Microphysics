@@ -5,7 +5,7 @@
     #1613, #1616, #1619, #1633)
 
   * we can now output warnings from GPUs if you compile with
-    `USE_GPU_PRINTF=TRUE` (#1629)
+    `USE_GPU_PRINTF=TRUE` (#1629, #1635)
 
   * documentation improvements (#1570, #1628)
 
