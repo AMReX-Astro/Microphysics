@@ -37,6 +37,9 @@ void actual_jac (burn_t& state, MatrixType& jac)
 {
     using namespace Species;
 
+    // initialize
+    jac.zero();
+
     // carbon jacobian elements
     jac(Y1, Y1) = -0.04_rt;
     jac(Y1, Y2) = 1.e4_rt * state.xn[Y3-1];

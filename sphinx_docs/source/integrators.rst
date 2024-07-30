@@ -276,11 +276,10 @@ The form looks like:
    A network is not required to provide a Jacobian if a numerical
    Jacobian is used.
 
-.. tip::
+.. important::
 
-   It is not necessary to zero the Jacobian elements at the top of the
-   ``actual_jac()`` function---this is handled by the wrapper that the
-   integrator calls.
+   The integrator does not zero the Jacobian elements.  It is the responsibility
+   of the Jacobian implementation to zero the Jacobian array if necessary.
 
 
 Jacobian wrapper

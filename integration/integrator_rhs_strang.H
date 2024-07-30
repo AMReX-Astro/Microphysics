@@ -115,8 +115,6 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
-    pd.zero();
-
     // Only do the burn if the incoming temperature is within the temperature
     // bounds. Otherwise set the Jacobian to zero and return.
 

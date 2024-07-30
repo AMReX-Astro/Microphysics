@@ -89,8 +89,6 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 {
 
-    pd.zero();
-
     // update rho, rho*u, ... in the burn_t state
 
     update_density_in_time(time, state);
