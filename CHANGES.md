@@ -19,7 +19,7 @@
     (#1622)
 
   * code clean-ups (#1582, #1602, #1609, #1623, #1624, #1625, #1626,
-    #1627, #1631)
+    #1627, #1631, #1639)
 
   * `test_nse_net` now also tests the NSE EOS interface (#1621)
 
