@@ -119,15 +119,8 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
     // bounds. Otherwise set the Jacobian to zero and return.
 
     if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
-
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
-                pd(i,j) = 0.0_rt;
-            }
-        }
-
+        pd.zero();
         return;
-
     }
 
     // Call the specific network routine to get the Jacobian.
