@@ -105,15 +105,8 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
 
     if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
-
-        for (int j = 1; j <= INT_NEQS; ++j) {
-            for (int i = 1; i <= INT_NEQS; ++i) {
-                pd(i,j) = 0.0_rt;
-            }
-        }
-
+        pd.zero()
         return;
-
     }
 
     // Call the specific network routine to get the Jacobian.
@@ -122,15 +115,16 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     // The Jacobian from the nets is in terms of dYdot/dY, but we want
     // it was dXdot/dX, so convert here.
-    for (int n = 1; n <= NumSpec; n++) {
-        for (int m = 1; m <= neqs; m++) {
-            pd(n,m) = pd(n,m) * aion[n-1];
+
+    for (int jcol = 1; jcol <= neqs; ++jcol) {
+        for (int irow = 1; irow <= NumSpec; irow++) {
+            pd(irow, jcol) *= [irow-1];
         }
     }
 
-    for (int m = 1; m <= neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
-            pd(m,n) = pd(m,n) * aion_inv[n-1];
+    for (int jcol = 1; jcol <= NumSpec; ++jcol) {
+        for (int irow = 1; irow <= neqs; ++irow) {
+            pd(irow, jcol) *= aion_inv[jcol-1];
         }
     }
 
@@ -170,9 +164,9 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-    for (int m = 1; m <= neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
-            pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
+    for (int jcol = 1; jcol <= NumSpec;++jcol) {
+        for (int irow = 1; irow <= neqs; ++irow) {
+            pd(irow, jcol) -= eos_xderivs.dedX[jcol-1] * pd(irow, net_ienuc);
         }
     }
 

@@ -136,15 +136,8 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
     state_delp.T += dy;
 
     if (state_delp.T <= EOSData::mintemp || state_delp.T >= integrator_rp::MAX_TEMP) {
-
-        for (int i = 1; i <= int_neqs; i++) {
-            for (int j = 1; j <= int_neqs; j++) {
-                jac(i,j) = 0.0_rt;
-            }
-        }
-
+        jac.zero();
         return;
-
     }
 
 
@@ -195,8 +188,8 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    for (int m = 1; m <= int_neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
+    for (int n = 1; n <= NumSpec; n++) {
+        for (int m = 1; m <= int_neqs; m++) {
             jac(m, n) -= eos_xderivs.dedX[n-1] * jac(m, net_ienuc);
         }
     }
