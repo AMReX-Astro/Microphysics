@@ -118,13 +118,13 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
     for (int jcol = 1; jcol <= neqs; ++jcol) {
         for (int irow = 1; irow <= NumSpec; irow++) {
-            pd(irow, jcol) *= [irow-1];
+            pd(irow, jcol) = pd(irow, jcol) * aion[irow-1];
         }
     }
 
     for (int jcol = 1; jcol <= NumSpec; ++jcol) {
         for (int irow = 1; irow <= neqs; ++irow) {
-            pd(irow, jcol) *= aion_inv[jcol-1];
+            pd(irow, jcol) = pd(irow, jcol) * aion_inv[jcol-1];
         }
     }
 
