@@ -128,7 +128,7 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
             }
         }
     }
-  
+
     // apply fudge factor:
 
     if (integrator_rp::react_boost > 0.0_rt) {

@@ -176,9 +176,9 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
 
         eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
 
-        for (int m = 1; m <= neqs; m++) {
-            for (int n = 1; n <= NumSpec; n++) {
-                pd(m, n) -= eos_xderivs.dedX[n-1] * pd(m, net_ienuc);
+        for (int jcol = 1; jcol <= NumSpec;++jcol) {
+            for (int irow = 1; irow <= neqs; ++irow) {
+                pd(irow, jcol) -= eos_xderivs.dedX[jcol-1] * pd(irow, net_ienuc);
             }
         }
 
