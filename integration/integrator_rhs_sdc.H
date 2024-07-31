@@ -105,7 +105,7 @@ void jac (const amrex::Real time, BurnT& state, T& int_state, MatrixType& pd)
 
 
     if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
-        pd.zero()
+        pd.zero();
         return;
     }
 
