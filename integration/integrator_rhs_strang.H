@@ -119,6 +119,7 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
     // bounds. Otherwise set the Jacobian to zero and return.
 
     if (state.T <= EOSData::mintemp || state.T >= integrator_rp::MAX_TEMP) {
+        pd.zero();
         return;
     }
 
