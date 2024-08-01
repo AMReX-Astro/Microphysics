@@ -3,6 +3,7 @@
 
 #include <AMReX_REAL.H>
 #include <AMReX_ANSIEscCode.H>
+#include <AMReX_GpuPrint.H>
 
 #include <iomanip>
 
@@ -102,12 +103,13 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
     return int_state;
 }
 
+///
+/// Save the initial composition and thermodynamic state for
+/// diagnostics.
+///
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 state_backup_t integrator_backup (const BurnT& state) {
-
-    // Save the initial composition and temperature for our later
-    // diagnostics.
 
     state_backup_t state_save;
 
@@ -115,15 +117,15 @@ state_backup_t integrator_backup (const BurnT& state) {
     for (int n = 0; n < NumSpec; ++n) {
         state_save.xn_in[n] = state.y[SFS+n] / state.y[SRHO];
     }
-    // we are assuming that the temperature was valid on input
-    state_save.T_in = state.T;
 #ifdef AUX_THERMO
     for (int n = 0; n < NumAux; ++n) {
         state_save.aux_in[n] = state.y[SFX+n] / state.y[SRHO];
     }
 #endif
-    state_save.rhoe_in = state.y[SEINT];
 #endif
+    // we are assuming that the temperature was valid on input
+    state_save.T_in = state.T;
+    state_save.rhoe_in = state.y[SEINT];
 
     return state_save;
 
@@ -261,6 +263,9 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             }
             std::cout << std::endl;
 #endif
+#elif defined(ALLOW_GPU_PRINTF)
+            AMREX_DEVICE_PRINTF("[ERROR] integration failed in net, istate = %d, time = %g, dt = %g, dens_start = %g, temp_start = %g\n",
+                                istate, state.time, dt, state.rho_orig, state_save.T_in);
 #endif
         } else {
 #ifndef AMREX_USE_GPU

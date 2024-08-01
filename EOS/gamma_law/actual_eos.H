@@ -6,8 +6,6 @@
 #include <fundamental_constants.H>
 #include <cmath>
 
-using namespace eos_rp;
-
 // This is a constant gamma equation of state, using an ideal gas.
 //
 // The gas may either be completely ionized or completely neutral.
@@ -22,7 +20,7 @@ inline
 void actual_eos_init() {
 
   // constant ratio of specific heats
-  if (eos_gamma <= 0.0) {
+  if (eos_rp::eos_gamma <= 0.0) {
     amrex::Error("gamma_const cannot be < 0");
   }
 
@@ -56,7 +54,7 @@ void actual_eos (I input, T& state)
     const amrex::Real m_nucleon = C::m_u;
 
     if constexpr (has_xn<T>::value) {
-        if (eos_assume_neutral) {
+        if (eos_rp::eos_assume_neutral) {
             state.mu = state.abar;
         } else {
             amrex::Real sum = 0.0;
@@ -88,7 +86,7 @@ void actual_eos (I input, T& state)
         // h = e + p/rho = (p/rho)*[1 + 1/(gamma-1)] = (p/rho)*gamma/(gamma-1)
 
           if constexpr (has_enthalpy<T>::value) {
-              state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_gamma - 1.0)/eos_gamma;
+              state.T = (state.h * state.mu * m_nucleon / C::k_B)*(eos_rp::eos_gamma - 1.0)/eos_rp::eos_gamma;
           }
 
           break;
@@ -127,7 +125,7 @@ void actual_eos (I input, T& state)
           // e = k T / [(mu m_nucleon)*(gamma-1)]
 
           if constexpr (has_energy<T>::value) {
-              state.T = state.e * state.mu * m_nucleon * (eos_gamma - 1.0) / C::k_B;
+              state.T = state.e * state.mu * m_nucleon * (eos_rp::eos_gamma - 1.0) / C::k_B;
           }
 
           break;
@@ -162,7 +160,7 @@ void actual_eos (I input, T& state)
           // Solve for temperature and density
 
           if constexpr (has_pressure<T>::value && has_enthalpy<T>::value) {
-              state.rho = state.p / state.h * eos_gamma / (eos_gamma - 1.0);
+              state.rho = state.p / state.h * eos_rp::eos_gamma / (eos_rp::eos_gamma - 1.0);
               state.T = state.p * state.mu * m_nucleon / (C::k_B * state.rho);
           }
 
@@ -199,7 +197,7 @@ void actual_eos (I input, T& state)
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
     amrex::Real pressure = state.rho * state.T * C::k_B / (state.mu * m_nucleon);
-    amrex::Real energy = pressure / (eos_gamma - 1.0) * rhoinv;
+    amrex::Real energy = pressure / (eos_rp::eos_gamma - 1.0) * rhoinv;
     if constexpr (has_pressure<T>::value) {
         state.p = pressure;
     }
@@ -256,17 +254,17 @@ void actual_eos (I input, T& state)
         state.cv = state.dedT;
 
         if constexpr (has_pressure<T>::value) {
-            state.cp = eos_gamma * state.cv;
+            state.cp = eos_rp::eos_gamma * state.cv;
 
-            state.gam1 = eos_gamma;
+            state.gam1 = eos_rp::eos_gamma;
 
             state.dpdr_e = state.dpdr - state.dpdT * state.dedr * (1.0 / state.dedT);
             state.dpde = state.dpdT * (1.0 / state.dedT);
 
             // sound speed
-            state.cs = std::sqrt(eos_gamma * state.p * rhoinv);
+            state.cs = std::sqrt(eos_rp::eos_gamma * state.p * rhoinv);
             if constexpr (has_G<T>::value) {
-                state.G = 0.5 * (1.0 + eos_gamma);
+                state.G = 0.5 * (1.0 + eos_rp::eos_gamma);
             }
         }
     }
@@ -278,7 +276,7 @@ void actual_eos (I input, T& state)
         state.dedA = - state.e * (1.0 / state.abar);
     }
 
-    if (eos_assume_neutral) {
+    if (eos_rp::eos_assume_neutral) {
         if constexpr (has_dpdZ<T>::value) {
             state.dpdZ = 0.0;
         }

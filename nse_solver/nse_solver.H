@@ -51,6 +51,7 @@ T get_nonexponent_nse_state(const T& state) {
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = state.T_fixed > 0.0_rt ? state.T_fixed : state.T;
+    constexpr amrex::Real ihplanck2 = 1.0_rt / (C::hplanck * C::hplanck);
 
 #ifndef NEW_NETWORK_IMPLEMENTATION
     auto tfactors = evaluate_tfactors(T_in);
@@ -59,7 +60,7 @@ T get_nonexponent_nse_state(const T& state) {
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
         if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0;
+            nse_state.xn[n] = 0.0_rt;
             continue;
         }
 #endif
@@ -73,11 +74,11 @@ T get_nonexponent_nse_state(const T& state) {
 
         // find nse mass frac without the exponent term.
 
-        amrex::Real power = 2.0 * M_PI * network::mion(n+1) *
-            C::k_B * T_in / (C::hplanck * C::hplanck);
+        amrex::Real power = 2.0_rt * M_PI * network::mion(n+1) *
+            C::k_B * T_in * ihplanck2;
 
         nse_state.xn[n] = network::mion(n+1) * pf * spin / state.rho *
-            std::sqrt(power * power * power);
+            std::sqrt(amrex::Math::powi<3>(power));
     }
 
     return nse_state;
@@ -103,9 +104,9 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
     // so we just treat u_c as a constant.
     //
 
-    const amrex::Real n_e = state.rho * state.y_e / C::m_u;
+    const amrex::Real n_e = state.rho * state.y_e * C::Legacy::n_A;
     const amrex::Real Gamma_e = C::q_e * C::q_e *
-        std::cbrt(4.0_rt * M_PI * n_e / 3.0_rt) / (C::k_B * T_in);
+        std::cbrt(1.333333333333_rt * M_PI * n_e) / (C::k_B * T_in);
     amrex::Real gamma;
 
     for (int n = 0; n < NumSpec; ++n) {
@@ -116,13 +117,13 @@ void compute_coulomb_contribution(amrex::Array1D<amrex::Real, 1, NumSpec>& u_c,
 #endif
         // term for calculating u_c
 
-        gamma = std::pow(zion[n], 5.0_rt/3.0_rt) * Gamma_e;
+        gamma = std::cbrt(amrex::Math::powi<5>(zion[n])) * Gamma_e;
 
         // chemical potential for coulomb correction
         // see appendix of Calder 2007, doi:10.1086/510709 for more detail
 
         // reuse existing implementation from screening routine
-        amrex::Real f = chabrier1998_helmholtz_F<amrex::Real>(gamma);
+        auto f = chabrier1998_helmholtz_F<amrex::Real>(gamma);
 
         //
         // Here u_c is a dimensionless quantity.
@@ -146,12 +147,13 @@ void apply_nse_exponent(T& nse_state,
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    amrex::Real ikTMeV = C::Legacy::MeV2erg / (C::k_B * T_in);
     amrex::Real exponent;
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
         if (n == NSE_INDEX::H1_index) {
-            nse_state.xn[n] = 0.0;
+            nse_state.xn[n] = 0.0_rt;
             continue;
         }
 #endif
@@ -163,8 +165,8 @@ void apply_nse_exponent(T& nse_state,
 
         exponent = amrex::min(500.0_rt,
                               (zion[n] * nse_state.mu_p + (aion[n] - zion[n]) *
-                               nse_state.mu_n + network::bion(n+1)) /
-                              C::k_B / T_in * C::Legacy::MeV2erg - u_c(n+1));
+                               nse_state.mu_n + network::bion(n+1)) *
+                              ikTMeV - u_c(n+1));
 
         nse_state.xn[n] *= std::exp(exponent);
     }
@@ -210,6 +212,7 @@ void fcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array1D<amrex::Real, 1, 2>
         }
 #endif
         // constraint equation 1, mass fraction sum to 1
+        // since we're using rhoX, make it sum to rho
 
         fvec(1) += nse_state.xn[n];
     }
@@ -247,6 +250,7 @@ void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2,
     // the temperature that comes in through T_fixed
 
     amrex::Real T_in = nse_state.T_fixed > 0.0_rt ? nse_state.T_fixed : nse_state.T;
+    amrex::Real ikTMeV = C::Legacy::MeV2erg / (C::k_B * T_in);
 
     for (int n = 0; n < NumSpec; ++n) {
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -254,10 +258,10 @@ void jcn(amrex::Array1D<amrex::Real, 1, 2>& x, amrex::Array2D<amrex::Real, 1, 2,
             continue;
         }
 #endif
-        fjac(1, 1) += nse_state.xn[n] * zion[n] / C::k_B / T_in * C::Legacy::MeV2erg ;
-        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) / C::k_B / T_in * C::Legacy::MeV2erg;
-        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] / C::k_B / T_in * C::Legacy::MeV2erg;
-        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] / C::k_B / T_in * C::Legacy::MeV2erg;
+        fjac(1, 1) += nse_state.xn[n] * zion[n] * ikTMeV;
+        fjac(1, 2) += nse_state.xn[n] * (aion[n] - zion[n]) * ikTMeV;
+        fjac(2, 1) += nse_state.xn[n] * zion[n] * zion[n] * aion_inv[n] * ikTMeV;
+        fjac(2, 2) += nse_state.xn[n] * zion[n] * (aion[n] - zion[n]) * aion_inv[n] * ikTMeV;
     }
 
 }
@@ -499,15 +503,13 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
     if (!input_ye_is_valid) {
         // ensure Ye is valid
-#ifdef STRANG
-        composition(state);
-#else
-        state.y_e = 0.0_rt;
+        // We assume the input state has rhoX
 
+        state.y_e = 0.0_rt;
         for (int n = 0; n < NumSpec; ++n) {
-            state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n] / state.rho;
+            state.y_e += state.y[SFS+n] * zion[n] * aion_inv[n];
         }
-#endif
+        state.y_e /= state.rho;
     }
 
     nse_solver_data<T> state_data = {state, {0.0_rt}};
@@ -556,6 +558,12 @@ T get_actual_nse_state(T& state, amrex::Real eps=1.0e-10_rt,
 
     state.mu_p = state_data.state.mu_p;
     state.mu_n = state_data.state.mu_n;
+
+    // update rhoX in the output nse_state
+
+    for (int n = 0; n < NumSpec; ++n) {
+        state_data.state.y[SFS+n] = state.rho * state_data.state.xn[n];
+    }
 
     return state_data.state;
 }

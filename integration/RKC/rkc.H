@@ -15,6 +15,14 @@
 #include <circle_theorem.H>
 #include <integrator_data.H>
 
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
+#endif
+
+
 template <typename BurnT, typename RkcT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void step (BurnT& state, RkcT& rstate, const amrex::Real h, const int m)
@@ -225,6 +233,35 @@ int rkclow (BurnT& state, RkcT& rstate)
 
         err = std::sqrt(err / int_neqs);
 
+        // before we accept or reject the step, let's check if we've entered
+        // NSE
+
+#ifdef NSE
+       // check if, during the course of integration, we hit NSE, and
+       // if so, bail out we rely on the state being consistent after
+       // the call to dvstep, even if the step failed.
+
+       // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
+       // from hitting this right at the start when VODE might do so
+       // wild exploration.  Also ensure we are not working > tmax,
+       // so we don't need to worry about extrapolating back in time.
+
+       if (rstate.nsteps > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout) {
+           // first we need to make the burn_t in sync
+
+#ifdef STRANG
+           update_thermodynamics(state, rstate);
+#endif
+#ifdef SDC
+           int_to_burn(rstate.t, rstate, state);
+#endif
+
+           if (in_nse(state)) {
+               return IERR_ENTERED_NSE;
+           }
+       }
+#endif
+
         if (err > 1.0_rt) {
             // Step is rejected.
             rstate.nrejct++;
@@ -271,7 +308,7 @@ int rkclow (BurnT& state, RkcT& rstate)
             }
         }
         absh = std::max(0.1_rt, fac) * absh;
-        absh = std::max(hmin, std::min(rstate.hmax, absh));
+        absh = std::clamp(absh, hmin, rstate.hmax);
         errold = err;
         hold = h;
         h = tdir * absh;
@@ -294,12 +331,12 @@ int rkc (BurnT& state, RkcT& rstate)
     // Test the input data.
     bool valid = true;
 
-    if ((rtol_spec > rmax) || (rtol_enuc > rmax) ||
-        (rtol_spec < rmin) || (rtol_enuc < rmin)) {
+    if ((rstate.rtol_spec > rmax) || (rstate.rtol_enuc > rmax) ||
+        (rstate.rtol_spec < rmin) || (rstate.rtol_enuc < rmin)) {
         valid = false;
     }
 
-    if (atol_spec < 0.0_rt || atol_enuc < 0.0_rt) {
+    if (rstate.atol_spec < 0.0_rt || rstate.atol_enuc < 0.0_rt) {
         valid = false;
     }
 

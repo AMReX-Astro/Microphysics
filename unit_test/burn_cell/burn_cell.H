@@ -174,7 +174,7 @@ void burn_cell_c()
 
         // get the updated T
 
-        if (call_eos_in_rhs) {
+        if (integrator_rp::call_eos_in_rhs) {
             eos(eos_input_re, burn_state);
         }
 

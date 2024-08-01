@@ -26,17 +26,11 @@ bool do_jac (int i, int j, int k, amrex::Array4<amrex::Real> const& state, const
 
     normalize_abundances_burn(burn_state);
 
-    eos_extra_t eos_state;
-
-    burn_to_eos(burn_state, eos_state);
-
-    eos(eos_input_rt, eos_state);
-
-    eos_to_burn(eos_state, burn_state);
+    eos(eos_input_rt, burn_state);
 
     // the integrator doesn't actually care about the initial internal
     // energy.
-    burn_state.e = 0.0_rt;
+    //burn_state.e = 0.0_rt;
 
     JacNetArray2D jac_analytic;
     JacNetArray2D jac_numerical;

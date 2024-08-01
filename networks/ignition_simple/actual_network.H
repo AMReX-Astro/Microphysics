@@ -137,22 +137,23 @@ namespace RHS
         return data;
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t<dual_t>& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == C12_C12_to_Mg24) {
-            rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
     }
 
-    template<int rate, typename dual_t>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate ([[maybe_unused]] const rhs_state_t<dual_t>& state, [[maybe_unused]] rate_t& rates,
-                           [[maybe_unused]] rate_t& rates1, [[maybe_unused]] rate_t& rates2, [[maybe_unused]] rate_t& rates3)
+    void postprocess_rate ([[maybe_unused]] const rhs_state_t<number_t>& state, [[maybe_unused]] rate_t<number_t>& rates,
+                           [[maybe_unused]] rate_t<number_t>& rates1, [[maybe_unused]] rate_t<number_t>& rates2,
+                           [[maybe_unused]] rate_t<number_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -160,9 +161,9 @@ namespace RHS
         // Nothing to do for this network.
     }
 
-    template<int spec, typename dual_t>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<dual_t>& rhs_state, amrex::Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }

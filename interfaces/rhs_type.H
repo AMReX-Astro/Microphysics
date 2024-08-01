@@ -95,27 +95,27 @@ struct rate_tab_t
     }
 };
 
-// dual_t is currently only used in the screening routines
-template <typename dual_t = amrex::Real>
+// number_t is currently used in the screening routines and templated network
+// rate evaluation
+template <typename number_t>
 struct rhs_state_t
 {
     amrex::Real rho;
-    tf_t tf;
+    tf_t<number_t> tf;
     rate_tab_t tab;
 #ifdef SCREENING
-    plasma_state_t<dual_t> pstate;
+    plasma_state_t<number_t> pstate;
 #endif
     amrex::Real y_e;
     amrex::Real eta;
     amrex::Array1D<amrex::Real, 1, NumSpec> y;
 };
 
+template <typename number_t>
 struct rate_t
 {
-    amrex::Real fr;
-    amrex::Real rr;
-    amrex::Real frdt;
-    amrex::Real rrdt;
+    number_t fr;
+    number_t rr;
 };
 
 } // namespace RHS

@@ -35,6 +35,10 @@ endif
 # Require C++17
 CXXSTD := c++17
 
+ifeq ($(USE_GPU_PRINTF),TRUE)
+  DEFINES += -DALLOW_GPU_PRINTF
+endif
+
 include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
 MICROPHYSICS_AUTO_SOURCE_DIR := $(TmpBuildDir)/microphysics_sources/$(optionsSuffix).EXE
@@ -117,10 +121,6 @@ Blocs += $(foreach dir, $(EXTERN_CORE), $(dir))
 #------------------------------------------------------------------------------
 
 include $(Bpack)
-
-# this is a safety from the mega-fortran attempts
-f90EXE_sources += $(ca_f90EXE_sources)
-F90EXE_sources += $(ca_F90EXE_sources)
 
 INCLUDE_LOCATIONS += $(Blocs)
 VPATH_LOCATIONS   += $(Blocs)
