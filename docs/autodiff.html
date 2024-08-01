@@ -70,7 +70,6 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
@@ -91,7 +90,13 @@
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">references</span></p>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
@@ -133,14 +138,14 @@ machinery needed for use in Microphysics is located in
 <code class="docutils literal notranslate"><span class="pre">Microphysics/util/microphysics_autodiff.H</span></code>.</p>
 <p>Most functions can be updated to support <code class="docutils literal notranslate"><span class="pre">autodiff</span></code> by adding a
 template parameter for the numeric type (the current code calls it
-<code class="docutils literal notranslate"><span class="pre">dual_t</span></code>).  This should be used for any values that depend on the
+<code class="docutils literal notranslate"><span class="pre">number_t</span></code>).  This should be used for any values that depend on the
 variables we’re differentiating with respect to.  Calls to functions
 from <code class="docutils literal notranslate"><span class="pre">&lt;cmath&gt;</span></code> as well as <code class="docutils literal notranslate"><span class="pre">amrex::min</span></code> and <code class="docutils literal notranslate"><span class="pre">amrex::max</span></code> can be
 replaced with ones in the <code class="docutils literal notranslate"><span class="pre">admath</span></code> namespace.  This namespace also
 exports the original functions, so they work fine on normal numeric
 types too.</p>
 <p>To manually check whether a type is a dual number or not, use
-<code class="docutils literal notranslate"><span class="pre">autodiff::detail::isDual&lt;dual_t&gt;</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">autodiff::detail::isDual&lt;number_t&gt;</span></code>.</p>
 <section id="derivatives-of-single-variable-functions">
 <h2>Derivatives of single-variable functions<a class="headerlink" href="#derivatives-of-single-variable-functions" title="Link to this heading"></a></h2>
 <p>To take the derivative of some computation <code class="docutils literal notranslate"><span class="pre">f(x)</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code> must be an
@@ -179,19 +184,19 @@ following example program:</p>
 
 <span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">amrex</span><span class="o">::</span><span class="nn">literals</span><span class="p">;</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">dual_t</span><span class="o">&gt;</span>
-<span class="n">dual_t</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">dual_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">dual_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">number_t</span><span class="o">&gt;</span>
+<span class="n">number_t</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">number_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">number_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nf">admath::sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">admath</span><span class="o">::</span><span class="n">exp</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
 <span class="p">}</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">dual_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual_array</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="w">    </span><span class="n">dual_t</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
-<span class="w">    </span><span class="n">dual_t</span><span class="w"> </span><span class="n">x_dual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.41</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.38</span><span class="p">;</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">number_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">dual_array</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">number_t</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">    </span><span class="n">number_t</span><span class="w"> </span><span class="n">x_dual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.41</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.38</span><span class="p">;</span>
 <span class="w">    </span><span class="c1">// seed the inputs</span>
 <span class="w">    </span><span class="n">autodiff</span><span class="o">::</span><span class="n">seed_array</span><span class="p">(</span><span class="n">x_dual</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="p">);</span>
 <span class="w">    </span><span class="c1">// compute the function and both derivatives in a single pass</span>
-<span class="w">    </span><span class="n">dual_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">x_dual</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="p">);</span>
+<span class="w">    </span><span class="n">number_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">x_dual</span><span class="p">,</span><span class="w"> </span><span class="n">y_dual</span><span class="p">);</span>
 
 <span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">dfdx</span><span class="p">,</span><span class="w"> </span><span class="n">dfdy</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">derivative</span><span class="p">(</span><span class="n">result</span><span class="p">);</span>
 <span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;f(&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;) = &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">autodiff</span><span class="o">::</span><span class="n">val</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>

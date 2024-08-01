@@ -14,7 +14,7 @@ machinery needed for use in Microphysics is located in
 
 Most functions can be updated to support ``autodiff`` by adding a
 template parameter for the numeric type (the current code calls it
-``dual_t``).  This should be used for any values that depend on the
+``number_t``).  This should be used for any values that depend on the
 variables we're differentiating with respect to.  Calls to functions
 from ``<cmath>`` as well as ``amrex::min`` and ``amrex::max`` can be
 replaced with ones in the ``admath`` namespace.  This namespace also
@@ -22,7 +22,7 @@ exports the original functions, so they work fine on normal numeric
 types too.
 
 To manually check whether a type is a dual number or not, use
-``autodiff::detail::isDual<dual_t>``.
+``autodiff::detail::isDual<number_t>``.
 
 Derivatives of single-variable functions
 ========================================
@@ -71,19 +71,19 @@ following example program:
 
     using namespace amrex::literals;
 
-    template <typename dual_t>
-    dual_t f(const dual_t& x, const dual_t& y) {
+    template <typename number_t>
+    number_t f(const number_t& x, const number_t& y) {
         return y * admath::sin(x) + admath::exp(y);
     }
 
     int main() {
-        using dual_t = autodiff::dual_array<1, 2>;
-        dual_t result;
-        dual_t x_dual = 2.41, y_dual = 0.38;
+        using number_t = autodiff::dual_array<1, 2>;
+        number_t result;
+        number_t x_dual = 2.41, y_dual = 0.38;
         // seed the inputs
         autodiff::seed_array(x_dual, y_dual);
         // compute the function and both derivatives in a single pass
-        dual_t result = f(x_dual, y_dual);
+        number_t result = f(x_dual, y_dual);
 
         auto [dfdx, dfdy] = autodiff::derivative(result);
         std::cout << "f(" << x << ", " << y << ") = " << autodiff::val(result) << "\n";

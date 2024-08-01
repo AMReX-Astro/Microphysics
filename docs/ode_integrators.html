@@ -66,7 +66,6 @@
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
 <li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Unit Tests</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
@@ -93,7 +92,13 @@
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">references</span></p>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
@@ -200,7 +205,7 @@ never converge.  In these simulations, <code class="docutils literal notranslate
 relative tolerances and <code class="docutils literal notranslate"><span class="pre">atol</span></code> values will set the absolute tolerances
 for the ODE solver.  Often, one can find and set these values in an
 input file for a simulation.</p>
-<p><a class="reference internal" href="#fig-tolerances"><span class="std std-numref">Fig. 2</span></a> shows the results of a simple simulation using the
+<p><a class="reference internal" href="#fig-tolerances"><span class="std std-numref">Fig. 1</span></a> shows the results of a simple simulation using the
 burn_cell unit test to determine
 what tolerances are ideal for simulations.
 For this investigation, it was assumed that a run with a tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>
@@ -215,7 +220,7 @@ so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used 
 <figure class="align-default" id="id5">
 <span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" /></a>
 <figcaption>
-<p><span class="caption-number">Fig. 2 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
+<p><span class="caption-number">Fig. 1 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
 to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
