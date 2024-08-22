@@ -23,7 +23,7 @@ EBASE = main
 MICROPHYSICS_HOME  := ../..
 
 # This sets the EOS directory
-EOS_DIR     := primordial_chem
+EOS_DIR     := metal_chem
 
 # This sets the network directory
 NETWORK_DIR := metal_chem
