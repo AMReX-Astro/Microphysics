@@ -1,7 +1,7 @@
 unit_test.run_prefix = "burn_cell_metal_chem_"
 
 # unit_test runtime parameters
-unit_test.small_temp = 1.e1
+unit_test.small_temp = 1.e0
 unit_test.small_dens = 1.e-60
 unit_test.tff_reduc = 1.e-1
 # number of integration steps
@@ -9,42 +9,42 @@ unit_test.nsteps = 1000
 # max total time
 unit_test.tmax = 7.e20
 # initial temperature
-unit_test.temperature = 1e2
+unit_test.temperature = 3e2
 # initial number densities
-unit_test.primary_species_1 = 1e-40
-unit_test.primary_species_2 = 1e-40
-unit_test.primary_species_3 = 1e-4
-unit_test.primary_species_4 = 1e-4
-unit_test.primary_species_5 = 1e0
-unit_test.primary_species_6 = 1e-40
-unit_test.primary_species_7 = 1e-40
-unit_test.primary_species_8 = 1e-40
+unit_test.primary_species_1 = 1e-41
+unit_test.primary_species_2 = 1e-41
+unit_test.primary_species_3 = 1e-5
+unit_test.primary_species_4 = 1e-5
+unit_test.primary_species_5 = 1e-1
+unit_test.primary_species_6 = 1e-41
+unit_test.primary_species_7 = 1e-41
+unit_test.primary_species_8 = 1e-41
 unit_test.primary_species_9 = 1e-40
-unit_test.primary_species_10 = 1e-40
-unit_test.primary_species_11 = 1e-6
-unit_test.primary_species_12 = 1e-40
-unit_test.primary_species_13 = 1e-40
-unit_test.primary_species_14 = 1e-40
-unit_test.primary_species_15 = 1e-40
-unit_test.primary_species_16 = 0.0775e0
-unit_test.primary_species_17 = 9.27e-5
-unit_test.primary_species_18 = 1e-40
-unit_test.primary_species_19 = 1e-40
-unit_test.primary_species_20 = 1e-40
-unit_test.primary_species_21 = 1e-40
-unit_test.primary_species_22 = 1e-40
-unit_test.primary_species_23 = 3.568e-4
-unit_test.primary_species_24 = 1e-40
-unit_test.primary_species_25 = 1e-40
-unit_test.primary_species_26 = 1e-40
-unit_test.primary_species_27 = 1e-40
-unit_test.primary_species_28 = 1e-40
-unit_test.primary_species_29 = 1e-40
-unit_test.primary_species_30 = 1e-40
-unit_test.primary_species_31 = 1e-40
-unit_test.primary_species_32 = 1e-40
-unit_test.primary_species_33 = 1e-40
-unit_test.primary_species_34 = 1e-40
+unit_test.primary_species_10 = 1e-41
+unit_test.primary_species_11 = 1e-7
+unit_test.primary_species_12 = 1e-41
+unit_test.primary_species_13 = 1e-41
+unit_test.primary_species_14 = 1e-41
+unit_test.primary_species_15 = 1e-41
+unit_test.primary_species_16 = 0.0775e-1
+unit_test.primary_species_17 = 9.27e-6
+unit_test.primary_species_18 = 1e-41
+unit_test.primary_species_19 = 1e-41
+unit_test.primary_species_20 = 1e-41
+unit_test.primary_species_21 = 1e-41
+unit_test.primary_species_22 = 1e-41
+unit_test.primary_species_23 = 3.568e-5
+unit_test.primary_species_24 = 1e-41
+unit_test.primary_species_25 = 1e-41
+unit_test.primary_species_26 = 1e-41
+unit_test.primary_species_27 = 1e-41
+unit_test.primary_species_28 = 1e-41
+unit_test.primary_species_29 = 1e-41
+unit_test.primary_species_30 = 1e-41
+unit_test.primary_species_31 = 1e-41
+unit_test.primary_species_32 = 1e-41
+unit_test.primary_species_33 = 1e-41
+unit_test.primary_species_34 = 1e-41
 
 # integrator runtime parameters
 # are we using primordial chemistry? then we use number densities
