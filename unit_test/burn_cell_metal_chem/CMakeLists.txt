@@ -1,5 +1,5 @@
 #all .cpp files that need to be compiled for the test go here
-add_executable(test_burn_cell_metal_chem main.cpp ${primordial_chem_sources})
+add_executable(test_burn_cell_metal_chem main.cpp ${metal_chem_sources})
 
 #test needs to find burn_cell.H, unit_test.H, and extern_parameters.H
 target_include_directories(test_burn_cell_metal_chem PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} "includes/burn_cell.H"
@@ -7,11 +7,11 @@ target_include_directories(test_burn_cell_metal_chem PUBLIC ${CMAKE_CURRENT_SOUR
 
 #below line will add NAUX_NET and STRANG compiler flags
 #these are needed for preprocessor variables
-target_compile_definitions(test_burn_cell_primordial_chem PUBLIC NAUX_NET STRANG)
+target_compile_definitions(test_burn_cell_metal_chem PUBLIC NAUX_NET STRANG)
 
 
 if(AMReX_GPU_BACKEND MATCHES "CUDA")
     setup_target_for_cuda_compilation(test_burn_cell_metal_chem)
 endif(AMReX_GPU_BACKEND MATCHES "CUDA")
 
-add_test(NAME burn_cell_metal_chem COMMAND test_burn_metal_primordial_chem inputs_metal_chem WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME burn_cell_metal_chem COMMAND test_burn_metal_chem inputs_metal_chem WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
