@@ -125,21 +125,6 @@ auto burn_cell_c() -> int {
     case 34:
       numdens[n - 1] = primary_species_34;
       break;
-    case 35:
-      numdens[n - 1] = primary_species_35;
-      break;
-    case 36:
-      numdens[n - 1] = primary_species_36;
-      break;
-    case 37:
-      numdens[n - 1] = primary_species_37;
-      break;
-    case 38:
-      numdens[n - 1] = primary_species_38;
-      break;
-    case 39:
-      numdens[n - 1] = primary_species_39;
-      break;
     }
   }
 
@@ -160,6 +145,7 @@ auto burn_cell_c() -> int {
     state.xn[n] = numdens[n];
     rhotot += state.xn[n] * spmasses[n]; // spmasses contains the masses of all
                                          // species, defined in EOS
+    std::cout << "species " << spmasses[n] << ", " << gammas[n] << std::endl;
   }
 
   state.rho = rhotot;
@@ -284,11 +270,9 @@ auto burn_cell_c() -> int {
     }
 
     // update the number density of electrons due to charge conservation
-    state.xn[0] = -state.xn[3] - state.xn[7] - state.xn[17] - state.xn[25] +
-                  state.xn[1] + state.xn[6] + state.xn[13] + state.xn[4] + state.xn[9] +
-                  2.0 * state.xn[12] + state.xn[15] + state.xn[23] + state.xn[34] + state.xn[35] +
-                  state.xn[11] + state.xn[18] + state.xn[20] + state.xn[22] + state.xn[32] +
-                  state.xn[26] + state.xn[28] + state.xn[30] + state.xn[37];
+    state.xn[2] = -state.xn[5] - state.xn[9] + state.xn[3] + state.xn[6] + state.xn[8] +
+                  2.0 * state.xn[13] + state.xn[11] + state.xn[14] + state.xn[16] + state.xn[21] +
+                  state.xn[24] + state.xn[26] + state.xn[28] + state.xn[29] + state.xn[31];
 
     // reconserve mass fractions post charge conservation
     insum = 0;
