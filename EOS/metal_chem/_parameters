@@ -71,7 +71,8 @@ species_17_name          string     "cp"
 species_17_gamma         real          5./3.
 species_17_mass          real          2.007528417094e-23
 
-species_18_name          string     "c"
+#carbon cannot be declared as c because it conflicts with namespace C used for physical constants
+species_18_name          string     "carbon"
 species_18_gamma         real          5./3.
 species_18_mass          real          2.0076195109128e-23
 

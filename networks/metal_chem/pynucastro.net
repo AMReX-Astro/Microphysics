@@ -1,3 +1,5 @@
+co_ice             CO_ice   0.0     0.0
+h2o_ice            H2O_ice  0.0     0.0
 elec               E        1.0     1.0
 hp                 Hp       4.0     2.0
 h                  H        12.0    6.0
@@ -14,7 +16,7 @@ hepp               HEpp     17.0    9.0
 hep                HEp      18.0    9.0
 he                 HE       4.0     2.0
 cp                 Cp       4.0     2.0
-c                  C        4.0     2.0
+c                  Carbon   4.0     2.0
 cm                 Cm       4.0     2.0
 chp                CHp      4.0     2.0
 ch                 CH       4.0     2.0
