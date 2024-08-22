@@ -1008,7 +1008,7 @@ Real rhs_eint(const burn_t& state,
              Real const user_dissH2, Real const user_ionC, 
              Real const user_ionO, Real const user_dissCO, 
              Real const user_dust2gas_ratio, Real const Tdust, 
-             Real const dustSemenov_cooling, Real const z) {
+             Real const dustSemenov_cooling, Real const z, Real const Z) {
 
     using namespace Rates;
 
@@ -4014,6 +4014,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
     Real z = redshift;
+    Real Z = metallicity;
 
     Array1D<Real, 0, NumSpec-1> X;
     for (int i = 0; i < NumSpec; ++i) {
@@ -4023,7 +4024,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // compute Tdust
     Real Tdust = 2.73*(1.0 + z);
     Real dustSemenov_cooling = 0.0;
-    Real dust2gas_ratio = dust2gas_ratio_solar * metallicity;
 
     // YDOTS
 
@@ -4033,7 +4033,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // Edot
 
     Real edot = rhs_eint(state, X, crate, Av, ionH, ionH2, dissH2, 
-                         ionC, ionO, dissCO, dust2gas_ratio, Tdust, dustSemenov_cooling, z);
+                         ionC, ionO, dissCO, dust2gas_ratio, Tdust, dustSemenov_cooling, z, Z);
 
     // Append the energy equation (this is erg/g/s)
 
