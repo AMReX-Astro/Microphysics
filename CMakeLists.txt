@@ -95,7 +95,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
   elseif (${network_name} STREQUAL "metal_chem")
     #need these to write extern_parameters.H
     set(paramfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/burn_cell_metal_chem/_parameters")
-    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/_parameters")
+    set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/metal_chem/_parameters")
     set(networkpcparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/_parameters")
 
     #similarly, we want network_properties.H
@@ -108,7 +108,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     set (metal_chem_dirs ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/gcem/include
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/VODE ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration/utils
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/integration ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces
-                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem
+                             ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/metal_chem
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks
                              ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/constants
                              PARENT_SCOPE)
@@ -130,7 +130,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
-                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/primordial_chem/actual_eos_data.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/metal_chem/actual_eos_data.cpp
                                 ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
 
