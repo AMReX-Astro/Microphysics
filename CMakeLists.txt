@@ -200,7 +200,13 @@ if(BUILD_UNIT_TEST_PC)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
   message("Building primordial chem unit test")
 
-elseif(BUILD_UNIT_TEST_MC)
+else()
+
+  message("Not building primordial chem unit test")
+endif()
+
+
+if(BUILD_UNIT_TEST_MC)
   #Build metal chem unit test
   setup_target_for_microphysics_compilation("metal_chem" ${CMAKE_BINARY_DIR})
   include_directories(${metal_chem_dirs})
@@ -211,7 +217,7 @@ elseif(BUILD_UNIT_TEST_MC)
 
 else()
 
-  message("Not building primordial or metal chem unit tests")
+  message("Not building metal chem unit test")
 endif()
 
 
