@@ -1,5 +1,5 @@
-Initializing AMReX (24.06-22-g731014ff3eed)...
-AMReX (24.06-22-g731014ff3eed) initialized
+Initializing AMReX (24.07-16-gdcb9cc0383dc)...
+AMReX (24.07-16-gdcb9cc0383dc) initialized
 starting the single zone burn...
 Maximum Time (s): 0.01585
 State Density (g/cm^3): 1000000000
@@ -27,7 +27,7 @@ ash 0.03421048417
 ------------------------------------
 species creation rates: 
 omegadot(C12): -2.158390168
-omegadot(O16): 9.946124747e-44
+omegadot(O16): 8.840999775e-44
 omegadot(ash): 2.158390168
 number of steps taken: 381
-AMReX (24.06-22-g731014ff3eed) finalized
+AMReX (24.07-16-gdcb9cc0383dc) finalized

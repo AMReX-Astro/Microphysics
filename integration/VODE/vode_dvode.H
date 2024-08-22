@@ -133,7 +133,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            // start of problem), check for too much accuracy being requested, and
            // check for H below the roundoff level in T.
 
-           if (vstate.n_step >= ode_max_steps) {
+           if (vstate.n_step >= integrator_rp::ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
                std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << amrex::ResetDisplay << std::endl;

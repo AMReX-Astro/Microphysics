@@ -51,7 +51,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
 
     // Newton loop
 
-    for (int iter = 1; iter <= max_iter; iter++) {
+    for (int iter = 1; iter <= integrator_rp::max_iter; iter++) {
 
         // work with the current guess
 
@@ -76,8 +76,8 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
         // construct the matrix for the linear system
         // (I - dt J) dy^{n+1} = rhs
 
-        for (int m  = 1; m <= int_neqs; m++) {
-            for (int n = 1; n <= int_neqs; n++) {
+        for (int n = 1; n <= int_neqs; n++) {
+            for (int m  = 1; m <= int_neqs; m++) {
                 be.jac(m, n) *= -dt;
                 if (m == n) {
                     be.jac(m, n) = 1.0_rt + be.jac(m, n);
@@ -136,7 +136,7 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
         y_norm = std::sqrt(y_norm / int_neqs);
         b_norm = std::sqrt(b_norm / int_neqs);
 
-        if (b_norm < tol * y_norm) {
+        if (b_norm < integrator_rp::tol * y_norm) {
             converged = true;
             break;
         }
@@ -191,7 +191,7 @@ int be_integrator (BurnT& state, BeT& be)
     // main timestepping loop
 
     while (be.t < (1.0_rt - timestep_safety_factor) * be.tout &&
-           be.n_step < ode_max_steps) {
+           be.n_step < integrator_rp::ode_max_steps) {
 
         // store the current solution -- we'll revert to this if a step fails
         amrex::Array1D<amrex::Real, 1, int_neqs> y_old;
@@ -272,7 +272,7 @@ int be_integrator (BurnT& state, BeT& be)
             // backward-Euler has a local truncation error of dt**2
 
             amrex::Real dt_new = dt_sub * std::pow(1.0_rt / rel_error, 0.5_rt);
-            dt_sub = amrex::min(amrex::max(dt_new, dt_sub / 2.0), 2.0 * dt_sub);
+            dt_sub = std::clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
 
         } else {
 
@@ -291,7 +291,7 @@ int be_integrator (BurnT& state, BeT& be)
 
     }
 
-    if (be.n_step >= ode_max_steps) {
+    if (be.n_step >= integrator_rp::ode_max_steps) {
         ierr = IERR_TOO_MANY_STEPS;
     }
 

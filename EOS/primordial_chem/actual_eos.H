@@ -12,8 +12,6 @@
 #include <cmath>
 #include <actual_eos_data.H>
 
-using namespace eos_rp;
-
 const std::string eos_name = "multigamma";
 
 inline
@@ -23,7 +21,7 @@ void actual_eos_init ()
     // Set the gammas & masses for the species
 
     for (int n = 0; n < NumSpec; ++n) {
-        gammas[n] = eos_gamma_default;
+        gammas[n] = eos_rp::eos_gamma_default;
         spmasses[n] = 1.67353251819e-24;
     }
 

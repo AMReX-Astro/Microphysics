@@ -308,7 +308,7 @@ int rkclow (BurnT& state, RkcT& rstate)
             }
         }
         absh = std::max(0.1_rt, fac) * absh;
-        absh = std::max(hmin, std::min(rstate.hmax, absh));
+        absh = std::clamp(absh, hmin, rstate.hmax);
         errold = err;
         hold = h;
         h = tdir * absh;
@@ -331,12 +331,12 @@ int rkc (BurnT& state, RkcT& rstate)
     // Test the input data.
     bool valid = true;
 
-    if ((rtol_spec > rmax) || (rtol_enuc > rmax) ||
-        (rtol_spec < rmin) || (rtol_enuc < rmin)) {
+    if ((rstate.rtol_spec > rmax) || (rstate.rtol_enuc > rmax) ||
+        (rstate.rtol_spec < rmin) || (rstate.rtol_enuc < rmin)) {
         valid = false;
     }
 
-    if (atol_spec < 0.0_rt || atol_enuc < 0.0_rt) {
+    if (rstate.atol_spec < 0.0_rt || rstate.atol_enuc < 0.0_rt) {
         valid = false;
     }
 
