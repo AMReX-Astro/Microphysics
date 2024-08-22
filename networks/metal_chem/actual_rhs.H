@@ -4023,6 +4023,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // compute Tdust
     Real Tdust = 2.73*(1.0 + z);
     Real dustSemenov_cooling = 0.0;
+    Real dust2gas_ratio = dust2gas_ratio_solar * metallicity;
 
     // YDOTS
 
