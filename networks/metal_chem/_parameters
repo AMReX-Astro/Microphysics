@@ -4,25 +4,26 @@
 # cutoff for species mass fractions
 small_x                              real               1.e-100
 # redshift for metal chem (Pop II/I star formation)
-redshift                          real               30e0
+redshift                          real               0e0
+# metallicity for metal chem (Pop II/I star formation)
+metallicity                          real               1e0
+# solar dust to gas ratio
+dust2gas_ratio_solar                 real               0.006172839506172839
 
-# Dust temperature
-Tdust                          real               30e0
+
 # Cosmic ray ionization rate (per s)
-crate                          real               1e-16
+crate                          real               0e0
 # Av
-Av                          real               2e0
+Av                          real               0e0
 # H ionization rate (per s)
-ionH                          real               1e-20
+ionH                          real               0e0
 # H2 ionization rate (per s)
-ionH2                          real               1e-20
+ionH2                          real               0e0
 # H2 dissociation rate (per s)
-dissH2                         real               1e-20
+dissH2                         real               0e0
 # C ionization rate (per s)
-ionC                          real               1e-20
+ionC                          real               0e0
 # O ionization rate (per s)
-ionO                          real               1e-20
+ionO                          real               0e0
 # CO dissociation rate (per s)
-dissCO                          real               1e-20
-# dust to gas ratio (default corresponds to 1/162, the solar neighborhood value)
-dust2gas_ratio                          real               0.006172839506172839
+dissCO                          real             0e0
