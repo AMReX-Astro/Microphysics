@@ -1,4 +1,4 @@
-unit_test.run_prefix = "burn_cell_primordial_chem_"
+unit_test.run_prefix = "burn_cell_metal_chem_"
 
 # unit_test runtime parameters
 unit_test.small_temp = 1.e1
