@@ -9,7 +9,7 @@
 #include <extern_parameters.H>
 #include <network.H>
 
-amrex::Real grav_constant = 6.674e-8;
+amrex::Real grav_constant = C::Gconst;
 
 AMREX_INLINE
 auto burn_cell_c() -> int {
@@ -19,8 +19,11 @@ auto burn_cell_c() -> int {
   burn_t state;
 
   amrex::Real numdens[NumSpec] = {-1.0};
+  int n;
+  int x;
+  int nn;
 
-  for (int n = 1; n <= NumSpec; ++n) {
+  for (n = 1; n <= NumSpec; ++n) {
     switch (n) {
 
     case 1:
@@ -130,9 +133,14 @@ auto burn_cell_c() -> int {
 
   // Echo initial conditions at burn and fill burn state input
 
+  std::cout << "Redshift: " << network_rp::redshift << std::endl;
+  std::cout << "Metallicity: " << network_rp::metallicity << std::endl;
+  std::cout << "Dust2gas Ratio: " << network_rp::dust2gas_ratio << std::endl;
+  std::cout << " " << std::endl;
+
   std::cout << "Maximum Time (s): " << tmax << std::endl;
   std::cout << "State Temperature (K): " << temperature << std::endl;
-  for (int n = 0; n < NumSpec; ++n) {
+  for (n = 0; n < NumSpec; ++n) {
     std::cout << "Number Density input (" << short_spec_names_cxx[n]
               << "): " << numdens[n] << std::endl;
   }
@@ -141,42 +149,21 @@ auto burn_cell_c() -> int {
 
   // find the density in g/cm^3
   amrex::Real rhotot = 0.0_rt;
-  for (int n = 0; n < NumSpec; ++n) {
+  amrex::Real sum_numdens = 0.0_rt;
+  for (n = 0; n < NumSpec; ++n) {
     state.xn[n] = numdens[n];
     rhotot += state.xn[n] * spmasses[n]; // spmasses contains the masses of all
                                          // species, defined in EOS
-    std::cout << "species " << spmasses[n] << ", " << gammas[n] << std::endl;
+    sum_numdens += state.xn[n];
   }
 
   state.rho = rhotot;
-
-  // normalize -- just in case
-
-  amrex::Real mfracs[NumSpec] = {-1.0};
-  amrex::Real msum = 0.0_rt;
-  for (int n = 0; n < NumSpec; ++n) {
-    mfracs[n] = state.xn[n] * spmasses[n] / rhotot;
-    msum += mfracs[n];
-  }
-
-  for (int n = 0; n < NumSpec; ++n) {
-    mfracs[n] /= msum;
-    // use the normalized mass fractions to obtain the corresponding number
-    // densities
-    state.xn[n] = mfracs[n] * rhotot / spmasses[n];
-  }
-
-#ifdef DEBUG
-  for (int n = 0; n < NumSpec; ++n) {
-    std::cout << "Mass fractions (" << short_spec_names_cxx[n]
-              << "): " << mfracs[n] << std::endl;
-    std::cout << "Number Density conserved (" << short_spec_names_cxx[n]
-              << "): " << state.xn[n] << std::endl;
-  }
-#endif
+  std::cout << "rho: " << rhotot << std::endl;
 
   // call the EOS to set initial internal energy e
   eos(eos_input_rt, state);
+
+  std::cout << "initial eint: " << state.e << std::endl;
 
   // name of output file
   std::ofstream state_over_time("state_over_time.txt");
@@ -187,9 +174,10 @@ auto burn_cell_c() -> int {
 
   // output the data in columns, one line per timestep
   state_over_time << std::setw(10) << "# Time";
+  state_over_time << std::setw(15) << "NumberDensity";
   state_over_time << std::setw(15) << "Density";
   state_over_time << std::setw(15) << "Temperature";
-  for (int x = 0; x < NumSpec; ++x) {
+  for (x = 0; x < NumSpec; ++x) {
     const std::string &element = short_spec_names_cxx[x];
     state_over_time << std::setw(15) << element;
   }
@@ -198,25 +186,26 @@ auto burn_cell_c() -> int {
   amrex::Real t = 0.0;
 
   state_over_time << std::setw(10) << t;
+  state_over_time << std::setw(15) << sum_numdens;
   state_over_time << std::setw(15) << state.rho;
   state_over_time << std::setw(15) << state.T;
-  for (int x = 0; x < NumSpec; ++x) {
+  for (x = 0; x < NumSpec; ++x) {
     state_over_time << std::setw(15) << state.xn[x];
   }
   state_over_time << std::endl;
 
   // loop over steps, burn, and output the current state
-  // the loop below is similar to that used in krome and pynucastro
+  // the loop below is similar to that used in krome and GPUAstroChem
   amrex::Real dd = rhotot;
   amrex::Real dd1 = 0.0_rt;
 
-  for (int n = 0; n < nsteps; n++) {
+  for (n = 0; n < nsteps; n++) {
 
     dd1 = dd;
 
     amrex::Real rhotmp = 0.0_rt;
 
-    for (int nn = 0; nn < NumSpec; ++nn) {
+    for (nn = 0; nn < NumSpec; ++nn) {
       rhotmp += state.xn[nn] * spmasses[nn];
     }
 
@@ -226,10 +215,7 @@ auto burn_cell_c() -> int {
     // scale the density
     dd += dt * (dd / tff);
 
-#ifdef DEBUG
-    std::cout << "step params " << dd << ", " << tff << ", " << rhotmp
-              << std::endl;
-#endif
+    //std::cout << "step params " << dd << ", " << tff << ", " << tff_reduc << ", " << rhotmp << ", " << state.xn << std::endl;
 
     // stop the test if dt is very small
     if (dt < 10) {
@@ -241,65 +227,81 @@ auto burn_cell_c() -> int {
       break;
     }
 
-    std::cout << "step " << n << " done" << std::endl;
-
     // scale the number densities
-    for (int nn = 0; nn < NumSpec; ++nn) {
+    for (nn = 0; nn < NumSpec; ++nn) {
       state.xn[nn] *= dd / dd1;
     }
 
     // input the scaled density in burn state
     state.rho *= dd / dd1;
 
+    //std::cout << "before burn: " << state.rho << ", " << state.T << ", " << state.xn << ", " << state.e << std::endl;
+
     // do the actual integration
     burner(state, dt);
 
-    // ensure positivity and normalize
-    amrex::Real inmfracs[NumSpec] = {-1.0};
-    amrex::Real insum = 0.0_rt;
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      state.xn[nn] = amrex::max(state.xn[nn], small_x);
-      inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
-      insum += inmfracs[nn];
-    }
+    //std::cout << "after burn: " << state << std::endl;
 
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      inmfracs[nn] /= insum;
-      // update the number densities with conserved mass fractions
-      state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
-    }
+    // ensure positivity and normalize
+    //amrex::Real inmfracs[NumSpec] = {-1.0};
+    //amrex::Real insum = 0.0_rt;
+    //for (int nn = 0; nn < NumSpec; ++nn) {
+    //  state.xn[nn] = amrex::max(state.xn[nn], small_x);
+    //  inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
+    //  insum += inmfracs[nn];
+    //}
+
+    //for (int nn = 0; nn < NumSpec; ++nn) {
+    //  inmfracs[nn] /= insum;
+    //  // update the number densities with conserved mass fractions
+    //  state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
+    //}
 
     // update the number density of electrons due to charge conservation
     state.xn[2] = -state.xn[5] - state.xn[9] + state.xn[3] + state.xn[6] + state.xn[8] +
                   2.0 * state.xn[13] + state.xn[11] + state.xn[14] + state.xn[16] + state.xn[21] +
                   state.xn[24] + state.xn[26] + state.xn[28] + state.xn[29] + state.xn[31];
 
-    // reconserve mass fractions post charge conservation
-    insum = 0;
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      state.xn[nn] = amrex::max(state.xn[nn], small_x);
-      inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
-      insum += inmfracs[nn];
-    }
+    //std::cout << "conserved elec: " << state.xn[2] << std::endl;
 
-    for (int nn = 0; nn < NumSpec; ++nn) {
-      inmfracs[nn] /= insum;
-      // update the number densities with conserved mass fractions
-      state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
-    }
+    // reconserve mass fractions post charge conservation
+    //insum = 0;
+    //for (int nn = 0; nn < NumSpec; ++nn) {
+    //  state.xn[nn] = amrex::max(state.xn[nn], small_x);
+    //  inmfracs[nn] = spmasses[nn] * state.xn[nn] / state.rho;
+    //  insum += inmfracs[nn];
+    //}
+
+    //for (int nn = 0; nn < NumSpec; ++nn) {
+    //  inmfracs[nn] /= insum;
+    //  // update the number densities with conserved mass fractions
+    //  state.xn[nn] = inmfracs[nn] * state.rho / spmasses[nn];
+    //}
 
     // get the updated T
     eos(eos_input_re, state);
 
     t += dt;
 
+    // get number density
+    // make abundance 0 for all metals if metallicity is 0
+    for (nn = 0; nn < NumSpec; ++nn) {
+      if (network_rp::metallicity == 0 && ((nn < 2) || (nn > 15))) {
+        state.xn[nn] = 0.0;
+      }
+      sum_numdens += state.xn[nn];
+    }
+
     state_over_time << std::setw(10) << t;
+    state_over_time << std::setw(15) << sum_numdens;
     state_over_time << std::setw(15) << state.rho;
     state_over_time << std::setw(12) << state.T;
-    for (int x = 0; x < NumSpec; ++x) {
+    for (x = 0; x < NumSpec; ++x) {
       state_over_time << std::setw(15) << state.xn[x];
     }
     state_over_time << std::endl;
+    std::cout << "step " << n << " done" << std::endl;
+
   }
   state_over_time.close();
 
@@ -317,7 +319,7 @@ auto burn_cell_c() -> int {
 
   std::cout << "------------------------------------" << std::endl;
   std::cout << "New number densities: " << std::endl;
-  for (int n = 0; n < NumSpec; ++n) {
+  for (n = 0; n < NumSpec; ++n) {
     std::cout << state.xn[n] << std::endl;
   }
 
