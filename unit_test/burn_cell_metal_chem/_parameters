@@ -17,7 +17,8 @@ tfirst        real       0.0
 # number of steps for the single zone burn
 nsteps        int        1000
 
-# initial temperature
+# initial number density and temperature
+ninit         real       1e-1
 temperature   real       1e2
 
 #list of species and their number densities used in the network (39 if including deuterium)

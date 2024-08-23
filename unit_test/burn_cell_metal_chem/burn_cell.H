@@ -23,6 +23,8 @@ auto burn_cell_c() -> int {
   int x;
   int nn;
 
+  amrex::Real metal = network_rp::metallicity;
+
   for (n = 1; n <= NumSpec; ++n) {
     switch (n) {
 
@@ -75,7 +77,7 @@ auto burn_cell_c() -> int {
       numdens[n - 1] = primary_species_16;
       break;
     case 17:
-      numdens[n - 1] = primary_species_17;
+      numdens[n - 1] = primary_species_17*metal;
       break;
     case 18:
       numdens[n - 1] = primary_species_18;
@@ -93,7 +95,7 @@ auto burn_cell_c() -> int {
       numdens[n - 1] = primary_species_22;
       break;
     case 23:
-      numdens[n - 1] = primary_species_23;
+      numdens[n - 1] = primary_species_23*metal;
       break;
     case 24:
       numdens[n - 1] = primary_species_24;
@@ -131,10 +133,25 @@ auto burn_cell_c() -> int {
     }
   }
 
+  //scale number densities by initial ninit
+  for (n = 0; n < NumSpec; ++n) {
+    numdens[n] *= ninit;
+  }
+
+  //if metallicity is 0, reset metal number densities to 0
+  if (metal == 0) {
+    for (n = 0; n < NumSpec; ++n) {
+      if ((n < 2) || (n > 15)) {
+        state.xn[n] = 0.0;
+      }
+    }
+  }
+
+
   // Echo initial conditions at burn and fill burn state input
 
   std::cout << "Redshift: " << network_rp::redshift << std::endl;
-  std::cout << "Metallicity: " << network_rp::metallicity << std::endl;
+  std::cout << "Metallicity: " << metal << std::endl;
   std::cout << "Dust2gas Ratio: " << network_rp::dust2gas_ratio << std::endl;
   std::cout << " " << std::endl;
 
@@ -286,7 +303,7 @@ auto burn_cell_c() -> int {
     // get number density
     // make abundance 0 for all metals if metallicity is 0
     for (nn = 0; nn < NumSpec; ++nn) {
-      if (network_rp::metallicity == 0 && ((nn < 2) || (nn > 15))) {
+      if (metal == 0 && ((nn < 2) || (nn > 15))) {
         state.xn[nn] = 0.0;
       }
       sum_numdens += state.xn[nn];
