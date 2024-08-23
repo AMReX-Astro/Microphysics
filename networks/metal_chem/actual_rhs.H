@@ -20,11 +20,11 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs_specie(const burn_t& state,
              Array1D<Real, 1, neqs>& ydot,
              const Array1D<Real, 0, NumSpec-1>& X,
-             Real const user_crate, Real const user_Av, 
-             Real const user_ionH, Real const user_ionH2, 
-             Real const user_dissH2, Real const user_ionC, 
-             Real const user_ionO, Real const user_dissCO, 
-             Real const user_dust2gas_ratio, Real const Tdust, 
+             Real const user_crate, Real const user_Av,
+             Real const user_ionH, Real const user_ionH2,
+             Real const user_dissH2, Real const user_ionC,
+             Real const user_ionO, Real const user_dissCO,
+             Real const user_dust2gas_ratio, Real const Tdust,
              Real const dustSemenov_cooling, Real const z) {
 
 
@@ -1003,11 +1003,11 @@ void rhs_specie(const burn_t& state,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real rhs_eint(const burn_t& state,
              const Array1D<Real, 0, NumSpec-1>& X,
-             Real const user_crate, Real const user_Av, 
-             Real const user_ionH, Real const user_ionH2, 
-             Real const user_dissH2, Real const user_ionC, 
-             Real const user_ionO, Real const user_dissCO, 
-             Real const user_dust2gas_ratio, Real const Tdust, 
+             Real const user_crate, Real const user_Av,
+             Real const user_ionH, Real const user_ionH2,
+             Real const user_dissH2, Real const user_ionC,
+             Real const user_ionO, Real const user_dissCO,
+             Real const user_dust2gas_ratio, Real const Tdust,
              Real const dustSemenov_cooling, Real const z, Real const Z) {
 
     using namespace Rates;
@@ -4027,12 +4027,12 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     // YDOTS
 
-    rhs_specie(state, ydot, X, crate, Av, ionH, ionH2, dissH2, 
+    rhs_specie(state, ydot, X, crate, Av, ionH, ionH2, dissH2,
                ionC, ionO, dissCO, dust2gas_ratio, Tdust, dustSemenov_cooling, z);
 
     // Edot
 
-    Real edot = rhs_eint(state, X, crate, Av, ionH, ionH2, dissH2, 
+    Real edot = rhs_eint(state, X, crate, Av, ionH, ionH2, dissH2,
                          ionC, ionO, dissCO, dust2gas_ratio, Tdust, dustSemenov_cooling, z, Z);
 
     // Append the energy equation (this is erg/g/s)
