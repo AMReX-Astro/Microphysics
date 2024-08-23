@@ -163,6 +163,8 @@ auto burn_cell_c() -> int {
   }
 
   state.T = temperature;
+  // set initial Tdust to CMB
+  state.aux[0] = 2.73*(1.0 + network_rp::redshift);
 
   // find the density in g/cm^3
   amrex::Real rhotot = 0.0_rt;
@@ -193,7 +195,8 @@ auto burn_cell_c() -> int {
   state_over_time << std::setw(10) << "# Time";
   state_over_time << std::setw(15) << "NumberDensity";
   state_over_time << std::setw(15) << "Density";
-  state_over_time << std::setw(15) << "Temperature";
+  state_over_time << std::setw(15) << "Tgas";
+  state_over_time << std::setw(15) << "Tdust";
   for (x = 0; x < NumSpec; ++x) {
     const std::string &element = short_spec_names_cxx[x];
     state_over_time << std::setw(15) << element;
@@ -206,6 +209,7 @@ auto burn_cell_c() -> int {
   state_over_time << std::setw(15) << sum_numdens;
   state_over_time << std::setw(15) << state.rho;
   state_over_time << std::setw(15) << state.T;
+  state_over_time << std::setw(15) << state.aux[0];
   for (x = 0; x < NumSpec; ++x) {
     state_over_time << std::setw(15) << state.xn[x];
   }
@@ -313,6 +317,7 @@ auto burn_cell_c() -> int {
     state_over_time << std::setw(15) << sum_numdens;
     state_over_time << std::setw(15) << state.rho;
     state_over_time << std::setw(12) << state.T;
+    state_over_time << std::setw(12) << state.aux[0];
     for (x = 0; x < NumSpec; ++x) {
       state_over_time << std::setw(15) << state.xn[x];
     }
@@ -329,6 +334,8 @@ auto burn_cell_c() -> int {
   std::cout << "------------------------------------" << std::endl;
   std::cout << "T initial = " << state_in.T << std::endl;
   std::cout << "T final =   " << state.T << std::endl;
+  std::cout << "Tdust initial = " << state_in.aux[0] << std::endl;
+  std::cout << "Tdust final =   " << state.aux[0] << std::endl;
   std::cout << "Eint initial = " << state_in.e << std::endl;
   std::cout << "Eint final =   " << state.e << std::endl;
   std::cout << "rho initial = " << state_in.rho << std::endl;
