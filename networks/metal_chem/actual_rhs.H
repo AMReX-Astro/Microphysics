@@ -25,7 +25,7 @@ void rhs_specie(const burn_t& state,
              Real const user_dissH2, Real const user_ionC,
              Real const user_ionO, Real const user_dissCO,
              Real const user_dust2gas_ratio, Real const Tdust,
-             Real const dustSemenov_cooling, Real const z) {
+             Real const z) {
 
 
     using namespace Rates;
@@ -4028,7 +4028,7 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     // YDOTS
 
     rhs_specie(state, ydot, X, crate, Av, ionH, ionH2, dissH2,
-               ionC, ionO, dissCO, dust2gas_ratio, Tdust, dustSemenov_cooling, z);
+               ionC, ionO, dissCO, dust2gas_ratio, Tdust, z);
 
     // Edot
 
