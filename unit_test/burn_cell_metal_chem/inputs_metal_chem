@@ -55,7 +55,7 @@ integrator.subtract_internal_energy = 0
 # we do not want to clip species between 0 and 1
 integrator.do_species_clip = 0
 # minimum positive value of number densities 
-integrator.SMALL_X_SAFE = 0 #1e-100
+integrator.SMALL_X_SAFE = 1e-100
 integrator.burner_verbose = 0
 # do you want to use the jacobian calculated in a previous step?
 integrator.use_jacobian_caching = 0
@@ -70,15 +70,17 @@ integrator.jacobian = 2
 integrator.renormalize_abundances = 0
 # tolerances
 integrator.rtol_spec = 1.0e-4
-integrator.atol_spec = 1.0e-40
+integrator.atol_spec = 1.0e-10
+integrator.rtol_enuc = 1.0e-4
+integrator.atol_enuc = 1.0e-10
 
 #assumed redshift for Pop III star formation
 network.redshift = 0.0
-network.metallicity = 0.0
-network.dust2gas_ratio = 0.0
+network.metallicity = 1e-3
+network.dust2gas_ratio = 1e-3
 
 # amrex runtime parameters
 # these params help debug the code
 #amrex.throw_exception = 1
 #amrex.signal_handling = 0
-
+amrex.fpe_trap_invalid=1
