@@ -1,6 +1,8 @@
 #ifndef actual_rhs_H
 #define actual_rhs_H
 
+#include <fstream>
+#include <sstream>
 #include <AMReX_REAL.H>
 #include <AMReX_Array.H>
 
@@ -4005,13 +4007,59 @@ Real rhs_eint(const burn_t& state,
 )) + 0.00084373771595996178*x4*(1.3806479999999999e-16*X(0) + 1.3806479999999999e-16*X(1) + 1.3806479999999999e-16*X(10) + 1.3806479999999999e-16*X(11) + 1.3806479999999999e-16*X(12) + 1.3806479999999999e-16*X(13) + 1.3806479999999999e-16*X(14) + 1.3806479999999999e-16*X(15) + 1.3806479999999999e-16*X(16) + 1.3806479999999999e-16*X(17) + 1.3806479999999999e-16*X(18) + 1.3806479999999999e-16*X(19) + 1.3806479999999999e-16*X(2) + 1.3806479999999999e-16*X(20) + 1.3806479999999999e-16*X(21) + 1.3806479999999999e-16*X(22) + 1.3806479999999999e-16*X(23) + 1.3806479999999999e-16*X(24) + 1.3806479999999999e-16*X(25) + 1.3806479999999999e-16*X(26) + 1.3806479999999999e-16*X(27) + 1.3806479999999999e-16*X(28) + 1.3806479999999999e-16*X(29) + 1.3806479999999999e-16*X(3) + 1.3806479999999999e-16*X(30) + 1.3806479999999999e-16*X(31) + 1.3806479999999999e-16*X(32) + 1.3806479999999999e-16*X(33) + 1.3806479999999999e-16*X(4) + 1.3806479999999999e-16*X(5) + 1.3806479999999999e-16*X(6) + 1.3806479999999999e-16*X(7) + 1.3806479999999999e-16*X(8) + 1.3806479999999999e-16*X(9))/(std::sqrt(x1)*x35)));
 }
 
-/*
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
+Real interpolate_2d(Real const x, Real const y, const Array1D<Real, 1, 10>& xArray, const Array1D<Real, 1, 1000>& yArray, const Array2D<Real, 1, 10, 1, 1000>& zArray) {
+
+
+    // Find indices of the square to interpolate within
+    int x1_idx = 0, x2_idx = 0;
+    int y1_idx = 0, y2_idx = 0;
+
+    // Find the right x indices
+    for (size_t i = 1; i < xArray.size(); ++i) {
+        if (x >= xArray(i) && x <= xArray(i + 1)) {
+            x1_idx = i;
+            x2_idx = i + 1;
+            break;
+        }
+    }
+
+    // Find the right y indices
+    for (size_t i = 1; i < yArray.size(); ++i) {
+        if (y >= yArray(i) && y <= yArray(i + 1)) {
+            y1_idx = i;
+            y2_idx = i + 1;
+            break;
+        }
+    }
+
+    // Interpolate in x direction
+    Real x1 = xArray(x1_idx);
+    Real x2 = xArray(x2_idx);
+
+    Real z_x1_y1 = zArray(x1_idx, y1_idx);
+    Real z_x2_y1 = zArray(x2_idx, y1_idx);
+    Real z_x_y1 = (z_x2_y1 - z_x1_y1) / (x2 - x1) * (x - x1) + z_x1_y1;
+
+    Real z_x1_y2 = zArray(x1_idx, y2_idx);
+    Real z_x2_y2 = zArray(x2_idx, y2_idx);
+    Real z_x_y2 = (z_x2_y2 - z_x1_y2) / (x2 - x1) * (x - x1) + z_x1_y2;
+
+    // Interpolate in y direction
+    Real y1 = yArray(y1_idx);
+    Real y2 = yArray(y2_idx);
+    Real z_xy = (z_x_y2 - z_x_y1) / (y2 - y1) * (y - y1) + z_x_y1;
+
+    return z_xy;
+}
+
+
+AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void init_anytab2D(const std::string& filename, Array1D<Real, 1, 10>& x, Array1D<Real, 1, 1000>& y, Array2D<Real, 1, 10, 1, 1000>& z) {
 
-    // Check if the sizes of x and z(1) match
-    // Check if the sizes of y and z(2) match
-
-    std::cout << "Reading tables from " << filename << std::endl;
+    //std::cout << "Reading tables from " << filename << std::endl;
 
     // Open the file and check if it exists
     std::ifstream file(filename);
@@ -4034,15 +4082,20 @@ void init_anytab2D(const std::string& filename, Array1D<Real, 1, 10>& x, Array1D
     }
 
     // Process data line by line
-    for (int i = 0; i < x.size(); ++i) {
-        for (int j = 0; j < y.size(); ++j) {
+    for (int i = 1; i <= x.size(); ++i) {
+        for (int j = 1; j <= y.size(); ++j) {
             if (!std::getline(file, line)) {
                 throw std::runtime_error("ERROR: Unexpected end of file while reading data.");
             }
 
+            // Trim the line to remove any leading/trailing whitespace
+            line.erase(0, line.find_first_not_of(" \t"));  // Remove leading whitespace
+            line.erase(line.find_last_not_of(" \t") + 1);  // Remove trailing whitespace
+
             std::istringstream iss(line);
             Real x_val, y_val, z_val;
             if (!(iss >> x_val >> y_val >> z_val)) {
+                std::cout << "line: " << line << std::endl;
                 throw std::runtime_error("ERROR: Insufficient data on line " + std::to_string(i * y.size() + j + 1));
             }
 
@@ -4051,18 +4104,13 @@ void init_anytab2D(const std::string& filename, Array1D<Real, 1, 10>& x, Array1D
             z(i,j) = z_val;
         }
 
-        // Skip any remaining blanks in the current line
-        if (!std::getline(file, line)) {
-            throw std::runtime_error("ERROR: Unexpected end of file while skipping blanks.");
-        }
     }
 }
-*/
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, NumSpec-1>& composition, Real const user_dust2gas_ratio, Real const z, 
-                                                Real krome_Semenov_Tdust, const Array1D<Real, 1, 10>& semenov_x, const Array1D<Real, 1, 1000>& semenov_y, 
-                                                const Array2D<Real, 1, 10, 1, 1000>& semenov_z) {
+                                                Real krome_Semenov_Tdust, Array1D<Real, 1, 10>& semenov_x, Array1D<Real, 1, 1000>& semenov_y, 
+                                                Array2D<Real, 1, 10, 1, 1000>& semenov_z) {
 
     Real dustSemenov_cooling = 0.0;
 
@@ -4110,7 +4158,7 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
 
     Real rhogas = 0.0;
     Real sum_comp = 0.0;
-    for (int i = 0; i < NumSpec-1; ++i) {
+    for (int i = 0; i < NumSpec; ++i) {
         rhogas += composition(i) * mass(i);
         sum_comp += composition(i);
     }
@@ -4127,12 +4175,12 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
     Real clipped_x = std::max(-18.0, std::min(std::log10(rhogas), -7.0));
     Real clipped_y = std::max(1e1, std::min(Tgas, 1e4));
 
-    //Real kappaP = interpolate_2d(semenov_x, semenov_y, semenov_z, clipped_x, clipped_y);
-    Real kappaP = std::pow((-1.58418734e+00*std::pow(std::log10(clipped_y),7) + 2.70026428e+01*std::pow(std::log10(clipped_y),6) - 1.90914865e+02*std::pow(std::log10(clipped_y),5) + \
-                  7.24661740e+02*std::pow(std::log10(clipped_y),4) - 1.59299671e+03*std::pow(std::log10(clipped_y),3) + 2.02540166e+03*std::pow(std::log10(clipped_y),2) - \
-                  1.37581206e+03*std::pow(std::log10(clipped_y),1) + 3.83747773e+02), 10);
+    auto kappaP = interpolate_2d(clipped_x, clipped_y, semenov_x, semenov_y, semenov_z);
+    //Real kappaP = std::pow((-1.58418734e+00*std::pow(std::log10(clipped_y),7) + 2.70026428e+01*std::pow(std::log10(clipped_y),6) - 1.90914865e+02*std::pow(std::log10(clipped_y),5) + \
+    //              7.24661740e+02*std::pow(std::log10(clipped_y),4) - 1.59299671e+03*std::pow(std::log10(clipped_y),3) + 2.02540166e+03*std::pow(std::log10(clipped_y),2) - \
+    //              1.37581206e+03*std::pow(std::log10(clipped_y),1) + 3.83747773e+02), 10);
 
-    //std::cout << "compute semenov tdust kappaP: " << kappaP << std::endl;
+    //std::cout << "compute semenov clipx = " << clipped_x << ", clipy = " << clipped_y << ", " << "kappaP = " << kappaP << std::endl;
 
     Real mu = rhogas / std::max(sum_comp, 1e-40) * (1.0/C::m_p);
     Real ljeans = std::sqrt(M_PI * C::k_B * Tgas / rhogas / C::m_p / C::Gconst / mu);
@@ -4199,7 +4247,8 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     Array1D<Real, 1, 1000> semenov_y;
     Array2D<Real, 1, 10, 1, 1000> semenov_z;
     std::string filename = "Semenov_PlanckOpacity.dat";
-    //init_anytab2D(filename, semenov_x, semenov_y, semenov_z);
+    init_anytab2D(filename, semenov_x, semenov_y, semenov_z);
+
     // Call the compute_Semenov_Tdust function
     auto result = compute_Semenov_Tdust(state.T, X, dust2gas_ratio, z, krome_Semenov_Tdust, semenov_x, semenov_y, semenov_z);
     // compute Tdust
