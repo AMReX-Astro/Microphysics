@@ -258,6 +258,7 @@ auto burn_cell_c() -> int {
 
     //std::cout << "before burn: " << state.rho << ", " << state.T << ", " << state.xn << ", " << state.e << std::endl;
 
+    integrator_rp::ode_max_dt = dt*1e-1;
     // do the actual integration
     burner(state, dt);
 
@@ -322,7 +323,7 @@ auto burn_cell_c() -> int {
       state_over_time << std::setw(15) << state.xn[x];
     }
     state_over_time << std::endl;
-    std::cout << "step " << n << " done" << std::endl;
+    std::cout << "step " << n << " done with dt = " << dt << std::endl;
 
   }
   state_over_time.close();
