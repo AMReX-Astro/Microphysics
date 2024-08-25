@@ -177,7 +177,7 @@ auto burn_cell_c() -> int {
   }
 
   state.rho = rhotot;
-  std::cout << "rho: " << rhotot << std::endl;
+  std::cout << "rho: " << rhotot << ", dd: " << sum_numdens << std::endl;
 
   // call the EOS to set initial internal energy e
   eos(eos_input_rt, state);
@@ -237,6 +237,7 @@ auto burn_cell_c() -> int {
     dd += dt * (dd / tff);
 
     //std::cout << "step params " << dd << ", " << tff << ", " << tff_reduc << ", " << rhotmp << ", " << state.xn << std::endl;
+    //std::cout << "old " << dd - dt * (dd / tff) << ", delta " << dt * (dd / tff) << ", new " << dd << std::endl;
 
     // stop the test if dt is very small
     if (dt < 10) {
@@ -248,17 +249,30 @@ auto burn_cell_c() -> int {
       break;
     }
 
+
     // scale the number densities
     for (nn = 0; nn < NumSpec; ++nn) {
       state.xn[nn] *= dd / dd1;
     }
 
+    // update the number density of electrons due to charge conservation
+    state.xn[2] = -state.xn[5] - state.xn[9] + state.xn[3] + state.xn[6] + state.xn[8] +
+                  2.0 * state.xn[13] + state.xn[11] + state.xn[14] + state.xn[16] + state.xn[21] +
+                  state.xn[24] + state.xn[26] + state.xn[28] + state.xn[29] + state.xn[31];
+
     // input the scaled density in burn state
-    state.rho *= dd / dd1;
+    rhotmp = 0.0_rt;
+    for (nn = 0; nn < NumSpec; ++nn) {
+      rhotmp += state.xn[nn] * spmasses[nn];
+    }
+    state.rho = rhotmp;
+
+    // call the EOS to scale internal energy e
+    eos(eos_input_rt, state);
 
     //std::cout << "before burn: " << state.rho << ", " << state.T << ", " << state.xn << ", " << state.e << std::endl;
 
-    integrator_rp::ode_max_dt = dt*1e-1;
+    integrator_rp::ode_max_dt = dt*1e-2;
     // do the actual integration
     burner(state, dt);
 
@@ -307,6 +321,7 @@ auto burn_cell_c() -> int {
 
     // get number density
     // make abundance 0 for all metals if metallicity is 0
+    sum_numdens = 0.0;
     for (nn = 0; nn < NumSpec; ++nn) {
       if (metal == 0 && ((nn < 2) || (nn > 15))) {
         state.xn[nn] = 0.0;
