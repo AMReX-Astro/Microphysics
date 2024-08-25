@@ -10,13 +10,11 @@
 #include <actual_network.H>
 #include <burn_type.H>
 #include <jacobian_utilities.H>
-#include <extern_parameters.H>
 
 using namespace amrex;
 using namespace ArrayUtil;
 using namespace network_rp;
-
-
+using namespace network;
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs_specie(const burn_t& state,
@@ -4055,7 +4053,7 @@ Real interpolate_2d(Real const x, Real const y, const Array1D<Real, 1, 10>& xArr
     return z_xy;
 }
 
-
+/*
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void init_anytab2D(const std::string& filename, Array1D<Real, 1, 10>& x, Array1D<Real, 1, 1000>& y, Array2D<Real, 1, 10, 1, 1000>& z) {
 
@@ -4106,11 +4104,12 @@ void init_anytab2D(const std::string& filename, Array1D<Real, 1, 10>& x, Array1D
 
     }
 }
+*/
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, NumSpec-1>& composition, Real const user_dust2gas_ratio, Real const z, 
-                                                Real krome_Semenov_Tdust, Array1D<Real, 1, 10>& semenov_x, Array1D<Real, 1, 1000>& semenov_y, 
-                                                Array2D<Real, 1, 10, 1, 1000>& semenov_z) {
+                                                Real krome_Semenov_Tdust, Array1D<Real, 1, 10>& s_x, Array1D<Real, 1, 1000>& s_y, 
+                                                Array2D<Real, 1, 10, 1, 1000>& s_z) {
 
     Real dustSemenov_cooling = 0.0;
 
@@ -4175,7 +4174,7 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
     Real clipped_x = std::max(-18.0, std::min(std::log10(rhogas), -7.0));
     Real clipped_y = std::max(1e1, std::min(Tgas, 1e4));
 
-    auto kappaP = interpolate_2d(clipped_x, clipped_y, semenov_x, semenov_y, semenov_z);
+    auto kappaP = interpolate_2d(clipped_x, clipped_y, s_x, s_y, s_z);
     //Real kappaP = std::pow((-1.58418734e+00*std::pow(std::log10(clipped_y),7) + 2.70026428e+01*std::pow(std::log10(clipped_y),6) - 1.90914865e+02*std::pow(std::log10(clipped_y),5) + \
     //              7.24661740e+02*std::pow(std::log10(clipped_y),4) - 1.59299671e+03*std::pow(std::log10(clipped_y),3) + 2.02540166e+03*std::pow(std::log10(clipped_y),2) - \
     //              1.37581206e+03*std::pow(std::log10(clipped_y),1) + 3.83747773e+02), 10);
@@ -4234,6 +4233,7 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 {
+
     Real z = redshift;
     Real Z = metallicity;
 
@@ -4243,11 +4243,11 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     }
 
     Real krome_Semenov_Tdust = state.aux[0];
-    Array1D<Real, 1, 10> semenov_x;
-    Array1D<Real, 1, 1000> semenov_y;
-    Array2D<Real, 1, 10, 1, 1000> semenov_z;
-    std::string filename = "Semenov_PlanckOpacity.dat";
-    init_anytab2D(filename, semenov_x, semenov_y, semenov_z);
+    //Array1D<Real, 1, 10> semenov_x;
+    //Array1D<Real, 1, 1000> semenov_y;
+    //Array2D<Real, 1, 10, 1, 1000> semenov_z;
+    //std::string filename = "Semenov_PlanckOpacity.dat";
+    //init_anytab2D(filename, semenov_x, semenov_y, semenov_z);
 
     // Call the compute_Semenov_Tdust function
     auto result = compute_Semenov_Tdust(state.T, X, dust2gas_ratio, z, krome_Semenov_Tdust, semenov_x, semenov_y, semenov_z);
