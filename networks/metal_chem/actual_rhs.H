@@ -4053,59 +4053,6 @@ Real interpolate_2d(Real const x, Real const y, const Array1D<Real, 1, 10>& xArr
     return z_xy;
 }
 
-/*
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void init_anytab2D(const std::string& filename, Array1D<Real, 1, 10>& x, Array1D<Real, 1, 1000>& y, Array2D<Real, 1, 10, 1, 1000>& z) {
-
-    //std::cout << "Reading tables from " << filename << std::endl;
-
-    // Open the file and check if it exists
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        throw std::runtime_error("ERROR: file " + filename + " not found!");
-    }
-
-    std::string line;
-    
-    // Skip comments and read until the first non-comment line
-    while (std::getline(file, line)) {
-        if (line[0] != '#') {
-            break;
-        }
-    }
-
-    // Check if the first line is formatted correctly
-    if (line.find(',') == std::string::npos) {
-        throw std::runtime_error("ERROR: file " + filename + " should contain the number of rows and columns in the format 'RR, CC'");
-    }
-
-    // Process data line by line
-    for (int i = 1; i <= x.size(); ++i) {
-        for (int j = 1; j <= y.size(); ++j) {
-            if (!std::getline(file, line)) {
-                throw std::runtime_error("ERROR: Unexpected end of file while reading data.");
-            }
-
-            // Trim the line to remove any leading/trailing whitespace
-            line.erase(0, line.find_first_not_of(" \t"));  // Remove leading whitespace
-            line.erase(line.find_last_not_of(" \t") + 1);  // Remove trailing whitespace
-
-            std::istringstream iss(line);
-            Real x_val, y_val, z_val;
-            if (!(iss >> x_val >> y_val >> z_val)) {
-                std::cout << "line: " << line << std::endl;
-                throw std::runtime_error("ERROR: Insufficient data on line " + std::to_string(i * y.size() + j + 1));
-            }
-
-            x(i) = x_val;
-            y(j) = y_val;
-            z(i,j) = z_val;
-        }
-
-    }
-}
-*/
-
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, NumSpec-1>& composition, Real const user_dust2gas_ratio, Real const z, 
                                                 Real krome_Semenov_Tdust, Array1D<Real, 1, 10>& s_x, Array1D<Real, 1, 1000>& s_y, 
@@ -4243,11 +4190,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
     }
 
     Real krome_Semenov_Tdust = state.aux[0];
-    //Array1D<Real, 1, 10> semenov_x;
-    //Array1D<Real, 1, 1000> semenov_y;
-    //Array2D<Real, 1, 10, 1, 1000> semenov_z;
-    //std::string filename = "Semenov_PlanckOpacity.dat";
-    //init_anytab2D(filename, semenov_x, semenov_y, semenov_z);
 
     // Call the compute_Semenov_Tdust function
     auto result = compute_Semenov_Tdust(state.T, X, dust2gas_ratio, z, krome_Semenov_Tdust, semenov_x, semenov_y, semenov_z);
