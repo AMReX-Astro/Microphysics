@@ -18,10 +18,10 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void rhs_specie(const burn_t& state,
              Array1D<Real, 1, neqs>& ydot,
              const Array1D<Real, 0, NumSpec-1>& X,
-             Real const user_crate, Real const user_Av,
-             Real const user_ionH, Real const user_ionH2,
-             Real const user_dissH2, Real const user_ionC,
-             Real const user_ionO, Real const user_dissCO,
+             Real const /*user_crate*/, Real const /*user_Av*/,
+             Real const /*user_ionH*/, Real const /*user_ionH2*/,
+             Real const /*user_dissH2*/, Real const /*user_ionC*/,
+             Real const /*user_ionO*/, Real const /*user_dissCO*/,
              Real const user_dust2gas_ratio, Real const Tdust,
              Real const z) {
 
@@ -1001,10 +1001,10 @@ void rhs_specie(const burn_t& state,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real rhs_eint(const burn_t& state,
              const Array1D<Real, 0, NumSpec-1>& X,
-             Real const user_crate, Real const user_Av,
-             Real const user_ionH, Real const user_ionH2,
-             Real const user_dissH2, Real const user_ionC,
-             Real const user_ionO, Real const user_dissCO,
+             Real const /*user_crate*/, Real const /*user_Av*/,
+             Real const /*user_ionH*/, Real const /*user_ionH2*/,
+             Real const /*user_dissH2*/, Real const /*user_ionC*/,
+             Real const /*user_ionO*/, Real const /*user_dissCO*/,
              Real const user_dust2gas_ratio, Real const Tdust,
              Real const dustSemenov_cooling, Real const z, Real const Z) {
 
@@ -4077,13 +4077,13 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
     mass(9)  = 3.346943456376e-24;
     mass(10) = 3.347065036376e-24;
     mass(11) = 5.0186540981880006e-24;
-    mass(12) = 5.0195650363760004e-24; 
+    mass(12) = 5.0195650363760004e-24;
     mass(13) = 6.690243159999999e-24;
     mass(14) = 6.691154098188e-24;
-    mass(15) = 6.692065036376e-24; 
+    mass(15) = 6.692065036376e-24;
     mass(16) = 2.007528417094e-23;
-    mass(17) = 2.0076195109128e-23; 
-    mass(18) = 2.1749727627316e-23; 
+    mass(17) = 2.0076195109128e-23;
+    mass(18) = 2.1749727627316e-23;
     mass(19) = 2.3423260145503998e-23;
     mass(20) = 2.5096792663692e-23;
     mass(21) = 2.6767349207316e-23;
@@ -4120,10 +4120,6 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
     Real clipped_y = std::max(1e1, std::min(Tgas, 1e4));
 
     auto kappaP = interpolate_2d(clipped_x, clipped_y, s_x, s_y, s_z);
-    //Real kappaP = std::pow((-1.58418734e+00*std::pow(std::log10(clipped_y),7) + 2.70026428e+01*std::pow(std::log10(clipped_y),6) - 1.90914865e+02*std::pow(std::log10(clipped_y),5) + \
-    //              7.24661740e+02*std::pow(std::log10(clipped_y),4) - 1.59299671e+03*std::pow(std::log10(clipped_y),3) + 2.02540166e+03*std::pow(std::log10(clipped_y),2) - \
-    //              1.37581206e+03*std::pow(std::log10(clipped_y),1) + 3.83747773e+02), 10);
-
     //std::cout << "compute semenov clipx = " << clipped_x << ", clipy = " << clipped_y << ", " << "kappaP = " << kappaP << std::endl;
 
     Real mu = rhogas / std::max(sum_comp, 1e-40) * (1.0/C::m_p);
