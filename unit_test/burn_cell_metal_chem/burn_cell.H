@@ -344,6 +344,11 @@ auto burn_cell_c() -> int {
     state_over_time << std::endl;
     std::cout << "step " << n << " done with dt = " << dt << std::endl;
 
+    // print some output at intermediate densities for testing purposes if redshift > 0
+    if (state.rho > 1e-18 && state.rho < 1.2e-18 && redshift > 0) {
+      std::cout << "Tgas = " << state.T << std::endl;
+    }
+
   }
   state_over_time.close();
 
