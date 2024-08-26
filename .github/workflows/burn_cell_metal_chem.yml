@@ -123,9 +123,6 @@ jobs:
           error_found=false
           for line_number in "${line_numbers[@]}"; do
 
-            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
-            echo "Line $line_number in test.out: $value1"
-
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
             reference_line_number=$((line_number + 0))
@@ -163,9 +160,6 @@ jobs:
           threshold=0.01
           error_found=false
           for line_number in "${line_numbers[@]}"; do
-
-            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
-            echo "Line $line_number in test.out: $value1"
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
@@ -205,9 +199,6 @@ jobs:
           error_found=false
           for line_number in "${line_numbers[@]}"; do
 
-            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
-            echo "Line $line_number in test.out: $value1"
-
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
             reference_line_number=$((line_number + 0))
@@ -245,9 +236,6 @@ jobs:
           threshold=0.01
           error_found=false
           for line_number in "${line_numbers[@]}"; do
-
-            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
-            echo "Line $line_number in test.out: $value1"
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
