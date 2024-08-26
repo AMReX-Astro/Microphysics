@@ -17,6 +17,6 @@ jobs:
       - name: Compile and run
         run: |
           mkdir build && cd build
-          cmake .. -DBUILD_UNIT_TEST=true -DBUILD_AMReX=true
+          cmake .. -DBUILD_UNIT_TEST_PC=true -DBUILD_AMReX=true
           make -j2
           ctest --output-on-failure
