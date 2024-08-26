@@ -1,0 +1,67 @@
+name: burn_cell_metal_chem_1.0
+
+on: [pull_request]
+
+jobs:
+  burn_cell_metal_chem_1.0:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
+
+      - name: Compile and run
+        run: |
+          cd unit_test/burn_cell_metal_chem
+          make -j 2
+          ./main1d.gnu.DEBUG.ex inputs_metal_chem_1.0 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/burn_cell_metal_chem/Backtrace.0') != '' }}
+        run: cat unit_test/burn_cell_metal_chem/Backtrace.0
+
+      - name: Compare to stored output
+        run: |
+          set -e
+          cd unit_test/burn_cell_metal_chem
+          line_numbers=(4437 4439 4441 4443 4444 4447 4448 4451 4457 4462)
+          threshold=0.01
+          error_found=false
+          for line_number in "${line_numbers[@]}"; do
+
+            value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
+            value2=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1.0.out)
+
+            difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
+
+            if (( $(echo "$difference > $threshold" | bc -l) )); then
+              echo "Line number: $line_number"
+              echo "Value in test.out: $value1"
+              echo "Value in reference_solution_1.0.out: $value2"
+              echo "Difference between test and reference value is more than allowed threshold of $threshold"
+              echo
+              error_found=true
+            fi
+          done
+          if [[ $error_found == true ]]; then
+            exit 1
+          fi
+
