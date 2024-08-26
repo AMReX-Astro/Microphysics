@@ -3,9 +3,9 @@ unit_test.run_prefix = "burn_cell_metal_chem_"
 # unit_test runtime parameters
 unit_test.small_temp = 1.e0
 unit_test.small_dens = 1.e-60
-unit_test.tff_reduc = 1.e-1
+unit_test.tff_reduc = 1.e-2
 # number of integration steps
-unit_test.nsteps = 1000
+unit_test.nsteps = 100000
 # max total time
 unit_test.tmax = 7.e20
 # initial temperature
@@ -55,10 +55,10 @@ integrator.subtract_internal_energy = 0
 # we do not want to clip species between 0 and 1
 integrator.do_species_clip = 0
 # minimum positive value of number densities 
-integrator.SMALL_X_SAFE = 1e-100
+integrator.SMALL_X_SAFE = 1e-60
 integrator.burner_verbose = 0
 # do you want to use the jacobian calculated in a previous step?
-integrator.use_jacobian_caching = 0
+integrator.use_jacobian_caching = 1
 # integration will fail if the number density > X_reject_buffer*atol
 integrator.X_reject_buffer = 1e100
 # Set which jacobian to use
@@ -73,11 +73,13 @@ integrator.rtol_spec = 1.0e-4
 integrator.atol_spec = 1.0e-10
 integrator.rtol_enuc = 1.0e-4
 integrator.atol_enuc = 1.0e-10
+#integrator.ode_max_steps = 3000000
 
 #assumed redshift for Pop III star formation
 network.redshift = 0.0
-network.metallicity = 1e-3
-network.dust2gas_ratio = 1e-3
+network.metallicity = 1e-6
+network.dust2gas_ratio = 1e-6
+network.small_x = 1e-60
 
 # amrex runtime parameters
 # these params help debug the code
