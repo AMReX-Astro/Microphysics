@@ -51,7 +51,9 @@ jobs:
             echo "Line $line_number in test.out: $value1"
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
-            value2=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1.0.out)
+            # Adjust the line number for reference_solution_1.0.out
+            reference_line_number=$((line_number - 24))
+            value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1.0.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
 
