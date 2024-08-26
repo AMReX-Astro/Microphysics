@@ -84,5 +84,7 @@ network.small_x = 1e-60
 # amrex runtime parameters
 # these params help debug the code
 #amrex.throw_exception = 1
-#amrex.signal_handling = 0
-amrex.fpe_trap_invalid=1
+#amrex.signal_handling = 1
+#amrex.fpe_trap_invalid = 1
+#amrex.fpe_trap_zerp = 1
+#amrex.fpe_trap_overflow = 1
