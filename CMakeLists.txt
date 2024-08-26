@@ -96,7 +96,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     #need these to write extern_parameters.H
     set(paramfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/unit_test/burn_cell_metal_chem/_parameters")
     set(EOSparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/metal_chem/_parameters")
-    set(networkpcparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/_parameters")
+    set(networkmcparamfile "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/_parameters")
 
     #similarly, we want network_properties.H
     set(networkpropfile "${output_dir}/network_properties.H")
@@ -121,16 +121,18 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
 
     if(BUILD_UNIT_TEST_MC)
       execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${paramfile} ${EOSparamfile}
-                      ${networkpcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
+                      ${networkmcparamfile} ${networkparamfile} ${VODEparamfile} ${integrationparamfile} ${unittestparamfile}" --use_namespace WORKING_DIRECTORY ${output_dir}/)
     else()
       #do not need paramfile and unittestparamfile
-      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkpcparamfile}
+      execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/util/build_scripts/write_probin.py" --pa "${EOSparamfile} ${networkmcparamfile}
                       ${networkparamfile} ${VODEparamfile} ${integrationparamfile} " --use_namespace WORKING_DIRECTORY ${output_dir}/)
     endif()
 
-    set(primordial_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
+    #unlike primordial chem, we also include actual_network_data.cpp here because it is in there that we read in the Semenov opacity table
+    set(metal_chem_sources ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/eos_data.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/interfaces/network_initialization.cpp
                                 ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/EOS/metal_chem/actual_eos_data.cpp
+                                ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/metal_chem/actual_network_data.cpp
                                 ${output_dir}/extern_parameters.cpp PARENT_SCOPE)
 
 
@@ -139,7 +141,7 @@ function(setup_target_for_microphysics_compilation network_name output_dir)
     execute_process(COMMAND python3 "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/networks/general_null/write_network.py" --header_template "${networkheadertemplatefile}" --header_output "${networkpropfile}" -s "${networkfile}" WORKING_DIRECTORY ${output_dir}/)
 
   else()
-    message(FATAL_ERROR "Given network_name " ${network_name} " currently not supported. Use either 'gamma_law' or 'primordial_chem' ")
+    message(FATAL_ERROR "Given network_name " ${network_name} " currently not supported. Use either 'gamma_law' or 'primordial_chem' or 'metal_chem' ")
 
   endif()
 
@@ -220,5 +222,5 @@ else()
   message("Not building metal chem unit test")
 endif()
 
-
+#Sample command: cmake .. -DBUILD_UNIT_TEST_MC=True -DBUILD_AMReX=True -DAMReX_SPACEDIM=1
 
