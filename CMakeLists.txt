@@ -177,10 +177,8 @@ endif()
 #set a cache variable that controls whether
 #we want to build the unit test or not
 set(BUILD_UNIT_TEST_PC false CACHE BOOL "Do you want to build the primordial chem unit test? (true/false)")
-message("Building primordial chem unit test")
 
 set(BUILD_UNIT_TEST_MC false CACHE BOOL "Do you want to build the metal chem unit test? (true/false)")
-message("Building metal chem unit test")
 
 add_compile_options(-Werror -Wall -Wextra)
 

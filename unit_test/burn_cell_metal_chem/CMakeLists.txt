@@ -1,4 +1,6 @@
 #all .cpp files that need to be compiled for the test go here
+configure_file(Semenov_PlanckOpacity.dat ${CMAKE_CURRENT_BINARY_DIR}/Semenov_PlanckOpacity.dat COPYONLY)
+
 add_executable(test_burn_cell_metal_chem main.cpp ${metal_chem_sources})
 
 #test needs to find burn_cell.H, unit_test.H, and extern_parameters.H
@@ -14,4 +16,4 @@ if(AMReX_GPU_BACKEND MATCHES "CUDA")
     setup_target_for_cuda_compilation(test_burn_cell_metal_chem)
 endif(AMReX_GPU_BACKEND MATCHES "CUDA")
 
-add_test(NAME burn_cell_metal_chem COMMAND test_burn_metal_chem inputs_metal_chem WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME burn_cell_metal_chem COMMAND test_burn_cell_metal_chem inputs_metal_chem WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
