@@ -4052,8 +4052,8 @@ Real interpolate_2d(Real const x, Real const y, const Array1D<Real, 1, 10>& xArr
 }
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, NumSpec-1>& composition, Real const user_dust2gas_ratio, Real const z, 
-                                                Real krome_Semenov_Tdust, Array1D<Real, 1, 10>& s_x, Array1D<Real, 1, 1000>& s_y, 
+std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, NumSpec-1>& composition, Real const user_dust2gas_ratio, Real const z,
+                                                Real krome_Semenov_Tdust, Array1D<Real, 1, 10>& s_x, Array1D<Real, 1, 1000>& s_y,
                                                 Array2D<Real, 1, 10, 1, 1000>& s_z) {
 
     Real dustSemenov_cooling = 0.0;
