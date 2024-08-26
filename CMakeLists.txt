@@ -177,10 +177,10 @@ endif()
 #set a cache variable that controls whether
 #we want to build the unit test or not
 set(BUILD_UNIT_TEST_PC false CACHE BOOL "Do you want to build the primordial chem unit test? (true/false)")
-message("Building unit test -- ${BUILD_UNIT_TEST_PC}")
+message("Building primordial chem unit test")
 
 set(BUILD_UNIT_TEST_MC false CACHE BOOL "Do you want to build the metal chem unit test? (true/false)")
-message("Building unit test -- ${BUILD_UNIT_TEST_MC}")
+message("Building metal chem unit test")
 
 add_compile_options(-Werror -Wall -Wextra)
 
@@ -200,7 +200,6 @@ if(BUILD_UNIT_TEST_PC)
 
   #adding unit_tests as subdirectories
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
-  message("Building primordial chem unit test")
 
 else()
 
@@ -213,10 +212,10 @@ if(BUILD_UNIT_TEST_MC)
   setup_target_for_microphysics_compilation("metal_chem" ${CMAKE_BINARY_DIR})
   include_directories(${metal_chem_dirs})
 
-  #adding unit_tests as subdirectories
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
-  message("Building metal chem unit test")
-
+  #adding unit_tests as subdirectories (only needed if PC test wasn't built above)
+  if(!BUILD_UNIT_TEST_PC)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
+  endif()
 else()
 
   message("Not building metal chem unit test")
