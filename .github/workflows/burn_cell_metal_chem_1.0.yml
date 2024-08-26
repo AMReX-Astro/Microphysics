@@ -3,7 +3,7 @@ name: burn_cell_metal_chem_1
 on: [pull_request]
 
 jobs:
-  burn_cell_metal_chem_1.0:
+  burn_cell_metal_chem_1:
     runs-on: ubuntu-latest
 
     steps:
