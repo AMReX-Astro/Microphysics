@@ -272,7 +272,7 @@ auto burn_cell_c() -> int {
 
     //std::cout << "before burn: " << state.rho << ", " << state.T << ", " << state.xn << ", " << state.e << std::endl;
 
-    integrator_rp::ode_max_dt = dt*1e-2;
+    integrator_rp::ode_max_dt = dt*1e-1;
     // do the actual integration
     burner(state, dt);
 
