@@ -1,4 +1,4 @@
-name: burn_cell_metal_chem_1.0
+name: burn_cell_metal_chem_1
 
 on: [pull_request]
 
