@@ -47,6 +47,12 @@ jobs:
           error_found=false
           for line_number in "${line_numbers[@]}"; do
 
+            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
+            value2=$(awk 'NR=='"$line_number"' {print $0}' reference_solution_1.0.out)
+            echo "Line $line_number in test.out: $value1"
+            echo "Line $line_number in reference_solution_1.0.out: $value2"
+
+
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             value2=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1.0.out)
 
@@ -56,7 +62,7 @@ jobs:
               echo "Line number: $line_number"
               echo "Value in test.out: $value1"
               echo "Value in reference_solution_1.0.out: $value2"
-              echo "Difference between test and reference value is more than allowed threshold of $threshold"
+              echo "Difference between test and reference value is $difference, more than allowed threshold of $threshold"
               echo
               error_found=true
             fi
