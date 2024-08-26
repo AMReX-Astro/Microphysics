@@ -1,0 +1,88 @@
+unit_test.run_prefix = "burn_cell_metal_chem_"
+
+# unit_test runtime parameters
+unit_test.small_temp = 1.e0
+unit_test.small_dens = 1.e-60
+unit_test.tff_reduc = 1.e-2
+# number of integration steps
+unit_test.nsteps = 100000
+# max total time
+unit_test.tmax = 7.e20
+# initial temperature
+unit_test.temperature = 3e2
+unit_test.ninit = 1e-1
+# initial number densities (will be scaled to metallicity provided below automatically by burn_cell)
+unit_test.primary_species_1 = 1e-40     #co_ice
+unit_test.primary_species_2 = 1e-40     #h2o_ice
+unit_test.primary_species_3 = 1e-4      #e
+unit_test.primary_species_4 = 1e-4      #h+
+unit_test.primary_species_5 = 1e0       #h
+unit_test.primary_species_6 = 1e-40     #h-
+unit_test.primary_species_7 = 1e-40     #d+
+unit_test.primary_species_8 = 1e-5      #d
+unit_test.primary_species_9 = 1e-40     #h2+
+unit_test.primary_species_10 = 1e-40    #d-
+unit_test.primary_species_11 = 1e-6     #h2
+unit_test.primary_species_12 = 1e-40    #hd+
+unit_test.primary_species_13 = 1e-40    #hd
+unit_test.primary_species_14 = 1e-40    #he++
+unit_test.primary_species_15 = 1e-40    #he+
+unit_test.primary_species_16 = 0.0775e0 #he
+unit_test.primary_species_17 = 9.27e-5  #c+
+unit_test.primary_species_18 = 1e-40    #c
+unit_test.primary_species_19 = 1e-40    #ch
+unit_test.primary_species_20 = 1e-40    #ch2
+unit_test.primary_species_21 = 1e-40    #ch3
+unit_test.primary_species_22 = 1e-40    #o+
+unit_test.primary_species_23 = 3.568e-4 #o
+unit_test.primary_species_24 = 1e-40    #ch4
+unit_test.primary_species_25 = 1e-40    #oh+
+unit_test.primary_species_26 = 1e-40    #oh
+unit_test.primary_species_27 = 1e-40    #h2o+
+unit_test.primary_species_28 = 1e-40    #h2o
+unit_test.primary_species_29 = 1e-40    #h3o+
+unit_test.primary_species_30 = 1e-40    #co+
+unit_test.primary_species_31 = 1e-40    #co
+unit_test.primary_species_32 = 1e-40    #o2+
+unit_test.primary_species_33 = 1e-40    #o2
+unit_test.primary_species_34 = 1e-40    #co2
+
+# integrator runtime parameters
+# are we using metal chemistry? then we use number densities
+integrator.use_number_densities = 1
+# we do not want to subtract the internal energy
+integrator.subtract_internal_energy = 0
+# we do not want to clip species between 0 and 1
+integrator.do_species_clip = 0
+# minimum positive value of number densities 
+integrator.SMALL_X_SAFE = 1e-60
+integrator.burner_verbose = 0
+# do you want to use the jacobian calculated in a previous step?
+integrator.use_jacobian_caching = 1
+# integration will fail if the number density > X_reject_buffer*atol
+integrator.X_reject_buffer = 1e100
+# Set which jacobian to use
+# 1 = analytic jacobian
+# 2 = numerical jacobian
+# we do not have an analytic jacobian for this network!!
+integrator.jacobian = 2
+# do you want to normalize abundances within VODE? (you don't!)
+integrator.renormalize_abundances = 0
+# tolerances
+integrator.rtol_spec = 1.0e-4
+integrator.atol_spec = 1.0e-10
+integrator.rtol_enuc = 1.0e-4
+integrator.atol_enuc = 1.0e-10
+#integrator.ode_max_steps = 3000000
+
+#assumed redshift for Pop III star formation
+network.redshift = 0.0
+network.metallicity = 1e-5
+network.dust2gas_ratio = 1e-5
+network.small_x = 1e-60
+
+# amrex runtime parameters
+# these params help debug the code
+#amrex.throw_exception = 1
+#amrex.signal_handling = 0
+amrex.fpe_trap_invalid=1
