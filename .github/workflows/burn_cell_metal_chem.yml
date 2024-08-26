@@ -47,9 +47,6 @@ jobs:
           error_found=false
           for line_number in "${line_numbers[@]}"; do
 
-            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
-            echo "Line $line_number in test.out: $value1"
-
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution_1.0.out
             reference_line_number=$((line_number - 24))
@@ -61,6 +58,47 @@ jobs:
               echo "Line number: $line_number"
               echo "Value in test.out: $value1"
               echo "Value in reference_solution_1.0.out: $value2"
+              echo "Difference between test and reference value is $difference, more than allowed threshold of $threshold"
+              echo
+              error_found=true
+            fi
+          done
+          if [[ $error_found == true ]]; then
+            exit 1
+          fi
+
+      - name: Run for Z = 1e-1
+        run: |
+          cd unit_test/burn_cell_metal_chem
+          ./main1d.gnu.DEBUG.ex inputs_metal_chem_1e-1 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/burn_cell_metal_chem/Backtrace.0') != '' }}
+        run: cat unit_test/burn_cell_metal_chem/Backtrace.0
+
+      - name: Compare to stored output for Z = 1e-1
+        run: |
+          set -e
+          cd unit_test/burn_cell_metal_chem
+          line_numbers=(4438 4440 4442 4444 4445 4448 4449 4452 4458 4463)
+          threshold=0.01
+          error_found=false
+          for line_number in "${line_numbers[@]}"; do
+
+            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
+            echo "Line $line_number in test.out: $value1"
+
+            value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
+            # Adjust the line number for reference_solution
+            reference_line_number=$((line_number + 12))
+            value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1e-1.out)
+
+            difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
+
+            if (( $(echo "$difference > $threshold" | bc -l) )); then
+              echo "Line number: $line_number"
+              echo "Value in test.out: $value1"
+              echo "Value in reference_solution_1e-1.out: $value2"
               echo "Difference between test and reference value is $difference, more than allowed threshold of $threshold"
               echo
               error_found=true
@@ -87,9 +125,6 @@ jobs:
           threshold=0.01
           error_found=false
           for line_number in "${line_numbers[@]}"; do
-
-            value1=$(awk 'NR=='"$line_number"' {print $0}' test.out)
-            echo "Line $line_number in test.out: $value1"
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
