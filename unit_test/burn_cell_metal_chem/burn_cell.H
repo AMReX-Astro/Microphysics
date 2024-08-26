@@ -272,7 +272,7 @@ auto burn_cell_c() -> int {
 
     //std::cout << "before burn: " << state.rho << ", " << state.T << ", " << state.xn << ", " << state.e << std::endl;
 
-    integrator_rp::ode_max_dt = dt*1e-1;
+    integrator_rp::ode_max_dt = dt*1e0;
     // do the actual integration
     burner(state, dt);
 
@@ -356,6 +356,7 @@ auto burn_cell_c() -> int {
   std::cout << "Eint final =   " << state.e << std::endl;
   std::cout << "rho initial = " << state_in.rho << std::endl;
   std::cout << "rho final =   " << state.rho << std::endl;
+  std::cout << "numdens final =   " << sum_numdens << std::endl;
 
   std::cout << "------------------------------------" << std::endl;
   std::cout << "New number densities: " << std::endl;
