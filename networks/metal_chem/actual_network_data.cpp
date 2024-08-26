@@ -13,7 +13,7 @@ namespace network
 void actual_network_init()
 {
 
-	using namespace network;
+    using namespace network;
     std::string filename = "Semenov_PlanckOpacity.dat";
     std::cout << "Reading tables from " << filename << std::endl;
 
@@ -38,8 +38,8 @@ void actual_network_init()
     }
 
     // Process data line by line
-    for (int i = 1; i <= semenov_x.size(); ++i) {
-        for (int j = 1; j <= semenov_y.size(); ++j) {
+    for (size_t i = 1; i <= semenov_x.size(); ++i) {
+        for (size_t j = 1; j <= semenov_y.size(); ++j) {
             if (!std::getline(file, line)) {
                 throw std::runtime_error("ERROR: Unexpected end of file while reading data.");
             }
