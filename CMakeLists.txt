@@ -193,6 +193,10 @@ add_compile_options(-Werror -Wall -Wextra)
 #this will generate a warning but it will build successfully
 #do not need unit_test paramfiles when unit_test is not built
 
+if(BUILD_UNIT_TEST_PC AND BUILD_UNIT_TEST_MC)
+  message(FATAL_ERROR "Cannot build both primordial chem and metal chem tests at the same time!")
+endif()
+
 if(BUILD_UNIT_TEST_PC)
   #Build primordial chem unit test
   setup_target_for_microphysics_compilation("primordial_chem" ${CMAKE_BINARY_DIR})
@@ -201,24 +205,15 @@ if(BUILD_UNIT_TEST_PC)
   #adding unit_tests as subdirectories
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
 
-else()
-
-  message("Not building primordial chem unit test")
-endif()
-
-
-if(BUILD_UNIT_TEST_MC)
+elseif(BUILD_UNIT_TEST_MC)
   #Build metal chem unit test
   setup_target_for_microphysics_compilation("metal_chem" ${CMAKE_BINARY_DIR})
   include_directories(${metal_chem_dirs})
 
-  #adding unit_tests as subdirectories (only needed if PC test wasn't built above)
-  if(!BUILD_UNIT_TEST_PC)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
-  endif()
-else()
+  #adding unit_tests as subdirectories
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/unit_test)
 
-  message("Not building metal chem unit test")
+  message("Not building primordial chem unit test")
 endif()
 
 #Sample command: cmake .. -DBUILD_UNIT_TEST_MC=True -DBUILD_AMReX=True -DAMReX_SPACEDIM=1
