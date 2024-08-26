@@ -4129,7 +4129,7 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
     Real tau_g = 0.0;
     Real tau = (tau_d + tau_g) * ljeans;
 
-    Real besc = (tau < 1.0) ? 1.0 : std::pow(tau, -2);
+    Real besc = (tau < 1.0) ? 1.0 : amrex::Math::powi<-2>(tau);
 
     Real const alpha_gd = 3.2e-34;
     Real const aR = 4 * C::sigma_SB / C::c_light;
@@ -4139,17 +4139,17 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
     Real intJRad = 0.0;
 
     Real A = rhogas * kappaP * user_dust2gas_ratio * aR * C::c_light;
-    Real B = std::pow(Tgas, 0.5) * std::pow(nH, 2) * alpha_gd * user_dust2gas_ratio;
+    Real B = std::pow(Tgas, 0.5) * amrex::Math::powi<2>(nH) * alpha_gd * user_dust2gas_ratio;
     Real phys_Tcmb = 2.73 * (1.0 + z);
-    Real C = -1.0 * (intJRad + A * std::pow(phys_Tcmb, 4) + std::pow(Tgas, 1.5) * std::pow(nH, 2) * alpha_gd * user_dust2gas_ratio);
+    Real C = -1.0 * (intJRad + A * amrex::Math::powi<4>(phys_Tcmb) + std::pow(Tgas, 1.5) * amrex::Math::powi<2>(nH) * alpha_gd * user_dust2gas_ratio);
 
     int iterr = 0;
     Real Tdold = krome_Semenov_Tdust;
     Real Tdnew = 0.0;
 
     while (true) {
-        Real fx = A * std::pow(Tdold, 4) + B * Tdold + C;
-        Real fdash_x = 4.0 * A * std::pow(Tdold, 3) + B;
+        Real fx = A * amrex::Math::powi<4>(Tdold) + B * Tdold + C;
+        Real fdash_x = 4.0 * A * amrex::Math::powi<3>(Tdold) + B;
 
         Tdnew = Tdold - fx / fdash_x;
         Real rel_t = std::abs((Tdnew - Tdold) / Tdold);
@@ -4166,7 +4166,7 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
         }
     }
 
-    dustSemenov_cooling = A * std::pow(Tdnew, 4) - intJRad - A * std::pow(phys_Tcmb, 4);
+    dustSemenov_cooling = A * amrex::Math::powi<4>(Tdnew) - intJRad - A * amrex::Math::powi<4>(phys_Tcmb);
 
     return std::make_pair(Tdnew, dustSemenov_cooling);
 }
