@@ -32,7 +32,7 @@ jobs:
         run: |
           cd unit_test/burn_cell_metal_chem
           make -j 2
-          ./main1d.gnu.DEBUG.ex inputs_metal_chem_1.0 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
+          ./main1d.gnu.DEBUG.ex inputs_metal_chem_1 amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Print backtrace
         if: ${{ failure() && hashFiles('unit_test/burn_cell_metal_chem/Backtrace.0') != '' }}
