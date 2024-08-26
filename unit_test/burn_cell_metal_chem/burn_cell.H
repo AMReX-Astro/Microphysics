@@ -162,9 +162,10 @@ auto burn_cell_c() -> int {
               << "): " << numdens[n] << std::endl;
   }
 
-  state.T = temperature;
+  amrex::Real TCMB = 2.73*(1.0 + network_rp::redshift);
+  state.T = amrex::max(temperature, TCMB);
   // set initial Tdust to CMB
-  state.aux[0] = 2.73*(1.0 + network_rp::redshift);
+  state.aux[0] = TCMB;
 
   // find the density in g/cm^3
   amrex::Real rhotot = 0.0_rt;
@@ -316,6 +317,9 @@ auto burn_cell_c() -> int {
 
     // get the updated T
     eos(eos_input_re, state);
+
+    // ensure T is >= TCMB
+    state.T = amrex::max(state.T, TCMB);
 
     t += dt;
 
