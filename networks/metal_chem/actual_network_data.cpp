@@ -24,7 +24,7 @@ void actual_network_init()
     }
 
     std::string line;
-    
+
     // Skip comments and read until the first non-comment line
     while (std::getline(file, line)) {
         if (line[0] != '#') {
@@ -61,7 +61,4 @@ void actual_network_init()
         }
 
     }
-
-
 }
-
