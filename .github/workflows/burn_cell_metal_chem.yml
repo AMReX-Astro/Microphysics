@@ -60,6 +60,8 @@ jobs:
             ["Z=1e-6"]="reference_solution_1e-6.out"
           )
 
+          ref_line_number_z10=(1 2 3 5 7 10 17 23 28)
+
           for Z in "Z=1" "Z=1_z10" "Z=1e-1" "Z=1e-2" "Z=1e-3" "Z=1e-4" "Z=1e-5" "Z=1e-6"; do
             input_file="inputs_metal_chem_${Z//Z=/}"
             output_file="test_${Z//Z=/}.out"
@@ -76,7 +78,7 @@ jobs:
               if [[ "$Z" == "Z=1" ]]; then
                 reference_line_number=$((line_number - 4460))
               elif [[ "$Z" == "Z=1_z10" ]]; then
-                reference_line_number=$((line_number - 1612))
+                reference_line_number=${ref_line_number_z10[$index]}
               else
                 reference_line_number=$((line_number - 4437))
               fi
@@ -94,6 +96,7 @@ jobs:
                 echo
                 error_found=true
               fi
+              index=$((index + 1))
             done
 
             if [[ $error_found == true ]]; then
