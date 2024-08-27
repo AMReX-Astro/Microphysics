@@ -8,6 +8,7 @@
 #include <eos.H>
 #include <extern_parameters.H>
 #include <network.H>
+#include <actual_network.H>
 
 amrex::Real grav_constant = C::Gconst;
 
@@ -237,9 +238,6 @@ auto burn_cell_c() -> int {
     // scale the density
     dd += dt * (dd / tff);
 
-    //std::cout << "step params " << dd << ", " << tff << ", " << tff_reduc << ", " << rhotmp << ", " << state.xn << std::endl;
-    //std::cout << "old " << dd - dt * (dd / tff) << ", delta " << dt * (dd / tff) << ", new " << dd << std::endl;
-
     // stop the test if dt is very small
     if (dt < 10) {
       break;
@@ -257,9 +255,7 @@ auto burn_cell_c() -> int {
     }
 
     // update the number density of electrons due to charge conservation
-    state.xn[2] = -state.xn[5] - state.xn[9] + state.xn[3] + state.xn[6] + state.xn[8] +
-                  2.0 * state.xn[13] + state.xn[11] + state.xn[14] + state.xn[16] + state.xn[21] +
-                  state.xn[24] + state.xn[26] + state.xn[28] + state.xn[29] + state.xn[31];
+    balance_charge(state);
 
     // input the scaled density in burn state
     rhotmp = 0.0_rt;
@@ -277,8 +273,6 @@ auto burn_cell_c() -> int {
     // do the actual integration
     burner(state, dt);
 
-    //std::cout << "after burn: " << state << std::endl;
-
     // ensure positivity and normalize
     //amrex::Real inmfracs[NumSpec] = {-1.0};
     //amrex::Real insum = 0.0_rt;
@@ -295,11 +289,7 @@ auto burn_cell_c() -> int {
     //}
 
     // update the number density of electrons due to charge conservation
-    state.xn[2] = -state.xn[5] - state.xn[9] + state.xn[3] + state.xn[6] + state.xn[8] +
-                  2.0 * state.xn[13] + state.xn[11] + state.xn[14] + state.xn[16] + state.xn[21] +
-                  state.xn[24] + state.xn[26] + state.xn[28] + state.xn[29] + state.xn[31];
-
-    //std::cout << "conserved elec: " << state.xn[2] << std::endl;
+    balance_charge(state);
 
     // reconserve mass fractions post charge conservation
     //insum = 0;

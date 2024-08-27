@@ -8,6 +8,7 @@
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
+#include <burn_type.H>
 
 using namespace amrex;
 
@@ -31,5 +32,8 @@ namespace Rates
     };
 
 }
+
+
+void balance_charge(burn_t& state);
 
 #endif

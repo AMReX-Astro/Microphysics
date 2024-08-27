@@ -1,6 +1,5 @@
 #include <actual_network.H>
 
-
 namespace network
 {
 
@@ -61,4 +60,14 @@ void actual_network_init()
         }
 
     }
+}
+
+void balance_charge(burn_t& state)
+{
+
+    // update the number density of electrons due to charge conservation
+    state.xn[2] = -state.xn[5] - state.xn[9] + state.xn[3] + state.xn[6] + state.xn[8] +
+                  2.0 * state.xn[13] + state.xn[11] + state.xn[14] + state.xn[16] + state.xn[21] +
+                  state.xn[24] + state.xn[26] + state.xn[28] + state.xn[29] + state.xn[31];
+
 }
