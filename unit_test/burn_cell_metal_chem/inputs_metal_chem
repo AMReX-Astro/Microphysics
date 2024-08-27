@@ -77,14 +77,14 @@ integrator.atol_enuc = 1.0e-10
 
 #assumed redshift for Pop III star formation
 network.redshift = 0.0
-network.metallicity = 1e-6
-network.dust2gas_ratio = 1e-6
+network.metallicity = 1
+network.dust2gas_ratio = 1
 network.small_x = 1e-60
 
 # amrex runtime parameters
 # these params help debug the code
 #amrex.throw_exception = 1
-#amrex.signal_handling = 1
+amrex.signal_handling = 0
 #amrex.fpe_trap_invalid = 1
 #amrex.fpe_trap_zerp = 1
 #amrex.fpe_trap_overflow = 1
