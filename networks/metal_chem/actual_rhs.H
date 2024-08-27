@@ -4167,11 +4167,11 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
         }
 
         if (iterr > 1000) {
-            throw std::runtime_error("Maximum iterations reached in dust temperature NR-solver. Tgas = " + 
-                                     std::to_string(Tgas) + 
-                                     ", Tdold_start = " + 
-                                     std::to_string(krome_Semenov_Tdust) + 
-                                     ", Tdnew = " + 
+            throw std::runtime_error("Maximum iterations reached in dust temperature NR-solver. Tgas = " +
+                                     std::to_string(Tgas) +
+                                     ", Tdold_start = " +
+                                     std::to_string(krome_Semenov_Tdust) +
+                                     ", Tdnew = " +
                                      std::to_string(Tdnew));
         }
     }
