@@ -3,8 +3,9 @@
 # burn_cell_metal_chem
 
 `burn_cell_metal_chem` integrates a primordial+metal ISM chemistry network 
- for a single set of initial conditions.  The density, temperature, and composition 
+ for a single set of initial conditions. The density, temperature, and composition 
  are set in the inputs file, as well as the maximum time to integrate.
+ This test does not include cosmic rays and photochemistry. 
 
  Upon completion, the new state is printed to the screen.
 
