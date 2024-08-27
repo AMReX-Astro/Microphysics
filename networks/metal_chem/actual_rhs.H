@@ -4217,24 +4217,6 @@ void actual_rhs (burn_t& state, Array1D<Real, 1, neqs>& ydot)
 
     ydot(net_ienuc) = edot;
 
-    /*
-    std::cout << "redshift " << redshift << ", " << metallicity << ", " << dust2gas_ratio << ", " << krome_Semenov_Tdust << ", " << dustSemenov_cooling << std::endl;
-    std::cout << "network X: ";
-    for (int i = 0; i < NumSpec; ++i) {
-        std::cout << "X" << i << ": " << X(i) << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "Tgas: " << state.T << std::endl;
-    std::cout << "network Tdust: " << state.aux[0] << std::endl;
-    std::cout << "network ydots: ";
-    for (int i = 1; i < neqs; ++i) {
-        std::cout << "ydot" << i << ": " << ydot(i) << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "network edot: " << edot << std::endl;
-    std::cout << " " << std::endl;
-    */
-
 }
 
 
