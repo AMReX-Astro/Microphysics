@@ -18,8 +18,6 @@ inline
 void actual_eos_init ()
 {
 
-    // Set the gammas & masses for the species
-
     for (int n = 0; n < NumSpec; ++n) {
         gammas[n] = eos_rp::eos_gamma_default;
         spmasses[n] = 1.67353251819e-24;
@@ -27,209 +25,51 @@ void actual_eos_init ()
 
     int idx;
 
-    idx = network_spec_index(eos_rp::species_1_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_1_gamma;
-        spmasses[idx] = eos_rp::species_1_mass;
-    }
+    // Set the gammas & masses for the species
+    #define GET_SPECIES_PARAMS(num) do { \
+        idx = network_spec_index(eos_rp::species_##num##_name); \
+        if (idx >= 0) { \
+            gammas[idx] = eos_rp::species_##num##_gamma; \
+            spmasses[idx] = eos_rp::species_##num##_mass; \
+        } \
+    } while (0)
 
-    idx = network_spec_index(eos_rp::species_2_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_2_gamma;
-        spmasses[idx] = eos_rp::species_2_mass;
-   }
+    GET_SPECIES_PARAMS(1);
+    GET_SPECIES_PARAMS(2);
+    GET_SPECIES_PARAMS(3);
+    GET_SPECIES_PARAMS(4);
+    GET_SPECIES_PARAMS(5);
+    GET_SPECIES_PARAMS(6);
+    GET_SPECIES_PARAMS(7);
+    GET_SPECIES_PARAMS(8);
+    GET_SPECIES_PARAMS(9);
+    GET_SPECIES_PARAMS(10);
+    GET_SPECIES_PARAMS(11);
+    GET_SPECIES_PARAMS(12);
+    GET_SPECIES_PARAMS(13);
+    GET_SPECIES_PARAMS(14);
+    GET_SPECIES_PARAMS(15);
+    GET_SPECIES_PARAMS(16);
+    GET_SPECIES_PARAMS(17);
+    GET_SPECIES_PARAMS(18);
+    GET_SPECIES_PARAMS(19);
+    GET_SPECIES_PARAMS(20);
+    GET_SPECIES_PARAMS(21);
+    GET_SPECIES_PARAMS(22);
+    GET_SPECIES_PARAMS(23);
+    GET_SPECIES_PARAMS(24);
+    GET_SPECIES_PARAMS(25);
+    GET_SPECIES_PARAMS(26);
+    GET_SPECIES_PARAMS(27);
+    GET_SPECIES_PARAMS(28);
+    GET_SPECIES_PARAMS(29);
+    GET_SPECIES_PARAMS(30);
+    GET_SPECIES_PARAMS(31);
+    GET_SPECIES_PARAMS(32);
+    GET_SPECIES_PARAMS(33);
+    GET_SPECIES_PARAMS(34);
 
-    idx = network_spec_index(eos_rp::species_3_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_3_gamma;
-        spmasses[idx] = eos_rp::species_3_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_4_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_4_gamma;
-        spmasses[idx] = eos_rp::species_4_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_5_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_5_gamma;
-        spmasses[idx] = eos_rp::species_5_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_6_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_6_gamma;
-        spmasses[idx] = eos_rp::species_6_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_7_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_7_gamma;
-        spmasses[idx] = eos_rp::species_7_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_8_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_8_gamma;
-        spmasses[idx] = eos_rp::species_8_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_9_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_9_gamma;
-        spmasses[idx] = eos_rp::species_9_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_10_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_10_gamma;
-        spmasses[idx] = eos_rp::species_10_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_11_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_11_gamma;
-        spmasses[idx] = eos_rp::species_11_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_12_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_12_gamma;
-        spmasses[idx] = eos_rp::species_12_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_13_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_13_gamma;
-        spmasses[idx] = eos_rp::species_13_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_14_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_14_gamma;
-        spmasses[idx] = eos_rp::species_14_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_15_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_15_gamma;
-        spmasses[idx] = eos_rp::species_15_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_16_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_16_gamma;
-        spmasses[idx] = eos_rp::species_16_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_17_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_17_gamma;
-        spmasses[idx] = eos_rp::species_17_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_18_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_18_gamma;
-        spmasses[idx] = eos_rp::species_18_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_19_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_19_gamma;
-        spmasses[idx] = eos_rp::species_19_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_20_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_20_gamma;
-        spmasses[idx] = eos_rp::species_20_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_21_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_21_gamma;
-        spmasses[idx] = eos_rp::species_21_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_22_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_22_gamma;
-        spmasses[idx] = eos_rp::species_22_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_23_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_23_gamma;
-        spmasses[idx] = eos_rp::species_23_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_24_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_24_gamma;
-        spmasses[idx] = eos_rp::species_24_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_25_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_25_gamma;
-        spmasses[idx] = eos_rp::species_25_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_26_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_26_gamma;
-        spmasses[idx] = eos_rp::species_26_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_27_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_27_gamma;
-        spmasses[idx] = eos_rp::species_27_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_28_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_28_gamma;
-        spmasses[idx] = eos_rp::species_28_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_29_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_29_gamma;
-        spmasses[idx] = eos_rp::species_29_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_30_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_30_gamma;
-        spmasses[idx] = eos_rp::species_30_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_31_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_31_gamma;
-        spmasses[idx] = eos_rp::species_31_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_32_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_32_gamma;
-        spmasses[idx] = eos_rp::species_32_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_33_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_33_gamma;
-        spmasses[idx] = eos_rp::species_33_mass;
-    }
-
-    idx = network_spec_index(eos_rp::species_34_name);
-    if (idx >= 0) {
-        gammas[idx] = eos_rp::species_34_gamma;
-        spmasses[idx] = eos_rp::species_34_mass;
-    }
+    #undef GET_SPECIES_PARAMS
 
 }
 
