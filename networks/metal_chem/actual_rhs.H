@@ -4148,11 +4148,10 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
     Real phys_Tcmb = 2.73 * (1.0 + z);
     Real C = -1.0 * (intJRad + A * amrex::Math::powi<4>(phys_Tcmb) + std::pow(Tgas, 1.5) * amrex::Math::powi<2>(nH) * alpha_gd * user_dust2gas_ratio);
 
-    int iterr = 0;
     Real Tdold = krome_Semenov_Tdust;
     Real Tdnew = 0.0;
 
-    while (true) {
+    for (int iterr = 0; iterr <= 1001; ++iterr) {
         Real fx = A * amrex::Math::powi<4>(Tdold) + B * Tdold + C;
         Real fdash_x = 4.0 * A * amrex::Math::powi<3>(Tdold) + B;
 
@@ -4160,7 +4159,6 @@ std::pair<Real, Real> compute_Semenov_Tdust(Real Tgas, const Array1D<Real, 0, Nu
         Real rel_t = std::abs((Tdnew - Tdold) / Tdold);
         Real abs_t = std::abs(Tdnew - Tdold);
         Tdold = Tdnew;
-        ++iterr;
 
         if (abs_t < 1e-8 || rel_t < 1e-5) {
             break;
