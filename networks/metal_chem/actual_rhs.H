@@ -4013,28 +4013,29 @@ Real rhs_eint(const burn_t& state,
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 Real interpolate_2d(Real const x, Real const y, const Array1D<Real, 1, 10>& xArray, const Array1D<Real, 1, 1000>& yArray, const Array2D<Real, 1, 10, 1, 1000>& zArray) {
 
-
-    // Find indices of the square to interpolate within
-    int x1_idx = 0, x2_idx = 0;
-    int y1_idx = 0, y2_idx = 0;
-
-    // Find the right x indices
-    for (size_t i = 1; i < xArray.size(); ++i) {
-        if (x >= xArray(i) && x <= xArray(i + 1)) {
-            x1_idx = i;
-            x2_idx = i + 1;
-            break;
+    // Helper function to perform binary search
+    auto binary_search = [](const auto& arr, Real value) {
+        int low = 1;
+        int high = arr.size();
+        while (low <= high) {
+            int mid = low + (high - low) / 2;
+            if (value < arr(mid)) {
+                high = mid - 1;
+            } else if (value > arr(mid + 1)) {
+                low = mid + 1;
+            } else {
+                return std::make_pair(mid, mid + 1);
+            }
         }
-    }
+        // If the exact range is not found, return the closest valid indices
+        return std::make_pair(high, high + 1);
+    };
 
-    // Find the right y indices
-    for (size_t i = 1; i < yArray.size(); ++i) {
-        if (y >= yArray(i) && y <= yArray(i + 1)) {
-            y1_idx = i;
-            y2_idx = i + 1;
-            break;
-        }
-    }
+    // Find the right x indices using binary search
+    auto [x1_idx, x2_idx] = binary_search(xArray, x);
+
+    // Find the right y indices using binary search
+    auto [y1_idx, y2_idx] = binary_search(yArray, y);
 
     // Interpolate in x direction
     Real x1 = xArray(x1_idx);
