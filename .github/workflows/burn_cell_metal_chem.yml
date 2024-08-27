@@ -125,7 +125,7 @@ jobs:
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
-            reference_line_number=$((line_number + 0))
+            reference_line_number=$((line_number - 4437))
             value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1e-1.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
@@ -163,7 +163,7 @@ jobs:
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
-            reference_line_number=$((line_number + 0))
+            reference_line_number=$((line_number - 4437))
             value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1e-2.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
@@ -201,7 +201,7 @@ jobs:
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
-            reference_line_number=$((line_number + 0))
+            reference_line_number=$((line_number - 4437))
             value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1e-3.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
@@ -239,7 +239,7 @@ jobs:
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
-            reference_line_number=$((line_number + 0))
+            reference_line_number=$((line_number - 4437))
             value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1e-4.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
@@ -277,7 +277,7 @@ jobs:
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
-            reference_line_number=$((line_number + 0))
+            reference_line_number=$((line_number - 4437))
             value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1e-5.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
@@ -315,7 +315,7 @@ jobs:
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution
-            reference_line_number=$((line_number + 12))
+            reference_line_number=$((line_number - 4437))
             value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1e-6.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
