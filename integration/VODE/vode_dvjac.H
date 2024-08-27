@@ -79,9 +79,6 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             // Indicate that the Jacobian is current for this solve.
             vstate.JCUR = 1;
 
-            // Initialize the Jacobian to zero
-            vstate.jac.zero();
-
             jac(vstate.tn, state, vstate, vstate.jac);
 
 #ifdef ALLOW_JACOBIAN_CACHING

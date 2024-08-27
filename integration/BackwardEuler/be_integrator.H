@@ -76,8 +76,8 @@ int single_step (BurnT& state, BeT& be, const amrex::Real dt)
         // construct the matrix for the linear system
         // (I - dt J) dy^{n+1} = rhs
 
-        for (int m  = 1; m <= int_neqs; m++) {
-            for (int n = 1; n <= int_neqs; n++) {
+        for (int n = 1; n <= int_neqs; n++) {
+            for (int m  = 1; m <= int_neqs; m++) {
                 be.jac(m, n) *= -dt;
                 if (m == n) {
                     be.jac(m, n) = 1.0_rt + be.jac(m, n);
