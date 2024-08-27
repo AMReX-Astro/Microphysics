@@ -80,14 +80,14 @@ jobs:
         run: |
           set -e
           cd unit_test/burn_cell_metal_chem
-          line_numbers=(1612 1614 4479 4481 4483 4485 4486 4489 4490 4493 4499 4504)
+          line_numbers=(1613 1615 4480 4482 4484 4486 4487 4490 4491 4494 4500 4505)
           threshold=0.01
           error_found=false
           for line_number in "${line_numbers[@]}"; do
 
             value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' test.out)
             # Adjust the line number for reference_solution_1_z10.out
-            reference_line_number=$((line_number - 0))
+            reference_line_number=$((line_number - 1))
             value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' reference_solution_1_z10.out)
 
             difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
