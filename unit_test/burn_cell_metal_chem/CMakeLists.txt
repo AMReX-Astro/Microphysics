@@ -1,6 +1,4 @@
 #all .cpp files that need to be compiled for the test go here
-configure_file(Semenov_PlanckOpacity.dat ${CMAKE_CURRENT_BINARY_DIR}/Semenov_PlanckOpacity.dat COPYONLY)
-
 add_executable(test_burn_cell_metal_chem main.cpp ${metal_chem_sources})
 
 #test needs to find burn_cell.H, unit_test.H, and extern_parameters.H
