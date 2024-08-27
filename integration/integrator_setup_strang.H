@@ -210,14 +210,14 @@ void integrator_cleanup (IntegratorT& int_state, BurnT& state,
             std::cout << "temp start = " << std::setprecision(16) << state_save.T_in << std::endl;
             std::cout << "xn start = ";
             for (const double X : state_save.xn_in) {
-                std::cout << std::setprecision(16) << X << " ";
+                std::cout << std::scientific << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
             std::cout << "dens current = " << std::setprecision(16) << state.rho << std::endl;
             std::cout << "temp current = " << std::setprecision(16) << state.T << std::endl;
             std::cout << "xn current = ";
             for (const double X : state.xn) {
-                std::cout << std::setprecision(16) << X << " ";
+                std::cout << std::scientific << std::setprecision(16) << X << " ";
             }
             std::cout << std::endl;
             std::cout << "energy generated = " << state.e << std::endl;
