@@ -22,7 +22,7 @@ constexpr amrex::Real HMIN = 0.0_rt;
 constexpr amrex::Real vode_increase_change_factor = 4.0_rt;
 constexpr amrex::Real vode_decrease_change_factor = 0.25_rt;
 
-constexpr int VODE_LMAX = integrator_rp::VODE_MAXORD + 1;
+int VODE_LMAX = integrator_rp::VODE_MAXORD + 1;
 
 // How many timesteps should pass before refreshing the Jacobian
 constexpr int max_steps_between_jacobian_evals = 50;
