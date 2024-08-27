@@ -80,7 +80,7 @@ jobs:
         run: |
           set -e
           cd unit_test/burn_cell_metal_chem
-          line_numbers=(1613 1615 4480 4482 4484 4486 4487 4490 4491 4494 4500 4505)
+          line_numbers=(1613 1615 4456 4458 4460 4463 4470 4476 4481)
           threshold=0.01
           error_found=false
           for line_number in "${line_numbers[@]}"; do
