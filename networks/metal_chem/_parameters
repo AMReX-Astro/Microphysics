@@ -1,0 +1,30 @@
+@namespace: network
+
+
+# cutoff for species mass fractions
+small_x                              real               1.e-100
+# redshift for metal chem (Pop II/I star formation)
+redshift                          real               0e0
+# metallicity for metal chem (Pop II/I star formation)
+metallicity                          real               1e0
+# dust to gas ratio relative to solar
+dust2gas_ratio                 real               1e0
+# starting index for gas-phase species (after the ices)
+idx_gas_species                int                2
+
+# Cosmic ray ionization rate (per s)
+crate                          real               0e0
+# Av
+Av                          real               0e0
+# H ionization rate (per s)
+ionH                          real               0e0
+# H2 ionization rate (per s)
+ionH2                          real               0e0
+# H2 dissociation rate (per s)
+dissH2                         real               0e0
+# C ionization rate (per s)
+ionC                          real               0e0
+# O ionization rate (per s)
+ionO                          real               0e0
+# CO dissociation rate (per s)
+dissCO                          real             0e0
