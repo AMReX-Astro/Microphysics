@@ -26,4 +26,6 @@ namespace Rates
 
 }
 
+void balance_charge(burn_t& state);
+
 #endif
