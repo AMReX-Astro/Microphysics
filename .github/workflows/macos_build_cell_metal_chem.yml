@@ -1,4 +1,4 @@
-name: macos_burn_cell_primordial_chem
+name: macos_burn_cell_metal_chem
 
 on: [pull_request]
 jobs:
@@ -17,6 +17,6 @@ jobs:
       - name: Compile and run
         run: |
           mkdir build && cd build
-          cmake .. -DBUILD_UNIT_TEST_PC=true -DBUILD_AMReX=true
+          cmake .. -DBUILD_UNIT_TEST_MC=true -DBUILD_AMReX=true
           make -j2
           ctest --output-on-failure
