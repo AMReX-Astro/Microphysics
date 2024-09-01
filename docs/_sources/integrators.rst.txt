@@ -276,6 +276,11 @@ The form looks like:
    A network is not required to provide a Jacobian if a numerical
    Jacobian is used.
 
+.. important::
+
+   The integrator does not zero the Jacobian elements.  It is the responsibility
+   of the Jacobian implementation to zero the Jacobian array if necessary.
+
 
 Jacobian wrapper
 ^^^^^^^^^^^^^^^^
