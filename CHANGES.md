@@ -1,3 +1,18 @@
+# 24.09
+
+  * Improvements to the primordial chemistry network and the addition
+    of a new version that includes metals and dust (#1642, #1644)
+
+  * code clean-ups (#1645)
+
+  * documentation improvements (#1637)
+
+  * outputting the burn_t now prints the mass fractions / number densities
+    in scientific notation (#1643)
+
+  * improvements to the looping and zeroing of the Jacobian in the
+    integrators (#1636, #1640)
+
 # 24.08
 
   * autodiff is now used with the templated reaction networks (#1614)

@@ -1,7 +1,7 @@
 #ifndef ACTUAL_EOS_H
 #define ACTUAL_EOS_H
 
-// This is a mult-gamma EOS for primordial ISM chemistry.
+// This is a mult-gamma EOS for metal ISM chemistry.
 // Each species can have its own gamma, but
 // otherwise, they all act as an ideal gas.
 
@@ -17,8 +17,6 @@ const std::string eos_name = "multigamma";
 inline
 void actual_eos_init ()
 {
-
-    // Set the gammas & masses for the species
 
     for (int n = 0; n < NumSpec; ++n) {
         gammas[n] = eos_rp::eos_gamma_default;
@@ -50,8 +48,29 @@ void actual_eos_init ()
     GET_SPECIES_PARAMS(12);
     GET_SPECIES_PARAMS(13);
     GET_SPECIES_PARAMS(14);
+    GET_SPECIES_PARAMS(15);
+    GET_SPECIES_PARAMS(16);
+    GET_SPECIES_PARAMS(17);
+    GET_SPECIES_PARAMS(18);
+    GET_SPECIES_PARAMS(19);
+    GET_SPECIES_PARAMS(20);
+    GET_SPECIES_PARAMS(21);
+    GET_SPECIES_PARAMS(22);
+    GET_SPECIES_PARAMS(23);
+    GET_SPECIES_PARAMS(24);
+    GET_SPECIES_PARAMS(25);
+    GET_SPECIES_PARAMS(26);
+    GET_SPECIES_PARAMS(27);
+    GET_SPECIES_PARAMS(28);
+    GET_SPECIES_PARAMS(29);
+    GET_SPECIES_PARAMS(30);
+    GET_SPECIES_PARAMS(31);
+    GET_SPECIES_PARAMS(32);
+    GET_SPECIES_PARAMS(33);
+    GET_SPECIES_PARAMS(34);
 
     #undef GET_SPECIES_PARAMS
+
 }
 
 
