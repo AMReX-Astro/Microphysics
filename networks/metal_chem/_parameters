@@ -9,8 +9,6 @@ redshift                          real               0e0
 metallicity                          real               1e0
 # dust to gas ratio relative to solar
 dust2gas_ratio                 real               1e0
-# starting index for gas-phase species (after the ices)
-idx_gas_species                int                2
 
 # Cosmic ray ionization rate (per s)
 crate                          real               0e0
