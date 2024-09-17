@@ -39,14 +39,14 @@ jobs:
           cd unit_test/burn_cell_metal_chem
 
           declare -A line_numbers_map=(
-            ["Z=1"]="4461 4463 4465 4467 4468 4471 4472 4475 4481 4486"
+            ["Z=1"]="4450 4452 4454 4456 4457 4460 4461 4464 4470 4475"
             ["Z=1_z10"]="1613 1615 4456 4458 4460 4463 4470 4476 4481"
             ["Z=1e-1"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-2"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-3"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-4"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-5"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
-            ["Z=1e-6"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
+            ["Z=1e-6"]="4451 4453 4455 4457 4458 4461 4462 4465 4471 4476"
           )
 
           declare -A ref_map=(
@@ -92,9 +92,11 @@ jobs:
 
               # Adjust the line number for the reference file
               if [[ "$Z" == "Z=1" ]]; then
-                reference_line_number=$((line_number - 4460))
+                reference_line_number=$((line_number - 4449))
               elif [[ "$Z" == "Z=1_z10" ]]; then
                 reference_line_number=${ref_line_number_z10[$index]}
+              elif [[ "$Z" == "Z=1e-6" ]]; then
+                reference_line_number=$((line_number - 4450))
               else
                 reference_line_number=$((line_number - 4437))
               fi
