@@ -2,7 +2,7 @@
 
 # Microphysics
 
-*A collection of astrophysical microphysics routines for stellar explosions and interstellar medium chemistry (inclduing primordial chemistry)*
+*A collection of astrophysical microphysics routines for stellar explosions and interstellar medium chemistry (including primordial chemistry)*
 
 There are several core types of microphysics routines hosted here:
 
