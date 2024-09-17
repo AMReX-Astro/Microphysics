@@ -2,7 +2,7 @@
 
 # Microphysics
 
-*A collection of astrophysical microphysics routines for stellar explosions*
+*A collection of astrophysical microphysics routines for stellar explosions and interstellar medium chemistry (inclduing primordial chemistry)*
 
 There are several core types of microphysics routines hosted here:
 
@@ -25,7 +25,9 @@ There are several core types of microphysics routines hosted here:
 
 * `networks/`: these are the reaction networks. They serve both to
   define the composition and its properties, as well as describe the
-  reactions and energy release when reactions occur.
+  reactions and energy release when reactions occur. For ISM chemistry,
+  network contains the differentials of the number density of various
+  chemical species and the gas specific internal energy.
 
 * `neutrinos/`: this holds the plasma neutrino cooling routines used
   in the reaction networks.
@@ -57,7 +59,7 @@ There are several core types of microphysics routines hosted here:
 # AMReX-Astro Codes
 
 At the moment, these routines are written to be compatible with
-the AMReX-Astro codes, Maestro and Castro.
+the AMReX-Astro codes, Maestro, Castro and Quokka.
 
 * Castro: http://amrex-astro.github.io/Castro/
 
