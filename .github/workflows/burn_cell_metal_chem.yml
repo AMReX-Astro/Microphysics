@@ -96,7 +96,7 @@ jobs:
               elif [[ "$Z" == "Z=1_z10" ]]; then
                 reference_line_number=${ref_line_number_z10[$index]}
               elif [[ "$Z" == "Z=1e-6" ]]; then
-                reference_line_number=$((line_number - 4440))
+                reference_line_number=$((line_number - 4450))
               else
                 reference_line_number=$((line_number - 4437))
               fi
