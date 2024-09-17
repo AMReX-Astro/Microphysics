@@ -46,7 +46,7 @@ jobs:
             ["Z=1e-3"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-4"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-5"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
-            ["Z=1e-6"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
+            ["Z=1e-6"]="4441 4453 4455 4457 4458 4461 4462 4465 4471 4476"
           )
 
           declare -A ref_map=(
@@ -95,6 +95,8 @@ jobs:
                 reference_line_number=$((line_number - 4449))
               elif [[ "$Z" == "Z=1_z10" ]]; then
                 reference_line_number=${ref_line_number_z10[$index]}
+              elif [[ "$Z" == "Z=1e-6" ]]; then
+                reference_line_number=$((line_number - 4440))
               else
                 reference_line_number=$((line_number - 4437))
               fi
