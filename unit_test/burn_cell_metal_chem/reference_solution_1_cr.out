@@ -1,0 +1,696 @@
+Initializing AMReX (22.07-875-gb05f69fe3748)...
+AMReX (22.07-875-gb05f69fe3748) initialized
+starting the single zone burn...
+Reading tables from Semenov_PlanckOpacity.dat
+Reading tables from Semenov_PlanckOpacity.dat
+Redshift: 0
+Metallicity: 1
+Dust2gas Ratio: 1
+ 
+Maximum Time (s): 7e+20
+State Temperature (K): 300
+Number Density input (CO_ice): 1e-41
+Number Density input (H2O_ice): 1e-41
+Number Density input (E): 1e-05
+Number Density input (Hp): 1e-05
+Number Density input (H): 0.1
+Number Density input (Hm): 1e-41
+Number Density input (Dp): 1e-41
+Number Density input (D): 1e-06
+Number Density input (H2p): 1e-41
+Number Density input (Dm): 1e-41
+Number Density input (H2): 1e-07
+Number Density input (HDp): 1e-41
+Number Density input (HD): 1e-41
+Number Density input (HEpp): 1e-41
+Number Density input (HEp): 1e-41
+Number Density input (HE): 0.00775
+Number Density input (Cp): 9.27e-06
+Number Density input (Carbon): 1e-41
+Number Density input (CH): 1e-41
+Number Density input (CH2): 1e-41
+Number Density input (CH3): 1e-41
+Number Density input (Op): 1e-41
+Number Density input (O): 3.568e-05
+Number Density input (CH4): 1e-41
+Number Density input (OHp): 1e-41
+Number Density input (OH): 1e-41
+Number Density input (H2Op): 1e-41
+Number Density input (H2O): 1e-41
+Number Density input (H3Op): 1e-41
+Number Density input (COp): 1e-41
+Number Density input (CO): 1e-41
+Number Density input (O2p): 1e-41
+Number Density input (O2): 1e-41
+Number Density input (CO2): 1e-41
+rho: 2.203783613e-25, dd: 0.10781605
+initial eint: 3.061675486e+10
+step 0 done with dt = 4.474802672e+13
+step 1 done with dt = 4.452607132e+13
+step 2 done with dt = 4.430527298e+13
+step 3 done with dt = 4.408559275e+13
+step 4 done with dt = 4.386701572e+13
+step 5 done with dt = 4.364953245e+13
+step 6 done with dt = 4.343313385e+13
+step 7 done with dt = 4.321780935e+13
+step 8 done with dt = 4.300354567e+13
+step 9 done with dt = 4.279032835e+13
+step 10 done with dt = 4.257814095e+13
+step 11 done with dt = 4.236697076e+13
+step 12 done with dt = 4.215681085e+13
+step 13 done with dt = 4.194766029e+13
+step 14 done with dt = 4.173952202e+13
+step 15 done with dt = 4.15323996e+13
+step 16 done with dt = 4.132629517e+13
+step 17 done with dt = 4.112120861e+13
+step 18 done with dt = 4.091713791e+13
+step 19 done with dt = 4.071407973e+13
+step 20 done with dt = 4.051202986e+13
+step 21 done with dt = 4.031098359e+13
+step 22 done with dt = 4.011093598e+13
+step 23 done with dt = 3.991188196e+13
+step 24 done with dt = 3.971381646e+13
+step 25 done with dt = 3.951673445e+13
+step 26 done with dt = 3.93206309e+13
+step 27 done with dt = 3.912550086e+13
+step 28 done with dt = 3.893133942e+13
+step 29 done with dt = 3.87381417e+13
+step 30 done with dt = 3.854590288e+13
+step 31 done with dt = 3.835461817e+13
+step 32 done with dt = 3.81642828e+13
+step 33 done with dt = 3.797489205e+13
+step 34 done with dt = 3.778644122e+13
+step 35 done with dt = 3.759892563e+13
+step 36 done with dt = 3.741234065e+13
+step 37 done with dt = 3.722668164e+13
+step 38 done with dt = 3.704194401e+13
+step 39 done with dt = 3.685812319e+13
+step 40 done with dt = 3.667521462e+13
+step 41 done with dt = 3.649321378e+13
+step 42 done with dt = 3.631211606e+13
+step 43 done with dt = 3.613191716e+13
+step 44 done with dt = 3.595261255e+13
+step 45 done with dt = 3.577419779e+13
+step 46 done with dt = 3.559666845e+13
+step 47 done with dt = 3.542002014e+13
+step 48 done with dt = 3.524424848e+13
+step 49 done with dt = 3.506934914e+13
+step 50 done with dt = 3.489531776e+13
+step 51 done with dt = 3.472215006e+13
+step 52 done with dt = 3.454984174e+13
+step 53 done with dt = 3.437838853e+13
+step 54 done with dt = 3.42077862e+13
+step 55 done with dt = 3.403803052e+13
+step 56 done with dt = 3.386911729e+13
+step 57 done with dt = 3.370104233e+13
+step 58 done with dt = 3.353380148e+13
+step 59 done with dt = 3.336739059e+13
+step 60 done with dt = 3.320180555e+13
+step 61 done with dt = 3.303704227e+13
+step 62 done with dt = 3.287309666e+13
+step 63 done with dt = 3.270996466e+13
+step 64 done with dt = 3.254764224e+13
+step 65 done with dt = 3.238612537e+13
+step 66 done with dt = 3.222541007e+13
+step 67 done with dt = 3.206549236e+13
+step 68 done with dt = 3.190636826e+13
+step 69 done with dt = 3.174803385e+13
+step 70 done with dt = 3.159048521e+13
+step 71 done with dt = 3.143371844e+13
+step 72 done with dt = 3.127772965e+13
+step 73 done with dt = 3.112251499e+13
+step 74 done with dt = 3.096807061e+13
+step 75 done with dt = 3.08143927e+13
+step 76 done with dt = 3.066147744e+13
+step 77 done with dt = 3.050932105e+13
+step 78 done with dt = 3.035791977e+13
+step 79 done with dt = 3.020726985e+13
+step 80 done with dt = 3.005736755e+13
+step 81 done with dt = 2.990820918e+13
+step 82 done with dt = 2.975979103e+13
+step 83 done with dt = 2.961210944e+13
+step 84 done with dt = 2.946516074e+13
+step 85 done with dt = 2.93189413e+13
+step 86 done with dt = 2.917344751e+13
+step 87 done with dt = 2.902867575e+13
+step 88 done with dt = 2.888462245e+13
+step 89 done with dt = 2.874128405e+13
+step 90 done with dt = 2.859865698e+13
+step 91 done with dt = 2.845673773e+13
+step 92 done with dt = 2.831552278e+13
+step 93 done with dt = 2.817500863e+13
+step 94 done with dt = 2.803519173e+13
+step 95 done with dt = 2.789606882e+13
+step 96 done with dt = 2.77576363e+13
+step 97 done with dt = 2.761989081e+13
+step 98 done with dt = 2.748282885e+13
+step 99 done with dt = 2.734644708e+13
+step 100 done with dt = 2.721074213e+13
+step 101 done with dt = 2.707571064e+13
+step 102 done with dt = 2.694134927e+13
+step 103 done with dt = 2.68076547e+13
+step 104 done with dt = 2.66746236e+13
+step 105 done with dt = 2.65422527e+13
+step 106 done with dt = 2.641053871e+13
+step 107 done with dt = 2.627947838e+13
+step 108 done with dt = 2.614906845e+13
+step 109 done with dt = 2.601930571e+13
+step 110 done with dt = 2.589018693e+13
+step 111 done with dt = 2.576170893e+13
+step 112 done with dt = 2.563386856e+13
+step 113 done with dt = 2.55066626e+13
+step 114 done with dt = 2.538008791e+13
+step 115 done with dt = 2.525414136e+13
+step 116 done with dt = 2.512881984e+13
+step 117 done with dt = 2.500412024e+13
+step 118 done with dt = 2.488003949e+13
+step 119 done with dt = 2.475657406e+13
+step 120 done with dt = 2.463372164e+13
+step 121 done with dt = 2.4511479e+13
+step 122 done with dt = 2.438984305e+13
+step 123 done with dt = 2.426881075e+13
+step 124 done with dt = 2.414837909e+13
+step 125 done with dt = 2.402854508e+13
+step 126 done with dt = 2.390930576e+13
+step 127 done with dt = 2.379065818e+13
+step 128 done with dt = 2.367259941e+13
+step 129 done with dt = 2.355512651e+13
+step 130 done with dt = 2.343823659e+13
+step 131 done with dt = 2.332192675e+13
+step 132 done with dt = 2.320619411e+13
+step 133 done with dt = 2.309103581e+13
+step 134 done with dt = 2.2976449e+13
+step 135 done with dt = 2.286243084e+13
+step 136 done with dt = 2.274897851e+13
+step 137 done with dt = 2.26360892e+13
+step 138 done with dt = 2.252376011e+13
+step 139 done with dt = 2.241198848e+13
+step 140 done with dt = 2.230077152e+13
+step 141 done with dt = 2.219010649e+13
+step 142 done with dt = 2.207999065e+13
+step 143 done with dt = 2.197042127e+13
+step 144 done with dt = 2.186139556e+13
+step 145 done with dt = 2.175291095e+13
+step 146 done with dt = 2.164496472e+13
+step 147 done with dt = 2.153755417e+13
+step 148 done with dt = 2.143067668e+13
+step 149 done with dt = 2.132432959e+13
+step 150 done with dt = 2.121851026e+13
+step 151 done with dt = 2.111321607e+13
+step 152 done with dt = 2.100844441e+13
+step 153 done with dt = 2.090419269e+13
+step 154 done with dt = 2.080045833e+13
+step 155 done with dt = 2.069723876e+13
+step 156 done with dt = 2.059453143e+13
+step 157 done with dt = 2.049233379e+13
+step 158 done with dt = 2.039064331e+13
+step 159 done with dt = 2.028945749e+13
+step 160 done with dt = 2.01887738e+13
+step 161 done with dt = 2.008858977e+13
+step 162 done with dt = 1.998890291e+13
+step 163 done with dt = 1.988971076e+13
+step 164 done with dt = 1.979101085e+13
+step 165 done with dt = 1.969280075e+13
+step 166 done with dt = 1.959507803e+13
+step 167 done with dt = 1.949784026e+13
+step 168 done with dt = 1.940108505e+13
+step 169 done with dt = 1.930480998e+13
+step 170 done with dt = 1.920901269e+13
+step 171 done with dt = 1.91136908e+13
+step 172 done with dt = 1.901884195e+13
+step 173 done with dt = 1.89244638e+13
+step 174 done with dt = 1.8830554e+13
+step 175 done with dt = 1.873711024e+13
+step 176 done with dt = 1.864413019e+13
+step 177 done with dt = 1.855161157e+13
+step 178 done with dt = 1.845955207e+13
+step 179 done with dt = 1.836794943e+13
+step 180 done with dt = 1.827680137e+13
+step 181 done with dt = 1.818610563e+13
+step 182 done with dt = 1.809585998e+13
+step 183 done with dt = 1.800606218e+13
+step 184 done with dt = 1.791671e+13
+step 185 done with dt = 1.782780124e+13
+step 186 done with dt = 1.773933369e+13
+step 187 done with dt = 1.765130516e+13
+step 188 done with dt = 1.756371348e+13
+step 189 done with dt = 1.747655648e+13
+step 190 done with dt = 1.7389832e+13
+step 191 done with dt = 1.730353789e+13
+step 192 done with dt = 1.721767202e+13
+step 193 done with dt = 1.713223226e+13
+step 194 done with dt = 1.704721649e+13
+step 195 done with dt = 1.696262262e+13
+step 196 done with dt = 1.687844855e+13
+step 197 done with dt = 1.67946922e+13
+step 198 done with dt = 1.671135149e+13
+step 199 done with dt = 1.662842436e+13
+step 200 done with dt = 1.654590876e+13
+step 201 done with dt = 1.646380264e+13
+step 202 done with dt = 1.638210397e+13
+step 203 done with dt = 1.630081074e+13
+step 204 done with dt = 1.621992092e+13
+step 205 done with dt = 1.613943252e+13
+step 206 done with dt = 1.605934355e+13
+step 207 done with dt = 1.597965202e+13
+step 208 done with dt = 1.590035595e+13
+step 209 done with dt = 1.58214534e+13
+step 210 done with dt = 1.57429424e+13
+step 211 done with dt = 1.566482101e+13
+step 212 done with dt = 1.558708729e+13
+step 213 done with dt = 1.550973933e+13
+step 214 done with dt = 1.543277521e+13
+step 215 done with dt = 1.535619302e+13
+step 216 done with dt = 1.527999087e+13
+step 217 done with dt = 1.520416688e+13
+step 218 done with dt = 1.512871916e+13
+step 219 done with dt = 1.505364584e+13
+step 220 done with dt = 1.497894508e+13
+step 221 done with dt = 1.490461502e+13
+step 222 done with dt = 1.483065382e+13
+step 223 done with dt = 1.475705965e+13
+step 224 done with dt = 1.468383069e+13
+step 225 done with dt = 1.461096513e+13
+step 226 done with dt = 1.453846116e+13
+step 227 done with dt = 1.446631699e+13
+step 228 done with dt = 1.439453083e+13
+step 229 done with dt = 1.432310091e+13
+step 230 done with dt = 1.425202545e+13
+step 231 done with dt = 1.418130271e+13
+step 232 done with dt = 1.411093092e+13
+step 233 done with dt = 1.404090836e+13
+step 234 done with dt = 1.397123327e+13
+step 235 done with dt = 1.390190395e+13
+step 236 done with dt = 1.383291867e+13
+step 237 done with dt = 1.376427572e+13
+step 238 done with dt = 1.369597341e+13
+step 239 done with dt = 1.362801005e+13
+step 240 done with dt = 1.356038396e+13
+step 241 done with dt = 1.349309345e+13
+step 242 done with dt = 1.342613687e+13
+step 243 done with dt = 1.335951256e+13
+step 244 done with dt = 1.329321886e+13
+step 245 done with dt = 1.322725415e+13
+step 246 done with dt = 1.316161678e+13
+step 247 done with dt = 1.309630513e+13
+step 248 done with dt = 1.303131758e+13
+step 249 done with dt = 1.296665254e+13
+step 250 done with dt = 1.290230838e+13
+step 251 done with dt = 1.283828354e+13
+step 252 done with dt = 1.277457641e+13
+step 253 done with dt = 1.271118542e+13
+step 254 done with dt = 1.2648109e+13
+step 255 done with dt = 1.25853456e+13
+step 256 done with dt = 1.252289365e+13
+step 257 done with dt = 1.246075162e+13
+step 258 done with dt = 1.239891796e+13
+step 259 done with dt = 1.233739114e+13
+step 260 done with dt = 1.227616965e+13
+step 261 done with dt = 1.221525196e+13
+step 262 done with dt = 1.215463657e+13
+step 263 done with dt = 1.209432198e+13
+step 264 done with dt = 1.203430669e+13
+step 265 done with dt = 1.197458923e+13
+step 266 done with dt = 1.19151681e+13
+step 267 done with dt = 1.185604185e+13
+step 268 done with dt = 1.1797209e+13
+step 269 done with dt = 1.17386681e+13
+step 270 done with dt = 1.168041771e+13
+step 271 done with dt = 1.162245638e+13
+step 272 done with dt = 1.156478267e+13
+step 273 done with dt = 1.150739517e+13
+step 274 done with dt = 1.145029244e+13
+step 275 done with dt = 1.139347301e+13
+step 276 done with dt = 1.133693557e+13
+step 277 done with dt = 1.128067872e+13
+step 278 done with dt = 1.122470103e+13
+step 279 done with dt = 1.116900114e+13
+step 280 done with dt = 1.111357764e+13
+step 281 done with dt = 1.105842918e+13
+step 282 done with dt = 1.100355439e+13
+step 283 done with dt = 1.09489519e+13
+step 284 done with dt = 1.089462037e+13
+step 285 done with dt = 1.084055846e+13
+step 286 done with dt = 1.078676481e+13
+step 287 done with dt = 1.073323811e+13
+step 288 done with dt = 1.067997703e+13
+step 289 done with dt = 1.062698025e+13
+step 290 done with dt = 1.057424646e+13
+step 291 done with dt = 1.052177434e+13
+step 292 done with dt = 1.046956262e+13
+step 293 done with dt = 1.041760998e+13
+step 294 done with dt = 1.03659152e+13
+step 295 done with dt = 1.03144769e+13
+step 296 done with dt = 1.026329385e+13
+step 297 done with dt = 1.02123648e+13
+step 298 done with dt = 1.016168847e+13
+step 299 done with dt = 1.011126361e+13
+step 300 done with dt = 1.006108896e+13
+step 301 done with dt = 1.001116331e+13
+step 302 done with dt = 9.961485396e+12
+step 303 done with dt = 9.912054003e+12
+step 304 done with dt = 9.862867905e+12
+step 305 done with dt = 9.813925885e+12
+step 306 done with dt = 9.76522673e+12
+step 307 done with dt = 9.716769236e+12
+step 308 done with dt = 9.668552203e+12
+step 309 done with dt = 9.620574438e+12
+step 310 done with dt = 9.572834753e+12
+step 311 done with dt = 9.525331968e+12
+step 312 done with dt = 9.478064906e+12
+step 313 done with dt = 9.431032397e+12
+step 314 done with dt = 9.384233277e+12
+step 315 done with dt = 9.337666389e+12
+step 316 done with dt = 9.291330579e+12
+step 317 done with dt = 9.245224702e+12
+step 318 done with dt = 9.199347615e+12
+step 319 done with dt = 9.153698183e+12
+step 320 done with dt = 9.108275277e+12
+step 321 done with dt = 9.063077773e+12
+step 322 done with dt = 9.018104551e+12
+step 323 done with dt = 8.973354499e+12
+step 324 done with dt = 8.928826361e+12
+step 325 done with dt = 8.884519262e+12
+step 326 done with dt = 8.840432068e+12
+step 327 done with dt = 8.796563668e+12
+step 328 done with dt = 8.752912965e+12
+step 329 done with dt = 8.709478872e+12
+step 330 done with dt = 8.666260311e+12
+step 331 done with dt = 8.623256212e+12
+step 332 done with dt = 8.580465509e+12
+step 333 done with dt = 8.537887144e+12
+step 334 done with dt = 8.495520064e+12
+step 335 done with dt = 8.453363219e+12
+step 336 done with dt = 8.411415567e+12
+step 337 done with dt = 8.369676069e+12
+step 338 done with dt = 8.328143694e+12
+step 339 done with dt = 8.286817412e+12
+step 340 done with dt = 8.245696202e+12
+step 341 done with dt = 8.204779045e+12
+step 342 done with dt = 8.164064929e+12
+step 343 done with dt = 8.123552846e+12
+step 344 done with dt = 8.083241794e+12
+step 345 done with dt = 8.043130775e+12
+step 346 done with dt = 8.003218796e+12
+step 347 done with dt = 7.96350487e+12
+step 348 done with dt = 7.923988014e+12
+step 349 done with dt = 7.88466725e+12
+step 350 done with dt = 7.845541604e+12
+step 351 done with dt = 7.806610109e+12
+step 352 done with dt = 7.7678718e+12
+step 353 done with dt = 7.72932572e+12
+step 354 done with dt = 7.690970914e+12
+step 355 done with dt = 7.652806433e+12
+step 356 done with dt = 7.614831332e+12
+step 357 done with dt = 7.577044672e+12
+step 358 done with dt = 7.539445518e+12
+step 359 done with dt = 7.502032915e+12
+step 360 done with dt = 7.464805973e+12
+step 361 done with dt = 7.427763765e+12
+step 362 done with dt = 7.390905371e+12
+step 363 done with dt = 7.354229866e+12
+step 364 done with dt = 7.317736359e+12
+step 365 done with dt = 7.281423943e+12
+step 366 done with dt = 7.245291718e+12
+step 367 done with dt = 7.209338789e+12
+step 368 done with dt = 7.173564266e+12
+step 369 done with dt = 7.137967263e+12
+step 370 done with dt = 7.1025469e+12
+step 371 done with dt = 7.067302298e+12
+step 372 done with dt = 7.032232588e+12
+step 373 done with dt = 6.997336899e+12
+step 374 done with dt = 6.96261437e+12
+step 375 done with dt = 6.92806414e+12
+step 376 done with dt = 6.893685354e+12
+step 377 done with dt = 6.859477163e+12
+step 378 done with dt = 6.825438718e+12
+step 379 done with dt = 6.791569179e+12
+step 380 done with dt = 6.757867706e+12
+step 381 done with dt = 6.724333465e+12
+step 382 done with dt = 6.690965628e+12
+step 383 done with dt = 6.657763367e+12
+step 384 done with dt = 6.624725861e+12
+step 385 done with dt = 6.591852294e+12
+step 386 done with dt = 6.55914185e+12
+step 387 done with dt = 6.526593721e+12
+step 388 done with dt = 6.494207101e+12
+step 389 done with dt = 6.461981188e+12
+step 390 done with dt = 6.429915186e+12
+step 391 done with dt = 6.398008301e+12
+step 392 done with dt = 6.366259742e+12
+step 393 done with dt = 6.334668725e+12
+step 394 done with dt = 6.303234467e+12
+step 395 done with dt = 6.271956191e+12
+step 396 done with dt = 6.240833122e+12
+step 397 done with dt = 6.209864491e+12
+step 398 done with dt = 6.17904953e+12
+step 399 done with dt = 6.148387478e+12
+step 400 done with dt = 6.117877575e+12
+step 401 done with dt = 6.087519067e+12
+step 402 done with dt = 6.057311202e+12
+step 403 done with dt = 6.027253233e+12
+step 404 done with dt = 5.997344415e+12
+step 405 done with dt = 5.96758401e+12
+step 406 done with dt = 5.937971279e+12
+step 407 done with dt = 5.908505491e+12
+step 408 done with dt = 5.879185915e+12
+step 409 done with dt = 5.850011828e+12
+step 410 done with dt = 5.820982505e+12
+step 411 done with dt = 5.792097231e+12
+step 412 done with dt = 5.763355288e+12
+step 413 done with dt = 5.734755966e+12
+step 414 done with dt = 5.706298558e+12
+step 415 done with dt = 5.677982359e+12
+step 416 done with dt = 5.649806669e+12
+step 417 done with dt = 5.621770789e+12
+step 418 done with dt = 5.593874028e+12
+step 419 done with dt = 5.566115693e+12
+step 420 done with dt = 5.538495099e+12
+step 421 done with dt = 5.511011562e+12
+step 422 done with dt = 5.4836644e+12
+step 423 done with dt = 5.456452939e+12
+step 424 done with dt = 5.429376503e+12
+step 425 done with dt = 5.402434424e+12
+step 426 done with dt = 5.375626034e+12
+step 427 done with dt = 5.348950671e+12
+step 428 done with dt = 5.322407673e+12
+step 429 done with dt = 5.295996384e+12
+step 430 done with dt = 5.26971615e+12
+step 431 done with dt = 5.243566322e+12
+step 432 done with dt = 5.217546251e+12
+step 433 done with dt = 5.191655295e+12
+step 434 done with dt = 5.165892811e+12
+step 435 done with dt = 5.140258164e+12
+step 436 done with dt = 5.114750698e+12
+step 437 done with dt = 5.089369812e+12
+step 438 done with dt = 5.064114892e+12
+step 439 done with dt = 5.038985281e+12
+step 440 done with dt = 5.013980361e+12
+step 441 done with dt = 4.989099516e+12
+step 442 done with dt = 4.964342133e+12
+step 443 done with dt = 4.939707597e+12
+step 444 done with dt = 4.915195299e+12
+step 445 done with dt = 4.890804633e+12
+step 446 done with dt = 4.866534996e+12
+step 447 done with dt = 4.842385786e+12
+step 448 done with dt = 4.818356407e+12
+step 449 done with dt = 4.794446263e+12
+step 450 done with dt = 4.770654764e+12
+step 451 done with dt = 4.74698132e+12
+step 452 done with dt = 4.723425345e+12
+step 453 done with dt = 4.699986257e+12
+step 454 done with dt = 4.676663476e+12
+step 455 done with dt = 4.653456424e+12
+step 456 done with dt = 4.630364527e+12
+step 457 done with dt = 4.607387214e+12
+step 458 done with dt = 4.584523916e+12
+step 459 done with dt = 4.561774067e+12
+step 460 done with dt = 4.539137105e+12
+step 461 done with dt = 4.516612469e+12
+step 462 done with dt = 4.494199601e+12
+step 463 done with dt = 4.471897949e+12
+step 464 done with dt = 4.449706958e+12
+step 465 done with dt = 4.42762608e+12
+step 466 done with dt = 4.40565477e+12
+step 467 done with dt = 4.383792482e+12
+step 468 done with dt = 4.362038677e+12
+step 469 done with dt = 4.340392767e+12
+step 470 done with dt = 4.318854288e+12
+step 471 done with dt = 4.297422698e+12
+step 472 done with dt = 4.27609746e+12
+step 473 done with dt = 4.254878043e+12
+step 474 done with dt = 4.233763919e+12
+step 475 done with dt = 4.212754566e+12
+step 476 done with dt = 4.191849463e+12
+step 477 done with dt = 4.171048093e+12
+step 478 done with dt = 4.15034994e+12
+step 479 done with dt = 4.129754492e+12
+step 480 done with dt = 4.109261246e+12
+step 481 done with dt = 4.088869685e+12
+step 482 done with dt = 4.068579308e+12
+step 483 done with dt = 4.048389612e+12
+step 484 done with dt = 4.028300098e+12
+step 485 done with dt = 4.008310269e+12
+step 486 done with dt = 3.98841963e+12
+step 487 done with dt = 3.968627691e+12
+step 488 done with dt = 3.948933959e+12
+step 489 done with dt = 3.92933795e+12
+step 490 done with dt = 3.909839177e+12
+step 491 done with dt = 3.890437158e+12
+step 492 done with dt = 3.871131413e+12
+step 493 done with dt = 3.851921464e+12
+step 494 done with dt = 3.832806828e+12
+step 495 done with dt = 3.813787044e+12
+step 496 done with dt = 3.794861639e+12
+step 497 done with dt = 3.77603014e+12
+step 498 done with dt = 3.757292087e+12
+step 499 done with dt = 3.738647014e+12
+step 500 done with dt = 3.72009446e+12
+step 501 done with dt = 3.701633965e+12
+step 502 done with dt = 3.683265073e+12
+step 503 done with dt = 3.664987328e+12
+step 504 done with dt = 3.646800278e+12
+step 505 done with dt = 3.628703473e+12
+step 506 done with dt = 3.610696466e+12
+step 507 done with dt = 3.592778811e+12
+step 508 done with dt = 3.574950064e+12
+step 509 done with dt = 3.557209785e+12
+step 510 done with dt = 3.539557534e+12
+step 511 done with dt = 3.521992875e+12
+step 512 done with dt = 3.504515372e+12
+step 513 done with dt = 3.487124595e+12
+step 514 done with dt = 3.469820111e+12
+step 515 done with dt = 3.452601493e+12
+step 516 done with dt = 3.435468315e+12
+step 517 done with dt = 3.418420154e+12
+step 518 done with dt = 3.401456586e+12
+step 519 done with dt = 3.384577193e+12
+step 520 done with dt = 3.367781557e+12
+step 521 done with dt = 3.351069261e+12
+step 522 done with dt = 3.334439894e+12
+step 523 done with dt = 3.317893042e+12
+step 524 done with dt = 3.301428297e+12
+step 525 done with dt = 3.285045252e+12
+step 526 done with dt = 3.2687435e+12
+step 527 done with dt = 3.252522639e+12
+step 528 done with dt = 3.236382267e+12
+step 529 done with dt = 3.220321984e+12
+step 530 done with dt = 3.204341394e+12
+step 531 done with dt = 3.188440102e+12
+step 532 done with dt = 3.172617712e+12
+step 533 done with dt = 3.156873835e+12
+step 534 done with dt = 3.14120808e+12
+step 535 done with dt = 3.125620059e+12
+step 536 done with dt = 3.110109388e+12
+step 537 done with dt = 3.094675683e+12
+step 538 done with dt = 3.079318561e+12
+step 539 done with dt = 3.064037642e+12
+step 540 done with dt = 3.048832549e+12
+step 541 done with dt = 3.033702904e+12
+step 542 done with dt = 3.018648334e+12
+step 543 done with dt = 3.003668467e+12
+step 544 done with dt = 2.988762931e+12
+step 545 done with dt = 2.973931357e+12
+step 546 done with dt = 2.959173379e+12
+step 547 done with dt = 2.944488632e+12
+step 548 done with dt = 2.929876752e+12
+step 549 done with dt = 2.915337377e+12
+step 550 done with dt = 2.900870148e+12
+step 551 done with dt = 2.886474707e+12
+step 552 done with dt = 2.872150698e+12
+step 553 done with dt = 2.857897766e+12
+step 554 done with dt = 2.843715558e+12
+step 555 done with dt = 2.829603724e+12
+step 556 done with dt = 2.815561915e+12
+step 557 done with dt = 2.801589781e+12
+step 558 done with dt = 2.787686978e+12
+step 559 done with dt = 2.773853163e+12
+step 560 done with dt = 2.760087994e+12
+step 561 done with dt = 2.746391128e+12
+step 562 done with dt = 2.732762229e+12
+step 563 done with dt = 2.719200957e+12
+step 564 done with dt = 2.705706979e+12
+step 565 done with dt = 2.692279959e+12
+step 566 done with dt = 2.678919566e+12
+step 567 done with dt = 2.665625469e+12
+step 568 done with dt = 2.652397339e+12
+step 569 done with dt = 2.639234849e+12
+step 570 done with dt = 2.626137673e+12
+step 571 done with dt = 2.613105486e+12
+step 572 done with dt = 2.600137968e+12
+step 573 done with dt = 2.587234796e+12
+step 574 done with dt = 2.574395634e+12
+step 575 done with dt = 2.56162019e+12
+step 576 done with dt = 2.548908145e+12
+step 577 done with dt = 2.536259181e+12
+step 578 done with dt = 2.523672984e+12
+step 579 done with dt = 2.511149243e+12
+step 580 done with dt = 2.498687646e+12
+step 581 done with dt = 2.486287886e+12
+step 582 done with dt = 2.473949656e+12
+step 583 done with dt = 2.46167265e+12
+step 584 done with dt = 2.449456564e+12
+step 585 done with dt = 2.437301097e+12
+step 586 done with dt = 2.425205947e+12
+step 587 done with dt = 2.413170815e+12
+step 588 done with dt = 2.401195404e+12
+step 589 done with dt = 2.389279416e+12
+step 590 done with dt = 2.377422558e+12
+step 591 done with dt = 2.365624536e+12
+step 592 done with dt = 2.353885057e+12
+step 593 done with dt = 2.342203832e+12
+step 594 done with dt = 2.330580572e+12
+step 595 done with dt = 2.319014988e+12
+step 596 done with dt = 2.307506795e+12
+step 597 done with dt = 2.296055707e+12
+step 598 done with dt = 2.284661442e+12
+step 599 done with dt = 2.273323718e+12
+------------------------------------
+successful? 1
+------------------------------------
+T initial = 300
+T final =   12.35338808
+Tdust initial = 2.73
+Tdust final =   2.730066454
+Eint initial = 3.061675486e+10
+Eint final =   1202692821
+rho initial = 2.203783613e-25
+rho final =   8.624134772e-23
+numdens final =   36.30156288
+------------------------------------
+New number densities: 
+8.340753382e-05
+8.987939093e-09
+0.00526063392
+0.004442922023
+27.32067892
+2.30003656e-11
+-1.074469436e-20
+2.285861465e-05
+9.939446539e-09
+2.531778543e-17
+5.918421555
+7.69294563e-20
+0.0003687247664
+1.412054988e-27
+0.0002642159483
+3.034507111
+0.0005534829368
+0.002992914067
+1.795908478e-07
+2.947038451e-11
+6.514706167e-24
+5.755398039e-11
+0.01388832345
+1.775819491e-24
+1.251623256e-09
+4.719392871e-08
+1.26576225e-09
+8.380768525e-09
+5.053022428e-10
+1.148115165e-11
+7.755077217e-05
+3.113873052e-12
+3.351601989e-09
+5.963394773e-11
+AMReX (22.07-875-gb05f69fe3748) finalized
