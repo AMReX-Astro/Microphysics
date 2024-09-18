@@ -75,7 +75,7 @@ jobs:
             if [[ "$Z" == "Z=1_z10" ]]; then
               # Modify the redshift line for Z=1_z10
               sed -i 's/network.redshift = 0.0/network.redshift = 10.0/g' $modified_input_file
-            else
+            elif [[ "$Z" != "Z=1_cr" ]]; then
               # Replace the metallicity and dust2gas_ratio values for other Z values
               sed -i 's/network.metallicity = .*/network.metallicity = '"$Z_val"'/g' $modified_input_file
               sed -i 's/network.dust2gas_ratio = .*/network.dust2gas_ratio = '"$Z_val"'/g' $modified_input_file
