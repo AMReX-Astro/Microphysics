@@ -535,7 +535,7 @@ void rhs_specie(const burn_t& state,
 
     Real x198 = X(10)*x196 - x132*x133 + x133*(-x197 - 1.0e-99);
 
-    Real x199 = std::pow(10.0, -0.12690000000000001*std::pow(x185, -3.0)*((x72)*(x72)*(x72)) + 1.1180000000000001*std::pow(x185, -2.0)*((x72)*(x72)) - 1.5229999999999999*x187 - 19.379999999999999) + 1.0e-99;
+    Real x199 = std::pow(10.0, -0.12690000000000001*amrex::Math::powi<-3>(x185)*((x72)*(x72)*(x72)) + 1.1180000000000001*amrex::Math::powi<-2>(x185)*((x72)*(x72)) - 1.5229999999999999*x187 - 19.379999999999999) + 1.0e-99;
 
     Real x200 = -x199;
 
@@ -1113,7 +1113,7 @@ Real rhs_eint(const burn_t& state,
 
     Real x28 = std::exp((-4)*std::log(std::abs(x24)));
 
-    Real x29 = std::pow(x24, -3);
+    Real x29 = amrex::Math::powi<-3>(x24);
 
     Real x30 = std::exp((-2)*std::log(std::abs(x24)));
 
@@ -1189,11 +1189,11 @@ Real rhs_eint(const burn_t& state,
 
     Real x54 = ((x51)*(x51));
 
-    Real x55 = std::pow(x24, -5);
+    Real x55 = amrex::Math::powi<-5>(x24);
 
     Real x56 = std::exp((-8)*std::log(std::abs(x24)));
 
-    Real x57 = std::pow(x24, -7);
+    Real x57 = amrex::Math::powi<-7>(x24);
 
     Real x58 = std::exp((-6)*std::log(std::abs(x24)));
 
