@@ -91,7 +91,7 @@ jobs:
               if [[ "$Z" == "Z=1e-4_cr" ]]; then
                  # Replace the metallicity and dust2gas_ratio values for other Z values
                  sed -i 's/network.metallicity = 1/network.metallicity = 1e-4/g' $modified_input_file
-                 sed -i 's/network.dust2gas_ratio = 1/network.dust2gas_ratio = 1e-4/g' $modified_input_file 
+                 sed -i 's/network.dust2gas_ratio = 1/network.dust2gas_ratio = 1e-4/g' $modified_input_file
               fi
            fi
 
