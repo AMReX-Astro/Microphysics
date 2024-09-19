@@ -33,7 +33,7 @@ jobs:
           cd unit_test/burn_cell_metal_chem
           make -j 2
 
-      - name: Run and compare outputs for different Z values
+      - name: Run and compare outputs for different Z values, also including cosmic ray ionization
         run: |
           set -e
           cd unit_test/burn_cell_metal_chem
@@ -46,7 +46,9 @@ jobs:
             ["Z=1e-3"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-4"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
             ["Z=1e-5"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
-            ["Z=1e-6"]="4451 4453 4455 4457 4458 4461 4462 4465 4471 4476"
+            ["Z=1e-6"]="4463 4465 4467 4469 4470 4473 4474 4477 4483 4488"
+            ["Z=1_cr"]="652 654 656 658 659 662 663 666 672 677"
+            ["Z=1e-4_cr"]="652 654 656 658 659 662 663 666 672 677"
           )
 
           declare -A ref_map=(
@@ -58,6 +60,8 @@ jobs:
             ["Z=1e-4"]="reference_solution_1e-4.out"
             ["Z=1e-5"]="reference_solution_1e-5.out"
             ["Z=1e-6"]="reference_solution_1e-6.out"
+            ["Z=1_cr"]="reference_solution_1_cr.out"
+            ["Z=1e-4_cr"]="reference_solution_1e-4_cr.out"
           )
 
           ref_line_number_z10=(1 2 3 5 7 10 17 23 28)
@@ -66,18 +70,30 @@ jobs:
           original_input_file="inputs_metal_chem_1"
           modified_input_file="inputs_metal_chem_modified"
 
-          for Z in "Z=1" "Z=1_z10" "Z=1e-1" "Z=1e-2" "Z=1e-3" "Z=1e-4" "Z=1e-5" "Z=1e-6"; do
+          for Z in "Z=1" "Z=1_z10" "Z=1e-1" "Z=1e-2" "Z=1e-3" "Z=1e-4" "Z=1e-5" "Z=1e-6" "Z=1_cr" "Z=1e-4_cr"; do
             cp $original_input_file $modified_input_file
             Z_val=${Z//Z=/}
 
             if [[ "$Z" == "Z=1_z10" ]]; then
               # Modify the redshift line for Z=1_z10
               sed -i 's/network.redshift = 0.0/network.redshift = 10.0/g' $modified_input_file
-            else
+            elif [[ "$Z" != "Z=1_cr" && "$Z" != "Z=1e-4_cr" ]]; then
               # Replace the metallicity and dust2gas_ratio values for other Z values
               sed -i 's/network.metallicity = .*/network.metallicity = '"$Z_val"'/g' $modified_input_file
               sed -i 's/network.dust2gas_ratio = .*/network.dust2gas_ratio = '"$Z_val"'/g' $modified_input_file
             fi
+
+            if [[ "$Z" == "Z=1_cr" || "$Z" == "Z=1e-4_cr" ]]; then
+              # Modify the number of steps, since CRs impact lowest densities
+              sed -i 's/unit_test.nsteps = 100000/unit_test.nsteps = 600/g' $modified_input_file
+              # Modify the crate line for Z=1_cr
+              sed -i 's/network.crate = 0.0/network.crate = 3e-17/g' $modified_input_file
+              if [[ "$Z" == "Z=1e-4_cr" ]]; then
+                 # Replace the metallicity and dust2gas_ratio values for other Z values
+                 sed -i 's/network.metallicity = 1/network.metallicity = 1e-4/g' $modified_input_file
+                 sed -i 's/network.dust2gas_ratio = 1/network.dust2gas_ratio = 1e-4/g' $modified_input_file
+              fi
+           fi
 
             output_file="test_${Z_val}.out"
             ./main1d.gnu.DEBUG.ex $modified_input_file amrex.fpe_trap_{invalid,zero,overflow}=1 > $output_file
@@ -96,7 +112,9 @@ jobs:
               elif [[ "$Z" == "Z=1_z10" ]]; then
                 reference_line_number=${ref_line_number_z10[$index]}
               elif [[ "$Z" == "Z=1e-6" ]]; then
-                reference_line_number=$((line_number - 4450))
+                reference_line_number=$((line_number - 4462))
+              elif [[ "$Z" == "Z=1_cr" || "$Z" == "Z=1e-4_cr" ]]; then
+                reference_line_number=$((line_number - 651))
               else
                 reference_line_number=$((line_number - 4437))
               fi

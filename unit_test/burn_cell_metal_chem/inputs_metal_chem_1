@@ -80,6 +80,7 @@ network.redshift = 0.0
 network.metallicity = 1
 network.dust2gas_ratio = 1
 network.small_x = 1e-60
+network.crate = 0.0
 
 # amrex runtime parameters
 # these params help debug the code
