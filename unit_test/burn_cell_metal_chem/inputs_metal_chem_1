@@ -12,8 +12,8 @@ unit_test.tmax = 7.e20
 unit_test.temperature = 3e2
 unit_test.ninit = 1e-1
 # initial number densities (will be scaled to metallicity provided below automatically by burn_cell)
-unit_test.primary_species_1 = 1e-40     #co_ice
-unit_test.primary_species_2 = 1e-40     #h2o_ice
+unit_test.primary_species_1 = 1e-40     #co_total
+unit_test.primary_species_2 = 1e-40     #h2o_total
 unit_test.primary_species_3 = 1e-4      #e
 unit_test.primary_species_4 = 1e-4      #h+
 unit_test.primary_species_5 = 1e0       #h
