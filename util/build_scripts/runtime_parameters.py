@@ -173,11 +173,11 @@ class Param:
             ostr += f"        amrex::Vector<{self.get_cxx_decl()}> {self.name}_tmp({self.size}, {self.default_format()});\n"
             ostr += f"        if (pp.queryarr(\"{self.name}\", {self.name}_tmp, 0, {self.size})) {{\n"
             ostr += f"            for (int n = 0; n < {self.size}; n++) {{\n"
-            ostr += f"                {cname}{struct_name}.{self.namespace}{self.namespace_suffix}.{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
+            ostr += f"                {cname}{struct_name}.{self.namespace}.{self.cpp_var_name}[n] = {self.name}_tmp[n];\n"
             ostr += "            }\n\n"
             ostr += "        }\n\n"
         else:
-            ostr += f"pp.query(\"{self.name}\", {cname}{struct_name}.{self.namespace}{self.namespace_suffix}.{self.cpp_var_name});\n"
+            ostr += f"pp.query(\"{self.name}\", {cname}{struct_name}.{self.namespace}.{self.cpp_var_name});\n"
 
         return ostr
 
@@ -198,11 +198,10 @@ class Param:
 
         if self.dtype == "string":
             return f'{val}'
-        if self.dtype in ["bool", "logical"]:
-            # this is deprecated -- we should just use int
-            if val.lower() in [".true.", "true"]:
-                return 1
-            return 0
+        if self.dtype == "bool":
+            if val.strip() in ["1", "True", "TRUE", "true"]:
+                return "true"
+            return "false"
         if self.dtype == "real":
             if "d" in val:
                 val = val.replace("d", "e")

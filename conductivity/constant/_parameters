@@ -1,6 +1,6 @@
 @namespace: conductivity
 
-const_conductivity   real     1.0d0
+const_conductivity   real     1.0e0
 
 
 

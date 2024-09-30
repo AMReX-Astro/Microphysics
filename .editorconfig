@@ -53,8 +53,8 @@ indent_style = tab
 indent_size = unset
 
 
-[util/gcem/**]
-# don't mess with the gcem subtree
+[util/{autodiff,gcem}/**]
+# don't mess with the autodiff or gcem subtrees
 indent_style = unset
 indent_size = unset
 trim_trailing_whitespace = unset

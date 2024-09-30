@@ -33,11 +33,11 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
 
     int evaluate_jacobian = 1;
 
-    if (use_jacobian_caching) {
+    if (integrator_rp::use_jacobian_caching) {
         evaluate_jacobian = 0;
     }
 
-    if (use_jacobian_caching) {
+    if (integrator_rp::use_jacobian_caching) {
         // Now evaluate the cases where we're caching the Jacobian but aren't
         // going to be using the cached Jacobian.
 
@@ -45,7 +45,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
         // steps, we consider the cached Jacobian too old and will want to re-evaluate
         // it, so we look at whether the step of the last Jacobian evaluation (NSLJ)
         // is more than max_steps_between_jacobian_evals steps in the past.
-        if (vstate.NST == 0 || vstate.NST > vstate.NSLJ + max_steps_between_jacobian_evals) {
+        if (vstate.n_step == 0 || vstate.n_step > vstate.NSLJ + max_steps_between_jacobian_evals) {
             evaluate_jacobian = 1;
         }
 
@@ -71,22 +71,19 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             // For the analytic Jacobian, call the user-supplied function.
 
             // Increment the Jacobian evaluation counter.
-            vstate.NJE += 1;
+            vstate.n_jac += 1;
 
             // Refresh the timestep marker for the last Jacobian evaluation.
-            vstate.NSLJ = vstate.NST;
+            vstate.NSLJ = vstate.n_step;
 
             // Indicate that the Jacobian is current for this solve.
             vstate.JCUR = 1;
-
-            // Initialize the Jacobian to zero
-            vstate.jac.zero();
 
             jac(vstate.tn, state, vstate, vstate.jac);
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
-            if (use_jacobian_caching == 1) {
+            if (integrator_rp::use_jacobian_caching == 1) {
                 vstate.jac_save = vstate.jac;
             }
 #endif
@@ -97,30 +94,30 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             // For the numerical Jacobian, make N calls to the RHS to approximate it.
 
             // Increment the Jacobian evaluation counter.
-            vstate.NJE += 1;
+            vstate.n_jac += 1;
 
             // Refresh the timestep marker for the last Jacobian evaluation.
-            vstate.NSLJ = vstate.NST;
+            vstate.NSLJ = vstate.n_step;
 
             // Indicate that the Jacobian is current for this solve.
             vstate.JCUR = 1;
 
-            Real fac = 0.0_rt;
+            amrex::Real fac = 0.0_rt;
             for (int i = 1; i <= int_neqs; ++i) {
                 fac += (vstate.savf(i) * vstate.ewt(i)) * (vstate.savf(i) * vstate.ewt(i));
             }
             fac = std::sqrt(fac / int_neqs);
 
-            Real R0 = 1000.0_rt * std::abs(vstate.H) * UROUND * int_neqs * fac;
+            amrex::Real R0 = 1000.0_rt * std::abs(vstate.H) * UROUND * int_neqs * fac;
             if (R0 == 0.0_rt) {
                 R0 = 1.0_rt;
             }
 
-            const bool in_jacobian = true;
+            constexpr bool in_jacobian = true;
             for (int j = 1; j <= int_neqs; ++j) {
-                const Real yj = vstate.y(j);
+                const amrex::Real yj = vstate.y(j);
 
-                const Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / vstate.ewt(j));
+                const amrex::Real R = amrex::max(std::sqrt(UROUND) * std::abs(yj), R0 / vstate.ewt(j));
                 vstate.y(j) += R;
                 fac = 1.0_rt / R;
 
@@ -133,11 +130,11 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
             }
 
             // Increment the RHS evaluation counter by N.
-            vstate.NFE += int_neqs;
+            vstate.n_rhs += int_neqs;
 
 #ifdef ALLOW_JACOBIAN_CACHING
             // Store the Jacobian if we're caching.
-            if (use_jacobian_caching == 1) {
+            if (integrator_rp::use_jacobian_caching == 1) {
                 vstate.jac_save = vstate.jac;
             }
 #endif
@@ -160,8 +157,8 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
     // Multiply Jacobian by a scalar, add the identity matrix
     // (along the diagonal), and do LU decomposition.
 
-    const Real hrl1 = vstate.H * vstate.RL1;
-    const Real con = -hrl1;
+    const amrex::Real hrl1 = vstate.H * vstate.RL1;
+    const amrex::Real con = -hrl1;
 
     vstate.jac.mul(con);
     vstate.jac.add_identity();
@@ -169,8 +166,7 @@ void dvjac (int& IERPJ, BurnT& state, DvodeT& vstate)
     int IER{};
 
 #ifdef NEW_NETWORK_IMPLEMENTATION
-    RHS::dgefa(vstate.jac);
-    IER = 0;
+    IER = RHS::dgefa(vstate.jac);
 #else
     if (integrator_rp::linalg_do_pivoting == 1) {
         constexpr bool allow_pivot{true};

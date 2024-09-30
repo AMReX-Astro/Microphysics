@@ -1,3 +1,132 @@
+# 24.09
+
+  * Improvements to the primordial chemistry network and the addition
+    of a new version that includes metals and dust (#1642, #1644)
+
+  * code clean-ups (#1645)
+
+  * documentation improvements (#1637)
+
+  * outputting the burn_t now prints the mass fractions / number densities
+    in scientific notation (#1643)
+
+  * improvements to the looping and zeroing of the Jacobian in the
+    integrators (#1636, #1640)
+
+# 24.08
+
+  * autodiff is now used with the templated reaction networks (#1614)
+    + some autodiff clean-ups and derivative fixes (#1604, #1612,
+    #1613, #1616, #1619, #1633)
+
+  * we can now output warnings from GPUs if you compile with
+    `USE_GPU_PRINTF=TRUE` (#1629, #1635)
+
+  * documentation improvements (#1570, #1628)
+
+  * a new jacobian unit (`jac_cell`) test was added that compares the
+    numerical and analytic Jacobians (#1618)
+
+  * support for Strang + NSE has been removed.  NSE only works with
+    SDC now (#1549, #1621)
+
+  * the network `CNO_He_burn` was added for explosive H/He burning
+    (#1622)
+
+  * code clean-ups (#1582, #1602, #1609, #1623, #1624, #1625, #1626,
+    #1627, #1631, #1639)
+
+  * `test_nse_net` now also tests the NSE EOS interface (#1621)
+
+  * the self-consistent NSE + SDC update has been synced with the
+    tabular NSE implementation (#1569, #1607, #1617)
+
+  * `test_jac` was not correctly evaluating the numerical Jacobian
+    (#1615)
+
+  * the `fast_atan` function is now more accurate (#1611)
+
+  * `test_ase` was renamed `test_nse_net` and the old `test_nse` was
+    removed (#1610)
+
+  * the old `test_screening` unit test was removed (#1608)
+
+  * the RKC integrator now supports NSE bailout (#1544)
+
+  * a second temperature check for tabular NSE was added -- above this
+    temperature we don't consider composition (#1547)
+
+  * a SDC+NSE unit test was added (#1548)
+
+  * a fast log and fast pow approximation was added (#1591)
+
+  * the primordial_chem network now uses the fast math routines (#1605)
+
+  * fix potential Inf in constexpr linear algebra (#1603)
+
+# 24.07
+
+   * added an autodiff library and converted all of the screening
+     functions to use autodiff for the thermodynamic derivatives
+     (#1581, #1588, #1593, #1596, #1597, #1600)
+
+   * some testing infrastructure fixes (#1598, #1589)
+
+   * documentation improvements (#1594)
+
+   * added approximate math functions for exp and atan (#1583, #1586)
+
+   * fix return code for PrimordialChem unit test (#1590)
+
+   * NSE optimizations (including chabrier1998 screening) #1585
+
+   * remove "using namespace amrex" from most headers (#1584)
+
+   * NSE table can work with other network now (#1576, #1577, #1580)
+
+   * the `subch_full` and `subch_approx` networks were removed -- these
+     are replaced by `subch_simple` and `subch_base` (#1578)
+
+   * retry tolerances now default to use the same values as the first
+     attempt, unless they are explicitly set in an inputs file (#1573)
+
+# 24.06
+
+   * added the ability to access the runtime parameters via a struct.
+     This will eventually be used to remove the dependency on globals
+     (#1433, #1575)
+
+   * simplified the integrators by extracting common infrastructure
+     into setup and cleanup functions (#1515, #1546)
+
+   * lots of documentation improvements including sectioning (#1559)
+     integrators (#1560, #1561, #1562, #1563, #1566, #1567, #1568),
+     runtime parameters (#1557), and link checking (#1552)
+
+   * CUDA no longer requires VODE + generalize some `AMREX_USE_CUDA`
+     to `AMREX_USE_GPU` (#1564)
+
+   * self-consistent NSE now accepted the temperature threshold as a
+     runtime parameter (#1558)
+
+   * general code cleanups (#1537, #1551, #1553, #1554)
+
+   * unit tests no longer append `.cxx` to output (#1309)
+
+   * added an `eos_rh_t` EOS type (#1539)
+
+# 24.05
+
+   * Runtime parameters can now be type `bool` (#1536)
+
+   * more clang-tidy and compiler warning cleaning (#1527 #1530,
+     #1532, #1533)
+
+   * Remove recursion in quicksort to avoid CUDA stack limits (#1531)
+
+   * Update the pynucastro networks to cache derived rate partition
+     functions (#1529)
+
 # 24.04
 
    * A new `test_screening_templated` unit test was added -- this

@@ -20,7 +20,9 @@
 // First check to see if we're in the ballpark of nse state
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
+void check_nse_molar(const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
+                     const amrex::Array1D<amrex::Real, 1, NumSpec>& Y_nse,
+                     bool& nse_check) {
 
     // This function gives the first estimate whether we're in the nse or not
     // it checks whether the molar fractions of n,p,a are approximately in NSE
@@ -44,13 +46,13 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
     for (int n = 0; n < NumSpec; ++n) {
 
         if (n == NSE_INDEX::H1_index || n == NSE_INDEX::N_index) {
-            r /= state.xn[n] * state.xn[n] * aion_inv[n] * aion_inv[n];
-            r_nse /= nse_state.xn[n] * nse_state.xn[n] * aion_inv[n] * aion_inv[n];
+            r /= Y(n+1) * Y(n+1);
+            r_nse /= Y_nse(n+1) * Y_nse(n+1);
         }
 
         else if (n == NSE_INDEX::He4_index) {
-            r *= state.xn[n] * aion_inv[n];
-            r_nse *= nse_state.xn[n] * aion_inv[n];
+            r *= Y(n+1);
+            r_nse *= Y_nse(n+1);
         }
     }
 
@@ -59,7 +61,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
     // if there is neutron in the network
 
-    if ((std::abs(r - r_nse) < 0.5_rt*r_nse)
+    if ((std::abs(r - r_nse) < 0.5_rt * r_nse)
         && (NSE_INDEX::N_index != -1)) {
         nse_check = true;
         return;
@@ -67,7 +69,7 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
 
     // if there is no neutron in the network
 
-    if ((std::abs(r - r_nse) < 0.25_rt*r_nse)
+    if ((std::abs(r - r_nse) < 0.25_rt * r_nse)
         && (NSE_INDEX::N_index == -1)) {
         nse_check = true;
         return;
@@ -76,9 +78,8 @@ void check_nse_molar(burn_t& state, const burn_t& nse_state, bool& nse_check) {
     // Overall molar fraction check
 
     for (int n = 0; n < NumSpec; ++n) {
-        Real abs_diff = std::abs(state.xn[n] - nse_state.xn[n]) / aion[n];
-        Real rel_diff = abs_diff / (state.xn[n] / aion[n]);
-        if (abs_diff > nse_abs_tol && rel_diff > nse_rel_tol) {
+        amrex::Real abs_diff = std::abs(Y(n+1) - Y_nse(n+1));
+        if (abs_diff > nse_abs_tol && abs_diff > nse_rel_tol * Y(n+1)) {
             return;
         }
     }
@@ -228,7 +229,7 @@ bool in_single_group(const amrex::Array1D<int, 1, NumSpec>& group_ind) {
 template <typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_timescales,
-                             const int current_rate_index, const burn_t& state,
+                             const int current_rate_index, const amrex::Real rho,
                              const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                              const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
                              const amrex::Real t_s) {
@@ -301,14 +302,14 @@ void fill_reaction_timescale(amrex::Array1D<T, 1, Rates::NumRates>& reaction_tim
         if (NSE_INDEX::rate_indices(current_rate_index, 2) == NSE_INDEX::rate_indices(current_rate_index, 3)) {
             b_f *= 0.5_rt;
         }
-        b_f *= Y(NSE_INDEX::rate_indices(current_rate_index, 2) + 1) * state.rho;
+        b_f *= Y(NSE_INDEX::rate_indices(current_rate_index, 2) + 1) * rho;
     }
 
     if (NSE_INDEX::rate_indices(current_rate_index, 5) != -1) {
         if (NSE_INDEX::rate_indices(current_rate_index, 5) == NSE_INDEX::rate_indices(current_rate_index, 6)) {
             b_r *= 0.5_rt;
         }
-        b_r *= Y(NSE_INDEX::rate_indices(current_rate_index, 5) + 1) * state.rho;
+        b_r *= Y(NSE_INDEX::rate_indices(current_rate_index, 5) + 1) * rho;
     }
 
     // Find the timescale of the rate, See Equation 11 in Kushnir
@@ -437,7 +438,7 @@ void fill_merge_indices(amrex::Array1D<int, 1, 2>& merge_indices,
 
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& state,
+void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const amrex::Real rho,
                   const amrex::Array1D<amrex::Real, 1, NumSpec>& Y,
                   const amrex::Array1D<amrex::Real, 1, Rates::NumRates>& screened_rates,
                   const amrex::Real t_s) {
@@ -468,7 +469,7 @@ void nse_grouping(amrex::Array1D<int, 1, NumSpec>& group_ind, const burn_t& stat
     amrex::Array1D<int, 1, Rates::NumRates> rate_indices;
 
     for (int n = 1; n <= Rates::NumRates; ++n) {
-        fill_reaction_timescale(reaction_timescales, n, state, Y,
+        fill_reaction_timescale(reaction_timescales, n, rho, Y,
                                 screened_rates, t_s);
         rate_indices(n) = n;
     }
@@ -531,11 +532,11 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     amrex::Real T_in = current_state.T_fixed > 0.0_rt ? current_state.T_fixed : current_state.T;
 
-    // If temperature is below 2.5e9 K
+    // If temperature is below T_min_nse
     // Or if we enable direct by a simple temperature threshold,
     // so T_nse_net > 0.0 but T_in < T_nse_net, we abort early to avoid computing cost.
 
-    if ((T_in < 2.5e9_rt) || (T_nse_net > 0.0_rt && T_in < T_nse_net)) {
+    if ((T_in < T_min_nse) || (T_nse_net > 0.0_rt && T_in < T_nse_net)) {
         return current_state.nse;
     }
 
@@ -543,19 +544,22 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     const auto nse_state = get_actual_nse_state(current_state);
 
-    burn_t state = current_state;
+    auto state = current_state;
 
-#ifndef STRANG
-    // if not strang, store mass fractions
+    // Convert to molar fractions
+
+    amrex::Array1D<amrex::Real, 1, NumSpec> Y;
+    amrex::Array1D<amrex::Real, 1, NumSpec> Y_nse;
+
     for (int n = 0; n < NumSpec; ++n) {
-        state.xn[n] = current_state.y[SFS+n] / current_state.rho;
+        Y(n+1) = current_state.y[SFS+n] * aion_inv[n] / current_state.rho;
+        Y_nse(n+1) = nse_state.xn[n] * aion_inv[n];
     }
-#endif
 
     // Check whether state is in the ballpark of NSE
 
     if (!skip_molar_check) {
-        check_nse_molar(state, nse_state, current_state.nse);
+        check_nse_molar(Y, Y_nse, current_state.nse);
         if (!current_state.nse) {
             return current_state.nse;
         }
@@ -577,23 +581,16 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
     // our current mass fractions are in the ballpark of NSE mass fractions.
 
     if (nse_molar_independent || skip_molar_check) {
-        state = nse_state;
-        state.dx = current_state.dx;
-#ifndef STRANG
-        for (int n = 0; n < NumSpec; ++n) {
-            state.y[SFS+n] = nse_state.xn[n] * nse_state.rho;
+        for (int n = 1; n <= NumSpec; ++n) {
+            Y(n) = Y_nse(n);
         }
-#endif
     }
 
-    // set molar fractions
+    // store xn to find the rates
 
-    amrex::Array1D<amrex::Real, 1, NumSpec> Y;
-
-    for (int n = 1; n <= NumSpec; ++n) {
-        Y(n) = state.xn[n-1] * aion_inv[n-1];
+    for (int n = 0; n < NumSpec; ++n) {
+        state.xn[n] = Y(n+1) * aion[n];
     }
-
     rate_t rate_eval;
     constexpr int do_T_derivatives = 0;
     evaluate_rates<do_T_derivatives, rate_t>(state, rate_eval);
@@ -629,7 +626,7 @@ bool in_nse(burn_t& current_state, bool skip_molar_check=false) {
 
     // Now do nse grouping
 
-    nse_grouping(group_ind, state, Y, rate_eval.screened_rates, t_s);
+    nse_grouping(group_ind, state.rho, Y, rate_eval.screened_rates, t_s);
 
     // Check if we result in a single group after grouping
 

@@ -3,8 +3,8 @@ Available Reaction Networks
 ***************************
 
 
-iso7, aprox13, aprox19, and aprox21
-===================================
+``iso7``, ``aprox13``, ``aprox19``, and ``aprox21``
+===================================================
 
 These are alpha-chains (with some other nuclei) from Frank Timmes.
 These networks share common rates (from ``Microphysics/rates``),
@@ -32,8 +32,8 @@ where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
 and :math:`\edotnu` is the neutrino loss term.
 
 
-general_null
-============
+``general_null``
+================
 
 ``general_null`` is a bare interface for a nuclear reaction network --
 no reactions are enabled. The
@@ -79,9 +79,44 @@ At compile time, the "`.net`" file is parsed and a network header
 ``Make.package``.
 
 
+``CNO_extras``
+==============
 
-ignition_chamulak
-=================
+This network replicates the popular [MESA "cno_extras"
+network](https://docs.mesastar.org/en/latest/net/nets.html) which is
+meant to study hot-CNO burning and the start of the breakout from CNO
+burning.
+
+We add ${}^{56}\mathrm{Fe}$ as an inert nucleus to allow this to be
+used for X-ray burst simulations.
+
+.. figure:: cno_extras_hide_alpha.png
+   :align: center
+
+
+``CNO_He_burn``
+===============
+
+This network is meant to study explosive H and He burning.  It combines
+the ``CNO_extras`` network (with the exception of the inert ${}^{56}\mathrm{Fe}$
+with the ``subch_simple`` network.  This allows it to capture hot-CNO and
+He burning.
+
+.. figure:: CNO_He_burn.png
+   :align: center
+
+``ECSN``
+========
+
+``ECSN`` is meant to model electron-capture supernovae in O-Ne white dwarfs.
+It includes various weak rates that are important to this process.
+
+.. figure:: ECSN.png
+   :align: center
+
+
+``ignition_chamulak``
+=====================
 
 This network was introduced in our paper on convection in white dwarfs
 as a model of Type Ia supernovae :cite:`wdconvect`. It models
@@ -104,11 +139,24 @@ binding energies are negative. The energy generation rate is then:
 
 (this is positive since both :math:`q` and :math:`dY/dt` are negative)
 
-ignition_reaclib
-================
+``ignition_reaclib``
+====================
 
-ignition_simple
-===============
+This contains several networks designed to model C burning in WDs.  They include:
+
+* ``C-burn-simple`` : a version of ``ignition_simple`` built from
+  ReacLib rates.  This just includes the C+C rates and doesn't group
+  the endpoints together.
+
+* ``URCA-simple`` : a basic network for modeling convective Urca,
+  containing the ${}^{23}\mathrm{Na}$-${}^{23}\mathrm{Ne}$ Urca pair.
+
+* ``URCA-medium`` : a more extensive Urca network than ``URCA-simple``,
+  containing more extensive C burning rates.
+
+
+``ignition_simple``
+===================
 
 This is the original network used in our white dwarf convection
 studies :cite:`lowMach4`. It includes a single-step
@@ -127,11 +175,26 @@ Kepler stellar evolution code (Weaver 1978), which implements the work
 of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.
 
-kpp
-===
 
-powerlaw
-========
+nova networks
+=============
+
+The ``nova`` and ``nova2`` networks both are intended for modeling classical novae.
+
+
+* ``nova`` focuses just on CNO/hot-CNO:
+
+  .. figure:: nova.png
+     :align: center
+
+* ``nova2`` expands ``nova`` by adding the pp-chain nuclei:
+
+  .. figure:: nova2.png
+     :align: center
+
+
+``powerlaw``
+============
 
 This is a simple single-step reaction rate.
 We will consider only two species, fuel, :math:`f`, and ash, :math:`a`, through
@@ -185,8 +248,8 @@ There are a number of parameters we use to control the constants in
 this network. This is one of the few networks that was designed
 to work with ``gamma_law`` as the EOS.
 
-rprox
-=====
+``rprox``
+=========
 
 This network contains 10 species, approximating hot CNO,
 triple-\ :math:`\alpha`, and rp-breakout burning up through :math:`^{56}\mathrm{Ni}`,
@@ -195,8 +258,8 @@ reaction rates from ReacLib :cite:`ReacLib` where available.
 This network was used for the X-ray burst studies in
 :cite:`xrb:II`, :cite:`xrb:III`, and more details are contained in those papers.
 
-triple_alpha_plus_cago
-======================
+``triple_alpha_plus_cago``
+==========================
 
 This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`\alpha`
 reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
@@ -206,7 +269,7 @@ reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 subch networks
 ==============
 
-The networks subch_full and subch_approx recreate an aprox13
+The subch networks recreate an ``aprox13``
 alpha-chain + including a bypass rate for :math:`\isotm{C}{12}(\alpha,
 \gamma)\isotm{O}{16}` discussed in :cite:`ShenBildsten`.  This is appropriate
 for explosive He burning.
@@ -241,42 +304,63 @@ forward rate to just be the first rate.  We do not include reverse
 rates for these processes.
 
 
-subch_full
-----------
+``subch_simple``
+----------------
 
-subch_full does not create an effective rate for :math:`(\alpha,
-\gamma)` and :math:`(\alpha, p)(p, \gamma)` (i.e. combine them
-assuming proton equilibrium).  Therefore, we need to explicitly
-include the intermediate nuclei produced in the :math:`(\alpha,p)`
-reactions.  In all, 28 nuclei and 107 rates are included.
+``subch_simple`` uses the ideas above but approximates some
+of the rates by
+combining some of the :math:`A(\alpha,p)X(p,\gamma)B` links with
+:math:`A(\alpha,\gamma)B`, allowing us to drop the intermediate
+nucleus :math:`X`.  We do this for :math:`\isotm{Cl}{35}`,
+:math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`, :math:`\isotm{V}{47}`,
+:math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
 
-This network is generated via pynucastro using the ``subch_full.py`` script.
-The overall network appears as:
+Further simplifications include:
 
-.. figure:: subch_full.png
+* The reverse rates of :math:`\isotm{C}{12}+\isotm{C}{12}`,
+  :math:`\isotm{C}{12}+\isotm{O}{16}`, :math:`\isotm{O}{16}+\isotm{O}{16}` are
+  neglected since they're not present in the original aprox13 network
+
+* The :math:`\isotm{C}{12}+\isotm{Ne}{20}` rate is removed
+
+* The :math:`(\alpha, \gamma)` links between :math:`\isotm{Na}{23}`,
+  :math:`\isotm{Al}{27}` and between :math:`\isotm{Al}{27}` and
+  :math:`\isotm{P}{31}` are removed, since they're not in the
+  original aprox13 network.
+
+The network appears as:
+
+.. figure:: subch_simple.png
    :align: center
 
-subch_approx
-------------
+The nuclei in gray are those that have been approximated about, but the links
+are effectively accounted for in the approximate rates.
 
-subch_approx approximates subch_full by combining some of the
-:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
-allowing us to drop the intermediate nucleus :math:`X`.  We do this
-for :math:`\isotm{Cl}{35}`, :math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`,
-:math:`\isotm{V}{47}`, :math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
-The resulting network appears as:
+.. warning:: Due to inclusion of the rate sequence,
+   ${}^{14}\mathrm{N}(\alpha, \gamma){}^{18}\mathrm{F}(\alpha,
+   \mathrm{p}){}^{21}\mathrm{Ne}$, there is an artificial end-point at
+   ${}^{22}\mathrm{Na}$.
 
-.. figure:: subch_approx.png
+``subch_base``
+--------------
+
+``subch_base`` is the simplest subch network. It is created to reconcile the
+artificial end-point at :math:`\isotm{Na}{22}`. This is done by excluding
+:math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`, :math:`\isotm{Ne}{21}`,
+and :math:`\isotm{Na}{22}`. These nuclei were added to include
+:math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}`
+rate sequence, which allows an enhancement to the
+:math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
+rate due to the additional proton release. However, we find the effect is not
+extremely significant.
+
+.. figure:: subch_base.png
    :align: center
-
-The nuclei in gray are not part of the network, but the links to them
-are approximated.  This reduces the number of nuclei compared to subch_full
-from 28 to 22.
 
 disabling rates
 ---------------
 
-For both subch_full and subch_approx, there are 2 runtime parameters that can be used
+For all subch networks, there are 2 runtime parameters that can be used
 to disable rates:
 
 * ``network.disable_p_c12__n13`` : if set to ``1``, then the rate

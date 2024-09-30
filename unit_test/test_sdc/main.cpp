@@ -102,7 +102,7 @@ void main_main ()
 
     init_unit_test();
 
-    // C++ EOS initialization (must be done after Fortran eos_init and init_extern_parameters)
+    // C++ EOS initialization (must be done after init_extern_parameters)
     eos_init(small_temp, small_dens);
 
     // C++ Network, RHS, screening, rates initialization
@@ -241,12 +241,10 @@ void main_main ()
     std::string name = "test_react.";
     std::string integrator = buildInfoGetModuleVal(int_idx);
 
-    std::string language = ".cxx";
-
     // Write a plotfile
-    WriteSingleLevelPlotfile(prefix + name + integrator + language, state, names, geom, time, 0);
+    WriteSingleLevelPlotfile(prefix + name + integrator, state, names, geom, time, 0);
 
-    write_job_info(prefix + name + integrator + language);
+    write_job_info(prefix + name + integrator);
 
     // Tell the I/O Processor to write out the "run time"
     amrex::Print() << "Run time = " << stop_time << std::endl;

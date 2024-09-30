@@ -75,10 +75,13 @@ struct rkc_t {
     // block
 
     // number of function evaluations
-    int nfe;
+    int n_rhs;
 
-    // number of integration stesp
-    int nsteps;
+    // number of integration steps
+    int n_step;
+
+    // number of Jacobian evals (not used)
+    int n_jac{};
 
     // number of accepted steps
     int naccpt;
@@ -91,6 +94,9 @@ struct rkc_t {
 
     // maximum number of stages used
     int maxm;
+
+    // not used here, but needed for compatibility with other integrators
+    short jacobian_type;
 
 };
 

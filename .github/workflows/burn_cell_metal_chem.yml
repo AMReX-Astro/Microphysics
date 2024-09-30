@@ -1,0 +1,146 @@
+name: burn_cell_metal_chem
+
+on: [pull_request]
+
+jobs:
+  burn_cell_metal_chem:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get AMReX
+        run: |
+          mkdir external
+          cd external
+          git clone https://github.com/AMReX-Codes/amrex.git
+          cd amrex
+          git checkout development
+          echo 'AMREX_HOME=$(GITHUB_WORKSPACE)/external/amrex' >> $GITHUB_ENV
+          echo $AMREX_HOME
+          if [[ -n "${AMREX_HOME}" ]]; then exit 1; fi
+          cd ../..
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -y -qq
+          sudo apt-get -qq -y install curl cmake jq clang g++>=9.3.0
+
+      - name: Compile
+        run: |
+          cd unit_test/burn_cell_metal_chem
+          make -j 2
+
+      - name: Run and compare outputs for different Z values, also including cosmic ray ionization
+        run: |
+          set -e
+          cd unit_test/burn_cell_metal_chem
+
+          declare -A line_numbers_map=(
+            ["Z=1"]="4450 4452 4454 4456 4457 4460 4461 4464 4470 4475"
+            ["Z=1_z10"]="1613 1615 4456 4458 4460 4463 4470 4476 4481"
+            ["Z=1e-1"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
+            ["Z=1e-2"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
+            ["Z=1e-3"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
+            ["Z=1e-4"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
+            ["Z=1e-5"]="4438 4440 4442 4444 4445 4448 4449 4452 4458 4463"
+            ["Z=1e-6"]="4463 4465 4467 4469 4470 4473 4474 4477 4483 4488"
+            ["Z=1_cr"]="652 654 656 658 659 662 663 666 672 677"
+            ["Z=1e-4_cr"]="652 654 656 658 659 662 663 666 672 677"
+          )
+
+          declare -A ref_map=(
+            ["Z=1"]="reference_solution_1.out"
+            ["Z=1_z10"]="reference_solution_1_z10.out"
+            ["Z=1e-1"]="reference_solution_1e-1.out"
+            ["Z=1e-2"]="reference_solution_1e-2.out"
+            ["Z=1e-3"]="reference_solution_1e-3.out"
+            ["Z=1e-4"]="reference_solution_1e-4.out"
+            ["Z=1e-5"]="reference_solution_1e-5.out"
+            ["Z=1e-6"]="reference_solution_1e-6.out"
+            ["Z=1_cr"]="reference_solution_1_cr.out"
+            ["Z=1e-4_cr"]="reference_solution_1e-4_cr.out"
+          )
+
+          ref_line_number_z10=(1 2 3 5 7 10 17 23 28)
+
+          # Original input file
+          original_input_file="inputs_metal_chem_1"
+          modified_input_file="inputs_metal_chem_modified"
+
+          for Z in "Z=1" "Z=1_z10" "Z=1e-1" "Z=1e-2" "Z=1e-3" "Z=1e-4" "Z=1e-5" "Z=1e-6" "Z=1_cr" "Z=1e-4_cr"; do
+            cp $original_input_file $modified_input_file
+            Z_val=${Z//Z=/}
+
+            if [[ "$Z" == "Z=1_z10" ]]; then
+              # Modify the redshift line for Z=1_z10
+              sed -i 's/network.redshift = 0.0/network.redshift = 10.0/g' $modified_input_file
+            elif [[ "$Z" != "Z=1_cr" && "$Z" != "Z=1e-4_cr" ]]; then
+              # Replace the metallicity and dust2gas_ratio values for other Z values
+              sed -i 's/network.metallicity = .*/network.metallicity = '"$Z_val"'/g' $modified_input_file
+              sed -i 's/network.dust2gas_ratio = .*/network.dust2gas_ratio = '"$Z_val"'/g' $modified_input_file
+            fi
+
+            if [[ "$Z" == "Z=1_cr" || "$Z" == "Z=1e-4_cr" ]]; then
+              # Modify the number of steps, since CRs impact lowest densities
+              sed -i 's/unit_test.nsteps = 100000/unit_test.nsteps = 600/g' $modified_input_file
+              # Modify the crate line for Z=1_cr
+              sed -i 's/network.crate = 0.0/network.crate = 3e-17/g' $modified_input_file
+              if [[ "$Z" == "Z=1e-4_cr" ]]; then
+                 # Replace the metallicity and dust2gas_ratio values for other Z values
+                 sed -i 's/network.metallicity = 1/network.metallicity = 1e-4/g' $modified_input_file
+                 sed -i 's/network.dust2gas_ratio = 1/network.dust2gas_ratio = 1e-4/g' $modified_input_file
+              fi
+           fi
+
+            output_file="test_${Z_val}.out"
+            ./main1d.gnu.DEBUG.ex $modified_input_file amrex.fpe_trap_{invalid,zero,overflow}=1 > $output_file
+
+            line_numbers="${line_numbers_map[$Z]}"
+            ref_file="${ref_map[$Z]}"
+
+            error_found=false
+            index=0
+            for line_number in $line_numbers; do
+              value1=$(awk 'NR=='"$line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH); else print 0}' $output_file)
+
+              # Adjust the line number for the reference file
+              if [[ "$Z" == "Z=1" ]]; then
+                reference_line_number=$((line_number - 4449))
+              elif [[ "$Z" == "Z=1_z10" ]]; then
+                reference_line_number=${ref_line_number_z10[$index]}
+              elif [[ "$Z" == "Z=1e-6" ]]; then
+                reference_line_number=$((line_number - 4462))
+              elif [[ "$Z" == "Z=1_cr" || "$Z" == "Z=1e-4_cr" ]]; then
+                reference_line_number=$((line_number - 651))
+              else
+                reference_line_number=$((line_number - 4437))
+              fi
+
+              value2=$(awk 'NR=='"$reference_line_number"' {match($0, /[+-]?[0-9]+([.][0-9]+)?[eE]?[+-]?[0-9]+/); if (RSTART) print substr($0, RSTART, RLENGTH)}' $ref_file)
+
+              difference=$(awk -v val1="$value1" -v val2="$value2" 'BEGIN { printf "%.2f", (val1 - val2) / val2 }')
+
+              if (( $(echo "$difference > 0.01" | bc -l) )); then
+                echo "Z: $Z"
+                echo "Line number: $line_number"
+                echo "Value in $output_file: $value1"
+                echo "Value in $ref_file: $value2"
+                echo "Difference between test and reference value is $difference, more than allowed threshold of 0.01"
+                echo
+                error_found=true
+              fi
+              index=$((index + 1))
+            done
+
+            if [[ $error_found == true ]]; then
+              exit 1
+            fi
+          done
+
+      - name: Print backtrace if any failure
+        if: ${{ failure() && hashFiles('unit_test/burn_cell_metal_chem/Backtrace.0') != '' }}
+        run: cat unit_test/burn_cell_metal_chem/Backtrace.0
+
