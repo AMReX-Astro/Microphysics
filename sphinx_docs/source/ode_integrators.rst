@@ -43,6 +43,21 @@ the allowed options are:
   the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
+* ``ROCK``: a stabilized explicit integrator.  Two variants, a second
+  order method (:cite:`rock2`) and a fourth order method (:cite:`rock4`) are
+  implemented based on the original Fortran source code.  The order
+  is selected via the runtime parameter:
+
+  ::
+
+      integrator.rock_order = 2
+
+  (e.g. for 2nd order).  This does not require a Jacobian, but does
+  need to estimate the spectral radius of the system, which is done
+  internally.  This works for moderately stiff problems.  Our
+  implementation uses the timestep estimator and spectral radius power
+  method from the ``RKC`` integrator.
+
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
