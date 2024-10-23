@@ -1,3 +1,11 @@
+# 24.10
+
+  * metal chemistry updates (#1648) with ices (#1650) and cosmic rays (#1651)
+
+  * added dust to primordial chemistry (#1649)
+
+  * doc updates (#1652)
+
 # 24.09
 
   * Improvements to the primordial chemistry network and the addition
