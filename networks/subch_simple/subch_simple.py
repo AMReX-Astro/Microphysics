@@ -5,7 +5,7 @@
 import pynucastro as pyna
 from pynucastro.networks import AmrexAstroCxxNetwork
 
-DO_DERIVED_RATES = False
+DO_DERIVED_RATES = True
 
 def get_library():
 
