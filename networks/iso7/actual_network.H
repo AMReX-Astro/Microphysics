@@ -114,7 +114,7 @@ namespace NSE_INDEX
 #endif
 
 namespace Rates {
-    enum NetworkRates {
+    enum NetworkRates : std::uinit8_t {
         C12_He4_to_O16 = 1,
         He4_He4_He4_to_C12,
         C12_C12_to_Ne20_He4,
