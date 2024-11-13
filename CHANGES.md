@@ -1,3 +1,19 @@
+# 24.11
+
+  * a new metal chemistry network was added (#1648, #1650, #1651)
+
+  * add dust temperature to primordial chem (#1649)
+
+  * documentation updates (#1652)
+
+# 24.10
+
+  * metal chemistry updates (#1648) with ices (#1650) and cosmic rays (#1651)
+
+  * added dust to primordial chemistry (#1649)
+
+  * doc updates (#1652)
+
 # 24.09
 
   * Improvements to the primordial chemistry network and the addition
