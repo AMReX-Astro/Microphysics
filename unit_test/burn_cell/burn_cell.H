@@ -22,7 +22,7 @@ void burn_cell_c()
     for (int n = 1; n <= NumSpec; ++n) {
 
         if (unit_test_rp::init_species_all_equal) {
-            massfractions[n-1] = 1.0_rt / static_cast<Real>(NumSpec);
+            massfractions[n-1] = 1.0_rt / static_cast<amrex::Real>(NumSpec);
         } else {
             massfractions[n-1] = get_xn(n);
 
