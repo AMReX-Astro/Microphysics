@@ -12,7 +12,6 @@ jobs:
       - name: Install dependencies
         run: |
           brew install cmake openmpi python3 || true
-          brew link --overwrite python@3.11
 
       - name: Compile and run
         run: |
