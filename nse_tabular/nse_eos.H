@@ -65,7 +65,7 @@ nse_T_abar_from_e(const Real rho, const Real e_in, const Real Ye,
         Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for T
-        eos_extra_t eos_state;
+        eos_re_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
@@ -156,7 +156,7 @@ nse_rho_abar_from_e(const Real T, const Real e_in, const Real Ye,
         Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for rho
-        eos_extra_t eos_state;
+        eos_re_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
@@ -247,7 +247,7 @@ nse_T_abar_from_p(const Real rho, const Real p_in, const Real Ye,
         Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for T
-        eos_extra_t eos_state;
+        eos_rep_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
@@ -338,7 +338,7 @@ nse_rho_abar_from_p(const Real T, const Real p_in, const Real Ye,
         Real abar_old = nse_state.abar;
 
         // call the EOS with the initial guess for rho
-        eos_extra_t eos_state;
+        eos_rep_extra_t eos_state;
         eos_state.rho = rho;
         eos_state.T = T;
         eos_state.aux[iye] = Ye;
