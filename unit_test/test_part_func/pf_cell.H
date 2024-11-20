@@ -17,8 +17,8 @@ AMREX_INLINE
 void pf_cell_c()
 {
 
-    Real pf;
-    Real dpf_dT;
+    amrex::Real pf;
+    amrex::Real dpf_dT;
 
     std::cout << "temperature = " << temperature << std::endl;
 

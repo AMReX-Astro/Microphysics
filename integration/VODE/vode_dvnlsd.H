@@ -9,24 +9,24 @@
 
 template <typename BurnT, typename DvodeT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
+amrex::Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
-    Real ACNRM = 1.e10_rt;
+    amrex::Real ACNRM = 1.e10_rt;
 
     // dvnlsd is a nonlinear system solver that uses a chord (modified
     // Newton) method with direct linear algebraic system solvers.
     // It then handles the corrector phase of this integration package.
 
     // Parameter declarations
-    const Real CCMAX = 0.3e0_rt;
-    const Real CRDOWN = 0.3e0_rt;
-    const Real RDIV  = 2.0e0_rt;
-    const int MAXCOR = 3;
-    const int MSBP = 20;
+    constexpr amrex::Real CCMAX = 0.3e0_rt;
+    constexpr amrex::Real CRDOWN = 0.3e0_rt;
+    constexpr amrex::Real RDIV  = 2.0e0_rt;
+    constexpr int MAXCOR = 3;
+    constexpr int MSBP = 20;
 
-    Real DEL{};
+    amrex::Real DEL{};
     int M{};
 
     // On the first step, on a change of method order, or after a
@@ -46,7 +46,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
     // In any case, DVJAC is called at least every MSBP steps.
 
     vstate.DRC = std::abs(vstate.RC - 1.0_rt);
-    if (vstate.DRC > CCMAX || vstate.NST >= vstate.NSLP + MSBP) {
+    if (vstate.DRC > CCMAX || vstate.n_step >= vstate.NSLP + MSBP) {
         vstate.IPUP = 1;
     }
 
@@ -60,14 +60,14 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
     while (true) {
 
         M = 0;
-        Real DELP = 0.0_rt;
+        amrex::Real DELP = 0.0_rt;
 
         for (int i = 1; i <= int_neqs; ++i) {
             vstate.y(i) = vstate.yh(i,1);
         }
 
         rhs(vstate.tn, state, vstate, vstate.savf);
-        vstate.NFE += 1;
+        vstate.n_rhs += 1;
 
         if (vstate.IPUP == 1) {
 
@@ -82,7 +82,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
             vstate.RC = 1.0_rt;
             vstate.DRC = 0.0_rt;
             vstate.CRATE = 1.0_rt;
-            vstate.NSLP = vstate.NST;
+            vstate.NSLP = vstate.n_step;
 
             // If matrix is singular, take error return to force cut in step size.
             if (IERPJ != 0) {
@@ -125,7 +125,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
 #endif
 
             if (vstate.RC != 1.0_rt) {
-                const Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
+                const amrex::Real CSCALE = 2.0_rt / (1.0_rt + vstate.RC);
                 for (int i = 1; i <= int_neqs; ++i) {
                     vstate.y(i) *= CSCALE;
                 }
@@ -152,7 +152,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
                 vstate.CRATE = amrex::max(CRDOWN * vstate.CRATE, DEL / DELP);
             }
 
-            const Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
+            const amrex::Real DCON = DEL * amrex::min(1.0_rt, vstate.CRATE) / vstate.tq(4);
             if (DCON <= 1.0_rt) {
                 // we converged, exit the outer loop
                 converged = true;
@@ -172,7 +172,7 @@ Real dvnlsd (int& NFLAG, BurnT& state, DvodeT& vstate)
 
             DELP = DEL;
             rhs(vstate.tn, state, vstate, vstate.savf);
-            vstate.NFE += 1;
+            vstate.n_rhs += 1;
 
         }
 

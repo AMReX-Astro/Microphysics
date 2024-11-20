@@ -16,8 +16,6 @@
 #include <cmath>
 #include <vector>
 
-using namespace eos_rp;
-
 // Frank Timmes Helmholtz based Equation of State
 // https://cococubed.com/
 
@@ -26,7 +24,7 @@ using namespace eos_rp;
 // thermodynamic quantities. of prime interest is the pressure [erg/cm**3],
 // specific thermal energy [erg/gr], the entropy [erg/g/K], along with
 // their derivatives with respect to temperature, density, abar, and zbar.
-// other quantites such the normalized chemical potential eta (plus its
+// other quantities such the normalized chemical potential eta (plus its
 // derivatives), number density of electrons and positron pair (along
 // with their derivatives), adiabatic indices, specific heats, and
 // relativistically correct sound speed are also returned.
@@ -156,9 +154,9 @@ void apply_electrons (T& state)
 
     // hash locate this temperature and density
     int jat = int((std::log10(state.T) - tlo) * tstpi) + 1;
-    jat = amrex::max(1, amrex::min(jat, jmax-1)) - 1;
+    jat = std::clamp(jat, 1, jmax-1) - 1;
     int iat = int((std::log10(din) - dlo) * dstpi) + 1;
-    iat = amrex::max(1, amrex::min(iat, imax-1)) - 1;
+    iat = std::clamp(iat, 1, imax-1) - 1;
 
     amrex::Real fi[36];
 
@@ -576,8 +574,8 @@ void apply_radiation (T& state)
     // on prad, this will result in the radiation term effectively vanishing below the
     // cutoff density. For simplicity we ignore the effect this has on the derivatives.
 
-    if (prad_limiter_rho_c > 0.0e0_rt && prad_limiter_delta_rho > 0.0e0_rt) {
-        prad = prad * 0.5e0_rt * (1.0e0_rt + std::tanh((state.rho - prad_limiter_rho_c) / prad_limiter_delta_rho));
+    if (eos_rp::prad_limiter_rho_c > 0.0e0_rt && eos_rp::prad_limiter_delta_rho > 0.0e0_rt) {
+        prad = prad * 0.5e0_rt * (1.0e0_rt + std::tanh((state.rho - eos_rp::prad_limiter_rho_c) / eos_rp::prad_limiter_delta_rho));
     }
 
     amrex::Real dpraddd = 0.0e0_rt;
@@ -1005,7 +1003,7 @@ void single_iter_update (T& state, int var, int dvar,
     amrex::Real xnew = x - (v - v_want) / dvdx;
 
     // Don't let the temperature/density change by more than a factor of two
-    xnew = amrex::max(0.5_rt * x, amrex::min(xnew, 2.0_rt * x));
+    xnew = std::clamp(xnew, 0.5_rt * x, 2.0_rt * x);
 
     // Don't let us freeze/evacuate
     xnew = amrex::max(smallx, xnew);
@@ -1120,8 +1118,8 @@ void double_iter_update (T& state, int var1, int var2,
 
     // Don't let the temperature or density change by more
     // than a factor of two
-    tnew = amrex::max(0.5e0_rt * told, amrex::min(tnew, 2.0e0_rt * told));
-    rnew = amrex::max(0.5e0_rt * rold, amrex::min(rnew, 2.0e0_rt * rold));
+    tnew = std::clamp(tnew, 0.5e0_rt * told, 2.0e0_rt * told);
+    rnew = std::clamp(rnew, 0.5e0_rt * rold, 2.0e0_rt * rold);
 
     // Don't let us freeze or evacuate
     tnew = amrex::max(EOSData::mintemp, tnew);
@@ -1310,10 +1308,10 @@ void actual_eos_init ()
 
     // Read in the runtime parameters
 
-    input_is_constant = eos_input_is_constant;
-    do_coulomb = use_eos_coulomb;
-    ttol = eos_ttol;
-    dtol = eos_dtol;
+    input_is_constant = eos_rp::eos_input_is_constant;
+    do_coulomb = eos_rp::use_eos_coulomb;
+    ttol = eos_rp::eos_ttol;
+    dtol = eos_rp::eos_dtol;
 
     //    read the helmholtz free energy table
 

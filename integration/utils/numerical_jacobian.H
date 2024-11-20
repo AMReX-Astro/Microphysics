@@ -13,8 +13,6 @@
 #include <integrator_data.H>
 
 
-using namespace integrator_rp;
-
 ///
 /// Compute the numerical Jacobian of the reactive system, dydot/dy,
 /// where ydot = {dX/dt, denuc/dt}, and y = {X, e}.
@@ -75,14 +73,14 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
     amrex::Real w;
     for (int i = 1; i <= NumSpec; i++) {
         // the weight is 1 / EWT defined in VODE
-        w = 1.0_rt / (rtol_spec * std::abs(state.xn[i-1]) + atol_spec);
+        w = 1.0_rt / (integrator_rp::rtol_spec * std::abs(state.xn[i-1]) + integrator_rp::atol_spec);
         fac += (ydotm(i) * w) * (ydotm(i) * w);
     }
 
     // even though we difference wrt T below, for |f|, we want to use
     // energy to get the units correct
 
-    w = 1.0_rt / (rtol_enuc * std::abs(state.e) + atol_enuc);
+    w = 1.0_rt / (integrator_rp::rtol_enuc * std::abs(state.e) + integrator_rp::atol_enuc);
     fac += (ydotm(net_ienuc) * w) * (ydotm(net_ienuc) * w);
     fac = std::sqrt(fac / int_neqs);
 
@@ -104,7 +102,7 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
         amrex::Real yj = state_delp.xn[n-1];
 
-        w = rtol_spec * std::abs(yj) + atol_spec;
+        w = integrator_rp::rtol_spec * std::abs(yj) + integrator_rp::atol_spec;
 
         // the incremement we use in the derivative is defined in the LSODE paper, Eq. 3.35
 
@@ -131,22 +129,15 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // T derivative
 
-    w = rtol_enuc * std::abs(state.T) + atol_enuc;
+    w = integrator_rp::rtol_enuc * std::abs(state.T) + integrator_rp::atol_enuc;
 
     amrex::Real dy = amrex::max(std::sqrt(U) * std::abs(state.T), r0 * w);
 
     state_delp.T += dy;
 
-    if (state_delp.T <= EOSData::mintemp || state_delp.T >= MAX_TEMP) {
-
-        for (int i = 1; i <= int_neqs; i++) {
-            for (int j = 1; j <= int_neqs; j++) {
-                jac(i,j) = 0.0_rt;
-            }
-        }
-
+    if (state_delp.T <= EOSData::mintemp || state_delp.T >= integrator_rp::MAX_TEMP) {
+        jac.zero();
         return;
-
     }
 
 
@@ -197,14 +188,14 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
     // now correct the species derivatives
     // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
 
-    for (int m = 1; m <= int_neqs; m++) {
-        for (int n = 1; n <= NumSpec; n++) {
+    for (int n = 1; n <= NumSpec; n++) {
+        for (int m = 1; m <= int_neqs; m++) {
             jac(m, n) -= eos_xderivs.dedX[n-1] * jac(m, net_ienuc);
         }
     }
 
     // scale the energy derivatives
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         // first the de/dX row
         for (int n = 1; n <= INT_NEQS; ++n) {
             jac(net_ienuc, n) /= state.e_scale;
@@ -218,13 +209,13 @@ void numerical_jac(BurnT& state, const jac_info_t& jac_info, JacNetArray2D& jac)
 
     // apply boosting factor:
 
-    if (react_boost > 0.0_rt) {
-        jac.mul(react_boost);
+    if (integrator_rp::react_boost > 0.0_rt) {
+        jac.mul(integrator_rp::react_boost);
     }
 
     // Allow temperature and energy integration to be disabled.
 
-    if (!integrate_energy) {
+    if (! integrator_rp::integrate_energy) {
         for (int n = 1; n <= int_neqs; ++n) {
             jac(net_ienuc, n) = 0.0_rt;
         }
