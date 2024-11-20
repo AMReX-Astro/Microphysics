@@ -313,7 +313,7 @@ extends the non-"extra" variants with these additional fields.
 
 The composition derivatives can be used via the ``composition_derivatives()`` function
 in ``eos_composition.H``
-to compute :math:`\partial p/\partial X_k |_{rho, T, X_j}`, :math:`\partial e/\partial X_k |_{rho, T, X_j}`, and :math:`\partial h/\partial X_k |_{rho, T, X_j}`.
+to compute :math:`\partial p/\partial X_k |_{\rho, T, X_j}`, :math:`\partial e/\partial X_k |_{\rho, T, X_j}`, and :math:`\partial h/\partial X_k |_{\rho, T, X_j}`.
 
 
 Initialization and Cutoff Values
