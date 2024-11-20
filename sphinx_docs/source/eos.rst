@@ -43,11 +43,6 @@ The entropy comes from the Sackur-Tetrode equation. Because of the
 complex way that composition enters into the entropy, the entropy
 formulation here is only correct for a :math:`\gamma = 5/3` gas.
 
-Note that the implementation provided in Microphysics is the same as
-the version shipped with MAESTRO, but more general than the
-``gamma_law`` EOS provided with CASTRO. CASTRO’s default EOS only
-fills the thermodynamic information in ``eos_t`` that is required
-by the hydrodynamics module in CASTRO.
 
 polytrope
 ---------
@@ -209,6 +204,8 @@ appropriate interpolation table from that site to use this.
 Interface and Modes
 ===================
 
+.. index:: eos_t, eos_re_t, eos_rep_t, eos_rh_t, chem_eos_t
+
 The EOS is called as:
 
 .. code:: c++
@@ -244,6 +241,11 @@ The *eos_type* passed in is one of
 
 * ``eos_rep_t`` : expands on ``eos_re_t`` to include pressure information
 
+* ``eos_rh_t`` : expands on ``eos_rep_t`` to include enthalpy information
+
+* ``chem_eos_t`` : adds some quantities needed for the primordial chemistry EOS
+  and explicitly does not include the mass fractions.
+
 In general, you should use the type that has the smallest set of
 information needed, since we optimize out needless quantities at
 compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
@@ -260,6 +262,7 @@ compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
 Auxiliary Composition
 ---------------------
 
+.. index:: USE_AUX_THERMO
 
 With ``USE_AUX_THERMO=TRUE``, we interpret the composition from the auxiliary variables.
 The auxiliary variables are
@@ -298,6 +301,21 @@ The equation of state also needs :math:`\bar{Z}` which is easily computed as
    \bar{Z} = \bar{A} Y_e
 
 
+Composition Derivatives
+-----------------------
+
+.. index:: eos_extra_t, eos_re_extra_t, eos_rep_extra_t
+
+The derivatives $\partial p/\partial A$, $\partial p/\partial Z$,
+and $\partial e/\partial A$, $\partial e/\partial Z$ are available via
+the ``eos_extra_t``, ``eos_re_extra_t``, ``eos_rep_extra_t``, which
+extends the non-"extra" variants with these additional fields.
+
+The composition derivatives can be used via the ``composition_derivatives()`` function
+in ``eos_composition.H``
+to compute :math:`\partial p/\partial X_k |_{rho, T, X_j}`, :math:`\partial e/\partial X_k |_{rho, T, X_j}`, and :math:`\partial h/\partial X_k |_{rho, T, X_j}`.
+
+
 Initialization and Cutoff Values
 ================================
 
@@ -328,6 +346,3 @@ appropriate time for, say, loading an interpolation table into memory.
 
 The main evaluation routine is called ``actual_eos``. It should
 accept an eos_input and an eos_t state; see Section :ref:`data_structures`.
-
-
-

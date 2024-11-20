@@ -43,6 +43,8 @@ Tests are divided into three categories:
 Comprehensive tests
 ===================
 
+.. index:: test_aprox_rates, test_conductivity, test_eos, test_jac, test_neutrino_cooling, test_react, test_rhs, test_screening_templated, test_sdc
+
 Each of these tests sets up a cube of data, $(\rho, T, X_k)$, with the
 range of $T$ and $\rho$, and the species to focus on for $X_k$ controlled
 by options in the input file.
@@ -113,6 +115,8 @@ by options in the input file.
 One-zone tests
 ==============
 
+.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, test_ase, test_part_func
+
 * ``burn_cell`` :
 
   given a $\rho$, $T$, and $X_k$, integrate a reaction network through a specified time
@@ -156,6 +160,8 @@ One-zone tests
 
 Infrastructure tests
 ====================
+
+.. index:: test_linear_algebra, test_nse_interp, test_parameters, test_sdc_vode_rhs
 
 * ``test_linear_algebra`` :
 

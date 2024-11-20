@@ -7,6 +7,8 @@ instead of integrating the entire network when the conditions are
 appropriate.  There are 2 different implementations of NSE in
 Microphysics, that have slightly different use cases.
 
+.. index:: USE_NSE_TABLE, USE_NSE_NET
+
 * :ref:`tabulated_nse` : this uses a table of NSE abundances given
   :math:`(\rho, T, Y_e)` generate from a large network (125 isotopes).
   The table also returns :math:`dY_e/dt` resulting from
