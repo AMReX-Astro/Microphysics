@@ -114,9 +114,11 @@ There are two primary files within each network directory.
    state and (respectively) the time-derivatives and Jacobian
    elements to fill in.
 
-   Note: some networks do not provide an analytic Jacobian and instead
-   rely on the numerical difference-approximation to the Jacobian. In
-   this case, the interface ``actual_jac`` is still needed to compile.
+   .. note::
+
+      Some networks do not provide an analytic Jacobian and instead
+      rely on the numerical difference-approximation to the Jacobian. In
+      this case, the interface ``actual_jac`` is still needed to compile.
 
 Notice that these modules have initialization routines:
 
