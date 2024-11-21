@@ -9,6 +9,8 @@ an EOS module in case you want to build your own.
 Available Equations of State
 ============================
 
+.. index:: eos_t
+
 The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
 thermodynamic data (including all derivatives) in the ``eos_t``
@@ -22,7 +24,7 @@ equation of state:
 
 .. math:: p = (\gamma - 1) \rho e.
 
-:math:`\gamma` is specified by the runtime parameter ``eos_gamma``. For
+:math:`\gamma` is specified by the runtime parameter ``eos.eos_gamma``. For
 an ideal gas, this represents the ratio of specific heats. The gas is
 assumed to be ideal, with the pressure given by
 
@@ -30,12 +32,12 @@ assumed to be ideal, with the pressure given by
 
 where :math:`k` is Boltzmann’s constant and :math:`\mu` is the mean molecular
 weight, calculated from the composition, :math:`X_k`. This EOS assumes
-the gas is either completely neutral (``assume_neutral = T``),
+the gas is either completely neutral (``eos.assume_neutral = 1``),
 giving:
 
 .. math:: \mu^{-1} = \sum_k \frac{X_k}{A_k}
 
-or completely ionized (``assume_neutral = F``), giving:
+or completely ionized (``eos.assume_neutral = 0``), giving:
 
 .. math:: \mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}
 
@@ -58,21 +60,21 @@ only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
 electron gas) or inputs their own values for :math:`K` and :math:`\gamma`
-via ``polytrope_K`` and ``polytrope_gamma``.
+via ``eos.polytrope_K`` and ``eos.polytrope_gamma``.
 
-The runtime parameter ``polytrope_type`` selects the pre-defined
+The runtime parameter ``eos.polytrope_type`` selects the pre-defined
 polytropic relations. The options are:
 
--  ``polytrope_type = 1``: sets :math:`\gamma = 5/3` and
+-  ``eos.polytrope_type = 1``: sets :math:`\gamma = 5/3` and
 
    .. math:: K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}
 
-   where :math:`mu_e` is the mean molecular weight per electron, specified via ``polytrope_mu_e``
+   where :math:`mu_e` is the mean molecular weight per electron, specified via ``eos.polytrope_mu_e``
 
    This is the form appropriate for a non-relativistic
    fully-degenerate electron gas.
 
--  ``polytrope_type = 2``: sets :math:`\gamma = 4/3` and
+-  ``eos.polytrope_type = 2``: sets :math:`\gamma = 4/3` and
 
    .. math:: K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}
 
@@ -156,12 +158,12 @@ and :math:`p = \rho e (\gamma_\mathrm{effective} - 1)`.
 This equation of state takes several runtime parameters that can set
 the :math:`\gamma_i` for a specific species. The parameters are:
 
--  ``eos_gamma_default``: the default :math:`\gamma` to apply for all
+-  ``eos.eos_gamma_default``: the default :math:`\gamma` to apply for all
    species
 
--  ``species_X_name`` and ``species_X_gamma``: set the
+-  ``eos.species_X_name`` and ``eos.species_X_gamma``: set the
    :math:`\gamma_i` for the species whose name is given as
-   ``species_X_name`` to the value provided by ``species_X_gamma``.
+   ``eos.species_X_name`` to the value provided by ``eos.species_X_gamma``.
    Here, ``X`` can be one of the letters: ``a``, ``b``, or
    ``c``, allowing us to specify custom :math:`\gamma_i` for up to three
    different species.

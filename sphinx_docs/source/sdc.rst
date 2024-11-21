@@ -33,6 +33,7 @@ hydrodynamical sources),
 and :math:`\Rb(\Uc)`
 is the reaction source term.
 
+.. index:: USE_TRUE_SDC, USE_SIMPLIFIED_SDC
 
 .. note::
 
