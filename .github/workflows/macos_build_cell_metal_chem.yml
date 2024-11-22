@@ -17,5 +17,5 @@ jobs:
         run: |
           mkdir build && cd build
           cmake .. -DBUILD_UNIT_TEST_MC=true -DBUILD_AMReX=true
-          make -j2
+          make -j 4
           ctest --output-on-failure
