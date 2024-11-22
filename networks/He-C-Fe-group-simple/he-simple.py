@@ -119,3 +119,5 @@ net.remove_nuclei(["fe53", "fe55", "ni57"])
 
 fig = net.plot(rotated=True, curved_edges=True, size=(1500, 800), hide_xalpha=True, node_size=400, node_font_size=9)
 fig.savefig("newnet.png")
+
+net.write_network()
