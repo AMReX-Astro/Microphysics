@@ -13,6 +13,8 @@ EOS
 ``eos_t``
 ---------
 
+.. index:: eos_t
+
 The main data structure for interacting with the EOS is ``eos_t``.
 This is a collection of data specifying the microphysical state of the
 fluid that we are evaluating. This has many components. For a
@@ -48,6 +50,8 @@ Networks
 
 ``burn_t``
 ----------
+
+.. index:: burn_t
 
 The main data structure for interacting with the reaction networks is
 ``burn_t``. This holds the composition (mass fractions), thermodynamic
@@ -89,13 +93,17 @@ the user will only need to fill/use the following information:
 ``rate_t``, ``rate_fr_t``
 -------------------------
 
-The ``rate_t`` and ``rate_fr_t`` structures are used internally in a network to pass the
+.. index:: rate_t
+
+The ``rate_t`` structure is used internally in a network to pass the
 raw reaction rate information (usually just the temperature-dependent
 terms) between various subroutines. It does not come out of the
 network-specific righthand side or Jacobian routines.
 
 ``burn_type.H``
 ---------------
+
+.. index:: burn_type.H
 
 In addition to defining the ``burn_t`` type, the header ``burn_type.H``
 also defines integer indices into the solution vector that can be used

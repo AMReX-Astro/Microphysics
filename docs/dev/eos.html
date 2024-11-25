@@ -54,10 +54,7 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
@@ -79,6 +76,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and Modes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#auxiliary-composition">Auxiliary Composition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#composition-derivatives">Composition Derivatives</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#initialization-and-cutoff-values">Initialization and Cutoff Values</a></li>
@@ -112,6 +110,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
 
         </div>
       </div>
@@ -144,7 +146,7 @@ available for your use, and then we describe the correct structure of
 an EOS module in case you want to build your own.</p>
 <section id="available-equations-of-state">
 <h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Link to this heading"></a></h2>
-<p>The following equations of state are available in Microphysics.
+<p id="index-0">The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
 thermodynamic data (including all derivatives) in the <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>
 type.</p>
@@ -154,28 +156,23 @@ type.</p>
 equation of state:</p>
 <div class="math notranslate nohighlight">
 \[p = (\gamma - 1) \rho e.\]</div>
-<p><span class="math notranslate nohighlight">\(\gamma\)</span> is specified by the runtime parameter <code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code>. For
+<p><span class="math notranslate nohighlight">\(\gamma\)</span> is specified by the runtime parameter <code class="docutils literal notranslate"><span class="pre">eos.eos_gamma</span></code>. For
 an ideal gas, this represents the ratio of specific heats. The gas is
 assumed to be ideal, with the pressure given by</p>
 <div class="math notranslate nohighlight">
 \[p = \frac{\rho k T}{\mu m_u}\]</div>
 <p>where <span class="math notranslate nohighlight">\(k\)</span> is Boltzmann’s constant and <span class="math notranslate nohighlight">\(\mu\)</span> is the mean molecular
 weight, calculated from the composition, <span class="math notranslate nohighlight">\(X_k\)</span>. This EOS assumes
-the gas is either completely neutral (<code class="docutils literal notranslate"><span class="pre">assume_neutral</span> <span class="pre">=</span> <span class="pre">T</span></code>),
+the gas is either completely neutral (<code class="docutils literal notranslate"><span class="pre">eos.assume_neutral</span> <span class="pre">=</span> <span class="pre">1</span></code>),
 giving:</p>
 <div class="math notranslate nohighlight">
 \[\mu^{-1} = \sum_k \frac{X_k}{A_k}\]</div>
-<p>or completely ionized (<code class="docutils literal notranslate"><span class="pre">assume_neutral</span> <span class="pre">=</span> <span class="pre">F</span></code>), giving:</p>
+<p>or completely ionized (<code class="docutils literal notranslate"><span class="pre">eos.assume_neutral</span> <span class="pre">=</span> <span class="pre">0</span></code>), giving:</p>
 <div class="math notranslate nohighlight">
 \[\mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}\]</div>
 <p>The entropy comes from the Sackur-Tetrode equation. Because of the
 complex way that composition enters into the entropy, the entropy
 formulation here is only correct for a <span class="math notranslate nohighlight">\(\gamma = 5/3\)</span> gas.</p>
-<p>Note that the implementation provided in Microphysics is the same as
-the version shipped with MAESTRO, but more general than the
-<code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> EOS provided with CASTRO. CASTRO’s default EOS only
-fills the thermodynamic information in <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> that is required
-by the hydrodynamics module in CASTRO.</p>
 </section>
 <section id="polytrope">
 <h3>polytrope<a class="headerlink" href="#polytrope" title="Link to this heading"></a></h3>
@@ -189,18 +186,18 @@ only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
 electron gas) or inputs their own values for <span class="math notranslate nohighlight">\(K\)</span> and <span class="math notranslate nohighlight">\(\gamma\)</span>
-via <code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code> and <code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code>.</p>
-<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">polytrope_type</span></code> selects the pre-defined
+via <code class="docutils literal notranslate"><span class="pre">eos.polytrope_K</span></code> and <code class="docutils literal notranslate"><span class="pre">eos.polytrope_gamma</span></code>.</p>
+<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">eos.polytrope_type</span></code> selects the pre-defined
 polytropic relations. The options are:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">polytrope_type</span> <span class="pre">=</span> <span class="pre">1</span></code>: sets <span class="math notranslate nohighlight">\(\gamma = 5/3\)</span> and</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos.polytrope_type</span> <span class="pre">=</span> <span class="pre">1</span></code>: sets <span class="math notranslate nohighlight">\(\gamma = 5/3\)</span> and</p>
 <div class="math notranslate nohighlight">
 \[K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}\]</div>
-<p>where <span class="math notranslate nohighlight">\(mu_e\)</span> is the mean molecular weight per electron, specified via <code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></p>
+<p>where <span class="math notranslate nohighlight">\(mu_e\)</span> is the mean molecular weight per electron, specified via <code class="docutils literal notranslate"><span class="pre">eos.polytrope_mu_e</span></code></p>
 <p>This is the form appropriate for a non-relativistic
 fully-degenerate electron gas.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">polytrope_type</span> <span class="pre">=</span> <span class="pre">2</span></code>: sets <span class="math notranslate nohighlight">\(\gamma = 4/3\)</span> and</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos.polytrope_type</span> <span class="pre">=</span> <span class="pre">2</span></code>: sets <span class="math notranslate nohighlight">\(\gamma = 4/3\)</span> and</p>
 <div class="math notranslate nohighlight">
 \[K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}\]</div>
 <p>This is the form appropriate for a relativistic fully-degenerate
@@ -268,11 +265,11 @@ Furthermore, we can show</p>
 <p>This equation of state takes several runtime parameters that can set
 the <span class="math notranslate nohighlight">\(\gamma_i\)</span> for a specific species. The parameters are:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">eos_gamma_default</span></code>: the default <span class="math notranslate nohighlight">\(\gamma\)</span> to apply for all
+<li><p><code class="docutils literal notranslate"><span class="pre">eos.eos_gamma_default</span></code>: the default <span class="math notranslate nohighlight">\(\gamma\)</span> to apply for all
 species</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">species_X_name</span></code> and <code class="docutils literal notranslate"><span class="pre">species_X_gamma</span></code>: set the
+<li><p><code class="docutils literal notranslate"><span class="pre">eos.species_X_name</span></code> and <code class="docutils literal notranslate"><span class="pre">eos.species_X_gamma</span></code>: set the
 <span class="math notranslate nohighlight">\(\gamma_i\)</span> for the species whose name is given as
-<code class="docutils literal notranslate"><span class="pre">species_X_name</span></code> to the value provided by <code class="docutils literal notranslate"><span class="pre">species_X_gamma</span></code>.
+<code class="docutils literal notranslate"><span class="pre">eos.species_X_name</span></code> to the value provided by <code class="docutils literal notranslate"><span class="pre">eos.species_X_gamma</span></code>.
 Here, <code class="docutils literal notranslate"><span class="pre">X</span></code> can be one of the letters: <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>, or
 <code class="docutils literal notranslate"><span class="pre">c</span></code>, allowing us to specify custom <span class="math notranslate nohighlight">\(\gamma_i\)</span> for up to three
 different species.</p></li>
@@ -312,7 +309,7 @@ appropriate interpolation table from that site to use this.</p>
 </section>
 <section id="interface-and-modes">
 <h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Link to this heading"></a></h2>
-<p>The EOS is called as:</p>
+<p id="index-1">The EOS is called as:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">eos</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">eos_type</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -335,6 +332,9 @@ including derivatives.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> : only provides the energy-based thermodynamic information, including
 energy derivatives.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code> : expands on <code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> to include pressure information</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_rh_t</span></code> : expands on <code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code> to include enthalpy information</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chem_eos_t</span></code> : adds some quantities needed for the primordial chemistry EOS
+and explicitly does not include the mass fractions.</p></li>
 </ul>
 <p>In general, you should use the type that has the smallest set of
 information needed, since we optimize out needless quantities at
@@ -348,7 +348,7 @@ stored in <code class="docutils literal notranslate"><span class="pre">eos_t.aux
 </div>
 <section id="auxiliary-composition">
 <span id="aux-eos-comp"></span><h3>Auxiliary Composition<a class="headerlink" href="#auxiliary-composition" title="Link to this heading"></a></h3>
-<p>With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
+<p id="index-2">With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
 The auxiliary variables are</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[iye]</span></code> : electron fraction, defined as</p>
@@ -373,6 +373,16 @@ auxiliary quantities.</p>
 <p>The equation of state also needs <span class="math notranslate nohighlight">\(\bar{Z}\)</span> which is easily computed as</p>
 <div class="math notranslate nohighlight">
 \[\bar{Z} = \bar{A} Y_e\]</div>
+</section>
+<section id="composition-derivatives">
+<h3>Composition Derivatives<a class="headerlink" href="#composition-derivatives" title="Link to this heading"></a></h3>
+<p id="index-3">The derivatives <span class="math notranslate nohighlight">\(\partial p/\partial A\)</span>, <span class="math notranslate nohighlight">\(\partial p/\partial Z\)</span>,
+and <span class="math notranslate nohighlight">\(\partial e/\partial A\)</span>, <span class="math notranslate nohighlight">\(\partial e/\partial Z\)</span> are available via
+the <code class="docutils literal notranslate"><span class="pre">eos_extra_t</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_re_extra_t</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_rep_extra_t</span></code>, which
+extends the non-“extra” variants with these additional fields.</p>
+<p>The composition derivatives can be used via the <code class="docutils literal notranslate"><span class="pre">composition_derivatives()</span></code> function
+in <code class="docutils literal notranslate"><span class="pre">eos_composition.H</span></code>
+to compute <span class="math notranslate nohighlight">\(\partial p/\partial X_k |_{\rho, T, X_j}\)</span>, <span class="math notranslate nohighlight">\(\partial e/\partial X_k |_{\rho, T, X_j}\)</span>, and <span class="math notranslate nohighlight">\(\partial h/\partial X_k |_{\rho, T, X_j}\)</span>.</p>
 </section>
 </section>
 <section id="initialization-and-cutoff-values">

@@ -17,11 +17,13 @@ The equations we integrate to do a nuclear burn are:
    \frac{de}{dt} = f(\rho,X_k,T)
    :label: eq:enuc_integrate
 
-Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e` is the specific
-nuclear energy created through reactions. Also needed are density :math:`\rho`,
-temperature :math:`T`, and the specific heat. The function :math:`f` provides the energy release from reactions and can often be expressed in terms of the
-instantaneous reaction terms, :math:`\dot{X}_k`. As noted in the previous
-section, this is implemented in a network-specific manner.
+Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e`
+is the specific nuclear energy created through reactions. Also needed
+are density :math:`\rho`, temperature :math:`T`, and the specific
+heat. The function :math:`f` provides the energy release from
+reactions and can often be expressed in terms of the instantaneous
+reaction terms, :math:`\dot{X}_k`. As noted in the previous section,
+this is implemented in a network-specific manner.
 
 In this system, :math:`e` is equal to the total specific internal
 energy. This allows us to easily call the EOS during the burn to obtain the temperature.
@@ -223,7 +225,7 @@ flow is (for VODE):
    and zero out the temperature and energy derivatives if we are not integrating
    those quantities.
 
-#. apply any boosting if ``react_boost`` > 0
+#. apply any boosting if ``integrator.react_boost`` > 0
 
 
 Jacobian implementation

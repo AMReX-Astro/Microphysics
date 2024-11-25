@@ -9,6 +9,8 @@ an EOS module in case you want to build your own.
 Available Equations of State
 ============================
 
+.. index:: eos_t
+
 The following equations of state are available in Microphysics.
 Except where noted, each of these EOSs will provide the full
 thermodynamic data (including all derivatives) in the ``eos_t``
@@ -22,7 +24,7 @@ equation of state:
 
 .. math:: p = (\gamma - 1) \rho e.
 
-:math:`\gamma` is specified by the runtime parameter ``eos_gamma``. For
+:math:`\gamma` is specified by the runtime parameter ``eos.eos_gamma``. For
 an ideal gas, this represents the ratio of specific heats. The gas is
 assumed to be ideal, with the pressure given by
 
@@ -30,12 +32,12 @@ assumed to be ideal, with the pressure given by
 
 where :math:`k` is Boltzmann’s constant and :math:`\mu` is the mean molecular
 weight, calculated from the composition, :math:`X_k`. This EOS assumes
-the gas is either completely neutral (``assume_neutral = T``),
+the gas is either completely neutral (``eos.assume_neutral = 1``),
 giving:
 
 .. math:: \mu^{-1} = \sum_k \frac{X_k}{A_k}
 
-or completely ionized (``assume_neutral = F``), giving:
+or completely ionized (``eos.assume_neutral = 0``), giving:
 
 .. math:: \mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}
 
@@ -43,11 +45,6 @@ The entropy comes from the Sackur-Tetrode equation. Because of the
 complex way that composition enters into the entropy, the entropy
 formulation here is only correct for a :math:`\gamma = 5/3` gas.
 
-Note that the implementation provided in Microphysics is the same as
-the version shipped with MAESTRO, but more general than the
-``gamma_law`` EOS provided with CASTRO. CASTRO’s default EOS only
-fills the thermodynamic information in ``eos_t`` that is required
-by the hydrodynamics module in CASTRO.
 
 polytrope
 ---------
@@ -63,21 +60,21 @@ only independent variable; there is no temperature dependence. The
 user either selects from a set of predefined options reflecting
 physical polytropes (e.g. a non-relativistic, fully degenerate
 electron gas) or inputs their own values for :math:`K` and :math:`\gamma`
-via ``polytrope_K`` and ``polytrope_gamma``.
+via ``eos.polytrope_K`` and ``eos.polytrope_gamma``.
 
-The runtime parameter ``polytrope_type`` selects the pre-defined
+The runtime parameter ``eos.polytrope_type`` selects the pre-defined
 polytropic relations. The options are:
 
--  ``polytrope_type = 1``: sets :math:`\gamma = 5/3` and
+-  ``eos.polytrope_type = 1``: sets :math:`\gamma = 5/3` and
 
    .. math:: K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}
 
-   where :math:`mu_e` is the mean molecular weight per electron, specified via ``polytrope_mu_e``
+   where :math:`mu_e` is the mean molecular weight per electron, specified via ``eos.polytrope_mu_e``
 
    This is the form appropriate for a non-relativistic
    fully-degenerate electron gas.
 
--  ``polytrope_type = 2``: sets :math:`\gamma = 4/3` and
+-  ``eos.polytrope_type = 2``: sets :math:`\gamma = 4/3` and
 
    .. math:: K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}
 
@@ -161,12 +158,12 @@ and :math:`p = \rho e (\gamma_\mathrm{effective} - 1)`.
 This equation of state takes several runtime parameters that can set
 the :math:`\gamma_i` for a specific species. The parameters are:
 
--  ``eos_gamma_default``: the default :math:`\gamma` to apply for all
+-  ``eos.eos_gamma_default``: the default :math:`\gamma` to apply for all
    species
 
--  ``species_X_name`` and ``species_X_gamma``: set the
+-  ``eos.species_X_name`` and ``eos.species_X_gamma``: set the
    :math:`\gamma_i` for the species whose name is given as
-   ``species_X_name`` to the value provided by ``species_X_gamma``.
+   ``eos.species_X_name`` to the value provided by ``eos.species_X_gamma``.
    Here, ``X`` can be one of the letters: ``a``, ``b``, or
    ``c``, allowing us to specify custom :math:`\gamma_i` for up to three
    different species.
@@ -209,6 +206,8 @@ appropriate interpolation table from that site to use this.
 Interface and Modes
 ===================
 
+.. index:: eos_t, eos_re_t, eos_rep_t, eos_rh_t, chem_eos_t
+
 The EOS is called as:
 
 .. code:: c++
@@ -244,6 +243,11 @@ The *eos_type* passed in is one of
 
 * ``eos_rep_t`` : expands on ``eos_re_t`` to include pressure information
 
+* ``eos_rh_t`` : expands on ``eos_rep_t`` to include enthalpy information
+
+* ``chem_eos_t`` : adds some quantities needed for the primordial chemistry EOS
+  and explicitly does not include the mass fractions.
+
 In general, you should use the type that has the smallest set of
 information needed, since we optimize out needless quantities at
 compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
@@ -260,6 +264,7 @@ compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
 Auxiliary Composition
 ---------------------
 
+.. index:: USE_AUX_THERMO
 
 With ``USE_AUX_THERMO=TRUE``, we interpret the composition from the auxiliary variables.
 The auxiliary variables are
@@ -298,6 +303,21 @@ The equation of state also needs :math:`\bar{Z}` which is easily computed as
    \bar{Z} = \bar{A} Y_e
 
 
+Composition Derivatives
+-----------------------
+
+.. index:: eos_extra_t, eos_re_extra_t, eos_rep_extra_t
+
+The derivatives $\partial p/\partial A$, $\partial p/\partial Z$,
+and $\partial e/\partial A$, $\partial e/\partial Z$ are available via
+the ``eos_extra_t``, ``eos_re_extra_t``, ``eos_rep_extra_t``, which
+extends the non-"extra" variants with these additional fields.
+
+The composition derivatives can be used via the ``composition_derivatives()`` function
+in ``eos_composition.H``
+to compute :math:`\partial p/\partial X_k |_{\rho, T, X_j}`, :math:`\partial e/\partial X_k |_{\rho, T, X_j}`, and :math:`\partial h/\partial X_k |_{\rho, T, X_j}`.
+
+
 Initialization and Cutoff Values
 ================================
 
@@ -328,6 +348,3 @@ appropriate time for, say, loading an interpolation table into memory.
 
 The main evaluation routine is called ``actual_eos``. It should
 accept an eos_input and an eos_t state; see Section :ref:`data_structures`.
-
-
-
