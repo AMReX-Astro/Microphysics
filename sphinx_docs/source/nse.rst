@@ -132,7 +132,7 @@ The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
     * use :math:`\rho`, :math:`T`, and :math:`Y_e` to call the table.
       This returns: :math:`dY_e/dt`, :math:`(B/A)_{\rm out}`, and :math:`\bar{A}_{\rm out}`.
 
-    * update :math:`Y_e` [#fY]_ :
+    * update :math:`Y_e` :
 
       .. math::
 
@@ -190,13 +190,13 @@ The composition check considers the following nuclei groups:
 
 and we then say that a composition supports NSE if:
 
-* :math:`X(C_group)` < ``C_nse``
+* :math:`X(C_\mathrm{group})` < ``C_nse``
 
-* :math:`X(O_group)` < ``O_nse``
+* :math:`X(O_\mathrm{group})` < ``O_nse``
 
-* :math:`X(Si_group)` < ``Si_nse``
+* :math:`X(Si_\mathrm{group})` < ``Si_nse``
 
-* :math:`X(Fe_group) + X(He_group)` > ``He_Fe_nse``
+* :math:`X(Fe_\mathrm{group}) + X(He_\mathrm{group})` > ``He_Fe_nse``
 
 
 
@@ -443,14 +443,3 @@ to the self-consistent nse check:
   the subsequent NSE checks. This is mainly to avoid unnecessary computations
   of computing the NSE mass fractions when the current temperature is too low.
   This is set to 4.0e9 by default.
-
-
-.. rubric:: Footnotes
-
-.. [#fY] The table actually provides the weak rate, which is the sum
-   of all electron capture and positron decay rates times the
-   appropriate abundances minus a similar rate for the beta decay and
-   positron capture, [wrate] = [rectot] + [rpdtot] - [redtot] - [rpctot]
-
-   So if electron capture dominates, then [wrate] is positive and this should
-   be subtracted from :math:`Y_e`.
