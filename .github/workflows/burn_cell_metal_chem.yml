@@ -31,7 +31,7 @@ jobs:
       - name: Compile
         run: |
           cd unit_test/burn_cell_metal_chem
-          make -j 2
+          make -j 4
 
       - name: Run and compare outputs for different Z values, also including cosmic ray ionization
         run: |

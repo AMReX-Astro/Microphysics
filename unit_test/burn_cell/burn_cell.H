@@ -21,12 +21,15 @@ void burn_cell_c()
     // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
 
-        massfractions[n-1] = get_xn(n);
+        if (unit_test_rp::init_species_all_equal) {
+            massfractions[n-1] = 1.0_rt / static_cast<amrex::Real>(NumSpec);
+        } else {
+            massfractions[n-1] = get_xn(n);
 
-        if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
-            amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
+            if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
+                amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
+            }
         }
-
     }
 
     // Echo initial conditions at burn and fill burn state input
