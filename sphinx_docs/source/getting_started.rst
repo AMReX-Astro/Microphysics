@@ -5,6 +5,8 @@ Getting Started
 Standalone
 ==========
 
+.. index:: AMREX_HOME
+
 Microphysics can be used in a "standalone" fashion to run the unit
 tests and explore the behavior of the reaction networks.  The main
 requirement is a copy of AMReX:
@@ -22,6 +24,8 @@ to set the ``AMREX_HOME`` environment variable to point to the
    export AMREX_HOME=/path/to/amrex
 
 (where you change ``/path/to/amrex`` to your actual path).
+
+.. index:: burn_cell
 
 A good unit test to start with is ``burn_cell`` -- this is simply a
 one-zone burn.  In ``Microphysics/`` do:
@@ -44,6 +48,8 @@ Here ``inputs_aprox21`` is the inputs file that sets options.
 
 Running with AMReX Application Code
 ===================================
+
+.. index:: MICROPHYSICS_HOME
 
 Getting started with Microphysics using either CASTRO or MAESTROeX is
 straightforward. Because the modules here are already in a format that

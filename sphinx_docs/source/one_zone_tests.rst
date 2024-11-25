@@ -9,6 +9,8 @@ on a single zone to inspect the output directly.
 ``burn_cell``
 =============
 
+.. index:: ``burn_cell``
+
 ``burn_cell`` is a simple one-zone burn that will evolve a state with
 a network for a specified amount of time.  This can be used to
 understand the timescales involved in a reaction sequence or to
