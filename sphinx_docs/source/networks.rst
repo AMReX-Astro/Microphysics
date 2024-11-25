@@ -56,6 +56,8 @@ for plotfile variables, and the mass number, :math:`A`, and proton number, :math
 
 The name of the inputs file by one of two make variables:
 
+.. index:: NETWORK_INPUTS, GENERAL_NET_INPUTS
+
 * ``NETWORK_INPUTS`` : this is simply the name of the "`.net`" file, without
   any path.  The build system will look for it in the current directory
   and then in ``$(MICROPHYSICS_HOME)/networks/general_null/``.
