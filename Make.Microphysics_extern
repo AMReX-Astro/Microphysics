@@ -126,7 +126,7 @@ ifeq ($(USE_CONDUCTIVITY),TRUE)
   EXTERN_CORE += $(CONDUCTIVITY_PATH)
 endif
 
-# backwards compatability -- remove after 25.01
+# backwards compatibility -- remove after 25.01
 ifdef Opacity_dir
    OPACITY_DIR=$(Opacity_dir)
 endif
