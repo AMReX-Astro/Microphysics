@@ -64,7 +64,7 @@ There are several implementations of the conductivity currently:
 
 * ``stellar`` :
 
-  This is a general stellar conductivity based on :cite:`timmes:2000`.
+  This is a general stellar conductivity based on :cite:`timmes:2000b`.
   It combines radiative opacities and thermal conductivities into a
   single expression.  This conductivity is suitable for modeling
   laminar flames.
