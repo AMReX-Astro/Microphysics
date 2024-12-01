@@ -126,14 +126,18 @@ ifeq ($(USE_CONDUCTIVITY),TRUE)
   EXTERN_CORE += $(CONDUCTIVITY_PATH)
 endif
 
+# backwards compatability -- remove after 25.01
+ifdef Opacity_dir
+   OPACITY_DIR=$(Opacity_dir)
+endif
 
 ifeq ($(USE_RAD), TRUE)
-   ifeq ($(Opacity_dir), null)
+   ifeq ($(OPACITY_DIR), null)
      $(error The null opacity directory has been removed, please update to rad_power_law)
    endif
    EXTERN_CORE += $(MICROPHYSICS_HOME)/opacity
 
-   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
+   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(OPACITY_DIR)
    EXTERN_CORE += $(OPAC_PATH)
 endif
 
