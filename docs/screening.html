@@ -54,10 +54,7 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
@@ -97,6 +94,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
 
         </div>
       </div>
@@ -124,7 +125,7 @@
              
   <section id="screening-of-reaction-rates">
 <h1>Screening of Reaction Rates<a class="headerlink" href="#screening-of-reaction-rates" title="Link to this heading"></a></h1>
-<p>Screening of reaction rates can be computed using several different methods,
+<p id="index-0">Screening of reaction rates can be computed using several different methods,
 controlled by the make parameter <code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD</span></code>.  For example,</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
 span.prompt1:before {
@@ -166,8 +167,13 @@ enhancement factor.</p>
 </ul>
 <section id="runtime-options">
 <h2>Runtime Options<a class="headerlink" href="#runtime-options" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">screening.enable_chabrier1998_quantum_corr</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file enables an additional quantum correction term added to the screening factor when <code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD=chabrier1998</span></code>. This is disabled by default since <code class="docutils literal notranslate"><span class="pre">chabrier1998</span></code> is often used along with <code class="docutils literal notranslate"><span class="pre">USE_NSE_NET=TRUE</span></code>, and the NSE solver doesn’t include quantum corrections.</p></li>
+<ul class="simple" id="index-1">
+<li><p><code class="docutils literal notranslate"><span class="pre">screening.enable_chabrier1998_quantum_corr</span> <span class="pre">=</span> <span class="pre">1</span></code> in the input file
+enables an additional quantum correction term added to the screening
+factor when <code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD=chabrier1998</span></code>. This is disabled by
+default since <code class="docutils literal notranslate"><span class="pre">chabrier1998</span></code> is often used along with
+<code class="docutils literal notranslate"><span class="pre">USE_NSE_NET=TRUE</span></code>, and the NSE solver doesn’t include quantum
+corrections.</p></li>
 </ul>
 </section>
 </section>

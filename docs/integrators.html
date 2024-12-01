@@ -54,10 +54,7 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
@@ -108,6 +105,10 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
 
         </div>
       </div>
@@ -145,11 +146,13 @@ default mode of coupling burning to application codes.</p>
 <span class="eqno">(1)<a class="headerlink" href="#equation-eq-spec-integrate" title="Link to this equation"></a></span>\[\frac{dX_k}{dt} = \dot{\omega}_k(\rho,X_k,T)\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-enuc-integrate">
 <span class="eqno">(2)<a class="headerlink" href="#equation-eq-enuc-integrate" title="Link to this equation"></a></span>\[\frac{de}{dt} = f(\rho,X_k,T)\]</div>
-<p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(e\)</span> is the specific
-nuclear energy created through reactions. Also needed are density <span class="math notranslate nohighlight">\(\rho\)</span>,
-temperature <span class="math notranslate nohighlight">\(T\)</span>, and the specific heat. The function <span class="math notranslate nohighlight">\(f\)</span> provides the energy release from reactions and can often be expressed in terms of the
-instantaneous reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous
-section, this is implemented in a network-specific manner.</p>
+<p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(e\)</span>
+is the specific nuclear energy created through reactions. Also needed
+are density <span class="math notranslate nohighlight">\(\rho\)</span>, temperature <span class="math notranslate nohighlight">\(T\)</span>, and the specific
+heat. The function <span class="math notranslate nohighlight">\(f\)</span> provides the energy release from
+reactions and can often be expressed in terms of the instantaneous
+reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous section,
+this is implemented in a network-specific manner.</p>
 <p>In this system, <span class="math notranslate nohighlight">\(e\)</span> is equal to the total specific internal
 energy. This allows us to easily call the EOS during the burn to obtain the temperature.</p>
 <div class="admonition note">
@@ -307,7 +310,7 @@ current state.</p></li>
 <li><p>convert the derivatives to mass-fraction-based (since we integrate <span class="math notranslate nohighlight">\(X\)</span>)
 and zero out the temperature and energy derivatives if we are not integrating
 those quantities.</p></li>
-<li><p>apply any boosting if <code class="docutils literal notranslate"><span class="pre">react_boost</span></code> &gt; 0</p></li>
+<li><p>apply any boosting if <code class="docutils literal notranslate"><span class="pre">integrator.react_boost</span></code> &gt; 0</p></li>
 </ol>
 </section>
 <section id="jacobian-implementation">

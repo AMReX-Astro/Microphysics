@@ -26,7 +26,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Preface" href="preface.html" /> 
+    <link rel="next" title="Getting Started" href="getting_started.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,10 +53,7 @@
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
@@ -92,6 +89,10 @@
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
 </ul>
 
         </div>
@@ -120,78 +121,45 @@
              
   <section id="amrex-astro-microphysics">
 <h1>AMReX-Astro Microphysics<a class="headerlink" href="#amrex-astro-microphysics" title="Link to this heading"></a></h1>
-<p>A collection of microphysics routines (equations of state,
+<p>AMReX-Astro Microphysics is a collection of microphysics routines (equations of state,
 reaction networks, …) and utilities (ODE integrators, NSE solvers)
 for astrophysical simulation codes.</p>
+<p>The original design was to support the <a class="reference external" href="https://github.com/amrex-codes/amrex">AMReX</a> codes <a class="reference external" href="https://github.com/amrex-astro/Castro">CASTRO</a> and MAESTRO (now <a class="reference external" href="https://github.com/amrex-astro/MAESTROeX">MAESTROeX</a>). These all have a
+consistent interface and the separate Microphysics repository allows
+them to share the same equation of state, reaction networks, and more.
+Later, Microphysics was adopted by the <a class="reference external" href="https://github.com/quokka-astro/quokka">Quokka</a>
+simulation code.</p>
+<p>While there are a number of unit tests that exercise the functionality,
+Microphysics is primarily intended to be used along with another simulation
+code.   At the moment, the interfaces and
+build stubs are compatible with the AMReX codes and use the AMReX build
+system.</p>
+<p>A number of the routines contained here we authored by other people.
+We bundle them here with permission, usually changing the interfaces
+to be compatible with our standardized interface. We in particular
+thank Frank Timmes for numerous reaction networks and his equation
+of state routines.</p>
 <div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="preface.html">Preface</a></li>
-</ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
-<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
-</ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
-<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
-</ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
-<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
-<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
-</ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">Available Integrators</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
-</ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
-</ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">References</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
-</ul>
 </div>
-<section id="indices-and-tables">
-<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Link to this heading"></a></h2>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
-</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="preface.html" class="btn btn-neutral float-right" title="Preface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="getting_started.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
