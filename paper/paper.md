@@ -1,5 +1,6 @@
 ---
-title: 'pynucastro: an interface to nuclear reaction rates and code generator for reaction network equations'
+title: 'AMReX-Astrophysics Microphysics: A set of microphysics routines for astrophysical simulation codes
+based on the AMReX library'
 
 tags:
 - nuclear
@@ -14,7 +15,7 @@ authors:
 
 affiliations:
 
-date: 27 January 2018
+date: 01 January 2025
 
 bibliography: paper.bib
 ---
