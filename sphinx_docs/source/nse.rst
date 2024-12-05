@@ -118,7 +118,7 @@ Therefore each of these auxiliary equations obeys an advection equation
 in the hydro part of the advancement.
 
 The table also provides $dY_e/dt$, $(d\langle
-B/A\rangle/dt)_\mathrm{weak}$, and $\epsilon_{\nu,\mathrm{react}$, the
+B/A\rangle/dt)_\mathrm{weak}$, and $\epsilon_{\nu,\mathrm{react}}$, the
 weak rate neutrino losses.  These quantities are used to update the
 thermodynamic state as we integrate.
 
@@ -229,13 +229,13 @@ The composition check considers the following nuclei groups:
 
 and we then say that a composition supports NSE if:
 
-* :math:`X(C_\mathrm{group})` < ``network.C_nse``
+* :math:`X(\mathrm{C}_\mathrm{group})` < ``network.C_nse``
 
-* :math:`X(O_\mathrm{group})` < ``network.O_nse``
+* :math:`X(\mathrm{O}_\mathrm{group})` < ``network.O_nse``
 
-* :math:`X(Si_\mathrm{group})` < ``network.Si_nse``
+* :math:`X(\mathrm{Si}_\mathrm{group})` < ``network.Si_nse``
 
-* :math:`X(Fe_\mathrm{group}) + X(He_\mathrm{group})` > ``network.He_Fe_nse``
+* :math:`X(\mathrm{Fe}_\mathrm{group}) + X(\mathrm{He}_\mathrm{group})` > ``network.He_Fe_nse``
 
 
 
@@ -289,8 +289,8 @@ different syntax.
 The overall framework is constructed following :cite:`Kushnir_2020` with slight
 variations. The overview of the steps we take are the following:
 
-* Minimum Temperature Check: require ``T > T_min_nse``, where ``T_min_nse`` is
-  a runtime parameter with a default value ``T_min_nse = 4.0e9``.
+* Minimum Temperature Check: require ``T > nse.T_min_nse``, where ``nse.T_min_nse`` is
+  a runtime parameter with a default value ``nse.T_min_nse = 4.0e9``.
 
 * Mass Abundance Check: compare the current mass abundances of the nuclei to
   the NSE mass fractions. A detailed criteria are the following:
@@ -319,13 +319,13 @@ variations. The overview of the steps we take are the following:
 
   .. math::
 
-    \epsilon_{abs} = Y^i - Y^i_{NSE} < \mbox{nse_abs_tol}
+    \epsilon_{abs} = Y^i - Y^i_{NSE} < \mbox{nse.nse_abs_tol}
 
   .. math::
 
-    \epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} < \mbox{nse_rel_tol}
+    \epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} < \mbox{nse.nse_rel_tol}
 
-  where ``nse_rel_tol = 0.2`` and ``nse_abs_tol = 0.005`` by default.
+  where ``nse.nse_rel_tol = 0.2`` and ``nse.nse_abs_tol = 0.005`` by default.
 
 
 * **Removed** :cite:`Kushnir_2020` also requires a fast reaction cycle that
