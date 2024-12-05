@@ -2,6 +2,12 @@
 NSE
 ***
 
+.. important::
+
+   NSE is only supported with the simplified-SDC method for
+   coupling hydrodynamics and reactions.  We do not support
+   operator-splitting (Strang) coupling with NSE.
+
 The reaction networks in Microphysics have the ability to use NSE
 instead of integrating the entire network when the conditions are
 appropriate.  There are 2 different implementations of NSE in
@@ -23,7 +29,10 @@ Microphysics, that have slightly different use cases.
   :math:`\langle B/A\rangle`.  All of the EOS calls will work with
   these quantities.
 
+  This algorithm was described in :cite:`sdc-nse`.
+
   This is enabled via ``USE_NSE_TABLE``
+
 
 * :ref:`self_consistent_nse` : this adds an NSE solver to the network that
   can be called to find the equilibrium abundances of each of the
@@ -61,18 +70,19 @@ standard ``aprox19`` network with a table for nuclear statistic
 equilibrium resulting from a much larger network at high density and
 temperatures.    This option is enabled by building with:
 
-.. prompt:: bash
+.. code:: bash
 
    NETWORK_DIR=aprox19 USE_NSE_TABLE=TRUE
 
 Composition and EOS
 -------------------
 
-The NSE table was generated using a 125 nuclei reaction network
-(described in :cite:`ma:2013`), and includes electron-capture rates,
-so the compositional quantities it carries, :math:`\bar{A}` and
-:math:`Y_e` and not representable from the 19 isotopes we carry in the
-network.  In particular, it can attain a lower :math:`Y_e` than
+The NSE table was generated using `pynucastro
+<https://pynucastro.github.io/pynucastro/>` using 96 nuclei and
+electron/positron capture/decay rates from :cite:`langanke:2001`.  The
+table takes $Y_e$ as the primary composition variable and provides a
+set of mass fractions that is mapped into those used by ``aprox19``.
+Using the value allows us to attain a lower :math:`Y_e` than
 ``aprox19`` can represent.
 
 For this reason, when we are using the NSE network, we always take the
@@ -86,35 +96,39 @@ NSE Table Outputs
 -----------------
 
 The NSE table provides values for the auxiliary composition,
-:math:`Y_e`, :math:`\bar{A}`, and :math:`\langle B/A \rangle`
+:math:`\bar{A}`, and :math:`\langle B/A \rangle`
 resulting from the full 125 nuclei network.   It also provides a set of 19
 :math:`X_k` that map into the isotopes carried by ``aprox19``.
-
-
 These three quantities are stored as ``aux`` data in the network and
 are indexed as ``iye``, ``iabar``, and ``ibea``.  Additionally, when
 coupling to hydrodynamics, we need to advect these auxiliary
 quantities.
 
-For Strang split coupling of hydro and reactions, :math:`DX_k/Dt = 0`,
-and our evolution equations are:
+The evolution equations for the auxiliary variables are:
 
 .. math::
 
    \begin{align*}
-   \frac{DY_e}{Dt} &= \sum_k \frac{Z_k}{A_k} \frac{DX_k}{Dt} = 0 \\
-   \frac{D}{Dt} \frac{1}{\bar{A}} &= - \frac{1}{\bar{A}^2} \frac{D\bar{A}}{Dt} = \sum_k \frac{1}{A_k} \frac{DX_k}{Dt} = 0 \rightarrow \frac{D\bar{A}}{Dt} = 0 \\
-   \frac{D}{Dt} \left (\frac{B}{A} \right ) &= \sum_k \frac{B_k}{A_k} \frac{DX_k}{Dt} = 0
+   \frac{DY_e}{Dt} &= \sum_k \frac{Z_k}{A_k} \dot{\omega}_k \\
+   \frac{D\bar{A}}{Dt} &= -\bar{A}^2 \sum_k \frac{1}{A_k} \dot{\omega}_k \\
+   \frac{D}{Dt} \left (\frac{B}{A} \right ) &= \sum_k \frac{B_k}{A_k} \dot{\omega}_k
    \end{align*}
 
 Therefore each of these auxiliary equations obeys an advection equation
 in the hydro part of the advancement.
 
+The table also provides $dY_e/dt$, $(d\langle
+B/A\rangle/dt)_\mathrm{weak}$, and $\epsilon_{\nu,\mathrm{react}$, the
+weak rate neutrino losses.  These quantities are used to update the
+thermodynamic state as we integrate.
 
 NSE Flow
 --------
 
-The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
+.. index:: integrator.nse_deriv_dt_factor, integrator.nse_include_enu_weak
+
+The time integration algorithm is described in detail in :cite:`sdc-nse`.  Here
+we provide an outline:
 
 * initialize the problem, including :math:`X_k`
 
@@ -129,34 +143,56 @@ The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
 
   * if we are in an NSE region:
 
-    * use :math:`\rho`, :math:`T`, and :math:`Y_e` to call the table.
-      This returns: :math:`dY_e/dt`, :math:`(B/A)_{\rm out}`, and :math:`\bar{A}_{\rm out}`.
+    * Compute the initial temperature given $\rho$, $e$, and $Y_e$,
+      using an EOS inversion algorithm that understands NSE (in
+      particular that the composition depends on $T$ in NSE)
 
-    * update :math:`Y_e` :
+    * Compute the plasma neutrino losses, $\epsilon_{\nu,\mathrm{thermal}}$
 
-      .. math::
+    * Use :math:`\rho`, :math:`T`, and :math:`Y_e` to evaluate the NSE
+      state and construct $[\Rb(\Uc^\prime)]^n$, the source term from reactions to the
+      reduced conserved state $\Uc^\prime$ (this is the state used by the SDC algorithm
+      and includes the internal energy density, mass fractions, and auxiliary variables).
 
-         (Y_e)_{\rm out} = (Y_e)_{\rm in} + \Delta t \frac{dY_e}{dt}
+      This is done via finite differencing in time (through a step
+      $\tau \ll \Delta t$), and the reactive sources are constructed
+      to exclude the advective contributions.  The size of $\tau$ is
+      controlled via ``integrator.nse_deriv_dt_factor``.
 
-    * :math:`\bar{A}_{\rm out}` is simply the value returned from the table
-
-    * the energy generation rate, :math:`e_{\rm nuc}` is:
-
-      .. math::
-
-         e_{\rm nuc} = \eta \left [ \left ( \frac{B}{A} \right )_{\rm out} -
-                                    \left ( \frac{B}{A} \right )_{\rm in} \right ] * \frac{1.602 \times 10^{-6}  {\rm erg}}{{\rm MeV}} N_A \frac{1}{\Delta t}
-
-
-      where :math:`\eta` is an inertia term < 1 to prevent the energy changing too much in one set.
-
-    * the new binding energy for the zone is then:
+      In particular, the energy source is constructed as:
 
       .. math::
 
-         \left ( \frac{B}{A} \right )_{\rm out}  = \left ( \frac{B}{A} \right )_{\rm in} + \eta \left [ \left ( \frac{B}{A} \right )_{\rm out} - \left ( \frac{B}{A} \right )_{\rm in} \right ]
+         R(\rho e) = N_A \frac{\Delta (\rho \langle B/A\rangle)}{\tau} + N_A \Delta m_{np} c^2 \rho \frac{dY_e}{dt} - \rho (\epsilon_{\nu,\mathrm{thermal}} + \epsilon{\nu,\mathrm{react}})
 
-    * update the mass fractions, :math:`X_k`, using the values from the table
+      where $\Delta m_{np}$ is the difference between the neutron and H atom mass.
+
+      .. important::
+
+         It only makes sense to include the weak rate neutrino losses, $\epsilon{\nu,\mathrm{react}}$,
+         if the initial model that you are using in your simulation also included those losses.
+         Otherwise, the energy loss from our NSE table will likely be too great and that simulation
+         will not be in equilibrium.  This is an issue, for example, when using a MESA model
+         constructed with ``aprox21``, which does not have all of the weak rates we model here.
+
+         The weak rate neutrino losses can be disabled by ``integrator.nse_include_enu_weak``.
+
+    * Predict $\Uc^\prime$ to the midpoint in time, $n+1/2$ and construct
+      $[\Rb(\Uc^\prime)]^{n+1/2}$.
+
+    * Do the final update to time $n$ as:
+
+      .. math::
+
+         \Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} [\Advs{\Uc^\prime}]^{n+1/2} + \frac{\Delta t}{2} [\Rb(\Uc^\prime)]^{n+1/2}
+
+
+      where $[\Advs{\Uc^\prime}]^{n+1/2}$ are the advective updates carried by the SDC
+      algorithm.
+
+    * Compute the energy generation rate from the change in internal energy from $\Uc^{\prime,n}$ to $\Uc^{\prime,n+1}$, excluding advection.
+
+    * Update the total energy.
 
   * if we are not in NSE:
 
@@ -168,35 +204,38 @@ The basic flow of a simulation using ``aprox19`` + the NSE table is as follows:
 NSE check
 ---------
 
-For a zone to be consider in NSE, we require $\rho$ > ``rho_nse`` and *either*
+.. index:: network.rho_nse, network.T_nse, network.T_always_nse
+.. index:: network.He_Fe_nse, network.C_nse, network.O_nse, network.Si_nse
 
-* $T$ > ``T_nse`` together with the composition check
+For a zone to be consider in NSE, we require $\rho$ > ``network.rho_nse`` and *either*
 
-* $T$ > ``T_always_nse``
+* $T$ > ``network.T_nse`` together with the composition check
+
+* $T$ > ``network.T_always_nse``
 
 where we assume that ``T_always_nse`` > ``T_nse``.
 
 The composition check considers the following nuclei groups:
 
-* ``He_group``: atomic numbers 1 to 2 (H to He)
+* He-group: atomic numbers 1 to 2 (H to He)
 
-* ``C_group``: atomic numbers 6 to 7 (C to N)
+* C-group: atomic numbers 6 to 7 (C to N)
 
-* ``O_group``: atomic number 8 (O)
+* O-group: atomic number 8 (O)
 
-* ``Si_group``: atomic number 14 (Si)
+* Si-group: atomic number 14 (Si)
 
-* ``Fe_group``: atomic numbers 24 to 30 (Cr to Zn)
+* Fe-group: atomic numbers 24 to 30 (Cr to Zn)
 
 and we then say that a composition supports NSE if:
 
-* :math:`X(C_\mathrm{group})` < ``C_nse``
+* :math:`X(C_\mathrm{group})` < ``network.C_nse``
 
-* :math:`X(O_\mathrm{group})` < ``O_nse``
+* :math:`X(O_\mathrm{group})` < ``network.O_nse``
 
-* :math:`X(Si_\mathrm{group})` < ``Si_nse``
+* :math:`X(Si_\mathrm{group})` < ``network.Si_nse``
 
-* :math:`X(Fe_\mathrm{group}) + X(He_\mathrm{group})` > ``He_Fe_nse``
+* :math:`X(Fe_\mathrm{group}) + X(He_\mathrm{group})` > ``network.He_Fe_nse``
 
 
 
@@ -205,9 +244,9 @@ NSE table ranges
 
 The NSE table was created for:
 
-* :math:`9 < \log_{10}(T) < 10.4`
+* :math:`9.4 < \log_{10}(T) < 10.4`
 * :math:`7 < \log_{10}(\rho) < 10`
-* :math:`0.4 < Y_e < 0.5`
+* :math:`0.43 < Y_e < 0.5`
 
 
 
