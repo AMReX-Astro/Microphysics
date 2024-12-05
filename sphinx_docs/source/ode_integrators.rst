@@ -43,6 +43,8 @@ the allowed options are:
   the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
+.. index:: integrator.use_jacobian_caching
+
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
@@ -131,6 +133,8 @@ is used for the temperature and energy.
 Controlling Species $\sum_k X_k = 1$
 ====================================
 
+.. index:: integrator.renormalize_abundances, integrator.SMALL_X_SAFE, integrator.do_species_clip
+
 The ODE integrators don't know about the constraint that
 
 $$\sum_k X_k = 1$$
@@ -163,6 +167,8 @@ constraint on the intermediate states during the integration.
 
 Retry Mechanism
 ===============
+
+.. index:: integrator.ode_max_steps
 
 Integration can fail for a number of reasons.  Some of the errors you may see are:
 
