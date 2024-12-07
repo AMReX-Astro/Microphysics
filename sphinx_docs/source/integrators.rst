@@ -105,30 +105,50 @@ passed into the integration routines.  For this reason, we often need
 to pass both the specific integrator's type (e.g. ``dvode_t``) and
 ``burn_t`` objects into the lower-level network routines.
 
-The overall flow of the integrator is (using VODE as the example):
+Below we outline the overall flow of the integrator (using VODE as the
+example).  Most of the setup and cleanup after calling the particular
+integration routine is the same for all integrators, and is handled by
+the functions ``integrator_setup()`` and ``integrator_cleanup()``.
 
-#. Call the EOS directly on the input ``burn_t`` state using :math:`\rho` and :math:`T` as inputs.
+.. index:: integrator.scale_system, burn_to_integrator, integrator_to_burn
+.. index:: integrator.call_eos_in_rhs, integrator.subtract_internal_energy, integrator.burner_verbose
+
+#. Call the EOS directly on the input ``burn_t`` state using
+   :math:`\rho` and :math:`T` as inputs.
+
+#. Scale the absolute energy tolerance if we are using
+   ``integrator.scale_system``
 
 #. Fill the integrator type by calling ``burn_to_integrator()`` to create a
    ``dvode_t``.
 
-#. call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` _and_ the
+#. Save the initial thermodynamic state for diagnostics and optionally
+   subtracting off the initial energy later.
+
+#. Call the ODE integrator, ``dvode()``, passing in the ``dvode_t`` *and* the
    ``burn_t`` --- as noted above, the auxiliary information that is
    not part of the integration state will be obtained from the
    ``burn_t``.
 
-#. subtract off the energy offset---we now store just the energy released
-   in the ``dvode_t`` integration state.
+#. Convert back to a ``burn_t`` by calling ``integrator_to_burn``
 
-#. convert back to a ``burn_t`` by calling ``integrator_to_burn``
+#. Recompute the temperature if we are using ``integrator.call_eos_in_rhs``.
 
-#. normalize the abundances so they sum to 1.
+#. If we set ``integrator.subtract_internal_energy``, then subtract
+   off the energy offset, the energy stored is now just that generated
+   by reactions.
+
+#. Normalize the abundances so they sum to 1 (except if ``integrator.use_number_density`` is set).
+
+#. Output statistics on the integration if we set ``integrator.burner_verbose``.
+   This is not recommended for big simulations, as it will output information
+   for every zone's burn.
 
 .. index:: integrator.subtract_internal_energy
 
-.. note::
+.. important::
 
-   Upon exit, ``burn_t burn_state.e`` is the energy *released* during
+   By default, upon exit, ``burn_t burn_state.e`` is the energy *released* during
    the burn, and not the actual internal energy of the state.
 
    Optionally, by setting ``integrator.subtract_internal_energy=0``
@@ -155,7 +175,8 @@ The righthand side of the network is implemented by
 
 .. code-block:: c++
 
-   void actual_rhs(burn_t& state, Array1D<Real, 1, neqs>& ydot)
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE
+   void actual_rhs(burn_t& state, amrex::Array1D<amrex::Real, 1, neqs>& ydot)
 
 All of the necessary integration data comes in through state, as:
 
@@ -245,7 +266,11 @@ The analytic Jacobian is specific to each network and is provided by
 
 .. code-block:: c++
 
-   void actual_jac(burn_t& state, MathArray2D<1, neqs, 1, neqs>& jac)
+   template<class MatrixType>
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE
+   void actual_jac(const burn_t& state, MatrixType& jac)
+
+where the ``MatrixType`` is most commonly ``MathArray2D<1, neqs, 1, neqs>``
 
 The Jacobian matrix elements are stored in ``jac`` as:
 
@@ -316,13 +341,9 @@ Thermodynamics and :math:`e` Evolution
 ======================================
 
 The thermodynamic equation in our system is the evolution of the internal energy,
-:math:`e`.
-
-.. note::
-
-   When the system is integrated in an operator-split approach, the
-   energy equation accounts for only the nuclear energy release and
-   not pdV work.
+:math:`e`.  During the course of the integration, we ensure that the temperature stay
+below the value ``integrator.MAX_TEMP`` (defaulting to ``1.e11``) by clamping the
+temperature if necessary.
 
 At initialization, :math:`e` is set to the value from the EOS consistent
 with the initial temperature, density, and composition:
@@ -331,28 +352,40 @@ with the initial temperature, density, and composition:
 
    e_0 = e(\rho_0, T_0, {X_k}_0)
 
-In the integration routines, this is termed the *energy offset*.
-
 As the system is integrated, :math:`e` is updated to account for the
-nuclear energy release,
+nuclear energy release (and thermal neutrino losses),
 
 .. math:: e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt
 
-As noted above, upon exit, we subtract off this initial offset, so ``state.e`` in
-the returned ``burn_t`` type from the ``actual_integrator``
-call represents the energy *release* during the burn.
+.. note::
 
-Integration of Equation :eq:`eq:enuc_integrate`
-requires an evaluation of the temperature at each integration step
-(since the RHS for the species is given in terms of :math:`T`, not :math:`e`).
-This involves an EOS call and is the default behavior of the integration.
-Note also that for the Jacobian, we need the specific heat, :math:`c_v`, since we
-usually calculate derivatives with respect to temperature (as this is the form
-the rates are commonly provided in).
+   When the system is integrated in an operator-split approach, the
+   energy equation accounts for only the nuclear energy release and
+   not pdV work.
+
+If ``integrator.subtract_internal_energy`` is set, then, on exit, we
+subtract off this initial $e_0$, so ``state.e`` in the returned
+``burn_t`` type from the ``actual_integrator`` call represents the
+energy *release* during the burn.
+
+Integration of Equation :eq:`eq:enuc_integrate` requires an evaluation
+of the temperature at each integration step (since the RHS for the
+species is given in terms of :math:`T`, not :math:`e`).  This involves
+an EOS call and is the default behavior of the integration.
+
+Note also that for the Jacobian, we need the specific heat,
+:math:`c_v`, since we usually calculate derivatives with respect to
+temperature (as this is the form the rates are commonly provided in).
 
 .. index:: integrator.call_eos_in_rhs
 
 .. note::
 
-   If desired, the EOS call can be skipped and the temperature and $c_v$ kept
-   frozen over the entire time interval of the integration by setting ``integrator.call_eos_in_rhs=0``.
+   If desired, the EOS call can be skipped and the temperature and
+   $c_v$ kept frozen over the entire time interval of the integration
+   by setting ``integrator.call_eos_in_rhs=0``.
+
+.. index:: integrator.integrate_energy
+
+We also provide the option to completely remove the energy equation from
+the system by setting ``integrator.integrate_energy=0``.
