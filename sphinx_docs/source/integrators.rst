@@ -138,7 +138,7 @@ the functions ``integrator_setup()`` and ``integrator_cleanup()``.
    off the energy offset, the energy stored is now just that generated
    by reactions.
 
-#. Normalize the abundances so they sum to 1.
+#. Normalize the abundances so they sum to 1 (except if ``integrator.use_number_density`` is set).
 
 #. Output statistics on the integration if we set ``integrator.burner_verbose``.
    This is not recommended for big simulations, as it will output information

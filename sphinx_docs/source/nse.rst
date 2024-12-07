@@ -16,7 +16,7 @@ Microphysics, that have slightly different use cases.
 .. index:: USE_NSE_TABLE, USE_NSE_NET
 
 * :ref:`tabulated_nse` : this uses a table of NSE abundances given
-  :math:`(\rho, T, Y_e)` generate from a large network (125 isotopes).
+  :math:`(\rho, T, Y_e)` generate from a large network (96 isotopes).
   The table also returns :math:`dY_e/dt` resulting from
   electron-captures, to allow for the NSE state to evolve.  This is
   meant to be used in the cores of massive stars and works only with the
@@ -97,7 +97,7 @@ NSE Table Outputs
 
 The NSE table provides values for the auxiliary composition,
 :math:`\bar{A}`, and :math:`\langle B/A \rangle`
-resulting from the full 125 nuclei network.   It also provides a set of 19
+resulting from the full 96 nuclei network.   It also provides a set of 19
 :math:`X_k` that map into the isotopes carried by ``aprox19``.
 These three quantities are stored as ``aux`` data in the network and
 are indexed as ``iye``, ``iabar``, and ``ibea``.  Additionally, when
@@ -163,19 +163,19 @@ we provide an outline:
 
       .. math::
 
-         R(\rho e) = N_A \frac{\Delta (\rho \langle B/A\rangle)}{\tau} + N_A \Delta m_{np} c^2 \rho \frac{dY_e}{dt} - \rho (\epsilon_{\nu,\mathrm{thermal}} + \epsilon{\nu,\mathrm{react}})
+         R(\rho e) = N_A \frac{\Delta (\rho \langle B/A\rangle)}{\tau} + N_A \Delta m_{np} c^2 \rho \frac{dY_e}{dt} - \rho (\epsilon_{\nu,\mathrm{thermal}} + \epsilon_{\nu,\mathrm{react}})
 
       where $\Delta m_{np}$ is the difference between the neutron and H atom mass.
 
       .. important::
 
-         It only makes sense to include the weak rate neutrino losses, $\epsilon{\nu,\mathrm{react}}$,
+         It only makes sense to include the weak rate neutrino losses, $\epsilon_{\nu,\mathrm{react}}$,
          if the initial model that you are using in your simulation also included those losses.
          Otherwise, the energy loss from our NSE table will likely be too great and that simulation
          will not be in equilibrium.  This is an issue, for example, when using a MESA model
          constructed with ``aprox21``, which does not have all of the weak rates we model here.
 
-         The weak rate neutrino losses can be disabled by ``integrator.nse_include_enu_weak``.
+         The weak rate neutrino losses can be disabled by ``integrator.nse_include_enu_weak=0``.
 
     * Predict $\Uc^\prime$ to the midpoint in time, $n+1/2$ and construct
       $[\Rb(\Uc^\prime)]^{n+1/2}$.
@@ -193,6 +193,8 @@ we provide an outline:
     * Compute the energy generation rate from the change in internal energy from $\Uc^{\prime,n}$ to $\Uc^{\prime,n+1}$, excluding advection.
 
     * Update the total energy.
+
+    * Set the mass fractions carried on the grid from the NSE table (with the new temperature and $Y_e$).
 
   * if we are not in NSE:
 
