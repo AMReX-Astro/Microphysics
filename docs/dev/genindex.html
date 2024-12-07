@@ -72,7 +72,7 @@
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">Available Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 </ul>
@@ -157,11 +157,13 @@
 </li>
       <li><a href="unit_tests.html#index-1">burn_cell_primordial_chem</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="unit_tests.html#index-1">burn_cell_sdc</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="data_structures.html#index-1">burn_t</a>
+</li>
+      <li><a href="integrators.html#index-2">burn_to_integrator</a>
 </li>
       <li><a href="data_structures.html#index-3">burn_type.H</a>
 </li>
@@ -211,21 +213,43 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="integrators.html#index-5">integrator.call_eos_in_rhs</a>
+      <li><a href="integrators.html#index-3">integrator.burner_verbose</a>
 </li>
-      <li><a href="integrators.html#index-3">integrator.jacobian</a>
+      <li><a href="integrators.html#index-3">integrator.call_eos_in_rhs</a>, <a href="integrators.html#index-7">[1]</a>
 </li>
-      <li><a href="integrators.html#index-1">integrator.react_boost</a>, <a href="integrators.html#index-4">[1]</a>
+      <li><a href="ode_integrators.html#index-4">integrator.do_species_clip</a>
+</li>
+      <li><a href="integrators.html#index-8">integrator.integrate_energy</a>
+</li>
+      <li><a href="integrators.html#index-5">integrator.jacobian</a>
+</li>
+      <li><a href="ode_integrators.html#index-3">integrator.linalg_do_pivoting</a>
+</li>
+      <li><a href="nse.html#index-1">integrator.nse_deriv_dt_factor</a>
+</li>
+      <li><a href="nse.html#index-1">integrator.nse_include_enu_weak</a>
+</li>
+      <li><a href="ode_integrators.html#index-5">integrator.ode_max_steps</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ode_integrators.html#index-1">integrator.scale_system</a>
+      <li><a href="integrators.html#index-1">integrator.react_boost</a>, <a href="integrators.html#index-6">[1]</a>
 </li>
-      <li><a href="integrators.html#index-2">integrator.subtract_internal_energy</a>
+      <li><a href="ode_integrators.html#index-4">integrator.renormalize_abundances</a>
+</li>
+      <li><a href="integrators.html#index-2">integrator.scale_system</a>, <a href="ode_integrators.html#index-2">[1]</a>
+</li>
+      <li><a href="ode_integrators.html#index-4">integrator.SMALL_X_SAFE</a>
+</li>
+      <li><a href="integrators.html#index-3">integrator.subtract_internal_energy</a>, <a href="integrators.html#index-4">[1]</a>
 </li>
       <li><a href="ode_integrators.html#index-0">integrator.use_circle_theorem</a>
 </li>
+      <li><a href="ode_integrators.html#index-1">integrator.use_jacobian_caching</a>
+</li>
       <li><a href="integrators.html#index-0">integrator.use_number_densities</a>
+</li>
+      <li><a href="integrators.html#index-2">integrator_to_burn</a>
 </li>
   </ul></td>
 </tr></table>
@@ -249,10 +273,24 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="networks.html#index-0">NETWORK_INPUTS</a>
+      <li><a href="nse.html#index-3">network.C_nse</a>
+</li>
+      <li><a href="nse.html#index-3">network.He_Fe_nse</a>
+</li>
+      <li><a href="nse.html#index-3">network.O_nse</a>
+</li>
+      <li><a href="nse.html#index-2">network.rho_nse</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="nse.html#index-3">network.Si_nse</a>
+</li>
+      <li><a href="nse.html#index-2">network.T_always_nse</a>
+</li>
+      <li><a href="nse.html#index-2">network.T_nse</a>
+</li>
+      <li><a href="networks.html#index-0">NETWORK_INPUTS</a>
+</li>
       <li><a href="unit_tests.html#index-1">nse_table_cell</a>
 </li>
   </ul></td>
