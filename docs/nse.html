@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Spectral Deferred Corrections" href="sdc.html" />
-    <link rel="prev" title="Available Integrators" href="ode_integrators.html" /> 
+    <link rel="prev" title="ODE Integrators" href="ode_integrators.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -77,7 +77,7 @@
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
-<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">Available Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">NSE</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#tabulated-nse-and-aprox19">Tabulated NSE and <code class="docutils literal notranslate"><span class="pre">aprox19</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#composition-and-eos">Composition and EOS</a></li>
@@ -137,13 +137,19 @@
              
   <section id="nse">
 <h1>NSE<a class="headerlink" href="#nse" title="Link to this heading"></a></h1>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>NSE is only supported with the simplified-SDC method for
+coupling hydrodynamics and reactions.  We do not support
+operator-splitting (Strang) coupling with NSE.</p>
+</div>
 <p>The reaction networks in Microphysics have the ability to use NSE
 instead of integrating the entire network when the conditions are
 appropriate.  There are 2 different implementations of NSE in
 Microphysics, that have slightly different use cases.</p>
 <ul id="index-0">
 <li><p><a class="reference internal" href="#tabulated-nse"><span class="std std-ref">Tabulated NSE and aprox19</span></a> : this uses a table of NSE abundances given
-<span class="math notranslate nohighlight">\((\rho, T, Y_e)\)</span> generate from a large network (125 isotopes).
+<span class="math notranslate nohighlight">\((\rho, T, Y_e)\)</span> generate from a large network (96 isotopes).
 The table also returns <span class="math notranslate nohighlight">\(dY_e/dt\)</span> resulting from
 electron-captures, to allow for the NSE state to evolve.  This is
 meant to be used in the cores of massive stars and works only with the
@@ -154,6 +160,7 @@ meant to be used in the cores of massive stars and works only with the
 composition and advect <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and
 <span class="math notranslate nohighlight">\(\langle B/A\rangle\)</span>.  All of the EOS calls will work with
 these quantities.</p>
+<p>This algorithm was described in <span id="id1">[<a class="reference internal" href="zreferences.html#id46" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">ZCJ+24</a>]</span>.</p>
 <p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p>
 </li>
 <li><p><a class="reference internal" href="#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a> : this adds an NSE solver to the network that
@@ -190,18 +197,17 @@ implementation of NSE does not matter.</p>
 standard <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network with a table for nuclear statistic
 equilibrium resulting from a much larger network at high density and
 temperatures.    This option is enabled by building with:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
-span.prompt1:before {
-  content: "$ ";
-}
-</style><span class="prompt1"><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">USE_NSE_TABLE</span><span class="o">=</span>TRUE</span>
-</pre></div></div><section id="composition-and-eos">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">USE_NSE_TABLE</span><span class="o">=</span>TRUE
+</pre></div>
+</div>
+<section id="composition-and-eos">
 <h3>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Link to this heading"></a></h3>
-<p>The NSE table was generated using a 125 nuclei reaction network
-(described in <span id="id1">[<a class="reference internal" href="zreferences.html#id29" title="H. Ma, S. E. Woosley, C. M. Malone, A. Almgren, and J. Bell. Carbon Deflagration in Type Ia Supernova. I. Centrally Ignited Models. \apj , 771(1):58, jul 2013. arXiv:1305.2433, doi:10.1088/0004-637X/771/1/58.">MaWoosleyMalone+13</a>]</span>), and includes electron-capture rates,
-so the compositional quantities it carries, <span class="math notranslate nohighlight">\(\bar{A}\)</span> and
-<span class="math notranslate nohighlight">\(Y_e\)</span> and not representable from the 19 isotopes we carry in the
-network.  In particular, it can attain a lower <span class="math notranslate nohighlight">\(Y_e\)</span> than
+<p>The NSE table was generated using <cite>pynucastro
+&lt;https://pynucastro.github.io/pynucastro/&gt;</cite> using 96 nuclei and
+electron/positron capture/decay rates from <span id="id2">[<a class="reference internal" href="zreferences.html#id47" title="K. LANGANKE and G. MARTÍNEZ-PINEDO. Rate tables for the weak processes of pf-shell nuclei in stellar environments. Atomic Data and Nuclear Data Tables, 79(1):1-46, 2001. doi:https://doi.org/10.1006/adnd.2001.0865.">LMP01</a>]</span>.  The
+table takes <span class="math notranslate nohighlight">\(Y_e\)</span> as the primary composition variable and provides a
+set of mass fractions that is mapped into those used by <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>.
+Using the value allows us to attain a lower <span class="math notranslate nohighlight">\(Y_e\)</span> than
 <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> can represent.</p>
 <p>For this reason, when we are using the NSE network, we always take the
 composition quantities in the EOS directly from <code class="docutils literal notranslate"><span class="pre">eos_state.aux[]</span></code>
@@ -212,27 +218,31 @@ this to use the auxiliary data for the composition.  This is described in <a cla
 <section id="nse-table-outputs">
 <h3>NSE Table Outputs<a class="headerlink" href="#nse-table-outputs" title="Link to this heading"></a></h3>
 <p>The NSE table provides values for the auxiliary composition,
-<span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and <span class="math notranslate nohighlight">\(\langle B/A \rangle\)</span>
-resulting from the full 125 nuclei network.   It also provides a set of 19
-<span class="math notranslate nohighlight">\(X_k\)</span> that map into the isotopes carried by <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>.</p>
-<p>These three quantities are stored as <code class="docutils literal notranslate"><span class="pre">aux</span></code> data in the network and
+<span class="math notranslate nohighlight">\(\bar{A}\)</span>, and <span class="math notranslate nohighlight">\(\langle B/A \rangle\)</span>
+resulting from the full 96 nuclei network.   It also provides a set of 19
+<span class="math notranslate nohighlight">\(X_k\)</span> that map into the isotopes carried by <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>.
+These three quantities are stored as <code class="docutils literal notranslate"><span class="pre">aux</span></code> data in the network and
 are indexed as <code class="docutils literal notranslate"><span class="pre">iye</span></code>, <code class="docutils literal notranslate"><span class="pre">iabar</span></code>, and <code class="docutils literal notranslate"><span class="pre">ibea</span></code>.  Additionally, when
 coupling to hydrodynamics, we need to advect these auxiliary
 quantities.</p>
-<p>For Strang split coupling of hydro and reactions, <span class="math notranslate nohighlight">\(DX_k/Dt = 0\)</span>,
-and our evolution equations are:</p>
+<p>The evolution equations for the auxiliary variables are:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
-\frac{DY_e}{Dt} &amp;= \sum_k \frac{Z_k}{A_k} \frac{DX_k}{Dt} = 0 \\
-\frac{D}{Dt} \frac{1}{\bar{A}} &amp;= - \frac{1}{\bar{A}^2} \frac{D\bar{A}}{Dt} = \sum_k \frac{1}{A_k} \frac{DX_k}{Dt} = 0 \rightarrow \frac{D\bar{A}}{Dt} = 0 \\
-\frac{D}{Dt} \left (\frac{B}{A} \right ) &amp;= \sum_k \frac{B_k}{A_k} \frac{DX_k}{Dt} = 0
+\frac{DY_e}{Dt} &amp;= \sum_k \frac{Z_k}{A_k} \dot{\omega}_k \\
+\frac{D\bar{A}}{Dt} &amp;= -\bar{A}^2 \sum_k \frac{1}{A_k} \dot{\omega}_k \\
+\frac{D}{Dt} \left (\frac{B}{A} \right ) &amp;= \sum_k \frac{B_k}{A_k} \dot{\omega}_k
 \end{align*}\end{split}\]</div>
 <p>Therefore each of these auxiliary equations obeys an advection equation
 in the hydro part of the advancement.</p>
+<p>The table also provides <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <span class="math notranslate nohighlight">\((d\langle
+B/A\rangle/dt)_\mathrm{weak}\)</span>, and <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{react}}\)</span>, the
+weak rate neutrino losses.  These quantities are used to update the
+thermodynamic state as we integrate.</p>
 </section>
 <section id="nse-flow">
 <h3>NSE Flow<a class="headerlink" href="#nse-flow" title="Link to this heading"></a></h3>
-<p>The basic flow of a simulation using <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> + the NSE table is as follows:</p>
+<p id="index-1">The time integration algorithm is described in detail in <span id="id3">[<a class="reference internal" href="zreferences.html#id46" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">ZCJ+24</a>]</span>.  Here
+we provide an outline:</p>
 <ul>
 <li><p>initialize the problem, including <span class="math notranslate nohighlight">\(X_k\)</span></p></li>
 <li><p>fill the initial aux data with <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and <span class="math notranslate nohighlight">\((B/A)\)</span></p></li>
@@ -243,24 +253,43 @@ Strang-split evolution)</p></li>
 <li><p>check if NSE applies (see below)</p></li>
 <li><p>if we are in an NSE region:</p>
 <ul>
-<li><p>use <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(Y_e\)</span> to call the table.
-This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <span class="math notranslate nohighlight">\((B/A)_{\rm out}\)</span>, and <span class="math notranslate nohighlight">\(\bar{A}_{\rm out}\)</span>.</p></li>
-<li><p>update <span class="math notranslate nohighlight">\(Y_e\)</span> :</p>
+<li><p>Compute the initial temperature given <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(e\)</span>, and <span class="math notranslate nohighlight">\(Y_e\)</span>,
+using an EOS inversion algorithm that understands NSE (in
+particular that the composition depends on <span class="math notranslate nohighlight">\(T\)</span> in NSE)</p></li>
+<li><p>Compute the plasma neutrino losses, <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{thermal}}\)</span></p></li>
+<li><p>Use <span class="math notranslate nohighlight">\(\rho\)</span>, <span class="math notranslate nohighlight">\(T\)</span>, and <span class="math notranslate nohighlight">\(Y_e\)</span> to evaluate the NSE
+state and construct <span class="math notranslate nohighlight">\([\Rb(\Uc^\prime)]^n\)</span>, the source term from reactions to the
+reduced conserved state <span class="math notranslate nohighlight">\(\Uc^\prime\)</span> (this is the state used by the SDC algorithm
+and includes the internal energy density, mass fractions, and auxiliary variables).</p>
+<p>This is done via finite differencing in time (through a step
+<span class="math notranslate nohighlight">\(\tau \ll \Delta t\)</span>), and the reactive sources are constructed
+to exclude the advective contributions.  The size of <span class="math notranslate nohighlight">\(\tau\)</span> is
+controlled via <code class="docutils literal notranslate"><span class="pre">integrator.nse_deriv_dt_factor</span></code>.</p>
+<p>In particular, the energy source is constructed as:</p>
 <div class="math notranslate nohighlight">
-\[(Y_e)_{\rm out} = (Y_e)_{\rm in} + \Delta t \frac{dY_e}{dt}\]</div>
+\[R(\rho e) = N_A \frac{\Delta (\rho \langle B/A\rangle)}{\tau} + N_A \Delta m_{np} c^2 \rho \frac{dY_e}{dt} - \rho (\epsilon_{\nu,\mathrm{thermal}} + \epsilon_{\nu,\mathrm{react}})\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Delta m_{np}\)</span> is the difference between the neutron and H atom mass.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>It only makes sense to include the weak rate neutrino losses, <span class="math notranslate nohighlight">\(\epsilon_{\nu,\mathrm{react}}\)</span>,
+if the initial model that you are using in your simulation also included those losses.
+Otherwise, the energy loss from our NSE table will likely be too great and that simulation
+will not be in equilibrium.  This is an issue, for example, when using a MESA model
+constructed with <code class="docutils literal notranslate"><span class="pre">aprox21</span></code>, which does not have all of the weak rates we model here.</p>
+<p>The weak rate neutrino losses can be disabled by <code class="docutils literal notranslate"><span class="pre">integrator.nse_include_enu_weak=0</span></code>.</p>
+</div>
 </li>
-<li><p><span class="math notranslate nohighlight">\(\bar{A}_{\rm out}\)</span> is simply the value returned from the table</p></li>
-<li><p>the energy generation rate, <span class="math notranslate nohighlight">\(e_{\rm nuc}\)</span> is:</p>
+<li><p>Predict <span class="math notranslate nohighlight">\(\Uc^\prime\)</span> to the midpoint in time, <span class="math notranslate nohighlight">\(n+1/2\)</span> and construct
+<span class="math notranslate nohighlight">\([\Rb(\Uc^\prime)]^{n+1/2}\)</span>.</p></li>
+<li><p>Do the final update to time <span class="math notranslate nohighlight">\(n\)</span> as:</p>
 <div class="math notranslate nohighlight">
-\[e_{\rm nuc} = \eta \left [ \left ( \frac{B}{A} \right )_{\rm out} -
-                           \left ( \frac{B}{A} \right )_{\rm in} \right ] * \frac{1.602 \times 10^{-6}  {\rm erg}}{{\rm MeV}} N_A \frac{1}{\Delta t}\]</div>
-<p>where <span class="math notranslate nohighlight">\(\eta\)</span> is an inertia term &lt; 1 to prevent the energy changing too much in one set.</p>
+\[\Uc^{\prime,n+1/2} = \Uc^{\prime,n} + \frac{\Delta t}{2} [\Advs{\Uc^\prime}]^{n+1/2} + \frac{\Delta t}{2} [\Rb(\Uc^\prime)]^{n+1/2}\]</div>
+<p>where <span class="math notranslate nohighlight">\([\Advs{\Uc^\prime}]^{n+1/2}\)</span> are the advective updates carried by the SDC
+algorithm.</p>
 </li>
-<li><p>the new binding energy for the zone is then:</p>
-<div class="math notranslate nohighlight">
-\[\left ( \frac{B}{A} \right )_{\rm out}  = \left ( \frac{B}{A} \right )_{\rm in} + \eta \left [ \left ( \frac{B}{A} \right )_{\rm out} - \left ( \frac{B}{A} \right )_{\rm in} \right ]\]</div>
-</li>
-<li><p>update the mass fractions, <span class="math notranslate nohighlight">\(X_k\)</span>, using the values from the table</p></li>
+<li><p>Compute the energy generation rate from the change in internal energy from <span class="math notranslate nohighlight">\(\Uc^{\prime,n}\)</span> to <span class="math notranslate nohighlight">\(\Uc^{\prime,n+1}\)</span>, excluding advection.</p></li>
+<li><p>Update the total energy.</p></li>
+<li><p>Set the mass fractions carried on the grid from the NSE table (with the new temperature and <span class="math notranslate nohighlight">\(Y_e\)</span>).</p></li>
 </ul>
 </li>
 <li><p>if we are not in NSE:</p>
@@ -275,66 +304,70 @@ This returns: <span class="math notranslate nohighlight">\(dY_e/dt\)</span>, <sp
 </section>
 <section id="nse-check">
 <h3>NSE check<a class="headerlink" href="#nse-check" title="Link to this heading"></a></h3>
-<p>For a zone to be consider in NSE, we require <span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">rho_nse</span></code> and <em>either</em></p>
+<p id="index-3"><span id="index-2"></span>For a zone to be consider in NSE, we require <span class="math notranslate nohighlight">\(\rho\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">network.rho_nse</span></code> and <em>either</em></p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">T_nse</span></code> together with the composition check</p></li>
-<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">network.T_nse</span></code> together with the composition check</p></li>
+<li><p><span class="math notranslate nohighlight">\(T\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">network.T_always_nse</span></code></p></li>
 </ul>
 <p>where we assume that <code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">T_nse</span></code>.</p>
 <p>The composition check considers the following nuclei groups:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">He_group</span></code>: atomic numbers 1 to 2 (H to He)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">C_group</span></code>: atomic numbers 6 to 7 (C to N)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">O_group</span></code>: atomic number 8 (O)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Si_group</span></code>: atomic number 14 (Si)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Fe_group</span></code>: atomic numbers 24 to 30 (Cr to Zn)</p></li>
+<li><p>He-group: atomic numbers 1 to 2 (H to He)</p></li>
+<li><p>C-group: atomic numbers 6 to 7 (C to N)</p></li>
+<li><p>O-group: atomic number 8 (O)</p></li>
+<li><p>Si-group: atomic number 14 (Si)</p></li>
+<li><p>Fe-group: atomic numbers 24 to 30 (Cr to Zn)</p></li>
 </ul>
 <p>and we then say that a composition supports NSE if:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(X(C_\mathrm{group})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></li>
-<li><p><span class="math notranslate nohighlight">\(X(O_\mathrm{group})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></li>
-<li><p><span class="math notranslate nohighlight">\(X(Si_\mathrm{group})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></li>
-<li><p><span class="math notranslate nohighlight">\(X(Fe_\mathrm{group}) + X(He_\mathrm{group})\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(\mathrm{C}_\mathrm{group})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">network.C_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(\mathrm{O}_\mathrm{group})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">network.O_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(\mathrm{Si}_\mathrm{group})\)</span> &lt; <code class="docutils literal notranslate"><span class="pre">network.Si_nse</span></code></p></li>
+<li><p><span class="math notranslate nohighlight">\(X(\mathrm{Fe}_\mathrm{group}) + X(\mathrm{He}_\mathrm{group})\)</span> &gt; <code class="docutils literal notranslate"><span class="pre">network.He_Fe_nse</span></code></p></li>
 </ul>
 </section>
 <section id="nse-table-ranges">
 <h3>NSE table ranges<a class="headerlink" href="#nse-table-ranges" title="Link to this heading"></a></h3>
 <p>The NSE table was created for:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(9 &lt; \log_{10}(T) &lt; 10.4\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(9.4 &lt; \log_{10}(T) &lt; 10.4\)</span></p></li>
 <li><p><span class="math notranslate nohighlight">\(7 &lt; \log_{10}(\rho) &lt; 10\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(0.4 &lt; Y_e &lt; 0.5\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(0.43 &lt; Y_e &lt; 0.5\)</span></p></li>
 </ul>
 </section>
 </section>
 <section id="self-consistent-nse">
-<span id="id2"></span><h2>Self-consistent NSE<a class="headerlink" href="#self-consistent-nse" title="Link to this heading"></a></h2>
+<span id="id4"></span><h2>Self-consistent NSE<a class="headerlink" href="#self-consistent-nse" title="Link to this heading"></a></h2>
 <p>The self-consistent NSE approach uses only the nuclei in the main
 reaction network.  It solves for the chemical potentials of the proton
 and neutron and from there gets the abundances of each of the nuclei
-under the assumption of NSE, following the procedure outlined in <span id="id3">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">CTS+07</a>]</span>.</p>
+under the assumption of NSE, following the procedure outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">CTS+07</a>]</span>.</p>
 <p>The solve is done using a port of the hybrid Powell method from
 MINPACK (we ported the solver to templated C++).</p>
 <p>The advantage of this approach is that it can be used with any
 reaction network, once the integration has reached NSE.</p>
 <p>This solver is enabled by compiling with</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1"><span class="nv">USE_NSE_NET</span><span class="o">=</span>TRUE</span>
 </pre></div></div><p>The functions to find the NSE state are then found in <code class="docutils literal notranslate"><span class="pre">nse_solver.H</span></code>.</p>
 <section id="dynamic-nse-check">
 <h3>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Link to this heading"></a></h3>
 <p>We have implemented a dynamic NSE check for the self-consistent nse procedure
 that tells us whether the network has reached the NSE state.
-The overall procedure is outlined in <span id="id4">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span>.
+The overall procedure is outlined in <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span>.
 The overall usage comes down to a single function <code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>.
 By supplying the current state, this function returns a boolean that tells us
 whether we’re in NSE or not. The current status of this functionality only works
 for pynucastro-generated network since aprox networks have slightly
 different syntax.</p>
-<p>The overall framework is constructed following <span id="id5">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> with slight
+<p>The overall framework is constructed following <span id="id7">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> with slight
 variations. The overview of the steps we take are the following:</p>
 <ul>
-<li><p>Minimum Temperature Check: require <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&gt;</span> <span class="pre">T_min_nse</span></code>, where <code class="docutils literal notranslate"><span class="pre">T_min_nse</span></code> is
-a runtime parameter with a default value <code class="docutils literal notranslate"><span class="pre">T_min_nse</span> <span class="pre">=</span> <span class="pre">4.0e9</span></code>.</p></li>
+<li><p>Minimum Temperature Check: require <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&gt;</span> <span class="pre">nse.T_min_nse</span></code>, where <code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span></code> is
+a runtime parameter with a default value <code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span> <span class="pre">=</span> <span class="pre">4.0e9</span></code>.</p></li>
 <li><p>Mass Abundance Check: compare the current mass abundances of the nuclei to
 the NSE mass fractions. A detailed criteria are the following:</p>
 <p>We first determine whether the current molar fraction is close to NSE
@@ -352,12 +385,12 @@ is not in the network.</p>
 <p>If the molar check above failed, then we proceed with an overall molar
 fraction check:</p>
 <div class="math notranslate nohighlight">
-\[\epsilon_{abs} = Y^i - Y^i_{NSE} &lt; \mbox{nse_abs_tol}\]</div>
+\[\epsilon_{abs} = Y^i - Y^i_{NSE} &lt; \mbox{nse.nse_abs_tol}\]</div>
 <div class="math notranslate nohighlight">
-\[\epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} &lt; \mbox{nse_rel_tol}\]</div>
-<p>where <code class="docutils literal notranslate"><span class="pre">nse_rel_tol</span> <span class="pre">=</span> <span class="pre">0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">nse_abs_tol</span> <span class="pre">=</span> <span class="pre">0.005</span></code> by default.</p>
+\[\epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} &lt; \mbox{nse.nse_rel_tol}\]</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">nse.nse_rel_tol</span> <span class="pre">=</span> <span class="pre">0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">nse.nse_abs_tol</span> <span class="pre">=</span> <span class="pre">0.005</span></code> by default.</p>
 </li>
-<li><p><strong>Removed</strong> <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> also requires a fast reaction cycle that
+<li><p><strong>Removed</strong> <span id="id8">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> also requires a fast reaction cycle that
 exchanges 1 <span class="math notranslate nohighlight">\(\alpha\)</span> particle with 2 <span class="math notranslate nohighlight">\(p\)</span> and 2 <span class="math notranslate nohighlight">\(n\)</span>
 particles. We used to have this check, but currently removed as
 we think it is not necessary. However, the description is as following:
@@ -384,7 +417,7 @@ are the forward and reverse rate of the reaction,
 called the light-isotope-group, or LIG. Other isotopes belong to their
 own group, which only contains themselves. We need to start the grouping
 process with the reaction rate that has the fastest (smallest) timescale.
-In the original <span id="id7">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> paper, they use the group molar fraction
+In the original <span id="id9">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">KushnirKatz20</a>]</span> paper, they use the group molar fraction
 for evaluating the reaction timescale. This complicates things because
 now reaction timescale changes after each successful grouping. We’ve
 determined that the result is roughly the same even if we just use the
@@ -500,7 +533,7 @@ This is set to 4.0e9 by default.</p></li>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="ode_integrators.html" class="btn btn-neutral float-left" title="Available Integrators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ode_integrators.html" class="btn btn-neutral float-left" title="ODE Integrators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="sdc.html" class="btn btn-neutral float-right" title="Spectral Deferred Corrections" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

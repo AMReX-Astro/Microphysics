@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Available Integrators &mdash; Microphysics  documentation</title>
+  <title>ODE Integrators &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -77,11 +77,14 @@
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Available Integrators</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ODE Integrators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#available-integrators">Available integrators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#timestep-selection">Timestep selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#linear-algebra">Linear algebra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-errors">Integration errors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#tolerances">Tolerances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#controlling-species-sum-k-x-k-1">Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#retry-mechanism">Retry Mechanism</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#overriding-parameter-defaults-on-a-network-by-network-basis">Overriding Parameter Defaults on a Network-by-Network Basis</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
@@ -116,7 +119,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Available Integrators</li>
+      <li class="breadcrumb-item active">ODE Integrators</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/ode_integrators.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -126,8 +129,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="available-integrators">
-<span id="ch-networks-integrators"></span><h1>Available Integrators<a class="headerlink" href="#available-integrators" title="Link to this heading"></a></h1>
+  <section id="ode-integrators">
+<span id="ch-networks-integrators"></span><h1>ODE Integrators<a class="headerlink" href="#ode-integrators" title="Link to this heading"></a></h1>
+<section id="available-integrators">
+<h2>Available integrators<a class="headerlink" href="#available-integrators" title="Link to this heading"></a></h2>
 <p>We use a high-order implicit ODE solver for integrating the reaction
 system.  A few alternatives, including first order implicit and explicit integrators are also
 provided.  Internally, the integrators use different data structures
@@ -161,6 +166,8 @@ built into RKC.  Alternately, by setting <code class="docutils literal notransla
 the <a class="reference external" href="https://en.wikipedia.org/wiki/Gershgorin_circle_theorem">Gershgorin circle theorem</a>
 is used instead.</p>
 </li>
+</ul>
+<ul id="index-1">
 <li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span> integration package.  We ported this
 integrator to C++ and removed the non-stiff integration code paths.</p>
 <div class="admonition note">
@@ -175,13 +182,7 @@ setting the build parameter <code class="docutils literal notranslate"><span cla
 </ul>
 <p>We recommend that you use the VODE solver, as it is the most
 robust.</p>
-<div class="admonition important" id="index-1">
-<p class="admonition-title">Important</p>
-<p>The integrator will not abort if it encounters trouble.  Instead it will
-set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
-application code to handle the failure.</p>
-</div>
-<div class="admonition note">
+<div class="admonition note" id="index-2">
 <p class="admonition-title">Note</p>
 <p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">integrator.scale_system</span></code>
 will scale the internal energy that the integrator sees by the initial
@@ -194,6 +195,74 @@ to more than roundoff, but the option is included to allow for some
 different integration approaches in the future.</p>
 <p>This option currently does not work with the ForwardEuler or QSS integrators.</p>
 </div>
+</section>
+<section id="timestep-selection">
+<h2>Timestep selection<a class="headerlink" href="#timestep-selection" title="Link to this heading"></a></h2>
+<p>All of the integrators will select the timestep internally to meet the
+tolerances.  There are 2 controls that affect timestepping:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.ode_max_dt</span></code> : sets the maximum allowed timestep</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code> : sets the maximum number of steps
+the integrator is allowed to take.  If it exceeds this, then
+it will return an error.</p></li>
+</ul>
+</section>
+<section id="linear-algebra">
+<h2>Linear algebra<a class="headerlink" href="#linear-algebra" title="Link to this heading"></a></h2>
+<p>All implicit integrators use the LINPACK LU decomposition routines.</p>
+<p>For the templated networks (<code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, …) the implementation
+is done using <code class="docutils literal notranslate"><span class="pre">consexpr</span></code> loops over the equations and no pivoting is allowed.</p>
+<p id="index-3">For the other networks (usually pynucastro networks), the implementation is
+provided in <code class="docutils literal notranslate"><span class="pre">Microphysics/util/linpack.H</span></code> and is templated on the number
+of equations.  Pivoting can be disabled by setting <code class="docutils literal notranslate"><span class="pre">integrator.linalg_do_pivoting=0</span></code>.</p>
+</section>
+<section id="integration-errors">
+<h2>Integration errors<a class="headerlink" href="#integration-errors" title="Link to this heading"></a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The integrator will not abort if it encounters trouble.  Instead it will
+set <code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">burn_state.success</span> <span class="pre">=</span> <span class="pre">false</span></code> on exit.  It is up to the
+application code to handle the failure.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> <code class="docutils literal notranslate"><span class="pre">error_code</span></code> field will provide an error code that can be
+used to interpret the failure.  The current codes are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>code</p></th>
+<th class="head"><p>meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>success</p></td>
+</tr>
+<tr class="row-odd"><td><p>-1</p></td>
+<td><p>invalid inputs</p></td>
+</tr>
+<tr class="row-even"><td><p>-2</p></td>
+<td><p>underflow in computing  <span class="math notranslate nohighlight">\(\Delta t\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>-3</p></td>
+<td><p>spectral radius estimation did not converge</p></td>
+</tr>
+<tr class="row-even"><td><p>-4</p></td>
+<td><p>too many steps needed</p></td>
+</tr>
+<tr class="row-odd"><td><p>-5</p></td>
+<td><p>unable to meet the accuracy demanded by the tolerances</p></td>
+</tr>
+<tr class="row-even"><td><p>-6</p></td>
+<td><p>non-convergence in the corrector iteration</p></td>
+</tr>
+<tr class="row-odd"><td><p>-7</p></td>
+<td><p>LU decomposition failed</p></td>
+</tr>
+<tr class="row-even"><td><p>-100</p></td>
+<td><p>entered NSE</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="tolerances">
 <h2>Tolerances<a class="headerlink" href="#tolerances" title="Link to this heading"></a></h2>
 <p>Tolerances dictate how accurate the ODE solver must be while solving
@@ -238,7 +307,7 @@ is used for the temperature and energy.</p>
 </section>
 <section id="controlling-species-sum-k-x-k-1">
 <h2>Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span><a class="headerlink" href="#controlling-species-sum-k-x-k-1" title="Link to this heading"></a></h2>
-<p>The ODE integrators don’t know about the constraint that</p>
+<p id="index-4">The ODE integrators don’t know about the constraint that</p>
 <p><div class="math notranslate nohighlight">
 \[\sum_k X_k = 1\]</div>
 </p>
@@ -267,7 +336,7 @@ all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.
 </section>
 <section id="retry-mechanism">
 <h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
-<p>Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
+<p id="index-5">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
 <ol class="arabic simple">
 <li><p>Not enough steps allowed (<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>)</p></li>
 <li><p>The timestep selected by the integrator is too small (comparable to
@@ -324,18 +393,6 @@ tolerances are used on retry unless you override them at runtime.</p>
 start with the analytic Jacobian (<code class="docutils literal notranslate"><span class="pre">integrator.jacobian</span> <span class="pre">=</span> <span class="pre">1</span></code>) and
 then use the retry mechanism to swap the Jacobian on any zones that fail.</p>
 </div>
-</section>
-<section id="overriding-parameter-defaults-on-a-network-by-network-basis">
-<h2>Overriding Parameter Defaults on a Network-by-Network Basis<a class="headerlink" href="#overriding-parameter-defaults-on-a-network-by-network-basis" title="Link to this heading"></a></h2>
-<p>Any network can override or add to any of the existing runtime
-parameters by creating a <code class="docutils literal notranslate"><span class="pre">_parameters</span></code> file in the network directory
-(e.g., <code class="docutils literal notranslate"><span class="pre">networks/triple_alpha_plus_cago/_parameters</span></code>). As noted in
-<a class="reference internal" href="rp_intro.html"><span class="doc">Runtime parameters</span></a>, the fourth column in the <code class="docutils literal notranslate"><span class="pre">_parameter</span></code>
-file definition is the <em>priority</em>. When a duplicate parameter is
-encountered by the scripts writing the runtime parameter header files, the value
-of the parameter with the highest priority is used. So picking a large
-integer value for the priority in a network’s <code class="docutils literal notranslate"><span class="pre">_parameter</span></code> file will
-ensure that it takes precedence.</p>
 </section>
 </section>
 
