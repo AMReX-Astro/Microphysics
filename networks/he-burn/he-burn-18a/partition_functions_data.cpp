@@ -1,23 +1,17 @@
-#ifndef PARTITION_FUNCTIONS_H
-#define PARTITION_FUNCTIONS_H
-
-#include <AMReX_REAL.H>
 #include <AMReX_Array.H>
+#include <string>
+#include <table_rates.H>
+#include <AMReX_Print.H>
 
-#include <tfactors.H>
-#include <fundamental_constants.H>
-#include <network_properties.H>
+#include <partition_functions.H>
 
 using namespace amrex;
-using namespace Species;
 
 namespace part_fun {
 
-    constexpr int npts_1 = 72;
-
     // this is T9
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real temp_array_1[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> temp_array_1= {
         0.01, 0.15, 0.2, 0.3, 0.4,
         0.5, 0.6, 0.7, 0.8, 0.9,
         1.0, 1.5, 2.0, 2.5, 3.0,
@@ -38,7 +32,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real O16_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> O16_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
@@ -58,7 +52,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Ne20_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ne20_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 6.948656121358244e-06, 0.00016586881316040883, 0.0011034421778731533, 0.003892457497077877,
@@ -78,7 +72,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Na23_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Na23_pf_array = {
         0.0, 0.0, 0.0, 0.0, 1.7371744532199383e-06,
         2.3885539658322847e-05, 0.00013113713282427166, 0.0004423207528904243, 0.0010999766245234136, 0.002232173197636284,
         0.003929471989446119, 0.021128907257497758, 0.0479649055541949, 0.07726249885377771, 0.10525805048344757,
@@ -98,7 +92,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Mg24_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Mg24_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         4.342942647204277e-07, 5.471765757979972e-05, 0.0007714899373308071, 0.0037633124724497633, 0.010764115210255056,
@@ -118,7 +112,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Al27_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Al27_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 8.685880952436747e-07, 3.4743419578801875e-06,
         1.0422942490878872e-05, 0.00032429686817590634, 0.0018833542475028369, 0.005477808032249925, 0.011239204769804155,
@@ -138,7 +132,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Si28_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Si28_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 2.1714669808675565e-06, 7.12184552784347e-05, 0.0005624812393818785, 0.002223099674110693,
@@ -158,7 +152,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real P31_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> P31_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         4.342942647204277e-07, 4.820401221806151e-05, 0.0005624812393818785, 0.002468018295084159, 0.006670091319158333,
@@ -178,7 +172,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real S32_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> S32_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 5.211502513843472e-06, 6.948155872801059e-05, 0.0003893875360542875,
@@ -198,7 +192,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Cl35_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Cl35_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 1.8239985202970884e-05, 0.00020710907627919203, 0.0009431313908907785, 0.002698987769012708,
@@ -218,7 +212,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Ar36_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ar36_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 4.342942647204277e-07, 2.3451268844214655e-05, 0.00023141729162330258, 0.0010622869460975197,
@@ -238,7 +232,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real K39_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> K39_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 3.908632748276029e-06, 3.4307908925770636e-05,
@@ -258,7 +252,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Ca40_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ca40_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 3.4743419578801875e-06,
@@ -278,7 +272,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Sc43_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Sc43_pf_array = {
         0.0, 1.7371744532199383e-06, 3.2136602621167924e-05, 0.0006088881229004689, 0.0026394223512168323,
         0.006348788305828209, 0.011375876688411647, 0.017242084547645732, 0.02355944464942603, 0.03006796257543875,
         0.03661053325876141, 0.06810122175372875, 0.09804672309111766, 0.12848424511267922, 0.16058766813472455,
@@ -298,7 +292,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Ti44_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ti44_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 4.342942647204277e-07, 1.7371744532199383e-06,
         7.382943437485089e-06, 0.0004987179011085028, 0.004043078170724821, 0.01413521502778782, 0.032426549056877405,
@@ -318,7 +312,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real V47_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> V47_pf_array = {
         2.518834949526704e-05, 0.0007584840322833457, 0.004226764680268442, 0.024475815916759104, 0.05998274311239668,
         0.10280266491559079, 0.14672973694476377, 0.1885209834473098, 0.22688178294786615, 0.2615226538586488,
         0.29260868165003595, 0.4071409645052156, 0.48021742410342627, 0.5329079468954852, 0.5750746363992424,
@@ -338,7 +332,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Cr48_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Cr48_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 8.685880952436747e-07, 8.251516766996927e-06, 3.951899976600419e-05, 0.00013330794422173613,
         0.00035120219371925, 0.006401856055765157, 0.02685304570895992, 0.06215311825135839, 0.10696594975266842,
@@ -358,7 +352,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Mn51_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Mn51_pf_array = {
         0.0, 0.0, 4.342942647204277e-07, 6.0362737871404116e-05, 0.0005954436481690331,
         0.002352703452491265, 0.0058636025937444025, 0.011219737158250306, 0.018191443590229183, 0.026405776501228783,
         0.035473365577059296, 0.08393991903492294, 0.12694077261184436, 0.16267998396542166, 0.19356340377635362,
@@ -378,7 +372,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Fe52_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Fe52_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 1.7371744532199383e-06, 9.554373504133797e-06, 3.778197643341552e-05,
         0.00011333607006293108, 0.0030242952161453874, 0.015422212189991184, 0.040215337130588114, 0.07478865660777631,
@@ -398,7 +392,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Co55_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Co55_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 8.685880952436747e-07, 1.4331481434642371e-05, 9.336327741651445e-05,
@@ -418,7 +412,7 @@ namespace part_fun {
 
     // this is log10(partition function)
 
-    MICROPHYSICS_UNUSED HIP_CONSTEXPR static AMREX_GPU_MANAGED amrex::Real Ni56_pf_array[npts_1] = {
+    AMREX_GPU_MANAGED amrex::Array1D<amrex::Real, 0, npts_1> Ni56_pf_array = {
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0, 0.0,
         0.0, 0.0, 4.342942647204277e-07, 7.817230319428646e-06, 6.42708273977769e-05,
@@ -437,238 +431,5 @@ namespace part_fun {
     };
 
 
-
-    // interpolation routine
-
-    template <int npts>
-    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void interpolate_pf(const amrex::Real t9, const amrex::Real (&temp_array)[npts], const amrex::Real (&pf_array)[npts],
-                        amrex::Real& pf, amrex::Real& dpf_dT) {
-
-        if (t9 >= temp_array[0] && t9 < temp_array[npts-1]) {
-
-            // find the largest temperature element <= t9 using a binary search
-
-            int left = 0;
-            int right = npts;
-
-            while (left < right) {
-                int mid = (left + right) / 2;
-                if (temp_array[mid] > t9) {
-                    right = mid;
-                } else {
-                    left = mid + 1;
-                }
-            }
-
-            const int idx = right - 1;
-
-            // now we have temp_array[idx] <= t9 < temp_array[idx+1]
-
-            // construct the slope -- this is (log10(pf_{i+1}) - log10(pf_i)) / (T_{i+1} - T_i)
-
-            amrex::Real slope = (pf_array[idx+1] - pf_array[idx]) / (temp_array[idx+1] - temp_array[idx]);
-
-            // find the PF
-
-            amrex::Real log10_pf = pf_array[idx] + slope * (t9 - temp_array[idx]);
-            pf = std::pow(10.0_rt, log10_pf);
-
-            // find the derivative (with respect to T, not T9)
-
-            amrex::Real dpf_dT9 = pf * M_LN10 * slope;
-            dpf_dT = dpf_dT9 / 1.e9_rt;
-
-        } else {
-
-            // T < the smallest T or >= the largest T in the partition function table
-            pf = 1.0;
-            dpf_dT = 0.0;
-
-        }
-
-    }
-
-    struct pf_cache_t {
-        // Store the coefficient and derivative adjacent in memory, as they're
-        // always accessed at the same time.
-        // The entries will be default-initialized to zero, which is fine since
-        // log10(x) is never zero.
-        amrex::Array2D<amrex::Real, 1, NumSpecTotal, 1, 2, Order::C> data{};
-    };
-
 }
 
-// main interface
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function(const int inuc, [[maybe_unused]] const tf_t& tfactors,
-                            amrex::Real& pf, amrex::Real& dpf_dT) {
-
-    // inuc is the 1-based index for the species
-
-    switch (inuc) {
-
-    case O16:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::O16_pf_array, pf, dpf_dT);
-        break;
-
-    case Ne20:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Ne20_pf_array, pf, dpf_dT);
-        break;
-
-    case Na23:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Na23_pf_array, pf, dpf_dT);
-        break;
-
-    case Mg24:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Mg24_pf_array, pf, dpf_dT);
-        break;
-
-    case Al27:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Al27_pf_array, pf, dpf_dT);
-        break;
-
-    case Si28:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Si28_pf_array, pf, dpf_dT);
-        break;
-
-    case P31:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::P31_pf_array, pf, dpf_dT);
-        break;
-
-    case S32:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::S32_pf_array, pf, dpf_dT);
-        break;
-
-    case Cl35:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Cl35_pf_array, pf, dpf_dT);
-        break;
-
-    case Ar36:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Ar36_pf_array, pf, dpf_dT);
-        break;
-
-    case K39:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::K39_pf_array, pf, dpf_dT);
-        break;
-
-    case Ca40:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Ca40_pf_array, pf, dpf_dT);
-        break;
-
-    case Sc43:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Sc43_pf_array, pf, dpf_dT);
-        break;
-
-    case Ti44:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Ti44_pf_array, pf, dpf_dT);
-        break;
-
-    case V47:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::V47_pf_array, pf, dpf_dT);
-        break;
-
-    case Cr48:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Cr48_pf_array, pf, dpf_dT);
-        break;
-
-    case Mn51:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Mn51_pf_array, pf, dpf_dT);
-        break;
-
-    case Fe52:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Fe52_pf_array, pf, dpf_dT);
-        break;
-
-    case Co55:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Co55_pf_array, pf, dpf_dT);
-        break;
-
-    case Ni56:
-        part_fun::interpolate_pf<part_fun::npts_1>(tfactors.T9, part_fun::temp_array_1, part_fun::Ni56_pf_array, pf, dpf_dT);
-        break;
-
-
-    default:
-
-        pf = 1.0_rt;
-        dpf_dT = 0.0_rt;
-
-    }
-
-}
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void get_partition_function_cached(const int inuc, const tf_t& tfactors,
-                                   part_fun::pf_cache_t& pf_cache,
-                                   amrex::Real& pf, amrex::Real& dpf_dT) {
-    if (pf_cache.data(inuc, 1) != 0.0_rt) {
-        // present in cache
-        amrex::ignore_unused(tfactors);
-        pf = pf_cache.data(inuc, 1);
-        dpf_dT = pf_cache.data(inuc, 2);
-    } else {
-        get_partition_function(inuc, tfactors, pf, dpf_dT);
-        pf_cache.data(inuc, 1) = pf;
-        pf_cache.data(inuc, 2) = dpf_dT;
-    }
-}
-
-// spins
-
-AMREX_GPU_HOST_DEVICE AMREX_INLINE
-constexpr amrex::Real get_spin_state(const int inuc) {
-
-    amrex::Real spin = -1.0;
-
-    switch (inuc) {  // NOLINT(bugprone-switch-missing-default-case)
-
-    case He4:
-    case C12:
-    case O16:
-    case Ne20:
-    case Mg24:
-    case Si28:
-    case S32:
-    case Ar36:
-    case Ca40:
-    case Ti44:
-    case Cr48:
-    case Fe52:
-    case Ni56:
-        spin = 1;
-        break;
-
-    case H1:
-    case N13:
-    case P31:
-        spin = 2;
-        break;
-
-    case Na23:
-    case Cl35:
-    case K39:
-    case V47:
-        spin = 4;
-        break;
-
-    case Al27:
-    case Mn51:
-        spin = 6;
-        break;
-
-    case Sc43:
-    case Co55:
-        spin = 8;
-        break;
-
-
-    }
-
-    return spin;
-
-}
-
-
-#endif
