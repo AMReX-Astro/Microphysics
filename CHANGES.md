@@ -1,10 +1,14 @@
-# 24.11
+# 24.12
 
-  * a new metal chemistry network was added (#1648, #1650, #1651)
+  * documentation improvements (#1661, #1667, #1670)
 
-  * add dust temperature to primordial chem (#1649)
+  * optimize tabular NSE EOS calls (#1668)
 
-  * documentation updates (#1652)
+  * CI fixes (#1666, #1671, #1675) and new partition function CI
+    (#1673)
+
+  * `burn_cell` can now initialize all mass fractions to be equal
+    (#1665)
 
 # 24.10
 

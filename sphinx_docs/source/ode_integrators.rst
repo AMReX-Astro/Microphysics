@@ -1,9 +1,11 @@
 .. _ch:networks:integrators:
 
-*********************
-Available Integrators
-*********************
+***************
+ODE Integrators
+***************
 
+Available integrators
+=====================
 
 We use a high-order implicit ODE solver for integrating the reaction
 system.  A few alternatives, including first order implicit and explicit integrators are also
@@ -43,6 +45,8 @@ the allowed options are:
   the `Gershgorin circle theorem <https://en.wikipedia.org/wiki/Gershgorin_circle_theorem>`_
   is used instead.
 
+.. index:: integrator.use_jacobian_caching
+
 * ``VODE``: the VODE :cite:`vode` integration package.  We ported this
   integrator to C++ and removed the non-stiff integration code paths.
 
@@ -60,12 +64,6 @@ robust.
 
 .. index:: integrator.scale_system
 
-.. important::
-
-   The integrator will not abort if it encounters trouble.  Instead it will
-   set ``burn_t burn_state.success = false`` on exit.  It is up to the
-   application code to handle the failure.
-
 .. note::
 
    The runtime parameter ``integrator.scale_system``
@@ -80,6 +78,67 @@ robust.
    different integration approaches in the future.
 
    This option currently does not work with the ForwardEuler or QSS integrators.
+
+Timestep selection
+==================
+
+All of the integrators will select the timestep internally to meet the
+tolerances.  There are 2 controls that affect timestepping:
+
+* ``integrator.ode_max_dt`` : sets the maximum allowed timestep
+
+* ``integrator.ode_max_steps`` : sets the maximum number of steps
+  the integrator is allowed to take.  If it exceeds this, then
+  it will return an error.
+
+
+Linear algebra
+==============
+
+All implicit integrators use the LINPACK LU decomposition routines.
+
+For the templated networks (``aprox13``, ``aprox19``, ...) the implementation
+is done using ``consexpr`` loops over the equations and no pivoting is allowed.
+
+.. index:: integrator.linalg_do_pivoting
+
+For the other networks (usually pynucastro networks), the implementation is
+provided in ``Microphysics/util/linpack.H`` and is templated on the number
+of equations.  Pivoting can be disabled by setting ``integrator.linalg_do_pivoting=0``.
+
+Integration errors
+==================
+
+.. important::
+
+   The integrator will not abort if it encounters trouble.  Instead it will
+   set ``burn_t burn_state.success = false`` on exit.  It is up to the
+   application code to handle the failure.
+
+The ``burn_t`` ``error_code`` field will provide an error code that can be
+used to interpret the failure.  The current codes are:
+
++-------+----------------------------------------------------------+
+| code  | meaning                                                  |
++=======+==========================================================+
+| 1     | success                                                  |
++-------+----------------------------------------------------------+
+| -1    | invalid inputs                                           |
++-------+----------------------------------------------------------+
+| -2    | underflow in computing  $\Delta t$                       |
++-------+----------------------------------------------------------+
+| -3    | spectral radius estimation did not converge              |
++-------+----------------------------------------------------------+
+| -4    | too many steps needed                                    |
++-------+----------------------------------------------------------+
+| -5    | unable to meet the accuracy demanded by the tolerances   |
++-------+----------------------------------------------------------+
+| -6    | non-convergence in the corrector iteration               |
++-------+----------------------------------------------------------+
+| -7    | LU decomposition failed                                  |
++-------+----------------------------------------------------------+
+| -100  | entered NSE                                              |
++-------+----------------------------------------------------------+
 
 Tolerances
 ==========
@@ -131,6 +190,8 @@ is used for the temperature and energy.
 Controlling Species $\sum_k X_k = 1$
 ====================================
 
+.. index:: integrator.renormalize_abundances, integrator.SMALL_X_SAFE, integrator.do_species_clip
+
 The ODE integrators don't know about the constraint that
 
 $$\sum_k X_k = 1$$
@@ -163,6 +224,8 @@ constraint on the intermediate states during the integration.
 
 Retry Mechanism
 ===============
+
+.. index:: integrator.ode_max_steps
 
 Integration can fail for a number of reasons.  Some of the errors you may see are:
 
@@ -232,17 +295,3 @@ The runtime parameters that come into play when doing the retry are:
    ``integrator.ode_max_steps`` to a small value (like ``10000``) and
    start with the analytic Jacobian (``integrator.jacobian = 1``) and
    then use the retry mechanism to swap the Jacobian on any zones that fail.
-
-
-Overriding Parameter Defaults on a Network-by-Network Basis
-===========================================================
-
-Any network can override or add to any of the existing runtime
-parameters by creating a ``_parameters`` file in the network directory
-(e.g., ``networks/triple_alpha_plus_cago/_parameters``). As noted in
-:doc:`rp_intro`, the fourth column in the ``_parameter``
-file definition is the *priority*. When a duplicate parameter is
-encountered by the scripts writing the runtime parameter header files, the value
-of the parameter with the highest priority is used. So picking a large
-integer value for the priority in a network’s ``_parameter`` file will
-ensure that it takes precedence.
