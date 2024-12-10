@@ -240,3 +240,8 @@ for a reaction network.
    system was more complicated, and we included density in ${\bf w}$.
    This is not needed, and we use the Jacobian defined in
    :cite:`castro_simple_sdc` instead.
+
+.. note::
+
+   The final form of the Jacobian is identical to the one used in
+   Strang integration.
