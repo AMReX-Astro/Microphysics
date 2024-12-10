@@ -26,7 +26,7 @@ jobs:
           cd ../..
 
       - name: Dependencies
-        run: .github/workflows/dependencies/dependencies_nvcc11.sh
+        run: .github/workflows/dependencies/dependencies_nvcc.sh 11.7
 
       - name: compile test_react (aprox13)
         run: |
