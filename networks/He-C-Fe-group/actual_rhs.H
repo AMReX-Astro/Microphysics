@@ -1468,12 +1468,10 @@ void get_ydot_weak(const burn_t& state,
     auto screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(N) =
-        -screened_rates(k_n_to_p)*Y(N) +
-        screened_rates(k_p_to_n)*Y(H1);
+        (-screened_rates(k_n_to_p)*Y(N) + screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(H1) =
-        screened_rates(k_n_to_p)*Y(N) +
-        -screened_rates(k_p_to_n)*Y(H1);
+        (screened_rates(k_n_to_p)*Y(N) + -screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(He4) = 0.0_rt;
 
@@ -1585,8 +1583,7 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_n_Ni58_to_He4_Fe55)*Y(Ni58)*Y(N)*state.rho + screened_rates(k_He4_Fe55_to_n_Ni58_derived)*Y(Fe55)*Y(He4)*state.rho) +
         (-screened_rates(k_n_Cu59_to_He4_Co56)*Y(Cu59)*Y(N)*state.rho + screened_rates(k_He4_Co56_to_n_Cu59_derived)*Y(Co56)*Y(He4)*state.rho) +
         (-screened_rates(k_n_Zn60_to_He4_Ni57)*Y(Zn60)*Y(N)*state.rho + screened_rates(k_He4_Ni57_to_n_Zn60_derived)*Y(He4)*Y(Ni57)*state.rho) +
-        -screened_rates(k_n_to_p)*Y(N) +
-        screened_rates(k_p_to_n)*Y(H1);
+        (-screened_rates(k_n_to_p)*Y(N) + screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(H1) =
         (-screened_rates(k_p_C12_to_N13)*Y(C12)*Y(H1)*state.rho + screened_rates(k_N13_to_p_C12_derived)*Y(N13)) +
@@ -1624,8 +1621,7 @@ void rhs_nuc(const burn_t& state,
         (-screened_rates(k_p_Co57_to_He4_Fe54)*Y(Co57)*Y(H1)*state.rho + screened_rates(k_He4_Fe54_to_p_Co57_derived)*Y(Fe54)*Y(He4)*state.rho) +
         (screened_rates(k_n_Ni56_to_p_Co56)*Y(Ni56)*Y(N)*state.rho + -screened_rates(k_p_Co56_to_n_Ni56_derived)*Y(Co56)*Y(H1)*state.rho) +
         (screened_rates(k_n_Ni57_to_p_Co57)*Y(Ni57)*Y(N)*state.rho + -screened_rates(k_p_Co57_to_n_Ni57_derived)*Y(Co57)*Y(H1)*state.rho) +
-        screened_rates(k_n_to_p)*Y(N) +
-        -screened_rates(k_p_to_n)*Y(H1);
+        (screened_rates(k_n_to_p)*Y(N) + -screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(He4) =
         (-screened_rates(k_He4_C12_to_O16)*Y(C12)*Y(He4)*state.rho + screened_rates(k_O16_to_He4_C12_derived)*Y(O16)) +
