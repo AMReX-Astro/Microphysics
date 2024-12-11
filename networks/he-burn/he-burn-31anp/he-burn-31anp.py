@@ -117,6 +117,9 @@ net.remove_nuclei(["cl35", "k39", "sc43", "v47"])
 net.make_nn_g_approx(intermediate_nuclei=["fe53", "fe55", "ni57"])
 net.remove_nuclei(["fe53", "fe55", "ni57"])
 
+# make all rates with A >= 48 use NSE protons
+net.make_nse_protons(48)
+
 print(f"number of nuclei = {len(net.unique_nuclei)}")
 print(f"number of ReacLib rates = {len(net.reaclib_rates)}")
 print(f"number of tabular rates = {len(net.tabular_rates)}")
