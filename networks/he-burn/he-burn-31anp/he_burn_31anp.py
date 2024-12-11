@@ -10,9 +10,9 @@ DO_DERIVED_RATES = True
 def doit():
 
     lib = he_burn_core.get_core_library(include_n14_sequence=True,
-                                        include_zn=True,
+                                        include_zn=False,
                                         include_iron_peak=True,
-                                        include_low_ye=True,
+                                        include_low_ye=False,
                                         do_detailed_balance=DO_DERIVED_RATES)
 
     net = pyna.AmrexAstroCxxNetwork(libraries=[lib],
@@ -22,6 +22,12 @@ def doit():
 
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47"])
+
+    net.make_nn_g_approx(intermediate_nuclei=["fe53", "fe55", "ni57"])
+    net.remove_nuclei(["fe53", "fe55", "ni57"])
+
+    # make all rates with A >= 48 use NSE protons
+    net.make_nse_protons(48)
 
     print(f"number of nuclei = {len(net.unique_nuclei)}")
     print(f"number of ReacLib rates = {len(net.reaclib_rates)}")
@@ -40,7 +46,7 @@ def doit():
                    size=(1800, 900),
                    node_size=500, node_shape="s", node_color="#337dff", node_font_size=10)
 
-    fig.savefig("he-burn-36a.png")
+    fig.savefig("he-burn-31anp.png")
 
     net.write_network()
 

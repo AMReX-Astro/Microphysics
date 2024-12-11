@@ -8,6 +8,7 @@ def get_core_library(*,
                      include_n14_sequence=False,
                      include_zn=False,
                      include_iron_peak=False,
+                     include_low_ye=False,
                      do_detailed_balance=False):
 
     reaclib_lib = pyna.ReacLibLibrary()
@@ -71,11 +72,17 @@ def get_core_library(*,
         # ReacLib and weak / tabular rates linking these.
 
         iron_peak = ["n", "p", "he4",
-                     "mn51", "mn55",
+                     "mn51",
                      "fe52", "fe53", "fe54", "fe55", "fe56",
                      "co55", "co56", "co57",
-                     "ni56", "ni57", "ni58",
-                     "cu59", "zn60"]
+                     "ni56", "ni57", "ni58"]
+
+        if include_zn:
+            iron_peak += ["cu59", "zn60"]
+
+        if include_low_ye:
+            iron_peak += ["mn55"]
+
 
         iron_reaclib = reaclib_lib.linking_nuclei(iron_peak)
 
