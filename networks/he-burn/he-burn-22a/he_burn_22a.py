@@ -22,12 +22,11 @@ def doit():
     r1 = subch.get_rate_by_name("c12(p,g)n13")
     r2 = subch.get_rate_by_name("n13(he4,p)o16")
 
-    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=True, disable_rate_params=[r1, r2])
+    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=True,
+                               disable_rate_params=[r1, r2])
+
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
-
-    # finally, the aprox nets don't include the reverse rates for
-    # C12+C12, C12+O16, and O16+O16, so remove those
 
     print(f"number of nuclei: {len(net.unique_nuclei)}")
     print(f"number of rates: {len(net.rates)}")

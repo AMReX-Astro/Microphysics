@@ -2,8 +2,12 @@
 # they can then adjust these via various approximations
 
 import pynucastro as pyna
+from pynucastro.rates import ReacLibRate, TabularRate
 
-def get_core_library(*, include_n14_sequence=False, include_zn=False,
+def get_core_library(*,
+                     include_n14_sequence=False,
+                     include_zn=False,
+                     include_iron_peak=False,
                      do_detailed_balance=False):
 
     reaclib_lib = pyna.ReacLibLibrary()
@@ -62,6 +66,27 @@ def get_core_library(*, include_n14_sequence=False, include_zn=False,
         _r = core_lib.get_rate_by_name(r)
         core_lib.remove_rate(_r)
 
+    if include_iron_peak:
+        # now create a list of iron group nuclei and find both the
+        # ReacLib and weak / tabular rates linking these.
+
+        iron_peak = ["n", "p", "he4",
+                     "mn51", "mn55",
+                     "fe52", "fe53", "fe54", "fe55", "fe56",
+                     "co55", "co56", "co57",
+                     "ni56", "ni57", "ni58",
+                     "cu59", "zn60"]
+
+        iron_reaclib = reaclib_lib.linking_nuclei(iron_peak)
+
+        weak_lib = pyna.TabularLibrary()
+        iron_weak_lib = weak_lib.linking_nuclei(iron_peak)
+
+        all_lib = core_lib + iron_reaclib + iron_weak_lib
+
+    else:
+        all_lib = core_lib
+
     if do_detailed_balance:
         rates_to_derive = []
         for r in core_lib.get_rates():
@@ -81,4 +106,18 @@ def get_core_library(*, include_n14_sequence=False, include_zn=False,
                 d = pyna.DerivedRate(rate=fr, compute_Q=False, use_pf=True)
                 core_lib.add_rate(d)
 
-    return core_lib
+    # we may have duplicate rates -- we want to remove any ReacLib rates
+    # that we have tabular rates for
+
+    dupes = all_lib.find_duplicate_links()
+
+    rates_to_remove = []
+    for d in dupes:
+        for r in d:
+            if isinstance(r, ReacLibRate):
+                rates_to_remove.append(r)
+
+    for r in rates_to_remove:
+        all_lib.remove_rate(r)
+
+    return all_lib
