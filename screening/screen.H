@@ -173,7 +173,11 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
 
     // eq. A1
     number_t h_DH = z1z2 * gcem::sqrt(3 * amrex::Math::powi<3>(Gamma_e) * z_ratio);
-    return admath::exp(h_DH);
+
+    // machine limit the output
+    constexpr amrex::Real h_max = 300.e0_rt;
+    h = admath::min(h_DH, h_max);
+    return admath::exp(h);
 }
 
 #if SCREEN_METHOD == SCREEN_METHOD_screen5
