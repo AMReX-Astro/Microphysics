@@ -1,3 +1,15 @@
+# 24.12
+
+  * documentation improvements (#1661, #1667, #1670)
+
+  * optimize tabular NSE EOS calls (#1668)
+
+  * CI fixes (#1666, #1671, #1675) and new partition function CI
+    (#1673)
+
+  * `burn_cell` can now initialize all mass fractions to be equal
+    (#1665)
+
 # 24.10
 
   * metal chemistry updates (#1648) with ices (#1650) and cosmic rays (#1651)
