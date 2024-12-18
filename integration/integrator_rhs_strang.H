@@ -144,6 +144,47 @@ void jac ([[maybe_unused]] const amrex::Real time, BurnT& state, T& int_state, M
         }
     }
 
+    // The system we integrate has the form (rho X_k, rho e)
+
+    // pd is now of the form:
+    //
+    //  SFS         / d(rho X1dot)/dX1  d(rho X1dit)/dX2 ... 1/cv d(rho X1dot)/dT \ //
+    //              | d(rho X2dot)/dX1  d(rho X2dot)/dX2 ... 1/cv d(rho X2dot)/dT |
+    //  SFS-1+nspec |   ...                                                       |
+    //  SEINT       \ d(rho Edot)/dX1   d(rho Edot)/dX2  ... 1/cv d(rho Edot)/dT  /
+    //
+    //                   SFS                                         SEINT
+
+    // now correct the species derivatives
+    // this constructs dy/dX_k |_e = dy/dX_k |_T - e_{X_k} |_T dy/dT / c_v
+
+    if (integrator_rp::correct_jacobian_for_const_e) {
+
+        eos_re_extra_t eos_state;
+        eos_state.rho = state.rho;
+        eos_state.T = state.T;
+        eos_state.e = state.e;
+        for (int n = 0; n < NumSpec; n++) {
+            eos_state.xn[n] = state.xn[n];
+        }
+#ifdef AUX_THERMO
+        // make the aux data consistent with the state X's
+        set_aux_comp_from_X(eos_state);
+#endif
+
+        eos(eos_input_re, eos_state);
+
+        eos_xderivs_t eos_xderivs = composition_derivatives(eos_state);
+
+        for (int jcol = 1; jcol <= NumSpec;++jcol) {
+            for (int irow = 1; irow <= neqs; ++irow) {
+                pd(irow, jcol) -= eos_xderivs.dedX[jcol-1] * pd(irow, net_ienuc);
+            }
+        }
+
+    }
+
+
     // scale the energy derivatives
 
     if (integrator_rp::scale_system) {

@@ -99,3 +99,8 @@ nse_include_enu_weak       bool        1
 
 # for the linear algebra, do we allow pivoting?
 linalg_do_pivoting         bool        1
+
+# when converting the Jacobian from (rho, Y, T) to (rho, X, e), do
+# we add a correction to the species terms reflecting that
+# dT/dX at constant e is not zero?
+correct_jacobian_for_const_e  bool     1
