@@ -91,7 +91,7 @@ The interface for these opacities is:
 where the boolean ``get_Planck_mean`` and ``get_Rosseland_mean`` specify where those
 opacity terms are filled upon return.
 
-There are 2 interfaces, which are selected via the make variable ``Opacity_dir``.
+There are 2 interfaces, which are selected via the make variable ``OPACITY_DIR``.
 
 * ``breakout`` :
 
