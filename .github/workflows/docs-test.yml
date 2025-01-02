@@ -35,10 +35,10 @@ jobs:
 
       - name: Build docs
         run: |
-          cd sphinx_docs/
+          cd Docs/
           make SPHINXOPTS='-v -W --keep-going' html
 
       - name: Link check
         run: |
-          cd sphinx_docs/
+          cd Docs/
           make SPHINXOPTS=-v linkcheck

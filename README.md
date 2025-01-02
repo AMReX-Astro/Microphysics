@@ -2,7 +2,9 @@
 
 # Microphysics
 
-*A collection of astrophysical microphysics routines for stellar explosions and interstellar medium chemistry (including primordial chemistry)*
+*A collection of astrophysical microphysics routines for stellar
+explosions and interstellar medium chemistry (including primordial
+chemistry)*
 
 There are several core types of microphysics routines hosted here:
 
@@ -87,7 +89,7 @@ system to ensure the interfaces are tested.
 A user's guide for Microphysics is available at:
 http://amrex-astro.github.io/Microphysics/docs/
 
-The sphinx source for the documentation is in `Microphysics/sphinx_docs/`
+The Sphinx source for the documentation is in `Microphysics/Docs/`
 
 ## Development Model:
 
