@@ -1,3 +1,11 @@
+# 25.01
+
+  * update HIP/CUDA dependences to include sparse libraries (#1686)
+
+  * rename `Opacity_dir` -> `OPACITY_DIR` (#1679)
+
+  * update the integration and NSE docs (#1682)
+
 # 24.12
 
   * documentation improvements (#1661, #1667, #1670)
