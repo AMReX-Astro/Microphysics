@@ -21,7 +21,11 @@ def doit(state_file, xmin, n_plot, outfile):
     fig , (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 
     ax1.plot(data["Time"], data["Temperature"])
-    ax1.set_xscale("log")
+
+    # the first time point is t = 0, which doesn't work well
+    # on a logscale for x, so we use symlog to transition
+    # to log at the second time point
+    ax1.set_xscale("symlog", linthresh=data["Time"][1])
     ax1.grid(ls=":")
 
     ax1.set_ylabel("temperature [K]")
@@ -31,7 +35,7 @@ def doit(state_file, xmin, n_plot, outfile):
     for n in range(n_plot):
         ax2.plot(data["Time"], data[abundant[n]], label=abundant[n])
 
-    ax2.set_xscale("log")
+    ax2.set_xscale("symlog", linthresh=data["Time"][1])
     ax2.set_yscale("log")
     ax2.set_ylim(xmin, 1.5)
     ax2.grid(ls=":")
