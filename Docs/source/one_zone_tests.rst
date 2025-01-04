@@ -29,15 +29,22 @@ with density held constant and the temperature found via the equation of state,
 $T = T(\rho, X_k, e)$.
 
 
+.. note::
+
+   Since the energy evolves due to the heat release (or loss)
+   from reactions, the temperature will change during the burn.
+
+
 Getting Started
 ---------------
 
-The ``burn_cell`` code are located in
+The ``burn_cell`` code is located in
 ``Microphysics/unit_test/burn_cell``.  An inputs file which sets the
 default parameters for your choice of network is needed to run the
-test.  There are a number of inputs file in the unit test directory
-already with a name list ``inputs_burn_network``, where network
-is the network you wish to use for your testing.
+test.  There are a number of inputs files in the unit test directory
+already with a name list ``inputs_network``, where ``network``
+is the network you wish to use for your testing.  These can be
+used as a starting point for any explorations.
 
 
 Setting the thermodynamics
@@ -53,7 +60,8 @@ The parameters that affect the thermodynamics are:
 
 * ``unit_test.small_dens`` : the low density cutoff used in the equation of state
 
-The composition can be set either by setting each mass fraction explicitly,
+The composition can be set either by setting each mass fraction explicitly via the
+parameters, ``unit_test.X1``, ``unit_test.X2``, ...,
 e.g.:
 
 ::
@@ -126,6 +134,16 @@ Microphysics build system parameters, e.g.,
 
    make NETWORK_DIR=aprox19 INTEGRATOR_DIR=rkc
 
+The build process will automatically create links in the build
+directory to the EOS table and any reaction rate tables needed by your
+choice of network.
+
+
+.. important::
+
+   You need to do a ``make clean`` before rebuilding with a different
+   network or integrator.
+
 
 To run the code, enter the burn_cell directory and run::
 
@@ -133,40 +151,31 @@ To run the code, enter the burn_cell directory and run::
 
 where ``inputs`` is the name of your inputs file.
 
-For each of the ``numsteps`` steps defined in the inputs
-file, the code will output a files into a new directory titled
-``run_prefix_output`` where ``run_prefix`` is the run prefix defined in the
-inputs file.  Each output file will be named using the run prefix
-defined in the inputs file and the corresponding timestep.
+Working with Output
+-------------------
 
-Next, run ``burn_cell.py`` using python 3.x, giving the defined run prefix as an argument.
-For example::
+.. note::
 
-    python3 burn_cell.py react_aprox13
+   For this part, we'll assume that the default ``aprox13`` and
+   ``VODE`` options were used for the network and integrator, and the
+   test was run with ``inputs.aprox13``.
 
-The ``burn_cell.py`` code will gather information from all of the
-output files and compile them into three graphs explained below.
+As the code runs, it will output to ``stdout`` details of the initial
+and final state and the number of integration steps taken (along with whether
+the burn was successful).  The full history of the thermodynamic state will also be output to a file,
+``state_over_time.txt``, with each line corresponding to one of the
+``nsteps`` requested in the time integration.
 
-Graphs Output by ``burn_cell.py``
----------------------------------
+The script ``plot_burn_cell.py`` can be used to visualize the evolution:
 
-The file ``run-prefix_logX.png`` and ``run-prefix_logX.eps`` will display a
-graph of the chemical abundances as a function of the time, both on
-logarithmic scales, for all species involved in the simulation.  An
-example of this graph is shown below.
+.. prompt:: bash
 
-.. figure:: react_aprox13_logX.png
-   :alt: An example of a plot output by the burn_cell unit test. This is the logX output corresponding to the network aprox13.
-   :width: 4.5in
+   python plot_burn_cell.py state_over_time.txt
 
-   An example of a plot output by the burn_cell unit test. This is the
-   logX output corresponding to the network aprox13.
+This will generate the following figure:
 
+.. figure:: state.png
+   :alt: An example of a plot output by the burn_cell unit test.
 
-
-The file ``run-prefix_ydot.png`` and ``run-prefix_ydot.eps`` will display the
-molar fraction (mass fraction / atomic weight) as a function of time,
-both on logarithmic scales, for all species involved in the code.
-
-The file ``run-prefix_T-edot.png`` and ``run-prefix_T-edot.eps`` will display
-the temperature and the energy generation rate as a function of time.
+Only the most abundant species are plotted.  The number of species to plot and the
+limits of $X$ can be set via runtime parameters (see ``python plot_burn_cell.py -h``).
