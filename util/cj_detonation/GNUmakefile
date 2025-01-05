@@ -21,7 +21,7 @@ MICROPHYSICS_HOME  := ../..
 EOS_DIR     := helmholtz
 
 # This sets the network directory
-NETWORK_DIR := aprox13
+NETWORK_DIR := subch_simple
 
 CONDUCTIVITY_DIR := stellar
 
