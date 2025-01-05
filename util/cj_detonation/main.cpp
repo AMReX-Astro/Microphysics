@@ -12,7 +12,11 @@ using namespace amrex;
 #include <cj_det.H>
 #include <unit_test.H>
 #include <actual_network.H>
+#ifdef NEW_NETWORK_IMPLEMENTATION
+#include <rhs.H>
+#else
 #include <actual_rhs.H>
+#endif
 
 using namespace unit_test_rp;
 
@@ -21,20 +25,6 @@ int main(int argc, char *argv[]) {
   amrex::Initialize(argc, argv);
 
   std::cout << "starting the CJ Det solve..." << std::endl;
-
-  ParmParse ppa("amr");
-
-  std::string probin_file = "probin";
-
-  ppa.query("probin_file", probin_file);
-
-  std::cout << "probin = " << probin_file << std::endl;
-
-  const int probin_file_length = probin_file.length();
-  Vector<int> probin_file_name(probin_file_length);
-
-  for (int i = 0; i < probin_file_length; i++)
-    probin_file_name[i] = probin_file[i];
 
   init_unit_test();
 
@@ -82,8 +72,23 @@ int main(int argc, char *argv[]) {
                  eos_state_fuel.xn[n-1] * aion_inv[n-1];
   }
 
-  Real q_burn;
-  ener_gener_rate(dymol, q_burn);
+  Real q_burn{};
+
+#ifdef NEW_NETWORK_IMPLEMENTATION
+
+  // note: we are assuming that the network's ener_gener_rate does not
+  // use rhs_state -- this is true, e.g., for aprox13
+  RHS::rhs_state_t<amrex::Real> state;
+  amrex::constexpr_for<1, NumSpec+1>([&] (auto n)
+  {
+      constexpr int species = n;
+      q_burn += RHS::ener_gener_rate<species>(state, dymol(species));
+  });
+#else
+      ener_gener_rate(dymol, q_burn);
+#endif
+
+  std::cout << "q_burn = " << q_burn << std::endl;
 
   // store the shock adiabat and the detonation adiabat
 
