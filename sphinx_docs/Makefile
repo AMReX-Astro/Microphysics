@@ -22,7 +22,7 @@ clean:
 html:
 	./rp.py > source/runtime_parameters.rst
 	doxygen Doxyfile
-	breathe-apidoc --o source doxy_files/xml
+	breathe-apidoc --o source doxy_files/xml -g class,file
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@if [ ! -d ../docs ]; then mkdir ../docs; fi
 
