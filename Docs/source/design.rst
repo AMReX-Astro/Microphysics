@@ -12,6 +12,8 @@ and the generic solvers:
 
 * ``constants``: fundamental constants
 
+* ``Docs``: the sphinx source for this documentation
+
 * ``EOS/``: the various equations of state
 
 * ``integration/``: the ODE integration routines used for the
@@ -33,8 +35,6 @@ and the generic solvers:
 
 * ``screening/``: common electron screening factors used by some of the
   reaction networks.
-
-* ``sphinx_docs``: the sphinx source for this documentation
 
 * ``unit_test/``: self-contained unit tests for Microphysics. These don’t
   need any application code to build, but will require AMReX.
