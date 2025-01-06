@@ -9,56 +9,142 @@ on a single zone to inspect the output directly.
 ``burn_cell``
 =============
 
-.. index:: ``burn_cell``
+.. index:: burn_cell
 
 ``burn_cell`` is a simple one-zone burn that will evolve a state with
 a network for a specified amount of time.  This can be used to
 understand the timescales involved in a reaction sequence or to
-determine the needed ODE tolerances.
+determine the needed ODE tolerances.  This is designed to work
+with the Strang-split integration wrappers.  The system that is evolved
+has the form:
+
+.. math::
+
+   \begin{align*}
+      \frac{dX_k}{dt} &= \dot{\omega}_k(\rho, X_k, T) \\
+      \frac{de}{dt} &= \epsilon(\rho, X_k, T)
+   \end{align*}
+
+with density held constant and the temperature found via the equation of state,
+$T = T(\rho, X_k, e)$.
+
+
+.. note::
+
+   Since the energy evolves due to the heat release (or loss)
+   from reactions, the temperature will change during the burn
+   (unless ``integrator.call_eos_in_rhs=0`` is set).
 
 
 Getting Started
 ---------------
 
-The ``burn_cell`` code are located in
-``Microphysics/unit_test/burn_cell``. To run a simulation, ensure that
-both an input file and an initial conditions file have been created
-and are in the same directory as the executable.
+The ``burn_cell`` code is located in
+``Microphysics/unit_test/burn_cell``.  An inputs file which sets the
+default parameters for your choice of network is needed to run the
+test.  There are a number of inputs files in the unit test directory
+already with a name list ``inputs_network``, where ``network``
+is the network you wish to use for your testing.  These can be
+used as a starting point for any explorations.
 
-Input File
-----------
 
-These files are typically named as ``inputs_burn_network`` where network
-is the network you wish to use for your testing.
+Setting the thermodynamics
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The structure of this file is is fairly self-explanatory.  The run
-prefix defined should be unique to the tests that will be run as they
-will be used to identify all of the output files. Typically, the run
-prefix involves the name of the network being tested.  The ``atol``
-variables define absolute tolerances of the ordinary differential
-equations and the ``rtol`` variables define the relative tolerances.  The
-second section of the input file collects the inputs that ``main.f90``
-asks for so that the user does not have to input all 5+
-parameters that are required every time the test is run.  Each input
-required is defined and initialized on the lines following
-``&cellparams``.  The use of the parameters is show below:
+The parameters that affect the thermodynamics are:
 
-.. table:: The definition of parameters used in the burn_cell unit tests and specified in the second half of each inputs file.
+* ``unit_test.density`` : the initial density
 
-   +-----------------------+----------------------------------------+
-   | ``tmax``              | Maximum Time (s)                       |
-   +-----------------------+----------------------------------------+
-   | ``nsteps``            | Number of time subdivisions            |
-   +-----------------------+----------------------------------------+
-   | ``density``           | State Density (:math:`\frac{g}{cm^3}`) |
-   +-----------------------+----------------------------------------+
-   | ``temperature``       | State Temperature (K)                  |
-   +-----------------------+----------------------------------------+
-   | ``massfractions(i)``  | Mass Fraction for element i            |
-   +-----------------------+----------------------------------------+
+* ``unit_test.temperature`` : the initial temperature
 
-Running the Code
-----------------
+* ``unit_test.small_temp`` : the low temperature cutoff used in the equation of state
+
+* ``unit_test.small_dens`` : the low density cutoff used in the equation of state
+
+The composition can be set either by setting each mass fraction explicitly via the
+parameters, ``unit_test.X1``, ``unit_test.X2``, ...,
+e.g.:
+
+::
+
+    unit_test.X1 = 0.5
+    unit_test.X2 = 0.2
+    unit_test.X3 = 0.2
+    unit_test.X4 = 0.1
+
+where parameters up to ``X35`` are available.  If the values don't sum to ``1``
+initially, then the test will do a normalization.  This normalization can be
+disabled by setting:
+
+::
+
+    unit_test.skip_initial_normalization = 1
+
+
+Alternately, the composition can be set automatically by initializing all
+of the mass fractions equally (to $1/N$, where $N$ is the number of species),
+by setting:
+
+::
+
+    unit_test.init_species_all_equal = 1
+
+
+Controlling time
+^^^^^^^^^^^^^^^^
+
+The test will run unit a time ``unit_test.tmax``, outputting the state
+at regular intervals.  The parameters controlling the output are:
+
+* ``unit_test.tmax`` : the end point of integration.
+
+* ``unit_test.tfirst`` : the first time interval to output.
+
+* ``unit_test.nsteps`` : the number of steps to divide the integration into,
+  logarithmically-spaced.
+
+If there is only a single step, ``unit_test.nsteps = 1``, then we integrate
+from $[0, \mathrm{tmax}]$.
+
+If there are multiple steps, then the first output will be at a time
+$\mathrm{tmax} / \mathrm{nsteps}$, and the steps will be
+logarithmically-spaced afterwards.
+
+
+Integration parameters
+^^^^^^^^^^^^^^^^^^^^^^
+
+The tolerances, choice of Jacobian, and other integration parameters
+can be set via the usual Microphysics runtime parameters, e.g.
+``integrator.atol_spec``.
+
+
+Building and Running the Code
+-----------------------------
+
+The code can be built simply as:
+
+.. prompt:: bash
+
+   make
+
+and the network and integrator can be changed using the normal
+Microphysics build system parameters, e.g.,
+
+.. prompt:: bash
+
+   make NETWORK_DIR=aprox19 INTEGRATOR_DIR=rkc
+
+The build process will automatically create links in the build
+directory to the EOS table and any reaction rate tables needed by your
+choice of network.
+
+
+.. important::
+
+   You need to do a ``make clean`` before rebuilding with a different
+   network or integrator.
+
 
 To run the code, enter the burn_cell directory and run::
 
@@ -66,40 +152,31 @@ To run the code, enter the burn_cell directory and run::
 
 where ``inputs`` is the name of your inputs file.
 
-For each of the ``numsteps`` steps defined in the inputs
-file, the code will output a files into a new directory titled
-``run_prefix_output`` where ``run_prefix`` is the run prefix defined in the
-inputs file.  Each output file will be named using the run prefix
-defined in the inputs file and the corresponding timestep.
+Working with Output
+-------------------
 
-Next, run ``burn_cell.py`` using python 3.x, giving the defined run prefix as an argument.
-For example::
+.. note::
 
-    python3 burn_cell.py react_aprox13
+   For this part, we'll assume that the default ``aprox13`` and
+   ``VODE`` options were used for the network and integrator, and the
+   test was run with ``inputs.aprox13``.
 
-The ``burn_cell.py`` code will gather information from all of the
-output files and compile them into three graphs explained below.
+As the code runs, it will output to ``stdout`` details of the initial
+and final state and the number of integration steps taken (along with whether
+the burn was successful).  The full history of the thermodynamic state will also be output to a file,
+``state_over_time.txt``, with each line corresponding to one of the
+``nsteps`` requested in the time integration.
 
-Graphs Output by ``burn_cell.py``
----------------------------------
+The script ``plot_burn_cell.py`` can be used to visualize the evolution:
 
-The file ``run-prefix_logX.png`` and ``run-prefix_logX.eps`` will display a
-graph of the chemical abundances as a function of the time, both on
-logarithmic scales, for all species involved in the simulation.  An
-example of this graph is shown below.
+.. prompt:: bash
 
-.. figure:: react_aprox13_logX.png
-   :alt: An example of a plot output by the burn_cell unit test. This is the logX output corresponding to the network aprox13.
-   :width: 4.5in
+   python plot_burn_cell.py state_over_time.txt
 
-   An example of a plot output by the burn_cell unit test. This is the
-   logX output corresponding to the network aprox13.
+This will generate the following figure:
 
+.. figure:: state.png
+   :alt: An example of a plot output by the burn_cell unit test.
 
-
-The file ``run-prefix_ydot.png`` and ``run-prefix_ydot.eps`` will display the
-molar fraction (mass fraction / atomic weight) as a function of time,
-both on logarithmic scales, for all species involved in the code.
-
-The file ``run-prefix_T-edot.png`` and ``run-prefix_T-edot.eps`` will display
-the temperature and the energy generation rate as a function of time.
+Only the most abundant species are plotted.  The number of species to plot and the
+limits of $X$ can be set via runtime parameters (see ``python plot_burn_cell.py -h``).

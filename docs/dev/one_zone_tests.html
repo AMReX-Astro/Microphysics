@@ -92,10 +92,14 @@
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">One Zone Tests</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#burn-cell"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#input-file">Input File</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#running-the-code">Running the Code</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#graphs-output-by-burn-cell-py">Graphs Output by <code class="docutils literal notranslate"><span class="pre">burn_cell.py</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-the-thermodynamics">Setting the thermodynamics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#controlling-time">Controlling time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integration-parameters">Integration parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#building-and-running-the-code">Building and Running the Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-output">Working with Output</a></li>
 </ul>
 </li>
 </ul>
@@ -143,89 +147,131 @@ on a single zone to inspect the output directly.</p>
 <p id="index-0"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> is a simple one-zone burn that will evolve a state with
 a network for a specified amount of time.  This can be used to
 understand the timescales involved in a reaction sequence or to
-determine the needed ODE tolerances.</p>
+determine the needed ODE tolerances.  This is designed to work
+with the Strang-split integration wrappers.  The system that is evolved
+has the form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+   \frac{dX_k}{dt} &amp;= \dot{\omega}_k(\rho, X_k, T) \\
+   \frac{de}{dt} &amp;= \epsilon(\rho, X_k, T)
+\end{align*}\end{split}\]</div>
+<p>with density held constant and the temperature found via the equation of state,
+<span class="math notranslate nohighlight">\(T = T(\rho, X_k, e)\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since the energy evolves due to the heat release (or loss)
+from reactions, the temperature will change during the burn
+(unless <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs=0</span></code> is set).</p>
+</div>
 <section id="getting-started">
 <h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> code are located in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/burn_cell</span></code>. To run a simulation, ensure that
-both an input file and an initial conditions file have been created
-and are in the same directory as the executable.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> code is located in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/burn_cell</span></code>.  An inputs file which sets the
+default parameters for your choice of network is needed to run the
+test.  There are a number of inputs files in the unit test directory
+already with a name list <code class="docutils literal notranslate"><span class="pre">inputs_network</span></code>, where <code class="docutils literal notranslate"><span class="pre">network</span></code>
+is the network you wish to use for your testing.  These can be
+used as a starting point for any explorations.</p>
+<section id="setting-the-thermodynamics">
+<h4>Setting the thermodynamics<a class="headerlink" href="#setting-the-thermodynamics" title="Link to this heading"></a></h4>
+<p>The parameters that affect the thermodynamics are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.density</span></code> : the initial density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.temperature</span></code> : the initial temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_temp</span></code> : the low temperature cutoff used in the equation of state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_dens</span></code> : the low density cutoff used in the equation of state</p></li>
+</ul>
+<p>The composition can be set either by setting each mass fraction explicitly via the
+parameters, <code class="docutils literal notranslate"><span class="pre">unit_test.X1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.X2</span></code>, …,
+e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">X1</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X2</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X3</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X4</span> <span class="o">=</span> <span class="mf">0.1</span>
+</pre></div>
+</div>
+<p>where parameters up to <code class="docutils literal notranslate"><span class="pre">X35</span></code> are available.  If the values don’t sum to <code class="docutils literal notranslate"><span class="pre">1</span></code>
+initially, then the test will do a normalization.  This normalization can be
+disabled by setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">skip_initial_normalization</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Alternately, the composition can be set automatically by initializing all
+of the mass fractions equally (to <span class="math notranslate nohighlight">\(1/N\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of species),
+by setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">init_species_all_equal</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
 </section>
-<section id="input-file">
-<h3>Input File<a class="headerlink" href="#input-file" title="Link to this heading"></a></h3>
-<p>These files are typically named as <code class="docutils literal notranslate"><span class="pre">inputs_burn_network</span></code> where network
-is the network you wish to use for your testing.</p>
-<p>The structure of this file is is fairly self-explanatory.  The run
-prefix defined should be unique to the tests that will be run as they
-will be used to identify all of the output files. Typically, the run
-prefix involves the name of the network being tested.  The <code class="docutils literal notranslate"><span class="pre">atol</span></code>
-variables define absolute tolerances of the ordinary differential
-equations and the <code class="docutils literal notranslate"><span class="pre">rtol</span></code> variables define the relative tolerances.  The
-second section of the input file collects the inputs that <code class="docutils literal notranslate"><span class="pre">main.f90</span></code>
-asks for so that the user does not have to input all 5+
-parameters that are required every time the test is run.  Each input
-required is defined and initialized on the lines following
-<code class="docutils literal notranslate"><span class="pre">&amp;cellparams</span></code>.  The use of the parameters is show below:</p>
-<table class="docutils align-default" id="id1">
-<caption><span class="caption-number">Table 1 </span><span class="caption-text">The definition of parameters used in the burn_cell unit tests and specified in the second half of each inputs file.</span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
-<td><p>Maximum Time (s)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nsteps</span></code></p></td>
-<td><p>Number of time subdivisions</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
-<td><p>State Density (<span class="math notranslate nohighlight">\(\frac{g}{cm^3}\)</span>)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
-<td><p>State Temperature (K)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">massfractions(i)</span></code></p></td>
-<td><p>Mass Fraction for element i</p></td>
-</tr>
-</tbody>
-</table>
+<section id="controlling-time">
+<h4>Controlling time<a class="headerlink" href="#controlling-time" title="Link to this heading"></a></h4>
+<p>The test will run unit a time <code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code>, outputting the state
+at regular intervals.  The parameters controlling the output are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code> : the end point of integration.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tfirst</span></code> : the first time interval to output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span></code> : the number of steps to divide the integration into,
+logarithmically-spaced.</p></li>
+</ul>
+<p>If there is only a single step, <code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span> <span class="pre">=</span> <span class="pre">1</span></code>, then we integrate
+from <span class="math notranslate nohighlight">\([0, \mathrm{tmax}]\)</span>.</p>
+<p>If there are multiple steps, then the first output will be at a time
+<span class="math notranslate nohighlight">\(\mathrm{tmax} / \mathrm{nsteps}\)</span>, and the steps will be
+logarithmically-spaced afterwards.</p>
 </section>
-<section id="running-the-code">
-<h3>Running the Code<a class="headerlink" href="#running-the-code" title="Link to this heading"></a></h3>
+<section id="integration-parameters">
+<h4>Integration parameters<a class="headerlink" href="#integration-parameters" title="Link to this heading"></a></h4>
+<p>The tolerances, choice of Jacobian, and other integration parameters
+can be set via the usual Microphysics runtime parameters, e.g.
+<code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>.</p>
+</section>
+</section>
+<section id="building-and-running-the-code">
+<h3>Building and Running the Code<a class="headerlink" href="#building-and-running-the-code" title="Link to this heading"></a></h3>
+<p>The code can be built simply as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">make</span>
+</pre></div></div><p>and the network and integrator can be changed using the normal
+Microphysics build system parameters, e.g.,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">make<span class="w"> </span><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">INTEGRATOR_DIR</span><span class="o">=</span>rkc</span>
+</pre></div></div><p>The build process will automatically create links in the build
+directory to the EOS table and any reaction rate tables needed by your
+choice of network.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You need to do a <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> before rebuilding with a different
+network or integrator.</p>
+</div>
 <p>To run the code, enter the burn_cell directory and run:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">inputs</span></code> is the name of your inputs file.</p>
-<p>For each of the <code class="docutils literal notranslate"><span class="pre">numsteps</span></code> steps defined in the inputs
-file, the code will output a files into a new directory titled
-<code class="docutils literal notranslate"><span class="pre">run_prefix_output</span></code> where <code class="docutils literal notranslate"><span class="pre">run_prefix</span></code> is the run prefix defined in the
-inputs file.  Each output file will be named using the run prefix
-defined in the inputs file and the corresponding timestep.</p>
-<p>Next, run <code class="docutils literal notranslate"><span class="pre">burn_cell.py</span></code> using python 3.x, giving the defined run prefix as an argument.
-For example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">burn_cell</span><span class="o">.</span><span class="n">py</span> <span class="n">react_aprox13</span>
-</pre></div>
-</div>
-<p>The <code class="docutils literal notranslate"><span class="pre">burn_cell.py</span></code> code will gather information from all of the
-output files and compile them into three graphs explained below.</p>
 </section>
-<section id="graphs-output-by-burn-cell-py">
-<h3>Graphs Output by <code class="docutils literal notranslate"><span class="pre">burn_cell.py</span></code><a class="headerlink" href="#graphs-output-by-burn-cell-py" title="Link to this heading"></a></h3>
-<p>The file <code class="docutils literal notranslate"><span class="pre">run-prefix_logX.png</span></code> and <code class="docutils literal notranslate"><span class="pre">run-prefix_logX.eps</span></code> will display a
-graph of the chemical abundances as a function of the time, both on
-logarithmic scales, for all species involved in the simulation.  An
-example of this graph is shown below.</p>
-<figure class="align-default" id="id2">
-<a class="reference internal image-reference" href="_images/react_aprox13_logX.png"><img alt="An example of a plot output by the burn_cell unit test. This is the logX output corresponding to the network aprox13." src="_images/react_aprox13_logX.png" style="width: 4.5in;" />
-</a>
-<figcaption>
-<p><span class="caption-number">Fig. 2 </span><span class="caption-text">An example of a plot output by the burn_cell unit test. This is the
-logX output corresponding to the network aprox13.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
+<section id="working-with-output">
+<h3>Working with Output<a class="headerlink" href="#working-with-output" title="Link to this heading"></a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For this part, we’ll assume that the default <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> and
+<code class="docutils literal notranslate"><span class="pre">VODE</span></code> options were used for the network and integrator, and the
+test was run with <code class="docutils literal notranslate"><span class="pre">inputs.aprox13</span></code>.</p>
+</div>
+<p>As the code runs, it will output to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> details of the initial
+and final state and the number of integration steps taken (along with whether
+the burn was successful).  The full history of the thermodynamic state will also be output to a file,
+<code class="docutils literal notranslate"><span class="pre">state_over_time.txt</span></code>, with each line corresponding to one of the
+<code class="docutils literal notranslate"><span class="pre">nsteps</span></code> requested in the time integration.</p>
+<p>The script <code class="docutils literal notranslate"><span class="pre">plot_burn_cell.py</span></code> can be used to visualize the evolution:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python<span class="w"> </span>plot_burn_cell.py<span class="w"> </span>state_over_time.txt</span>
+</pre></div></div><p>This will generate the following figure:</p>
+<figure class="align-default">
+<img alt="An example of a plot output by the burn_cell unit test." src="_images/state.png" />
 </figure>
-<p>The file <code class="docutils literal notranslate"><span class="pre">run-prefix_ydot.png</span></code> and <code class="docutils literal notranslate"><span class="pre">run-prefix_ydot.eps</span></code> will display the
-molar fraction (mass fraction / atomic weight) as a function of time,
-both on logarithmic scales, for all species involved in the code.</p>
-<p>The file <code class="docutils literal notranslate"><span class="pre">run-prefix_T-edot.png</span></code> and <code class="docutils literal notranslate"><span class="pre">run-prefix_T-edot.eps</span></code> will display
-the temperature and the energy generation rate as a function of time.</p>
+<p>Only the most abundant species are plotted.  The number of species to plot and the
+limits of <span class="math notranslate nohighlight">\(X\)</span> can be set via runtime parameters (see <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">plot_burn_cell.py</span> <span class="pre">-h</span></code>).</p>
 </section>
 </section>
 </section>
