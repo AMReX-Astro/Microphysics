@@ -73,6 +73,13 @@ of state routines.
 
 .. toctree::
    :maxdepth: 1
+   :caption: Util / external libraries
+   :hidden:
+
+   util
+
+.. toctree::
+   :maxdepth: 1
    :caption: Unit tests
    :hidden:
 
