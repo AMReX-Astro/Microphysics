@@ -27,7 +27,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="ODE Integrators" href="ode_integrators.html" />
-    <link rel="prev" title="Screening of Reaction Rates" href="screening.html" /> 
+    <link rel="prev" title="Neutrino Losses" href="neutrinos.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -73,6 +73,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul class="current">
@@ -145,11 +146,11 @@ default mode of coupling burning to application codes.</p>
 <div class="math notranslate nohighlight" id="equation-eq-spec-integrate">
 <span class="eqno">(1)<a class="headerlink" href="#equation-eq-spec-integrate" title="Link to this equation"></a></span>\[\frac{dX_k}{dt} = \dot{\omega}_k(\rho,X_k,T)\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-enuc-integrate">
-<span class="eqno">(2)<a class="headerlink" href="#equation-eq-enuc-integrate" title="Link to this equation"></a></span>\[\frac{de}{dt} = f(\rho,X_k,T)\]</div>
+<span class="eqno">(2)<a class="headerlink" href="#equation-eq-enuc-integrate" title="Link to this equation"></a></span>\[\frac{de}{dt} = \epsilon(\rho,X_k,T)\]</div>
 <p>Here, <span class="math notranslate nohighlight">\(X_k\)</span> is the mass fraction of species <span class="math notranslate nohighlight">\(k\)</span>, <span class="math notranslate nohighlight">\(e\)</span>
 is the specific nuclear energy created through reactions. Also needed
 are density <span class="math notranslate nohighlight">\(\rho\)</span>, temperature <span class="math notranslate nohighlight">\(T\)</span>, and the specific
-heat. The function <span class="math notranslate nohighlight">\(f\)</span> provides the energy release from
+heat. The function <span class="math notranslate nohighlight">\(\epsilon\)</span> provides the energy release from
 reactions and can often be expressed in terms of the instantaneous
 reaction terms, <span class="math notranslate nohighlight">\(\dot{X}_k\)</span>. As noted in the previous section,
 this is implemented in a network-specific manner.</p>
@@ -168,7 +169,7 @@ integrated instead of mass fractions.  This makes the system:</p>
 <div class="math notranslate nohighlight" id="equation-eq-spec-n-integrate">
 <span class="eqno">(3)<a class="headerlink" href="#equation-eq-spec-n-integrate" title="Link to this equation"></a></span>\[\frac{dn_k}{dt} = \dot{\omega}_k(\rho,n_k,T)\]</div>
 <div class="math notranslate nohighlight" id="equation-eq-enuc-n-integrate">
-<span class="eqno">(4)<a class="headerlink" href="#equation-eq-enuc-n-integrate" title="Link to this equation"></a></span>\[\frac{de}{dt} = f(\rho,n_k,T)\]</div>
+<span class="eqno">(4)<a class="headerlink" href="#equation-eq-enuc-n-integrate" title="Link to this equation"></a></span>\[\frac{de}{dt} = \epsilon(\rho,n_k,T)\]</div>
 <p>The effect of this flag in the integrators is that we don’t worry
 about converting between mass and molar fractions when calling the
 righthand side function and Jacobian, and we don’t do any normalization
@@ -409,7 +410,7 @@ with the initial temperature, density, and composition:</p>
 <p>As the system is integrated, <span class="math notranslate nohighlight">\(e\)</span> is updated to account for the
 nuclear energy release (and thermal neutrino losses),</p>
 <div class="math notranslate nohighlight">
-\[e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt\]</div>
+\[e(t) = e_0 + \int_{t_0}^t \epsilon(\dot{Y}_k) dt\]</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>When the system is integrated in an operator-split approach, the
@@ -442,7 +443,7 @@ the system by setting <code class="docutils literal notranslate"><span class="pr
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="screening.html" class="btn btn-neutral float-left" title="Screening of Reaction Rates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="neutrinos.html" class="btn btn-neutral float-left" title="Neutrino Losses" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="ode_integrators.html" class="btn btn-neutral float-right" title="ODE Integrators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

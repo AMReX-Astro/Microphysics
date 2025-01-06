@@ -99,6 +99,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
@@ -166,9 +167,9 @@ is the binding energy of the nucleus (converted to grams). <span class="math not
 is stored as <code class="docutils literal notranslate"><span class="pre">mion(:)</span></code> in the network.</p>
 <p>The energy release per gram is converted from the rates as:</p>
 <div class="math notranslate nohighlight">
-\[\edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edotnu\]</div>
+\[\epsilon = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \epsilon_\nu\]</div>
 <p>where <span class="math notranslate nohighlight">\(N_A\)</span> is Avogadro’s number (to convert this to “per gram”)
-and <span class="math notranslate nohighlight">\(\edotnu\)</span> is the neutrino loss term.</p>
+and <span class="math notranslate nohighlight">\(\edotnu\)</span> is the neutrino loss term (see <a class="reference internal" href="neutrinos.html#neutrino-loss"><span class="std std-ref">Neutrino Losses</span></a>).</p>
 </section>
 </section>
 <section id="general-null">
@@ -255,7 +256,7 @@ network is interpolated based on the density. It is stored as the
 binding energy (ergs/g) <em>per nucleon</em>, with a sign convention that
 binding energies are negative. The energy generation rate is then:</p>
 <div class="math notranslate nohighlight">
-\[\edot = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}\]</div>
+\[\epsilon = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}\]</div>
 <p>(this is positive since both <span class="math notranslate nohighlight">\(q\)</span> and <span class="math notranslate nohighlight">\(dY/dt\)</span> are negative)</p>
 </section>
 </section>
@@ -343,7 +344,7 @@ temperature, and then our mass fraction equation is:</p>
 energy generation, we take our reaction to release a specific energy,
 <span class="math notranslate nohighlight">\([\mathrm{erg~g^{-1}}]\)</span>, of <span class="math notranslate nohighlight">\(\qburn\)</span>, and our energy source is</p>
 <div class="math notranslate nohighlight">
-\[\edot = -\qburn \frac{dX_f}{dt}\]</div>
+\[\epsilon = -\qburn \frac{dX_f}{dt}\]</div>
 <p>There are a number of parameters we use to control the constants in
 this network. This is one of the few networks that was designed
 to work with <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> as the EOS.</p>

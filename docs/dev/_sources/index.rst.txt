@@ -60,6 +60,7 @@ of state routines.
    networks
    templated_networks
    screening
+   neutrinos
 
 .. toctree::
    :maxdepth: 1
