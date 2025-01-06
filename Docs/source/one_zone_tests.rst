@@ -22,7 +22,7 @@ has the form:
 
    \begin{align*}
       \frac{dX_k}{dt} &= \dot{\omega}_k(\rho, X_k, T) \\
-      \frac{de}{dt} &= f(\rho, X_k, T)
+      \frac{de}{dt} &= \epsilon(\rho, X_k, T)
    \end{align*}
 
 with density held constant and the temperature found via the equation of state,
@@ -32,7 +32,8 @@ $T = T(\rho, X_k, e)$.
 .. note::
 
    Since the energy evolves due to the heat release (or loss)
-   from reactions, the temperature will change during the burn.
+   from reactions, the temperature will change during the burn
+   (unless ``integrator.call_eos_in_rhs=0`` is set).
 
 
 Getting Started
