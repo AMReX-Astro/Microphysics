@@ -2,6 +2,8 @@
 Screening of Reaction Rates
 ***************************
 
+.. index:: SCREEN_METHOD
+
 Screening of reaction rates can be computed using several different methods,
 controlled by the make parameter ``SCREEN_METHOD``.  For example,
 
@@ -51,4 +53,12 @@ The options are:
 
 Runtime Options
 ----------------
-* ``screening.enable_chabrier1998_quantum_corr = 1`` in the input file enables an additional quantum correction term added to the screening factor when ``SCREEN_METHOD=chabrier1998``. This is disabled by default since ``chabrier1998`` is often used along with ``USE_NSE_NET=TRUE``, and the NSE solver doesn't include quantum corrections.
+
+.. index:: screening.enable_chabrier1998_quantum_corr
+
+* ``screening.enable_chabrier1998_quantum_corr = 1`` in the input file
+  enables an additional quantum correction term added to the screening
+  factor when ``SCREEN_METHOD=chabrier1998``. This is disabled by
+  default since ``chabrier1998`` is often used along with
+  ``USE_NSE_NET=TRUE``, and the NSE solver doesn't include quantum
+  corrections.

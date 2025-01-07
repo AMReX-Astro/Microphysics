@@ -12,11 +12,10 @@ jobs:
       - name: Install dependencies
         run: |
           brew install cmake openmpi python3 || true
-          brew link --overwrite python@3.11
 
       - name: Compile and run
         run: |
           mkdir build && cd build
           cmake .. -DBUILD_UNIT_TEST_MC=true -DBUILD_AMReX=true
-          make -j2
+          make -j 4
           ctest --output-on-failure

@@ -26,10 +26,10 @@ is stored as ``mion(:)`` in the network.
 
 The energy release per gram is converted from the rates as:
 
-.. math:: \edot = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \edotnu
+.. math:: \epsilon = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \epsilon_\nu
 
 where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
-and :math:`\edotnu` is the neutrino loss term.
+and :math:`\edotnu` is the neutrino loss term (see :ref:`neutrino_loss`).
 
 
 ``general_null``
@@ -55,6 +55,8 @@ The four columns give the long name of the species, the short form that will be 
 for plotfile variables, and the mass number, :math:`A`, and proton number, :math:`Z`.
 
 The name of the inputs file by one of two make variables:
+
+.. index:: NETWORK_INPUTS, GENERAL_NET_INPUTS
 
 * ``NETWORK_INPUTS`` : this is simply the name of the "`.net`" file, without
   any path.  The build system will look for it in the current directory
@@ -135,7 +137,7 @@ network is interpolated based on the density. It is stored as the
 binding energy (ergs/g) *per nucleon*, with a sign convention that
 binding energies are negative. The energy generation rate is then:
 
-.. math:: \edot = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}
+.. math:: \epsilon = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}
 
 (this is positive since both :math:`q` and :math:`dY/dt` are negative)
 
@@ -242,7 +244,7 @@ Finally, for the
 energy generation, we take our reaction to release a specific energy,
 :math:`[\mathrm{erg~g^{-1}}]`, of :math:`\qburn`, and our energy source is
 
-.. math:: \edot = -\qburn \frac{dX_f}{dt}
+.. math:: \epsilon = -\qburn \frac{dX_f}{dt}
 
 There are a number of parameters we use to control the constants in
 this network. This is one of the few networks that was designed
