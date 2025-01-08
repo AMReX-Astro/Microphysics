@@ -33,106 +33,106 @@ namespace network
             return 0.0_rt;
         }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
         }
         else if constexpr (spec == C12) {
-            return 92.16172800000001_rt;
+            return 92.16173498399803_rt;
         }
         else if constexpr (spec == N13) {
-            return 94.105219_rt;
+            return 94.10522604799917_rt;
         }
         else if constexpr (spec == N14) {
-            return 104.65859599999999_rt;
+            return 104.65860734799753_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == F18) {
-            return 137.369484_rt;
+            return 137.36950247599816_rt;
         }
         else if constexpr (spec == Ne20) {
-            return 160.6448_rt;
+            return 160.64482384000075_rt;
         }
         else if constexpr (spec == Ne21) {
-            return 167.405973_rt;
+            return 167.40598973999658_rt;
         }
         else if constexpr (spec == Na22) {
-            return 174.144674_rt;
+            return 174.14457080400098_rt;
         }
         else if constexpr (spec == Na23) {
-            return 186.56433900000002_rt;
+            return 186.56435240400242_rt;
         }
         else if constexpr (spec == Mg24) {
-            return 198.25701600000002_rt;
+            return 198.2570479679962_rt;
         }
         else if constexpr (spec == Al27) {
-            return 224.951931_rt;
+            return 224.95193723199915_rt;
         }
         else if constexpr (spec == Si28) {
-            return 236.536832_rt;
+            return 236.53684539599638_rt;
         }
         else if constexpr (spec == P31) {
-            return 262.91617699999995_rt;
+            return 262.9161999600037_rt;
         }
         else if constexpr (spec == S32) {
-            return 271.78012800000005_rt;
+            return 271.78016372399725_rt;
         }
         else if constexpr (spec == Ar36) {
-            return 306.716724_rt;
+            return 306.7167469519991_rt;
         }
         else if constexpr (spec == Ca40) {
-            return 342.05212000000006_rt;
+            return 342.05218528000114_rt;
         }
         else if constexpr (spec == Ti44) {
-            return 375.47488000000004_rt;
+            return 375.47496160800074_rt;
         }
         else if constexpr (spec == Cr48) {
-            return 411.46891200000005_rt;
+            return 411.4679399359957_rt;
         }
         else if constexpr (spec == Mn51) {
-            return 440.32237200000003_rt;
+            return 440.321747199996_rt;
         }
         else if constexpr (spec == Mn55) {
-            return 482.07621_rt;
+            return 482.07635959999607_rt;
         }
         else if constexpr (spec == Fe52) {
-            return 447.697848_rt;
+            return 447.6996182639923_rt;
         }
         else if constexpr (spec == Fe53) {
-            return 458.386347_rt;
+            return 458.38633636399754_rt;
         }
         else if constexpr (spec == Fe54) {
-            return 471.76462799999996_rt;
+            return 471.76475446399854_rt;
         }
         else if constexpr (spec == Fe55) {
-            return 481.06272499999994_rt;
+            return 481.06287256399816_rt;
         }
         else if constexpr (spec == Fe56) {
-            return 492.2598239999999_rt;
+            return 492.2599506639962_rt;
         }
         else if constexpr (spec == Co55) {
-            return 476.82899_rt;
+            return 476.82912552799826_rt;
         }
         else if constexpr (spec == Co56) {
-            return 486.91081599999995_rt;
+            return 486.91094362799777_rt;
         }
         else if constexpr (spec == Co57) {
-            return 498.287274_rt;
+            return 498.28746172798856_rt;
         }
         else if constexpr (spec == Ni56) {
-            return 483.995624_rt;
+            return 483.9956965919919_rt;
         }
         else if constexpr (spec == Ni57) {
-            return 494.2431810000001_rt;
+            return 494.2434146919986_rt;
         }
         else if constexpr (spec == Ni58) {
-            return 506.45942199999996_rt;
+            return 506.4596327920008_rt;
         }
         else if constexpr (spec == Cu59) {
-            return 509.878_rt;
+            return 509.8782038560021_rt;
         }
         else if constexpr (spec == Zn60) {
-            return 514.983_rt;
+            return 514.9831749199948_rt;
         }
 
 

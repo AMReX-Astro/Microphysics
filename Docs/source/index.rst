@@ -60,6 +60,7 @@ of state routines.
    networks
    templated_networks
    screening
+   neutrinos
 
 .. toctree::
    :maxdepth: 1
@@ -70,6 +71,13 @@ of state routines.
    ode_integrators
    nse
    sdc
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Util / external libraries
+   :hidden:
+
+   util
 
 .. toctree::
    :maxdepth: 1

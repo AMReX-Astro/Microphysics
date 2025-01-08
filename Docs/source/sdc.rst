@@ -147,7 +147,7 @@ The reactions don’t modify the total density, :math:`\rho`, or momentum,
       \Adv{\rho X_k}^{n+1/2} \\ \Adv{\rho e}^{n+1/2} \\
    \end{array} \right ) +
    \left (
-      \begin{array}{c} \rho \omegadot_k \\ \rho \Sdot \end{array}
+      \begin{array}{c} \rho \omegadot_k \\ \rho \epsilon \end{array}
    \right )
 
 Here the advective terms are piecewise-constant (in time)
