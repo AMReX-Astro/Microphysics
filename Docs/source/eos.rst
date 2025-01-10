@@ -2,9 +2,72 @@
 Equations of State
 ******************
 
-In this chapter on equations of state, we list the EOS routines
-available for your use, and then we describe the correct structure of
-an EOS module in case you want to build your own.
+The general interface to the equation of state is:
+
+.. code:: c++
+
+   template <typename I, typename T>
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE
+   void eos (const I input, T& state, bool use_raw_inputs = false)
+
+where ``input`` specifies which thermodynamic quantities are taken as
+the input and ``state`` is a C++ struct that holds all of the
+thermodynamic information.
+
+
+Interface and Modes
+===================
+
+.. index:: eos_t, eos_re_t, eos_rep_t, eos_rh_t, chem_eos_t
+
+The EOS is called as:
+
+.. code:: c++
+
+   eos(mode, eos_type)
+
+where *mode* determines which thermodynamic quantities are inputs,
+and is one of:
+
+* ``eos_input_rt`` : density and temperature are inputs
+
+* ``eos_input_rh`` : density and specific enthalpy are inputs
+
+* ``eos_input_tp`` : temperature and pressure are inputs
+
+* ``eos_input_rp`` : density and pressure are inputs
+
+* ``eos_input_re`` : density and specific internal energy are inputs
+
+* ``eos_input_ps`` : pressure and entropy are inputs
+
+* ``eos_input_ph`` : pressure and specific enthalpy are inputs
+
+* ``eos_input_th`` : temperature and specific enthalpy are inputs
+
+The *eos_type* passed in is one of
+
+* ``eos_t`` : provides access to all available thermodynamic information,
+  including derivatives.
+
+* ``eos_re_t`` : only provides the energy-based thermodynamic information, including
+  energy derivatives.
+
+* ``eos_rep_t`` : expands on ``eos_re_t`` to include pressure information
+
+* ``eos_rh_t`` : expands on ``eos_rep_t`` to include enthalpy information
+
+* ``chem_eos_t`` : adds some quantities needed for the primordial chemistry EOS
+  and explicitly does not include the mass fractions.
+
+.. tip::
+
+   The EOS implementations make heavy use of templating to
+   ``compile-out'' the thermodynamic quantities that are not needed
+   (depending on the input type).  This can greatly increase
+   performance.  As such, you should pick the smallest EOS structure
+   (``eos_re_t``, ``eos_rep_t``, ...) that contains the thermodynamic
+   information you need.
 
 Available Equations of State
 ============================
@@ -12,9 +75,13 @@ Available Equations of State
 .. index:: eos_t
 
 The following equations of state are available in Microphysics.
-Except where noted, each of these EOSs will provide the full
-thermodynamic data (including all derivatives) in the ``eos_t``
-type.
+
+.. note::
+
+   Except where noted, each of these EOSs will provide the full
+   thermodynamic data (including all derivatives) in the ``eos_t``
+   type.
+
 
 gamma_law
 ---------
@@ -193,71 +260,13 @@ energy conservation. This is controlled through the
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.
 
-stellarcollapse
----------------
+Composition
+===========
 
-``stellarcollapse`` is the equation of state module provided
-on http://stellarcollapse.org. It is designed
-to be used for core-collapse supernovae and is compatible with a
-large number of equations of state that are designed to describe
-matter near nuclear density. You will need to download an
-appropriate interpolation table from that site to use this.
-
-Interface and Modes
-===================
-
-.. index:: eos_t, eos_re_t, eos_rep_t, eos_rh_t, chem_eos_t
-
-The EOS is called as:
-
-.. code:: c++
-
-   eos(mode, eos_type)
-
-where *mode* determines which thermodynamic quantities are inputs,
-and is one of:
-
-* ``eos_input_rt`` : density and temperature are inputs
-
-* ``eos_input_rh`` : density and specific enthalpy are inputs
-
-* ``eos_input_tp`` : temperature and pressure are inputs
-
-* ``eos_input_rp`` : density and pressure are inputs
-
-* ``eos_input_re`` : density and specific internal energy are inputs
-
-* ``eos_input_ps`` : pressure and entropy are inputs
-
-* ``eos_input_ph`` : pressure and specific enthalpy are inputs
-
-* ``eos_input_th`` : temperature and specific enthalpy are inputs
-
-The *eos_type* passed in is one of
-
-* ``eos_t`` : provides access to all available thermodynamic information,
-  including derivatives.
-
-* ``eos_re_t`` : only provides the energy-based thermodynamic information, including
-  energy derivatives.
-
-* ``eos_rep_t`` : expands on ``eos_re_t`` to include pressure information
-
-* ``eos_rh_t`` : expands on ``eos_rep_t`` to include enthalpy information
-
-* ``chem_eos_t`` : adds some quantities needed for the primordial chemistry EOS
-  and explicitly does not include the mass fractions.
-
-In general, you should use the type that has the smallest set of
-information needed, since we optimize out needless quantities at
-compile type (via C++ templating) for ``eos_re_t`` and ``eos_rep_t``.
-
-.. note::
-
-   All of these modes require composition as an input.  Usually this is
-   via the set of mass fractions, ``eos_t.xn[]``, but if ``USE_AUX_THERMO``
-   is set to ``TRUE``, then we instead use the auxiliary quantities
-   stored in ``eos_t.aux[]``.
+All input modes for ``eos()`` require a composition.  Usually this is
+via the set of mass fractions, ``eos_t xn[]``, but if ``USE_AUX_THERMO``
+is set to ``TRUE``, then we instead use the auxiliary quantities
+stored in ``eos_t.aux[]``.
 
 .. _aux_eos_comp:
 
@@ -267,15 +276,16 @@ Auxiliary Composition
 .. index:: USE_AUX_THERMO
 
 With ``USE_AUX_THERMO=TRUE``, we interpret the composition from the auxiliary variables.
-The auxiliary variables are
+For ``eos_t eos_state``, the auxiliary variables are
 
-* ``eos_state.aux[iye]`` : electron fraction, defined as
+
+* ``eos_state.aux[AuxZero::iye]`` : electron fraction, defined as
 
   .. math::
 
      Y_e = \sum_k \frac{X_k Z_k}{A_k}
 
-* ``eos_state.aux[iabar]`` : the average mass of the nuclei, :math:`\bar{A}`, defined as:
+* ``eos_state.aux[AuxZero::iabar]`` : the average mass of the nuclei, :math:`\bar{A}`, defined as:
 
   .. math::
 
@@ -283,7 +293,7 @@ The auxiliary variables are
 
   In many stellar evolutions texts, this would be written as :math:`\mu_I`.
 
-* ``eos_state.aux[ibea]`` : the binding energy per nucleon (units of
+* ``eos_state.aux[AuxZero::ibea]`` : the binding energy per nucleon (units of
   MeV), defined as
 
   .. math::
@@ -292,11 +302,17 @@ The auxiliary variables are
 
   where :math:`B_k` is the binding energy of nucleus :math:`k`
 
-Given a composition of mass fractions, the function
-``set_aux_comp_from_X(state_t& state)`` will initialize these
-auxiliary quantities.
+Given a composition of mass fractions, the function:
 
-The equation of state also needs :math:`\bar{Z}` which is easily computed as
+.. code:: c++
+
+   template <class state_t>
+   AMREX_GPU_HOST_DEVICE AMREX_INLINE
+   void set_aux_comp_from_X(state_t& state)
+
+will initialize the auxiliary data.
+
+Many equations of state also need :math:`\bar{Z}` which is easily computed as
 
 .. math::
 
@@ -347,4 +363,4 @@ main EOS module of the code calling these routines. This would be the
 appropriate time for, say, loading an interpolation table into memory.
 
 The main evaluation routine is called ``actual_eos``. It should
-accept an eos_input and an eos_t state; see Section :ref:`data_structures`.
+accept an eos_input and an ``eos_t`` state; see Section :ref:`data_structures`.
