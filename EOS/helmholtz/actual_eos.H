@@ -686,7 +686,7 @@ void apply_coulomb_corrections (T& state)
     amrex::Real dsdd     = z * dxnidd;
     [[maybe_unused]] amrex::Real dsda     = z * dxnida;
 
-    amrex::Real lami     = 1.0e0_rt / std::pow(s, onethird);
+    amrex::Real lami     = 1.0e0_rt / std::cbrt(s);
     amrex::Real inv_lami = 1.0e0_rt / lami;
     z             = -onethird * lami;
     amrex::Real lamidd   = z * dsdd / s;
