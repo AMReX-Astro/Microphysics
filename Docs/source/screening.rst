@@ -52,7 +52,7 @@ Any of the available screening methods can be used with any reaction network.
 
 The options are:
 
-* ``screen5``:
+* ``screen5`` :
 
   This is the screening routine from the Kepler stellar evolution code
   and is the default used with the distributed versions of the "aprox"
@@ -68,13 +68,13 @@ The options are:
 
   This is the default screening method.
 
-* ``chugunov2007``:
+* ``chugunov2007`` :
 
   This implements the screening of :cite:`chugunov:2007`, following
   :cite:`yakovlev:2006` to extend to binary mixtures. It is suitable
   for :math:`\Gamma \lesssim 600`.
 
-* ``chugunov2009``:
+* ``chugunov2009`` :
 
   This implements the screening of :cite:`chugunov:2009`.  The main
   difference is that the 2007 one calculates an effective coupling
@@ -85,7 +85,7 @@ The options are:
   This includes the portion in the appendix that blends in the weak
   screening limit.
 
-* ``chabrier1998``:
+* ``chabrier1998`` :
 
   This implements the screening of :cite:`Chabrier_1998` as well as
   the quantum corrections for strong screening according to screen5,
