@@ -1,5 +1,4 @@
-Initializing AMReX (23.05-658-g0165b6743355)...
-AMReX (23.05-658-g0165b6743355) initialized
+AMReX (23.07-7-g88f03408f18a) initialized
 starting the single zone burn...
 Maximum Time (s): 0.001
 State Density (g/cm^3): 1000000
@@ -37,4 +36,4 @@ number of steps taken: 85669
 Unused ParmParse Variables:
   [TOP]::unit_test.x4(nvals = 1)  :: [0.0]
 
-AMReX (23.05-658-g0165b6743355) finalized
+AMReX (23.07-7-g88f03408f18a) finalized
