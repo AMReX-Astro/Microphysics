@@ -178,7 +178,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
-<td></td>
+<td><p>constant value of the conductivity, in erg/s/cm/K</p></td>
 <td><p>1.0e0</p></td>
 </tr>
 </tbody>
@@ -193,7 +193,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_opacity</span></code></p></td>
-<td></td>
+<td><p>opacity value, in units of cm**2/g</p></td>
 <td><p>7.0e-2</p></td>
 </tr>
 </tbody>
@@ -208,11 +208,11 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
-<td></td>
+<td><p>proportionality constant, C, in k = C T**m</p></td>
 <td><p>1.0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
-<td></td>
+<td><p>temperature exponent, m, in k = C T**m</p></td>
 <td><p>1.0</p></td>
 </tr>
 </tbody>
@@ -245,11 +245,13 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats</p></td>
 <td><p>5.e0/3.e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></p></td>
-<td></td>
+<td><p>when computing mu / Abar, do we assume that the
+composition is atoms or ionized, and therefore include
+the electron contributions separately?</p></td>
 <td><p>1</p></td>
 </tr>
 </tbody>
@@ -725,31 +727,32 @@ with namespace C used for physical constants</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma_default</span></code></p></td>
-<td></td>
+<td><p>default ratio of specific heats used for all components
+unless specified explicitly as species a, b, or c</p></td>
 <td><p>1.4</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_name</span></code></p></td>
-<td></td>
+<td><p>name of species “a”</p></td>
 <td><p>“”</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats for species “a”</p></td>
 <td><p>1.4</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_name</span></code></p></td>
-<td></td>
+<td><p>name of species “b”</p></td>
 <td><p>“”</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats for species “b”</p></td>
 <td><p>1.4</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_name</span></code></p></td>
-<td></td>
+<td><p>name of species “c”</p></td>
 <td><p>“”</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats for species “c”</p></td>
 <td><p>1.4</p></td>
 </tr>
 </tbody>
@@ -764,19 +767,24 @@ with namespace C used for physical constants</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_type</span></code></p></td>
-<td></td>
+<td><p>polytrope type: 1 is non-relativistic, fully degenerate
+electron gas; 2 is fully-relativistic, fully degenerate
+gas.  If these are set, then only pulytrope_mu_e needs
+to be set.</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code></p></td>
-<td></td>
+<td><p>density exponent for pressure, P = K rho**gamma</p></td>
 <td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code></p></td>
-<td></td>
+<td><p>proportionality constant in EOS, P = K rho**gamma</p></td>
 <td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></p></td>
-<td></td>
+<td><p>mean molecular weight per electron for the cases when
+polytrope_type is 1 or 2.  In that case, we have P = K
+(rho / mu_e)**gamma</p></td>
 <td><p>2.0e0</p></td>
 </tr>
 </tbody>
@@ -974,15 +982,18 @@ with namespace C used for physical constants</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_const_c_v</span></code></p></td>
-<td></td>
+<td><p>specific heat proportionality constant, K, c_v = K
+rho**m T**(-n)</p></td>
 <td><p>-1.e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_m</span></code></p></td>
-<td></td>
+<td><p>specific heat density exponent, m, c_v = K rho**m
+T**(-n)</p></td>
 <td><p>0.e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_n</span></code></p></td>
-<td></td>
+<td><p>specific heat (negative) temperature exponent, n, c_v =
+K rho**m T**(-n)</p></td>
 <td><p>0.e0</p></td>
 </tr>
 </tbody>
@@ -1005,11 +1016,11 @@ with namespace C used for physical constants</p></td>
 <td><p>1.3</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_e_0</span></code></p></td>
-<td></td>
+<td><p>minimum energy</p></td>
 <td><p>1.6e11</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_rho_0</span></code></p></td>
-<td></td>
+<td><p>reference density</p></td>
 <td><p>2.7</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_A</span></code></p></td>
@@ -1037,7 +1048,7 @@ with namespace C used for physical constants</p></td>
 <td><p>5.0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v</span></code></p></td>
-<td></td>
+<td><p>specific heat</p></td>
 <td><p>7.9e6</p></td>
 </tr>
 </tbody>
@@ -1077,20 +1088,19 @@ the RHS to zero.</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
-<td><p>Tolerances for the solver (relative and absolute), for
-the species and energy equations.</p></td>
+<td><p>relative tolerance for species</p></td>
 <td><p>1.e-12</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
-<td></td>
+<td><p>relative tolerance for energy</p></td>
 <td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for species</p></td>
 <td><p>1.e-8</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for energy</p></td>
 <td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
@@ -1158,21 +1168,19 @@ vice versa) on a retry?</p></td>
 <td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_spec</span></code></p></td>
-<td><p>Tolerances for the solver (relative and absolute), for
-the species and energy equations.  If set to &lt; 0, then
-the same value as the first attempt is used.</p></td>
+<td><p>relative tolerance for species on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_enuc</span></code></p></td>
-<td></td>
+<td><p>relative tolerance for energy on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_spec</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for species on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_enuc</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for energy on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_species_clip</span></code></p></td>
@@ -1717,7 +1725,7 @@ initial molar fraction check.</p></td>
 </section>
 <section id="namespace-opacity">
 <h2>namespace: <code class="docutils literal notranslate"><span class="pre">opacity</span></code><a class="headerlink" href="#namespace-opacity" title="Link to this heading"></a></h2>
-<p><strong>opacity/rad_power_law:</strong></p>
+<p><strong>OPACITY_DIR=rad_power_law:</strong></p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
