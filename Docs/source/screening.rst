@@ -60,10 +60,9 @@ The options are:
   :math:`\Gamma < 0.3`, it uses screening described in
   :cite:`graboske:1973`. In the strong screening regime,
   :math:`\Gamma > 0.8`, it uses screening described in
-  :cite:`jancovici:1977`, :cite:`alastuey:1978`, :cite:`itoh:1979`
-  for the strong limit. For the intermediate screening regime,
-  :math:`0.3 < \Gamma < 0.8`, a weighted blending between the
-  weak and strong screening are used.
+  :cite:`jancovici:1977`, :cite:`alastuey:1978`, :cite:`itoh:1979`.
+  For the intermediate screening regime, :math:`0.3 < \Gamma < 0.8`,
+  a weighted blending between the weak and strong screening are used.
   The overall procedure is described in :cite:`Wallace:1982`.
 
   This is the default screening method.
