@@ -12,11 +12,10 @@ due to the Coulomb coupling of the surrounding plasma and electrons
 and ions. The enhancement of the reaction rates is done via the form:
 
 .. math::
-   R_{\mathrm{scr}} = R \exp{h}
+   R_{\mathrm{scr}} = R \exp{(h)}
 
 where :math:`R_{\mathrm{scr}}` is the screened reaction rate and :math:`h`
 characterizes the magnitude of the screening.
-
 Plasma screening can be broken up to different regimes depending
 on the Coulomb coupling parameter, :math:`\Gamma`,
 of the reaction rate reactants. Generally, :math:`\Gamma \ll 1` and
@@ -32,7 +31,7 @@ screening routine. :math:`\Gamma_e` is the Coulomb coupling parameter
 depending only on the thermodynamic conditions.
 
 .. math::
-   \Gamma_e= e^2 \frac{\sqrt[3]{(4\pi n_e / 3)}}{(k_B T)}
+   \Gamma_e= e^2 \frac{\sqrt[3]{4 \pi n_e / 3}}{k_B T}
 
 where :math:`n_e` is the electron number density.
 
