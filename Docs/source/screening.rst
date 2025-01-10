@@ -33,7 +33,8 @@ depending only on the thermodynamic conditions.
 .. math::
    \Gamma_e= e^2 \frac{\sqrt[3]{4 \pi n_e / 3}}{k_B T}
 
-where :math:`n_e` is the electron number density.
+where :math:`e` is the electron charge and :math:`n_e` is the
+electron number density.
 
 
 Screening Options
