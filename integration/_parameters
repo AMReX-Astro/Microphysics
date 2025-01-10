@@ -21,10 +21,17 @@ burner_verbose           bool     0
 
 # Tolerances for the solver (relative and absolute), for the
 # species and energy equations.
+
+# relative tolerance for species
 rtol_spec                real      1.e-12
+
+# relative tolerance for energy
 rtol_enuc                real      1.e-6
 
+# absolute tolerance for species
 atol_spec                real      1.e-8
+
+# absolute tolerance for energy
 atol_enuc                real      1.e-6
 
 # Whether to renormalize the mass fractions at each step in the evolution
@@ -69,10 +76,17 @@ retry_swap_jacobian       bool    1
 # Tolerances for the solver (relative and absolute), for the
 # species and energy equations.  If set to < 0, then the same
 # value as the first attempt is used.
+
+# relative tolerance for species on retry
 retry_rtol_spec                real      -1
+
+# relative tolerance for energy on retry
 retry_rtol_enuc                real      -1
 
+# absolute tolerance for species on retry
 retry_atol_spec                real      -1
+
+# absolute tolerance for energy on retry
 retry_atol_enuc                real      -1
 
 # in the clean_state process, do we clip the species such that they
