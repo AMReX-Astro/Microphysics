@@ -300,7 +300,7 @@ int rkclow (BurnT& state, RkcT& rstate)
             }
         } else {
             amrex::Real temp1 = p8 * absh * std::cbrt(errold);
-            amrex::Real temp2 = std::abs(hold) * std::cbrt(err) * std::cbrt(err);
+            amrex::Real temp2 = std::abs(hold) * amrex::Math::powi<2>(std::cbrt(err));
             if (temp1 < fac * temp2) {
                 fac = temp1 / temp2;
             }
