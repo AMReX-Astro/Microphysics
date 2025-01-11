@@ -90,7 +90,7 @@ cj_cond(const eos_t eos_state_fuel, eos_t& eos_state_ash, const Real q) {
             (1.0_rt + (eos_state_ash.p - eos_state_fuel.p) /
              (eos_state_ash.gam1 * eos_state_ash.p));
 
-        Real drho = eos_state_ash.rho - rho_old;
+        drho = eos_state_ash.rho - rho_old;
 
         if (std::abs(drho) < tol * eos_state_ash.rho) {
             converged = true;
