@@ -1,7 +1,7 @@
 Parameters by Namespace
 =======================
-namespace: none
----------------
+namespace: ``cj``
+-----------------
 
 **util/cj_detonation:**
 
