@@ -23,7 +23,7 @@ def doit():
                                           extra_nuclei=extra_reactants,
                                           do_detailed_balance=DO_DERIVED_RATES)
 
-    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=False)
+    net = AmrexAstroCxxNetwork(libraries=[subch], symmetric_screening=True)
 
     net.make_ap_pg_approx(intermediate_nuclei=["cl35", "k39", "sc43", "v47", "mn51", "co55"])
     net.remove_nuclei(["cl35", "k39", "sc43", "v47", "mn51", "co55"])
