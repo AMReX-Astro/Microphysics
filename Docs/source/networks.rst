@@ -2,40 +2,26 @@
 Available Reaction Networks
 ***************************
 
+A network defines the composition, which is needed by the equation
+of state and transport coefficient routines.  Even if there are no
+reactions taking place, a network still needs to be defined, so
+Microphysics knows the properties of the fluid.
 
-``iso7``, ``aprox13``, ``aprox19``, and ``aprox21``
-===================================================
+.. tip::
 
-These are alpha-chains (with some other nuclei) from Frank Timmes.
-These networks share common rates (from ``Microphysics/rates``),
-plasma neutrino loses (from ``Microphysics/neutrinos``), and
-electron screening (from ``Microphysics/screening``).
+   If reactions can be ignored, then the ``general_null`` network can
+   be used --- this simply defines a composition with no reactions.
 
-Energy generation.
-------------------
+.. note::
 
-These networks store the total binding energy of the nucleus in MeV as
-``bion(:)``. They then compute the mass of each nucleus in grams as:
-
-.. math:: M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k
-
-where :math:`m_n`, :math:`m_p`, and :math:`m_e` are the neutron, proton, and electron
-masses, :math:`A_k` and :math:`Z_k` are the atomic weight and number, and :math:`B_k`
-is the binding energy of the nucleus (converted to grams). :math:`M_k`
-is stored as ``mion(:)`` in the network.
-
-The energy release per gram is converted from the rates as:
-
-.. math:: \epsilon = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \epsilon_\nu
-
-where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
-and :math:`\edotnu` is the neutrino loss term (see :ref:`neutrino_loss`).
-
+   Many of the networks here are generated using `pynucastro
+   <https://pynucastro.github.io/>`_ using the ``AmrexAstroCxxNetwork``
+   class.
 
 ``general_null``
 ================
 
-``general_null`` is a bare interface for a nuclear reaction network --
+``general_null`` is a bare interface for a nuclear reaction network ---
 no reactions are enabled. The
 data in the network is defined at compile type by specifying an
 inputs file. For example,
@@ -75,107 +61,80 @@ The name of the inputs file by one of two make variables:
 
     GENERAL_NET_INPUTS := /path/to/file/triple_alpha_plus_o.net
 
+.. index:: network_properties.H
+
 At compile time, the "`.net`" file is parsed and a network header
 ``network_properties.H`` is written using the python script
 ``write_network.py``.  The make rule for this is contained in
-``Make.package``.
+``Microphysics/networks/Make.package``.
+
+
+``iso7``, ``aprox13``, ``aprox19``, and ``aprox21``
+===================================================
+
+These are alpha-chains (with some other nuclei) based on the `original
+Fortran networks from Frank Timmes
+<https://cococubed.com/code_pages/burn_helium.shtml>`_.  These
+networks share common rates from ``Microphysics/rates`` and are
+implemented using the templated C++ network infrastructure.
+
+These networks approximate a lot of the links, in particular,
+combining $(\alpha, p)(p, \gamma)$ and $(\alpha, \gamma)$ into a
+single effective rate.
+
+Nuclei
+------
+
+* ``iso7`` : contains $\isotm{He}{4}$, $\isotm{C}{12}$,
+  $\isotm{O}{16}$, $\isotm{Ne}{20}$, $\isotm{Mg}{24}$, $\isotm{Si}{28}$,
+  $\isotm{Ni}{56}$ and is based on :cite:`iso7`.
+
+* ``aprox13`` : adds $\isotm{S}{32}$, $\isotm{Ar}{36}$, $\isotm{Ca}{40}$, $\isotm{Ti}{44}$, $\isotm{Cr}{48}$, $\isotm{Fe}{52}$
+
+* ``aprox19`` : adds $\isotm{H}{1}$, $\isotm{He}{3}$, $\isotm{N}{14}$, $\isotm{Fe}{54}$,
+  $\mathrm{p}$, $\mathrm{n}$.  Here, $\mathrm{p}$ participates only in the photodisintegration rates at high mass number, and is distinct from $\isotm{H}{1}$.
+
+* ``aprox21`` : adds $\isotm{Cr}{56}$, $\isotm{Fe}{56}$.  This is designed to reach
+  a lower $Y_e$ than the other networks, for use in massive star simulations.  Note
+  that the link to $\isotm{Cr}{56}$ is greatly approximated.
+
+
+These networks store the total binding energy of the nucleus in MeV as
+``bion(:)``. They then compute the mass of each nucleus in grams as:
+
+.. math:: M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k
+
+where :math:`m_n`, :math:`m_p`, and :math:`m_e` are the neutron, proton, and electron
+masses, :math:`A_k` and :math:`Z_k` are the atomic weight and number, and :math:`B_k`
+is the binding energy of the nucleus (converted to grams). :math:`M_k`
+is stored as ``mion(:)`` in the network.
+
+The energy release per gram is converted from the rates as:
+
+.. math:: \epsilon = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \epsilon_\nu
+
+where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
+and :math:`\edotnu` is the neutrino loss term (see :ref:`neutrino_loss`).
+
+
 
 
 ``CNO_extras``
 ==============
 
-This network replicates the popular [MESA "cno_extras"
-network](https://docs.mesastar.org/en/latest/net/nets.html) which is
+This network replicates the popular `MESA "cno_extras"
+network <https://docs.mesastar.org/en/latest/net/nets.html>`_ which is
 meant to study hot-CNO burning and the start of the breakout from CNO
-burning.
-
-We add ${}^{56}\mathrm{Fe}$ as an inert nucleus to allow this to be
-used for X-ray burst simulations.
+burning.  This network is managed by pynucastro.
 
 .. figure:: cno_extras_hide_alpha.png
    :align: center
 
+.. note::
 
-``CNO_He_burn``
-===============
-
-This network is meant to study explosive H and He burning.  It combines
-the ``CNO_extras`` network (with the exception of the inert ${}^{56}\mathrm{Fe}$
-with the ``subch_simple`` network.  This allows it to capture hot-CNO and
-He burning.
-
-.. figure:: CNO_He_burn.png
-   :align: center
-
-``ECSN``
-========
-
-``ECSN`` is meant to model electron-capture supernovae in O-Ne white dwarfs.
-It includes various weak rates that are important to this process.
-
-.. figure:: ECSN.png
-   :align: center
-
-
-``ignition_chamulak``
-=====================
-
-This network was introduced in our paper on convection in white dwarfs
-as a model of Type Ia supernovae :cite:`wdconvect`. It models
-carbon burning in a regime appropriate for a simmering white dwarf,
-and captures the effects of a much larger network by setting the ash
-state and energetics to the values suggested in :cite:`chamulak:2008`.
-
-
-.. _energy-generation.-1:
-
-Energy generation.
-------------------
-
-The binding energy, :math:`q`, in this
-network is interpolated based on the density. It is stored as the
-binding energy (ergs/g) *per nucleon*, with a sign convention that
-binding energies are negative. The energy generation rate is then:
-
-.. math:: \epsilon = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}
-
-(this is positive since both :math:`q` and :math:`dY/dt` are negative)
-
-``ignition_reaclib``
-====================
-
-This contains several networks designed to model C burning in WDs.  They include:
-
-* ``C-burn-simple`` : a version of ``ignition_simple`` built from
-  ReacLib rates.  This just includes the C+C rates and doesn't group
-  the endpoints together.
-
-* ``URCA-simple`` : a basic network for modeling convective Urca,
-  containing the ${}^{23}\mathrm{Na}$-${}^{23}\mathrm{Ne}$ Urca pair.
-
-* ``URCA-medium`` : a more extensive Urca network than ``URCA-simple``,
-  containing more extensive C burning rates.
-
-
-``ignition_simple``
-===================
-
-This is the original network used in our white dwarf convection
-studies :cite:`lowMach4`. It includes a single-step
-:math:`^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}` reaction.
-The carbon mass fraction equation appears as
-
-.. math::
-
-   \frac{D X(^{12}\mathrm{C})}{Dt} = - \frac{1}{12} \rho X(^{12}\mathrm{C})^2
-       f_\mathrm{Coul} \left [N_A \left <\sigma v \right > \right]
-
-where :math:`N_A \left <\sigma v\right>` is evaluated using the reaction
-rate from (Caughlan and Fowler 1988). The Coulomb screening factor,
-:math:`f_\mathrm{Coul}`, is evaluated using the general routine from the
-Kepler stellar evolution code (Weaver 1978), which implements the work
-of (Graboske 1973) for weak screening and the work of (Alastuey 1978
-and Itoh 1979) for strong screening.
+   We add ${}^{56}\mathrm{Fe}$ as an inert nucleus to allow this to be
+   used for X-ray burst simulations (not shown in the network diagram
+   above).
 
 
 nova networks
@@ -195,86 +154,16 @@ The ``nova`` and ``nova2`` networks both are intended for modeling classical nov
      :align: center
 
 
-``powerlaw``
-============
+He-burning networks
+===================
 
-This is a simple single-step reaction rate.
-We will consider only two species, fuel, :math:`f`, and ash, :math:`a`, through
-the reaction: :math:`f + f \rightarrow a + \gamma`. Baryon conservation
-requires that :math:`A_f = A_a/2`, and charge conservation requires that :math:`Z_f
-= Z_a/2`. We take
-our reaction rate to be a powerlaw in temperature. The standard way
-to write this is in terms of the number densities, in which case we
-have
+This is a collection of networks meant to model He burning.  The are inspired by the
+"aprox"-family of networks, but contain more nuclei/rates, and are managed by
+pynucastro.
 
-.. math:: \frac{d n_f}{d t} = -2\frac{d n_a}{d t} = -r
-
-with
-
-.. math:: r = r_0 n_X^2 \left( \frac{T}{T_0} \right )^\nu
-
-Here, :math:`r_0` sets the overall rate, with units of
-:math:`[\mathrm{cm^3~s^{-1}}]`, :math:`T_0` is a reference temperature scale, and
-:math:`\nu` is the temperature exponent, which will play a role in setting
-the reaction zone thickness. In terms of mass fractions, :math:`n_f = \rho
-X_a / (A_a m_u)`, our rate equation is
-
-.. math::
-
-   \begin{align}
-    \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
-    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
-   \end{align}
-
-We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
-
-.. math::
-
-   \rt =  \begin{cases}
-     \dfrac{r_0}{m_u A_f} \rho_0 & \text{if $T \ge T_a$} \\[1em]
-     0                          & \text{if $T < T_a$}
-    \end{cases}
-
-where :math:`\rho_0` is a reference density and :math:`T_a` is an activation
-temperature, and then our mass fraction equation is:
-
-.. math:: \frac{dX_f}{dt} = -\rt X_f^2 \left (\frac{\rho}{\rho_0} \right ) \left ( \frac{T}{T_0}\right )^\nu
-
-Finally, for the
-energy generation, we take our reaction to release a specific energy,
-:math:`[\mathrm{erg~g^{-1}}]`, of :math:`\qburn`, and our energy source is
-
-.. math:: \epsilon = -\qburn \frac{dX_f}{dt}
-
-There are a number of parameters we use to control the constants in
-this network. This is one of the few networks that was designed
-to work with ``gamma_law`` as the EOS.
-
-``rprox``
-=========
-
-This network contains 10 species, approximating hot CNO,
-triple-\ :math:`\alpha`, and rp-breakout burning up through :math:`^{56}\mathrm{Ni}`,
-using the ideas from :cite:`wallacewoosley:1981`, but with modern
-reaction rates from ReacLib :cite:`ReacLib` where available.
-This network was used for the X-ray burst studies in
-:cite:`xrb:II`, :cite:`xrb:III`, and more details are contained in those papers.
-
-``triple_alpha_plus_cago``
-==========================
-
-This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`\alpha`
-reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
-:math:`^{56}\mathrm{Fe}` is included as an inert species.
-
-
-subch networks
-==============
-
-The subch networks recreate an ``aprox13``
-alpha-chain + including a bypass rate for :math:`\isotm{C}{12}(\alpha,
-\gamma)\isotm{O}{16}` discussed in :cite:`ShenBildsten`.  This is appropriate
-for explosive He burning.
+One feature of these networks is that they include a bypass rate for
+:math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}` discussed in
+:cite:`ShenBildsten`.  This is appropriate for explosive He burning.
 
 :cite:`ShenBildsten` discuss the sequences:
 
@@ -376,3 +265,160 @@ to disable rates:
 Together, these parameters allow us to turn off the sequence
 :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
 acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.
+
+
+``CNO_He_burn``
+---------------
+
+This network is meant to study explosive H and He burning.  It combines
+the ``CNO_extras`` network (with the exception of the inert ${}^{56}\mathrm{Fe}$
+with the ``subch_simple`` network.  This allows it to capture hot-CNO and
+He burning.
+
+.. figure:: CNO_He_burn.png
+   :align: center
+
+``ECSN``
+========
+
+``ECSN`` is meant to model electron-capture supernovae in O-Ne white dwarfs.
+It includes various weak rates that are important to this process.
+
+.. figure:: ECSN.png
+   :align: center
+
+C-ignition networks
+===================
+
+There are a number of networks that have been developed for exploring
+carbon burning in near-Chandrasekhar mass which dwarfs.
+
+
+``ignition_chamulak``
+---------------------
+
+This network was introduced in our paper on convection in white dwarfs
+as a model of Type Ia supernovae :cite:`wdconvect`. It models
+carbon burning in a regime appropriate for a simmering white dwarf,
+and captures the effects of a much larger network by setting the ash
+state and energetics to the values suggested in :cite:`chamulak:2008`.
+
+
+The binding energy, :math:`q`, in this
+network is interpolated based on the density. It is stored as the
+binding energy (ergs/g) *per nucleon*, with a sign convention that
+binding energies are negative. The energy generation rate is then:
+
+.. math:: \epsilon = q \frac{dX(\isotm{C}{12})}{dt} = q A_{\isotm{C}{12}} \frac{dY(\isotm{C}{12})}{dt}
+
+(this is positive since both :math:`q` and :math:`dY/dt` are negative)
+
+``ignition_reaclib``
+--------------------
+
+This contains several networks designed to model C burning in WDs.  They include:
+
+* ``C-burn-simple`` : a version of ``ignition_simple`` built from
+  ReacLib rates.  This just includes the C+C rates and doesn't group
+  the endpoints together.
+
+* ``URCA-simple`` : a basic network for modeling convective Urca,
+  containing the ${}^{23}\mathrm{Na}$-${}^{23}\mathrm{Ne}$ Urca pair.
+
+* ``URCA-medium`` : a more extensive Urca network than ``URCA-simple``,
+  containing more extensive C burning rates.
+
+
+``ignition_simple``
+-------------------
+
+This is the original network used in our white dwarf convection
+studies :cite:`lowMach4`. It includes a single-step
+:math:`^{12}\mathrm{C}(^{12}\mathrm{C},\gamma)^{24}\mathrm{Mg}` reaction.
+The carbon mass fraction equation appears as
+
+.. math::
+
+   \frac{D X(^{12}\mathrm{C})}{Dt} = - \frac{1}{12} \rho X(^{12}\mathrm{C})^2
+       f_\mathrm{Coul} \left [N_A \left <\sigma v \right > \right]
+
+where :math:`N_A \left <\sigma v\right>` is evaluated using the reaction
+rate from (Caughlan and Fowler 1988). The Coulomb screening factor,
+:math:`f_\mathrm{Coul}`, is evaluated using the general routine from the
+Kepler stellar evolution code (Weaver 1978), which implements the work
+of (Graboske 1973) for weak screening and the work of (Alastuey 1978
+and Itoh 1979) for strong screening.
+
+
+
+``powerlaw``
+============
+
+This is a simple single-step reaction rate.
+We will consider only two species, fuel, :math:`f`, and ash, :math:`a`, through
+the reaction: :math:`f + f \rightarrow a + \gamma`. Baryon conservation
+requires that :math:`A_f = A_a/2`, and charge conservation requires that :math:`Z_f
+= Z_a/2`. We take
+our reaction rate to be a powerlaw in temperature. The standard way
+to write this is in terms of the number densities, in which case we
+have
+
+.. math:: \frac{d n_f}{d t} = -2\frac{d n_a}{d t} = -r
+
+with
+
+.. math:: r = r_0 n_X^2 \left( \frac{T}{T_0} \right )^\nu
+
+Here, :math:`r_0` sets the overall rate, with units of
+:math:`[\mathrm{cm^3~s^{-1}}]`, :math:`T_0` is a reference temperature scale, and
+:math:`\nu` is the temperature exponent, which will play a role in setting
+the reaction zone thickness. In terms of mass fractions, :math:`n_f = \rho
+X_a / (A_a m_u)`, our rate equation is
+
+.. math::
+
+   \begin{align}
+    \frac{dX_f}{dt} &= - \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu \equiv \omegadot_f  \\
+    \frac{dX_a}{dt} &= \frac{1}{2}\frac{r_0}{m_u} \rho X_f^2 \frac{A_a}{A_f^2} \left (\frac{T}{T_0}\right)^\nu = \frac{r_0}{m_u} \rho X_f^2 \frac{1}{A_f} \left (\frac{T}{T_0}\right)^\nu
+   \end{align}
+
+We define a new rate constant, :math:`\rt` with units of :math:`[\mathrm{s^{-1}}]` as
+
+.. math::
+
+   \rt =  \begin{cases}
+     \dfrac{r_0}{m_u A_f} \rho_0 & \text{if $T \ge T_a$} \\[1em]
+     0                          & \text{if $T < T_a$}
+    \end{cases}
+
+where :math:`\rho_0` is a reference density and :math:`T_a` is an activation
+temperature, and then our mass fraction equation is:
+
+.. math:: \frac{dX_f}{dt} = -\rt X_f^2 \left (\frac{\rho}{\rho_0} \right ) \left ( \frac{T}{T_0}\right )^\nu
+
+Finally, for the
+energy generation, we take our reaction to release a specific energy,
+:math:`[\mathrm{erg~g^{-1}}]`, of :math:`\qburn`, and our energy source is
+
+.. math:: \epsilon = -\qburn \frac{dX_f}{dt}
+
+There are a number of parameters we use to control the constants in
+this network. This is one of the few networks that was designed
+to work with ``gamma_law`` as the EOS.
+
+``rprox``
+=========
+
+This network contains 10 species, approximating hot CNO,
+triple-\ :math:`\alpha`, and rp-breakout burning up through :math:`^{56}\mathrm{Ni}`,
+using the ideas from :cite:`wallacewoosley:1981`, but with modern
+reaction rates from ReacLib :cite:`ReacLib` where available.
+This network was used for the X-ray burst studies in
+:cite:`xrb:II`, :cite:`xrb:III`, and more details are contained in those papers.
+
+``triple_alpha_plus_cago``
+==========================
+
+This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`\alpha`
+reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
+:math:`^{56}\mathrm{Fe}` is included as an inert species.
