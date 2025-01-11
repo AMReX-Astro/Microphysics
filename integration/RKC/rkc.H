@@ -126,8 +126,6 @@ int rkclow (BurnT& state, RkcT& rstate)
     const amrex::Real onep1 = 1.1_rt;
     const amrex::Real p4 = 0.4_rt;
     const amrex::Real p8 = 0.8_rt;
-    const amrex::Real one3rd = 1.0_rt/3.0_rt;
-    const amrex::Real two3rd = 2.0_rt/3.0_rt;
 
     // Initialize on the first call.
 
@@ -265,7 +263,7 @@ int rkclow (BurnT& state, RkcT& rstate)
         if (err > 1.0_rt) {
             // Step is rejected.
             rstate.nrejct++;
-            absh = p8 * absh / std::pow(err, one3rd);
+            absh = p8 * absh / std::cbrt(err);
             if (absh < hmin) {
                 return IERR_DT_UNDERFLOW;
             } else {
@@ -296,13 +294,13 @@ int rkclow (BurnT& state, RkcT& rstate)
         }
         amrex::Real fac = 10.0_rt;
         if (rstate.naccpt == 1) {
-            amrex::Real temp2 = std::pow(err, one3rd);
+            amrex::Real temp2 = std::cbrt(err);
             if (p8 < fac * temp2) {
                 fac = p8/temp2;
             }
         } else {
-            amrex::Real temp1 = p8 * absh * std::pow(errold, one3rd);
-            amrex::Real temp2 = std::abs(hold) * std::pow(err, two3rd);
+            amrex::Real temp1 = p8 * absh * std::cbrt(errold);
+            amrex::Real temp2 = std::abs(hold) * amrex::Math::powi<2>(std::cbrt(err));
             if (temp1 < fac * temp2) {
                 fac = temp1 / temp2;
             }
