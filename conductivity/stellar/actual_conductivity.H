@@ -299,7 +299,7 @@ actual_conductivity (T& state)
   // from yakovlev & urpin soviet astro 1980 24 303 and
   // potekhin et al. 1997 aa 323 415 for degenerate regimes
   if (dlog10 > drel10) {
-    amrex::Real xmas = meff * std::pow(state.xne, third);
+    amrex::Real xmas = meff * std::cbrt(state.xne);
     amrex::Real ymas = std::sqrt(1.0_rt + xmas*xmas);
     amrex::Real wfac = weid * state.T/ymas * state.xne;
     amrex::Real cint = 1.0_rt;
@@ -311,10 +311,10 @@ actual_conductivity (T& state)
     // electron-electron collision frequency and thermal conductivity
     amrex::Real tpe = xec * std::sqrt(state.xne/ymas);
     amrex::Real yg = rt3 * tpe/state.T;
-    amrex::Real xrel = 1.009_rt * std::pow(zbar/abar * state.rho * 1.0e-6_rt, third);
+    amrex::Real xrel = 1.009_rt * std::cbrt(zbar/abar * state.rho * 1.0e-6_rt);
     amrex::Real beta2 = xrel*xrel/(1.0_rt + xrel*xrel);
-    amrex::Real jy = (1.0_rt + 6.0_rt/(5.0_rt*xrel*xrel) + 2.0_rt/(5.0_rt*xrel*xrel*xrel*xrel))
-      * ( yg*yg*yg / (3.0_rt * amrex::Math::powi<3>(1.0_rt + 0.07414_rt * yg))
+    amrex::Real jy = (1.0_rt + 6.0_rt/(5.0_rt*xrel*xrel) + 2.0_rt/(5.0_rt*amrex::Math::powi<4>(xrel)))
+        * ( amrex::Math::powi<3>(yg) / (3.0_rt * amrex::Math::powi<3>(1.0_rt + 0.07414_rt * yg))
           * std::log((2.81_rt - 0.810_rt*beta2 + yg)/yg)
           + std::pow(M_PI, 5/6.0_rt) * amrex::Math::powi<4>(yg/(13.91_rt + yg)));
     amrex::Real vee = 0.511_rt * state.T*state.T * xmas/(ymas*ymas) * std::sqrt(xmas/ymas) * jy;

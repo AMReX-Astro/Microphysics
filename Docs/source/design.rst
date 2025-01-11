@@ -26,7 +26,7 @@ and the generic solvers:
   righthand side of the network, as the actual integrators are decoupled from
   the network.
 
-* ``neutrinos/``: neutino loss source terms for the network energy equation.
+* ``neutrinos/``: neutrino loss source terms for the network energy equation.
 
 * ``opacity/``: opacity routines for radiation transport
 
