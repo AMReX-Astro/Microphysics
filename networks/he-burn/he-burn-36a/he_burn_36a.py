@@ -40,7 +40,7 @@ def doit():
                    size=(1800, 900),
                    node_size=500, node_shape="s", node_color="#337dff", node_font_size=10)
 
-    fig.savefig("he-burn-36a.png")
+    fig.savefig("he-burn-36a.png", bbox_inches="tight")
 
     net.write_network()
 

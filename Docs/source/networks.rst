@@ -82,8 +82,7 @@ These networks approximate a lot of the links, in particular,
 combining $(\alpha, p)(p, \gamma)$ and $(\alpha, \gamma)$ into a
 single effective rate.
 
-Nuclei
-------
+The available networks are:
 
 * ``iso7`` : contains $\isotm{He}{4}$, $\isotm{C}{12}$,
   $\isotm{O}{16}$, $\isotm{Ne}{20}$, $\isotm{Mg}{24}$, $\isotm{Si}{28}$,
@@ -164,8 +163,7 @@ pynucastro.
 One feature of these networks is that they include a bypass rate for
 :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}` discussed in
 :cite:`ShenBildsten`.  This is appropriate for explosive He burning.
-
-:cite:`ShenBildsten` discuss the sequences:
+That paper discusses the sequences:
 
 * :math:`\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
   \gamma)\isotm{Ne}{22}` at high temperatures (T > 1 GK).  We don't
@@ -194,19 +192,40 @@ intermediate nuclei are so fast, we leave those out and take the
 forward rate to just be the first rate.  We do not include reverse
 rates for these processes.
 
+These networks also combine some of the
+:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
+allowing us to drop the intermediate nucleus :math:`X`.  Some will
+approximate $A(n,\gamma)X(n,\gamma)B$ into an effective
+$A(nn,\gamma)B$ rate (double-neutron capture).
 
-``subch_simple``
-----------------
+The networks are named with a descriptive name, the number of nuclei,
+and the letter ``a`` if they approximation $(\alpha, p)(p,\gamma)$,
+the letter ``n`` if they approximate double-neutron capture, and the
+letter ``p`` if they split the protons into two groups (one for
+photo-disintegration).
 
-``subch_simple`` uses the ideas above but approximates some
-of the rates by
-combining some of the :math:`A(\alpha,p)X(p,\gamma)B` links with
-:math:`A(\alpha,\gamma)B`, allowing us to drop the intermediate
-nucleus :math:`X`.  We do this for :math:`\isotm{Cl}{35}`,
-:math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`, :math:`\isotm{V}{47}`,
-:math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
 
-Further simplifications include:
+``he-burn-18a``
+---------------
+
+.. note::
+
+   This network was previously called ``subch_base``.
+
+This is the simplest network and is similar to ``aprox13``, but includes
+a better description of $\isotm{C}{12}$ and $\isotm{O}{16}$ burning, as
+well as the bypass rate for $\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}$.
+
+It has the following features / simplifications:
+
+* $\isotm{Cl}{35}$, $\isotm{K}{39}$, $\isotm{Sc}{43}$,
+  $\isotm{V}{47}$, $\isotm{Mn}{51}$, and $\isotm{Co}{55}$ are approximated
+  out of the $(\alpha, p)(p, \gamma)$ links.
+
+* The nuclei :math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`,
+  :math:`\isotm{Ne}{21}`, and :math:`\isotm{Na}{22}` are not included.
+  This means that we do not capture the :math:`\isotm{N}{14}(\alpha,
+  \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}` rate sequence.
 
 * The reverse rates of :math:`\isotm{C}{12}+\isotm{C}{12}`,
   :math:`\isotm{C}{12}+\isotm{O}{16}`, :math:`\isotm{O}{16}+\isotm{O}{16}` are
@@ -221,37 +240,13 @@ Further simplifications include:
 
 The network appears as:
 
-.. figure:: subch_simple.png
+.. figure:: ../../networks/he-burn/he-burn-18a/he-burn-18a.png
    :align: center
 
 The nuclei in gray are those that have been approximated about, but the links
 are effectively accounted for in the approximate rates.
 
-.. warning:: Due to inclusion of the rate sequence,
-   ${}^{14}\mathrm{N}(\alpha, \gamma){}^{18}\mathrm{F}(\alpha,
-   \mathrm{p}){}^{21}\mathrm{Ne}$, there is an artificial end-point at
-   ${}^{22}\mathrm{Na}$.
-
-``subch_base``
---------------
-
-``subch_base`` is the simplest subch network. It is created to reconcile the
-artificial end-point at :math:`\isotm{Na}{22}`. This is done by excluding
-:math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`, :math:`\isotm{Ne}{21}`,
-and :math:`\isotm{Na}{22}`. These nuclei were added to include
-:math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}`
-rate sequence, which allows an enhancement to the
-:math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
-rate due to the additional proton release. However, we find the effect is not
-extremely significant.
-
-.. figure:: subch_base.png
-   :align: center
-
-disabling rates
----------------
-
-For all subch networks, there are 2 runtime parameters that can be used
+There are 2 runtime parameters that can be used
 to disable rates:
 
 * ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
@@ -265,6 +260,58 @@ to disable rates:
 Together, these parameters allow us to turn off the sequence
 :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
 acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.
+
+``he-burn-22a``
+---------------
+
+.. note::
+
+   This network was previously called ``subch_simple``.
+
+
+This builds on ``he-burn-18a`` by including the
+:math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
+p)\isotm{Ne}{21}` rate sequence, which allows an enhancement to the
+:math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
+rate due to the additional proton release.
+
+.. figure:: ../../networks/he-burn/he-burn-22a/he-burn-22a.png
+   :align: center
+
+.. warning:: Due to inclusion of the rate sequence,
+   ${}^{14}\mathrm{N}(\alpha, \gamma){}^{18}\mathrm{F}(\alpha,
+   p){}^{21}\mathrm{Ne}$, there is an artificial end-point at
+   ${}^{22}\mathrm{Na}$.
+
+Like ``he-burn-18a``, there are 2 runtime parameters that can disable
+the rates for the $\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha,
+p)\isotm{O}{16}$ sequence.
+
+``he-burn-31anp``
+-----------------
+
+This builds on ``he-burn-22a`` by adding some iron-peak nuclei.  It no longer
+approximates out $\isotm{Mn}{51}$ or $\isotm{Co}{55}$, and includes approximations
+to double-neutron capture.  Finally, it splits the protons into two groups,
+with those participating in reactions with mass numbers > 48 treated as a separate
+group (for photo-disintegration reactions).
+
+The iron group here resembles ``aprox21``, but has the addition of stable $\isotm{Ni}{58}$
+and doesn't include the approximation to $\isotm{Cr}{56}$.
+
+.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp.png
+   :align: center
+
+
+``he-burn-36a``
+---------------
+
+This has the most complete iron-group, with nuclei up to $\isotm{Zn}{60}$ and no approximations
+to the neutron captures.  This network can be quite slow.
+
+.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a.png
+   :align: center
+
 
 
 ``CNO_He_burn``
