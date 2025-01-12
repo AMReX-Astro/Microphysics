@@ -9,9 +9,13 @@ def get_core_library(*,
                      include_zn=False,
                      include_iron_peak=False,
                      include_low_ye=False,
-                     do_detailed_balance=False):
+                     do_detailed_balance=False,
+                     extra_nuclei=None):
 
     reaclib_lib = pyna.ReacLibLibrary()
+
+    if extra_nuclei is None:
+        extra_nuclei = []
 
     nuclei = ["p",
               "he4", "c12", "n13", "o16",
@@ -20,6 +24,8 @@ def get_core_library(*,
               "fe52", "ni56",
               "al27", "p31", "cl35", "k39", "sc43", "v47",
               "mn51", "co55"]
+
+    nuclei += extra_nuclei
 
     if include_n14_sequence:
         nuclei += ["n14", "f18", "ne21", "na22"]
