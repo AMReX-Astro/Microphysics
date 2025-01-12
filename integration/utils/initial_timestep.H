@@ -2,6 +2,8 @@
 #define INITIAL_TIMESTEP_H
 
 #include <AMReX_REAL.H>
+#include <AMReX_Algorithm.H>
+
 #include <actual_network.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
 #include <rhs.H>

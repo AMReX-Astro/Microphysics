@@ -1,6 +1,8 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <AMReX_Algorithm.H>
+
 #include <network.H>
 #include <actual_network.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION

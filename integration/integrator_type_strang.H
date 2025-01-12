@@ -1,6 +1,8 @@
 #ifndef INTEGRATOR_TYPE_STRANG_H
 #define INTEGRATOR_TYPE_STRANG_H
 
+#include <AMReX_Algorithm.H>
+
 #include <eos.H>
 #include <integrator_type.H>
 

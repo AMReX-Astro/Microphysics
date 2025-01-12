@@ -2,6 +2,7 @@
 #define VODE_DVHIN_H
 
 #include <AMReX_REAL.H>
+#include <AMReX_Algorithm.H>
 
 #ifdef STRANG
 #include <integrator_rhs_strang.H>

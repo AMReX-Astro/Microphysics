@@ -8,6 +8,8 @@
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 #include <AMReX_ParallelDescriptor.H>
+#include <AMReX_Algorithm.H>
+
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <eos_type.H>

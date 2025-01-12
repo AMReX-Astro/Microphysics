@@ -1,6 +1,8 @@
 #ifndef BE_INTEGRATOR_H
 #define BE_INTEGRATOR_H
 
+#include <AMReX_Algorithm.H>
+
 #include <be_type.H>
 #include <network.H>
 #include <actual_network.H>

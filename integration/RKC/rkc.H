@@ -1,6 +1,8 @@
 #ifndef RKC_H
 #define RKC_H
 
+#include <AMReX_Algorithm.H>
+
 #include <rkc_type.H>
 #include <rkc_util.H>
 #include <burn_type.H>

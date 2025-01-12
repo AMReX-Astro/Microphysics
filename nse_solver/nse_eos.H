@@ -2,6 +2,7 @@
 #define NSE_EOS_H
 
 #include <AMReX_REAL.H>
+#include <AMReX_Algorithm.H>
 
 #include <eos.H>
 
