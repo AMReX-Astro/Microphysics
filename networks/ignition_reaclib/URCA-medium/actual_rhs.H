@@ -294,7 +294,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     // Fill approximate rates
 
-    fill_approx_rates<do_T_derivatives, T>(tfactors, rate_eval);
+    fill_approx_rates<do_T_derivatives, T>(tfactors, state.rho, Y, rate_eval);
 
     // Calculate tabular rates
 
@@ -401,12 +401,10 @@ void get_ydot_weak(const burn_t& state,
     auto screened_rates = rate_eval.screened_rates;
 
     ydot_nuc(N) =
-        -screened_rates(k_n_to_p)*Y(N) +
-        screened_rates(k_p_to_n)*Y(H1);
+        (-screened_rates(k_n_to_p)*Y(N) + screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(H1) =
-        screened_rates(k_n_to_p)*Y(N) +
-        -screened_rates(k_p_to_n)*Y(H1);
+        (screened_rates(k_n_to_p)*Y(N) + -screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(He4) = 0.0_rt;
 
@@ -448,8 +446,7 @@ void rhs_nuc(const burn_t& state,
         -screened_rates(k_n_Mg23_to_p_Na23)*Y(Mg23)*Y(N)*state.rho +
         -screened_rates(k_n_Mg23_to_He4_Ne20)*Y(Mg23)*Y(N)*state.rho +
         (-screened_rates(k_n_Mg23_to_C12_C12)*Y(Mg23)*Y(N)*state.rho + 0.5*screened_rates(k_C12_C12_to_n_Mg23)*amrex::Math::powi<2>(Y(C12))*state.rho) +
-        -screened_rates(k_n_to_p)*Y(N) +
-        screened_rates(k_p_to_n)*Y(H1);
+        (-screened_rates(k_n_to_p)*Y(N) + screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(H1) =
         -screened_rates(k_p_C12_to_N13)*Y(C12)*Y(H1)*state.rho +
@@ -458,8 +455,7 @@ void rhs_nuc(const burn_t& state,
         screened_rates(k_He4_N13_to_p_O16)*Y(He4)*Y(N13)*state.rho +
         (-screened_rates(k_p_Na23_to_He4_Ne20)*Y(Na23)*Y(H1)*state.rho + screened_rates(k_He4_Ne20_to_p_Na23)*Y(He4)*Y(Ne20)*state.rho) +
         screened_rates(k_n_Mg23_to_p_Na23)*Y(Mg23)*Y(N)*state.rho +
-        screened_rates(k_n_to_p)*Y(N) +
-        -screened_rates(k_p_to_n)*Y(H1);
+        (screened_rates(k_n_to_p)*Y(N) + -screened_rates(k_p_to_n)*Y(H1));
 
     ydot_nuc(He4) =
         -screened_rates(k_He4_C12_to_O16)*Y(C12)*Y(He4)*state.rho +
