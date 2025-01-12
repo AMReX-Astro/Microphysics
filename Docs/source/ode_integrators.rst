@@ -146,46 +146,80 @@ Tolerances
 Tolerances dictate how accurate the ODE solver must be while solving
 equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
-is too small, the code may run for too long or the ODE solver will
-never converge.  In these simulations, ``rtol`` values will set the
-relative tolerances and ``atol`` values will set the absolute tolerances
-for the ODE solver.  Often, one can find and set these values in an
-input file for a simulation.
+is too small, the code may run for too long, the ODE solver will
+never converge, or it might require at timestep that underflows.
 
-:numref:`fig:tolerances` shows the results of a simple simulation using the
-burn_cell unit test to determine
-what tolerances are ideal for simulations.
-For this investigation, it was assumed that a run with a tolerance of :math:`10^{-12}`
-corresponded to an exact result,
-so it is used as the basis for the rest of the tests.
-From the figure, one can infer that the :math:`10^{-3}` and :math:`10^{-6}` tolerances
-do not yield the most accurate results
-because their relative error values are fairly large.
-However, the test with a tolerance of :math:`10^{-9}` is accurate
-and not so low that it takes incredible amounts of computer time,
-so :math:`10^{-9}` should be used as the default tolerance in future simulations.
+.. index:: integrator.rtol_spec, integrator.rtol_enuc, integrator.atol_spec, integrator.atol_enuc
+
+There are separate tolerances for the mass fractions and the energy,
+and there are both relative and absolute tolerances which act together.
+The tolerances are:
+
+* ``integrator.rtol_spec`` : the relative tolerance for the species
+  (mass fractions when running with Strang and partial densities when
+  running with SDC).
+
+* ``integrator.rtol_enuc`` : the relative tolerance on the energy
+  (specific internal energy when running with Strang, internal energy
+  density when running with SDC).
+
+* ``integrator.atol_spec`` : the absolute tolerance for the species
+  (this is always interpreted in terms of mass fraction and the appropriate
+  density weighting will be added for SDC).
+
+* ``integrator.atol_enuc`` : the absolute tolerance for energy -- this
+  is generally not interesting, since the energy is so large and therefore
+  best served via a relative tolerance.
+
+The tolerances are combined, e.g. for species, as:
+
+.. math::
+
+   \epsilon_{\mathrm{total}, k} = \epsilon_\mathrm{abs} + \epsilon_\mathrm{rel} |X_k|
+
+so if the mass fraction, $X_k$, is very small, then the absolute tolerance
+will set the error that the integrator tries to achieve.  If the mass fraction
+is large, $\mathcal{O}(1)$, then the relative tolerance dominates.
+
+Some suggestions when setting tolerances:
+
+.. index:: integrator.X_reject_buffer
+
+* If a burn does not converge with one type of Jacobian (analytic or
+  numerical) then it may do better with the other type.  This can be
+  automated via the ``integrator.use_burn_retry`` mechanism described
+  above.
+
+* Sometimes a burn completes better if the absolute tolerances are
+  made even smaller -- this will require the integrator to track trace
+  species better which can help with equilibrium better.
+
+* The VODE integrator has additional logic meant to ensure that
+  species don't change too much per timestep.  This is controlled by
+  ``integrator.X_reject_buffer``.  If a species $k$, has a mass
+  fraction $X_k > \mbox{X_reject_buffer} \cdot \mbox{atol_spec}$ then
+  we reject a VODE timestep if the mass fraction changes by more than
+  a factor of 4 in a single VODE timestep and we try again.  This is
+  all done internally to VODE.  Making ``X_reject_buffer`` larger will
+  allow it to ignore more trace species.
+
+Below is a comparison of how the tolerances affect the nucleosynthesis.
+This is run using ``burn_cell`` and the ``aprox13`` network.  Four separate
+runs were done, using tolerances of $10^{-3}$, $10^{-5}$, $10^{-8}$, and $10^{-12}$
+(all 4 tolerance parameters were set to the same value).  The run with the tightest
+tolerances ($10^{-12}$) was taken as the reference and relative errors were
+computed with respect to it.  The scripts for this are in ``Microphysics/unit_test/burn_cell/compare_tolerances/``.
 
 .. _fig:tolerances:
-.. figure:: tolerances.png
-   :alt: Relative error plot
+.. figure:: tolerance-compare.png
+   :alt: Relative error in mass fractions
    :width: 100%
 
    Relative error of runs with varying tolerances as compared
    to a run with an ODE tolerance of :math:`10^{-12}`.
 
-The integration tolerances for the burn are controlled by
-``rtol_spec`` and  ``rtol_enuc``,
-which are the relative error tolerances for
-:eq:`eq:spec_integrate` and :eq:`eq:enuc_integrate`,
-respectively. There are corresponding
-``atol`` parameters for the absolute error tolerances. Note that
-not all integrators handle error tolerances the same way—see the
-sections below for integrator-specific information.
-
-The absolute error tolerances are set by default
-to :math:`10^{-12}` for the species, and a relative tolerance of :math:`10^{-6}`
-is used for the temperature and energy.
-
+We see that using a tolerance of $10^{-5}$ generally gives reasonable mass
+fractions.  Looser than this can produce large errors.
 
 Controlling Species $\sum_k X_k = 1$
 ====================================
@@ -220,6 +254,7 @@ constraint on the intermediate states during the integration.
   all in $[\mathtt{SMALL\_X\_SAFE}, 1.0]$.
 
   This is enabled by default.
+
 
 
 Retry Mechanism

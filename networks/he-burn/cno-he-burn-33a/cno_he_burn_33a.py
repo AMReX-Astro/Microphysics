@@ -49,6 +49,5 @@ def doit():
 
     fig.savefig("cno-he-burn-33a.png", bbox_inches="tight")
 
-
 if __name__ == "__main__":
     doit()
