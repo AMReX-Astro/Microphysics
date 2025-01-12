@@ -319,10 +319,10 @@ to the neutron captures.  This network can be quite slow.
 
 This network is meant to study explosive H and He burning.  It combines
 the ``CNO_extras`` network (with the exception of the inert ${}^{56}\mathrm{Fe}$
-with the ``subch_simple`` network.  This allows it to capture hot-CNO and
+with the ``he-burn-22a`` network.  This allows it to capture hot-CNO and
 He burning.
 
-.. figure:: CNO_He_burn.png
+.. figure:: ../../networks/he-burn/cno-he-burn-33a/cno-he-burn-33a.png
    :align: center
 
 ``ECSN``
