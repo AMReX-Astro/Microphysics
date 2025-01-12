@@ -1,6 +1,8 @@
 #ifndef RKC_H
 #define RKC_H
 
+#include <AMReX_Algorithm.H>
+
 #include <rkc_type.H>
 #include <rkc_util.H>
 #include <burn_type.H>
@@ -306,7 +308,7 @@ int rkclow (BurnT& state, RkcT& rstate)
             }
         }
         absh = std::max(0.1_rt, fac) * absh;
-        absh = std::clamp(absh, hmin, rstate.hmax);
+        absh = amrex::Clamp(absh, hmin, rstate.hmax);
         errold = err;
         hold = h;
         h = tdir * absh;

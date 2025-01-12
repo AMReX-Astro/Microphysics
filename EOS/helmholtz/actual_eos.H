@@ -8,6 +8,8 @@
 #include <AMReX.H>
 #include <AMReX_REAL.H>
 #include <AMReX_ParallelDescriptor.H>
+#include <AMReX_Algorithm.H>
+
 #include <extern_parameters.H>
 #include <fundamental_constants.H>
 #include <eos_type.H>
@@ -154,9 +156,9 @@ void apply_electrons (T& state)
 
     // hash locate this temperature and density
     int jat = int((std::log10(state.T) - tlo) * tstpi) + 1;
-    jat = std::clamp(jat, 1, jmax-1) - 1;
+    jat = amrex::Clamp(jat, 1, jmax-1) - 1;
     int iat = int((std::log10(din) - dlo) * dstpi) + 1;
-    iat = std::clamp(iat, 1, imax-1) - 1;
+    iat = amrex::Clamp(iat, 1, imax-1) - 1;
 
     amrex::Real fi[36];
 
@@ -1003,7 +1005,7 @@ void single_iter_update (T& state, int var, int dvar,
     amrex::Real xnew = x - (v - v_want) / dvdx;
 
     // Don't let the temperature/density change by more than a factor of two
-    xnew = std::clamp(xnew, 0.5_rt * x, 2.0_rt * x);
+    xnew = amrex::Clamp(xnew, 0.5_rt * x, 2.0_rt * x);
 
     // Don't let us freeze/evacuate
     xnew = amrex::max(smallx, xnew);
@@ -1118,8 +1120,8 @@ void double_iter_update (T& state, int var1, int var2,
 
     // Don't let the temperature or density change by more
     // than a factor of two
-    tnew = std::clamp(tnew, 0.5e0_rt * told, 2.0e0_rt * told);
-    rnew = std::clamp(rnew, 0.5e0_rt * rold, 2.0e0_rt * rold);
+    tnew = amrex::Clamp(tnew, 0.5e0_rt * told, 2.0e0_rt * told);
+    rnew = amrex::Clamp(rnew, 0.5e0_rt * rold, 2.0e0_rt * rold);
 
     // Don't let us freeze or evacuate
     tnew = amrex::max(EOSData::mintemp, tnew);

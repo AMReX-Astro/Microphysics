@@ -2,6 +2,7 @@
 #define NSE_EOS_H
 
 #include <AMReX_REAL.H>
+#include <AMReX_Algorithm.H>
 
 #include <eos.H>
 
@@ -152,7 +153,7 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
 
         // update the temperature and abar
 
-        T = std::clamp(T + dT, 0.25 * T, 4.0 * T);
+        T = amrex::Clamp(T + dT, 0.25 * T, 4.0 * T);
         abar = eos_state.abar;
 
         // update mu_p and mu_n
