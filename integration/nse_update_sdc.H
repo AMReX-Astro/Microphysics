@@ -273,7 +273,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real sum_X{0.0_rt};
     for (auto & xn : nse_state.X) {
-        xn = amrex::clamp(xn, small_x, 1.0_rt);
+        xn = amrex::Clamp(xn, small_x, 1.0_rt);
         sum_X += xn;
     }
 
@@ -583,7 +583,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real sum_X{0.0_rt};
     for (auto & xn : nse_state.xn) {
-        xn = amrex::clamp(xn, small_x, 1.0_rt);
+        xn = amrex::Clamp(xn, small_x, 1.0_rt);
         sum_X += xn;
     }
 

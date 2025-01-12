@@ -86,7 +86,7 @@ void clean_state (const amrex::Real time, IntT& int_state, BurnT& state)
 
     // Ensure that the temperature always stays within reasonable limits.
 
-    state.T = amrex::clamp(state.T, EOSData::mintemp, integrator_rp::MAX_TEMP);
+    state.T = amrex::Clamp(state.T, EOSData::mintemp, integrator_rp::MAX_TEMP);
 
 }
 
