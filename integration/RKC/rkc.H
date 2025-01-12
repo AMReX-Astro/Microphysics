@@ -306,7 +306,7 @@ int rkclow (BurnT& state, RkcT& rstate)
             }
         }
         absh = std::max(0.1_rt, fac) * absh;
-        absh = std::clamp(absh, hmin, rstate.hmax);
+        absh = amrex::clamp(absh, hmin, rstate.hmax);
         errold = err;
         hold = h;
         h = tdir * absh;

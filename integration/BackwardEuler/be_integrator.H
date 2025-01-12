@@ -272,7 +272,7 @@ int be_integrator (BurnT& state, BeT& be)
             // backward-Euler has a local truncation error of dt**2
 
             amrex::Real dt_new = dt_sub * std::sqrt(1.0_rt / rel_error);
-            dt_sub = std::clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
+            dt_sub = amrex::clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
 
         } else {
 

@@ -124,7 +124,7 @@ void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
 
         // Iteration done. Apply bounds and bias factor. Then exit.
         H0 = hnew * 0.5_rt;
-        H0 = std::clamp(H0, HLB, HUB);
+        H0 = amrex::clamp(H0, HLB, HUB);
 
     }
 

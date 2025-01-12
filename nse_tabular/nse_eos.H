@@ -84,7 +84,7 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in, const amrex::Re
                                   + Ye * eos_state.dedZ * dabar_dT);
 
         // update the temperature
-        T = std::clamp(T + dT, 0.25 * T, 4.0 * T);
+        T = amrex::clamp(T + dT, 0.25 * T, 4.0 * T);
 
         // check convergence
 
@@ -175,7 +175,7 @@ nse_rho_abar_from_e(const amrex::Real T, const amrex::Real e_in, const amrex::Re
                                     + Ye * eos_state.dedZ * dabar_drho);
 
         // update the density
-        rho = std::clamp(rho + drho, 0.25 * rho, 4.0 * rho);
+        rho = amrex::clamp(rho + drho, 0.25 * rho, 4.0 * rho);
 
         // check convergence
 
@@ -266,7 +266,7 @@ nse_T_abar_from_p(const amrex::Real rho, const amrex::Real p_in, const amrex::Re
                                   + Ye * eos_state.dpdZ * dabar_dT);
 
         // update the temperature
-        T = std::clamp(T + dT, 0.25 * T, 4.0 * T);
+        T = amrex::clamp(T + dT, 0.25 * T, 4.0 * T);
 
         // check convergence
 
@@ -357,7 +357,7 @@ nse_rho_abar_from_p(const amrex::Real T, const amrex::Real p_in, const amrex::Re
                                     + Ye * eos_state.dpdZ * dabar_drho);
 
         // update the density
-        rho = std::clamp(rho + drho, 0.25 * rho, 4.0 * rho);
+        rho = amrex::clamp(rho + drho, 0.25 * rho, 4.0 * rho);
 
         // check convergence
 
