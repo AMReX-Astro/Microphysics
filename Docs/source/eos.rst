@@ -243,19 +243,39 @@ equation of state based on the Helmholtz free energy, with
 contributions from ions, radiation, and electron degeneracy, as
 described in :cite:`timmes:1999`, :cite:`timmes:2000`, :cite:`flash`.
 
-We have modified this EOS a bit to fit within the context of our
-codes. The vectorization is explicitly thread-safe for use with OpenMP
-and OpenACC. In addition, we have added the ability to perform a
-Newton-Raphson iteration so that if we call the EOS with density and
-energy (say), then we will iterate over temperature until we find the
-temperature that matches this density–energy combination. If we
-cannot find an appropriate temperature, we will reset it to
-``small_temp``, which needs to be set in the equation of state wrapper
-module in the code calling this. However, there is a choice of whether
-to update the energy to match this temperature, respecting
-thermodynamic consistency, or to leave the energy alone, respecting
-energy conservation. This is controlled through the
-``eos.eos_input_is_constant`` parameter in your inputs file.
+.. note::
+
+   Our implementation of the ``helmholtz`` EOS has been modified
+   extensively from the original Fortran source.  It has been
+   made threadsafe and makes heavy use of C++ templating to optimize
+   the evaluation of thermodynamic quantities.
+
+The ``helmholtz`` EOS has the ability to perform a Newton-Raphson
+iteration so that if we call the EOS with, e.g., density and energy,
+and iterate over temperature until we find the temperature
+that matches this density–energy combination. If we cannot find an
+appropriate temperature, we will reset it to ``small_temp``, which
+needs to be set in the equation of state wrapper module in the code
+calling this.
+
+.. index:: eos.use_eos_coulomb, eos.eos_input_is_constant, eos.eos_ttol, eos.eos_dtol, eos.prad_limiter_rho_c, eos.prad_limiter_delta_rho
+
+The following runtime parameters affect the EOS:
+
+* ``eos.use_eos_coulomb``
+
+* ``eos.eos_input_is_constant`` : when inverting the EOS for find the
+  density and/or temperature that match the inputs, there is a choice
+  of whether to update the inputs to match the final density /
+  temperature, respecting thermodynamic consistency.  If
+  ``eos_input_is_constant=1`` is set (the default), then we leave the
+  input thermodynamic quantities unchanged, respecting energy
+  conservation.
+
+* ``eos.eos_ttol``, ``eos.eos_dtol``
+
+* ``eos.prad_limiter_rho_c``, ``eos.prad_limiter_delta_rho``
+
 
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.
