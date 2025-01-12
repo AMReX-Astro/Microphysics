@@ -71,28 +71,6 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     fill_reaclib_rates<do_T_derivatives, T>(tfactors, rate_eval);
 
-    if (disable_p_C12_to_N13) {
-        rate_eval.screened_rates(k_p_C12_to_N13) = 0.0;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_p_C12_to_N13) = 0.0;
-        }
-        rate_eval.screened_rates(k_N13_to_p_C12) = 0.0;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_N13_to_p_C12) = 0.0;
-        }
-    }
-
-    if (disable_He4_N13_to_p_O16) {
-        rate_eval.screened_rates(k_He4_N13_to_p_O16) = 0.0;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_He4_N13_to_p_O16) = 0.0;
-        }
-        rate_eval.screened_rates(k_p_O16_to_He4_N13) = 0.0;
-        if constexpr (std::is_same_v<T, rate_derivs_t>) {
-            rate_eval.dscreened_rates_dT(k_p_O16_to_He4_N13) = 0.0;
-        }
-    }
-
 
 
     // Evaluate screening factors
@@ -1584,7 +1562,7 @@ void evaluate_rates(const burn_t& state, T& rate_eval) {
 
     // Fill approximate rates
 
-    fill_approx_rates<do_T_derivatives, T>(tfactors, rate_eval);
+    fill_approx_rates<do_T_derivatives, T>(tfactors, state.rho, Y, rate_eval);
 
     // Calculate tabular rates
 
