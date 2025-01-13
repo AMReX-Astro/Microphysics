@@ -49,6 +49,7 @@ of state routines.
    :hidden:
 
    eos
+   eos_implementations
    transport
 
 .. toctree::
