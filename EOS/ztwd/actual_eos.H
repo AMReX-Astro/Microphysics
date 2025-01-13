@@ -176,7 +176,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the pressure and energy:
 
-        x = std::pow(dens / B, 1.0_rt / 3.0_rt);
+        x = std::cbrt(dens / B);
         pres = pressure(x);
         eint = enth - pres / dens;
 
@@ -188,7 +188,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the pressure, energy and enthalpy:
 
-        x = std::pow(dens / B, 1.0_rt / 3.0_rt);
+        x = std::cbrt(dens / B);
         pres = pressure(x);
         enth = enthalpy(x, B);
         eint = enth - pres / dens;
@@ -203,7 +203,7 @@ void actual_eos (I input, T& state)
 
         pres_iter(pres, dens, B);
 
-        x = std::pow(dens / B, 1.0_rt / 3.0_rt);
+        x = std::cbrt(dens / B);
         enth = enthalpy(x, B);
         eint = enth - pres / dens;
 
@@ -215,7 +215,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the enthalpy and energy:
 
-        x = std::pow(dens / B, 1.0_rt / 3.0_rt);
+        x = std::cbrt(dens / B);
         enth = enthalpy(x, B);
         eint = enth - pres / dens;
 
@@ -227,7 +227,7 @@ void actual_eos (I input, T& state)
 
         // Solve for the pressure and enthalpy:
 
-        x = std::pow(dens / B, 1.0_rt / 3.0_rt);
+        x = std::cbrt(dens / B);
         pres = pressure(x);
         enth = enthalpy(x, B);
 
@@ -241,7 +241,7 @@ void actual_eos (I input, T& state)
 
         pres_iter(pres, dens, B);
 
-        x = std::pow(dens / B, 1.0_rt / 3.0_rt);
+        x = std::cbrt(dens / B);
         enth = enthalpy(x, B);
         eint = enth - pres / dens;
 
@@ -318,7 +318,7 @@ void actual_eos (I input, T& state)
 
     // Density derivatives are computed using the chain rule, e.g. dpdr = dpdx * dxdr.
 
-    x = std::pow(dens / B, 1.0_rt / 3.0_rt);
+    x = std::cbrt(dens / B);
     dxdr = (1.0_rt / 3.0_rt) * x / dens;
 
     Real dpdr = dxdr * dpdx(x);

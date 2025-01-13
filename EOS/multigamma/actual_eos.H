@@ -14,8 +14,6 @@
 #include <cmath>
 #include <actual_eos_data.H>
 
-using namespace eos_rp;
-
 const std::string eos_name = "multigamma";
 
 inline
@@ -26,24 +24,24 @@ void actual_eos_init ()
     // that can override the default gammas for a few named species.
 
     for (int n = 0; n < NumSpec; ++n) {
-        gammas[n] = eos_gamma_default;
+        gammas[n] = eos_rp::eos_gamma_default;
     }
 
     int idx;
 
-    idx = network_spec_index(species_a_name);
+    idx = network_spec_index(eos_rp::species_a_name);
     if (idx >= 0) {
-        gammas[idx] = species_a_gamma;
+        gammas[idx] = eos_rp::species_a_gamma;
     }
 
-    idx = network_spec_index(species_b_name);
+    idx = network_spec_index(eos_rp::species_b_name);
     if (idx >= 0) {
-        gammas[idx] = species_b_gamma;
+        gammas[idx] = eos_rp::species_b_gamma;
     }
 
-    idx = network_spec_index(species_c_name);
+    idx = network_spec_index(eos_rp::species_c_name);
     if (idx >= 0) {
-        gammas[idx] = species_c_gamma;
+        gammas[idx] = eos_rp::species_c_gamma;
     }
 
 }

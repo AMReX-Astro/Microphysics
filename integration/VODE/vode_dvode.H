@@ -26,12 +26,16 @@ int dvode (BurnT& state, DvodeT& vstate)
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // Local variables
-    Real H0{}, S{};
+    amrex::Real H0{}, S{};
     int IER{}, NITER{};
 
     // Flag determining if we were successful.
 
     int istate = IERR_SUCCESS;
+
+    // set the (inverse of the)_ timestep limiter
+
+    vstate.HMXI = 1.0_rt / integrator_rp::ode_max_dt;
 
     // Return if the final time matches the starting time.
 
@@ -51,7 +55,7 @@ int dvode (BurnT& state, DvodeT& vstate)
 
     // Initial call to the RHS.
 
-    Array1D<Real, 1, int_neqs> f_init;
+    amrex::Array1D<amrex::Real, 1, int_neqs> f_init;
 
     rhs(vstate.t, state, vstate, f_init);
 
@@ -129,7 +133,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            // start of problem), check for too much accuracy being requested, and
            // check for H below the roundoff level in T.
 
-           if (vstate.n_step >= ode_max_steps) {
+           if (vstate.n_step >= integrator_rp::ode_max_steps) {
                // The maximum number of steps was taken before reaching TOUT.
 #ifndef AMREX_USE_GPU
                std::cout << amrex::Font::Bold << amrex::FGColor::Red << "DVODE: maximum number of steps taken before reaching TOUT" << amrex::ResetDisplay << std::endl;
@@ -156,7 +160,7 @@ int dvode (BurnT& state, DvodeT& vstate)
            skip_loop_start = false;
        }
 
-       Real TOLSF = 0.0_rt;
+       amrex::Real TOLSF = 0.0_rt;
        for (int i = 1; i <= int_neqs; ++i) {
            TOLSF += (vstate.yh(i,1) * vstate.ewt(i)) * (vstate.yh(i,1) * vstate.ewt(i));
        }

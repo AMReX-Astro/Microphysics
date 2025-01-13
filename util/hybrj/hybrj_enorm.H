@@ -24,24 +24,24 @@
 
 template<int neqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
+amrex::Real enorm(const int n, const amrex::Array1D<amrex::Real, 1, neqs>& x) {
 
     // note: n <= neqs
 
-    const Real rdwarf = 3.834e-20_rt;
-    const Real rgiant = 1.304e19_rt;
+    constexpr amrex::Real rdwarf = 3.834e-20_rt;
+    constexpr amrex::Real rgiant = 1.304e19_rt;
 
-    Real s1 = 0.0_rt;
-    Real s2 = 0.0_rt;
-    Real s3 = 0.0_rt;
+    amrex::Real s1 = 0.0_rt;
+    amrex::Real s2 = 0.0_rt;
+    amrex::Real s3 = 0.0_rt;
 
-    Real x1max = 0.0_rt;
-    Real x3max = 0.0_rt;
+    amrex::Real x1max = 0.0_rt;
+    amrex::Real x3max = 0.0_rt;
 
-    Real agiant = rgiant / static_cast<Real>(n);
+    amrex::Real agiant = rgiant / static_cast<amrex::Real>(n);
 
     for (int i = 1; i <= n; ++i) {
-        Real xabs = std::abs(x(i));
+        amrex::Real xabs = std::abs(x(i));
 
         if ( amrex::isnan(xabs) || amrex::isinf(xabs) ) {
           return 0.0_rt;
@@ -80,7 +80,7 @@ Real enorm(const int n, amrex::Array1D<Real, 1, neqs>& x) {
 
     // calculation of norm.
 
-    Real _enorm = 0.0_rt;
+    amrex::Real _enorm = 0.0_rt;
     if (s1 != 0.0_rt) {
         _enorm = x1max * std::sqrt(s1 + (s2/x1max) / x1max);
     } else {

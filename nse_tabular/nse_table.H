@@ -215,20 +215,20 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic(const int ir0, const int it0, const int ic0,
               const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    amrex::Real yes[] = {nse_table_ye(ic0),
-                  nse_table_ye(ic0+1),
-                  nse_table_ye(ic0+2),
-                  nse_table_ye(ic0+3)};
+    const amrex::Real yes[] = {nse_table_ye(ic0),
+                               nse_table_ye(ic0+1),
+                               nse_table_ye(ic0+2),
+                               nse_table_ye(ic0+3)};
 
-    amrex::Real Ts[] = {nse_table_logT(it0),
-                 nse_table_logT(it0+1),
-                 nse_table_logT(it0+2),
-                 nse_table_logT(it0+3)};
+    const amrex::Real Ts[] = {nse_table_logT(it0),
+                              nse_table_logT(it0+1),
+                              nse_table_logT(it0+2),
+                              nse_table_logT(it0+3)};
 
-    amrex::Real rhos[] = {nse_table_logrho(ir0),
-                   nse_table_logrho(ir0+1),
-                   nse_table_logrho(ir0+2),
-                   nse_table_logrho(ir0+3)};
+    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+                                nse_table_logrho(ir0+1),
+                                nse_table_logrho(ir0+2),
+                                nse_table_logrho(ir0+3)};
 
     // first do the 16 ye interpolations
 
@@ -238,10 +238,10 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
-            amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -255,7 +255,7 @@ amrex::Real tricubic(const int ir0, const int it0, const int ic0,
 
     for (int ii = 0; ii < 4; ++ii) {
 
-        amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
+        const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
         d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
     }
 
@@ -276,20 +276,20 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
                  const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    amrex::Real yes[] = {nse_table_ye(ic0),
-                  nse_table_ye(ic0+1),
-                  nse_table_ye(ic0+2),
-                  nse_table_ye(ic0+3)};
+    const amrex::Real yes[] = {nse_table_ye(ic0),
+                               nse_table_ye(ic0+1),
+                               nse_table_ye(ic0+2),
+                               nse_table_ye(ic0+3)};
 
-    amrex::Real Ts[] = {nse_table_logT(it0),
-                 nse_table_logT(it0+1),
-                 nse_table_logT(it0+2),
-                 nse_table_logT(it0+3)};
+    const amrex::Real Ts[] = {nse_table_logT(it0),
+                              nse_table_logT(it0+1),
+                              nse_table_logT(it0+2),
+                              nse_table_logT(it0+3)};
 
-    amrex::Real rhos[] = {nse_table_logrho(ir0),
-                   nse_table_logrho(ir0+1),
-                   nse_table_logrho(ir0+2),
-                   nse_table_logrho(ir0+3)};
+    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+                                nse_table_logrho(ir0+1),
+                                nse_table_logrho(ir0+2),
+                                nse_table_logrho(ir0+3)};
 
     // first do the 16 ye interpolations
 
@@ -299,10 +299,10 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
-            amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -316,7 +316,7 @@ amrex::Real tricubic_dT(const int ir0, const int it0, const int ic0,
 
     for (int jj = 0; jj < 4; ++jj) {
 
-        amrex::Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
+        const amrex::Real _d[] = {d1[0][jj], d1[1][jj], d1[2][jj], d1[3][jj]};
         d2[jj] = cubic(rhos, _d, nse_table_size::dlogrho, rho);
     }
 
@@ -339,20 +339,20 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
                    const amrex::Real rho, const amrex::Real temp, const amrex::Real ye, const T& data) {
 
-    amrex::Real yes[] = {nse_table_ye(ic0),
-                  nse_table_ye(ic0+1),
-                  nse_table_ye(ic0+2),
-                  nse_table_ye(ic0+3)};
+    const amrex::Real yes[] = {nse_table_ye(ic0),
+                               nse_table_ye(ic0+1),
+                               nse_table_ye(ic0+2),
+                               nse_table_ye(ic0+3)};
 
-    amrex::Real Ts[] = {nse_table_logT(it0),
-                 nse_table_logT(it0+1),
-                 nse_table_logT(it0+2),
-                 nse_table_logT(it0+3)};
+    const amrex::Real Ts[] = {nse_table_logT(it0),
+                              nse_table_logT(it0+1),
+                              nse_table_logT(it0+2),
+                              nse_table_logT(it0+3)};
 
-    amrex::Real rhos[] = {nse_table_logrho(ir0),
-                   nse_table_logrho(ir0+1),
-                   nse_table_logrho(ir0+2),
-                   nse_table_logrho(ir0+3)};
+    const amrex::Real rhos[] = {nse_table_logrho(ir0),
+                                nse_table_logrho(ir0+1),
+                                nse_table_logrho(ir0+2),
+                                nse_table_logrho(ir0+3)};
 
     // first do the 16 ye interpolations
 
@@ -362,10 +362,10 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
     for (int ii = 0; ii < 4; ++ii) {
         for (int jj = 0; jj < 4; ++jj) {
 
-            amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+1)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+2)),
-                         data(nse_idx(ir0+ii, it0+jj, ic0+3))};
+            const amrex::Real _d[] = {data(nse_idx(ir0+ii, it0+jj, ic0)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+1)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+2)),
+                                      data(nse_idx(ir0+ii, it0+jj, ic0+3))};
 
             // note that the ye values are monotonically decreasing,
             // so the "dx" needs to be negative
@@ -379,7 +379,7 @@ amrex::Real tricubic_drho(const int ir0, const int it0, const int ic0,
 
     for (int ii = 0; ii < 4; ++ii) {
 
-        amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
+        const amrex::Real _d[] = {d1[ii][0], d1[ii][1], d1[ii][2], d1[ii][3]};
         d2[ii] = cubic(Ts, _d, nse_table_size::dlogT, temp);
     }
 
@@ -405,7 +405,7 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
         amrex::Real rmin = nse_table_size::logrho_min;
         amrex::Real rmax = nse_table_size::logrho_max;
 
-        rholog = std::clamp(rholog, rmin, rmax);
+        rholog = amrex::Clamp(rholog, rmin, rmax);
     }
 
     amrex::Real tlog = std::log10(nse_state.T);
@@ -413,7 +413,7 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
         amrex::Real tmin = nse_table_size::logT_min;
         amrex::Real tmax = nse_table_size::logT_max;
 
-        tlog = std::clamp(tlog, tmin, tmax);
+        tlog = amrex::Clamp(tlog, tmin, tmax);
     }
 
     amrex::Real yet = nse_state.Ye;
@@ -421,7 +421,7 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
         amrex::Real yemin = nse_table_size::ye_min;
         amrex::Real yemax = nse_table_size::ye_max;
 
-        yet = std::clamp(yet, yemin, yemax);
+        yet = amrex::Clamp(yet, yemin, yemax);
     }
 
     if (nse_table_interp_linear) {
@@ -443,7 +443,7 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
             for (int n = 1; n <= NumSpec; n++) {
                 amrex::Real _X = trilinear(ir1, it1, ic1, rholog, tlog, yet,
                                     [=] (const int i) {return massfractab(n, i);});
-                nse_state.X[n-1] = std::clamp(_X, 0.0_rt, 1.0_rt);
+                nse_state.X[n-1] = amrex::Clamp(_X, 0.0_rt, 1.0_rt);
             }
         }
 
@@ -455,13 +455,13 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
         // so we offset one to the left and also ensure that we don't go off the table
 
         int ir0 = nse_get_logrho_index(rholog) - 1;
-        ir0 = std::clamp(ir0, 1, nse_table_size::nden-3);
+        ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
 
         int it0 = nse_get_logT_index(tlog) - 1;
-        it0 = std::clamp(it0, 1, nse_table_size::ntemp-3);
+        it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
 
         int ic0 = nse_get_ye_index(yet) - 1;
-        ic0 = std::clamp(ic0, 1, nse_table_size::nye-3);
+        ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
 
         nse_state.abar = tricubic(ir0, it0, ic0, rholog, tlog, yet, abartab);
         nse_state.bea = tricubic(ir0, it0, ic0, rholog, tlog, yet, beatab);
@@ -476,7 +476,7 @@ void nse_interp(nse_table_t& nse_state, bool skip_X_fill=false) {
             for (int n = 1; n <= NumSpec; n++) {
                 amrex::Real _X = tricubic(ir0, it0, ic0, rholog, tlog, yet,
                                    [=] (const int i) {return massfractab(n, i);});
-                nse_state.X[n-1] = std::clamp(_X, 0.0_rt, 1.0_rt);
+                nse_state.X[n-1] = amrex::Clamp(_X, 0.0_rt, 1.0_rt);
             }
         }
     }
@@ -498,7 +498,7 @@ nse_interp_dT(const amrex::Real temp, const amrex::Real rho, const amrex::Real y
         amrex::Real rmin = nse_table_size::logrho_min;
         amrex::Real rmax = nse_table_size::logrho_max;
 
-        rholog = std::clamp(rholog, rmin, rmax);
+        rholog = amrex::Clamp(rholog, rmin, rmax);
     }
 
     amrex::Real tlog = std::log10(temp);
@@ -506,7 +506,7 @@ nse_interp_dT(const amrex::Real temp, const amrex::Real rho, const amrex::Real y
         amrex::Real tmin = nse_table_size::logT_min;
         amrex::Real tmax = nse_table_size::logT_max;
 
-        tlog = std::clamp(tlog, tmin, tmax);
+        tlog = amrex::Clamp(tlog, tmin, tmax);
     }
 
     amrex::Real yet = ye;
@@ -514,17 +514,17 @@ nse_interp_dT(const amrex::Real temp, const amrex::Real rho, const amrex::Real y
         amrex::Real yemin = nse_table_size::ye_min;
         amrex::Real yemax = nse_table_size::ye_max;
 
-        yet = std::clamp(yet, yemin, yemax);
+        yet = amrex::Clamp(yet, yemin, yemax);
     }
 
     int ir0 = nse_get_logrho_index(rholog) - 1;
-    ir0 = std::clamp(ir0, 1, nse_table_size::nden-3);
+    ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
 
     int it0 = nse_get_logT_index(tlog) - 1;
-    it0 = std::clamp(it0, 1, nse_table_size::ntemp-3);
+    it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
 
     int ic0 = nse_get_ye_index(yet) - 1;
-    ic0 = std::clamp(ic0, 1, nse_table_size::nye-3);
+    ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
 
     // note: this is returning the derivative wrt log10(T), so we need to
     // convert to d/dT
@@ -551,7 +551,7 @@ nse_interp_drho(const amrex::Real temp, const amrex::Real rho, const amrex::Real
         amrex::Real rmin = nse_table_size::logrho_min;
         amrex::Real rmax = nse_table_size::logrho_max;
 
-        rholog = std::clamp(rholog, rmin, rmax);
+        rholog = amrex::Clamp(rholog, rmin, rmax);
     }
 
     amrex::Real tlog = std::log10(temp);
@@ -559,7 +559,7 @@ nse_interp_drho(const amrex::Real temp, const amrex::Real rho, const amrex::Real
         amrex::Real tmin = nse_table_size::logT_min;
         amrex::Real tmax = nse_table_size::logT_max;
 
-        tlog = std::clamp(tlog, tmin, tmax);
+        tlog = amrex::Clamp(tlog, tmin, tmax);
     }
 
     amrex::Real yet = ye;
@@ -567,17 +567,17 @@ nse_interp_drho(const amrex::Real temp, const amrex::Real rho, const amrex::Real
         amrex::Real yemin = nse_table_size::ye_min;
         amrex::Real yemax = nse_table_size::ye_max;
 
-        yet = std::clamp(yet, yemin, yemax);
+        yet = amrex::Clamp(yet, yemin, yemax);
     }
 
     int ir0 = nse_get_logrho_index(rholog) - 1;
-    ir0 = std::clamp(ir0, 1, nse_table_size::nden-3);
+    ir0 = amrex::Clamp(ir0, 1, nse_table_size::nden-3);
 
     int it0 = nse_get_logT_index(tlog) - 1;
-    it0 = std::clamp(it0, 1, nse_table_size::ntemp-3);
+    it0 = amrex::Clamp(it0, 1, nse_table_size::ntemp-3);
 
     int ic0 = nse_get_ye_index(yet) - 1;
-    ic0 = std::clamp(ic0, 1, nse_table_size::nye-3);
+    ic0 = amrex::Clamp(ic0, 1, nse_table_size::nye-3);
 
     // note: this is returning the derivative wrt log10(rho), so we need to
     // convert to d/drho

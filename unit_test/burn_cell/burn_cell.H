@@ -16,17 +16,20 @@ AMREX_INLINE
 void burn_cell_c()
 {
 
-    Real massfractions[NumSpec] = {-1.0};
+    amrex::Real massfractions[NumSpec] = {-1.0};
 
     // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
 
-        massfractions[n-1] = get_xn(n);
+        if (unit_test_rp::init_species_all_equal) {
+            massfractions[n-1] = 1.0_rt / static_cast<amrex::Real>(NumSpec);
+        } else {
+            massfractions[n-1] = get_xn(n);
 
-        if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
-            amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
+            if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
+                amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
+            }
         }
-
     }
 
     // Echo initial conditions at burn and fill burn state input
@@ -83,7 +86,7 @@ void burn_cell_c()
 
     // output just the instantaneous RHS
 
-    Array1D<Real, 1, neqs> ydot;
+    amrex::Array1D<amrex::Real, 1, neqs> ydot;
     actual_rhs(burn_state, ydot);
 
     std::cout << "RHS at t = 0" << std::endl;
@@ -105,7 +108,7 @@ void burn_cell_c()
             tfirst = tmax / nsteps;
         }
     }
-    Real dlogt = 0.0_rt;
+    amrex::Real dlogt = 0.0_rt;
     if (nsteps == 1) {
         dlogt = (std::log10(tmax) - std::log10(tfirst));
     } else {
@@ -129,7 +132,7 @@ void burn_cell_c()
     state_over_time << std::endl;
     state_over_time << std::setprecision(15);
 
-    Real t = 0.0;
+    amrex::Real t = 0.0;
 
     state_over_time << std::setw(25) << t;
     state_over_time << std::setw(25) << burn_state.T;
@@ -142,7 +145,7 @@ void burn_cell_c()
     // store the initial internal energy -- we'll update this after
     // each substep
 
-    Real energy_initial = burn_state.e;
+    amrex::Real energy_initial = burn_state.e;
 
     // loop over steps, burn, and output the current state
 
@@ -152,8 +155,8 @@ void burn_cell_c()
 
         // compute the time we wish to integrate to
 
-        Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
-        Real dt = tend - t;
+        amrex::Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
+        amrex::Real dt = tend - t;
 
         burner(burn_state, dt);
 
@@ -174,7 +177,7 @@ void burn_cell_c()
 
         // get the updated T
 
-        if (call_eos_in_rhs) {
+        if (integrator_rp::call_eos_in_rhs) {
             eos(eos_input_re, burn_state);
         }
 

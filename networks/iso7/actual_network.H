@@ -7,7 +7,7 @@
 #include <AMReX_Vector.H>
 #include <AMReX_Array.H>
 
-using namespace amrex;
+using namespace amrex::literals;
 
 #include <fundamental_constants.H>
 #include <network_properties.H>
@@ -25,7 +25,7 @@ namespace network
 {
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real bion () {
+    constexpr amrex::Real bion () {
         using namespace Species;
 
         static_assert(spec >= 1 && spec <= NumSpec);
@@ -59,11 +59,11 @@ namespace network
 
     template<int spec>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    constexpr Real mion () {
+    constexpr amrex::Real mion () {
         static_assert(spec >= 1 && spec <= NumSpec);
 
-        constexpr Real A = NetworkProperties::aion(spec);
-        constexpr Real Z = NetworkProperties::zion(spec);
+        constexpr amrex::Real A = NetworkProperties::aion(spec);
+        constexpr amrex::Real Z = NetworkProperties::zion(spec);
 
         return (A - Z) * C::Legacy::m_n + Z * (C::Legacy::m_p + C::Legacy::m_e) - bion<spec>() * C::Legacy::MeV2gr;
     }
@@ -71,13 +71,13 @@ namespace network
     // Legacy (non-templated) interfaces
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real bion (int spec) {
+    amrex::Real bion (int spec) {
         using namespace Species;
 
-        Real b = 0.0_rt;
+        amrex::Real b = 0.0_rt;
 
         // Set the binding energy of the element
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 b = bion<n>();
             }
@@ -87,12 +87,12 @@ namespace network
     }
 
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real mion (int spec) {
+    amrex::Real mion (int spec) {
         using namespace Species;
 
-        Real m = 0.0_rt;
+        amrex::Real m = 0.0_rt;
 
-        constexpr_for<1, NumSpec+1>([&] (auto n) {
+        amrex::constexpr_for<1, NumSpec+1>([&] (auto n) {
             if (n == spec) {
                 m = mion<n>();
             }
@@ -114,7 +114,7 @@ namespace NSE_INDEX
 #endif
 
 namespace Rates {
-    enum NetworkRates {
+    enum NetworkRates : std::uint8_t {
         C12_He4_to_O16 = 1,
         He4_He4_He4_to_C12,
         C12_C12_to_Ne20_He4,
@@ -313,46 +313,47 @@ namespace RHS {
         return data;
     }
 
-    template<int rate>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void evaluate_analytical_rate (const rhs_state_t& state, rate_t& rates)
+    void evaluate_analytical_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates)
     {
         using namespace Species;
         using namespace Rates;
 
         if constexpr (rate == C12_He4_to_O16) {
-            rate_c12ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == He4_He4_He4_to_C12) {
-            rate_triplealf(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_triplealf(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == C12_C12_to_Ne20_He4) {
-            rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12c12(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == C12_O16_to_Mg24_He4 || rate == C12_O16_to_Si28) {
-            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_c12o16(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == O16_O16_to_Si28_He4) {
-            rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_o16o16(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == O16_He4_to_Ne20) {
-            rate_o16ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_o16ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ne20_He4_to_Mg24) {
-            rate_ne20ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ne20ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Mg24_He4_to_Si28) {
-            rate_mg24ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_mg24ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
         else if constexpr (rate == Ca40_He4_to_Ti44) {
-            rate_ca40ag(state.tf, 1.0_rt, rates.fr, rates.frdt, rates.rr, rates.rrdt);
+            rate_ca40ag(state.tf, 1.0_rt, rates.fr, rates.rr);
         }
     }
 
-    template<int rate>
+    template<int rate, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    void postprocess_rate (const rhs_state_t& state, rate_t& rates,
-                           rate_t& rates1, [[maybe_unused]] rate_t& rates2, [[maybe_unused]] rate_t& rates3)
+    void postprocess_rate (const rhs_state_t<number_t>& state, rate_t<number_t>& rates,
+                           rate_t<number_t>& rates1, [[maybe_unused]] rate_t<number_t>& rates2,
+                           [[maybe_unused]] rate_t<number_t>& rates3)
     {
         using namespace Species;
         using namespace Rates;
@@ -360,37 +361,28 @@ namespace RHS {
         if constexpr (rate == Si28_7He4_to_Ni56) {
             // first rate corresponds to Ca40_He4_to_Ti44
 
-            if (state.tf.t9 > 2.5_rt && state.y(C12) + state.y(O16) <= 4.0e-3_rt) {
+            if (static_cast<amrex::Real>(state.tf.t9) > 2.5_rt && state.y(C12) + state.y(O16) <= 4.0e-3_rt) {
 
-                Real t992  = state.tf.t972 * state.tf.t9;
-                Real t9i92 = 1.0_rt / t992;
+                number_t t992  = state.tf.t972 * state.tf.t9;
+                number_t t9i92 = 1.0_rt / t992;
 
-                Real yeff_ca40   = t9i92 * std::exp(239.42_rt * state.tf.t9i - 74.741_rt);
-                Real yeff_ca40dt = -yeff_ca40 * (239.42_rt * state.tf.t9i2 + 4.5_rt * state.tf.t9i);
+                number_t yeff_ca40   = t9i92 * admath::exp(239.42_rt * state.tf.t9i - 74.741_rt);
 
-                Real yeff_ti44   = t992  * std::exp(-274.12_rt * state.tf.t9i + 74.914_rt);
-                Real yeff_ti44dt = yeff_ti44*(274.12_rt * state.tf.t9i2 + 4.5_rt * state.tf.t9i);
+                number_t yeff_ti44   = t992  * admath::exp(-274.12_rt * state.tf.t9i + 74.914_rt);
 
-                Real denom = amrex::Math::powi<3>(state.rho * state.y(He4));
+                amrex::Real denom = amrex::Math::powi<3>(state.rho * state.y(He4));
 
                 rates.fr   = yeff_ca40 * denom * rates1.fr;
-                rates.frdt = (yeff_ca40dt * rates1.fr + yeff_ca40 * rates1.frdt) * denom * 1.0e-9_rt;
 
-                Real zz = 1.0_rt / denom;
-                rates.rr = amrex::min(1.0e10_rt, yeff_ti44 * rates1.rr * zz);
-
-                if (rates.rr == 1.0e10_rt) {
-                    rates.rrdt = 0.0_rt;
-                } else {
-                    rates.rrdt = (yeff_ti44dt * rates1.rr + yeff_ti44 * rates1.rrdt) * zz * 1.0e-9_rt;
-                }
+                amrex::Real zz = 1.0_rt / denom;
+                rates.rr = admath::min(1.0e10_rt, yeff_ti44 * rates1.rr * zz);
             }
         }
     }
 
-    template<int spec>
+    template<int spec, typename number_t>
     AMREX_GPU_HOST_DEVICE AMREX_INLINE
-    Real ener_gener_rate ([[maybe_unused]] const rhs_state_t& rhs_state, Real const& dydt)
+    amrex::Real ener_gener_rate ([[maybe_unused]] const rhs_state_t<number_t>& rhs_state, amrex::Real const& dydt)
     {
         return dydt * network::mion<spec>() * C::Legacy::enuc_conv2;
     }

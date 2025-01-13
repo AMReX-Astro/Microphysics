@@ -87,13 +87,20 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
+# USE_ALL_NSE will be used if any of the NSE techniques is applied
+ifeq ($(USE_NSE_TABLE),TRUE)
+  USE_ALL_NSE := TRUE
+endif
+
+ifeq ($(USE_NSE_NET),TRUE)
+  USE_ALL_NSE := TRUE
+endif
+
 # NSE networks need the table
 ifeq ($(USE_NSE_TABLE),TRUE)
   NSE_TABULAR_HOME ?= $(MICROPHYSICS_HOME)/nse_tabular
   EXTERN_CORE += $(NSE_TABULAR_HOME)
-  ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
-     all: nsetable
-  endif
+  all: nsetable
 endif
 
 nsetable:
@@ -119,14 +126,18 @@ ifeq ($(USE_CONDUCTIVITY),TRUE)
   EXTERN_CORE += $(CONDUCTIVITY_PATH)
 endif
 
+# backwards compatibility -- remove after 25.01
+ifdef Opacity_dir
+   OPACITY_DIR=$(Opacity_dir)
+endif
 
 ifeq ($(USE_RAD), TRUE)
-   ifeq ($(Opacity_dir), null)
+   ifeq ($(OPACITY_DIR), null)
      $(error The null opacity directory has been removed, please update to rad_power_law)
    endif
    EXTERN_CORE += $(MICROPHYSICS_HOME)/opacity
 
-   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
+   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(OPACITY_DIR)
    EXTERN_CORE += $(OPAC_PATH)
 endif
 
@@ -142,6 +153,7 @@ ifeq ($(USE_NSE_NET), TRUE)
      EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
+EXTERN_CORE += $(MICROPHYSICS_HOME)/util/approx_math
 
 # we can't have both NSE solvers
 ifeq ($(USE_NSE_TABLE), TRUE)

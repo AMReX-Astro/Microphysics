@@ -8,8 +8,6 @@
 #include <network.H>
 #include <actual_eos_data.H>
 
-using namespace eos_rp;
-
 const std::string eos_name = "breakout";
 
 inline
@@ -17,12 +15,16 @@ void actual_eos_init ()
 {
 
     // constant ratio of specific heats
-    if (eos_gamma > 0.e0_rt) {
-        gamma_const = eos_gamma;
+    if (eos_rp::eos_gamma > 0.e0_rt) {
+        gamma_const = eos_rp::eos_gamma;
     } else {
         gamma_const = 5.0_rt / 3.0_rt;
     }
 
+    // this EOS assumes that has a 1/mu entry -- make sure that is valid
+    if (aux_names_cxx[AuxZero::iinvmu] != "invmu") {
+        amrex::Error("invalid aux state for breakout EOS");
+    }
 }
 
 template <typename I>
@@ -54,7 +56,7 @@ void actual_eos (I input, T& state)
 
     // Calculate mu. This is the only difference between
     // this EOS and gamma_law.
-    state.mu = 1.0_rt / state.aux[1];
+    state.mu = 1.0_rt / state.aux[AuxZero::iinvmu];
 
     switch (input) {
 

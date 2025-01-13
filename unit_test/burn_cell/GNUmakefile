@@ -24,14 +24,10 @@ EOS_DIR     := helmholtz
 
 # This sets the network directory
 NETWORK_DIR := aprox13
-
+SCREEN_METHOD := screen5
 CONDUCTIVITY_DIR := stellar
 
 INTEGRATOR_DIR =  VODE
-
-ifeq ($(USE_CUDA), TRUE)
-  INTEGRATOR_DIR := VODE
-endif
 
 EXTERN_SEARCH += . ..
 

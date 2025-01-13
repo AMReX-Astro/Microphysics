@@ -1,10 +1,10 @@
 #ifndef INTEGRATOR_TYPE_STRANG_H
 #define INTEGRATOR_TYPE_STRANG_H
 
+#include <AMReX_Algorithm.H>
+
 #include <eos.H>
 #include <integrator_type.H>
-
-using namespace integrator_rp;
 
 template <typename I, typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
@@ -18,7 +18,7 @@ void integrator_to_burn (const I& int_state, BurnT& state)
 
     state.e = int_state.y(net_ienuc);
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         state.e *= state.e_scale;
     }
 
@@ -38,7 +38,7 @@ void burn_to_integrator (const BurnT& state, I& int_state)
 
     int_state.y(net_ienuc) = state.e;
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         int_state.y(net_ienuc) /= state.e_scale;
     }
 }
@@ -53,22 +53,22 @@ void clean_state (const amrex::Real time, BurnT& state, I& int_state)
     // Ensure that mass fractions always stay positive and less than or
     // equal to 1.
 
-    if (do_species_clip) {
+    if (integrator_rp::do_species_clip) {
         for (int n = 1; n <= NumSpec; ++n) {
-            int_state.y(n) = amrex::max(amrex::min(int_state.y(n), 1.0_rt), SMALL_X_SAFE);
+            int_state.y(n) = amrex::Clamp(int_state.y(n), integrator_rp::SMALL_X_SAFE, 1.0_rt);
         }
     }
 
     // for primordial chem, just enforce positivity
-    if (use_number_densities) {
+    if (integrator_rp::use_number_densities) {
         for (int n = 1; n <= NumSpec; ++n) {
-            int_state.y(n) = amrex::max(int_state.y(n), SMALL_X_SAFE);
+            int_state.y(n) = amrex::max(int_state.y(n), integrator_rp::SMALL_X_SAFE);
         }
     }
 
     // Renormalize the abundances as necessary.
 
-    if (renormalize_abundances) {
+    if (integrator_rp::renormalize_abundances) {
         amrex::Real sum = 0.0_rt;
 
         for (int n = 1; n <= NumSpec; ++n) {

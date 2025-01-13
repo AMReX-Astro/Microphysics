@@ -18,7 +18,7 @@ void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
     if (nm1 >= 1) {
         for (int k = 1; k <= nm1; ++k) {
 
-            Real t{};
+            amrex::Real t{};
             if constexpr (allow_pivot) {
                 int l = pivot(k);
                 t = b(l);
@@ -41,7 +41,7 @@ void dgesl (RArray2D& a, IArray1D& pivot, RArray1D& b)
 
         int k = num_eqs + 1 - kb;
         b(k) = b(k) / a(k,k);
-        Real t = -b(k);
+        amrex::Real t = -b(k);
         for (int j = 1; j <= k-1; ++j) {
             b(j) += t * a(j,k);
         }
@@ -66,7 +66,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
     info = 0;
     int nm1 = num_eqs - 1;
 
-    Real t;
+    amrex::Real t;
 
     if (nm1 >= 1) {
 
@@ -76,7 +76,7 @@ void dgefa (RArray2D& a, IArray1D& pivot, int& info)
             int l = k;
 
             if constexpr (allow_pivot) {
-                Real dmax = std::abs(a(k,k));
+                amrex::Real dmax = std::abs(a(k,k));
                 for (int i = k+1; i <= num_eqs; ++i) {
                     if (std::abs(a(i,k)) > dmax) {
                         l = i;
