@@ -1,7 +1,5 @@
 @namespace: unit_test
 
-run_prefix    string  ""
-
 small_temp    real       1.e5
 small_dens    real       1.e5
 
@@ -19,3 +17,5 @@ density       real       1.e7
 temperature   real       3.e9
 
 skip_initial_normalization    bool    0
+
+init_species_all_equal        bool    0
