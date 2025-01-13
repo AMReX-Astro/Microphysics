@@ -1,6 +1,8 @@
 #ifndef BE_INTEGRATOR_H
 #define BE_INTEGRATOR_H
 
+#include <AMReX_Algorithm.H>
+
 #include <be_type.H>
 #include <network.H>
 #include <actual_network.H>
@@ -272,7 +274,7 @@ int be_integrator (BurnT& state, BeT& be)
             // backward-Euler has a local truncation error of dt**2
 
             amrex::Real dt_new = dt_sub * std::sqrt(1.0_rt / rel_error);
-            dt_sub = std::clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
+            dt_sub = amrex::Clamp(dt_new, dt_sub / 2.0, 2.0 * dt_sub);
 
         } else {
 

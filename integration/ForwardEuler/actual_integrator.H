@@ -1,6 +1,8 @@
 #ifndef actual_integrator_H
 #define actual_integrator_H
 
+#include <AMReX_Algorithm.H>
+
 #include <network.H>
 #include <actual_network.H>
 #ifdef NEW_NETWORK_IMPLEMENTATION
@@ -84,7 +86,7 @@ void clean_state (const amrex::Real time, IntT& int_state, BurnT& state)
 
     // Ensure that the temperature always stays within reasonable limits.
 
-    state.T = std::clamp(state.T, EOSData::mintemp, integrator_rp::MAX_TEMP);
+    state.T = amrex::Clamp(state.T, EOSData::mintemp, integrator_rp::MAX_TEMP);
 
 }
 
