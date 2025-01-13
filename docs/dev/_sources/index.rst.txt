@@ -10,11 +10,10 @@ AMReX-Astro Microphysics is a collection of microphysics routines (equations of 
 reaction networks, ...) and utilities (ODE integrators, NSE solvers)
 for astrophysical simulation codes.
 
-The original design was to support codes based on the `AMReX
-<https://github.com/amrex-codes/amrex>`_ adaptive mesh refinement library :cite:`amrex_joss`,
-including `CASTRO
-<https://github.com/amrex-astro/Castro>`_ :cite:`castro_I`, `MAESTROeX
-<https://github.com/amrex-astro/MAESTROeX>`_ :cite:`maestroex`, and Quokka :cite:`quokka`. These all have a
+The original design was to support the `AMReX
+<https://github.com/amrex-codes/amrex>`_ codes `CASTRO
+<https://github.com/amrex-astro/Castro>`_ and MAESTRO (now `MAESTROeX
+<https://github.com/amrex-astro/MAESTROeX>`_). These all have a
 consistent interface and the separate Microphysics repository allows
 them to share the same equation of state, reaction networks, and more.
 Later, Microphysics was adopted by the `Quokka <https://github.com/quokka-astro/quokka>`_

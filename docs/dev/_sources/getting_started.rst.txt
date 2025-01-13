@@ -27,7 +27,7 @@ to set the ``AMREX_HOME`` environment variable to point to the
 
 .. index:: burn_cell
 
-A good unit test to start with is ``burn_cell`` --- this is simply a
+A good unit test to start with is ``burn_cell`` -- this is simply a
 one-zone burn.  In ``Microphysics/`` do:
 
 .. prompt:: bash
