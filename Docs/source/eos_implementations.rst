@@ -16,6 +16,17 @@ The following equations of state are available in Microphysics.
 ``breakout``
 ============
 
+The ``breakout`` EOS is essentially the same as ``gamma_law``, but it gets
+its composition information from the auxiliary data.  In particular,
+it expects an auxiliary quantity named ``invmu`` which is the inverse
+of the mean molecular weight:
+
+.. math::
+
+   \frac{1}{\mu} = \sum_k \frac{Z_k X_k}{A_k}
+
+The ``general_null`` network provides this when used with the ``breakout.net``
+network inputs.
 
 ``gamma_law``
 =============
@@ -76,7 +87,11 @@ calling this.
 
 The following runtime parameters affect the EOS:
 
-* ``eos.use_eos_coulomb``
+* ``eos.use_eos_coulomb`` : do we include Coulomb corrections?  This
+  is enabled by default.  Coulomb corrections can cause problems in
+  some regimes, because the implementation in ``helmholtz`` doesn't
+  have the correct asymptotic behavior and can lead to negative
+  pressures or energies.
 
 * ``eos.eos_input_is_constant`` : when inverting the EOS for find the
   density and/or temperature that match the inputs, there is a choice
@@ -86,10 +101,19 @@ The following runtime parameters affect the EOS:
   input thermodynamic quantities unchanged, respecting energy
   conservation.
 
-* ``eos.eos_ttol``, ``eos.eos_dtol``
+* ``eos.eos_ttol``, ``eos.eos_dtol`` : these are the tolerances
+  for temperature and density used by the Newton solver when
+  inverting the EOS.
 
-* ``eos.prad_limiter_rho_c``, ``eos.prad_limiter_delta_rho``
-
+* ``eos.prad_limiter_rho_c``, ``eos.prad_limiter_delta_rho`` : by
+  default, radiation pressure is included in the optically-thick, LTE
+  limit (with $p_\gamma = (1/3)a T^4$).  At low densities, this can
+  cause issues, leading to an artificially high soundspeed dominated
+  by radiation when, in fact, we should be optically thin.  These
+  parameters allow us turn off the radiation component smoothly,
+  starting at a density ``eos.prad_limiter_rho_c`` and transitioning
+  via a $\tanh$ profile to zero over a scale
+  ``eos.prad_limiter_delta_rho``.
 
 We thank Frank Timmes for permitting us to modify his code and
 publicly release it in this repository.
@@ -97,6 +121,7 @@ publicly release it in this repository.
 ``metal_chem``
 ==============
 
+This is a multi-gamma equation of state for metal ISM chemistry.
 
 ``multigamma``
 ==============
@@ -145,6 +170,8 @@ and :math:`p = \rho e (\gamma_\mathrm{effective} - 1)`.
 
 This equation of state takes several runtime parameters that can set
 the :math:`\gamma_i` for a specific species. The parameters are:
+
+.. index:: eos.eos_gamma_default
 
 -  ``eos.eos_gamma_default``: the default :math:`\gamma` to apply for all
    species
@@ -199,11 +226,38 @@ polytropic relations. The options are:
 ``primordial_chem``
 ===================
 
+This is a version of the multi-gamma equation of state that models primordial chemistry.
+
 ``rad_power_law``
 =================
 
+This is an artificial equation of state for radiation transport test problems.  It uses
+a parameterization of the specific heat at constant volume:
+
+.. math::
+
+   c_v = A \rho^m T^{-n}
+
+and energy:
+
+.. math::
+
+   e = \frac{A}{1 - n} \rho^m T^{1-n}
+
+where the runtime parameters provide the constants:
+
+* ``eos.eos_const_c_v`` $= A$
+
+* ``eos.eos_c_v_exp_m`` $= m$
+
+* ``eos.eos_c_v_exp_n`` $= n$
+
+
 ``tillotson``
 =============
+
+This is an equation of state for hypervelocity impacts based on :cite:`tillotson:1962`.
+
 
 ``ztwd``
 ========
