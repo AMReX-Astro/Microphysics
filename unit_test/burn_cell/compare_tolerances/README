@@ -1,0 +1,10 @@
+# Comparing tolerances
+
+This is used the make the plot in the docs that compares tolerances.
+
+Compile `burn_cell` with `aprox13` and run the tests using the script
+`run_tol_compare.sh`.  This will run 4 different instances with different
+tolerances.
+
+A plot comparing the relative error of the simulations (using the run with
+the tightest tolerances as the reference) can be made with `plot-tols.py`.

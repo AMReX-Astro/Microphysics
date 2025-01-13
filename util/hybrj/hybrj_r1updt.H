@@ -50,13 +50,13 @@
 
 template<int neqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
-            amrex::Array1D<Real, 1, neqs>& u,
-            amrex::Array1D<Real, 1, neqs>& v,
-            amrex::Array1D<Real, 1, neqs>& w,
+void r1updt(amrex::Array1D<amrex::Real, 1, (neqs * (neqs + 1)) / 2>& s,
+            amrex::Array1D<amrex::Real, 1, neqs>& u,
+            amrex::Array1D<amrex::Real, 1, neqs>& v,
+            amrex::Array1D<amrex::Real, 1, neqs>& w,
             bool& sing) {
 
-    const Real giant = std::numeric_limits<Real>::max();
+    const amrex::Real giant = std::numeric_limits<amrex::Real>::max();
 
     // initialize the diagonal element pointer.
 
@@ -84,12 +84,12 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
                 // determine a givens rotation which eliminates the
                 // j-th element of v.
 
-                Real tau;
-                Real fcos;
-                Real fsin;
+                amrex::Real tau;
+                amrex::Real fcos;
+                amrex::Real fsin;
 
                 if (std::abs(v(neqs)) < std::abs(v(j))) {
-                    Real cotan = v(neqs) / v(j);
+                    amrex::Real cotan = v(neqs) / v(j);
                     fsin = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * cotan * cotan);
                     fcos = fsin * cotan;
                     tau = 1.0_rt;
@@ -97,7 +97,7 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
                         tau = 1.0_rt / fcos;
                     }
                 } else {
-                    Real ftan = v(j) / v(neqs);
+                    amrex::Real ftan = v(j) / v(neqs);
                     fcos = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * ftan * ftan);
                     fsin = fcos * ftan;
                     tau = fsin;
@@ -113,7 +113,7 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
 
                 l = jj;
                 for (int i = j; i <= neqs; ++i) {
-                    Real temp = fcos * s(l) - fsin * w(i);
+                    amrex::Real temp = fcos * s(l) - fsin * w(i);
                     w(i) = fsin * s(l) + fcos * w(i);
                     s(l) = temp;
                     l++;
@@ -139,12 +139,12 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
                 // determine a givens rotation which eliminates the
                 // j-th element of the spike.
 
-                Real tau;
-                Real fcos;
-                Real fsin;
+                amrex::Real tau;
+                amrex::Real fcos;
+                amrex::Real fsin;
 
                 if (std::abs(s(jj)) < std::abs(w(j))) {
-                    Real cotan = s(jj) / w(j);
+                    amrex::Real cotan = s(jj) / w(j);
                     fsin = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * cotan * cotan);
                     fcos = fsin * cotan;
                     tau = 1.0_rt;
@@ -152,7 +152,7 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
                         tau = 1.0_rt / fcos;
                     }
                 } else {
-                    Real ftan = w(j) / s(jj);
+                    amrex::Real ftan = w(j) / s(jj);
                     fcos = 0.5_rt / std::sqrt(0.25_rt + 0.25_rt * ftan * ftan);
                     fsin = fcos * ftan;
                     tau = fsin;
@@ -162,7 +162,7 @@ void r1updt(amrex::Array1D<Real, 1, (neqs * (neqs + 1)) / 2>& s,
 
                 l = jj;
                 for (int i = j; i <= neqs; ++i) {
-                    Real temp = fcos * s(l) + fsin * w(i);
+                    amrex::Real temp = fcos * s(l) + fsin * w(i);
                     w(i) = -fsin * s(l) + fcos * w(i);
                     s(l) = temp;
                     l++;

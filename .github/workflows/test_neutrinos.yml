@@ -5,7 +5,7 @@ jobs:
   test_neutrinos:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -29,7 +29,7 @@ jobs:
       - name: Build the fextrema tool
         run: |
           cd external/amrex/Tools/Plotfile
-          make programs=fextrema -j 2
+          make programs=fextrema -j 4
 
       - name: Compile
         run: |
@@ -40,8 +40,12 @@ jobs:
       - name: Run test_neutrino_cooling
         run: |
           cd unit_test/test_neutrino_cooling
-          ./main3d.gnu.ex inputs
+          ./main3d.gnu.ex inputs amrex.fpe_trap_{invalid,zero,overflow}=1
           ../../external/amrex/Tools/Plotfile/fextrema.gnu.ex test_sneut5 > test.out
+
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/test_neutrino_cooling/Backtrace.0') != '' }}
+        run: cat unit_test/test_neutrino_cooling/Backtrace.0
 
       - name: Compare to stored output
         run: |

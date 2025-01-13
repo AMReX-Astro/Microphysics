@@ -5,7 +5,7 @@ jobs:
   eos_cell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -35,7 +35,7 @@ jobs:
       - name: Run eos_cell (helmholtz)
         run: |
           cd unit_test/eos_cell
-          ./main3d.gnu.ex inputs_eos > test.out
+          ./main3d.gnu.ex inputs_eos amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (helmholtz)
         run: |
@@ -51,11 +51,13 @@ jobs:
       - name: Run eos_cell (gamma_law)
         run: |
           cd unit_test/eos_cell
-          ./main3d.gnu.ex inputs_eos > test.out
+          ./main3d.gnu.ex inputs_eos amrex.fpe_trap_{invalid,zero,overflow}=1 > test.out
 
       - name: Compare to stored output (gamma_law)
         run: |
           cd unit_test/eos_cell
           diff -I "^Initializing AMReX" -I "^AMReX" test.out ci-benchmarks/eos_gamma_law.out
 
-
+      - name: Print backtrace
+        if: ${{ failure() && hashFiles('unit_test/eos_cell/Backtrace.0') != '' }}
+        run: cat unit_test/eos_cell/Backtrace.0

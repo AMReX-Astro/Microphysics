@@ -2,7 +2,9 @@
 
 # Microphysics
 
-*A collection of astrophysical microphysics routines for stellar explosions*
+*A collection of astrophysical microphysics routines for stellar
+explosions and interstellar medium chemistry (including primordial
+chemistry)*
 
 There are several core types of microphysics routines hosted here:
 
@@ -25,7 +27,9 @@ There are several core types of microphysics routines hosted here:
 
 * `networks/`: these are the reaction networks. They serve both to
   define the composition and its properties, as well as describe the
-  reactions and energy release when reactions occur.
+  reactions and energy release when reactions occur. For ISM chemistry,
+  network contains the differentials of the number density of various
+  chemical species and the gas specific internal energy.
 
 * `neutrinos/`: this holds the plasma neutrino cooling routines used
   in the reaction networks.
@@ -46,46 +50,24 @@ There are several core types of microphysics routines hosted here:
 * `screening/`: the screening routines for nuclear reactions. These
   are called by the various networks
 
-* `unit_test/`: code specific to unit tests within this repo. In
-  particular,
+* `unit_test/`: a collection of unit tests that exercise the different
+  pieces of Microphysics
 
-  - `burn_cell` will do a single zone burn given (rho, T)
-    and a composition
-
-  - `burn_cell_sdc` will do a single zone burn in the simplified-SDC
-    framework.
-
-  - `test_eos` will test an equation of state by first calling it with
-    (rho, T), and then calling it with other inputs to recover rho
-    and/or T. A cube of data, with rho, T, and X is tested.
-
-  - `test_react` will call a reaction network on a cube of
-    data (rho, T, X).
-
-  - `test_rhs` will evaluate the right-hand-side of a network
-    without integrating it.
-
-  - `test_sdc` tests integration using the set of variables for
-    simplified-SDC.
-
-  - `test_jac` evaluates the Jacobian for comparison between the
-    analytical and numerical Jacobians.
-
-  - `test_screening` evaluates the screening routines.
-
-* `util`: linear algebra routines for the integrators
-  (specifically a linear system solver from LINPACK),
-  other math routines, and build scripts
+* `util`: linear algebra routines for the integrators (specifically a
+  linear system solver from LINPACK), the hybrid Powell solver, other
+  math routines, and build scripts
 
 
 # AMReX-Astro Codes
 
 At the moment, these routines are written to be compatible with
-the AMReX-Astro codes, Maestro and Castro.
+the AMReX-Astro codes, Maestro, Castro and Quokka.
 
 * Castro: http://amrex-astro.github.io/Castro/
 
 * MAESTROeX: http://amrex-astro.github.io/MAESTROeX/
+
+* Quokka: https://quokka-astro.github.io/quokka/
 
 To use this repository with AMReX codes, set `MICROPHYSICS_HOME` to
 point to the `Microphysics/` directory.
@@ -107,7 +89,7 @@ system to ensure the interfaces are tested.
 A user's guide for Microphysics is available at:
 http://amrex-astro.github.io/Microphysics/docs/
 
-The sphinx source for the documentation is in `Microphysics/sphinx_docs/`
+The Sphinx source for the documentation is in `Microphysics/Docs/`
 
 ## Development Model:
 

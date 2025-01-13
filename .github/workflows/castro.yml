@@ -11,19 +11,19 @@ jobs:
     name: Castro
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get Latest Release Tag
       run: |
         AMREX_TAG=$(wget https://github.com/AMReX-Codes/amrex/releases/latest 2>&1 | grep Location: | awk '{print $2}' | awk -F/ '{print $NF}')
         echo "AMREX_TAG=$AMREX_TAG" >> $GITHUB_ENV
     - name: Download Castro
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: 'AMReX-Astro/Castro'
         ref: development
         path: 'Castro'
     - name: Download AMReX
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: 'AMReX-Codes/amrex'
         ref: ${{env.AMREX_TAG}}
@@ -33,7 +33,7 @@ jobs:
         .github/workflows/dependencies/dependencies.sh
         .github/workflows/dependencies/dependencies_ccache.sh
     - name: Set Up Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/ccache
         key: ccache-${{ github.workflow }}-${{ github.job }}-git-${{ github.sha }}
@@ -51,7 +51,7 @@ jobs:
         export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/flame_wave/
-        make -j2 CCACHE=ccache USE_MPI=FALSE
+        make -j 4 CCACHE=ccache USE_MPI=FALSE
 
         ccache -s
         du -hs ~/.cache/ccache
@@ -68,7 +68,7 @@ jobs:
         export MICROPHYSICS_HOME=${PWD}
 
         cd Castro/Exec/science/subchandra/
-        make -j2 CCACHE=ccache USE_MPI=FALSE
+        make -j 4 CCACHE=ccache USE_MPI=FALSE
 
         ccache -s
         du -hs ~/.cache/ccache
@@ -82,7 +82,7 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         run: |
           echo $PR_NUMBER > pr_number.txt
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: pr_number
           path: pr_number.txt

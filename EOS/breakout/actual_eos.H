@@ -8,8 +8,6 @@
 #include <network.H>
 #include <actual_eos_data.H>
 
-using namespace eos_rp;
-
 const std::string eos_name = "breakout";
 
 inline
@@ -17,19 +15,23 @@ void actual_eos_init ()
 {
 
     // constant ratio of specific heats
-    if (eos_gamma > 0.e0_rt) {
-        gamma_const = eos_gamma;
+    if (eos_rp::eos_gamma > 0.e0_rt) {
+        gamma_const = eos_rp::eos_gamma;
     } else {
         gamma_const = 5.0_rt / 3.0_rt;
     }
 
+    // this EOS assumes that has a 1/mu entry -- make sure that is valid
+    if (aux_names_cxx[AuxZero::iinvmu] != "invmu") {
+        amrex::Error("invalid aux state for breakout EOS");
+    }
 }
 
 template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -48,13 +50,13 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+    static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
-    const Real R = C::k_B * C::n_A;
+    const amrex::Real R = C::k_B * C::n_A;
 
     // Calculate mu. This is the only difference between
     // this EOS and gamma_law.
-    state.mu = 1.0_rt / state.aux[1];
+    state.mu = 1.0_rt / state.aux[AuxZero::iinvmu];
 
     switch (input) {
 
@@ -62,8 +64,8 @@ void actual_eos (I input, T& state)
     {
 
         // dens, temp and xmass are inputs
-        Real cv = R / (state.mu * (gamma_const - 1.0_rt));
-        Real e = cv * state.T;
+        amrex::Real cv = R / (state.mu * (gamma_const - 1.0_rt));
+        amrex::Real e = cv * state.T;
         if constexpr (has_energy<T>::value) {
             state.cv = cv;
             state.e = e;
@@ -100,7 +102,7 @@ void actual_eos (I input, T& state)
         // dens, pres, and xmass are inputs
 
         if constexpr (has_pressure<T>::value) {
-            Real poverrho = state.p / state.rho;
+            amrex::Real poverrho = state.p / state.rho;
             state.T = poverrho * state.mu * (1.0_rt / R);
             if constexpr (has_energy<T>::value) {
                 state.e = poverrho * (1.0_rt / (gamma_const - 1.0_rt));
@@ -115,7 +117,7 @@ void actual_eos (I input, T& state)
         // dens, energy, and xmass are inputs
 
         if constexpr (has_energy<T>::value) {
-            Real poverrho = (gamma_const - 1.0_rt) * state.e;
+            amrex::Real poverrho = (gamma_const - 1.0_rt) * state.e;
             state.T = poverrho * state.mu * (1.0_rt / R);
 
             if constexpr (has_pressure<T>::value) {

@@ -1,6 +1,11 @@
 # This is the main include makefile for applications that want to use Microphysics
 # You should set NETWORK_OUTPUT_PATH before including this file
 
+# For HIP, inlining produces large kernels that seem to cause memory issues
+ifeq ($(USE_HIP),TRUE)
+    EXTRACXXFLAGS += -mllvm -amdgpu-function-calls=true
+endif
+
 # for common code paths between simplified-SDC and true-SDC, we'll
 # use the SDC define
 
@@ -23,15 +28,15 @@ endif
 
 SCREEN_METHOD ?= screen5
 ifeq ($(SCREEN_METHOD), null)
-  DEFINES += -DSCREEN_METHOD=0
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_null
 else ifeq ($(SCREEN_METHOD), screen5)
-  DEFINES += -DSCREEN_METHOD=1
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_screen5
 else ifeq ($(SCREEN_METHOD), chugunov2007)
-  DEFINES += -DSCREEN_METHOD=2
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2007
 else ifeq ($(SCREEN_METHOD), chugunov2009)
-  DEFINES += -DSCREEN_METHOD=3
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chugunov2009
 else ifeq ($(SCREEN_METHOD), chabrier1998)
-  DEFINES += -DSCREEN_METHOD=4
+  DEFINES += -DSCREEN_METHOD=SCREEN_METHOD_chabrier1998
 else
   $(error Invalid value for SCREEN_METHOD)
 endif
@@ -82,13 +87,20 @@ endif
 table:
 	@if [ ! -f helm_table.dat ]; then echo Linking helm_table.dat; ln -s $(EOS_PATH)/helm_table.dat .;  fi
 
+# USE_ALL_NSE will be used if any of the NSE techniques is applied
+ifeq ($(USE_NSE_TABLE),TRUE)
+  USE_ALL_NSE := TRUE
+endif
+
+ifeq ($(USE_NSE_NET),TRUE)
+  USE_ALL_NSE := TRUE
+endif
+
 # NSE networks need the table
 ifeq ($(USE_NSE_TABLE),TRUE)
   NSE_TABULAR_HOME ?= $(MICROPHYSICS_HOME)/nse_tabular
   EXTERN_CORE += $(NSE_TABULAR_HOME)
-  ifeq ($(findstring aprox19, $(NETWORK_DIR)), aprox19)
-     all: nsetable
-  endif
+  all: nsetable
 endif
 
 nsetable:
@@ -114,14 +126,18 @@ ifeq ($(USE_CONDUCTIVITY),TRUE)
   EXTERN_CORE += $(CONDUCTIVITY_PATH)
 endif
 
+# backwards compatibility -- remove after 25.01
+ifdef Opacity_dir
+   OPACITY_DIR=$(Opacity_dir)
+endif
 
 ifeq ($(USE_RAD), TRUE)
-   ifeq ($(Opacity_dir), null)
+   ifeq ($(OPACITY_DIR), null)
      $(error The null opacity directory has been removed, please update to rad_power_law)
    endif
    EXTERN_CORE += $(MICROPHYSICS_HOME)/opacity
 
-   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(Opacity_dir)
+   OPAC_PATH := $(MICROPHYSICS_HOME)/opacity/$(OPACITY_DIR)
    EXTERN_CORE += $(OPAC_PATH)
 endif
 
@@ -137,11 +153,19 @@ ifeq ($(USE_NSE_NET), TRUE)
      EXTERN_CORE += $(MICROPHYSICS_HOME)/nse_solver
      EXTERN_CORE += $(MICROPHYSICS_HOME)/util/hybrj
 endif
+EXTERN_CORE += $(MICROPHYSICS_HOME)/util/approx_math
 
 # we can't have both NSE solvers
 ifeq ($(USE_NSE_TABLE), TRUE)
   ifeq ($(USE_NSE_NET), TRUE)
     $(error USE_NSE_TABLE and USE_NSE_NET cannot be used together)
+  endif
+endif
+
+# Only allow null chabrier1998 screening with NSE_NET
+ifeq ($(USE_NSE_NET),TRUE)
+  ifneq ($(or $(filter-out null chabrier1998,$(SCREEN_METHOD)),),)
+    $(error USE_NSE_NET can only be used with null or chabrier1998 screening)
   endif
 endif
 

@@ -116,6 +116,12 @@ struct eos_rep_t:eos_base_t {
 #endif
 };
 
+struct eos_rh_t:eos_rep_t {
+    amrex::Real dhdr{};
+    amrex::Real dhdT{};
+    amrex::Real h{};
+};
+
 struct eos_extra_t:eos_t {
     amrex::Real dpdA{};
     amrex::Real dpdZ{};
@@ -385,33 +391,35 @@ std::ostream& print_state (std::ostream& o, T const& eos_state)
     return o;
 }
 
-template <typename T, typename U = typename std::enable_if<std::is_base_of<eos_base_t, T>::value>::type>
+template <typename T, typename U = typename std::enable_if_t<std::is_base_of_v<eos_base_t, T>>>
 inline
 std::ostream& operator<< (std::ostream& o, T const& eos_state)
 {
     return print_state(o, eos_state);
 }
 
-enum eos_input_t {eos_input_rt = 0,
-                  eos_input_rh,
-                  eos_input_tp,
-                  eos_input_rp,
-                  eos_input_re,
-                  eos_input_ps,
-                  eos_input_ph,
-                  eos_input_th};
+enum eos_input_t : std::uint8_t {
+    eos_input_rt = 0,
+    eos_input_rh,
+    eos_input_tp,
+    eos_input_rp,
+    eos_input_re,
+    eos_input_ps,
+    eos_input_ph,
+    eos_input_th};
 
 // these are used to allow for a generic interface to the
 // root finding
 
 namespace EOS {
 
-    enum eos_iter {itemp = 1,
-                   idens = 2,
-                   iener = 3,
-                   ienth = 4,
-                   ientr = 5,
-                   ipres = 6};
+    enum eos_iter : std::uint8_t {
+        itemp = 1,
+        idens = 2,
+        iener = 3,
+        ienth = 4,
+        ientr = 5,
+        ipres = 6};
 
 }
 

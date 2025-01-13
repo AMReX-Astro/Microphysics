@@ -21,7 +21,7 @@ struct rkc_t {
    amrex::Real tout;
 
     // Integration array
-    Array1D<Real, 1, int_neqs> y;
+    amrex::Array1D<amrex::Real, 1, int_neqs> y;
 
     // Tolerances
     amrex::Real rtol_spec, atol_spec;
@@ -65,20 +65,23 @@ struct rkc_t {
 
     amrex::Real hmax;
 
-    Array1D<Real, 1, int_neqs> yn;
-    Array1D<Real, 1, int_neqs> fn;
-    Array1D<Real, 1, int_neqs> yjm1;    // sometimes called vtemp1 in rkc.f
-    Array1D<Real, 1, int_neqs> yjm2;    // sometimes called vtemp2 in rkc.f
-    Array1D<Real, 1, int_neqs> sprad;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yn;
+    amrex::Array1D<amrex::Real, 1, int_neqs> fn;
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm1;    // sometimes called vtemp1 in rkc.f
+    amrex::Array1D<amrex::Real, 1, int_neqs> yjm2;    // sometimes called vtemp2 in rkc.f
+    amrex::Array1D<amrex::Real, 1, int_neqs> sprad;
 
     // the following a variables that were in the RKCDID common
     // block
 
     // number of function evaluations
-    int nfe;
+    int n_rhs;
 
-    // number of integration stesp
-    int nsteps;
+    // number of integration steps
+    int n_step;
+
+    // number of Jacobian evals (not used)
+    int n_jac{};
 
     // number of accepted steps
     int naccpt;
@@ -92,10 +95,13 @@ struct rkc_t {
     // maximum number of stages used
     int maxm;
 
+    // not used here, but needed for compatibility with other integrators
+    short jacobian_type;
+
 };
 
 #ifdef SDC
-#include <integrator_type_simplified_sdc.H>
+#include <integrator_type_sdc.H>
 #endif
 #ifdef STRANG
 #include <integrator_type_strang.H>

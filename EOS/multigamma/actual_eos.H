@@ -14,8 +14,6 @@
 #include <cmath>
 #include <actual_eos_data.H>
 
-using namespace eos_rp;
-
 const std::string eos_name = "multigamma";
 
 inline
@@ -26,24 +24,24 @@ void actual_eos_init ()
     // that can override the default gammas for a few named species.
 
     for (int n = 0; n < NumSpec; ++n) {
-        gammas[n] = eos_gamma_default;
+        gammas[n] = eos_rp::eos_gamma_default;
     }
 
     int idx;
 
-    idx = network_spec_index(species_a_name);
+    idx = network_spec_index(eos_rp::species_a_name);
     if (idx >= 0) {
-        gammas[idx] = species_a_gamma;
+        gammas[idx] = eos_rp::species_a_gamma;
     }
 
-    idx = network_spec_index(species_b_name);
+    idx = network_spec_index(eos_rp::species_b_name);
     if (idx >= 0) {
-        gammas[idx] = species_b_gamma;
+        gammas[idx] = eos_rp::species_b_gamma;
     }
 
-    idx = network_spec_index(species_c_name);
+    idx = network_spec_index(eos_rp::species_c_name);
     if (idx >= 0) {
-        gammas[idx] = species_c_gamma;
+        gammas[idx] = eos_rp::species_c_gamma;
     }
 
 }
@@ -53,7 +51,7 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   bool valid = true;
 
@@ -70,14 +68,14 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+    static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
     // Get the mass of a nucleon from Avogadro's number.
-    const Real m_nucleon = 1.0_rt / C::n_A;
+    const amrex::Real m_nucleon = 1.0_rt / C::n_A;
 
     // Special gamma factors
-    Real sumY_gm1 = 0.0_rt;
-    Real sumYg_gm1 = 0.0_rt;
+    amrex::Real sumY_gm1 = 0.0_rt;
+    amrex::Real sumYg_gm1 = 0.0_rt;
     for (int n = 0; n < NumSpec; ++n) {
         sumY_gm1 = sumY_gm1 + state.xn[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
         sumYg_gm1 = sumYg_gm1 + state.xn[n] * gammas[n] * aion_inv[n] / (gammas[n] - 1.0_rt);
@@ -88,7 +86,7 @@ void actual_eos (I input, T& state)
     // and temp as needed from the inputs.
     //-------------------------------------------------------------------------
 
-    Real temp, dens;
+    amrex::Real temp, dens;
 
     switch (input) {
 
@@ -201,9 +199,9 @@ void actual_eos (I input, T& state)
 
     state.T   = temp;
     state.rho = dens;
-    Real pres = dens * (C::k_B / m_nucleon) * temp / state.abar;
-    Real ener = (C::k_B / m_nucleon) * temp * sumY_gm1;
-    Real enth = ener + pres / dens;
+    amrex::Real pres = dens * (C::k_B / m_nucleon) * temp / state.abar;
+    amrex::Real ener = (C::k_B / m_nucleon) * temp * sumY_gm1;
+    amrex::Real enth = ener + pres / dens;
 
     // Compute the pressure simply from the ideal gas law, and the
     // specific internal energy using the gamma-law EOS relation.
@@ -229,29 +227,29 @@ void actual_eos (I input, T& state)
     }
 
     // Compute the thermodynamic derivatives and specific heats
-    Real dpdT = pres / temp;
-    Real dpdr = pres / dens;
+    amrex::Real dpdT = pres / temp;
+    amrex::Real dpdr = pres / dens;
     if constexpr (has_pressure<T>::value) {
         state.dpdT = dpdT;
         state.dpdr = dpdr;
     }
 
-    Real dedT = ener / temp;
-    Real dedr = 0.0_rt;
+    amrex::Real dedT = ener / temp;
+    amrex::Real dedr = 0.0_rt;
     if constexpr (has_energy<T>::value) {
         state.dedT = dedT;
         state.dedr = dedr;
     }
 
-    Real dsdT = 0.0_rt;
-    Real dsdr = 0.0_rt;
+    amrex::Real dsdT = 0.0_rt;
+    amrex::Real dsdr = 0.0_rt;
     if constexpr (has_entropy<T>::value) {
         state.dsdT = dsdT;
         state.dsdr = dsdr;
     }
 
-    Real dhdT = dedT + dpdT / dens;
-    Real dhdr = 0.0_rt;
+    amrex::Real dhdT = dedT + dpdT / dens;
+    amrex::Real dhdr = 0.0_rt;
     if constexpr (has_enthalpy<T>::value) {
         state.dhdT = dhdT;
         state.dhdr = dhdr;

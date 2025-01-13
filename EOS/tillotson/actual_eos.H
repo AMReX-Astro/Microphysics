@@ -7,8 +7,6 @@
 #include <eos_data.H>
 #include <cmath>
 
-using namespace eos_rp;
-
 const std::string eos_name = "tillotson";
 
 inline
@@ -19,7 +17,7 @@ void actual_eos_init() {
     // (Note that rho_0 is not the minimum density but rather just
     // a reference density.)
 
-    EOSData::mine = eos_e_0;
+    EOSData::mine = eos_rp::eos_e_0;
 
 }
 
@@ -27,7 +25,7 @@ template <typename I>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
-  static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+  static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   bool valid = false;
 
@@ -47,7 +45,7 @@ template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
 void actual_eos (I input, T& state)
 {
-    static_assert(std::is_same<I, eos_input_t>::value, "input must be an eos_input_t");
+    static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
     // First make T and e consistent with each other.
     // We assume a simple relationship between energy and temperature.
@@ -56,55 +54,55 @@ void actual_eos (I input, T& state)
     // that we are consistent with eos_input_re.
 
     if (input == eos_input_re) {
-        state.T = amrex::max((state.e - eos_e_0) / eos_c_v, EOSData::mintemp);
+        state.T = amrex::max((state.e - eos_rp::eos_e_0) / eos_rp::eos_c_v, EOSData::mintemp);
     }
     else if (input == eos_input_rt) {
-        state.e = amrex::max(eos_e_0 + eos_c_v * state.T, EOSData::mine);
+        state.e = amrex::max(eos_rp::eos_e_0 + eos_rp::eos_c_v * state.T, EOSData::mine);
     }
 
-    Real eta = state.rho / eos_rho_0;
-    Real mu = eta - 1.0_rt;
-    Real omega = state.e / (eos_e_0 * eta * eta) + 1.0_rt;
-    Real z = (1.0_rt / eta - 1.0_rt);
+    amrex::Real eta = state.rho / eos_rp::eos_rho_0;
+    amrex::Real mu = eta - 1.0_rt;
+    amrex::Real omega = state.e / (eos_rp::eos_e_0 * eta * eta) + 1.0_rt;
+    amrex::Real z = (1.0_rt / eta - 1.0_rt);
 
-    Real g_c = eos_la + eos_lb / omega;
-    Real g_e = eos_la + eos_lb / omega * std::exp(-eos_beta * z * z);
+    amrex::Real g_c = eos_rp::eos_la + eos_rp::eos_lb / omega;
+    amrex::Real g_e = eos_rp::eos_la + eos_rp::eos_lb / omega * std::exp(-eos_rp::eos_beta * z * z);
 
-    Real P_c = g_c * state.e * state.rho + eos_A * mu + eos_B * mu * mu;
-    Real P_e = g_e * state.e * state.rho + eos_A * mu * std::exp(-eos_alpha * z - eos_beta * z * z);
+    amrex::Real P_c = g_c * state.e * state.rho + eos_rp::eos_A * mu + eos_rp::eos_B * mu * mu;
+    amrex::Real P_e = g_e * state.e * state.rho + eos_rp::eos_A * mu * std::exp(-eos_rp::eos_alpha * z - eos_rp::eos_beta * z * z);
 
     // Floor the pressure since the above expressions can be negative
 
     P_c = amrex::max(P_c, EOSData::minp);
     P_e = amrex::max(P_e, EOSData::minp);
 
-    Real cs_squared_c = (g_c + 2.0_rt * eos_lb * (omega - 1.0_rt) / (omega * omega)) * state.e +
-                        (eos_A + 2.0_rt * eos_B * mu) / eos_rho_0;
-    Real cs_squared_e = (g_e + (2.0_rt * eos_lb / omega) * std::exp(-eos_beta * z * z) *
-                         ((omega - 1.0_rt) / omega + eos_beta * z / eta)) * state.e +
-                        (eos_A / eos_rho_0) * std::exp(-eos_alpha * z - eos_beta * z * z) *
-                        (1.0_rt + mu / (eta * eta) * (eos_alpha + 2.0_rt * eos_beta * z));
+    amrex::Real cs_squared_c = (g_c + 2.0_rt * eos_rp::eos_lb * (omega - 1.0_rt) / (omega * omega)) * state.e +
+                        (eos_rp::eos_A + 2.0_rt * eos_rp::eos_B * mu) / eos_rp::eos_rho_0;
+    amrex::Real cs_squared_e = (g_e + (2.0_rt * eos_rp::eos_lb / omega) * std::exp(-eos_rp::eos_beta * z * z) *
+                         ((omega - 1.0_rt) / omega + eos_rp::eos_beta * z / eta)) * state.e +
+                        (eos_rp::eos_A / eos_rp::eos_rho_0) * std::exp(-eos_rp::eos_alpha * z - eos_rp::eos_beta * z * z) *
+                        (1.0_rt + mu / (eta * eta) * (eos_rp::eos_alpha + 2.0_rt * eos_rp::eos_beta * z));
 
     // Floor the sound speed as well (and make sure we get the floor dimensionally right)
 
     cs_squared_c = amrex::max(cs_squared_c, EOSData::minp / state.rho);
     cs_squared_e = amrex::max(cs_squared_e, EOSData::minp / state.rho);
 
-    Real dPde_c = eos_la * state.rho + eos_lb * state.rho / (omega * omega);
-    Real dPde_e = eos_la * state.rho + eos_lb * state.rho / (omega * omega) * std::exp(-eos_beta * z * z);
+    amrex::Real dPde_c = eos_rp::eos_la * state.rho + eos_rp::eos_lb * state.rho / (omega * omega);
+    amrex::Real dPde_e = eos_rp::eos_la * state.rho + eos_rp::eos_lb * state.rho / (omega * omega) * std::exp(-eos_rp::eos_beta * z * z);
 
     // At this point we should have valid (rho, e); compute P = P(rho, e).
 
-    Real pres, dpdr_e, dpde;
+    amrex::Real pres, dpdr_e, dpde;
 
-    if (state.rho >= eos_rho_0 || (state.rho < eos_rho_0 && state.e < eos_e_s)) {
+    if (state.rho >= eos_rp::eos_rho_0 || (state.rho < eos_rp::eos_rho_0 && state.e < eos_rp::eos_e_s)) {
         // Region I, II (compressed state)
 
         pres = P_c;
         dpdr_e = cs_squared_c;
         dpde = dPde_c;
     }
-    else if (state.rho < eos_rho_0 && state.e > eos_e_s_prime) {
+    else if (state.rho < eos_rp::eos_rho_0 && state.e > eos_rp::eos_e_s_prime) {
         // Region IV (expanded state)
 
         pres = P_e;
@@ -114,9 +112,9 @@ void actual_eos (I input, T& state)
     else {
         // Region III (interpolate between compressed and expanded state)
 
-        Real denom = (eos_e_s_prime - eos_e_s);
-        Real xi_c = (state.e - eos_e_s) / denom;
-        Real xi_e = (eos_e_s_prime - state.e) / denom;
+        amrex::Real denom = (eos_rp::eos_e_s_prime - eos_rp::eos_e_s);
+        amrex::Real xi_c = (state.e - eos_rp::eos_e_s) / denom;
+        amrex::Real xi_e = (eos_rp::eos_e_s_prime - state.e) / denom;
 
         pres = P_c * xi_c + P_e * xi_e;
         dpdr_e = cs_squared_c * xi_c + cs_squared_e * xi_e;
@@ -137,7 +135,7 @@ void actual_eos (I input, T& state)
         state.dpdr = state.dpdr_e;
 
         // Use chain rule to get dp/dT from de/dT
-        state.dpdT = state.dpde * eos_c_v;
+        state.dpdT = state.dpde * eos_rp::eos_c_v;
     }
 
     // Sound speed
@@ -154,15 +152,15 @@ void actual_eos (I input, T& state)
 
     // Fill in heat capacity (c_v from provided data, c_p from c_v)
 
-    state.cv = eos_c_v;
+    state.cv = eos_rp::eos_c_v;
 
     if constexpr (has_pressure<T>::value) {
-        state.cp = state.gam1 * eos_c_v;
+        state.cp = state.gam1 * eos_rp::eos_c_v;
     }
 
     // de/dT == specific heat at constant volume
 
-    state.dedT = eos_c_v;
+    state.dedT = eos_rp::eos_c_v;
 
     // de/drho is not relevant for this EOS
 

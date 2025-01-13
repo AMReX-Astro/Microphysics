@@ -1,6 +1,8 @@
 #ifndef RKC_H
 #define RKC_H
 
+#include <AMReX_Algorithm.H>
+
 #include <rkc_type.H>
 #include <rkc_util.H>
 #include <burn_type.H>
@@ -9,59 +11,67 @@
 #include <integrator_rhs_strang.H>
 #endif
 #ifdef SDC
-#include <integrator_type_simplified_sdc.H>
-#include <integrator_rhs_simplified_sdc.H>
+#include <integrator_type_sdc.H>
+#include <integrator_rhs_sdc.H>
 #endif
 #include <circle_theorem.H>
 #include <integrator_data.H>
 
+#ifdef NSE_TABLE
+#include <nse_table_check.H>
+#endif
+#ifdef NSE_NET
+#include <nse_check.H>
+#endif
+
+
 template <typename BurnT, typename RkcT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void step (BurnT& state, RkcT& rstate, const Real h, const int m)
+void step (BurnT& state, RkcT& rstate, const amrex::Real h, const int m)
 {
     constexpr int int_neqs = integrator_neqs<BurnT>();
 
     // Take a step of size H from T to T+H to get Y(*).
 
-    Real w0 = 1.0_rt + 2.0_rt / (13.0_rt * m * m);
+    amrex::Real w0 = 1.0_rt + 2.0_rt / (13.0_rt * m * m);
 
-    Real temp1 = w0 * w0 - 1.0_rt;
-    Real temp2 = std::sqrt(temp1);
-    Real arg = m * std::log(w0 + temp2);
-    Real w1 = std::sinh(arg) * temp1 /
+    amrex::Real temp1 = w0 * w0 - 1.0_rt;
+    amrex::Real temp2 = std::sqrt(temp1);
+    amrex::Real arg = m * std::log(w0 + temp2);
+    amrex::Real w1 = std::sinh(arg) * temp1 /
         (std::cosh(arg) * m * temp2 -  w0 * std::sinh(arg));
-    Real bjm1 = 1.0_rt / std::pow(2.0_rt * w0, 2);
-    Real bjm2 = bjm1;
+    amrex::Real bjm1 = 1.0_rt / amrex::Math::powi<2>(2.0_rt * w0);
+    amrex::Real bjm2 = bjm1;
 
     // Evaluate the first stage.
 
     for (int i = 1; i <= int_neqs; ++i) {
         rstate.yjm2(i) = rstate.yn(i);
     }
-    Real mus = w1 * bjm1;
+    amrex::Real mus = w1 * bjm1;
     for (int i = 1; i <= int_neqs; ++i) {
         rstate.yjm1(i) = rstate.yn(i) + h * mus * rstate.fn(i);
     }
 
-    Real thjm2{};
-    Real thjm1 = mus;
-    Real zjm1 = w0;
-    Real zjm2 = 1.0_rt;
-    Real dzjm1 = 1.0_rt;
-    Real dzjm2 = 0.0_rt;
-    Real d2zjm1 = 0.0_rt;
-    Real d2zjm2 = 0.0_rt;
+    amrex::Real thjm2{};
+    amrex::Real thjm1 = mus;
+    amrex::Real zjm1 = w0;
+    amrex::Real zjm2 = 1.0_rt;
+    amrex::Real dzjm1 = 1.0_rt;
+    amrex::Real dzjm2 = 0.0_rt;
+    amrex::Real d2zjm1 = 0.0_rt;
+    amrex::Real d2zjm2 = 0.0_rt;
 
     // Evaluate stages j = 2,...,m.
 
     for (int j = 2; j <= m; ++j) {
-        Real zj = 2.0_rt * w0 * zjm1 - zjm2;
-        Real dzj = 2.0_rt * w0 * dzjm1 - dzjm2 + 2.0_rt * zjm1;
-        Real d2zj = 2.0_rt * w0 * d2zjm1 - d2zjm2 + 4.0_rt * dzjm1;
-        Real bj = d2zj / std::pow(dzj, 2);
-        Real ajm1 = 1.0_rt - zjm1 * bjm1;
-        Real mu = 2.0_rt * w0 * bj / bjm1;
-        Real nu = -bj / bjm2;
+        amrex::Real zj = 2.0_rt * w0 * zjm1 - zjm2;
+        amrex::Real dzj = 2.0_rt * w0 * dzjm1 - dzjm2 + 2.0_rt * zjm1;
+        amrex::Real d2zj = 2.0_rt * w0 * d2zjm1 - d2zjm2 + 4.0_rt * dzjm1;
+        amrex::Real bj = d2zj / amrex::Math::powi<2>(dzj);
+        amrex::Real ajm1 = 1.0_rt - zjm1 * bjm1;
+        amrex::Real mu = 2.0_rt * w0 * bj / bjm1;
+        amrex::Real nu = -bj / bjm2;
         mus = mu * w1 / w0;
 
         // Use the y array for temporary storage here.
@@ -83,7 +93,7 @@ void step (BurnT& state, RkcT& rstate, const Real h, const int m)
                           (1.0_rt - mu - nu) * rstate.yn(i) +
                           h * mus * (ydot(i) - ajm1 * rstate.fn(i));
         }
-        Real thj = mu * thjm1 + nu * thjm2 + mus * (1.0_rt - ajm1);
+        amrex::Real thj = mu * thjm1 + nu * thjm2 + mus * (1.0_rt - ajm1);
 
         // Shift the data for the next stage.
 
@@ -115,11 +125,9 @@ int rkclow (BurnT& state, RkcT& rstate)
 
     // RKC is an interface to RKCLOW where the actual solution takes place.
 
-    const Real onep1 = 1.1_rt;
-    const Real p4 = 0.4_rt;
-    const Real p8 = 0.8_rt;
-    const Real one3rd = 1.0_rt/3.0_rt;
-    const Real two3rd = 2.0_rt/3.0_rt;
+    const amrex::Real onep1 = 1.1_rt;
+    const amrex::Real p4 = 0.4_rt;
+    const amrex::Real p8 = 0.8_rt;
 
     // Initialize on the first call.
 
@@ -138,19 +146,19 @@ int rkclow (BurnT& state, RkcT& rstate)
     // we want to call with yn = y as the input and store the output in fn
     rhs(rstate.t, state, rstate, rstate.fn);
 
-    rstate.nfe++;
-    Real tdir = std::copysign(1.0_rt, rstate.tout - rstate.t);
+    rstate.n_rhs++;
+    amrex::Real tdir = std::copysign(1.0_rt, rstate.tout - rstate.t);
     rstate.hmax = std::abs(rstate.tout - rstate.t);
 
-    Real hmin{};
-    Real sprad{};
-    Real absh{};
-    Real errold{};
-    Real h{};
-    Real hold{};
+    amrex::Real hmin{};
+    amrex::Real sprad{};
+    amrex::Real absh{};
+    amrex::Real errold{};
+    amrex::Real h{};
+    amrex::Real hold{};
 
     // Start of loop for taking one step.
-    while (rstate.nsteps < integrator_rp::ode_max_steps) {
+    while (rstate.n_step < integrator_rp::ode_max_steps) {
 
         // Estimate the spectral radius of the Jacobian
         // when newspc = .true..
@@ -170,7 +178,7 @@ int rkclow (BurnT& state, RkcT& rstate)
 
         // Compute an initial step size.
 
-        if (rstate.nsteps == 0) {
+        if (rstate.n_step == 0) {
             absh = rkc_init_dt(state, rstate, rstate.hmax, sprad);
         }
 
@@ -187,7 +195,7 @@ int rkclow (BurnT& state, RkcT& rstate)
 
         if (m > mmax) {
             m = mmax;
-            absh = static_cast<Real>(m * m - 1) / (1.54_rt * sprad);
+            absh = static_cast<amrex::Real>(m * m - 1) / (1.54_rt * sprad);
             last = false;
         }
         rstate.maxm = std::max(m, rstate.maxm);
@@ -200,14 +208,14 @@ int rkclow (BurnT& state, RkcT& rstate)
                                            std::abs(rstate.t + h));
         step(state, rstate, h, m);
         rhs(rstate.t+h, state, rstate, rstate.yjm1);
-        rstate.nfe += m;
-        rstate.nsteps++;
+        rstate.n_rhs += m;
+        rstate.n_step++;
 
         // Estimate the local error and compute its weighted RMS norm.
 
-        Real err{};
+        amrex::Real err{};
         for (int i = 1; i <= int_neqs; ++i) {
-            Real wt{};
+            amrex::Real wt{};
             if (i <= NumSpec) {
                 wt = rstate.rtol_spec * std::max(std::abs(rstate.yn(i)),
                                                  std::abs(rstate.y(i))) +
@@ -218,17 +226,46 @@ int rkclow (BurnT& state, RkcT& rstate)
                     rstate.atol_enuc;
             }
 
-            Real est = p8 * (rstate.yn(i) - rstate.y(i)) +
+            amrex::Real est = p8 * (rstate.yn(i) - rstate.y(i)) +
                        p4 * h * (rstate.fn(i) + rstate.yjm1(i));
-            err += std::pow(est / wt, 2);
+            err += amrex::Math::powi<2>(est / wt);
         }
 
         err = std::sqrt(err / int_neqs);
 
+        // before we accept or reject the step, let's check if we've entered
+        // NSE
+
+#ifdef NSE
+       // check if, during the course of integration, we hit NSE, and
+       // if so, bail out we rely on the state being consistent after
+       // the call to dvstep, even if the step failed.
+
+       // we only do this after MIN_NSE_BAILOUT_STEPS to prevent us
+       // from hitting this right at the start when VODE might do so
+       // wild exploration.  Also ensure we are not working > tmax,
+       // so we don't need to worry about extrapolating back in time.
+
+       if (rstate.nsteps > MIN_NSE_BAILOUT_STEPS && rstate.t <= rstate.tout) {
+           // first we need to make the burn_t in sync
+
+#ifdef STRANG
+           update_thermodynamics(state, rstate);
+#endif
+#ifdef SDC
+           int_to_burn(rstate.t, rstate, state);
+#endif
+
+           if (in_nse(state)) {
+               return IERR_ENTERED_NSE;
+           }
+       }
+#endif
+
         if (err > 1.0_rt) {
             // Step is rejected.
             rstate.nrejct++;
-            absh = p8 * absh / std::pow(err, one3rd);
+            absh = p8 * absh / std::cbrt(err);
             if (absh < hmin) {
                 return IERR_DT_UNDERFLOW;
             } else {
@@ -250,28 +287,28 @@ int rkclow (BurnT& state, RkcT& rstate)
 
         // Update the data for interpolation stored in work(*).
         for (int i = 1; i <= int_neqs; ++i) {
-            Real ylast = rstate.yn(i);
-            Real yplast = rstate.fn(i);
+            amrex::Real ylast = rstate.yn(i);
+            amrex::Real yplast = rstate.fn(i);
             rstate.yn(i) = rstate.y(i);
             rstate.fn(i) = rstate.yjm1(i);
             rstate.yjm1(i) = ylast;
             rstate.yjm2(i) = yplast;
         }
-        Real fac = 10.0_rt;
+        amrex::Real fac = 10.0_rt;
         if (rstate.naccpt == 1) {
-            Real temp2 = std::pow(err, one3rd);
+            amrex::Real temp2 = std::cbrt(err);
             if (p8 < fac * temp2) {
                 fac = p8/temp2;
             }
         } else {
-            Real temp1 = p8 * absh * std::pow(errold, one3rd);
-            Real temp2 = std::abs(hold) * std::pow(err, two3rd);
+            amrex::Real temp1 = p8 * absh * std::cbrt(errold);
+            amrex::Real temp2 = std::abs(hold) * amrex::Math::powi<2>(std::cbrt(err));
             if (temp1 < fac * temp2) {
                 fac = temp1 / temp2;
             }
         }
         absh = std::max(0.1_rt, fac) * absh;
-        absh = std::max(hmin, std::min(rstate.hmax, absh));
+        absh = amrex::Clamp(absh, hmin, rstate.hmax);
         errold = err;
         hold = h;
         h = tdir * absh;
@@ -288,18 +325,18 @@ template <typename BurnT, typename RkcT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 int rkc (BurnT& state, RkcT& rstate)
 {
-    const Real rmax = 0.1_rt;
-    const Real rmin = 10.0_rt * UROUND;
+    const amrex::Real rmax = 0.1_rt;
+    const amrex::Real rmin = 10.0_rt * UROUND;
 
     // Test the input data.
     bool valid = true;
 
-    if ((rtol_spec > rmax) || (rtol_enuc > rmax) ||
-        (rtol_spec < rmin) || (rtol_spec < rmin)) {
+    if ((rstate.rtol_spec > rmax) || (rstate.rtol_enuc > rmax) ||
+        (rstate.rtol_spec < rmin) || (rstate.rtol_enuc < rmin)) {
         valid = false;
     }
 
-    if (atol_spec < 0.0_rt || atol_enuc < 0.0_rt) {
+    if (rstate.atol_spec < 0.0_rt || rstate.atol_enuc < 0.0_rt) {
         valid = false;
     }
 
@@ -309,8 +346,8 @@ int rkc (BurnT& state, RkcT& rstate)
 
     // Initialize counters and pointers.
 
-    rstate.nfe = 0;
-    rstate.nsteps = 0;
+    rstate.n_rhs = 0;
+    rstate.n_step = 0;
     rstate.naccpt = 0;
     rstate.nrejct = 0;
     rstate.nfesig = 0;

@@ -3,11 +3,9 @@
 
 #include <eos.H>
 
-using namespace integrator_rp;
-
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void update_density_in_time(const Real time, BurnT& state)
+void update_density_in_time(const amrex::Real time, BurnT& state)
 {
 
     // some quantities are only advected.  Here we update those state
@@ -61,13 +59,13 @@ void update_thermodynamics (BurnT& state, const I& int_state)
     }
     state.e = int_state.y(net_ienuc);
 
-    if (scale_system) {
+    if (integrator_rp::scale_system) {
         state.e *= state.e_scale;
     }
 
     // Get T from e (also updates composition quantities).
 
-    if (call_eos_in_rhs) {
+    if (integrator_rp::call_eos_in_rhs) {
         eos(eos_input_re, state);
     }
 

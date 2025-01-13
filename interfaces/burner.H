@@ -17,13 +17,13 @@
 #include <nse_update_strang.H>
 #endif
 #ifdef SDC
-#include <nse_update_simplified_sdc.H>
+#include <nse_update_sdc.H>
 #endif
 #endif
 
 template <typename BurnT>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-void burner (BurnT& state, Real dt)
+void burner (BurnT& state, amrex::Real dt)
 {
 
 #ifdef NSE
@@ -56,7 +56,7 @@ void burner (BurnT& state, Real dt)
 
         // replace dt with just the remaining integration time
         // left after the failure
-        Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
+        amrex::Real dt_remaining = amrex::max(dt - state.time, 0.0_rt);
 
         // we use a relaxed NSE criteria now to catch states that are
         // right on the edge of being in NSE

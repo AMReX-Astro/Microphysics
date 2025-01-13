@@ -1,6 +1,7 @@
 @namespace: conductivity
 
-const_conductivity   real     1.0d0
+# constant value of the conductivity, in erg/s/cm/K
+const_conductivity   real     1.0e0
 
 
 

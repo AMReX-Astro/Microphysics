@@ -15,8 +15,8 @@
 
 template<int neqs>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void qform(amrex::Array2D<Real, 1, neqs, 1, neqs>& q,
-           amrex::Array1D<Real, 1, neqs>& wa) {
+void qform(amrex::Array2D<amrex::Real, 1, neqs, 1, neqs>& q,
+           amrex::Array1D<amrex::Real, 1, neqs>& wa) {
 
     // q is an n by n array. on input the full lower trapezoid in
     // the n columns of q contains the factored form.
@@ -44,11 +44,11 @@ void qform(amrex::Array2D<Real, 1, neqs, 1, neqs>& q,
         q(k,k) = 1.0_rt;
         if (wa(k) != 0.0_rt) {
             for (int j = k; j <= neqs; ++j) {
-                Real sum = 0.0_rt;
+                amrex::Real sum = 0.0_rt;
                 for (int i = k; i <= neqs; ++i) {
                     sum += q(i,j) * wa(i);
                 }
-                Real temp = sum / wa(k);
+                amrex::Real temp = sum / wa(k);
                 for (int i = k; i <= neqs; ++i) {
                     q(i,j) += -temp * wa(i);
                 }

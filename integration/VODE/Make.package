@@ -1,11 +1,11 @@
 ifeq ($(USE_ALL_SDC), TRUE)
-  CEXE_headers += actual_integrator_simplified_sdc.H
+  CEXE_headers += actual_integrator_sdc.H
 else
   CEXE_headers += actual_integrator.H
 endif
 
 # by default we do not enable Jacobian caching on GPUs to save memory
-ifneq ($(USE_CUDA), TRUE)
+ifneq ($(USE_GPU), TRUE)
   DEFINES += -DALLOW_JACOBIAN_CACHING
 endif
 
