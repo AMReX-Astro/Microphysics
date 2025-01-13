@@ -12,7 +12,6 @@
 *.ind
 Docs/*/*.pdf
 Docs/*/*.ps
-Docs/source/runtime_parameters.rst
 MaestroUsersGuide.out
 MaestroUsersGuide.old
 
