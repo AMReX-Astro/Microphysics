@@ -102,9 +102,6 @@ void main_main ()
     // for C++
     plot_t vars;
 
-    // for F90
-    Vector<std::string> varnames;
-
     // C++ test
     vars = init_variables();
 
