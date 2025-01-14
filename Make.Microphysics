@@ -43,7 +43,7 @@ include $(AMREX_HOME)/Tools/GNUMake/Make.defs
 
 MICROPHYSICS_AUTO_SOURCE_DIR := $(TmpBuildDir)/microphysics_sources/$(optionsSuffix).EXE
 
-all: build_status $(executable) starkiller_library
+all: build_status $(executable)
 	@echo SUCCESS
 
 build_status:
