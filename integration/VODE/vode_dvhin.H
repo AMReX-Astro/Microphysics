@@ -2,6 +2,7 @@
 #define VODE_DVHIN_H
 
 #include <AMReX_REAL.H>
+#include <AMReX_Algorithm.H>
 
 #ifdef STRANG
 #include <integrator_rhs_strang.H>
@@ -122,17 +123,13 @@ void dvhin (BurnT& state, DvodeT& vstate, amrex::Real& H0, int& NITER, int& IER)
 
         }
 
-        // Iteration done. Apply bounds, bias factor, and sign. Then exit.
+        // Iteration done. Apply bounds and bias factor. Then exit.
         H0 = hnew * 0.5_rt;
-        if (H0 < HLB) {
-            H0 = HLB;
-        }
-        if (H0 > HUB) {
-            H0 = HUB;
-        }
+        H0 = amrex::Clamp(H0, HLB, HUB);
 
     }
 
+    // apply sign
     H0 = std::copysign(H0, vstate.tout - vstate.t);
     NITER = iter;
     IER = 0;

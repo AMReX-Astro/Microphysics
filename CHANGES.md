@@ -1,3 +1,97 @@
+# 25.01
+
+  * update HIP/CUDA dependences to include sparse libraries (#1686)
+
+  * rename `Opacity_dir` -> `OPACITY_DIR` (#1679)
+
+  * update the integration and NSE docs (#1682)
+
+# 24.12
+
+  * documentation improvements (#1661, #1667, #1670)
+
+  * optimize tabular NSE EOS calls (#1668)
+
+  * CI fixes (#1666, #1671, #1675) and new partition function CI
+    (#1673)
+
+  * `burn_cell` can now initialize all mass fractions to be equal
+    (#1665)
+
+# 24.10
+
+  * metal chemistry updates (#1648) with ices (#1650) and cosmic rays (#1651)
+
+  * added dust to primordial chemistry (#1649)
+
+  * doc updates (#1652)
+
+# 24.09
+
+  * Improvements to the primordial chemistry network and the addition
+    of a new version that includes metals and dust (#1642, #1644)
+
+  * code clean-ups (#1645)
+
+  * documentation improvements (#1637)
+
+  * outputting the burn_t now prints the mass fractions / number densities
+    in scientific notation (#1643)
+
+  * improvements to the looping and zeroing of the Jacobian in the
+    integrators (#1636, #1640)
+
+# 24.08
+
+  * autodiff is now used with the templated reaction networks (#1614)
+    + some autodiff clean-ups and derivative fixes (#1604, #1612,
+    #1613, #1616, #1619, #1633)
+
+  * we can now output warnings from GPUs if you compile with
+    `USE_GPU_PRINTF=TRUE` (#1629, #1635)
+
+  * documentation improvements (#1570, #1628)
+
+  * a new jacobian unit (`jac_cell`) test was added that compares the
+    numerical and analytic Jacobians (#1618)
+
+  * support for Strang + NSE has been removed.  NSE only works with
+    SDC now (#1549, #1621)
+
+  * the network `CNO_He_burn` was added for explosive H/He burning
+    (#1622)
+
+  * code clean-ups (#1582, #1602, #1609, #1623, #1624, #1625, #1626,
+    #1627, #1631, #1639)
+
+  * `test_nse_net` now also tests the NSE EOS interface (#1621)
+
+  * the self-consistent NSE + SDC update has been synced with the
+    tabular NSE implementation (#1569, #1607, #1617)
+
+  * `test_jac` was not correctly evaluating the numerical Jacobian
+    (#1615)
+
+  * the `fast_atan` function is now more accurate (#1611)
+
+  * `test_ase` was renamed `test_nse_net` and the old `test_nse` was
+    removed (#1610)
+
+  * the old `test_screening` unit test was removed (#1608)
+
+  * the RKC integrator now supports NSE bailout (#1544)
+
+  * a second temperature check for tabular NSE was added -- above this
+    temperature we don't consider composition (#1547)
+
+  * a SDC+NSE unit test was added (#1548)
+
+  * a fast log and fast pow approximation was added (#1591)
+
+  * the primordial_chem network now uses the fast math routines (#1605)
+
+  * fix potential Inf in constexpr linear algebra (#1603)
+
 # 24.07
 
    * added an autodiff library and converted all of the screening
