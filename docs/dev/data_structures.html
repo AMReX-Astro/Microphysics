@@ -167,7 +167,7 @@ network, and they will come in through the <code class="docutils literal notrans
 <p>There is a lot more information that can be saved here, such as the
 partial derivatives of the thermodynamic state variables with respect
 to each other. To see a complete list, examine the <code class="docutils literal notranslate"><span class="pre">eos_type.H</span></code>
-file: <code class="docutils literal notranslate"><span class="pre">Castro/Microphysics/interfaces/eos_type.H</span></code>.</p>
+file.</p>
 </section>
 </section>
 <section id="networks">
@@ -222,12 +222,25 @@ also defines integer indices into the solution vector that can be used
 to access the different components of the state:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">neqs</span></code> : the total number of variables we are integrating.</p>
-<blockquote>
-<div><p>It is assumed that the first <code class="docutils literal notranslate"><span class="pre">nspec</span></code> are the species.</p>
-</div></blockquote>
+<p>It is assumed that the first <code class="docutils literal notranslate"><span class="pre">nspec</span></code> are the species.</p>
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">net_ienuc</span></code> : the index of the specific internal energy in the solution vector</p></li>
 </ul>
+<p>For <a class="reference internal" href="sdc.html#sdc-evolution"><span class="std std-ref">Spectral Deferred Corrections</span></a>, it also defines integer indices for the
+<code class="docutils literal notranslate"><span class="pre">burn_t</span> <span class="pre">y[]</span></code> array:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SFS</span></code>:  the first species</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SEINT</span></code> the energy</p></li>
+</ul>
+<p>and then a number of components that are not evolved:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">SRHO</span></code> density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SMX</span></code>, <code class="docutils literal notranslate"><span class="pre">SMY</span></code>, <code class="docutils literal notranslate"><span class="pre">SMZ</span></code> : the momenta</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SEDEN</span></code> : the total energy density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SFX</span></code> : the first auxiliary quantity</p></li>
+</ul>
+<p>with the total number of state variables <code class="docutils literal notranslate"><span class="pre">SVAR</span></code> and the number of evolved
+variables <code class="docutils literal notranslate"><span class="pre">SVAR_EVOLVE</span></code>.</p>
 </section>
 </section>
 <section id="integrators">
