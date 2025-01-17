@@ -394,14 +394,13 @@ void check_inputs (const I input, T& state)
 
 template <typename I, typename T>
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void eos (const I input, T& state, bool use_raw_inputs = false)
+void eos (const I input, T& state)
 {
   static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
 
   // Input arguments
 
   bool has_been_reset = false;
-  bool use_composition_routine = true;
 
   // Local variables
 
@@ -411,15 +410,9 @@ void eos (const I input, T& state, bool use_raw_inputs = false)
   }
 #endif
 
-  if (use_raw_inputs) {
-    use_composition_routine = false;
-  }
-
   if constexpr (has_xn<T>::value) {
-      if (use_composition_routine) {
-          // Get abar, zbar, etc.
-          composition(state);
-      }
+      // Get abar, zbar, etc.
+      composition(state);
   }
 
   // Force the inputs to be valid.
