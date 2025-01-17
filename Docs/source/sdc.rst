@@ -1,3 +1,5 @@
+.. _sdc-evolution:
+
 *****************************
 Spectral Deferred Corrections
 *****************************

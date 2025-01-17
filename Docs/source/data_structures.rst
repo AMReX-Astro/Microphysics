@@ -43,7 +43,7 @@ network, and they will come in through the ``network_properties.H`` header file.
 There is a lot more information that can be saved here, such as the
 partial derivatives of the thermodynamic state variables with respect
 to each other. To see a complete list, examine the ``eos_type.H``
-file: ``Castro/Microphysics/interfaces/eos_type.H``.
+file.
 
 Networks
 ========
@@ -111,9 +111,29 @@ to access the different components of the state:
 
 * ``neqs`` : the total number of variables we are integrating.
 
-   It is assumed that the first ``nspec`` are the species.
+  It is assumed that the first ``nspec`` are the species.
 
 * ``net_ienuc`` : the index of the specific internal energy in the solution vector
+
+For :ref:`sdc-evolution`, it also defines integer indices for the
+``burn_t y[]`` array:
+
+* ``SFS``:  the first species
+
+* ``SEINT`` the energy
+
+and then a number of components that are not evolved:
+
+* ``SRHO`` density
+
+* ``SMX``, ``SMY``, ``SMZ`` : the momenta
+
+* ``SEDEN`` : the total energy density
+
+* ``SFX`` : the first auxiliary quantity
+
+with the total number of state variables ``SVAR`` and the number of evolved
+variables ``SVAR_EVOLVE``.
 
 Integrators
 ===========
