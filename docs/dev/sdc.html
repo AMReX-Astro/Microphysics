@@ -65,6 +65,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -178,7 +179,7 @@ will set the <code class="docutils literal notranslate"><span class="pre">SDC</s
 </div>
 <section id="true-sdc">
 <h3>“True” SDC<a class="headerlink" href="#true-sdc" title="Link to this heading"></a></h3>
-<p>The true SDC implementation is described in <span id="id1">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">36</a>]</span>.  It divides
+<p>The true SDC implementation is described in <span id="id1">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">37</a>]</span>.  It divides
 the timestep into temporal nodes and uses low-order approximations to update
 from one temporal node to the next.  Iteration is used to increase the order of accuracy.</p>
 <p>The update from one temporal node, <span class="math notranslate nohighlight">\(m\)</span>, to the next, <span class="math notranslate nohighlight">\(m\)</span>, for iteration
@@ -214,7 +215,7 @@ approximation to the advection update over the timestep (for instance, computed 
 \[\frac{\partial \Uc}{\partial t} = [\Advs{\Uc}]^{n+1/2} + \Rb(\Uc)\]</div>
 <p>and uses iteration to improve the advective term based on the
 reactions.  The full details of the algorithm are presented in
-<span id="id2">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">37</a>]</span>.</p>
+<span id="id2">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">38</a>]</span>.</p>
 </section>
 <section id="common-ground">
 <h3>Common ground<a class="headerlink" href="#common-ground" title="Link to this heading"></a></h3>
@@ -317,7 +318,7 @@ to <code class="docutils literal notranslate"><span class="pre">ydot</span></cod
 <h3>Jacobian<a class="headerlink" href="#jacobian" title="Link to this heading"></a></h3>
 <p>The Jacobian of this system is <span class="math notranslate nohighlight">\({\bf J} = \partial \Rb /
 \partial \Uc\)</span>, since <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is held constant during the
-integration.  We follow the approach of <span id="id3">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">37</a>]</span> and factor
+integration.  We follow the approach of <span id="id3">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">38</a>]</span> and factor
 the Jacobian as:</p>
 <div class="math notranslate nohighlight">
 \[{\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
@@ -326,10 +327,10 @@ the Jacobian as:</p>
 for a reaction network.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In the original “true SDC” paper <span id="id4">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">36</a>]</span>, the matrix
+<p>In the original “true SDC” paper <span id="id4">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">37</a>]</span>, the matrix
 system was more complicated, and we included density in <span class="math notranslate nohighlight">\({\bf w}\)</span>.
 This is not needed, and we use the Jacobian defined in
-<span id="id5">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">37</a>]</span> instead.</p>
+<span id="id5">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">38</a>]</span> instead.</p>
 </div>
 </section>
 </section>

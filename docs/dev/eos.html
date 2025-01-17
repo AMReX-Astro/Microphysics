@@ -26,7 +26,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Transport Coefficients" href="transport.html" />
+    <link rel="next" title="Available Equations of State" href="eos_implementations.html" />
     <link rel="prev" title="Parameters by Namespace" href="runtime_parameters.html" /> 
 </head>
 
@@ -65,25 +65,17 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Equations of State</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#available-equations-of-state">Available Equations of State</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#gamma-law">gamma_law</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#polytrope">polytrope</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ztwd">ztwd</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#multigamma">multigamma</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#helmholtz">helmholtz</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stellarcollapse">stellarcollapse</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and Modes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#interface-and-modes">Interface and Modes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#composition">Composition</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#auxiliary-composition">Auxiliary Composition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#composition-derivatives">Composition Derivatives</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#initialization-and-cutoff-values">Initialization and Cutoff Values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#input-validation">Input Validation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#eos-structure">EOS Structure</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -146,175 +138,18 @@
              
   <section id="equations-of-state">
 <h1>Equations of State<a class="headerlink" href="#equations-of-state" title="Link to this heading"></a></h1>
-<p>In this chapter on equations of state, we list the EOS routines
-available for your use, and then we describe the correct structure of
-an EOS module in case you want to build your own.</p>
-<section id="available-equations-of-state">
-<h2>Available Equations of State<a class="headerlink" href="#available-equations-of-state" title="Link to this heading"></a></h2>
-<p id="index-0">The following equations of state are available in Microphysics.
-Except where noted, each of these EOSs will provide the full
-thermodynamic data (including all derivatives) in the <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>
-type.</p>
-<section id="gamma-law">
-<h3>gamma_law<a class="headerlink" href="#gamma-law" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> represents a gamma law gas, with
-equation of state:</p>
-<div class="math notranslate nohighlight">
-\[p = (\gamma - 1) \rho e.\]</div>
-<p><span class="math notranslate nohighlight">\(\gamma\)</span> is specified by the runtime parameter <code class="docutils literal notranslate"><span class="pre">eos.eos_gamma</span></code>. For
-an ideal gas, this represents the ratio of specific heats. The gas is
-assumed to be ideal, with the pressure given by</p>
-<div class="math notranslate nohighlight">
-\[p = \frac{\rho k T}{\mu m_u}\]</div>
-<p>where <span class="math notranslate nohighlight">\(k\)</span> is Boltzmann’s constant and <span class="math notranslate nohighlight">\(\mu\)</span> is the mean molecular
-weight, calculated from the composition, <span class="math notranslate nohighlight">\(X_k\)</span>. This EOS assumes
-the gas is either completely neutral (<code class="docutils literal notranslate"><span class="pre">eos.assume_neutral</span> <span class="pre">=</span> <span class="pre">1</span></code>),
-giving:</p>
-<div class="math notranslate nohighlight">
-\[\mu^{-1} = \sum_k \frac{X_k}{A_k}\]</div>
-<p>or completely ionized (<code class="docutils literal notranslate"><span class="pre">eos.assume_neutral</span> <span class="pre">=</span> <span class="pre">0</span></code>), giving:</p>
-<div class="math notranslate nohighlight">
-\[\mu^{-1} = \sum_k \left ( 1 + Z_k \right ) \frac{X_k}{A_k}\]</div>
-<p>The entropy comes from the Sackur-Tetrode equation. Because of the
-complex way that composition enters into the entropy, the entropy
-formulation here is only correct for a <span class="math notranslate nohighlight">\(\gamma = 5/3\)</span> gas.</p>
-</section>
-<section id="polytrope">
-<h3>polytrope<a class="headerlink" href="#polytrope" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">polytrope</span></code> represents a polytropic fluid, with equation of
-state:</p>
-<div class="math notranslate nohighlight">
-\[p = K \rho^\gamma.\]</div>
-<p>The gas is also assumed to obey the above gamma law relation
-connecting the pressure and internal energy. Therefore <span class="math notranslate nohighlight">\(\rho\)</span> is the
-only independent variable; there is no temperature dependence. The
-user either selects from a set of predefined options reflecting
-physical polytropes (e.g. a non-relativistic, fully degenerate
-electron gas) or inputs their own values for <span class="math notranslate nohighlight">\(K\)</span> and <span class="math notranslate nohighlight">\(\gamma\)</span>
-via <code class="docutils literal notranslate"><span class="pre">eos.polytrope_K</span></code> and <code class="docutils literal notranslate"><span class="pre">eos.polytrope_gamma</span></code>.</p>
-<p>The runtime parameter <code class="docutils literal notranslate"><span class="pre">eos.polytrope_type</span></code> selects the pre-defined
-polytropic relations. The options are:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">eos.polytrope_type</span> <span class="pre">=</span> <span class="pre">1</span></code>: sets <span class="math notranslate nohighlight">\(\gamma = 5/3\)</span> and</p>
-<div class="math notranslate nohighlight">
-\[K = \left ( \frac{3}{\pi} \right)^{2/3} \frac{h^2}{20 m_e m_p^{5/3}} \frac{1}{\mu_e^{5/3}}\]</div>
-<p>where <span class="math notranslate nohighlight">\(mu_e\)</span> is the mean molecular weight per electron, specified via <code class="docutils literal notranslate"><span class="pre">eos.polytrope_mu_e</span></code></p>
-<p>This is the form appropriate for a non-relativistic
-fully-degenerate electron gas.</p>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">eos.polytrope_type</span> <span class="pre">=</span> <span class="pre">2</span></code>: sets <span class="math notranslate nohighlight">\(\gamma = 4/3\)</span> and</p>
-<div class="math notranslate nohighlight">
-\[K = \left ( \frac{3}{\pi} \right)^{1/3} \frac{hc}{8 m_p^{4/3}} \frac{1}{\mu_e^{4/3}}\]</div>
-<p>This is the form appropriate for a relativistic fully-degenerate
-electron gas.</p>
-</li>
-</ul>
-</section>
-<section id="ztwd">
-<h3>ztwd<a class="headerlink" href="#ztwd" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">ztwd</span></code> is the zero-temperature degenerate electron equation
-of state of Chandrasekhar (1935), which is designed to describe
-white dward material. The pressure satisfies the equation:</p>
-<div class="math notranslate nohighlight">
-\[p(x) = A \left( x(2x^2-3)(x^2 + 1)^{1/2} + 3\, \text{sinh}^{-1}(x) \right),\]</div>
-<p>with <span class="math notranslate nohighlight">\(A = \pi m_e^4 c^5 / (3 h^3)\)</span>. Here <span class="math notranslate nohighlight">\(x\)</span> is a dimensionless
-measure of the Fermi momentum, with <span class="math notranslate nohighlight">\(\rho = B x^3\)</span> and <span class="math notranslate nohighlight">\(B = 8\pi \mu_e
-m_p m_e^3 c^3 / (3h^3)\)</span>, where <span class="math notranslate nohighlight">\(\mu_e\)</span> is the mean molecular weight
-per electron and <span class="math notranslate nohighlight">\(h\)</span> is the Planck constant.</p>
-<p>The enthalpy was worked out by Hachisu (1986):</p>
-<div class="math notranslate nohighlight">
-\[h(x) = \frac{8A}{B}\left(x^2 + 1\right)^{1/2}.\]</div>
-<p>(note the unfortunate notation here, but this <span class="math notranslate nohighlight">\(h\)</span> is specific
-enthalpy). The specific internal energy satisfies the standard
-relationship to the specific enthalpy:</p>
-<div class="math notranslate nohighlight">
-\[e = h - p / \rho.\]</div>
-<p>Since the pressure-density relationship does not admit a closed-form
-solution for the density in terms of the pressure, if we call the EOS
-with pressure as a primary input then we do Newton-Raphson iteration
-to find the density that matches this pressure.</p>
-</section>
-<section id="multigamma">
-<h3>multigamma<a class="headerlink" href="#multigamma" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">multigamma</span></code> is an ideal gas equation of state where each
-species can have a different value of <span class="math notranslate nohighlight">\(\gamma\)</span>. This mainly affects
-how the internal energy is constructed as each species, represented
-with a mass fraction <span class="math notranslate nohighlight">\(X_k\)</span> will have its contribution to the total
-specific internal energy take the form of <span class="math notranslate nohighlight">\(e = p/\rho/(\gamma_k -  1)\)</span>.
-The main thermodynamic quantities take the form:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{aligned}
-p &amp;= \frac{\rho k T}{m_u} \sum_k \frac{X_k}{A_k} \\
-e &amp;= \frac{k T}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
-h &amp;= \frac{k T}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k}\end{aligned}\end{split}\]</div>
-<p>We recognize that the usual astrophysical <span class="math notranslate nohighlight">\(\bar{A}^{-1} = \sum_k
-X_k/A_k\)</span>, but now we have two other sums that involve different
-<span class="math notranslate nohighlight">\(\gamma_k\)</span> weightings.</p>
-<p>The specific heats are constructed as usual,</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{aligned}
-c_v &amp;= \left . \frac{\partial e}{\partial T} \right |_\rho =
-    \frac{k}{m_u} \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \\
-c_p &amp;= \left . \frac{\partial h}{\partial T} \right |_p =
-    \frac{k}{m_u} \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k}\end{aligned}\end{split}\]</div>
-<p>and it can be seen that the specific gas constant, <span class="math notranslate nohighlight">\(R \equiv c_p -
-c_v\)</span> is independent of the <span class="math notranslate nohighlight">\(\gamma_i\)</span>, and is simply <span class="math notranslate nohighlight">\(R =
-k/m_u\bar{A}\)</span> giving the usual relation that <span class="math notranslate nohighlight">\(p = R\rho T\)</span>.
-Furthermore, we can show</p>
-<div class="math notranslate nohighlight">
-\[\Gamma_1 \equiv \left . \frac{\partial \log p}{\partial \log \rho} \right |_s =
-   \left ( \sum_k \frac{\gamma_k}{\gamma_k - 1} \frac{X_k}{A_k} \right ) \bigg /
-   \left ( \sum_k \frac{1}{\gamma_k - 1} \frac{X_k}{A_k} \right ) =
-\frac{c_p}{c_v} \equiv \gamma_\mathrm{effective}\]</div>
-<p>and <span class="math notranslate nohighlight">\(p = \rho e (\gamma_\mathrm{effective} - 1)\)</span>.</p>
-<p>This equation of state takes several runtime parameters that can set
-the <span class="math notranslate nohighlight">\(\gamma_i\)</span> for a specific species. The parameters are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">eos.eos_gamma_default</span></code>: the default <span class="math notranslate nohighlight">\(\gamma\)</span> to apply for all
-species</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">eos.species_X_name</span></code> and <code class="docutils literal notranslate"><span class="pre">eos.species_X_gamma</span></code>: set the
-<span class="math notranslate nohighlight">\(\gamma_i\)</span> for the species whose name is given as
-<code class="docutils literal notranslate"><span class="pre">eos.species_X_name</span></code> to the value provided by <code class="docutils literal notranslate"><span class="pre">eos.species_X_gamma</span></code>.
-Here, <code class="docutils literal notranslate"><span class="pre">X</span></code> can be one of the letters: <code class="docutils literal notranslate"><span class="pre">a</span></code>, <code class="docutils literal notranslate"><span class="pre">b</span></code>, or
-<code class="docutils literal notranslate"><span class="pre">c</span></code>, allowing us to specify custom <span class="math notranslate nohighlight">\(\gamma_i\)</span> for up to three
-different species.</p></li>
-</ul>
-</section>
-<section id="helmholtz">
-<h3>helmholtz<a class="headerlink" href="#helmholtz" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> contains a general, publicly available stellar
-equation of state based on the Helmholtz free energy, with
-contributions from ions, radiation, and electron degeneracy, as
-described in <span id="id1">[<a class="reference internal" href="zreferences.html#id11" title="F. X. Timmes and D. Arnett. The Accuracy, Consistency, and Speed of Five Equations of State for Stellar Hydrodynamics. ApJS, 125:277-294, November 1999. doi:10.1086/313271.">6</a>]</span>, <span id="id2">[<a class="reference internal" href="zreferences.html#id12" title="F. X. Timmes and F. D. Swesty. The Accuracy, Consistency, and Speed of an Electron-Positron Equation of State Based on Table Interpolation of the Helmholtz Free Energy. ApJS, 126:501-516, February 2000. doi:10.1086/313304.">7</a>]</span>, <span id="id3">[<a class="reference internal" href="zreferences.html#id10" title="B. Fryxell, K. Olson, P. Ricker, F. X. Timmes, M. Zingale, D. Q. Lamb, P. MacNeice, R. Rosner, J. W. Truran, and H. Tufo. FLASH: An Adaptive Mesh Hydrodynamics Code for Modeling Astrophysical Thermonuclear Flashes. ApJS, 131:273-334, November 2000. doi:10.1086/317361.">8</a>]</span>.</p>
-<p>We have modified this EOS a bit to fit within the context of our
-codes. The vectorization is explicitly thread-safe for use with OpenMP
-and OpenACC. In addition, we have added the ability to perform a
-Newton-Raphson iteration so that if we call the EOS with density and
-energy (say), then we will iterate over temperature until we find the
-temperature that matches this density–energy combination. If we
-cannot find an appropriate temperature, we will reset it to
-<code class="docutils literal notranslate"><span class="pre">small_temp</span></code>, which needs to be set in the equation of state wrapper
-module in the code calling this. However, there is a choice of whether
-to update the energy to match this temperature, respecting
-thermodynamic consistency, or to leave the energy alone, respecting
-energy conservation. This is controlled through the
-<code class="docutils literal notranslate"><span class="pre">eos.eos_input_is_constant</span></code> parameter in your inputs file.</p>
-<p>We thank Frank Timmes for permitting us to modify his code and
-publicly release it in this repository.</p>
-</section>
-<section id="stellarcollapse">
-<h3>stellarcollapse<a class="headerlink" href="#stellarcollapse" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">stellarcollapse</span></code> is the equation of state module provided
-on <a class="reference external" href="http://stellarcollapse.org">http://stellarcollapse.org</a>. It is designed
-to be used for core-collapse supernovae and is compatible with a
-large number of equations of state that are designed to describe
-matter near nuclear density. You will need to download an
-appropriate interpolation table from that site to use this.</p>
-</section>
-</section>
+<p>The general interface to the equation of state is:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">I</span><span class="p">,</span><span class="w"> </span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">eos</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">I</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">use_raw_inputs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">input</span></code> specifies which thermodynamic quantities are taken as
+the input and <code class="docutils literal notranslate"><span class="pre">state</span></code> is a C++ struct that holds all of the
+thermodynamic information.</p>
 <section id="interface-and-modes">
 <h2>Interface and Modes<a class="headerlink" href="#interface-and-modes" title="Link to this heading"></a></h2>
-<p id="index-1">The EOS is called as:</p>
+<p id="index-0">The EOS is called as:</p>
 <div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">eos</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span><span class="w"> </span><span class="n">eos_type</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -341,80 +176,111 @@ energy derivatives.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">chem_eos_t</span></code> : adds some quantities needed for the primordial chemistry EOS
 and explicitly does not include the mass fractions.</p></li>
 </ul>
-<p>In general, you should use the type that has the smallest set of
-information needed, since we optimize out needless quantities at
-compile type (via C++ templating) for <code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code> and <code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>All of these modes require composition as an input.  Usually this is
-via the set of mass fractions, <code class="docutils literal notranslate"><span class="pre">eos_t.xn[]</span></code>, but if <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO</span></code>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>The EOS implementations make heavy use of templating to
+“compile-out” the thermodynamic quantities that are not needed
+(depending on the input type).  This can greatly increase
+performance.  As such, you should pick the smallest EOS structure
+(<code class="docutils literal notranslate"><span class="pre">eos_re_t</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_rep_t</span></code>, …) that contains the thermodynamic
+information you need.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can also pass a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> struct into the EOS, although this
+will give you access to a much smaller range of data.</p>
+</div>
+</section>
+<section id="composition">
+<h2>Composition<a class="headerlink" href="#composition" title="Link to this heading"></a></h2>
+<p>All input modes for <code class="docutils literal notranslate"><span class="pre">eos()</span></code> require a composition.  Usually this is
+via the set of mass fractions, <code class="docutils literal notranslate"><span class="pre">eos_t</span> <span class="pre">xn[]</span></code>, but if <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO</span></code>
 is set to <code class="docutils literal notranslate"><span class="pre">TRUE</span></code>, then we instead use the auxiliary quantities
 stored in <code class="docutils literal notranslate"><span class="pre">eos_t.aux[]</span></code>.</p>
-</div>
 <section id="auxiliary-composition">
 <span id="aux-eos-comp"></span><h3>Auxiliary Composition<a class="headerlink" href="#auxiliary-composition" title="Link to this heading"></a></h3>
-<p id="index-2">With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
-The auxiliary variables are</p>
+<div class="admonition note" id="index-1">
+<p class="admonition-title">Note</p>
+<p>The main use-case for the auxiliary composition is when using a reaction
+network together with the tabulated NSE state.</p>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO=TRUE</span></code>, we interpret the composition from the auxiliary variables.
+For <code class="docutils literal notranslate"><span class="pre">eos_t</span> <span class="pre">eos_state</span></code>, the auxiliary variables are</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[iye]</span></code> : electron fraction, defined as</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[AuxZero::iye]</span></code> : electron fraction, defined as</p>
 <div class="math notranslate nohighlight">
 \[Y_e = \sum_k \frac{X_k Z_k}{A_k}\]</div>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[iabar]</span></code> : the average mass of the nuclei, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, defined as:</p>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[AuxZero::iabar]</span></code> : the average mass of the nuclei, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, defined as:</p>
 <div class="math notranslate nohighlight">
 \[\frac{1}{\bar{A}} = \sum_k \frac{X_k}{A_k}\]</div>
 <p>In many stellar evolutions texts, this would be written as <span class="math notranslate nohighlight">\(\mu_I\)</span>.</p>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[ibea]</span></code> : the binding energy per nucleon (units of
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_state.aux[AuxZero::ibea]</span></code> : the binding energy per nucleon (units of
 MeV), defined as</p>
 <div class="math notranslate nohighlight">
 \[\left \langle \frac{B}{A} \right \rangle  = \sum_k \frac{X_k B_k}{A_k}\]</div>
 <p>where <span class="math notranslate nohighlight">\(B_k\)</span> is the binding energy of nucleus <span class="math notranslate nohighlight">\(k\)</span></p>
 </li>
 </ul>
-<p>Given a composition of mass fractions, the function
-<code class="docutils literal notranslate"><span class="pre">set_aux_comp_from_X(state_t&amp;</span> <span class="pre">state)</span></code> will initialize these
-auxiliary quantities.</p>
-<p>The equation of state also needs <span class="math notranslate nohighlight">\(\bar{Z}\)</span> which is easily computed as</p>
+<p>Given a composition of mass fractions, the function:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">state_t</span><span class="o">&gt;</span>
+<span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">set_aux_comp_from_X</span><span class="p">(</span><span class="n">state_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will initialize the auxiliary data.</p>
+<p>Many equations of state also need <span class="math notranslate nohighlight">\(\bar{Z}\)</span> which is easily computed as</p>
 <div class="math notranslate nohighlight">
 \[\bar{Z} = \bar{A} Y_e\]</div>
 </section>
 <section id="composition-derivatives">
 <h3>Composition Derivatives<a class="headerlink" href="#composition-derivatives" title="Link to this heading"></a></h3>
-<p id="index-3">The derivatives <span class="math notranslate nohighlight">\(\partial p/\partial A\)</span>, <span class="math notranslate nohighlight">\(\partial p/\partial Z\)</span>,
+<p id="index-2">The derivatives <span class="math notranslate nohighlight">\(\partial p/\partial A\)</span>, <span class="math notranslate nohighlight">\(\partial p/\partial Z\)</span>,
 and <span class="math notranslate nohighlight">\(\partial e/\partial A\)</span>, <span class="math notranslate nohighlight">\(\partial e/\partial Z\)</span> are available via
 the <code class="docutils literal notranslate"><span class="pre">eos_extra_t</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_re_extra_t</span></code>, <code class="docutils literal notranslate"><span class="pre">eos_rep_extra_t</span></code>, which
 extends the non-“extra” variants with these additional fields.</p>
 <p>The composition derivatives can be used via the <code class="docutils literal notranslate"><span class="pre">composition_derivatives()</span></code> function
 in <code class="docutils literal notranslate"><span class="pre">eos_composition.H</span></code>
-to compute <span class="math notranslate nohighlight">\(\partial p/\partial X_k |_{\rho, T, X_j}\)</span>, <span class="math notranslate nohighlight">\(\partial e/\partial X_k |_{\rho, T, X_j}\)</span>, and <span class="math notranslate nohighlight">\(\partial h/\partial X_k |_{\rho, T, X_j}\)</span>.</p>
+to compute <span class="math notranslate nohighlight">\(\partial p/\partial X_k |_{\rho, T, X_j}\)</span>, <span class="math notranslate nohighlight">\(\partial e/\partial X_k |_{\rho, T, X_j}\)</span>, and <span class="math notranslate nohighlight">\(\partial h/\partial X_k |_{\rho, T, X_j}\)</span>.  This has the interface:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
+<span class="n">eos_xderivs_t</span><span class="w"> </span><span class="n">composition_derivatives</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="initialization-and-cutoff-values">
 <h2>Initialization and Cutoff Values<a class="headerlink" href="#initialization-and-cutoff-values" title="Link to this heading"></a></h2>
-</section>
-<section id="input-validation">
-<h2>Input Validation<a class="headerlink" href="#input-validation" title="Link to this heading"></a></h2>
 <p>The EOS will make sure that the inputs are within an acceptable range,
 (e.g., <code class="docutils literal notranslate"><span class="pre">small_temp</span></code> <span class="math notranslate nohighlight">\(&lt; T &lt;\)</span> <code class="docutils literal notranslate"><span class="pre">maxT</span></code>). If they are not, then it
 resets them silently—no error is thrown.</p>
 <p>If you are calling the EOS with <code class="docutils literal notranslate"><span class="pre">eos_input_re</span></code>, and if <span class="math notranslate nohighlight">\(e &lt;
 10^{-200}\)</span>, then it calls the EOS with <code class="docutils literal notranslate"><span class="pre">eos_input_rt</span></code> with T =
 max ( <code class="docutils literal notranslate"><span class="pre">small_temp</span></code>, T ).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>User’s are encourage to do their own validation of inputs before calling
 the EOS.</p>
+</div>
 </section>
 <section id="eos-structure">
 <h2>EOS Structure<a class="headerlink" href="#eos-structure" title="Link to this heading"></a></h2>
-<p>Each EOS should have two main routines by which it interfaces to the
-rest of CASTRO. At the beginning of the simulation,
+<p>Each EOS should have two main routines through which it interfaces to the
+rest of Microphysics.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_eos_init()</span></code> :  At the beginning of the simulation,
 <code class="docutils literal notranslate"><span class="pre">actual_eos_init</span></code> will perform any initialization steps and save
 EOS variables (mainly <code class="docutils literal notranslate"><span class="pre">smallt</span></code>, the temperature floor, and
 <code class="docutils literal notranslate"><span class="pre">smalld</span></code>, the density floor). These variables are stored in the
-main EOS module of the code calling these routines. This would be the
-appropriate time for, say, loading an interpolation table into memory.</p>
-<p>The main evaluation routine is called <code class="docutils literal notranslate"><span class="pre">actual_eos</span></code>. It should
-accept an eos_input and an eos_t state; see Section <a class="reference internal" href="data_structures.html#data-structures"><span class="std std-ref">Data Structures</span></a>.</p>
+main EOS module of the code calling these routines.</p>
+<p>This is also where an EOS with tables would read in the tables
+and initialize the memory they are stored in.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actual_eos()</span></code> : this is the main evaluation routine.  It should
+accept an <code class="docutils literal notranslate"><span class="pre">eos_input_t</span></code> specifying the thermodynamic inputs and a
+struct (like <code class="docutils literal notranslate"><span class="pre">eos_t</span></code>) that stores the thermodynamic quantities.</p></li>
+</ul>
 </section>
 </section>
 
@@ -423,7 +289,7 @@ accept an eos_input and an eos_t state; see Section <a class="reference internal
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="runtime_parameters.html" class="btn btn-neutral float-left" title="Parameters by Namespace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="transport.html" class="btn btn-neutral float-right" title="Transport Coefficients" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="eos_implementations.html" class="btn btn-neutral float-right" title="Available Equations of State" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
