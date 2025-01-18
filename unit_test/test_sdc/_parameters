@@ -5,6 +5,7 @@ dens_max      real       1.e9
 temp_min      real       1.e6
 temp_max      real       1.e15
 
+# uniform composition
 uniform_xn    int        0
 
 tmax          real       0.1e0
@@ -12,4 +13,3 @@ tmax          real       0.1e0
 small_temp    real       1.e5
 small_dens    real       1.e3
 
-do_acc        int        1
