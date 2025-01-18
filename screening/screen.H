@@ -647,7 +647,7 @@ template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 number_t actual_screen(const plasma_state_t<number_t>& state,
                      const scrn::screen_factors_t& scn_fac,
-                     const bool skip_check = false,
+                     const bool enable_skip_check = false,
                      const amrex::Real skip_threshold = 1.01_rt)
 {
     number_t scor = 1.0_rt;
@@ -656,7 +656,7 @@ number_t actual_screen(const plasma_state_t<number_t>& state,
     amrex::ignore_unused(state, scn_fac);
     return scor;
 #endif
-    if (skip_check) {
+    if (enable_skip_check) {
         scor = debye_huckel(state, scn_fac);
         if (scor <= skip_threshold) {
             return scor;
@@ -681,11 +681,11 @@ AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_screen(const plasma_state_t<number_t>& state,
                    const scrn::screen_factors_t& scn_fac,
                    amrex::Real& scor, amrex::Real& scordt,
-                   const bool skip_check = false,
+                   const bool enable_skip_check = false,
                    const amrex::Real skip_threshold = 1.01_rt)
 {
     number_t scor_dual;
-    scor_dual = actual_screen(state, scn_fac, skip_check, skip_threshold);
+    scor_dual = actual_screen(state, scn_fac, enable_skip_check, skip_threshold);
     if constexpr (autodiff::detail::isDual<number_t>) {
         scor = autodiff::val(scor_dual);
         scordt = autodiff::derivative(scor_dual);
