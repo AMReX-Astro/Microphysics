@@ -172,7 +172,7 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
     number_t Gamma_e = state.gamma_e_fac / state.temp;
 
     // eq. A1
-    number_t h_DH = z1z2 * gcem::sqrt(3 * amrex::Math::powi<3>(Gamma_e) * z_ratio);
+    number_t h_DH = z1z2 * admath::sqrt(3 * amrex::Math::powi<3>(Gamma_e) * z_ratio);
 
     // machine limit the output
     constexpr amrex::Real h_max = 300.e0_rt;
