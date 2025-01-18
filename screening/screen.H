@@ -646,9 +646,7 @@ number_t chabrier1998 (const plasma_state_t<number_t>& state,
 template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 number_t actual_screen(const plasma_state_t<number_t>& state,
-                     const scrn::screen_factors_t& scn_fac,
-                     const bool enable_skip_check = screening_rp::enable_debye_huckel_skip,
-                     const amrex::Real skip_threshold = 1.01_rt)
+                     const scrn::screen_factors_t& scn_fac)
 {
     number_t scor = 1.0_rt;
 #if SCREEN_METHOD == SCREEN_METHOD_null
@@ -656,9 +654,9 @@ number_t actual_screen(const plasma_state_t<number_t>& state,
     amrex::ignore_unused(state, scn_fac);
     return scor;
 #endif
-    if (enable_skip_check) {
+    if (screening_rp::enable_debye_huckel_skip) {
         scor = debye_huckel(state, scn_fac);
-        if (scor <= skip_threshold) {
+        if (scor <= screening_rp::debye_huckel_skip_threshold) {
             return scor;
         }
     }
@@ -680,12 +678,10 @@ template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 void actual_screen(const plasma_state_t<number_t>& state,
                    const scrn::screen_factors_t& scn_fac,
-                   amrex::Real& scor, amrex::Real& scordt,
-                   const bool enable_skip_check = screening_rp::enable_debye_huckel_skip,
-                   const amrex::Real skip_threshold = 1.01_rt)
+                   amrex::Real& scor, amrex::Real& scordt)
 {
     number_t scor_dual;
-    scor_dual = actual_screen(state, scn_fac, enable_skip_check, skip_threshold);
+    scor_dual = actual_screen(state, scn_fac);
     if constexpr (autodiff::detail::isDual<number_t>) {
         scor = autodiff::val(scor_dual);
         scordt = autodiff::derivative(scor_dual);
