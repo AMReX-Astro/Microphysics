@@ -176,7 +176,7 @@ number_t debye_huckel (const plasma_state_t<number_t>& state,
 
     // machine limit the output
     constexpr amrex::Real h_max = 300.e0_rt;
-    amrex::Real h = admath::min(h_DH, h_max);
+    number_t h = admath::min(h_DH, h_max);
     return admath::exp(h);
 }
 
