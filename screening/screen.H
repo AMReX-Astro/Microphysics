@@ -647,8 +647,8 @@ template <typename number_t>
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 number_t actual_screen(const plasma_state_t<number_t>& state,
                      const scrn::screen_factors_t& scn_fac,
-                     const bool& skip_check = false,
-                     const number_t& skip_threshold = 1.01_rt)
+                     const bool skip_check = false,
+                     const amrex::Real skip_threshold = 1.01_rt)
 {
     number_t scor = 1.0_rt;
 #if SCREEN_METHOD == SCREEN_METHOD_null
