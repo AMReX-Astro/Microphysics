@@ -656,7 +656,7 @@ number_t actual_screen(const plasma_state_t<number_t>& state,
     amrex::ignore_unused(state, scn_fac);
     return scor;
 #endif
-    if skip_check {
+    if (skip_check) {
         scor = debye_huckel(state, scn_fac);
         if (scor <= skip_threshold) {
             return scor;
