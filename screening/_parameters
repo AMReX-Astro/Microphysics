@@ -1,3 +1,4 @@
 @namespace: screening
 
 enable_chabrier1998_quantum_corr        bool      0
+enable_debye_huckel_skip                bool      0
