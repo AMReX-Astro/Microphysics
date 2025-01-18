@@ -1,3 +1,46 @@
+# 25.01
+
+  * update HIP/CUDA dependences to include sparse libraries (#1686)
+
+  * rename `Opacity_dir` -> `OPACITY_DIR` (#1679)
+
+  * update the integration and NSE docs (#1682)
+
+# 24.12
+
+  * documentation improvements (#1661, #1667, #1670)
+
+  * optimize tabular NSE EOS calls (#1668)
+
+  * CI fixes (#1666, #1671, #1675) and new partition function CI
+    (#1673)
+
+  * `burn_cell` can now initialize all mass fractions to be equal
+    (#1665)
+
+# 24.10
+
+  * metal chemistry updates (#1648) with ices (#1650) and cosmic rays (#1651)
+
+  * added dust to primordial chemistry (#1649)
+
+  * doc updates (#1652)
+
+# 24.09
+
+  * Improvements to the primordial chemistry network and the addition
+    of a new version that includes metals and dust (#1642, #1644)
+
+  * code clean-ups (#1645)
+
+  * documentation improvements (#1637)
+
+  * outputting the burn_t now prints the mass fractions / number densities
+    in scientific notation (#1643)
+
+  * improvements to the looping and zeroing of the Jacobian in the
+    integrators (#1636, #1640)
+
 # 24.08
 
   * autodiff is now used with the templated reaction networks (#1614)
