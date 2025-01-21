@@ -94,6 +94,8 @@ The options are:
   weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime,
   :math:`1 \lesssim \Gamma \lesssim 160`.
 
+.. index:: screening.enable_debye_huckel_skip, screening.debye_huckel_skip_threshold
+
 * ``debye_huckel`` :
 
   This is just the Debye-Hückel weak-screening limit from
