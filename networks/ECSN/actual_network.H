@@ -30,34 +30,34 @@ namespace network
             return 0.0_rt;
         }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == O20) {
-            return 151.3714_rt;
+            return 151.37138571200194_rt;
         }
         else if constexpr (spec == F20) {
-            return 154.40268_rt;
+            return 154.40270167600102_rt;
         }
         else if constexpr (spec == Ne20) {
-            return 160.6448_rt;
+            return 160.64482384000075_rt;
         }
         else if constexpr (spec == Mg24) {
-            return 198.25701600000002_rt;
+            return 198.2570479679962_rt;
         }
         else if constexpr (spec == Al27) {
-            return 224.951931_rt;
+            return 224.95193723199915_rt;
         }
         else if constexpr (spec == Si28) {
-            return 236.536832_rt;
+            return 236.53684539599638_rt;
         }
         else if constexpr (spec == P31) {
-            return 262.91617699999995_rt;
+            return 262.9161999600037_rt;
         }
         else if constexpr (spec == S32) {
-            return 271.78012800000005_rt;
+            return 271.78016372399725_rt;
         }
 
 

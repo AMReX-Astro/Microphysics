@@ -30,52 +30,52 @@ namespace network
             return 0.0_rt;
         }
         else if constexpr (spec == H2) {
-            return 2.224566_rt;
+            return 2.2245662689997516_rt;
         }
         else if constexpr (spec == He3) {
-            return 7.7180399999999985_rt;
+            return 7.718041347999588_rt;
         }
         else if constexpr (spec == He4) {
-            return 28.29566_rt;
+            return 28.295662457999697_rt;
         }
         else if constexpr (spec == Be7) {
-            return 37.600836_rt;
+            return 37.60083855599987_rt;
         }
         else if constexpr (spec == B8) {
-            return 37.73724_rt;
+            return 37.7372096199997_rt;
         }
         else if constexpr (spec == C12) {
-            return 92.16172800000001_rt;
+            return 92.16173498399803_rt;
         }
         else if constexpr (spec == C13) {
-            return 97.108037_rt;
+            return 97.10804378399916_rt;
         }
         else if constexpr (spec == N13) {
-            return 94.105219_rt;
+            return 94.10522604799917_rt;
         }
         else if constexpr (spec == N14) {
-            return 104.65859599999999_rt;
+            return 104.65860734799753_rt;
         }
         else if constexpr (spec == N15) {
-            return 115.4919_rt;
+            return 115.49190414799887_rt;
         }
         else if constexpr (spec == O14) {
-            return 98.731892_rt;
+            return 98.73189611199996_rt;
         }
         else if constexpr (spec == O15) {
-            return 111.95538_rt;
+            return 111.95539521199862_rt;
         }
         else if constexpr (spec == O16) {
-            return 127.619296_rt;
+            return 127.6193154119992_rt;
         }
         else if constexpr (spec == O17) {
-            return 131.76237600000002_rt;
+            return 131.76239561199873_rt;
         }
         else if constexpr (spec == F17) {
-            return 128.21957600000002_rt;
+            return 128.21958437599824_rt;
         }
         else if constexpr (spec == F18) {
-            return 137.369484_rt;
+            return 137.36950247599816_rt;
         }
 
 

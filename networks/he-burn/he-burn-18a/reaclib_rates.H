@@ -1910,11 +1910,11 @@ void rate_N13_to_p_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     amrex::Real set_rate{0.0};
 
     // ls09c
-    ln_set_rate =  40.04074558314484 + -22.547578710551672 * tfactors.T9i + -13.692 * tfactors.T913i + -0.230881 * tfactors.T913
+    ln_set_rate =  40.04074558130668 + -22.547578710171805 * tfactors.T9i + -13.692 * tfactors.T913i + -0.230881 * tfactors.T913
                          + 4.44362 * tfactors.T9 + -3.15898 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  22.547578710551672 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.692 * tfactors.T943i + (1.0/3.0) * -0.230881 * tfactors.T923i
+        dln_set_rate_dT9 =  22.547578710171805 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.692 * tfactors.T943i + (1.0/3.0) * -0.230881 * tfactors.T923i
                                   + 4.44362 + (5.0/3.0) * -3.15898 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -1927,11 +1927,11 @@ void rate_N13_to_p_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     }
 
     // ls09c
-    ln_set_rate =  40.43534558314484 + -26.326068710551674 * tfactors.T9i + -5.10735 * tfactors.T913i + -2.24111 * tfactors.T913
+    ln_set_rate =  40.43534558130668 + -26.326068710171807 * tfactors.T9i + -5.10735 * tfactors.T913i + -2.24111 * tfactors.T913
                          + 0.148883 * tfactors.T9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  26.326068710551674 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -5.10735 * tfactors.T943i + (1.0/3.0) * -2.24111 * tfactors.T923i
+        dln_set_rate_dT9 =  26.326068710171807 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -5.10735 * tfactors.T943i + (1.0/3.0) * -2.24111 * tfactors.T923i
                                   + 0.148883;
     }
 
@@ -1986,11 +1986,11 @@ void rate_O16_to_He4_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real set_rate{0.0};
 
     // nac2 
-    ln_set_rate =  279.2945280776573 + -84.95160042649215 * tfactors.T9i + 103.411 * tfactors.T913i + -420.567 * tfactors.T913
+    ln_set_rate =  279.29452807581913 + -84.95160042509195 * tfactors.T9i + 103.411 * tfactors.T913i + -420.567 * tfactors.T913
                          + 64.0874 * tfactors.T9 + -12.4624 * tfactors.T953 + 138.803 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  84.95160042649215 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 103.411 * tfactors.T943i + (1.0/3.0) * -420.567 * tfactors.T923i
+        dln_set_rate_dT9 =  84.95160042509195 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 103.411 * tfactors.T943i + (1.0/3.0) * -420.567 * tfactors.T923i
                                   + 64.0874 + (5.0/3.0) * -12.4624 * tfactors.T923 + 138.803 * tfactors.T9i;
     }
 
@@ -2003,11 +2003,11 @@ void rate_O16_to_He4_C12_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     }
 
     // nac2 
-    ln_set_rate =  94.31312807765731 + -84.50317042649215 * tfactors.T9i + 58.9128 * tfactors.T913i + -148.273 * tfactors.T913
+    ln_set_rate =  94.31312807581915 + -84.50317042509195 * tfactors.T9i + 58.9128 * tfactors.T913i + -148.273 * tfactors.T913
                          + 9.08324 * tfactors.T9 + -0.541041 * tfactors.T953 + 71.8554 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  84.50317042649215 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 58.9128 * tfactors.T943i + (1.0/3.0) * -148.273 * tfactors.T923i
+        dln_set_rate_dT9 =  84.50317042509195 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 58.9128 * tfactors.T943i + (1.0/3.0) * -148.273 * tfactors.T923i
                                   + 9.08324 + (5.0/3.0) * -0.541041 * tfactors.T923 + 71.8554 * tfactors.T9i;
     }
 
@@ -2061,11 +2061,11 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     amrex::Real set_rate{0.0};
 
     // co10c
-    ln_set_rate =  34.26581585936365 + -67.65193003813836 * tfactors.T9i + -3.65925 * tfactors.T913
+    ln_set_rate =  34.26581585752549 + -67.65193003721365 * tfactors.T9i + -3.65925 * tfactors.T913
                          + 0.714224 * tfactors.T9 + -0.00107508 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  67.65193003813836 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
+        dln_set_rate_dT9 =  67.65193003721365 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -3.65925 * tfactors.T923i
                                   + 0.714224 + (5.0/3.0) * -0.00107508 * tfactors.T923;
     }
 
@@ -2078,10 +2078,10 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     }
 
     // co10c
-    ln_set_rate =  28.64304585936365 + -65.24613003813835 * tfactors.T9i;
+    ln_set_rate =  28.64304585752549 + -65.24613003721365 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  65.24613003813835 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  65.24613003721365 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -2093,11 +2093,11 @@ void rate_Ne20_to_He4_O16_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     }
 
     // co10c
-    ln_set_rate =  48.66033585936365 + -54.887630038138354 * tfactors.T9i + -39.7262 * tfactors.T913i + -0.210799 * tfactors.T913
+    ln_set_rate =  48.66033585752549 + -54.88763003721364 * tfactors.T9i + -39.7262 * tfactors.T913i + -0.210799 * tfactors.T913
                          + 0.442879 * tfactors.T9 + -0.0797753 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  54.887630038138354 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.7262 * tfactors.T943i + (1.0/3.0) * -0.210799 * tfactors.T923i
+        dln_set_rate_dT9 =  54.88763003721364 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -39.7262 * tfactors.T943i + (1.0/3.0) * -0.210799 * tfactors.T923i
                                   + 0.442879 + (5.0/3.0) * -0.0797753 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -2150,11 +2150,11 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  43.93571176470678 + -135.6881490421346 * tfactors.T9i + -20.6428 * tfactors.T913i + 1.52954 * tfactors.T913
+    ln_set_rate =  43.93571176286862 + -135.6881490398486 * tfactors.T9i + -20.6428 * tfactors.T913i + 1.52954 * tfactors.T913
                          + 2.7487 * tfactors.T9 + -1.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  135.6881490421346 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -20.6428 * tfactors.T943i + (1.0/3.0) * 1.52954 * tfactors.T923i
+        dln_set_rate_dT9 =  135.6881490398486 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -20.6428 * tfactors.T943i + (1.0/3.0) * 1.52954 * tfactors.T923i
                                   + 2.7487 + (5.0/3.0) * -1.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -2167,11 +2167,11 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     }
 
     // il10c
-    ln_set_rate =  34.08761176470678 + -138.9684390421346 * tfactors.T9i + -0.360588 * tfactors.T913
+    ln_set_rate =  34.08761176286862 + -138.96843903984862 * tfactors.T9i + -0.360588 * tfactors.T913
                          + 1.4187 * tfactors.T9 + -0.184061 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  138.9684390421346 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.360588 * tfactors.T923i
+        dln_set_rate_dT9 =  138.96843903984862 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * -0.360588 * tfactors.T923i
                                   + 1.4187 + (5.0/3.0) * -0.184061 * tfactors.T923;
     }
 
@@ -2184,10 +2184,10 @@ void rate_Mg24_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     }
 
     // il10c
-    ln_set_rate =  20.002361764706784 + -137.3003390421346 * tfactors.T9i;
+    ln_set_rate =  20.002361762868624 + -137.3003390398486 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  137.3003390421346 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  137.3003390398486 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -2239,10 +2239,10 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  -13.886931148855957 + -110.62012330714883 * tfactors.T9i;
+    ln_set_rate =  -13.886931150694117 + -110.62012330532738 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  110.62012330714883 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  110.62012330532738 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -2254,11 +2254,11 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     }
 
     // il10c
-    ln_set_rate =  49.324368851144044 + -108.11407330714883 * tfactors.T9i + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
+    ln_set_rate =  49.324368849305884 + -108.11407330532738 * tfactors.T9i + -46.2525 * tfactors.T913i + 5.58901 * tfactors.T913
                          + 7.61843 * tfactors.T9 + -3.683 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  108.11407330714883 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
+        dln_set_rate_dT9 =  108.11407330532738 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -46.2525 * tfactors.T943i + (1.0/3.0) * 5.58901 * tfactors.T923i
                                   + 7.61843 + (5.0/3.0) * -3.683 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -2271,11 +2271,11 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     }
 
     // il10c
-    ln_set_rate =  16.02029885114404 + -120.89497330714883 * tfactors.T9i + 16.9229 * tfactors.T913
+    ln_set_rate =  16.02029884930588 + -120.89497330532738 * tfactors.T9i + 16.9229 * tfactors.T913
                          + -2.57325 * tfactors.T9 + 0.208997 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  120.89497330714883 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 16.9229 * tfactors.T923i
+        dln_set_rate_dT9 =  120.89497330532738 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 16.9229 * tfactors.T923i
                                   + -2.57325 + (5.0/3.0) * 0.208997 * tfactors.T923;
     }
 
@@ -2288,10 +2288,10 @@ void rate_Mg24_to_He4_Ne20_derived(const tf_t& tfactors, amrex::Real& rate, amre
     }
 
     // il10c
-    ln_set_rate =  26.801638851144045 + -117.33433330714882 * tfactors.T9i;
+    ln_set_rate =  26.801638849305885 + -117.33433330532738 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  117.33433330714882 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  117.33433330532738 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -2343,11 +2343,11 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  11.776564828186824 + -136.3434628922348 * tfactors.T9i + 23.8634 * tfactors.T913
+    ln_set_rate =  11.776564826348665 + -136.34346288996986 * tfactors.T9i + 23.8634 * tfactors.T913
                          + -3.70135 * tfactors.T9 + 0.28964 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  136.3434628922348 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 23.8634 * tfactors.T923i
+        dln_set_rate_dT9 =  136.34346288996986 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 23.8634 * tfactors.T923i
                                   + -3.70135 + (5.0/3.0) * 0.28964 * tfactors.T923;
     }
 
@@ -2360,11 +2360,11 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     }
 
     // il10c
-    ln_set_rate =  111.46636482818681 + -134.8268158922348 * tfactors.T9i + -26.8327 * tfactors.T913i + -116.137 * tfactors.T913
+    ln_set_rate =  111.46636482634867 + -134.82681588996985 * tfactors.T9i + -26.8327 * tfactors.T913i + -116.137 * tfactors.T913
                          + 0.00950567 * tfactors.T9 + 0.00999755 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  134.8268158922348 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.8327 * tfactors.T943i + (1.0/3.0) * -116.137 * tfactors.T923i
+        dln_set_rate_dT9 =  134.82681588996985 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.8327 * tfactors.T943i + (1.0/3.0) * -116.137 * tfactors.T923i
                                   + 0.00950567 + (5.0/3.0) * 0.00999755 * tfactors.T923;
     }
 
@@ -2377,11 +2377,11 @@ void rate_Si28_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, amrex:
     }
 
     // il10c
-    ln_set_rate =  46.54946482818683 + -134.4395028922348 * tfactors.T9i + -23.2205 * tfactors.T913i
+    ln_set_rate =  46.54946482634867 + -134.43950288996984 * tfactors.T9i + -23.2205 * tfactors.T913i
                          + -2.0 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  134.4395028922348 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.2205 * tfactors.T943i
+        dln_set_rate_dT9 =  134.43950288996984 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.2205 * tfactors.T943i
                                   + (5.0/3.0) * -2.0 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -2434,11 +2434,11 @@ void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real set_rate{0.0};
 
     // st08r
-    ln_set_rate =  -25.688574833405916 + -128.69270892750794 * tfactors.T9i + 21.3721 * tfactors.T913i + 37.7649 * tfactors.T913
+    ln_set_rate =  -25.688574835244076 + -128.692708925556 * tfactors.T9i + 21.3721 * tfactors.T913i + 37.7649 * tfactors.T913
                          + -4.10635 * tfactors.T9 + 0.249618 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  128.69270892750794 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21.3721 * tfactors.T943i + (1.0/3.0) * 37.7649 * tfactors.T923i
+        dln_set_rate_dT9 =  128.692708925556 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 21.3721 * tfactors.T943i + (1.0/3.0) * 37.7649 * tfactors.T923i
                                   + -4.10635 + (5.0/3.0) * 0.249618 * tfactors.T923;
     }
 
@@ -2451,10 +2451,10 @@ void rate_Si28_to_He4_Mg24_derived(const tf_t& tfactors, amrex::Real& rate, amre
     }
 
     // st08r
-    ln_set_rate =  32.90059516659409 + -131.48850892750792 * tfactors.T9i;
+    ln_set_rate =  32.90059516475593 + -131.48850892555598 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  131.48850892750792 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  131.48850892555598 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -2506,11 +2506,11 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  25.172836958303158 + -106.63693563716609 * tfactors.T9i + 8.09341 * tfactors.T913
+    ln_set_rate =  25.172836956464998 + -106.63693563543316 * tfactors.T9i + 8.09341 * tfactors.T913
                          + -0.615971 * tfactors.T9 + 0.031159 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  106.63693563716609 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 8.09341 * tfactors.T923i
+        dln_set_rate_dT9 =  106.63693563543316 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 8.09341 * tfactors.T923i
                                   + -0.615971 + (5.0/3.0) * 0.031159 * tfactors.T923;
     }
 
@@ -2523,10 +2523,10 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     }
 
     // il10c
-    ln_set_rate =  21.682890958303158 + -105.11947563716609 * tfactors.T9i;
+    ln_set_rate =  21.682890956465 + -105.11947563543316 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  105.11947563716609 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  105.11947563543316 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -2538,11 +2538,11 @@ void rate_S32_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amrex::R
     }
 
     // il10c
-    ln_set_rate =  43.610880958303156 + -102.85989563716609 * tfactors.T9i + -25.3278 * tfactors.T913i + 6.4931 * tfactors.T913
+    ln_set_rate =  43.610880956464996 + -102.85989563543316 * tfactors.T9i + -25.3278 * tfactors.T913i + 6.4931 * tfactors.T913
                          + -9.27513 * tfactors.T9 + -0.610439 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  102.85989563716609 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -25.3278 * tfactors.T943i + (1.0/3.0) * 6.4931 * tfactors.T923i
+        dln_set_rate_dT9 =  102.85989563543316 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -25.3278 * tfactors.T943i + (1.0/3.0) * 6.4931 * tfactors.T923i
                                   + -9.27513 + (5.0/3.0) * -0.610439 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -2595,11 +2595,11 @@ void rate_S32_to_He4_Si28_derived(const tf_t& tfactors, amrex::Real& rate, amrex
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  72.81295409739818 + -80.62610309662641 * tfactors.T9i + -59.4896 * tfactors.T913i + 4.47205 * tfactors.T913
+    ln_set_rate =  72.81295409556003 + -80.62610309526808 * tfactors.T9i + -59.4896 * tfactors.T913i + 4.47205 * tfactors.T913
                          + -4.78989 * tfactors.T9 + 0.557201 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  80.62610309662641 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -59.4896 * tfactors.T943i + (1.0/3.0) * 4.47205 * tfactors.T923i
+        dln_set_rate_dT9 =  80.62610309526808 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -59.4896 * tfactors.T943i + (1.0/3.0) * 4.47205 * tfactors.T923i
                                   + -4.78989 + (5.0/3.0) * 0.557201 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -2652,11 +2652,11 @@ void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real set_rate{0.0};
 
     // fy05c
-    ln_set_rate =  22.39392447043974 + -88.54942933569913 * tfactors.T9i + -13.49 * tfactors.T913i + 21.4259 * tfactors.T913
+    ln_set_rate =  22.39392446676342 + -88.54942933427682 * tfactors.T9i + -13.49 * tfactors.T913i + 21.4259 * tfactors.T913
                          + -1.34769 * tfactors.T9 + 0.0879816 * tfactors.T953 + -10.1653 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  88.54942933569913 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.49 * tfactors.T943i + (1.0/3.0) * 21.4259 * tfactors.T923i
+        dln_set_rate_dT9 =  88.54942933427682 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -13.49 * tfactors.T943i + (1.0/3.0) * 21.4259 * tfactors.T923i
                                   + -1.34769 + (5.0/3.0) * 0.0879816 * tfactors.T923 + -10.1653 * tfactors.T9i;
     }
 
@@ -2669,11 +2669,11 @@ void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, amrex::Real& rate, am
     }
 
     // fy05c
-    ln_set_rate =  34.95602447043974 + -85.44732933569914 * tfactors.T9i + -23.57 * tfactors.T913i + 20.4886 * tfactors.T913
+    ln_set_rate =  34.956024466763424 + -85.44732933427683 * tfactors.T9i + -23.57 * tfactors.T913i + 20.4886 * tfactors.T913
                          + -12.9882 * tfactors.T9 + -20.0 * tfactors.T953 + 0.8333300000000001 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  85.44732933569914 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.57 * tfactors.T943i + (1.0/3.0) * 20.4886 * tfactors.T923i
+        dln_set_rate_dT9 =  85.44732933427683 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -23.57 * tfactors.T943i + (1.0/3.0) * 20.4886 * tfactors.T923i
                                   + -12.9882 + (5.0/3.0) * -20.0 * tfactors.T923 + 0.8333300000000001 * tfactors.T9i;
     }
 
@@ -2686,11 +2686,11 @@ void rate_C12_to_He4_He4_He4_derived(const tf_t& tfactors, amrex::Real& rate, am
     }
 
     // fy05c
-    ln_set_rate =  45.77337247043974 + -84.42286933569913 * tfactors.T9i + -37.06 * tfactors.T913i + 29.3493 * tfactors.T913
+    ln_set_rate =  45.77337246676342 + -84.42286933427683 * tfactors.T9i + -37.06 * tfactors.T913i + 29.3493 * tfactors.T913
                          + -115.507 * tfactors.T9 + -10.0 * tfactors.T953 + 1.66667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  84.42286933569913 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -37.06 * tfactors.T943i + (1.0/3.0) * 29.3493 * tfactors.T923i
+        dln_set_rate_dT9 =  84.42286933427683 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -37.06 * tfactors.T943i + (1.0/3.0) * 29.3493 * tfactors.T923i
                                   + -115.507 + (5.0/3.0) * -10.0 * tfactors.T923 + 1.66667 * tfactors.T9i;
     }
 
@@ -2740,11 +2740,11 @@ void rate_p_O16_to_He4_N13_derived(const tf_t& tfactors, amrex::Real& rate, amre
     amrex::Real set_rate{0.0};
 
     // cf88n
-    ln_set_rate =  42.232382494512464 + -60.55237555926846 * tfactors.T9i + -35.829 * tfactors.T913i + -0.530275 * tfactors.T913
+    ln_set_rate =  42.232382494512464 + -60.552375558248315 * tfactors.T9i + -35.829 * tfactors.T913i + -0.530275 * tfactors.T913
                          + -0.982462 * tfactors.T9 + 0.0808059 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  60.55237555926846 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -35.829 * tfactors.T943i + (1.0/3.0) * -0.530275 * tfactors.T923i
+        dln_set_rate_dT9 =  60.552375558248315 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -35.829 * tfactors.T943i + (1.0/3.0) * -0.530275 * tfactors.T923i
                                   + -0.982462 + (5.0/3.0) * 0.0808059 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -2803,11 +2803,11 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  -6.377717086437262 + -29.88961364462334 * tfactors.T9i + 19.7297 * tfactors.T913
+    ln_set_rate =  -6.377717086437262 + -29.88961364415879 * tfactors.T9i + 19.7297 * tfactors.T913
                          + -2.20987 * tfactors.T9 + 0.153374 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  29.88961364462334 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 19.7297 * tfactors.T923i
+        dln_set_rate_dT9 =  29.88961364415879 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 19.7297 * tfactors.T923i
                                   + -2.20987 + (5.0/3.0) * 0.153374 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
@@ -2820,11 +2820,11 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     }
 
     // il10c
-    ln_set_rate =  0.227472413562738 + -29.434873644623337 * tfactors.T9i
+    ln_set_rate =  0.227472413562738 + -29.434873644158788 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  29.434873644623337 * tfactors.T9i * tfactors.T9i
+        dln_set_rate_dT9 =  29.434873644158788 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -2837,11 +2837,11 @@ void rate_He4_Ne20_to_p_Na23_derived(const tf_t& tfactors, amrex::Real& rate, am
     }
 
     // il10c
-    ln_set_rate =  19.18524291356274 + -27.573843644623338 * tfactors.T9i + -20.0024 * tfactors.T913i + 11.5988 * tfactors.T913
+    ln_set_rate =  19.18524291356274 + -27.57384364415879 * tfactors.T9i + -20.0024 * tfactors.T913i + 11.5988 * tfactors.T913
                          + -1.37398 * tfactors.T9 + -1.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  27.573843644623338 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -20.0024 * tfactors.T943i + (1.0/3.0) * 11.5988 * tfactors.T923i
+        dln_set_rate_dT9 =  27.57384364415879 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -20.0024 * tfactors.T943i + (1.0/3.0) * 11.5988 * tfactors.T923i
                                   + -1.37398 + (5.0/3.0) * -1.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -2899,11 +2899,11 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, am
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  -6.445750338407262 + -22.82086933218981 * tfactors.T9i + 18.0416 * tfactors.T913
+    ln_set_rate =  -6.445750338407262 + -22.820869331876814 * tfactors.T9i + 18.0416 * tfactors.T913
                          + -1.54137 * tfactors.T9 + 0.0847506 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  22.82086933218981 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0416 * tfactors.T923i
+        dln_set_rate_dT9 =  22.820869331876814 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0416 * tfactors.T923i
                                   + -1.54137 + (5.0/3.0) * 0.0847506 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
@@ -2916,11 +2916,11 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, am
     }
 
     // il10c
-    ln_set_rate =  -26.286160338407264 + -19.54138133218981 * tfactors.T9i + 5.18642 * tfactors.T913i + -34.7936 * tfactors.T913
+    ln_set_rate =  -26.286160338407264 + -19.541381331876813 * tfactors.T9i + 5.18642 * tfactors.T913i + -34.7936 * tfactors.T913
                          + 168.225 * tfactors.T9 + -115.825 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  19.54138133218981 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 5.18642 * tfactors.T943i + (1.0/3.0) * -34.7936 * tfactors.T923i
+        dln_set_rate_dT9 =  19.541381331876813 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 5.18642 * tfactors.T943i + (1.0/3.0) * -34.7936 * tfactors.T923i
                                   + 168.225 + (5.0/3.0) * -115.825 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
@@ -2933,11 +2933,11 @@ void rate_He4_Mg24_to_p_Al27_derived(const tf_t& tfactors, amrex::Real& rate, am
     }
 
     // il10c
-    ln_set_rate =  30.039739661592737 + -18.578369332189812 * tfactors.T9i + -26.4162 * tfactors.T913i
+    ln_set_rate =  30.039739661592737 + -18.578369331876814 * tfactors.T9i + -26.4162 * tfactors.T913i
                          + -2.0 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  18.578369332189812 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.4162 * tfactors.T943i
+        dln_set_rate_dT9 =  18.578369331876814 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -26.4162 * tfactors.T943i
                                   + (5.0/3.0) * -2.0 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -2995,11 +2995,11 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amr
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  -11.433473139095032 + -25.65965858572089 * tfactors.T9i + 21.521 * tfactors.T913
+    ln_set_rate =  -11.433473139095032 + -25.659658585346307 * tfactors.T9i + 21.521 * tfactors.T913
                          + -1.90355 * tfactors.T9 + 0.092724 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  25.65965858572089 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 21.521 * tfactors.T923i
+        dln_set_rate_dT9 =  25.659658585346307 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 21.521 * tfactors.T923i
                                   + -1.90355 + (5.0/3.0) * 0.092724 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
@@ -3012,11 +3012,11 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amr
     }
 
     // il10c
-    ln_set_rate =  -13.459473139095032 + -24.11106858572089 * tfactors.T9i
+    ln_set_rate =  -13.459473139095032 + -24.111068585346306 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  24.11106858572089 * tfactors.T9i * tfactors.T9i
+        dln_set_rate_dT9 =  24.111068585346306 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -3029,11 +3029,11 @@ void rate_He4_Si28_to_p_P31_derived(const tf_t& tfactors, amrex::Real& rate, amr
     }
 
     // il10c
-    ln_set_rate =  60.342426860904965 + -22.23390858572089 * tfactors.T9i + -31.932 * tfactors.T913i + -77.0334 * tfactors.T913
+    ln_set_rate =  60.342426860904965 + -22.233908585346306 * tfactors.T9i + -31.932 * tfactors.T913i + -77.0334 * tfactors.T913
                          + -43.6847 * tfactors.T9 + -4.28955 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  22.23390858572089 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -31.932 * tfactors.T943i + (1.0/3.0) * -77.0334 * tfactors.T923i
+        dln_set_rate_dT9 =  22.233908585346306 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -31.932 * tfactors.T943i + (1.0/3.0) * -77.0334 * tfactors.T923i
                                   + -43.6847 + (5.0/3.0) * -4.28955 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -3091,11 +3091,11 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  2.425628238034531 + -27.66622776398283 * tfactors.T9i + 5.33756 * tfactors.T913
+    ln_set_rate =  2.425628238034531 + -27.66622776361797 * tfactors.T9i + 5.33756 * tfactors.T913
                          + 1.64418 * tfactors.T9 + -0.246167 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  27.66622776398283 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
+        dln_set_rate_dT9 =  27.66622776361797 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 5.33756 * tfactors.T923i
                                   + 1.64418 + (5.0/3.0) * -0.246167 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
@@ -3108,11 +3108,11 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     }
 
     // il10c
-    ln_set_rate =  -0.877601761965469 + -25.59141776398283 * tfactors.T9i
+    ln_set_rate =  -0.877601761965469 + -25.591417763617972 * tfactors.T9i
                          + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  25.59141776398283 * tfactors.T9i * tfactors.T9i
+        dln_set_rate_dT9 =  25.591417763617972 * tfactors.T9i * tfactors.T9i
                                   + -1.5 * tfactors.T9i;
     }
 
@@ -3125,11 +3125,11 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     }
 
     // il10c
-    ln_set_rate =  -57.39498176196547 + -22.18939876398283 * tfactors.T9i + 25.5338 * tfactors.T913
+    ln_set_rate =  -57.39498176196547 + -22.189398763617973 * tfactors.T9i + 25.5338 * tfactors.T913
                          + 6.45824 * tfactors.T9 + -0.950294 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  22.18939876398283 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 25.5338 * tfactors.T923i
+        dln_set_rate_dT9 =  22.189398763617973 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 25.5338 * tfactors.T923i
                                   + 6.45824 + (5.0/3.0) * -0.950294 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
@@ -3142,11 +3142,11 @@ void rate_He4_S32_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& r
     }
 
     // il10c
-    ln_set_rate =  32.25441823803453 + -21.65646776398283 * tfactors.T9i + -30.9147 * tfactors.T913i + -1.2345 * tfactors.T913
+    ln_set_rate =  32.25441823803453 + -21.65646776361797 * tfactors.T9i + -30.9147 * tfactors.T913i + -1.2345 * tfactors.T913
                          + 22.5118 * tfactors.T9 + -33.0589 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  21.65646776398283 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
+        dln_set_rate_dT9 =  21.65646776361797 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.9147 * tfactors.T943i + (1.0/3.0) * -1.2345 * tfactors.T923i
                                   + 22.5118 + (5.0/3.0) * -33.0589 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -3204,11 +3204,11 @@ void rate_Ar36_to_He4_S32_derived_removed(const tf_t& tfactors, amrex::Real& rat
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  73.81637663285039 + -77.06281976216322 * tfactors.T9i + -65.3709 * tfactors.T913i + 5.68294 * tfactors.T913
+    ln_set_rate =  73.81637663101225 + -77.06281976086491 * tfactors.T9i + -65.3709 * tfactors.T913i + 5.68294 * tfactors.T913
                          + -5.00388 * tfactors.T9 + 0.571407 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  77.06281976216322 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -65.3709 * tfactors.T943i + (1.0/3.0) * 5.68294 * tfactors.T923i
+        dln_set_rate_dT9 =  77.06281976086491 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -65.3709 * tfactors.T943i + (1.0/3.0) * 5.68294 * tfactors.T923i
                                   + -5.00388 + (5.0/3.0) * 0.571407 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -3261,10 +3261,10 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     amrex::Real set_rate{0.0};
 
     // il10c
-    ln_set_rate =  16.01685487088493 + -100.72924752614605 * tfactors.T9i;
+    ln_set_rate =  16.01685486904677 + -100.7292475244829 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  100.72924752614605 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  100.7292475244829 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -3276,10 +3276,10 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     }
 
     // il10c
-    ln_set_rate =  -17.47510512911507 + -99.28393852614604 * tfactors.T9i;
+    ln_set_rate =  -17.47510513095323 + -99.28393852448289 * tfactors.T9i;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  99.28393852614604 * tfactors.T9i * tfactors.T9i;
+        dln_set_rate_dT9 =  99.28393852448289 * tfactors.T9i * tfactors.T9i;
     }
 
     // avoid underflows by zeroing rates in [0.0, 1.e-100]
@@ -3291,11 +3291,11 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     }
 
     // il10c
-    ln_set_rate =  60.73659487088493 + -98.71928752614605 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
+    ln_set_rate =  60.73659486904677 + -98.7192875244829 * tfactors.T9i + -27.8971 * tfactors.T913i + -16.2304 * tfactors.T913
                          + 35.255 * tfactors.T9 + -25.8411 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  98.71928752614605 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
+        dln_set_rate_dT9 =  98.7192875244829 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -27.8971 * tfactors.T943i + (1.0/3.0) * -16.2304 * tfactors.T923i
                                   + 35.255 + (5.0/3.0) * -25.8411 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -3308,11 +3308,11 @@ void rate_Ar36_to_p_Cl35_derived_removed(const tf_t& tfactors, amrex::Real& rate
     }
 
     // il10c
-    ln_set_rate =  17.202804870884933 + -102.37020752614605 * tfactors.T9i + 18.0179 * tfactors.T913
+    ln_set_rate =  17.202804869046773 + -102.3702075244829 * tfactors.T9i + 18.0179 * tfactors.T913
                          + -2.86304 * tfactors.T9 + 0.250854 * tfactors.T953;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  102.37020752614605 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
+        dln_set_rate_dT9 =  102.3702075244829 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 18.0179 * tfactors.T923i
                                   + -2.86304 + (5.0/3.0) * 0.250854 * tfactors.T923;
     }
 
@@ -3365,11 +3365,11 @@ void rate_He4_Ar36_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& r
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  20.636664061510302 + -14.953349961318928 * tfactors.T9i + -30.0732 * tfactors.T913i + 7.03263 * tfactors.T913
+    ln_set_rate =  20.636664061510302 + -14.953349961067001 * tfactors.T9i + -30.0732 * tfactors.T913i + 7.03263 * tfactors.T913
                          + -1.10085 * tfactors.T9 + 0.133768 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  14.953349961318928 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.0732 * tfactors.T943i + (1.0/3.0) * 7.03263 * tfactors.T923i
+        dln_set_rate_dT9 =  14.953349961067001 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -30.0732 * tfactors.T943i + (1.0/3.0) * 7.03263 * tfactors.T923i
                                   + -1.10085 + (5.0/3.0) * 0.133768 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -3427,11 +3427,11 @@ void rate_Ca40_to_He4_Ar36_derived_removed(const tf_t& tfactors, amrex::Real& ra
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  77.28261041284823 + -81.69174599574632 * tfactors.T9i + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
+    ln_set_rate =  77.28261041101007 + -81.69174599437001 * tfactors.T9i + -71.0046 * tfactors.T913i + 4.0656 * tfactors.T913
                          + -5.26509 * tfactors.T9 + 0.683546 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  81.69174599574632 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -71.0046 * tfactors.T943i + (1.0/3.0) * 4.0656 * tfactors.T923i
+        dln_set_rate_dT9 =  81.69174599437001 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -71.0046 * tfactors.T943i + (1.0/3.0) * 4.0656 * tfactors.T923i
                                   + -5.26509 + (5.0/3.0) * 0.683546 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -3484,11 +3484,11 @@ void rate_Ca40_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     amrex::Real set_rate{0.0};
 
     // lo18r
-    ln_set_rate =  2786.4340744743586 + -101.86662364079672 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
+    ln_set_rate =  2786.4340744725205 + -101.86662363916852 * tfactors.T9i + 802.18 * tfactors.T913i + -4010.27 * tfactors.T913
                          + 1137.69 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  101.86662364079672 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
+        dln_set_rate_dT9 =  101.86662363916852 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 802.18 * tfactors.T943i + (1.0/3.0) * -4010.27 * tfactors.T923i
                                   + 1137.69 * tfactors.T9i;
     }
 
@@ -3501,11 +3501,11 @@ void rate_Ca40_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     }
 
     // lo18r
-    ln_set_rate =  613.1530744743586 + -109.20898364079672 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
+    ln_set_rate =  613.1530744725204 + -109.20898363916852 * tfactors.T9i + 641.844 * tfactors.T913i + -1248.49 * tfactors.T913
                          + 566.426 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  109.20898364079672 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 641.844 * tfactors.T943i + (1.0/3.0) * -1248.49 * tfactors.T923i
+        dln_set_rate_dT9 =  109.20898363916852 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 641.844 * tfactors.T943i + (1.0/3.0) * -1248.49 * tfactors.T923i
                                   + 566.426 * tfactors.T9i;
     }
 
@@ -3518,11 +3518,11 @@ void rate_Ca40_to_p_K39_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     }
 
     // lo18r
-    ln_set_rate =  127.30607447435852 + -98.30936364079672 * tfactors.T9i + 41.1723 * tfactors.T913i + -149.299 * tfactors.T913
+    ln_set_rate =  127.30607447252038 + -98.30936363916852 * tfactors.T9i + 41.1723 * tfactors.T913i + -149.299 * tfactors.T913
                          + 10.5229 * tfactors.T9 + -0.68208 * tfactors.T953 + 60.7367 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  98.30936364079672 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
+        dln_set_rate_dT9 =  98.30936363916852 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 41.1723 * tfactors.T943i + (1.0/3.0) * -149.299 * tfactors.T923i
                                   + 10.5229 + (5.0/3.0) * -0.68208 * tfactors.T923 + 60.7367 * tfactors.T9i;
     }
 
@@ -3575,11 +3575,11 @@ void rate_He4_Ca40_to_p_Sc43_derived_removed(const tf_t& tfactors, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  35.65752817292938 + -40.87575463203665 * tfactors.T9i + -32.1734 * tfactors.T913i + 0.0296879 * tfactors.T913
+    ln_set_rate =  35.65752817292938 + -40.875754631348 * tfactors.T9i + -32.1734 * tfactors.T913i + 0.0296879 * tfactors.T913
                          + -0.95232 * tfactors.T9 + 0.129022 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  40.87575463203665 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * 0.0296879 * tfactors.T923i
+        dln_set_rate_dT9 =  40.875754631348 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * 0.0296879 * tfactors.T923i
                                   + -0.95232 + (5.0/3.0) * 0.129022 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -3637,11 +3637,11 @@ void rate_Ti44_to_He4_Ca40_derived_removed(const tf_t& tfactors, amrex::Real& ra
     amrex::Real set_rate{0.0};
 
     // chw0 
-    ln_set_rate =  78.69908591662849 + -59.4975248620018 * tfactors.T9i + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
+    ln_set_rate =  78.69908591479032 + -59.49752486099942 * tfactors.T9i + -76.4273 * tfactors.T913i + 3.87451 * tfactors.T913
                          + -3.61477 * tfactors.T9 + 0.367451 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  59.4975248620018 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -76.4273 * tfactors.T943i + (1.0/3.0) * 3.87451 * tfactors.T923i
+        dln_set_rate_dT9 =  59.49752486099942 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -76.4273 * tfactors.T943i + (1.0/3.0) * 3.87451 * tfactors.T923i
                                   + -3.61477 + (5.0/3.0) * 0.367451 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -3694,11 +3694,11 @@ void rate_Ti44_to_p_Sc43_derived_removed(const tf_t& tfactors, amrex::Real& rate
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  62.59391408955788 + -100.37327949403844 * tfactors.T9i + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
+    ln_set_rate =  62.59391408771972 + -100.37327949234741 * tfactors.T9i + -32.1734 * tfactors.T913i + -1.77078 * tfactors.T913
                          + -2.21706 * tfactors.T9 + 0.298499 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  100.37327949403844 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * -1.77078 * tfactors.T923i
+        dln_set_rate_dT9 =  100.37327949234741 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -32.1734 * tfactors.T943i + (1.0/3.0) * -1.77078 * tfactors.T923i
                                   + -2.21706 + (5.0/3.0) * 0.298499 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -3751,11 +3751,11 @@ void rate_Cr48_to_He4_Ti44_derived_removed(const tf_t& tfactors, amrex::Real& ra
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  89.75733412085052 + -89.3041938384302 * tfactors.T9i + -81.667 * tfactors.T913i + -10.6333 * tfactors.T913
+    ln_set_rate =  89.75733411901237 + -89.30419383692565 * tfactors.T9i + -81.667 * tfactors.T913i + -10.6333 * tfactors.T913
                          + -0.672613 * tfactors.T9 + 0.161209 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  89.3041938384302 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -81.667 * tfactors.T943i + (1.0/3.0) * -10.6333 * tfactors.T923i
+        dln_set_rate_dT9 =  89.30419383692565 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -81.667 * tfactors.T943i + (1.0/3.0) * -10.6333 * tfactors.T923i
                                   + -0.672613 + (5.0/3.0) * 0.161209 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -3808,11 +3808,11 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     amrex::Real set_rate{0.0};
 
     // nfisn
-    ln_set_rate =  67.74027107253823 + -100.12633621113824 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
+    ln_set_rate =  67.74027107070006 + -100.12633620955347 * tfactors.T9i + -34.0548 * tfactors.T913i + -3.41973 * tfactors.T913
                          + 1.16501 * tfactors.T9 + -0.105543 * tfactors.T953 + -6.20886 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  100.12633621113824 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.0548 * tfactors.T943i + (1.0/3.0) * -3.41973 * tfactors.T923i
+        dln_set_rate_dT9 =  100.12633620955347 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -34.0548 * tfactors.T943i + (1.0/3.0) * -3.41973 * tfactors.T923i
                                   + 1.16501 + (5.0/3.0) * -0.105543 * tfactors.T923 + -6.20886 * tfactors.T9i;
     }
 
@@ -3825,11 +3825,11 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     }
 
     // nfisn
-    ln_set_rate =  536.5234710725382 + -99.36194621113825 * tfactors.T9i + 317.171 * tfactors.T913i + -911.679 * tfactors.T913
+    ln_set_rate =  536.5234710707001 + -99.36194620955347 * tfactors.T9i + 317.171 * tfactors.T913i + -911.679 * tfactors.T913
                          + 94.4245 * tfactors.T9 + -10.1973 * tfactors.T953 + 332.227 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  99.36194621113825 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
+        dln_set_rate_dT9 =  99.36194620955347 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * 317.171 * tfactors.T943i + (1.0/3.0) * -911.679 * tfactors.T923i
                                   + 94.4245 + (5.0/3.0) * -10.1973 * tfactors.T923 + 332.227 * tfactors.T9i;
     }
 
@@ -3842,11 +3842,11 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     }
 
     // nfisn
-    ln_set_rate =  48.891971072538226 + -93.82037121113825 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
+    ln_set_rate =  48.891971070700066 + -93.82037120955347 * tfactors.T9i + -45.9868 * tfactors.T913i + 13.6822 * tfactors.T913
                          + -0.376902 * tfactors.T9 + -0.0194875 * tfactors.T953 + -6.9232499999999995 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  93.82037121113825 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
+        dln_set_rate_dT9 =  93.82037120955347 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -45.9868 * tfactors.T943i + (1.0/3.0) * 13.6822 * tfactors.T923i
                                   + -0.376902 + (5.0/3.0) * -0.0194875 * tfactors.T923 + -6.9232499999999995 * tfactors.T9i;
     }
 
@@ -3859,11 +3859,11 @@ void rate_Cr48_to_p_V47_derived_removed(const tf_t& tfactors, amrex::Real& rate,
     }
 
     // nfisn
-    ln_set_rate =  65.62307107253824 + -94.58145021113825 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
+    ln_set_rate =  65.62307107070006 + -94.58145020955347 * tfactors.T9i + -110.655 * tfactors.T913i + 83.0232 * tfactors.T913
                          + -19.7762 * tfactors.T9 + 3.03961 * tfactors.T953 + -47.9742 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  94.58145021113825 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -110.655 * tfactors.T943i + (1.0/3.0) * 83.0232 * tfactors.T923i
+        dln_set_rate_dT9 =  94.58145020955347 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -110.655 * tfactors.T943i + (1.0/3.0) * 83.0232 * tfactors.T923i
                                   + -19.7762 + (5.0/3.0) * 3.03961 * tfactors.T923 + -47.9742 * tfactors.T9i;
     }
 
@@ -3916,11 +3916,11 @@ void rate_p_V47_to_He4_Ti44_derived_removed(const tf_t& tfactors, amrex::Real& r
     amrex::Real set_rate{0.0};
 
     // chw0r
-    ln_set_rate =  -76.61433695168769 + -6.029445311023438 * tfactors.T9i + 70.2835 * tfactors.T913
+    ln_set_rate =  -76.61433695168769 + -6.029445311103694 * tfactors.T9i + 70.2835 * tfactors.T913
                          + -7.99061 * tfactors.T9 + 0.486213 * tfactors.T953 + -1.5 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  6.029445311023438 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 70.2835 * tfactors.T923i
+        dln_set_rate_dT9 =  6.029445311103694 * tfactors.T9i * tfactors.T9i + (1.0/3.0) * 70.2835 * tfactors.T923i
                                   + -7.99061 + (5.0/3.0) * 0.486213 * tfactors.T923 + -1.5 * tfactors.T9i;
     }
 
@@ -3978,11 +3978,11 @@ void rate_Fe52_to_He4_Cr48_derived_removed(const tf_t& tfactors, amrex::Real& ra
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  90.14738712482466 + -92.10912191363732 * tfactors.T9i + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
+    ln_set_rate =  90.1473871229865 + -92.10912191208553 * tfactors.T9i + -86.7459 * tfactors.T913i + -9.79373 * tfactors.T913
                          + -0.772169 * tfactors.T9 + 0.155883 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  92.10912191363732 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * -9.79373 * tfactors.T923i
+        dln_set_rate_dT9 =  92.10912191208553 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * -9.79373 * tfactors.T923i
                                   + -0.772169 + (5.0/3.0) * 0.155883 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -4035,11 +4035,11 @@ void rate_Fe52_to_p_Mn51_derived_removed(const tf_t& tfactors, amrex::Real& rate
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  61.72798916565748 + -85.6326403498911 * tfactors.T9i + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
+    ln_set_rate =  61.72798916381932 + -85.63264034844842 * tfactors.T9i + -36.1825 * tfactors.T913i + 0.873042 * tfactors.T913
                          + -2.89731 * tfactors.T9 + 0.364394 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  85.6326403498911 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.1825 * tfactors.T943i + (1.0/3.0) * 0.873042 * tfactors.T923i
+        dln_set_rate_dT9 =  85.63264034844842 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -36.1825 * tfactors.T943i + (1.0/3.0) * 0.873042 * tfactors.T923i
                                   + -2.89731 + (5.0/3.0) * 0.364394 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -4092,11 +4092,11 @@ void rate_p_Mn51_to_He4_Cr48_derived_removed(const tf_t& tfactors, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  58.73119795916719 + -6.476551190854941 * tfactors.T9i + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
+    ln_set_rate =  58.73119795916719 + -6.476551190745829 * tfactors.T9i + -86.7459 * tfactors.T913i + 1.05653 * tfactors.T913
                          + -1.15757 * tfactors.T9 + 0.0877546 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  6.476551190854941 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * 1.05653 * tfactors.T923i
+        dln_set_rate_dT9 =  6.476551190745829 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -86.7459 * tfactors.T943i + (1.0/3.0) * 1.05653 * tfactors.T923i
                                   + -1.15757 + (5.0/3.0) * 0.0877546 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
@@ -4154,11 +4154,11 @@ void rate_Ni56_to_He4_Fe52_derived_removed(const tf_t& tfactors, amrex::Real& ra
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  91.62258922810439 + -92.801099329237 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
+    ln_set_rate =  91.62258922626623 + -92.80109932767355 * tfactors.T9i + -91.6819 * tfactors.T913i + -9.51885 * tfactors.T913
                          + -0.533014 * tfactors.T9 + 0.0892607 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  92.801099329237 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
+        dln_set_rate_dT9 =  92.80109932767355 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -9.51885 * tfactors.T923i
                                   + -0.533014 + (5.0/3.0) * 0.0892607 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -4211,11 +4211,11 @@ void rate_Ni56_to_p_Co55_derived_removed(const tf_t& tfactors, amrex::Real& rate
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  63.131770608640906 + -83.14741674893808 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
+    ln_set_rate =  63.131770606802746 + -83.14741674753726 * tfactors.T9i + -38.1053 * tfactors.T913i + -0.210947 * tfactors.T913
                          + -2.68377 * tfactors.T9 + 0.355814 * tfactors.T953 + 0.833333 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  83.14741674893808 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
+        dln_set_rate_dT9 =  83.14741674753726 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -38.1053 * tfactors.T943i + (1.0/3.0) * -0.210947 * tfactors.T923i
                                   + -2.68377 + (5.0/3.0) * 0.355814 * tfactors.T923 + 0.833333 * tfactors.T9i;
     }
 
@@ -4268,11 +4268,11 @@ void rate_p_Co55_to_He4_Fe52_derived_removed(const tf_t& tfactors, amrex::Real& 
     amrex::Real set_rate{0.0};
 
     // ths8r
-    ln_set_rate =  61.443418619463486 + -9.65364776674457 * tfactors.T9i + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
+    ln_set_rate =  61.443418619463486 + -9.653647766581932 * tfactors.T9i + -91.6819 * tfactors.T913i + -0.329235 * tfactors.T913
                          + -0.780924 * tfactors.T9 + 0.0425179 * tfactors.T953 + -0.666667 * tfactors.lnT9;
 
     if constexpr (do_T_derivatives) {
-        dln_set_rate_dT9 =  9.65364776674457 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
+        dln_set_rate_dT9 =  9.653647766581932 * tfactors.T9i * tfactors.T9i + -(1.0/3.0) * -91.6819 * tfactors.T943i + (1.0/3.0) * -0.329235 * tfactors.T923i
                                   + -0.780924 + (5.0/3.0) * 0.0425179 * tfactors.T923 + -0.666667 * tfactors.T9i;
     }
 
