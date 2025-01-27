@@ -94,6 +94,22 @@ The options are:
   weak screening regime, :math:`\Gamma < 0.1`, and strong screening regime,
   :math:`1 \lesssim \Gamma \lesssim 160`.
 
+.. index:: screening.enable_debye_huckel_skip, screening.debye_huckel_skip_threshold
+
+* ``debye_huckel`` :
+
+  This is just the Debye-Hückel weak-screening limit from
+  :cite:`chugunov:2009`.
+
+  While it can be used on its own (by building with
+  ``SCREEN_METHOD=debye_huckel``, it is really meant to be used as a
+  test to determine whether a more extensive screening approximation
+  should be used.  By setting ``screening.enable_debye_huckel_skip``,
+  we first compute this weak-screening approximation and then, if it
+  is larger than ``screening.debye_huckel_skip_threshold``, the full
+  screening factor is computed (using the method specified via
+  ``SCREEN_METHOD``).
+
 * ``null`` :
 
   This disables screening by always returning 1 for the screening
