@@ -113,7 +113,7 @@ The energy release per gram is converted from the rates as:
 .. math:: \epsilon = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \epsilon_\nu
 
 where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
-and :math:`\edotnu` is the neutrino loss term (see :ref:`neutrino_loss`).
+and :math:`\epsilon_\nu` is the neutrino loss term (see :ref:`neutrino_loss`).
 
 
 
@@ -199,7 +199,7 @@ approximate $A(n,\gamma)X(n,\gamma)B$ into an effective
 $A(nn,\gamma)B$ rate (double-neutron capture).
 
 The networks are named with a descriptive name, the number of nuclei,
-and the letter ``a`` if they approximation $(\alpha, p)(p,\gamma)$,
+and the letter ``a`` if they approximate $(\alpha, p)(p,\gamma)$,
 the letter ``n`` if they approximate double-neutron capture, and the
 letter ``p`` if they split the protons into two groups (one for
 photo-disintegration).
