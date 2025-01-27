@@ -166,7 +166,7 @@ meant to be used in the cores of massive stars and works only with the
 composition and advect <span class="math notranslate nohighlight">\(Y_e\)</span>, <span class="math notranslate nohighlight">\(\bar{A}\)</span>, and
 <span class="math notranslate nohighlight">\(\langle B/A\rangle\)</span>.  All of the EOS calls will work with
 these quantities.</p>
-<p>This algorithm was described in <span id="id1">[<a class="reference internal" href="zreferences.html#id47" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">34</a>]</span>.</p>
+<p>This algorithm was described in <span id="id1">[<a class="reference internal" href="zreferences.html#id47" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">35</a>]</span>.</p>
 <p>This is enabled via <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code></p>
 </li>
 <li><p><a class="reference internal" href="#self-consistent-nse"><span class="std std-ref">Self-consistent NSE</span></a> : this adds an NSE solver to the network that
@@ -210,7 +210,7 @@ temperatures.    This option is enabled by building with:</p>
 <h3>Composition and EOS<a class="headerlink" href="#composition-and-eos" title="Link to this heading"></a></h3>
 <p>The NSE table was generated using <cite>pynucastro
 &lt;https://pynucastro.github.io/pynucastro/&gt;</cite> using 96 nuclei and
-electron/positron capture/decay rates from <span id="id2">[<a class="reference internal" href="zreferences.html#id48" title="K. LANGANKE and G. MARTÍNEZ-PINEDO. Rate tables for the weak processes of pf-shell nuclei in stellar environments. Atomic Data and Nuclear Data Tables, 79(1):1-46, 2001. doi:https://doi.org/10.1006/adnd.2001.0865.">35</a>]</span>.  The
+electron/positron capture/decay rates from <span id="id2">[<a class="reference internal" href="zreferences.html#id48" title="K. LANGANKE and G. MARTÍNEZ-PINEDO. Rate tables for the weak processes of pf-shell nuclei in stellar environments. Atomic Data and Nuclear Data Tables, 79(1):1-46, 2001. doi:https://doi.org/10.1006/adnd.2001.0865.">36</a>]</span>.  The
 table takes <span class="math notranslate nohighlight">\(Y_e\)</span> as the primary composition variable and provides a
 set of mass fractions that is mapped into those used by <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>.
 Using the value allows us to attain a lower <span class="math notranslate nohighlight">\(Y_e\)</span> than
@@ -247,7 +247,7 @@ thermodynamic state as we integrate.</p>
 </section>
 <section id="nse-flow">
 <h3>NSE Flow<a class="headerlink" href="#nse-flow" title="Link to this heading"></a></h3>
-<p id="index-1">The time integration algorithm is described in detail in <span id="id3">[<a class="reference internal" href="zreferences.html#id47" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">34</a>]</span>.  Here
+<p id="index-1">The time integration algorithm is described in detail in <span id="id3">[<a class="reference internal" href="zreferences.html#id47" title="Michael Zingale, Zhi Chen, Eric T. Johnson, Max P. Katz, and Alexander Smith Clark. Strong coupling of hydrodynamics and reactions in nuclear statistical equilibrium for modeling convection in massive stars. The Astrophysical Journal, 977(1):30, nov 2024. URL: https://dx.doi.org/10.3847/1538-4357/ad8a66, doi:10.3847/1538-4357/ad8a66.">35</a>]</span>.  Here
 we provide an outline:</p>
 <ul>
 <li><p>initialize the problem, including <span class="math notranslate nohighlight">\(X_k\)</span></p></li>
@@ -347,7 +347,7 @@ algorithm.</p>
 <p>The self-consistent NSE approach uses only the nuclei in the main
 reaction network.  It solves for the chemical potentials of the proton
 and neutron and from there gets the abundances of each of the nuclei
-under the assumption of NSE, following the procedure outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">28</a>]</span>.</p>
+under the assumption of NSE, following the procedure outlined in <span id="id5">[<a class="reference internal" href="zreferences.html#id36" title="A. C. Calder, D. M. Townsley, I. R. Seitenzahl, F. Peng, O. E. B. Messer, N. Vladimirova, E. F. Brown, J. W. Truran, and D. Q. Lamb. Capturing the fire: flame energetics and neutronization for type ia supernova simulations. The Astrophysical Journal, 656(1):313–332, feb 2007. URL: https://doi.org/10.1086/510709, doi:10.1086/510709.">29</a>]</span>.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>Self-consistent NSE does not support the templated C++ networks
@@ -368,13 +368,13 @@ span.prompt1:before {
 <h3>Dynamic NSE Check<a class="headerlink" href="#dynamic-nse-check" title="Link to this heading"></a></h3>
 <p>We have implemented a dynamic NSE check for the self-consistent nse procedure
 that tells us whether the network has reached the NSE state.
-The overall procedure is outlined in <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">36</a>]</span>.
+The overall procedure is outlined in <span id="id6">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">37</a>]</span>.
 The overall usage comes down to a single function <code class="docutils literal notranslate"><span class="pre">in_nse(state)</span></code>.
 By supplying the current state, this function returns a boolean that tells us
 whether we’re in NSE or not. The current status of this functionality only works
 for pynucastro-generated network since aprox networks have slightly
 different syntax.</p>
-<p>The overall framework is constructed following <span id="id7">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">36</a>]</span> with slight
+<p>The overall framework is constructed following <span id="id7">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">37</a>]</span> with slight
 variations. The overview of the steps we take are the following:</p>
 <ul>
 <li><p>Minimum Temperature Check: require <code class="docutils literal notranslate"><span class="pre">T</span> <span class="pre">&gt;</span> <span class="pre">nse.T_min_nse</span></code>, where <code class="docutils literal notranslate"><span class="pre">nse.T_min_nse</span></code> is
@@ -401,7 +401,7 @@ fraction check:</p>
 \[\epsilon_{rel} = \frac{\epsilon_{abs}}{Y^i} &lt; \mbox{nse.nse_rel_tol}\]</div>
 <p>where <code class="docutils literal notranslate"><span class="pre">nse.nse_rel_tol</span> <span class="pre">=</span> <span class="pre">0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">nse.nse_abs_tol</span> <span class="pre">=</span> <span class="pre">0.005</span></code> by default.</p>
 </li>
-<li><p><strong>Removed</strong> <span id="id8">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">36</a>]</span> also requires a fast reaction cycle that
+<li><p><strong>Removed</strong> <span id="id8">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">37</a>]</span> also requires a fast reaction cycle that
 exchanges 1 <span class="math notranslate nohighlight">\(\alpha\)</span> particle with 2 <span class="math notranslate nohighlight">\(p\)</span> and 2 <span class="math notranslate nohighlight">\(n\)</span>
 particles. We used to have this check, but currently removed as
 we think it is not necessary. However, the description is as following:
@@ -428,7 +428,7 @@ are the forward and reverse rate of the reaction,
 called the light-isotope-group, or LIG. Other isotopes belong to their
 own group, which only contains themselves. We need to start the grouping
 process with the reaction rate that has the fastest (smallest) timescale.
-In the original <span id="id9">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">36</a>]</span> paper, they use the group molar fraction
+In the original <span id="id9">[<a class="reference internal" href="zreferences.html#id42" title="Doron Kushnir and Boaz Katz. An accurate and efficient numerical calculation of detonation waves in multidimensional supernova simulations using a burning limiter and adaptive quasi-statistical equilibrium. Monthly Notices of the Royal Astronomical Society, 493(4):5413-5433, April 2020. arXiv:1912.06151.">37</a>]</span> paper, they use the group molar fraction
 for evaluating the reaction timescale. This complicates things because
 now reaction timescale changes after each successful grouping. We’ve
 determined that the result is roughly the same even if we just use the
