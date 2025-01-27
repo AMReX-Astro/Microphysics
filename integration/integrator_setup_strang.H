@@ -90,8 +90,6 @@ IntegratorT integrator_setup (BurnT& state, amrex::Real dt, bool is_retry)
 
     burn_to_integrator(state, int_state);
 
-    // Save the initial composition, temperature, and energy for our later diagnostics.
-
     return int_state;
 }
 

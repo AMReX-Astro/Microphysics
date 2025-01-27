@@ -1,6 +1,8 @@
 #ifndef INTEGRATOR_TYPE_SDC_H
 #define INTEGRATOR_TYPE_SDC_H
 
+#include <AMReX_Algorithm.H>
+
 #include <eos.H>
 #include <eos_composition.H>
 #include <burn_type.H>
@@ -19,7 +21,7 @@ void clean_state(const amrex::Real time, BurnT& state, T& int_state)
     if (integrator_rp::do_species_clip) {
         for (int n = 1; n <= NumSpec; ++n) {
             // we use 1-based indexing, so we need to offset SFS
-            int_state.y(SFS+n) = std::clamp(int_state.y(SFS+n),
+            int_state.y(SFS+n) = amrex::Clamp(int_state.y(SFS+n),
                                             state.rho * integrator_rp::SMALL_X_SAFE, state.rho);
         }
     }

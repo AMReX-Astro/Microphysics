@@ -26,7 +26,7 @@ jobs:
         uses: AMReX-Astro/cpp-linter-action@main
         with:
           build_path: 'unit_test/test_react'
-          make_options: '-j 2 USE_OMP=FALSE USE_MPI=FALSE USE_CUDA=FALSE DEBUG=TRUE'
+          make_options: '-j 4 USE_OMP=FALSE USE_MPI=FALSE USE_CUDA=FALSE DEBUG=TRUE'
           ignore_files: 'amrex|util/gcem'
           header_filter: '(/conductivity/|/constants/|/EOS/|/integration/|/interfaces/|/networks/|/neutrinos/|/nse_solver/|/opacity/|/rates/|/screening/|/util/|^\./).*\.H$'
           config_file: ${GITHUB_WORKSPACE}/.clang-tidy

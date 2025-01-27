@@ -1,10 +1,22 @@
-# 24.11
+# 25.01
 
-  * a new metal chemistry network was added (#1648, #1650, #1651)
+  * update HIP/CUDA dependences to include sparse libraries (#1686)
 
-  * add dust temperature to primordial chem (#1649)
+  * rename `Opacity_dir` -> `OPACITY_DIR` (#1679)
 
-  * documentation updates (#1652)
+  * update the integration and NSE docs (#1682)
+
+# 24.12
+
+  * documentation improvements (#1661, #1667, #1670)
+
+  * optimize tabular NSE EOS calls (#1668)
+
+  * CI fixes (#1666, #1671, #1675) and new partition function CI
+    (#1673)
+
+  * `burn_cell` can now initialize all mass fractions to be equal
+    (#1665)
 
 # 24.10
 
