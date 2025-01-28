@@ -41,8 +41,8 @@ jobs:
           make realclean
           make NETWORK_DIR=ignition_reaclib/URCA-simple USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 4
 
-      - name: compile test_nse_net (ase)
+      - name: compile nse_net_cell (ase)
         run: |
           export PATH=/usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
-          cd unit_test/test_nse_net
+          cd unit_test/nse_net_cell
           make USE_CUDA=TRUE COMP=gnu USE_MPI=FALSE -j 4
