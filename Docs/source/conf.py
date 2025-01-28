@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Microphysics documentation build configuration file, created by
 # sphinx-quickstart on Tue Oct 23 11:59:54 2018.
@@ -23,7 +22,6 @@ import shlex
 import subprocess
 import sys
 
-import breathe
 
 sys.path.insert(0, os.path.abspath('.'))
 
@@ -31,8 +29,7 @@ def get_version():
     prog = shlex.split("git describe --tags --abbrev=0")
     p0 = subprocess.Popen(prog, stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE)
-    stdout0, stderr0 = p0.communicate()
-    rc = p0.returncode
+    stdout0, _ = p0.communicate()
     stdout = stdout0.decode('utf-8')
     return stdout
 
@@ -47,21 +44,22 @@ def get_version():
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.mathjax',
-    'sphinx_math_dollar',
-    'sphinx.ext.viewcode',
-    'sphinxcontrib.bibtex',
-    'nbsphinx',
-    'numpydoc',
-    'IPython.sphinxext.ipython_console_highlighting',
-    'sphinx.ext.githubpages',
-    'sphinx_copybutton',
-    'sphinx-prompt',
-    'sphinx_rtd_theme',
-    'breathe']
+              'sphinx.ext.mathjax',
+              'sphinx_math_dollar',
+              'sphinx.ext.viewcode',
+              'sphinxcontrib.bibtex',
+              'nbsphinx',
+              'numpydoc',
+              'IPython.sphinxext.ipython_console_highlighting',
+              'sphinx.ext.githubpages',
+              'sphinx_copybutton',
+              'sphinx-prompt',
+              'sphinx_mdinclude',
+              'sphinx_rtd_theme',
+              'breathe']
 
 breathe_projects = {
-    "microphysics":"../doxy_files/xml",
+    "microphysics": "../doxy_files/xml",
     }
 
 breathe_default_project = "microphysics"
@@ -128,7 +126,7 @@ mathjax3_config["tex"] = {
 
 mathjax3_config["tex"]["macros"] = {}
 
-with open('mathsymbols.tex', 'r') as f:
+with open('mathsymbols.tex') as f:
     for line in f:
         macros = re.findall(r'\\newcommand{\\(.*?)}(\[(\d)\])?{(.+)}', line)
         for macro in macros:
