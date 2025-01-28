@@ -21,6 +21,7 @@ clean:
 
 html:
 	./rp.py > source/runtime_parameters.rst
+	curl -L -H 'Accept: application/x-bibtex' https://zenodo.org/api/records/2620544 > source/zenodo.bibtex.txt
 	doxygen Doxyfile
 	breathe-apidoc --o source doxy_files/xml
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
