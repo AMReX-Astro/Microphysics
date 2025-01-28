@@ -897,11 +897,11 @@
   * a new `subCh` network for He burning was added. 
 
   * implemented the new c12(a,g)o16 nuclear reaction rate and its
-    corresponding inverse from the work of Deboer et al. 2017
-    (https://journals.aps.org/rmp/abstract/10.1103/RevModPhys.89.035007).
-    To use the new rate, user must set `use_c12ag_deboer17` to `true`.
-    This rate is only usable in the `aprox13`, `aprox19`, `aprox21`,
-    and `iso7` reaction rate networks. (#56)
+    corresponding inverse from the work of Deboer et al. 2017 (Rev Mod
+    Phys 89, 035007, 2017).  To use the new rate, user must set
+    `use_c12ag_deboer17` to `true`.  This rate is only usable in the
+    `aprox13`, `aprox19`, `aprox21`, and `iso7` reaction rate
+    networks. (#56)
 
   * a routine `util/cj_detonation` was added to compute the
      Chapman-Jouguet detonation velocity for any of the networks
