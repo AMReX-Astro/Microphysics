@@ -95,6 +95,7 @@ of state routines.
    :caption: References
    :hidden:
 
+   citing
    zreferences
 
 .. toctree::
