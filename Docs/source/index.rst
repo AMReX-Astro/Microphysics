@@ -14,11 +14,14 @@ The original design was to support codes based on the `AMReX
 <https://github.com/amrex-codes/amrex>`_ adaptive mesh refinement library :cite:`amrex_joss`,
 including `CASTRO
 <https://github.com/amrex-astro/Castro>`_ :cite:`castro_I`, `MAESTROeX
-<https://github.com/amrex-astro/MAESTROeX>`_ :cite:`maestroex`, and Quokka :cite:`quokka`. These all have a
+<https://github.com/amrex-astro/MAESTROeX>`_ :cite:`maestroex`, and, later, Quokka :cite:`quokka`. These all have a
 consistent interface and the separate Microphysics repository allows
 them to share the same equation of state, reaction networks, and more.
-Later, Microphysics was adopted by the `Quokka <https://github.com/quokka-astro/quokka>`_
-simulation code.
+
+Microphysics is written in C++ as a (mostly) header-only library, making
+extensive use of templating and C++ `constexpr` features to be performant
+on both CPU and GPU architectures.  It is compatible with both NVIDIA CUDA
+and AMD HIP/ROCm.
 
 While there are a number of unit tests that exercise the functionality,
 Microphysics is primarily intended to be used along with another simulation
@@ -26,11 +29,13 @@ code.   At the moment, the interfaces and
 build stubs are compatible with the AMReX codes and use the AMReX build
 system.
 
-A number of the routines contained here we authored by other people.
-We bundle them here with permission, usually changing the interfaces
-to be compatible with our standardized interface. We in particular
-thank Frank Timmes for numerous reaction networks and his equation
-of state routines.
+.. note::
+
+   A number of the routines contained here we authored by other people.
+   We bundle them here with permission, usually changing the interfaces
+   to be compatible with our standardized interface. We in particular
+   thank Frank Timmes for numerous reaction networks and his equation
+   of state routines.
 
 
 .. toctree::
