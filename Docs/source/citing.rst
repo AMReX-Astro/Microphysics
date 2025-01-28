@@ -1,5 +1,5 @@
-Citing pynucastro
-=================
+Citing Microphysics
+===================
 
 .. mdinclude:: ../../CITATION.md
 
