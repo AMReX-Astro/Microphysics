@@ -1,0 +1,308 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>burn_cell &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="References" href="zreferences.html" />
+    <link rel="prev" title="One Zone Tests" href="one_zone_tests.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="../burn_cell.html">main</a> | <a href="./burn_cell.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-the-thermodynamics">Setting the thermodynamics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#controlling-time">Controlling time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integration-parameters">Integration parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#building-and-running-the-code">Building and Running the Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-output">Working with Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="one_zone_tests.html">One Zone Tests</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/burn_cell.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="burn-cell">
+<h1><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code><a class="headerlink" href="#burn-cell" title="Link to this heading"></a></h1>
+<p id="index-0"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> is a simple one-zone burn that will evolve a state with
+a network for a specified amount of time.  This can be used to
+understand the timescales involved in a reaction sequence or to
+determine the needed ODE tolerances.  This is designed to work
+with the Strang-split integration wrappers.  The system that is evolved
+has the form:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+   \frac{dX_k}{dt} &amp;= \dot{\omega}_k(\rho, X_k, T) \\
+   \frac{de}{dt} &amp;= \epsilon(\rho, X_k, T)
+\end{align*}\end{split}\]</div>
+<p>with density held constant and the temperature found via the equation of state,
+<span class="math notranslate nohighlight">\(T = T(\rho, X_k, e)\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Since the energy evolves due to the heat release (or loss)
+from reactions, the temperature will change during the burn
+(unless <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs=0</span></code> is set).</p>
+</div>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> code is located in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/burn_cell</span></code>.  An inputs file which sets the
+default parameters for your choice of network is needed to run the
+test.  There are a number of inputs files in the unit test directory
+already with a name list <code class="docutils literal notranslate"><span class="pre">inputs_network</span></code>, where <code class="docutils literal notranslate"><span class="pre">network</span></code>
+is the network you wish to use for your testing.  These can be
+used as a starting point for any explorations.</p>
+<section id="setting-the-thermodynamics">
+<h3>Setting the thermodynamics<a class="headerlink" href="#setting-the-thermodynamics" title="Link to this heading"></a></h3>
+<p>The parameters that affect the thermodynamics are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.density</span></code> : the initial density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.temperature</span></code> : the initial temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_temp</span></code> : the low temperature cutoff used in the equation of state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_dens</span></code> : the low density cutoff used in the equation of state</p></li>
+</ul>
+<p>The composition can be set either by setting each mass fraction explicitly via the
+parameters, <code class="docutils literal notranslate"><span class="pre">unit_test.X1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.X2</span></code>, …,
+e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">X1</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X2</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X3</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X4</span> <span class="o">=</span> <span class="mf">0.1</span>
+</pre></div>
+</div>
+<p>where parameters up to <code class="docutils literal notranslate"><span class="pre">X35</span></code> are available.  If the values don’t sum to <code class="docutils literal notranslate"><span class="pre">1</span></code>
+initially, then the test will do a normalization.  This normalization can be
+disabled by setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">skip_initial_normalization</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Alternately, the composition can be set automatically by initializing all
+of the mass fractions equally (to <span class="math notranslate nohighlight">\(1/N\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of species),
+by setting:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">init_species_all_equal</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="controlling-time">
+<h3>Controlling time<a class="headerlink" href="#controlling-time" title="Link to this heading"></a></h3>
+<p>The test will run unit a time <code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code>, outputting the state
+at regular intervals.  The parameters controlling the output are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code> : the end point of integration.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tfirst</span></code> : the first time interval to output.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span></code> : the number of steps to divide the integration into,
+logarithmically-spaced.</p></li>
+</ul>
+<p>If there is only a single step, <code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span> <span class="pre">=</span> <span class="pre">1</span></code>, then we integrate
+from <span class="math notranslate nohighlight">\([0, \mathrm{tmax}]\)</span>.</p>
+<p>If there are multiple steps, then the first output will be at a time
+<span class="math notranslate nohighlight">\(\mathrm{tmax} / \mathrm{nsteps}\)</span>, and the steps will be
+logarithmically-spaced afterwards.</p>
+</section>
+<section id="integration-parameters">
+<h3>Integration parameters<a class="headerlink" href="#integration-parameters" title="Link to this heading"></a></h3>
+<p>The tolerances, choice of Jacobian, and other integration parameters
+can be set via the usual Microphysics runtime parameters, e.g.
+<code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>.</p>
+</section>
+</section>
+<section id="building-and-running-the-code">
+<h2>Building and Running the Code<a class="headerlink" href="#building-and-running-the-code" title="Link to this heading"></a></h2>
+<p>The code can be built simply as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">make</span>
+</pre></div></div><p>and the network and integrator can be changed using the normal
+Microphysics build system parameters, e.g.,</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">make<span class="w"> </span><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">INTEGRATOR_DIR</span><span class="o">=</span>rkc</span>
+</pre></div></div><p>The build process will automatically create links in the build
+directory to the EOS table and any reaction rate tables needed by your
+choice of network.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You need to do a <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> before rebuilding with a different
+network or integrator.</p>
+</div>
+<p>To run the code, enter the burn_cell directory and run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">inputs</span></code> is the name of your inputs file.</p>
+</section>
+<section id="working-with-output">
+<h2>Working with Output<a class="headerlink" href="#working-with-output" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For this part, we’ll assume that the default <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> and
+<code class="docutils literal notranslate"><span class="pre">VODE</span></code> options were used for the network and integrator, and the
+test was run with <code class="docutils literal notranslate"><span class="pre">inputs.aprox13</span></code>.</p>
+</div>
+<p>As the code runs, it will output to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> details of the initial
+and final state and the number of integration steps taken (along with whether
+the burn was successful).  The full history of the thermodynamic state will also be output to a file,
+<code class="docutils literal notranslate"><span class="pre">state_over_time.txt</span></code>, with each line corresponding to one of the
+<code class="docutils literal notranslate"><span class="pre">nsteps</span></code> requested in the time integration.</p>
+<p>The script <code class="docutils literal notranslate"><span class="pre">plot_burn_cell.py</span></code> can be used to visualize the evolution:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python<span class="w"> </span>plot_burn_cell.py<span class="w"> </span>state_over_time.txt</span>
+</pre></div></div><p>This will generate the following figure:</p>
+<figure class="align-default">
+<img alt="An example of a plot output by the burn_cell unit test." src="_images/state.png" />
+</figure>
+<p>Only the most abundant species are plotted.  The number of species to plot and the
+limits of <span class="math notranslate nohighlight">\(X\)</span> can be set via runtime parameters (see <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">plot_burn_cell.py</span> <span class="pre">-h</span></code>).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="one_zone_tests.html" class="btn btn-neutral float-left" title="One Zone Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="zreferences.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>

@@ -26,7 +26,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="References" href="zreferences.html" />
+    <link rel="next" title="burn_cell" href="burn_cell.html" />
     <link rel="prev" title="Comprehensive Unit Tests" href="comprehensive_tests.html" /> 
 </head>
 
@@ -92,17 +92,7 @@
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">One Zone Tests</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#burn-cell"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#setting-the-thermodynamics">Setting the thermodynamics</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#controlling-time">Controlling time</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#integration-parameters">Integration parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#building-and-running-the-code">Building and Running the Code</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#working-with-output">Working with Output</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="burn_cell.html"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -142,139 +132,10 @@
   <section id="one-zone-tests">
 <h1>One Zone Tests<a class="headerlink" href="#one-zone-tests" title="Link to this heading"></a></h1>
 <p>There are several tests that let you call the EOS or reaction network
-on a single zone to inspect the output directly.</p>
-<section id="burn-cell">
-<h2><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code><a class="headerlink" href="#burn-cell" title="Link to this heading"></a></h2>
-<p id="index-0"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> is a simple one-zone burn that will evolve a state with
-a network for a specified amount of time.  This can be used to
-understand the timescales involved in a reaction sequence or to
-determine the needed ODE tolerances.  This is designed to work
-with the Strang-split integration wrappers.  The system that is evolved
-has the form:</p>
-<div class="math notranslate nohighlight">
-\[\begin{split}\begin{align*}
-   \frac{dX_k}{dt} &amp;= \dot{\omega}_k(\rho, X_k, T) \\
-   \frac{de}{dt} &amp;= \epsilon(\rho, X_k, T)
-\end{align*}\end{split}\]</div>
-<p>with density held constant and the temperature found via the equation of state,
-<span class="math notranslate nohighlight">\(T = T(\rho, X_k, e)\)</span>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Since the energy evolves due to the heat release (or loss)
-from reactions, the temperature will change during the burn
-(unless <code class="docutils literal notranslate"><span class="pre">integrator.call_eos_in_rhs=0</span></code> is set).</p>
+on a single zone to inspect the output directly.  Some of these
+have analysis scripts, which we describe in the next sections.</p>
+<div class="toctree-wrapper compound">
 </div>
-<section id="getting-started">
-<h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> code is located in
-<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/burn_cell</span></code>.  An inputs file which sets the
-default parameters for your choice of network is needed to run the
-test.  There are a number of inputs files in the unit test directory
-already with a name list <code class="docutils literal notranslate"><span class="pre">inputs_network</span></code>, where <code class="docutils literal notranslate"><span class="pre">network</span></code>
-is the network you wish to use for your testing.  These can be
-used as a starting point for any explorations.</p>
-<section id="setting-the-thermodynamics">
-<h4>Setting the thermodynamics<a class="headerlink" href="#setting-the-thermodynamics" title="Link to this heading"></a></h4>
-<p>The parameters that affect the thermodynamics are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.density</span></code> : the initial density</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.temperature</span></code> : the initial temperature</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_temp</span></code> : the low temperature cutoff used in the equation of state</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_dens</span></code> : the low density cutoff used in the equation of state</p></li>
-</ul>
-<p>The composition can be set either by setting each mass fraction explicitly via the
-parameters, <code class="docutils literal notranslate"><span class="pre">unit_test.X1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.X2</span></code>, …,
-e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">X1</span> <span class="o">=</span> <span class="mf">0.5</span>
-<span class="n">unit_test</span><span class="o">.</span><span class="n">X2</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">unit_test</span><span class="o">.</span><span class="n">X3</span> <span class="o">=</span> <span class="mf">0.2</span>
-<span class="n">unit_test</span><span class="o">.</span><span class="n">X4</span> <span class="o">=</span> <span class="mf">0.1</span>
-</pre></div>
-</div>
-<p>where parameters up to <code class="docutils literal notranslate"><span class="pre">X35</span></code> are available.  If the values don’t sum to <code class="docutils literal notranslate"><span class="pre">1</span></code>
-initially, then the test will do a normalization.  This normalization can be
-disabled by setting:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">skip_initial_normalization</span> <span class="o">=</span> <span class="mi">1</span>
-</pre></div>
-</div>
-<p>Alternately, the composition can be set automatically by initializing all
-of the mass fractions equally (to <span class="math notranslate nohighlight">\(1/N\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the number of species),
-by setting:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">init_species_all_equal</span> <span class="o">=</span> <span class="mi">1</span>
-</pre></div>
-</div>
-</section>
-<section id="controlling-time">
-<h4>Controlling time<a class="headerlink" href="#controlling-time" title="Link to this heading"></a></h4>
-<p>The test will run unit a time <code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code>, outputting the state
-at regular intervals.  The parameters controlling the output are:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tmax</span></code> : the end point of integration.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.tfirst</span></code> : the first time interval to output.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span></code> : the number of steps to divide the integration into,
-logarithmically-spaced.</p></li>
-</ul>
-<p>If there is only a single step, <code class="docutils literal notranslate"><span class="pre">unit_test.nsteps</span> <span class="pre">=</span> <span class="pre">1</span></code>, then we integrate
-from <span class="math notranslate nohighlight">\([0, \mathrm{tmax}]\)</span>.</p>
-<p>If there are multiple steps, then the first output will be at a time
-<span class="math notranslate nohighlight">\(\mathrm{tmax} / \mathrm{nsteps}\)</span>, and the steps will be
-logarithmically-spaced afterwards.</p>
-</section>
-<section id="integration-parameters">
-<h4>Integration parameters<a class="headerlink" href="#integration-parameters" title="Link to this heading"></a></h4>
-<p>The tolerances, choice of Jacobian, and other integration parameters
-can be set via the usual Microphysics runtime parameters, e.g.
-<code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code>.</p>
-</section>
-</section>
-<section id="building-and-running-the-code">
-<h3>Building and Running the Code<a class="headerlink" href="#building-and-running-the-code" title="Link to this heading"></a></h3>
-<p>The code can be built simply as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
-span.prompt1:before {
-  content: "$ ";
-}
-</style><span class="prompt1">make</span>
-</pre></div></div><p>and the network and integrator can be changed using the normal
-Microphysics build system parameters, e.g.,</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">make<span class="w"> </span><span class="nv">NETWORK_DIR</span><span class="o">=</span>aprox19<span class="w"> </span><span class="nv">INTEGRATOR_DIR</span><span class="o">=</span>rkc</span>
-</pre></div></div><p>The build process will automatically create links in the build
-directory to the EOS table and any reaction rate tables needed by your
-choice of network.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>You need to do a <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean</span></code> before rebuilding with a different
-network or integrator.</p>
-</div>
-<p>To run the code, enter the burn_cell directory and run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs</span>
-</pre></div>
-</div>
-<p>where <code class="docutils literal notranslate"><span class="pre">inputs</span></code> is the name of your inputs file.</p>
-</section>
-<section id="working-with-output">
-<h3>Working with Output<a class="headerlink" href="#working-with-output" title="Link to this heading"></a></h3>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>For this part, we’ll assume that the default <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> and
-<code class="docutils literal notranslate"><span class="pre">VODE</span></code> options were used for the network and integrator, and the
-test was run with <code class="docutils literal notranslate"><span class="pre">inputs.aprox13</span></code>.</p>
-</div>
-<p>As the code runs, it will output to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> details of the initial
-and final state and the number of integration steps taken (along with whether
-the burn was successful).  The full history of the thermodynamic state will also be output to a file,
-<code class="docutils literal notranslate"><span class="pre">state_over_time.txt</span></code>, with each line corresponding to one of the
-<code class="docutils literal notranslate"><span class="pre">nsteps</span></code> requested in the time integration.</p>
-<p>The script <code class="docutils literal notranslate"><span class="pre">plot_burn_cell.py</span></code> can be used to visualize the evolution:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">python<span class="w"> </span>plot_burn_cell.py<span class="w"> </span>state_over_time.txt</span>
-</pre></div></div><p>This will generate the following figure:</p>
-<figure class="align-default">
-<img alt="An example of a plot output by the burn_cell unit test." src="_images/state.png" />
-</figure>
-<p>Only the most abundant species are plotted.  The number of species to plot and the
-limits of <span class="math notranslate nohighlight">\(X\)</span> can be set via runtime parameters (see <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">plot_burn_cell.py</span> <span class="pre">-h</span></code>).</p>
-</section>
-</section>
 </section>
 
 
@@ -282,7 +143,7 @@ limits of <span class="math notranslate nohighlight">\(X\)</span> can be set via
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="comprehensive_tests.html" class="btn btn-neutral float-left" title="Comprehensive Unit Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="zreferences.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="burn_cell.html" class="btn btn-neutral float-right" title="burn_cell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
