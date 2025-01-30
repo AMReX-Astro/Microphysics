@@ -28,17 +28,17 @@ jobs:
 
       - name: Compile
         run: |
-          cd unit_test/test_part_func
+          cd unit_test/part_func_cell
           make clean
           make -j 4
 
-      - name: Run test_part_func
+      - name: Run part_func_cell
         run: |
-          cd unit_test/test_part_func
+          cd unit_test/part_func_cell
           ./main3d.gnu.ex > test.out
 
       - name: Compare to stored output
         run: |
-          cd unit_test/test_part_func
+          cd unit_test/part_func_cell
           diff -I "^Initializing AMReX" -I "^AMReX" -I "^reading in reaclib rates" test.out ci-benchmarks/part_func.out
 
