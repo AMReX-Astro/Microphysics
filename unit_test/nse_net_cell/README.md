@@ -1,6 +1,6 @@
-# test_nse_net
+# `nse_net_cell`
 
-`test_nse_net` finds the NSE mass fractions of a given state.
+`nse_net_cell` finds the NSE mass fractions of a given state.
 The density, temperature, and composition are set in the
 inputs file. Then we update the NSE mass fraction to
 the current state to make sure we're in NSE. Then we
