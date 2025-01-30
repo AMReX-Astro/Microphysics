@@ -1,0 +1,1239 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; Microphysics  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="References" href="zreferences.html" />
+    <link rel="prev" title="Citing Microphysics" href="citing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Microphysics
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+    <div class="branch">
+        Branch: <a href="../changes.html">main</a> | <a href="./changes.html">development</a>
+    </div>
+
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Microphysics overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="integrators.html">Reaction ODE System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">25.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">24.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id15">24.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id21">24.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id29">24.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id69">24.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id89">24.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id112">24.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id120">24.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id134">24.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id147">24.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id160">24.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id175">23.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id184">23.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id197">23.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id204">23.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id208">23.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id213">23.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id220">23.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id222">23.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id236">23.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id243">23.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id247">23.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id254">22.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id264">22.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id266">22.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id273">22.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id276">22.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id278">22.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id280">22.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id282">22.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id284">22.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id287">22.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id289">22.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id293">21.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id297">21.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id301">21.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id308">21.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id316">21.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id318">21.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id321">21.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id328">21.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id331">21.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id335">21.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id339">21.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id342">20.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id345">20.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id348">20.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id352">20.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id358">20.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id364">20.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id367">20.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id372">20.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id379">20.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id397">20.03</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id412">20.02</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id413">20.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id418">19.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id425">19.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id427">19.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id432">19.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id434">19.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id438">19.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id439">18.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id440">18.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id441">18.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id445">18.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id446">18.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id447">18.07</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id448">18.05</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id452">18.04</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id453">17.11</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id456">17.10</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id460">17.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id463">17.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id464">17.06</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id465">17.01</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id466">16.12</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id467">16.09</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id468">16.08</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id469">16.07</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Index</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Microphysics</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/changes.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>25.01<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>update HIP/CUDA dependences to include sparse libraries (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1686">#1686</a>)</p></li>
+<li><p>rename <code class="docutils literal notranslate"><span class="pre">Opacity_dir</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">OPACITY_DIR</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1679">#1679</a>)</p></li>
+<li><p>update the integration and NSE docs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1682">#1682</a>)</p></li>
+</ul>
+</section>
+<section id="id5">
+<h2>24.12<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>documentation improvements (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1661">#1661</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1667">#1667</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1670">#1670</a>)</p></li>
+<li><p>optimize tabular NSE EOS calls (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1668">#1668</a>)</p></li>
+<li><p>CI fixes (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1666">#1666</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1671">#1671</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1675">#1675</a>) and new partition function CI
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1673">#1673</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> can now initialize all mass fractions to be equal
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1665">#1665</a>)</p></li>
+</ul>
+</section>
+<section id="id15">
+<h2>24.10<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>metal chemistry updates (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1648">#1648</a>) with ices (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1650">#1650</a>) and cosmic rays (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1651">#1651</a>)</p></li>
+<li><p>added dust to primordial chemistry (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1649">#1649</a>)</p></li>
+<li><p>doc updates (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1652">#1652</a>)</p></li>
+</ul>
+</section>
+<section id="id21">
+<h2>24.09<a class="headerlink" href="#id21" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Improvements to the primordial chemistry network and the addition
+of a new version that includes metals and dust (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1642">#1642</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1644">#1644</a>)</p></li>
+<li><p>code clean-ups (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1645">#1645</a>)</p></li>
+<li><p>documentation improvements (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1637">#1637</a>)</p></li>
+<li><p>outputting the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> now prints the mass fractions / number densities
+in scientific notation (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1643">#1643</a>)</p></li>
+<li><p>improvements to the looping and zeroing of the Jacobian in the
+integrators (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1636">#1636</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1640">#1640</a>)</p></li>
+</ul>
+</section>
+<section id="id29">
+<h2>24.08<a class="headerlink" href="#id29" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>autodiff is now used with the templated reaction networks (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1614">#1614</a>)
+and some autodiff clean-ups and derivative fixes (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1604">#1604</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1612">#1612</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1613">#1613</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1616">#1616</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1619">#1619</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1633">#1633</a>)</p></li>
+<li><p>we can now output warnings from GPUs if you compile with
+<code class="docutils literal notranslate"><span class="pre">USE_GPU_PRINTF=TRUE</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1629">#1629</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1635">#1635</a>)</p></li>
+<li><p>documentation improvements (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1570">#1570</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1628">#1628</a>)</p></li>
+<li><p>a new jacobian unit (<code class="docutils literal notranslate"><span class="pre">jac_cell</span></code>) test was added that compares the
+numerical and analytic Jacobians (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1618">#1618</a>)</p></li>
+<li><p>support for Strang + NSE has been removed.  NSE only works with
+SDC now (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1549">#1549</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1621">#1621</a>)</p></li>
+<li><p>the network <code class="docutils literal notranslate"><span class="pre">CNO_He_burn</span></code> was added for explosive H/He burning
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1622">#1622</a>)</p></li>
+<li><p>code clean-ups (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1582">#1582</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1602">#1602</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1609">#1609</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1623">#1623</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1624">#1624</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1625">#1625</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1626">#1626</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1627">#1627</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1631">#1631</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1639">#1639</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_nse_net</span></code> now also tests the NSE EOS interface (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1621">#1621</a>)</p></li>
+<li><p>the self-consistent NSE + SDC update has been synced with the
+tabular NSE implementation (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1569">#1569</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1607">#1607</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1617">#1617</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_jac</span></code> was not correctly evaluating the numerical Jacobian
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1615">#1615</a>)</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">fast_atan</span></code> function is now more accurate (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1611">#1611</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_ase</span></code> was renamed <code class="docutils literal notranslate"><span class="pre">test_nse_net</span></code> and the old <code class="docutils literal notranslate"><span class="pre">test_nse</span></code> was
+removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1610">#1610</a>)</p></li>
+<li><p>the old <code class="docutils literal notranslate"><span class="pre">test_screening</span></code> unit test was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1608">#1608</a>)</p></li>
+<li><p>the RKC integrator now supports NSE bailout (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1544">#1544</a>)</p></li>
+<li><p>a second temperature check for tabular NSE was added – above this
+temperature we don’t consider composition (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1547">#1547</a>)</p></li>
+<li><p>a SDC+NSE unit test was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1548">#1548</a>)</p></li>
+<li><p>a fast log and fast pow approximation was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1591">#1591</a>)</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">primordial_chem</span> <span class="pre">network</span></code> now uses the fast math routines (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1605">#1605</a>)</p></li>
+<li><p>fix potential Inf in constexpr linear algebra (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1603">#1603</a>)</p></li>
+</ul>
+</section>
+<section id="id69">
+<h2>24.07<a class="headerlink" href="#id69" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>added an autodiff library and converted all of the screening
+functions to use autodiff for the thermodynamic derivatives
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1581">#1581</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1588">#1588</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1593">#1593</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1596">#1596</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1597">#1597</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1600">#1600</a>)</p></li>
+<li><p>some testing infrastructure fixes (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1598">#1598</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1589">#1589</a>)</p></li>
+<li><p>documentation improvements (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1594">#1594</a>)</p></li>
+<li><p>added approximate math functions for exp and atan (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1583">#1583</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1586">#1586</a>)</p></li>
+<li><p>fix return code for PrimordialChem unit test (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1590">#1590</a>)</p></li>
+<li><p>NSE optimizations (including <code class="docutils literal notranslate"><span class="pre">chabrier1998</span></code> screening) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1585">#1585</a>)</p></li>
+<li><p>remove “using namespace amrex” from most headers (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1584">#1584</a>)</p></li>
+<li><p>NSE table can work with other network now (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1576">#1576</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1577">#1577</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1580">#1580</a>)</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">subch_full</span></code> and <code class="docutils literal notranslate"><span class="pre">subch_approx</span></code> networks were removed – these
+are replaced by <code class="docutils literal notranslate"><span class="pre">subch_simple</span></code> and <code class="docutils literal notranslate"><span class="pre">subch_base</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1578">#1578</a>)</p></li>
+<li><p>retry tolerances now default to use the same values as the first
+attempt, unless they are explicitly set in an inputs file (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1573">#1573</a>)</p></li>
+</ul>
+</section>
+<section id="id89">
+<h2>24.06<a class="headerlink" href="#id89" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>added the ability to access the runtime parameters via a struct.
+This will eventually be used to remove the dependency on globals
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1433">#1433</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1575">#1575</a>)</p></li>
+<li><p>simplified the integrators by extracting common infrastructure
+into setup and cleanup functions (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1515">#1515</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1546">#1546</a>)</p></li>
+<li><p>lots of documentation improvements including sectioning (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1559">#1559</a>)
+integrators (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1560">#1560</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1561">#1561</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1562">#1562</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1563">#1563</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1566">#1566</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1567">#1567</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1568">#1568</a>),
+runtime parameters (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1557">#1557</a>), and link checking (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1552">#1552</a>)</p></li>
+<li><p>CUDA no longer requires VODE + generalize some <code class="docutils literal notranslate"><span class="pre">AMREX_USE_CUDA</span></code>
+to <code class="docutils literal notranslate"><span class="pre">AMREX_USE_GPU</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1564">#1564</a>)</p></li>
+<li><p>self-consistent NSE now accepted the temperature threshold as a
+runtime parameter (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1558">#1558</a>)</p></li>
+<li><p>general code cleanups (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1537">#1537</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1551">#1551</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1553">#1553</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1554">#1554</a>)</p></li>
+<li><p>unit tests no longer append <code class="docutils literal notranslate"><span class="pre">.cxx</span></code> to output (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1309">#1309</a>)</p></li>
+<li><p>added an <code class="docutils literal notranslate"><span class="pre">eos_rh_t</span></code> EOS type (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1539">#1539</a>)</p></li>
+</ul>
+</section>
+<section id="id112">
+<h2>24.05<a class="headerlink" href="#id112" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Runtime parameters can now be type <code class="docutils literal notranslate"><span class="pre">bool</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1536">#1536</a>)</p></li>
+<li><p>more clang-tidy and compiler warning cleaning (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1527">#1527</a> <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1530">#1530</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1532">#1532</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1533">#1533</a>)</p></li>
+<li><p>Remove recursion in quicksort to avoid CUDA stack limits (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1531">#1531</a>)</p></li>
+<li><p>Update the pynucastro networks to cache derived rate partition
+functions (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1529">#1529</a>)</p></li>
+</ul>
+</section>
+<section id="id120">
+<h2>24.04<a class="headerlink" href="#id120" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>A new <code class="docutils literal notranslate"><span class="pre">test_screening_templated</span></code> unit test was added – this
+works with any of the templated networks. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1525">#1525</a>)</p></li>
+<li><p>A lot of small code clean-ups from clang-tidy (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1516">#1516</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1518">#1518</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1519">#1519</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1520">#1520</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1522">#1522</a>)</p></li>
+<li><p>The NSE solver was optimized (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1503">#1503</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1504">#1504</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1506">#1506</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1507">#1507</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1508">#1508</a>)</p></li>
+<li><p>The integrator code was synced up between implementations, fixing
+a bug in the RKC retry tolerances (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1513">#1513</a>)</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">reinterpret_cast</span></code> in <code class="docutils literal notranslate"><span class="pre">rhs.H</span></code> was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1435">#1435</a>)</p></li>
+</ul>
+</section>
+<section id="id134">
+<h2>24.03<a class="headerlink" href="#id134" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>pivoting in the linear algebra routines can now be disabled
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1454">#1454</a>)</p></li>
+<li><p>the scaling of the energy derivatives in the Jacobian when
+running with <code class="docutils literal notranslate"><span class="pre">integrator.scale_system=1</span></code> has been fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1479">#1479</a>)</p></li>
+<li><p>added a new linear algebra unit test (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1493">#1493</a>)</p></li>
+<li><p>when building with HIP we disable forced inlining (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1490">#1490</a>)</p></li>
+<li><p>improved the energy update with NSE and remove unused terms
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1483">#1483</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1484">#1484</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1485">#1485</a>)</p></li>
+<li><p>remove <code class="docutils literal notranslate"><span class="pre">using</span> <span class="pre">namespace</span> <span class="pre">amrex</span></code> from most headers (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1465">#1465</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1474">#1474</a>)</p></li>
+<li><p>updated the pynucastro networks to pynucastro 2.2.0 (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1470">#1470</a>)</p></li>
+<li><p>fixed an error code check in the VODE integrator (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1472">#1472</a>)</p></li>
+<li><p>added a zone-by-zone retry capability to the burner (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/969">#969</a>)</p></li>
+</ul>
+</section>
+<section id="id147">
+<h2>24.02<a class="headerlink" href="#id147" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Lots of general code cleaning from coverity and clang-tidy
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1450">#1450</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1452">#1452</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1453">#1453</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1460">#1460</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1459">#1459</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1457">#1457</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1458">#1458</a>)</p></li>
+<li><p>Fixed a bug in the VODE pivoting when a cached Jacobian is used
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1456">#1456</a>)</p></li>
+<li><p>Added reverse rates to <code class="docutils literal notranslate"><span class="pre">CNO_extras</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1445">#1445</a>)</p></li>
+<li><p>Sync networks up with pynucastro to get <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> mion/bion
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1437">#1437</a>)</p></li>
+<li><p>NSE+SDC improvements (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1431">#1431</a>)</p></li>
+<li><p>Start of moving the runtime parameters from globals to structs
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1422">#1422</a>)</p></li>
+</ul>
+</section>
+<section id="id160">
+<h2>24.01<a class="headerlink" href="#id160" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The quantum corrections for the Chabrier screening are
+now optional (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1428">#1428</a>)</p></li>
+<li><p>We’ve replaced <code class="docutils literal notranslate"><span class="pre">std::pow()</span></code> with <code class="docutils literal notranslate"><span class="pre">amrex::Math::powi</span></code> for integer
+powers for better GPU performance (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1432">#1432</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">in_nse</span></code> now works with an <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> for tabular NSE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1424">#1424</a>)</p></li>
+<li><p>There are a new set of interfaces for inverting the EOS when
+we are in NSE (with the tabular NSE) that consistently find
+T and the composition (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1405">#1405</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1430">#1430</a>)</p></li>
+<li><p>The NSE table now uses finer spacing (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1427">#1427</a>)</p></li>
+<li><p>The SDC+NSE update for tabular NSE is now based on a 2nd-order
+Runge-Kutta method (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1415">#1415</a>)</p></li>
+<li><p>An additional check on molar fractions was added to
+self-consistent NSE to determine if we are in NSE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1417">#1417</a>)</p></li>
+<li><p>The NSE table interface was changed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1404">#1404</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1418">#1418</a>)</p></li>
+<li><p>A script that checks if a network is compatible with
+self-consistent NSE was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1416">#1416</a>)</p></li>
+<li><p>constant T evolution was fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1408">#1408</a>)</p></li>
+<li><p>An unsafe <code class="docutils literal notranslate"><span class="pre">reinterpret_cast</span></code> was removed from linear algebra (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1412">#1412</a>)</p></li>
+<li><p>Methods for computing T derivatives of an NSE table quantity were
+added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1407">#1407</a>)</p></li>
+</ul>
+</section>
+<section id="id175">
+<h2>23.12<a class="headerlink" href="#id175" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The SDC+NSE update now includes plasma neutrino losses (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1357">#1357</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1400">#1400</a>)</p></li>
+<li><p>The default tabular NSE interpolation is now cubic (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1399">#1399</a>)</p></li>
+<li><p>Self-consistent NSE now requires <code class="docutils literal notranslate"><span class="pre">chabrier1998</span></code> or <code class="docutils literal notranslate"><span class="pre">null</span></code> screening
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1398">#1398</a>)</p></li>
+<li><p>A new network, <code class="docutils literal notranslate"><span class="pre">subch_base</span></code>, was added that further simplifies
+<code class="docutils literal notranslate"><span class="pre">subch_simple</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1393">#1393</a>)</p></li>
+<li><p>A slightly larger network for Urca was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1365">#1365</a>)</p></li>
+<li><p>A new NSE table was added.  This is generated via pynucastro and
+there is a python script that can be used to regenerate it (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1350">#1350</a>)</p></li>
+<li><p>A bug was fixed in the neutrino cooling that was introduced in an
+optimization last release (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1380">#1380</a>)</p></li>
+</ul>
+</section>
+<section id="id184">
+<h2>23.11<a class="headerlink" href="#id184" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">sneut5</span></code> neutrino cooling term was cleaned up (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1371">#1371</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1372">#1372</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1373">#1373</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1374">#1374</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1375">#1375</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1377">#1377</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1378">#1378</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1379">#1379</a>)</p></li>
+<li><p>The number of predictor-corrector iterations for the SDC+NSE algorithm
+is now a runtime parameter (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1370">#1370</a>)</p></li>
+<li><p>The Urca network now includes a more accurate rate for neutron decay
+and electon-capture onto a proton. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1359">#1359</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">He-C-Fe-group</span></code> network now includes the positron parts of the
+weak reaction rates (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1360">#1360</a>)</p></li>
+<li><p>A check was added to ensure that the <code class="docutils literal notranslate"><span class="pre">helm_table.dat</span></code> is valid on
+reading (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1355">#1355</a>)</p></li>
+</ul>
+</section>
+<section id="id197">
+<h2>23.10<a class="headerlink" href="#id197" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The simplified-SDC and true-SDC code paths for integration
+have been merged (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1338">#1338</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1340">#1340</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1341">#1341</a>).</p></li>
+<li><p>All pynucastro networks have been updated with the latest
+version of pynucastro (2.1.0) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1342">#1342</a>)</p></li>
+<li><p>The neutrino cooling terms now use templating on derivatives
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1329">#1329</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NUM_EXTRA_SPECIES</span></code> was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1321">#1321</a>)</p></li>
+</ul>
+</section>
+<section id="id204">
+<h2>23.09<a class="headerlink" href="#id204" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The file <code class="docutils literal notranslate"><span class="pre">NETWORK_PROPERTIES</span></code> has been removed from each network,
+as the legacy screening method is no longer used. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1310">#1310</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">rprox</span></code> network was updated and the Jacobian was fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1300">#1300</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">primordial_chem</span></code> EOS now can take density and pressure as
+inputs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1302">#1302</a>)</p></li>
+</ul>
+</section>
+<section id="id208">
+<h2>23.07<a class="headerlink" href="#id208" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The preprocessor variable <code class="docutils literal notranslate"><span class="pre">EXTRA_THERMO</span></code> has been removed.
+Use cases that depend on dpdA/dpdZ or dedA/dedZ should use
+<code class="docutils literal notranslate"><span class="pre">eos_extra_t</span></code>, which is a container that holds all of the
+entities in <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> as well as these derivatives wrt A and Z. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1229">#1229</a>)</p></li>
+<li><p>added the ability to scale the energy we integrate by
+the initial energy in the ODE integration (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1224">#1224</a>)</p></li>
+<li><p>added an implementation of the Gershgorin circle theorem
+for estimating the spectral radius of our ODE system (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1222">#1222</a>)</p></li>
+<li><p>removed <code class="docutils literal notranslate"><span class="pre">SDC_EVOLVE_ENTHALPY</span></code> – this was not being used (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1204">#1204</a>)</p></li>
+</ul>
+</section>
+<section id="id213">
+<h2>23.06<a class="headerlink" href="#id213" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Added a new Runge-Kutta-Chebyshev integrator (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1191">#1191</a>)</p></li>
+<li><p>Lots of clean-up to the primordial chem network (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1180">#1180</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1181">#1181</a>
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1198">#1198</a>)</p></li>
+<li><p>Namespaces for the runtime parameters are now required in C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1056">#1056</a>)</p></li>
+<li><p>The SDC+NSE update for tabular NSE was fixed – we were previously
+computing the energy release incorrectly (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1092">#1092</a>)</p></li>
+</ul>
+</section>
+<section id="id220">
+<h2>23.05<a class="headerlink" href="#id220" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code> runtime parameter has been removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1174">#1174</a>)</p></li>
+</ul>
+</section>
+<section id="id222">
+<h2>23.04<a class="headerlink" href="#id222" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>added preliminary CMake support (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1151">#1151</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1164">#1164</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1166">#1166</a>)</p></li>
+<li><p>added code of conduct (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1152">#1152</a>)</p></li>
+<li><p>clang-tidy code clean-ups(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1141">#1141</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1153">#1153</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1156">#1156</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_t</span></code> now stores whether we entered NSE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1144">#1144</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1147">#1147</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_t</span></code> now store chemical potentials for NSE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1149">#1149</a>)</p></li>
+<li><p>some NSE solver updates to make it easier to enter NSE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1138">#1138</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1139">#1139</a>)</p></li>
+<li><p>a new CNO + rp network for XRBs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1145">#1145</a>)</p></li>
+</ul>
+</section>
+<section id="id236">
+<h2>23.03<a class="headerlink" href="#id236" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>updated all of the pynucastro networks to the latest
+pynucastro version (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1134">#1134</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1136">#1136</a>)</p></li>
+<li><p>added tricubic interpolation for the NSE table (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1114">#1114</a>)</p></li>
+<li><p>fixed an issue with rate tabulation in the aprox nets (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1123">#1123</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1124">#1124</a>)</p></li>
+<li><p>fixed some bugs in the NSE solver and made the hybrid Powell
+solver more robust (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1122">#1122</a>)</p></li>
+</ul>
+</section>
+<section id="id243">
+<h2>23.02<a class="headerlink" href="#id243" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">T_fixed</span></code> now works with NSE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1098">#1098</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1111">#1111</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">USE_NSE</span></code> was changed to <code class="docutils literal notranslate"><span class="pre">USE_NSE_TABLE</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1108">#1108</a>)</p></li>
+</ul>
+</section>
+<section id="id247">
+<h2>23.01<a class="headerlink" href="#id247" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>a new test, <code class="docutils literal notranslate"><span class="pre">burn_cell_primordial_chem</span></code>, works with the primordial
+chemistry (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1064">#1064</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> and <code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code> now work with <code class="docutils literal notranslate"><span class="pre">aux</span></code> data with NSE
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1084">#1084</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1094">#1094</a>)</p></li>
+<li><p>a screening implementation from Chabrier &amp; Potekhin (1998) was
+added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1085">#1085</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test_react</span></code> can now output the burn state that took the longest to
+evaluate (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/967">#967</a>)</p></li>
+<li><p>an initial implementation of adaptive nuclear statistic equilibrium
+was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/983">#983</a>)</p></li>
+</ul>
+</section>
+<section id="id254">
+<h2>22.12<a class="headerlink" href="#id254" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>A first order backward Euler integrator was added that works with
+both Strang and simplified-SDC integration (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/504">#504</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1041">#1041</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1042">#1042</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1045">#1045</a>)</p></li>
+<li><p>The jacobian = 3 option for simplified SDC was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1069">#1069</a>)</p></li>
+<li><p>An option to not subtract off the initial energy after the burn
+was added as well as one to evolve number densities (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/999">#999</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1051">#1051</a>)</p></li>
+<li><p>The python bindings have been removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1036">#1036</a>)</p></li>
+<li><p>An issue with reading the helmholtz table on GPUs was fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1020">#1020</a>)</p></li>
+</ul>
+</section>
+<section id="id264">
+<h2>22.11<a class="headerlink" href="#id264" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>use of the auxiliary state to define composition is now enabled
+via <code class="docutils literal notranslate"><span class="pre">USE_AUX_THERMO</span></code> and the preprocessor variable <code class="docutils literal notranslate"><span class="pre">AUX_THERMO</span></code>
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/1003">#1003</a>)</p></li>
+</ul>
+</section>
+<section id="id266">
+<h2>22.10<a class="headerlink" href="#id266" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>A <code class="docutils literal notranslate"><span class="pre">null</span></code> screening routine was added to disable screening for any network at
+compile time. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/992">#992</a>)</p></li>
+<li><p>An option to disable the clipping of species in the VODE integration
+was added (<code class="docutils literal notranslate"><span class="pre">integrator.do_species_clip</span></code>) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/989">#989</a>)</p></li>
+<li><p>A unit test for C++ partition functions was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/980">#980</a>)</p></li>
+<li><p>An EOS for primordial chemistry was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/981">#981</a>)</p></li>
+<li><p>A C++ version of the Powell’s hybrid non linear system solver was
+added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/976">#976</a>)</p></li>
+<li><p>screening in the approximate rates in pynucastro nets was fixed
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/978">#978</a>)</p></li>
+</ul>
+</section>
+<section id="id273">
+<h2>22.09<a class="headerlink" href="#id273" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>An NSE solver was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/963">#963</a>)</p></li>
+<li><p>A new network, <code class="docutils literal notranslate"><span class="pre">subch_simple</span></code>, was added that further simplifies
+He/C burning (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/964">#964</a>)</p></li>
+</ul>
+</section>
+<section id="id276">
+<h2>22.08<a class="headerlink" href="#id276" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">subch</span></code> network was renamed <code class="docutils literal notranslate"><span class="pre">subch_approx</span></code> and the <code class="docutils literal notranslate"><span class="pre">subch2</span></code>
+network was renamed <code class="docutils literal notranslate"><span class="pre">subch_full</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/947">#947</a>)</p></li>
+</ul>
+</section>
+<section id="id278">
+<h2>22.07<a class="headerlink" href="#id278" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Two new screening formulations have been added for reaction rates,
+based on Chugunov, DeWitt, and Yakovlev 2007 and Chugunov and
+DeWitt 2009.  These can be used with any network by setting
+<code class="docutils literal notranslate"><span class="pre">SCREEN_METHOD</span></code> at compile time. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/887">#887</a>)</p></li>
+</ul>
+</section>
+<section id="id280">
+<h2>22.06<a class="headerlink" href="#id280" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">subch2</span></code> network now has runtime parameters allowing for
+some key rates to be disabled (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/921">#921</a>).</p></li>
+</ul>
+</section>
+<section id="id282">
+<h2>22.05<a class="headerlink" href="#id282" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">subch2</span></code> network was improved by adding some missing C+C, C+O,
+and O+O rates. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/915">#915</a>)</p></li>
+</ul>
+</section>
+<section id="id284">
+<h2>22.04<a class="headerlink" href="#id284" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>aprox networks now use a templated C++ righthand side formulation
+that builds the ODE system at compile time. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/802">#802</a>)</p></li>
+<li><p>pynucastro networks were regenerated to take advantage of recent
+optimizations (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/901">#901</a>)</p></li>
+</ul>
+</section>
+<section id="id287">
+<h2>22.02<a class="headerlink" href="#id287" title="Link to this heading"></a></h2>
+<ul>
+<li><p>The Microphysics repo was moved to the AMReX-Astro github
+organization: <a class="reference external" href="https://github.com/amrex-astro/Microphysics">https://github.com/amrex-astro/Microphysics</a></p>
+<p>You can update your git remote via:</p>
+<p>git remote set-url origin <a class="reference external" href="mailto:git&#37;&#52;&#48;github&#46;com">git<span>&#64;</span>github<span>&#46;</span>com</a>:amrex-astro/Microphysics.git</p>
+</li>
+<li><p>Fortran support has been removed from the runtime parameter
+scripts (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/869">#869</a>)</p></li>
+</ul>
+</section>
+<section id="id289">
+<h2>22.01<a class="headerlink" href="#id289" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>we added back in support for the “Nonaka plot”.  This outputs the
+state in the RHS routine for a single zone during the reaction
+network integration. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/830">#830</a>)</p></li>
+<li><p>we removed the <code class="docutils literal notranslate"><span class="pre">xrb_simple</span></code> network.  This was never used in any
+science calculations (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/827">#827</a>)</p></li>
+<li><p>the simplified-SDC step rejection logic in VODE was improved (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/818">#818</a>)</p></li>
+</ul>
+</section>
+<section id="id293">
+<h2>21.12<a class="headerlink" href="#id293" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>all of the pynucastro networks were regenerated with the latest
+pynucastro and converted to C++.  Performance was also improved
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/809">#809</a>)</p></li>
+<li><p>a bug was fixed in the VODE step rejection logic (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/815">#815</a>)</p></li>
+<li><p>we added <code class="docutils literal notranslate"><span class="pre">USE_MICROPHYSICS_DEBUG</span></code> that defines <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_DEBUG</span></code> to
+turn on more verbosity to help with debugging (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/817">#817</a>)</p></li>
+</ul>
+</section>
+<section id="id297">
+<h2>21.11<a class="headerlink" href="#id297" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> was not correctly doing substepping in some cases.
+This has been fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/784">#784</a>)</p></li>
+<li><p>With Intel compilers, <code class="docutils literal notranslate"><span class="pre">logical</span></code> runtime parameters in Fortran
+were not being correctly cast to <code class="docutils literal notranslate"><span class="pre">int</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/789">#789</a>)</p></li>
+<li><p>Simplified-SDC now works with Fortran nets (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/786">#786</a>)</p></li>
+</ul>
+</section>
+<section id="id301">
+<h2>21.09<a class="headerlink" href="#id301" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Added a new nova network (<code class="docutils literal notranslate"><span class="pre">nova2</span></code>) with pp and (hot-)CNO and some
+breakout reactions (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/751">#751</a>)</p></li>
+<li><p>Some fixes to the NSE bailout in <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/739">#739</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/753">#753</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/755">#755</a>) and
+the relaxation check on the NSE criteria (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/754">#754</a>)</p></li>
+<li><p>Added a new unit test for single-zone SDC (<code class="docutils literal notranslate"><span class="pre">burn_cell_sdc</span></code>) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/744">#744</a>)</p></li>
+</ul>
+</section>
+<section id="id308">
+<h2>21.08<a class="headerlink" href="#id308" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_react</span></code> can now be run with a uniform composition to test GPU
+performance (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/734">#734</a>)</p></li>
+<li><p>the numerical Jacobian now uses a more robust one-sided difference
+algorithm (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/660">#660</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/728">#728</a>)</p></li>
+<li><p>for simplified SDC, we now only integrate (rho X, rho e), and no
+longer integrate (rho E) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/710">#710</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/712">#712</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/717">#717</a>)</p></li>
+<li><p>for the NSE bailout, we can now relax the conditions needed to enter
+NSE after a failed burn (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/702">#702</a>)</p></li>
+</ul>
+</section>
+<section id="id316">
+<h2>21.07<a class="headerlink" href="#id316" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The C++ networks now implement <code class="docutils literal notranslate"><span class="pre">abort_on_failure</span></code> functionality
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/697">#697</a>)</p></li>
+</ul>
+</section>
+<section id="id318">
+<h2>21.06<a class="headerlink" href="#id318" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The ability to use a system BLAS library was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/675">#675</a>)</p></li>
+<li><p>An equation of state for hypervelocity impacts was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/645">#645</a>)</p></li>
+</ul>
+</section>
+<section id="id321">
+<h2>21.05<a class="headerlink" href="#id321" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>For aprox19 + NSE, we now “bail out” of the integration
+immediately if the state enters NSE, and then do the rest of the
+update through the NSE table. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/658">#658</a>)</p></li>
+<li><p>The old <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> EOS was removed and <code class="docutils literal notranslate"><span class="pre">gamma_law_general</span></code> was
+renamed <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code>.  The old <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> EOS have a very reduced
+subset of thermodynamic quantities that it computed, for
+efficiency purposes.  This is no longer needed now that we have
+templated the EOSes and have different <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> data types (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/653">#653</a>).</p></li>
+<li><p>Integration for simplified-SDC was interpreting rtol incorrectly.
+This has been fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/643">#643</a>)</p></li>
+<li><p>Screening for the 3-alpha reaction in the <code class="docutils literal notranslate"><span class="pre">subch</span></code>, <code class="docutils literal notranslate"><span class="pre">subch2</span></code>, and <code class="docutils literal notranslate"><span class="pre">nova</span></code>
+networks was fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/627">#627</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/634">#634</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/635">#635</a>)</p></li>
+</ul>
+</section>
+<section id="id328">
+<h2>21.04<a class="headerlink" href="#id328" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>We added a new mechanism to recover a failed burn when the state
+tries to enter NSE during the evolution, when using the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> +
+NSE network.  Now it will capture the failure and redo the burn
+if it satisfies the NSE criteria (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/628">#628</a>)</p></li>
+<li><p>We updated the VODE logic for rejecting a step to consider mass
+fractions for both simplified-SDC and true SDC burns (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/619">#619</a>)</p></li>
+</ul>
+</section>
+<section id="id331">
+<h2>21.03<a class="headerlink" href="#id331" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>We now integrate internal energy (e) directly instead of
+integrating temperature (T) for the thermodynamic evolution. T is
+obtained from e with an EOS call when needed to evaluate the
+rates. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/496">#496</a>)</p></li>
+<li><p>simplified-SDC can be used with the NSE table in aprox19 now
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/423">#423</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/497">#497</a>)</p></li>
+</ul>
+</section>
+<section id="id335">
+<h2>21.02<a class="headerlink" href="#id335" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Fortran support for the VODE integrator has been removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/538">#538</a>)</p></li>
+<li><p>Runtime parameters can now be set in the inputs file instead of
+the probin file (and then they are read in by C++ ParmParse).  If
+a parameter is set in both places, then the inputs value is used.
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/505">#505</a>)</p></li>
+<li><p>Fortran support for simplified-SDC in the VODE integrator has
+been removed. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/492">#492</a>)</p></li>
+</ul>
+</section>
+<section id="id339">
+<h2>21.01<a class="headerlink" href="#id339" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Microphysics now requires C++17 (gcc &gt;= 7, CUDA &gt;= 11). (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/485">#485</a>)</p></li>
+<li><p>The BS integrator was removed.  This was Fortran only, doesn’t
+support SDC integration, and not well used. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/488">#488</a>)</p></li>
+</ul>
+</section>
+<section id="id342">
+<h2>20.12<a class="headerlink" href="#id342" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The default absolute tolerance for species (<code class="docutils literal notranslate"><span class="pre">atol_spec</span></code>) has been
+increased to <code class="docutils literal notranslate"><span class="pre">1.e-8</span></code> (from <code class="docutils literal notranslate"><span class="pre">1.e-12</span></code>). (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/422">#422</a>)</p></li>
+<li><p>An interface has been added for C++ integrators to call the RHS
+from a network that only has a Fortran implementation. This allows
+the use of <code class="docutils literal notranslate"><span class="pre">USE_CXX_REACTIONS</span> <span class="pre">=</span> <span class="pre">TRUE</span></code> for any network (however, CUDA
+is not currently supported for this case). (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/419">#419</a>)</p></li>
+</ul>
+</section>
+<section id="id345">
+<h2>20.11<a class="headerlink" href="#id345" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> + NSE network was ported to C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/362">#362</a>)</p></li>
+<li><p>The simplified-SDC code path was ported to C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/389">#389</a>)</p></li>
+</ul>
+</section>
+<section id="id348">
+<h2>20.10<a class="headerlink" href="#id348" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>An option to use NSE instead of integrating the reaction
+network has been added to the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> network. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/332">#332</a>)</p></li>
+<li><p>The BS integrator no longer supports simplified-SDC (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/393">#393</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">triple_alpha_plus_cago</span></code> network switch to using binding
+energies in MeV, consistent with the aprox nets (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/354">#354</a>)</p></li>
+</ul>
+</section>
+<section id="id352">
+<h2>20.09<a class="headerlink" href="#id352" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Unit tests now write a <code class="docutils literal notranslate"><span class="pre">job_info</span></code> file (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/383">#383</a>)</p></li>
+<li><p>A new single-zone EOS test routine was created as <code class="docutils literal notranslate"><span class="pre">unit_test/eos_cell</span></code>
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/382">#382</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> eos (not <code class="docutils literal notranslate"><span class="pre">gamma_law_general</span></code>) now fills the sound
+speed, entropy, and derivatives for more inputs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/374">#374</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">rprox</span></code> network now has screening (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/377">#377</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">NETWORK_PROPERTIES</span></code> file was split to put the number of
+auxiliary species into its own file, <code class="docutils literal notranslate"><span class="pre">NAUX_NETWORK</span></code>.  This allows
+us to put if-logic into the file to choose the number of
+auxiliary quantities based on make setting (like <code class="docutils literal notranslate"><span class="pre">USE_NSE</span></code>).
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/370">#370</a>)</p></li>
+</ul>
+</section>
+<section id="id358">
+<h2>20.08<a class="headerlink" href="#id358" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Several of the unit tests had separate C++ and Fortran
+implementations.  These have been unified (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/343">#343</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/344">#344</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/345">#345</a>)</p></li>
+<li><p>The VBDF integrator was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/348">#348</a>)</p></li>
+<li><p>VODE can now reject an internal timestep that has any abundance
+change by more than a factor of 2, or an abundance &lt; 0 or &gt; 1, as
+well as timesteps where the temperature ends up negative. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/350">#350</a>)</p></li>
+</ul>
+</section>
+<section id="id364">
+<h2>20.07<a class="headerlink" href="#id364" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">master</span></code> branch has been renamed <code class="docutils literal notranslate"><span class="pre">main</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/333">#333</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NETWORK_PROPERTIES</span></code> now includes the number of Aux quantities (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/330">#330</a>)</p></li>
+</ul>
+</section>
+<section id="id367">
+<h2>20.06<a class="headerlink" href="#id367" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>For integration with simplified SDC, we now interpret <code class="docutils literal notranslate"><span class="pre">atol_spec</span></code>
+as an absolute tolerance on X alone instead of (rho X) (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/311">#311</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> can now use the C++ burner if compiled with
+<code class="docutils literal notranslate"><span class="pre">USE_CXX_REACTIONS=TRUE</span></code> and run with <code class="docutils literal notranslate"><span class="pre">do_cxx</span> <span class="pre">=</span> <span class="pre">1</span></code>. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/313">#313</a>)</p></li>
+<li><p>The original <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> (which used the F90 BoxLib build system)
+is removed and replaced with <code class="docutils literal notranslate"><span class="pre">burn_cell_C</span></code> (which uses the newer
+build system). (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/316">#316</a>)</p></li>
+<li><p>The analytic Jacobian with simplified SDC now is written in terms
+of the conserved fluid state and works for a wide range of
+problems (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/228">#228</a>)</p></li>
+</ul>
+</section>
+<section id="id372">
+<h2>20.05<a class="headerlink" href="#id372" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>We now have an option for using sparse storage for <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> in C++
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/307">#307</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iso7</span></code> and <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> are now available as a C++ network (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/303">#303</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/305">#305</a>)</p></li>
+<li><p>species names are available as an <code class="docutils literal notranslate"><span class="pre">enum</span></code> in <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/304">#304</a>)</p></li>
+<li><p>The screening on O16+O16 in <code class="docutils literal notranslate"><span class="pre">iso7</span></code> was fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/302">#302</a>)</p></li>
+<li><p>The VODE integrator is now available in C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/299">#299</a>)</p></li>
+</ul>
+</section>
+<section id="id379">
+<h2>20.04<a class="headerlink" href="#id379" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">wion</span></code> network property was removed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/294">#294</a>)</p></li>
+<li><p>There are new unit tests for the screening and aprox rates
+modules (both C++ and Fortran interfaces).</p></li>
+<li><p>The screening routines were ported to C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/290">#290</a>) and the <code class="docutils literal notranslate"><span class="pre">screenz</span></code>
+routine was removed in favor of <code class="docutils literal notranslate"><span class="pre">screen5</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/293">#293</a>)</p></li>
+<li><p>a new method, <code class="docutils literal notranslate"><span class="pre">is_input_valid</span></code>, was added to all EOSes (both C++
+and Fortran interfaces) that can be used to query whether an EOS
+supports a particular input mode (e.g. <code class="docutils literal notranslate"><span class="pre">eos_input_rp</span></code>).  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/291">#291</a>)</p></li>
+<li><p>The aprox rates used with <code class="docutils literal notranslate"><span class="pre">iso7</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code>
+have been converted to C++ (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/288">#288</a>)</p></li>
+<li><p>We’ve rewritten the VODE integrator to remove all “go to”
+statements (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/275">#275</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/276">#276</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/278">#278</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/280">#280</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/281">#281</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/282">#282</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/283">#283</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/284">#284</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/285">#285</a>,
+<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/286">#286</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/287">#287</a>)</p></li>
+<li><p>We removed the ability to have <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">nspec</span></code>.  This
+feature was not widely used and greatly complicated the code
+paths. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/279">#279</a>)</p></li>
+</ul>
+</section>
+<section id="id397">
+<h2>20.03<a class="headerlink" href="#id397" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The nuclei information for both Fortran and C++ is now
+automatically generated from a network inputs file at compile
+time.  As part of this change, 1/A is precomputed and stored as a
+constant (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/253">#253</a>, 258).</p></li>
+<li><p>The license for StarKiller Microphyscs was made explicit and
+a <code class="docutils literal notranslate"><span class="pre">license.txt</span></code> file was added (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/267">#267</a>)</p></li>
+<li><p>A framework for pure C++ EOSes has been created and a pure C++
+unit test, <code class="docutils literal notranslate"><span class="pre">test_eos_C</span></code>, is available to test these.  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/246">#246</a>) The
+following EOSes have been ported to C++: <code class="docutils literal notranslate"><span class="pre">ztwd</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/268">#268</a>), <code class="docutils literal notranslate"><span class="pre">multigamma</span></code>
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/265">#265</a>), <code class="docutils literal notranslate"><span class="pre">polytrope</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/264">#264</a>), <code class="docutils literal notranslate"><span class="pre">gamma_law</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/263">#263</a>), <code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/262">#262</a>),
+<code class="docutils literal notranslate"><span class="pre">gamma_law_general</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/246">#246</a>), <code class="docutils literal notranslate"><span class="pre">rad_power_law</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/269">#269</a>), <code class="docutils literal notranslate"><span class="pre">breakout</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/270">#270</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">GPackage.mak</span></code> files that were a remnant of the old
+BoxLib F90 build system have been removed.  They were
+not maintained.  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/212">#212</a>).</p></li>
+<li><p>All of the interface files have been collected together
+in the <code class="docutils literal notranslate"><span class="pre">interfaces/</span></code> dir.  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/240">#240</a>)</p></li>
+<li><p>The network C++ headers have been renamed <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code>
+and the nuclei information (aion and zion) have been
+added. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/244">#244</a>)</p></li>
+</ul>
+</section>
+<section id="id412">
+<h2>20.02<a class="headerlink" href="#id412" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Added a C++ header file, <code class="docutils literal notranslate"><span class="pre">actual_network.H</span></code>, that defines the
+network size.  This is the start of making making the
+microphysics routines available in C++.</p></li>
+<li><p>regenerated the pynucastro networks with the latest weak rate
+formulations from pynucastro.</p></li>
+</ul>
+</section>
+<section id="id413">
+<h2>20.01<a class="headerlink" href="#id413" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> type no longer includes <code class="docutils literal notranslate"><span class="pre">ydot</span></code> or <code class="docutils literal notranslate"><span class="pre">jac</span></code> – this allows
+us to optimize the memory access on GPUs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/220">#220</a>)</p></li>
+<li><p>The radiation pressure contribution to the Helmholtz EOS has
+had a dampener applied to it that makes it approximately zero
+for low densities where the radiation pressure would lead to
+unphysical situations like a superluminal sound speed. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/235">#235</a>)</p></li>
+<li><p>The original VODE integrator was removed and the Fortran 90
+version VODE90 was renamed to VODE. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/221">#221</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">test_react</span></code> unit tests no longer require a composition inputs
+file (<code class="docutils literal notranslate"><span class="pre">xin*</span></code>).  They now create the composition profile at runtime.
+(<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/211">#211</a>)</p></li>
+</ul>
+</section>
+<section id="id418">
+<h2>19.12<a class="headerlink" href="#id418" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Simplified SDC integration now uses the same retry strategy
+as the default (non-SDC) integration. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/215">#215</a>)</p></li>
+<li><p>VODE90 can now participate in the retry strategy that was
+previously available to the VODE integrator, where it can
+switch to the BS integrator if loosening the tolerances
+does not allow the burn to complete. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/201">#201</a>)</p></li>
+<li><p>The parameter <code class="docutils literal notranslate"><span class="pre">ode_max_steps</span></code> was made consistent in VODE and
+VODE90; in some places it was being ignored. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/214">#214</a>)</p></li>
+<li><p>The helmholtz EOS was restructured, splitting the different
+components into different functions and optimizing the memory
+accesses. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/200">#200</a>)</p></li>
+<li><p>The derivatives with respect to mass fraction (dpdX, dedX, dhdX)
+were removed from <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> and are now available through a new type,
+<code class="docutils literal notranslate"><span class="pre">eos_xderivs_t</span></code> and the <code class="docutils literal notranslate"><span class="pre">composition_derivatives()</span></code> routine.  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/207">#207</a>)</p></li>
+<li><p>A bug in the screening of the O16+O16 rate in iso7 was
+fixed. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/204">#204</a>)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">test_eos</span></code> unit test now outputs all of the variables in the
+<code class="docutils literal notranslate"><span class="pre">eos_t</span></code> type.</p></li>
+</ul>
+</section>
+<section id="id425">
+<h2>19.11<a class="headerlink" href="#id425" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>VODE90 now works with the simplified SDC time step algorithms,
+and the preprocessor option for this SDC was changed to
+<code class="docutils literal notranslate"><span class="pre">SIMPLIFIED_SDC</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/194">#194</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rprox</span></code> now works on GPUs</p></li>
+</ul>
+</section>
+<section id="id427">
+<h2>19.10<a class="headerlink" href="#id427" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">iso7</span></code> network was ported to GPUs (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/172">#172</a>)</p></li>
+<li><p>VODE90 now better agrees with VODE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/192">#192</a>)</p></li>
+<li><p>When building with multiple integrators, the contents of the <code class="docutils literal notranslate"><span class="pre">rpar</span></code>
+modules could clash.  This has been fixed. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/136">#136</a>)</p></li>
+<li><p>A module for making the “Nonaka plot” tracking the evolution of a
+quantity during the burn was added, and is enabled with
+<code class="docutils literal notranslate"><span class="pre">USE_NONAKA_PLOT=TRUE</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/190">#190</a>)</p></li>
+</ul>
+</section>
+<section id="id432">
+<h2>19.08<a class="headerlink" href="#id432" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>A new network, <code class="docutils literal notranslate"><span class="pre">subch2</span></code>, was added that combines <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> and the
+<code class="docutils literal notranslate"><span class="pre">subch</span></code> networks. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/184">#184</a>)</p></li>
+</ul>
+</section>
+<section id="id434">
+<h2>19.05<a class="headerlink" href="#id434" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> network was missing the analytic Jacobian term for
+the derivative of He4 with respect to Ni56. This is fixed. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/175">#175</a>)</p></li>
+<li><p>The numerical Jacobian module, used by the BS and VBDF integrators
+had some wrong scalings.  These have now been fixed (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/179">#179</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/180">#180</a>)</p></li>
+</ul>
+</section>
+<section id="id438">
+<h2>19.01<a class="headerlink" href="#id438" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>the docs are now automatically build from the sphinx source
+using travis on github.</p></li>
+</ul>
+</section>
+<section id="id439">
+<h2>18.12<a class="headerlink" href="#id439" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>simplify conductivity interface to match the eos interface by
+moving the conductivity into the eos type</p></li>
+</ul>
+</section>
+<section id="id440">
+<h2>18.11<a class="headerlink" href="#id440" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>new python bindings have been added</p></li>
+<li><p>the documentation has been switched to Sphinx and is now hosted
+online.</p></li>
+<li><p>a bug was fixed in the stellarcollapse EOS where the energy offset
+was being applied incorrectly.</p></li>
+</ul>
+</section>
+<section id="id441">
+<h2>18.10<a class="headerlink" href="#id441" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_eos</span></code> and <code class="docutils literal notranslate"><span class="pre">test_react</span></code> now both work on GPUs (using the AMReX
+<code class="docutils literal notranslate"><span class="pre">gpu</span></code> branch)</p></li>
+<li><p>the intermediate blending of the weak and strong screening regimes
+was wrong, and has been fixed.  We’ve also synced some parameters
+up to agree with those in MESA and Kepler.  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/149">#149</a>, <a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/150">#150</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eos_input_is_constant</span></code> is now set to <code class="docutils literal notranslate"><span class="pre">true</span></code> for the helmholtz EOS.
+This mean that the EOS inputs will not be modified after the EOS
+call.  This is good for conserving energy in a hydro code, but the
+tradeoff is a small (to root finding tolerance) inconsistency in
+the thermodynamic state. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/154">#154</a>)</p></li>
+</ul>
+</section>
+<section id="id445">
+<h2>18.09<a class="headerlink" href="#id445" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The Helmholtz parameters <code class="docutils literal notranslate"><span class="pre">ttol</span></code> and <code class="docutils literal notranslate"><span class="pre">dtol</span></code> (controlling the error
+for the Newton iteration when in a mode other than <code class="docutils literal notranslate"><span class="pre">eos_input_rt</span></code>)
+are now runtime parameters in the extern namelist as <code class="docutils literal notranslate"><span class="pre">eos_ttol</span></code>
+and <code class="docutils literal notranslate"><span class="pre">eos_dtol</span></code>.</p></li>
+</ul>
+</section>
+<section id="id446">
+<h2>18.08<a class="headerlink" href="#id446" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>the unit tests (<code class="docutils literal notranslate"><span class="pre">test_react</span></code>, <code class="docutils literal notranslate"><span class="pre">test_sdc</span></code>, and <code class="docutils literal notranslate"><span class="pre">test_eos</span></code>) have been
+ported from the Fortran to C++ build system in AMReX.  This will
+allow us to test the GPU framework in AMReX.</p></li>
+</ul>
+</section>
+<section id="id447">
+<h2>18.07<a class="headerlink" href="#id447" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>added CUDA support to the VODE90 integrator, the helmeos, and the
+networks <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox21</span></code>, <code class="docutils literal notranslate"><span class="pre">ignition_simple</span></code>,
+<code class="docutils literal notranslate"><span class="pre">C-burn-simple</span></code>, <code class="docutils literal notranslate"><span class="pre">URCA-simple</span></code>.</p></li>
+<li><p>Ported the unit test frameworks to FBoxLib</p></li>
+</ul>
+</section>
+<section id="id448">
+<h2>18.05<a class="headerlink" href="#id448" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>lots of documentation updates</p></li>
+<li><p>some fixes to the numerical Jacobian involving X vs. Y (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/100">#100</a>)</p></li>
+<li><p>a new <code class="docutils literal notranslate"><span class="pre">subCh</span></code> network for He burning was added.</p></li>
+<li><p>implemented the new c12(a,g)o16 nuclear reaction rate and its
+corresponding inverse from the work of Deboer et al. 2017 (Rev Mod
+Phys 89, 035007, 2017).  To use the new rate, user must set
+<code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code>.  This rate is only usable in the
+<code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox21</span></code>, and <code class="docutils literal notranslate"><span class="pre">iso7</span></code> reaction rate
+networks. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/56">#56</a>)</p></li>
+<li><p>a routine <code class="docutils literal notranslate"><span class="pre">util/cj_detonation</span></code> was added to compute the
+Chapman-Jouguet detonation velocity for any of the networks</p></li>
+<li><p>the burn retry strategy now sticks with the current integrator and
+uses looser tolerances before switching to a different integrator. (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/96">#96</a>)</p></li>
+</ul>
+</section>
+<section id="id452">
+<h2>18.04<a class="headerlink" href="#id452" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>pynucastro (<a class="reference external" href="https://github.com/pynucastro/pynucastro">https://github.com/pynucastro/pynucastro</a>) can now
+generate reaction networks compatible with StarKiller.  See the
+<code class="docutils literal notranslate"><span class="pre">subch</span></code> network.</p></li>
+</ul>
+</section>
+<section id="id453">
+<h2>17.11<a class="headerlink" href="#id453" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>a new option to boost the reaction rates has been added
+to the integrators (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/64">#64</a>)</p></li>
+<li><p>we now disable some composition derivatives in the EOS
+by default, for performance and memory reasons.  They can
+be re-enabled by defining the preprocessor variable
+<code class="docutils literal notranslate"><span class="pre">EXTRA_THERMO</span></code> (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/59">#59</a>)</p></li>
+</ul>
+</section>
+<section id="id456">
+<h2>17.10<a class="headerlink" href="#id456" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>the compositional derivatives are no longer available
+by default from the EOS.  To get these, set the preprocessor
+variable <code class="docutils literal notranslate"><span class="pre">EXTRA_THERMO</span></code>.  This change was done for performance
+reasons.</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> networks no longer use a numerical
+Jacobian by default, as this was found to result in some
+bad numerical issues in VODE (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/49">#49</a>)</p></li>
+<li><p>the maximum temperature for reactions, <code class="docutils literal notranslate"><span class="pre">MAX_TEMP</span></code>, is now
+an adjustable input parameter rather than being hardcoded
+at <code class="docutils literal notranslate"><span class="pre">1.d11</span></code>.</p></li>
+<li><p>the Helmholtz EOS table is now read by the IO processor and
+broadcast to other processors (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/53">#53</a>)</p></li>
+<li><p>the VODE integrator now does some additional checks on the
+state to ensure consistency (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/47">#47</a>)</p></li>
+</ul>
+</section>
+<section id="id460">
+<h2>17.09<a class="headerlink" href="#id460" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>a new rety mechanism was implemented that allows a different
+integrator to be used if the primary integrator fails (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/39">#39</a>)</p></li>
+<li><p>the electron Ni56 electron capture rates and energy losses
+were updated from Mazurek (1973) to LMP (2000).  Thanks to
+Carl Fields for this contribution.  (<a class="reference external" href="https://github.com/AMReX-Astro/Microphysics/pull/40">#40</a>)</p></li>
+</ul>
+</section>
+<section id="id463">
+<h2>17.08<a class="headerlink" href="#id463" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>fix to <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> from Aron Michel (HITS) that fills in missing
+reactions</p></li>
+<li><p>updated the helmholtz EOS to use the latest table from Frank
+Timmes (in particular, this is now denser, with 2x points in T and
+rho dimensions).  If you copied the old table, you need to make sure
+you are using the new table now.</p></li>
+<li><p>add stellar conductivities from Frank Timmes</p></li>
+</ul>
+</section>
+<section id="id464">
+<h2>17.06<a class="headerlink" href="#id464" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>a new Fortran 90 port of VODE has been added</p></li>
+<li><p>the unit tests now require AMReX instead of BoxLib to build</p></li>
+</ul>
+</section>
+<section id="id465">
+<h2>17.01<a class="headerlink" href="#id465" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>we’ve removed the option to integrate molar fractions and instead
+the ODE system always operates on mass fractions (the networks
+return derivatives of molar fractions and they are automatically
+converted).</p></li>
+</ul>
+</section>
+<section id="id466">
+<h2>16.12<a class="headerlink" href="#id466" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>a new unit test, <code class="docutils literal notranslate"><span class="pre">test_sdc</span></code>, was created to test the SDC interface
+to the networks</p></li>
+<li><p>we now rely on the network module to provide <code class="docutils literal notranslate"><span class="pre">aion_inv</span></code> (1/aion)</p></li>
+<li><p>the VODE integrator now supports SDC integration</p></li>
+</ul>
+</section>
+<section id="id467">
+<h2>16.09<a class="headerlink" href="#id467" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>num_rate_groups is now a property of the individual networks</p></li>
+<li><p>a new integration method, Rosenbrock, was added to the BS
+option (set <code class="docutils literal notranslate"><span class="pre">ode_method</span></code>)</p></li>
+<li><p>the number of RHS and Jac evaluations is now passed out
+of the burner through the burn_t type for diagnostic and
+load-balancing use</p></li>
+<li><p>support for spectral deferred correction coupling of the
+burner and hydro was added to the BS integrator</p></li>
+</ul>
+</section>
+<section id="id468">
+<h2>16.08<a class="headerlink" href="#id468" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Microphysics/eos/</span></code> has been renamed <code class="docutils literal notranslate"><span class="pre">Microphysics/EOS/</span></code> to better
+conform to the conventions used in Castro and Maestro</p></li>
+<li><p>the User’s Guide has been extensively updated</p></li>
+<li><p>OpenMP and OpenACC directives have been added to the unit tests</p></li>
+<li><p>the BS integrator’s type, <code class="docutils literal notranslate"><span class="pre">bs_t</span></code>, has now contains a <code class="docutils literal notranslate"><span class="pre">burn_t</span></code>
+internally, simplifying the conversion from <code class="docutils literal notranslate"><span class="pre">bs_t</span></code> to call the
+<code class="docutils literal notranslate"><span class="pre">actual_rhs/jac</span></code></p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">rates()</span></code> component of <code class="docutils literal notranslate"><span class="pre">burn_t</span></code> was removed.  We no longer
+rely on rate caching</p></li>
+<li><p>we now store the simulation time at the start of the burn as
+t0 in the rpar storage to use as an offset to the integration
+time</p></li>
+<li><p>the species derivatives (dh/dX and de/dX) and enthalpy were
+removed from the <code class="docutils literal notranslate"><span class="pre">burn_t</span></code></p></li>
+<li><p>a new option to integrate of X instead of Y was added
+(<code class="docutils literal notranslate"><span class="pre">integrate_molar_fraction</span> <span class="pre">=</span> <span class="pre">F</span></code>)</p></li>
+<li><p>integration of networks with <code class="docutils literal notranslate"><span class="pre">nspec_evolve</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">nspec</span></code> were fixed
+to now apply the algrebic constraint relating mass fractions
+through a new <code class="docutils literal notranslate"><span class="pre">update_unevolved_species()</span></code> function</p></li>
+<li><p>the electron capture rate on Ni56 used by <code class="docutils literal notranslate"><span class="pre">aprox19</span></code> and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code> was
+fixed</p></li>
+<li><p>the BS integrator can now use the initial timestep estimation
+algorithm that VODE uses (<code class="docutils literal notranslate"><span class="pre">use_timestep_estimator</span> <span class="pre">=</span> <span class="pre">T</span></code>)</p></li>
+<li><p>a centered difference numerical Jacobian option was added</p></li>
+</ul>
+</section>
+<section id="id469">
+<h2>16.07<a class="headerlink" href="#id469" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>we now use <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_HOME</span></code> instead of <code class="docutils literal notranslate"><span class="pre">MICROPHYSICS_DIR</span></code> as the
+environment variable to point to the <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> directory.</p></li>
+<li><p>there are now two standalone unit tests, <code class="docutils literal notranslate"><span class="pre">test_react</span></code> and <code class="docutils literal notranslate"><span class="pre">test_eos</span></code>
+that don’t need Maestro or Castro to compile.</p></li>
+<li><p>new burn mode that limits numerically unstable burning.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">UsersGuide/</span></code> was renamed to <code class="docutils literal notranslate"><span class="pre">Docs/</span></code> to be consistent with the other
+BoxLib codes</p></li>
+<li><p>the energy equation now uses an offset to help with the BS ODE
+integration convergence</p></li>
+<li><p>the runtime parameter <code class="docutils literal notranslate"><span class="pre">small_x</span></code> now is owned by the network</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="citing.html" class="btn btn-neutral float-left" title="Citing Microphysics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="zreferences.html" class="btn btn-neutral float-right" title="References" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Microphysics Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+
+</body>
+</html>
