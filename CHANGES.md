@@ -23,7 +23,7 @@
 
   * remove some old Fortran references (#1718, #1719)
 
-  * switch from `std::clamp` to `amrex:Clamp` due to HIP compiler
+  * switch from `std::clamp` to `amrex::Clamp` due to HIP compiler
     issues (#1711)
 
   * reorganize the He nets -- they are now all under
