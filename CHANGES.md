@@ -29,11 +29,12 @@
   * reorganize the He nets -- they are now all under
     `networks/he-burn` and share a common python setup (#1687, #1710)
     also update these nets with pynucastro (#1685).  This also
-    adds new networks with 31 and 36 species.
+    add a new network with 31.
 
     Renamed nets are:
     * `subch_base` -> `he-burn/he-burn-18a`
     * `subch_simple` -> `he-burn/he-burn-22a`
+    * `He-C-Fe-group` -> `he-burn/he-burn-36a`
     * `CNO_He_burn` -> `he-burn/cno-he-burn-33a`
 
   * fix the Chapman-Jouguet detonation utility (#1699)
