@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Design &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
@@ -67,6 +67,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -75,6 +76,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
@@ -82,6 +84,10 @@
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
@@ -91,6 +97,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Index</span></p>
@@ -131,6 +139,7 @@ and the generic solvers:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">conductivity</span></code>: thermal conductivity routines</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">constants</span></code>: fundamental constants</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Docs</span></code>: the sphinx source for this documentation</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">EOS/</span></code>: the various equations of state</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">integration/</span></code>: the ODE integration routines used for the
 reaction networks</p></li>
@@ -139,13 +148,12 @@ interface with the EOS and reaction networks.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">networks/</span></code>: the nuclear reaction networks. This is mostly just the
 righthand side of the network, as the actual integrators are decoupled from
 the network.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutino loss source terms for the network energy equation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">neutrinos/</span></code>: neutrino loss source terms for the network energy equation.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">opacity/</span></code>: opacity routines for radiation transport</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">rates/</span></code>: common nuclear reaction rate modules used by some of the
 networks.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">screening/</span></code>: common electron screening factors used by some of the
 reaction networks.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sphinx_docs</span></code>: the sphinx source for this documentation</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">unit_test/</span></code>: self-contained unit tests for Microphysics. These don’t
 need any application code to build, but will require AMReX.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">util/</span></code>: linear algebra solvers and other routines.</p></li>

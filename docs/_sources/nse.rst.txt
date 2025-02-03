@@ -262,6 +262,11 @@ reaction network.  It solves for the chemical potentials of the proton
 and neutron and from there gets the abundances of each of the nuclei
 under the assumption of NSE, following the procedure outlined in :cite:`Calder_2007`.
 
+.. important::
+
+   Self-consistent NSE does not support the templated C++ networks
+   (like ``aprox13``).  You should use a pynucastro-generated network.
+
 The solve is done using a port of the hybrid Powell method from
 MINPACK (we ported the solver to templated C++).
 

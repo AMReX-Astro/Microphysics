@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Parameters by Namespace &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
@@ -60,7 +60,7 @@
 <li class="toctree-l1"><a class="reference internal" href="autodiff.html">Automatic Differentiation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="rp_intro.html">Runtime parameters</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parameters by Namespace</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#namespace-none">namespace: none</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#namespace-cj">namespace: <code class="docutils literal notranslate"><span class="pre">cj</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-conductivity">namespace: <code class="docutils literal notranslate"><span class="pre">conductivity</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-eos">namespace: <code class="docutils literal notranslate"><span class="pre">eos</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#namespace-integrator">namespace: <code class="docutils literal notranslate"><span class="pre">integrator</span></code></a></li>
@@ -77,6 +77,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -85,6 +86,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
@@ -92,6 +94,10 @@
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
@@ -101,6 +107,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Index</span></p>
@@ -135,8 +143,8 @@
              
   <section id="parameters-by-namespace">
 <h1>Parameters by Namespace<a class="headerlink" href="#parameters-by-namespace" title="Link to this heading"></a></h1>
-<section id="namespace-none">
-<h2>namespace: none<a class="headerlink" href="#namespace-none" title="Link to this heading"></a></h2>
+<section id="namespace-cj">
+<h2>namespace: <code class="docutils literal notranslate"><span class="pre">cj</span></code><a class="headerlink" href="#namespace-cj" title="Link to this heading"></a></h2>
 <p><strong>util/cj_detonation:</strong></p>
 <table class="docutils align-default">
 <thead>
@@ -173,7 +181,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_conductivity</span></code></p></td>
-<td></td>
+<td><p>constant value of the conductivity, in erg/s/cm/K</p></td>
 <td><p>1.0e0</p></td>
 </tr>
 </tbody>
@@ -188,7 +196,7 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">const_opacity</span></code></p></td>
-<td></td>
+<td><p>opacity value, in units of cm**2/g</p></td>
 <td><p>7.0e-2</p></td>
 </tr>
 </tbody>
@@ -203,11 +211,11 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cond_coeff</span></code></p></td>
-<td></td>
+<td><p>proportionality constant, C, in k = C T**m</p></td>
 <td><p>1.0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cond_exponent</span></code></p></td>
-<td></td>
+<td><p>temperature exponent, m, in k = C T**m</p></td>
 <td><p>1.0</p></td>
 </tr>
 </tbody>
@@ -240,11 +248,13 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats</p></td>
 <td><p>5.e0/3.e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_assume_neutral</span></code></p></td>
-<td></td>
+<td><p>when computing mu / Abar, do we assume that the
+composition is atoms or ionized, and therefore include
+the electron contributions separately?</p></td>
 <td><p>1</p></td>
 </tr>
 </tbody>
@@ -720,31 +730,32 @@ with namespace C used for physical constants</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_gamma_default</span></code></p></td>
-<td></td>
+<td><p>default ratio of specific heats used for all components
+unless specified explicitly as species a, b, or c</p></td>
 <td><p>1.4</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_name</span></code></p></td>
-<td></td>
+<td><p>name of species “a”</p></td>
 <td><p>“”</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_a_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats for species “a”</p></td>
 <td><p>1.4</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_name</span></code></p></td>
-<td></td>
+<td><p>name of species “b”</p></td>
 <td><p>“”</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_b_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats for species “b”</p></td>
 <td><p>1.4</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_name</span></code></p></td>
-<td></td>
+<td><p>name of species “c”</p></td>
 <td><p>“”</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">species_c_gamma</span></code></p></td>
-<td></td>
+<td><p>ratio of specific heats for species “c”</p></td>
 <td><p>1.4</p></td>
 </tr>
 </tbody>
@@ -759,19 +770,24 @@ with namespace C used for physical constants</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_type</span></code></p></td>
-<td></td>
+<td><p>polytrope type: 1 is non-relativistic, fully degenerate
+electron gas; 2 is fully-relativistic, fully degenerate
+gas.  If these are set, then only pulytrope_mu_e needs
+to be set.</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_gamma</span></code></p></td>
-<td></td>
+<td><p>density exponent for pressure, P = K rho**gamma</p></td>
 <td><p>0.0e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_K</span></code></p></td>
-<td></td>
+<td><p>proportionality constant in EOS, P = K rho**gamma</p></td>
 <td><p>0.0e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">polytrope_mu_e</span></code></p></td>
-<td></td>
+<td><p>mean molecular weight per electron for the cases when
+polytrope_type is 1 or 2.  In that case, we have P = K
+(rho / mu_e)**gamma</p></td>
 <td><p>2.0e0</p></td>
 </tr>
 </tbody>
@@ -969,15 +985,18 @@ with namespace C used for physical constants</p></td>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_const_c_v</span></code></p></td>
-<td></td>
+<td><p>specific heat proportionality constant, K, c_v = K
+rho**m T**(-n)</p></td>
 <td><p>-1.e0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_m</span></code></p></td>
-<td></td>
+<td><p>specific heat density exponent, m, c_v = K rho**m
+T**(-n)</p></td>
 <td><p>0.e0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v_exp_n</span></code></p></td>
-<td></td>
+<td><p>specific heat (negative) temperature exponent, n, c_v =
+K rho**m T**(-n)</p></td>
 <td><p>0.e0</p></td>
 </tr>
 </tbody>
@@ -1000,11 +1019,11 @@ with namespace C used for physical constants</p></td>
 <td><p>1.3</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_e_0</span></code></p></td>
-<td></td>
+<td><p>minimum energy</p></td>
 <td><p>1.6e11</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eos_rho_0</span></code></p></td>
-<td></td>
+<td><p>reference density</p></td>
 <td><p>2.7</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_A</span></code></p></td>
@@ -1032,7 +1051,7 @@ with namespace C used for physical constants</p></td>
 <td><p>5.0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eos_c_v</span></code></p></td>
-<td></td>
+<td><p>specific heat</p></td>
 <td><p>7.9e6</p></td>
 </tr>
 </tbody>
@@ -1072,20 +1091,19 @@ the RHS to zero.</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code></p></td>
-<td><p>Tolerances for the solver (relative and absolute), for
-the species and energy equations.</p></td>
+<td><p>relative tolerance for species</p></td>
 <td><p>1.e-12</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code></p></td>
-<td></td>
+<td><p>relative tolerance for energy</p></td>
 <td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">atol_spec</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for species</p></td>
 <td><p>1.e-8</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">atol_enuc</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for energy</p></td>
 <td><p>1.e-6</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">renormalize_abundances</span></code></p></td>
@@ -1153,21 +1171,19 @@ vice versa) on a retry?</p></td>
 <td><p>1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_spec</span></code></p></td>
-<td><p>Tolerances for the solver (relative and absolute), for
-the species and energy equations.  If set to &lt; 0, then
-the same value as the first attempt is used.</p></td>
+<td><p>relative tolerance for species on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_rtol_enuc</span></code></p></td>
-<td></td>
+<td><p>relative tolerance for energy on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_spec</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for species on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">retry_atol_enuc</span></code></p></td>
-<td></td>
+<td><p>absolute tolerance for energy on retry</p></td>
 <td><p>-1</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_species_clip</span></code></p></td>
@@ -1402,62 +1418,62 @@ compatibility</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
-<td><p>cutoff for species mass fractions</p></td>
-<td><p>1.e-30</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
-<td><p>Should we use rate tables if they are present in the
-network?</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
-<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_nse</span></code></p></td>
 <td></td>
 <td><p>3.e8</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_nse</span></code></p></td>
 <td></td>
 <td><p>3.e9</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">C_nse</span></code></p></td>
 <td></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">O_nse</span></code></p></td>
 <td></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Si_nse</span></code></p></td>
 <td></td>
 <td><p>0.01</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">He_Fe_nse</span></code></p></td>
 <td></td>
 <td><p>0.88</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_always_nse</span></code></p></td>
 <td><p>temperature above which we always assume NSE,
 regardless of composition note: rho_nse is still
 considered.</p></td>
 <td><p>9.e9</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_relax_factor</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_relax_factor</span></code></p></td>
 <td><p>factor (&lt; 1) by which to relax the criteria for
 entering NSE. This is only applied after a failed burn.</p></td>
 <td><p>1.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nse_table_interp_linear</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nse_table_interp_linear</span></code></p></td>
 <td><p>do we do tri-linear or tri-cubic interpolation on the
 table?</p></td>
 <td><p>0</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_x</span></code></p></td>
+<td><p>cutoff for species mass fractions</p></td>
+<td><p>1.e-30</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_tables</span></code></p></td>
+<td><p>Should we use rate tables if they are present in the
+network?</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">use_c12ag_deboer17</span></code></p></td>
+<td><p>Should we use Deboer + 2017 rate for c12(a,g)o16?</p></td>
+<td><p>0</p></td>
+</tr>
 </tbody>
 </table>
-<p><strong>NETWORK_DIR=CNO_He_burn:</strong></p>
+<p><strong>NETWORK_DIR=ase:</strong></p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1476,7 +1492,26 @@ table?</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>NETWORK_DIR=ase:</strong></p>
+<p><strong>NETWORK_DIR=he-burn/he-burn-18a:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_p_C12_to_N13</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disable_He4_N13_to_p_O16</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>NETWORK_DIR=he-burn/he-burn-22a:</strong></p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1609,44 +1644,6 @@ formation)</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>NETWORK_DIR=subch_base:</strong></p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_p_C12_to_N13</span></code></p></td>
-<td></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disable_He4_N13_to_p_O16</span></code></p></td>
-<td></td>
-<td><p>0</p></td>
-</tr>
-</tbody>
-</table>
-<p><strong>NETWORK_DIR=subch_simple:</strong></p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">disable_p_C12_to_N13</span></code></p></td>
-<td></td>
-<td><p>0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">disable_He4_N13_to_p_O16</span></code></p></td>
-<td></td>
-<td><p>0</p></td>
-</tr>
-</tbody>
-</table>
 </section>
 <section id="namespace-nse">
 <h2>namespace: <code class="docutils literal notranslate"><span class="pre">nse</span></code><a class="headerlink" href="#namespace-nse" title="Link to this heading"></a></h2>
@@ -1712,7 +1709,7 @@ initial molar fraction check.</p></td>
 </section>
 <section id="namespace-opacity">
 <h2>namespace: <code class="docutils literal notranslate"><span class="pre">opacity</span></code><a class="headerlink" href="#namespace-opacity" title="Link to this heading"></a></h2>
-<p><strong>opacity/rad_power_law:</strong></p>
+<p><strong>OPACITY_DIR=rad_power_law:</strong></p>
 <table class="docutils align-default">
 <thead>
 <tr class="row-odd"><th class="head"><p>parameter</p></th>
@@ -1793,6 +1790,14 @@ initial molar fraction check.</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">enable_chabrier1998_quantum_corr</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enable_debye_huckel_skip</span></code></p></td>
+<td></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">debye_huckel_skip_threshold</span></code></p></td>
+<td></td>
+<td><p>1.01e0</p></td>
 </tr>
 </tbody>
 </table>
@@ -2069,44 +2074,40 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
-<td></td>
-<td><p>“”</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
 <td></td>
 <td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e5</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
 <td><p>the final time to integrate to</p></td>
 <td><p>1.e-2</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tfirst</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tfirst</span></code></p></td>
 <td><p>first output time – we will output in nsteps
 logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td><p>0.0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nsteps</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nsteps</span></code></p></td>
 <td><p>number of steps (logarithmically spaced)</p></td>
 <td><p>100</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
 <td></td>
 <td><p>1.e7</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
 <td></td>
 <td><p>3.e9</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">skip_initial_normalization</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">skip_initial_normalization</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">init_species_all_equal</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">init_species_all_equal</span></code></p></td>
 <td></td>
 <td><p>0</p></td>
 </tr>
@@ -2706,6 +2707,188 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </tbody>
 </table>
+<p><strong>unit_test/nse_net_cell:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
+<td></td>
+<td><p>“”</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<td></td>
+<td><p>1.e7</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+<td><p>3.e9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ye</span></code></p></td>
+<td></td>
+<td><p>0.75</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mu_p</span></code></p></td>
+<td></td>
+<td><p>-3.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mu_n</span></code></p></td>
+<td></td>
+<td><p>-12.0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X1</span></code></p></td>
+<td></td>
+<td><p>1.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X2</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X3</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X4</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X5</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X6</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X7</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X8</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X9</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X10</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X11</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X12</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X13</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X14</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X15</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X16</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X17</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X18</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X19</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X20</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
+<td></td>
+<td><p>0.0e0</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>unit_test/nse_net_cell/make_table:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_min</span></code></p></td>
+<td></td>
+<td><p>1.e6</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_max</span></code></p></td>
+<td></td>
+<td><p>1.e10</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nrho</span></code></p></td>
+<td></td>
+<td><p>5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_min</span></code></p></td>
+<td></td>
+<td><p>4.0e9</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_max</span></code></p></td>
+<td></td>
+<td><p>1.e10</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nT</span></code></p></td>
+<td></td>
+<td><p>10</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_min</span></code></p></td>
+<td></td>
+<td><p>0.4</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_max</span></code></p></td>
+<td></td>
+<td><p>0.7</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nye</span></code></p></td>
+<td></td>
+<td><p>7</p></td>
+</tr>
+</tbody>
+</table>
 <p><strong>unit_test/nse_table_cell:</strong></p>
 <table class="docutils align-default">
 <thead>
@@ -2734,6 +2917,33 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ye</span></code></p></td>
 <td></td>
 <td><p>0.472</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>unit_test/part_func_cell:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>parameter</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>default value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
+<td></td>
+<td><p>1.e5</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
+<td></td>
+<td><p>1.e9</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
+<td></td>
+<td><p>5.e9</p></td>
 </tr>
 </tbody>
 </table>
@@ -2895,10 +3105,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td></td>
 <td><p>1.e5</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
-<td></td>
-<td><p>1</p></td>
-</tr>
 </tbody>
 </table>
 <p><strong>unit_test/test_linear_algebra:</strong></p>
@@ -2990,188 +3196,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>unit_test/test_nse_net:</strong></p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">run_prefix</span></code></p></td>
-<td></td>
-<td><p>“”</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
-<td></td>
-<td><p>1.e7</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
-<td></td>
-<td><p>3.e9</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ye</span></code></p></td>
-<td></td>
-<td><p>0.75</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mu_p</span></code></p></td>
-<td></td>
-<td><p>-3.0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mu_n</span></code></p></td>
-<td></td>
-<td><p>-12.0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X1</span></code></p></td>
-<td></td>
-<td><p>1.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X2</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X3</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X4</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X5</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X6</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X7</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X8</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X9</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X10</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X11</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X12</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X13</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X14</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X15</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X16</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X17</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X18</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X19</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">X20</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">X21</span></code></p></td>
-<td></td>
-<td><p>0.0e0</p></td>
-</tr>
-</tbody>
-</table>
-<p><strong>unit_test/test_nse_net/make_table:</strong></p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rho_min</span></code></p></td>
-<td></td>
-<td><p>1.e6</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rho_max</span></code></p></td>
-<td></td>
-<td><p>1.e10</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nrho</span></code></p></td>
-<td></td>
-<td><p>5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_min</span></code></p></td>
-<td></td>
-<td><p>4.0e9</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_max</span></code></p></td>
-<td></td>
-<td><p>1.e10</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nT</span></code></p></td>
-<td></td>
-<td><p>10</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_min</span></code></p></td>
-<td></td>
-<td><p>0.4</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Ye_max</span></code></p></td>
-<td></td>
-<td><p>0.7</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nye</span></code></p></td>
-<td></td>
-<td><p>7</p></td>
-</tr>
-</tbody>
-</table>
 <p><strong>unit_test/test_parameters:</strong></p>
 <table class="docutils align-default">
 <thead>
@@ -3208,33 +3232,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_string</span></code></p></td>
 <td></td>
 <td><p>“test”</p></td>
-</tr>
-</tbody>
-</table>
-<p><strong>unit_test/test_part_func:</strong></p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>parameter</p></th>
-<th class="head"><p>description</p></th>
-<th class="head"><p>default value</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">small_temp</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
-<td></td>
-<td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">density</span></code></p></td>
-<td></td>
-<td><p>1.e9</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code></p></td>
-<td></td>
-<td><p>5.e9</p></td>
 </tr>
 </tbody>
 </table>
@@ -3278,10 +3275,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e5</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
-<td></td>
-<td><p>1</p></td>
 </tr>
 </tbody>
 </table>
@@ -3393,7 +3386,7 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <td><p>1.e15</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">uniform_xn</span></code></p></td>
-<td></td>
+<td><p>uniform composition</p></td>
 <td><p>0</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tmax</span></code></p></td>
@@ -3407,10 +3400,6 @@ logarithmically spaced steps between [tfirst, tmax]</p></td>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">small_dens</span></code></p></td>
 <td></td>
 <td><p>1.e3</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">do_acc</span></code></p></td>
-<td></td>
-<td><p>1</p></td>
 </tr>
 </tbody>
 </table>

@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Spectral Deferred Corrections &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
@@ -26,7 +26,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Overview of Unit Tests" href="unit_tests.html" />
+    <link rel="next" title="Helper Functions and Libraries" href="util.html" />
     <link rel="prev" title="NSE" href="nse.html" /> 
 </head>
 
@@ -65,6 +65,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -73,6 +74,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul class="current">
@@ -100,6 +102,10 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
@@ -108,6 +114,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Index</span></p>
@@ -140,7 +148,7 @@
            <div itemprop="articleBody">
              
   <section id="spectral-deferred-corrections">
-<h1>Spectral Deferred Corrections<a class="headerlink" href="#spectral-deferred-corrections" title="Link to this heading"></a></h1>
+<span id="sdc-evolution"></span><h1>Spectral Deferred Corrections<a class="headerlink" href="#spectral-deferred-corrections" title="Link to this heading"></a></h1>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>Spectral deferred correction (SDC) methods strongly couple reactions
@@ -173,7 +181,7 @@ will set the <code class="docutils literal notranslate"><span class="pre">SDC</s
 </div>
 <section id="true-sdc">
 <h3>“True” SDC<a class="headerlink" href="#true-sdc" title="Link to this heading"></a></h3>
-<p>The true SDC implementation is described in <span id="id1">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">ZingaleKatzBell+19</a>]</span>.  It divides
+<p>The true SDC implementation is described in <span id="id1">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">38</a>]</span>.  It divides
 the timestep into temporal nodes and uses low-order approximations to update
 from one temporal node to the next.  Iteration is used to increase the order of accuracy.</p>
 <p>The update from one temporal node, <span class="math notranslate nohighlight">\(m\)</span>, to the next, <span class="math notranslate nohighlight">\(m\)</span>, for iteration
@@ -209,7 +217,7 @@ approximation to the advection update over the timestep (for instance, computed 
 \[\frac{\partial \Uc}{\partial t} = [\Advs{\Uc}]^{n+1/2} + \Rb(\Uc)\]</div>
 <p>and uses iteration to improve the advective term based on the
 reactions.  The full details of the algorithm are presented in
-<span id="id2">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span>.</p>
+<span id="id2">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">39</a>]</span>.</p>
 </section>
 <section id="common-ground">
 <h3>Common ground<a class="headerlink" href="#common-ground" title="Link to this heading"></a></h3>
@@ -248,7 +256,7 @@ hydrodynamics code.</p>
    \Adv{\rho X_k}^{n+1/2} \\ \Adv{\rho e}^{n+1/2} \\
 \end{array} \right ) +
 \left (
-   \begin{array}{c} \rho \omegadot_k \\ \rho \Sdot \end{array}
+   \begin{array}{c} \rho \omegadot_k \\ \rho \epsilon \end{array}
 \right )\end{split}\]</div>
 <p>Here the advective terms are piecewise-constant (in time)
 approximations to the change in the state due to the hydrodynamics,
@@ -312,7 +320,7 @@ to <code class="docutils literal notranslate"><span class="pre">ydot</span></cod
 <h3>Jacobian<a class="headerlink" href="#jacobian" title="Link to this heading"></a></h3>
 <p>The Jacobian of this system is <span class="math notranslate nohighlight">\({\bf J} = \partial \Rb /
 \partial \Uc\)</span>, since <span class="math notranslate nohighlight">\(\Advs{\Uc}\)</span> is held constant during the
-integration.  We follow the approach of <span id="id3">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span> and factor
+integration.  We follow the approach of <span id="id3">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">39</a>]</span> and factor
 the Jacobian as:</p>
 <div class="math notranslate nohighlight">
 \[{\bf J} = \frac{\partial \Rb}{\partial \Uc} = \frac{\partial \Rb}{\partial {\bf w}}
@@ -321,10 +329,10 @@ the Jacobian as:</p>
 for a reaction network.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>In the original “true SDC” paper <span id="id4">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">ZingaleKatzBell+19</a>]</span>, the matrix
+<p>In the original “true SDC” paper <span id="id4">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">38</a>]</span>, the matrix
 system was more complicated, and we included density in <span class="math notranslate nohighlight">\({\bf w}\)</span>.
 This is not needed, and we use the Jacobian defined in
-<span id="id5">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">ZKNR22</a>]</span> instead.</p>
+<span id="id5">[<a class="reference internal" href="zreferences.html#id41" title="M. Zingale, M. P. Katz, A. Nonaka, and M. Rasmussen. An improved method for coupling hydrodynamics with astrophysical reaction networks. The Astrophysical Journal, 936(1):6, aug 2022. URL: https://dx.doi.org/10.3847/1538-4357/ac8478, doi:10.3847/1538-4357/ac8478.">39</a>]</span> instead.</p>
 </div>
 </section>
 </section>
@@ -335,7 +343,7 @@ This is not needed, and we use the Jacobian defined in
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="nse.html" class="btn btn-neutral float-left" title="NSE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="unit_tests.html" class="btn btn-neutral float-right" title="Overview of Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="util.html" class="btn btn-neutral float-right" title="Helper Functions and Libraries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

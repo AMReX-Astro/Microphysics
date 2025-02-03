@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Index &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
@@ -60,6 +60,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -68,6 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
@@ -75,6 +77,10 @@
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
@@ -84,6 +90,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Index</span></p>
@@ -118,8 +126,7 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#Symbols"><strong>Symbols</strong></a>
- | <a href="#A"><strong>A</strong></a>
+ <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
  | <a href="#E"><strong>E</strong></a>
@@ -128,20 +135,13 @@
  | <a href="#J"><strong>J</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  
 </div>
-<h2 id="Symbols">Symbols</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="one_zone_tests.html#index-0">``burn_cell``</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -153,7 +153,7 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="getting_started.html#index-1">burn_cell</a>, <a href="unit_tests.html#index-1">[1]</a>
+      <li><a href="burn_cell.html#index-0">burn_cell</a>, <a href="getting_started.html#index-1">[1]</a>, <a href="unit_tests.html#index-1">[2]</a>
 </li>
       <li><a href="unit_tests.html#index-1">burn_cell_primordial_chem</a>
 </li>
@@ -173,7 +173,11 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="eos.html#index-1">chem_eos_t</a>
+      <li><a href="eos.html#index-0">chem_eos_t</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="transport.html#index-0">CONDUCTIVITY_DIR</a>
 </li>
   </ul></td>
 </tr></table>
@@ -181,23 +185,49 @@
 <h2 id="E">E</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="unit_tests.html#index-1">eos_cell</a>
+      <li><a href="eos_implementations.html#index-4">eos.</a>
 </li>
-      <li><a href="eos.html#index-3">eos_extra_t</a>
+      <li><a href="eos_implementations.html#index-1">eos.assume_neutral</a>
 </li>
-      <li><a href="eos.html#index-3">eos_re_extra_t</a>
+      <li><a href="eos_implementations.html#index-2">eos.eos_dtol</a>
 </li>
-      <li><a href="eos.html#index-1">eos_re_t</a>
+      <li><a href="eos_implementations.html#index-1">eos.eos_gamma</a>
+</li>
+      <li><a href="eos_implementations.html#index-3">eos.eos_gamma_default</a>
+</li>
+      <li><a href="eos_implementations.html#index-2">eos.eos_input_is_constant</a>
+</li>
+      <li><a href="eos_implementations.html#index-2">eos.eos_ttol</a>
+</li>
+      <li><a href="eos_implementations.html#index-4">eos.polytrope_gamma</a>
+</li>
+      <li><a href="eos_implementations.html#index-4">eos.polytrope_mu_e</a>
+</li>
+      <li><a href="eos_implementations.html#index-4">eos.polytrope_type</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="eos.html#index-3">eos_rep_extra_t</a>
+      <li><a href="eos_implementations.html#index-2">eos.prad_limiter_delta_rho</a>
 </li>
-      <li><a href="eos.html#index-1">eos_rep_t</a>
+      <li><a href="eos_implementations.html#index-2">eos.prad_limiter_rho_c</a>
 </li>
-      <li><a href="eos.html#index-1">eos_rh_t</a>
+      <li><a href="eos_implementations.html#index-2">eos.use_eos_coulomb</a>
 </li>
-      <li><a href="data_structures.html#index-0">eos_t</a>, <a href="eos.html#index-0">[1]</a>, <a href="eos.html#index-1">[2]</a>
+      <li><a href="unit_tests.html#index-1">eos_cell</a>
+</li>
+      <li><a href="eos.html#index-2">eos_extra_t</a>
+</li>
+      <li><a href="eos.html#index-2">eos_re_extra_t</a>
+</li>
+      <li><a href="eos.html#index-0">eos_re_t</a>
+</li>
+      <li><a href="eos.html#index-2">eos_rep_extra_t</a>
+</li>
+      <li><a href="eos.html#index-0">eos_rep_t</a>
+</li>
+      <li><a href="eos.html#index-0">eos_rh_t</a>
+</li>
+      <li><a href="data_structures.html#index-0">eos_t</a>, <a href="eos.html#index-0">[1]</a>, <a href="eos_implementations.html#index-0">[2]</a>
 </li>
   </ul></td>
 </tr></table>
@@ -213,11 +243,15 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ode_integrators.html#index-4">integrator.atol_enuc</a>
+</li>
+      <li><a href="ode_integrators.html#index-4">integrator.atol_spec</a>
+</li>
       <li><a href="integrators.html#index-3">integrator.burner_verbose</a>
 </li>
       <li><a href="integrators.html#index-3">integrator.call_eos_in_rhs</a>, <a href="integrators.html#index-7">[1]</a>
 </li>
-      <li><a href="ode_integrators.html#index-4">integrator.do_species_clip</a>
+      <li><a href="ode_integrators.html#index-6">integrator.do_species_clip</a>
 </li>
       <li><a href="integrators.html#index-8">integrator.integrate_energy</a>
 </li>
@@ -229,17 +263,21 @@
 </li>
       <li><a href="nse.html#index-1">integrator.nse_include_enu_weak</a>
 </li>
-      <li><a href="ode_integrators.html#index-5">integrator.ode_max_steps</a>
+      <li><a href="ode_integrators.html#index-7">integrator.ode_max_steps</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="integrators.html#index-1">integrator.react_boost</a>, <a href="integrators.html#index-6">[1]</a>
 </li>
-      <li><a href="ode_integrators.html#index-4">integrator.renormalize_abundances</a>
+      <li><a href="ode_integrators.html#index-6">integrator.renormalize_abundances</a>
+</li>
+      <li><a href="ode_integrators.html#index-4">integrator.rtol_enuc</a>
+</li>
+      <li><a href="ode_integrators.html#index-4">integrator.rtol_spec</a>
 </li>
       <li><a href="integrators.html#index-2">integrator.scale_system</a>, <a href="ode_integrators.html#index-2">[1]</a>
 </li>
-      <li><a href="ode_integrators.html#index-4">integrator.SMALL_X_SAFE</a>
+      <li><a href="ode_integrators.html#index-6">integrator.SMALL_X_SAFE</a>
 </li>
       <li><a href="integrators.html#index-3">integrator.subtract_internal_energy</a>, <a href="integrators.html#index-4">[1]</a>
 </li>
@@ -248,6 +286,8 @@
       <li><a href="ode_integrators.html#index-1">integrator.use_jacobian_caching</a>
 </li>
       <li><a href="integrators.html#index-0">integrator.use_number_densities</a>
+</li>
+      <li><a href="ode_integrators.html#index-5">integrator.X_reject_buffer</a>
 </li>
       <li><a href="integrators.html#index-2">integrator_to_burn</a>
 </li>
@@ -281,17 +321,33 @@
 </li>
       <li><a href="nse.html#index-2">network.rho_nse</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="nse.html#index-3">network.Si_nse</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="nse.html#index-2">network.T_always_nse</a>
 </li>
       <li><a href="nse.html#index-2">network.T_nse</a>
 </li>
       <li><a href="networks.html#index-0">NETWORK_INPUTS</a>
 </li>
+      <li><a href="networks.html#index-1">network_properties.H</a>
+</li>
+      <li><a href="unit_tests.html#index-1">nse_net_cell</a>
+</li>
       <li><a href="unit_tests.html#index-1">nse_table_cell</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="unit_tests.html#index-1">part_func_cell</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="eos_implementations.html#index-4">polytrope_K</a>
 </li>
   </ul></td>
 </tr></table>
@@ -309,9 +365,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="screening.html#index-0">SCREEN_METHOD</a>
 </li>
+      <li><a href="screening.html#index-1">screening.debye_huckel_skip_threshold</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="screening.html#index-1">screening.enable_chabrier1998_quantum_corr</a>
+      <li><a href="screening.html#index-2">screening.enable_chabrier1998_quantum_corr</a>
+</li>
+      <li><a href="screening.html#index-1">screening.enable_debye_huckel_skip</a>
 </li>
   </ul></td>
 </tr></table>
@@ -320,8 +380,6 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="unit_tests.html#index-0">test_aprox_rates</a>
-</li>
-      <li><a href="unit_tests.html#index-1">test_ase</a>
 </li>
       <li><a href="unit_tests.html#index-0">test_conductivity</a>
 </li>
@@ -339,8 +397,6 @@
 </li>
       <li><a href="unit_tests.html#index-2">test_parameters</a>
 </li>
-      <li><a href="unit_tests.html#index-1">test_part_func</a>
-</li>
       <li><a href="unit_tests.html#index-0">test_react</a>
 </li>
       <li><a href="unit_tests.html#index-0">test_rhs</a>
@@ -357,7 +413,7 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="eos.html#index-2">USE_AUX_THERMO</a>
+      <li><a href="eos.html#index-1">USE_AUX_THERMO</a>
 </li>
       <li><a href="nse.html#index-0">USE_NSE_NET</a>
 </li>

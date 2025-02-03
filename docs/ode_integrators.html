@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ODE Integrators &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
@@ -65,6 +65,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -73,6 +74,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul class="current">
@@ -90,6 +92,10 @@
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
@@ -98,6 +104,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Index</span></p>
@@ -150,15 +158,15 @@ comparing to a single full step.  This error is then used to control
 the timestep by using the local truncation error scaling.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ForwardEuler</span></code>: an explicit first-order forward-Euler method.  This is
 meant for testing purposes only.  No Jacobian is needed.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. doi:https://doi.org/10.1006/jcph.2000.6605.">MOvanLeer00</a>]</span> (see also
-<span id="id2">[<a class="reference internal" href="zreferences.html#id38" title="M W Guidry and J A Harris. Explicit integration of extremely stiff reaction networks: quasi-steady-state methods. Computational Science &amp; Discovery, 6(1):015002, jan 2013. URL: https://dx.doi.org/10.1088/1749-4699/6/1/015002, doi:10.1088/1749-4699/6/1/015002.">GH13</a>]</span>). This uses a second-order predictor-corrector method,
+<li><p><code class="docutils literal notranslate"><span class="pre">QSS</span></code>: the quasi-steady-state method of <span id="id1">[<a class="reference internal" href="zreferences.html#id37" title="David R. Mott, Elaine S. Oran, and Bram van Leer. A quasi-steady-state solver for the stiff ordinary differential equations of reaction kinetics. Journal of Computational Physics, 164(2):407-428, 2000. doi:https://doi.org/10.1006/jcph.2000.6605.">31</a>]</span> (see also
+<span id="id2">[<a class="reference internal" href="zreferences.html#id38" title="M W Guidry and J A Harris. Explicit integration of extremely stiff reaction networks: quasi-steady-state methods. Computational Science &amp; Discovery, 6(1):015002, jan 2013. URL: https://dx.doi.org/10.1088/1749-4699/6/1/015002, doi:10.1088/1749-4699/6/1/015002.">32</a>]</span>). This uses a second-order predictor-corrector method,
 and is designed specifically for handling coupled ODE systems for chemical
 and nuclear reactions. However, this integrator has difficulty near NSE,
 so we don’t recommend its use in production for nuclear astrophysics.</p></li>
 </ul>
 <ul id="index-0">
 <li><p><code class="docutils literal notranslate"><span class="pre">RKC</span></code>: a stabilized explicit Runge-Kutta-Chebyshev integrator based
-on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">SSV98</a>]</span>.  This does not require a Jacobian, but
+on <span id="id3">[<a class="reference internal" href="zreferences.html#id44" title="B.P. Sommeijer, L.F. Shampine, and J.G. Verwer. RKC: An explicit solver for parabolic PDEs. Journal of Computational and Applied Mathematics, 88(2):315–326, March 1998. URL: https://linkinghub.elsevier.com/retrieve/pii/S0377042797002197, doi:10.1016/S0377-0427(97)00219-7.">33</a>]</span>.  This does not require a Jacobian, but
 does need to estimate the spectral radius of the system, which is
 done internally.  This works for moderately stiff problems.</p>
 <p>The spectral radius is estimated by default using the power method,
@@ -168,7 +176,7 @@ is used instead.</p>
 </li>
 </ul>
 <ul id="index-1">
-<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">BBH89</a>]</span> integration package.  We ported this
+<li><p><code class="docutils literal notranslate"><span class="pre">VODE</span></code>: the VODE <span id="id4">[<a class="reference internal" href="zreferences.html#id26" title="P. N. Brown, G. D. Byrne, and A. C. Hindmarsh. VODE: a variable coefficient ode solver. SIAM J. Sci. Stat. Comput., 10:1038-1051, 1989.">34</a>]</span> integration package.  We ported this
 integrator to C++ and removed the non-stiff integration code paths.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -268,46 +276,69 @@ used to interpret the failure.  The current codes are:</p>
 <p>Tolerances dictate how accurate the ODE solver must be while solving
 equations during a simulation.  Typically, the smaller the tolerance
 is, the more accurate the results will be.  However, if the tolerance
-is too small, the code may run for too long or the ODE solver will
-never converge.  In these simulations, <code class="docutils literal notranslate"><span class="pre">rtol</span></code> values will set the
-relative tolerances and <code class="docutils literal notranslate"><span class="pre">atol</span></code> values will set the absolute tolerances
-for the ODE solver.  Often, one can find and set these values in an
-input file for a simulation.</p>
-<p><a class="reference internal" href="#fig-tolerances"><span class="std std-numref">Fig. 1</span></a> shows the results of a simple simulation using the
-burn_cell unit test to determine
-what tolerances are ideal for simulations.
-For this investigation, it was assumed that a run with a tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>
-corresponded to an exact result,
-so it is used as the basis for the rest of the tests.
-From the figure, one can infer that the <span class="math notranslate nohighlight">\(10^{-3}\)</span> and <span class="math notranslate nohighlight">\(10^{-6}\)</span> tolerances
-do not yield the most accurate results
-because their relative error values are fairly large.
-However, the test with a tolerance of <span class="math notranslate nohighlight">\(10^{-9}\)</span> is accurate
-and not so low that it takes incredible amounts of computer time,
-so <span class="math notranslate nohighlight">\(10^{-9}\)</span> should be used as the default tolerance in future simulations.</p>
+is too small, the code may run for too long, the ODE solver will
+never converge, or it might require at timestep that underflows.</p>
+<p id="index-4">There are separate tolerances for the mass fractions and the energy,
+and there are both relative and absolute tolerances which act together.
+The tolerances are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.rtol_spec</span></code> : the relative tolerance for the species
+(mass fractions when running with Strang and partial densities when
+running with SDC).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.rtol_enuc</span></code> : the relative tolerance on the energy
+(specific internal energy when running with Strang, internal energy
+density when running with SDC).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.atol_spec</span></code> : the absolute tolerance for the species
+(this is always interpreted in terms of mass fraction and the appropriate
+density weighting will be added for SDC).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">integrator.atol_enuc</span></code> : the absolute tolerance for energy – this
+is generally not interesting, since the energy is so large and therefore
+best served via a relative tolerance.</p></li>
+</ul>
+<p>The tolerances are combined, e.g. for species, as:</p>
+<div class="math notranslate nohighlight">
+\[\epsilon_{\mathrm{total}, k} = \epsilon_\mathrm{abs} + \epsilon_\mathrm{rel} |X_k|\]</div>
+<p>so if the mass fraction, <span class="math notranslate nohighlight">\(X_k\)</span>, is very small, then the absolute tolerance
+will set the error that the integrator tries to achieve.  If the mass fraction
+is large, <span class="math notranslate nohighlight">\(\mathcal{O}(1)\)</span>, then the relative tolerance dominates.</p>
+<p>Some suggestions when setting tolerances:</p>
+<ul class="simple" id="index-5">
+<li><p>If a burn does not converge with one type of Jacobian (analytic or
+numerical) then it may do better with the other type.  This can be
+automated via the <code class="docutils literal notranslate"><span class="pre">integrator.use_burn_retry</span></code> mechanism described
+above.</p></li>
+<li><p>Sometimes a burn completes better if the absolute tolerances are
+made even smaller – this will require the integrator to track trace
+species better which can help with equilibrium better.</p></li>
+<li><p>The VODE integrator has additional logic meant to ensure that
+species don’t change too much per timestep.  This is controlled by
+<code class="docutils literal notranslate"><span class="pre">integrator.X_reject_buffer</span></code>.  If a species <span class="math notranslate nohighlight">\(k\)</span>, has a mass
+fraction <span class="math notranslate nohighlight">\(X_k &gt; \mbox{X_reject_buffer} \cdot \mbox{atol_spec}\)</span> then
+we reject a VODE timestep if the mass fraction changes by more than
+a factor of 4 in a single VODE timestep and we try again.  This is
+all done internally to VODE.  Making <code class="docutils literal notranslate"><span class="pre">X_reject_buffer</span></code> larger will
+allow it to ignore more trace species.</p></li>
+</ul>
+<p>Below is a comparison of how the tolerances affect the nucleosynthesis.
+This is run using <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code> and the <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> network.  Four separate
+runs were done, using tolerances of <span class="math notranslate nohighlight">\(10^{-3}\)</span>, <span class="math notranslate nohighlight">\(10^{-5}\)</span>, <span class="math notranslate nohighlight">\(10^{-8}\)</span>, and <span class="math notranslate nohighlight">\(10^{-12}\)</span>
+(all 4 tolerance parameters were set to the same value).  The run with the tightest
+tolerances (<span class="math notranslate nohighlight">\(10^{-12}\)</span>) was taken as the reference and relative errors were
+computed with respect to it.  The scripts for this are in <code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/burn_cell/compare_tolerances/</span></code>.</p>
 <figure class="align-default" id="id5">
-<span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerances.png"><img alt="Relative error plot" src="_images/tolerances.png" style="width: 100%;" />
+<span id="fig-tolerances"></span><a class="reference internal image-reference" href="_images/tolerance-compare.png"><img alt="Relative error in mass fractions" src="_images/tolerance-compare.png" style="width: 100%;" />
 </a>
 <figcaption>
 <p><span class="caption-number">Fig. 1 </span><span class="caption-text">Relative error of runs with varying tolerances as compared
 to a run with an ODE tolerance of <span class="math notranslate nohighlight">\(10^{-12}\)</span>.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<p>The integration tolerances for the burn are controlled by
-<code class="docutils literal notranslate"><span class="pre">rtol_spec</span></code> and  <code class="docutils literal notranslate"><span class="pre">rtol_enuc</span></code>,
-which are the relative error tolerances for
-<a class="reference internal" href="integrators.html#equation-eq-spec-integrate">(1)</a> and <a class="reference internal" href="integrators.html#equation-eq-enuc-integrate">(2)</a>,
-respectively. There are corresponding
-<code class="docutils literal notranslate"><span class="pre">atol</span></code> parameters for the absolute error tolerances. Note that
-not all integrators handle error tolerances the same way—see the
-sections below for integrator-specific information.</p>
-<p>The absolute error tolerances are set by default
-to <span class="math notranslate nohighlight">\(10^{-12}\)</span> for the species, and a relative tolerance of <span class="math notranslate nohighlight">\(10^{-6}\)</span>
-is used for the temperature and energy.</p>
+<p>We see that using a tolerance of <span class="math notranslate nohighlight">\(10^{-5}\)</span> generally gives reasonable mass
+fractions.  Looser than this can produce large errors.</p>
 </section>
 <section id="controlling-species-sum-k-x-k-1">
 <h2>Controlling Species <span class="math notranslate nohighlight">\(\sum_k X_k = 1\)</span><a class="headerlink" href="#controlling-species-sum-k-x-k-1" title="Link to this heading"></a></h2>
-<p id="index-4">The ODE integrators don’t know about the constraint that</p>
+<p id="index-6">The ODE integrators don’t know about the constraint that</p>
 <p><div class="math notranslate nohighlight">
 \[\sum_k X_k = 1\]</div>
 </p>
@@ -336,7 +367,7 @@ all in <span class="math notranslate nohighlight">\([\mathtt{SMALL\_X\_SAFE}, 1.
 </section>
 <section id="retry-mechanism">
 <h2>Retry Mechanism<a class="headerlink" href="#retry-mechanism" title="Link to this heading"></a></h2>
-<p id="index-5">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
+<p id="index-7">Integration can fail for a number of reasons.  Some of the errors you may see are:</p>
 <ol class="arabic simple">
 <li><p>Not enough steps allowed (<code class="docutils literal notranslate"><span class="pre">integrator.ode_max_steps</span></code>)</p></li>
 <li><p>The timestep selected by the integrator is too small (comparable to

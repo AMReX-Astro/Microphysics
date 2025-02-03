@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Automatic Differentiation &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
@@ -69,6 +69,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -77,6 +78,7 @@
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
@@ -84,6 +86,10 @@
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
@@ -93,6 +99,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Index</span></p>
@@ -127,7 +135,7 @@
   <section id="automatic-differentiation">
 <h1>Automatic Differentiation<a class="headerlink" href="#automatic-differentiation" title="Link to this heading"></a></h1>
 <p>Support for automatic differentiation is provided by the <code class="docutils literal notranslate"><span class="pre">autodiff</span></code>
-library <span id="id1">[<a class="reference internal" href="zreferences.html#id45" title="Allan M. M. Leal. Autodiff, a modern, fast and expressive C++ library for automatic differentiation. \texttt https://autodiff.github.io, 2018. URL: https://autodiff.github.io.">Lea18</a>]</span>, included under
+library <span id="id1">[<a class="reference internal" href="zreferences.html#id45" title="Allan M. M. Leal. Autodiff, a modern, fast and expressive C++ library for automatic differentiation. \texttt https://autodiff.github.io, 2018. URL: https://autodiff.github.io.">5</a>]</span>, included under
 <code class="docutils literal notranslate"><span class="pre">Microphysics/util/autodiff</span></code>.  We use the forward mode <code class="docutils literal notranslate"><span class="pre">dual</span></code>
 implementation, which produces the derivative of each computation along
 with its output value.  This results in largely the same arithmetic

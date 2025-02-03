@@ -2,6 +2,29 @@
 Getting Started
 ***************
 
+Requirements
+============
+
+Microphysics requires
+
+* A C++17 or later compilers
+* AMReX (https://github.com/amrex-codes/amrex)
+* python (>= 3.10)
+* GNU make
+
+optional dependencies are:
+
+* CUDA (>= 11)
+* ROCm (>= 6.3.1 --- earlier versions have register allocation bugs)
+
+Microphysics is meant to be compiled into an application code as part
+of its build process, with the network, EOS, integrator, and more
+picked at compile time.  As such, there is not a single library that
+can be built and linked against.
+
+Below we describe how to use Microphysics in a "standalone" fashion,
+using the provided unit tests, and as part of an application code.
+
 Standalone
 ==========
 
@@ -27,7 +50,7 @@ to set the ``AMREX_HOME`` environment variable to point to the
 
 .. index:: burn_cell
 
-A good unit test to start with is ``burn_cell`` -- this is simply a
+A good unit test to start with is ``burn_cell`` --- this is simply a
 one-zone burn.  In ``Microphysics/`` do:
 
 .. prompt:: bash
@@ -39,10 +62,11 @@ This will create an executable called ``main3d.gnu.ex``.  Then you can run it as
 
 .. prompt:: bash
 
-   ./main3d.gnu.ex inputs_aprox21
+   ./main3d.gnu.ex inputs_aprox13
 
-By default, the test is built with the 21-isotope ``aprox21`` network.
-Here ``inputs_aprox21`` is the inputs file that sets options.
+By default, the test is built with the 13-isotope ``aprox13`` network,
+``helmholtz`` EOS, and VODE integrator.
+Here ``inputs_aprox13`` is the inputs file that sets options.
 
 
 
@@ -51,11 +75,15 @@ Running with AMReX Application Code
 
 .. index:: MICROPHYSICS_HOME
 
-Getting started with Microphysics using either CASTRO or MAESTROeX is
+Getting started with Microphysics using either `CASTRO
+<https://amrex-astro.github.io/Castro/docs/index.html>`_ or `MAESTROeX
+<https://amrex-astro.github.io/MAESTROeX/docs/index.html>`_ is
 straightforward. Because the modules here are already in a format that
 the AMReX codes understand, you only need to provide to the code
 calling these routines their location on your system. The code will do
-the rest. To do so, define the ``MICROPHYSICS_HOME`` environment
+the rest.
+
+First we need to define the ``MICROPHYSICS_HOME`` environment
 variable, either at a command line or (if you use the bash shell)
 through your ``~/.bashrc``, e.g.:
 
@@ -70,6 +98,4 @@ rely on the Microphysics ``Make.Microphysics_extern`` makefile stub
 source to the build.  All of the interfaces that these codes use
 are found in ``Microphysics/interfaces/``.
 
-Other codes can use Microphysics in the same fashion.  Unit tests in
-``Microphysics/unit_test/`` provide some examples of using the
-interfaces.
+Other AMReX-based codes can use Microphysics in the same fashion.

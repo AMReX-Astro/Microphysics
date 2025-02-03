@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Templated Network Righthand Sides &mdash; Microphysics  documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
       <link rel="stylesheet" type="text/css" href="_static/theme_overrides.css?v=2e394b92" />
@@ -65,6 +65,7 @@
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="eos.html">Equations of State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="eos_implementations.html">Available Equations of State</a></li>
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
@@ -80,6 +81,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
@@ -87,6 +89,10 @@
 <li class="toctree-l1"><a class="reference internal" href="ode_integrators.html">ODE Integrators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="nse.html">NSE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sdc.html">Spectral Deferred Corrections</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Util / external libraries</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
 <ul>
@@ -96,6 +102,8 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="citing.html">Citing Microphysics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changelog</a></li>
 <li class="toctree-l1"><a class="reference internal" href="zreferences.html">References</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Index</span></p>
@@ -431,18 +439,14 @@ of the network.</p>
 <h2>Linear Algebra<a class="headerlink" href="#linear-algebra" title="Link to this heading"></a></h2>
 <p>The VODE integrator needs routines to do LU factorization and back
 substitution.  We build off of the linpack <code class="docutils literal notranslate"><span class="pre">dgefa</span></code> and <code class="docutils literal notranslate"><span class="pre">dgesl</span></code>
-routines, but because we know at compile time which Jacobian terms are
-non-zero, we are able to use <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> for-loops to only do the
-calculations on non-zero elements.  This greatly reduces the amount of work
-in the linear algebra.</p>
-<p>Note:</p>
-<ul class="simple">
-<li><p>Currently we are still storing a dense Jacobian – we just skip computation
-on the elements that are 0.</p></li>
-<li><p>These routines do not perform pivoting.  This does not seem to be an
+routines, using <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> for-loops that know the network size
+at compile time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These routines do not perform pivoting.  This does not seem to be an
 issue for the types of matrices we solve with reactions (since they are
-all of the form <span class="math notranslate nohighlight">\(I - \tau J\)</span>, where <span class="math notranslate nohighlight">\(tau\)</span> is the timestep).</p></li>
-</ul>
+all of the form <span class="math notranslate nohighlight">\(I - \tau J\)</span>, where <span class="math notranslate nohighlight">\(tau\)</span> is the timestep).</p>
+</div>
 </section>
 </section>
 

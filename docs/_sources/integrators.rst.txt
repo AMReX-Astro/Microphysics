@@ -14,13 +14,13 @@ The equations we integrate to do a nuclear burn are:
    :label: eq:spec_integrate
 
 .. math::
-   \frac{de}{dt} = f(\rho,X_k,T)
+   \frac{de}{dt} = \epsilon(\rho,X_k,T)
    :label: eq:enuc_integrate
 
 Here, :math:`X_k` is the mass fraction of species :math:`k`, :math:`e`
 is the specific nuclear energy created through reactions. Also needed
 are density :math:`\rho`, temperature :math:`T`, and the specific
-heat. The function :math:`f` provides the energy release from
+heat. The function :math:`\epsilon` provides the energy release from
 reactions and can often be expressed in terms of the instantaneous
 reaction terms, :math:`\dot{X}_k`. As noted in the previous section,
 this is implemented in a network-specific manner.
@@ -46,7 +46,7 @@ energy. This allows us to easily call the EOS during the burn to obtain the temp
       :label: eq:spec_n_integrate
 
    .. math::
-      \frac{de}{dt} = f(\rho,n_k,T)
+      \frac{de}{dt} = \epsilon(\rho,n_k,T)
       :label: eq:enuc_n_integrate
 
    The effect of this flag in the integrators is that we don't worry
@@ -355,7 +355,7 @@ with the initial temperature, density, and composition:
 As the system is integrated, :math:`e` is updated to account for the
 nuclear energy release (and thermal neutrino losses),
 
-.. math:: e(t) = e_0 + \int_{t_0}^t f(\dot{Y}_k) dt
+.. math:: e(t) = e_0 + \int_{t_0}^t \epsilon(\dot{Y}_k) dt
 
 .. note::
 
