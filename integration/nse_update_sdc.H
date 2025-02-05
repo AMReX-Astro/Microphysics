@@ -1,6 +1,8 @@
 #ifndef NSE_UPDATE_H
 #define NSE_UPDATE_H
 
+#include <AMReX_Algorithm.H>
+
 #include <iostream>
 #include <fstream>
 #include <actual_network.H>
@@ -271,7 +273,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real sum_X{0.0_rt};
     for (auto & xn : nse_state.X) {
-        xn = std::clamp(xn, small_x, 1.0_rt);
+        xn = amrex::Clamp(xn, small_x, 1.0_rt);
         sum_X += xn;
     }
 
@@ -581,7 +583,7 @@ void sdc_nse_burn(BurnT& state, const amrex::Real dt) {
 
     amrex::Real sum_X{0.0_rt};
     for (auto & xn : nse_state.xn) {
-        xn = std::clamp(xn, small_x, 1.0_rt);
+        xn = amrex::Clamp(xn, small_x, 1.0_rt);
         sum_X += xn;
     }
 

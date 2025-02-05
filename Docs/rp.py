@@ -46,6 +46,8 @@ def pretty_category(path):
         return f"CONDUCTIVITY_DIR={subdir}"
     if path.startswith("integration/"):
         return f"INTEGRATOR_DIR={subdir}"
+    if path.startswith("opacity/"):
+        return f"OPACITY_DIR={subdir}"
     return path
 
 
@@ -65,9 +67,9 @@ def make_rest_table(param_files):
 
         # open the file
         try:
-            f = open(pf, "r")
-        except IOError:
-            sys.exit("ERROR: {} does not exist".format(pf))
+            f = open(pf)
+        except OSError:
+            sys.exit(f"ERROR: {pf} does not exist")
 
         descr = r""
 

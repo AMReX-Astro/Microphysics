@@ -11,3 +11,4 @@ numpy>=1.13.3
 sphinx-prompt
 sphinx-math-dollar
 sphinx-copybutton
+sphinx-mdinclude
