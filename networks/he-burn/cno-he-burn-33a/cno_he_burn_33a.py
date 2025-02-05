@@ -39,14 +39,15 @@ def doit():
     rho = 1.e6
     T = 1.e9
 
-    net.plot(rho, T, comp, outfile="cno-he-burn-33a.png",
-             rotated=True, hide_xalpha=True, curved_edges=True,
-             size=(1500, 450),
-             node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
-             Z_range=(1, 29))
+    fig = net.plot(rho, T, comp,
+                   rotated=True, hide_xalpha=True, curved_edges=True,
+                   size=(1500, 450),
+                   node_size=500, node_font_size=11, node_color="#337dff", node_shape="s",
+                   Z_range=(1, 29))
 
     net.write_network()
 
+    fig.savefig("cno-he-burn-33a.png", bbox_inches="tight")
 
 if __name__ == "__main__":
     doit()
