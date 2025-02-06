@@ -139,7 +139,7 @@ choice of network.
    network or integrator.
 
 
-To run the code, enter the burn_cell directory and run::
+To run the code, in the ``burn_cell`` directory run::
 
    ./main3d.gnu.ex inputs
 
