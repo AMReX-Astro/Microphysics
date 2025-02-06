@@ -58,17 +58,27 @@ one-zone burn.  In ``Microphysics/`` do:
    cd unit_test/burn_cell
    make
 
-This will create an executable called ``main3d.gnu.ex``.  Then you can run it as:
+This will create an executable called ``main3d.gnu.ex``.
+By default, the test is built with the 13-isotope ``aprox13`` network,
+``helmholtz`` EOS, and VODE integrator.
+
+
+Then you can run it as:
 
 .. prompt:: bash
 
    ./main3d.gnu.ex inputs_aprox13
 
-By default, the test is built with the 13-isotope ``aprox13`` network,
-``helmholtz`` EOS, and VODE integrator.
 Here ``inputs_aprox13`` is the inputs file that sets options.
 
+This will output information about the starting and final state to the
+terminal and produce a file ``state_over_time.txt`` that contains the
+thermodynamic history at different points in time.
 
+.. note::
+
+   See the :ref:`sec:burn_cell` documentation for more details on this
+   unit test and how to visualize the output.
 
 Running with AMReX Application Code
 ===================================
