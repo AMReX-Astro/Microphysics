@@ -1,5 +1,5 @@
-#ifndef BURN_CELL_H
-#define BURN_CELL_H
+#ifndef JAC_CELL_H
+#define JAC_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -67,9 +67,15 @@ void jac_cell_c()
 
     // output
 
+    // header
+    std::cout << std::setw(16) << "element" << std::setw(20)
+              << "numerical" << std::setw(20) << "analytic" << std::endl;
+
     for (int ii = 1; ii <= neqs; ++ii) {
+        std::string ilabel = (ii < neqs) ? short_spec_names_cxx[ii-1] : "e";
         for (int jj = 1; jj <= neqs; ++jj) {
-            std::cout << "J(" << std::setw(3) << ii << ", " << std::setw(3) << jj << ") = "
+            std::string jlabel = (jj < neqs) ? short_spec_names_cxx[jj-1] : "e";
+            std::cout << "J(" << std::setw(4) << ilabel << ", " << std::setw(4) << jlabel << ") = "
                       << std::setw(20) << jac_numerical(ii,jj) << " "
                       << std::setw(20) << jac_analytic(ii,jj) << std::endl;
         }
