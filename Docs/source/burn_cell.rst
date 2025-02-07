@@ -1,3 +1,5 @@
+.. _sec:burn_cell:
+
 *************
 ``burn_cell``
 *************
@@ -80,7 +82,7 @@ by setting:
 
 ::
 
-    unit_test.init_species_all_equal = 1
+    unit_test.uniform_xn = 1
 
 
 Controlling time
@@ -139,7 +141,7 @@ choice of network.
    network or integrator.
 
 
-To run the code, enter the burn_cell directory and run::
+To run the code, in the ``burn_cell`` directory run::
 
    ./main3d.gnu.ex inputs
 
