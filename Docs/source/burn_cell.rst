@@ -82,7 +82,7 @@ by setting:
 
 ::
 
-    unit_test.init_species_all_equal = 1
+    unit_test.uniform_xn = 1
 
 
 Controlling time

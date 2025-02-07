@@ -39,3 +39,6 @@ X32           real       0.0e0
 X33           real       0.0e0
 X34           real       0.0e0
 X35           real       0.0e0
+
+uniform_xn    bool        0
+
