@@ -120,7 +120,7 @@ One-zone tests
 * ``burn_cell`` :
 
   given a $\rho$, $T$, and $X_k$, integrate a reaction network through a specified time
-  and output the new state.
+  and output the new state.  See :ref:`sec:burn_cell` for more information.
 
 * ``burn_cell_primordial_chem`` :
 
@@ -133,7 +133,7 @@ One-zone tests
 * ``eos_cell`` :
 
   given a $\rho$, $T$, and $X_k$, call the equation of state and print out
-  the thermodynamic information.
+  the thermodynamic information.  See :ref:`sec:eos_cell` for more information.
 
 * ``jac_cell`` :
 
