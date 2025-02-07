@@ -2,9 +2,14 @@
 Available Equations of State
 ****************************
 
-.. index:: eos_t
+.. index:: eos_t, EOS_DIR
 
 The following equations of state are available in Microphysics.
+
+.. note::
+
+   The EOS is chosen at compile-time via the ``EOS_DIR`` make
+   variable.
 
 .. note::
 
@@ -188,7 +193,7 @@ the :math:`\gamma_i` for a specific species. The parameters are:
 ``polytrope``
 =============
 
-.. index:: eos.,polytrope_K, eos.polytrope_gamma, eos.polytrope_type, eos.polytrope_mu_e
+.. index:: eos.polytrope_K, eos.polytrope_gamma, eos.polytrope_type, eos.polytrope_mu_e
 
 ``polytrope`` represents a polytropic fluid, with equation of
 state:
