@@ -51,7 +51,7 @@ MAX_TEMP                     real            1.0e11
 react_boost                 real         -1.e0
 
 # maximum number of timesteps for the integrator
-ode_max_steps              int      150000
+ode_max_steps              int      25000
 
 # maximum timestep for the integrator
 ode_max_dt                 real         1.e30
@@ -67,7 +67,7 @@ nonaka_level            int           0
 nonaka_file             string       "nonaka_plot.dat"
 
 # do we retry a failed burn with different parameters?
-use_burn_retry            bool    0
+use_burn_retry            bool    1
 
 # do we swap the Jacobian (from analytic to numerical or vice versa) on
 # a retry?
