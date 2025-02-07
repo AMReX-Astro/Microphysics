@@ -173,11 +173,20 @@ to set the <code class="docutils literal notranslate"><span class="pre">AMREX_HO
 one-zone burn.  In <code class="docutils literal notranslate"><span class="pre">Microphysics/</span></code> do:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1"><span class="nb">cd</span><span class="w"> </span>unit_test/burn_cell</span>
 <span class="prompt1">make</span>
-</pre></div></div><p>This will create an executable called <code class="docutils literal notranslate"><span class="pre">main3d.gnu.ex</span></code>.  Then you can run it as:</p>
+</pre></div></div><p>This will create an executable called <code class="docutils literal notranslate"><span class="pre">main3d.gnu.ex</span></code>.
+By default, the test is built with the 13-isotope <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> network,
+<code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> EOS, and VODE integrator.</p>
+<p>Then you can run it as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span class="prompt1">./main3d.gnu.ex<span class="w"> </span>inputs_aprox13</span>
-</pre></div></div><p>By default, the test is built with the 13-isotope <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> network,
-<code class="docutils literal notranslate"><span class="pre">helmholtz</span></code> EOS, and VODE integrator.
-Here <code class="docutils literal notranslate"><span class="pre">inputs_aprox13</span></code> is the inputs file that sets options.</p>
+</pre></div></div><p>Here <code class="docutils literal notranslate"><span class="pre">inputs_aprox13</span></code> is the inputs file that sets options.</p>
+<p>This will output information about the starting and final state to the
+terminal and produce a file <code class="docutils literal notranslate"><span class="pre">state_over_time.txt</span></code> that contains the
+thermodynamic history at different points in time.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See the <a class="reference internal" href="burn_cell.html#sec-burn-cell"><span class="std std-ref">burn_cell</span></a> documentation for more details on this
+unit test and how to visualize the output.</p>
+</div>
 </section>
 <section id="running-with-amrex-application-code">
 <h2>Running with AMReX Application Code<a class="headerlink" href="#running-with-amrex-application-code" title="Link to this heading"></a></h2>
