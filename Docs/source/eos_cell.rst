@@ -71,4 +71,6 @@ Output
 ======
 
 All output is directed to ``stdout`` and simply lists the entries in the
-full ``eos_t`` datatype.
+full ``eos_t`` datatype.  Example output is shown below:
+
+.. literalinclude:: ../../unit_test/eos_cell/ci-benchmarks/eos_helmholtz.out
