@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>One Zone Tests &mdash; Microphysics  documentation</title>
+  <title>eos_cell &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -21,13 +21,11 @@
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
       <script src="_static/copybutton.js?v=f281be69"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-      <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]], "macros": {"rhozero": "{\\rho_0}", "pizero": "{\\pi_0}", "pizeroone": "{\\pi_0^{(1)}}", "pizerotwo": "{\\pi_0^{(2)}}", "gammabar": "{\\overline{\\Gamma}_1}", "ptl": "{{\\partial}}", "eb": "{{\\bf e}}", "fb": "{{\\bf f}}", "ib": "{{\\bf i}}", "Ub": "{{\\bf U}}", "Vb": "{{\\bf V}}", "xb": "{{\\bf x}}", "ut": "{\\tilde{u}}", "vt": "{\\tilde{v}}", "wt": "{\\tilde{w}}", "Ubt": "{\\widetilde{\\Ub}}", "edge": "{\\rm EDGE}", "mac": "{\\rm MAC}", "trans": "{\\rm TRANS}", "nablab": "{\\mathbf{\\nabla}}", "cdotb": "{\\mathbf{\\cdot}}", "half": "{\\frac{1}{2}}", "myhalf": "{\\frac{1}{2}}", "nph": "{{n + \\myhalf}}", "nmh": "{{n - \\myhalf}}", "Hext": "{{H_{\\rm ext}}}", "Hnuc": "{{H_{\\rm nuc}}}", "kth": "{k_{\\rm th}}", "pred": "{{\\rm pred}}", "Sbar": "{\\overline{S}}", "inp": "{\\mathrm{in}}", "initp": "{\\mathrm{init}}", "outp": "{\\mathrm{out}}", "uadv": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvone": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV},\\star}}", "uadvonedag": "{\\Ubt^{\\mathrm{ADV},\\dagger,\\star}}", "uadvtwo": "{\\widetilde{\\mathbf{U}}^{\\mathrm{ADV}}}", "uadvtwodag": "{\\Ubt^{\\mathrm{ADV},\\dagger}}", "uadvsdcstar": "{\\mathbf{U}^{\\mathrm{ADV},\\star}}", "uadvsdcpred": "{\\mathbf{U}^{\\mathrm{ADV},\\mathrm{pred}}}", "uadvsdc": "{\\mathbf{U}^{\\mathrm{ADV}}}", "dt": "{\\Delta t}", "dr": "{\\Delta r}", "etarho": "{\\eta_{\\rho}}", "etarhoec": "{\\etarho^{\\rm ec}}", "etarhocc": "{\\etarho^{\\rm cc}}", "etarhoflux": "{\\etarho^{\\rm flux}}", "divetarho": "{\\nabla\\cdot(\\etarho\\eb_r)}", "ow": "{\\overline{w}_0}", "dw": "{\\delta w_0}", "thalf": "{\\sfrac{3}{2}}", "rhop": "{{\\rho^{\\prime}}}", "omegadot": "{\\dot{\\omega}}", "er": "{\\mathbf{e}_r}", "ex": "{\\mathbf{e}_x}", "ey": "{\\mathbf{e}_y}", "ez": "{\\mathbf{e}_z}", "Omegab": "{{\\bf \\Omega}}", "rb": "{{\\bf r}}", "isotm": ["{{}^{#2}\\mathrm{#1}}", 2], "edot": "{{{\\dot{e}_\\mathrm{nuc}}}}", "enuc": "{{{{e}_\\mathrm{nuc}}}}", "edotnu": "{{{\\dot{e}_\\nu}}}", "rt": "{\\tilde{r}_0}", "rhob": "{\\ensuremath{\\rho_\\mathrm{base}}}", "Tb": "{\\ensuremath{T_\\mathrm{base}}}", "gcc": "{\\mathrm{g~cm^{-3} }}", "pb": "{p_\\mathrm{base}}", "qburn": "{q_\\mathrm{burn}}", "Uc": "{{\\boldsymbol{\\mathcal{U}}}}", "Fb": "{\\mathbf{F}}", "Sc": "{\\mathbf{S}}", "Shydro": "{{{\\bf S}^{\\mathrm{hydro}}}}", "Rb": "{{\\bf R}}", "Rbs": ["{{\\bf R} \\left ( #1 \\right )}", 1], "Rq": "{{\\bf R}}", "Adv": ["{{\\left [\\boldsymbol{\\mathcal{A}} \\left(#1\\right)\\right]}}", 1], "Advs": ["{{\\boldsymbol{\\mathcal{A}} \\left(#1\\right)}}", 1], "Sdot": "{\\dot{S}}"}}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="burn_cell" href="burn_cell.html" />
-    <link rel="prev" title="Comprehensive Unit Tests" href="comprehensive_tests.html" /> 
+    <link rel="next" title="Citing Microphysics" href="citing.html" />
+    <link rel="prev" title="burn_cell" href="burn_cell.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +48,7 @@
   </form>
 </div>
     <div class="branch">
-        Branch: <a href="../one_zone_tests.html">main</a> | <a href="./one_zone_tests.html">development</a>
+        Branch: <a href="../eos_cell.html">main</a> | <a href="./eos_cell.html">development</a>
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
@@ -91,9 +89,17 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">One Zone Tests</a><ul>
+<li class="toctree-l1 current"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="burn_cell.html"><code class="docutils literal notranslate"><span class="pre">burn_cell</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="eos_cell.html"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#setting-the-thermodynamics">Setting the thermodynamics</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#building-and-running-the-code">Building and Running the Code</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -122,9 +128,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">One Zone Tests</li>
+          <li class="breadcrumb-item"><a href="one_zone_tests.html">One Zone Tests</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code></li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/one_zone_tests.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/eos_cell.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -132,21 +139,71 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="one-zone-tests">
-<h1>One Zone Tests<a class="headerlink" href="#one-zone-tests" title="Link to this heading"></a></h1>
-<p>There are several tests that let you call the EOS or reaction network
-on a single zone to inspect the output directly.  Some of these
-have analysis scripts, which we describe in the next sections.</p>
-<div class="toctree-wrapper compound">
+  <section id="eos-cell">
+<h1><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code><a class="headerlink" href="#eos-cell" title="Link to this heading"></a></h1>
+<p id="index-0"><code class="docutils literal notranslate"><span class="pre">eos_cell</span></code> simply calls the equation of state on an input density, temperature,
+and composition, and then outputs the full thermodynamic state.  This is mainly
+used to understand the thermodynamics one might encounter in a simulation
+when using a particular EOS.</p>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">eos_cell</span></code> code is located in
+<code class="docutils literal notranslate"><span class="pre">Microphysics/unit_test/eos_cell</span></code>.  An inputs file which sets the
+default parameters for your thermodynamic state is needed to run the
+test.</p>
+<section id="setting-the-thermodynamics">
+<h3>Setting the thermodynamics<a class="headerlink" href="#setting-the-thermodynamics" title="Link to this heading"></a></h3>
+<p>The parameters that affect the thermodynamics are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.density</span></code> : the initial density</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.temperature</span></code> : the initial temperature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_temp</span></code> : the low temperature cutoff used in the equation of state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_dens</span></code> : the low density cutoff used in the equation of state</p></li>
+</ul>
+<p>The composition can be set in the same way as in <code class="docutils literal notranslate"><span class="pre">burn_cell</span></code>, either
+by setting each mass fraction explicitly via the parameters,
+<code class="docutils literal notranslate"><span class="pre">unit_test.X1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.X2</span></code>, …, or forcing them to be all
+equal via <code class="docutils literal notranslate"><span class="pre">unit_test.uniform_xn=1</span></code>.</p>
+</section>
+</section>
+<section id="building-and-running-the-code">
+<h2>Building and Running the Code<a class="headerlink" href="#building-and-running-the-code" title="Link to this heading"></a></h2>
+<p>The code can be built simply as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><style type="text/css">
+span.prompt1:before {
+  content: "$ ";
+}
+</style><span class="prompt1">make</span>
+</pre></div></div><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Even though there are no reactions, a network is still required,
+and can be set via the <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code> build variable.  By default,
+the <code class="docutils literal notranslate"><span class="pre">aprox13</span></code> network is used.</p>
+<p>The network choice serves only to set the composition, and a
+<code class="docutils literal notranslate"><span class="pre">general_null</span></code> network may also be used.</p>
 </div>
+<p>The build process will automatically create links in the build
+directory to any required EOS table.</p>
+<p>To run the code, in the <code class="docutils literal notranslate"><span class="pre">eos_cell</span></code> directory run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">main3d</span><span class="o">.</span><span class="n">gnu</span><span class="o">.</span><span class="n">ex</span> <span class="n">inputs_eos</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">inputs_eos</span></code> is the provided inputs file.  You may edit the
+thermodynamic state in that file prior to running.</p>
+</section>
+<section id="output">
+<h2>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h2>
+<p>All output is directed to <code class="docutils literal notranslate"><span class="pre">stdout</span></code> and simply lists the entries in the
+full <code class="docutils literal notranslate"><span class="pre">eos_t</span></code> datatype.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="comprehensive_tests.html" class="btn btn-neutral float-left" title="Comprehensive Unit Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="burn_cell.html" class="btn btn-neutral float-right" title="burn_cell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="burn_cell.html" class="btn btn-neutral float-left" title="burn_cell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="citing.html" class="btn btn-neutral float-right" title="Citing Microphysics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

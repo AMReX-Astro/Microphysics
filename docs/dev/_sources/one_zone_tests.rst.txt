@@ -11,3 +11,4 @@ have analysis scripts, which we describe in the next sections.
    :hidden:
 
    burn_cell.rst
+   eos_cell.rst
