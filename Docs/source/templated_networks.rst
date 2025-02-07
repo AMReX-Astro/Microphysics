@@ -1,3 +1,5 @@
+.. _sec:templated_rhs:
+
 *********************************
 Templated Network Righthand Sides
 *********************************

@@ -140,7 +140,7 @@ One-zone tests
   for a single thermodynamic state, compute the analytic Jacobian
   (using the functions provided by the network) and a numerical
   finite-difference approximation to the Jacobian and output them,
-  element-by-element, to the display.
+  element-by-element, to the display.  See :ref:`sec:jac_cell` for more information.
 
 * ``nse_table_cell`` :
 
