@@ -188,7 +188,7 @@ the :math:`\gamma_i` for a specific species. The parameters are:
 ``polytrope``
 =============
 
-.. index:: eos.,polytrope_K, eos.polytrope_gamma, eos.polytrope_type, eos.polytrope_mu_e
+.. index:: eos.polytrope_K, eos.polytrope_gamma, eos.polytrope_type, eos.polytrope_mu_e
 
 ``polytrope`` represents a polytropic fluid, with equation of
 state:
