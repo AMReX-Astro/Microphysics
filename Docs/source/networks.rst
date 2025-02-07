@@ -7,6 +7,13 @@ of state and transport coefficient routines.  Even if there are no
 reactions taking place, a network still needs to be defined, so
 Microphysics knows the properties of the fluid.
 
+.. index:: NETWORK_DIR
+
+.. note::
+
+   The network is set at compile-time via the ``NETWORK_DIR``
+   make variable.
+
 .. tip::
 
    If reactions can be ignored, then the ``general_null`` network can
@@ -20,6 +27,8 @@ Microphysics knows the properties of the fluid.
 
 ``general_null``
 ================
+
+.. index:: general_null
 
 ``general_null`` is a bare interface for a nuclear reaction network ---
 no reactions are enabled. The
