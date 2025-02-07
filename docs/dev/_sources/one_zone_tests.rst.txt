@@ -12,3 +12,4 @@ have analysis scripts, which we describe in the next sections.
 
    burn_cell.rst
    eos_cell.rst
+   jac_cell.rst
