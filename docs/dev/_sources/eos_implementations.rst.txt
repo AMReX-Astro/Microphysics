@@ -2,9 +2,14 @@
 Available Equations of State
 ****************************
 
-.. index:: eos_t
+.. index:: eos_t, EOS_DIR
 
 The following equations of state are available in Microphysics.
+
+.. note::
+
+   The EOS is chosen at compile-time via the ``EOS_DIR`` make
+   variable.
 
 .. note::
 

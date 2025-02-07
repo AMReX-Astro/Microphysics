@@ -158,6 +158,11 @@
 of state and transport coefficient routines.  Even if there are no
 reactions taking place, a network still needs to be defined, so
 Microphysics knows the properties of the fluid.</p>
+<div class="admonition note" id="index-0">
+<p class="admonition-title">Note</p>
+<p>The network is set at compile-time via the <code class="docutils literal notranslate"><span class="pre">NETWORK_DIR</span></code>
+make variable.</p>
+</div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>If reactions can be ignored, then the <code class="docutils literal notranslate"><span class="pre">general_null</span></code> network can
@@ -170,7 +175,7 @@ class.</p>
 </div>
 <section id="general-null">
 <h2><code class="docutils literal notranslate"><span class="pre">general_null</span></code><a class="headerlink" href="#general-null" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">general_null</span></code> is a bare interface for a nuclear reaction network —
+<p id="index-1"><code class="docutils literal notranslate"><span class="pre">general_null</span></code> is a bare interface for a nuclear reaction network —
 no reactions are enabled. The
 data in the network is defined at compile type by specifying an
 inputs file. For example,
@@ -187,7 +192,7 @@ well as oxygen and iron.  This has the form:</p>
 <p>The four columns give the long name of the species, the short form that will be used
 for plotfile variables, and the mass number, <span class="math notranslate nohighlight">\(A\)</span>, and proton number, <span class="math notranslate nohighlight">\(Z\)</span>.</p>
 <p>The name of the inputs file by one of two make variables:</p>
-<ul id="index-0">
+<ul id="index-2">
 <li><p><code class="docutils literal notranslate"><span class="pre">NETWORK_INPUTS</span></code> : this is simply the name of the “<cite>.net</cite>” file, without
 any path.  The build system will look for it in the current directory
 and then in <code class="docutils literal notranslate"><span class="pre">$(MICROPHYSICS_HOME)/networks/general_null/</span></code>.</p>
@@ -203,7 +208,7 @@ we could set:</p>
 </div>
 </li>
 </ul>
-<p id="index-1">At compile time, the “<cite>.net</cite>” file is parsed and a network header
+<p id="index-3">At compile time, the “<cite>.net</cite>” file is parsed and a network header
 <code class="docutils literal notranslate"><span class="pre">network_properties.H</span></code> is written using the python script
 <code class="docutils literal notranslate"><span class="pre">write_network.py</span></code>.  The make rule for this is contained in
 <code class="docutils literal notranslate"><span class="pre">Microphysics/networks/Make.package</span></code>.</p>
