@@ -195,7 +195,7 @@ void burn_cell_c()
 
     // Echo initial conditions at burn and fill burn state input
 
-    std::cout << "Maximum Time (s): " << tmax << std::endl;
+    std::cout << "Maximum Time (s): " << unit_test_rp::tmax << std::endl;
     std::cout << "State Density (g/cm^3): " << unit_test_rp::density << std::endl;
     std::cout << "State Temperature (K): " << unit_test_rp::temperature << std::endl;
     std::cout << "State rhoe (erg/cm^3): " << unit_test_rp::rhoe << std::endl;
@@ -211,8 +211,8 @@ void burn_cell_c()
     burn_t burn_state;
 
     eos_extra_t eos_state;
-    eos_state.rho = density;
-    eos_state.T = temperature;
+    eos_state.rho = unit_test_rp::density;
+    eos_state.T = unit_test_rp::temperature;
 
     for (int n = 0; n < NumSpec; n++) {
       eos_state.xn[n] = massfractions[n];
@@ -227,9 +227,9 @@ void burn_cell_c()
     }
 #endif
 
-    if (rhoe < 0) {
+    if (unit_test_rp::rhoe < 0) {
         eos(eos_input_rt, eos_state);
-        rhoe = density * eos_state.e;
+        unit_test_rp::rhoe = unit_test_rp::density * eos_state.e;
     }
 
     burn_state.rho = eos_state.rho;
@@ -245,21 +245,21 @@ void burn_cell_c()
     }
 #endif
 
-    burn_state.y[SRHO] = density;
+    burn_state.y[SRHO] = unit_test_rp::density;
 
     burn_state.y[SMX] = 0.0;
     burn_state.y[SMY] = 0.0;
     burn_state.y[SMZ] = 0.0;
 
-    burn_state.y[SEINT] = rhoe;
+    burn_state.y[SEINT] = unit_test_rp::rhoe;
     burn_state.y[SEDEN] = burn_state.y[SEINT];
 
     // now initialize the advective terms -- the only ones that are
     // actually used during the integration are for rho, (rho X), and
     // (rho e)
 
-    burn_state.ydot_a[SRHO] = Adv_rho;
-    burn_state.ydot_a[SEINT] = Adv_rhoe;
+    burn_state.ydot_a[SRHO] = unit_test_rp::Adv_rho;
+    burn_state.ydot_a[SEINT] = unit_test_rp::Adv_rhoe;
 
     for (int n = 0; n < NumSpec; n++) {
         burn_state.ydot_a[SFS+n] = adv_species[n];
@@ -290,7 +290,7 @@ void burn_cell_c()
     }
 #endif
 
-    burn_state.e = rhoe / burn_state.rho;
+    burn_state.e = unit_test_rp::rhoe / burn_state.rho;
 
 
     burn_state.T_fixed = -1.0;
@@ -306,18 +306,18 @@ void burn_cell_c()
     // we will divide the total integration time into nsteps that are
     // logarithmically spaced
 
-    if (tfirst == 0.0_rt) {
-        if (nsteps == 1) {
-            tfirst = tmax;
+    if (unit_test_rp::tfirst == 0.0_rt) {
+        if (unit_test_rp::nsteps == 1) {
+            unit_test_rp::tfirst = unit_test_rp::tmax;
         } else {
-            tfirst = tmax / nsteps;
+            unit_test_rp::tfirst = unit_test_rp::tmax / static_cast<amrex::Real>(unit_test_rp::nsteps);
         }
     }
     amrex::Real dlogt = 0.0_rt;
-    if (nsteps == 1) {
-        dlogt = (std::log10(tmax) - std::log10(tfirst));
+    if (unit_test_rp::nsteps == 1) {
+        dlogt = (std::log10(unit_test_rp::tmax) - std::log10(unit_test_rp::tfirst));
     } else {
-        dlogt = (std::log10(tmax) - std::log10(tfirst)) / (nsteps - 1);
+        dlogt = (std::log10(unit_test_rp::tmax) - std::log10(unit_test_rp::tfirst)) / static_cast<amrex::Real>(unit_test_rp::nsteps - 1);
     }
 
     // output the data in columns, one line per timestep
@@ -348,11 +348,11 @@ void burn_cell_c()
 
     std::cout << burn_state << std::endl;
 
-    for (int n = 0; n < nsteps; n++){
+    for (int n = 0; n < unit_test_rp::nsteps; n++){
 
         // compute the time we wish to integrate to
 
-        amrex::Real tend = std::pow(10.0_rt, std::log10(tfirst) + dlogt * n);
+        amrex::Real tend = std::pow(10.0_rt, std::log10(unit_test_rp::tfirst) + dlogt * n);
         amrex::Real dt = tend - t;
 
         // if we start out in NSE, then the burner will never reset

@@ -30,8 +30,8 @@ void eos_cell_c()
 
     }
 
-    state.T   = temperature;
-    state.rho = density;
+    state.T   = unit_test_rp::temperature;
+    state.rho = unit_test_rp::density;
     for (int n = 0; n < NumSpec; ++n) {
         state.xn[n] = massfractions[n];
     }

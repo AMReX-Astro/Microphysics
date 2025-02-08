@@ -10,7 +10,9 @@
 #include <burner.H>
 #include <fstream>
 #include <iostream>
+#include <integrator_data.H>
 #include <integrator_rhs_sdc.H>
+#include <vode_type.H>
 #include <react_util.H>
 
 using namespace unit_test_rp;
@@ -264,7 +266,9 @@ void do_vode_rhs()
 
     // now make the dvode_t
 
-    dvode_t vode_state;
+    constexpr int int_neqs = integrator_neqs<burn_t>();
+
+    dvode_t<int_neqs> vode_state;
 
     vode_state.t = 0.0_rt;
 
@@ -279,8 +283,8 @@ void do_vode_rhs()
     vode_state.tn = 0.0_rt;   // this is needed for directly accessing the jac() function
     vode_state.H = tmax/1000.0_rt;  // needed for jacobian = 3 scaling
     vode_state.tout = tmax;
-    vode_state.NFE = 0;
-    vode_state.NJE = 0;
+    vode_state.n_rhs = 0;
+    vode_state.n_jac = 0;
 
     burn_to_int(burn_state, vode_state);
 
@@ -292,7 +296,7 @@ void do_vode_rhs()
     rhs(0.0_rt, burn_state, vode_state, ydot);
 
     std::cout << "ydot = " << std::endl;
-    for (int n = 1; n <= VODE_NEQS; n++) {
+    for (int n = 1; n <= int_neqs; n++) {
         std::cout << n << " " << ydot(n) << std::endl;
     }
 
@@ -302,8 +306,8 @@ void do_vode_rhs()
     const amrex::Real time = 0.0_rt;
     jac(time, burn_state, vode_state, pd);
 
-    for (int row = 1; row <= VODE_NEQS; ++row) {
-        for (int col = 1; col <= VODE_NEQS; ++col) {
+    for (int row = 1; row <= int_neqs; ++row) {
+        for (int col = 1; col <= int_neqs; ++col) {
             std::cout << "(" << std::setw(2) << row << "," << std::setw(2) << col << ") = " << pd(row,col) << std::endl;
         }
     }
