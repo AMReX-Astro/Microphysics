@@ -85,7 +85,8 @@ The interface for these opacities is:
 .. code:: c++
 
    AMREX_GPU_HOST_DEVICE AMREX_INLINE
-   void actual_opacity (Real& kp, Real& kr, Real rho, Real temp, Real rhoYe, Real nu,
+   void actual_opacity (amrex::Real& kp, amrex::Real& kr,
+                        amrex::Real rho, amrex::Real amrex::temp, amrex::Real rhoYe, amrex::Real nu,
                         bool get_Planck_mean, bool get_Rosseland_mean)
 
 where the boolean ``get_Planck_mean`` and ``get_Rosseland_mean`` specify where those
