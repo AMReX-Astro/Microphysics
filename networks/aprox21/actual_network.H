@@ -235,7 +235,7 @@ namespace RHS {
 
         rhs_t data;
 
-        switch (rate) {
+        switch (rate) {  // NOLINT(bugprone-switch-missing-default-case)
 
         case P_to_N:
             // irpen and irnep in the original aprox21

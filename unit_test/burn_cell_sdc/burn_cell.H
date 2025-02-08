@@ -9,8 +9,6 @@
 #include <iostream>
 #include <react_util.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void burn_cell_c()
 {
@@ -60,109 +58,109 @@ void burn_cell_c()
         switch (n) {
 
         case 1:
-            adv_species[n-1] = Adv_X1;
+            adv_species[n-1] = unit_test_rp::Adv_X1;
             break;
         case 2:
-            adv_species[n-1] = Adv_X2;
+            adv_species[n-1] = unit_test_rp::Adv_X2;
             break;
         case 3:
-            adv_species[n-1] = Adv_X3;
+            adv_species[n-1] = unit_test_rp::Adv_X3;
             break;
         case 4:
-            adv_species[n-1] = Adv_X4;
+            adv_species[n-1] = unit_test_rp::Adv_X4;
             break;
         case 5:
-            adv_species[n-1] = Adv_X5;
+            adv_species[n-1] = unit_test_rp::Adv_X5;
             break;
         case 6:
-            adv_species[n-1] = Adv_X6;
+            adv_species[n-1] = unit_test_rp::Adv_X6;
             break;
         case 7:
-            adv_species[n-1] = Adv_X7;
+            adv_species[n-1] = unit_test_rp::Adv_X7;
             break;
         case 8:
-            adv_species[n-1] = Adv_X8;
+            adv_species[n-1] = unit_test_rp::Adv_X8;
             break;
         case 9:
-            adv_species[n-1] = Adv_X9;
+            adv_species[n-1] = unit_test_rp::Adv_X9;
             break;
         case 10:
-            adv_species[n-1] = Adv_X10;
+            adv_species[n-1] = unit_test_rp::Adv_X10;
             break;
         case 11:
-            adv_species[n-1] = Adv_X11;
+            adv_species[n-1] = unit_test_rp::Adv_X11;
             break;
         case 12:
-            adv_species[n-1] = Adv_X12;
+            adv_species[n-1] = unit_test_rp::Adv_X12;
             break;
         case 13:
-            adv_species[n-1] = Adv_X13;
+            adv_species[n-1] = unit_test_rp::Adv_X13;
             break;
         case 14:
-            adv_species[n-1] = Adv_X14;
+            adv_species[n-1] = unit_test_rp::Adv_X14;
             break;
         case 15:
-            adv_species[n-1] = Adv_X15;
+            adv_species[n-1] = unit_test_rp::Adv_X15;
             break;
         case 16:
-            adv_species[n-1] = Adv_X16;
+            adv_species[n-1] = unit_test_rp::Adv_X16;
             break;
         case 17:
-            adv_species[n-1] = Adv_X17;
+            adv_species[n-1] = unit_test_rp::Adv_X17;
             break;
         case 18:
-            adv_species[n-1] = Adv_X18;
+            adv_species[n-1] = unit_test_rp::Adv_X18;
             break;
         case 19:
-            adv_species[n-1] = Adv_X19;
+            adv_species[n-1] = unit_test_rp::Adv_X19;
             break;
         case 20:
-            adv_species[n-1] = Adv_X20;
+            adv_species[n-1] = unit_test_rp::Adv_X20;
             break;
         case 21:
-            adv_species[n-1] = Adv_X21;
+            adv_species[n-1] = unit_test_rp::Adv_X21;
             break;
         case 22:
-            adv_species[n-1] = Adv_X22;
+            adv_species[n-1] = unit_test_rp::Adv_X22;
             break;
         case 23:
-            adv_species[n-1] = Adv_X23;
+            adv_species[n-1] = unit_test_rp::Adv_X23;
             break;
         case 24:
-            adv_species[n-1] = Adv_X24;
+            adv_species[n-1] = unit_test_rp::Adv_X24;
             break;
         case 25:
-            adv_species[n-1] = Adv_X25;
+            adv_species[n-1] = unit_test_rp::Adv_X25;
             break;
         case 26:
-            adv_species[n-1] = Adv_X26;
+            adv_species[n-1] = unit_test_rp::Adv_X26;
             break;
         case 27:
-            adv_species[n-1] = Adv_X27;
+            adv_species[n-1] = unit_test_rp::Adv_X27;
             break;
         case 28:
-            adv_species[n-1] = Adv_X28;
+            adv_species[n-1] = unit_test_rp::Adv_X28;
             break;
         case 29:
-            adv_species[n-1] = Adv_X29;
+            adv_species[n-1] = unit_test_rp::Adv_X29;
             break;
         case 30:
-            adv_species[n-1] = Adv_X30;
+            adv_species[n-1] = unit_test_rp::Adv_X30;
             break;
         case 31:
-            adv_species[n-1] = Adv_X31;
+            adv_species[n-1] = unit_test_rp::Adv_X31;
             break;
         case 32:
-            adv_species[n-1] = Adv_X32;
+            adv_species[n-1] = unit_test_rp::Adv_X32;
             break;
         case 33:
-            adv_species[n-1] = Adv_X33;
+            adv_species[n-1] = unit_test_rp::Adv_X33;
             break;
         case 34:
-            adv_species[n-1] = Adv_X34;
+            adv_species[n-1] = unit_test_rp::Adv_X34;
             break;
         case 35:
-            adv_species[n-1] = Adv_X35;
+            adv_species[n-1] = unit_test_rp::Adv_X35;
             break;
         default:
             amrex::Error("invalid species");
@@ -179,13 +177,13 @@ void burn_cell_c()
         switch (n) {
 
         case 1:
-            adv_aux[n-1] = Adv_Aux1;
+            adv_aux[n-1] = unit_test_rp::Adv_Aux1;
             break;
         case 2:
-            adv_aux[n-1] = Adv_Aux2;
+            adv_aux[n-1] = unit_test_rp::Adv_Aux2;
             break;
         case 3:
-            adv_aux[n-1] = Adv_Aux3;
+            adv_aux[n-1] = unit_test_rp::Adv_Aux3;
             break;
         default:
             amrex::Error("invalid aux component");
@@ -198,9 +196,9 @@ void burn_cell_c()
     // Echo initial conditions at burn and fill burn state input
 
     std::cout << "Maximum Time (s): " << tmax << std::endl;
-    std::cout << "State Density (g/cm^3): " << density << std::endl;
-    std::cout << "State Temperature (K): " << temperature << std::endl;
-    std::cout << "State rhoe (erg/cm^3): " << rhoe << std::endl;
+    std::cout << "State Density (g/cm^3): " << unit_test_rp::density << std::endl;
+    std::cout << "State Temperature (K): " << unit_test_rp::temperature << std::endl;
+    std::cout << "State rhoe (erg/cm^3): " << unit_test_rp::rhoe << std::endl;
 
     for (int n = 0; n < NumSpec; ++n) {
         std::cout << "Mass Fraction (" << short_spec_names_cxx[n] << "): " << massfractions[n] << std::endl;

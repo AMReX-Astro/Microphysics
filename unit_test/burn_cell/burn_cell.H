@@ -10,8 +10,6 @@
 #include <iomanip>
 #include <react_util.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void burn_cell_c()
 {

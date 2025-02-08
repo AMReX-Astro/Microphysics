@@ -43,7 +43,7 @@ AMREX_GPU_HOST_DEVICE AMREX_INLINE
 bool is_input_valid (I input)
 {
   static_assert(std::is_same_v<I, eos_input_t>, "input must be an eos_input_t");
-
+  amrex::ignore_unused(input);
   bool valid = true;
 
   return valid;
