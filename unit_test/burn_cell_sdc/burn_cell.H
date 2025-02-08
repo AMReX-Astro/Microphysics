@@ -35,13 +35,13 @@ void burn_cell_c()
         switch (n) {
 
         case 1:
-            auxdata[n-1] = Aux1;
+            auxdata[n-1] = unit_test_rp::Aux1;
             break;
         case 2:
-            auxdata[n-1] = Aux2;
+            auxdata[n-1] = unit_test_rp::Aux2;
             break;
         case 3:
-            auxdata[n-1] = Aux3;
+            auxdata[n-1] = unit_test_rp::Aux3;
             break;
         default:
             amrex::Error("invalid aux");
@@ -218,7 +218,7 @@ void burn_cell_c()
       eos_state.xn[n] = massfractions[n];
     }
 #ifdef AUX_THERMO
-    if (recompute_aux) {
+    if (unit_test_rp::recompute_aux) {
         set_aux_comp_from_X(eos_state);
     } else {
         for (int n = 0; n < NumAux; ++n) {
