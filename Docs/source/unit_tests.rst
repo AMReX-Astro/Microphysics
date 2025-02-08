@@ -115,12 +115,12 @@ by options in the input file.
 One-zone tests
 ==============
 
-.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, test_ase, test_part_func
+.. index:: burn_cell, burn_cell_primordial_chem, burn_cell_sdc, eos_cell, jac_cell, nse_table_cell, nse_net_cell, part_func_cell
 
 * ``burn_cell`` :
 
   given a $\rho$, $T$, and $X_k$, integrate a reaction network through a specified time
-  and output the new state.
+  and output the new state.  See :ref:`sec:burn_cell` for more information.
 
 * ``burn_cell_primordial_chem`` :
 
@@ -133,27 +133,27 @@ One-zone tests
 * ``eos_cell`` :
 
   given a $\rho$, $T$, and $X_k$, call the equation of state and print out
-  the thermodynamic information.
+  the thermodynamic information.  See :ref:`sec:eos_cell` for more information.
 
 * ``jac_cell`` :
 
   for a single thermodynamic state, compute the analytic Jacobian
   (using the functions provided by the network) and a numerical
   finite-difference approximation to the Jacobian and output them,
-  element-by-element, to the display.
+  element-by-element, to the display.  See :ref:`sec:jac_cell` for more information.
 
 * ``nse_table_cell`` :
 
   given a $\rho$, $T$, and $Y_e$, evaluate the NSE state via table interpolation
   and print it out.
 
-* ``test_ase`` :
+* ``nse_net_cell`` :
 
   for the self-consistent NSE, take a $\rho$, $T$, and $Y_e$, and solve for the NSE
   state.  Then check the NSE condition to see if we are actually satisfying the NSE
   criteria for the network.
 
-* ``test_part_func``
+* ``part_func_cell``
 
   exercise the partition function interpolation for a few select nuclei.
 

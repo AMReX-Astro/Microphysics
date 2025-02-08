@@ -88,7 +88,7 @@ init_t setup_composition(const int nz) {
 
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, int uniform_composition = 0) {
+void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, bool uniform_composition=false) {
 
     for (int n = 0; n < NumSpec; n++) {
         xn_zone[n] = 0.0_rt;
@@ -167,9 +167,14 @@ void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, int uniform_comp
 ///
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-amrex::Real get_xn(const int index) {
+amrex::Real get_xn(const int index, bool uniform_composition=false) {
 
     amrex::Real mass_fraction{};
+
+    if (uniform_composition) {
+        mass_fraction = 1.0_rt / NumSpec;
+        return mass_fraction;
+    }
 
     switch (index) {
 

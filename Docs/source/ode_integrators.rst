@@ -15,9 +15,14 @@ provide a routine to convert from the integrator’s internal
 representation to the ``burn_t`` type required by the ``actual_rhs``
 and ``actual_jac`` routine.
 
-The name of the integrator can be selected at compile time using
-the ``INTEGRATOR_DIR`` variable in the makefile. Presently,
-the allowed options are:
+.. index:: INTEGRATOR_DIR
+
+.. note::
+
+   The integrator is chosen at compile-time using
+   the ``INTEGRATOR_DIR`` variable in the makefile.
+
+Presently, allowed integrators are:
 
 * ``BackwardEuler``: an implicit first-order accurate backward-Euler
   method.  An error estimate is done by taking 2 half steps and

@@ -2,40 +2,35 @@
 Available Reaction Networks
 ***************************
 
+A network defines the composition, which is needed by the equation
+of state and transport coefficient routines.  Even if there are no
+reactions taking place, a network still needs to be defined, so
+Microphysics knows the properties of the fluid.
 
-``iso7``, ``aprox13``, ``aprox19``, and ``aprox21``
-===================================================
+.. index:: NETWORK_DIR
 
-These are alpha-chains (with some other nuclei) from Frank Timmes.
-These networks share common rates (from ``Microphysics/rates``),
-plasma neutrino loses (from ``Microphysics/neutrinos``), and
-electron screening (from ``Microphysics/screening``).
+.. note::
 
-Energy generation.
-------------------
+   The network is set at compile-time via the ``NETWORK_DIR``
+   make variable.
 
-These networks store the total binding energy of the nucleus in MeV as
-``bion(:)``. They then compute the mass of each nucleus in grams as:
+.. tip::
 
-.. math:: M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k
+   If reactions can be ignored, then the ``general_null`` network can
+   be used --- this simply defines a composition with no reactions.
 
-where :math:`m_n`, :math:`m_p`, and :math:`m_e` are the neutron, proton, and electron
-masses, :math:`A_k` and :math:`Z_k` are the atomic weight and number, and :math:`B_k`
-is the binding energy of the nucleus (converted to grams). :math:`M_k`
-is stored as ``mion(:)`` in the network.
+.. note::
 
-The energy release per gram is converted from the rates as:
-
-.. math:: \epsilon = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \epsilon_\nu
-
-where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
-and :math:`\edotnu` is the neutrino loss term (see :ref:`neutrino_loss`).
-
+   Many of the networks here are generated using `pynucastro
+   <https://pynucastro.github.io/>`_ using the ``AmrexAstroCxxNetwork``
+   class.
 
 ``general_null``
 ================
 
-``general_null`` is a bare interface for a nuclear reaction network --
+.. index:: general_null
+
+``general_null`` is a bare interface for a nuclear reaction network ---
 no reactions are enabled. The
 data in the network is defined at compile type by specifying an
 inputs file. For example,
@@ -75,36 +70,268 @@ The name of the inputs file by one of two make variables:
 
     GENERAL_NET_INPUTS := /path/to/file/triple_alpha_plus_o.net
 
+.. index:: network_properties.H
+
 At compile time, the "`.net`" file is parsed and a network header
 ``network_properties.H`` is written using the python script
 ``write_network.py``.  The make rule for this is contained in
-``Make.package``.
+``Microphysics/networks/Make.package``.
+
+
+``iso7``, ``aprox13``, ``aprox19``, and ``aprox21``
+===================================================
+
+These are alpha-chains (with some other nuclei) based on the `original
+Fortran networks from Frank Timmes
+<https://cococubed.com/code_pages/burn_helium.shtml>`_.  These
+networks share common rates from ``Microphysics/rates`` and are
+implemented using the templated C++ network infrastructure.
+
+These networks approximate a lot of the links, in particular,
+combining $(\alpha, p)(p, \gamma)$ and $(\alpha, \gamma)$ into a
+single effective rate.
+
+The available networks are:
+
+* ``iso7`` : contains $\isotm{He}{4}$, $\isotm{C}{12}$,
+  $\isotm{O}{16}$, $\isotm{Ne}{20}$, $\isotm{Mg}{24}$, $\isotm{Si}{28}$,
+  $\isotm{Ni}{56}$ and is based on :cite:`iso7`.
+
+* ``aprox13`` : adds $\isotm{S}{32}$, $\isotm{Ar}{36}$, $\isotm{Ca}{40}$, $\isotm{Ti}{44}$, $\isotm{Cr}{48}$, $\isotm{Fe}{52}$
+
+* ``aprox19`` : adds $\isotm{H}{1}$, $\isotm{He}{3}$, $\isotm{N}{14}$, $\isotm{Fe}{54}$,
+  $\mathrm{p}$, $\mathrm{n}$.  Here, $\mathrm{p}$ participates only in the photodisintegration rates at high mass number, and is distinct from $\isotm{H}{1}$.
+
+* ``aprox21`` : adds $\isotm{Cr}{56}$, $\isotm{Fe}{56}$.  This is designed to reach
+  a lower $Y_e$ than the other networks, for use in massive star simulations.  Note
+  that the link to $\isotm{Cr}{56}$ is greatly approximated.
+
+
+These networks store the total binding energy of the nucleus in MeV as
+``bion(:)``. They then compute the mass of each nucleus in grams as:
+
+.. math:: M_k = (A_k - Z_k) m_n + Z_k (m_p + m_e) - B_k
+
+where :math:`m_n`, :math:`m_p`, and :math:`m_e` are the neutron, proton, and electron
+masses, :math:`A_k` and :math:`Z_k` are the atomic weight and number, and :math:`B_k`
+is the binding energy of the nucleus (converted to grams). :math:`M_k`
+is stored as ``mion(:)`` in the network.
+
+The energy release per gram is converted from the rates as:
+
+.. math:: \epsilon = -N_A c^2 \sum_k \frac{dY_k}{dt} M_k - \epsilon_\nu
+
+where :math:`N_A` is Avogadro’s number (to convert this to “per gram”)
+and :math:`\epsilon_\nu` is the neutrino loss term (see :ref:`neutrino_loss`).
+
+
 
 
 ``CNO_extras``
 ==============
 
-This network replicates the popular [MESA "cno_extras"
-network](https://docs.mesastar.org/en/latest/net/nets.html) which is
+This network replicates the popular `MESA "cno_extras"
+network <https://docs.mesastar.org/en/latest/net/nets.html>`_ which is
 meant to study hot-CNO burning and the start of the breakout from CNO
-burning.
-
-We add ${}^{56}\mathrm{Fe}$ as an inert nucleus to allow this to be
-used for X-ray burst simulations.
+burning.  This network is managed by pynucastro.
 
 .. figure:: cno_extras_hide_alpha.png
    :align: center
 
+.. note::
+
+   We add ${}^{56}\mathrm{Fe}$ as an inert nucleus to allow this to be
+   used for X-ray burst simulations (not shown in the network diagram
+   above).
+
+
+nova networks
+=============
+
+The ``nova`` and ``nova2`` networks both are intended for modeling classical novae.
+
+
+* ``nova`` focuses just on CNO/hot-CNO:
+
+  .. figure:: nova.png
+     :align: center
+
+* ``nova2`` expands ``nova`` by adding the pp-chain nuclei:
+
+  .. figure:: nova2.png
+     :align: center
+
+
+He-burning networks
+===================
+
+This is a collection of networks meant to model He burning.  The are inspired by the
+"aprox"-family of networks, but contain more nuclei/rates, and are managed by
+pynucastro.
+
+One feature of these networks is that they include a bypass rate for
+:math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}` discussed in
+:cite:`ShenBildsten`.  This is appropriate for explosive He burning.
+That paper discusses the sequences:
+
+* :math:`\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
+  \gamma)\isotm{Ne}{22}` at high temperatures (T > 1 GK).  We don't
+  consider this.
+
+* :math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
+  p)\isotm{Ne}{21}` is the one they consider important, since it produces
+  protons that are then available for :math:`\isotm{C}{12}(p,
+  \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
+
+This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
+the other nuclei by including :math:`\isotm{Na}{22}`.
+
+For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
+\isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
+also need to include:
+
+* :math:`\isotm{C}{12}(\isotm{C}{12},n)\isotm{Mg}{23}(n,\gamma)\isotm{Mg}{24}`
+
+* :math:`\isotm{O}{16}(\isotm{O}{16}, n)\isotm{S}{31}(n, \gamma)\isotm{S}{32}`
+
+* :math:`\isotm{O}{16}(\isotm{C}{12}, n)\isotm{Si}{27}(n, \gamma)\isotm{Si}{28}`
+
+Since the neutron captures on those
+intermediate nuclei are so fast, we leave those out and take the
+forward rate to just be the first rate.  We do not include reverse
+rates for these processes.
+
+These networks also combine some of the
+:math:`A(\alpha,p)X(p,\gamma)B` links with :math:`A(\alpha,\gamma)B`,
+allowing us to drop the intermediate nucleus :math:`X`.  Some will
+approximate $A(n,\gamma)X(n,\gamma)B$ into an effective
+$A(nn,\gamma)B$ rate (double-neutron capture).
+
+The networks are named with a descriptive name, the number of nuclei,
+and the letter ``a`` if they approximate $(\alpha, p)(p,\gamma)$,
+the letter ``n`` if they approximate double-neutron capture, and the
+letter ``p`` if they split the protons into two groups (one for
+photo-disintegration).
+
+
+``he-burn-18a``
+---------------
+
+.. note::
+
+   This network was previously called ``subch_base``.
+
+This is the simplest network and is similar to ``aprox13``, but includes
+a better description of $\isotm{C}{12}$ and $\isotm{O}{16}$ burning, as
+well as the bypass rate for $\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}$.
+
+It has the following features / simplifications:
+
+* $\isotm{Cl}{35}$, $\isotm{K}{39}$, $\isotm{Sc}{43}$,
+  $\isotm{V}{47}$, $\isotm{Mn}{51}$, and $\isotm{Co}{55}$ are approximated
+  out of the $(\alpha, p)(p, \gamma)$ links.
+
+* The nuclei :math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`,
+  :math:`\isotm{Ne}{21}`, and :math:`\isotm{Na}{22}` are not included.
+  This means that we do not capture the :math:`\isotm{N}{14}(\alpha,
+  \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}` rate sequence.
+
+* The reverse rates of :math:`\isotm{C}{12}+\isotm{C}{12}`,
+  :math:`\isotm{C}{12}+\isotm{O}{16}`, :math:`\isotm{O}{16}+\isotm{O}{16}` are
+  neglected since they're not present in the original aprox13 network
+
+* The :math:`\isotm{C}{12}+\isotm{Ne}{20}` rate is removed
+
+* The :math:`(\alpha, \gamma)` links between :math:`\isotm{Na}{23}`,
+  :math:`\isotm{Al}{27}` and between :math:`\isotm{Al}{27}` and
+  :math:`\isotm{P}{31}` are removed, since they're not in the
+  original aprox13 network.
+
+The network appears as:
+
+.. figure:: ../../networks/he-burn/he-burn-18a/he-burn-18a.png
+   :align: center
+
+The nuclei in gray are those that have been approximated about, but the links
+are effectively accounted for in the approximate rates.
+
+There are 2 runtime parameters that can be used
+to disable rates:
+
+* ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
+  :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` and its inverse are
+  disabled.
+
+* ``network.disable_he4_n13__p_o16`` : if set to ``1``, then the rate
+  :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
+  disabled.
+
+Together, these parameters allow us to turn off the sequence
+:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
+acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.
+
+``he-burn-22a``
+---------------
+
+.. note::
+
+   This network was previously called ``subch_simple``.
+
+
+This builds on ``he-burn-18a`` by including the
+:math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
+p)\isotm{Ne}{21}` rate sequence, which allows an enhancement to the
+:math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
+rate due to the additional proton release.
+
+.. figure:: ../../networks/he-burn/he-burn-22a/he-burn-22a.png
+   :align: center
+
+.. warning:: Due to inclusion of the rate sequence,
+   ${}^{14}\mathrm{N}(\alpha, \gamma){}^{18}\mathrm{F}(\alpha,
+   p){}^{21}\mathrm{Ne}$, there is an artificial end-point at
+   ${}^{22}\mathrm{Na}$.
+
+Like ``he-burn-18a``, there are 2 runtime parameters that can disable
+the rates for the $\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha,
+p)\isotm{O}{16}$ sequence.
+
+``he-burn-31anp``
+-----------------
+
+This builds on ``he-burn-22a`` by adding some iron-peak nuclei.  It no longer
+approximates out $\isotm{Mn}{51}$ or $\isotm{Co}{55}$, and includes approximations
+to double-neutron capture.  Finally, it splits the protons into two groups,
+with those participating in reactions with mass numbers > 48 treated as a separate
+group (for photo-disintegration reactions).
+
+The iron group here resembles ``aprox21``, but has the addition of stable $\isotm{Ni}{58}$
+and doesn't include the approximation to $\isotm{Cr}{56}$.
+
+.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp.png
+   :align: center
+
+
+``he-burn-36a``
+---------------
+
+This has the most complete iron-group, with nuclei up to $\isotm{Zn}{60}$ and no approximations
+to the neutron captures.  This network can be quite slow.
+
+.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a.png
+   :align: center
+
+
 
 ``CNO_He_burn``
-===============
+---------------
 
 This network is meant to study explosive H and He burning.  It combines
 the ``CNO_extras`` network (with the exception of the inert ${}^{56}\mathrm{Fe}$
-with the ``subch_simple`` network.  This allows it to capture hot-CNO and
+with the ``he-burn-22a`` network.  This allows it to capture hot-CNO and
 He burning.
 
-.. figure:: CNO_He_burn.png
+.. figure:: ../../networks/he-burn/cno-he-burn-33a/cno-he-burn-33a.png
    :align: center
 
 ``ECSN``
@@ -116,9 +343,15 @@ It includes various weak rates that are important to this process.
 .. figure:: ECSN.png
    :align: center
 
+C-ignition networks
+===================
+
+There are a number of networks that have been developed for exploring
+carbon burning in near-Chandrasekhar mass which dwarfs.
+
 
 ``ignition_chamulak``
-=====================
+---------------------
 
 This network was introduced in our paper on convection in white dwarfs
 as a model of Type Ia supernovae :cite:`wdconvect`. It models
@@ -126,11 +359,6 @@ carbon burning in a regime appropriate for a simmering white dwarf,
 and captures the effects of a much larger network by setting the ash
 state and energetics to the values suggested in :cite:`chamulak:2008`.
 
-
-.. _energy-generation.-1:
-
-Energy generation.
-------------------
 
 The binding energy, :math:`q`, in this
 network is interpolated based on the density. It is stored as the
@@ -142,7 +370,7 @@ binding energies are negative. The energy generation rate is then:
 (this is positive since both :math:`q` and :math:`dY/dt` are negative)
 
 ``ignition_reaclib``
-====================
+--------------------
 
 This contains several networks designed to model C burning in WDs.  They include:
 
@@ -158,7 +386,7 @@ This contains several networks designed to model C burning in WDs.  They include
 
 
 ``ignition_simple``
-===================
+-------------------
 
 This is the original network used in our white dwarf convection
 studies :cite:`lowMach4`. It includes a single-step
@@ -177,22 +405,6 @@ Kepler stellar evolution code (Weaver 1978), which implements the work
 of (Graboske 1973) for weak screening and the work of (Alastuey 1978
 and Itoh 1979) for strong screening.
 
-
-nova networks
-=============
-
-The ``nova`` and ``nova2`` networks both are intended for modeling classical novae.
-
-
-* ``nova`` focuses just on CNO/hot-CNO:
-
-  .. figure:: nova.png
-     :align: center
-
-* ``nova2`` expands ``nova`` by adding the pp-chain nuclei:
-
-  .. figure:: nova2.png
-     :align: center
 
 
 ``powerlaw``
@@ -266,113 +478,3 @@ This network was used for the X-ray burst studies in
 This is a 2 reaction network for helium burning, capturing the :math:`3`-:math:`\alpha`
 reaction and :math:`\isotm{C}{12}(\alpha,\gamma)\isotm{O}{16}`. Additionally,
 :math:`^{56}\mathrm{Fe}` is included as an inert species.
-
-
-subch networks
-==============
-
-The subch networks recreate an ``aprox13``
-alpha-chain + including a bypass rate for :math:`\isotm{C}{12}(\alpha,
-\gamma)\isotm{O}{16}` discussed in :cite:`ShenBildsten`.  This is appropriate
-for explosive He burning.
-
-:cite:`ShenBildsten` discuss the sequences:
-
-* :math:`\isotm{C}{14}(\alpha, \gamma)\isotm{O}{18}(\alpha,
-  \gamma)\isotm{Ne}{22}` at high temperatures (T > 1 GK).  We don't
-  consider this.
-
-* :math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha,
-  p)\isotm{Ne}{21}` is the one they consider important, since it produces
-  protons that are then available for :math:`\isotm{C}{12}(p,
-  \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`.
-
-This leaves :math:`\isotm{Ne}{21}` as an endpoint, which we connect to
-the other nuclei by including :math:`\isotm{Na}{22}`.
-
-For the :math:`\isotm{C}{12} + \isotm{C}{12}`, :math:`\isotm{C}{12} +
-\isotm{O}{16}`, and :math:`\isotm{O}{16} + \isotm{O}{16}` rates, we
-also need to include:
-
-* :math:`\isotm{C}{12}(\isotm{C}{12},n)\isotm{Mg}{23}(n,\gamma)\isotm{Mg}{24}`
-
-* :math:`\isotm{O}{16}(\isotm{O}{16}, n)\isotm{S}{31}(n, \gamma)\isotm{S}{32}`
-
-* :math:`\isotm{O}{16}(\isotm{C}{12}, n)\isotm{Si}{27}(n, \gamma)\isotm{Si}{28}`
-
-Since the neutron captures on those
-intermediate nuclei are so fast, we leave those out and take the
-forward rate to just be the first rate.  We do not include reverse
-rates for these processes.
-
-
-``subch_simple``
-----------------
-
-``subch_simple`` uses the ideas above but approximates some
-of the rates by
-combining some of the :math:`A(\alpha,p)X(p,\gamma)B` links with
-:math:`A(\alpha,\gamma)B`, allowing us to drop the intermediate
-nucleus :math:`X`.  We do this for :math:`\isotm{Cl}{35}`,
-:math:`\isotm{K}{39}`, :math:`\isotm{Sc}{43}`, :math:`\isotm{V}{47}`,
-:math:`\isotm{Mn}{51}`, and :math:`\isotm{Co}{55}`.
-
-Further simplifications include:
-
-* The reverse rates of :math:`\isotm{C}{12}+\isotm{C}{12}`,
-  :math:`\isotm{C}{12}+\isotm{O}{16}`, :math:`\isotm{O}{16}+\isotm{O}{16}` are
-  neglected since they're not present in the original aprox13 network
-
-* The :math:`\isotm{C}{12}+\isotm{Ne}{20}` rate is removed
-
-* The :math:`(\alpha, \gamma)` links between :math:`\isotm{Na}{23}`,
-  :math:`\isotm{Al}{27}` and between :math:`\isotm{Al}{27}` and
-  :math:`\isotm{P}{31}` are removed, since they're not in the
-  original aprox13 network.
-
-The network appears as:
-
-.. figure:: subch_simple.png
-   :align: center
-
-The nuclei in gray are those that have been approximated about, but the links
-are effectively accounted for in the approximate rates.
-
-.. warning:: Due to inclusion of the rate sequence,
-   ${}^{14}\mathrm{N}(\alpha, \gamma){}^{18}\mathrm{F}(\alpha,
-   \mathrm{p}){}^{21}\mathrm{Ne}$, there is an artificial end-point at
-   ${}^{22}\mathrm{Na}$.
-
-``subch_base``
---------------
-
-``subch_base`` is the simplest subch network. It is created to reconcile the
-artificial end-point at :math:`\isotm{Na}{22}`. This is done by excluding
-:math:`\isotm{N}{14}`, :math:`\isotm{F}{18}`, :math:`\isotm{Ne}{21}`,
-and :math:`\isotm{Na}{22}`. These nuclei were added to include
-:math:`\isotm{N}{14}(\alpha, \gamma)\isotm{F}{18}(\alpha, p)\isotm{Ne}{21}`
-rate sequence, which allows an enhancement to the
-:math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
-rate due to the additional proton release. However, we find the effect is not
-extremely significant.
-
-.. figure:: subch_base.png
-   :align: center
-
-disabling rates
----------------
-
-For all subch networks, there are 2 runtime parameters that can be used
-to disable rates:
-
-* ``network.disable_p_c12__n13`` : if set to ``1``, then the rate
-  :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}` and its inverse are
-  disabled.
-
-* ``network.disable_he4_n13__p_o16`` : if set to ``1``, then the rate
-  :math:`\isotm{N}{13}(\alpha,p)\isotm{O}{16}` and its inverse are
-  disabled.
-
-Together, these parameters allow us to turn off the sequence
-:math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}` that
-acts as a bypass for :math:`\isotm{C}{12}(\alpha, \gamma)\isotm{O}{16}`.

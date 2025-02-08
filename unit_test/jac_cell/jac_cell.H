@@ -1,5 +1,5 @@
-#ifndef BURN_CELL_H
-#define BURN_CELL_H
+#ifndef JAC_CELL_H
+#define JAC_CELL_H
 
 #include <extern_parameters.H>
 #include <eos.H>
@@ -22,7 +22,7 @@ void jac_cell_c()
     // Make sure user set all the mass fractions to values in the interval [0, 1]
     for (int n = 1; n <= NumSpec; ++n) {
 
-        massfractions[n-1] = get_xn(n);
+        massfractions[n-1] = get_xn(n, unit_test_rp::uniform_xn);
 
         if (massfractions[n-1] < 0 || massfractions[n-1] > 1) {
             amrex::Error("mass fraction for " + short_spec_names_cxx[n-1] + " not initialized in the interval [0,1]!");
@@ -38,7 +38,9 @@ void jac_cell_c()
         burn_state.xn[n] = massfractions[n];
     }
 
-    normalize_abundances_burn(burn_state);
+    if (! unit_test_rp::skip_initial_normalization) {
+        normalize_abundances_burn(burn_state);
+    }
 
     // get the energy
 
@@ -65,9 +67,15 @@ void jac_cell_c()
 
     // output
 
+    // header
+    std::cout << std::setw(16) << "element" << std::setw(20)
+              << "numerical" << std::setw(20) << "analytic" << std::endl;
+
     for (int ii = 1; ii <= neqs; ++ii) {
+        std::string ilabel = (ii < neqs) ? short_spec_names_cxx[ii-1] : "e";
         for (int jj = 1; jj <= neqs; ++jj) {
-            std::cout << "J(" << std::setw(3) << ii << ", " << std::setw(3) << jj << ") = "
+            std::string jlabel = (jj < neqs) ? short_spec_names_cxx[jj-1] : "e";
+            std::cout << "J(" << std::setw(4) << ilabel << ", " << std::setw(4) << jlabel << ") = "
                       << std::setw(20) << jac_numerical(ii,jj) << " "
                       << std::setw(20) << jac_analytic(ii,jj) << std::endl;
         }
