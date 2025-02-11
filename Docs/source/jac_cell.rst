@@ -38,10 +38,6 @@ The parameters that affect the thermodynamics are:
 
 * ``unit_test.temperature`` : the initial temperature
 
-* ``unit_test.small_temp`` : the low temperature cutoff used in the equation of state
-
-* ``unit_test.small_dens`` : the low density cutoff used in the equation of state
-
 While the mass fractions can be set individually (using
 ``unit_test.X1``, ``unit_test.X2``, ...), it is recommended to use
 ``unit_test.uniform_xn=1`` to initialize all the mass fractions to be
