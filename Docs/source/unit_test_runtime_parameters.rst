@@ -25,7 +25,7 @@ Most of the unit tests require a composition to be defined (for the
 initial mass-fractions, $X_k$).  There are a few ways this can be done
 (depending on the test).
 
-* One-zone (`*_cell`) tests usually do one of:
+* One-zone (``*_cell``) tests usually do one of:
 
   * *Explicitly setting the individual mass fractions.*  This is
     controlled by the parameters ``unit_test.X1``, ``unit_test.X2``, ..., ``unit_test.X35``,

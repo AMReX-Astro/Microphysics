@@ -38,10 +38,15 @@ The parameters that affect the thermodynamics are:
 
 * ``unit_test.temperature`` : the initial temperature
 
-While the mass fractions can be set individually (using
-``unit_test.X1``, ``unit_test.X2``, ...), it is recommended to use
-``unit_test.uniform_xn=1`` to initialize all the mass fractions to be
-equal.
+The composition can be set either by specifying individual mass fractions
+or setting ``unit_test.uniform_xn`` as described in :ref:`sec:defining_unit_test_composition`.
+
+If the values don't sum to ``1`` initially, then the test will do a
+normalization.  This normalization can be disabled by setting:
+
+::
+
+    unit_test.skip_initial_normalization = 1
 
 
 Building and Running the Code
