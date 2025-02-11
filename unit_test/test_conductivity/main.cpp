@@ -21,8 +21,6 @@ using namespace amrex;
 
 #include <unit_test.H>
 
-using namespace unit_test_rp;
-
 int main (int argc, char* argv[])
 {
     amrex::Initialize(argc, argv);
@@ -95,7 +93,7 @@ void main_main ()
 
     init_unit_test();
 
-    eos_init(small_temp, small_dens);
+    eos_init(unit_test_rp::small_temp, unit_test_rp::small_dens);
     network_init();
     conductivity_init();
 
@@ -130,9 +128,9 @@ void main_main ()
     Real dmetal  = 0.0e0_rt;
 
     if (n_cell > 1) {
-        dlogrho = (std::log10(dens_max) - std::log10(dens_min))/(n_cell - 1);
-        dlogT   = (std::log10(temp_max) - std::log10(temp_min))/(n_cell - 1);
-        dmetal  = (metalicity_max  - 0.0)/(n_cell - 1);
+        dlogrho = (std::log10(unit_test_rp::dens_max) - std::log10(unit_test_rp::dens_min))/(n_cell - 1);
+        dlogT   = (std::log10(unit_test_rp::temp_max) - std::log10(unit_test_rp::temp_min))/(n_cell - 1);
+        dmetal  = (unit_test_rp::metalicity_max  - 0.0)/(n_cell - 1);
     }
 
     // Initialize the state and compute the different thermodynamics

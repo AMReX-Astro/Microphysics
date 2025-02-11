@@ -127,9 +127,7 @@ actual_conductivity (T& state)
    amrex::Real xkaz = 50.0_rt*xz*xka1 * std::exp(-0.5206_rt*amrex::Math::powi<2>((std::log(state.rho)-d0log)/xkw));
    amrex::Real dbar2log = -(4.283_rt + 0.7196_rt*xh) + 3.86_rt*std::log(t6);
    amrex::Real dbar1log = -5.296_rt + 4.833_rt*std::log(t6);
-   if (dbar2log < dbar1log) {
-     dbar1log = dbar2log;
-   }
+   dbar1log = std::min(dbar1log, dbar2log);
    oiben2 = std::pow(state.rho/std::exp(dbar1log), 0.67_rt) * std::exp(xkaz);
   }
 
