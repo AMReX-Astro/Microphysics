@@ -6,7 +6,7 @@ The behavior of the network and EOS are controlled by many runtime
 parameters. These parameters are defined in plain-text files
 ``_parameters`` located in the different directories that hold the
 microphysics code. At compile time, a script in the AMReX build
-system, findparams.py, locates all of the ``_parameters`` files that
+system, ``findparams.py``, locates all of the ``_parameters`` files that
 are needed for the given choice of network, integrator, and EOS, and
 assembles all of the runtime parameters into a set of header files
 (using the ``write_probin.py`` script).
@@ -32,4 +32,3 @@ noted in separate tables.
 .. toctree::
 
    runtime_parameters
-

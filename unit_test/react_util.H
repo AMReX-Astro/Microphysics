@@ -4,7 +4,6 @@
 #include <extern_parameters.H>
 
 using namespace amrex::literals;
-using namespace unit_test_rp;
 
 struct init_t {
     int nprim;
@@ -29,7 +28,7 @@ init_t setup_composition(const int nz) {
     comp_data.nprim = 0;
 
     // we absolutely require primary_species_1 to be defined
-    comp_data.is1 = network_spec_index(primary_species_1);
+    comp_data.is1 = network_spec_index(unit_test_rp::primary_species_1);
     if (comp_data.is1 >= 0) {
         comp_data.nprim++;
     } else {
@@ -38,13 +37,13 @@ init_t setup_composition(const int nz) {
 
     // we'll check the next species, but if it is not valid,
     // we'll just move on
-    comp_data.is2 = network_spec_index(primary_species_2);
+    comp_data.is2 = network_spec_index(unit_test_rp::primary_species_2);
     if (comp_data.is2 >= 0) {
         comp_data.nprim++;
 
         // only consider primary_species_3 if primary_species_2
         // was defined
-        comp_data.is3 = network_spec_index(primary_species_3);
+        comp_data.is3 = network_spec_index(unit_test_rp::primary_species_3);
         if (comp_data.is3 >= 0) {
             comp_data.nprim++;
         }
@@ -88,7 +87,7 @@ init_t setup_composition(const int nz) {
 
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, int uniform_composition = 0) {
+void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, bool uniform_composition=false) {
 
     for (int n = 0; n < NumSpec; n++) {
         xn_zone[n] = 0.0_rt;
@@ -167,116 +166,121 @@ void get_xn(const int k, const init_t cd, amrex::Real *xn_zone, int uniform_comp
 ///
 
 AMREX_INLINE AMREX_GPU_HOST_DEVICE
-amrex::Real get_xn(const int index) {
+amrex::Real get_xn(const int index, bool uniform_composition=false) {
 
     amrex::Real mass_fraction{};
+
+    if (uniform_composition) {
+        mass_fraction = 1.0_rt / NumSpec;
+        return mass_fraction;
+    }
 
     switch (index) {
 
     case 1:
-        mass_fraction = X1;
+        mass_fraction = unit_test_rp::X1;
         break;
     case 2:
-        mass_fraction = X2;
+        mass_fraction = unit_test_rp::X2;
         break;
     case 3:
-        mass_fraction = X3;
+        mass_fraction = unit_test_rp::X3;
         break;
     case 4:
-        mass_fraction = X4;
+        mass_fraction = unit_test_rp::X4;
         break;
     case 5:
-        mass_fraction = X5;
+        mass_fraction = unit_test_rp::X5;
         break;
     case 6:
-        mass_fraction = X6;
+        mass_fraction = unit_test_rp::X6;
         break;
     case 7:
-        mass_fraction = X7;
+        mass_fraction = unit_test_rp::X7;
         break;
     case 8:
-        mass_fraction = X8;
+        mass_fraction = unit_test_rp::X8;
         break;
     case 9:
-        mass_fraction = X9;
+        mass_fraction = unit_test_rp::X9;
         break;
     case 10:
-        mass_fraction = X10;
+        mass_fraction = unit_test_rp::X10;
         break;
     case 11:
-        mass_fraction = X11;
+        mass_fraction = unit_test_rp::X11;
         break;
     case 12:
-        mass_fraction = X12;
+        mass_fraction = unit_test_rp::X12;
         break;
     case 13:
-        mass_fraction = X13;
+        mass_fraction = unit_test_rp::X13;
         break;
     case 14:
-        mass_fraction = X14;
+        mass_fraction = unit_test_rp::X14;
         break;
     case 15:
-        mass_fraction = X15;
+        mass_fraction = unit_test_rp::X15;
         break;
     case 16:
-        mass_fraction = X16;
+        mass_fraction = unit_test_rp::X16;
         break;
     case 17:
-        mass_fraction = X17;
+        mass_fraction = unit_test_rp::X17;
         break;
     case 18:
-        mass_fraction = X18;
+        mass_fraction = unit_test_rp::X18;
         break;
     case 19:
-        mass_fraction = X19;
+        mass_fraction = unit_test_rp::X19;
         break;
     case 20:
-        mass_fraction = X20;
+        mass_fraction = unit_test_rp::X20;
         break;
     case 21:
-        mass_fraction = X21;
+        mass_fraction = unit_test_rp::X21;
         break;
     case 22:
-        mass_fraction = X22;
+        mass_fraction = unit_test_rp::X22;
         break;
     case 23:
-        mass_fraction = X23;
+        mass_fraction = unit_test_rp::X23;
         break;
     case 24:
-        mass_fraction = X24;
+        mass_fraction = unit_test_rp::X24;
         break;
     case 25:
-        mass_fraction = X25;
+        mass_fraction = unit_test_rp::X25;
         break;
     case 26:
-        mass_fraction = X26;
+        mass_fraction = unit_test_rp::X26;
         break;
     case 27:
-        mass_fraction = X27;
+        mass_fraction = unit_test_rp::X27;
         break;
     case 28:
-        mass_fraction = X28;
+        mass_fraction = unit_test_rp::X28;
         break;
     case 29:
-        mass_fraction = X29;
+        mass_fraction = unit_test_rp::X29;
         break;
     case 30:
-        mass_fraction = X30;
+        mass_fraction = unit_test_rp::X30;
         break;
     case 31:
-        mass_fraction = X31;
+        mass_fraction = unit_test_rp::X31;
         break;
     case 32:
-        mass_fraction = X32;
+        mass_fraction = unit_test_rp::X32;
         break;
     case 33:
-        mass_fraction = X33;
+        mass_fraction = unit_test_rp::X33;
         break;
     case 34:
-        mass_fraction = X34;
+        mass_fraction = unit_test_rp::X34;
         break;
     case 35:
-        mass_fraction = X35;
+        mass_fraction = unit_test_rp::X35;
         break;
 
     }
