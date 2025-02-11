@@ -13,8 +13,6 @@
 #include <extern_parameters.H>
 #include <ArrayUtilities.H>
 
-using namespace unit_test_rp;
-
 AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
 bool do_rhs (int i, int j, int k, amrex::Array4<amrex::Real> const& state, const plot_t& p)
 {
