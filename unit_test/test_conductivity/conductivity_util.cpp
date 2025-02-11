@@ -10,11 +10,9 @@
 #include <network.H>
 #include <eos.H>
 #include <conductivity.H>
+#include <extern_parameters.H>
 
 #include <cmath>
-
-using namespace amrex::literals;
-using namespace unit_test_rp;
 
 void cond_test_C(const amrex::Box& bx,
                  const amrex::Real dlogrho, const amrex::Real dlogT, const amrex::Real dmetal,
@@ -32,16 +30,16 @@ void cond_test_C(const amrex::Box& bx,
 
     eos_extra_t eos_state;
 
-    for (int n = 0; n < NumSpec; n++) {
-      eos_state.xn[n] = metalicity/(NumSpec - 2);
+    for (double& X : eos_state.xn) {
+        X = metalicity / static_cast<amrex::Real>(NumSpec - 2);
     }
     eos_state.xn[ih1] = 0.75 - 0.5*metalicity;
     eos_state.xn[ihe4] = 0.25 - 0.5*metalicity;
 
-    amrex::Real temp_zone = std::pow(10.0, std::log10(temp_min) + static_cast<amrex::Real>(j)*dlogT);
+    amrex::Real temp_zone = std::pow(10.0, std::log10(unit_test_rp::temp_min) + static_cast<amrex::Real>(j)*dlogT);
     eos_state.T = temp_zone;
 
-    amrex::Real dens_zone = std::pow(10.0, std::log10(dens_min) + static_cast<amrex::Real>(i)*dlogrho);
+    amrex::Real dens_zone = std::pow(10.0, std::log10(unit_test_rp::dens_min) + static_cast<amrex::Real>(i)*dlogrho);
     eos_state.rho = dens_zone;
 
     // store default state

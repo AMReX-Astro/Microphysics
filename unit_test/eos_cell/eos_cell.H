@@ -7,8 +7,6 @@
 #include <iostream>
 #include <react_util.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void eos_cell_c()
 {
@@ -17,8 +15,8 @@ void eos_cell_c()
 
     // Set mass fractions to sanitize inputs for them
     amrex::Real massfractions[NumSpec];
-    for (int n = 0; n < NumSpec; ++n) {
-        massfractions[n] = -1.0e0_rt;
+    for (double &X : massfractions) {
+        X = -1.0e0_rt;
     }
 
     // Make sure user set all the mass fractions to values in the interval [0, 1]
@@ -32,8 +30,8 @@ void eos_cell_c()
 
     }
 
-    state.T   = temperature;
-    state.rho = density;
+    state.T   = unit_test_rp::temperature;
+    state.rho = unit_test_rp::density;
     for (int n = 0; n < NumSpec; ++n) {
         state.xn[n] = massfractions[n];
     }
