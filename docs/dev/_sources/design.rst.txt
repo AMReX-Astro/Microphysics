@@ -8,11 +8,11 @@ Structure
 The high-level directory structure delineates the types of microphysics
 and the generic solvers:
 
-* ``conductivity``: thermal conductivity routines
+* ``conductivity/``: thermal conductivity routines
 
-* ``constants``: fundamental constants
+* ``constants/``: fundamental constants
 
-* ``Docs``: the sphinx source for this documentation
+* ``Docs/``: the sphinx source for this documentation
 
 * ``EOS/``: the various equations of state
 
@@ -64,7 +64,7 @@ of the species defined by the network to interpret the state.
 
 We try to maximize code reuse in the Microphysics source, so the
 solvers (ODE integration for the network and Newton-Raphson root
-finding for the EOS) is separated from the specific implementations of
+finding for the EOS) are separated from the specific implementations of
 the microphysics.
 
 .. note::
