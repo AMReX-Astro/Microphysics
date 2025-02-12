@@ -22,7 +22,8 @@ void cond_test_C(const amrex::Box& bx,
   const int ih1 = network_spec_index("hydrogen-1");
   const int ihe4 = network_spec_index("helium-4");
 
-  AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+  amrex::ParallelFor(bx,
+  [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
   {
 
     // set the composition -- approximately solar
