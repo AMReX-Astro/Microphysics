@@ -88,7 +88,7 @@ for more information).
 
 This means leveraging the AMReX data-structures, macros, and
 functions.  The unit tests (see :ref:`sec:unit_tests`) provide a good
-reference for how interface the Microphysics solvers and physics
+reference for how to interface the Microphysics solvers and physics
 terms with an AMReX-based code.
 
 There are a few places where Microphysics behaves slightly differently
