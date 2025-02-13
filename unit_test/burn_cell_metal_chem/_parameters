@@ -3,8 +3,8 @@
 run_prefix    string  "burn_cell_metal_chem"
 
 # floor values of temperature and density
-small_temp    real       1.e1
-small_dens    real       1.e-30
+small_temp    real       1.e1           100
+small_dens    real       1.e-30         100
 
 # the final time to integrate to
 tmax          real       1.e20
