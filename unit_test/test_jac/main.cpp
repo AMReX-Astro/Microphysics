@@ -172,7 +172,8 @@ void main_main ()
 
         auto s = state.array(mfi);
 
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        amrex::ParallelFor(bx,
+        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
         {
             do_jac(i, j, k, s, vars);
         });
