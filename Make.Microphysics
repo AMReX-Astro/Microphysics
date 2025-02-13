@@ -51,11 +51,6 @@ build_status:
           --git_names "Microphysics AMReX" \
           --git_dirs "$(TOP) $(AMREX_HOME)"
 
-# OpenACC support
-ifeq ($(USE_ACC), TRUE)
-  DEFINES += -DACC
-endif
-
 ifeq ($(USE_REACT), TRUE)
   DEFINES += -DREACTIONS
 endif
