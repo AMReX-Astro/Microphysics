@@ -197,7 +197,8 @@ void main_main ()
         auto s = state.array(mfi);
         auto n_rhs = integrator_n_rhs.array(mfi);
 
-        AMREX_PARALLEL_FOR_3D(bx, i, j, k,
+        amrex::ParallelFor(bx,
+        [=] AMREX_GPU_HOST_DEVICE (int i, int j, int k)
         {
             bool success = do_react(vars, i, j, k, s, n_rhs);
 
