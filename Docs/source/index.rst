@@ -92,6 +92,7 @@ system.
    :hidden:
 
    unit_tests
+   unit_test_runtime_parameters
    comprehensive_tests
    one_zone_tests
 
