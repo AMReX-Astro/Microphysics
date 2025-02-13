@@ -46,7 +46,6 @@ system.
    getting_started
    design
    data_structures
-   autodiff
    rp_intro
 
 .. toctree::
@@ -85,6 +84,7 @@ system.
    :hidden:
 
    util
+   autodiff
 
 .. toctree::
    :maxdepth: 1
