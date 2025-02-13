@@ -25,6 +25,7 @@ Most of the unit tests require a composition to be defined (for the
 initial mass-fractions, $X_k$).  There are a few ways this can be done
 (depending on the test).
 
+
 * One-zone (``*_cell``) tests (see :ref:`sec:one_zone_tests`) usually do one of:
 
   * *Explicitly setting the individual mass fractions.*  This is
@@ -46,6 +47,7 @@ initial mass-fractions, $X_k$).  There are a few ways this can be done
     is initialized to ``1 / NumSpec``.
 
 * Comprehensive tests (see :ref:`sec:comprehensive_tests`) need many different compositions, since they are creating a cube
+
   of varying thermodynamic properties, and thus require a prescription
   to create the composition.  This is done by setting ``unit_test.primary_species_1``,
   ``unit_test.primary_species_2``, and ``unit_test.primary_species_3`` to one of the

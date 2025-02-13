@@ -15,7 +15,7 @@ the input and ``state`` is a C++ struct that holds all of the
 thermodynamic information.
 
 
-Interface and Modes
+Interface and modes
 ===================
 
 .. index:: eos_t, eos_re_t, eos_rep_t, eos_rh_t, chem_eos_t
@@ -85,7 +85,7 @@ stored in ``eos_t.aux[]``.
 
 .. _aux_eos_comp:
 
-Auxiliary Composition
+Auxiliary composition
 ---------------------
 
 .. index:: USE_AUX_THERMO
@@ -139,7 +139,7 @@ Many equations of state also need :math:`\bar{Z}` which is easily computed as
    \bar{Z} = \bar{A} Y_e
 
 
-Composition Derivatives
+Composition derivatives
 -----------------------
 
 .. index:: eos_extra_t, eos_re_extra_t, eos_rep_extra_t
@@ -161,7 +161,7 @@ to compute :math:`\partial p/\partial X_k |_{\rho, T, X_j}`, :math:`\partial e/\
 
 
 
-Initialization and Cutoff Values
+Initialization and cutoff values
 ================================
 
 
@@ -178,7 +178,7 @@ max ( ``small_temp``, T ).
    User’s are encourage to do their own validation of inputs before calling
    the EOS.
 
-EOS Structure
+EOS structure
 =============
 
 Each EOS should have two main routines through which it interfaces to the

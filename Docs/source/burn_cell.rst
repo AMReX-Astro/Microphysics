@@ -63,6 +63,8 @@ normalization.  This normalization can be disabled by setting:
     unit_test.skip_initial_normalization = 1
 
 
+.. _sec:burn_cell_time:
+
 Controlling time
 ----------------
 
