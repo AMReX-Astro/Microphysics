@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Neutrino Losses &mdash; Microphysics  documentation</title>
+  <title>Unit Test Common Runtime Parameters &mdash; Microphysics  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -26,8 +26,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Reaction ODE System" href="integrators.html" />
-    <link rel="prev" title="Screening of Reaction Rates" href="screening.html" /> 
+    <link rel="next" title="Comprehensive Unit Tests" href="comprehensive_tests.html" />
+    <link rel="prev" title="Overview of Unit Tests" href="unit_tests.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,7 +50,7 @@
   </form>
 </div>
     <div class="branch">
-        Branch: <a href="../neutrinos.html">main</a> | <a href="./neutrinos.html">development</a>
+        Branch: <a href="../unit_test_runtime_parameters.html">main</a> | <a href="./unit_test_runtime_parameters.html">development</a>
     </div>
 
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
@@ -69,12 +69,12 @@
 <li class="toctree-l1"><a class="reference internal" href="transport.html">Transport Coefficients</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reaction networks</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="networks-overview.html">Overview of Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="networks.html">Available Reaction Networks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="templated_networks.html">Templated Network Righthand Sides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="screening.html">Screening of Reaction Rates</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Neutrino Losses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neutrinos.html">Neutrino Losses</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">ODE integrators</span></p>
 <ul>
@@ -88,9 +88,13 @@
 <li class="toctree-l1"><a class="reference internal" href="util.html">Helper Functions and Libraries</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Unit tests</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="unit_tests.html">Overview of Unit Tests</a></li>
-<li class="toctree-l1"><a class="reference internal" href="unit_test_runtime_parameters.html">Unit Test Common Runtime Parameters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Unit Test Common Runtime Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#thermodynamics">Thermodynamics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#defining-composition">Defining composition</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="comprehensive_tests.html">Comprehensive Unit Tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="one_zone_tests.html">One Zone Tests</a></li>
 </ul>
@@ -119,9 +123,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Neutrino Losses</li>
+      <li class="breadcrumb-item active">Unit Test Common Runtime Parameters</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/neutrinos.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/unit_test_runtime_parameters.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -129,48 +133,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="neutrino-losses">
-<span id="neutrino-loss"></span><h1>Neutrino Losses<a class="headerlink" href="#neutrino-losses" title="Link to this heading"></a></h1>
-<p>We model thermal neutrino losses (plasma, photo-, pair-,
-recombination, and Bremsstrahlung) using the method described in
-<span id="id1">[<a class="reference internal" href="zreferences.html#id49" title="Naoki Itoh, Hiroshi Hayashi, Akinori Nishikawa, and Yasuharu Kohyama. Neutrino Energy Loss in Stellar Interiors. VII. Pair, Photo-, Plasma, Bremsstrahlung, and Recombination Neutrino Processes. \apjs , 102:411, February 1996. doi:10.1086/192264.">30</a>]</span>.  This neutrino loss term is included in all of the
-reaction networks by default, and modifies the energy equation to have
-the form (for Strang splitting):</p>
-<div class="math notranslate nohighlight">
-\[\frac{de}{dt} = \epsilon - \epsilon_\nu\]</div>
-<p>where <span class="math notranslate nohighlight">\(\epsilon_\nu\)</span> are the thermal neutrino losses.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Thermal neutrino losses can be disabled at compile time by setting the make
-variable <code class="docutils literal notranslate"><span class="pre">USE_NEUTRINOS</span> <span class="pre">=</span> <span class="pre">FALSE</span></code>.</p>
-</div>
-<p>The interface for the neutrino loss function is:</p>
-<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">int</span><span class="w"> </span><span class="n">do_derivatives</span><span class="o">&gt;</span>
-<span class="n">AMREX_GPU_HOST_DEVICE</span><span class="w"> </span><span class="n">AMREX_INLINE</span>
-<span class="kt">void</span><span class="w"> </span><span class="n">sneut5</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">temp</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">den</span><span class="p">,</span>
-<span class="w">            </span><span class="k">const</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">abar</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="w"> </span><span class="n">zbar</span><span class="p">,</span>
-<span class="w">            </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">snu</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">dsnudt</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">dsnudd</span><span class="p">,</span>
-<span class="w">            </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">dsnuda</span><span class="p">,</span><span class="w"> </span><span class="n">amrex</span><span class="o">::</span><span class="n">Real</span><span class="o">&amp;</span><span class="w"> </span><span class="n">dsnudz</span><span class="p">)</span>
+  <section id="unit-test-common-runtime-parameters">
+<h1>Unit Test Common Runtime Parameters<a class="headerlink" href="#unit-test-common-runtime-parameters" title="Link to this heading"></a></h1>
+<p>There are a number of runtime parameters that are common to all (or most) of the unit tests.
+These are defined in the top-level <code class="docutils literal notranslate"><span class="pre">unit_test/_parameters</span></code> file.</p>
+<section id="thermodynamics">
+<h2>Thermodynamics<a class="headerlink" href="#thermodynamics" title="Link to this heading"></a></h2>
+<p>The equation of state enforces minimum density and temperatures, which must be set
+upon initialization.  These are controlled by the following runtime parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_temp</span></code> : the low temperature cutoff used in the equation of state</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unit_test.small_dens</span></code> : the low density cutoff used in the equation of state</p></li>
+</ul>
+</section>
+<section id="defining-composition">
+<span id="sec-defining-unit-test-composition"></span><h2>Defining composition<a class="headerlink" href="#defining-composition" title="Link to this heading"></a></h2>
+<p>Most of the unit tests require a composition to be defined (for the
+initial mass-fractions, <span class="math notranslate nohighlight">\(X_k\)</span>).  There are a few ways this can be done
+(depending on the test).</p>
+<ul>
+<li><p>One-zone (<code class="docutils literal notranslate"><span class="pre">*_cell</span></code>) tests (see <a class="reference internal" href="one_zone_tests.html#sec-one-zone-tests"><span class="std std-ref">One Zone Tests</span></a>) usually do one of:</p>
+<ul>
+<li><p><em>Explicitly setting the individual mass fractions.</em>  This is
+controlled by the parameters <code class="docutils literal notranslate"><span class="pre">unit_test.X1</span></code>, <code class="docutils literal notranslate"><span class="pre">unit_test.X2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">unit_test.X35</span></code>,
+e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">unit_test</span><span class="o">.</span><span class="n">X1</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X2</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X3</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">unit_test</span><span class="o">.</span><span class="n">X4</span> <span class="o">=</span> <span class="mf">0.1</span>
 </pre></div>
 </div>
-<p>Here, the template parameter, <code class="docutils literal notranslate"><span class="pre">do_derivatives</span></code>, can be used to disable the code
-the computes the derivatives of the neutrino loss, for example, if a numerical Jacobian
-is used.  The output is</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">snu</span></code> : <span class="math notranslate nohighlight">\(\epsilon_\nu\)</span>, the neutrino loss in erg/g/s</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnudt</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/dT\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnudd</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\rho\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnuda</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\bar{A}\)</span></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dsnudz</span></code> : <span class="math notranslate nohighlight">\(d\epsilon_\nu/d\bar{Z}\)</span></p></li>
+<p>While many of the tests will renormalize the abundances, the user
+should take care to ensure that the mass fractions sum to unity.</p>
+</li>
+<li><p><em>Setting the composition to be uniform.</em>  This is controlled by
+<code class="docutils literal notranslate"><span class="pre">unit_test.uniform_xn</span></code>.  If this is set to <code class="docutils literal notranslate"><span class="pre">1</span></code>, then each mass fraction
+is initialized to <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">/</span> <span class="pre">NumSpec</span></code>.</p></li>
 </ul>
+</li>
+<li><p>Comprehensive tests (see <a class="reference internal" href="comprehensive_tests.html#sec-comprehensive-tests"><span class="std std-ref">Comprehensive Unit Tests</span></a>) need many different compositions, since they are creating a cube
+of varying thermodynamic properties, and thus require a prescription
+to create the composition.  This is done by setting <code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_1</span></code>,
+<code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_2</span></code>, and <code class="docutils literal notranslate"><span class="pre">unit_test.primary_species_3</span></code> to one of the
+<em>names</em> of the species in the network.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">setup_composition()</span></code> is then used to set limits on
+the species abundances (it takes a parameter which is the index into
+the cube of data that is being initialized) which is then used by
+<code class="docutils literal notranslate"><span class="pre">get_xn()</span></code> to create the individual mass fractions.  Both of these
+routines are contained in <code class="docutils literal notranslate"><span class="pre">react_util.H</span></code>.</p>
+</li>
+</ul>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="screening.html" class="btn btn-neutral float-left" title="Screening of Reaction Rates" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="integrators.html" class="btn btn-neutral float-right" title="Reaction ODE System" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="unit_tests.html" class="btn btn-neutral float-left" title="Overview of Unit Tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="comprehensive_tests.html" class="btn btn-neutral float-right" title="Comprehensive Unit Tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
