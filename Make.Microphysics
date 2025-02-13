@@ -62,12 +62,6 @@ endif
 # Use a coarse grained OMP approach
 DEFINES += -DCRSEGRNDOMP
 
-
-# OpenACC support
-ifeq ($(USE_ACC), TRUE)
-  DEFINES += -DACC
-endif
-
 ifeq ($(USE_REACT), TRUE)
   DEFINES += -DREACTIONS
 endif
