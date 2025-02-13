@@ -75,10 +75,6 @@ ifeq ($(USE_REACT_SPARSE_JACOBIAN), TRUE)
   endif
 endif
 
-ifeq ($(USE_COMPILE_WITH_F2PY), TRUE)
-  DEFINES += -DCOMPILE_WITH_F2PY
-endif
-
 
 #------------------------------------------------------------------------------
 # AMReX
