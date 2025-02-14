@@ -1,3 +1,5 @@
+.. _sec:one_zone_tests:
+
 **************
 One Zone Tests
 **************
