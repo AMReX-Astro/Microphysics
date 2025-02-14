@@ -110,7 +110,7 @@ Rerunning a burn fail
 
 When a network integration encounters a failure, it will output the
 entire burn state to ``stdout`` (for GPU builds, this needs to be
-enabled explicity by building with ``USE_GPU_PRINTF``).
+enabled explicitly by building with ``USE_GPU_PRINTF``).
 
 The script ``unit_test/burn_cell_sdc/parse_integration_failure.py``
 can be used to parse the output (copy and paste the full error into a
