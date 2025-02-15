@@ -11,17 +11,18 @@ AMREX_INLINE
 void actual_opacity_init () {}
 
 AMREX_GPU_HOST_DEVICE AMREX_INLINE
-void actual_opacity (Real& kp, Real& kr, Real rho, Real temp, Real rhoYe, Real nu,
+void actual_opacity (amrex::Real& kp, amrex::Real& kr,
+                     amrex::Real rho, amrex::Real temp, amrex::Real rhoYe, amrex::Real nu,
                      bool get_Planck_mean, bool get_Rosseland_mean)
 {
-    Real nup_kpp = std::pow(nu, kappa_p_exp_p);
-    Real nup_kpr = std::pow(nu, kappa_r_exp_p);
-    Real nup_kps = std::pow(nu, scatter_exp_p);
+    amrex::Real nup_kpp = std::pow(nu, kappa_p_exp_p);
+    amrex::Real nup_kpr = std::pow(nu, kappa_r_exp_p);
+    amrex::Real nup_kps = std::pow(nu, scatter_exp_p);
 
-    Real teff = amrex::max(temp, 1.0e-50_rt);
+    amrex::Real teff = amrex::max(temp, 1.0e-50_rt);
     teff = teff + rad_temp_floor * std::exp(-teff / (rad_temp_floor + 1.e-50_rt));
 
-    Real ks = const_scatter * std::pow(rho, scatter_exp_m) * std::pow(teff, -scatter_exp_n) * nup_kps;
+    amrex::Real ks = const_scatter * std::pow(rho, scatter_exp_m) * std::pow(teff, -scatter_exp_n) * nup_kps;
 
     if (get_Planck_mean) {
 #ifndef AMREX_USE_GPU
