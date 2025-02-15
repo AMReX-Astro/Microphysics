@@ -34,14 +34,19 @@ Composition and EOS
 ===================
 
 The NSE table was generated using `pynucastro
-<https://pynucastro.github.io/pynucastro/>` using 96 nuclei and
-electron/positron capture/decay rates from :cite:`langanke:2001`.  The
-table takes $Y_e$ as the primary composition variable and provides a
-set of mass fractions that is mapped into those used by ``aprox19``.
-Using the value allows us to attain a lower :math:`Y_e` than
-``aprox19`` can represent.
+<https://pynucastro.github.io/pynucastro/>`_ :cite:`pynucastro,
+pynucastro2`, using 96 nuclei and electron/positron capture/decay
+rates from :cite:`langanke:2001`.  The table takes $Y_e$ as the
+primary composition variable and provides a set of mass fractions that
+is mapped into those used by ``aprox19``.  Using the value allows us
+to attain a lower :math:`Y_e` than ``aprox19`` can represent.
 
-For this reason, when we are using the NSE network, we always take the
+.. note::
+
+   The full details of the NSE table are provided in :cite:`sdc-nse`.
+   The table can be regenerated using the script ``nse_tabular/make_nse_table.py``.
+
+When we are using the NSE network, we always take the
 composition quantities in the EOS directly from ``eos_state.aux[]``
 instead of from ``eos_state.xn[]``.  The ``AUX_THERMO`` preprocessor
 variable is enabled in this case, and the equations of state interpret
