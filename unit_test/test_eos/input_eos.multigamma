@@ -14,3 +14,4 @@ eos.species_a_gamma = 1.6666
 eos.species_b_name = "carbon-12"
 eos.species_b_gamma = 1.333333
 
+unit_test.small_dens = 1.e-4
