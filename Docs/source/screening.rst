@@ -1,3 +1,5 @@
+.. _sec:screening:
+
 ***************************
 Screening of Reaction Rates
 ***************************

@@ -98,34 +98,84 @@ controlled by a number of make variables.
    will tell you what EOS is being used.
 
 
+The following control whether certain physics modules are included in
+the build process.  Note: an EOS and network are always required.
+These can be set to ``TRUE`` to enable and ``FALSE`` to disable.
+disable specific features.
+
+* ``USE_CONDUCTIVITY`` : determines whether a conductivity routine
+  should be included in the list of build packages.  If enabled, this
+  also defines the ``CONDUCTIVITY`` preprocessor variable.  Default:
+  ``FALSE``.
+
+* ``USE_NEUTRINOS`` : determines whether a neutrino cooling term
+  should be applied in the reaction network energy generation
+  equation.  See :ref:`neutrino_loss`.  The default is set by each
+  individual network.
+
+* ``USE_NET_NET`` : determines whether the self-consistent NSE
+  infrastructure is included in the build.  See
+  :ref:`self_consistent_nse`.  No default is set.
+
+* ``USE_NSE_TABLE`` : determines whether the tabular NSE
+  infrastructure is included in the build.  See :ref:`tabulated_nse`.
+  No default is set.
+
+* ``USE_RATES`` : for templated reaction networks (see
+  :ref:`sec:templated_rhs`) determines whether we include the
+  ``rates/`` set of reaction rates in the build system.  Also defines
+  the ``RATES`` preprocessor variable.  The default is set by each of
+  the templated networks separately.
+
+* ``USE_REACT`` : determines whether we need to include any of the
+  source related to reaction networks or integrators and sets the
+  ``REACTIONS`` preprocessor variable.  Note: even if this is set to
+  ``TRUE``, the ``network_properties.H`` file is still generated.  No
+  default is set.
+
+* ``USE_SCREENING`` : determines whether the screening routines are
+  included in the list of build packages.  If enabled, this also
+  defines the ``SCREENING`` preprocessor variable which is used in
+  some networks to disable screening completely.  Note: it is also
+  possible to set the screening routine to ``null`` which would have
+  the same effect (see :ref:`sec:screening`).  The default is set by
+  each individual network.
 
 
-USE_CONDUCTIVITY
-USE_NEUTRINOS
-USE_SCREENING
-USE_RATES
-USE_REACT
-USE_NONAKA_PLOT
+The following control the choice of implementation for the different physics modules:
 
-USE_SIMPLIFIED_SDC
-USE_TRUE_SDC
 
-SCREEN_METHOD
+* ``CONDUCTIVITY_DIR`` : the name of the conductivity implementation to use,
+  relative to ``Microphysics/conductivity/``.
 
-USE_AUX_THERMO
+* ``EOS_DIR`` : the name of the EOS to use, relative to ``Microphysics/EOS/``.
 
-EOS_DIR
-OPACITY_DIR
-NETWORK_DIR
-CONDUCTIVITY_DIR
+* ``INTEGRATOR_DIR`` : the name of the integrator to use, relative to
+  ``Microphysics/integration/``.
 
-GENERAL_NET_INPUTS
-NETWORK_INPUTS
+* ``NETWORK_DIR`` : the name of the network to use, relative to ``Microphysics/networks/``.
+  If ``general_null`` is chosen, then the inputs file is determined by
+  either ``GENERAL_NET_INPUTS`` or ``NETWORK_INPUTS`` (see :ref:`sec:networks:general_null`).
 
-USE_NSE_TABLE
-USE_NET_NET
+* ``OPACITY_DIR`` : the name of the opacity implementation to use, relative
+  to ``Microphysics/opacity/``.
 
-USE_RAD
+* ``SCREEN_METHOD`` : the name of the screening implementation to use.  The choices
+  are listed in :ref:`sec:screening`.
+
+
+The following control the time-integration method used by the reaction
+network integration:
+
+* ``USE_SIMPLIFIED_SDC``
+
+* ``USE_TRUE_SDC``
+
+
+
+
+
+
 
 Targets
 =======
@@ -143,7 +193,3 @@ clean
 runtime parameters
 
 buildInfo
-
-
-Querying the build variables
-============================

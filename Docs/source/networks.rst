@@ -1,3 +1,5 @@
+.. _sec:networks:
+
 ***************************
 Available Reaction Networks
 ***************************
@@ -24,6 +26,8 @@ Microphysics knows the properties of the fluid.
    Many of the networks here are generated using `pynucastro
    <https://pynucastro.github.io/>`_ using the ``AmrexAstroCxxNetwork``
    class.
+
+.. _sec:networks:general_null:
 
 ``general_null``
 ================
