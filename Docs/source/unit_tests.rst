@@ -1,3 +1,5 @@
+.. _sec:unit_tests:
+
 **********************
 Overview of Unit Tests
 **********************
