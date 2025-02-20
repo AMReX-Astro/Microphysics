@@ -78,8 +78,8 @@ The main files are:
   The functions it defines are used when writing the ``job_info`` file
   in the plotfiles that some unit tests produce.
 
-Controling choice of physics
-============================
+Controlling choice of physics
+=============================
 
 The choice of physics to include in an application is done at build time, and is
 controlled by a number of make variables.
