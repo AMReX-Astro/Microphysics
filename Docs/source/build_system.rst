@@ -167,29 +167,55 @@ The following control the choice of implementation for the different physics mod
 The following control the time-integration method used by the reaction
 network integration:
 
-* ``USE_SIMPLIFIED_SDC``
+* ``USE_SIMPLIFIED_SDC`` : enable the simplified-SDC coupling of hydro and reactions.
+  See :ref:`sec:simplified_sdc`.
 
-* ``USE_TRUE_SDC``
+* ``USE_TRUE_SDC`` : enable the true-SDC coupling of hydro and reactions.
+  See :ref:`sec:true_sdc`.
 
+.. note::
 
-
-
-
+   If neither of these are set to ``TRUE``, then Strang-splitting coupling
+   will be used.
 
 
 Targets
 =======
 
-nettables
-table
-nsetable
-build_status
-test_extern_params
-net_prop_debug
+For the unit tests, simply doing
 
-clean
+.. code:: bash
 
+   make
 
-runtime parameters
+in the test directory will build the test.  There are a few other targets defined.  The most important
+is ``clean``.  Doing:
 
-buildInfo
+.. code:: bash
+
+   make clean
+
+will remove all the build temporary files (including the ``tmp_build_dir/``).
+
+.. important::
+
+   If you want to use a different EOS or reaction network (or any other physics), then you
+   should always do ``make clean`` first in the build directory.
+
+Some other targets include:
+
+* ``nettables`` : create the symlinks for any weak reaction rate tables that are part of the
+  network.
+
+* ``table`` : create a symlink for the ``helm_table.dat`` EOS table if the ``helmholtz`` EOS is used.
+
+* ``nsetable`` : create a symlink the NSE table if ``USE_NSE_TABLE=TRUE`` is set.
+
+* ``build_status`` : report the current git versions of Microphysics and AMReX
+
+* ``test_extern_params`` : this will simply parse the runtime parameters and execute the
+  ``write_probin.py`` script that generates the headers and C++ files necessary to use
+  the parameters.  These will be generated under ``tmp_build_dir/microphysics_sources/``.
+
+* ``net_prop_debug`` : this will simply create the ``network_properties.H`` file for the
+  current network and output it into ``tmp_build_dir/microphysics_sources/``.
