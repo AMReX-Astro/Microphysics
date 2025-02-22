@@ -56,17 +56,19 @@ def get_core_library(*,
             core_lib.remove_rate(r)
 
     # C12+Ne20 and reverse
-    # (a,g) links between Na23 and Al27
-    # (a,g) links between Al27 and P31
 
     rates_to_remove = ["p31(p,c12)ne20",
                        "si28(a,c12)ne20",
                        "ne20(c12,p)p31",
-                       "ne20(c12,a)si28",
-                       "na23(a,g)al27",
-                       "al27(g,a)na23",
-                       "al27(a,g)p31",
-                       "p31(g,a)al27"]
+                       "ne20(c12,a)si28"]
+
+    # (a,g) links between Na23 and Al27
+    if "mg25" not in nuclei:
+        rates_to_remove += ["na23(a,g)al27", "al27(g,a)na23"]
+
+    # (a,g) links between Al27 and P31
+    if "si29" not in nuclei:
+        rates_to_remove += ["al27(a,g)p31", "p31(g,a)al27"]
 
     for r in rates_to_remove:
         print("removing: ", r)
