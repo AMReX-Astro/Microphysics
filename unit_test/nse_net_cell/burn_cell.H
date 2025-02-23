@@ -9,8 +9,6 @@
 #include <iostream>
 #include <nse_solver.H>
 
-using namespace unit_test_rp;
-
 AMREX_INLINE
 void burn_cell_c()
 {
@@ -20,21 +18,21 @@ void burn_cell_c()
 
     // // Echo initial conditions at burn and fill burn state input
 
-    state.T = temperature;
-    state.rho = density;
-    state.y_e = ye;
+    state.T = unit_test_rp::temperature;
+    state.rho = unit_test_rp::density;
+    state.y_e = unit_test_rp::ye;
 
     // set initial chemical potential of proton and neutron
 
-    state.mu_p = mu_p;
-    state.mu_n = mu_n;
+    state.mu_p = unit_test_rp::mu_p;
+    state.mu_n = unit_test_rp::mu_n;
 
     // set a reference cell size.
 
     state.dx = 1.0e6_rt;
 
-    std::cout << "chemical potential of proton is " << mu_p << std::endl;
-    std::cout << "chemical potential of neutron is " << mu_n << std::endl;
+    std::cout << "chemical potential of proton is " << unit_test_rp::mu_p << std::endl;
+    std::cout << "chemical potential of neutron is " << unit_test_rp::mu_n << std::endl;
 
     // find the  nse state
     bool ye_is_valid = true;
@@ -98,7 +96,7 @@ void burn_cell_c()
     amrex::Real T_new{eos_state.T};
     amrex::Real abar_new{};
 
-    nse_T_abar_from_e(eos_state.rho, eos_state.e, ye,
+    nse_T_abar_from_e(eos_state.rho, eos_state.e, unit_test_rp::ye,
                       T_new, abar_new,
                       state.mu_p, state.mu_n);
 

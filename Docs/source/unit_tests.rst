@@ -1,3 +1,5 @@
+.. _sec:unit_tests:
+
 **********************
 Overview of Unit Tests
 **********************
@@ -129,6 +131,7 @@ One-zone tests
 * ``burn_cell_sdc`` :
 
   similar to ``burn_cell`` except this uses the SDC integration code paths.
+   See :ref:`sec:burn_cell_sdc` for more information.
 
 * ``eos_cell`` :
 

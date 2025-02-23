@@ -88,7 +88,7 @@ routine (at the moment this can be ``VODE``, ``BackwardEuler``, ``ForwardEuler``
 .. code-block:: c++
 
     AMREX_GPU_HOST_DEVICE AMREX_FORCE_INLINE
-    void burner (burn_t& state, Real dt)
+    void burner (burn_t& state, amrex::Real dt)
 
 The input is a ``burn_t``.
 
@@ -198,7 +198,7 @@ be computed as:
 
 .. code-block:: c++
 
-      Array1D<Real, 1, NumSpec> y;
+      amrex::Array1D<amrex::Real, 1, NumSpec> y;
       ...
       for (int i = 1; i <= NumSpec; ++i) {
           y(i) = state.xn[i-1] * aion_inv[i-1];

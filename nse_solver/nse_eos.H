@@ -102,7 +102,7 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
                   amrex::Real &T, amrex::Real &abar,
                   amrex::Real &mu_p, amrex::Real &mu_n) {
 
-    constexpr Real ttol{1.e-8_rt};
+    constexpr amrex::Real ttol{1.e-8_rt};
     constexpr int max_iter{100};
 
     bool converged{false};
@@ -148,8 +148,8 @@ nse_T_abar_from_e(const amrex::Real rho, const amrex::Real e_in,
 
         // compute the correction to our guess
 
-        Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT
-                                  + Ye * eos_state.dedZ * dabar_dT);
+        amrex::Real dT = -f / (eos_state.dedT + eos_state.dedA * dabar_dT
+                               + Ye * eos_state.dedZ * dabar_dT);
 
         // update the temperature and abar
 
