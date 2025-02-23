@@ -9,14 +9,10 @@ all_nuclei = ["p", "h2", "he3", "he4", "be7", "b8",
 
 nova_library = mylibrary.linking_nuclei(all_nuclei, with_reverse=False)
 
-# pp_chain = ["p", "h2", "he3", "he4", "be7", "b8"]
-# pp_library = mylibrary.linking_nuclei(pp_chain, with_reverse=False)
-
 net = AmrexAstroCxxNetwork(libraries=[nova_library])
 net.write_network()
 
 rc = pyna.RateCollection(libraries=[nova_library])
-# filter = pyna.RateCollection(libraries=[pp_library])
 
 comp = pyna.Composition(rc.get_nuclei())
 comp.set_solar_like()
