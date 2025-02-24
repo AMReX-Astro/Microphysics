@@ -22,7 +22,7 @@ Microphysics knows the properties of the fluid.
 .. note::
 
    Many of the networks here are generated using `pynucastro
-   <https://pynucastro.github.io/>`_ using the ``AmrexAstroCxxNetwork``
+   <https://pynucastro.github.io/>`_ :cite:`pynucastro, pynucastro2` using the ``AmrexAstroCxxNetwork``
    class.
 
 ``general_null``
