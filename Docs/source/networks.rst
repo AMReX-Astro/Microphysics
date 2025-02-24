@@ -22,7 +22,7 @@ Microphysics knows the properties of the fluid.
 .. note::
 
    Many of the networks here are generated using `pynucastro
-   <https://pynucastro.github.io/>`_ using the ``AmrexAstroCxxNetwork``
+   <https://pynucastro.github.io/>`_ :cite:`pynucastro, pynucastro2` using the ``AmrexAstroCxxNetwork``
    class.
 
 ``general_null``
@@ -494,7 +494,7 @@ triple-\ :math:`\alpha`, and rp-breakout burning up through :math:`^{56}\mathrm{
 using the ideas from :cite:`wallacewoosley:1981`, but with modern
 reaction rates from ReacLib :cite:`ReacLib` where available.
 This network was used for the X-ray burst studies in
-:cite:`xrb:II`, :cite:`xrb:III`, and more details are contained in those papers.
+:cite:`xrb:II, xrb:III`, and more details are contained in those papers.
 
 ``triple_alpha_plus_cago``
 ==========================
