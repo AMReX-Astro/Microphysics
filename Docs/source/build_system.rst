@@ -29,7 +29,7 @@ There are two main makefile stubs:
 
 * ``Make.Microphysics_extern`` : this is the core makefile stub for Microphysics
   that interprets the build variables that enable / disable different functionality.
-  This is meant to be including into any application code's build system.
+  This is meant to be included into any application code's build system.
 
 additionally directories have their own ``Make.package`` files that specify
 the files needed for the build and some rules for making intermediary files.
