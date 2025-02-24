@@ -208,7 +208,7 @@ Some other targets include:
 
 * ``table`` : create a symlink for the ``helm_table.dat`` EOS table if the ``helmholtz`` EOS is used.
 
-* ``nsetable`` : create a symlink the NSE table if ``USE_NSE_TABLE=TRUE`` is set.
+* ``nsetable`` : create a symlink for the NSE table if ``USE_NSE_TABLE=TRUE`` is set.
 
 * ``build_status`` : report the current git versions of Microphysics and AMReX
 
