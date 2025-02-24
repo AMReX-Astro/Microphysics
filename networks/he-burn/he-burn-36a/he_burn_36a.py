@@ -1,5 +1,4 @@
 import pynucastro as pyna
-from pynucastro.networks import AmrexAstroCxxNetwork
 
 import he_burn_core
 
@@ -25,6 +24,7 @@ def doit():
 
     print(f"number of nuclei = {len(net.unique_nuclei)}")
     print(f"number of ReacLib rates = {len(net.reaclib_rates)}")
+    print(f"number of derived rates = {len(net.derived_rates)}")
     print(f"number of tabular rates = {len(net.tabular_rates)}")
 
     # let's make a figure
