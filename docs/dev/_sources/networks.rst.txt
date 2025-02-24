@@ -247,6 +247,8 @@ It has the following features / simplifications:
   :math:`\isotm{P}{31}` are removed, since they're not in the
   original aprox13 network.
 
+Overall, there are 18 nuclei and 85 rates.
+
 The network appears as:
 
 .. figure:: ../../networks/he-burn/he-burn-18a/he-burn-18a.png
@@ -284,6 +286,9 @@ p)\isotm{Ne}{21}` rate sequence, which allows an enhancement to the
 :math:`\isotm{C}{12}(p, \gamma)\isotm{N}{13}(\alpha, p)\isotm{O}{16}`
 rate due to the additional proton release.
 
+Overall, there are 22 nuclei and 93 rates.
+
+
 .. figure:: ../../networks/he-burn/he-burn-22a/he-burn-22a.png
    :align: center
 
@@ -305,10 +310,20 @@ to double-neutron capture.  Finally, it splits the protons into two groups,
 with those participating in reactions with mass numbers > 48 treated as a separate
 group (for photo-disintegration reactions).
 
+Overall, there are 31 nuclei and 137 rates, including 6 tabular weak rates.
+
 The iron group here resembles ``aprox21``, but has the addition of stable $\isotm{Ni}{58}$
 and doesn't include the approximation to $\isotm{Cr}{56}$.
 
+The full network appears as:
+
 .. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp.png
+   :align: center
+
+and a zoom-in on the iron group with the weak rates highlighted appears
+as:
+
+.. figure:: ../../networks/he-burn/he-burn-31anp/he-burn-31anp-zoom.png
    :align: center
 
 
@@ -318,9 +333,18 @@ and doesn't include the approximation to $\isotm{Cr}{56}$.
 This has the most complete iron-group, with nuclei up to $\isotm{Zn}{60}$ and no approximations
 to the neutron captures.  This network can be quite slow.
 
+Overall, there are 36 nuclei and 173 rates, including 12 tabular weak rates.
+
+The full network appears as:
+
 .. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a.png
    :align: center
 
+and a zoom in on the iron group with the weak rates highlighted appears
+as:
+
+.. figure:: ../../networks/he-burn/he-burn-36a/he-burn-36a-zoom.png
+   :align: center
 
 
 ``CNO_He_burn``
