@@ -100,8 +100,7 @@ controlled by a number of make variables.
 
 The following control whether certain physics modules are included in
 the build process.  Note: an EOS and network are always required.
-These can be set to ``TRUE`` to enable and ``FALSE`` to disable.
-disable specific features.
+These can be set to ``TRUE`` to enable and ``FALSE`` to disable specific features.
 
 * ``USE_CONDUCTIVITY`` : determines whether a conductivity routine
   should be included in the list of build packages.  If enabled, this
