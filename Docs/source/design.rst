@@ -82,8 +82,7 @@ GPU considerations
 
 All of the Microphysics routines are written to run on GPUs.  This is
 enabled in application codes by using the AMReX lambda-capturing
-mechanism (see the [AMReX GPU
-documentation](https://amrex-codes.github.io/amrex/docs_html/GPU.html)
+mechanism (see the `AMReX GPU documentation <https://amrex-codes.github.io/amrex/docs_html/GPU.html>`_
 for more information).
 
 This means leveraging the AMReX data-structures, macros, and
