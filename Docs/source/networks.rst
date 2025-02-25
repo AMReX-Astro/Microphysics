@@ -145,21 +145,35 @@ burning.  This network is managed by pynucastro.
    above).
 
 
-nova networks
-=============
+The ``nova`` network:
+=====================
 
-The ``nova`` and ``nova2`` networks both are intended for modeling classical novae.
+This networks, composed of 17 nuclei: $\isotm{H}{1,2}$, $\isotm{He}{3,4}$, $\isotm{Be}{7}$, $\isotm{B}{8}$,
+$\isotm{C}{12,13}$, $\isotm{N}{13-15}$, $\isotm{O}{14-17}$, $\isotm{F}{17,18}$  is used to model the onset of
+a classical novae thermonuclear runaway. The first set of nuclei, $\isotm{H}{1,2}$, $\isotm{He}{3,4}$ represent
+the pp-chain sector of the reaction network, while the second set,of nuclei, $\isotm{Be}{7}$, and $\isotm{B}{8}$, describe
+the involvement of the x-process. Finally, all the remaining nuclei, are active participants of
+the CNO cycle with endpoints at $\isotm{F}{17}$ and $\isotm{F}{18}$. The triple-$\alpha$ reaction
+$\alpha(\alpha\alpha,\gamma)\isotm{C}{12}$, serves as bridge between the nuclei of first and the last set.
+
+The the cold-CNO chain of reactions of the CN-branch are:
+
+* :math:`\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}(p,\gamma)`
+
+while the NO-branch chain of reactions is:
+
+* :math:`\isotm{N}{14}(p,\gamma)\isotm{O}{15}(\beta^{+})\isotm{N}{15}(p,\gamma)\isotm{O}{16}(p,\gamma)\isotm{F}{17}(\beta^{+}\nu_e)\isotm{O}{17}`
+
+where the isotopes $\isotm{N}{15}$ and $\isotm{O}{17}$ may decay back into $\isotm{C}{12}$ and $\isotm{N}{14}$ through
+$\isotm{N}{15}(p,\alpha)\isotm{C}{12}$ and $\isotm{O}{17}(p,\alpha)\isotm{N}{14}$ respectively.
+
+.. figure:: nova.png
+   :align: center
 
 
-* ``nova`` focuses just on CNO/hot-CNO:
-
-  .. figure:: nova.png
-     :align: center
-
-* ``nova2`` expands ``nova`` by adding the pp-chain nuclei:
-
-  .. figure:: nova2.png
-     :align: center
+Once the temperature treshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
+$\isotm{N}{13}(p,\gamma)\isotm{O}{14}$ are more likely than the $\beta^{+}$-decays $\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}$
+reactions, this rates are also included in this network.
 
 
 He-burning networks
