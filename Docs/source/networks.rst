@@ -171,7 +171,7 @@ $\isotm{N}{15}(p,\alpha)\isotm{C}{12}$ and $\isotm{O}{17}(p,\alpha)\isotm{N}{14}
    :align: center
 
 
-Once the temperature treshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
+Once the temperature threshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
 $\isotm{N}{13}(p,\gamma)\isotm{O}{14}$ are more likely than the $\beta^{+}$-decays $\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}$
 reactions, this rates are also included in this network.
 
