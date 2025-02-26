@@ -153,10 +153,10 @@ The ``nova`` network:
 =====================
 
 This network is composed of 17 nuclei: $\isotm{H}{1,2}$, $\isotm{He}{3,4}$, $\isotm{Be}{7}$, $\isotm{B}{8}$,
-$\isotm{C}{12,13}$, $\isotm{N}{13-15}$, $\isotm{O}{14-17}$, $\isotm{F}{17,18}$ is used to model the onset of
+$\isotm{C}{12,13}$, $\isotm{N}{13-15}$, $\isotm{O}{14-17}$, $\isotm{F}{17,18}$ and is used to model the onset of
 a classical novae thermonuclear runaway. The first set of nuclei, $\isotm{H}{1,2}$, $\isotm{He}{3,4}$ represent
 the pp-chain sector of the reaction network, while the second set, of $\isotm{Be}{7}$, and $\isotm{B}{8}$, describe
-the involvement of the x-process. Finally, all the remaining nuclei, are active participants of
+the involvement of the x-process. Finally, all the remaining nuclei are active participants of
 the CNO cycle with endpoints at $\isotm{F}{17}$ and $\isotm{F}{18}$. The triple-$\alpha$ reaction
 $\alpha(\alpha\alpha,\gamma)\isotm{C}{12}$, serves as bridge between the nuclei of first and the last set.
 
@@ -174,9 +174,9 @@ $\isotm{N}{15}(p,\alpha)\isotm{C}{12}$ and $\isotm{O}{17}(p,\alpha)\isotm{N}{14}
 .. figure:: ../../networks/nova/nova.png
    :align: center
 
-Once the temperature threshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
-$\isotm{N}{13}(p,\gamma)\isotm{O}{14}$ are more likely than the $\beta^{+}$-decays $\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}$
-reactions, these rates are also included in this network.
+Once the temperature reaches a threshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
+$\isotm{N}{13}(p,\gamma)\isotm{O}{14}$, are more likely than the $\beta^{+}$-decays $\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}$
+reactions. These rates are also included in this network.
 
 
 He-burning networks
