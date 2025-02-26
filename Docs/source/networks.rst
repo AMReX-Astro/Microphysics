@@ -167,7 +167,7 @@ while the NO-branch chain of reactions is:
 where the isotopes $\isotm{N}{15}$ and $\isotm{O}{17}$ may decay back into $\isotm{C}{12}$ and $\isotm{N}{14}$ through
 $\isotm{N}{15}(p,\alpha)\isotm{C}{12}$ and $\isotm{O}{17}(p,\alpha)\isotm{N}{14}$ respectively.
 
-.. figure:: nova.png
+.. figure:: ../../networks/nova/nova.png
    :align: center
 
 Once the temperature threshold of $\gtrsim 10^8\,\mathrm{K}$, the fast $p$-captures, for example,
