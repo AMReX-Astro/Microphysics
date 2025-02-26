@@ -44,6 +44,8 @@ is the reaction source term.
    are supported by the same integrators, and both of these options
    will set the ``SDC`` preprocessor flag.
 
+.. _sec:true_sdc:
+
 "True" SDC
 ----------
 
@@ -85,6 +87,8 @@ This can be cast as an ODE system as:
 .. math::
 
   \frac{d\Uc}{dt} \approx \frac{\Uc^{m+1} - \Uc^m}{\delta t_m} = \Rbs{\Uc} + {\bf C}
+
+.. _sec:simplified_sdc:
 
 Simplified SDC
 --------------

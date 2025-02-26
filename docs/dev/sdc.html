@@ -59,6 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="design.html">Design</a></li>
 <li class="toctree-l1"><a class="reference internal" href="data_structures.html">Data Structures</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_system.html">Build System</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rp_intro.html">Runtime parameters</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">EOS and transport</span></p>
@@ -181,7 +182,7 @@ are supported by the same integrators, and both of these options
 will set the <code class="docutils literal notranslate"><span class="pre">SDC</span></code> preprocessor flag.</p>
 </div>
 <section id="true-sdc">
-<h3>“True” SDC<a class="headerlink" href="#true-sdc" title="Link to this heading"></a></h3>
+<span id="sec-true-sdc"></span><h3>“True” SDC<a class="headerlink" href="#true-sdc" title="Link to this heading"></a></h3>
 <p>The true SDC implementation is described in <span id="id1">[<a class="reference internal" href="zreferences.html#id28" title="M. Zingale, M. P. Katz, J. B. Bell, M. L. Minion, A. J. Nonaka, and W. Zhang. Improved Coupling of Hydrodynamics and Nuclear Reactions via Spectral Deferred Corrections. arXiv e-prints, pages arXiv:1908.03661, Aug 2019. arXiv:1908.03661.">39</a>]</span>.  It divides
 the timestep into temporal nodes and uses low-order approximations to update
 from one temporal node to the next.  Iteration is used to increase the order of accuracy.</p>
@@ -210,7 +211,7 @@ define <span class="math notranslate nohighlight">\({\bf C}\)</span> for conveni
 \[\frac{d\Uc}{dt} \approx \frac{\Uc^{m+1} - \Uc^m}{\delta t_m} = \Rbs{\Uc} + {\bf C}\]</div>
 </section>
 <section id="simplified-sdc">
-<h3>Simplified SDC<a class="headerlink" href="#simplified-sdc" title="Link to this heading"></a></h3>
+<span id="sec-simplified-sdc"></span><h3>Simplified SDC<a class="headerlink" href="#simplified-sdc" title="Link to this heading"></a></h3>
 <p>The Simplified-SDC method uses the ideas of the SDC method above, but instead
 of dividing time into discrete temporary notes, it uses a piecewise-constant-in-time
 approximation to the advection update over the timestep (for instance, computed by the CTU PPM method) and solves the ODE system:</p>

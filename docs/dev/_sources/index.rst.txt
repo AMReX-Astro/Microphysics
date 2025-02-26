@@ -46,6 +46,7 @@ system.
    getting_started
    design
    data_structures
+   build_system
    rp_intro
 
 .. toctree::
