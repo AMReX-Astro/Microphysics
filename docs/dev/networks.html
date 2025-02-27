@@ -75,7 +75,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#general-null"><code class="docutils literal notranslate"><span class="pre">general_null</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#iso7-aprox13-aprox19-and-aprox21"><code class="docutils literal notranslate"><span class="pre">iso7</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox13</span></code>, <code class="docutils literal notranslate"><span class="pre">aprox19</span></code>, and <code class="docutils literal notranslate"><span class="pre">aprox21</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cno-extras"><code class="docutils literal notranslate"><span class="pre">CNO_extras</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nova-networks">nova networks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-nova-network">The <code class="docutils literal notranslate"><span class="pre">nova</span></code> network:</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#he-burning-networks">He-burning networks</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#he-burn-18a"><code class="docutils literal notranslate"><span class="pre">he-burn-18a</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#he-burn-22a"><code class="docutils literal notranslate"><span class="pre">he-burn-22a</span></code></a></li>
@@ -266,21 +266,31 @@ used for X-ray burst simulations (not shown in the network diagram
 above).</p>
 </div>
 </section>
-<section id="nova-networks">
-<h2>nova networks<a class="headerlink" href="#nova-networks" title="Link to this heading"></a></h2>
-<p>The <code class="docutils literal notranslate"><span class="pre">nova</span></code> and <code class="docutils literal notranslate"><span class="pre">nova2</span></code> networks both are intended for modeling classical novae.</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">nova</span></code> focuses just on CNO/hot-CNO:</p>
+<section id="the-nova-network">
+<h2>The <code class="docutils literal notranslate"><span class="pre">nova</span></code> network:<a class="headerlink" href="#the-nova-network" title="Link to this heading"></a></h2>
+<p>This network is composed of 17 nuclei: <span class="math notranslate nohighlight">\(\isotm{H}{1,2}\)</span>, <span class="math notranslate nohighlight">\(\isotm{He}{3,4}\)</span>, <span class="math notranslate nohighlight">\(\isotm{Be}{7}\)</span>, <span class="math notranslate nohighlight">\(\isotm{B}{8}\)</span>,
+<span class="math notranslate nohighlight">\(\isotm{C}{12,13}\)</span>, <span class="math notranslate nohighlight">\(\isotm{N}{13-15}\)</span>, <span class="math notranslate nohighlight">\(\isotm{O}{14-17}\)</span>, <span class="math notranslate nohighlight">\(\isotm{F}{17,18}\)</span> and is used to model the onset of
+a classical novae thermonuclear runaway. The first set of nuclei, <span class="math notranslate nohighlight">\(\isotm{H}{1,2}\)</span>, <span class="math notranslate nohighlight">\(\isotm{He}{3,4}\)</span> represent
+the pp-chain sector of the reaction network, while the second set, of <span class="math notranslate nohighlight">\(\isotm{Be}{7}\)</span>, and <span class="math notranslate nohighlight">\(\isotm{B}{8}\)</span>, describe
+the involvement of the x-process. Finally, all the remaining nuclei are active participants of
+the CNO cycle with endpoints at <span class="math notranslate nohighlight">\(\isotm{F}{17}\)</span> and <span class="math notranslate nohighlight">\(\isotm{F}{18}\)</span>. The triple-<span class="math notranslate nohighlight">\(\alpha\)</span> reaction
+<span class="math notranslate nohighlight">\(\alpha(\alpha\alpha,\gamma)\isotm{C}{12}\)</span>, serves as bridge between the nuclei of first and the last set.</p>
+<p>The the cold-CNO chain of reactions of the CN-branch are:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\isotm{C}{12}(p,\gamma)\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}(p,\gamma)\)</span></p></li>
+</ul>
+<p>while the NO-branch chain of reactions is:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\isotm{N}{14}(p,\gamma)\isotm{O}{15}(\beta^{+})\isotm{N}{15}(p,\gamma)\isotm{O}{16}(p,\gamma)\isotm{F}{17}(\beta^{+}\nu_e)\isotm{O}{17}\)</span></p></li>
+</ul>
+<p>where the isotopes <span class="math notranslate nohighlight">\(\isotm{N}{15}\)</span> and <span class="math notranslate nohighlight">\(\isotm{O}{17}\)</span> may decay back into <span class="math notranslate nohighlight">\(\isotm{C}{12}\)</span> and <span class="math notranslate nohighlight">\(\isotm{N}{14}\)</span> through
+<span class="math notranslate nohighlight">\(\isotm{N}{15}(p,\alpha)\isotm{C}{12}\)</span> and <span class="math notranslate nohighlight">\(\isotm{O}{17}(p,\alpha)\isotm{N}{14}\)</span> respectively.</p>
 <figure class="align-center">
 <img alt="_images/nova.png" src="_images/nova.png" />
 </figure>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">nova2</span></code> expands <code class="docutils literal notranslate"><span class="pre">nova</span></code> by adding the pp-chain nuclei:</p>
-<figure class="align-center">
-<img alt="_images/nova2.png" src="_images/nova2.png" />
-</figure>
-</li>
-</ul>
+<p>Once the temperature reaches a threshold of <span class="math notranslate nohighlight">\(\gtrsim 10^8\,\mathrm{K}\)</span>, the fast <span class="math notranslate nohighlight">\(p\)</span>-captures, for example,
+<span class="math notranslate nohighlight">\(\isotm{N}{13}(p,\gamma)\isotm{O}{14}\)</span>, are more likely than the <span class="math notranslate nohighlight">\(\beta^{+}\)</span>-decays <span class="math notranslate nohighlight">\(\isotm{N}{13}(\beta^{+}\nu_e)\isotm{C}{13}\)</span>
+reactions. These rates are also included in this network.</p>
 </section>
 <section id="he-burning-networks">
 <h2>He-burning networks<a class="headerlink" href="#he-burning-networks" title="Link to this heading"></a></h2>
