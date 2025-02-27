@@ -1,3 +1,7 @@
+# The nova network contains the pp-chain, some
+# nuclei from the x-process, like Be and B, and
+# the CNO cycle, allowing a leakage throguh f18.
+
 hydrogen-1                H1        1.0    1.0
 hydrogen-2                H2        2.0    1.0
 helium-3                  He3       3.0    2.0
